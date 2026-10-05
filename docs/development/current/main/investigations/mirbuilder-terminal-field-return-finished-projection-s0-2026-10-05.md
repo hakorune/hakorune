@@ -1,6 +1,6 @@
 # Terminal field return finished projection S0
 
-Status: Validated / scoped closeout
+Status: Landed / bounded slice complete
 Execution row: MIRBUILDER-TERMINAL-FIELD-RETURN-FINISHED-PROJECTION-S0
 Scope: preserve the existing source-issued I64Field return through canonical CFG
 finishing, using the same captured PhysicalBoundary/FinishedBindings projection.
@@ -101,13 +101,13 @@ formal lifecycle admission. This is test setup failure, not guard-swap evidence.
 Corrected the test to use existing admit_lifecycle with the original borrowed
 profile/handoff, including an unchanged reconstructed healthy control.
 Six finishing mutations now PASS (`/tmp/hako-field-return-projection-S0-six-negative.log`).
-Cargo90507 now tests `field_return`; log
+Cargo90507 then tested `field_return`; log
 `/tmp/hako-field-return-projection-S0-admitted-focused.log`.
-Do not edit compiled Rust or start another Cargo while this handle is live.
+This handle is terminal0; no Cargo remains live.
 Selected scope guard reaches the HEAD-identical root1351 debt (whole guard red).
-Scoped commit/push remains pending; acceptance below is complete.
+Scoped commit/push is complete; acceptance below is recorded.
 Pre-edit selected mixed files captured in `/tmp/hako-field-return-projection-S0-before/`;
-prior C/Array/S2 differences remain protected. No implementation commit yet.
+prior C/Array/S2 differences remain protected. No implementation commit existed at that checkpoint.
 
 ## Closeout evidence
 
@@ -141,3 +141,7 @@ HEAD/index; older C/Array/S2 WIP is excluded. App stops earlier at unowned
 lifecycle site, so this repair does not change its observed frontier; fresh CLI
 build is not claimed here. Full finite pipeline, later result/Provided and
 pending C/Array/S2 landing remain open.
+
+Scoped code/tests/owner-contract closeout landed/pushed `a47039d3fe`; remote hash
+verified equal. Next required borrowed I64 call-result source D0 is selected in
+CURRENT_STATE; stored-child receiver prerequisite remains separate. Goal active.
