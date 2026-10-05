@@ -385,9 +385,21 @@ lane), the borrowed-formal result pending fold
 local-bound `return` source), and the test-only observation accessors. A
 vetoed field keeps manifest `Dynamic` coverage; an armed borrowed
 `return <get-result>` of an unproven source still fails `source-not-i64`.
-Index admission accepts only what the existing `integer_source` proof
-already credits — formal-field reads such as `handle.block_id` remain a
-sibling row.
+Index admission accepts what the `integer_source` proof credits plus one
+formal leaf: `formal.<field>` counts as an integer source only when the
+object binding is an exact callable `Parameter` (non-`me`, non-local, no
+alias chains) and `field` names exactly one non-weak numeric-integer
+declaration across the package's ordinary-box coverage —
+`coverage_unique_i64_field` is the sole consult for that census, and the
+opaque formal's class is never inferred. Ambiguous names (`page_id`
+declared on two boxes), weak or non-integer declarations, and alias
+receivers all keep `false`. The same leaf arms `set`/`push` write values
+inside the census fixpoint and the `get` argument's neutrality check.
+The borrowed-result capture in `ordinary_new_borrowed_formal_result_pending`
+deliberately does not credit this leaf yet: sealing `return <formal-indexed
+get>` grounds the callee and forces `me.<name>` receiver call coverage,
+which stays a sibling row — until then those returns fail `source-not-i64`
+exactly as an unproven `Dynamic` get does.
 
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.

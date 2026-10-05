@@ -32,8 +32,9 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
@@ -605,7 +606,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             terminal_home::receiver_array_i64_field(
                                 instance_constructors, receiver_proof, site, home, name, proven,
                             ).map(|field| field.is_some())
-                        }, &mut local_field_read, &mut |site, actuals| {
+                        }, &mut source_claims::formal_i64_index_consult_v1(
+                            input, instance_constructors, batch.ordinary_box_coverage(),
+                        ), &mut local_field_read, &mut |site, actuals| {
                             borrowed_call_arguments_callback_v1(
                                 &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
                                 &borrowed_formal_source, &mut borrowed_formal_actuals, &borrowed_i64_results,

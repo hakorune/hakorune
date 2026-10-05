@@ -91,3 +91,83 @@ or `Callee::Method` publication route; no condition-position or
 nested-receiver admission; production caller switch, selected legacy
 retirement, unchanged-app frontier and the finite product goal remain
 owed. Parked lanes unchanged; protected sibling WIP intact.
+
+## Formal-field index integrated Decision / 2026-10-06
+
+Design-stop audit for `field-array-get/formal-index-decision` (read-only,
+same-thread; no worker needed — all uncertainty resolved against sealed
+source). App inventory: every `handle` formal in `release`/`isLiveHandle`/
+`resizeInPlace` is untyped (`OpaqueHandle`); `handle.block_id` reads are all
+dominated by `if handle == null` guards (admitted `FieldReadOperand` draft
+shape already — liveness is that lane's product, not this arm's). The only
+index leaf missing from `integer_source_at` is a formal field read:
+`handle` carries no declared type and its actuals are Dynamic
+(`handles.get(0)`), so neither parameter contracts nor call-site provenance
+can prove the class. Within the package's ordinary-box coverage `block_id`
+is declared exactly once, non-weak `i64`, on `HakoAllocHandle`;
+`HakoAllocFastPathHandle.block_id` lives in a different module outside the
+coverage. `handle.page_id`/`requested_size` are ambiguous or write-only
+and stay unproven — their sites are conditions/foreign stores already
+owned elsewhere.
+
+Decision: admit `formal.<field>` as an integer source when the formal
+binding is a package parameter (non-`me`, non-local) and `field` resolves
+to exactly one non-weak `i64` declaration across
+`ParserOrdinaryBoxSourceCoverageV1::rows()` via the existing
+`source_declared_field` lookup — issued as one new leaf inside
+`integer_source_at` shared by the census write-value check, the prefix
+get-index arm and `capture_field_array_get`. Execution row
+MIRBUILDER-FIELD-ARRAY-GET-I64-FORMAL-INDEX-S0.
+
+Source authority + canonical issuer: sealed `FieldAccess` object binding
+(`ResolvedLexicalRefV1::Local` parameter kind), the ordinary-box coverage
+row set, and constructor-batch field declarations; canonical issuer
+`integer_source_at` in `array_i64_fields.rs` with the coverage lookup
+carried on the existing co-seal closure channel.
+
+Non-authority: declared parameter types (absent), call-site actual
+classes (Dynamic for `handles.get(0)`), null-guard narrowing (liveness,
+not class), MIR/layout tags, typed-formal `DeclaredObject` proofs.
+
+Fail-fast boundary: zero or ambiguous declarations, weak or non-i64
+declared type, unknown type name, local/alias receivers, and `me`-rooted
+objects all keep the existing `false` — `source-not-i64` for armed
+borrowed returns, manifest `Dynamic` elsewhere.
+
+Smallest next slice: the single leaf plus focused pins — `get`/`set`
+index positions and `set`/`push` value positions in the census fixpoint
+(`free_stack.set(me.free_top, handle.block_id)`), ambiguous `page_id`
+staying unproven, and the unchanged app frontier observation.
+
+Non-claims: `handle.page_id` ambiguity resolution, formal field stores
+(`handle.requested_size = x`), typed-parameter class proofs, alias-chain
+receivers (`local h = handle; h.block_id`), condition-position admission,
+the physical read owner, app EXE acceptance, production switch and the
+finite goal.
+
+## FORMAL-INDEX-S0 landing / 2026-10-06
+
+Shipped boundary differs from the integrated Decision in one place:
+`capture_field_array_get` does not credit the formal leaf. Arming it
+sealed `return me.block_used.get(handle.block_id)` inside
+`HakoAllocPageModel.isLiveHandle`, which grounded the callee and forced
+incoming coverage for `me.small_page.isLiveHandle(handle)`; `me.<name>`
+receiver calls are outside the lexical need inventory, so the real app
+package froze on `borrowed-formal/incoming-coverage` then
+`stored-child/result-source-missing`. That receiver-call coverage is its
+own bounded row (needs → targets → argument edges), so this slice keeps
+the leaf for exactly the census write-value check, the prefix get-index
+arm and the argument-neutrality gate, and pins the capture decline as
+`source-not-i64` — identical to the pre-leaf Dynamic-get boundary.
+
+Landed evidence: `cargo test --lib -- array_i64` 27/27 green (positive
+formal index, `set`/`push` write value, ambiguous/non-integer/local-alias
+declines, unarmed borrowed-return pin, and the pre-leaf publication
+rows); `page_heap_fixture` 4/4 green — matching the `c887c073d9` baseline
+which fails identically only on `map_value_get_*` Unknown contract debt;
+`ordinary_new_coseal_issue.rs` 796 / `_source.rs` 785 lines stay inside
+the 800 hard stop via the shared `formal_i64_index_consult_v1` factory.
+
+Next owed: `me.<name>` receiver call coverage (sibling row — enables
+arming the leaf in the borrowed-result capture), then physical read
+owner, production switch, legacy retirement.

@@ -464,6 +464,37 @@ pub(super) fn dominated_view_use_consult_v1<'a>(
     }
 }
 
+/// `formal.<field>` index consult shared by the verified walk and the
+/// source probe: `true` only when the receiver's resolved binding is an
+/// exact `Parameter` of this callable and the field name satisfies the
+/// package's unique non-weak integer declaration census — the opaque
+/// formal's class is never consulted.
+pub(super) fn formal_i64_index_consult_v1<'a>(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+    instance_constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &'a crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+) -> impl FnMut(
+    &OwnedExprSiteV1,
+    &SourceExprSiteV1,
+    BindingRefV1,
+    BindingRefV1,
+    &str,
+) -> Result<bool, OrdinaryNewCoSealIssueV1>
+       + 'a {
+    move |site, _, _, binding, name| {
+        let Ok(ledger) = input.forest().callable_source_ledger(site.owner()) else {
+            return Ok(false);
+        };
+        Ok(array_i64_fields::formal_i64_index_field(
+            &ledger,
+            instance_constructors,
+            coverage,
+            binding,
+            name,
+        ))
+    }
+}
+
 /// Run the source-only readiness/actual probe with the verified walk's same
 /// source predicates. Readiness and Completion selection remain in the issuer.
 pub(super) fn probe_source_home_prefixes_v1(
@@ -631,6 +662,13 @@ pub(super) fn probe_source_home_prefixes_v1(
             )
             .map(|field| field.is_some())
         },
+        // The probe shares the verified lane's `formal.<field>` index
+        // proof — same consult factory, same sealed authority.
+        &mut formal_i64_index_consult_v1(
+            input,
+            instance_constructors,
+            batch.ordinary_box_coverage(),
+        ),
         // The probe shares the verified lane's local
         // field-read membership — no staging here; the
         // verified walk owns the ledger rows.

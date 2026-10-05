@@ -50,6 +50,16 @@ fn proven_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's `formal.<field>` index proof: the scanner supplies the
+    // exact site, receiver site, and the receiver's resolved parameter
+    // binding; the predicate alone decides the unique-declaration proof.
+    formal_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -100,6 +110,7 @@ fn proven_field_call<E>(
             locals,
             homes,
             scalar_field,
+            formal_i64_field,
             view_use,
         )? {
             return Ok(None);
@@ -108,10 +119,11 @@ fn proven_field_call<E>(
     // `get/1` upgrades the manifest `Dynamic` result to i64 only when the
     // issuer's whole-Box census sealed this field's element stores as
     // integer and the index observes an Integer leaf — an Integer literal
-    // or Integer-class binding, or a proven `me.<numeric field>` read, the
-    // same leaves the `integer_source` contract credits. Anything else
-    // keeps the manifest result — the call stays covered, the value stays
-    // dynamic.
+    // or Integer-class binding, a proven `me.<numeric field>` read, or a
+    // `formal.<field>` read whose parameter binding and unique integer
+    // declaration the issuer proves, the same leaves the
+    // `integer_source` contract credits. Anything else keeps the manifest
+    // result — the call stays covered, the value stays dynamic.
     let mut index_i64 = |ordinal: usize| -> Result<bool, E> {
         let site = call.arguments()[ordinal].site();
         if matches!(
@@ -129,14 +141,30 @@ fn proven_field_call<E>(
         else {
             return Ok(false);
         };
-        let Some(home) = field_write::self_rooted_me(shape, object, locals) else {
+        if let Some(home) = field_write::self_rooted_me(shape, object, locals) {
+            return scalar_field(
+                &OwnedExprSiteV1::new(input.owner(), site.clone()),
+                object,
+                home,
+                home,
+                field,
+            );
+        }
+        // `formal.<field>`: the object resolves to a lexical binding the
+        // issuer may prove a parameter — the predicate owns both the
+        // binding-kind check and the unique-declaration proof.
+        let Some(BodyExpressionShapeV1::Variable {
+            resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+            ..
+        }) = shape.expression_shape(object)
+        else {
             return Ok(false);
         };
-        scalar_field(
+        formal_i64_field(
             &OwnedExprSiteV1::new(input.owner(), site.clone()),
             object,
-            home,
-            home,
+            *binding,
+            *binding,
             field,
         )
     };
@@ -173,6 +201,13 @@ fn argument_subtree_neutral<E>(
     locals: &PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
     scalar_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    formal_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
         BindingRefV1,
@@ -236,14 +271,33 @@ fn argument_subtree_neutral<E>(
                 object,
                 field,
             } => {
-                let Some(home) = field_write::self_rooted_me(shape, object, locals) else {
+                if let Some(home) = field_write::self_rooted_me(shape, object, locals) {
+                    if !scalar_field(
+                        &OwnedExprSiteV1::new(input.owner(), site.clone()),
+                        object,
+                        home,
+                        home,
+                        field,
+                    )? {
+                        return Ok(false);
+                    }
+                    continue;
+                }
+                // `formal.<field>` reads are neutral only when the issuer
+                // proves the parameter binding and the unique integer
+                // declaration — a proven-i64 read yields a scalar.
+                let Some(BodyExpressionShapeV1::Variable {
+                    resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
+                    ..
+                }) = shape.expression_shape(object)
+                else {
                     return Ok(false);
                 };
-                if !scalar_field(
+                if !formal_i64_field(
                     &OwnedExprSiteV1::new(input.owner(), site.clone()),
                     object,
-                    home,
-                    home,
+                    *binding,
+                    *binding,
                     field,
                 )? {
                     return Ok(false);
@@ -292,6 +346,13 @@ pub(super) fn observe_statement_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    formal_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -313,6 +374,7 @@ pub(super) fn observe_statement_field_call<E>(
             homes,
             container_field,
             array_i64_field,
+            formal_i64_field,
             scalar_field,
             view_use,
         )?,
@@ -342,6 +404,13 @@ pub(super) fn observe_local_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    formal_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -358,6 +427,7 @@ pub(super) fn observe_local_field_call<E>(
         homes,
         container_field,
         array_i64_field,
+        formal_i64_field,
         scalar_field,
         view_use,
     )?

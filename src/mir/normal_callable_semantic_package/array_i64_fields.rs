@@ -278,11 +278,73 @@ fn census_method(
 
 const INTEGER_SOURCE_DEPTH: u32 = 8;
 
+/// `formal.<field>` leaf authority: `field` names exactly one non-weak
+/// numeric-integer declaration across the package's ordinary-box coverage.
+/// An opaque parameter binding carries no class of its own — the read's
+/// declared type is proven by name alone: every `block_id`-style field
+/// visible to this package is `i64`. Two box sources declaring the same
+/// field name — even both integer — decline, as does a weak or
+/// non-integer declaration.
+pub(crate) fn coverage_unique_i64_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    field: &str,
+) -> bool {
+    let mut found = false;
+    for row in coverage.rows() {
+        let declared = constructors
+            .with_source_object_definition(row, |_, definition| {
+                let mut hit = None;
+                for declaration in definition.fields() {
+                    if declaration.name == field && !declaration.is_weak {
+                        if hit.is_some() {
+                            return Some(None);
+                        }
+                        hit = Some(declaration.declared_type_name.clone());
+                    }
+                }
+                Some(hit.flatten())
+            })
+            .ok()
+            .flatten()
+            .flatten();
+        if !declared.is_some_and(|name| {
+            crate::mir::numeric_substrate::is_numeric_integer_type_name(&name)
+        }) {
+            continue;
+        }
+        if found {
+            return false;
+        }
+        found = true;
+    }
+    found
+}
+
+/// The full `formal.<field>` index proof the issuer's field-call arm
+/// consults: `binding` must be an exact `Parameter` of the owning
+/// callable — a receiver, local, or alias keeps the existing leaves —
+/// and `field` must satisfy `coverage_unique_i64_field`.
+pub(crate) fn formal_i64_index_field(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    binding: BindingRefV1,
+    field: &str,
+) -> bool {
+    ledger
+        .binding(binding)
+        .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
+        && coverage_unique_i64_field(constructors, coverage, field)
+}
+
 /// Integer-source proof for one write value argument, mirroring the named
-/// Array `integer_source` contract and adding two Box-census leaves: a
-/// `me.<numeric field>` read on the same declaration, and a `get` on a
-/// field inside the current proven set (its elements are already i64 by
-/// the fixpoint rule).
+/// Array `integer_source` contract and adding three Box-census leaves: a
+/// `me.<numeric field>` read on the same declaration, a `get` on a field
+/// inside the current proven set (its elements are already i64 by the
+/// fixpoint rule), and a `formal.<field>` read whose object is an exact
+/// parameter binding — the caller's `formal_i64_field` predicate owns the
+/// unique-declaration proof for that name.
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn integer_source_at(
     ledger: &CallableSemanticSourceLedgerView<'_>,
@@ -290,6 +352,7 @@ pub(crate) fn integer_source_at(
     numeric_fields: &BTreeSet<Box<str>>,
     proven: &BTreeSet<Box<str>>,
     get_calls: &BTreeMap<SourceExprSiteV1, Box<str>>,
+    formal_i64_field: &dyn Fn(&str) -> bool,
     site: &SourceExprSiteV1,
     visited: &mut BTreeSet<BindingRefV1>,
     depth: u32,
@@ -309,7 +372,24 @@ pub(crate) fn integer_source_at(
     if let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
         shape.expression_shape(site)
     {
-        return is_self_receiver(ledger, shape, object) && numeric_fields.contains(field.as_ref());
+        if is_self_receiver(ledger, shape, object) && numeric_fields.contains(field.as_ref()) {
+            return true;
+        }
+        // `formal.<field>`: the object must resolve to an exact parameter
+        // binding of this callable — a local alias or `me`-rooted receiver
+        // keeps the existing leaves — and the caller's predicate alone
+        // decides the unique-declaration proof.
+        let Some(BodyExpressionShapeV1::Variable {
+            resolved: ResolvedLexicalRefV1::Local(binding),
+            ..
+        }) = shape.expression_shape(object)
+        else {
+            return false;
+        };
+        return ledger
+            .binding(*binding)
+            .is_some_and(|row| matches!(row.kind(), BindingKindV1::Parameter { .. }))
+            && formal_i64_field(field);
     }
     if let Some(source) = ledger.unary_source(site) {
         return source.operator() == ResolvedUnaryOperatorV1::Minus
@@ -319,6 +399,7 @@ pub(crate) fn integer_source_at(
                 numeric_fields,
                 proven,
                 get_calls,
+                formal_i64_field,
                 source.operand(),
                 visited,
                 depth + 1,
@@ -346,6 +427,7 @@ pub(crate) fn integer_source_at(
             numeric_fields,
             proven,
             get_calls,
+            formal_i64_field,
             source.lhs(),
             visited,
             depth + 1,
@@ -355,6 +437,7 @@ pub(crate) fn integer_source_at(
             numeric_fields,
             proven,
             get_calls,
+            formal_i64_field,
             source.rhs(),
             visited,
             depth + 1,
@@ -384,6 +467,7 @@ pub(crate) fn integer_source_at(
         numeric_fields,
         proven,
         get_calls,
+        formal_i64_field,
         initializer_site,
         visited,
         depth + 1,
@@ -406,6 +490,7 @@ pub(crate) fn integer_source_at(
                 numeric_fields,
                 proven,
                 get_calls,
+                formal_i64_field,
                 source.value_site(),
                 visited,
                 depth + 1,
@@ -530,6 +615,9 @@ pub(crate) fn issue_array_i64_fields_v1(
     }
     // Integer-write fixpoint: a field stays proven while every write value
     // is integer-source with `get` results on proven fields credited.
+    let coverage = batch.ordinary_box_coverage();
+    let formal_i64_field =
+        |field: &str| coverage_unique_i64_field(constructors, coverage, field);
     loop {
         let mut shrink = BTreeSet::new();
         'fields: for field in proven.iter().cloned().collect::<Vec<_>>() {
@@ -545,6 +633,7 @@ pub(crate) fn issue_array_i64_fields_v1(
                         &numeric_fields,
                         &proven,
                         &method_gets,
+                        &formal_i64_field,
                         arg,
                         &mut visited,
                         0,

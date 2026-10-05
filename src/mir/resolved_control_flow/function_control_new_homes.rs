@@ -54,6 +54,8 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane.
         &mut |_, _, _, _, _| Ok(false),
+        // The `formal.<field>` index proof stays unavailable on this lane.
+        &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         &mut |_| Ok(false),
@@ -150,6 +152,16 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         crate::mir::resolved_semantics::BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's `formal.<field>` index proof — the scanner supplies
+    // the exact read site and the receiver's resolved parameter binding;
+    // the predicate alone decides the unique-declaration proof.
+    formal_i64_field: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         bool,
@@ -228,6 +240,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             scalar_field,
             container_field,
             array_i64_field,
+            formal_i64_field,
             local_field_read,
             borrowed_actuals,
             view_use,

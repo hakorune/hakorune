@@ -95,6 +95,16 @@ pub(super) fn scan_statement_flow<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The issuer's `formal.<field>` index proof — the scanner supplies
+    // the exact read site and the receiver's resolved parameter binding;
+    // the predicate alone decides the unique-declaration proof.
+    formal_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     // The issuer's local-initializer `receiver.field` read membership —
     // the scanner supplies the exact read site, receiver site, receiver
     // binding, movable root, and any field-read alias class; the
@@ -205,6 +215,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 scalar_field,
                 container_field,
                 array_i64_field,
+                formal_i64_field,
                 local_field_read,
                 borrowed_actuals,
                 view_use,
@@ -257,6 +268,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 container_field,
                 array_i64_field,
+                formal_i64_field,
                 scalar_field,
                 view_use,
             )? {
@@ -651,6 +663,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 homes,
                 container_field,
                 array_i64_field,
+                formal_i64_field,
                 scalar_field,
                 view_use,
             )? {

@@ -455,3 +455,158 @@ fn array_i64_condition_compare_keeps_existing_boundary() {
         "a condition-position get rides the existing un-gated if walk"
     );
 }
+
+/// Issue a borrowed-formal `probe(h)` fixture inside a package that also
+/// declares `box Handle` — the `formal.<field>` index leaf resolves
+/// `h.<field>` against the package's unique non-weak integer field
+/// declarations (`block_id` only on `Handle`; `label` is its non-integer
+/// sibling for the negative pin).
+fn issue_borrowed_formal_index(
+    body: &str,
+    tail: &str,
+) -> Result<
+    crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+    crate::mir::normal_callable_semantic_package::NormalCallableSemanticPackageIssueV1,
+> {
+    issue_with_brand_catalog(&format!(
+        "box Handle {{ block_id: i64 = 0 label: ArrayBox = new ArrayBox() }}
+        box Page {{ block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() {{ }}
+        probe(h) {{
+            if h == null {{ return 0 }}
+            {body}
+            local item = new Page()
+            {tail}
+        }}
+        take(a) {{ }}
+        }}
+        static box Main {{ main() {{
+            local a = new Page()
+            local out = a.probe(null)
+            return 0
+        }} }}"
+    ))
+}
+
+/// The `formal.<field>` index arm: `h.block_id` is a parameter-binding
+/// field read whose name resolves to exactly one non-weak `i64`
+/// declaration across the package's ordinary-box coverage — it is a
+/// neutral argument, so the get call stays covered. This is the
+/// `isLiveHandle` shape: an opaque formal has no class authority, so the
+/// unique-declaration census proves the read's type.
+#[test]
+fn array_i64_get_admits_formal_field_index() {
+    let package = issue_borrowed_formal_index(
+        "me.block_used.set(0, 7)",
+        "local x = me.block_used.get(h.block_id) return 0",
+    )
+    .unwrap_or_else(|error| panic!("formal index issues: {error:?}"));
+    assert!(
+        borrowed_result(&package).is_ok(),
+        "a literal `return 0` still seals beside the formal-field index"
+    );
+}
+
+/// A borrowed `return` of the formal-indexed get keeps the pre-leaf
+/// boundary: the borrowed-result capture does not credit the
+/// `formal.<field>` leaf — arming it would ground the callee and force
+/// `me.<name>` receiver call coverage that does not exist yet — so the
+/// i64 proof names `source-not-i64` fail-closed, same as an unproven
+/// Dynamic get.
+#[test]
+fn array_i64_formal_field_index_borrowed_return_stays_unarmed() {
+    for tail in [
+        "local x = me.block_used.get(h.block_id) return x",
+        "return me.block_used.get(h.block_id)",
+    ] {
+        let error = issue_borrowed_formal_index("me.block_used.set(0, 7)", tail)
+            .expect_err("formal-index borrowed return must stay unarmed");
+        assert!(
+            format!("{error:?}").contains("source-not-i64"),
+            "`{tail}`: {error:?}"
+        );
+    }
+}
+
+/// The same leaf feeds `set`/`push` write values: `h.block_id` is an
+/// integer source for the whole-Box census, so the field stays proven
+/// and the get result upgrades.
+#[test]
+fn array_i64_set_value_admits_formal_field_index() {
+    let package = issue_borrowed_formal_index(
+        "me.block_used.set(h.block_id, 7)",
+        "local x = me.block_used.get(0) return x",
+    )
+    .expect("formal-field write value issues");
+    assert!(
+        borrowed_result(&package).is_ok(),
+        "a proven formal-field write keeps the i64 result"
+    );
+}
+
+/// The same name declared on two box sources declines: the opaque
+/// formal's class is never consulted, so an ambiguous `h.block_id` is
+/// not a proven integer source — the argument is no longer neutral and
+/// the call keeps `PrefixNotCovered`.
+#[test]
+fn array_i64_formal_field_index_ambiguous_name_declined() {
+    let error = issue_with_brand_catalog(
+        "box Handle { block_id: i64 = 0 }
+        box Other { block_id: i64 = 0 }
+        box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() { }
+        probe(h) {
+            if h == null { return 0 }
+            me.block_used.set(0, 7)
+            local x = me.block_used.get(h.block_id)
+            local item = new Page()
+            return x
+        }
+        take(a) { }
+        }
+        static box Main { main() {
+            local a = new Page()
+            local out = a.probe(null)
+            return 0
+        } }",
+    )
+    .expect_err("an ambiguous formal field name must not index the get");
+    let text = format!("{error:?}");
+    assert!(
+        text.contains("PrefixNotCovered") || text.contains("source-not-i64"),
+        "{text}"
+    );
+}
+
+/// A unique but non-integer formal field declines the same way —
+/// `h.label` is `ArrayBox` on `Handle`, never an integer source.
+#[test]
+fn array_i64_formal_field_index_non_integer_declined() {
+    let error = issue_borrowed_formal_index(
+        "me.block_used.set(0, 7)",
+        "local x = me.block_used.get(h.label) return x",
+    )
+    .expect_err("a non-integer formal field must not index the get");
+    let text = format!("{error:?}");
+    assert!(
+        text.contains("PrefixNotCovered") || text.contains("source-not-i64"),
+        "{text}"
+    );
+}
+
+/// A local alias of the formal is not a parameter binding: `local h2 =
+/// h; h2.block_id` keeps the call uncovered — the leaf admits the exact
+/// formal only, aliases stay outside this arm.
+#[test]
+fn array_i64_formal_field_index_local_alias_declined() {
+    let error = issue_borrowed_formal_index(
+        "me.block_used.set(0, 7)",
+        "local h2 = h local x = me.block_used.get(h2.block_id) return x",
+    )
+    .expect_err("a local alias must not reach the formal-field leaf");
+    let text = format!("{error:?}");
+    assert!(
+        text.contains("PrefixNotCovered") || text.contains("source-not-i64"),
+        "{text}"
+    );
+}
