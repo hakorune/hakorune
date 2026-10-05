@@ -15,6 +15,8 @@ static int lv4_birth_owned(const hako_lv4_input* in, yyjson_val* op, int object)
   return 0;
 }
 
+/* "Reserved" names any metadata-declared owned slot — array or object —
+ * in any caller role; Birth commit/discharge is a separate gate. */
 static int lv4_birth_reserved(const hako_lv4_input* in, yyjson_val* op) {
   yyjson_val* layout = lv4_layout(in, lv4_u(op, "object_id"));
   for (int object = 0; object <= 1; object++) {

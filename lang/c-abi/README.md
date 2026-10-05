@@ -529,6 +529,29 @@ callee prologue checks tag/null shape and `nyash.object.type_id_h` against the
 layout's runtime type ID before body effects. Object ordinals are not runtime
 type IDs. This check creates no retain, release or ownership authority.
 
+### Borrowed stored-child ordinary receiver index
+
+The physical V4 index lends a child HANDLE/class for an `ordinary_i64` field
+read only from the published `owned_object_residences` tuple and the original
+borrowed receiver (or its exact Copy root). The parent class, ordinal and known
+child layout must agree; child object ID zero is valid. Existing sibling
+store/release rows must corroborate the same child. This does not allocate a
+lease or permit argument handoff, returned ownership or borrowed release.
+Birth store/Fault-discharge markers remain independently checked. Source-issued
+JSON must carry the constructor's prior-field Fault cleanup; metadata cannot
+repair a missing cleanup edge. Focused acceptance is
+`tests/published_lifecycle_v4_stored_child_receiver_test.py <capture-directory>`.
+
+The indexed store path enforces the same reservation on the write side. A
+scalar `field_set` or `object_field_set` never lands in a metadata-reserved
+slot: an `owned_residences` (array) slot accepts only the exact `array_new`
+lease for its declared tuple, and an `owned_object_residences` slot accepts
+only the canonical child — class, slot, object identity plus borrowed
+typed-live provenance from the original receiver or its exact Copy root.
+Rejects carry the stable `published-lifecycle-v4/unsupported-cohort`
+diagnostic. This grants no new scalar or foreign-object write; an
+unattributed store still fails at the pre-existing residence checks.
+
 ### Birth committed owned-slot consumer
 
 The indexed consumer borrows source-issued `owned_residences` and

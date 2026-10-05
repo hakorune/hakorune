@@ -1,6 +1,6 @@
 # Stored-child borrowed call receiver D0
 
-Status: Birth cleanup landed / committed-owned-slot C verified / ordinary receiver selected
+Status: ordinary receiver verified closeout / isolated hunks landed
 Execution row: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
@@ -759,34 +759,15 @@ claim. Full Decision/evidence in commit and metadata-*.log under
 
 ## Source receiver/profile S0 verified closeout
 
-Provider e0355851e6 and metadata e00407c579 landed/pushed. Sole source candidate
-/tmp/hako-stored-child-S0-final-checkout = e00407c579 + saved36-path source patch,
-without C/Array/S2 WIP. Cargo28548 terminal0: source JSON96 witness and exact
-receiver identity/final-recorded read corruption3 PASS. Sequential1426: stored22,
-source14/page_heap4/call_result35/resolved349/physical_boundary11/compiled-entry4/
-metadata2 PASS; package615/exact known3 only, same boundaries confirmed. Initial
-result_pending_tests filter matched0 and is NOT evidence; corrected exact
-borrowed_formal_result::pending::tests executes4 PASS, all included in package.
-Logs /tmp/hako-stored-child-S0-stage/final-isolated-*.log. Scope guard reaches
-only unchanged root1351; pointer/whitespace PASS. All36 staged source files
-byte-match the tested isolated candidate. No changed-row red remains.
-
-Production result Pending/profile uses one original draft collection, conditional
-class proposals are monotone/singleton only, promotion borrows sealed inventory
-and SourceSealed gates projection/completion/terminal consumers. Selected weak
-receiver and foreign ingress errors remain exact; conflicts do not promote.
-The late AST classifiers are deleted; prepare_borrowed_formal_ingress_v1 and
-reexport are cfg(test) only for2 corruption tests, production caller-zero.
-Selected field-read final validator arm retained, Unit arm and all other WIP
-excluded. Source meaning closes, not C runtime/Array.get/unchanged-app/goal.
-
-Next selected C receiver D0: integrate original tuple -> ordinary_i64 receiver
-Copy-root -> borrowed child class/origin mapping against actual protected shim
-code. No ordinary_nullable_handle ownership extension or new source registry.
-Read-only worker first verifies current helper signatures, role/root gates and
-Normal/Fault + malformed tuple/class/borrowed release acceptance; resolve one
-Decision internally, then select bounded implementation. Source fixture JSON96
-remains mandatory. C design stop is temporary selection, not goal pause/blocked.
+Provider e0355851e6 and metadata e00407c579 landed/pushed; 36 staged source
+files byte-match isolated candidate (Cargo28548 source JSON96 + corruption3
+PASS; sequential1426 and package615/exact-known3 only, unchanged root1351).
+Production result Pending/profile uses one original draft collection;
+promotion borrows sealed inventory, SourceSealed gates consumers; late AST
+classifiers deleted, ingress helpers are cfg(test) only, caller-zero. Source
+meaning closed; C runtime/Array.get/unchanged-app/goal stayed owed. Logs in
+/tmp/hako-stored-child-S0-stage/final-isolated-*.log. The C receiver D0 it
+selected below is now closed in the verified closeout at card tail.
 
 ## C receiver integrated Decision / 2026-10-06
 
@@ -881,46 +862,15 @@ Isolated extraction, corrected lock/import harness failures, coordinated caller
 negative and pending final tests were recorded at14d8c39c89. Final evidence and
 actual selected edge retirement are below and landed at1462a1dc82.
 
-## Prior-field cleanup verified closeout / 2026-10-06
+## Prior-field cleanup / closed1462a1dc82
 
-Selected16 source/test/contract/guard paths byte-match the isolated candidate
-based on1a3c4abc17; child-call grammar/Unit and Array-local changes are excluded.
-Cargo71164 terminal101: package618 PASS and exact known3, matching source615
-baseline names and causes: birth receiver Capture; main-static-child
-IncompleteOrdinaryNewCoverage; qualified Map argument BorrowedEntryEscape.
-No introduced or unclassified red remains. Earlier interrupted lock/missing
-imports are corrected candidate failures, not final acceptance.
-
-Sequential36353 terminal0: cleanup2 (Array/Object plus child/base/frame/field/
-Fault continuation negatives), construction state2, source issuer2,
-prior-installation1, owned-array children2, physical boundary11,
-source original-receiver1 (regenerates96), compiled-entry21 PASS. Package includes
-stronger coordinated old caller cleanup negative: every retained physical
-binding independently checks before reclaim-duplicate-field-cleanup rejection.
-C23240 terminal0: all96 freshly regenerated unchanged-source inputs compile
-with composed protected C consumer. Original pre-correction null witnesses,
-both opts, reject partial-Birth bypass at unsupported-cohort with no artifact.
-These are composed C dependency evidence, not an isolated C landing claim.
-Logs: /tmp/hako-birth-prior-field-cleanup-S0-stage/*-final.log,
-fresh-source-C96.log and old-producer-C-negative.log. No Cargo/rustc live.
-
-Production issuer seals prior-only newest-first inventory once; Birth owns
-partial-field Fault discharge. Caller unpublished reclaim is storage-only;
-Normal completed-child teardown remains retained. Selected origin.children,
-reclaim.children and reclaim-children-source-missing/drift edges are removed
-from admission/local-commit/reclaim; no shared Normal inventory deletion.
-Scope guard reaches only unchanged root1351 with recorded HEAD-identical hash;
-not whole guard PASS. Whitespace/pointer PASS. Narrow README repairs the stale
-universal user-provider exclusion to existing source-proven provider authority;
-this wording correction adds no admission. Protected mixed main WIP retained.
-
-Next Decision: read-only worker audit_cost_oct5 audits C mapping prerequisites
-against HEAD and actual shim. Select exact existing sibling-Birth helper / row
-role / S2 dependencies before any C integration, then integrate one Decision.
-No implementation authority is inferred from composed green alone. Next row
-MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0 owns only this dependency
-question. Required C Normal/Fault controls, Page Array.get, unchanged-app probe,
-production cutover/selected legacy retirement and whole-goal acceptance remain.
+Birth owns partial prior fields; caller unpublished reclaim is storage-only.
+Independent selected16 paths, package618/exact known3; cleanup/state/issuer/
+physical/compiled-entry controls and regenerated96 verified at1462a1dc82.
+Selected origin.children/reclaim.children and old duplicate-cleanup edges retired;
+Normal owned inventory retained. Only unchanged root1351 guard debt remains.
+Full evidence and original red classifications live in that commit and
+/tmp/hako-birth-prior-field-cleanup-S0-stage/. Protected Unit/Array WIP excluded.
 
 ## C prerequisite dependency Decision / 2026-10-06
 
@@ -946,40 +896,97 @@ existing C regressions/guard. New bounded witness does not replace original
 complex provider acceptance, which retains its unlanded Array dependency.
 All96 and stored-callee runtime remain next receiver slice obligations.
 
-## Committed-owned-slot consumer verified closeout / 2026-10-06
+## Committed-owned-slot consumer / closed6f33278c7d
 
-Independent HEAD1462a1dc82 + marker helper/selected flow only builds C. Source
-capture Cargo65942 terminal0: one test issues provider-only Parent(Array,Child,
-Child), Child(Array,Array), both opts, with no Unit/ordinary Array-local edge.
-Wire42 rejects required-inventory/Normal-Fault bypass, missing/double/wrong
-cleanup, receiver/slot/child, missing tuples, fresh-lease same-slot recommit and
-scalar instruction overwrite. Runtime32 executes actual kernel: bothopts Normal
-and every3 object/5 Array/7 store Fault, all Arrays reverse once, all acquired
-objects dropped once, frame once, original injected Primary site/reason/details.
-Logs /tmp/hako-birth-owned-slot-consumer-S0-stage/{source-capture,wire-final,
-runtime-final,C-build-fenced}.log. No repaired positive JSON or .hako workaround.
+Independent source provider-only graph bothopts; wire42/runtime32, exact store
+Fault/cleanup/original Primary and reproduced scalar Birth overwrite fence
+landed6f33278c7d. Receiver identity/compare4 pass. Pair malformed-add index13
+fails equally on verified HEAD-only C; test staleness, not whole suite PASS.
+Guard only unchanged root1351, protected WIP excluded. Full evidence/commands
+in that commit and /tmp/hako-birth-owned-slot-consumer-S0-stage/.
 
-Worker found a real nonInvoke scalar Birth row loophole: it overwrote committed
-owned slots without clearing markers and its runtime Fault bypassed cleanup.
-Both Array/Object counterexamples compiled before the fence (pre-fence log).
-Source issuer emits all Birth stores as Invoke; final validator corroborates
-those landings. Reject Birth scalar instruction stores in the shared row arm;
-retain ordinary scalar rows. Post-fence counterexamples reject unsupported-cohort.
+Next selected metadata-only ordinary receiver uses canonical tuple/Copyroot and
+original receiver equality, no sibling scan/Birth read/Unit/Array-local grant.
+Source96 and stored-callee Normal/Fault acceptance remain required.
 
-Receiver identity C regression terminal0; checked-compare4 unchanged executions
-PASS. Broad Pair runtime positives pass but old malformed-add expectation fails:
-HEAD-only C build with confirmed baseline dynamic linkage rejects the same test
-expectation at malformed index13 (supported tagged Add), so known baseline test
-staleness, not selected regression or whole suite PASS. Initial baseline copy
-include failure/absent-library fallback is not evidence; corrected baseline build
-and final log establish classification. First source duplicate test insertion
-interrupted130, corrected before final1 PASS; wrong guard filename corrected.
-Guard reaches unchanged root1351 only, selected pins/size and whitespace pass.
-Selected8 staged paths byte-match isolated candidate; protected WIP remains.
+## Receiver mapping ordinary-store invariant Decision / 2026-10-06
 
-Next S0 uses metadata-only ordinary_i64 receiver classification in the existing
-index seed. Existing canonical tuple/Copy-root and original receiver equality are
-sole authority; no sibling scan or Birth read/Unit grant. Read-only worker's
-integrated Decision is complete. Acceptance remains source96 unchanged compile,
-Copy/foreign root/class/tuple/borrowed-release negatives and stored-callee Normal/
-Fault original Scratch site; later complex-provider/Array/app/full goal owed.
+Read-only worker audit confirms actual counterexample: a scalar instruction
+store into an owned object slot preceding ordinary receiver read compiles an
+artifact with the first metadata-only mapping. Runtime getter/setter only move
+slot bits; they do not reissue child class. Recorded before-fence wire/log in
+/tmp/hako-stored-child-C-receiver-S0-stage/. This is required mapping boundary.
+
+Authority: same published owned tuple/Array inventory, existing reserved/owned
+helpers. Extend selected flow store consumers: scalar row/Invoke reject reserved
+slots; reserved HANDLE store requires Array-owned tuple and original array_new;
+reserved object store requires exact canonical child tuple plus existing
+borrowed_typed_live NewBox provenance (Copy supported, actual class0 valid).
+Unknown Array/nullable projection default0 must not become a known child0. Preserve Birth
+markers/discharge and nonreserved consumers; no new emitter/registry/ownership
+replacement admission. This protects tuple class used by the new receiver read.
+Acceptance adds each valid-shape corruption before receiver read, original
+receiver Copy positive, child actual/release/scalar misuse negatives. Source
+Cargo40143 terminal0: original receiver96 and Scratch callee capture2 PASS.
+Final C source capture/runtime evidence and pending closeout are below. i64-actual harness switches logical tagged
+kind1/opaque unused formal rather than invalid i64 formal body representation.
+
+## User-requested swe-2 handoff / 2026-10-06
+
+Handoff at HEAD/remote 6f33278c7d: shared main carried117 protected WIP paths
+(mostly sibling Birth/Unit C work; never stash/reset/broad-stage), index empty.
+Isolated candidate lived in /tmp/hako-stored-child-C-receiver-S0-checkout with
+evidence in /tmp/hako-stored-child-C-receiver-S0-stage/; it contains no
+sibling/Birth read/Unit/ordinary Array-local/emitter expansion.
+
+Confirmed pre-closeout: source-final.log Cargo40143 terminal0 regenerates
+original96 and Scratch2; C-final-v3.log terminal0:96 compile, receiver Copy
+positive,17 boundary negatives, bothopts actual callee Normal/Fault with
+cleanup once and original Scratch diagnostic. Corrected harness shapes (i64
+formal representation, Invoke field_set numeric key, invoke_block retarget on
+block split) are final only in v3+ logs; earlier runs are not evidence.
+Pre-fence scalar row admission was proven; the corrected full five-control
+before/after run and remaining negatives completed below at closeout.
+
+## Stored-child receiver verified closeout / 2026-10-06
+
+Five corrected store controls (`owned_slot_mutant.py`, pre-store-fence
+library): every flavor `scalar-row`, `scalar-invoke`, `array-field`,
+`array-as-object-zero`, `foreign-object` compiles rc=0 pre-fence and rejects
+`published-lifecycle-v4/unsupported-cohort` post-fence; log
+store-controls-before-after.log. The reserved-store fence is the boundary and
+the earlier aborted all-five log is not used as evidence.
+
+Remaining negatives: stored-child read as scalar `return`, read inside `add`,
+and non-receiver Copy root all reject `unsupported-cohort`. A literal Copy
+cycle is wire-inexpressible (source availability ordering rejects mutual
+references before validation); the bounded traversal remains internal defense,
+and the negative instead drives a Copy rooted at a tagged param. C-final-v4.log
+terminal0: 96 unchanged sources compile, exact Copy-root positive, 20 rejects,
+both opts run the real callee Normal/Fault with cleanup once and original
+diagnostic site. Contract comments added in indexed_flow/birth_fields record
+that reserved array slots take only exact `array_new` provenance and reserved
+object slots take the canonical `owned_object_residences` tuple plus
+typed-live provenance; `lv4_birth_reserved` is role-independent while Birth
+commit/discharge stays separately gated. No behavior change; library rebuilt,
+full test and all regressions rerun green after comments.
+
+Existing C regressions PASS: nested-call, receiver-identity,
+physical-parser-preatifact probes RC=0; owned-slot consumer (both-opt captures,
+fresh-lease-duplicate-slot/instruction-owned-overwrite rejects) and owned-object
+layout schema (4 original + 4 legacy accepted, 14 malformed tuples rejected)
+both PASS. Whitespace clean; scope guard pins this slice's index helper,
+fence arms, Rust test and Python test, then stops only at the unchanged
+root1351 baseline. Narrow owner contract paragraph added to lang/c-abi/README.
+
+Staged exactly: index.inc metadata-only receiver mapping; indexed_flow.inc
+reserved-store fence + comments; indexed_birth_fields.inc helper contract
+comment; borrowed_source_publication_call_result_tests.rs Scratch-birth test;
+new stored-child receiver Python test; scope-guard pin block; README section;
+this card and pointer. Main mixed sibling-Birth/Unit hunks remain unstaged and
+protected (117 paths intact, no stash/reset/discard). Isolated hunks entered
+the index via blob staging, never whole mixed files.
+
+Non-claims: no Unit/Birth-read/Array-local admission; production caller switch,
+old-path retirement, unchanged-app frontier and finite-product goal remain owed.
+Next: Page `Array.get` result Decision with one read-only worker.

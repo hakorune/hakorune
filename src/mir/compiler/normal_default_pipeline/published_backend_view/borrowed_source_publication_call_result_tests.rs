@@ -189,3 +189,37 @@ fn borrowed_stored_child_call_results_publish_original_receivers() {
         }
     });
 }
+
+#[test]
+fn borrowed_stored_child_callee_fault_publishes_original_scratch_birth() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Leaf { flag: i64 birth() { me.flag = 0 }
+            read(p: Item): i64 { local scratch = new Scratch() return 5 } }
+            box Scratch { flag: i64 birth() { me.flag = 0 } }
+            box Parent { child: Leaf birth() { me.child = new Leaf() }
+                read(p: Item): i64 { return me.child.read(p) } }
+            box Item { value: i64 birth() { me.value = 5 } }
+            static box Main { main() { local parent = new Parent()
+                local item = new Item() return parent.read(item) } }";
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(
+                request(text), |view, verification| -> Result<(), String> {
+                    classify_pretransform_report(verification);
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let leaf = json["functions"].as_array().unwrap().iter()
+                        .find(|function| function["name"] == "Leaf.read/1").unwrap();
+                    assert_eq!(leaf["receiver_object"], 0, "canonical child id zero is valid");
+                    assert!(leaf["blocks"].as_array().unwrap().iter().any(|block|
+                        block["terminator"]["instruction"]["operation"]["kind"] == "birth_call"));
+                    std::fs::write(std::env::temp_dir().join(format!(
+                        "hako-issued-stored-child-callee-fault-opt{optimize}.json"
+                    )), wire).unwrap();
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("stored callee Fault/opt{optimize}: {error}"));
+        }
+    });
+}

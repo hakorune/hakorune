@@ -210,8 +210,11 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          proven i64 lane only — tagged carriers and handle leases never
          reach this row. A dynamic-integer-range obligation is discharged by
          the emitted bounds check at this row, not by the kernel. */
-      /* Birth source stores are Invoke terminators with issued Fault cleanup. */
-      if (birth || lv4_is(fn->function, "role", "root_unit") || faulted ||
+      /* Birth source stores are Invoke terminators with issued Fault
+         cleanup. A reserved (metadata-owned) slot never takes this plain
+         scalar row in any role. */
+      if (birth || lv4_birth_reserved(in, ins) ||
+          lv4_is(fn->function, "role", "root_unit") || faulted ||
           lv4_slot(in, ins) < 0 || !value || value->kind != LV4_I64 ||
           !check ||
           !(lv4_is(check, "kind", "none") ||
@@ -457,11 +460,18 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         if (value->origin < 0 ||
             !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
                 0, 0)) return 0;
+        /* A metadata-reserved slot accepts only its declared tuple: an
+           `owned_residences` (array) slot takes an exact `array_new`
+           lease — an ordinary handle store never reissues the sealed
+           residence. Scalar values never land in a reserved slot at all:
+           the sealed residence is owned state, not i64 storage. */
+        if (lv4_birth_reserved(in, op) &&
+            (!lv4_birth_owned(in, op, 0) || !lv4_birth_array_value(fn, value))) return 0;
         if (birth && (!lv4_birth_array_value(fn, value) ||
             !lv4_birth_commit(in, fn, op, normal, bi, 0))) return 0;
         normal[value->origin] = state[value->origin] = 0;
       } else if ((value->kind != LV4_I64 && !(birth && value->kind == LV4_TAGGED)) ||
-          (birth && lv4_birth_reserved(in, op))) return 0;
+          lv4_birth_reserved(in, op)) return 0;
       if (!lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "field_residence_release")) {
@@ -493,6 +503,12 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_u(op, "child_object_id"), 1) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      /* A metadata-reserved object slot stores only the canonical child:
+         the exact `owned_object_residences` tuple plus borrowed typed-live
+         provenance — the receiver or the same object's `new_box` root. */
+      if (lv4_birth_reserved(in, op) &&
+          (!lv4_birth_owned(in, op, 1) ||
+           !lv4_borrowed_typed_live(in, fn, value, state))) return 0;
       if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
       normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
