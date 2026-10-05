@@ -546,7 +546,17 @@ fn check_call_edge(
     };
     let params = &callee.signature.params;
     if call.args.len() + receiver_params != params.len() {
-        errors.push(error(block, "call-argument-type-drift"));
+        errors.push(call_argument_drift(
+            function,
+            callee,
+            block,
+            format!(
+                "arity: actual={} receiver={} formal={}",
+                call.args.len(),
+                receiver_params,
+                params.len()
+            ),
+        ));
         return;
     }
     // The Integer-domain argument rule binds the sealed corridor: a
@@ -608,9 +618,34 @@ fn check_call_edge(
             ) && !map_actual
         );
         if (map_formal != map_actual) || (!map_formal && scalar_drift) {
-            errors.push(error(block, "call-argument-type-drift"));
+            errors.push(call_argument_drift(
+                function,
+                callee,
+                block,
+                format!(
+                "argument={index} value={argument:?} actual={:?} formal={parameter:?} carrier={:?}",
+                function.metadata.value_types.get(argument),
+                callee.metadata.physical_param_carriers.as_deref()
+                    .and_then(|rows| rows.get(index + receiver_params))
+            ),
+            ));
             return;
         }
+    }
+}
+
+fn call_argument_drift(
+    caller: &MirFunction,
+    callee: &MirFunction,
+    block: BasicBlockId,
+    detail: String,
+) -> VerificationError {
+    VerificationError::ControlFlowError {
+        block,
+        reason: format!(
+            "[freeze:contract][mir/invoke/call-argument-type-drift] caller={} callee={} {detail}",
+            caller.signature.name, callee.signature.name
+        ),
     }
 }
 

@@ -35,6 +35,13 @@ callee shape, deferring membership to the module pass. Constructors,
 dynamic and foreign callees are `map-opaque-escape`, never borrows. The
 caller still owes the single `Map::End` on both landing chains.
 
+Cataloged call-argument drift keeps the stable
+`[freeze:contract][mir/invoke/call-argument-type-drift]` token and adds the
+caller/callee plus either arity counts or the argument ordinal, value, recorded
+type, formal and physical carrier. These are diagnostic projections of the
+same rejected edge; they grant no source or carrier permission and do not change
+the order or conditions of verification.
+
 ## Function Check Groups
 
 `verify_function` keeps error precision by running separate checks. Treat these
