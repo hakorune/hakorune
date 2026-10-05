@@ -521,3 +521,12 @@ match the new paths; later C scope pins reach the unchanged HEAD size debt
 `normal_default_root_catalog_lifecycle_tests.rs=1351`. Full guard is not PASS.
 Evidence: `/tmp/hako-goal-T1-{brand,physical}-tests.log` and byte-motion proof
 `/tmp/hako-goal-test-owner-motion-proof.json`. C runtime acceptance stays open.
+
+### Guard continuation (T1 structural series)
+
+The existing dominated-add-through-size-check tail moved verbatim into
+a private sourced lifecycle fragment. The public guard is the sole entry;
+shared variables and evaluation order remain unchanged. Shell syntax passed.
+Both shell files are below 800 lines. Current C semantic pins are separate;
+full guard still reports unchanged HEAD root-catalog test size debt (1351).
+No source/wire/runtime acceptance changed in this structural series.
