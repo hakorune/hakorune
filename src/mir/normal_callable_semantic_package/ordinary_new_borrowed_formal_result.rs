@@ -178,7 +178,7 @@ fn source_result(
                         contract,
                         site,
                     )?
-                    || composition::retain_local_call_dependency(
+                    || composition::retain_call_dependency(
                         input,
                         source,
                         owner,

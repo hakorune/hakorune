@@ -3,7 +3,7 @@
 use super::*;
 use crate::mir::resolved_semantics::{BindingKindV1, ResolvedAssignmentTargetV1};
 
-pub(super) fn retain_local_call_dependency(
+pub(super) fn retain_call_dependency(
     input: ResolvedFunctionLoweringInputV1<'_>,
     source: &PreparedBorrowedFormalIngressV1,
     owner: FunctionOwnerIdV1,
@@ -11,36 +11,44 @@ pub(super) fn retain_local_call_dependency(
     dependencies: &mut Vec<LexicalInstanceCallSourceTargetV1>,
 ) -> Result<bool, String> {
     let function = input.function();
-    let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) else {
-        return Ok(false);
+    let call_site = if function.method_calls().any(|(actual, _)| actual == site) {
+        site.clone()
+    } else {
+        let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) else {
+            return Ok(false);
+        };
+        if binding.owner() != owner
+            || function
+                .binding(binding)
+                .is_none_or(|record| !matches!(record.kind(), BindingKindV1::Local { .. }))
+            || function.assignment_targets().any(|(_, target)| {
+                matches!(target,
+                ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)
+            })
+        {
+            return Ok(false);
+        }
+        let mut initializers = function
+            .expression_source()
+            .initializers()
+            .filter(|row| row.binding() == binding);
+        let Some(initializer) = initializers.next() else {
+            return Ok(false);
+        };
+        if initializers.next().is_some()
+            || function.declaration_binding(initializer.declaration_site()) != Some(binding)
+        {
+            return Ok(false);
+        }
+        let Some(call_site) = initializer.initializer_site() else {
+            return Ok(false);
+        };
+        call_site.clone()
     };
-    if binding.owner() != owner
-        || function
-            .binding(binding)
-            .is_none_or(|record| !matches!(record.kind(), BindingKindV1::Local { .. }))
-        || function.assignment_targets().any(|(_, target)| {
-            matches!(target,
-            ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)
-        })
-    {
-        return Ok(false);
-    }
-    let mut initializers = function
-        .expression_source()
-        .initializers()
-        .filter(|row| row.binding() == binding);
-    let Some(initializer) = initializers.next() else {
-        return Ok(false);
-    };
-    if initializers.next().is_some()
-        || function.declaration_binding(initializer.declaration_site()) != Some(binding)
-    {
-        return Ok(false);
-    }
-    let Some(call_site) = initializer.initializer_site() else {
-        return Ok(false);
-    };
-    let Some((_, call)) = function.method_calls().find(|(site, _)| *site == call_site) else {
+    let Some((_, call)) = function
+        .method_calls()
+        .find(|(site, _)| *site == &call_site)
+    else {
         return Ok(false);
     };
     let owned_site = OwnedExprSiteV1::new(owner, call_site.clone());

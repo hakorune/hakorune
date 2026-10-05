@@ -86,6 +86,12 @@ pub(super) fn no_birth_constructor_disposition(
 
 pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: bool) -> bool {
     has_map
+        // The immutable Lexical argument arm is issued only after the source
+        // terminal owner proves BorrowedActual; child completion must carry it
+        // to the same final terminal emitter instead of dropping that loan.
+        || matches!(row, TerminalRelationV1::Call(call)
+            if call.arguments().iter().any(|argument| matches!(argument,
+                crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Lexical(_))))
         || matches!(
             row,
             TerminalRelationV1::IntegerLiteral(_)
@@ -107,4 +113,27 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                         | TerminalReturnedSourceV1::NullLiteral
                 )
         )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn child_terminal_filter_retains_borrowed_call_without_widening_strict_call() {
+        for borrowed in [false, true] {
+            let parameter = if borrowed { "p" } else { "" };
+            let argument = if borrowed { "7" } else { "" };
+            let source = format!("box Transport {{ birth() {{ }} probe({parameter}): i64 {{ return 7 }} }}
+                static box Main {{ main() {{ local recv = new Transport() return recv.probe({argument}) }} }}");
+            let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+            let ledger = &package.ordinary_new_claim_ledger;
+            let row = ledger
+                .sole_terminal_relation_for_owner(ledger.root_owner().unwrap())
+                .unwrap();
+            assert!(matches!(row, TerminalRelationV1::Call(_)), "{row:?}");
+            assert_eq!(retain_child_terminal_relation(row, false), borrowed);
+            assert!(retain_child_terminal_relation(row, true));
+        }
+    }
 }

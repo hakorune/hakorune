@@ -417,7 +417,10 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
                 assert_eq!(observed_owner, owner);
                 assert!(std::ptr::eq(original, packet.as_ref()));
                 assert_eq!(coordinate.0, BasicBlockId(10));
-                assert!(copies.is_empty(), "this Return has no borrowed Copy dependencies");
+                assert!(
+                    copies.is_empty(),
+                    "this Return has no borrowed Copy dependencies"
+                );
                 visited += 1;
                 Ok(())
             },
@@ -436,4 +439,41 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         .visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| Ok(()))
         .unwrap_err()
         .contains("/function"));
+}
+
+#[test]
+fn borrowed_terminal_call_frame_role_stays_bound_to_original_root_owner() {
+    let (ledger, exit, packet, arguments) = fixture();
+    let owner = packet.call_site().owner();
+    assert_eq!(ledger.root_owner(), Some(owner));
+    let (mut function, frame, cleanup) = function(&packet, &arguments);
+    // The fixture's full binding inventory includes entry setup; only the
+    // Normal/Fault continuations belong to the exit's cleanup inventory.
+    let cleanup: Vec<_> = cleanup
+        .into_iter()
+        .filter(|(block, _)| *block != function.entry_block)
+        .collect();
+    let mut entry = RootHomeExitEntry::Call {
+        local_bindings: Vec::new(),
+        row: RootCallDispositionV1::Lexical(Rc::clone(&packet)),
+        arguments,
+        invoke: packet.invoke.clone(),
+        projection: packet.projection.clone(),
+        frame,
+    };
+    ledger
+        .validate_call_entry(owner, &exit, &function, None, &entry, &cleanup)
+        .unwrap();
+    let RootHomeExitEntry::Call { frame, .. } = &mut entry else {
+        unreachable!()
+    };
+    let MirInstruction::FaultFrameEnter { mode, .. } = &mut frame.1 else {
+        unreachable!()
+    };
+    *mode = crate::mir::instruction::FaultFrameMode::Borrowed;
+    function.blocks.get_mut(&frame.0).unwrap().instructions[0] = frame.1.clone();
+    let error = ledger
+        .validate_call_entry(owner, &exit, &function, None, &entry, &cleanup)
+        .unwrap_err();
+    assert!(error.contains("call-frame-drift"), "{error}");
 }

@@ -217,9 +217,16 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("call-target-drift"));
         }
+        // The original root completion selects the owned frame at entry;
+        // child callables borrow that same invocation frame through their ABI.
+        let expected_mode = if self.root_owner() == Some(owner) {
+            crate::mir::instruction::FaultFrameMode::RootOwned
+        } else {
+            crate::mir::instruction::FaultFrameMode::Borrowed
+        };
         if !matches!((&invoke.1, &frame.1), (MirInstruction::Invoke { fault_frame, .. },
-            MirInstruction::FaultFrameEnter { dst, mode: crate::mir::instruction::FaultFrameMode::RootOwned })
-                if fault_frame == dst)
+            MirInstruction::FaultFrameEnter { dst, mode })
+                if fault_frame == dst && *mode == expected_mode)
         {
             return Err(freeze("call-frame-drift"));
         }

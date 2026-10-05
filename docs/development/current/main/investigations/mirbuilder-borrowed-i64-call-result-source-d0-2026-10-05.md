@@ -1,6 +1,6 @@
 # Borrowed I64 call-result source D0
 
-Status: S0 landed / S1 selected
+Status: S0 landed / S1 verified; scoped landing pending
 Execution row: MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1
 Scope: required I64 result composition inside the existing borrowed-result owner;
 no implementation until source-site/target/result/completion mapping is closed.
@@ -222,3 +222,136 @@ Guard pins reuse the same result owner/dependency tests and remain below800;
 root1351 baseline debt stays classified, never whole-green evidence.
 Before S1 edits, snapshot selected source/helper/tests/README/guard for scoped
 staging. No Cargo live. Build/CI/app/goal completion is not inferred from S0.
+
+## S1 construction / current evidence
+
+Previous conversational prompt-writing turn made no authoritative goal progress.
+Current-first and pointer PASS; no preexisting Cargo/rustc process at entry.
+S1 before snapshots at `/tmp/hako-borrowed-direct-call-result-S1-before/` protect
+selected files and mixed owner README. Original MethodCall return sites and
+sole-local initializer sites now select one shared exact incoming call join;
+existing grounded result map, completion prepass, terminal issuer and C ABI
+remain unchanged. No .hako rewrite or stored-child receiver admission.
+Source direct two-hop chain16 covers leaf+caller annotated/unannotated, null/
+object, both orders and opts; original local chain16 retained. Private direct
+source negatives cover Bool/Null/Unit/Nullable and self/mutual/literal-exit cycles.
+C harness accepts an explicit input stem to run both original issued families
+through the same Normal/Fault counters. Worker read-only soundness review
+requested; Cargo41174 focused `call_result` is live, log
+`/tmp/hako-borrowed-direct-call-result-S1-focused.log`; results pending.
+No acceptance or commit claimed; protected C/Array/S2 WIP remains intact.
+
+Cargo41174 terminal101: focused32 has31 PASS/one new direct source failure at
+object/reversefalse/annotatedfalse/optfalse,
+`ordinary-new/local-commit/physical-boundary/finished-sequence`. This is a
+selected new failure, not baseline; S1 remains incomplete. Source local chain16
+and private direct non-I64/cycle tests PASS. Worker found no source mapping
+soundness defect; nonborrowed callee fence now added as an explicit negative.
+Next build Cargo40902 retains focused call_result and adds exact boundary
+sequence diagnostic context (function/block/expected/actual) to locate the
+existing terminal finishing mismatch, log
+`/tmp/hako-borrowed-direct-call-result-S1-diagnostic.log`. Physical boundary
+owner added to scope solely to diagnose/resolve this selected finished
+correspondence; independent final validation is retained. No Rust edits while
+Cargo live. Guard54029 terminal1 matches unchanged HEAD root1351; pointer,
+whitespace and C-harness syntax PASS. No slice commit or acceptance claim.
+
+Cargo40902 terminal101: focused33 has32 PASS/new direct source failure.
+Nonborrowed callee annotation negative PASS with exact source-not-i64.
+Cargo94919 terminal101: focused34 has32 PASS/two new direct failures.
+New typed-borrow source unit shows annotated bridge owner slot3 has no retained
+sole terminal relation; final block13 contains ordinary raw Method Call, not
+evidence of duplicate lifecycle call emission. Post-RC receiver canonicalization
+changes receiver4 to dominating root3, causing finished-sequence. Do not admit
+that rewrite in the lifecycle physical checker to conceal a missing source
+terminal selection. Worker confirmed source scan stages exact actuals before
+terminal demand; a Homecoverage Err at terminal observer582–616 can erase a Call
+relation. Cargo15825 now runs the selected source-unit diagnostic with original
+completion/root-flow context, log
+`/tmp/hako-borrowed-direct-call-result-S1-flow-diagnostic.log`. S1 incomplete,
+no code commit or C/direct acceptance. No Rust changes while Cargo live.
+
+Read-only next-prerequisite mapping (not execution selection): direct stored-child
+receiver must reuse exact MethodCall receiver FieldAccess, lexical Receiver and
+selected owner, source field-write class plus initialized Provider residence and
+existing entry Home lifetime. Existing target/packet needs a closed receiver arm,
+not a fabricated Local binding or second registry. Original owned residence tuple
+is required before emitting borrowed child ObjectFieldGet; no child ownership or
+teardown. C indexed child seeding currently uses same-function store/release;
+ordinary published-parent reads need existing owned_object_residences tuple and
+borrowed origin, with wrong slot/class/ownership and child-release negatives.
+Array-get result in Page.isLiveHandle remains a distinct required prerequisite.
+Current S1 remains selected; no parked lane, app source or ABI changed.
+
+Integrated S1 correction Decision: worker located sole child transport filter
+`coseal_helpers::retain_child_terminal_relation`87–109, applied at issuer686.
+It drops every map-free Call even after the source terminal lender correctly
+issued it. Preserve only Call rows with existing immutable Lexical argument arm,
+whose sole issuer checks BorrowedActual before issuance (home_local_call_flow532).
+Existing final consumers use the same discriminator. No new permission/product,
+ordinary strict-call widening or physical correspondence change. Add negative
+using original source-issued strict root Call vs borrowed Call at this filter;
+existing typed child relation/all-exits-ready and direct chain remain positives.
+PhysicalBoundary diagnostics restored exactly to the before snapshot: no checker
+weakening or diagnostic change will land. Cargo15825 intentionally interrupted
+(rc130) after this concrete finding superseded its diagnostic purpose; rustc2991754
+confirmed absent before edits. This interruption is not a test PASS.
+
+Cargo88718 terminal101: focused34 has33 PASS/direct publication now stops at
+call-frame-drift. Typed borrowed child retains its Call and all exits ready;
+old raw Call path is no longer the observed boundary. Helper filter test
+separate invocation failed at strict-control row unwrap (strict argument7 is
+not an admitted original terminal); corrected control to existing zero-argument
+strict terminal. No test success claimed for that setup failure.
+Worker integrated frame mapping: root_call_entry validation hardcodes RootOwned
+for all source owners; canonical callable entry defaults Borrowed and only exact
+AppMain identity selects RootOwned. Existing root_completion.owner is sufficient
+role authority. Select expected frame mode from that same owner identity, keep
+Invoke.dst correspondence and all original binding checks. No new frame receipt,
+ABI or emitter. Original-source root packet test has healthy control, then
+changes both recorded frame and physical frame to Borrowed and requires exact
+call-frame-drift; source direct child chain provides Borrowed positive.
+Selected root_call_entry validation/tests added to scope with before snapshots.
+
+Frame-check test fixture uses a full function binding inventory; exit cleanup
+must exclude its entry frame/jump. Corrected that test inventory before requiring
+the healthy control. Cargo70281 intentionally interrupted130 at setup review,
+rustc3001712 confirmed absent before this edit; not PASS. Final corrected build
+records source direct flow, filter transport and original owner-bound frame
+role together. No PhysicalBoundary or emitter changes.
+
+## S1 verified closeout
+
+Final corrected Cargo85097 terminal0: call_result34/34 PASS, including direct
+two-hop chain16 and retained original local chain16. Both leaf+caller annotation
+on/off states, two declaration orders, null/object and both opts execute through
+original source, final MIR and issued JSON. No claim of every independent
+annotation permutation. Child filter source-issued borrowed/strict-zeroarg
+control1/1 and original root frame-role coherent-row/MIR mutation1/1 PASS.
+Source29/29, entry21/21, boundary11/11, JSON29/29 and composition5/5 PASS; logs
+`/tmp/hako-borrowed-direct-call-result-S1-{source,entry,boundary,json,composition}.log`.
+Final focused `/tmp/hako-borrowed-direct-call-result-S1-final-focused.log`;
+filter/frame logs `S1-child-filter-final.log` and `S1-frame-role.log`.
+C58301 terminal0: direct16 programs return object5/null7 with exact Normal cleanup
+and every Birth-store Fault position; C47617 terminal0: original local16 same
+Normal/Fault acceptance. Logs `S1-c-direct.log` / `S1-c-local.log` under same prefix.
+No C implementation, ABI, emitter or PhysicalBoundary change.
+
+Package630 PASS/exact known3 unchanged names/boundaries: ReceiverNonEscape
+Capture, IncompleteOrdinaryNewCoverage, MapLifecycleUndertaking BorrowedEntryEscape.
+Final guard5686 terminal1 remains HEAD-identical root1351, sha256
+5fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467; never whole green.
+Selected source/result621/composition175/private tests217/source98/helpers139/
+frame-validation301/frame-tests479/guard799 are below800. rustfmt, whitespace
+and pointer PASS. No active Cargo/rustc.
+
+Production replacement: same exact incoming dependency join handles original
+direct Return(MethodCall) and sole local initializer; map-free child completion
+now transports the existing borrowed Lexical Call instead of dropping it; final
+call checker uses original root owner for RootOwned/Borrowed rather than root-only
+mode. All original site/result/argument/frame/cleanup checks remain. Scalar/
+nonborrowed/foreign/cyclic sources retain named failure boundaries.
+Scoped staged patch will use the S1 before snapshots; protected C/Array/S2 WIP
+and all app .hako stay unchanged. No fresh app EXE or full-goal claim.
+Direct stored-child receiver, Page Array-get I64 result, Provided/vocabulary
+and protected C/Array/S2 landing remain required future work.

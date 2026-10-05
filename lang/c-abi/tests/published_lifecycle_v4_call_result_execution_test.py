@@ -9,6 +9,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
+STEM = sys.argv[2] if len(sys.argv) > 2 else 'hako-issued-borrowed-call-result'
 ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
@@ -32,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix='hako call result composition ') as dire
             for optimize in [False, True]:
                 for domain, expected, stores in [('object', 5, 4), ('null', 7, 3)]:
                     path = INPUTS / (
-                        f'hako-issued-borrowed-call-result-{domain}'
+                        f'{STEM}-{domain}'
                         f'-reverse{str(reverse).lower()}-annotated{str(annotated).lower()}'
                         f'-opt{str(optimize).lower()}.json'
                     )

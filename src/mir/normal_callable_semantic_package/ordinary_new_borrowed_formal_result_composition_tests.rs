@@ -137,3 +137,81 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
             .contains("borrowed-result/result-contract-mismatch"));
     }
 }
+
+#[test]
+fn direct_call_result_source_rejects_non_i64_and_ungrounded_cycles() {
+    assert!(issue("return 7", "return recv.leaf(p)").is_ok());
+    for (leaf, body) in [
+        ("return true", "return recv.leaf(p)"),
+        ("return null", "return recv.leaf(p)"),
+        ("return", "return recv.leaf(p)"),
+        (
+            "if p == null { return null } return new Transport()",
+            "return recv.leaf(p)",
+        ),
+        ("return 7", "return recv.bridge(p)"),
+        (
+            "local recv = new Transport() return recv.bridge(p)",
+            "return recv.leaf(p)",
+        ),
+        (
+            "return 7",
+            "if p == null { return 0 } return recv.bridge(p)",
+        ),
+    ] {
+        let error = issue(leaf, body)
+            .err()
+            .expect("direct result lacks an I64 proof");
+        assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
+    }
+}
+
+#[test]
+fn direct_call_result_source_rejects_nonborrowed_callee_annotation() {
+    let source = "box Transport { birth() { } leaf(q: i64): i64 { return q }
+        bridge(p) { local recv = new Transport() return recv.leaf(7) } }
+        static box Main { main() { local recv = new Transport() local out = recv.bridge(null) return 0 } }";
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
+        .err().expect("nonborrowed callee has no borrowed incoming source proof");
+    assert!(
+        format!("{error:?}").contains("borrowed-result/source-not-i64"),
+        "{error:?}"
+    );
+}
+
+#[test]
+fn direct_call_result_source_retains_terminal_relations_for_declared_borrows() {
+    use crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1;
+    for annotated in [true, false] {
+        let result = if annotated { ": i64" } else { "" };
+        let source = format!("box Item {{ value: i64 birth() {{ me.value = 5 }} }}
+            box Transport {{ flag: i64 birth() {{ me.flag = 0 }}
+                read(p: Item){result} {{ if p == null {{ return 7 }} return p.value }}
+                bridge(p: Item){result} {{ local recv = new Transport() return recv.read(p) }}
+                wrap(p: Item){result} {{ local recv = new Transport() return recv.bridge(p) }} }}
+            static box Main {{ main() {{ local recv = new Transport() local item = new Item() return recv.wrap(item) }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        for (owner, proof) in &ledger.borrowed_i64_results {
+            if proof.as_ref().unwrap().dependencies.is_empty() {
+                continue;
+            }
+            let relation = ledger.sole_terminal_relation_for_owner(*owner);
+            let completion = ledger.completion_for_owner(*owner);
+            assert!(
+                matches!(relation, Some(TerminalRelationV1::Call(_))),
+                "annotated={annotated} owner={owner:?} relation={relation:?} completion={completion:?}"
+            );
+            let flow = ledger
+                .completion_for_owner(*owner)
+                .unwrap()
+                .cleanup()
+                .root_flow()
+                .unwrap();
+            assert!(
+                flow.all_exits_ready(),
+                "annotated={annotated} owner={owner:?} flow={flow:?}"
+            );
+        }
+    }
+}
