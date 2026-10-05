@@ -387,3 +387,68 @@ fn provider_static_call_argument_serializes_inside_birth_unit() {
             .unwrap();
     });
 }
+
+/// Independent owned-slot consumer witness: no Unit call or Array helper local.
+#[test]
+fn birth_owned_slot_consumer_publishes_original_provider_only_graph() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for optimize in [false, true] {
+            let mut compiler = MirCompiler::with_options(optimize);
+            compiler
+                .compile_normal_with_published(
+                    request(
+                        "box Child {
+                           left: ArrayBox = new ArrayBox()
+                           right: ArrayBox = new ArrayBox()
+                           birth() { }
+                         }
+                         box Parent {
+                           items: ArrayBox = new ArrayBox()
+                           first: Child = new Child()
+                           second: Child = new Child()
+                           birth() { }
+                         }
+                         static box Main {
+                           main() { local p = new Parent() return 0 }
+                         }",
+                    ),
+                    |view, verification| -> Result<(), String> {
+                        assert!(verification.is_ok(), "{verification:?}");
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let json = emit_lifecycle_physical_abi_json(&input)?;
+                        let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                        let functions = decoded["functions"].as_array().unwrap();
+                        assert_eq!(functions.len(), 3);
+                        assert_eq!(
+                            functions
+                                .iter()
+                                .filter(|f| f["role"] == "birth_unit")
+                                .count(),
+                            2
+                        );
+                        assert!(functions
+                            .iter()
+                            .all(|f| f["role"] == "birth_unit" || f["role"] == "root_i64"));
+                        for f in functions {
+                            for b in f["blocks"].as_array().unwrap() {
+                                assert!(b["instructions"]
+                                    .as_array()
+                                    .unwrap()
+                                    .iter()
+                                    .all(|r| r["instruction"]["op"] != "array_residence_release"));
+                            }
+                        }
+                        std::fs::write(
+                            std::env::temp_dir()
+                                .join(format!("hako-issued-owned-slot-consumer-{optimize}.json")),
+                            json,
+                        )
+                        .unwrap();
+                        Ok(())
+                    },
+                )
+                .unwrap();
+        }
+    });
+}

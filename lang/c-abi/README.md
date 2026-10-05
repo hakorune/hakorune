@@ -528,3 +528,22 @@ live acquired lease. For acquired results without producer-class evidence, the
 callee prologue checks tag/null shape and `nyash.object.type_id_h` against the
 layout's runtime type ID before body effects. Object ordinals are not runtime
 type IDs. This check creates no retain, release or ownership authority.
+
+### Birth committed owned-slot consumer
+
+The indexed consumer borrows source-issued `owned_residences` and
+`owned_object_residences`. Each successful Birth store marks its original
+block ordinal in the existing lease state. Fault cleanup consumes only the
+exact committed receiver/slot/child; Normal return requires the complete
+inventory, and Fault return requires no remaining markers. Owned-base teardown
+retains its existing behavior. Birth stores must be Invoke terminators with
+explicit cleanup landings; scalar instruction stores in Birth reject before
+emission because their runtime Fault cannot traverse that issued cleanup.
+
+Reproduce with the Rust test
+`birth_owned_slot_consumer_publishes_original_provider_only_graph`, then run
+`tests/published_lifecycle_v4_owned_slot_consumer_test.py` and
+`tests/published_lifecycle_v4_owned_slot_consumer_execution_test.py` with its
+false/true source captures. The latter links the actual lifecycle archive and
+injects every object/Array allocation and field store Fault. This boundary does
+not grant Unit calls, ordinary Array-local release or borrowed-child reads.

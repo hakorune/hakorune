@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: Birth cleanup prerequisite verified / C receiver integration dependency design
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0
+Status: Birth cleanup landed / committed-owned-slot C verified / ordinary receiver selected
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -875,40 +875,11 @@ of this independent caller fence. Focused construction-state2, source issuer2,
 cleanup1, ordinary-new completion/owned-child/physical-boundary and fresh96 remain
 required before the isolated prerequisite closes.
 
-## Prior-field cleanup isolated construction / 2026-10-06
+## Prior-field cleanup construction history / 14d8c39c89
 
-Previous goal turn was progress: composed C96/NormalFault evidence and selected
-prerequisite were recorded/pushed at1a3c4abc17. This turn isolates HEAD1a3c4abc17
-+ nine production-path semantic hunks, focused test/wiring paths and narrow package
-README/scope guard in /tmp/hako-birth-prior-field-cleanup-S0-checkout.
-No child-call grammar/Unit-role or Array-local lifetime/root-step hunk enters.
-Shared main differences remain protected; scoped candidate is saved under
-/tmp/hako-birth-prior-field-cleanup-S0-stage/. No main source replacement/stage.
-Read-only worker reviewed extraction/order/Provided/Normal teardown and new
-coordinated caller cleanup test; no authority or retirement widening.
-
-First isolated Cargo43822 interrupted130: checkout regenerated an ignored lock,
-which differed from main. Original Cargo/rustc terminal confirmed; retain generated
-lock as evidence, copy original main lock, then use --locked. Cargo44219 terminal101
-had two missing test imports; imports, temporary Vec borrow and exact freeze token
-fixed. These were harness/candidate failures, not baseline. Cargo60480 terminal0:
-new healthy source-ledger/MIR control followed by coordinated old caller field
-release rejects exactly ordinary-new/local-commit/reclaim-duplicate-field-cleanup.
-It proves New validator ownership, not whole MIR/Home/pipeline completion.
-
-Final candidate adds existing check_binding over every mutant retained binding
-before the ownership error, and Object cleanup healthy/foreign child/base/frame/
-field/Fault-continuation controls (Array cleanup test retained). Main new Object
-test is preserved; isolated package Cargo71164 is live, sole shared-target Cargo,
-quick/jobs4/--locked. No final package/Object/stronger-correspondence PASS yet.
-Initial scope guard stopped at old jump_landing pin after helper relocation;
-updated sole-owner pin + cleanup/caller controls now reaches only unchanged
-root1351 hash5fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467.
-Whitespace/lock equality checked. Guard is not whole PASS.
-Next after terminal: exact red classification, cleanup/state/physical/completion/
-owned-child controls, fresh unchanged source96 + composed C check, then verified
-semantic-hunk integration/commit/push; C dependency/source capture/app/full-goal
-obligations remain intact. Goal active, not blocked or paused.
+Isolated extraction, corrected lock/import harness failures, coordinated caller
+negative and pending final tests were recorded at14d8c39c89. Final evidence and
+actual selected edge retirement are below and landed at1462a1dc82.
 
 ## Prior-field cleanup verified closeout / 2026-10-06
 
@@ -950,3 +921,65 @@ No implementation authority is inferred from composed green alone. Next row
 MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0 owns only this dependency
 question. Required C Normal/Fault controls, Page Array.get, unchanged-app probe,
 production cutover/selected legacy retirement and whole-goal acceptance remain.
+
+## C prerequisite dependency Decision / 2026-10-06
+
+Read-only worker audit_cost_oct5 confirms two independent slices: committed-slot
+consumer first, then ordinary_i64 metadata-only borrowed receiver. HEAD already
+has layout tuple decoder and Copy-root helper. Protected sibling-Birth scan,
+Unit roles, emitter and ordinary Array release are not required by source96.
+
+Authority/issuer: existing published owned_residences and owned_object_residences;
+Normal store at original block ordinal issues a marker in the existing state
+vector, Fault discharge consumes only that exact receiver/slot/child marker.
+Normal Birth finish requires exactly the published inventory; Fault finish zero.
+Non-authority: operation sibling scan, layout alone, scalar overwrite or blanket
+borrowed base. Replace HEAD missing owned-slot tracking and blanket borrowed
+Birth rejection at field/object release, preserving owned-base teardown.
+Smallest slice MIRBUILDER-BIRTH-OWNED-SLOT-CONSUMER-S0: existing110-line marker
+helper and selected indexed_flow commit/discharge/finish hunks only. No index,
+Unit/Birth child call, Array local release or emitter change.
+Acceptance: independently build HEAD+selected C; fresh compiler-issued supported
+provider-only Object/Array capture bothopts; exact initialized/partial-Fault
+inventory corruption negatives and runtime cleanup once/original Primary;
+existing C regressions/guard. New bounded witness does not replace original
+complex provider acceptance, which retains its unlanded Array dependency.
+All96 and stored-callee runtime remain next receiver slice obligations.
+
+## Committed-owned-slot consumer verified closeout / 2026-10-06
+
+Independent HEAD1462a1dc82 + marker helper/selected flow only builds C. Source
+capture Cargo65942 terminal0: one test issues provider-only Parent(Array,Child,
+Child), Child(Array,Array), both opts, with no Unit/ordinary Array-local edge.
+Wire42 rejects required-inventory/Normal-Fault bypass, missing/double/wrong
+cleanup, receiver/slot/child, missing tuples, fresh-lease same-slot recommit and
+scalar instruction overwrite. Runtime32 executes actual kernel: bothopts Normal
+and every3 object/5 Array/7 store Fault, all Arrays reverse once, all acquired
+objects dropped once, frame once, original injected Primary site/reason/details.
+Logs /tmp/hako-birth-owned-slot-consumer-S0-stage/{source-capture,wire-final,
+runtime-final,C-build-fenced}.log. No repaired positive JSON or .hako workaround.
+
+Worker found a real nonInvoke scalar Birth row loophole: it overwrote committed
+owned slots without clearing markers and its runtime Fault bypassed cleanup.
+Both Array/Object counterexamples compiled before the fence (pre-fence log).
+Source issuer emits all Birth stores as Invoke; final validator corroborates
+those landings. Reject Birth scalar instruction stores in the shared row arm;
+retain ordinary scalar rows. Post-fence counterexamples reject unsupported-cohort.
+
+Receiver identity C regression terminal0; checked-compare4 unchanged executions
+PASS. Broad Pair runtime positives pass but old malformed-add expectation fails:
+HEAD-only C build with confirmed baseline dynamic linkage rejects the same test
+expectation at malformed index13 (supported tagged Add), so known baseline test
+staleness, not selected regression or whole suite PASS. Initial baseline copy
+include failure/absent-library fallback is not evidence; corrected baseline build
+and final log establish classification. First source duplicate test insertion
+interrupted130, corrected before final1 PASS; wrong guard filename corrected.
+Guard reaches unchanged root1351 only, selected pins/size and whitespace pass.
+Selected8 staged paths byte-match isolated candidate; protected WIP remains.
+
+Next S0 uses metadata-only ordinary_i64 receiver classification in the existing
+index seed. Existing canonical tuple/Copy-root and original receiver equality are
+sole authority; no sibling scan or Birth read/Unit grant. Read-only worker's
+integrated Decision is complete. Acceptance remains source96 unchanged compile,
+Copy/foreign root/class/tuple/borrowed-release negatives and stored-callee Normal/
+Fault original Scratch site; later complex-provider/Array/app/full goal owed.

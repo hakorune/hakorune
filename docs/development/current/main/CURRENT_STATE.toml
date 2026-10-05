@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "stored-child-c-receiver/prerequisite-dependency-authority"
-current_design_stop = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
+current_blocker_token = "stored-child-c-receiver/isolated-mapping-acceptance"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,19 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Prior-field cleanup prerequisite independently verified:16 selected paths match
-isolated HEAD1a3c candidate; package618/exact known3, focused cleanup/state/issuer/
-physical/compiled-entry controls PASS. Fresh unchanged-source96 compiles composed
-C; old partial-Birth bypass negatives reject both opts. Birth owns partial fields,
-caller unpublished reclaim storage only; selected duplicate cleanup edges deleted.
-Guard only unchanged root1351, not whole PASS. Protected child-call/Array/S2 WIP
-excluded. Next read-only worker audits minimal C receiver dependency series;
-resolve internal Decision then selected C integration, no goal pause/blocked.
-Full goal, Page Array.get, unchanged-app/production/legacy retirement remain owed.
+Rust partial Birth cleanup landed1462a1dc82. Independent committed-owned-slot C
+consumer verified: selected8 paths match isolated HEAD+helper/flow; source1 issues
+bothopts original provider-only graph, wire42 and actual-runtime32 PASS. Worker
+found scalar instruction overwrite/Fault bypass; reproduced2 and Birth row fence
+rejects both. Receiver identity and compare4 PASS; Pair malformed-add expectation
+also fails HEAD-only C at index13, classified baseline staleness, not whole PASS.
+Guard only unchanged root1351. Next metadata-only ordinary_i64 receiver S0 uses
+canonical tuple/original receiver/Copy root, no sibling/Birth/Unit/Array-local grant.
+Original complex provider/Array acceptance, Page Array.get, unchanged-app and full
+production cutover/legacy retirement/finite goal remain owed. No Cargo live.
 """
-next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-INTEGRATION-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

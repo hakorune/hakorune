@@ -33,6 +33,8 @@ static hako_lv4_value* lv4_borrowed_copy_root(hako_lv4_function_index* fn,
   return value;
 }
 
+#include "hako_llvmc_ffi_lifecycle_v4_indexed_birth_fields.inc"
+
 static int lv4_borrowed_typed_live(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value, const uint16_t* state) {
   if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
@@ -208,7 +210,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          proven i64 lane only — tagged carriers and handle leases never
          reach this row. A dynamic-integer-range obligation is discharged by
          the emitted bounds check at this row, not by the kernel. */
-      if (lv4_is(fn->function, "role", "root_unit") || faulted ||
+      /* Birth source stores are Invoke terminators with issued Fault cleanup. */
+      if (birth || lv4_is(fn->function, "role", "root_unit") || faulted ||
           lv4_slot(in, ins) < 0 || !value || value->kind != LV4_I64 ||
           !check ||
           !(lv4_is(check, "kind", "none") ||
@@ -299,6 +302,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         state[result->origin] = 0;
       }
     }
+    if (birth && lv4_is(term, "op", "return") &&
+        (faulted || !lv4_birth_finish(in, fn, state))) return 0;
     for (size_t i = 0; i < count; i++) if (state[i]) return 0;
     if (lv4_is(term, "op", "return_fault")) return faulted;
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -452,8 +457,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         if (value->origin < 0 ||
             !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
                 0, 0)) return 0;
+        if (birth && (!lv4_birth_array_value(fn, value) ||
+            !lv4_birth_commit(in, fn, op, normal, bi, 0))) return 0;
         normal[value->origin] = state[value->origin] = 0;
-      } else if (value->kind != LV4_I64 && !(birth && value->kind == LV4_TAGGED)) return 0;
+      } else if ((value->kind != LV4_I64 && !(birth && value->kind == LV4_TAGGED)) ||
+          (birth && lv4_birth_reserved(in, op))) return 0;
       if (!lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "field_residence_release")) {
@@ -461,13 +469,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          The base Home stays live until its own release consumes it, so
          the operand corroborates the exact object without ending it. */
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
-      /* A birth caller's fault discharge releases the in-flight provider
-         child's residence slot the same way: origin >= 0 keeps the
-         borrowed receiver out of this lane. */
+      /* Owned bases retain their existing teardown. A borrowed Birth base
+         additionally requires an exact Normal-committed slot marker. */
       if ((fi && !ordinary && !birth) || lv4_slot(in, op) < 0 || !base ||
-          base->origin < 0 ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      if (base->origin < 0 && (!birth ||
+          !lv4_birth_discharge(in, fn, op, state, normal, faulted, 0))) return 0;
     } else if (lv4_is(op, "kind", "object_field_set")) {
       /* A checked user-object field store moves the live child handle
          into the parent's slot. Normal owns the lease in the slot; Fault
@@ -485,17 +493,22 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_u(op, "child_object_id"), 1) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
       normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
       /* Same child-slot discharge as a field residence release, keyed on
          the canonical child object — the emitted helper owns the child's
-         own teardown under the exact-child corroboration here. */
+         own teardown under the exact-child corroboration here. A birth
+         caller's call-fault discharge on borrowed `me` consumes the exact
+         source-owned slot marker; other callers keep owned-base teardown. */
       hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
-      if ((fi && !ordinary) || lv4_slot(in, op) < 0 || !base ||
-          base->origin < 0 ||
+      if ((fi && !ordinary && !birth) || lv4_slot(in, op) < 0 || !base ||
+          (!birth && base->origin < 0) ||
           !lv4_layout(in, lv4_u(op, "child_object_id")) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
+      if (base->origin < 0 && (!birth ||
+          !lv4_birth_discharge(in, fn, op, state, normal, faulted, 1))) return 0;
     } else if (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||
         lv4_is(op, "kind", "reclaim_unpublished")) {
       /* `home_release_if_live` releases a value that may carry the Void
