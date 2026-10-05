@@ -1,10 +1,10 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "stored-child-receiver/source-authority-mapping"
-current_design_stop = "StoredChildReceiver__ExactResidenceAndEntryPacketLending"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,22 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Borrowed direct I64 result S1 landed/pushed61d94d5cf2. Same original incoming
-source join and grounded map; child completion retains source-issued borrowed
-Call, final frame mode follows original root owner. Direct/local chain16 each
-reach JSON and C NormalFault; source29/entry21/boundary11/JSON29/composition5 PASS.
-Package630/exact known3 and HEAD-identical root1351 guard debt remain baseline.
-Next required stored-child direct receiver D0: original me.ProviderField call,
-existing source residence/class/owned inventory and parent entry lifetime.
-Source residences are sealed before target preparation; exact closed receiver
-arm and packet lending remain to close. Separate C published-parent projection
-and Page Array.get I64 result are required, not inferred from receiver admission.
-Protected C/Array/S2 WIP landing and Provided/vocabulary remain owed. Last app
-artifact-unowned-lifecycle-site, no fresh EXE. Full finite goal remains open.
+Borrowed direct I64 result S1 landed61d94d5cf2. Required source-flow BoxShape T0
+verified: argument recursion moved intact to private child; parent659/child144.
+Call_result34/source14/entry21/lexical10/terminal19/resolved349/publication29/
+instance15 PASS; scope guard same HEAD-identical root1351 debt, never whole green.
+Read-only worker closed stored-child canonical source/entry/packet mapping.
+Select semantic S0: original direct me.ProviderField Return(MethodCall), exact
+parent entry, canonical field/child tuple and existing borrowed I64 result proof.
+On-demand tuple seal uses same issuer/map; minimal no-local-new owner must retain
+verified terminal Completion. No lexical-local alias or child-owned lease.
+Separate C published-parent projection and Page Array.get I64 source result remain
+required; Provided/vocabulary and protected C/Array/S2 landing remain owed.
+Last app artifact-unowned-lifecycle-site, no fresh EXE. Full finite goal open.
 """
-next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

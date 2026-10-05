@@ -701,4 +701,23 @@ rg -q 'carriers_only' "$LIFECYCLE_V4_INDEXED"
 test -f "$CHECKED_COMPARE_EXE_TEST"
 
 # Continue lifecycle pins in this same shell, preserving the shared inventory.
+# CALL-ARGUMENT-SPLIT-T0: one private recursion, same parent lenders.
+CALL_ARGUMENTS="$ROOT_DIR/src/mir/resolved_semantics/home_local_call_arguments.rs"
+CALL_FLOW="$ROOT_DIR/src/mir/resolved_semantics/home_local_call_flow.rs"
+rg -q 'mod arguments;' "$CALL_FLOW"
+rg -q 'use arguments::seal_lexical_i64_arguments_at;' "$CALL_FLOW"
+rg -q 'pub\(super\) fn seal_lexical_i64_arguments_at' "$CALL_ARGUMENTS"
+rg -q 'fn seal_i64_call_arguments' "$CALL_ARGUMENTS"
+rg -q 'fn seal_argument_call' "$CALL_ARGUMENTS"
+if rg -n '^fn seal_(lexical_i64_arguments_at|i64_call_arguments|argument_call)' "$CALL_FLOW"; then
+  echo "[$TAG] duplicate parent argument sealing" >&2
+  exit 1
+fi
+for file in "$CALL_ARGUMENTS" "$CALL_FLOW"; do
+  if (( $(wc -l < "$file") >= 800 )); then
+    echo "[$TAG] argument owner reaches 800 lines: $file" >&2
+    exit 1
+  fi
+done
+
 source "$ROOT_DIR/tools/checks/mirbuilder_qualified_route_lifecycle_scope.inc.sh"

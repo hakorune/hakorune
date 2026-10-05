@@ -39,6 +39,10 @@ pending return value, while Fault uses the same Completion's live Home state.
 Target/argument sites remain in the affine package row. Unary expressions,
 locals and nested argument calls are not Integer literal evidence in this row.
 No physical continuation or ABI tag is issued by these source facts.
+The private `home_local_call_arguments` child owns ordered argument sealing for
+the existing local, nullable, discard and borrowed terminal call lenders. The
+borrowed callback runs first; strict scalar and nested-call sealing keep their
+original selected-site and lexical receiver checks.
 
 The terminal relation additionally records non-i64 `return <value>` evidence
 through `TerminalValueReturnV1`: the exact returned source is a `MapLiteral`

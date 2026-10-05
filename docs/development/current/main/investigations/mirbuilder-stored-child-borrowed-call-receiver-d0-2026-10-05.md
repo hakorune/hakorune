@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: active design mapping; implementation not selected
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-D0
+Status: prerequisite source-flow split T0 verified / semantic receiver S0 selected
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -145,3 +145,126 @@ Remaining design task before fast selection: enumerate terminal/source/physical
 packet consumers of receiver_binding and define their closed-arm handling,
 including the original parent read plus recorded ObjectFieldGet correspondence.
 No fabricated receiver read, alias local, child-owned Home or teardown is allowed.
+
+## Selected prerequisite / CALL-ARGUMENT-SPLIT-T0
+
+Decision: BoxShape only. home_local_call_flow.rs is796 lines; the required
+receiver admission cannot grow this parent. Move its three existing argument
+sealing functions together into private home_local_call_arguments.rs. Only
+seal_lexical_i64_arguments_at becomes pub(super), reimported privately by parent;
+its three callers, recursive child calls and private relation issuance remain
+unchanged. Worker confirmed the boundary, borrowed-callback-first ordering,
+strict fallback only for positively selected sites, exact lexical receiver gate
+and ordered arguments. No source or physical meaning changes in T0.
+
+Source authority/canonical issuer and production consumers are unchanged:
+parent local/nullable/discard/borrowed-terminal call lenders all use the same
+helper, now owned by the argument-sealing child. Replaced responsibility is
+only its location inside the796-line parent; no alternate implementation stays.
+
+Scope: parent, new private child, existing owner README paragraph, selected
+scope guard pins, this card and current pointer. Snapshot mixed README before
+editing; preserve protected WIP. Acceptance: verbatim moved-body comparison,
+focused call_result, borrowed source/entry and existing lexical/terminal call
+families, resolved semantics tests, rustfmt and scope/pointer guards. Existing
+package known3 and root1351 guard debt remain classified baseline. No new
+mirror test is needed for mechanical code motion.
+
+T0 does not admit stored receivers or solve the app. After verified landing,
+return to this card's receiver consumer mapping and select semantic S0 when
+that mapping closes. Goal remains active.
+
+## Closed consumer mapping for subsequent semantic S0
+
+Worker census closes the bounded semantic unit: original direct ReturnValue
+whose value is a MethodCall on `me.<Provider field>`, with source-proven I64
+callee and at least one original borrowed actual. Preparation restricts this
+new arm to those original return sites. Local/nested/nullable/discard/loop
+receiver admission remains separate; no annotation-only result authorization.
+
+- result_composition consumes the existing target receiver enum, checking the
+  original exact FieldAccess/Me sites for StoredOwnedChild instead of comparing
+  against Lexical(Local). Incoming/use classifiers already clone the same target
+  and classify exact argument sites; they need no second receiver inference.
+- The extracted terminal argument sealer admits the closed structural spelling
+  only when the existing selected borrowed callback supplies its argument rows.
+  Existing strict and nested lexical gates stay lexical-only.
+- lexical_return prepares a closed receiver projection: Lexical ExactLexicalRead
+  or StoredChild { parent: ExactLexicalRead, read: recorded ObjectFieldGet }.
+  Parent read is checked at original Me site/binding. The field read uses the
+  source target's canonical field and its dst alone becomes the call receiver;
+  record it in the same original source group's ordered bindings.
+- PreparedLexicalCallProjection materialization checks this closed arm;
+  validate_recorded includes its field producer and existing final binding/
+  PhysicalBoundary checks validate exact emitted correspondence. No read registry.
+  has_producer_at includes the field read where an emitted group owns it.
+- Nonselected consumers (local/nested/nullable terminal, raw terminal and loop
+  call port) explicitly require the Lexical arm. Never return parent_binding as
+  receiver_binding for compatibility: parent lifetime is not a child-owned Home.
+  Existing call/exit frame and caller cleanup remain; no child teardown or Birth
+  ConstructionChildCall discharge is borrowed for an ordinary parent field.
+
+S0 implementation scope after T0: source target/provenance and private stored
+receiver source join; existing source-owned issuer access/on-demand map seal;
+borrowed result composition; extracted arguments child; lexical receiver
+projection and direct terminal emitter; explicit lexical-only access in current
+consumers and fixtures; private/source acceptance tests, owner explanation and
+selected guard. Any further required contract is recorded here before widening.
+Source-target and child-field packet have one authority and one consumption path.
+
+Worker also found a completion-selection prerequisite: minimal
+`bridge(p) { return me.child.read(p) }` has no local construction or formal field
+read. Current plain seed Completion at issue365 skips the verified Home walk;
+the later actuals-only borrowed probe cannot retain its terminal relation.
+Exclude only owners with an original selected StoredChild direct terminal target
+from that seed path, using the same prepared target arm. Keep unrelated borrowed
+calls and ordinary seed owners unchanged. The minimal no-local-new source must
+be a positive; the production Heap's guarded reads must not hide this boundary.
+The799-line co-seal facade cannot grow: expose the existing predicate through a
+private owner/helper with a bounded call-site replacement or a separate required
+BoxShape split if mapping requires more code. Never compress lines to fit.
+
+## T0 verified closeout
+
+Previous goal turn: progress, S1 closeout and stored receiver authority/card
+landed `b77747e5c0`. Current-first/pointer PASS; no Cargo at entry.
+T0 selected and implemented before any receiver semantics. Worker reviewed the
+actual diff: three original argument functions moved together, parent659/child144,
+borrowed-first callback, None/strict predicate, errors, recursion, order and
+prior Homes unchanged. Post-rustfmt comparison confirms identical bodies except
+new pub(super) visibility and terminal blank-line formatting. Snapshots protect
+mixed owner README at `/tmp/hako-stored-child-call-argument-split-T0-before/`.
+
+Cargo98982 terminal0 call_result34/34. Sequential Cargo8197 terminal0:
+borrowed_formal_source14/14, entry21/21, lexical_i6410/10,
+terminal_result19/19 and resolved_semantics349/349. Cargo15441 terminal0:
+borrowed_source_publication29/29 and lexical_instance_call15/15.
+Logs `/tmp/hako-stored-child-call-argument-split-T0-{call-result,source,entry,
+lexical,terminal,resolved,publication,instance}.log`. All filters executed tests.
+New private-owner guard pins run before guard17362 terminal1 reaches unchanged
+root1351 debt (sha2565fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467).
+No whole guard/package green claim, no new package run or app EXE claim.
+Rustfmt, whitespace and current-pointer checks PASS. No live Cargo/rustc.
+
+## Selected semantic S0
+
+Authority and consumer mapping above are closed. Select bounded original direct
+stored Provider receiver Return(MethodCall), source-proven borrowed I64 callee,
+exact parent entry Home and canonical field/child tuple. Existing target and
+result/terminal/physical packet own the new arm; no parallel implementation.
+Replaced production rejection is the direct field receiver target/terminal
+spelling in Heap/facade source. Local/nested/nullable/discard/loop arm admission,
+C ordinary-parent projection and Array.get source result remain separate required
+work. This split does not shrink production or full-goal acceptance.
+
+Construction may begin under this same card's enum/source/packet/seed Decision.
+Before edits snapshot the selected source/projection/builders and mixed README.
+Keep issuer799 within the cap; a bounded source-claim request bundle/private
+helper may replace existing arguments, but no compressed code or new semantic
+receipt. Preserve exact returned-site, original entry binding, canonical field,
+child class, argument order and all final independent correspondence checks.
+Add minimum no-local-new source witness and two fields of the same child class;
+pin explicit lexical-only handling for all nonselected consumers. Focused
+positive/negative and final source->JSON acceptance close S0; C execution is
+required after the separate physical projection owner closes its boundary.
+No .hako rewrite, silent retry, child lease or copied Birth teardown.
