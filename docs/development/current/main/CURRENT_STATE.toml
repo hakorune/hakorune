@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-BIRTH-PRIOR-FIELD-CLEANUP-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "stored-child-receiver/C-parent-projection"
-current_design_stop = "stored-child-receiver/C-parent-projection"
+current_blocker_token = "birth-prior-field-cleanup/prerequisite-integration"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,19 +17,20 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Provider e0355851e6 and metadata e00407c579 landed/pushed. Source receiver/profile
-verified on e00407c579 + source36 only: JSON96 and recorded identity negatives,
-Pending4/source14/page_heap4/call_result35/resolved349/physical11 PASS;
-package615/exact known3. Old ingress adapter cfg(test), late classifiers retired.
-Source36 bytes match isolated tested candidate; scope guard known root1351 only.
-Select C receiver D0 to integrate existing tuple/ordinary_i64/root-borrow mapping
-with read-only worker; no NullableHandle ownership extension. Internal Decision
-then bounded implementation; goal active, not paused/blocked. Protected C/Array/S2
-and Page Array.get/unchanged app/full-goal acceptance remain owed.
+Provider e0355851e6, metadata e00407c579, source/profile7fdec38b6e landed/pushed.
+Composed current WIP: Rust2 regenerate original source96 + Scratch callee/child0;
+C all96 compile, Copy wire/9 named negatives, bothopts real Normal/Fault cleanup
+once PASS. No isolated C closeout claim. Old source-only96 retained as partial
+Birth Fault cleanup counterexample; C S2 marker stays strict. Cleanup1/issuer2,
+C ingress and external schema regressions PASS; scope unchanged root1351 only.
+Select independent nine-path prior-field cleanup/storage-only reclaim Rust
+prerequisite integration, exclude child-call/Array lifetime sibling hunks.
+No Cargo live; own C/test patch preserved with other protected C/Array/S2 WIP.
+Page Array.get/unchanged app/full-goal acceptance and scoped landing remain owed.
 """
-next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-D0"
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "none"
+next_execution_card = "MIRBUILDER-BIRTH-PRIOR-FIELD-CLEANUP-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
