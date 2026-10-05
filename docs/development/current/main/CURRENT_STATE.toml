@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-SOURCE-S0"
+current_execution_row = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-PHYSICAL-S1"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
 current_design_stop = "none"
@@ -13,9 +13,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-source-s0-2026-10-05.md"
-latest_card = "mirbuilder-declared-object-tagged-borrow-source-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-source-s0-2026-10-05.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
+latest_card = "mirbuilder-declared-object-tagged-borrow-physical-s1"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
 latest_card_summary = """
 Protected C/S1/S0/Array ABI work remains uncommitted; parent and S1 cards retain
 contracts/evidence. S2 source-owned object slot tuples and exact Birth Normal-store
@@ -42,8 +42,8 @@ full package622/3 exact named baseline PASS/known debt. Array numeric sibling
 corrected after worker review; exact receiver/index and typed capture/copy
 regressions PASS. No Cargo live. Scope pins pass to HEAD-identical root test1351
 baseline debt; full guard is not PASS. Pointer/whitespace PASS.
-S1 entry/header/publication/C
-class/null corroboration remains mandatory. Actual app frontier unchanged.
+S0 landed/pushed c0a8bf05bd. S1 entry/header/publication/C class/null
+corroboration selected with existing mandatory object_view:null|uint wire. Actual app frontier unchanged.
 Exact result/Provided destination contracts remain unresolved. No
 ownership lane reopening, .hako workaround or verifier exception. T0 diagnostic commit cbd5ec43c7 pushed; selected S1 source-backed usize entry
 projection preserves runtime-check and backend reject obligations;
@@ -52,9 +52,9 @@ remaining S1 borrowed/nullable provenance evidence. Parked lanes unchanged.
 No whole-app/goal completion; full finite pipeline and production retirement owed.
 """
 next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-source-s0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-SOURCE-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-source-s0-2026-10-05.md"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
+next_execution_card = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-PHYSICAL-S1"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
