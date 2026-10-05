@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-BORROWED-I64-CALL-RESULT-SOURCE-S0"
+current_execution_row = "MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "borrowed-result/source-not-i64"
 current_design_stop = "none"
@@ -17,24 +17,24 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-borrowed-i64-call-result-source-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
 latest_card_summary = """
-Terminal field return finishing S0 landed/pushed a47039d3fe: three production
-validation callers share canonical PhysicalBoundary/FinishedBindings; original
-block-only read lookup retired. Root and borrowed child direct field returns
-survive both opts, six source-issued C Normal/Fault programs PASS. Exact read/
-return mutations reject at full child finishing; guard swap rejects at existing
-borrowed-use publication owner with original handoff/profile and healthy control.
-Source27/entry21/boundary11/JSON29/borrowed-use17; package623/exact known3 and
-HEAD-identical root1351 guard debt, never whole green. Protected C/Array/S2 WIP
-and scoped landing remain owed. D0 mapped original incoming source targets and grounded result dependencies;
-selected S0 composes sole-local call results in the existing result map, then
-all-owner completion corroboration before affine issuance. Stored-child direct
-receiver target is a separate prerequisite, not solved by scalar composition.
-Last unchanged app stops artifact-unowned-lifecycle-site, no EXE. Full finite
-pipeline production/retirement and acceptance remain open; parked lanes unchanged.
+Borrowed local I64 result composition S0 landed/pushed ee60c70fb7. Existing
+incoming source targets and sole-local initializer/return sites ground I64 only
+from source-proven callee dependencies; unseeded cycles/non-I64 stay rejected.
+Lexical issuer corroborates all completion/dependencies before affine rows;
+per-edge order-sensitive production corroboration retired. Source28/entry21/
+boundary11/JSON29, chain16 bothorders/annotations/domains/opts and C16NormalFault,
+private mutual/self/literal cycle and five two-hop invalidation variants PASS.
+Package625/exact known3; HEAD-identical root1351 guard debt, never whole green.
+Worker mapped next direct lexical Return(MethodCall) through same incoming loan,
+grounded map and existing terminal owner; selected fast S1, no new emitter or
+facade799 change. Stored-child direct receiver remains a separate required
+prerequisite. Protected C/Array/S2 WIP/landing and Provided/vocabulary remain owed.
+Last unchanged app artifact-unowned-lifecycle-site, no EXE. Full finite pipeline
+production/retirement and acceptance remain open; parked lanes unchanged.
 """
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-BORROWED-I64-CALL-RESULT-SOURCE-S0"
+next_execution_card = "MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-i64-call-result-source-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

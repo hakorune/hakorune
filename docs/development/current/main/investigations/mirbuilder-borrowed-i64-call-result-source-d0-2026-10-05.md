@@ -1,7 +1,7 @@
 # Borrowed I64 call-result source D0
 
-Status: S0 validated / scoped closeout
-Execution row: MIRBUILDER-BORROWED-I64-CALL-RESULT-SOURCE-S0
+Status: S0 landed / S1 selected
+Execution row: MIRBUILDER-BORROWED-I64-DIRECT-CALL-RESULT-SOURCE-S1
 Scope: required I64 result composition inside the existing borrowed-result owner;
 no implementation until source-site/target/result/completion mapping is closed.
 Related:
@@ -191,4 +191,34 @@ Before snapshots isolate five tracked selected paths from protected WIP; new
 private/source/C tests are selected additions. No app EXE or post-S0 CLI probe
 claimed. Direct lexical returned call, direct stored-child receiver source target,
 Provided ownership and pending C/Array/S2 landing remain mandatory later work.
-Full finite pipeline goal is active. Scoped verified commit/push next.
+Full finite pipeline goal is active. Scoped S0 landed/pushed ee60c70fb7; remote
+branch hash verified equal. Existing protected C/Array/S2 WIP remains unstaged.
+
+## Next Decision / direct lexical call S1
+
+Read-only worker confirmed no missing authority for this bounded shape.
+Original returned MethodCall value site supplies the call site directly; local
+initializer path keeps its own declaration/non-rebind obligations. Both paths
+share the same exact-call join to retained incoming.source. Callee must already
+be a grounded I64 in the S0 result map; all-owner completion/dependency prepass
+and affine lexical issuance remain unchanged. Rename the private helper to
+reflect both source placements, without a parallel direct-call proof product.
+
+Production consumers: source_result and its same prepared map -> original
+issue_borrowed_i64_terminal_call/TerminalI64CallReturn, final ready closure,
+borrowed_terminal_arguments_v1 and existing terminal-call emitter. Original
+terminal owner requires Return(MethodCall), lexical receiver, source-sealed
+arguments and BorrowedActual; no empty loan or literal-only nonborrowed widening.
+Replaced edge: blanket source-not-i64 for this exact direct-return placement.
+Stored-child direct receiver targets, ownership/Provided and other vocabulary
+remain separate required obligations. No facade799/emitter/C/ABI change.
+
+S1 acceptance: leaf/caller annotated and unannotated, null/object, direct
+2-hop chain, both declaration orders and optimization settings; source->final
+MIR->issued JSON->C Normal/Fault exact results/cleanup. Preserve local chain16,
+existing result/entry/physical source families and rejection of foreign owner/
+site/target, nonborrowed/non-I64 callee, missing completion and ungrounded cycles.
+Guard pins reuse the same result owner/dependency tests and remain below800;
+root1351 baseline debt stays classified, never whole-green evidence.
+Before S1 edits, snapshot selected source/helper/tests/README/guard for scoped
+staging. No Cargo live. Build/CI/app/goal completion is not inferred from S0.
