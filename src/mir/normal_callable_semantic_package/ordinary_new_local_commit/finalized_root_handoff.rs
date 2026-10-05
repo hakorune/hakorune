@@ -1,6 +1,6 @@
 //! Final root handoff after source and physical validation are complete.
 use super::*;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn seal_finalized_root_birth_handoff(
@@ -227,7 +227,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
-        for record in self.provider_births.borrow().iter() {
+        let providers = self.provider_births.borrow();
+        let mut checked_relations: BTreeMap<_, _> = births
+            .iter()
+            .map(|relation| (relation.target().clone(), relation.clone()))
+            .collect();
+        for record in providers.iter() {
             let relation = &record.handoff;
             let key = relation.target().clone();
             if relation.owner() == record.site.owner() {
@@ -239,6 +244,35 @@ impl OrdinaryNewClaimLedgerV1 {
             if !construction_keys.contains(&key) {
                 return Err(freeze("artifact-birth-construction-missing"));
             }
+            if let Some(existing) = checked_relations.get(&key) {
+                if existing != relation {
+                    return Err(freeze("artifact-birth-abi-duplicate-drift"));
+                }
+            } else {
+                checked_relations.insert(key, relation.clone());
+            }
+        }
+        // All constructors remain validated, but only a selected Birth can
+        // lend its provider actuals to the published program. Source owner
+        // identities define this closure; physical caller presence does not.
+        let mut selected_owners: BTreeSet<_> = births.iter().map(|row| row.owner()).collect();
+        loop {
+            let mut changed = false;
+            for record in providers.iter() {
+                if selected_owners.contains(&record.site.owner()) {
+                    changed |= selected_owners.insert(record.handoff.owner());
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
+        for record in providers.iter() {
+            if !selected_owners.contains(&record.site.owner()) {
+                continue;
+            }
+            let relation = &record.handoff;
+            let key = relation.target().clone();
             actuals.push(FinalizedBirthActualsV1 {
                 site: record.site.clone(),
                 destination: None,
@@ -315,5 +349,20 @@ impl OrdinaryNewClaimLedgerV1 {
                 births: births.into_boxed_slice(),
             }
         })
+    }
+}
+
+#[cfg(test)]
+impl FinalizedBirthActualsV1 {
+    /// Corrupt only caller identity on an original zero-argument provider receipt.
+    pub(crate) fn with_foreign_provider_owner_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Self {
+        assert!(self.destination.is_none() && self.arguments.is_empty());
+        assert_ne!(self.site.owner(), owner);
+        let mut actual = self.clone();
+        actual.site = OwnedExprSiteV1::new(owner, self.site.site().clone());
+        actual
     }
 }

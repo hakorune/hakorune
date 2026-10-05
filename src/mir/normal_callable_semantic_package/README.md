@@ -693,6 +693,17 @@ the ordinary return surface consumes that relation even when no Home exit is
 opened. Artifact validation still checks the emitted constant and Return before
 the finalized handoff derives the I64 entry result.
 
+All constructor definitions retain their original source/emission validation.
+Finalized Birth publication has a narrower scope: completed local construction
+relations select Birth owners, and provider receipts extend that owner set to
+closure through their original caller site and child handoff identities.
+Only providers belonging to that selected set are transported, in original
+record order. Definition deduplication never deduplicates per-site actuals.
+Every provider relation is still checked before selection. The physical
+consumer must consume every selected actual and reference every selected
+Birth; caller absence cannot repair a missing selected receipt.
+
+
 RootHomeExitProgress retains installed bindings, exact exit site, object ID and
 bound ValueId through emission. The existing ledger indexes this progress by
 FunctionOwnerIdV1, so AppMain and selected ordinary children cannot overwrite

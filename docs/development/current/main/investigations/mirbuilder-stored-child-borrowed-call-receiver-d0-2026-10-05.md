@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: T0/T1/T2 landed / T3 verified / PROFILE-S0 selected / receiver S0 WIP
-Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0
+Status: provider Birth publication verified / owned-layout publication selected
+Execution row: MIRBUILDER-OWNED-OBJECT-LAYOUT-PUBLICATION-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -20,7 +20,7 @@ also directly returns `me.heap.isLiveHandle(handle)`. Page.isLiveHandle at142
 returns `me.block_used.get(handle.block_id)`, a separate Array-get result need.
 No .hako rewriting is authorized to manufacture a supported local receiver.
 
-Lexical source preparation currently accepts only Lexical(Local binding).
+At D0 entry, lexical source preparation accepted only Lexical(Local binding).
 SourceTarget.receiver_binding and terminal/projection consumers independently
 assume that spelling. Existing local field provenance joins exact FieldAccess,
 lexical Me/Receiver, selected owner box and field-write class. Class agreement
@@ -146,33 +146,12 @@ packet consumers of receiver_binding and define their closed-arm handling,
 including the original parent read plus recorded ObjectFieldGet correspondence.
 No fabricated receiver read, alias local, child-owned Home or teardown is allowed.
 
-## Selected prerequisite / CALL-ARGUMENT-SPLIT-T0
+## Closed prerequisite / CALL-ARGUMENT-SPLIT-T0
 
-Decision: BoxShape only. home_local_call_flow.rs is796 lines; the required
-receiver admission cannot grow this parent. Move its three existing argument
-sealing functions together into private home_local_call_arguments.rs. Only
-seal_lexical_i64_arguments_at becomes pub(super), reimported privately by parent;
-its three callers, recursive child calls and private relation issuance remain
-unchanged. Worker confirmed the boundary, borrowed-callback-first ordering,
-strict fallback only for positively selected sites, exact lexical receiver gate
-and ordered arguments. No source or physical meaning changes in T0.
-
-Source authority/canonical issuer and production consumers are unchanged:
-parent local/nullable/discard/borrowed-terminal call lenders all use the same
-helper, now owned by the argument-sealing child. Replaced responsibility is
-only its location inside the796-line parent; no alternate implementation stays.
-
-Scope: parent, new private child, existing owner README paragraph, selected
-scope guard pins, this card and current pointer. Snapshot mixed README before
-editing; preserve protected WIP. Acceptance: verbatim moved-body comparison,
-focused call_result, borrowed source/entry and existing lexical/terminal call
-families, resolved semantics tests, rustfmt and scope/pointer guards. Existing
-package known3 and root1351 guard debt remain classified baseline. No new
-mirror test is needed for mechanical code motion.
-
-T0 does not admit stored receivers or solve the app. After verified landing,
-return to this card's receiver consumer mapping and select semantic S0 when
-that mapping closes. Goal remains active.
+BoxShape landed at366632a676: original argument sealers moved to private
+home_local_call_arguments, sole caller/issuer semantics unchanged. Parent659 /
+child144. Detailed Decision and evidence are retained in that commit.
+This closes only the source-size prerequisite, not stored receiver admission.
 
 ## Closed consumer mapping for subsequent semantic S0
 
@@ -226,25 +205,11 @@ BoxShape split if mapping requires more code. Never compress lines to fit.
 
 ## T0 verified closeout
 
-Previous goal turn: progress, S1 closeout and stored receiver authority/card
-landed `b77747e5c0`. Current-first/pointer PASS; no Cargo at entry.
-T0 selected and implemented before any receiver semantics. Worker reviewed the
-actual diff: three original argument functions moved together, parent659/child144,
-borrowed-first callback, None/strict predicate, errors, recursion, order and
-prior Homes unchanged. Post-rustfmt comparison confirms identical bodies except
-new pub(super) visibility and terminal blank-line formatting. Snapshots protect
-mixed owner README at `/tmp/hako-stored-child-call-argument-split-T0-before/`.
-
-Cargo98982 terminal0 call_result34/34. Sequential Cargo8197 terminal0:
-borrowed_formal_source14/14, entry21/21, lexical_i6410/10,
-terminal_result19/19 and resolved_semantics349/349. Cargo15441 terminal0:
-borrowed_source_publication29/29 and lexical_instance_call15/15.
-Logs `/tmp/hako-stored-child-call-argument-split-T0-{call-result,source,entry,
-lexical,terminal,resolved,publication,instance}.log`. All filters executed tests.
-New private-owner guard pins run before guard17362 terminal1 reaches unchanged
-root1351 debt (sha2565fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467).
-No whole guard/package green claim, no new package run or app EXE claim.
-Rustfmt, whitespace and current-pointer checks PASS. No live Cargo/rustc.
+366632a676: moved-body comparison and focused call_result34/source14/entry21/
+lexical10/terminal19/resolved349/publication29/instance15 PASS. Logs remain
+/tmp/hako-stored-child-call-argument-split-T0-*.log. Guard only reaches known
+HEAD-identical root1351 debt; no package/C/app/full-goal green claim.
+Pointer/whitespace PASS. See commit for full command evidence.
 
 ## Selected semantic S0
 
@@ -315,60 +280,306 @@ terminal evidence. No semantic receiver admission or slice completion yet.
 
 ## T1 verified closeout / semantic S0 resumed
 
-Cargo83277 terminal0: call_result34/34. Sequential Cargo40712 terminal0:
-publication29/29, borrowed_formal_source14/14, entry21/21,
-lexical_instance_call15/15 and resolved_semantics349/349. Logs
-`/tmp/hako-stored-child-call-preflight-split-T1-{call-result,publication,source,
-entry,instance,resolved}.log`; all filters executed their intended cases.
-Same selected scope guard72588 reaches only classified HEAD-identical root1351
-baseline debt. Pointer and whitespace PASS; newly moved helper body formatted,
-existing mixed-source formatting kept outside the selected code motion.
-No live Cargo/rustc. No new package run, C/app EXE or whole-goal acceptance claim.
+353bf1d2fd: preflight-only BoxShape extraction, same five outputs, source claim
+order, retained errors and sole ledger consumer; parent771. call_result34,
+publication29/source14/entry21/instance15/resolved349 PASS. Known root1351 guard
+only, pointer/whitespace PASS; no C/app/full-goal claim. Detailed original
+Decision and evidence in commit and /tmp/hako-stored-child-call-preflight-split-T1-*.log.
+T0/T1 are closed; required stored receiver/profile semantics and their final
+restoration evidence are retained below. No further refactor selected.
 
-Production change is only the preflight owner location: five original outputs
-still feed the same declaration walk and ledger. Parent's duplicate preparation
-block is removed; new guard pins the sole call and helper statements. Source
-claim/dynamic selection order and retained errors remain unchanged. Snapshot
-patch isolates facade/README changes from protected C/Array/S2 WIP.
+## S0 construction / current evidence
 
-T0 and T1 preparations are closed; resume semantic
-MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0 using the closed receiver
-Decision above. Parent771 has room for the bounded residence/constructor/entry
-context and original selected-terminal walk predicate; no further refactor is
-selected. The existing source-owned issuer remains canonical. Field receiver
-admission itself has not yet been implemented; its full source/packet negatives
-and source->JSON acceptance still need construction and verification.
+T1 landed/pushed `353bf1d2fd`; remote hash matched. Previous goal turn progress.
+Current-first/pointer PASS and no Cargo at entry. Selected snapshots under
+`/tmp/hako-stored-child-receiver-S0-before/` isolate mixed source/README changes.
+Closed receiver enum now distinguishes original lexical binding and exact
+stored-child parent site/binding/canonical field/child. Nonselected lexical
+consumers require the lexical getter and explicitly reject stored receivers.
+Existing source-owned issuer joins original direct return, entry loan, Provider
+residence, strong declared field and canonical inventory on demand in the same
+map. No alias local, new registry, child lease or source rewrite.
 
-## MIRBUILDER-BORROWED-SOURCE-DRAFT-SPLIT-T2 / selected BoxShape predecessor
+Direct terminal uses parent ExactRead plus source-ordered recorded ObjectFieldGet
+in the existing packet; final receiver materialization and exactly-once record
+check retain correspondence. Minimal source witness has two same-class Provider
+fields and no local-new wrapper, exercising both fields/domains/orders/annotation
+states/options. C projection remains a separate required owner.
 
-Decision: extract only the original ordinary caller selection, duplicate-contract
-check and use-draft/origin/dominated-view collection from the borrowed source
-owner into its private source_drafts child. Read-only worker confirmed the
-owned triple and seven existing inputs; no lifetime or semantic authority added.
-Calls-map construction and duplicate-call rejection remain before collection;
-finite profile closure, forwards, strict incoming and object-view fixpoint remain
-after it, with identical ordering, four outside-profile error variants and tokens.
-This is required so the subsequent pending-result stage can borrow the same
-original drafts rather than rescan source. No S0 admission fix is claimed here.
+Cargo43679 terminal101:8 compile setup errors in helper visibility/export path,
+BodyShape namespace and old negative fixtures accessing the newly closed
+projection enum. Corrected those fixtures without changing their mutation.
+Worker also found seed exclusion alone insufficient; the exact same stored
+membership now positively selects verified_walk. Facade781 remains below800.
+Cargo16912 corrected build pending with one remaining module-path setup error
+(`issue` is actually `coseal_issue`); wait for terminal before source correction.
+Neither build nor new receiver acceptance is PASS yet; S0 remains incomplete.
 
-Scope: ordinary_new_borrowed_formal_source.rs and its new private child, this
-card and selection pointer. No fixture changes or other WIP staging.
-Acceptance: exact moved-body comparison, focused source/use/source-identity
-positive and negative tests, publication regression and selected stable guards.
-The prior S0 NEW5 and exact known3 remain separately unclosed; do not relabel.
-After verified T2 closeout return to PROFILE-D0 for exact pending mapping.
+Cargo16912 terminal101: only module-path setup error remained; corrected the
+private issuer visibility to actual coseal_issue module after confirming no
+Cargo/rustc live. Cargo23899 source-run now compiles call_result including the
+new stored-child witness. Source witness strengthened after worker review to
+verify each original ordinal0/1, parent canonical object/base, read dst/call
+receiver, Leaf.read target and matching published residence tuple, with no
+ordinary borrowed receiver release. No role-only or same-class ambiguity claim.
+Guard68508 terminal1 reaches the unchanged root1351 baseline after new selected
+source/packet/lexical-fence pins; guard759, source/projection owners below800.
+Receiver-specific source and finalized packet negatives remain required before
+S0 can close. No source/C/app/goal completion is inferred from pending build.
 
-T2 verification: original collection body and full profile/incoming tail compare
-exactly with the pre-T2 snapshot. Cargo29069 terminal101 after 5m07s build:
-source13/1, the one failure is the already-open S0 field-receiver source-not-i64.
-Sequential Cargo43983 terminal: uses23, publication30 and stored8 PASS;
-page_heap0/4 and package627/8 have exactly the pre-T2 failed test set (script
-comparison PASS). The failures remain S0 NEW5 plus exact known3, not baseline
-reclassification and not T2 semantic changes. No new failures introduced.
-Scope guard reaches unchanged root1351 debt; pointer and diff whitespace PASS.
-Logs /tmp/hako-source-draft-T2-*.log. Source parent614/private child82.
-T2 closes only the exact collection extraction; S0 and full goal stay open.
-Return PROFILE-D0 for the existing Pending/SourceSealed mapping; no Cargo live.
+Cargo23899 terminal101: existing call_result34 PASS; new stored-child positive
+failed before JSON at borrowed-view/declared-object-class. Read-only worker traced
+unused second wrapper removal from source definitions (borrowed_formal_source170)
+while incoming census retains its outgoing Leaf.read call (uses198). Actual
+classification requires proven caller origins (source460), so the unused wrapper
+contributes Conflict. This is a fixture cohort setup failure, not baseline debt.
+Main now calls both wrappers with the same original actual before returning the
+selected result. Wrapper bodies still have no local-new; production source and
+incoming/result authority are unchanged. Cargo86386 reruns the corrected positive;
+no PASS or S0 closeout is claimed until terminal evidence and negatives exist.
+
+Cargo86386 terminal101: corrected fixture passes ingress and reaches final
+field-read census, which rejects ordinary-field-read/unowned-or-drifted-read.
+This is a new S0 integration failure: the existing independent census reads only
+terminal/argument/local field maps, omitting the exact receiver producer already
+owned by the original terminal packet. Worker confirmed all three draft/finished
+callers run while root_exits retains Emitted packets, before finalized extraction.
+
+Decision: the existing lexical terminal child lends only its closed stored-child
+read after exact owner/exit/source packet validation. Add that original binding
+to the existing whole-function field census; preserve match/remove multiplicity,
+missing/drift rejection and independent PhysicalBoundary sequence validation.
+No scan of arbitrary call arguments, new registry, fallback or relaxed check.
+Scope adds ordinary_new_field_reads.rs and root_call_entry/lexical_terminal.rs,
+with pre-edit snapshots. Existing source target child adds real-issuer negatives
+for sibling field, child/parent identity, foreign binding, original sites and
+callee batch-slot drift; both incoming and result cohort must reject the changed
+prepared target. Cargo68659 runs stored_child positive and new identity negative.
+Neither pending build nor unverified negative is PASS; S0 remains incomplete.
+
+Cargo68659 terminal101: new identity negative used an incorrect relative path
+for brand_catalog_tests; secondary type errors followed the unresolved package.
+Corrected to the existing absolute package test issuer after process termination.
+Added finalized-child receiver mutations in existing terminal_field_projection
+owner, reusing its healthy source-issued ledger and rearm_children checkpoint:
+missing/duplicate/dst/base/sibling-field/orphan position. Healthy original child
+must finish first; mutated MIR must reach named physical-boundary/field-read
+rejection. No source proof or semantic receipt is changed by checkpoint rearming.
+Scope adds only this existing test owner (pre-edit snapshot retained).
+Cargo45333 runs all stored_child cases; results pending. Whitespace PASS; guard
+new selected pins PASS then same root1351 classified baseline. Source facade781,
+receiver451/projection442, new identity test86 all below800. Goal active.
+
+Continuation audit: the immediately preceding turn delivered the requested goal
+prompt rewrite; it made no authoritative implementation progress for this goal.
+This continuation re-read the objective/current-first sources and revalidated
+that no Cargo was live, then fixed the fixture cohort and packet/census mapping.
+These changes and the new terminal rejection evidence change the next action;
+there is no repeated external blocker and no goal completion claim.
+
+Cargo45333 terminal101:8 cases executed;6 PASS,2 new failures. Identity drift
+negative PASS for all6 mutations. Final-child negative's healthy original passes;
+mutations0..4 reject, orphan5 reaches exact local-commit/call-binding-drift rather
+than the test's listed field/physical prefixes. Corrected that expected named
+boundary, without changing validator behavior. Source positive now passes final
+field census and reaches ABI publication, failing borrowed-use/null-coverage.
+
+Code-backed diagnosis pending worker corroboration: borrowed_call_incoming visits
+both original Parent wrapper calls into Leaf.read and calls uses.entry per call.
+FunctionUses entry increments original per-formal use admission counts each time,
+while physical scans count each function once. Thus multiple incoming calls to
+one callee double the expected null/field count. Per-call incoming/entry/actual
+correspondence must remain checked; only source use-admission gathering belongs
+once per canonical callee. Reuse the existing target->owner map for first entry,
+not a new source authority or function-name heuristic. Proposed scope adds only
+compiled_entry_contract/borrowed_call_incoming.rs (snapshot preserved). S0 remains
+incomplete, no successful JSON/C/app claim and no code commit.
+
+Worker corroborated the admission-count diagnosis and canonical owners-map
+mapping. Do not use BorrowedCallUses.functions existence as the guard: uses.call
+can create a caller state before it is visited as a callee. Existing owners map
+already rejects target/owner drift and physical callee duplication is separately
+checked. Implemented first_entry with that same map; all per-call source/slot/
+actual/coordinate/result checks and uses.call remain. Cargo84185 is the sole live
+build, log /tmp/hako-stored-child-receiver-S0-entry-once-run.log; check this handle
+before starting another Cargo or editing Rust. Current pointer summary now
+records actual S0 WIP/frontier rather than only the completed T1 preparation.
+
+Cargo84185 terminal0: stored_child8/8 PASS. New original receiver positive passes
+all32 domain/method/declaration-order/result-annotation/optimization combinations
+through final MIR and issued JSON. It verifies exact field ordinal, parent/base,
+read dst/call receiver, selected Leaf target and published owned child tuple.
+Source identity6 and finalized MIR mutations6 all PASS, including exact orphan
+call-binding-drift. This is Rust source/publication evidence, not C execution or
+unchanged app acceptance. Receiver source-profile controls and formatting audit
+remain before S0 closeout; focused regressions and package baseline census run
+sequentially in one process. No new Cargo is launched concurrently.
+
+## Regression correction / PROFILE-D0
+
+Previous goal turn progress: original packet/census mapping and identity/final
+mutation evidence landed in WIP. Current-first/pointer and live Cargo84185 handle
+revalidated, then84185 terminal0. Sequential regression process98481 terminal0:
+call_result35 PASS, publication30 PASS, borrowed_formal_entry17 PASS,
+resolved_semantics349 PASS, physical_boundary11 PASS. lexical_instance_call133/1
+and package627/8 are not green. Exact prior known3 persist; NEW5 are the old
+field_receiver_callee_keeps_dominated_view_sites_outside_transport test and four
+page_heap fixture census/forward/composition/observation tests. Do not label them
+baseline or close S0. Logs /tmp/hako-stored-child-receiver-S0-regression-*.log.
+
+Worker traced the correction boundary: stored source targets change the calls
+map before borrowed-formal graph closure and strict incoming census. This can
+induce Page.resizeInPlace transport and then require its unsupported local field
+receiver incoming. A result filter only at has_stored_terminal is too late.
+Outer.run's check(9) has no caller formal; selected forwarded borrowed formal
+identity must not be replaced by the home sealer's broad literal BorrowedActual.
+Source-result guarded field proof itself requires object views from the incoming
+actual fixpoint, so annotation-only or candidate->ingress->filter->retry is invalid.
+
+Decision: source-profile classification must close before transport admission,
+using existing source/result/actual owners. Do not broaden local/nested/nullable
+receivers to repair these regressions. Non-authority: result annotation alone,
+known-nullable skip alone, a second profile/registry, failed-ingress retry, or
+changes to old fixtures that conceal new source admission. Exact mapping is
+under read-only worker audit; select MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-D0
+on this same card, work_mode design_stop, next_execution none. This pauses Rust
+construction while resolving the internal dependency; goal remains active and
+no user decision/blocker is claimed. The healthy stored32 + negatives remain
+required, together with restoring the old package acceptance and new unsupported
+source controls. Separate C/Array/app/full pipeline obligations remain intact.
+
+No Cargo/rustc live after98481. Selected rustfmt hunks applied only where they
+intersect S0 edits (lexical callback/predicate, getter fixtures, field census,
+new final negative); pre-existing import/closure/other WIP formatting retained.
+New test owners remain below800; no source semantic change made during this audit.
+
+## Integrated PROFILE-D0 Decision / pending source obligations
+
+Worker audit closes the phase ordering. Use the existing result owner for one
+closed Pending -> SourceSealed transition. Pending classifies original return
+facts but lends no executable result, borrowed ABI, class view or child lifetime.
+The existing source-target vector and owner-indexed result map remain the only
+staged storage; no additional retained registry or ingress retry is introduced.
+
+Source authority + canonical issuer: original use drafts and origins, exact
+caller formal -> callee borrowed ordinal/argument site, source contract
+DeclaredObject constraint, original verified return/use sites, canonical field
+lender and the existing result dependency fold. classify_actual_seed already
+lends the original caller draft origin + DeclaredObject class; the declaration
+lender nullable_result_integer_field verifies canonical nonweak declared I64
+storage without issuing an incoming object view. A callee's opaque formal may
+therefore carry a conditional requirement from a declared caller formal; do not
+permanently require callee DeclaredObject annotations. Opaque literal/exact-I64
+results need no field-view obligation. Result annotations never choose the lane.
+
+Pending field payload is private to the same result owner: exact formal,
+original return/read site, original FieldReadOperand/non-null-use identity,
+required class and canonical I64 field, plus the class-lending forwarded
+formal/ordinal/site identity. Original call dependencies retain their canonical
+selected key/callee owner and exact sites; prospective stored needs must not
+pretend to have an owned receiver lease. The sole target issuer still joins its
+original Provider residence/inventory/entry proof after eligibility, before
+publishing the complete StoredOwnedChild source target.
+
+Finite ordering:
+1. Collect original borrowed use drafts/origins and return facts once, before
+   transport profile closure. Preserve dominated-view rows outside transport.
+2. Ground conditional I64 caller/callee return facts with the existing result
+   dependency fold. Exact forwarded original borrowed formal is required for
+   each stored candidate. No unseeded cycle or annotation-only seed.
+3. Promote only those bounded stored rows, then lend the canonical receiver
+   tuple through the existing source-owned issuer and same map. Eligibility
+   precedes destruction/inventory mutation for unrelated/non-I64 candidates.
+   Existing lexical source rows keep their original admission behavior.
+4. Perform the existing profile closure, strict incoming census and all-incoming
+   object-view fixpoint once. Selected errors stay errors: never erase the row
+   and retry ingress or the old ABI.
+5. Seal pending obligations against exact formal view.class/object, canonical
+   field and original admitted use identity. Move only SourceSealed I64 results
+   into the existing final result map. Check each dependency against the ready
+   source target; no return AST reclassification after ingress.
+6. Force terminal verification only for promoted stored target + SourceSealed
+   I64 caller. Existing completion/result/actual/entry/physical owners remain
+   mandatory and may not consume Pending evidence.
+
+Consumer/delete-set: existing borrowed source owner separates draft collection
+from its one profile/incoming finish; result owner owns conditional field and
+call obligations/grounding/seal; lexical preflight orders these same products;
+source-owned issuer checks eligibility before tuple seal; completion predicate
+uses promoted/SourceSealed membership. Remove unconditional stored promotion,
+ingress-after-the-fact result classification and candidate-exists force-walk
+responsibilities in the same bounded correction. Keep independent final MIR and
+external ABI validators, old lexical callers, and all canonical actual checks.
+
+Acceptance: restore the NEW5 regressions without changing their production
+fixtures or claims; keep stored8/32 JSON cases and identity/final negatives;
+add opaque-callee + declared forwarded caller guarded-field positive and opaque
+scalar-leaf positive. Reject missing/foreign class or canonical field, wrong
+formal/ordinal/use site, conflicting incoming class, unseeded cycle, and Pending
+consumption. Bool/Unit/Nullable/unproven Array.get and non-forwarding literal
+stored calls stay outside this S0 profile. Required Page Array.get/C projection
+followups are preserved, not replaced by permanent annotation restrictions.
+
+Smallest next construction is this same source/result/profile correction after
+exact pending payload and function loans are written against current types.
+Source665/result621/lexical549 are measured: plan responsibility split if a
+selected owner approaches760; never grow facade781 past800. Any necessary
+BoxShape prerequisite stays separate from semantic correction. D0 keeps Rust
+construction stopped until that exact payload/loan mapping is closed; no user
+approval is required for these internal owner decisions. No live Cargo and no
+code commit; existing WIP and snapshots remain protected. Scope guard after
+selected formatting reaches the same root1351 baseline; pointer/whitespace PASS.
+
+## Closed MIRBUILDER-BORROWED-SOURCE-DRAFT-SPLIT-T2
+
+50f44a92ec: original owned draft collection moved verbatim to private child;
+finish uses the same drafts, call-map duplicate check and profile ordering.
+Source parent614 / child82. uses23/publication30/stored8 PASS; source13/1,
+page_heap0/4 and package627/8 exactly preserve then-open S0 NEW5 + known3.
+Those historical failures are not relabelled baseline; PROFILE-S0 restoration
+is recorded below. Guard known root1351 only; pointer/whitespace PASS.
+Logs /tmp/hako-source-draft-T2-*.log; full closed evidence in commit.
+
+## PROFILE-D0 concrete payload / source-only receiver probe
+
+T2 landed and pushed50f44a92ec; local/remote full SHA
+50f44a92ec089e7060408f51a8a8b03287fa0ec5 matched. Existing S0 code and
+appendices remain uncommitted; T2 staged only its own extraction/document hunks.
+No Cargo/rustc live after focused sequence.
+
+Worker and current-type inspection confirm the minimal result payload: keep
+BorrowedI64ResultSourceV1 as the sole owner, with a private closed phase
+Pending(field obligations) -> SourceSealed. A field obligation retains exact
+BindingRefV1 formal, OwnedExprSiteV1 use site and read site, required class,
+CanonicalFieldRefV1 and exact class-lending identity. Existing FieldReadOperand
+row.site and kind.site differ and both must be retained/rechecked against the
+same original draft. No cloned guard permission or fabricated class view.
+BorrowedForwardUseDraftRowV1 is Debug-only, not Clone: retain/move its original
+source identity or an exact private identity tuple; do not make an executable
+forward receipt just to classify a pending field result. Literal/exact-I64
+opaque results have an empty field-obligation list.
+
+Prospective receiver belongs in the existing SourceReceiverNeedV1 Stored arm,
+not a prematurely complete LexicalInstanceCallSourceTargetV1. Retain original
+call/receiver/argument sites, parent binding/site, Provider field/class and
+unique_instance_target's canonical key/slot/callee owner as source-only need.
+The pure probe borrows the current original direct-return shape, exact entry
+receiver and Provider residence checks; it stops before destruction_for,
+owned_field_children_of and owned.entry mutation. Only grounded eligibility
+invokes the existing stored_child_receiver_v1 canonical inventory issuer and
+reconciles the need with its complete source target. Pending dependencies name
+the same original need identity; no second lookup registry, fake Local binding
+or owned child lease. Existing lexical target admission stays unchanged.
+
+Remaining exact function-loan mapping: lend the T2 collected drafts to the
+original-return pending classifier and source-only needs, ground conditional
+field classes through the existing actual seed lender and result dependency
+fold, promote in original source order, then consume the same drafts in the
+one profile/strict incoming/object-view finish. Seal pending obligations after
+that finish without a second return-AST scan. All actual/entry/result consumers
+must require SourceSealed; missing class seeds remain named unavailable, never
+remove/re-ingress/retry. The semantic correction is not yet selected fast until
+these function boundaries and visibility are closed against current owners.
 
 ## PROFILE-D0 integrated function-loan Decision / T3 predecessor
 
@@ -438,3 +649,315 @@ Promoted stored failure is a named error, not seed fallback. Acceptance and
 replacement scope remain the integrated PROFILE-D0 Decision above. No further
 BoxShape predecessor is selected; source-only probe/Pending/seal construction
 starts under this row, then focused tests must restore NEW5 and preserve stored32.
+
+## PROFILE-S0 construction / first compile
+
+Pending source returns now retain exact guarded-field use/read identity and
+stable Direct/Local initializer call identity. Prospective Stored source needs
+carry only entry/Provider source facts and canonical selected target reference.
+Conditional class loans borrow original DeclaredObject/forwarded origins using
+classify_actual_seed; they issue no incoming view. Same result dependency fold
+schedules pre-promotion requirements, then validates sealed dependencies.
+Inventory issuer runs only after grounded-I64 + exact forwarded formal demand;
+strict profile/incoming/views consume the single original draft collection.
+Final result map is sealed without a second return/initializer classification.
+Existing source/actual/entry/result/terminal consumption guards now demand
+SourceSealed. Promoted stored result errors propagate named, not seed fallback.
+
+Implementation scope adds private result Pending/class-loan and profile-stage
+children under the same lexical/result owner, no new retained registry. Sizes
+463/137/137; result facade431, source652, source-owned child396, issue facade781.
+Existing receiver WIP and protected C/Array/S2 changes remain uncommitted.
+Cargo41199 first compile in progress: initial visibility/re-export and missing
+constructor import errors are PROFILE-S0 implementation failures, not baseline.
+No tests accepted or semantic closeout yet. Wait terminal before Rust edits.
+Read-only worker auditing new code; no additional design stop/user decision.
+
+
+## PROFILE-S0 regression restoration and audit correction
+
+Cargo37604 terminal0 compiled the Pending/profile construction; stored8 PASS,
+including the extended original JSON witness (declared, opaque guarded-field and
+opaque scalar leaves; 96 combinations, original32 retained). Sequential45137
+terminal0: Pending-consumption1, source14, page_heap4 and call_result35 PASS.
+Package633/3 has only the exact known3; the original S0 NEW5 are restored, not
+relabelled baseline. These results predate the following audit corrections and
+therefore do not close the final slice.
+
+Worker found two selected-error erasure edges: receiver issuance Err/None buried
+in a target row, and strict-ingress Err replacing the entire result map with an
+empty map. Promotion now propagates receiver failure immediately with its exact
+original call site; result sealing retains the original strict-ingress error in
+its existing owner rows. No selected seed/plain retry or result-source-missing
+replacement is allowed.
+
+Decision: conditional class grounding accumulates every declaration/forwarded
+class proposal through the same temporary finite propagation. Only a singleton
+consistent class lends a field requirement; conflicting proposals do not promote
+stored candidates. Never select the first class by declaration order. This is a
+private scheduling constraint, not a new incoming-view authority or eager error
+for old lexical callers outside the selected profile. Strict all-incoming views
+remain the sole executable class authority.
+
+Added real source negatives: weak child with independent birth store must retain
+receiver-unavailable after grounded eligibility; A/B wrappers with conflicting
+field classes in both declaration orders must stay at one failure boundary;
+foreign main actual must retain the original declared-object class error.
+Cargo53632 is verifying these plus Pending-consumption (final result pending
+child test filter); its result is not yet accepted. No concurrent Cargo or code
+commit. Final scope guard reaches the same HEAD-identical root1351 debt;
+whitespace PASS. Protected C/Array/S2 and previous receiver WIP are preserved.
+
+
+Final-negative first run Cargo53632 terminal101 (5m30s build): weak issuer,
+foreign actual and Pending-consumption3 PASS. Conflict reversal test failed
+because its expect_err assumed package issuance itself must reject an
+unselected candidate. Current finish closure removes both wrappers and then the
+opaque leaf with zero admitted incoming, returning an empty borrowed profile;
+this is the preserved outside-profile boundary, not an incoming-coverage error.
+The test expectation is a PROFILE-S0 test failure, not baseline debt. Corrected
+it to check both declaration orders produce zero definitions/incoming/views and
+zero result permission, no promoted stored disposition, while preserving both
+original main lexical call dispositions. Cargo57627 is live for this correction;
+no implementation relaxation or additional executable authority was introduced.
+
+
+Cargo57627 terminal0 (4m50s rebuild): all Pending/profile negatives4 PASS.
+Sequential84509 terminal0: source14/page_heap4/call_result35/stored8,
+resolved_semantics349 and physical_boundary11 PASS. Package636/3 has exactly
+known ReceiverNonEscape Capture / IncompleteOrdinaryNewCoverage /
+MapLifecycleUndertaking BorrowedEntryEscape, same failure names and boundaries;
+no remaining PROFILE-S0 or original NEW5 failures. Original JSON96 witness and
+stored identity/final-validation negatives remain green. Scope guard reaches
+HEAD-identical1351 SHA2565fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467.
+Pointer and whitespace PASS; this is not a whole-green guard claim.
+
+Retirement audit after this acceptance: prepare_borrowed_formal_ingress_v1 has
+zero production callers, only the two direct ingress corruption tests. Preserve
+that adapter and its reexport under cfg(test); production now has only the
+unified Pending/profile preparation. Former late return-classifier/guarded-field
+classifier functions are absent. Independent ingress and physical validators
+are preserved. Selected result and lexical issue formatting adds no new meaning
+and stays447/577 lines (source654). Cargo46559 rechecks the package after this
+production adapter retirement/formatting; no final result accepted yet.
+No S0 commit or C projection/Array.get/full-goal completion is claimed.
+
+
+## Owned-object layout publication prerequisite / isolated closeout audit
+
+Cargo46559 terminal101: post-adapter retirement package636/known3, unchanged
+failure names/boundaries. Result/lexical/source sizes447/577/654, composition106
+formatted without meaning changes. Main worktree scope guard still only the
+HEAD-identical root1351 debt; pointer/whitespace PASS.
+
+Explicit source35-path commit candidate separates the four mixed files by
+selected HEAD-based patches; protected Array/C/S2 hunks remain unstaged.
+Read-only snapshot audit confirms the other26 tracked paths had no pre-existing
+protected delta. /tmp/hako-stored-child-S0-stage/selected-source.patch preserves
+that candidate; detached checkout /tmp/hako-stored-child-S0-checkout contains
+only HEAD93b1c4d478 plus this patch. Cargo57160 is live for isolated stored-child
+acceptance, using the sole shared Cargo target directory; no restart/parallel
+Cargo. This tests the actual candidate, not the unrelated WIP.
+
+Static audit exposes a required publication dependency: source JSON96 asserts
+owned_object_residences, currently supplied only by verified but uncommitted S2
+metadata. Source closeout cannot claim that metadata exists in HEAD. Do not drop
+this acceptance or land all C/Array/S2 incidentally.
+
+Decision: isolate the existing canonical inventory publication responsibility
+as MIRBUILDER-OWNED-OBJECT-LAYOUT-PUBLICATION-S0, before receiver/profile landing.
+Source authority + canonical issuer: original ledger owned_field_children_for;
+read-only finalized handoff -> existing physical layout ABI -> JSON tuple list;
+optional exact-key C layout decoder validates that same external schema.
+Non-authority: matching emitted stores/releases, declared class alone, ordinal
+names, new source scan, copied ownership, empty tuple permission.
+Fail-fast boundary: explicit unproven inventory, foreign object/slot/child,
+duplicate or overlapping tuple, and unknown child layout. A passive class/null
+view alone grants no owned residence; preserve existing null-only declared
+object acceptance rather than requiring construction authority for an ignored
+view. Worker identified this counterexample for the current publication getter;
+verify it before closeout and distinguish absent from explicitly unproven data.
+Selected consumers/replacement: physical_abi layout projection and JSON metadata;
+C layout schema parser. No index-kind borrowing or Birth store/discharge markers
+in this prerequisite. Preserve S2 marker and Array/Unit-call WIP outside stage.
+Acceptance: constructed plain owned-child source projects exact tuple; null-only
+ignored declared parent remains accepted without owned tuple permission;
+external tuple missing/duplicate/wrong class/slot rejects as appropriate while
+legacy layouts remain admissible. Source S0 original JSON96 stays mandatory.
+No code commit or source/C/Array/full-goal closeout yet.
+
+
+Isolated source Cargo57160 terminal101: source receiver identity1 PASS; JSON and
+final-MIR stored receiver negatives2 stop at object-field-read-definition-invalid,
+which is a missing selected final-validator hunk in the initial candidate, not
+baseline debt. Add only the existing exact canonical user-field membership arm
+of invoke.rs to the saved36-path source candidate; keep its Unit call arm outside
+scope. This preserves independent final validation and is required for the same
+stored read. No source acceptance is weakened.
+
+Worker confirms publication separation and existing inventory tri-state semantics.
+Getter now retains outerNone as unissued and Some(None) as named unproven error;
+only Some(Some(children)) supplies tuple evidence. Constructed claim/provider
+inventory issuance and Normal/Fault teardown obligations remain unchanged.
+Implementation is selected as the stated publication prerequisite; scoped8-file
+index contains metadata, external decoder and focused source/schema tests only.
+Protected Array/Unit/Birth-markers/partial-cleanup changes remain unstaged.
+No stash/reset/discard. Source candidate staging was reversed with its saved
+exact patch; source code and tests remain intact for later reapplication.
+
+Detached checkout was restored by reversing only its exact source candidate,
+then received only the metadata8-file candidate (source S0 not present).
+Cargo72160 is live for owned_object_layout focused source capture2 tests,
+covering both optimization settings. No second Cargo. Exact detached C shim
+build9823 terminal0; source tests must complete before external schema tests.
+Added external decoder checks:4 unchanged inputs,4 legacy optional-metadata
+shapes,14 malformed tuple inputs (duplicate/range/self/unknown/Array-overlap/
+extra-key/ordinaltype), exact abi-layout failure. These prove schema only, not
+V4 borrowed child handling, S2 store/discharge or runtime ownership.
+
+
+Publication first isolated Cargo72160 terminal101 (6m11s): constructed canonical
+object tuple test1 PASS. Null-only test stopped at an overly strict is_ok assertion
+on the existing pretransform Document report, before metadata issuance. The report
+is exactly caller main -> Transport.probe argument0 Void/formalInteger with the
+sealed BorrowedTaggedValue carrier; existing S1 source publication classification
+already retains this reference observation. It is not a new metadata failure or
+whole-goal green claim. Correct the test to classify only that exact singleton
+report and still require final physical ABI/JSON null/class view corroboration.
+All other errors remain test failures. Cargo73568 is live for this correction;
+no parallel Cargo. The constructed capture2 variants already exist unchanged.
+Detached C metadata shim build and existing physical schema regression PASS.
+Metadata9-file staged candidate excludes source S0, Array/Unit and Birth markers;
+new compiler owner explanation records optional unissued vs explicit unproven
+inventory and external schema admission without executable ownership.
+
+
+## Provider Birth publication prerequisite / 2026-10-06 Decision
+
+Previous goal turn supplied the requested prompt; no repository progress.
+Current-first pointer PASS; no live cargo/rustc on resume. Cargo73568 and36197
+are terminal101: constructed tuple PASS, null-only Parent final ABI rejects
+compiled-entry-call-missing. Both thin and scratch callee variants remain
+unverified final-ABI counterexamples; neither is green or baseline debt.
+
+Read-only worker confirms scope mismatch: all constructor validation emits
+provider records, finalized_root_handoff adds every record, but the physical
+program contains only Birth definitions selected by actual construction.
+An unused Parent.birth therefore exports its provider actual without its caller.
+Protected Birth/Unit WIP does not fix this OrdinaryI64 counterexample.
+
+Decision: select MIRBUILDER-PROVIDER-BIRTH-PUBLICATION-S0 before metadata S0.
+Source authority + canonical issuer: existing finalized_root_handoff owner,
+completed local-commit Birth relations, provider records' original caller site
+owner and child handoff owner. Validate every provider relation as before;
+publish the finite provider closure rooted at already selected Birth owners.
+Retain original record order and per-site actuals; deduplicate definitions only.
+Non-authority: class view, symbol spelling, emitted call search, DCE, copied
+ownership, missing physical caller as a success condition, post-failure retry.
+Fail-fast boundary: preserve source constructor validation and program-wide
+all-actual consumption/all-target reference; selected missing/duplicate/foreign
+actuals must still reject. No matcher relaxation or new ownership authority.
+Smallest next slice: finalized handoff provider publication scope only.
+Acceptance: unused provider remains verified but unpublished; selected sibling
+providers retain all edges independent of declaration order and optimization;
+selected receipt corruption rejects. Then rerun unchanged metadata null-only
+and constructed witnesses in isolated candidate.
+Non-claims: metadata/source receiver/C projection/Array.get and full goal open.
+Metadata9-file staging remains protected; source36-path candidate saved.
+No prerequisite commit or acceptance claimed yet.
+
+Worker source-scope correction: provider child currently accepts only plain-i64
+or owned-array child; Parent -> owned-object Child -> Grandchild is unsupported.
+Do not add that source meaning here. Use Parent with two distinct plain provider
+children for the selected multi-edge witness; transport closure remains finite.
+
+Construction: provider scope fix and focused8 source combinations now in main
+and isolated HEAD+metadata checkout. Cargo50500 live for provider_selection;
+no acceptance yet. Worker review requires full duplicate-handoff consistency
+prepass (including unselected records), and provider-specific missing/duplicate
+negative pins; apply after terminal, then rerun. Consumer remains unchanged.
+
+Initial isolated Cargo50500 terminal0: provider-selection test executes8 source
+combinations and final ABI PASS (HEAD+metadata candidate, before audit additions).
+Added all-provider duplicate-handoff consistency and selected provider-specific
+missing/duplicate/foreign-owner negatives; no production mutator or matcher change.
+Mistaken main-checkout rerun52077 explicitly interrupted130, not PASS; its
+cargo/rustc confirmed terminal before isolated Cargo32162 started. Current
+sole build32162 checks the corrected isolated candidate; no closeout yet.
+
+Corrected isolated Cargo32162 terminal0:8 provider source combinations plus
+selected missing/duplicate/foreign-owner negatives and final ABI PASS. Worker
+final audit finds no remaining concrete defect. Next metadata focused command
+terminal0: constructed and null-only2 tests, both optimization variants PASS.
+The original null-only class view reaches final ABI with no owned tuple, while
+constructed Parent projects the canonical tuple. Detached exact C library
+external schema test:4 original +4 legacy shapes accepted,14 malformed rejected.
+Logs provider-selection-isolated-v2.log, metadata-after-provider-v2.log and
+external-schema-after-provider.log in /tmp/hako-owned-object-layout-S0-stage/.
+This is schema evidence, not C borrowed-parent runtime or full app acceptance.
+
+Prepared standalone HEAD+provider-only checkout
+/tmp/hako-provider-birth-S0-checkout (no metadata/source/C/Array WIP). Final
+provider test expands to16 source combinations, including two fields sharing
+one child Birth definition but retaining both provider actuals; only new test
+body formatted. Saved provider-prerequisite-final.patch. Sole Cargo standalone
+compiled_entry_contract::tests live; final closeout/commit waits for its result.
+Guard still reaches only known HEAD-identical root1351; pointer/whitespace PASS.
+
+Standalone Cargo33374 currently live, /tmp/hako-provider-birth-S0-checkout
+contains exactly the two prerequisite code/test paths. New metadata test now
+retains both scratch and original thin `return 7` callee variants in both opts;
+prepared in main and metadata checkout (neither is active build input). This
+additional acceptance is not yet run. Final null-only C captures will come from
+the thin variant; no class/ownership authority or .hako workaround added.
+
+Restart: poll existing Cargo33374 (live rustc confirmed) rather than start
+another Cargo. Inspect provider-standalone-final.log. Once terminal, run required
+standalone package classification, then metadata scratch+thin variants in
+/tmp/hako-stored-child-S0-checkout and rerun external schema on thin captures.
+Do not close provider or metadata from pending results. Candidate prerequisite
+code/test patch and narrow owner README patch are saved separately in
+/tmp/hako-owned-object-layout-S0-stage/provider-{prerequisite-final,readme}.patch.
+Current9-file staged metadata snapshot predates the thin-variant test update;
+preserve/reverse only that saved own cached patch before staging prerequisite.
+Commit only independently verified prerequisite, then metadata, then source36
+candidate. Existing source/C/Array/S2 WIP remains protected and full goal active.
+
+Previous goal turn: progress (provider scope implementation, original metadata
+final-ABI/schema evidence); current-first PASS and33374 terminal101 on resume.
+Standalone provider16 plus selected corruption negatives PASS; sibling tests2
+PASS. One old per-new test rejects ABI that now succeeds. Worker history proves
+its stale assertion was introduced d5823ab49ba and superseded by549a54c811:
+Local/BoundValue/I64Field scalar tag1 requires exact caller Integer value.
+This is newly discovered existing test debt, not previously-known baseline and
+not provider regression (fixture has no provider records; physical_abi unchanged).
+Correct expected ABI success while retaining Local source kind, non-tagged scalar
+transport and named rejection with missing caller type corroboration. No new
+production admission. Standalone package command terminal101:609 PASS/exact
+known3 (ReceiverNonEscape Capture / IncompleteOrdinaryNewCoverage / MapLifecycle
+BorrowedEntryEscape). Log provider-standalone-package.log. Final corrected
+compiled-entry tests and metadata original thin callee remain to verify.
+
+Corrected stale assertion retains final ABI success, source Local, untagged
+scalar tag1 and exact actual-kind-unavailable when caller type evidence is absent.
+Worker confirms549a54c811 and Oct3 landed records document this contract; no
+production actual admission changed. Sole Cargo89930 runs final standalone
+compiled-entry4; then run existing nonscalar_birth_actuals_still_reject before
+provider closeout. Metadata scratch/thin tests prepared but not yet rechecked.
+
+## Provider publication verified closeout / metadata S0 resumed
+
+89930 terminal0 standalone compiled-entry4, including provider16 source cases
+and missing/duplicate/foreign-owner negatives. Existing nonscalar actual negative1
+PASS; scalar Local test now preserves source identity and exact type-evidence
+rejection, correcting the documented549a54c811 contract drift. Package609/known3
+only. Scope guard reaches unchanged root1351 hash5fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467;
+not whole-green. Pointer/whitespace PASS. All tests execute nonzero counts.
+Production finalized_root_handoff now publishes provider source-owner closure;
+old unconditional all-provider transport is removed, no retry/parallel owner.
+All source constructor and full-relation checks remain, consumer matcher unchanged.
+Selected code368/test366 lines, narrow owner README contract; protected Array
+match arm and all C/Array/S2 WIP excluded. Source36-path receiver candidate open.
+Resume metadata S0 original tri-state inventory publication Decision above:
+verify both original thin and scratch callee witnesses, schema on thin capture,
+then scoped metadata commit. No C borrowed-parent/runtime or app/goal claim.

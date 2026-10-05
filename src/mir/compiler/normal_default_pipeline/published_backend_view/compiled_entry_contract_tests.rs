@@ -52,7 +52,20 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
             assert!(issue_birth_calls(root, births, &actuals[..1], result).unwrap_err().contains("actual-mismatch"));
             let duplicated = vec![actuals[0].clone(), actuals[0].clone()];
             assert!(issue_birth_calls(root, births, &duplicated, result).unwrap_err().contains("actual-membership"));
-            assert!(view.issue_lifecycle_physical_abi_input().unwrap_err().contains("actual-kind-unavailable"));
+            // 549a54c811 admits Local scalar transport only with exact caller
+            // Integer corroboration; the original source kind stays Local.
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            for call in input.entry().birth_calls() {
+                let caller = &input.program().functions()[call.caller_function_index() as usize];
+                for argument in call.actual().arguments() {
+                    assert!(!input.tagged_birth_actual(call.actual().site(), argument.source().ordinal()));
+                    assert_eq!(super::super::physical_abi::scalar_actual_kind(
+                        argument.source().kind(), argument.value(), caller.value_types())?, 1);
+                    assert!(super::super::physical_abi::scalar_actual_kind(
+                        argument.source().kind(), argument.value(), &BTreeMap::new())
+                        .unwrap_err().contains("actual-kind-unavailable"));
+                }
+            }
             Ok::<(), String>(())
         }).unwrap();
     });
@@ -199,4 +212,155 @@ fn map_cleanup_coordinates_follow_physical_block_contraction() {
         }
         assert_eq!(function.blocks.contains_key(&BasicBlockId(1)), !optimize);
     }
+}
+
+#[test]
+fn provider_publication_selects_original_birth_caller_closure() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for optimize in [false, true] {
+            for reverse in [false, true] {
+                for construct_parent in [false, true] {
+                    for shared_target in [false, true] {
+                        let parent = format!(
+                            "box Parent {{ first: First second: {} birth() {{
+                        me.first = new First() me.second = new {}() }} }}",
+                            if shared_target { "First" } else { "Second" },
+                            if shared_target { "First" } else { "Second" }
+                        );
+                        let mut boxes = vec![
+                            "box First { flag: i64 birth() { me.flag = 0 } }",
+                            "box Second { flag: i64 birth() { me.flag = 1 } }",
+                            parent.as_str(),
+                            "box Transport { flag: i64 birth() { me.flag = 0 } }",
+                        ];
+                        if reverse {
+                            boxes.reverse();
+                        }
+                        let main = if construct_parent {
+                            "static box Main { main() { local p = new Parent() return 5 } }"
+                        } else {
+                            "static box Main { main() { local p = new Transport() return 5 } }"
+                        };
+                        let text = format!("{} {main}", boxes.join("\n"));
+                        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                        &text, crate::parser::ParserBuildConfig::default(),
+                    ).unwrap();
+                        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+                        else {
+                            panic!("source identity lost")
+                        };
+                        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+                            source,
+                            None,
+                            Default::default(),
+                        );
+                        MirCompiler::with_options(optimize)
+                            .compile_normal_with_published(request, |view, verification| {
+                                assert!(verification.is_ok(), "{verification:?}");
+                                let contract = view.issue_lifecycle_compiled_entry_contract()?;
+                                let program = contract.program();
+                                let actuals = view.retained_birth_actuals().unwrap();
+                                let expected = if construct_parent { 3 } else { 1 };
+                                assert_eq!(actuals.len(), expected);
+                                let definitions = if construct_parent && shared_target {
+                                    2
+                                } else {
+                                    expected
+                                };
+                                assert_eq!(contract.births().len(), definitions);
+                                assert_eq!(contract.birth_calls().len(), expected);
+                                let births: Vec<_> =
+                                    program
+                                        .functions()
+                                        .iter()
+                                        .enumerate()
+                                        .filter(|(_, row)| {
+                                            matches!(row.role(),
+                                    PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. })
+                                        })
+                                        .map(|(index, row)| (index as u32, row))
+                                        .collect();
+                                let names: Vec<_> =
+                                    births.iter().map(|(_, row)| row.name()).collect();
+                                if construct_parent {
+                                    for name in ["Parent.birth/0", "First.birth/0"] {
+                                        assert!(names.contains(&name), "{names:?}");
+                                    }
+                                    assert_eq!(names.contains(&"Second.birth/0"), !shared_target);
+                                    assert!(!names.contains(&"Transport.birth/0"));
+                                } else {
+                                    assert_eq!(names, ["Transport.birth/0"]);
+                                }
+                                let mut reordered = actuals.to_vec();
+                                reordered.reverse();
+                                assert_eq!(
+                                    birth_calls::issue_birth_calls_for_program(
+                                        program, &births, &reordered
+                                    )?,
+                                    contract.birth_calls()
+                                );
+                                assert!(birth_calls::issue_birth_calls_for_program(
+                                    program,
+                                    &births,
+                                    &actuals[..actuals.len() - 1]
+                                )
+                                .unwrap_err()
+                                .contains("compiled-entry-call-actual-mismatch"));
+                                let mut duplicated = actuals.to_vec();
+                                let selected = actuals
+                                    .iter()
+                                    .find(|row| row.destination().is_none())
+                                    .unwrap_or(&actuals[0]);
+                                duplicated.push(selected.clone());
+                                assert!(birth_calls::issue_birth_calls_for_program(
+                                    program,
+                                    &births,
+                                    &duplicated
+                                )
+                                .unwrap_err()
+                                .contains("compiled-entry-actual-membership"));
+                                if construct_parent {
+                                    let provider = actuals
+                                        .iter()
+                                        .find(|row| row.destination().is_none())
+                                        .unwrap();
+                                    let foreign_owner = births
+                                        .iter()
+                                        .find_map(|(_, row)| {
+                                            match row.role() {
+                                    PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi }
+                                        if row.name() == "First.birth/0" => Some(abi.owner()),
+                                    _ => None,
+                                }
+                                        })
+                                        .unwrap();
+                                    let corrupted = provider
+                                        .with_foreign_provider_owner_for_test(foreign_owner);
+                                    let mut foreign = actuals.to_vec();
+                                    let index = foreign
+                                        .iter()
+                                        .position(|row| row.site() == provider.site())
+                                        .unwrap();
+                                    assert!(!foreign
+                                        .iter()
+                                        .any(|row| row.site() == corrupted.site()));
+                                    foreign[index] = corrupted;
+                                    assert!(birth_calls::issue_birth_calls_for_program(
+                                        program, &births, &foreign
+                                    )
+                                    .unwrap_err()
+                                    .contains("compiled-entry-call-actual-mismatch"));
+                                }
+                                // Full final ABI still has to consume every selected edge.
+                                view.issue_lifecycle_physical_abi_input()?;
+                                Ok::<(), String>(())
+                            })
+                            .unwrap();
+                    }
+                }
+            }
+        }
+    });
 }
