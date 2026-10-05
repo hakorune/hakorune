@@ -1,6 +1,6 @@
 # Stored-child borrowed call receiver D0
 
-Status: prerequisite source-flow split T0 verified / semantic receiver S0 selected
+Status: source-flow T0 landed / co-seal T1 verified / semantic receiver S0 selected
 Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
@@ -268,3 +268,73 @@ pin explicit lexical-only handling for all nonselected consumers. Focused
 positive/negative and final source->JSON acceptance close S0; C execution is
 required after the separate physical projection owner closes its boundary.
 No .hako rewrite, silent retry, child lease or copied Birth teardown.
+
+## Required preflight split T1
+
+T0 landed/pushed `366632a676`; remote hash confirmed equal. Previous goal turn
+made concrete progress by moving the argument owner and validating its existing
+production callers. Current-first/pointer PASS, no Cargo live at entry.
+
+S0's source/entry/residence joins require extra context at lexical preparation
+and completion selection. The co-seal facade is799 lines, so its preflight
+block must move before semantic changes. Select BoxShape T1: move ordinary box
+names, local candidate/class inventory, lexical targets, borrowed ingress and
+source-I64 preparation together into the existing private lexical co-seal child. Preserve
+all original calls, argument order, retained per-slot errors, declaration order
+and all five output values; no new result/permission/registry. Source claims and
+dynamic-slot selection stay before this block; the same declaration walk and
+final ledger installation consume its outputs. Worker consultation requested.
+
+Scope: co-seal facade, existing lexical child, owner README paragraph, selected
+scope guard, this card and pointer. Snapshot the mixed facade/README before
+changes. Acceptance: original moved-body comparison, source publication,
+call_result, borrowed source/entry, lexical and resolved semantics families;
+pointer/rustfmt/whitespace plus same classified root1351 scope debt. No new
+mirror tests for code motion. Return to semantic S0 after T1 verification;
+source740 is not grown, and source-owned issuer273 remains the required source
+join owner for S0. No app or full finite completion is claimed by this split.
+
+Worker review confirms all outputs are owned; preserve the five-tuple without
+outer Result or lifetime wrapper. Reuse existing issue_lexical444 rather than
+adding a new child solely for this block. names -> candidates -> class map ->
+targets -> ingress -> result order and nested errors remain unchanged.
+
+T1 construction: snapshots at
+`/tmp/hako-stored-child-call-preflight-split-T1-before/` preserve mixed facade
+and README. Source call preflight now lives in existing lexical child; no new
+file/product. Statement-token comparison with the old block PASS after accounting
+for one extra module level, helper reference parameters and local mutability
+remaining on the parent's candidate map. All preparation calls/ordering and
+retained nested errors are identical. Parent771/lexical522 remain below800.
+Initial guard run stopped at a stale parent-location pin; moved that pin to the
+actual helper while retaining the facade's sole-call pin. Corrected guard72588
+terminal1 is the same root1351 baseline debt; new selected pins pass first.
+Cargo83277 runs call_result, log
+`/tmp/hako-stored-child-call-preflight-split-T1-call-result.log`; pending until
+terminal evidence. No semantic receiver admission or slice completion yet.
+
+## T1 verified closeout / semantic S0 resumed
+
+Cargo83277 terminal0: call_result34/34. Sequential Cargo40712 terminal0:
+publication29/29, borrowed_formal_source14/14, entry21/21,
+lexical_instance_call15/15 and resolved_semantics349/349. Logs
+`/tmp/hako-stored-child-call-preflight-split-T1-{call-result,publication,source,
+entry,instance,resolved}.log`; all filters executed their intended cases.
+Same selected scope guard72588 reaches only classified HEAD-identical root1351
+baseline debt. Pointer and whitespace PASS; newly moved helper body formatted,
+existing mixed-source formatting kept outside the selected code motion.
+No live Cargo/rustc. No new package run, C/app EXE or whole-goal acceptance claim.
+
+Production change is only the preflight owner location: five original outputs
+still feed the same declaration walk and ledger. Parent's duplicate preparation
+block is removed; new guard pins the sole call and helper statements. Source
+claim/dynamic selection order and retained errors remain unchanged. Snapshot
+patch isolates facade/README changes from protected C/Array/S2 WIP.
+
+T0 and T1 preparations are closed; resume semantic
+MIRBUILDER-STORED-CHILD-BORROWED-CALL-RECEIVER-S0 using the closed receiver
+Decision above. Parent771 has room for the bounded residence/constructor/entry
+context and original selected-terminal walk predicate; no further refactor is
+selected. The existing source-owned issuer remains canonical. Field receiver
+admission itself has not yet been implemented; its full source/packet negatives
+and source->JSON acceptance still need construction and verification.

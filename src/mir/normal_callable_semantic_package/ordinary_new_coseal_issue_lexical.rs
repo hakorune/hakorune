@@ -1,6 +1,10 @@
 //! Claim-local `recv.m(...)` lexical call probes for the co-seal walk.
 use super::*;
 use crate::mir::resolved_semantics::BindingKindV1;
+use super::super::lexical_instance_call::{
+    BorrowedI64ResultSourceV1, PreparedBorrowedFormalIngressV1,
+    PreparedLexicalInstanceCallSourceTargetsV1,
+};
 
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
 /// the method-call inventory row at `site` carries a `Lexical(Local)`
@@ -441,4 +445,78 @@ mod borrowed_callback_tests {
             );
         }
     }
+}
+
+/// Preserve the existing source preflight order and retained per-slot errors.
+pub(super) fn prepare_source_preflight_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    app_main_batch_slot: Option<u32>,
+    dynamic_slot: Option<u32>,
+    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
+    field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    callable_result_classes: &result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> (
+    Box<[Box<str>]>,
+    BTreeMap<u32, Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>>,
+    PreparedLexicalInstanceCallSourceTargetsV1,
+    Result<PreparedBorrowedFormalIngressV1, String>,
+    BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+) {
+    let names: Box<[Box<str>]> = batch
+        .ordinary_box_coverage()
+        .rows()
+        .iter()
+        .map(|row| row.name().to_owned().into_boxed_str())
+        .collect();
+    let local_candidates = source_claims::prepare_local_candidates_by_slot_v1(
+        batch,
+        selected,
+        instance_constructors,
+        app_main_batch_slot,
+        dynamic_slot,
+    );
+    let new_classes = local_candidates
+        .values()
+        .filter_map(|rows| rows.as_ref().ok())
+        .flatten()
+        .map(|candidate| (candidate.site.clone(), candidate.class.clone()))
+        .collect();
+    let lexical_source_targets =
+        super::super::lexical_instance_call::prepare_lexical_source_targets_v1(
+            batch,
+            selected,
+            &new_classes,
+            &names,
+            field_write_claims,
+            callable_result_classes,
+        );
+    let borrowed_formal_source =
+        super::super::lexical_instance_call::prepare_borrowed_formal_ingress_v1(
+            batch,
+            selected,
+            parameter_contracts,
+            &lexical_source_targets,
+            app_main_batch_slot,
+            dynamic_slot,
+            entry_home_loans,
+            instance_constructors,
+            &local_candidates,
+            callable_result_classes,
+        );
+    let borrowed_i64_results = super::super::lexical_instance_call::prepare_borrowed_i64_results_v1(
+        &borrowed_formal_source,
+        batch,
+        parameter_contracts,
+        instance_constructors,
+    );
+    (
+        names,
+        local_candidates,
+        lexical_source_targets,
+        borrowed_formal_source,
+        borrowed_i64_results,
+    )
 }

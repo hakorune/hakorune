@@ -100,50 +100,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         }
         _ => None,
     };
-    let names: Box<[Box<str>]> = batch
-        .ordinary_box_coverage()
-        .rows()
-        .iter()
-        .map(|row| row.name().to_owned().into_boxed_str())
-        .collect();
-    let mut local_candidates = source_claims::prepare_local_candidates_by_slot_v1(
+    let (
+        names,
+        mut local_candidates,
+        lexical_source_targets,
+        borrowed_formal_source,
+        borrowed_i64_results,
+    ) = lexical::prepare_source_preflight_v1(
         batch,
         selected,
         instance_constructors,
-        app_main_batch_slot,
-        dynamic_slot,
-    );
-    let new_classes = local_candidates
-        .values()
-        .filter_map(|rows| rows.as_ref().ok())
-        .flatten()
-        .map(|candidate| (candidate.site.clone(), candidate.class.clone()))
-        .collect();
-    let lexical_source_targets = super::lexical_instance_call::prepare_lexical_source_targets_v1(
-        batch,
-        selected,
-        &new_classes,
-        &names,
-        &field_write_claims,
-        &callable_result_classes,
-    );
-    let borrowed_formal_source = super::lexical_instance_call::prepare_borrowed_formal_ingress_v1(
-        batch,
-        selected,
         parameter_contracts,
-        &lexical_source_targets,
         app_main_batch_slot,
         dynamic_slot,
         entry_home_loans,
-        instance_constructors,
-        &local_candidates,
+        &field_write_claims,
         &callable_result_classes,
-    );
-    let borrowed_i64_results = super::lexical_instance_call::prepare_borrowed_i64_results_v1(
-        &borrowed_formal_source,
-        batch,
-        parameter_contracts,
-        instance_constructors,
     );
     for declaration in batch.declarations() {
         let owner = declaration.owner();

@@ -17,12 +17,12 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Borrowed direct I64 result S1 landed61d94d5cf2. Required source-flow BoxShape T0
-verified: argument recursion moved intact to private child; parent659/child144.
-Call_result34/source14/entry21/lexical10/terminal19/resolved349/publication29/
-instance15 PASS; scope guard same HEAD-identical root1351 debt, never whole green.
-Read-only worker closed stored-child canonical source/entry/packet mapping.
-Select semantic S0: original direct me.ProviderField Return(MethodCall), exact
+Borrowed direct I64 result S1 landed61d94d5cf2; argument-owner T0 landed366632a676.
+Required co-seal BoxShape T1 verified: original source call preflight moved into
+existing lexical child; parent771/child522. Same five owned outputs/order/errors.
+Call_result34/publication29/source14/entry21/instance15/resolved349 PASS;
+selected guard same HEAD-identical root1351 debt, never whole green.
+Resume semantic S0: original direct me.ProviderField Return(MethodCall), exact
 parent entry, canonical field/child tuple and existing borrowed I64 result proof.
 On-demand tuple seal uses same issuer/map; minimal no-local-new owner must retain
 verified terminal Completion. No lexical-local alias or child-owned lease.

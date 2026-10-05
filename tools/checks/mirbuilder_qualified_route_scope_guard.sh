@@ -69,7 +69,7 @@ rg -q 'fn stage_local_field_read_batch' "$FIELD_BATCH_DRAFT"
 rg -q 'fn observe_scalar_expression' "$SCALAR_EXPR"
 rg -q 'scalar_expression_rejects_whole_initializer_without_partial_rows' "$SCALAR_CLAIM_TESTS"
 rg -q 'scalar_expression_short_circuit_rhs_read_stays_in_deferred_block' "$SCALAR_EMIT_TESTS"
-rg -q 'prepare_local_candidates_by_slot_v1' "$COSEAL_ISSUE"
+rg -q 'lexical::prepare_source_preflight_v1' "$COSEAL_ISSUE"
 rg -q 'collect_local_candidates_v1' "$COSEAL_ISSUE_SOURCE"
 rg -q 'is_direct_local_initializer' "$COSEAL_ISSUE_SOURCE"
 rg -q 'ordinary_birth_recipe' "$NEW_EXPR"
@@ -716,6 +716,25 @@ fi
 for file in "$CALL_ARGUMENTS" "$CALL_FLOW"; do
   if (( $(wc -l < "$file") >= 800 )); then
     echo "[$TAG] argument owner reaches 800 lines: $file" >&2
+    exit 1
+  fi
+done
+
+# CALL-PREFLIGHT-SPLIT-T1: sole original preparation before the cohort walk.
+CALL_PREFLIGHT="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_lexical.rs"
+COSEAL_WALK="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue.rs"
+rg -q 'lexical::prepare_source_preflight_v1' "$COSEAL_WALK"
+rg -q 'prepare_local_candidates_by_slot_v1' "$CALL_PREFLIGHT"
+rg -q 'prepare_lexical_source_targets_v1' "$CALL_PREFLIGHT"
+rg -q 'prepare_borrowed_formal_ingress_v1' "$CALL_PREFLIGHT"
+rg -q 'prepare_borrowed_i64_results_v1' "$CALL_PREFLIGHT"
+if rg -n '::prepare_(lexical_source_targets|borrowed_formal_ingress|borrowed_i64_results)_v1' "$COSEAL_WALK"; then
+  echo "[$TAG] duplicate facade call preparation" >&2
+  exit 1
+fi
+for file in "$CALL_PREFLIGHT" "$COSEAL_WALK"; do
+  if (( $(wc -l < "$file") >= 800 )); then
+    echo "[$TAG] call preparation owner reaches 800 lines: $file" >&2
     exit 1
   fi
 done

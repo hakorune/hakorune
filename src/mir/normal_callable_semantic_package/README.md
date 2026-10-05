@@ -1046,3 +1046,8 @@ Box header projection; an inferred opaque class view cannot authorize it.
 The materialization port preflights the original header and type context before
 installing entry values and projecting the same column to `BorrowedTaggedValue`.
 Physical Integer representation creates neither integer-use nor Home authority.
+
+The existing private `ordinary_new_coseal_issue_lexical` child owns the
+ordinary-box/local class, lexical target, borrowed ingress and source-I64
+preparation sequence. Per-slot failures stay retained until the same declaration
+walk demands them. This extraction issues no additional permission or affine row.
