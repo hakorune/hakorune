@@ -874,3 +874,38 @@ and require reclaim-duplicate-field-cleanup; old96 Birth-side bypass is not proo
 of this independent caller fence. Focused construction-state2, source issuer2,
 cleanup1, ordinary-new completion/owned-child/physical-boundary and fresh96 remain
 required before the isolated prerequisite closes.
+
+## Prior-field cleanup isolated construction / 2026-10-06
+
+Previous goal turn was progress: composed C96/NormalFault evidence and selected
+prerequisite were recorded/pushed at1a3c4abc17. This turn isolates HEAD1a3c4abc17
++ nine production-path semantic hunks, focused test/wiring paths and narrow package
+README/scope guard in /tmp/hako-birth-prior-field-cleanup-S0-checkout.
+No child-call grammar/Unit-role or Array-local lifetime/root-step hunk enters.
+Shared main differences remain protected; scoped candidate is saved under
+/tmp/hako-birth-prior-field-cleanup-S0-stage/. No main source replacement/stage.
+Read-only worker reviewed extraction/order/Provided/Normal teardown and new
+coordinated caller cleanup test; no authority or retirement widening.
+
+First isolated Cargo43822 interrupted130: checkout regenerated an ignored lock,
+which differed from main. Original Cargo/rustc terminal confirmed; retain generated
+lock as evidence, copy original main lock, then use --locked. Cargo44219 terminal101
+had two missing test imports; imports, temporary Vec borrow and exact freeze token
+fixed. These were harness/candidate failures, not baseline. Cargo60480 terminal0:
+new healthy source-ledger/MIR control followed by coordinated old caller field
+release rejects exactly ordinary-new/local-commit/reclaim-duplicate-field-cleanup.
+It proves New validator ownership, not whole MIR/Home/pipeline completion.
+
+Final candidate adds existing check_binding over every mutant retained binding
+before the ownership error, and Object cleanup healthy/foreign child/base/frame/
+field/Fault-continuation controls (Array cleanup test retained). Main new Object
+test is preserved; isolated package Cargo71164 is live, sole shared-target Cargo,
+quick/jobs4/--locked. No final package/Object/stronger-correspondence PASS yet.
+Initial scope guard stopped at old jump_landing pin after helper relocation;
+updated sole-owner pin + cleanup/caller controls now reaches only unchanged
+root1351 hash5fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467.
+Whitespace/lock equality checked. Guard is not whole PASS.
+Next after terminal: exact red classification, cleanup/state/physical/completion/
+owned-child controls, fresh unchanged source96 + composed C check, then verified
+semantic-hunk integration/commit/push; C dependency/source capture/app/full-goal
+obligations remain intact. Goal active, not blocked or paused.

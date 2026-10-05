@@ -17,16 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Provider e0355851e6, metadata e00407c579, source/profile7fdec38b6e landed/pushed.
-Composed current WIP: Rust2 regenerate original source96 + Scratch callee/child0;
-C all96 compile, Copy wire/9 named negatives, bothopts real Normal/Fault cleanup
-once PASS. No isolated C closeout claim. Old source-only96 retained as partial
-Birth Fault cleanup counterexample; C S2 marker stays strict. Cleanup1/issuer2,
-C ingress and external schema regressions PASS; scope unchanged root1351 only.
-Select independent nine-path prior-field cleanup/storage-only reclaim Rust
-prerequisite integration, exclude child-call/Array lifetime sibling hunks.
-No Cargo live; own C/test patch preserved with other protected C/Array/S2 WIP.
-Page Array.get/unchanged app/full-goal acceptance and scoped landing remain owed.
+HEAD1a3c4abc17: C composed source96/NormalFault verified, cleanup prerequisite
+selected. Isolated HEAD + nine production cleanup hunks + focused test/wiring,
+package README and scope guard; no child-call/Unit/Array-local hunk. Cargo60480
+terminal0: healthy source-backed New ledger/MIR plus coordinated old caller field
+cleanup rejects exact duplicate fence. Add full physical-binding corroboration
+and Object cleanup negatives; sole package Cargo71164 live, quick/jobs4/--locked,
+shared original target and main lock. No final package/strengthened-test PASS yet.
+Earlier generated lock build interrupted130, missing-import build101 classified.
+Scope updated owner pins reaches unchanged root1351 only. Protected main WIP and
+C/tests unchanged outside own Object test. Next classify package, focused source
+and physical controls, regenerate unchanged96, integrate only verified hunks.
+Full goal/production cutover/legacy retirement/Page Array.get remain owed.
 """
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
