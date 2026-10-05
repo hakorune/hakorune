@@ -518,3 +518,13 @@ Both must include `nyash.box.from_i8_string_const_len_v1`. Old archives are not 
 reason to downgrade String emission. The Script test owns a32MiB test thread.
 The private Rust/query bridge remains for its cancellation and counter boundary;
 its Map-only fixture is not an executable root-result contract.
+
+The published lifecycle V4 borrowed parameter schema requires
+`value/representation/object_view`. A null view admits the existing unconstrained
+opaque domain; a uint view names one canonical class/null domain and requires its
+unique layout. Incoming known objects and forwarded Copy roots must corroborate
+that class; nullable spelling cannot erase a known class and still requires a
+live acquired lease. For acquired results without producer-class evidence, the
+callee prologue checks tag/null shape and `nyash.object.type_id_h` against the
+layout's runtime type ID before body effects. Object ordinals are not runtime
+type IDs. This check creates no retain, release or ownership authority.

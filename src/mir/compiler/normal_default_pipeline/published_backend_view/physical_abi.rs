@@ -338,7 +338,16 @@ impl<'module> PublishedMirBackendView<'module> {
         let storage_profile = self
             .lifecycle_storage_profile()
             .ok_or_else(|| fault("storage-profile-missing"))? as u32;
-        let ids = referenced_objects(entry.program())?;
+        let mut ids = referenced_objects(entry.program())?;
+        // A sealed parameter class/null domain references its layout even when
+        // the formal is ignored and the only incoming value is null.
+        for (index, function) in entry.program().functions().iter().enumerate() {
+            for param in function.params() {
+                if let Some(object) = entry.borrowed_object_view(index as u32, param.0) {
+                    ids.insert(object);
+                }
+            }
+        }
         let definitions = self
             .module()
             .canonical_object_definitions()

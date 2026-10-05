@@ -114,25 +114,17 @@ pub(super) fn observe_operand(
 }
 
 /// Each sealed formal object view as `param value -> canonical object
-/// declaration index` — only formals carrying an admitted guarded field
-/// read get a key, so every emitted view names an object its own
-/// `object_field_get` already references. A view without its exact entry
-/// root is drift.
-pub(super) fn object_view_values(
-    state: &FunctionUses,
-) -> Result<BTreeMap<u32, u32>, String> {
+/// declaration index`. Every original class/null view is retained, including
+/// ignored declared formals and forwarding-only opaque roots. A view without
+/// its exact entry root is drift; field-use coverage remains independent.
+pub(super) fn object_view_values(state: &FunctionUses) -> Result<BTreeMap<u32, u32>, String> {
     let mut rows = BTreeMap::new();
     for (formal, object) in &state.object_views {
-        if !state.field_admissions.contains_key(formal) {
-            continue;
-        }
         let mut values = state.roots.iter().filter(|(_, root)| *root == formal);
         let (value, _) = values
             .next()
             .ok_or_else(|| fault("borrowed-use/object-view-root"))?;
-        if values.next().is_some()
-            || rows.insert(value.0, object.declaration_index()).is_some()
-        {
+        if values.next().is_some() || rows.insert(value.0, object.declaration_index()).is_some() {
             return Err(fault("borrowed-use/object-view-duplicate"));
         }
     }

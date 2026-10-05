@@ -104,6 +104,28 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     yyjson_val* param = yyjson_arr_get(params, i);
     if (!lv4_is(param, "representation", "borrowed_kind_payload_v1")) continue;
     uint32_t v = lv4_u(param, "value");
+    yyjson_val* object_view = yyjson_obj_get(param, "object_view");
+    if (yyjson_is_uint(object_view)) {
+      uint32_t runtime_type = lv4_u(lv4_layout(in, (uint32_t)yyjson_get_uint(object_view)), "runtime_type_id");
+      /* Caller provenance remains independently verified. A class domain
+         validates runtime class before any callee effect; no ownership change. */
+      fprintf(f,
+          "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
+          "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
+          "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_zero%u\n"
+          "  br i1 %%arg_nulok%u, label %%arg_next%u, label %%arg_object_check%u\n"
+          "arg_object_check%u:\n"
+          "  %%arg_object%u = icmp eq i32 %%k%u, 3\n"
+          "  %%arg_nonzero%u = icmp ne i64 %%v%u, 0\n"
+          "  %%arg_live%u = and i1 %%arg_object%u, %%arg_nonzero%u\n"
+          "  br i1 %%arg_live%u, label %%arg_type_check%u, label %%invalid\n"
+          "arg_type_check%u:\n"
+          "  %%arg_type%u = call i64 @\"nyash.object.type_id_h\"(i64 %%v%u)\n"
+          "  %%arg_class%u = icmp eq i64 %%arg_type%u, %u\n"
+          "  br i1 %%arg_class%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
+      continue;
+    }
     /* Nonzero supplements the closed incoming/live proof; it is not that
        proof. The null pair (kind 0, payload 0) is the third admitted
        shape — every other kind/payload mix is ABI drift, never a
@@ -638,6 +660,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
   fprintf(f,
       "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
+      "declare i64 @\"nyash.object.type_id_h\"(i64)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"

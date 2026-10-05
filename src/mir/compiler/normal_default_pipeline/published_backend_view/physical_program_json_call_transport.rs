@@ -59,11 +59,9 @@ pub(super) fn encode_parameters(
                         if representation == "borrowed_kind_payload_v1" {
                             let input = abi_input
                                 .ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
-                            if let Some(view) =
+                            row["object_view"] = json!(
                                 input.entry().borrowed_object_view(ordinal, param.0)
-                            {
-                                row["object_view"] = json!(view);
-                            }
+                            );
                         }
                         Ok(row)
                     })

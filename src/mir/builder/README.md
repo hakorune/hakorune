@@ -647,10 +647,15 @@ emitted packet at record time; no second outer Invoke is emitted. Strict
 materialization still rejects borrowed payloads until Ordinary carrier, complete
 incoming/use coverage and writer/C closure are installed. This transport does not
 activate the ABI or prove source-to-EXE acceptance.
-Ordinary entry adoption refines only original successful opaque formal slots in
-`physical_param_carriers`, after source/entry/signature preflight and successful
-entry installation. The source-selected opaque slot preserves Unknown/Integer
-storage placeholders; neither is I64 semantic proof. Receiver and other carriers
+Ordinary entry adoption refines original successful opaque and declared-object
+formal slots in `physical_param_carriers`, after source/entry/signature preflight
+and successful entry installation. An original declared class is lent from the
+validated source ledger: exact name, non-implicit ordinal, Box signature and
+type-context class must agree before installation. The same slot then projects
+to Integer storage and `BorrowedTaggedValue`; original declaration metadata and
+source kind remain intact. Inferred opaque class views cannot authorize this
+Box projection. Opaque slots preserve Unknown/Integer placeholders; neither
+storage representation is I64 semantic proof. Receiver and other carriers
 remain unchanged; missing,
 conflicting or repeated carrier preparation is terminal. Pending source errors
 and unselected entries never mint tagged slots. Until complete incoming/use and

@@ -1024,6 +1024,10 @@ Forwarding keeps the existing `Forwarded` arm and original binding/ordinal.
 Only opaque roots and aliases can supply numeric operand authority, including
 Array index siblings; class membership never grants integer or Home authority.
 Rebind, capture and unsupported uses stay outside the closed source profile.
-Source admission alone does not activate a physical Box parameter: exact entry
-header projection, unconditional declared view publication and C class/null
-corroboration are the required next slice through the same tagged carrier.
+Source admission alone does not activate a physical Box parameter. The existing
+entry ledger lends original declared classes only after owner/ordinal/binding
+and entry-value correspondence checks. `is_declared` authorizes the original
+Box header projection; an inferred opaque class view cannot authorize it.
+The materialization port preflights the original header and type context before
+installing entry values and projecting the same column to `BorrowedTaggedValue`.
+Physical Integer representation creates neither integer-use nor Home authority.

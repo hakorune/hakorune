@@ -26,8 +26,12 @@ fn package_with_body(
     body: &str,
 ) -> VerifiedNormalCallableSemanticPackageV1 {
     let text = format!("box Transport {{ birth() {{ }} probe({parameters}): i64 {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe({actual}) return 0 }} }}");
+    package_from_text(&text)
+}
+
+fn package_from_text(text: &str) -> VerifiedNormalCallableSemanticPackageV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-        &text,
+        text,
         ParserBuildConfig::default(),
     )
     .unwrap();
@@ -295,6 +299,19 @@ fn carrier_function(values: &[ValueId]) -> crate::mir::MirFunction {
     function
 }
 
+fn carrier_builder(function: &crate::mir::MirFunction) -> crate::mir::MirBuilder {
+    let mut builder = crate::mir::MirBuilder::new();
+    builder.function_state.type_ctx.value_types.extend(
+        function
+            .params
+            .iter()
+            .copied()
+            .zip(function.signature.params.iter().cloned()),
+    );
+    builder.function_state.current_function = Some(function.clone());
+    builder
+}
+
 #[test]
 fn borrowed_carrier_preflight_preserves_mixed_original_formals_without_effects() {
     use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
@@ -306,11 +323,11 @@ fn borrowed_carrier_preflight_preserves_mixed_original_formals_without_effects()
     for ty in [crate::mir::MirType::Unknown, crate::mir::MirType::Integer] {
         function.signature.params[1] = ty.clone();
         let prepared = state
-            .prepare_borrowed_entry_carriers(&entry, &function)
+            .prepare_borrowed_entry_carriers(&entry, &carrier_builder(&function))
             .unwrap()
             .unwrap();
         assert_eq!(
-            &*prepared,
+            &*prepared.0,
             &[
                 Carrier::ExistingCallableI64,
                 Carrier::BorrowedTaggedValue,
@@ -362,7 +379,7 @@ fn borrowed_carrier_preflight_rejects_missing_conflicting_and_drifted_column() {
         }
         let original = function.metadata.physical_param_carriers.clone();
         let error = state
-            .prepare_borrowed_entry_carriers(&entry, &function)
+            .prepare_borrowed_entry_carriers(&entry, &carrier_builder(&function))
             .unwrap_err();
         assert!(error.contains("borrowed-entry/"), "{error}");
         assert_eq!(function.metadata.physical_param_carriers, original);
@@ -378,12 +395,12 @@ fn borrowed_carrier_preflight_never_promotes_pending_or_unselected_source() {
     function.metadata.physical_param_carriers = None;
     state.borrowed_entry_formals = Some(Err("source-pending".into()));
     assert!(state
-        .prepare_borrowed_entry_carriers(&entry(51, 72), &function)
+        .prepare_borrowed_entry_carriers(&entry(51, 72), &carrier_builder(&function))
         .unwrap()
         .is_none());
     state.borrowed_entry_formals = Some(Ok(None));
     assert!(state
-        .prepare_borrowed_entry_carriers(&entry(51, 72), &function)
+        .prepare_borrowed_entry_carriers(&entry(51, 72), &carrier_builder(&function))
         .unwrap()
         .is_none());
     assert!(!state.entry_installed);
@@ -392,3 +409,6 @@ fn borrowed_carrier_preflight_never_promotes_pending_or_unselected_source() {
 
 #[path = "borrowed_alias_materialization_tests.rs"]
 mod alias_materialization_tests;
+
+#[path = "borrowed_declared_entry_tests.rs"]
+mod declared_entry_tests;

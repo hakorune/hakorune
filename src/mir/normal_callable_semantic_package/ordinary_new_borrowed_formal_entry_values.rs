@@ -15,6 +15,32 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntr
 mod alias_materialization;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Loan the original declared classes for exactly the validated pre-entry
+    /// rows. Inferred opaque object views grant no declared-header authority.
+    pub(crate) fn borrowed_ordinary_entry_declared_classes_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        values: &Result<EntryValues, String>,
+    ) -> Result<BTreeMap<BindingRefV1, &str>, String> {
+        self.validate_borrowed_ordinary_entry_values_v1(owner, values)?;
+        let rows = values.as_ref().map_err(Clone::clone)?;
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        Ok(rows
+            .iter()
+            .filter_map(|(_, binding, _)| {
+                source
+                    .formal_object_view(*binding)
+                    .filter(|view| view.is_declared())
+                    .map(|view| (*binding, view.class()))
+            })
+            .collect())
+    }
+
     pub(crate) fn record_borrowed_ordinary_entry_values_v1(
         &self,
         owner: FunctionOwnerIdV1,

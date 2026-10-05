@@ -66,7 +66,7 @@ def graph(kind, payload=1):
         block(4, [], {'op': 'return', 'value': 3}),
         block(5, [], invoke(release(2), 6, 6), (6, 6)),
         block(6, [], fault)])
-    param = [{'value': 3, 'representation': 'borrowed_kind_payload_v1'}]
+    param = [{'value': 3, 'representation': 'borrowed_kind_payload_v1', 'object_view': None}]
     forward = function('forward', 'ordinary_i64', 0, copy.deepcopy(param), [
         block(0, [{'op': 'fault_frame_enter', 'dst': 1, 'mode': 'borrowed'},
                   {'op': 'copy', 'dst': 4, 'src': 3}],

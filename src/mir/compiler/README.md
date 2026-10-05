@@ -81,6 +81,15 @@ physical observations are not source-to-artifact evidence.
 
 ### Final published artifact consumption
 
+Borrowed parameter views publish every source-proven class/null domain, including
+ignored declared formals and forwarding-only opaque roots. The existing root
+ValueId projection validates uniqueness independently of field-use coverage.
+ABI layout references join these parameter views into the existing canonical
+object inventory; a null-only parameter does not need a New or field read to
+retain its layout. Borrowed JSON parameters always carry exactly
+`value/representation/object_view`, with explicit null for unconstrained opaque
+domains and a canonical object ordinal for class/null domains.
+
 The normal finalization invocation owns the finished module and finalized
 root/Birth handoff together through the synchronous callback. The view borrows
 that handoff once and delegates source/result/Birth accessors; it does not own

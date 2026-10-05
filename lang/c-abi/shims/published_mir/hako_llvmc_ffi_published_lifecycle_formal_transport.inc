@@ -27,16 +27,15 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
   if (!yyjson_is_arr(params)) return 0;
   for (size_t i = 0; i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
-    if (!hako_physical_exact_keys(param, keys, 2)) {
-      /* `object_view` names the sealed canonical object a guarded
-         `formal.field` read may carry; it belongs only to the borrowed
-         kind/payload transport and must name a declared layout. */
+    if (hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) {
+      /* Mandatory null means unconstrained opaque; uint names the exact
+         class/null domain, including a declared but ignored formal. */
       uint32_t object;
+      yyjson_val* view = yyjson_obj_get(param, "object_view");
       if (!hako_physical_exact_keys(param, view_keys, 3) ||
-          !hako_physical_u32(yyjson_obj_get(param, "object_view"), &object) ||
-          !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1") ||
-          !hako_physical_layout_has_object(layouts, object)) return 0;
-    }
+          (!yyjson_is_null(view) && (!hako_physical_u32(view, &object) ||
+          !hako_physical_layout_has_object(layouts, object)))) return 0;
+    } else if (!hako_physical_exact_keys(param, keys, 2)) return 0;
     if (!hako_physical_u32(yyjson_obj_get(param, "value"), NULL)) return 0;
     if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_map") ||

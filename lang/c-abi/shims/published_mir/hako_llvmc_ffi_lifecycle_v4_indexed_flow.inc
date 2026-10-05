@@ -350,8 +350,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
           if (repr && !strcmp(repr, "borrowed_kind_payload_v1")) {
             yyjson_val* kind = yyjson_obj_get(arg, "kind");
+            yyjson_val* view = yyjson_obj_get(yyjson_arr_get(cparams, i), "object_view");
+            int class_domain = yyjson_is_uint(view);
             if (arg_kind && !strcmp(arg_kind, "tagged")) {
-              if (!lv4_borrowed_tagged_formal(fn, value)) return 0;
+              if (!lv4_borrowed_tagged_formal(fn, value) ||
+                  (class_domain && !lv4_borrowed_object_formal(fn, value, (uint32_t)yyjson_get_uint(view)))) return 0;
             } else if (arg_kind && !strcmp(arg_kind, "nullable_typed_object")) {
               /* A caller-owned received nullable lends its handle lane
                  borrowed: the Void sentinel or a live lease — never a
@@ -359,8 +362,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                  owner selects tag 0/3 at runtime. */
               if (!value || value->kind != LV4_HANDLE || value->origin < 0 ||
                   state[value->origin] != LV4_LIVE) return 0;
+              /* A nullable spelling cannot erase a known New/Copy class.
+                 Unknown acquired call-result class is checked in prologue. */
+              if (class_domain && lv4_borrowed_typed_live(in, fn, value, state) &&
+                  value->object_id != yyjson_get_uint(view)) return 0;
             } else if (yyjson_is_uint(kind)) {
               uint64_t tag = yyjson_get_uint(kind);
+              if (class_domain && (tag != 0 && tag != 3)) return 0;
               /* Tag 0 admits the exact const_null producer only — a
                  forged zero payload never spells the null actual. */
               if (!value ||
@@ -370,6 +378,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                   (tag == 2 && value->kind != LV4_BOOL) ||
                   (tag == 3 && !lv4_borrowed_typed_live(in, fn, value, state)) ||
                   tag > 3) return 0;
+              if (class_domain && tag == 3 && value->object_id != yyjson_get_uint(view)) return 0;
             } else return 0;
             continue; /* BorrowForCall: no lease state is consumed. */
           }

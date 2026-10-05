@@ -2,6 +2,10 @@
 use super::*;
 
 type PreparedEntryValues = Option<Result<Box<[(u32, BindingRefV1, ValueId)]>, String>>;
+type PreparedCarriers = (
+    Box<[crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>,
+    Vec<(usize, ValueId)>,
+);
 
 impl CallableSemanticLoweringState {
     /// Pre-effect projection onto the ordinary signature's existing column.
@@ -9,8 +13,8 @@ impl CallableSemanticLoweringState {
     pub(in crate::mir::builder) fn prepare_borrowed_entry_carriers(
         &self,
         entry: &PreparedCallableEntryValuesV1,
-        function: &crate::mir::MirFunction,
-    ) -> Result<Option<Box<[crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1]>>, String>{
+        builder: &crate::mir::MirBuilder,
+    ) -> Result<Option<PreparedCarriers>, String> {
         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
         let prepared = self.prepare_borrowed_entry_values(entry)?;
         let Some(Ok(_)) = &prepared else {
@@ -18,11 +22,17 @@ impl CallableSemanticLoweringState {
             return Ok(None);
         };
         let row = prepared.as_ref().unwrap();
-        self.ordinary_new_claim_ledger
+        let declared = self
+            .ordinary_new_claim_ledger
             .as_ref()
             .ok_or_else(|| freeze("borrowed-entry/source-ledger-missing"))?
-            .validate_borrowed_ordinary_entry_values_v1(self.owner, row)?;
+            .borrowed_ordinary_entry_declared_classes_v1(self.owner, row)?;
         let rows = row.as_ref().unwrap();
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-entry/no-current-function"))?;
         let offset = usize::from(entry.receiver().is_some());
         if !matches!(
             function.signature.params.first(),
@@ -45,19 +55,47 @@ impl CallableSemanticLoweringState {
             return Err(freeze("borrowed-entry/carrier-column-drift"));
         }
         let mut carriers = original.to_vec();
-        for (ordinal, _, value) in rows.iter() {
+        let mut projected = Vec::new();
+        for (ordinal, binding, value) in rows.iter() {
             let index = *ordinal as usize + offset;
-            if !matches!(
+            if let Some(class) = declared.get(binding) {
+                let declaration = function
+                    .metadata
+                    .declared_param_decls
+                    .get(index)
+                    .ok_or_else(|| freeze("borrowed-entry/declared-header-missing"))?;
+                let original_type = crate::mir::MirType::Box((*class).into());
+                if function.metadata.declared_param_decls.len() != function.params.len()
+                    || declaration.implicit_receiver
+                    || declaration.declared_type_name.as_deref() != Some(*class)
+                    || self.binding_names.get(binding).map(|name| name.as_ref())
+                        != Some(declaration.name.as_str())
+                    || function.signature.params.get(index) != Some(&original_type)
+                    || builder.function_state.type_ctx.value_types.get(value)
+                        != Some(&original_type)
+                {
+                    return Err(freeze("borrowed-entry/declared-header-or-value-drift"));
+                }
+                projected.push((index, *value));
+            } else if !matches!(
                 function.signature.params.get(index),
                 Some(crate::mir::MirType::Unknown | crate::mir::MirType::Integer)
-            ) || function.params.get(index) != Some(value)
+            ) || function
+                .metadata
+                .declared_param_decls
+                .get(index)
+                .is_some_and(|row| row.declared_type_name.is_some())
+            {
+                return Err(freeze("borrowed-entry/carrier-formal-drift"));
+            }
+            if function.params.get(index) != Some(value)
                 || carriers.get(index) != Some(&Carrier::ExistingCallableI64)
             {
                 return Err(freeze("borrowed-entry/carrier-formal-drift"));
             }
             carriers[index] = Carrier::BorrowedTaggedValue;
         }
-        Ok(Some(carriers.into_boxed_slice()))
+        Ok(Some((carriers.into_boxed_slice(), projected)))
     }
 
     pub(in crate::mir::builder) fn stage_borrowed_entry_formals(
