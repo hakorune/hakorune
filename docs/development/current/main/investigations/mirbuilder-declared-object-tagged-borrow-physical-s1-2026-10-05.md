@@ -1,6 +1,6 @@
 # Declared object entry and physical tagged borrow S1
 
-Status: Complete / scoped landing pending
+Status: Complete / landed fe0c9ad278
 Execution row: MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-PHYSICAL-S1
 Scope: source-admitted DeclaredObject entry/header projection through the existing
 BorrowedTaggedValue, final object view publication and C class/null transport.
@@ -270,3 +270,7 @@ correspondence is a separately identified required repair. Neither app nor the
 finite pipeline goal is complete. Next select that exact existing physical
 projection owner, then continue result/Provided obligations and pending scoped
 C/Array/S2 landing according to the same goal.
+
+Scoped S1 landed/pushed `fe0c9ad278`; remote branch hash verified equal to HEAD.
+Protected C/Array/S2 diff remains unstaged. Next selected existing final field
+read projection repair; full finite pipeline remains active.

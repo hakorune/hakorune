@@ -1,7 +1,7 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-PHYSICAL-S1"
+current_execution_row = "MIRBUILDER-TERMINAL-FIELD-RETURN-FINISHED-PROJECTION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
 current_design_stop = "none"
@@ -13,48 +13,30 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
-latest_card = "mirbuilder-declared-object-tagged-borrow-physical-s1"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-terminal-field-return-finished-projection-s0-2026-10-05.md"
+latest_card = "mirbuilder-terminal-field-return-finished-projection-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-terminal-field-return-finished-projection-s0-2026-10-05.md"
 latest_card_summary = """
-Protected C/S1/S0/Array ABI work remains uncommitted; parent and S1 cards retain
-contracts/evidence. S2 source-owned object slot tuples and exact Birth Normal-store
-markers implemented through existing ledger/layout/origin vector; no new registry.
-JSON29/29, source3/3 both opts, provider runtime10/10 and Array runtime18/18 pass.
-Birth wire34 and Array wire36 negatives reject; shuffled Array blocks admit.
-Existing child runtime and C3 regressions pass; package616/3 same named baseline.
-Scope pins pass then unchanged HEAD root test debt1351; whole guard is not PASS.
-Fresh CLI/app probe: numeric4 drift edges eliminated; handle5 drift edges remain,
-no EXE. Exact-usize source entry S1 focused4/4, usize24/24, borrowed19/19, entry7/7 PASS.
-Source binding/carrier negatives and real finalization exact facts verified.
-Fresh CLI quick llvm-boundary PASS, unchanged app rc1 at handle5; no Cargo live.
-Numeric scoped slice landed/pushed9c26a6d425. D1 resolves ordinary typed formals as
-borrowed handles: no moved-in source authority exists. Selected S0 corrects result
-identity/owned inference before class-only borrow admission. Source/tests corrected;
-focused20/20 PASS (six rebind cases), full package617/3 exact named baseline.
-Fresh CLI quick llvm-boundary PASS; unchanged app rc1 now stops at named
-artifact-unowned-lifecycle-site, EXE absent. Numeric app5 evidence is pre-correction.
-Current census6/2 pins both unsupported local realloc results at structural Body(3).
-No Cargo live; S0 landed/pushed fc9d88108a. Class-only borrow ingress owner
-mapping selected: reuse existing tagged carrier, no raw nullable-formal ABI.
-S0 source draft/actual/class admission verified: focused5/5, entry/copy18/18,
-full package622/3 exact named baseline PASS/known debt. Array numeric sibling
-corrected after worker review; exact receiver/index and typed capture/copy
-regressions PASS. No Cargo live. Scope pins pass to HEAD-identical root test1351
-baseline debt; full guard is not PASS. Pointer/whitespace PASS.
-S0 landed/pushed c0a8bf05bd. S1 entry/header/publication/C class/null
-corroboration selected with existing mandatory object_view:null|uint wire. Actual app frontier unchanged.
-Exact result/Provided destination contracts remain unresolved. No
-ownership lane reopening, .hako workaround or verifier exception. T0 diagnostic commit cbd5ec43c7 pushed; selected S1 source-backed usize entry
-projection preserves runtime-check and backend reject obligations;
-scoped source/C/ABI landing remains owed, and
-remaining S1 borrowed/nullable provenance evidence. Parked lanes unchanged.
-No whole-app/goal completion; full finite pipeline and production retirement owed.
+Declared tagged borrow S1 landed/pushed fe0c9ad278; original entry ledger class
+loan and header preflight project the same BorrowedTaggedValue. All proven class
+views survive forwarding/ignored/null-only layouts; borrowed wire mandatory
+object_view:null|uint. C corroborates known class/Copy/LIVE and runtime type-id
+before effects without ownership changes. Source20bothopts/C20Normal-Fault and15
+negatives plus runtime Invalid/null control PASS; entry21/source25/boundary11/JSON29.
+Package622/exact known3; selected guard pins pass then HEAD-identical root1351
+debt, whole guard/package NOT green. Fresh quick llvm-boundary PASS; unchanged
+mimalloc-lite rc1 artifact-unowned-lifecycle-site, no EXE. Protected C/Array/S2
+WIP and pending scoped landing remain owed. Next exact existing owner repair:
+terminal I64Field return after canonical CFG merge must use FinishedBindings,
+not original block lookup. No new result/source/ownership semantics. Worker
+read-only interface review; no Cargo live at selection. Call-valued result,
+Provided destination/vocabulary and finite pipeline production/retirement remain
+open. Parked lanes unchanged; no whole-app or goal completion.
 """
 next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
-next_execution_card = "MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-PHYSICAL-S1"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-declared-object-tagged-borrow-physical-s1-2026-10-05.md"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-terminal-field-return-finished-projection-s0-2026-10-05.md"
+next_execution_card = "MIRBUILDER-TERMINAL-FIELD-RETURN-FINISHED-PROJECTION-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-terminal-field-return-finished-projection-s0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
