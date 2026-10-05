@@ -994,5 +994,5 @@ fragments alongside its existing source helpers. These fragments preserve
 test names and source predicates; they introduce no semantic authority.
 
 The ordinary-New co-seal issuer orchestrates declaration order; its private
-source-claims child owns the existing App Main identity query. This placement
-changes no source predicate or authority.
+source-claims child owns the existing App Main identity and sealed Nullable
+receiver queries. This placement changes no source predicate or authority.

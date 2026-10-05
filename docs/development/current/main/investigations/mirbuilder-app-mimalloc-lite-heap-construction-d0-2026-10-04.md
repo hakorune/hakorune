@@ -548,3 +548,35 @@ Both query expressions equal their prior bodies after whitespace normalization
 (`/tmp/hako-local-array-size-query-motion-proof.json`). Scope semantic pins pass;
 full guard stops at unchanged HEAD root-catalog size debt (1351). Pointer and
 selected diff checks pass. These results do not close C/S1 or its runtime matrix.
+
+## Decision: MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-D0
+
+Issuer BoxShape closed in two commits: App Main query `ba4c248d29`, sealed
+Nullable query in this commit. Parent/private child are 778/706, below 800.
+Package 600 pass/3 unchanged baseline; child-call 4/4; inventory 8588 unchanged.
+Query-motion proof, pointer and selected diff checks pass; full scope guard
+reaches unchanged root-catalog size debt 1351. No semantic admission changed.
+
+Source prerequisite for S1's unchanged provider matrix: qualified StaticBoxMethod
+helper with sealed I64 result, straight-line zero-arg builtin ArrayBox local and
+explicit literal Return. Existing callable ledger seals initializer owner/site/
+binding, Core membership, collision absence, no rebind/escape and exact exit.
+Source authority/issuer: existing co-seal `batch.with_lowering_input` and
+`home_new_prefix_scan` local observation; add Array acquisition to the existing
+source flow and `local_commits` enum. Reuse completed-local installation and
+existing RootHome exit; do not borrow Script proof or invent a second program
+plan/receipt. Resolve the closed cleanup-step mapping for nonfaulting Array
+release (current origin/end plan only store InvokeOperation) before effects.
+Physical new consumes the sealed exact site before raw New fallback and emits
+checked acquisition/projection; Normal exit releases its live local, acquisition
+Fault releases no unacquired local and forwards borrowed caller frame. Verify
+local copy, acquisition, release and Fault terminal in the existing finalizer.
+Non-authority: raw NewBox/MIR types, runtime handle, method/name matching,
+Script/native single-function proof or an opcode whitelist. Negative fences:
+collision/arguments/rebind/escape; missing/duplicate/foreign/pre-acquisition
+release, wrong copy, bypassed release and raw New reentry. Retain unselected
+Array consumers; no retry. After source acceptance, join existing indexed ABI
+lease consumer and preserve Script/native/loop-writer boundaries. Both optimize
+variants/full provider allocation/argument/Birth/store Fault matrix remain owed.
+D0 resolves exact source-arm/cleanup/finalizer mapping; S1/C remain uncommitted
+and open. No app PASS, production promotion or goal completion is claimed.

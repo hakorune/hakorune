@@ -339,15 +339,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // unwind all come from the scanned root flow — the plain
                 // seed path cannot issue any of them. `Object` receiver
                 // observations keep today's generic call floor.
-                let has_nullable_receiver_call = receiver_call_observations
-                    .iter()
-                    .any(|(site, row)| {
-                        site.owner() == owner
-                            && matches!(
-                                row.class(),
-                                result_class_claim::OrdinaryNewResultClassV1::NullableObject(_)
-                            )
-                    });
+                let has_nullable_receiver_call = source_claims::has_nullable_receiver_call_v1(
+                    owner, &receiver_call_observations,
+                );
                 let seed_completion = seed_eligible
                     && !has_map
                     && !has_nullable_receiver_call

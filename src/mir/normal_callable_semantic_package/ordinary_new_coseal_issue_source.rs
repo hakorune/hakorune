@@ -685,3 +685,22 @@ pub(super) fn app_main_batch_slot_v1(
         })
         .transpose()
 }
+
+/// Query the existing sealed observations; issue no new class or completion.
+pub(super) fn has_nullable_receiver_call_v1(
+    owner: FunctionOwnerIdV1,
+    receiver_call_observations: &BTreeMap<
+        OwnedExprSiteV1,
+        receiver_call_observation::ReceiverCallClassObservationV1,
+    >,
+) -> bool {
+    receiver_call_observations
+        .iter()
+        .any(|(site, row)| {
+            site.owner() == owner
+                && matches!(
+                    row.class(),
+                    result_class_claim::OrdinaryNewResultClassV1::NullableObject(_)
+                )
+        })
+}
