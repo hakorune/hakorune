@@ -35,7 +35,8 @@ focused20/20 PASS (six rebind cases), full package617/3 exact named baseline.
 Fresh CLI quick llvm-boundary PASS; unchanged app rc1 now stops at named
 artifact-unowned-lifecycle-site, EXE absent. Numeric app5 evidence is pre-correction.
 Current census6/2 pins both unsupported local realloc results at structural Body(3).
-No Cargo live; scoped semantic commit/push pending. No
+No Cargo live; S0 landed/pushed fc9d88108a. Class-only borrow ingress owner
+mapping is next; exact result/Provided destination contracts remain unresolved. No
 ownership lane reopening, .hako workaround or verifier exception. T0 diagnostic commit cbd5ec43c7 pushed; selected S1 source-backed usize entry
 projection preserves runtime-check and backend reject obligations;
 scoped source/C/ABI landing remains owed, and

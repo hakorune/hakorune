@@ -1,6 +1,6 @@
 # Declared formal result identity correction S0
 
-Status: verified / scoped closeout pending commit
+Status: landed / scoped source correction verified
 Execution row: MIRBUILDER-DECLARED-FORMAL-RESULT-IDENTITY-S0
 Scope: prevent a borrowed ordinary declared formal from issuing an owned result.
 Related:
@@ -92,7 +92,9 @@ frontier. Preventing an invalid received_nullable Home exposes the already
 unresolved mixed-result/destination contract; app acceptance remains owed.
 Plugin startup warnings match the prior probe and do not prevent this named
 source/MIR boundary. Pointer/whitespace checks PASS; selected source701/test686
-lines below800. Scoped semantic commit/push remain pending.
+lines below800. Scoped semantic commit fc9d88108a pushed to hakorune/codex/birth-definition-publication.
+Only selected source/tests/model/contract/card/pointer and README/guard hunks
+landed. Protected C/S0/Array/S2 differences remain unstaged; index empty.
 Goal and parked lanes unchanged.
 
 ## Read-only review
