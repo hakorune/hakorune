@@ -207,7 +207,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn receiver_array_field(
 /// must be declared exactly once and non-weak. The result carries the
 /// declared type name — possibly absent — alongside the canonical ref;
 /// the caller alone classifies the result contract.
-fn source_declared_field(
+pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     box_source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
     site: &OwnedExprSiteV1,
@@ -398,4 +398,26 @@ pub(super) fn receiver_container_field(
     entry_receiver_field(constructors, receiver, site, home, field, |name| {
         name == Some("ArrayBox")
     })
+}
+
+/// Receiver-side element-integer `ArrayBox` field proof for `me.<field>`
+/// receivers of `get` calls. The entry loan's receiver root and the
+/// declared `ArrayBox` type prove the container identity only; the field
+/// must additionally sit inside `proven` — the issuer's whole-Box
+/// element-integer census — before any `get` result may claim i64.
+pub(super) fn receiver_array_i64_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    field: &str,
+    proven: &std::collections::BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+) -> Result<Option<hakorune_mir_defs::CanonicalFieldRefV1>, OrdinaryNewCoSealIssueV1> {
+    let Some(field_ref) = entry_receiver_field(constructors, receiver, site, home, field, |name| {
+        name == Some("ArrayBox")
+    })?
+    else {
+        return Ok(None);
+    };
+    Ok(proven.contains(&field_ref).then_some(field_ref))
 }

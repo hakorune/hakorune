@@ -480,6 +480,10 @@ pub(super) fn probe_source_home_prefixes_v1(
     candidates: &[OrdinaryNewCandidate],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    array_i64_field_sets: &BTreeMap<
+        Box<str>,
+        BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+    >,
     borrowed_formal_source: &Result<
         super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         String,
@@ -605,6 +609,25 @@ pub(super) fn probe_source_home_prefixes_v1(
                 site,
                 home,
                 name,
+            )
+            .map(|field| field.is_some())
+        },
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+            // The probe shares the verified lane's sealed census — the
+            // declared `ArrayBox` type alone admits nothing.
+            let Some((_, box_source)) = receiver_proof else {
+                return Ok(false);
+            };
+            let Some(proven) = array_i64_field_sets.get(box_source.name()) else {
+                return Ok(false);
+            };
+            terminal_home::receiver_array_i64_field(
+                instance_constructors,
+                receiver_proof,
+                site,
+                home,
+                name,
+                proven,
             )
             .map(|field| field.is_some())
         },

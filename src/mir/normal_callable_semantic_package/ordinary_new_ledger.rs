@@ -53,6 +53,40 @@ impl OrdinaryNewClaimLedgerV1 {
         self.result_claims.borrow()
     }
 
+    /// The sealed `ArrayBox` element-integer census for one box — the
+    /// canonical fields whose whole-Box write inventory proved integer
+    /// stores. Missing/empty means unproven; consumers see no row at all.
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn array_i64_fields_for_test(
+        &self,
+        box_name: &str,
+    ) -> usize {
+        self.array_i64_fields
+            .get(box_name)
+            .map_or(0, BTreeSet::len)
+    }
+
+    /// The per-owner borrowed-return source proofs folded to their i64
+    /// outcome: `Ok(())` is a sealed i64 return source, `Err` is the
+    /// named unavailability the proof recorded. Owners outside the armed
+    /// call graph carry no row at all.
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_i64_results_for_test(
+        &self,
+    ) -> Vec<(crate::mir::resolved_semantics::FunctionOwnerIdV1, Result<(), String>)> {
+        self.borrowed_i64_results
+            .iter()
+            .map(|(owner, row)| {
+                (
+                    *owner,
+                    row.as_ref()
+                        .map_err(Clone::clone)
+                        .and_then(|proof| proof.require_source_i64_v1()),
+                )
+            })
+            .collect()
+    }
+
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn local_commit_complete_for_test(
         &self,
@@ -109,6 +143,7 @@ impl OrdinaryNewClaimLedgerV1 {
             field_write_claims: BTreeMap::new(),
             owned_field_children: BTreeMap::new(),
             callable_result_classes: BTreeMap::new(),
+            array_i64_fields: BTreeMap::new(),
             receiver_call_observations: BTreeMap::new(),
             terminal_relation: BTreeMap::new(),
             terminal_relation_index: BTreeMap::new(),

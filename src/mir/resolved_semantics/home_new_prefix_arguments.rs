@@ -67,6 +67,9 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // Container-field proof stays unavailable on this lane as well —
         // no `me.<field>.m(..)` statement is admitted here.
         &mut |_, _, _, _, _| Ok(false),
+        // The `ArrayBox` field census stays unavailable on this lane —
+        // a `me.<field>.get(..)` result claims no i64 here.
+        &mut |_, _, _, _, _| Ok(false),
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
@@ -145,6 +148,16 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    // The probe must see the same `ArrayBox` field-census membership
+    // the verified lane sees: an admitted `me.<field>.get(..)` i64 result
+    // keeps this walk covered exactly as the verified lane admits it.
+    array_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     // The probe must see the same local-initializer field-read membership
     // the verified lane sees: an admitted `local x = recv.field` keeps
     // this walk covered, so the readiness gate never under- or
@@ -186,6 +199,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         argument_i64_field,
         scalar_field,
         container_field,
+        array_i64_field,
         local_field_read,
         borrowed_actuals,
         view_use,

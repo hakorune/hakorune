@@ -11,7 +11,7 @@ use super::source::{PreparedSourceCallNeedV1, StoredReceiverSourceV1};
 use super::*;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile_v1(
@@ -33,6 +33,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     names: &[Box<str>],
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     probe: &mut impl FnMut(
         u32,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -80,6 +81,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         &needs,
         constructors,
         callable_result_classes,
+        array_i64_fields,
     );
     let grounded = grounded_source_results_v1(&pending);
     let targets: PreparedLexicalInstanceCallSourceTargetsV1 = match needs {

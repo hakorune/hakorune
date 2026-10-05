@@ -15,7 +15,8 @@ use super::candidate::{
 };
 use super::coseal_helpers::{convert_selected_new_arguments, retain_child_terminal_relation};
 use super::{
-    field_reads, field_write_claim, receiver_call_observation, result_class_claim, terminal_home,
+    array_i64_fields, field_reads, field_write_claim, receiver_call_observation,
+    result_class_claim, terminal_home,
 };
 use super::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimCoreV1, OrdinaryNewClaimLedgerV1,
@@ -100,6 +101,26 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         }
         _ => None,
     };
+    // The whole-Box `ArrayBox` element-integer census — one sealed
+    // canonical-field set per ordinary Box, issued once before any walk so
+    // the probe, the verified lane, and the borrowed-result return proof
+    // consult the identical authority. A field outside the set keeps the
+    // manifest `Dynamic` get result everywhere.
+    let mut array_i64_field_sets: BTreeMap<
+        Box<str>,
+        BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
+    > = BTreeMap::new();
+    for box_source in batch.ordinary_box_coverage().rows() {
+        let set = array_i64_fields::issue_array_i64_fields_v1(
+            selected,
+            batch,
+            instance_constructors,
+            box_source,
+        )?;
+        if !set.is_empty() {
+            array_i64_field_sets.insert(box_source.name().into(), set);
+        }
+    }
     let (
         names,
         mut local_candidates,
@@ -117,6 +138,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &field_write_claims,
         &callable_result_classes,
         &field_residences,
+        &array_i64_field_sets,
         &mut owned_field_children,
     )?;
     for declaration in batch.declarations() {
@@ -281,7 +303,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         input, &new_sites, entry_home, explicit_sites, pending_actuals,
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
-                        receiver_proof, &borrowed_formal_source, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
+                        receiver_proof, &array_i64_field_sets,
+                        &borrowed_formal_source, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -567,6 +590,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             terminal_home::receiver_container_field(
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
+                        }, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                            // `me.<ArrayBox field>.m(..)` receiver proof
+                            // adds the sealed whole-Box element-integer
+                            // census: the declared type alone never carries
+                            // an i64 element contract.
+                            let Some((_, box_source)) = receiver_proof else {
+                                return Ok(false);
+                            };
+                            let Some(proven) = array_i64_field_sets.get(box_source.name())
+                            else {
+                                return Ok(false);
+                            };
+                            terminal_home::receiver_array_i64_field(
+                                instance_constructors, receiver_proof, site, home, name, proven,
+                            ).map(|field| field.is_some())
                         }, &mut local_field_read, &mut |site, actuals| {
                             borrowed_call_arguments_callback_v1(
                                 &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
@@ -741,6 +779,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
     ledger.callable_result_classes = callable_result_classes;
+    ledger.array_i64_fields = array_i64_field_sets;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;
     ledger.field_reads = std::cell::RefCell::new(field_reads);

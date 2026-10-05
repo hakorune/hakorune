@@ -156,6 +156,8 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
+        // The `ArrayBox` field census stays unavailable on this lane.
+        &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         // The bounded sibling consults no dominated-view draft: a `Handle`
@@ -251,6 +253,16 @@ pub(crate) fn scan_new_home_flow<E>(
     // receivers of builtin container calls — a separate contract from
     // both scalar proofs.
     container_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    // The issuer's receiver-side `ArrayBox` field proof for
+    // `me.<field>` receivers — true only when the declared field sits
+    // inside the whole-Box element-integer census the issuer sealed.
+    array_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
         BindingRefV1,
@@ -387,6 +399,7 @@ pub(crate) fn scan_new_home_flow<E>(
         argument_i64_field,
         scalar_field,
         container_field,
+        array_i64_field,
         local_field_read,
         borrowed_actuals,
         view_use,

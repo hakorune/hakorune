@@ -8,6 +8,12 @@
 //! `I64Value`/`BoolValue` as scalar `Trivial`, `Dynamic`/`StringValue` as
 //! `BoundValue` (a produced value carrying no release obligation).
 //!
+//! `get/1` is the one exception to manifest-result installation: when the
+//! issuer's whole-Box element-integer census sealed the field and the
+//! index observes an Integer leaf, the `Dynamic` manifest result upgrades
+//! to `I64Value` — the sole authority for `me.<field>.get` element-i64.
+//! Without the census seal nothing changes; the result stays `Dynamic`.
+//!
 //! No ledger row is minted: the raw lane's `Callee::Method{RuntimeData}` /
 //! `ArrayElementWrite` emission already owns the instruction, and neither
 //! is lifecycle-required. Anything outside the manifest contract keeps
@@ -31,6 +37,13 @@ fn proven_field_call<E>(
     locals: &PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
     container_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
+    array_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
         BindingRefV1,
@@ -92,7 +105,58 @@ fn proven_field_call<E>(
             return Ok(None);
         }
     }
-    Ok(Some(row.result_kind))
+    // `get/1` upgrades the manifest `Dynamic` result to i64 only when the
+    // issuer's whole-Box census sealed this field's element stores as
+    // integer and the index observes an Integer leaf — an Integer literal
+    // or Integer-class binding, or a proven `me.<numeric field>` read, the
+    // same leaves the `integer_source` contract credits. Anything else
+    // keeps the manifest result — the call stays covered, the value stays
+    // dynamic.
+    let mut index_i64 = |ordinal: usize| -> Result<bool, E> {
+        let site = call.arguments()[ordinal].site();
+        if matches!(
+            locals.observe(site),
+            Some(local_flow::OrdinaryObservation::Integer(_))
+                | Some(local_flow::OrdinaryObservation::TrivialLocal(
+                    _,
+                    Some(local_flow::SourceScalarKind::Integer),
+                ))
+        ) {
+            return Ok(true);
+        }
+        let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+            shape.expression_shape(site)
+        else {
+            return Ok(false);
+        };
+        let Some(home) = field_write::self_rooted_me(shape, object, locals) else {
+            return Ok(false);
+        };
+        scalar_field(
+            &OwnedExprSiteV1::new(input.owner(), site.clone()),
+            object,
+            home,
+            home,
+            field,
+        )
+    };
+    let kind = match (call.selector(), call.arity()) {
+        ("get", 1)
+            if row.result_kind == CoreMethodResultKindV1::Dynamic
+                && index_i64(0)?
+                && array_i64_field(
+                    &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
+                    object,
+                    home,
+                    home,
+                    field,
+                )? =>
+        {
+            CoreMethodResultKindV1::I64Value
+        }
+        _ => row.result_kind,
+    };
+    Ok(Some(kind))
 }
 
 /// `true` when every sealed expression row under `root` is Home-neutral
@@ -221,6 +285,13 @@ pub(super) fn observe_statement_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    array_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -241,6 +312,7 @@ pub(super) fn observe_statement_field_call<E>(
             locals,
             homes,
             container_field,
+            array_i64_field,
             scalar_field,
             view_use,
         )?,
@@ -263,6 +335,13 @@ pub(super) fn observe_local_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    array_i64_field: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        &SourceExprSiteV1,
+        BindingRefV1,
+        BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     scalar_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -278,6 +357,7 @@ pub(super) fn observe_local_field_call<E>(
         locals,
         homes,
         container_field,
+        array_i64_field,
         scalar_field,
         view_use,
     )?

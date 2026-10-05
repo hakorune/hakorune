@@ -366,6 +366,29 @@ key carries a claim — so `local n = b.make(d, i); n.check()` arms while
 unproven call-result receivers stay vetoed. This product is AST-free and is
 not the `callable_result_representation` authority.
 
+[Array-I64 field census](array_i64_fields.rs) is the sole authority for
+upgrading a `me.<field>.get(index)` result from the manifest `Dynamic` row
+to i64. Co-seal preflight issues one sealed
+`BTreeMap<Box<str>, BTreeSet<CanonicalFieldRefV1>>` before the source walk:
+a field enters only when its declaration is `ArrayBox`, its sole provider is
+one birth-store `new ArrayBox()` (inline initializers reach birth through the
+prologue row), every `set`/`push` value argument on every attributed
+`me.<field>` or proven-alias writer is an integer source (literals,
+integer-proven locals, proven `me.<i64>` reads, and already-proven field
+`get` results participate in the fixpoint), and no unclassified field
+occurrence — escape, foreign selector, unattributed write, alias rebind or
+second provider — remains. The same map is transported on the claim ledger
+to three consumers: the prefix field-call arm in
+`home_new_prefix_field_call` (i64 upgrade inside the existing manifest
+lane), the borrowed-formal result pending fold
+(`ordinary_new_borrowed_formal_result_pending.rs` captures a direct or
+local-bound `return` source), and the test-only observation accessors. A
+vetoed field keeps manifest `Dynamic` coverage; an armed borrowed
+`return <get-result>` of an unproven source still fails `source-not-i64`.
+Index admission accepts only what the existing `integer_source` proof
+already credits — formal-field reads such as `handle.block_id` remain a
+sibling row.
+
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.
 The source walk owns availability and transfer; it keeps the acquisition site in

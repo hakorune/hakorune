@@ -601,3 +601,4 @@ include!("brand_catalog_mixed_result_class_tests.rs");
 
 #[path = "brand_catalog_construction_fault_tests.rs"]
 mod construction_fault_tests;
+include!("brand_catalog_array_i64_tests.rs");

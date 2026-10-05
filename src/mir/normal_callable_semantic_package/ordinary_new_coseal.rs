@@ -93,6 +93,8 @@ pub(crate) use result_class_claim::OrdinaryNewResultClassV1;
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
 mod terminal_access;
+#[path = "array_i64_fields.rs"]
+mod array_i64_fields;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
 pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
@@ -330,6 +332,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // constructs `new` of one agreed ordinary box. Read-only after
     // issuance; non-uniform evidence simply produces no row.
     callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1,
+    // Whole-Box `ArrayBox` element-integer census: `box name -> canonical
+    // proven fields`, issued once before any walk. The probe lane, the
+    // verified lane, and the borrowed-result return proof all consult this
+    // one sealed set — a field outside it keeps the manifest `Dynamic`
+    // get result everywhere.
+    pub(super) array_i64_fields:
+        BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     // Claim-faithful `local x = me.m(..)` call-result observations, keyed
     // by the exact call site. Minted by the deferred pass after the
     // result-class fixpoint; `NullableObject` evidence never authorizes

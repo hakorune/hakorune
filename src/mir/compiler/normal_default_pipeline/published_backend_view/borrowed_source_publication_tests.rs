@@ -629,3 +629,6 @@ mod field_return_projection_tests;
 
 #[path = "borrowed_source_publication_call_result_tests.rs"]
 mod call_result_tests;
+
+#[path = "array_i64_field_call_tests.rs"]
+mod array_i64_field_call_tests;

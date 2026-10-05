@@ -52,6 +52,8 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _, _, _, _| Ok(false),
+        // The `ArrayBox` field census stays unavailable on this lane.
+        &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         &mut |_| Ok(false),
@@ -141,6 +143,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         crate::mir::resolved_semantics::BindingRefV1,
         &str,
     ) -> Result<bool, E>,
+    array_i64_field: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        &crate::mir::resolved_semantics::SourceExprSiteV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        crate::mir::resolved_semantics::BindingRefV1,
+        &str,
+    ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
         bool,
@@ -218,6 +227,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             argument_i64_field,
             scalar_field,
             container_field,
+            array_i64_field,
             local_field_read,
             borrowed_actuals,
             view_use,

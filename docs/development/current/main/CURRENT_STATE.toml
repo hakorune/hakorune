@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0"
+current_execution_row = "MIRBUILDER-FIELD-ARRAY-GET-I64-RESULT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "page-array-get/result-decision"
-current_design_stop = "page-array-get/result-decision"
+current_blocker_token = "field-array-get/formal-index-decision"
+current_design_stop = "field-array-get/formal-index-decision"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,26 +13,32 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
+latest_card = "mirbuilder-field-array-get-i64-result-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-Stored-child borrowed C receiver S0 landed: metadata-only ordinary_i64 receiver
-mapping seals a borrowed child only from the canonical owned_object_residences
-tuple plus original receiver/Copy-root equality; the reserved-store fence rejects
-scalar/array/foreign writes into metadata-owned slots (unsupported-cohort).
-Isolated evidence: 96 unchanged sources compile, exact Copy positive,20 rejects,
-both-opts real callee Normal/Fault with cleanup once; all5 store controls
-pre-accept/post-reject; existing C, owned-slot and layout regressions PASS.
-Isolated hunks staged via blob paths; protected117-path sibling WIP untouched.
-Mode now design_stop: next selection is the Page Array.get result Decision with
-one read-only worker. App frontier, production switch, legacy retirement and
-finite goal remain owed; parked lanes unchanged. No Cargo live.
+Field Array.get I64 result S0 landed: one direct `me.<ArrayBox
+field>.get(<proven-i64 index>)` arm upgrades the manifest `Dynamic` result to
+i64 inside the existing prefix field-call lane, gated by a sealed whole-field
+integer-store census issued once in co-seal preflight (sole birth `new
+ArrayBox()` provider, every `set`/`push` value integer-source through
+`me.<f>`/proven-alias writers, escapes/foreign selectors/rebinds/second
+providers veto). The ledger transports the map to the prefix arm, the
+borrowed-formal result pending fold (`capture_field_array_get` seals direct
+and local-bound returns), and test-only accessors; vetoed fields keep
+`Dynamic` coverage and unproven borrowed returns fail `source-not-i64`.
+Focused: 15 new pins green; regression 1158 PASS / 6 FAIL all reproduced on
+baseline 36b13d8d8e; unchanged-app `--emit-exe` stops at `artifact-unowned-
+lifecycle-site` identical to baseline; scope guard stops at unchanged root1351
+baseline. `handle.block_id` formal-field index, DirectArrayI64 arm, condition
+positions and the physical read owner stay sibling rows; production switch,
+legacy retirement, app frontier and finite goal remain owed; protected sibling
+WIP intact. No Cargo live.
 """
-next_design_card = "MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
+next_design_card = "MIRBUILDER-FIELD-ARRAY-GET-I64-RESULT-S0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 next_execution_card = "none"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -47,7 +53,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-FIELD-ARRAY-GET-I64-RESULT-S0 landed — direct `me.<ArrayBox f>.get(<proven-i64 index>)` upgrades manifest `Dynamic` to i64 inside the existing prefix field-call lane; sealed whole-field integer-store census (sole birth `new ArrayBox()` provider + integer-source `set`/`push` writers + veto inventory) rides the claim ledger to the prefix arm and `capture_field_array_get` borrowed-result fold. 15 new pins green; regression 1158/6 all baseline-identical; app `--emit-exe` stops `artifact-unowned-lifecycle-site` same as baseline. `handle.block_id` index, DirectArrayI64, condition position and physical read owner stay siblings. Next: formal-field index arm Decision.",
   "2026-10-06: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0 landed — V4 C index lends a stored child HANDLE/class for `ordinary_i64` field reads only from the canonical `owned_object_residences` tuple + original receiver/Copy-root equality; reserved slots accept only their declared tuple (exact `array_new` lease / canonical child + typed-live provenance), scalar never lands. 96 unchanged sources compile; 20 negatives + 5/5 store-control pre/post fence; real-callee Normal/Fault both opts; C/owned-slot/layout regressions green. No Unit/Birth-read/Array-local admission. Next: Page `Array.get` result Decision.",
   "2026-10-05: HEAP-PROVIDER-CALL-ARG-S0 (B) landed — provider `new` args admit a proven `Alias.m(..)` qualified static call: `claim_target` pairs each `(caller, site)` row with its sealed `StaticBoxMethod` target; the Birth plan seals `QualifiedStaticCall` actuals (QualifiedUnbound receiver, arity match, Integer/Bool literals, required-i64 evidence); the port installs the publication handoff through the sole ledger boundary; emission emits one `Call{Global, I64}` per row in source order faulting onto the shared reclaim head, `InvokeNormalResult` projecting the i64 birth actual. Birth units seed the physical ordinary-call census (i64 only); V4 admits `birth_i64` calls + birth-caller `field_set`/`field_residence_release`/`object_field_set` and `%call_out` slots. Seal/JSON/C tests + real-wire V4 compile green. App `--emit-exe` terminal advances `FieldContractUnsupported` -> `BodyCoverageUnsupported` at `seedBlocks()` (C's edge). Next: HEAP-BIRTH-FIELD-CALL-S0 (C).",
-  "2026-10-05: HEAP-OWNED-PROVIDER-S0 (A) landed — provider `new` admits a bounded `OwnedArrayFieldsNoHook` child (parent -> user child -> ArrayBox leaves): plan stores carry declaration-order `owned_fields`, `seal_provider_owned_children_v1` joins the provider site into the existing `owned_field_children` ledger inside `prepare_source_claims` (new `source_owned_children` child file; issue_source 664 / issue 797 under 800), emission+validation emit and census the `OwnedFieldResidenceRelease` newest-first chains on birth/store fault, and layout rows publish `owned_residences` consumed by the physical `object_field_release` nested walk — `object_field_set` fault inline release removed (MIR chain sole owner). Focused family + 3 C tests green; guard stops at baseline `brand_catalog_tests.rs=1010`. App unchanged: `new HakoAllocHeap` still `FieldContractUnsupported` at B/C edges. Next: HEAP-PROVIDER-CALL-ARG-S0 (B).",
   ]
