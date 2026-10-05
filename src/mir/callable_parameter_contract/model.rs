@@ -12,8 +12,8 @@ pub(crate) enum CallableParameterContractKindV1 {
     /// A declared formal whose spelling resolves to an ordinary box of
     /// this package — the source's explicit declaration bound to the
     /// resolved class identity, never a field-set inference. The formal
-    /// is an owned binding: `return <formal>` is an owned pass-through,
-    /// and a call-position actual of it transfers ownership.
+    /// is an ordinary borrowed handle. Class membership alone neither
+    /// transfers a Home at a call nor creates an owned return destination.
     DeclaredObject(Box<str>),
     /// A `: MapBox` declared formal under the checked-map argument
     /// contract: a synchronous read-only no-escape borrow of caller-owned

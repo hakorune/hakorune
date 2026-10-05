@@ -427,9 +427,9 @@ rg -q 'page_heap_fixture_result_claim_census' "$RESULT_CLAIM_TESTS"
 # is a kind arm in the existing catalog with the same Handle demand/carrier
 # as `OpaqueHandle`; unresolvable or unadmitted names stay
 # `UnsupportedDeclaredType`. `return <opaque formal>` mints the class-free
-# `NullableForwarded{ordinal}` identity claim and `return <declared
-# formal>` mints `NullableObject`; caller-side actual substitution composes
-# the forwarded class, and a class-free claim mints no receiver
+# `NullableForwarded{ordinal}` identity claim, as does an ordinary declared
+# formal. Caller-side substitution preserves the original borrowed ordinal,
+# never an owned class; a class-free claim mints no receiver
 # observation. The nullable emission lane admits the `Handle` argument
 # kind under that issuer proof, and the physical boundary derives expected
 # incoming edges from all draft edges under the destination projection so
@@ -441,14 +441,16 @@ RECEIVER_OBSERVATION_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ord
 PHYSICAL_BOUNDARY_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/physical_boundary.rs"
 SEL_TERMINAL_CALL="$ROOT_DIR/src/mir/builder/ordinary_new_admission/selected/terminal_call.rs"
 rg -q 'DeclaredObject' "$PARAM_CONTRACT_MODEL" "$PARAM_CONTRACT_ISSUER" "$RECEIVER_OBSERVATION_SRC"
-rg -q 'DeclaredObject' "$RESULT_CLAIM_TESTS"
+rg -Fq 'class equality cannot create a received_nullable Home' "$RESULT_CLAIM_TESTS"
 rg -q 'NullableForwarded' "$RESULT_CLASS_CLAIM_SRC" "$RESULT_CLAIM_TESTS"
 rg -q 'ForwardFormal' "$RESULT_CLASS_CLAIM_SRC"
 rg -q 'SelectedNewArgumentKindV1::Handle \{ binding \}' "$SEL_TERMINAL_CALL"
 rg -q 'all_edges' "$PHYSICAL_BOUNDARY_SRC"
 rg -q 'opaque_formal_return_mints_nullable_forwarded_claim' "$RESULT_CLAIM_TESTS"
-rg -q 'declared_formal_return_composes_nullable_object_claim' "$RESULT_CLAIM_TESTS"
-rg -q 'forwarded_formal_substitutes_declared_actual_and_rejects_opaque' "$RESULT_CLAIM_TESTS"
+rg -q 'declared_formal_return_preserves_borrowed_nullable_identity' "$RESULT_CLAIM_TESTS"
+rg -q 'forwarded_formal_preserves_caller_ordinal_without_owned_result' "$RESULT_CLAIM_TESTS"
+rg -q 'rebound_formal_never_claims_incoming_result_identity' "$RESULT_CLAIM_TESTS"
+rg -q 'binding_is_unrebound' "$RESULT_CLASS_CLAIM_SRC"
 rg -q 'page_heap_fixture_forwarded_formal_claims' "$RESULT_CLAIM_TESTS"
 rg -q 'page_heap_fixture_composes_allocate_and_realloc' "$RESULT_CLAIM_TESTS"
 rg -q 'page_heap_fixture_observes_me_allocate_and_realloc' "$RESULT_CLAIM_TESTS"

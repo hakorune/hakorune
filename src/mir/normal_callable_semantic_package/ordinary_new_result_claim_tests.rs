@@ -231,7 +231,8 @@ fn assignment_position_new_mints_no_result_claim() {
 /// `NullableForwarded{0}` identity claim, `realloc` substitutes its own
 /// `handle: HakoAllocHandle` declared formal at the call edge, and the
 /// composed `NullableObject(HakoAllocHandle)` lets `replacement`
-/// install `received_nullable` — all eight prefixes covered.
+/// previously installed `received_nullable` incorrectly; its success prefix
+/// now rejects until an exact result ownership relation is available.
 #[test]
 fn page_heap_fixture_result_claim_census() {
     let package = issue(include_str!(
@@ -264,6 +265,14 @@ fn page_heap_fixture_result_claim_census() {
                     result_ok_prefix += 1;
                 } else {
                     result_bad_prefix += 1;
+                    let Err(crate::mir::resolved_semantics::home_new_prefix::HomePrefixUnavailableV1::PrefixNotCovered(site)) = claim.home_prefix() else {
+                        panic!("{key:?}: unexpected prefix rejection {:?}", claim.home_prefix());
+                    };
+                    assert_eq!(
+                        site.node().segments(),
+                        &[crate::mir::resolved_semantics::SourcePathSegmentV1::Body(3)],
+                        "both reallocResult exits stop at the unsupported local realloc result"
+                    );
                 }
             }
             other => panic!("unexpected retained class {other}"),
@@ -273,8 +282,8 @@ fn page_heap_fixture_result_claim_census() {
     assert_eq!(handle_sites, 1, "one HakoAllocHandle site");
     assert_eq!(
         (result_ok_prefix, result_bad_prefix),
-        (8, 0),
-        "all eight sites prefix-covered through the forwarded-formal claim"
+        (6, 2),
+        "both later reallocResult exits require a valid result relation at Body(3)"
     );
 }
 
@@ -446,11 +455,10 @@ fn provided_parameter_store_rejects_copied_local() {
     );
 }
 
-/// `return <declared formal>` is an owned pass-through: the contract's
-/// `DeclaredObject` is the sole class authority, and the claim composes
-/// `NullableObject` because object formals admit `null`.
+/// Declared class membership does not change an ordinary formal's borrowing
+/// contract. Returning it preserves nullable input identity without a new Home.
 #[test]
-fn declared_formal_return_composes_nullable_object_claim() {
+fn declared_formal_return_preserves_borrowed_nullable_identity() {
     let package = issue(
         "box Wrap { v: i64 birth(v) { me.v = v } }
          box Door { give(t: Wrap) { return t } }
@@ -465,7 +473,7 @@ fn declared_formal_return_composes_nullable_object_claim() {
         .expect("Door.give claims a result class");
     assert_eq!(
         *claim,
-        super::OrdinaryNewResultClassV1::NullableObject("Wrap".into()),
+        super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
     );
 }
 
@@ -493,18 +501,18 @@ fn opaque_formal_return_mints_nullable_forwarded_claim() {
 }
 
 /// A `NullableForwarded` callee composes at the caller through the call
-/// site's actual: `relay`'s declared `h: Wrap` substitutes the forwarded
-/// formal, minting `NullableObject(Wrap)`. The identical shape with an
-/// opaque actual stays unclaimed — an unprovable actual never mints a
-/// class.
+/// site's actual: both declared and opaque caller formals keep their original
+/// ordinal. Neither can issue a fresh result Home from a forwarded borrow.
 #[test]
-fn forwarded_formal_substitutes_declared_actual_and_rejects_opaque() {
+fn forwarded_formal_preserves_caller_ordinal_without_owned_result() {
     let package = issue(
         "box Wrap { v: i64 birth(v) { me.v = v } }
          box Door {
              give(t) { return t }
              relay(h: Wrap) { local same = me.give(h) return same }
              relay_opaque(h) { local same = me.give(h) return same }
+             relay_offset(unused, h: Wrap) { local same = me.give(h) return same }
+             mixed(h: Wrap, choose: i64) { if choose == 0 { return new Wrap(0) } return me.give(h) }
          }
          static box Main { main() { return 30 } }",
     )
@@ -518,20 +526,71 @@ fn forwarded_formal_substitutes_declared_actual_and_rejects_opaque() {
         .expect("Door.relay claims a result class");
     assert_eq!(
         *claim,
-        super::OrdinaryNewResultClassV1::NullableObject("Wrap".into()),
+        super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
+    );
+    assert!(
+        claims.iter().any(|(key, claim)| key.owner() == "Door"
+            && key.name() == "relay_opaque"
+            && matches!(
+                claim,
+                super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 }
+            )),
+        "an opaque forwarded actual preserves identity without minting a Home"
+    );
+    assert!(
+        claims.iter().any(|(key, claim)| key.owner() == "Door"
+            && key.name() == "relay_offset"
+            && matches!(
+                claim,
+                super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 1 }
+            )),
+        "substitution must preserve caller ordinal, not the callee ordinal"
     );
     assert!(
         !claims
             .keys()
-            .any(|key| key.owner() == "Door" && key.name() == "relay_opaque"),
-        "an opaque forwarded actual never mints a class claim"
+            .any(|key| key.owner() == "Door" && key.name() == "mixed"),
+        "same class fresh/borrowed exits cannot mint an owned result"
     );
+}
+
+/// Rebinding a formal changes its value while retaining its BindingRef. Neither
+/// a direct return nor a forwarding call may identify it as the incoming value.
+#[test]
+fn rebound_formal_never_claims_incoming_result_identity() {
+    for annotation in ["", ": Wrap"] {
+        for returned in [
+            "return h",
+            "return me.give(h)",
+            "local same = me.give(h) return same",
+        ] {
+            let source = format!(
+                "box Wrap {{ v: i64 birth(v) {{ me.v = v }} }}
+                 box Door {{ give(t) {{ return t }}
+                     bad(h{annotation}) {{ h = new Wrap(1) {returned} }} }}
+                 static box Main {{ main() {{ return 30 }} }}"
+            );
+            let package = issue(&source).expect("rebound formal source package");
+            let claims = package
+                .ordinary_new_claim_ledger
+                .callable_result_class_claims_for_test();
+            assert!(claims
+                .keys()
+                .any(|key| key.owner() == "Door" && key.name() == "give"));
+            assert!(
+                !claims
+                    .keys()
+                    .any(|key| key.owner() == "Door" && key.name() == "bad"),
+                "rebound incoming identity must reject: {source}"
+            );
+        }
+    }
 }
 
 /// The real `page_heap_box.hako` chain: `resizeInPlace`'s `return handle`
 /// mints `NullableForwarded{0}` — a borrowed return whose class lives at
-/// the caller — and `realloc` composes `NullableObject(HakoAllocHandle)`
-/// by substituting its declared `handle: HakoAllocHandle` actual.
+/// the caller. Mixed realloc exits cannot treat a declared handle as a moved-in
+/// Home or collapse borrowed identity and fresh acquisition into one class claim.
 #[test]
 fn page_heap_fixture_forwarded_formal_claims() {
     let package = issue(include_str!(
@@ -549,21 +608,19 @@ fn page_heap_fixture_forwarded_formal_claims() {
         *resize,
         super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 },
     );
-    let (_, realloc) = claims
-        .iter()
-        .find(|(key, _)| key.owner() == "HakoAllocHeap" && key.name() == "realloc")
-        .expect("HakoAllocHeap.realloc claims a result class");
-    assert_eq!(
-        *realloc,
-        super::OrdinaryNewResultClassV1::NullableObject("HakoAllocHandle".into()),
+    assert!(
+        !claims
+            .keys()
+            .any(|key| key.owner() == "HakoAllocHeap" && key.name() == "realloc"),
+        "mixed fresh/borrowed exits cannot issue an owned result merely from class equality"
     );
 }
 
 /// The real `page_heap_box.hako` fixture family: `HakoAllocPage.allocate`
 /// is the leaf mixed null/`new` claim, `HakoAllocHeap.allocate` composes
 /// it through two `me.<field>.allocate` exits plus `return null`, and
-/// `HakoAllocHeap.realloc` composes `resizeInPlace`'s forwarded-formal
-/// claim through its declared `handle: HakoAllocHandle` actual.
+/// `HakoAllocHeap.realloc` retains its borrowed forwarded identity separately
+/// from a fresh allocate result; equal class does not prove equal ownership.
 #[test]
 fn page_heap_fixture_composes_allocate_and_realloc() {
     let package = issue(include_str!(
@@ -584,28 +641,16 @@ fn page_heap_fixture_composes_allocate_and_realloc() {
         ledger.nullable_callable_result_class(key),
         Some("HakoAllocHandle")
     );
-    // `resizeInPlace` returns its opaque formal — a `NullableForwarded`
-    // identity claim; `realloc`'s `return same` substitutes its declared
-    // `handle: HakoAllocHandle` actual and mints the nullable class.
-    let (realloc_key, realloc_claim) =
-        result_class_claim_row(&package, "HakoAllocHeap", "realloc")
-            .expect("realloc composes the forwarded formal through its actual");
-    assert!(matches!(
-        realloc_claim,
-        super::OrdinaryNewResultClassV1::NullableObject(class)
-            if class.as_ref() == "HakoAllocHandle"
-    ));
-    assert_eq!(
-        ledger.nullable_callable_result_class(realloc_key),
-        Some("HakoAllocHandle")
+    assert!(
+        result_class_claim_row(&package, "HakoAllocHeap", "realloc").is_none(),
+        "borrowed-forward + fresh-New needs an exact ownership result relation"
     );
 }
 
 /// The real `page_heap_box.hako` sites: `local handle = me.allocate(size)`
 /// and `local replacement = me.allocate(requested_size)` observe the
-/// composed `NullableObject(HakoAllocHandle)` claim, and `me.realloc`'s
-/// initializer site observes the forwarded-formal composition — only the
-/// `me.<field>.m` sites stay unobserved.
+/// composed `NullableObject(HakoAllocHandle)` claim. The mixed borrowed/fresh
+/// `me.realloc` result cannot issue an owned receiver observation.
 #[test]
 fn page_heap_fixture_observes_me_allocate_and_realloc() {
     let package = issue(include_str!(
@@ -626,16 +671,11 @@ fn page_heap_fixture_observes_me_allocate_and_realloc() {
                 if class.as_ref() == "HakoAllocHandle"
         ));
     }
-    // `me.realloc(handle, ..)` inside `reallocResult` resolves the
-    // forwarded `resizeInPlace` formal through the declared
-    // `handle: HakoAllocHandle` actual — a real observation now.
     let realloc = receiver_observations_for(&package, "HakoAllocHeap", "realloc");
-    assert_eq!(realloc.len(), 1, "the `me.realloc` initializer site");
-    assert!(matches!(
-        realloc[0].class(),
-        super::OrdinaryNewResultClassV1::NullableObject(class)
-            if class.as_ref() == "HakoAllocHandle"
-    ));
+    assert!(
+        realloc.is_empty(),
+        "class equality cannot create a received_nullable Home"
+    );
     // `me.<field>.m(..)` receivers are `Other` — never observed here even
     // if the callee were claimed.
     assert!(ledger

@@ -1,7 +1,21 @@
 # mimalloc-lite formal-forward result D0 (`me.realloc` unclaimed forward)
 
-Status: S0 landed — census flipped to (8, 0); EXE lane advanced to the
-next pre-existing residual (`new HakoAllocHeap` construction contract).
+Status: historical S0 landed; its class-annotation ownership inference is
+superseded by DECLARED-FORMAL-RESULT-IDENTITY-S0 (2026-10-05).
+
+Current correction: ordinary declared object formals are borrowed handles under
+language ownership.md. The parameter issuer supplies class membership/Handle,
+not a moved-in Home; no exact ordinary transfer destination was issued. The
+owned pass-through and declared actual -> NullableObject statements below are
+historical implementation assumptions, not current authority. Returning a formal
+preserves NullableForwarded identity. Mixed fresh/borrowed realloc results need
+an exact result relation before receiver observation/received_nullable publication.
+Page.release updates block policy and does not dispose the handle descriptor.
+
+The earlier (8,0) census remains evidence of that implementation, not proof of
+correct ownership. Current implementation/verification belongs to
+mirbuilder-declared-formal-result-identity-s0-2026-10-05.md; design reconciliation
+is in mirbuilder-declared-object-formal-contract-d1-2026-10-05.md.
 Owns the EXE lane's frontier after OBJECT-FORMAL-FIELD-STORE-S0
 (`57562186df`): the last `artifact-unowned-lifecycle-site` stop, on the
 two `RetainedUnavailable` `reallocResult` sites whose

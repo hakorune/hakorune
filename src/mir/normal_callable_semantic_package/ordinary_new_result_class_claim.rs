@@ -99,10 +99,8 @@ enum ResultClassExitDraftV1 {
 /// An exit after callee resolution: `Fwd` waits on the callee's claim and
 /// carries the call site's `Local` actuals so a `NullableForwarded`
 /// callee can substitute the forwarded formal's class at the caller.
-/// `DeclaredFormal` is a `return <declared formal>` — an owned pass-through
-/// whose class is the declared type, nullable because object formals admit
-/// `null`. `Formal` is a `return <opaque formal>` — the row claims
-/// identity only.
+/// Ordinary declared and opaque formal returns preserve borrowed identity.
+/// `Formal` records the original input ordinal without an owning class.
 enum PendingExitV1 {
     New(Box<str>),
     Null,
@@ -110,8 +108,9 @@ enum PendingExitV1 {
         key: CanonicalSameModuleCallableKeyV1,
         actuals: Box<[Option<BindingRefV1>]>,
     },
-    DeclaredFormal { class: Box<str> },
-    Formal { ordinal: u32 },
+    Formal {
+        ordinal: u32,
+    },
 }
 
 struct ResultClassDraftRowV1 {
@@ -171,6 +170,14 @@ fn is_receiver_binding(function: &VerifiedResolvedFunctionV1, binding: BindingRe
         .is_some_and(|record| record.kind() == BindingKindV1::Receiver)
 }
 
+/// Original binding identity is usable only when the sealed source records no
+/// rebind. This conservative proof does not infer assignment ordering.
+fn binding_is_unrebound(function: &VerifiedResolvedFunctionV1, binding: BindingRefV1) -> bool {
+    !function.assignment_targets().any(|(_, target)| {
+        matches!(target, ResolvedAssignmentTargetV1::BindingRebind(rebound) if *rebound == binding)
+    })
+}
+
 /// The binding's sole initializer site — `None` when the binding is
 /// rebound, never initialized, or initialized more than once. A
 /// rebound or multi-initializer local cannot prove a result edge.
@@ -178,12 +185,7 @@ fn sole_initializer_site(
     function: &VerifiedResolvedFunctionV1,
     binding: BindingRefV1,
 ) -> Option<SourceExprSiteV1> {
-    if function.assignment_targets().any(|(_, target)| {
-        matches!(
-            target,
-            ResolvedAssignmentTargetV1::BindingRebind(rebound) if *rebound == binding
-        )
-    }) {
+    if !binding_is_unrebound(function, binding) {
         return None;
     }
     let mut initializers = function
@@ -232,6 +234,19 @@ fn receiver_local_class(
     None
 }
 
+/// Both direct and method calls must preserve the original actual binding.
+fn call_actual_binding(
+    site: &SourceExprSiteV1,
+    function: &VerifiedResolvedFunctionV1,
+) -> Option<BindingRefV1> {
+    match function.variable_ref(site) {
+        Some(ResolvedLexicalRefV1::Local(binding)) if binding_is_unrebound(function, binding) => {
+            Some(binding)
+        }
+        _ => None,
+    }
+}
+
 /// The `Local` bindings carried at one call's argument positions —
 /// `None` for any position the source does not resolve to a `Local`
 /// reference. A callee's `NullableForwarded` claim substitutes these.
@@ -241,10 +256,7 @@ fn call_actual_bindings(
 ) -> Box<[Option<BindingRefV1>]> {
     sites
         .iter()
-        .map(|site| match function.variable_ref(site) {
-            Some(ResolvedLexicalRefV1::Local(binding)) => Some(binding),
-            _ => None,
-        })
+        .map(|site| call_actual_binding(site, function))
         .collect()
 }
 
@@ -263,7 +275,10 @@ fn resolve_call_key(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
-) -> Option<(CanonicalSameModuleCallableKeyV1, Box<[Option<BindingRefV1>]>)> {
+) -> Option<(
+    CanonicalSameModuleCallableKeyV1,
+    Box<[Option<BindingRefV1>]>,
+)> {
     if let Some(target) = function.direct_call_target(site) {
         let callee_owner = target.callable().owner();
         let mut declarations = batch
@@ -278,9 +293,7 @@ fn resolve_call_key(
             .map(|observation| call_actual_bindings(observation.argument_sites(), function))
             .unwrap_or_default();
         return match selected.key_for_batch_slot(declaration.batch_slot()) {
-            Some(SelectedNormalCallableKeyV1::Cataloged(key)) => {
-                Some((key.clone(), actuals))
-            }
+            Some(SelectedNormalCallableKeyV1::Cataloged(key)) => Some((key.clone(), actuals)),
             Some(SelectedNormalCallableKeyV1::TopLevel(top_level)) => {
                 let arity = u32::try_from(top_level.declared_arity()).ok()?;
                 Some((
@@ -298,10 +311,7 @@ fn resolve_call_key(
     let actuals: Box<[Option<BindingRefV1>]> = call
         .arguments()
         .iter()
-        .map(|argument| match function.variable_ref(argument.site()) {
-            Some(ResolvedLexicalRefV1::Local(binding)) => Some(binding),
-            _ => None,
-        })
+        .map(|argument| call_actual_binding(argument.site(), function))
         .collect();
     match call.receiver() {
         ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) => {
@@ -387,20 +397,20 @@ fn resolve_forward_local(
     .map(|(key, actuals)| PendingExitV1::Fwd { key, actuals })
 }
 
-/// The contract kind of one formal binding of one declaration — the
-/// sealed parameter contract is the sole class authority for formals.
-fn parameter_kind<'a>(
+/// Exact ordinal/kind of one original formal binding in its declaration.
+/// Class membership never supplies an owning destination contract.
+fn parameter_contract<'a>(
     parameter_contracts: &'a [crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     batch_slot: u32,
     binding: BindingRefV1,
-) -> Option<&'a crate::mir::callable_parameter_contract::CallableParameterContractKindV1> {
+) -> Option<&'a crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1>
+{
     parameter_contracts
         .iter()
         .find(|declaration| declaration.batch_slot == batch_slot)?
         .parameters
         .iter()
         .find(|parameter| parameter.binding == binding)
-        .map(|parameter| &parameter.kind)
 }
 
 /// Whether every exit of this row now composes: `New`/`Null` are self-
@@ -432,7 +442,7 @@ fn evaluate_row(
                 continue;
             }
             PendingExitV1::Formal { ordinal } => {
-                // A `return <opaque formal>` exit is an identity claim —
+                // An ordinary formal return is an identity claim —
                 // nullable because the caller may pass `null`. It never
                 // mints a class of its own and never coexists with one.
                 nullable = true;
@@ -443,13 +453,6 @@ fn evaluate_row(
                 }
                 continue;
             }
-            PendingExitV1::DeclaredFormal { class: found } => {
-                // An owned declared-formal pass-through: its class is the
-                // declaration, and the result is nullable because object
-                // formals admit `null`.
-                nullable = true;
-                found.clone()
-            }
             PendingExitV1::New(found) => found.clone(),
             PendingExitV1::Fwd { key, actuals } => match claims.get(key) {
                 Some(claim) => match claim {
@@ -459,19 +462,30 @@ fn evaluate_row(
                         found.clone()
                     }
                     OrdinaryNewResultClassV1::NullableForwarded { ordinal } => {
-                        // Substitute the call site's arg-`ordinal` binding:
-                        // a declared formal's class is the only formal class
-                        // authority; an opaque actual stays unprovable.
+                        // An ordinary formal supplies a borrowed identity, not
+                        // a new Home, even when its class is declared.
                         nullable = true;
                         let Some(Some(binding)) = actuals.get(*ordinal as usize) else {
                             return ExitVerdictV1::Dead;
                         };
-                        match parameter_kind(parameter_contracts, batch_slot, *binding) {
-                            Some(CallableParameterContractKindV1::DeclaredObject(
-                                found,
-                            )) => found.clone(),
+                        let Some(parameter) =
+                            parameter_contract(parameter_contracts, batch_slot, *binding)
+                        else {
+                            return ExitVerdictV1::Dead;
+                        };
+                        if !matches!(
+                            parameter.kind,
+                            CallableParameterContractKindV1::DeclaredObject(_)
+                                | CallableParameterContractKindV1::OpaqueHandle
+                        ) {
+                            return ExitVerdictV1::Dead;
+                        }
+                        match forwarded {
+                            None => forwarded = Some(parameter.ordinal),
+                            Some(existing) if existing == parameter.ordinal => {}
                             _ => return ExitVerdictV1::Dead,
                         }
+                        continue;
                     }
                 },
                 None if pending.contains(key) => {
@@ -549,6 +563,9 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 ResultClassExitDraftV1::ForwardLocal(binding)
                             }
                             Some(BindingKindV1::Parameter { index }) => {
+                                if !binding_is_unrebound(function, binding) {
+                                    return;
+                                }
                                 ResultClassExitDraftV1::ForwardFormal {
                                     binding,
                                     ordinal: index,
@@ -585,10 +602,8 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     ) -> OrdinaryNewResultClassClaimsV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-        let mut pending: BTreeMap<
-            CanonicalSameModuleCallableKeyV1,
-            (u32, Vec<PendingExitV1>),
-        > = BTreeMap::new();
+        let mut pending: BTreeMap<CanonicalSameModuleCallableKeyV1, (u32, Vec<PendingExitV1>)> =
+            BTreeMap::new();
         for row in self.rows {
             let resolved = batch.with_lowering_input(row.batch_slot, |input| {
                 let function = input.function();
@@ -622,21 +637,15 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                             field_write_claims,
                         ),
                         ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
-                            // `return <formal>`: a declared ordinary-box
-                            // formal is an owned pass-through — the result
-                            // is that class. An opaque formal is a borrowed
-                            // return — identity only, substituted at the
-                            // caller. Every other kind stays unclaimed.
-                            match parameter_kind(parameter_contracts, row.batch_slot, *binding)
+                            // Both ordinary kinds borrow their input. A type
+                            // annotation proves class, not a moved-in Home.
+                            match parameter_contract(parameter_contracts, row.batch_slot, *binding)
+                                .map(|parameter| &parameter.kind)
                             {
-                                Some(CallableParameterContractKindV1::DeclaredObject(
-                                    class,
-                                )) => Some(PendingExitV1::DeclaredFormal {
-                                    class: class.clone(),
-                                }),
-                                Some(CallableParameterContractKindV1::OpaqueHandle) => {
-                                    Some(PendingExitV1::Formal { ordinal: *ordinal })
-                                }
+                                Some(
+                                    CallableParameterContractKindV1::DeclaredObject(_)
+                                    | CallableParameterContractKindV1::OpaqueHandle,
+                                ) => Some(PendingExitV1::Formal { ordinal: *ordinal }),
                                 _ => None,
                             }
                         }
@@ -654,8 +663,13 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             let mut inserts = Vec::new();
             let mut deads = Vec::new();
             for (key, (batch_slot, exits)) in &pending {
-                match evaluate_row(exits, &claims, &pending_keys, parameter_contracts, *batch_slot)
-                {
+                match evaluate_row(
+                    exits,
+                    &claims,
+                    &pending_keys,
+                    parameter_contracts,
+                    *batch_slot,
+                ) {
                     ExitVerdictV1::Resolvable(claim) => inserts.push((key.clone(), claim)),
                     ExitVerdictV1::Dead => deads.push(key.clone()),
                     ExitVerdictV1::Waiting => {}

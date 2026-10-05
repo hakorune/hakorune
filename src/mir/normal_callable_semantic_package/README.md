@@ -1001,3 +1001,15 @@ The same private source child owns the verified walk's exact ordinary-candidate
 compatibility query: unique site, exact destination, construction readiness and
 PlainI64NoHook destruction. The cohort issuer only delegates; predicates,
 error order and accepted source shapes are unchanged.
+
+## Declared formal result identity
+
+An ordinary `DeclaredObject` parameter supplies class membership and a borrowed
+Handle, not a moved-in Home. The result claim owner preserves its original formal
+ordinal through `NullableForwarded`, including composed forwarding calls.
+The original resolved binding must have no rebind; both direct and method-call
+actuals share that check. A surviving BindingRef alone does not prove input identity.
+Class equality cannot upgrade that identity to `NullableObject` or authorize a
+`received_nullable` Home. Fresh New/null claims retain their existing contract;
+mixed fresh/borrowed results require a separate exact result relation. The source
+owner is `ordinary_new_result_class_claim.rs`, with independent final consumers.

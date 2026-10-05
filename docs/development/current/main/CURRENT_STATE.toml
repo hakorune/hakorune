@@ -1,9 +1,9 @@
 date = "2026-10-05"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "closeout"
-current_execution_row = "MIRBUILDER-EXACT-USIZE-ENTRY-PROJECTION-S1"
+current_execution_row = "MIRBUILDER-DECLARED-FORMAL-RESULT-IDENTITY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "mir/invoke/call-argument-type-drift:mimalloc-lite-five-handle-sites"
+current_blocker_token = "ordinary-new/local-commit/artifact-unowned-lifecycle-site"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,9 +13,9 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-exact-usize-entry-projection-s1-2026-10-05.md"
-latest_card = "mirbuilder-exact-usize-entry-projection-s1"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-exact-usize-entry-projection-s1-2026-10-05.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-declared-formal-result-identity-s0-2026-10-05.md"
+latest_card = "mirbuilder-declared-formal-result-identity-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-declared-formal-result-identity-s0-2026-10-05.md"
 latest_card_summary = """
 Protected C/S1/S0/Array ABI work remains uncommitted; parent and S1 cards retain
 contracts/evidence. S2 source-owned object slot tuples and exact Birth Normal-store
@@ -28,16 +28,24 @@ Fresh CLI/app probe: numeric4 drift edges eliminated; handle5 drift edges remain
 no EXE. Exact-usize source entry S1 focused4/4, usize24/24, borrowed19/19, entry7/7 PASS.
 Source binding/carrier negatives and real finalization exact facts verified.
 Fresh CLI quick llvm-boundary PASS, unchanged app rc1 at handle5; no Cargo live.
-Numeric scoped semantic landing next; descriptor ownership Decision remains owed. T0 diagnostic commit cbd5ec43c7 pushed; selected S1 source-backed usize entry
+Numeric scoped slice landed/pushed9c26a6d425. D1 resolves ordinary typed formals as
+borrowed handles: no moved-in source authority exists. Selected S0 corrects result
+identity/owned inference before class-only borrow admission. Source/tests corrected;
+focused20/20 PASS (six rebind cases), full package617/3 exact named baseline.
+Fresh CLI quick llvm-boundary PASS; unchanged app rc1 now stops at named
+artifact-unowned-lifecycle-site, EXE absent. Numeric app5 evidence is pre-correction.
+Current census6/2 pins both unsupported local realloc results at structural Body(3).
+No Cargo live; scoped semantic commit/push pending. No
+ownership lane reopening, .hako workaround or verifier exception. T0 diagnostic commit cbd5ec43c7 pushed; selected S1 source-backed usize entry
 projection preserves runtime-check and backend reject obligations;
 scoped source/C/ABI landing remains owed, and
 remaining S1 borrowed/nullable provenance evidence. Parked lanes unchanged.
 No whole-app/goal completion; full finite pipeline and production retirement owed.
 """
 next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-exact-usize-entry-projection-s1-2026-10-05.md"
-next_execution_card = "MIRBUILDER-EXACT-USIZE-ENTRY-PROJECTION-S1"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-exact-usize-entry-projection-s1-2026-10-05.md"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-declared-formal-result-identity-s0-2026-10-05.md"
+next_execution_card = "MIRBUILDER-DECLARED-FORMAL-RESULT-IDENTITY-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-declared-formal-result-identity-s0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
