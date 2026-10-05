@@ -500,12 +500,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
                         &mut field_is_integer, &mut |site, binding| {
-                            let mut exact = candidates.iter().filter(|row| &row.site == site);
-                            let candidate = exact.next().ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() })?;
-                            if exact.next().is_some() || candidate.destination != binding {
-                                return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
-                            }
-                            Ok(candidate.construction.is_ok() && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
+                            source_claims::ordinary_candidate_compatible_v1(&candidates, site, binding)
                         }, &mut |site| {
                             let direct = owner_loan
                                 .is_some_and(|loan| loan.is_i64_call(input, site));

@@ -704,3 +704,20 @@ pub(super) fn has_nullable_receiver_call_v1(
                 )
         })
 }
+
+/// Exact ordinary candidate lookup; preserve the verified walk's existing gate.
+pub(super) fn ordinary_candidate_compatible_v1(
+    candidates: &[OrdinaryNewCandidate],
+    site: &OwnedExprSiteV1,
+    binding: BindingRefV1,
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    let mut exact = candidates.iter().filter(|row| &row.site == site);
+    let candidate = exact.next().ok_or_else(|| {
+        OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() }
+    })?;
+    if exact.next().is_some() || candidate.destination != binding {
+        return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
+    }
+    Ok(candidate.construction.is_ok()
+        && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
+}

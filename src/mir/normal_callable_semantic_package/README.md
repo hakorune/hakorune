@@ -996,3 +996,8 @@ test names and source predicates; they introduce no semantic authority.
 The ordinary-New co-seal issuer orchestrates declaration order; its private
 source-claims child owns the existing App Main identity and sealed Nullable
 receiver queries. This placement changes no source predicate or authority.
+
+The same private source child owns the verified walk's exact ordinary-candidate
+compatibility query: unique site, exact destination, construction readiness and
+PlainI64NoHook destruction. The cohort issuer only delegates; predicates,
+error order and accepted source shapes are unchanged.

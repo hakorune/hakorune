@@ -482,6 +482,15 @@ Parent/private child 778/706; package 600/3 unchanged baseline, child-call 4/4,
 inventory 8588 unchanged. Scope guard stops at unchanged size debt 1351.
 No semantic admission changed. Existing C/S1/audit WIP remains protected.
 
+## Required source-owner motion: ORDINARY-CANDIDATE-SIZE-T0
+
+The verified walk's exact ordinary-candidate compatibility query moved to its
+existing private source child; same lookup/cardinality/binding/construction and
+PlainI64NoHook predicates and error order; worktree parent/child 777/740.
+Package 616/3 same baseline, child 4/4; scope stops at unchanged HEAD debt 1351.
+Isolated motion parent/child 773/723; logs `/tmp/hako-array-S0-coseal-size-*`.
+No semantic cutover; other C/S1/S0 changes remain unstaged.
+
 ## Decision: MIRBUILDER-ORDINARY-I64-LOCAL-ARRAY-LIFETIME-D0
 
 D0 mapping closed after read-only worker review and direct consumer inspection.
