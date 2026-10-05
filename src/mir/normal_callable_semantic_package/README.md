@@ -742,7 +742,7 @@ ValueId, name lookup, or final-MIR reclassification can satisfy this check.
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
 | TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |
-| TerminalI64FieldReturnV1 | Exact Return/value and one staged FieldRead; reserve once, emit one ObjectFieldGet, then the same cleanup/Return owner. |
+| TerminalI64FieldReturnV1 | Exact Return/value and one staged FieldRead; reserve once, emit one ObjectFieldGet, then the same cleanup/Return owner. The local-commit validator lends its existing PhysicalBoundary binding checker: draft uses original coordinates, finishing uses FinishedBindings. Exact dst/base/field and returned value remain mandatory; CFG and sequence correspondence remain with the same boundary. |
 | Explicit bare Return / Unit | Completion-backed Unit relation; only selected root-home emitter consumes it and emits Return(None) after cleanup. The void statement result is not a return payload. `return void` spells the same explicit-unit terminal. |
 | Integer literal | Retains its own exact terminal/result relation, separate from Add, field and Unit. |
 | TerminalValueReturnV1 | Non-i64 `return <value>`: records the exact returned source — MapLiteral site, map-local/Home/handle binding root, or String/Null/Float literal. A returned map-local/Home binding leaves the caller-facing terminal cleanup; the lifecycle contract owns the transfer decision. No physical result ABI is derived here, so a root `Value` terminal still stops at `root-result-missing`. |

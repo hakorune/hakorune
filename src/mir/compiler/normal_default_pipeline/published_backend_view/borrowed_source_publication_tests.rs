@@ -623,3 +623,6 @@ mod param_field_acceptance_tests;
 
 #[path = "borrowed_source_publication_declared_tests.rs"]
 mod declared_tests;
+
+#[path = "borrowed_source_publication_field_return_projection_tests.rs"]
+mod field_return_projection_tests;

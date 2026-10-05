@@ -3,6 +3,10 @@
 use super::*;
 use std::collections::BTreeSet;
 
+#[cfg(test)]
+#[path = "terminal_field_projection_tests.rs"]
+mod terminal_field_projection_tests;
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Called on the exact physical root after all module finalization passes.
     /// Script-only packages never register a callable root; an empty New set
@@ -70,7 +74,7 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
             self.validate_field_reads(owner, function)?;
             self.validate_terminal_integer_literal_return(owner, function)?;
-            self.validate_terminal_i64_field_return(owner, function)?;
+            self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
             self.validate_forwarded_copies(owner, function, &projection)?;
@@ -125,8 +129,21 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_i64_add_return(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
-        self.validate_terminal_i64_field_return(owner, function)?;
+        self.validate_terminal_i64_field_return_projected(owner, function, projection)?;
         Ok(())
+    }
+
+    /// The same canonical boundary checker owns draft and finished read positions.
+    /// The terminal source validator receives no independent block remapper.
+    pub(super) fn validate_terminal_i64_field_return_projected(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_terminal_i64_field_return(owner, function, |block, instruction| {
+            super::physical_boundary::check_binding(function, projection, block, instruction)
+        })
     }
 
     /// Recheck the same retained source obligations after compiler finishing.

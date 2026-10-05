@@ -129,6 +129,10 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
+        mut check_read_binding: impl FnMut(
+            crate::mir::BasicBlockId,
+            &MirInstruction,
+        ) -> Result<bool, String>,
     ) -> Result<(), String> {
         let reads = self.field_reads.borrow();
         for relation in self.terminal_relations_for_owner(owner) {
@@ -144,7 +148,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| fault("field-read-missing"))?;
             let field_reads::Progress::Emitted(
                 block,
-                MirInstruction::ObjectFieldGet { dst, base, field },
+                instruction @ MirInstruction::ObjectFieldGet { dst, .. },
             ) = &row.progress
             else {
                 return Err(fault("field-read-not-emitted"));
@@ -152,13 +156,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if *dst != value {
                 return Err(fault("result-drift"));
             }
-            let exact_read = function.blocks.get(block).is_some_and(|block| {
-                block.all_instructions().any(|instruction| {
-                    matches!(instruction,
-                    MirInstruction::ObjectFieldGet { dst, base: actual_base, field: actual_field }
-                        if *dst == value && actual_base == base && actual_field == field)
-                })
-            });
+            let exact_read = check_read_binding(*block, instruction)?;
             let returned = function.blocks.values().any(|block| {
                 block.all_instructions().any(|instruction| {
                     matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value)

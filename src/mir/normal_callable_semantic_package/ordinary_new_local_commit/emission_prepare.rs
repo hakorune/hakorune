@@ -329,7 +329,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_new_emissions(owner, function)?;
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
-        self.validate_terminal_i64_field_return(owner, function)?;
+        self.validate_terminal_i64_field_return_projected(owner, function, None)?;
         self.validate_root_home_exit(owner, function, None)?;
         self.validate_root_cleanup_shape(owner, function)?;
         let bindings = self.lifecycle_bindings(owner)?;
