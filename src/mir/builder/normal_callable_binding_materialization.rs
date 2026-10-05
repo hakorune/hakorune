@@ -26,6 +26,9 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
             return Ok(());
         };
         let values = shape.prepare_values(builder)?;
+        let exact_usize = ledger
+            .borrow()
+            .prepare_exact_usize_entry_projection(&values, builder)?;
         let carriers = ledger.borrow().prepare_borrowed_entry_carriers(
             &values,
             builder
@@ -35,6 +38,20 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
                 .ok_or_else(|| freeze("borrowed-entry/no-current-function"))?,
         )?;
         ledger.borrow_mut().install_entry_values(&values)?;
+        for (index, value) in exact_usize {
+            builder
+                .function_state
+                .current_function
+                .as_mut()
+                .unwrap()
+                .signature
+                .params[index] = crate::mir::MirType::Integer;
+            builder
+                .function_state
+                .type_ctx
+                .value_types
+                .insert(value, crate::mir::MirType::Integer);
+        }
         if let Some(carriers) = carriers {
             // All checks precede entry installation; metadata commits last.
             builder

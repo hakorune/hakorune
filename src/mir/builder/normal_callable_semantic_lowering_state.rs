@@ -34,6 +34,8 @@ mod observation;
 
 #[path = "normal_callable_semantic_lowering_state/borrowed_entry.rs"]
 mod borrowed_entry;
+#[path = "normal_callable_semantic_lowering_state/exact_parameter_entry.rs"]
+mod exact_parameter_entry;
 #[path = "normal_callable_semantic_lowering_state/source_prepare.rs"]
 mod source_prepare;
 
@@ -86,6 +88,7 @@ pub(super) struct CallableSemanticLoweringState {
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
     entry_installed: bool,
     borrowed_entry_formals: Option<Result<Option<Box<[(u32, BindingRefV1)]>>, String>>,
+    exact_usize_entry_formals: Option<Box<[(u32, BindingRefV1)]>>,
     materialized_locals: BTreeSet<SourceNodeSiteV1>,
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,

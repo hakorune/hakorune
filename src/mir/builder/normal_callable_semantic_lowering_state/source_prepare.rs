@@ -213,6 +213,7 @@ impl CallableSemanticLoweringState {
             ),
             entry_installed: false,
             borrowed_entry_formals: None,
+            exact_usize_entry_formals: None,
             materialized_locals: BTreeSet::new(),
             consumed_variables: BTreeSet::new(),
             consumed_assignments: BTreeSet::new(),

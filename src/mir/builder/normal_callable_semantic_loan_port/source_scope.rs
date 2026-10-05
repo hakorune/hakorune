@@ -48,6 +48,17 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         .borrowed_ordinary_entry_source_v1(&input)
         .map(|row| row.map(|row| row.formals().into()));
     let owner = input.source().owner();
+    use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+    use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+    let exact_usize = input
+        .parameter_contracts()
+        .filter_map(|(ordinal, binding, kind)| {
+            (kind
+                == CallableParameterContractKindV1::ExactTrivial(ExactTrivialParameterAbiV1::USIZE))
+            .then_some((ordinal, binding))
+        })
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
     with_callable_source_scope(
         inner,
         lineage,
@@ -68,6 +79,9 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
                 state
                     .borrow_mut()
                     .stage_borrowed_entry_formals(owner, borrowed_entry)?;
+                state
+                    .borrow_mut()
+                    .stage_exact_usize_entry_formals(owner, exact_usize)?;
             }
             execute(inner, transport)
         },
@@ -128,6 +142,9 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     }
 }
 
+#[cfg(test)]
+#[path = "exact_usize_entry_scope_tests.rs"]
+mod exact_usize_tests;
 #[cfg(test)]
 #[path = "borrowed_entry_scope_tests.rs"]
 mod tests;

@@ -1,5 +1,17 @@
 # MIR Builder (`src/mir/builder/`)
 
+## Source-backed exact usize entry projection
+
+The selected callable source scope lends its original `ExactTrivial(USIZE)`
+parameter rows to the existing entry state. Entry adoption joins their ordinal
+and BindingRef with the declaration and already allocated ValueId before
+projecting signature/value representation to Integer. Raw/reference metadata,
+shared return/literal classification and physical carriers stay unchanged.
+Declared usize identity and ExactNumeric runtime-check obligations remain;
+this entry projection does not admit usize execution in an unsupported backend.
+The private `normal_callable_semantic_lowering_state/exact_parameter_entry.rs`
+owns preflight; the existing entry adoption owner commits after all checks.
+
 ## Callable VariableAccumRecurrence production connection (2026-09-24)
 
 The selected `loop_simple_while_inline_explicit_step_min.hako` callable now
