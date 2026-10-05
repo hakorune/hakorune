@@ -203,7 +203,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let parameters = input.parameter_contracts().collect::<Vec<_>>();
         if !parameters
             .iter()
-            .any(|(_, _, kind)| *kind == CallableParameterContractKindV1::OpaqueHandle)
+            .any(|(_, _, kind)| kind.is_ordinary_borrowed_handle())
         {
             return Ok(None);
         }
@@ -220,7 +220,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<BorrowedOrdinaryEntrySourceRefV1<'_>>, String> {
         if !parameters
             .iter()
-            .any(|(_, _, kind)| *kind == CallableParameterContractKindV1::OpaqueHandle)
+            .any(|(_, _, kind)| kind.is_ordinary_borrowed_handle())
         {
             return Ok(None);
         }
@@ -240,7 +240,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if *ordinal as usize != index || binding.owner() != owner {
                 return Err(freeze("borrowed-entry/formal-identity"));
             }
-            if *kind == CallableParameterContractKindV1::OpaqueHandle {
+            if kind.is_ordinary_borrowed_handle() {
                 if definition.origins.get(binding) != Some(binding) {
                     return Err(freeze("borrowed-entry/formal-origin"));
                 }

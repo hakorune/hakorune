@@ -11,9 +11,8 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1,
-    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1,
+    BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
+    ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
 };
 
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
@@ -182,13 +181,13 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
             || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
             || !contract.parameters.iter().enumerate().all(|(ordinal, formal)| {
                 formal.ordinal as usize == ordinal && formal.binding.owner() == *owner
-                    && (formal.kind != CallableParameterContractKindV1::OpaqueHandle
+                    && (!formal.kind.is_ordinary_borrowed_handle()
                         || drafts[owner].origins.get(&formal.binding) == Some(&formal.binding))
             })
             || !contract
                 .parameters
                 .iter()
-                .any(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
+                .any(|formal| formal.kind.is_ordinary_borrowed_handle())
         {
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
@@ -240,9 +239,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
                             .arguments()
                             .iter()
                             .zip(&contract.parameters)
-                            .filter(|(_, formal)| {
-                                formal.kind == CallableParameterContractKindV1::OpaqueHandle
-                            })
+                            .filter(|(_, formal)| formal.kind.is_ordinary_borrowed_handle())
                             .map(|(argument, formal)| {
                                 (argument.ordinal(), argument.site().clone(), formal.binding)
                             })
@@ -322,7 +319,7 @@ pub(super) fn join_borrowed_forward_uses_v1(
             })?;
             if formal.ordinal != *ordinal
                 || formal.binding.owner() != contract.owner
-                || formal.kind != CallableParameterContractKindV1::OpaqueHandle
+                || !formal.kind.is_ordinary_borrowed_handle()
                 || callee_draft.origins.get(&formal.binding) != Some(&formal.binding)
             {
                 return Err(BorrowedForwardJoinDraftErrorV1::FormalIdentity(error_site));
@@ -370,7 +367,7 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         {
             return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
         }
-        if formal.kind == CallableParameterContractKindV1::OpaqueHandle {
+        if formal.kind.is_ordinary_borrowed_handle() {
             if origins.insert(formal.binding, formal.binding).is_some() {
                 return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
             }
@@ -455,6 +452,17 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         }
     }
 
+    let numeric_origins: BTreeMap<_, _> = origins
+        .iter()
+        .filter(|(_, root)| {
+            contract.parameters.iter().any(|formal| {
+                formal.binding == **root
+                    && formal.kind == CallableParameterContractKindV1::OpaqueHandle
+            })
+        })
+        .map(|(binding, root)| (*binding, *root))
+        .collect();
+
     // Admitted checked compares dominate the lent view's later uses; record
     // each compare's owning `if` statement per formal before the use loop so
     // a dominated `+` can prove its guard regardless of visit order. The
@@ -474,7 +482,7 @@ pub(super) fn draft_borrowed_formal_uses_v1(
             continue;
         }
         if let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary }) =
-            compare_operand_kind(input, &origins, constructors, receiver, site)?
+            compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?
         {
             let guard = function
                 .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
@@ -519,10 +527,10 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 if kind.is_some() {
                     return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(owned));
                 }
-                kind = if argument.ordinal() == 1 {
+                kind = if argument.ordinal() == 1 && numeric_origins.contains_key(binding) {
                     array_element::array_element_value_kind(
                         input,
-                        &origins,
+                        &numeric_origins,
                         constructors,
                         receiver,
                         formal,
@@ -541,22 +549,16 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 }
             }
         }
-        if kind.is_none() {
+        if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = new_argument::new_argument_kind(input, formal, &compare_guards, site)?;
         }
-        if kind.is_none() {
-            kind = compare_operand_kind(
-                input,
-                &origins,
-                constructors,
-                receiver,
-                site,
-            )?;
+        if kind.is_none() && numeric_origins.contains_key(binding) {
+            kind = compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?;
         }
-        if kind.is_none() {
+        if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = add_operand_kind(
                 input,
-                &origins,
+                &numeric_origins,
                 constructors,
                 receiver,
                 formal,

@@ -352,8 +352,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .any(|target| target.call_site() == site && contracts.iter().any(|contract|
                 contract.owner == target.callee_owner()
                     && contract.batch_slot == target.target_batch_slot()
-                    && contract.parameters.iter().any(|formal| formal.kind ==
-                        crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle))));
+                    && contract.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()))));
         if !borrowed_target {
             return Ok(None);
         }

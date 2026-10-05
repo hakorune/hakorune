@@ -1013,3 +1013,17 @@ Class equality cannot upgrade that identity to `NullableObject` or authorize a
 `received_nullable` Home. Fresh New/null claims retain their existing contract;
 mixed fresh/borrowed results require a separate exact result relation. The source
 owner is `ordinary_new_result_class_claim.rs`, with independent final consumers.
+
+## Declared object borrow source admission
+
+Ordinary `DeclaredObject` roots and their proven copies join the existing borrowed
+source graph with `OpaqueHandle`; their source kind and borrowed lifetime remain
+unchanged. The original parameter contract seeds the canonical class view, and
+every incoming actual must be null or that class, even for an ignored formal.
+Forwarding keeps the existing `Forwarded` arm and original binding/ordinal.
+Only opaque roots and aliases can supply numeric operand authority, including
+Array index siblings; class membership never grants integer or Home authority.
+Rebind, capture and unsupported uses stay outside the closed source profile.
+Source admission alone does not activate a physical Box parameter: exact entry
+header projection, unconditional declared view publication and C class/null
+corroboration are the required next slice through the same tagged carrier.

@@ -13,8 +13,8 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, OwnedExprSiteV1,
-    ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
+    ResolvedBinaryOperatorV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1,
 };
 
 use super::{BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
@@ -32,6 +32,11 @@ pub(super) fn compare_operand_kind(
     site: &SourceExprSiteV1,
 ) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
+    if !matches!(function.variable_ref(site), Some(ResolvedLexicalRefV1::Local(binding))
+        if origins.contains_key(&binding))
+    {
+        return Ok(None);
+    }
     let mut matching = function
         .expression_source()
         .binaries()
@@ -251,7 +256,11 @@ pub(super) fn is_call_argument(
         if call.owner() != input.owner() || call.arguments().len() != call.arity() as usize {
             return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
         }
-        if call.arguments().iter().any(|argument| argument.site() == site) {
+        if call
+            .arguments()
+            .iter()
+            .any(|argument| argument.site() == site)
+        {
             return Ok(true);
         }
     }

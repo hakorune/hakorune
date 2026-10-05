@@ -120,13 +120,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
     }
-    let mut contracts = contracts
+    let mut callee_contracts = contracts
         .iter()
         .filter(|row| row.owner == incoming_row.callee);
-    let contract = contracts
+    let contract = callee_contracts
         .next()
         .ok_or_else(|| freeze("borrowed-actual/formal-missing"))?;
-    if contracts.next().is_some() || actuals.len() != contract.parameters.len() {
+    if callee_contracts.next().is_some() || actuals.len() != contract.parameters.len() {
         return Err(freeze("borrowed-actual/arity"));
     }
     if incoming_row.source.call_site() != call
@@ -147,8 +147,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         {
             return Err(freeze("borrowed-actual/source-identity"));
         }
-        match formal.kind {
-            CallableParameterContractKindV1::OpaqueHandle => {}
+        match &formal.kind {
+            kind if kind.is_ordinary_borrowed_handle() => {}
             CallableParameterContractKindV1::ExactTrivial(_) => match &actual.value {
                 BorrowedCallActualValueV1::Integer(_) => {}
                 BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer)
@@ -165,12 +165,20 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         let actual = actuals
             .get(*ordinal as usize)
             .ok_or_else(|| freeze("borrowed-actual/ordinal"))?;
-        if actual.ordinal != *ordinal || actual.site != *site || formal.owner() != incoming_row.callee
-            || contract.parameters.get(*ordinal as usize).is_none_or(|row| {
-                row.ordinal != *ordinal || row.binding != *formal
-                    || row.kind != crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
-            })
-        { return Err(freeze("borrowed-actual/source-identity")); }
+        if actual.ordinal != *ordinal
+            || actual.site != *site
+            || formal.owner() != incoming_row.callee
+            || contract
+                .parameters
+                .get(*ordinal as usize)
+                .is_none_or(|row| {
+                    row.ordinal != *ordinal
+                        || row.binding != *formal
+                        || !row.kind.is_ordinary_borrowed_handle()
+                })
+        {
+            return Err(freeze("borrowed-actual/source-identity"));
+        }
         let source = match &actual.value {
             BorrowedCallActualValueV1::Integer(value) => {
                 BorrowedFormalActualSourceV1::Integer(*value)
@@ -262,6 +270,29 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
             }
             _ => return Err(freeze("borrowed-actual/unsupported-or-unavailable")),
         };
+        if let CallableParameterContractKindV1::DeclaredObject(expected) =
+            &contract.parameters[*ordinal as usize].kind
+        {
+            let class = match &source {
+                BorrowedFormalActualSourceV1::Null => None,
+                BorrowedFormalActualSourceV1::TypedHome { class, .. }
+                | BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
+                | BorrowedFormalActualSourceV1::ReceivedNullable { class, .. } => {
+                    Some(class.as_ref())
+                }
+                BorrowedFormalActualSourceV1::Forwarded { formal, .. } => Some(
+                    prepared
+                        .object_views
+                        .get(formal)
+                        .ok_or_else(|| freeze("borrowed-actual/declared-forward-class"))?
+                        .class(),
+                ),
+                _ => return Err(freeze("borrowed-actual/declared-object-domain")),
+            };
+            if class.is_some_and(|actual| actual != expected.as_ref()) {
+                return Err(freeze("borrowed-actual/declared-object-class"));
+            }
+        }
         rows.push(PreparedBorrowedFormalActualV1 {
             ordinal: *ordinal,
             site: site.clone(),

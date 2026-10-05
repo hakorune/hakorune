@@ -19,11 +19,17 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalObjectViewV1 {
     class: Box<str>,
     object: hakorune_mir_defs::CanonicalObjectIdV1,
+    /// Original DeclaredObject constraint, not inferred from incoming class.
+    declared: bool,
 }
 
 impl BorrowedFormalObjectViewV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str {
         &self.class
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn is_declared(&self) -> bool {
+        self.declared
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn object(
@@ -118,7 +124,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
             || !contract
                 .parameters
                 .iter()
-                .any(|formal| formal.kind == CallableParameterContractKindV1::OpaqueHandle)
+                .any(|formal| formal.kind.is_ordinary_borrowed_handle())
         {
             continue;
         }
@@ -198,9 +204,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
                     || contract
                         .parameters
                         .get(*ordinal as usize)
-                        .is_none_or(|formal| {
-                            formal.kind != CallableParameterContractKindV1::OpaqueHandle
-                        })
+                        .is_none_or(|formal| !formal.kind.is_ordinary_borrowed_handle())
                 {
                     outside.insert(*owner);
                 }
@@ -233,6 +237,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         instance_constructors,
         callable_result_classes,
         local_candidates,
+        contracts,
         &definitions,
         &incoming,
     )?;
@@ -265,6 +270,7 @@ fn prepare_borrowed_formal_object_views_v1(
             super::super::OrdinaryNewCoSealIssueV1,
         >,
     >,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     incoming: &[BorrowedIncomingCallDraftV1],
 ) -> Result<BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>, String> {
@@ -273,6 +279,21 @@ fn prepare_borrowed_formal_object_views_v1(
         .map(|row| (row.owner(), row.batch_slot()))
         .collect();
     let mut seeds: BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>> = BTreeMap::new();
+    let mut declared = BTreeSet::new();
+    for contract in contracts
+        .iter()
+        .filter(|row| definitions.contains_key(&row.owner))
+    {
+        for formal in &contract.parameters {
+            if let CallableParameterContractKindV1::DeclaredObject(class) = &formal.kind {
+                declared.insert(formal.binding);
+                seeds
+                    .entry(formal.binding)
+                    .or_default()
+                    .push(FormalActualSeedV1::Class(class.clone()));
+            }
+        }
+    }
     for call in incoming {
         let caller = call.call.owner();
         let caller_slot = slots
@@ -303,6 +324,7 @@ fn prepare_borrowed_formal_object_views_v1(
                         candidates,
                         receiver,
                         definitions,
+                        contracts,
                         site,
                     ));
                 }
@@ -343,8 +365,8 @@ fn prepare_borrowed_formal_object_views_v1(
                 resolved.insert(*formal, None);
                 progressed = true;
             } else if !blocked {
-                let view = class
-                    .and_then(|name| object_view_for(batch, instance_constructors, &name));
+                let view =
+                    class.and_then(|name| object_view_for(batch, instance_constructors, &name));
                 resolved.insert(*formal, view);
                 progressed = true;
             }
@@ -357,6 +379,13 @@ fn prepare_borrowed_formal_object_views_v1(
             }
             break;
         }
+    }
+    for formal in &declared {
+        let view = resolved
+            .get_mut(formal)
+            .and_then(Option::as_mut)
+            .ok_or_else(|| freeze("borrowed-view/declared-object-class"))?;
+        view.declared = true;
     }
     Ok(resolved
         .into_iter()
@@ -381,6 +410,7 @@ fn classify_actual_seed(
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &SourceExprSiteV1,
 ) -> FormalActualSeedV1 {
     let function = input.function();
@@ -430,6 +460,17 @@ fn classify_actual_seed(
             .get(&caller)
             .and_then(|draft| draft.origins.get(&binding))
         {
+            if let Some(class) = contracts
+                .iter()
+                .find(|row| row.owner == caller)
+                .and_then(|row| row.parameters.iter().find(|row| row.binding == *formal))
+                .and_then(|row| match &row.kind {
+                    CallableParameterContractKindV1::DeclaredObject(class) => Some(class),
+                    _ => None,
+                })
+            {
+                return FormalActualSeedV1::Class(class.clone());
+            }
             return FormalActualSeedV1::Forward(*formal);
         }
         match alias_source_binding(input, binding) {
@@ -489,13 +530,18 @@ fn object_view_for(
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     class: &str,
 ) -> Option<BorrowedFormalObjectViewV1> {
-    let row = batch.ordinary_box_coverage().row_for(class).ok().flatten()?;
+    let row = batch
+        .ordinary_box_coverage()
+        .row_for(class)
+        .ok()
+        .flatten()?;
     instance_constructors
         .with_source_object_definition(row, |object, _| object)
         .ok()
         .map(|object| BorrowedFormalObjectViewV1 {
             class: class.into(),
             object,
+            declared: false,
         })
 }
 
@@ -531,8 +577,10 @@ impl PreparedBorrowedFormalIngressV1 {
     ) -> bool {
         self.definitions.get(&owner).is_some_and(|draft| {
             draft.uses.iter().any(|row| {
-                matches!(row.kind, BorrowedFormalUseDraftKindV1::FieldReadOperand { .. })
-                    && self.object_views.contains_key(&row.formal)
+                matches!(
+                    row.kind,
+                    BorrowedFormalUseDraftKindV1::FieldReadOperand { .. }
+                ) && self.object_views.contains_key(&row.formal)
             })
         })
     }
@@ -611,3 +659,7 @@ impl PreparedBorrowedFormalIngressV1 {
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_source_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_declared_borrow_source_tests.rs"]
+mod declared_tests;

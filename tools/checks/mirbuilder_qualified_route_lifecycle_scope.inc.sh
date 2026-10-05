@@ -459,6 +459,16 @@ rg -q 'unsupported_explicit_type_rejects_without_opaque_fallback' "$PARAM_CONTRA
 rg -q 'unresolved_declared_box_name_still_rejects' "$PARAM_CONTRACT_TESTS"
 rg -q 'unadmitted_declared_box_name_still_rejects' "$PARAM_CONTRACT_TESTS"
 
+# MIRBUILDER-DECLARED-OBJECT-TAGGED-BORROW-SOURCE-S0: source class/null
+# constraints share the original borrow graph, never numeric or Home authority.
+DECLARED_BORROW_SOURCE_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_declared_borrow_source_tests.rs"
+rg -q 'is_ordinary_borrowed_handle' "$PARAM_CONTRACT_MODEL" "$BORROWED_FORMAL_USE_SRC"
+rg -q 'numeric_origins' "$BORROWED_FORMAL_USE_SRC"
+rg -q 'declared_formal_and_copy_share_existing_forwarded_source_and_class' "$DECLARED_BORROW_SOURCE_TESTS"
+rg -q 'ignored_declared_formal_rejects_scalar_and_foreign_class_incoming' "$DECLARED_BORROW_SOURCE_TESTS"
+rg -q 'array_index_requires_numeric_origin_even_with_an_exact_receiver_loan' "$DECLARED_BORROW_SOURCE_TESTS"
+rg -q 'declared_rebind_and_escape_stay_outside_the_closed_source_profile' "$DECLARED_BORROW_SOURCE_TESTS"
+
 # MIRBUILDER-APP-MIMALLOC-LITE-HEAP-CONSTRUCTION-SIZE-T0: the 971-line
 # construction-state owner is split into private responsibility children —
 # `emission` owns store/provider-new invoke emission and `validation` owns

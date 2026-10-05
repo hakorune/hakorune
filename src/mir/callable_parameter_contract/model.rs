@@ -25,6 +25,12 @@ pub(crate) enum CallableParameterContractKindV1 {
 }
 
 impl CallableParameterContractKindV1 {
+    /// Source kinds sharing the ordinary borrowed lifetime. ABI activation
+    /// still requires the selected full-use and incoming proofs.
+    pub(crate) fn is_ordinary_borrowed_handle(&self) -> bool {
+        matches!(self, Self::OpaqueHandle | Self::DeclaredObject(_))
+    }
+
     pub(crate) fn home_demand(&self) -> HomeDemandV1 {
         match self {
             Self::OpaqueHandle
