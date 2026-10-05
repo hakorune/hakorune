@@ -165,6 +165,8 @@ pub(crate) struct PublishedLifecyclePhysicalObjectLayoutV1 {
     /// object carries an empty list. Placement is untouched: no slot or
     /// storage kind changes here.
     owned_residences: Box<[u32]>,
+    /// Source-sealed user-object slot and canonical child, in declaration order.
+    owned_object_residences: Box<[(u32, u32)]>,
 }
 
 impl PublishedLifecyclePhysicalObjectLayoutV1 {
@@ -182,6 +184,9 @@ impl PublishedLifecyclePhysicalObjectLayoutV1 {
     }
     pub(crate) fn owned_residences(&self) -> &[u32] {
         &self.owned_residences
+    }
+    pub(crate) fn owned_object_residences(&self) -> &[(u32, u32)] {
+        &self.owned_object_residences
     }
 }
 
@@ -423,12 +428,41 @@ impl<'module> PublishedMirBackendView<'module> {
                 .map(|(ordinal, _)| ordinal as u32)
                 .collect::<Vec<_>>()
                 .into_boxed_slice();
+            let owned_object_residences = if definition.destruction_disposition()
+                == ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+            {
+                let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(
+                    object_id as usize,
+                )
+                .ok_or_else(|| fault("owned-object-identity"))?;
+                let source = entry
+                    .program()
+                    .handoff()
+                    .root_source()
+                    .ok_or_else(|| fault("owned-object-source-missing"))?;
+                source
+                    .owned_field_inventory_v1(object)?
+                    .into_iter()
+                    .flatten()
+                    .filter_map(|child| {
+                        match child.kind {
+                            crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Object(id) =>
+                                Some((child.field.declaration_ordinal(), id.declaration_index())),
+                            _ => None,
+                        }
+                    })
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice()
+            } else {
+                Box::new([])
+            };
             layouts.push(PublishedLifecyclePhysicalObjectLayoutV1 {
                 object_id,
                 runtime_type_id: layout.type_id,
                 field_count: layout.field_count,
                 fields: fields.into_boxed_slice(),
                 owned_residences,
+                owned_object_residences,
             });
         }
         Ok(PublishedLifecyclePhysicalAbiInputV1 {

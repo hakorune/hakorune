@@ -35,6 +35,15 @@ alternate representation. Storage profile and its finite validation live in
 `published_backend_view/lifecycle.rs`; they issue no source meaning.
 This retention does not bind Local to i64 or widen formal acceptance.
 
+Physical layouts project source-sealed owned user-object fields as
+`owned_object_residences` tuples of field ordinal and canonical child, borrowed
+from the original finalized ledger. Unissued inventory leaves a class/null view
+without owned tuples; explicitly unproven inventory rejects. Array fields keep
+`owned_residences`. Storage placement and numeric storage tags are unchanged.
+The external layout decoder accepts optional exact-key object tuples and legacy
+absence, validating unique ordered slots, known non-self children and separation
+from Array slots. Schema admission alone grants no executable ownership.
+
 ### Opaque Map lifecycle transport dependency
 
 The ordinary lifecycle serializer projects issued Map Invoke operations and

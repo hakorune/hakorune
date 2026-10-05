@@ -136,6 +136,9 @@ pub(crate) fn emit_lifecycle_physical_abi_json(
                                 "storage_kind": field.storage_kind(),
                             })).collect::<Vec<_>>(),
                             "owned_residences": layout.owned_residences(),
+                            "owned_object_residences": layout.owned_object_residences().iter()
+                                .map(|(ordinal, child)| json!({"field_ordinal": ordinal, "child_object_id": child}))
+                                .collect::<Vec<_>>(),
                         })
                     })
                     .collect(),

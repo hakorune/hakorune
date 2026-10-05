@@ -6,6 +6,18 @@ use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDisposition
 type Binding = (BasicBlockId, MirInstruction);
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Preserve unissued class views separately from explicitly unproven ownership.
+    pub(in crate::mir) fn owned_field_inventory_v1(
+        &self,
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+    ) -> Result<Option<&[super::super::OwnedFieldChildV1]>, String> {
+        match self.ledger.owned_field_children_for(object) {
+            None => Ok(None),
+            Some(Some(children)) => Ok(Some(children)),
+            Some(None) => Err(freeze("finished-owned-fields/inventory-missing")),
+        }
+    }
+
     /// Only an exact producer from an original retained node can use this map.
     /// Cleanup/frame membership and a matching finished instruction are insufficient.
     pub(in crate::mir) fn finished_local_call_producer_v1(

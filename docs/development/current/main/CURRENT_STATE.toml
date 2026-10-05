@@ -1,9 +1,9 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-OWNED-OBJECT-LAYOUT-PUBLICATION-S0"
+current_execution_row = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "stored-child-receiver/owned-object-layout-publication"
+current_blocker_token = "stored-child-receiver/source-profile-closeout"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,18 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-stored-child-borrowed-call-receiver-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 latest_card_summary = """
-Provider Birth source-owner publication verified in standalone HEAD+two code files:
-compiled-entry4 (provider16 + receipt negatives), nonscalar1 PASS; package609/known3.
-Old scalar Local rejection assertion corrected to landed549a54c811 contract;
-source identity/type-evidence negative retained. Scope guard known root1351 only.
-Select metadata S0: original tri-state ledger loan -> ABI -> JSON -> C schema.
-Prior scratch/null and constructed ABI/schema PASS; thin+scratch rerun owed.
-Metadata9-file snapshot and protected source/C/Array/S2 WIP preserved.
-Source receiver/C parent/Page Array.get/full goal remain open.
+Provider Birth publication landed/pushed e0355851e6; source-owner closure verified.
+Metadata publication verified: constructed2 + original thin/scratch null-only4
+final ABI PASS; compiled-entry4 and external schema4+4/negative14 PASS.
+Original inventory tri-state -> canonical tuples -> optional schema; no C runtime
+ownership granted by class alone. Scope guard only known HEAD-identical root1351.
+Resume source profile closeout: saved36-path candidate against provider+metadata
+HEAD, original JSON96 and exact source/final-MIR negatives remain mandatory.
+Protected C/Array/S2 WIP intact; C parent/Page Array.get/full goal remain open.
 """
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
-next_execution_card = "MIRBUILDER-OWNED-OBJECT-LAYOUT-PUBLICATION-S0"
+next_execution_card = "MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

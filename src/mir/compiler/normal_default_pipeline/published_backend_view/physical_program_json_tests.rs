@@ -557,3 +557,6 @@ fn native_float_wire_preserves_signed_zero_and_nan_payload_bits() {
 include!("physical_program_json_composite_tests.rs");
 
 include!("physical_program_json_owned_fields_tests.rs");
+
+#[path = "physical_program_json_owned_object_layout_tests.rs"]
+mod owned_object_layout_tests;

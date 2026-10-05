@@ -1,7 +1,7 @@
 # Stored-child borrowed call receiver D0
 
-Status: provider Birth publication verified / owned-layout publication selected
-Execution row: MIRBUILDER-OWNED-OBJECT-LAYOUT-PUBLICATION-S0
+Status: provider/layout publication verified / source profile closeout selected
+Execution row: MIRBUILDER-STORED-CHILD-BORROWED-CALL-PROFILE-S0
 Scope: required original direct `me.<Provider field>.m(borrowed actual)` receiver
 in the existing ordinary-new lexical call/result pipeline.
 Related:
@@ -832,132 +832,77 @@ new compiler owner explanation records optional unissued vs explicit unproven
 inventory and external schema admission without executable ownership.
 
 
-## Provider Birth publication prerequisite / 2026-10-06 Decision
+## Closed provider Birth publication prerequisite / e0355851e6
 
-Previous goal turn supplied the requested prompt; no repository progress.
-Current-first pointer PASS; no live cargo/rustc on resume. Cargo73568 and36197
-are terminal101: constructed tuple PASS, null-only Parent final ABI rejects
-compiled-entry-call-missing. Both thin and scratch callee variants remain
-unverified final-ABI counterexamples; neither is green or baseline debt.
+2026-10-06: landed/pushed e0355851e6; remote branch updated from93b1c4d478.
+Source authority/canonical issuer: existing finalized_root_handoff ledger;
+completed local-commit Birth relations seed the source-owner provider closure.
+All provider relation owner/object/construction and same-target full handoff
+checks remain before selection. Original caller site owner selects provider
+receipts; child handoff owner extends the finite closure. Original record order
+and per-site actuals survive; only definitions deduplicate. Physical matcher
+continues all-actual consumption/all-target reference, without retry/fallback.
+No class/symbol/physical-caller lookup becomes executable source authority.
+Original all-constructor source/emission validation remains unchanged.
 
-Read-only worker confirms scope mismatch: all constructor validation emits
-provider records, finalized_root_handoff adds every record, but the physical
-program contains only Birth definitions selected by actual construction.
-An unused Parent.birth therefore exports its provider actual without its caller.
-Protected Birth/Unit WIP does not fix this OrdinaryI64 counterexample.
+Counterexample cause: an unused Parent.birth exported provider -> Leaf actual
+without exporting its caller. Old unconditional provider transport is replaced;
+no matcher relaxation. Source-owned closure repair is independent of metadata.
+Deep owned-object provider nesting is outside current source acceptance; selected
+witness uses supported plain sibling providers and shared child target instead.
 
-Decision: select MIRBUILDER-PROVIDER-BIRTH-PUBLICATION-S0 before metadata S0.
-Source authority + canonical issuer: existing finalized_root_handoff owner,
-completed local-commit Birth relations, provider records' original caller site
-owner and child handoff owner. Validate every provider relation as before;
-publish the finite provider closure rooted at already selected Birth owners.
-Retain original record order and per-site actuals; deduplicate definitions only.
-Non-authority: class view, symbol spelling, emitted call search, DCE, copied
-ownership, missing physical caller as a success condition, post-failure retry.
-Fail-fast boundary: preserve source constructor validation and program-wide
-all-actual consumption/all-target reference; selected missing/duplicate/foreign
-actuals must still reject. No matcher relaxation or new ownership authority.
-Smallest next slice: finalized handoff provider publication scope only.
-Acceptance: unused provider remains verified but unpublished; selected sibling
-providers retain all edges independent of declaration order and optimization;
-selected receipt corruption rejects. Then rerun unchanged metadata null-only
-and constructed witnesses in isolated candidate.
-Non-claims: metadata/source receiver/C projection/Array.get and full goal open.
-Metadata9-file staging remains protected; source36-path candidate saved.
-No prerequisite commit or acceptance claimed yet.
+Standalone /tmp/hako-provider-birth-S0-checkout contained HEAD93b1 plus only
+prerequisite code/test paths.89930 terminal0 compiled-entry4 includes provider16
+source combinations and selected missing/duplicate/foreign-owner negatives.
+Existing nonscalar negative1 PASS; package609/exact known3. Scope guard known
+HEAD-identical root1351 only (hash recorded below); pointer/whitespace PASS.
+Code368/test366 lines. Narrow owner README and card/pointer committed together;
+protected Array match arm, metadata/source/C/Array/S2 WIP excluded.
 
-Worker source-scope correction: provider child currently accepts only plain-i64
-or owned-array child; Parent -> owned-object Child -> Grandchild is unsupported.
-Do not add that source meaning here. Use Parent with two distinct plain provider
-children for the selected multi-edge witness; transport closure remains finite.
+One stale per-new rejection assertion, introduced d5823ab49ba, was found during
+33374 terminal101 and corrected to the549a54c811 landed scalar contract:
+source Local stays Local; tag1 requires exact caller Integer evidence and
+missing type evidence still rejects actual-kind-unavailable. Not absorbed into
+known3, no new production admission. Earlier50500/32162 positives and accidental
+main rerun52077 interrupted130 are historical, not final closeout evidence.
+Full prior Decision/commands are preserved by e0355851e6. Logs remain in
+/tmp/hako-owned-object-layout-S0-stage/provider-*.log.
 
-Construction: provider scope fix and focused8 source combinations now in main
-and isolated HEAD+metadata checkout. Cargo50500 live for provider_selection;
-no acceptance yet. Worker review requires full duplicate-handoff consistency
-prepass (including unselected records), and provider-specific missing/duplicate
-negative pins; apply after terminal, then rerun. Consumer remains unchanged.
+## Metadata S0 current verification / 2026-10-06
 
-Initial isolated Cargo50500 terminal0: provider-selection test executes8 source
-combinations and final ABI PASS (HEAD+metadata candidate, before audit additions).
-Added all-provider duplicate-handoff consistency and selected provider-specific
-missing/duplicate/foreign-owner negatives; no production mutator or matcher change.
-Mistaken main-checkout rerun52077 explicitly interrupted130, not PASS; its
-cargo/rustc confirmed terminal before isolated Cargo32162 started. Current
-sole build32162 checks the corrected isolated candidate; no closeout yet.
+Resume the original tri-state inventory publication Decision above. Prior
+HEAD+metadata+provider candidate passed constructed and scratch/null class-view
+final ABI in both opts; external C schema accepted4 original/4 legacy shapes
+and rejected14 malformed tuples. These are schema/publication evidence, not
+C borrowed-parent runtime or full unchanged-app/goal acceptance.
+The metadata source test now keeps original thin `return 7` and scratch variants
+in both opts; sole Cargo27807 verifies owned_object_layout in isolated checkout
+/tmp/hako-stored-child-S0-checkout (source36/C/Array/S2 absent). No second Cargo.
+Provider commit source bytes match this checkout; Git base remains93b1 with
+explicit prerequisite+metadata candidate. Existing detached exact C library is
+/tmp/hako-stored-child-S0-checkout/target/release/libhako_llvmc_ffi.so.
+After terminal success, rerun external schema on final thin captures, restage
+only the preserved metadata9-file candidate with updated test, verify guards,
+then commit/push. No metadata/source/C/Page Array.get/full-goal closeout yet.
+Current index empty after provider commit; preserved-metadata-index.patch holds
+its earlier own9-file snapshot. Main source and all protected WIP remain intact.
 
-Corrected isolated Cargo32162 terminal0:8 provider source combinations plus
-selected missing/duplicate/foreign-owner negatives and final ABI PASS. Worker
-final audit finds no remaining concrete defect. Next metadata focused command
-terminal0: constructed and null-only2 tests, both optimization variants PASS.
-The original null-only class view reaches final ABI with no owned tuple, while
-constructed Parent projects the canonical tuple. Detached exact C library
-external schema test:4 original +4 legacy shapes accepted,14 malformed rejected.
-Logs provider-selection-isolated-v2.log, metadata-after-provider-v2.log and
-external-schema-after-provider.log in /tmp/hako-owned-object-layout-S0-stage/.
-This is schema evidence, not C borrowed-parent runtime or full app acceptance.
+## Owned-object layout publication verified closeout
 
-Prepared standalone HEAD+provider-only checkout
-/tmp/hako-provider-birth-S0-checkout (no metadata/source/C/Array WIP). Final
-provider test expands to16 source combinations, including two fields sharing
-one child Birth definition but retaining both provider actuals; only new test
-body formatted. Saved provider-prerequisite-final.patch. Sole Cargo standalone
-compiled_entry_contract::tests live; final closeout/commit waits for its result.
-Guard still reaches only known HEAD-identical root1351; pointer/whitespace PASS.
+Cargo27807 terminal0: source tests2 execute constructed2 and original thin +
+scratch null-only4 variants, all final ABI/JSON PASS. Compiled-entry4 regression
+PASS on the same isolated candidate. Final thin C captures pass external schema:
+4 original/4 legacy optional shapes accepted,14 malformed tuples rejected at
+abi-layout. Existing detached C physical schema regression previously PASS.
+Logs metadata-thin-final.log, metadata-final-entry.log and
+external-schema-thin-final.log in /tmp/hako-owned-object-layout-S0-stage/.
 
-Standalone Cargo33374 currently live, /tmp/hako-provider-birth-S0-checkout
-contains exactly the two prerequisite code/test paths. New metadata test now
-retains both scratch and original thin `return 7` callee variants in both opts;
-prepared in main and metadata checkout (neither is active build input). This
-additional acceptance is not yet run. Final null-only C captures will come from
-the thin variant; no class/ownership authority or .hako workaround added.
-
-Restart: poll existing Cargo33374 (live rustc confirmed) rather than start
-another Cargo. Inspect provider-standalone-final.log. Once terminal, run required
-standalone package classification, then metadata scratch+thin variants in
-/tmp/hako-stored-child-S0-checkout and rerun external schema on thin captures.
-Do not close provider or metadata from pending results. Candidate prerequisite
-code/test patch and narrow owner README patch are saved separately in
-/tmp/hako-owned-object-layout-S0-stage/provider-{prerequisite-final,readme}.patch.
-Current9-file staged metadata snapshot predates the thin-variant test update;
-preserve/reverse only that saved own cached patch before staging prerequisite.
-Commit only independently verified prerequisite, then metadata, then source36
-candidate. Existing source/C/Array/S2 WIP remains protected and full goal active.
-
-Previous goal turn: progress (provider scope implementation, original metadata
-final-ABI/schema evidence); current-first PASS and33374 terminal101 on resume.
-Standalone provider16 plus selected corruption negatives PASS; sibling tests2
-PASS. One old per-new test rejects ABI that now succeeds. Worker history proves
-its stale assertion was introduced d5823ab49ba and superseded by549a54c811:
-Local/BoundValue/I64Field scalar tag1 requires exact caller Integer value.
-This is newly discovered existing test debt, not previously-known baseline and
-not provider regression (fixture has no provider records; physical_abi unchanged).
-Correct expected ABI success while retaining Local source kind, non-tagged scalar
-transport and named rejection with missing caller type corroboration. No new
-production admission. Standalone package command terminal101:609 PASS/exact
-known3 (ReceiverNonEscape Capture / IncompleteOrdinaryNewCoverage / MapLifecycle
-BorrowedEntryEscape). Log provider-standalone-package.log. Final corrected
-compiled-entry tests and metadata original thin callee remain to verify.
-
-Corrected stale assertion retains final ABI success, source Local, untagged
-scalar tag1 and exact actual-kind-unavailable when caller type evidence is absent.
-Worker confirms549a54c811 and Oct3 landed records document this contract; no
-production actual admission changed. Sole Cargo89930 runs final standalone
-compiled-entry4; then run existing nonscalar_birth_actuals_still_reject before
-provider closeout. Metadata scratch/thin tests prepared but not yet rechecked.
-
-## Provider publication verified closeout / metadata S0 resumed
-
-89930 terminal0 standalone compiled-entry4, including provider16 source cases
-and missing/duplicate/foreign-owner negatives. Existing nonscalar actual negative1
-PASS; scalar Local test now preserves source identity and exact type-evidence
-rejection, correcting the documented549a54c811 contract drift. Package609/known3
-only. Scope guard reaches unchanged root1351 hash5fa8091c1e29602c85d65b0e3dfe41a3444de8c48b41138ec60de295df865467;
-not whole-green. Pointer/whitespace PASS. All tests execute nonzero counts.
-Production finalized_root_handoff now publishes provider source-owner closure;
-old unconditional all-provider transport is removed, no retry/parallel owner.
-All source constructor and full-relation checks remain, consumer matcher unchanged.
-Selected code368/test366 lines, narrow owner README contract; protected Array
-match arm and all C/Array/S2 WIP excluded. Source36-path receiver candidate open.
-Resume metadata S0 original tri-state inventory publication Decision above:
-verify both original thin and scratch callee witnesses, schema on thin capture,
-then scoped metadata commit. No C borrowed-parent/runtime or app/goal claim.
+New ABI projection chain reflowed after tests with exact non-whitespace token
+equality (no code motion/meaning change); selected ABI748, new Rust test140,
+C decoder23 lines. Inventory tri-state and canonical tuple owner unchanged.
+Staged source/C bytes match isolated candidate; narrow compiler README and
+external test separately scoped. Main scope guard only unchanged root1351,
+pointer/whitespace PASS. Source/C/Array/S2 WIP remain outside metadata stage.
+This closes inventory transport/schema only; C borrowed child authority and
+full app execution remain unproved. Next reapply saved36-path source candidate
+on provider+metadata HEAD and verify source receiver publication/negatives.
