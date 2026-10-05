@@ -508,3 +508,16 @@ stops at `birth-global-legacy-stopped`. No fault-suppression,
 annotation, fold or whole-app claim is made; a Birth-unit call outside
 the qualified-static provider-argument lane issues no claim and stays
 closed.
+
+## Test-owner motion: HEAP-TEST-OWNER-SIZE-T1
+
+Receiver-field/owned-child brand tests and composite-result/owned-residence
+physical JSON tests moved verbatim into private included fragments. Parent
+helpers, test-module identity, names and predicates are unchanged. Against
+the preserved C WIP: brand 49 passed / 1 recorded ReceiverNonEscape baseline;
+physical JSON 25/25. Before/after complete test inventory matched (8582).
+All six selected test files are below 800 lines. Moved-owner guard pointers
+match the new paths; later C scope pins reach the unchanged HEAD size debt
+`normal_default_root_catalog_lifecycle_tests.rs=1351`. Full guard is not PASS.
+Evidence: `/tmp/hako-goal-T1-{brand,physical}-tests.log` and byte-motion proof
+`/tmp/hako-goal-test-owner-motion-proof.json`. C runtime acceptance stays open.

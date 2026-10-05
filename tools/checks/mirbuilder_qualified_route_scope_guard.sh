@@ -1188,7 +1188,7 @@ rg -q 'fn take_finalized_construction_validation' "$CONSTRUCTION_STATE_SRC"
 # or drifted inventories stay unadmitted; consumers never release the
 # child as plain.
 NAMED_ARRAY_SOURCE_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/named_array_source_tests.rs"
-PHYS_PROGRAM_JSON_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program_json_tests.rs"
+PHYS_PROGRAM_JSON_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/physical_program_json_owned_fields_tests.rs"
 rg -q 'fn owned_field_children_of' "$COSEAL_ISSUE_CHILDREN"
 rg -q 'fn seal_provider_owned_children_v1' "$COSEAL_ISSUE_CHILDREN"
 rg -q 'OwnedArrayFieldsNoHook' "$INSTANCE_CONSTRUCTION_SRC"
@@ -1198,7 +1198,7 @@ rg -q 'provider-children-drift' "$CONSTRUCTION_EMISSION_SRC"
 rg -q 'fn residence_chain' "$CONSTRUCTION_VALIDATION_SRC"
 rg -q 'owned_residences' "$PHYS_ABI" "$LIFECYCLE_PROGRAM_JSON" "$LIFECYCLE_C_PARSER" "$LIFECYCLE_V4_EMIT"
 rg -q 'lv4_layout_slot' "$ROOT_DIR/lang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_index.inc"
-rg -q 'ordinary_new_owned_nested_array_child_seals' "$BRAND_TESTS"
+rg -q 'ordinary_new_owned_nested_array_child_seals' "$ROOT_DIR/src/mir/normal_callable_semantic_package/brand_catalog_owned_children_tests.rs"
 rg -q 'provider_owned_array_child_reaches_artifact_lane' "$NAMED_ARRAY_SOURCE_TESTS"
 rg -q 'installed_owned_array_child_publishes_residence_marks' "$PHYS_PROGRAM_JSON_TESTS"
 

@@ -1232,3 +1232,9 @@ retry, fallback, or legacy deletion. Focused evidence: the `main0_continue`
 suites (12 coseal + 2 root-selection + 1 lowerer) pass under
 `--profile quick`; the selection and lowerer tests exercise the real
 parse/resolve/install package path.
+
+### Physical JSON test owners
+
+The private physical JSON test module includes composite-result and
+owned-residence fragments. Shared request helpers and test-module identity
+remain in the parent; the split changes no source or wire acceptance.

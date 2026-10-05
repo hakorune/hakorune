@@ -986,3 +986,9 @@ Source-issued child fixture tests exercise these physical boundaries, separately
 from normal compiler emission and tagged execution. Ordinary carrier/full-use,
 writer/C and Normal/Fault acceptance remain required before ABI activation or
 completion of ingress S0.
+
+### Test-owner fragments
+
+The private brand catalog test module includes receiver-field and owned-child
+fragments alongside its existing source helpers. These fragments preserve
+test names and source predicates; they introduce no semantic authority.
