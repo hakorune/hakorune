@@ -287,6 +287,7 @@ pub(in crate::mir::builder) fn prepare_arguments(
                             Source::Scalar { binding, .. }
                             | Source::TypedHome { binding, .. }
                             | Source::EntryReceiver { binding, .. }
+                            | Source::DeclaredFormal { binding, .. }
                             | Source::ReceivedNullable { binding, .. } => (*binding, None),
                             Source::Forwarded { binding, formal } => {
                                 let rows = ledger.borrowed_ordinary_entry_values_v1(owner)?;

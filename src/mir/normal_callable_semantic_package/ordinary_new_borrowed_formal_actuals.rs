@@ -38,6 +38,15 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
         root: BindingRefV1,
         class: Box<str>,
     },
+    /// The caller's own `DeclaredObject` formal passed through as an
+    /// opaque actual — the caller's sealed parameter contract is the
+    /// sole class authority; ordinary-borrowed `origins`/`forwards`
+    /// drafts never cover declared formals.
+    DeclaredFormal {
+        binding: BindingRefV1,
+        root: BindingRefV1,
+        class: Box<str>,
+    },
     Forwarded {
         binding: BindingRefV1,
         formal: BindingRefV1,
@@ -253,18 +262,47 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
                         formal: *formal_origin,
                     }
                 } else {
-                    let (entry, class) =
-                        receiver.ok_or_else(|| freeze("borrowed-actual/entry-domain"))?;
-                    if *root != entry
-                        || binding.owner() != call.owner()
-                        || entry.owner() != call.owner()
+                    // A declared-object formal is an entry-stable source
+                    // too — the caller's own sealed parameter contract
+                    // names its class; `origins`/`forwards` cover only
+                    // ordinary-borrowed formals.
+                    if let Some(class) = contracts
+                        .iter()
+                        .find(|row| row.owner == call.owner())
+                        .and_then(|row| {
+                            row.parameters
+                                .iter()
+                                .find(|formal| formal.binding == *binding)
+                        })
+                        .and_then(|formal| match &formal.kind {
+                            CallableParameterContractKindV1::DeclaredObject(class) => {
+                                Some(class.clone())
+                            }
+                            _ => None,
+                        })
                     {
-                        return Err(freeze("borrowed-actual/entry-source"));
-                    }
-                    BorrowedFormalActualSourceV1::EntryReceiver {
-                        binding: *binding,
-                        root: entry,
-                        class: class.name().into(),
+                        if binding.owner() != call.owner() || root.owner() != call.owner() {
+                            return Err(freeze("borrowed-actual/entry-source"));
+                        }
+                        BorrowedFormalActualSourceV1::DeclaredFormal {
+                            binding: *binding,
+                            root: *root,
+                            class: class.as_ref().into(),
+                        }
+                    } else {
+                        let (entry, class) =
+                            receiver.ok_or_else(|| freeze("borrowed-actual/entry-domain"))?;
+                        if *root != entry
+                            || binding.owner() != call.owner()
+                            || entry.owner() != call.owner()
+                        {
+                            return Err(freeze("borrowed-actual/entry-source"));
+                        }
+                        BorrowedFormalActualSourceV1::EntryReceiver {
+                            binding: *binding,
+                            root: entry,
+                            class: class.name().into(),
+                        }
                     }
                 }
             }

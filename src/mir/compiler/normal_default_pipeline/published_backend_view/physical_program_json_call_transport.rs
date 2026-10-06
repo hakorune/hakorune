@@ -321,7 +321,9 @@ fn encode_borrowed_actual_kind(source: &Source) -> Value {
             kind: SourceScalarKind::Bool,
             ..
         } => json!(2),
-        Source::TypedHome { .. } | Source::EntryReceiver { .. } => json!(3),
+        Source::TypedHome { .. }
+        | Source::EntryReceiver { .. }
+        | Source::DeclaredFormal { .. } => json!(3),
         Source::ReceivedNullable { .. } => json!("nullable_typed_object"),
         Source::Forwarded { .. } => json!("tagged"),
     }

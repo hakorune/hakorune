@@ -146,6 +146,85 @@ fn walk_branch<'a, E>(
     Ok(path)
 }
 
+/// Stage borrowed call actuals for every source callsite inside a
+/// statement subtree that never joined the covered walk — a
+/// prefix-failed or structurally unadmitted `If`/`Loop` still contains
+/// real call edges that incoming coverage can name, and a named edge
+/// without staged actuals freezes `selected-incoming-unobserved`.
+/// This records source facts only: no claims, terminal relations or
+/// Home joins. `prefix_known` must be the caller's pre-statement value —
+/// the same basis the condition-subtree staging used — so a repeated
+/// stage of the same site stays identical instead of drifting.
+/// Covered `If`s must not call this for their interiors: the branch
+/// walk already stages those sites with real flow state, and a
+/// divergent re-staging freezes `repeated-walk-drift`.
+pub(super) fn stage_unobserved_statement_actuals<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
+) -> Result<(), E> {
+    stage_subtree_call_actuals(
+        input,
+        statement.site().node(),
+        locals,
+        prefix_known,
+        borrowed_actuals,
+    )
+}
+
+/// Stage every outermost call under a source site prefix — a call
+/// nested inside another call's argument subtree rides the enclosing
+/// observation; identical re-staging is a no-op.
+fn stage_subtree_call_actuals<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+    ) -> Result<
+        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        E,
+    >,
+) -> Result<(), E> {
+    let prefix = site.segments();
+    let subtree_calls: Vec<SourceExprSiteV1> = input
+        .function()
+        .method_calls()
+        .map(|(site, _)| site.clone())
+        .filter(|site| site.node().segments().starts_with(prefix))
+        .collect();
+    for site in subtree_calls.iter().filter(|site| {
+        !subtree_calls.iter().any(|outer| {
+            outer != *site
+                && site
+                    .node()
+                    .segments()
+                    .starts_with(outer.node().segments())
+        })
+    }) {
+        let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+        for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
+            input,
+            &owned,
+            locals,
+            prefix_known,
+        ) {
+            borrowed_actuals(&call_site, Some(&actuals))?;
+        }
+    }
+    Ok(())
+}
+
 /// True when any sealed `MapLiteral` row sits under `statement`'s subtree.
 /// Branch-local map literals need per-path Home state that this bounded
 /// admission does not carry — the whole `If` keeps `PrefixNotCovered` and
@@ -255,14 +334,44 @@ pub(super) fn observe_if_statement<'a, E>(
     >,
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<bool, E> {
+    // The pre-`If` path basis: every staging this statement performs —
+    // condition calls now, uncovered interiors on the early returns —
+    // shares it, so a repeated stage of the same site stays identical.
+    let prefix_known = unavailable.is_none();
+    // A call inside the condition subtree is a real call edge even when
+    // the `If` itself stays uncovered — incoming coverage can still name
+    // it, so its borrowed actuals stage from the sealed call inventory
+    // here. Statement `call_root` observation never visits this
+    // position, and the gates below decide walk admission, not whether
+    // the call exists.
+    if let Ok(condition) = input
+        .source()
+        .child_expr_from_stmt(statement, ExprChildRoleV1::IfCondition)
+    {
+        stage_subtree_call_actuals(
+            input,
+            condition.site().node(),
+            locals,
+            prefix_known,
+            borrowed_actuals,
+        )?;
+    }
     let bundle = match input.function().if_region_bundle(statement.site()) {
         Ok(bundle) => bundle,
         Err(_) => {
             // An `If` with no verified region row cannot carry a join —
-            // keep the named unavailability rather than inferring one.
+            // keep the named unavailability rather than inferring one,
+            // and still stage the interior call edges.
             unavailable.get_or_insert_with(|| {
                 HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
             });
+            stage_unobserved_statement_actuals(
+                input,
+                statement,
+                locals,
+                prefix_known,
+                borrowed_actuals,
+            )?;
             return Ok(false);
         }
     };
@@ -290,6 +399,15 @@ pub(super) fn observe_if_statement<'a, E>(
         unavailable.get_or_insert_with(|| {
             HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
         });
+        // The per-path Home state this admission cannot carry stays out,
+        // but the interior call edges are still real — stage them.
+        stage_unobserved_statement_actuals(
+            input,
+            statement,
+            locals,
+            prefix_known,
+            borrowed_actuals,
+        )?;
         return Ok(false);
     }
     let Ok(condition) = input
@@ -309,9 +427,21 @@ pub(super) fn observe_if_statement<'a, E>(
         )?
         .is_none()
     {
+        // The condition's field request stays unprovable — record the
+        // uncovered prefix, then stage the branch interiors' call edges:
+        // incoming coverage can still name them, and a named edge
+        // without staged actuals freezes `selected-incoming-unobserved`.
+        // Facts only — no claims, terminal relations or Home joins.
         unavailable.get_or_insert_with(|| {
             HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
         });
+        stage_unobserved_statement_actuals(
+            input,
+            statement,
+            locals,
+            prefix_known,
+            borrowed_actuals,
+        )?;
         return Ok(false);
     }
     let then_body = then_body.unwrap();

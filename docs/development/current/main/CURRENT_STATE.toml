@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0"
+current_execution_row = "MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "borrowed-actual/unobserved-position-edge-staging"
-current_design_stop = "borrowed-actual/unobserved-position-edge-staging"
+current_blocker_token = "physical-read-owner/callee-method-get-publication"
+current_design_stop = "physical-read-owner/callee-method-get-publication"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,25 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-field-array-get-i64-result-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-ME-RECEIVER-CALL-COVERAGE-S0 landed: `Receiver`-kind `me` bindings enter
-`prepare_lexical_source_targets_v1` — class = caller's own selected key
-owner, target = `unique_instance_target` — issued as a new coverage-only
-`SelfReceiver` variant. Self rows name incoming self-edges
-(`lexical_instance_call_covered`, `UnresolvedCaller` resolution) but never
-route lifecycle binding groups: `local x = me.m(..)` emission stays with
-the sealed receiver-call lane (routing a second owner froze
-`local-call-binding-sequence` on the real app). Capture leaf kept
-`|_| false`: arming grounds callees whose named edges include calls
-inside prefix-failed branch subtrees / condition positions — never
-staged — freezing `selected-incoming-unobserved`. Focused 184 pass / 3
-baseline debt; app `--emit-exe` frontier `artifact-unowned-lifecycle-site`
-= baseline parity. Next: unobserved-position incoming-edge staging, then
-arm the leaf; physical read owner, production switch, retirement owed.
+BORROWED-ACTUAL-UNOBSERVED-POSITION-S0 landed: a staging-only traversal
+(`stage_unobserved_statement_actuals`) enumerates the sealed
+`method_calls()` inventory under a source prefix, keeps outermost calls,
+and issues one `observe_borrowed_call_actuals` + `borrowed_actuals`
+callback per call on the pre-statement `prefix_known` basis — no claims,
+terminal relations, Home joins, or physical rows (the emission-coupled
+walk froze `literal-physical-drift` on the real app). Wired to `If`
+condition subtrees + prefix-failed interiors and to unadmitted
+statements; uncovered paths keep entry-stable bindings (Parameter /
+Receiver / self-rooted / scalar), everything else stays `Unknown`. New
+`DeclaredFormal` source = caller's sealed `DeclaredObject` parameter
+contract (wire tag 3). Companion `literal-physical-drift` fix:
+`emit_terminal_integer_literal_return` now completes the physical
+`Return` on the generic lane. `capture_field_array_get` formal
+unique-i64 leaf armed. Focused cohort green; pins moved to honest
+boundaries; app `--emit-exe` = baseline `artifact-unowned-lifecycle-site`.
+Next: physical read owner for `Callee::Method` get publication Decision.
 """
-next_design_card = "MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0"
+next_design_card = "MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
@@ -50,7 +53,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0 landed — staging-only `stage_unobserved_statement_actuals` (sealed `method_calls()` inventory, outermost calls, one `observe_borrowed_call_actuals` callback on the pre-statement `prefix_known`; no claims / terminal relations / Home joins / physical rows) wired to `If` condition subtrees + prefix-failed interiors + unadmitted statements. Entry-stable bindings stay observable on uncovered paths; new `DeclaredFormal` source = caller's sealed `DeclaredObject` contract (tag 3). Companion `literal-physical-drift` fix (terminal literal Return owed on the generic lane). Formal unique-i64 get leaf armed; `loop`-interior edges freeze `borrowed-actual`. App `--emit-exe` = baseline `artifact-unowned-lifecycle-site`. Next: physical read owner for `Callee::Method` get publication Decision.",
   "2026-10-06: MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0 landed — `Receiver`-kind `me` bindings enter `prepare_lexical_source_targets_v1` (class = caller's own selected key owner, `unique_instance_target`) issued as coverage-only `SelfReceiver` rows: self-edges named for incoming coverage / terminal / dependency checks, lifecycle routing skipped (emission stays with the sealed receiver-call lane). Capture leaf stays `|_| false`: armed probe resolved incoming-coverage / result-source-missing / local-call-binding-sequence, next named contract `borrowed-actual/selected-incoming-unobserved` (prefix-failed branch subtrees + condition-position calls never stage actuals). Focused 184 pass / 3 baseline debt; app `--emit-exe` = baseline `artifact-unowned-lifecycle-site`. Next: unobserved-position incoming-edge staging Decision.",
   "2026-10-06: MIRBUILDER-FIELD-ARRAY-GET-I64-RESULT-S0 landed — direct `me.<ArrayBox f>.get(<proven-i64 index>)` upgrades manifest `Dynamic` to i64 inside the existing prefix field-call lane; sealed whole-field integer-store census (sole birth `new ArrayBox()` provider + integer-source `set`/`push` writers + veto inventory) rides the claim ledger to the prefix arm and `capture_field_array_get` borrowed-result fold. 15 new pins green; regression 1158/6 all baseline-identical; app `--emit-exe` stops `artifact-unowned-lifecycle-site` same as baseline. `handle.block_id` index, DirectArrayI64, condition position and physical read owner stay siblings. Next: formal-field index arm Decision.",
-  "2026-10-06: MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0 landed — V4 C index lends a stored child HANDLE/class for `ordinary_i64` field reads only from the canonical `owned_object_residences` tuple + original receiver/Copy-root equality; reserved slots accept only their declared tuple (exact `array_new` lease / canonical child + typed-live provenance), scalar never lands. 96 unchanged sources compile; 20 negatives + 5/5 store-control pre/post fence; real-callee Normal/Fault both opts; C/owned-slot/layout regressions green. No Unit/Birth-read/Array-local admission. Next: Page `Array.get` result Decision.",
   ]
+

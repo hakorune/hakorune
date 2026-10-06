@@ -350,15 +350,19 @@ fn capture_field_array_get(
             get_calls.insert(method_call.site().clone(), field.clone());
         }
     }
-    // `me.<name>` receiver coverage landed, so arming the
-    // `formal.<field>` leaf here is within reach — but a grounded
-    // callee's incoming coverage also names edges inside prefix-failed
-    // branch subtrees whose borrowed actuals are never staged, freezing
-    // `selected-incoming-unobserved` on the real app. The capture stays
-    // unarmed until unobserved-position incoming edges are staged.
+    // `me.<name>` receiver coverage and unobserved-position actual
+    // staging landed: a grounded callee's named incoming edges —
+    // including calls inside prefix-failed branch subtrees and
+    // condition positions — now carry staged actuals, so the
+    // `formal.<field>` index leaf arms this capture end-to-end.
     let coverage = batch.ordinary_box_coverage();
-    let _ = coverage;
-    let formal_i64_field = |_: &str| false;
+    let formal_i64_field = |field: &str| {
+        super::super::super::array_i64_fields::coverage_unique_i64_field(
+            constructors,
+            coverage,
+            field,
+        )
+    };
     Ok(super::super::super::array_i64_fields::integer_source_at(
         &ledger,
         shape,

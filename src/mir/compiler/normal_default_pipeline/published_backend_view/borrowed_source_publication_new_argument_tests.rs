@@ -402,13 +402,13 @@ fn borrowed_nullable_result_frontiers_stay_fail_closed() {
                 "me-receiver",
                 "main() { local s = new Store() return s.run(5) }",
                 "run(q) { local h = me.check(q) return 0 }",
-                "artifact-source-unavailable",
+                "i64-result-mismatch",
             ),
             (
                 "forward",
                 "main() { local s = new Store() local h = s.run(5) return 0 }",
                 "run(q) { local h = me.check(q) if h == null { return 0 } return h.id }",
-                "literal-physical-drift",
+                "source-not-i64",
             ),
         ] {
             let text = format!(

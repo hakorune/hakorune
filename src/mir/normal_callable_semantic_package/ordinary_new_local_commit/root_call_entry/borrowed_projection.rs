@@ -70,6 +70,7 @@ pub(super) fn value(
                 Source::Scalar { binding, .. }
                 | Source::TypedHome { binding, .. }
                 | Source::EntryReceiver { binding, .. }
+                | Source::DeclaredFormal { binding, .. }
                 | Source::ReceivedNullable { binding, .. } => (*binding, None),
                 Source::Forwarded { binding, formal } => (*binding, Some(*formal)),
                 _ => return Err(freeze("lexical-i64/borrowed-read-source")),

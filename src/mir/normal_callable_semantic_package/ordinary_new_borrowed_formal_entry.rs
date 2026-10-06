@@ -393,7 +393,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     let agrees = match &actual.source {
                         super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
                         | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
-                        | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. } => {
+                        | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
+                        | super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
                             class.as_ref() == view.class()
                         }
                         super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Null => true,

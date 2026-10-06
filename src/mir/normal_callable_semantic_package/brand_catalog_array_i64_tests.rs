@@ -522,24 +522,22 @@ fn array_i64_get_admits_formal_field_index() {
     );
 }
 
-/// A borrowed `return` of the formal-indexed get keeps the pre-leaf
-/// boundary: the borrowed-result capture still does not credit the
-/// `formal.<field>` leaf — arming it grounds the callee, and incoming
-/// coverage then names stored-child/`me` edges inside prefix-failed
-/// branch subtrees whose borrowed actuals are never staged, freezing
-/// `selected-incoming-unobserved` — so the i64 proof names
-/// `source-not-i64` fail-closed, same as an unproven Dynamic get.
+/// With `me.<name>` receiver coverage and unobserved-position actual
+/// staging landed, the borrowed-result capture credits the
+/// `formal.<field>` leaf: a grounded callee's named incoming edges all
+/// carry staged actuals, so `return <formal-indexed get>` seals i64
+/// end-to-end.
 #[test]
-fn array_i64_formal_field_index_borrowed_return_stays_unarmed() {
+fn array_i64_formal_field_index_seals_borrowed_return() {
     for tail in [
         "local x = me.block_used.get(h.block_id) return x",
         "return me.block_used.get(h.block_id)",
     ] {
-        let error = issue_borrowed_formal_index("me.block_used.set(0, 7)", tail)
-            .expect_err("formal-index borrowed return must stay unarmed");
+        let package = issue_borrowed_formal_index("me.block_used.set(0, 7)", tail)
+            .unwrap_or_else(|error| panic!("formal index `{tail}` issues: {error:?}"));
         assert!(
-            format!("{error:?}").contains("source-not-i64"),
-            "`{tail}`: {error:?}"
+            borrowed_result(&package).is_ok(),
+            "formal index `{tail}`: the proven get seals an i64 return source"
         );
     }
 }
@@ -585,6 +583,114 @@ fn me_receiver_self_edge_covers_borrowed_definitions() {
     );
 }
 
+/// A call inside a prefix-failed `If` branch is still a named incoming
+/// edge for a grounded callee: staging-only observation records its
+/// actuals — facts only, no claims — so the entry check sees a staged
+/// row instead of freezing `selected-incoming-unobserved`.
+#[test]
+fn unobserved_branch_incoming_edge_stages_borrowed_actuals() {
+    let package = issue_with_brand_catalog(
+        "box Handle { block_id: i64 = 0 label: ArrayBox = new ArrayBox() }
+        box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() { }
+        probe(h: Handle) {
+            if h == null { return 0 }
+            me.block_used.set(0, 7)
+            local item = new Page()
+            return me.block_used.get(h.block_id)
+        }
+        take(a) { }
+        }
+        static box Main { main() {
+            local a = new Page()
+            local h0 = new Handle()
+            local out = a.probe(h0)
+            if a.block_used == a.block_used {
+                local out2 = a.probe(h0)
+            }
+            return 0
+        } }",
+    )
+    .unwrap_or_else(|error| panic!("staged branch edge issues: {error:?}"));
+    assert!(
+        borrowed_result(&package).is_ok(),
+        "the prefix-failed branch edge still feeds the grounded result"
+    );
+}
+
+/// The same edge with an unproven actual stays fail-closed: staging
+/// records `Unknown` and the entry check names the missing proof —
+/// never a silent no-op.
+#[test]
+fn unobserved_branch_incoming_edge_unproven_actual_stays_fail_closed() {
+    let error = issue_with_brand_catalog(
+        "box Handle { block_id: i64 = 0 label: ArrayBox = new ArrayBox() }
+        box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() { }
+        probe(h: Handle) {
+            if h == null { return 0 }
+            me.block_used.set(0, 7)
+            local item = new Page()
+            return me.block_used.get(h.block_id)
+        }
+        take(a) { }
+        }
+        static box Main { main() {
+            local a = new Page()
+            local h0 = new Handle()
+            local out = a.probe(h0)
+            if a.block_used == a.block_used {
+                local out2 = a.probe(a.block_used)
+            }
+            return 0
+        } }",
+    )
+    .expect_err("an unproven branch-position actual must not be silently dropped");
+    // The unknown actual refuses either at staged-actual preparation
+    // (`borrowed-actual`) or at the caller-class view seal
+    // (`borrowed-view`) — both are the borrowed-authority fail-closed
+    // boundary; the edge must never issue silently.
+    let text = format!("{error:?}");
+    assert!(
+        text.contains("borrowed-actual") || text.contains("borrowed-view"),
+        "{text}"
+    );
+}
+
+/// A call in `If` condition position is likewise a named incoming
+/// edge — statement `call_root` observation never visits condition
+/// subtrees, so the `If` observer stages it on the pre-`If` basis.
+#[test]
+fn condition_position_incoming_edge_stages_borrowed_actuals() {
+    let package = issue_with_brand_catalog(
+        "box Handle { block_id: i64 = 0 label: ArrayBox = new ArrayBox() }
+        box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() { }
+        probe(h: Handle) {
+            if h == null { return 0 }
+            me.block_used.set(0, 7)
+            local item = new Page()
+            return me.block_used.get(h.block_id)
+        }
+        take(a) { }
+        }
+        static box Main { main() {
+            local a = new Page()
+            local h0 = new Handle()
+            local out = a.probe(h0)
+            if a.probe(h0) == 0 {
+                local out2 = 1
+            }
+            return 0
+        } }",
+    )
+    .unwrap_or_else(|error| panic!("staged condition edge issues: {error:?}"));
+    assert!(
+        borrowed_result(&package).is_ok(),
+        "the condition-position edge still feeds the grounded result"
+    );
+}
+
 /// The same leaf feeds `set`/`push` write values: `h.block_id` is an
 /// integer source for the whole-Box census, so the field stays proven
 /// and the get result upgrades.
@@ -612,7 +718,7 @@ fn array_i64_formal_field_index_ambiguous_name_declined() {
         box Other { block_id: i64 = 0 }
         box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
         birth() { }
-        probe(h) {
+        probe(h: Handle) {
             if h == null { return 0 }
             me.block_used.set(0, 7)
             local x = me.block_used.get(h.block_id)
@@ -623,7 +729,8 @@ fn array_i64_formal_field_index_ambiguous_name_declined() {
         }
         static box Main { main() {
             local a = new Page()
-            local out = a.probe(null)
+            local h0 = new Handle()
+            local out = a.probe(h0)
             return 0
         } }",
     )

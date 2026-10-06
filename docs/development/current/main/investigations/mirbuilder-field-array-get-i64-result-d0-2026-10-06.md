@@ -277,3 +277,113 @@ borrowed actuals for named incoming edges whose callsite sits in a
 prefix-failed branch subtree or condition position (then arm the formal
 leaf in the capture), then physical read owner, production switch,
 legacy retirement.
+
+## Unobserved-position incoming edges integrated Decision / 2026-10-06
+
+Design-stop audit for `borrowed-actual/unobserved-position-edge-staging`.
+`observe_borrowed_call_actuals(site, locals, prefix_known)` already
+stages any call site — nested argument calls ride its recursion,
+identical re-staging is a no-op and drift freezes `repeated-walk-drift`;
+`prefix_known=false` degrades non-literal actuals to `Unknown`, the same
+fail-closed shape uncovered paths already use. Two positions never reach
+it: (1) `observe_if_statement` returns early when a field-request
+condition fails scalar observation — the verified `IfRegionBundleV1`
+already proved branch structure, so branch interiors are skipped for no
+structural reason and calls inside (e.g.
+`return me.small_page.isLiveHandle(handle)` under
+`if handle.page_id == 0`) stage nothing; (2) calls inside `if` condition
+subtrees (`if me.release(handle)`, `me.isLiveHandle(h) == 0` operands)
+are not statement `call_root`s and never stage. Both become named
+`selected-incoming-unobserved` freezes the moment the armed formal leaf
+grounds a callee.
+
+Decision: borrowed-actual staging is owed for every source callsite
+that incoming coverage can name. Walk the `if` branches even when the
+scalar-condition observation declines — `PrefixNotCovered` is recorded
+first and rides the fork, so interior actuals stage `Unknown` — and
+stage the outermost calls under the `if` condition subtree through the
+same `observe_borrowed_call_actuals` + `borrowed_actuals` callback.
+Same slice: arm `capture_field_array_get`'s `formal_i64_field` consult —
+the armed leaf is the production edge that names these edges.
+
+Source authority + canonical issuer: sealed `method_calls()` site
+inventory for condition-subtree membership; the verified
+`IfRegionBundleV1` + body-match as the only branch-walk admission;
+`observe_borrowed_call_actuals`/`borrowed_actuals` as the sole staging
+issuer.
+
+Non-authority: inferring the unprovable condition; treating `Unknown`
+actuals as proven; `loop` bodies/conditions (no walk exists — a named
+edge inside stays `selected-incoming-unobserved`); map-literal subtrees;
+`bundle`-missing / `SourceMismatch` ifs.
+
+Fail-fast boundary: `subtree_has_map_literal`, missing bundle and body
+mismatch keep skipping interiors — unobserved edges there stay named
+freezes, never silent skips; a `loop`-interior named edge likewise.
+
+Smallest next slice:
+`MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0` — branch walk on
+scalar decline + condition-subtree call staging + capture-leaf arm as
+one edge; pins: formal-index borrowed return seals, condition-call edge
+staged, return-in-unprovable-branch edge staged; negatives: `loop`
+interior and map-literal-subtree edges keep `selected-incoming-unobserved`.
+
+Non-claims: `loop` statement interiors/conditions, condition-position
+result admission (stays dynamic), physical read owner, production
+switch, DirectArrayI64, finite goal.
+
+## Unobserved-position staging landed / 2026-10-06
+
+`MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0` landed. One revision
+inside the slice: the Decision's "walk branches on scalar decline" ran
+the emission-coupled walk and minted terminal-related facts on uncovered
+paths — the real app froze `ordinary-new/local-commit/literal-physical-drift`.
+Replaced with a staging-only traversal:
+`stage_unobserved_statement_actuals` enumerates the sealed
+`method_calls()` inventory under a source prefix, keeps outermost calls
+only, and issues exactly one `observe_borrowed_call_actuals` +
+`borrowed_actuals` callback per call on the pre-statement
+`prefix_known` basis — no claims, terminal relations, Home joins, or
+physical rows.
+
+- `observe_if_statement` captures `prefix_known` once, stages the
+  condition subtree, and stages the full statement subtree on
+  bundle-missing / map-literal / scalar-decline exits; covered branch
+  interiors are never re-staged.
+- `scan_statement_flow` stages unadmitted statement kinds (loop,
+  assignment, match, ...) before `PrefixNotCovered`. A `loop`-interior
+  named edge now stages `Unknown` actuals and freezes
+  `borrowed-actual`, not `selected-incoming-unobserved` — same
+  fail-closed class, tighter token than the Decision sketched.
+- Uncovered paths keep entry-stable bindings observable (`Parameter`,
+  `Receiver`/self-rooted, trivial scalars); everything else is
+  `Unknown`.
+- New `BorrowedFormalActualSourceV1::DeclaredFormal`: a caller's sealed
+  `DeclaredObject` parameter contract is the sole class authority for
+  typed formals that `origins`/`forwards` never carried; wired through
+  lexical-i64 prep, entry class validation, root-call-entry projection,
+  and JSON transport (existing typed-handle tag 3).
+- Companion fix surfaced by the walk: `emit_terminal_integer_literal_return`
+  consumed the relation and emitted `Const` but owed no physical
+  `Return` on the generic lane (`prepare_root_home_exit` is
+  all-or-nothing per function), so `return 0` inside a covered `if`
+  silently merged as a join yield. The site now completes through
+  `emit_return_from_value`.
+- `capture_field_array_get` consults `coverage_unique_i64_field` — the
+  formal `me.<ArrayBox>.get(h.<unique-i64-field>)` leaf is armed.
+
+Evidence: `unobserved_branch_incoming_edge_stages_borrowed_actuals`,
+`unobserved_branch_incoming_edge_unproven_actual_stays_fail_closed`
+(`borrowed-view`/`borrowed-actual` — the unknown actual never issues),
+`condition_position_incoming_edge_stages_borrowed_actuals` green;
+cohort 27+4+138+124 focused green. Frontier pins updated to the honest
+boundaries (`me-receiver` -> `i64-result-mismatch`, `forward` ->
+`source-not-i64`). App `--emit-exe` probe reaches
+`artifact-unowned-lifecycle-site` = baseline parity with the leaf armed.
+Baseline debt (reproduces on `36b13d8d8e`/`1c0d68497e`):
+`direct_array_extent_fact::refresh_links_array_field_receiver_to_same_receiver_capacity_range`,
+`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`qualified_call_map_argument_reaches_the_named_capability_boundary`.
+
+Next owed: physical read owner for `Callee::Method` get publication,
+production caller switch, selected legacy retirement.

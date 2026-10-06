@@ -274,6 +274,17 @@ pub(super) fn scan_statement_flow<'a, E>(
             )? {
                 continue;
             }
+            // Statement kinds this lane does not admit (loop, assignment,
+            // match, ...) still contain real call edges — stage their
+            // actuals from the sealed call inventory on the pre-statement
+            // basis before the prefix marker. Facts only, no Home joins.
+            super::branch::stage_unobserved_statement_actuals(
+                input,
+                &statement,
+                locals,
+                unavailable.is_none(),
+                borrowed_actuals,
+            )?;
             unavailable.get_or_insert_with(|| {
                 HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
             });

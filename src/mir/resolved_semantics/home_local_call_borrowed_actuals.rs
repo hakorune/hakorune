@@ -1,6 +1,7 @@
 //! Ordered passive actual candidates from the same prefix-local state.
 //! Source membership and typed-object domain are verified by the package.
 use super::*;
+use crate::mir::resolved_semantics::BindingKindV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallActualValueV1 {
@@ -70,7 +71,41 @@ fn observe_one_borrowed_call_actuals(
                         if let Some(value) = negative {
                             BorrowedCallActualValueV1::Integer(value)
                         } else if !prefix_known {
-                            BorrowedCallActualValueV1::Unknown
+                            // An uncovered path proves no flow state, but
+                            // sealed Parameter/`me` bindings are installed
+                            // at entry — their self-rooted handle and
+                            // trivial scalar observations are entry-stable
+                            // facts, never branch-dependent evidence.
+                            // Everything else stays `Unknown`.
+                            match input.function().variable_ref(site) {
+                                Some(ResolvedLexicalRefV1::Local(binding))
+                                    if input.function().binding(binding).is_some_and(
+                                        |record| {
+                                            matches!(
+                                                record.kind(),
+                                                BindingKindV1::Parameter { .. }
+                                                    | BindingKindV1::Receiver
+                                            )
+                                        },
+                                    ) =>
+                                {
+                                    match locals.observe(site) {
+                                        Some(OrdinaryObservation::Handle(root))
+                                            if locals.is_self_rooted_handle(root) =>
+                                        {
+                                            BorrowedCallActualValueV1::SelfRooted { binding, root }
+                                        }
+                                        Some(OrdinaryObservation::TrivialLocal(
+                                            actual,
+                                            Some(kind),
+                                        )) if actual == binding => {
+                                            BorrowedCallActualValueV1::Scalar(binding, kind)
+                                        }
+                                        _ => BorrowedCallActualValueV1::Unknown,
+                                    }
+                                }
+                                _ => BorrowedCallActualValueV1::Unknown,
+                            }
                         } else {
                             match input.function().variable_ref(site) {
                                 Some(ResolvedLexicalRefV1::Local(binding)) => match locals
