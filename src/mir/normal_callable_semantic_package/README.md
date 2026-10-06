@@ -1185,3 +1185,10 @@ Artifact lifecycle coverage rejects any instruction lacking its exact
 source-issued block/instruction binding. Its existing freeze token reports the
 function, block, physical instruction index and instruction for frontier
 diagnosis; diagnostic context grants no new source or emission authority.
+
+The ordinary-new callable result solver keeps sealed exit observation and
+fixpoint scheduling in `ordinary_new_result_class_claim.rs`; its private
+`ordinary_new_result_class_claim/evaluate.rs` owns the existing exit composition
+and safe result projection. This split adds no source acceptance or Home
+acquisition. Mixed fresh/borrowed outcomes remain rejected by that projection
+until their exact result/destination contract is verified.

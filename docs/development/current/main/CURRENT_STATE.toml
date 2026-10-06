@@ -1,9 +1,9 @@
-date = "2026-10-06"
+date = "2026-10-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-RESULT-NEW-CLAIM-TRACE-S0"
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-GATE1-RESULT-EVALUATOR-BOXSHAPE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/result-new-site-provenance-d0"
+current_blocker_token = "selfhost-resume/mixed-result-origin-d0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,15 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-result-new-site-provenance-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 latest_card_summary = """
-Diagnostic S0 published d877773df7: mimalloc-lite stops at raw BirthConstructor
-HakoAllocHandleResult.birth/3 in reallocResult/2. Resolve exact ReturnValue source
-site and claim/take/prepare state before selecting the construction fix.
-Class-name coverage gate is not scalar-only; retain it. Historical prefix8,0
-is superseded by current6,2 ownership-boundary fixture.
+TRACE-S0 published 8915833d44: exact reallocResult315/318 claims exist,
+prepare rejects Body3 me.realloc mixed fresh/borrowed result. Select one
+source origin relation in existing solver, preserving old owned projections.
+Conditional return-side Home transfer is not yet an accepted destination law.
 """
-next_design_card = "MIRBUILDER-GATE1-RESULT-NEW-SITE-PROVENANCE-D0"
+next_design_card = "MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
-next_execution_card = "MIRBUILDER-GATE1-RESULT-NEW-CLAIM-TRACE-S0"
+next_execution_card = "MIRBUILDER-GATE1-RESULT-EVALUATOR-BOXSHAPE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

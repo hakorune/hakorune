@@ -1,8 +1,8 @@
 # Result-new source-site provenance D0
 
-Status: selected; source mapping unresolved
+Status: source mapping closed; mixed result origin design selected
 Date: 2026-10-06
-Scope: MIRBUILDER-GATE1-RESULT-NEW-SITE-PROVENANCE-D0
+Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
   mirbuilder-artifact-lifecycle-site-diagnostic-s0-2026-10-06.md;
   mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md.
@@ -142,3 +142,156 @@ closure pruning has no existing owner/API here and would require a separate
 explicit root/export/dynamic-dependency contract; it is not chosen merely to
 avoid this ownership gap. Next design addresses the actual result/destination
 law within current ownership SSOTs, preserving the complete goal.
+
+## MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0 selected
+
+Decision: retain fresh and borrowed-forward result origins in the existing
+source result solver before selecting their ownership consumer. Do not relax
+the owned-result projection. TRACE-S0 is published at 8915833d44; source-site
+mapping is no longer an unresolved dependency.
+Source authority + canonical issuer: verified Completion value sites and the
+existing OrdinaryNewResultClassClaimDraftV1, sealed local initializer/no-rebind
+and selected callee/actual substitution. Reuse its one observation and fixpoint;
+no parallel source walk or backend classifier.
+Non-authority: nullable representation, declared class, constructor field shape,
+pointer equality, raw Birth coverage, or caller reachability.
+Fail-fast boundary: a mixed fresh/borrowed relation cannot authorize an owned
+received result, field transfer, or artifact lifecycle binding. Unresolved call,
+foreign binding, rebind, incomplete exits and unsupported SCC stay rejected.
+Smallest next slice: preserve Null/Fresh(class)/ForwardFormal(ordinal) as passive
+result evidence and derive the old ownership-eligible class projection from it.
+Read-only review must fix the exact output and consumer scope before execution.
+Non-claims: no Home acquisition, implicit share, moved-in ordinary formal,
+conditional consumption, source syntax extension, or app EXE acceptance.
+
+### Conditional return destination review
+
+Worker review identifies a possible future ClosedCallable exact destination
+contract, not an existing implementation authority. ownership.md ordinary
+parameter permits another exact boundary contract, but its destination matrix
+currently only lends input Home for the call. lifecycle.md requires a single
+field ownership commit. Conditional return transfer would therefore require a
+normative destination row and one composite completion before publication.
+Do not infer that contract from an annotated formal or Birth Provided.
+Required counterexamples: surviving input aliases; borrowed-only actual; Fault
+or escape after child store; publication before ownership commit; ambiguous
+fresh/forward origin. Any future plan must propagate demand through the full
+realloc -> reallocResult -> exact available-Home caller chain and handle both
+source315 and318. No input Home is consumed merely by recording origin Facts.
+This alternative remains unselected pending source result/destination proof;
+parked HomeV1 take/share is not reopened.
+
+### Closeout required for this D0
+
+Name one canonical relation owner, its compatible old projections and exact
+source-substitution tests. Audit all consumers that assume map membership means
+owned result, especially callable_result_classes.contains_key. Select explicit
+paths, file-cap split if needed, and positive/negative acceptance; only then
+switch work_mode to fast. Full ownership destination remains a named follow-up
+requirement, not silently dropped to make the early null return pass.
+
+## MIRBUILDER-GATE1-RESULT-EVALUATOR-BOXSHAPE-S0 execution
+
+Read-only worker confirmed the existing result solver is the sole origin issuer.
+Its current evaluate_row is the correct composition owner. Select a behavior-
+neutral extraction before adding origin alternatives: move ExitVerdictV1 and
+exact evaluate_row into a private ordinary_new_result_class_claim/evaluate.rs.
+Keep function arguments, old class map, fixpoint, substitution, coverage filter,
+error/rejection behavior and every caller unchanged. Parent currently701 lines;
+origin expansion must not use the remaining cap as permission for a large owner.
+Source authority remains existing Completion and sealed expression/parameter
+facts; no new source interpretation or Home law is issued by this split.
+Replacement: the one in-parent evaluate_row definition becomes the one private
+child definition; finish calls it directly through a private import.
+Files: result_class_claim parent + private evaluator, package owner README,
+this card and selection pointer. No other source or app modification.
+Acceptance: focused existing result tests cover fresh/null/forward, declared
+formal identity and page-heap mixed rejection; nonzero selection, stable scope
+and pointer guards, diff check, source caps. No additional semantic tests are
+needed for a verbatim private extraction. This closes only BoxShape preparation.
+Next semantic slice must preserve mixed origins and exact return sites in the
+same issuer/product, keep existing consumers on safe projections, validate every
+Fresh coverage arm, and compose actual formal substitution. Both315/318 and the
+owning-destination obligation remain open; no new conditional move is selected.
+
+## Mixed-origin D0 integrated Decision
+
+Choose one VerifiedSourceCallableResultFactsV1 product from the existing finish:
+exact source outcomes are primary; legacy class rows are derived once from those
+outcomes. Keep OrdinaryNewResultClassClaimsV1 as its internal alias if that avoids
+changing transport slots. Its get/contains_key/iter expose only the legacy safe
+projection; outcomes(key) is an explicitly passive borrowed observation API.
+MixedOrigins is not added to the old class enum/map. This preserves every old
+membership gate and avoids adding lines to source preparation793/issue797 owners.
+No second scanner, solver, fixpoint or mutable external map is introduced.
+Caller ReturnValue site is retained through callee composition, and forwarded
+formal ordinal is substituted through the exact actual binding. Fresh coverage
+is checked before the relation is exposed to dependent callable composition.
+All-null may issue NullOnly passive Facts, but cannot appear in old class rows.
+Unknown/rebound/foreign input, unsupported formal identities and ungrounded cycle
+remain unavailable. Declared class never changes ForwardFormal to Fresh.
+Implementation paths: existing result solver/evaluator, private product/origin
+vocabulary, ledger empty initialization + borrowed observation API, new focused
+result_origin_tests child, package README/card/pointer. Reuse transport slots;
+no physical, constructor, parameter-demand or app edit. Parent size after the
+selected extraction is600; further scheduling split only if the actual bounded
+implementation would otherwise exceed its owner budget.
+Acceptance must include real realloc all exact exits, null-only and nested exit
+sites, transitive forward/ordinal permutation/declaration order, Fresh coverage,
+rebind/foreign/cycle rejection, and mixed/null-only absence from old projections.
+Preserve fixture census(6,2) and absence of owned me.realloc observation. Complete
+origin observation is a required precursor, not destination or EXE completion.
+
+## BoxShape verification in progress
+
+First focused Cargo attempt ended101 with this-change E0583: parent is installed
+using a path attribute, so its child also requires an explicit relative path.
+Corrected the child declaration after Cargo/rustc terminated; no second Cargo
+was started concurrently. Exact evaluator source-body comparison PASS (only
+private visibility/import/module placement differ). Retest uses the same quick
+profile/jobs4 plus Cargo timings, log
+/tmp/hako-result-evaluator-boxshape-tests-fixed.log. No PASS is claimed yet.
+
+## Focused test discrepancy audit (2026-10-07)
+
+Extracted-source result tests:19 PASS/1 FAIL. Failing pin is
+provided_parameter_store_rejects_builtin_and_non_plain_fields, which expects
+RichHolder(null) construction to stay FieldContractUnsupported. Do not declare
+this baseline solely from the split's exact-body comparison. Parent HEAD code
+is undergoing an exact single-test repro; selected parent is backed up and
+restored by the command's EXIT trap after Cargo/rustc terminate. No shared main
+or other author change is touched.
+Read-only worker identifies the existing contract change265e67753a: Provided
+child class admits PlainI64/OwnedArrayFields/OwnedObjectFields in
+instance_construction.rs; Rich owns Token and has the latter disposition.
+Source owned-child issuer still rejects builtin/ArrayBox. Existing nested/self
+object/array child pins cover that expansion. If parent reproduces, repair the
+stale pin in a separate responsibility: retain ArrHolder builtin rejection and
+assert RichHolder verified construction/nested canonical child. Do not change
+constructor acceptance or mix that repair into the evaluator extraction.
+Cargo timing report for extracted-source test build:
+/mnt/workdisk/hako-field-array-get-i64-target/cargo-timings/cargo-timing-20261006T145421.342791963Z.html
+One rebuilt unit: nyash-rust lib(test),294.32s; build4m54s, test execution0.02s.
+This measures whole crate compilation, not typecheck/codegen/link breakdown or
+an optimization improvement. Profile and resource settings remain unchanged.
+
+## RESULT-EVALUATOR-BOXSHAPE-S0 closeout (2026-10-07)
+
+Parent HEAD8915833d44 exact single-test repro FAILS at the same RichHolder
+construction assertion: /tmp/hako-result-evaluator-parent-baseline-test.log
+(quick4m49s;1 executed). This proves the stale pin is pre-existing, matching
+already accepted nested-field construction265e67753a; it is not this-change
+regression. Selected extracted parent restored byte-for-byte, cmp PASS.
+Extracted-source suite19/20 PASS; the sole baseline failure is classified above.
+Required result composition/identity/mixed rejection positives and negatives
+PASS. The stale constructor-disposition pin is outside evaluator responsibility
+and has a separate concrete repair; it does not prevent this private verbatim
+extraction from closing, and it is not counted as a green test or app acceptance.
+Initial E0583 was this-change and is corrected; no unresolved this-change failure
+or unclassified red remains. Scope/pointer/diff guards PASS after restoration.
+Parent601/private child115 lines. The old evaluator body equals the child body
+apart from module placement/private visibility/imports. No source acceptance,
+owned result, parameter contract, constructor or physical binding changes.
+Next repair the stale provided-child test boundary in a separate slice, then
+implement the selected same-issuer mixed-origin product. Owning destination,
+source315/318 and production EXE remain incomplete.
