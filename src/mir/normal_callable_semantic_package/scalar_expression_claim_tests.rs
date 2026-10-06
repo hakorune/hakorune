@@ -173,6 +173,49 @@ fn scalar_expression_rejects_order_compare_on_object_typed_field() {
 }
 
 #[test]
+fn field_alias_null_equality_claims_both_predicates_and_orders() {
+    // OBJECT-FIELD-READ-S0: a proven field-read alias is a borrowed
+    // handle — `== null`/`!= null` claim Bool through the scalar
+    // preflight in either operand order, and the statement leaves the
+    // following `new` claim covered.
+    for compare in ["l == null", "l != null", "null == l", "null != l"] {
+        let package = package(&format!(
+            "local l = pool.page local c = {compare} local later = new Page() return 0"
+        ));
+        assert_eq!(staged_count(&package), 1, "compare {compare}");
+        assert!(
+            package
+                .ordinary_new_claim_ledger
+                .pending_claims_for_test()
+                .values()
+                .all(|claim| claim.home_prefix().is_ok()),
+            "compare leaves the following claim covered: {compare}"
+        );
+    }
+}
+
+#[test]
+fn field_alias_compare_rejects_non_null_operands() {
+    // Only the exact `null` literal names a borrowed handle's emptiness:
+    // alias-vs-integer and alias-vs-alias equality stay uncovered, and
+    // the following `new` claim keeps `PrefixNotCovered`.
+    for compare in ["l == 5", "l != 0", "l == l", "l != l"] {
+        let package = package(&format!(
+            "local l = pool.page local c = {compare} local later = new Page() return 0"
+        ));
+        assert_eq!(staged_count(&package), 1, "compare {compare}");
+        assert!(
+            package
+                .ordinary_new_claim_ledger
+                .pending_claims_for_test()
+                .values()
+                .any(|claim| claim.home_prefix().is_err()),
+            "compare must stay uncovered: {compare}"
+        );
+    }
+}
+
+#[test]
 fn scalar_expression_scope_preserves_outside_nested_conditions_without_claims() {
     for condition in [
         "(pool.size > 0) && (pool.size == 1)",

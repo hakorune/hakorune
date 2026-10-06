@@ -62,13 +62,22 @@ with tempfile.TemporaryDirectory(prefix='hako null compare ') as directory:
         compares = [row for row in instructions(data, 'Store.check/1')
                     if row['op'] == 'borrowed_null_compare']
         assert len(compares) == 2, 'edge-port re-evaluation of the one source compare'
-        compile_input(data)
-        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
-                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
-                 '-lpthread', '-ldl', '-lm', '-o', exe])
-        run = subprocess.run([str(exe)], env=ENV, capture_output=True, text=True)
-        assert run.returncode == 3, (suffix, run.returncode, run.stdout, run.stderr)
-        assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
+        for predicate in ['eq', 'ne']:
+            # Eq preserves source-issued input; Ne additionally exercises the
+            # physical predicate contract, without claiming source admission.
+            case = copy.deepcopy(data)
+            for row in instructions(case, 'Store.check/1'):
+                if row['op'] == 'borrowed_null_compare':
+                    row['predicate'] = predicate
+            compile_input(case)
+            checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                     *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                     '-lpthread', '-ldl', '-lm', '-o', exe])
+            run = subprocess.run([str(exe)], env=ENV, capture_output=True, text=True)
+            expected = 3 if predicate == 'eq' else 7
+            assert run.returncode == expected, (suffix, predicate, run.returncode,
+                                                 run.stdout, run.stderr)
+            assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         issued[suffix] = data
         print(suffix, 'null equality executes; non-null carriers answer false')
 
@@ -93,11 +102,11 @@ with tempfile.TemporaryDirectory(prefix='hako null compare ') as directory:
         change(rows, data)
         compile_input(data, False)
 
-    # Wrong predicate: the dedicated operation admits only eq.
+    # Ordering stays unsupported; S0 admits exactly eq and ne.
     def wrong_predicate(rows, _):
         for row in rows:
             if row['op'] == 'borrowed_null_compare':
-                row['predicate'] = 'ne'
+                row['predicate'] = 'slt'
     mutate(wrong_predicate)
 
     # Ordinary compare spelling never carries the null sentinel operand.
@@ -148,4 +157,4 @@ with tempfile.TemporaryDirectory(prefix='hako null compare ') as directory:
              'instruction': {'op': 'const_null', 'dst': 9999}})
     mutate(forged_sentinel)
 
-    print('3 source-issued programs execute; seven forged physical rows reject')
+    print('3 source-issued programs and 3 physical ne variants execute; seven forged rows reject')

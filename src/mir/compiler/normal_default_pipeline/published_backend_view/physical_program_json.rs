@@ -257,7 +257,7 @@ fn encode_instruction(
             // and the emitter reads the carrier's kind lane only. Without
             // the function context (serializer tests) the row keeps the
             // ordinary spelling.
-            let null_equality = *op == crate::mir::CompareOp::Eq
+            let null_equality = matches!(*op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
                 && call_context.is_some_and(|(_, function, _)| {
                     null_producer(function, *lhs) ^ null_producer(function, *rhs)
                 });

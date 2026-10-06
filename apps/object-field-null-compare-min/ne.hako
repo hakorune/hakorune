@@ -1,0 +1,21 @@
+// S0 pins object-field read and null comparison execution.
+// Bool return/branch coverage is a separate contract.
+box Node {
+    left: Node
+    value: i64
+    birth(left, value) {
+        me.left = left
+        me.value = value
+    }
+    probe(): i64 {
+        local l = me.left
+        local c = l != null
+        return 0
+    }
+}
+static box Main {
+    main() {
+        local n = new Node(null, 7)
+        return n.probe()
+    }
+}

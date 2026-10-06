@@ -335,10 +335,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_nullable_receiver_call = source_claims::has_nullable_receiver_call_v1(
                     owner, &receiver_call_observations,
                 );
+                let has_me_object_field_read = walk_triggers::has_me_object_field_read_v1(
+                    input, instance_constructors, &candidates,
+                    batch.ordinary_box_coverage(), receiver_proof,
+                )?;
                 let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
                 let seed_completion = seed_eligible
                     && !has_map
                     && !has_nullable_receiver_call
+                    && !has_me_object_field_read
                     && !has_stored_terminal
                     && !has_formal_field_read
                     && !child_new_ready
@@ -394,6 +399,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // — the bounded sibling scan keeps it truthfully unavailable.
                 let verified_walk = owner_loan.is_some()
                     || has_nullable_receiver_call
+                    || has_me_object_field_read
                     || has_formal_field_read
                     || has_stored_terminal
                     || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))

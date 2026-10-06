@@ -717,7 +717,11 @@ rg -Fq 'lv4_child_field_object' "$STORED_CHILD_INDEX"
 rg -Fq 'owned_object_residences' "$STORED_CHILD_INDEX"
 rg -Fq 'root->id != lv4_u(fn->function, "receiver")' "$STORED_CHILD_INDEX"
 rg -Fq '!lv4_birth_owned(in, op, 0) || !lv4_birth_array_value(fn, value))' "$LIFECYCLE_V4_INDEXED"
-rg -Fq '!lv4_borrowed_typed_live(in, fn, value, state))) return 0' "$LIFECYCLE_V4_INDEXED"
+# Nullable-formal S1 keeps owned tuple authority and exempts only the sealed
+# origin -3 formal from a live-lease check; ordinary values still require it.
+rg -Fq 'int nullable_formal = value && value->origin == -3;' "$LIFECYCLE_V4_INDEXED"
+rg -Fq '(!lv4_birth_owned(in, op, 1) ||' "$LIFECYCLE_V4_INDEXED"
+rg -Fq '(!nullable_formal && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;' "$LIFECYCLE_V4_INDEXED"
 rg -Fq 'borrowed_stored_child_callee_fault_publishes_original_scratch_birth' "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/borrowed_source_publication_call_result_tests.rs"
 test -f "$ROOT_DIR/lang/c-abi/tests/published_lifecycle_v4_stored_child_receiver_test.py"
 
@@ -729,28 +733,21 @@ for file in "$SCALAR_EXPR" "$LOCAL_FIELD_SRC" "$SCALAR_CLAIM_TESTS" "$SCALAR_EMI
   fi
 done
 
-if (( $(wc -l < "$INSTANCE_PROVIDER_SRC") >= 800 )); then
-  echo "[$TAG] provider source owner reached hard 800-line boundary" >&2
-  exit 1
-fi
+WALK_TRIGGERS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_walk_triggers.rs"
 ROW_OBLIGATIONS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/physical_abi_row_obligations.rs"
+ROOT_INSTANCE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_instance_value_tests.rs"
+rg -q 'walk_triggers::has_map_v1' "$COSEAL_ISSUE"
+rg -q 'walk_triggers::has_me_object_field_read_v1' "$COSEAL_ISSUE"
+rg -q 'terminal_home::local_read_field' "$WALK_TRIGGERS"
+rg -q 'me_object_field_read_publishes_object_get_and_null_compare' "$BORROWED_SOURCE_PUBLICATION_NULL_COMPARE_TESTS"
 rg -q 'use row_obligations::' "$PHYS_ABI"
 rg -q 'fn issue_diagnostic_sites' "$ROW_OBLIGATIONS"
 rg -q 'fn issue_exact_numeric_checks' "$ROW_OBLIGATIONS"
-if (( $(wc -l < "$ROW_OBLIGATIONS") >= 800 )); then
-  echo "[$TAG] physical row-obligation owner reached hard 800-line boundary" >&2
-  exit 1
-fi
-ROOT_INSTANCE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_instance_value_tests.rs"
 rg -q 'mod instance_value_tests;' "$ROOT_LIFECYCLE_TESTS"
-if (( $(wc -l < "$ROOT_INSTANCE_TESTS") >= 800 )); then
-  echo "[$TAG] root instance-value test owner reached hard 800-line boundary" >&2
-  exit 1
-fi
-WALK_TRIGGERS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_walk_triggers.rs"
-rg -q 'walk_triggers::has_map_v1' "$COSEAL_ISSUE"
-if (( $(wc -l < "$WALK_TRIGGERS") >= 800 )); then
-  echo "[$TAG] completion-walk predicate owner reached hard 800-line boundary" >&2
-  exit 1
-fi
+for file in "$INSTANCE_PROVIDER_SRC" "$WALK_TRIGGERS" "$ROW_OBLIGATIONS" "$ROOT_INSTANCE_TESTS"; do
+  if (( $(wc -l < "$file") >= 800 )); then
+    echo "[$TAG] private source owner reached hard 800-line boundary: $file" >&2
+    exit 1
+  fi
+done
 echo "[$TAG] ok"

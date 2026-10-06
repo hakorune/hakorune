@@ -569,10 +569,10 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   }
   /* The borrowed/null equality: source order is preserved in lhs/rhs and
      the flow admission verifies exactly one side is the const_null
-     producer — the row itself only pins the eq predicate and shape. */
+     producer — the row itself only pins the eq/ne predicate and shape. */
   if (!strcmp(op, "borrowed_null_compare")) {
     const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
-    return p && !strcmp(p, "eq") &&
+    return p && (!strcmp(p, "eq") || !strcmp(p, "ne")) &&
         hako_physical_exact_keys(instruction, compare, 5) &&
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&

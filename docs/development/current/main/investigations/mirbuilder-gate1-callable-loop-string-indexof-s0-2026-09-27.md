@@ -1,9 +1,9 @@
 # MirBuilder Gate 1 — current design and acceptance
 
-Status: NULLABLE-RESULT-ABI-S0 landed — `local x = me.m(..)` against a `NullableObject(C)` callee lowers to `NullableHandle` + `HomeReleaseIfLive` and publishes `ordinary_nullable_handle`/`nullable_handle`/`const_null`/`home_release_if_live` through the C shim; card compressed to tombstone history
-Date: 2026-09-29
-Scope: MIRBUILDER-GATE1-INSTANCE-ENTRY-HOME-S0; compact Gate-1 frontier.
-Related: CURRENT_STATE.toml; workstream row H; RULES.md;
+Status: OBJECT-FIELD-READ-S0 verified; next required frontier selection pending
+Date: 2026-10-06
+Scope: MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0; compact Gate-1 frontier.
+Related: CURRENT_STATE.toml; workstream row H; RULES.md; [cleanup tasks and swe-2 handoff](mirbuilder-authority-cleanup-handoff-2026-10-06.md);
   ownership-home-model-ssot.md; own-home-callable-abi-d0-design-task-2026-08-09.md.
 
 ## Current decision
@@ -900,32 +900,17 @@ type cycles stay declined. Full text recovers at
 
 ## Landed — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0 (S2 complete)
 
-`owned_field_children_of` is cycle-safe: `child == object` admits
-directly, `OwnedObjectFields` children seal through their own sealed
-inventory, and `visiting` declines non-self cycles — nested seals
-memoize into `owned_field_children` for the reclaim/discharge and
-release consumers. `Parameter{provided}` supports `PlainI64`/
-`OwnedArray`/`OwnedObjectFields` (self-ref included); provider arms
-keep prior bounds. `ObjectFieldSet`/`OwnedObjectFieldRelease`
-verification admits `OwnedObjectFields` children; the physical JSON
-validator accepts self tuples. Emit: `lv4_layout_marked` +
-`lv4_emit_teardown` generate one helper per marked layout —
-newest-first merged marks, slot read -> live-check -> child helper ->
-plain Home release; `object_field_release` calls it on the live child.
-Evidence: pins 8/8 (self-ref seal, nested seal, nested decline,
-non-self cycle, provider self, self-ref layout tuple, construction,
-array regressions); `nested_object_field_teardown_min_exe` smoke PASS
-(v4-measure ok, EXE Result 0, depth-3 tree); `new Node(7,..)` rejects
-`actual-kind-unavailable`; C shim `-fsyntax-only` clean; baseline reds
-unchanged (4 named + 2 catalogued this lane:
-`provider_owned_array_child_reaches_artifact_lane`,
-`owned_array_fields_release_in_reverse_order_before_home_release`).
-`binary-trees` typed migration stays sibling WIP — the min fixture
-carries the pin instead. Stored-child receivers stay the sibling
-`MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0` lane; Gates 2-4
-parked. Next row `MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0` — census for
-the `me.<obj-field>`/stored read + `== null` compare family the
-TreeNode typed migration still needs.
+Landed `265e67753a` owns detailed receipts. Nested inventories memoize;
+self child admitted directly, non-self cycles decline.
+Provided formals admit PlainI64/OwnedArray/OwnedObjectFields; provider bounds stay.
+ObjectFieldSet/release verification and physical tuples share those inventories.
+C emits one marked-layout teardown helper: newest-first field read/live check,
+child helper, plain release. Pins 8/8 and depth-3 teardown EXE exit 0 PASS;
+C syntax check clean. Six baseline reds remain: prior four plus
+`provider_owned_array_child_reaches_artifact_lane` and
+`owned_array_fields_release_in_reverse_order_before_home_release`.
+Binary-trees typed migration is sibling WIP; stored-child calls and Gates 2–4
+remain parked. The current successor is the object-field-read contract below.
 
 ## Census — MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0 (accepted)
 
@@ -996,5 +981,20 @@ read-on-read chains, Gates 2-4.
 
 ## Evidence retained from the previous card (tombstone)
 
-Fixed-EXE suite `574d90ffc5`+`c82b7a415a`, reviewer remediation and the
-organization closeout recover at `git show 339674c77b:<this-file>`.
+Fixed-EXE/reviewer receipts: `574d90ffc5`, `c82b7a415a`; full record at `339674c77b`.
+
+## OBJECT-FIELD-READ-S0 validation receipt (2026-10-06, verified)
+
+Added `apps/object-field-null-compare-min/{eq,ne,missing-field}.hako` and
+`object_field_null_compare_min_exe.sh`: eq/ne V4 + llvm-c-api EXE exit 0 PASS;
+missing field rejected `instruction-unsupported`, no EXE. Compiler SHA256:
+`2187039416b5726f8526b8e67e33da3cc40c30f106dedc9692b253ee79f0b0a7`.
+Runtime: custom-target lifecycle-kernel/release; return-0 fixtures do not prove Bool results.
+Release pin failure (Copy-id equality) corrected to exact Copy-root traversal; final run PASS.
+Final quick run67/67 PASS (including all8 moved root cases and numeric lifecycle);
+log `/tmp/hako-s0-closeout-tests.log`. Fresh quick CLI + current C shim smoke3/3 PASS.
+Shape commits: `c36b9095d3`, `861fc524d7`, `5e5f80a759`, `841d66f510`.
+Sizes: construction743 / co-seal797 / ABI727 / root tests735+628; scope/pointer guards PASS.
+C scalar/Bool `ne` false-result bug corrected (exit3 vs7 reproduced).
+`published_lifecycle_v4_null_compare_scalar_test.py`
+passes16 scalar cases; existing3 Eq +3 Ne +7 rejects PASS on current shim; C README owns wire.

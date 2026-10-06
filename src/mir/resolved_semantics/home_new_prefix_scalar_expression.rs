@@ -57,6 +57,26 @@ fn preflight(
     }
     use ResolvedBinaryOperatorV1 as Op;
     use SourceScalarKind as Kind;
+    if matches!(row.operator(), Op::Equal | Op::NotEqual) {
+        // A proven field-read alias is a borrowed handle: its only
+        // admitted scalar equality is against the `null` literal. The
+        // alias binding carries the sealed declared class; the read
+        // result itself stays borrowed — no request, no release.
+        let alias_null = |value: &SourceExprSiteV1, null: &SourceExprSiteV1| {
+            let Some(ResolvedLexicalRefV1::Local(binding)) =
+                input.function().variable_ref(value)
+            else {
+                return false;
+            };
+            matches!(
+                locals.field_read_receiver(binding),
+                Some(local_flow::FieldReadReceiverV1::Alias { .. })
+            ) && matches!(locals.observe(null), Some(OrdinaryObservation::Null))
+        };
+        if alias_null(row.lhs(), row.rhs()) || alias_null(row.rhs(), row.lhs()) {
+            return Some(Kind::Bool);
+        }
+    }
     let (operand, result) = match row.operator() {
         Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
         Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {

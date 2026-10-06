@@ -1168,3 +1168,15 @@ store faults, the caller tears down that completed child before prior fields.
 New emission validation rejects recorded caller field cleanup on the unpublished
 result with `reclaim-duplicate-field-cleanup`, even when bindings match the MIR.
 Normal Home teardown continues to require the sealed child inventory.
+
+## Borrowed entry object-field reads
+
+The staged `LocalFieldRead`/`ObjectFieldGet` issuer owns reads of declared
+object fields on borrowed `me`. An initializer whose existing terminal-home
+field-read proof returns `Alias` selects the verified ordinary-new walk. The
+walk-selection helper borrows that proof; it issues no second field authority.
+The published result is a borrowed typed object alias, without release authority.
+Equality or inequality with the null literal, in either operand order, produces
+Bool through the existing scalar-expression and borrowed-null-compare owners.
+An undeclared field or comparison with a non-null operand remains rejected.
+This contract adds no read-chain, stored-child call, branch or Bool-return arm.

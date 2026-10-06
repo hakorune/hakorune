@@ -343,13 +343,16 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             lv4_is(rrow->instruction, "op", "const_null")) return 0;
         carrier = lv4_is(lrow->instruction, "op", "const_null") ? rrow : lrow;
         if (carrier->kind == LV4_TAGGED)
-          fprintf(f, "  %%nul%u = icmp eq i32 %%k%u, 0\n"
-              "  %%v%u = zext i1 %%nul%u to i64\n", dst, carrier->id, dst, dst);
+          fprintf(f, "  %%nul%u = icmp %s i32 %%k%u, 0\n"
+              "  %%v%u = zext i1 %%nul%u to i64\n", dst,
+              yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
         else if (carrier->kind == LV4_HANDLE)
-          fprintf(f, "  %%nul%u = icmp eq i64 %%v%u, 0\n"
-              "  %%v%u = zext i1 %%nul%u to i64\n", dst, carrier->id, dst, dst);
+          fprintf(f, "  %%nul%u = icmp %s i64 %%v%u, 0\n"
+              "  %%v%u = zext i1 %%nul%u to i64\n", dst,
+              yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
         else
-          fprintf(f, "  %%v%u = add i64 0, 0\n", dst);
+          fprintf(f, "  %%v%u = add i64 0, %d\n", dst,
+              lv4_is(ins, "predicate", "ne") ? 1 : 0);
       } else if (lv4_is(ins, "op", "phi")) {
         yyjson_val* inputs = yyjson_obj_get(ins, "inputs");
         fprintf(f, "  %%v%u = phi i64 ", dst);

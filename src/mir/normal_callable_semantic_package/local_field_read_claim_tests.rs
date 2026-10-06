@@ -290,6 +290,101 @@ fn local_field_read_stays_fail_closed() {
 }
 
 #[test]
+fn local_field_read_claims_object_alias_on_entry_receiver() {
+    // OBJECT-FIELD-READ-S0: `me.page` inside a selected instance method —
+    // the entry loan's borrowed `me` root proves the object-typed field
+    // on the declaration's own box source through the same staged
+    // `local_read_field` issuer arm, and the result binds as a borrowed
+    // `Page` alias. The method holds no `new` claim — the object-field
+    // read itself selects the verified walk, and the alias-vs-null
+    // compare claims beside it.
+    let package = issue(
+        "box Page {
+            id: i64 = 0
+            birth() { }
+        }
+        box Pool {
+            page: Page = new Page()
+            size: i64 = 0
+            birth() { }
+            probe(): i64 {
+                local l = me.page
+                local c = l == null
+                return 0
+            }
+        }
+        static box Main { main() {
+            local pool = new Pool()
+            local r = pool.probe()
+            return r
+        } }",
+    )
+    .expect("entry-receiver object field read package");
+    // `pool.probe()` must claim through the lexical i64 lane so `probe`
+    // carries its entry loan into the walk.
+    let (owner, call_site) = package
+        .batch()
+        .declarations()
+        .find_map(|declaration| {
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .method_calls()
+                        .find(|(_, call)| call.selector() == "probe")
+                        .map(|(site, _)| (declaration.owner(), site.clone()))
+                })
+                .expect("batch loan")
+        })
+        .expect("probe call site");
+    assert!(
+        package
+            .ordinary_new_claim_ledger
+            .lexical_instance_call_covered(owner, &call_site),
+        "the `pool.probe()` call must claim so `probe` carries an entry loan"
+    );
+    let site = field_access_site(&package, "page");
+    let (field, result) = package
+        .ordinary_new_claim_ledger
+        .staged_local_field_read(&site)
+        .expect("staged `me.` object field read");
+    assert_eq!(result, LocalFieldReadResultV1::Alias("Page".into()));
+    assert_eq!(field.declaration_ordinal(), 0);
+    assert!(new_claim_prefix_covered(&package));
+}
+
+#[test]
+fn me_object_field_read_stays_fail_closed_without_declared_field() {
+    // `me.missing` names no declared field — declaration authority
+    // declines and no read row is staged, so the statement keeps the
+    // uncovered boundary the lane always had.
+    let package = issue(
+        "box Pool {
+            size: i64 = 0
+            birth() { }
+            probe(): i64 {
+                local l = me.missing
+                return 0
+            }
+        }
+        static box Main { main() {
+            local pool = new Pool()
+            local r = pool.probe()
+            return r
+        } }",
+    )
+    .expect("undeclared `me.` field package");
+    assert!(
+        package
+            .ordinary_new_claim_ledger
+            .staged_local_field_read(&field_access_site(&package, "missing"))
+            .is_none(),
+        "an undeclared `me.` field stages no read row"
+    );
+}
+
+#[test]
 fn local_field_read_rejects_parameter_receiver() {
     // A parameter-rooted read — `p.size` where `p` is an opaque formal —
     // is outside the entry loan's `me` provenance for this slice and

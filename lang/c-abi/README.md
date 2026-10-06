@@ -570,3 +570,25 @@ Reproduce with the Rust test
 false/true source captures. The latter links the actual lifecycle archive and
 injects every object/Array allocation and field store Fault. This boundary does
 not grant Unit calls, ordinary Array-local release or borrowed-child reads.
+## Borrowed/null physical comparison
+
+The published lifecycle `borrowed_null_compare` row accepts `eq` and `ne`
+with exactly one `const_null` operand. Tagged carriers compare the kind lane;
+handle carriers compare the payload with zero. I64 and Bool carriers are
+non-null even when their value is zero: equality produces false and inequality
+produces true. This wire contract does not issue source-language field or
+formal authority. The source issuer and V4 availability/type checks remain
+separate owners.
+
+The focused physical regression builds a temporary current-source shim without
+replacing the shared library:
+
+```bash
+python3 lang/c-abi/tests/published_lifecycle_v4_null_compare_scalar_test.py \
+  /tmp/hako-issued-null-compare-hi.json \
+  target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a
+```
+
+Its JSON input comes from `null_compare_publishes_the_dedicated_physical_row`;
+the test replaces the carrier at the physical boundary and covers both
+predicates and operand orders. It does not authorize new source shapes.
