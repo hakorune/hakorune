@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0"
+current_execution_row = "MIRBUILDER-GATE1-MULTI-EXIT-RESULT-ABI-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/multi-exit-return-new"
-current_design_stop = "selfhost-resume/multi-exit-return-new"
+current_blocker_token = "selfhost-resume/multi-exit-result-abi"
+current_design_stop = "selfhost-resume/multi-exit-result-abi"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NONCOND-CARRIER-D0 census: the recorded `sum`-carrier wall is stale —
-outside-cohort rebinds already ride the armed LoopCond carrier path
-(`iterationCheck`'s exact loop compiles end-to-end; `pow2`'s `out*2`
-also clean). Observed next wall inside the callee graph: `make`'s
-multi-exit `return new` (`ordinary-new/local-commit/handle-result-terminal-missing`,
-MULTI-RETURN-RESULT-NEW lineage); `run()`'s `root-call-entry-unavailable`
-still gates reachability upstream.
+MULTI-EXIT-RETURN-NEW-D0 census: the singleton `Value(Construction)`
+gate at `begin_handle_call_emission` is deliberate fail-closed — the
+caller cannot observe which exit ran. Callee side already carries N
+per-site result claims; the sole rejected member is the caller-side
+`CallReceivedCommitV1.object` pin feeding `end_children`. Exact
+production Handle-candidate inventory on `make`: two `run()` sites
+(`local builder = me.builder`) plus two `iterationCheck` loop-body
+sites (param `builder`). Admission needs a per-exit result contract —
+fork: uniform-exit (fails: children differ), exit-witness ABI, or
+multi-object commit. `root-call-entry-unavailable` gates upstream.
 """
-next_design_card = "MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0"
+next_design_card = "MIRBUILDER-GATE1-MULTI-EXIT-RESULT-ABI-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
@@ -43,8 +46,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0 closed — singleton `Value(Construction)` gate at `begin_handle_call_emission` is deliberate fail-closed (caller cannot observe which exit ran). Callee side already carries N per-site result claims; the sole rejected member is the caller-side `CallReceivedCommitV1.object` pin feeding `end_children`. Handle class mints in the caller's `home_new_prefix_scan` for `local x = <unannotated construction-result call>`; exact production inventory on `make` = 2 `run()` sites + 2 `iterationCheck` loop-body sites. `me.` receivers ride `Callee::SameModuleInstance` (no gate). Fork recorded: uniform-exit (fails — children differ), exit-witness ABI, multi-object commit. Next: `selfhost-resume/multi-exit-result-abi` D0.",
   "2026-10-06: MIRBUILDER-NONCOND-CARRIER-D0 closed — recorded `sum`-carrier wall stale: outside-cohort rebinds already ride the armed LoopCond carrier path (`iterationCheck`'s exact loop + `pow2`'s `out*2` compile end-to-end under `--dump-mir`). Layered census: binding classification -> `ReadyWithBodyOnly` -> LoopCond route/token -> recipe carrier mint; `<=`+param bound, decl-init armed calls, `x = x + <call>` rebinds all admitted. Real next wall in the callee graph: `make` multi-exit `return new` -> `handle-result-terminal-missing` (MULTI-RETURN-RESULT-NEW lineage); `root-call-entry-unavailable` gates upstream. Next: `selfhost-resume/multi-exit-return-new` census.",
   "2026-10-06: MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0 landed — `callsite_canonicalize/array_read.rs` rewrites proven `Call`+`Callee::Method{ArrayBox,get}` residuals to `ArrayElementRead` at the shared canonicalize boundary (Known certainty, or Union with receiver-origin proof via `receiver_origin_box_name`; `get(index)` and receiver-duplicated surfaces only). Union-without-origin, `DirectArrayI64`/`MapBox`/`RuntimeDataBox`, and `LegacyCallV0` rows stay untouched — the pass never launders retired carriers (Decision narrowed from 'Call and LegacyCallV0' accordingly). 9 focused pins + `callsite_canonicalize` 23/23 + `mir_json_v0` 17/17 green; downstream pin proves the canonicalized row reaches `PublishedMirBackendView` `CanonicalTyped` as the sole `array_element_reads` row. Next: `physical-array-read/production-switch` Decision.",
-  "2026-10-06: MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0 landed — `published_array_element_read_compiles_through_production_entry` drives real source (`values.get(0)`) through `MirCompiler`, asserts one `ArrayElementRead` sole physical owner, emits a non-empty object via `try_compile_published_static_method_object`, and (archive-gated) links+runs the exe: `Result: 7`, exit 7 through `slot_load_hi`. Adjacent baseline repair: `emit_published_view_exe` reorders the non-lifecycle `enforce_published_backend_supported` before the nyrt requirement, restoring the `78b0a873b2` capability-before-transport contract (`typed_contract_rejects_before_object` green again). Serial family run 5/5; `HAKO_BACKEND_COMPILE_RECIPE` env race is pre-existing test-infra debt. Next: `physical-array-read/legacy-route` Decision.",
   ]
 

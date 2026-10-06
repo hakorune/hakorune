@@ -652,86 +652,20 @@ bundle that closes this terminal, not to this slice.
 Next: `MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE` — see the app-bundle card
 `mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md`.
 
-## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted)
+## Decision — MIRBUILDER-GATE1-ARG-CARRIER-EVIDENCE-D0 (accepted, landed)
 
-Decision:
-  `Local` argument carriers follow the sealed scalar call-edge rule —
-  a recorded `Integer`, `Unknown`, or unrecorded wire type admits;
-  any recorded concrete non-i64 carrier rejects. No bounded
-  carrier-evidence row is minted: `check_call_edge`
-  (`verification/invoke.rs`, `Sealed` policy) already is the sole
-  carrier contract for cataloged same-module Call edges, and a Facts
-  row would only re-assert the same recorded `value_types` fact it
-  corroborates. Unannotated parameters (`size`, `requested_size`)
-  ride under the untyped admission the callee's own `Unknown` formal
-  and the legacy call path already implement — the wire carries i64
-  slots and borrowed arguments transfer no ownership.
-Source authority + canonical issuer:
-  `check_call_edge` is the canonical carrier rule ("a recorded
-  argument type must prove `Integer` — or stay unrecorded, matching
-  the physical lane's i64 spelling"); `emit_receiver_nullable` stays
-  the sole emission owner and `classify_argument` in
-  `ordinary_new_receiver_call_observation` stays the sole argument
-  issuer — neither gains a new authority.
-Non-authority:
-  `value_types` is the corroborated physical fact, not a semantic
-  classification source — no `param_decls` re-classification, no
-  callee-side param-ABI catalog inference; an unsealed instance-method
-  formal means untyped admission, never a guessed i64 demand.
-Fail-fast boundary:
-  a recorded concrete non-i64 argument type (`Box(_)`, `String`,
-  `Bool`, `Void`, `Float`, `Array`, `Future`, `WeakRef`) still freezes
-  `nullable-argument-carrier` — including `Box("MapBox")`, whose
-  borrowed-storage pair is a separate map-argument contract this lane
-  does not serve; `Bool`/`Null` literal and non-`Local` argument kinds
-  stay unadmitted exactly as issued today.
-Smallest next slice:
-  `ARG-CARRIER-EVIDENCE-S0` — align the `Local` arm's carrier check in
-  `emit_receiver_nullable` to the sealed edge rule under the same
-  freeze token; pin positive (untyped parameter arg emits) and
-  negative (concrete `Box`-typed local arg still freezes) coverage.
-  Expected fixture first terminal returns to
-  `artifact-unowned-lifecycle-site`.
-Non-claims:
-  no handle/map/object-carried argument family is admitted; no
-  parameter-ABI catalog is wired; no source type-annotation
-  requirement is added; the four census coverage families stay parked;
-  this is not a production-success claim.
+`Local` argument carriers follow the sealed scalar call-edge rule —
+`check_call_edge` (`verification/invoke.rs`, `Sealed` policy) is the sole
+carrier contract; no bounded carrier-evidence row is minted. Recorded
+concrete non-i64 carriers still freeze `nullable-argument-carrier`.
+`ARG-CARRIER-EVIDENCE-S0` executed; full record via git.
 
-## Decision — MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (accepted)
+## Decision — MIRBUILDER-GATE1-RETAINED-NEW-HOME-FLOW-D0 (accepted, landed)
 
-Decision:
-  Prefix coverage stays owned by the existing per-function Home-flow
-  scan — there is no new "nine-site prefix" admission; the remaining
-  gaps decompose into bounded grammar forms (receiver field-write
-  statements, `me.<field>.m(..)` field-receiver calls, the `me.realloc`
-  param-forwarding class) plus the `HakoAllocHandleResult` Birth
-  replacement-store/object-typed-param-store bound. A claim judged `RetainedUnavailable`
-  releases its staged argument field reads at the decline point;
-  `unconsumed-read` remains the fail-closed terminal only for
-  emission-eligible claims.
-Source authority + canonical issuer:
-  `home_new_prefix` scan and the ordinary-new claim ledger (existing
-  owners); the release is issued inside `prepare_new_emission` /
-  `prepare_result_new_emission` at the `RetainedUnavailable` store —
-  the single point where eligibility, including dynamic prior-Home
-  availability, is fully known.
-Non-authority:
-  The raw lane's compatibility `FieldGet` never discharges staged exact
-  evidence; `RetainedUnavailable` never authorizes emission or
-  publication; no site/class/destination shape infers ownership.
-Fail-fast boundary:
-  A staged read left neither `Emitted` nor `Released` still freezes
-  `ordinary-field-read/unconsumed-read`; `Taken`-without-`Emitted`
-  faults through `emission-mismatch`/`root-exit-phase` unchanged.
-Smallest next slice:
-  `RETAINED-NEW-HOME-FLOW-S0` — `Progress::Released` disposition plus
-  decline-time release for ordinary and result claims; the fixture
-  smoke's first terminal returns to `artifact-unowned-lifecycle-site`.
-Non-claims:
-  No retained site emits; no new grammar is admitted; the four coverage
-  families above and the recorded lifecycle-artifact boundary are
-  separate later rows; this is not a whole-gate claim.
+Prefix coverage stays owned by the existing per-function Home-flow scan;
+`RetainedUnavailable` releases staged argument field reads at the decline
+point inside `prepare_new_emission`/`prepare_result_new_emission`.
+`RETAINED-NEW-HOME-FLOW-S0` executed; full record via git.
 
 ## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
 
@@ -909,6 +843,82 @@ Smallest next slice:
 Non-claims:
   no `--dump-mir`->EXE equivalence, no `run()` progress, no callee-body
   coverage claim beyond `iter`'s observed loop, no Gate-1 completion.
+
+## Census — MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0 (accepted)
+
+Design-stop census of the Handle-result singleton gate for multi-exit
+`return new` callees, inside the `MULTI-RETURN-RESULT-NEW` D0 lineage.
+
+```text
+Decision:
+  the singleton `Value(Construction)` terminal gate at
+  `begin_handle_call_emission` is a deliberate fail-closed boundary,
+  not an accidental gap — "several construction sites mint different
+  canonical objects, and the caller cannot observe which exit ran".
+  `make` is the production-relevant multi-exit case; admitting it needs
+  an explicit per-exit result contract, never arbitrary-site borrowing.
+Source authority + canonical issuer:
+  callee side already carries N result claims —
+  `result_claims` is a `Vec<OrdinaryNewResultClaimV1>` keyed per
+  `OwnedExprSiteV1`, so `make`'s two exits co-seal independently.
+  The sole rejected member is the CALLER-side
+  `CallReceivedCommitV1.object` pin: one canonical object id feeds
+  `end_children` (owned-field children -> teardown proof) at
+  `begin_handle_call_emission`.
+  Handle-class membership is minted by the CALLER's
+  `home_new_prefix_scan`: `local x = <call>` whose callee is
+  unannotated + construction-result seals
+  `LocalCallResultClassV1::Handle` (`direct_call_lifecycle` /
+  `home_new_prefix_scan` Handle arms). A `me.` receiver is not a
+  binding -> never enters `local_calls`.
+  Production Handle-candidate sites on `make` (exact inventory):
+  `run()` `builder.make(stretch_depth,0)` + `builder.make(long_lived_depth,0)`
+  via `local builder = me.builder`; `iterationCheck` loop-body
+  `builder.make(depth,i)` + `builder.make(depth,0-i)` via param
+  `builder`. All four are `local x = <construction-result call>` rows ->
+  Handle minted in the caller's root-flow scan; emission then meets the
+  singleton gate. `positive.itemCheck()`/`negative.itemCheck()` are
+  i64-result calls — different class.
+Non-authority:
+  `Callee::SameModuleInstance` self-calls (`me.make` inside `make`)
+  ride the generic same-module route — no local-commit singleton
+  gate, observed compiled clean (`call_same_module_instance` rows +
+  both `new TreeNode` exits + `ret` under `--dump-mir`). Dynamic
+  `call_method` receivers owe no Handle commitment. `itemCheck`'s
+  i64 return is a different result class entirely.
+Fail-fast boundary:
+  `handle-result-terminal-missing` (0 or >=2 Value relations) and
+  `handle-result-terminal-mismatch` (non-Construction terminal) stay
+  the exact reject tokens; no demotion, union-object, or exit-count
+  fallback is admitted by this census.
+Smallest next slice:
+  `MIRBUILDER-GATE1-MULTI-EXIT-RESULT-ABI-D0` — pick the per-exit
+  result contract among
+  (a) uniform-exit admission (all exits same class + same children
+      shape; `make` still fails: exit1 children={} vs exit2
+      children={left,right} call-received handles),
+  (b) exit-witness result ABI (Return edge carries the taken exit's
+      object identity; caller children/release resolve dynamically),
+  (c) caller-side multi-object commit (pre-commit every exit's
+      children set, discharge on the observed exit's witness).
+  `root-call-entry-unavailable` gates `run()` reachability upstream
+  (separate family, already D0'd) but the contract choice itself
+  does not need reachability — only the exact 4-site inventory,
+  which this census fixed.
+Non-claims:
+  no production site is proven to reach the gate (Handle-class arming
+  of `builder.make` field-receiver sites inside `run()` is
+  unobservable at current reachability); no `--dump-mir`->EXE
+  equivalence; no `run()` progress; no multi-exit callee-body coverage
+  claim beyond `make` observed.
+```
+
+Census boundary: `handle_call_source` Handle-class local calls ->
+`begin_handle_call_emission` -> `CallReceivedCommitV1.object` ->
+`end_children`. Includes `make`'s two exits and the commit-row object
+pin. Excludes SameModuleInstance/dynamic-call routes (no gate),
+`itemCheck` i64 results, upstream `root-call-entry-unavailable`,
+selected-C, Gates 2-4.
 
 ## Preserved contract boundaries
 
