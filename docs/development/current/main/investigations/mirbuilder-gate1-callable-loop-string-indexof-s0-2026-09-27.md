@@ -884,17 +884,11 @@ already null-tolerant (zero-init, live-checked release); wire tags
 S2 `NESTED-OBJECT-FIELD-TEARDOWN-S0` (census below). Full text recovers
 at `git show 663b989c2b:<this-file>`.
 
-## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (S1 complete)
+## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (S1 complete, closed)
 
-`Parameter{provided}` seals at plan issue -> `ObjectFieldStores` formal
-capability -> `nullable_kind_payload_v1` param -> `object_field_set` +
-`home_release_if_live` fault tail. `Null` spells (0,0); owned `Handle`
-spells (3,payload) — `object_birth_actuals` keys (site,ordinal) and the
-C flow consumes the live lease on the Normal edge only. C: `origin -3` param
-class, k0/(3,nonzero) prologue; foreign handles reject. Evidence: pins
-4/4; both nullable smokes PASS (v4-measure ok, EXE Result 0); mismatched
-lanes reject; 4 baseline reds. Next row `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0`
-(S2 census + emit authority); field reads stay sibling family.
+`Null`=(0,0)/`Handle`=(3,payload) via `nullable_kind_payload_v1` +
+`object_birth_actuals`; both smokes PASS. Full text recovers at
+`git show aae5efde94/5c389a9b62:<this-file>`.
 
 ## Census — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0 (accepted, closed)
 
@@ -932,6 +926,48 @@ carries the pin instead. Stored-child receivers stay the sibling
 parked. Next row `MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0` — census for
 the `me.<obj-field>`/stored read + `== null` compare family the
 TreeNode typed migration still needs.
+
+## Census — MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0 (accepted)
+
+Boundary: object-typed `receiver.field` reads (`local l = me.left`,
+`me.left == null` operand) — the read half of the TreeNode typed
+migration. Probes (published EXE route, all `(): i64`-annotated):
+`local v = me.value` PASS; `local l = me.left` -> `field-get-route-
+drift`; `if me.left == null` -> same; `if/else` scalar join ->
+`instruction-unsupported`; `if` in static main -> `artifact-root-
+completion-unavailable`; `loop` -> `callable-loop/facts-absent`.
+
+Authority map: object reads mint through two spellings that publish
+one `object_field_get` op — staged `ObjectFieldGet` (claim-local
+proof, `LocalFieldReadResultV1::Scalar|Alias`; receivers: OwnedHome,
+RootedHandle, Alias, ReceivedNullable, GuardedFormal — `me` receiver
+not covered) and route-decision `FieldGet` (`slot_load_handle`
+admits `ArrayBox`+`BorrowedTaggedValue` corridor only; user classes
+drift). C `lv4_child_field_object` already models the admitted
+result: borrowed (origin -2) typed-live provenance = receiver `me`
+or same-object `new_box` root + exact `owned_object_residences`
+tuple. `borrowed_null_compare` + non-null narrowing flags exist.
+
+Decision: accepted. Source authority: canonical field declaration +
+declared type + sealed `owned_field_children`. Canonical issuer:
+staged `LocalFieldRead`/`ObjectFieldGet` arm (extends receiver
+provenance to borrowed `me`), never the route-decision `FieldGet`
+spelling. Non-authority: `slot_load_handle` route admission for user
+classes, `.hako` workaround, releasing the read result (borrowed).
+Fail-fast: `field-get-route-drift`/`unconsumed-read` stay for
+unproven receivers; non-null use of a nullable alias keeps its
+narrowing evidence boundary.
+
+S0 `MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0`: `me` borrowed-receiver
+provenance + compare-operand read staging -> `object_field_get`
+borrowed handle + `== null`/`!= null` compare on the alias. Edge:
+`local l = me.left` + `l == null` compare through the published route
+(EXE), TreeNode `itemCheck` blocked until `if` coverage lands.
+Non-claims: stored-child receiver calls (sibling
+`MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0` lane), `if`/`loop`
+branch coverage (separate family — `instruction-unsupported`/
+`artifact-root-completion-unavailable`/`facts-absent` stand),
+read-on-read chains, Gates 2-4.
 
 ## Preserved contract boundaries
 

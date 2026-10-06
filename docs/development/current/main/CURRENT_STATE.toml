@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/object-field-read"
-current_design_stop = "object-field-read"
+current_blocker_token = "selfhost-resume/object-field-read-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NESTED-OBJECT-FIELD-TEARDOWN-S0 (S2) complete — cycle-safe children
-census admits self-reference + sealed nested `OwnedObjectFields`
-children; generated per-class `hako_lifecycle_teardown_<id>` family is
-the sole nested release owner (no new kernel ABI). Depth-3 EXE smoke
-PASS. Next: `OBJECT-FIELD-READ-D0` census (reads/`== null` family for
-the TreeNode typed migration).
+OBJECT-FIELD-READ-D0 accepted — object-typed `receiver.field` reads
+issue through the staged `LocalFieldRead`/`ObjectFieldGet` arm (never
+the `FieldGet` route spelling); `me` borrowed receiver joins the
+provenance set, C `lv4_child_field_object` is the physical contract.
+`if`/`loop` coverage is a separate uncovered family.
+Next: `OBJECT-FIELD-READ-S0` (`me` provenance + `== null` compare).
 """
-next_design_card = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
