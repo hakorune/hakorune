@@ -747,4 +747,10 @@ if (( $(wc -l < "$ROOT_INSTANCE_TESTS") >= 800 )); then
   echo "[$TAG] root instance-value test owner reached hard 800-line boundary" >&2
   exit 1
 fi
+WALK_TRIGGERS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_walk_triggers.rs"
+rg -q 'walk_triggers::has_map_v1' "$COSEAL_ISSUE"
+if (( $(wc -l < "$WALK_TRIGGERS") >= 800 )); then
+  echo "[$TAG] completion-walk predicate owner reached hard 800-line boundary" >&2
+  exit 1
+fi
 echo "[$TAG] ok"

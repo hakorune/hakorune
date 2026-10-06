@@ -48,6 +48,9 @@ use lexical::{
 // the same sealed `NullableObject` claim lookup as the field issuer.
 pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_received_result_class;
 
+#[path = "ordinary_new_coseal_issue_walk_triggers.rs"]
+mod walk_triggers;
+
 #[path = "ordinary_new_coseal_issue_source.rs"]
 mod source_claims;
 use source_claims::collect_birth_site_index_v1;
@@ -245,18 +248,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         result_sites.remove(&site);
                     }
                 }
-                // A `%{...}` literal makes the owner a map owner; a `: MapBox`
-                // declared formal does too — the borrowed-map read terminal
-                // needs the homes-aware completion that classifies it.
-                let has_map = input.body_shape().is_some_and(|shape| {
-                    shape.expressions().iter().any(|row| matches!(
-                        row,
-                        crate::mir::resolved_semantics::BodyExpressionShapeV1::MapLiteral { .. }
-                    ))
-                }) || batch_params().any(|row| {
+                let has_map = walk_triggers::has_map_v1(input, || batch_params().any(|row| {
                     row.kind
                         == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map
-                });
+                }));
                 let new_sites: BTreeMap<_, _> = candidates.iter().map(|candidate| (candidate.site.clone(), candidate.destination)).collect();
                 // The entry loan proves `me`-receiver reads: the sole Home
                 // ABI issuer bound `me` to this box — shared by the probe,
