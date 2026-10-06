@@ -842,95 +842,95 @@ Next row: `MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0` — census which
 
 ## Landed — ROOT-CALL-ENTRY-D0 + UNRELEASED-ROOT-HOME-D0 + ROOT-INSTANCE-ENTRY-S0
 
-Tombstone of the two D0 sections (full record via git):
+Tombstone (full record via git): `root-call-entry-unavailable` was the
+`take_finalized_root_call` non-`Emitted` take; wall A = untyped `init`
+fields (migrated to typed decls per UNTYPED-OBJECT-STORAGE-D0 branch
+a); wall B = issuer `unreleasable` widened to `end_available` parity
+(owned fields + sealed children). Pins + suites green; baseline red
+`main_f1_rejects_..._before_lowering` is parent-reproduced debt. Wall
+A2 (bisected then landed): computed birth stores.
 
-- `root-call-entry-unavailable` is raised only by
-  `take_finalized_root_call` on non-`Emitted` progress; the reachable
-  state is `Unavailable`, recorded by `prepare_root_home_exit` when
-  any exit home is not `end_available`. Needed entry:
-  `Call{Instance}` via `emit_instance`.
-- Wall A accepted: migrate `BinaryTreesBench` `init` fields to typed
-  declarations per `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` branch (a).
-- Wall B accepted: widen `issue_root_instance_call_dispositions`
-  `unreleasable` to `end_available` parity — `PlainI64NoHook` OR
-  `Owned*FieldsNoHook` with sealed `children`.
+## Landed — MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0 + BIRTH-COMPUTED-STORE-S0
 
-S0 landed: typed `BinaryTreesBench` fields + the issuer parity gate.
-Pins in `ordinary_new_terminal_result_tests`: owned-field Call entry
-seals + unissued when children missing; focused `root_instance_call`
-8/8, `handle_result` 9/9, `ordinary_new` 276/276, `lexical` 232/232.
-Probe: `Holder`/`Bench` typed-field fixtures on `--emit-mir-json`
-reach the known `Invoke` emit boundary — `root-call-entry` cleared.
-Known baseline red: `main_f1_rejects_direct_call_and_nested_owner_`
-`before_lowering` reproduces on parent `7b754359e1`; not this change.
+Accepted (a): plan-level read-after-write — a `me.<f>` read in a store
+RHS resolves to that field's already-sealed prior `LiteralI64` store
+(the ledger is the sole writer); field-read scalar BinOp folds
+Add/Sub/Mul via checked ops with >=1 field read required;
+`ConstructionStoreV1::me_reads` transports the `me` receiver sites,
+observed at take. No physical field read, no `BinOp` MIR in birth.
+Forward/unwritten/parameter/object-field/pure-literal shapes decline.
+Pins: construction_plan 6/6 + suites (39/276/8/232); `bench_min`
+reaches the `Invoke` boundary.
 
-Wall A2 (bisected): `me.b = me.a + 1` computed birth store (also
-`long_lived_depth = me.max_depth`) -> `BodyCoverageUnsupported` ->
-claim Err -> `Unavailable`.
+## Decision — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0 (accepted)
 
-## Decision — MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0 (accepted)
+Boundary: provider-store child construction when the child class has
+no `birth` row; excludes `run()` stored-child receivers, `TreeNode`
+nullable fields, `itemCheck`, Gates 2-4.
 
-Boundary: `issue_construction_plan` store-RHS admission; excludes
-non-Assignment statements, forward reads, object-typed reads and
-non-foldable arithmetic.
+Census: `new X()` arity-0 on a birthless class is ALREADY the sealed
+disposition `OrdinaryNewConstructorDispositionV1::NoBirthZero`
+(`no_birth_constructor_disposition`: arity 0 + no Birth row ->
+zero-init; arity > 0 -> `BirthConstructorMissing` fail-fast) — both
+claim paths mint it. `BinaryTreeBuilder` (fieldless, `PlainI64NoHook`,
+arity 0) matches it exactly; its `ProviderConstruction` plan row is
+minted today — the sole gap is emission's `take_birth_site_recipe`.
+`provider_births` records feed only the published Birth ABI closure
+(`selected_owners`/`actuals`) — a NoBirth child owes no record, and
+`provider_birth` is already `Option`. Validation pairs `object:Some`
+<=> `provider_birth:Some` and counts `3*birth_providers`
+(birth_call+reclaim+home_release); a NoBirth provider emits only the
+home_release tail (+1).
 
-Census: `ConstructionStoreRhsV1` = {`LiteralI64`, `Parameter`,
-`ProviderConstruction`}; a `me.<f>` read or BinOp RHS lands in
-`BodyCoverageUnsupported`. Physical `ObjectFieldGet` inside birth is
-unconditionally rejected at final validation
-(`unowned-exact-field-read`) — emitting real field reads or `BinOp`
-in birth is contract-blocked; the app's `birth()` takes 0 params and
-both computed stores fold.
+Decision: option (a) — dedicated NoBirthZero provider arm. Option (b)
+(requiring explicit `birth() {}`) contradicts the sealed NoBirthZero
+contract and parks an emission gap on a `.hako` source workaround —
+expressivity-first forbids it.
 
-Decision: option (a) — plan-level read-after-write resolution. The
-store ledger is the sole writer inside a sealed constructor, so a
-`me.<f>` read in a store RHS resolves to that field's already-sealed
-prior store RHS; read-before-store, object-typed fields and
-re-stores stay `BodyCoverageUnsupported`. Literal-only resolution:
-a `Parameter` prior store is NOT resolvable (the `Parameter` arm's
-site must be an unconsumed variable site of that binding — the
-read's `me` site is not), and pure literal-literal arithmetic stays
-declined (existing pin is the fail-closed boundary). Scalar BinOp
-with at least one `me.<f>` read folds to `LiteralI64`. The read's
-`me` receiver site travels on `ConstructionStoreV1::me_reads` and is
-consumed at take via `observe_variable_site` against the receiver —
-no physical field read, no `BinOp` MIR in birth.
+Source authority: `no_birth_constructor_disposition` contract applied
+to the provider child (arity 0 + no Birth row => NoBirthZero).
+Canonical issuer: `issue_construction_plan` seals a
+{`BirthIndexed`, `NoBirthZero`} marker on `ProviderConstruction` from
+the caller's Birth-row inventory (`loan.rows()`) + the child
+definition's field count — `NoBirthZero` requires arity 0 AND
+fieldless (a NoBirth class with fields has `construction_for` Err
+`InitializationContractMissing`).
+Non-authority: no index/raw-lane change, no claim-path change, no
+`record_provider_birth` for NoBirth, no `.hako` declaration
+requirement.
+Fail-fast boundary: arity>0 or non-fieldless NoBirth child declines at
+issue (`FieldContractUnsupported`); `BirthIndexed` still requires the
+`birth_site_index` recipe (`-missing`/`-drift` unchanged).
+Smallest next slice: `MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0` — marker +
+NewBox/ObjectFieldSet/HomeRelease arm + validation arm/count +
+positive/negative pins + real-route probe.
+Non-claims: `run()` stored-child receiver (sibling lane), `TreeNode`
+nullable, `itemCheck`, Gate-1 completion.
 
-Source authority + canonical issuer:
-  prior-store ledger inside `issue_construction_plan` -> resolved
-  `LiteralI64` `ConstructionStoreRhsV1` arm + `me_reads` transport.
-Non-authority:
-  no MIR field read, no `BinOp` emission in birth, no `local` decls
-  or non-Assignment statements, no forward/self-class reads, no
-  `Parameter`-resolving or pure-literal arithmetic.
-Fail-fast boundary:
-  unresolved or non-foldable RHS keeps `BodyCoverageUnsupported`.
+## Landed — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0
 
-S0 landed — `MIRBUILDER-GATE1-BIRTH-COMPUTED-STORE-S0`: two RHS arms
-(FieldAccess read-after-write; field-read BinOp folding Add/Sub/Mul
-with checked ops) + `me_reads` observed at
-`take_construction_store`. Pins in `instance_constructor_semantic/
-tests`: folded literals + `me_reads` arity; forward/unwritten/
-parameter/object-field reads all decline. Suites: construction_plan
-6/6, instance_constructor 39/39, ordinary_new 276/276,
-root_instance_call 8/8, lexical 232/232. `bench_min` probe
-(`me.b = me.a + 1` birth) reaches the known `Invoke` emit boundary —
-`root-call-entry` cleared for the computed-store shape.
+`ProviderConstructionChildV1::{BirthIndexed, NoBirthZero}` sealed on the
+plan by `issue_construction_plan` (Birth-row inventory + child field
+count; `NoBirthZero` = arity 0 AND fieldless). Emission: shared `NewBox`
+then `ObjectFieldSet`; Birth arm unchanged; NoBirth arm skips recipe
+take, birth call and ABI record, adding the `HomeRelease` discharge tail
+(`ProviderChildEmissionV1`). Validation proves both shapes; invoke
+accounting `3*birth + 1*nobirth`. Pins:
+`construction_plan_marks_nobirth_provider_child_zero_init` +
+`_declines_nobirth_provider_variants` (8/8); suites 276/232/97/64/37/8/4
+green. Real route `apps/binary-trees/main.hako --emit-mir-json` clears
+`provider-birth-recipe-missing` to the preserved `Invoke` emit boundary
+(same wall as `bench_min`). Baseline red (parent `1dcdbba61b` repro):
+`provider_owned_array_child_reaches_artifact_lane` (assert 1 vs 2) and
+`source_stringbox_literal_uses_source_anchor_admission` — a latent
+parallel env race (`emit_plain_program_and_mir_json` reads ambient
+`NYASH_JSON_SCHEMA_V1`/`NYASH_MIR_UNIFIED_CALL` unguarded while sibling
+`ScopedEnvVar` drop windows flip them; reproduces on parent in the
+`host_providers::mir_builder` subset at >=4 threads). Both pre-existing,
+outside this slice's edge.
 
-New wall A3 (bisected): `me.builder = new BinaryTreeBuilder()` on a
-birthless child — `collect_birth_site_index_v1` skips classes with
-no Birth row (`birth_for` -> `Ok(None)`), so the provider store's
-emission finds no recipe -> `provider-birth-recipe-missing`.
-`BinaryTreeBuilder` is fieldless NoBirth. Fork: (a) admit NoBirth
-provider children (new provider emission arm without `birth_call`);
-(b) require an explicit `birth() { }` on provider children — the
-same explicit-declaration contract as typed fields.
-
-Next row: `MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0` — pick the
-fork; the real app's `run()` then stands behind the sibling-lane
-stored-child receiver (`local builder = me.builder`).
-Non-claims: no `run()` stored-child receiver (sibling lane), no
-`TreeNode` nullable typing, no `itemCheck`, no Gate-1 completion.
+Next row: `MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0` — census of the
+`local builder = me.builder` wall (sibling `child_call` WIP included).
 
 ## Preserved contract boundaries
 

@@ -6,7 +6,7 @@
 use super::fault_cleanup::{emit_discharge, jump_landing};
 use super::*;
 use crate::mir::instruction::InvokeOperation;
-use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirInstruction, MirType};
+use crate::mir::{BasicBlock, MirBuilder, MirInstruction, MirType};
 
 impl CallableSemanticLoweringState {
     pub(in crate::mir::builder) fn emit_construction_store(
@@ -114,6 +114,7 @@ impl CallableSemanticLoweringState {
         )?;
         let mut provider_origin = None;
         let mut provider_birth = None;
+        let mut provider_nobirth = false;
         let mut object_child = None;
         let value = match value {
             Some(value) => value,
@@ -158,13 +159,22 @@ impl CallableSemanticLoweringState {
                             invoke_block: origin,
                         })?;
                     }
-                    Some(child) => {
-                        // A user-class provider runs the canonical Birth
-                        // path on the shared fault frame: `new_box`, then
-                        // `birth_call` whose fault edge reclaims the
-                        // unpublished child; the store below moves the
-                        // proven handle into the parent slot.
-                        let child = *child;
+                    Some(child_row) => {
+                        // A user-class provider constructs on the shared
+                        // fault frame. `BirthIndexed` runs the canonical
+                        // Birth path (`new_box` then `birth_call` whose
+                        // fault edge reclaims the unpublished child);
+                        // `NoBirthZero` — the plan's arity-0 fieldless
+                        // zero-init arm — stops after `new_box`: no birth
+                        // call exists to invoke. The checked store below
+                        // moves the proven handle into the parent slot on
+                        // both arms.
+                        let (child, birth_indexed) = match child_row {
+                            crate::mir::normal_callable_semantic_package
+                                ::ProviderConstructionChildV1::BirthIndexed(object) => (*object, true),
+                            crate::mir::normal_callable_semantic_package
+                                ::ProviderConstructionChildV1::NoBirthZero(object) => (*object, false),
+                        };
                         let ledger = self
                             .ordinary_new_claim_ledger
                             .as_ref()
@@ -202,14 +212,15 @@ impl CallableSemanticLoweringState {
                             self.owner,
                             rhs_site.clone(),
                         );
-                        let (recipe, handoff) = ledger
-                            .take_birth_site_recipe(
-                                &owned_site,
-                                class,
-                                arguments.len(),
-                            )
-                            .map_err(|_| fault("provider-birth-recipe-drift"))?
-                            .ok_or_else(|| fault("provider-birth-recipe-missing"))?;
+                        if birth_indexed {
+                            let (recipe, handoff) = ledger
+                                .take_birth_site_recipe(
+                                    &owned_site,
+                                    class,
+                                    arguments.len(),
+                                )
+                                .map_err(|_| fault("provider-birth-recipe-drift"))?
+                                .ok_or_else(|| fault("provider-birth-recipe-missing"))?;
                         builder.emit_instruction(MirInstruction::Invoke {
                             operation: InvokeOperation::NewBox { object: child },
                             fault_frame,
@@ -401,9 +412,32 @@ impl CallableSemanticLoweringState {
                             allocation,
                             arg_pairs,
                         )?;
-                        object_child = Some((child, teardown));
                         provider_birth =
                             Some((provider_normal, birth_call_block, call_arg_records, reclaim));
+                        } else {
+                            // `NoBirthZero`: zero-init child — `new_box`
+                            // is the whole construction; the checked
+                            // store below still owns the in-flight
+                            // `HomeRelease` discharge.
+                            builder.emit_instruction(MirInstruction::Invoke {
+                                operation: InvokeOperation::NewBox { object: child },
+                                fault_frame,
+                                normal_landing: provider_normal,
+                                fault_landing,
+                            })?;
+                            builder.start_new_block(provider_normal)?;
+                            builder.emit_instruction(MirInstruction::InvokeNormalResult {
+                                dst: allocation,
+                                invoke_block: origin,
+                            })?;
+                            // The plan seals arity 0 — an argument here
+                            // would mean the disposition drifted.
+                            if !arguments.is_empty() {
+                                return Err(fault("provider-nobirth-arguments"));
+                            }
+                            provider_nobirth = true;
+                        }
+                        object_child = Some((child, teardown));
                     }
                 }
                 builder
@@ -516,19 +550,25 @@ impl CallableSemanticLoweringState {
             value,
             provider: provider_origin,
             discharge: fault_landing,
-            provider_birth: provider_birth.map(|(entry, birth_call, call_args, reclaim)| {
-                ProviderBirthEmission {
-                    entry,
-                    birth_call,
-                    call_args: call_args.into_boxed_slice(),
-                    reclaim,
+            provider_child: if let Some((entry, birth_call, call_args, reclaim)) = provider_birth {
+                Some(super::ProviderChildEmissionV1::Birth(
+                    ProviderBirthEmission {
+                        entry,
+                        birth_call,
+                        call_args: call_args.into_boxed_slice(),
+                        reclaim,
+                        store_discharge: store_fault_landing,
+                        owned_fields: object_child
+                            .as_ref()
+                            .map(|(_, fields)| fields.iter().rev().copied().collect())
+                            .unwrap_or_default(),
+                    },
+                ))
+            } else {
+                provider_nobirth.then_some(super::ProviderChildEmissionV1::NoBirthZero {
                     store_discharge: store_fault_landing,
-                    owned_fields: object_child
-                        .as_ref()
-                        .map(|(_, fields)| fields.iter().rev().copied().collect())
-                        .unwrap_or_default(),
-                }
-            }),
+                })
+            },
         };
         if let Some(site) = provider_site {
             if object_child.is_some() {

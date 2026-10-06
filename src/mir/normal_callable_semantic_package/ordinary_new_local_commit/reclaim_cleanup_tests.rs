@@ -28,7 +28,7 @@ fn reclaim_rejects_coordinated_duplicate_field_cleanup_after_healthy_control() {
     else {
         panic!("owned child")
     };
-    let child_object = *child_object;
+    let child_object = child_object.object();
     let owner_row = package
         .batch()
         .declarations()

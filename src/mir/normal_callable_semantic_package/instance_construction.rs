@@ -7,7 +7,7 @@
 
 use super::{OwnedFieldChildKindV1, OwnedFieldChildV1};
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -56,11 +56,31 @@ pub(crate) enum ConstructionStoreRhsV1 {
     ProviderConstruction {
         site: SourceExprSiteV1,
         class: Box<str>,
-        object: Option<CanonicalObjectIdV1>,
+        object: Option<ProviderConstructionChildV1>,
         arguments: Box<[super::OrdinaryNewTrivialArgumentV1]>,
         owned_fields: Box<[CanonicalFieldRefV1]>,
         caller: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     },
+}
+
+/// A user-class provider child's sealed constructor disposition —
+/// issued at plan time so emission never re-decides. `BirthIndexed`
+/// defers to the per-site `birth_site_index` recipe; `NoBirthZero` is
+/// the arity-0 fieldless zero-init arm — the same disposition
+/// `no_birth_constructor_disposition` seals for claim `new` sites.
+/// `None` stays on the builtin provider arm.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ProviderConstructionChildV1 {
+    BirthIndexed(CanonicalObjectIdV1),
+    NoBirthZero(CanonicalObjectIdV1),
+}
+
+impl ProviderConstructionChildV1 {
+    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
+        match self {
+            Self::BirthIndexed(object) | Self::NoBirthZero(object) => *object,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -168,6 +188,11 @@ pub(super) fn issue_construction_plan(
         &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     )>,
+    // Published Birth inventory keyed by final Box ordinal: the same
+    // membership `birth_for` consults, loaned by the catalog caller so
+    // a provider child seals `BirthIndexed` vs `NoBirthZero` here —
+    // emission never re-derives it.
+    birth_rows: &BTreeMap<usize, BTreeSet<u32>>,
     objects: &[(
         crate::parser::ParserOrdinaryBoxSourceRowV1,
         CanonicalObjectIdV1,
@@ -397,9 +422,9 @@ pub(super) fn issue_construction_plan(
                     // discharges each sealed residence before the child
                     // storage; deeper nesting stays unsupported.
                     let mut resolved = objects.iter().filter_map(|(own, id)| {
-                        (own.name() == class).then_some(*id)
+                        (own.name() == class).then_some((own, *id))
                     });
-                    let Some(child) = resolved.next() else {
+                    let Some((child_source, child)) = resolved.next() else {
                         return Err(U::FieldContractUnsupported);
                     };
                     let child_definition = definitions
@@ -418,6 +443,33 @@ pub(super) fn issue_construction_plan(
                     {
                         return Err(U::FieldContractUnsupported);
                     }
+                    // Seal the child's constructor disposition once —
+                    // `birth_for` parity: a Birth row at this arity makes
+                    // it `BirthIndexed`; no Birth row at all + arity 0 +
+                    // fieldless is `NoBirthZero` (its `construction_for`
+                    // is the empty plan — a NoBirth class with fields is
+                    // `InitializationContractMissing`). Any other shape
+                    // (birth arity mismatch, arity>0 no-birth, non-fieldless
+                    // no-birth) declines rather than emitting an
+                    // uninitializable or uncallable child.
+                    let arity = u32::try_from(construction.arguments().len())
+                        .map_err(|_| U::SourceRelationMissing)?;
+                    let child_arities =
+                        birth_rows.get(&child_source.final_box_ordinal());
+                    let child_ctor = if child_arities
+                        .is_some_and(|arities| arities.contains(&arity))
+                    {
+                        ProviderConstructionChildV1::BirthIndexed(child)
+                    } else if child_arities.is_none()
+                        && arity == 0
+                        && child_definition.is_some_and(|definition| {
+                            definition.fields().is_empty()
+                        })
+                    {
+                        ProviderConstructionChildV1::NoBirthZero(child)
+                    } else {
+                        return Err(U::FieldContractUnsupported);
+                    };
                     if child_disposition
                         == Some(
                             crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook,
@@ -543,7 +595,7 @@ pub(super) fn issue_construction_plan(
                         ));
                         expressions.insert(arg_site.clone());
                     }
-                    object = Some(child);
+                    object = Some(child_ctor);
                     arguments = sealed.into_boxed_slice();
                 } else if !construction.arguments().is_empty() {
                     return Err(U::FieldContractUnsupported);
@@ -634,7 +686,7 @@ pub(super) fn issue_construction_plan(
                     ConstructionStoreRhsV1::ProviderConstruction {
                         object: Some(child),
                         ..
-                    } => OwnedFieldChildKindV1::Object(*child),
+                    } => OwnedFieldChildKindV1::Object(child.object()),
                     ConstructionStoreRhsV1::ProviderConstruction {
                         object: None,
                         class,

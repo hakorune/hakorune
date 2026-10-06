@@ -444,6 +444,22 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     }
     source
         .with_constructor_semantic_syntax(|loan| {
+            // Published Birth inventory keyed by final Box ordinal — the
+            // same membership `birth_for` consults, loaned to the plan
+            // issuer so provider children seal `BirthIndexed` vs
+            // `NoBirthZero` exactly once.
+            let mut birth_rows: std::collections::BTreeMap<
+                usize,
+                std::collections::BTreeSet<u32>,
+            > = std::collections::BTreeMap::new();
+            for row in loan.rows() {
+                if row.kind() == ConstructorSourceKindV1::Birth {
+                    birth_rows
+                        .entry(row.box_source().final_box_ordinal())
+                        .or_default()
+                        .insert(row.source_arity());
+                }
+            }
             let mut no_birth_construction = Vec::new();
             for (parent, object_id) in &object_sources {
                 if loan.rows().iter().any(|row| row.kind() == ConstructorSourceKindV1::Birth
@@ -457,6 +473,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         declaration,
                         None,
                         None,
+                        &birth_rows,
                         &object_sources,
                         &object_definitions,
                     )
@@ -613,6 +630,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                             parent,
                             Some((&source_id, input)),
                             Some((&birth_key, static_claims)),
+                            &birth_rows,
                             &object_sources,
                             &object_definitions,
                         )

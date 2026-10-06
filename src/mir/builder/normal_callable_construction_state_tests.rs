@@ -76,7 +76,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                     base,
                     value,
                     provider: None,
-                    provider_birth: None,
+                    provider_child: None,
                     discharge: landing,
                 },
             },

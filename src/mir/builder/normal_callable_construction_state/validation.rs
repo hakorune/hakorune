@@ -59,7 +59,27 @@ impl ConstructionState {
                 matches!(
                     &store.rhs,
                     ConstructionStoreRhsV1::ProviderConstruction {
-                        object: Some(_),
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::BirthIndexed(_),
+                            ),
+                        ..
+                    }
+                )
+            })
+            .count();
+        let nobirth_providers = stores
+            .values()
+            .filter(|store| {
+                matches!(
+                    &store.rhs,
+                    ConstructionStoreRhsV1::ProviderConstruction {
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::NoBirthZero(_),
+                            ),
                         ..
                     }
                 )
@@ -69,7 +89,8 @@ impl ConstructionState {
             .values()
             .map(|store| match &store.progress {
                 StoreProgress::Emitted {
-                    provider_birth: Some(birth),
+                    provider_child:
+                        Some(super::ProviderChildEmissionV1::Birth(birth)),
                     ..
                 } => (birth.owned_fields.len(), birth.call_args.len()),
                 _ => (0, 0),
@@ -81,17 +102,19 @@ impl ConstructionState {
             .flat_map(|block| block.all_instructions())
             .filter(|instruction| matches!(instruction, MirInstruction::Invoke { .. }))
             .count();
-        // A user-class provider adds three more invokes on the frame:
+        // A `BirthIndexed` provider adds three more invokes on the frame:
         // `birth_call`, the `reclaim_unpublished` on its fault edge, and the
-        // `home_release` discharge on the object-field store's fault edge —
-        // plus one `field_residence_release` per sealed nested residence
-        // on the completed child store-Fault chain, prior-field discharge and
-        // one `Call{Global, I64}`
+        // `home_release` discharge on the object-field store's fault edge.
+        // A `NoBirthZero` provider emits no call — only the `home_release`
+        // tail — plus one `field_residence_release` per sealed nested
+        // residence on the completed child store-Fault chain, prior-field
+        // discharge and one `Call{Global, I64}`
         // per sealed qualified-static argument row.
         if actual_count
             != stores.len()
                 + provider_count
                 + 3 * birth_providers
+                + nobirth_providers
                 + nested_releases
                 + stores
                     .values()
@@ -124,14 +147,14 @@ impl ConstructionState {
                                 block: home,
                                 value,
                                 provider: Some(origin),
-                                provider_birth,
+                                provider_child,
                                 ..
                             } = &store.progress
                             else {
                                 return false;
                             };
-                            match provider_birth {
-                                Some(birth) => {
+                            match provider_child {
+                                Some(super::ProviderChildEmissionV1::Birth(birth)) => {
                                     (birth.entry == block.id
                                         && *origin == *invoke_block
                                         && *value == *dst)
@@ -141,7 +164,11 @@ impl ConstructionState {
                                                 && arg.value == *dst
                                         })
                                 }
-                                None => {
+                                _ => {
+                                    // `NoBirthZero` and builtin providers
+                                    // land the allocation projection in the
+                                    // store's own block — the same shape as
+                                    // `object: None`.
                                     *home == block.id && *origin == *invoke_block && *value == *dst
                                 }
                             }
@@ -171,7 +198,7 @@ impl ConstructionState {
                 base,
                 value,
                 provider,
-                provider_birth,
+                provider_child,
                 discharge,
             } = progress
             else {
@@ -185,18 +212,38 @@ impl ConstructionState {
             {
                 return Err(fault("store-discharge-chain"));
             }
-            let store_ok = match (&store.rhs, provider_birth) {
+            let store_ok = match (&store.rhs, provider_child) {
                 (
                     ConstructionStoreRhsV1::ProviderConstruction {
-                        object: Some(child),
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::BirthIndexed(child),
+                            ),
                         ..
                     },
-                    Some(birth),
+                    Some(super::ProviderChildEmissionV1::Birth(birth)),
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
                     if actual == &field && b == base && v == value && stored == child
                         && normal_landing == normal
                         && *fault_landing == birth.store_discharge
+                        && frame.is_some_and(|(id, _)| *fault_frame == id)),
+                (
+                    ConstructionStoreRhsV1::ProviderConstruction {
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::NoBirthZero(child),
+                            ),
+                        ..
+                    },
+                    Some(super::ProviderChildEmissionV1::NoBirthZero { store_discharge }),
+                ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
+                    Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
+                    if actual == &field && b == base && v == value && stored == child
+                        && normal_landing == normal
+                        && *fault_landing == *store_discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 _ => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
@@ -205,7 +252,7 @@ impl ConstructionState {
             if !store_ok {
                 return Err(fault("emission-drift"));
             }
-            match (provider, &store.rhs, provider_birth) {
+            match (provider, &store.rhs, provider_child) {
                 (
                     Some(provider_origin),
                     ConstructionStoreRhsV1::ProviderConstruction {
@@ -228,10 +275,58 @@ impl ConstructionState {
                 (
                     Some(provider_origin),
                     ConstructionStoreRhsV1::ProviderConstruction {
-                        object: Some(child),
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::NoBirthZero(child),
+                            ),
                         ..
                     },
-                    Some(birth),
+                    Some(super::ProviderChildEmissionV1::NoBirthZero { store_discharge }),
+                ) => {
+                    // `NoBirthZero`: `new_box` lands in the store's own
+                    // block — no `birth_call`/argument chain exists. The
+                    // store-fault discharge tail still discharges the
+                    // in-flight child through `HomeRelease`.
+                    if !matches!(function.blocks.get(provider_origin).and_then(|b| b.terminator.as_ref()),
+                        Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::NewBox { object },
+                            fault_frame,
+                            fault_landing,
+                            normal_landing,
+                        }) if *object == *child
+                            && *normal_landing == *block
+                            && fault_landing == discharge
+                            && frame.is_some_and(|(id, _)| *fault_frame == id))
+                    {
+                        return Err(fault("provider-emission-drift"));
+                    }
+                    if !matches!(function.blocks.get(store_discharge).and_then(|b| b.terminator.as_ref()),
+                        Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::HomeRelease { object, value: released },
+                            fault_frame,
+                            fault_landing,
+                            normal_landing,
+                        }) if *object == *child && *released == *value
+                            && normal_landing != fault_landing
+                            && lands_on(function, *normal_landing, *discharge)
+                            && lands_on(function, *fault_landing, *discharge)
+                            && frame.is_some_and(|(id, _)| *fault_frame == id))
+                    {
+                        return Err(fault("provider-discharge-drift"));
+                    }
+                }
+                (
+                    Some(provider_origin),
+                    ConstructionStoreRhsV1::ProviderConstruction {
+                        object:
+                            Some(
+                                crate::mir::normal_callable_semantic_package
+                                    ::ProviderConstructionChildV1::BirthIndexed(child),
+                            ),
+                        ..
+                    },
+                    Some(super::ProviderChildEmissionV1::Birth(birth)),
                 ) => {
                     let Some((_, frame_landing)) = *frame else {
                         return Err(fault("emission-state"));

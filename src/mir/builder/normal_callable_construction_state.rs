@@ -62,10 +62,11 @@ pub(super) enum StoreProgress {
         /// Invoke origin of the proven provider `new` — present only for
         /// `ProviderConstruction` stores.
         provider: Option<BasicBlockId>,
-        /// A user-class provider emits `birth_call` on the allocation's
-        /// normal landing, with `reclaim_unpublished`/`home_release`
-        /// discharge blocks on the two fault edges.
-        provider_birth: Option<ProviderBirthEmission>,
+        /// A user-class provider child's emitted coordinates — `Birth`
+        /// carries the `birth_call`/`reclaim_unpublished`/`home_release`
+        /// chain; `NoBirthZero` carries only the store-discharge head —
+        /// no call was emitted. `None` for builtin providers.
+        provider_child: Option<ProviderChildEmissionV1>,
         /// Head of this store's source-sealed prior-field Fault discharge.
         discharge: BasicBlockId,
     },
@@ -82,6 +83,18 @@ pub(super) struct ProviderCallArgEmission {
     landing: BasicBlockId,
     /// Projected i64 value — the provider Birth actual at this ordinal.
     value: ValueId,
+}
+
+/// Emitted provider-child coordinates for one user-class provider
+/// store — the binding validator checks each arm's block terminators
+/// exactly.
+#[derive(Debug)]
+pub(super) enum ProviderChildEmissionV1 {
+    Birth(ProviderBirthEmission),
+    /// `NoBirthZero` zero-init child: the only post-allocation physical
+    /// evidence is the store-fault `HomeRelease` chain head — the plan
+    /// sealed arity 0 + fieldless, so no `birth_call`/`reclaim` exists.
+    NoBirthZero { store_discharge: BasicBlockId },
 }
 
 /// Emitted provider-Birth chain coordinates for one user-class provider

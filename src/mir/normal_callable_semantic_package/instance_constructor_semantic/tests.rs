@@ -617,3 +617,91 @@ fn construction_plan_declines_forward_and_parameter_field_reads() {
         );
     }
 }
+
+#[test]
+fn construction_plan_marks_nobirth_provider_child_zero_init() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Leaf {}
+        box Born { birth() {} }
+        box Page { leaf: Leaf\nborn: Born
+        birth() { me.leaf = new Leaf()\nme.born = new Born() } }",
+    )
+    .unwrap();
+    let batch = &package.instance_constructors;
+    let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+    let plan = batch
+        .construction_for(parent, 0)
+        .unwrap()
+        .as_ref()
+        .expect("provider children seal");
+    let leaf = plan.stores()[0].rhs();
+    let ConstructionStoreRhsV1::ProviderConstruction {
+        object:
+            Some(crate::mir::normal_callable_semantic_package
+                ::ProviderConstructionChildV1::NoBirthZero(child)),
+        arguments,
+        ..
+    } = leaf
+    else {
+        panic!("a fieldless no-birth `new` seals NoBirthZero: {leaf:?}");
+    };
+    let leaf_object = batch
+        .object_for(batch.box_sources.row_for("Leaf").unwrap().unwrap())
+        .unwrap();
+    assert_eq!(*child, leaf_object);
+    assert!(arguments.is_empty());
+    let born = plan.stores()[1].rhs();
+    let ConstructionStoreRhsV1::ProviderConstruction {
+        object:
+            Some(crate::mir::normal_callable_semantic_package
+                ::ProviderConstructionChildV1::BirthIndexed(child)),
+        ..
+    } = born
+    else {
+        panic!("a `birth` child stays BirthIndexed: {born:?}");
+    };
+    let born_object = batch
+        .object_for(batch.box_sources.row_for("Born").unwrap().unwrap())
+        .unwrap();
+    assert_eq!(*child, born_object);
+}
+
+#[test]
+fn construction_plan_declines_nobirth_provider_variants() {
+    use super::super::instance_construction::ConstructionUnavailableV1 as U;
+    for (label, source) in [
+        (
+            "arity-over-zero-no-birth",
+            "box Leaf {}
+            box Page { leaf: Leaf
+            birth() { me.leaf = new Leaf(7) } }",
+        ),
+        (
+            "non-fieldless-no-birth",
+            "box Leaf { v: i64 }
+            box Page { leaf: Leaf
+            birth() { me.leaf = new Leaf() } }",
+        ),
+        (
+            "birth-arity-mismatch-not-nobirth",
+            "box Leaf { birth(x) {} }
+            box Page { leaf: Leaf
+            birth() { me.leaf = new Leaf() } }",
+        ),
+    ] {
+        let package =
+            super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let batch = &package.instance_constructors;
+        let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+        let error = batch
+            .construction_for(parent, 0)
+            .unwrap()
+            .as_ref()
+            .expect_err(&format!("{label} stays declined"));
+        assert_eq!(
+            error,
+            &U::FieldContractUnsupported,
+            "{label} fails closed"
+        );
+    }
+}

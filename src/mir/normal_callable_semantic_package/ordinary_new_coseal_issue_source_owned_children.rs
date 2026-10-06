@@ -206,7 +206,9 @@ pub(super) fn seal_provider_owned_children_v1(
             else {
                 continue;
             };
-            if owned_fields.is_empty() || owned_field_children.contains_key(child) {
+            if owned_fields.is_empty()
+                || owned_field_children.contains_key(&child.object())
+            {
                 continue;
             }
             let owner = plan
@@ -236,7 +238,7 @@ pub(super) fn seal_provider_owned_children_v1(
                     class: class.clone(),
                     error,
                 })?;
-            if child_object != *child {
+            if child_object != child.object() {
                 return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch {
                     site: owned_site,
                     class: class.clone(),

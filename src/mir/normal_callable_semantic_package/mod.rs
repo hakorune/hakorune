@@ -32,6 +32,7 @@ mod instance_constructor_semantic;
 mod instance_entry_home;
 pub(crate) use instance_construction::{
     ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ProviderConstructionChildV1,
 };
 pub(crate) use instance_constructor_semantic::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
