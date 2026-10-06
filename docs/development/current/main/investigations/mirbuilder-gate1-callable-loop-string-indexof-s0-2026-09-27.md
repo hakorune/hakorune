@@ -943,8 +943,8 @@ Fail-fast: `field-get-route-drift`/`unconsumed-read` stay for
 unproven receivers; non-null use of a nullable alias keeps its
 narrowing evidence boundary.
 
-S0 `MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0`: `me` borrowed-receiver
-provenance + compare-operand read staging -> `object_field_get`
+S0 `MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0`: borrowed `me` provenance +
+compare-operand read staging -> `object_field_get`
 borrowed handle + `== null`/`!= null` compare on the alias. Edge:
 `local l = me.left` + `l == null` compare through the published route
 (EXE), TreeNode `itemCheck` blocked until `if` coverage lands.
@@ -980,10 +980,9 @@ read-on-read chains, Gates 2-4.
   unannotated input.
 
 ## Evidence retained from the previous card (tombstone)
-
 Fixed-EXE/reviewer receipts: `574d90ffc5`, `c82b7a415a`; full record at `339674c77b`.
 
-## OBJECT-FIELD-READ-S0 validation receipt (2026-10-06, verified)
+## OBJECT-FIELD-READ-S0 validation receipt (2026-10-06, landed `d356229c30`)
 
 Added `apps/object-field-null-compare-min/{eq,ne,missing-field}.hako` and
 `object_field_null_compare_min_exe.sh`: eq/ne V4 + llvm-c-api EXE exit 0 PASS;
@@ -992,9 +991,10 @@ missing field rejected `instruction-unsupported`, no EXE. Compiler SHA256:
 Runtime: custom-target lifecycle-kernel/release; return-0 fixtures do not prove Bool results.
 Release pin failure (Copy-id equality) corrected to exact Copy-root traversal; final run PASS.
 Final quick run67/67 PASS (including all8 moved root cases and numeric lifecycle);
-log `/tmp/hako-s0-closeout-tests.log`. Fresh quick CLI + current C shim smoke3/3 PASS.
-Shape commits: `c36b9095d3`, `861fc524d7`, `5e5f80a759`, `841d66f510`.
-Sizes: construction743 / co-seal797 / ABI727 / root tests735+628; scope/pointer guards PASS.
+log `/tmp/hako-s0-closeout-tests.log`; fresh CLI/current C smoke3/3 PASS.
+Fresh production binary-trees/mimalloc-lite: `artifact-unowned-lifecycle-site` (baseline).
+Shape commits: `c36b9095d3`, `861fc524d7`, `5e5f80a759`, `841d66f510`;
+source cap, scope and pointer guards PASS (construction743/co-seal797/ABI727/root735+628).
 C scalar/Bool `ne` false-result bug corrected (exit3 vs7 reproduced).
 `published_lifecycle_v4_null_compare_scalar_test.py`
 passes16 scalar cases; existing3 Eq +3 Ne +7 rejects PASS on current shim; C README owns wire.
