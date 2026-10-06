@@ -888,6 +888,41 @@ Next row: `MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0` — census which
   gate is now downstream-reachable once that entry admits.
 ```
 
+## Census — MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0 (design_stop)
+
+Boundary: `main`'s terminal `return bench.run()` through root-exit
+finalization; excludes callee bodies and `run`'s own exits.
+
+`root-call-entry-unavailable` is raised only by
+`take_finalized_root_call` when root exit progress is not `Emitted` —
+and the sole reachable non-emitted state is `Unavailable` (Plain and
+MapGet entries are restored with `Ok(None)`; `Prepared`/`Emitting` are
+unreachable because `emit_root_home_exit_payload` begins and records
+in one call; a never-prepared exit is `Ok(None)` +
+`artifact-call-physical-missing`). `prepare_root_home_exit` records
+`Unavailable` when any home at the exit is not `end_available`.
+
+Wall A (current): `bench` = `new BinaryTreesBench()` — its fields are
+`init { builder, min_depth, ... }`, all untyped. The destruction
+classifier maps any untyped field to `Unavailable(FieldType)`, so the
+claim's `end_available` is false and the exit goes `Unavailable` at
+prepare, long before entry selection. Needed entry:
+`Call{Instance}` via `emit_instance`/`record_root_call_exit`.
+
+Wall B (after A): `issue_root_instance_call_dispositions` withholds
+the `Ready` row when any exit home is not `PlainI64NoHook` — a typed
+`builder: BinaryTreeBuilder` field is `OwnedObjectFieldsNoHook`, so
+the row is skipped, `expected` is already set, and the terminal
+freezes `artifact-source-unavailable`. A bounded widening (admit
+`Owned*FieldsNoHook` iff sealed `children` exist, matching the
+`end_available` contract plus `FieldResidence` plan support) is the
+smallest consistent issuer fix.
+
+Next row: `MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0` — untyped-init
+field storage is named outside-lane scope (per CURRENT_STATE); this
+census fixes the ordering: untyped storage -> issuer widening ->
+`Call{Instance}` entry emission.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and

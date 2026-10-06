@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0"
+current_execution_row = "MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/root-call-entry"
-current_design_stop = "selfhost-resume/root-call-entry"
+current_blocker_token = "selfhost-resume/unreleased-root-home"
+current_design_stop = "selfhost-resume/unreleased-root-home"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,18 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-MULTI-EXIT-UNIFORM-CLASS-S0 landed: `begin_handle_call_emission` now
-admits N>=1 `Value(Construction)` terminal relations iff every site
-resolves to the SAME canonical object (module declaration index —
-class-level). Handle-minted callees are already class-uniform by
-`construction_result_callee`; the singleton was the pre-multi-exit
-shape of the same invariant. Pins: 2-exit `Point` callee lowers
-(Handle invoke + one HomeRelease + finalized artifact validates),
-mixed-class callee fails closed at issue; suites handle_result 9/9,
-direct_call_lifecycle 34/34, ordinary_new 273/273, lexical 232/232.
-Upstream `root-call-entry-unavailable` still gates `run()`.
+ROOT-CALL-ENTRY-D0 closed: `root-call-entry-unavailable` fires only
+when root exit progress is `Unavailable` — `bench` home at `main`'s
+terminal `return bench.run()` can never `end_available` because
+`BinaryTreesBench`'s untyped `init` fields classify as
+`Unavailable(FieldType)`. Ordered walls: (A) untyped-init field
+storage -> (B) `issue_root_instance_call_dispositions` `PlainI64NoHook`
+gate excludes owned-field homes -> `Call{Instance}` entry emission.
 """
-next_design_card = "MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0"
+next_design_card = "MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
@@ -46,8 +43,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0 closed — `root-call-entry-unavailable` fires only when root exit progress is `Unavailable`: `bench` home at `main`'s `return bench.run()` can never `end_available` because `BinaryTreesBench`'s untyped `init` fields classify as `Destruction::Unavailable(FieldType)`; `Call{Instance}` is the needed entry kind. Wall B also named: `issue_root_instance_call_dispositions` admits only `PlainI64NoHook` homes, so even typed owned-field homes skip row issuance -> `artifact-source-unavailable`. Ordering: untyped storage -> issuer widening -> entry emission. Next: `selfhost-resume/unreleased-root-home`.",
   "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-UNIFORM-CLASS-S0 landed — `begin_handle_call_emission` admits N>=1 `Value(Construction)` terminal relations iff every site resolves to the SAME canonical object (module declaration index, class-level; `construction_result_callee` already enforces one agreed class per Handle mint). Pins: `handle_result_local_call_admits_uniform_class_multi_exit_callee` (2-exit Point callee lowers — Handle invoke + one HomeRelease + artifact validates) + `handle_result_lane_rejects_mixed_class_multi_exit_callee` (fails closed at issue); suites handle_result 9/9, direct_call_lifecycle 34/34, ordinary_new 273/273, lexical 232/232. `me.make` SameModuleInstance untouched; no new receipt/ABI arm. Next: `selfhost-resume/root-call-entry` census — the upstream gate on `run()`.",
   "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0 closed — singleton `Value(Construction)` gate at `begin_handle_call_emission` is deliberate fail-closed (caller cannot observe which exit ran). Callee side already carries N per-site result claims; the sole rejected member is the caller-side `CallReceivedCommitV1.object` pin feeding `end_children`. Handle class mints in the caller's `home_new_prefix_scan` for `local x = <unannotated construction-result call>`; exact production inventory on `make` = 2 `run()` sites + 2 `iterationCheck` loop-body sites. `me.` receivers ride `Callee::SameModuleInstance` (no gate). Fork recorded: uniform-exit (fails — children differ), exit-witness ABI, multi-object commit. Next: `selfhost-resume/multi-exit-result-abi` D0.",
-  "2026-10-06: MIRBUILDER-NONCOND-CARRIER-D0 closed — recorded `sum`-carrier wall stale: outside-cohort rebinds already ride the armed LoopCond carrier path (`iterationCheck`'s exact loop + `pow2`'s `out*2` compile end-to-end under `--dump-mir`). Layered census: binding classification -> `ReadyWithBodyOnly` -> LoopCond route/token -> recipe carrier mint; `<=`+param bound, decl-init armed calls, `x = x + <call>` rebinds all admitted. Real next wall in the callee graph: `make` multi-exit `return new` -> `handle-result-terminal-missing` (MULTI-RETURN-RESULT-NEW lineage); `root-call-entry-unavailable` gates upstream. Next: `selfhost-resume/multi-exit-return-new` census.",
   ]
 
