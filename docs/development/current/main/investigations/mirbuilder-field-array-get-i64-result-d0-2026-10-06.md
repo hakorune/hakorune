@@ -59,221 +59,33 @@ unadmitted; declared-DirectArrayI64 arm blocked on the
 `FieldContractUnsupported` provider prerequisite; `Callee::Method` get
 publication deferred to the physical read owner (landed below).
 
-## `me`-receiver call coverage integrated Decision / 2026-10-06
+## `me`-receiver call coverage landed / 2026-10-06 (condensed)
 
-Design-stop audit for `field-array-get/me-receiver-coverage-decision`
-(read-only, same-thread; all uncertainty resolved against sealed source).
-`me` reaches `call.receiver()` as `Lexical(Local(me_binding))` with
-`record.kind() == BindingKindV1::Receiver` (`BodyMeReceiverV1::Lexical`;
-static `me` is `CurrentOwner` and can never carry an instance call).
-`prepare_lexical_source_targets_v1` drops it at the `_ => continue` arm,
-so a name+arity match against an armed borrowed definition freezes
-`draft_borrowed_incoming_calls_v1` on `UnresolvedCaller`. The receiver's
-class needs no inference: it is exactly the caller declaration's own box,
-readable from the caller's selected key.
+`MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0` landed: `Receiver`-kind
+(`me`) bindings enter `prepare_lexical_source_targets_v1` with class =
+the caller's selected key owner and `unique_instance_target`; the
+issued row carries `LexicalInstanceCallReceiverV1::SelfReceiver` (a
+new variant — the Decision's `Lexical` reuse was rejected in
+implementation because the sealed receiver-call lane already emits
+`local x = me.m(..)`); `capture_field_array_get` consults the shared
+`formal_i64_index_consult_v1`. `CurrentOwner`/`QualifiedUnbound`
+receivers keep declining; condition-position call results stay dynamic;
+`me` stores and DirectArrayI64 untouched.
 
-Decision: admit the `Receiver` kind as a need in
-`prepare_lexical_source_targets_v1` — class = `selected
-.key_for_batch_slot(caller_slot).owner()` (the caller's own box),
-`unique_instance_target(own_box, selector, arity)` — issued as the
-existing `LexicalInstanceCallSourceTargetV1` with
-`receiver = LexicalInstanceCallReceiverV1::Lexical(me_binding)`, so the
-whole downstream chain (incoming-call draft self-edge, disposition,
-emission) reuses the lexical path unchanged. Same slice: flip
-`capture_field_array_get`'s `formal_i64_field` consult from `|_| false`
-to the shared `formal_i64_index_consult_v1` — the two changes are one
-production edge; either alone freezes the page-heap package
-(`incoming-coverage` without coverage, `stored-child/result-source-
-missing` without the armed leaf).
+## Unobserved-position staging landed / 2026-10-06 (condensed)
 
-Source authority + canonical issuer: the sealed `Receiver` binding kind,
-the caller's selected key owner, `unique_instance_target`; canonical
-issuer `prepare_lexical_source_targets_v1` (one match arm).
-
-Non-authority: receiver class from call-site actuals or layout;
-`CurrentOwner` receivers (static `me`); `QualifiedUnbound`/`Other`
-receivers — `stored_child_source_v1` keeps owning `me.<field>` receivers.
-
-Fail-fast boundary: ambiguous or missing self target → `Ok(None)`
-unarmed (structural, same as every declined class proof); the `rebound`
-census stays uniform (a `Receiver` binding is never an assignment
-target). Emission only activates where the caller-side scan mints an
-observation — `local_lexical_i64_call` consults armed targets, so
-`local x = me.allocate(size)` shapes can demand the i64 disposition and
-`emit_local_lexical_i64` must accept a `Receiver`-kind binding through
-`take_exact_lexical_read` + `prior_homes`; that acceptance is the
-slice's focused-gate obligation, not a fallback site.
-
-Smallest next slice: the `Receiver` arm + capture-leaf flip as one edge,
-focused pins (positive `me.<def>` self-edge coverage, non-definition
-`me.<name>` target arming, page_heap fixture issuing end-to-end,
-negative ambiguous/undeclared selector), README + card receipt.
-
-Non-claims: condition-position call-result admission (`if
-me.isLiveHandle(h) == 0` keeps its dynamic result — coverage is
-structural only), `QualifiedUnbound` receivers, `me` stores,
-DirectArrayI64, physical read owner, production switch, app EXE
-acceptance, finite goal.
-
-## `me`-receiver coverage landed / 2026-10-06
-
-`MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0` landed on
-`codex/birth-definition-publication`. What shipped vs the Decision:
-
-- `Receiver`-kind bindings enter `prepare_lexical_source_targets_v1`
-  exactly as decided; class = caller's selected key owner, target =
-  `unique_instance_target`. `CurrentOwner`, `QualifiedUnbound` and other
-  receiver shapes keep declining; the rebound census needs no arm (a
-  `Receiver` binding is never assigned).
-- Shipped shape differs on one point: the issued row carries a new
-  `LexicalInstanceCallReceiverV1::SelfReceiver(binding)` variant instead
-  of reusing `Lexical`. Reason found in implementation: `local x =
-  me.m(..)` is *already* emitted by the sealed receiver-call lane
-  (`ReceiverCallClassObservation` → `emit_receiver_nullable` →
-  `record_handle_call_emission`). A self row that also routed a
-  lifecycle binding group created a second bookkeeping owner for the
-  same site and froze `local-commit/local-call-binding-sequence` on the
-  real app. `SelfReceiver` rows are coverage-only: they name incoming
-  self-edges (`lexical_instance_call_covered`, `UnresolvedCaller`
-  resolution, terminal/dependency checks) but
-  `issue_lexical_instance_call_dispositions` never calls
-  `record_lifecycle_local_call_site` for them — one emission owner.
-- The borrowed-result capture leaf stayed `|_| false`. Arming it was
-  probed: `incoming-coverage`, `result-source-missing` and
-  `local-call-binding-sequence` all resolve, but a grounded callee's
-  named incoming edges include calls inside prefix-failed `if` branch
-  subtrees (e.g. `return me.small_page.isLiveHandle(handle)` under an
-  unprovable `handle.page_id == 0` guard) and condition-position calls —
-  sites the borrowed-actual statement-flow walk never stages, freezing
-  `borrowed-actual/selected-incoming-unobserved`. Staging actuals for
-  unobserved-position edges is a separate responsibility.
-- Evidence: focused battery 184 pass / 3 fail, all three pre-classified
-  baseline debt (`direct_array_extent` refresh-links, `map_value_get` ×
-  2). Self-edge pin `me_receiver_self_edge_covers_borrowed_definitions`,
-  negative `me.take(me.block_used)` → named `borrowed-actual`,
-  unresolved-incoming retained as named error. App probe
-  (`mimalloc-lite --emit-exe`) with the leaf unarmed: frontier
-  `artifact-unowned-lifecycle-site` — baseline parity, i.e. me-receiver
-  coverage adds no app-visible regression by itself.
-- Boundary for the armed leaf now recorded in
-  `ordinary_new_borrowed_formal_result_pending.rs`: arm only together
-  with unobserved-position incoming-edge staging.
-
-Next owed: `MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION` — stage
-borrowed actuals for named incoming edges whose callsite sits in a
-prefix-failed branch subtree or condition position (then arm the formal
-leaf in the capture), then physical read owner, production switch,
-legacy retirement.
-
-## Unobserved-position incoming edges integrated Decision / 2026-10-06
-
-Design-stop audit for `borrowed-actual/unobserved-position-edge-staging`.
-`observe_borrowed_call_actuals(site, locals, prefix_known)` already
-stages any call site — nested argument calls ride its recursion,
-identical re-staging is a no-op and drift freezes `repeated-walk-drift`;
-`prefix_known=false` degrades non-literal actuals to `Unknown`, the same
-fail-closed shape uncovered paths already use. Two positions never reach
-it: (1) `observe_if_statement` returns early when a field-request
-condition fails scalar observation — the verified `IfRegionBundleV1`
-already proved branch structure, so branch interiors are skipped for no
-structural reason and calls inside (e.g.
-`return me.small_page.isLiveHandle(handle)` under
-`if handle.page_id == 0`) stage nothing; (2) calls inside `if` condition
-subtrees (`if me.release(handle)`, `me.isLiveHandle(h) == 0` operands)
-are not statement `call_root`s and never stage. Both become named
-`selected-incoming-unobserved` freezes the moment the armed formal leaf
-grounds a callee.
-
-Decision: borrowed-actual staging is owed for every source callsite
-that incoming coverage can name. Walk the `if` branches even when the
-scalar-condition observation declines — `PrefixNotCovered` is recorded
-first and rides the fork, so interior actuals stage `Unknown` — and
-stage the outermost calls under the `if` condition subtree through the
-same `observe_borrowed_call_actuals` + `borrowed_actuals` callback.
-Same slice: arm `capture_field_array_get`'s `formal_i64_field` consult —
-the armed leaf is the production edge that names these edges.
-
-Source authority + canonical issuer: sealed `method_calls()` site
-inventory for condition-subtree membership; the verified
-`IfRegionBundleV1` + body-match as the only branch-walk admission;
-`observe_borrowed_call_actuals`/`borrowed_actuals` as the sole staging
-issuer.
-
-Non-authority: inferring the unprovable condition; treating `Unknown`
-actuals as proven; `loop` bodies/conditions (no walk exists — a named
-edge inside stays `selected-incoming-unobserved`); map-literal subtrees;
-`bundle`-missing / `SourceMismatch` ifs.
-
-Fail-fast boundary: `subtree_has_map_literal`, missing bundle and body
-mismatch keep skipping interiors — unobserved edges there stay named
-freezes, never silent skips; a `loop`-interior named edge likewise.
-
-Smallest next slice:
-`MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0` — branch walk on
-scalar decline + condition-subtree call staging + capture-leaf arm as
-one edge; pins: formal-index borrowed return seals, condition-call edge
-staged, return-in-unprovable-branch edge staged; negatives: `loop`
-interior and map-literal-subtree edges keep `selected-incoming-unobserved`.
-
-Non-claims: `loop` statement interiors/conditions, condition-position
-result admission (stays dynamic), physical read owner, production
-switch, DirectArrayI64, finite goal.
-
-## Unobserved-position staging landed / 2026-10-06
-
-`MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0` landed. One revision
-inside the slice: the Decision's "walk branches on scalar decline" ran
-the emission-coupled walk and minted terminal-related facts on uncovered
-paths — the real app froze `ordinary-new/local-commit/literal-physical-drift`.
-Replaced with a staging-only traversal:
-`stage_unobserved_statement_actuals` enumerates the sealed
-`method_calls()` inventory under a source prefix, keeps outermost calls
-only, and issues exactly one `observe_borrowed_call_actuals` +
-`borrowed_actuals` callback per call on the pre-statement
-`prefix_known` basis — no claims, terminal relations, Home joins, or
-physical rows.
-
-- `observe_if_statement` captures `prefix_known` once, stages the
-  condition subtree, and stages the full statement subtree on
-  bundle-missing / map-literal / scalar-decline exits; covered branch
-  interiors are never re-staged.
-- `scan_statement_flow` stages unadmitted statement kinds (loop,
-  assignment, match, ...) before `PrefixNotCovered`. A `loop`-interior
-  named edge now stages `Unknown` actuals and freezes
-  `borrowed-actual`, not `selected-incoming-unobserved` — same
-  fail-closed class, tighter token than the Decision sketched.
-- Uncovered paths keep entry-stable bindings observable (`Parameter`,
-  `Receiver`/self-rooted, trivial scalars); everything else is
-  `Unknown`.
-- New `BorrowedFormalActualSourceV1::DeclaredFormal`: a caller's sealed
-  `DeclaredObject` parameter contract is the sole class authority for
-  typed formals that `origins`/`forwards` never carried; wired through
-  lexical-i64 prep, entry class validation, root-call-entry projection,
-  and JSON transport (existing typed-handle tag 3).
-- Companion fix surfaced by the walk: `emit_terminal_integer_literal_return`
-  consumed the relation and emitted `Const` but owed no physical
-  `Return` on the generic lane (`prepare_root_home_exit` is
-  all-or-nothing per function), so `return 0` inside a covered `if`
-  silently merged as a join yield. The site now completes through
-  `emit_return_from_value`.
-- `capture_field_array_get` consults `coverage_unique_i64_field` — the
-  formal `me.<ArrayBox>.get(h.<unique-i64-field>)` leaf is armed.
-
-Evidence: `unobserved_branch_incoming_edge_stages_borrowed_actuals`,
-`unobserved_branch_incoming_edge_unproven_actual_stays_fail_closed`
-(`borrowed-view`/`borrowed-actual` — the unknown actual never issues),
-`condition_position_incoming_edge_stages_borrowed_actuals` green;
-cohort 27+4+138+124 focused green. Frontier pins updated to the honest
-boundaries (`me-receiver` -> `i64-result-mismatch`, `forward` ->
-`source-not-i64`). App `--emit-exe` probe reaches
-`artifact-unowned-lifecycle-site` = baseline parity with the leaf armed.
-Baseline debt (reproduces on `36b13d8d8e`/`1c0d68497e`):
-`direct_array_extent_fact::refresh_links_array_field_receiver_to_same_receiver_capacity_range`,
-`birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
-`qualified_call_map_argument_reaches_the_named_capability_boundary`.
-
-Next owed: physical read owner for `Callee::Method` get publication,
-production caller switch, selected legacy retirement.
+`MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0` landed: sealed
+`method_calls()` inventory is the sole callsite authority; a
+staging-only traversal (`stage_unobserved_statement_actuals`) issues
+`observe_borrowed_call_actuals` + `borrowed_actuals` for outermost
+calls under `if` condition subtrees and scalar-decline/missing-bundle/
+map-literal statement subtrees — `Unknown` on uncovered paths, named
+freezes preserved; `loop`-interior edges now freeze `borrowed-actual`
+(tighter fail-closed token); `BorrowedFormalActualSourceV1::
+DeclaredFormal` added for typed formals; `return 0` in covered `if`
+completed through `emit_return_from_value`; `capture_field_array_get`
+armed via `coverage_unique_i64_field`. Cohort focused green; three
+baseline debts recorded on `36b13d8d8e`/`1c0d68497e`.
 
 ## Callee::Method get physical read owner integrated Decision / 2026-10-06
 
@@ -998,3 +810,142 @@ Next owed: `MIRBUILDER-ARRAY-READ-PRODUCTION-SWITCH-S0` —
 the bounded production-caller switch edge and the legacy-route
 retirement target now that every proven `ArrayBox.get` producer flows
 through the sole physical owner.
+
+## production switch + retirement census / 2026-10-06 (design_stop audit)
+
+`MIRBUILDER-ARRAY-READ-PRODUCTION-SWITCH-S0` audit — which production
+caller still needs switching and which legacy `ArrayBox.get` route can
+now be retired. Boundary: every path that can still mint or execute an
+array-get meaning outside `ArrayElementRead`. Excludes the compat
+`boxcall` wire spelling itself (`RUNTIME-MIRBUILDER-AST-JSON-COMPAT-
+SUNSET-001` owns that sunset) and the 296x
+`SameModuleArraySlotDirectOpPlan` by-name shim (that lane's call).
+
+### Switch finding — already complete, no remaining legacy caller
+
+Every proven `ArrayBox.get` producer reaches the sole owner today:
+fresh builder emission intercepts at three gates (`indexing.rs`,
+`boxcall_emit.rs`, `unified_emitter.rs`), and the LEGACY-ROUTE-S0 arm
+canonicalizes proven `Call`+`Callee::Method{ArrayBox,get}` residuals at
+the shared `canonicalize_callsites` boundary covering both
+`MirCompilerPostRc` and `MirJsonV0Loader`. The only executor still
+reached by `Call`+`Method` array gets is the C `mir_call_dispatch`
+by-name compat emit (`runtime_array_get`), and its live input after
+this family is exactly the unproven `Union` cohort — "call get on
+whatever" — which is the dynamic facade's meaning, not this route's.
+VM reference lane fail-closes `Method` carries; published `try_new`
+passes residual `Call` rows to the same compat family. No legacy
+caller switch remains to be done for this meaning.
+
+### Retirement finding — dead `ArrayGet` route producers
+
+`generic_method_route_plan` scans two carriers: `ArrayElementWrite`
+(live) and `LegacyCallV0` (zero production ingress since R7-S6 — the
+pass header's own contract). Canonical `Call`+`Callee::Method` rows
+never reach the plan, so its `get` matcher family is the last code
+that *could* mint an array-get lowering plan outside the sole owner —
+and it has been input-dead since R7-S6:
+
+| Producer | Product | Status |
+|---|---|---|
+| `match_generic_get_route` `ArrayBox`\|`DirectArrayI64` arm (`collection_read_routes.rs`) | `ArrayGet`/`array_slot_load_any` | dead input |
+| `match_generic_get_route` `RuntimeDataBox`+ArrayBox-origin arm | `ArrayGet`/`array_slot_load_any` | dead input |
+| `array_item_routes.rs` 7 `*_array_item_get_route` matchers via `match_mir_json_get_route` | `ArrayGet`/`array_slot_load_any` | dead input |
+| `MirInstruction::ArrayElementRead` arm | none — not matched | canonical row stays canonical |
+
+Shared tables stay live and keep their contract role:
+`CoreMethodOp::ArrayGet` is used by live resolver/Facts machinery
+(`resolver_core_method_callable_contract`, `named_array_method`);
+`GenericMethodRouteKind::ArraySlotLoadAny`, the TOML `[[routes]]` and
+`[[c_registry_rows]]` entries, the generated C registry row,
+`span_access_plan`, and `same_module_static_helper_contract` are shared
+contract/consumer tables whose inertness is identical to today
+(production input was already zero). `runtime_array_get` C emit stays
+— it executes the live unproven-`Union` facade, not this route.
+
+### Decision
+
+Retire the dead `ArrayGet` route-producer arms in
+`generic_method_route_plan` — delete every `ArrayGet`/
+`array_slot_load_any` production inside the plan: the two
+`collection_read_routes::match_generic_get_route` array arms and all
+seven `array_item_routes` matchers with their `match_mir_json_get_route`
+wiring. Pure dead-producer deletion; zero behavior change for every
+live input class.
+
+Source authority + canonical issuer: R7-S6 `LegacyCallV0` ingress
+retirement (zero production producers) + the sole-owner emission
+contract for proven `ArrayBox.get`.
+
+Non-authority: `DirectArrayI64`/`RuntimeDataBox`-spelled get carriers
+still in the binary (their compat/facade execution paths are their own
+lanes' calls); `SpanI64` span-access consumption (consumer stays — it
+simply sees no entries, same as production today); `MapGet`/
+`RuntimeDataLoad`/`has`/`len`/`keys`/`substring`/`indexOf` route
+families (separate cohorts' retirement rows); the `boxcall` wire
+spelling and `LegacyCallV0` carrier (compat-sunset lane).
+
+Fail-fast boundary: after deletion, any `LegacyCallV0` get row still
+routes nowhere — the named-stop/backends contract is unchanged, and no
+plan entry is minted for array gets from any producer (none existed in
+production).
+
+Smallest next slice: delete the arms + the `array_item_routes` module +
+unreachable test pins, keep `test_support`/spec/enum/registry surfaces
+intact, run the `generic_method_route_plan` + `callsite_canonicalize` +
+`mir_json_v0` focused suites.
+
+Non-claims: `runtime_array_get` compat emit retirement (live input);
+296x shim retirement; `SpanI64`/span-access family decisions; sibling
+method-family retirements; whole-goal acceptance.
+
+## production switch + retirement census correction / 2026-10-06
+
+Executing the Decision above surfaced a consumer the census missed.
+The `array_slot_load_any` route PRODUCT is the sole input feeding
+`refresh_function_direct_array_access_plans`: `DirectArrayAccessOp::Load`
+plans mint only from that tag, and each minted load records its
+`result_value` into `stack_top_pop_values`, which upgrades
+`array_store_any` store plans to branchless `ProvedUnchecked`.
+`mir_json_emit` emits `direct_array_access_plans` + proof envelopes and
+`route_decision` reports the selected route from the same product.
+Deleting the route arms (all changes reverted) reddened ~9 synthetic
+`LegacyCallV0` pins across `direct_array_access_plan` (6),
+`mir_json_emit` (2), `route_decision` (1). HEAD baseline
+`cargo test --lib array` already carries 20 unrelated reds (baseline
+debt: published-backend-view compile probes, phase49 joinir,
+global_call_route_plan pushes, string_corridor benchmarks,
+mir_corebox_router, unified_emitter/expression_port pins); the
+route-plan suite itself went 143/143 green with updated pins before the
+revert.
+
+Decision: the `ArrayGet`/`array_slot_load_any` route arms cannot retire
+alone — they co-own a fully production-dead chain with the direct-array
+lane's `Load` plan + `stack_top_pop` store-proof minting (sole input
+`LegacyCallV0`, zero ingress since R7-S6). Retiring the chain redefines
+`direct_array_access_plan`'s contract — a sibling box this card's
+Non-claims keep untouched — so the joint retirement belongs to the
+direct-array lane owner, not this lane.
+
+Census boundary: covers the `Callee::Method{ArrayBox,get}` residual
+surface from v0 `boxcall` ingress to the sole physical owner; includes
+the generic-route producers of `array_slot_load_any`; excludes the
+direct-array lane's plan-chain contract.
+
+Chain-head status: `ParkedSealed` — owner `direct_array_access_plan` /
+296x direct-array lane; reopen trigger = a joint-retirement decision
+that retires `array_slot_load_any` production AND the
+`DirectArrayAccessPlan::Load`/`stack_top_pop` minting chain as one
+edge; non-authority = partial retirement of the route arms alone
+(leaves the plan arms unreachable-but-pinned, a hidden dead authority).
+
+Row outcome: production switch already complete (no edge); the only
+candidate retirement edge is sibling-owned -> declined here. No
+in-scope edge remains under
+`MIRBUILDER-ARRAY-READ-PRODUCTION-SWITCH-S0`.
+
+Next owed: `MIRBUILDER-ARRAY-READ-FAMILY-CLOSEOUT-S0` —
+`physical-array-read/family-closeout` design_stop census: confirm no
+remaining in-scope legacy read path (all carriers incl. VM consumed,
+all producers canonical) and select the array-read family's closeout /
+acceptance handoff under `MIRBUILDER-FINAL-PIPELINE-v1`.
