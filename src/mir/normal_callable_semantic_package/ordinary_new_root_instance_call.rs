@@ -139,10 +139,25 @@ impl OrdinaryNewClaimLedgerV1 {
                         .values()
                         .find(|claim| claim.destination == *binding)
                         .is_some_and(|claim| {
-                            claim.destruction()
-                            != crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
-                            || claim.construction().is_err()
-                            || claim.home_prefix().is_err()
+                            // Parity with `LocalCommitV1::end_available`: a
+                            // Plain home releases directly; an owned-field
+                            // home releases through its sealed children
+                            // inventory — `Some` never degrades to plain.
+                            let releasable = match claim.destruction() {
+                                crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook => {
+                                    true
+                                }
+                                crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+                                    claim.children().is_some()
+                                }
+                                crate::mir::function::ObjectDestructionDispositionV1::Unavailable(_) => {
+                                    false
+                                }
+                            };
+                            !releasable
+                                || claim.construction().is_err()
+                                || claim.home_prefix().is_err()
                         })
                 });
                 if unreleasable {

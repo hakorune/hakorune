@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0"
+current_execution_row = "MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/unreleased-root-home"
-current_design_stop = "selfhost-resume/unreleased-root-home"
+current_blocker_token = "selfhost-resume/birth-store-rhs"
+current_design_stop = "selfhost-resume/birth-store-rhs"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-ROOT-CALL-ENTRY-D0 closed: `root-call-entry-unavailable` fires only
-when root exit progress is `Unavailable` — `bench` home at `main`'s
-terminal `return bench.run()` can never `end_available` because
-`BinaryTreesBench`'s untyped `init` fields classify as
-`Unavailable(FieldType)`. Ordered walls: (A) untyped-init field
-storage -> (B) `issue_root_instance_call_dispositions` `PlainI64NoHook`
-gate excludes owned-field homes -> `Call{Instance}` entry emission.
+ROOT-INSTANCE-ENTRY-S0 landed: `BinaryTreesBench` fields typed +
+`unreleasable` gate widened to `end_available` parity
+(`Owned*FieldsNoHook` + sealed children). Typed-field fixtures reach
+the `Invoke` emit boundary. New wall A2: computed birth stores
+(`me.b = me.a + 1`) hit `BodyCoverageUnsupported` — `ConstructionStoreRhsV1`
+admits only {LiteralI64, Parameter, ProviderConstruction}.
 """
-next_design_card = "MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0"
+next_design_card = "MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
@@ -43,8 +42,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-06: MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0 closed — `root-call-entry-unavailable` fires only when root exit progress is `Unavailable`: `bench` home at `main`'s `return bench.run()` can never `end_available` because `BinaryTreesBench`'s untyped `init` fields classify as `Destruction::Unavailable(FieldType)`; `Call{Instance}` is the needed entry kind. Wall B also named: `issue_root_instance_call_dispositions` admits only `PlainI64NoHook` homes, so even typed owned-field homes skip row issuance -> `artifact-source-unavailable`. Ordering: untyped storage -> issuer widening -> entry emission. Next: `selfhost-resume/unreleased-root-home`.",
+  "2026-10-06: MIRBUILDER-GATE1-ROOT-INSTANCE-ENTRY-S0 landed — `BinaryTreesBench` `init` fields migrated to typed decls (builder: BinaryTreeBuilder + 4 i64) per UNTYPED-OBJECT-STORAGE-D0 branch (a); `issue_root_instance_call_dispositions` `unreleasable` widened to `end_available` parity (PlainI64NoHook OR Owned*FieldsNoHook+sealed children). Pins: owned-field Call entry seals (Holder/Page fixture), unissued without children; focused root_instance_call 8/8, handle_result 9/9, ordinary_new 276/276, lexical 232/232. --emit-mir-json probes reach the known Invoke boundary. Wall A2 bisected: computed birth stores (`me.b = me.a + 1`) -> BodyCoverageUnsupported. Baseline red noted: main_f1_rejects_direct_call_and_nested_owner_before_lowering reproduces on parent 7b754359e1. Next: `selfhost-resume/birth-store-rhs`.",
+  "2026-10-06: MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0 accepted — wall A maps to the landed untyped-storage contract (branch a: declare typed fields; `typed-object-birth-param-min` precedent). `BinaryTreesBench` gets `builder: BinaryTreeBuilder` + 4 i64 decls -> `OwnedObjectFieldsNoHook` -> sealed `builder` residence -> `end_available`. Wall B named in-lane: `issue_root_instance_call_dispositions` `unreleasable` gate widens to `PlainI64NoHook` OR `Owned*FieldsNoHook`+sealed children. `TreeNode` nullable owned fields parked (no nullable arm). Next: `MIRBUILDER-GATE1-ROOT-INSTANCE-ENTRY-S0`.",
   "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-UNIFORM-CLASS-S0 landed — `begin_handle_call_emission` admits N>=1 `Value(Construction)` terminal relations iff every site resolves to the SAME canonical object (module declaration index, class-level; `construction_result_callee` already enforces one agreed class per Handle mint). Pins: `handle_result_local_call_admits_uniform_class_multi_exit_callee` (2-exit Point callee lowers — Handle invoke + one HomeRelease + artifact validates) + `handle_result_lane_rejects_mixed_class_multi_exit_callee` (fails closed at issue); suites handle_result 9/9, direct_call_lifecycle 34/34, ordinary_new 273/273, lexical 232/232. `me.make` SameModuleInstance untouched; no new receipt/ABI arm. Next: `selfhost-resume/root-call-entry` census — the upstream gate on `run()`.",
-  "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0 closed — singleton `Value(Construction)` gate at `begin_handle_call_emission` is deliberate fail-closed (caller cannot observe which exit ran). Callee side already carries N per-site result claims; the sole rejected member is the caller-side `CallReceivedCommitV1.object` pin feeding `end_children`. Handle class mints in the caller's `home_new_prefix_scan` for `local x = <unannotated construction-result call>`; exact production inventory on `make` = 2 `run()` sites + 2 `iterationCheck` loop-body sites. `me.` receivers ride `Callee::SameModuleInstance` (no gate). Fork recorded: uniform-exit (fails — children differ), exit-witness ABI, multi-object commit. Next: `selfhost-resume/multi-exit-result-abi` D0.",
   ]
 

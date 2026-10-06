@@ -38,7 +38,11 @@ box BinaryTreeBuilder {
 }
 
 box BinaryTreesBench {
-    init { builder, min_depth, max_depth, stretch_depth, long_lived_depth }
+    builder: BinaryTreeBuilder
+    min_depth: i64
+    max_depth: i64
+    stretch_depth: i64
+    long_lived_depth: i64
 
     birth() {
         me.builder = new BinaryTreeBuilder()

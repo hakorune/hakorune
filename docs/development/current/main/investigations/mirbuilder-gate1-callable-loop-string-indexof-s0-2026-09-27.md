@@ -680,73 +680,25 @@ The claim map stays the sole authority for the caller's ABI edge;
 `handle-release-unproven` and `PrefixNotCovered` floors unchanged.
 Full design, census anchors and contract set recoverable via git.
 
-## Decision — MIRBUILDER-NONCOND-CARRIER-D0 (census, accepted)
+## Decision — MIRBUILDER-NONCOND-CARRIER-D0 (closed, superseded)
 
-Recorded premise corrected. Workstream row H named the next wall
-"`sum` carrier lacks ConditionRead". Probe census falsifies it: an
-outside-cohort rebind already rides the armed LoopCond carrier path —
-`count += 1` (BodyRebind, no ConditionRead) compiles with a real phi,
-and a source fixture replicating `iterationCheck`'s exact loop shape
-compiles end-to-end under `--dump-mir`.
-
-Scope: callable-lane coverage for `BinaryTreesBench.iterationCheck`'s
-`sum` — `local sum = 0; loop(i <= iterations) { local positive =
-builder.make(depth,i); local negative = builder.make(depth,0-i);
-sum += positive.itemCheck(); sum += negative.itemCheck(); i += 1 }
-return sum`. Census covers binding classification -> `ReadyWithBodyOnly`
--> route match -> route-token coverage -> physical carrier. Excludes
-`run()`'s upstream `root-call-entry-unavailable` (still first),
-production EXE acceptance, and `itemCheck`'s own body.
-
-### Layered census (probe-observed)
-
-| Layer | Shape | Disposition |
-| --- | --- | --- |
-| Binding | `sum`: BodyRead+BodyRebind, no ConditionRead | `outside_bindings` -> `ReadyWithBodyOnly` — by design (outside-observed-class D0); not a defect |
-| Outside carrier | `count += 1`, `sum += <call>` | rides a phi — carrier mint derives from the recipe, not the binding schedule |
-| Facts condition | `i <= <binding>` | `VarCompareBound{Le,Var}` observed — `<=` is not a facts wall |
-| Route | `i <= n` + 5-stmt body | LoopCond front-selects |
-| Recipe items | `Local`/`Assignment`/`MethodCall` | admitted `Stmt` vocabulary, incl. decl-init and call-valued rebinds |
-| Call coverage | `builder.make` param receiver, `positive.itemCheck()` claim-local | arms only via caller-edge/initializer claim provenance — unprovable in isolated probes (`SourceCallOutsideSelectedFamily`), closes in the real call graph (recorded at CALLRESULT-RECEIVER-RESULTCLASS-S0) |
-| CallFree arm | `local` decls, `<=`, non-scalar exprs | rejected by design (`<` + rebind-only + scalar) -> `SourceItemsMissing` for no-call variants — irrelevant on the armed path |
-| Accum deferral | 2-stmt `x = f(x, induction)` | `claims_variable_accum_family` defers exclusively to fixture-pinned VariableAccum (S10/M10b-I0-R0-VAR); binary-trees never reaches it |
-
-### Armed-path evidence
-
-`bt_full` probe (caller `local b = new Builder()` -> `me.iter(b,1,3)`;
-`iter` carries the exact loop): `iter` lowers with `sum`/`i`/`iterations`
-phis (`icmp Le`, two `call_same_module_instance`, `local.contract.write`
-Reassigns) — full compile, no freeze. `pow2`'s `out = out * 2`
-multiplicative outside carrier also compiles clean.
-
-The first real wall inside the callee graph surfaced at `make`: a
-`local left = me.make(...)` handle-result call whose callee has **two**
-`return new` exits (`if depth == 0 { return new TreeNode(..) }` /
-`return new TreeNode(left, right, value)`) freezes at
-`ordinary-new/local-commit/handle-result-terminal-missing` —
-`begin_handle_call_emission` admits only a single `Value(Construction)`
-terminal relation per callee, so a mixed multi-exit return-new callee
-stays unadmitted. That is the `MULTI-RETURN-RESULT-NEW` D0 lineage
-already decomposed above, not a carrier gap.
-
-Decision:
-  retire the recorded `sum`-carrier wall as stale; outside-cohort rebinds
-  are already carried by the armed LoopCond path.
-Source authority + canonical issuer:
-  binding classification -> `ReadyWithBodyOnly` -> selected LoopCond
-  route token + recipe carrier mint; outside rows stay verification
-  evidence in `body_only` via `consume_pre_effect`.
-Non-authority:
-  Carrier-class reclassify of body-only rebinds; VariableAccum fixture
-  widening; `claims_variable_accum_family` relaxation; generic Outside
-  consumers.
-Fail-fast boundary:
-  `SourceItemsMissing` / `SourceCallOutsideSelectedFamily` /
-  `facts-absent` / `VariableAccumRecurrence*` stay named terminals.
-Smallest next slice:
-  none for `sum` itself — the observed next wall inside the callee graph
-  is `make`'s multi-exit `return new` (`handle-result-terminal-missing`);
-  the per-exit membership census is
+Recorded premise falsified: "`sum` carrier lacks ConditionRead" was a
+stale wall. Probe census showed outside-cohort rebinds already ride
+the armed LoopCond carrier path — `count += 1` (BodyRebind, no
+ConditionRead) compiles with a real phi and `iterationCheck`'s exact
+loop shape compiles end-to-end (`sum`/`i`/`iterations` phis, `icmp
+Le`, `call_same_module_instance`, `local.contract.write` Reassigns);
+`pow2`'s `out*2` multiplicative carrier clean. Binding classification
+-> `ReadyWithBodyOnly` -> LoopCond route token -> recipe carrier mint
+is the sole carrier chain; `<=`+param bound, decl-init armed calls
+and `x = x + <call>` rebinds all admitted. The census instead
+surfaced the real callee-graph wall (`make` multi-exit `return
+new`), whose lineage landed below. `SourceItemsMissing` /
+`SourceCallOutsideSelectedFamily` / `facts-absent` /
+`VariableAccumRecurrence*` remain named fail-fast terminals; no
+Carrier reclassify or generic Outside consumer opened. Full census
+table recoverable via git.
+Next slice:
   `MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0` under the
   `MULTI-RETURN-RESULT-NEW` D0 lineage. `run()`'s
   `root-call-entry-unavailable` still gates reachability upstream.
@@ -888,40 +840,41 @@ Next row: `MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0` — census which
   gate is now downstream-reachable once that entry admits.
 ```
 
-## Census — MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0 (design_stop)
+## Landed — ROOT-CALL-ENTRY-D0 + UNRELEASED-ROOT-HOME-D0 + ROOT-INSTANCE-ENTRY-S0
 
-Boundary: `main`'s terminal `return bench.run()` through root-exit
-finalization; excludes callee bodies and `run`'s own exits.
+Tombstone of the two D0 sections (full record via git):
 
-`root-call-entry-unavailable` is raised only by
-`take_finalized_root_call` when root exit progress is not `Emitted` —
-and the sole reachable non-emitted state is `Unavailable` (Plain and
-MapGet entries are restored with `Ok(None)`; `Prepared`/`Emitting` are
-unreachable because `emit_root_home_exit_payload` begins and records
-in one call; a never-prepared exit is `Ok(None)` +
-`artifact-call-physical-missing`). `prepare_root_home_exit` records
-`Unavailable` when any home at the exit is not `end_available`.
+- `root-call-entry-unavailable` is raised only by
+  `take_finalized_root_call` on non-`Emitted` progress; the reachable
+  state is `Unavailable`, recorded by `prepare_root_home_exit` when
+  any exit home is not `end_available`. Needed entry:
+  `Call{Instance}` via `emit_instance`.
+- Wall A accepted: migrate `BinaryTreesBench` `init` fields to typed
+  declarations per `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` branch (a).
+- Wall B accepted: widen `issue_root_instance_call_dispositions`
+  `unreleasable` to `end_available` parity — `PlainI64NoHook` OR
+  `Owned*FieldsNoHook` with sealed `children`.
 
-Wall A (current): `bench` = `new BinaryTreesBench()` — its fields are
-`init { builder, min_depth, ... }`, all untyped. The destruction
-classifier maps any untyped field to `Unavailable(FieldType)`, so the
-claim's `end_available` is false and the exit goes `Unavailable` at
-prepare, long before entry selection. Needed entry:
-`Call{Instance}` via `emit_instance`/`record_root_call_exit`.
+S0 landed: typed `BinaryTreesBench` fields + the issuer parity gate.
+Pins in `ordinary_new_terminal_result_tests`: owned-field Call entry
+seals + unissued when children missing; focused `root_instance_call`
+8/8, `handle_result` 9/9, `ordinary_new` 276/276, `lexical` 232/232.
+Probe: `Holder`/`Bench` typed-field fixtures on `--emit-mir-json`
+reach the known `Invoke` emit boundary — `root-call-entry` cleared.
+Known baseline red: `main_f1_rejects_direct_call_and_nested_owner_`
+`before_lowering` reproduces on parent `7b754359e1`; not this change.
 
-Wall B (after A): `issue_root_instance_call_dispositions` withholds
-the `Ready` row when any exit home is not `PlainI64NoHook` — a typed
-`builder: BinaryTreeBuilder` field is `OwnedObjectFieldsNoHook`, so
-the row is skipped, `expected` is already set, and the terminal
-freezes `artifact-source-unavailable`. A bounded widening (admit
-`Owned*FieldsNoHook` iff sealed `children` exist, matching the
-`end_available` contract plus `FieldResidence` plan support) is the
-smallest consistent issuer fix.
+New wall A2 (bisected): `me.b = me.a + 1` — computed birth store.
+`ConstructionStoreRhsV1` admits only `{LiteralI64, Parameter,
+ProviderConstruction}`; `me.max_depth + 1` / `me.max_depth` RHS is
+`BodyCoverageUnsupported` -> claim `construction()` Err -> emission
+never `Emitted` -> `Unavailable`. `BinaryTreesBench.birth` has both
+(`stretch_depth = me.max_depth + 1`, `long_lived_depth = me.max_depth`).
 
-Next row: `MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0` — untyped-init
-field storage is named outside-lane scope (per CURRENT_STATE); this
-census fixes the ordering: untyped storage -> issuer widening ->
-`Call{Instance}` entry emission.
+Next row: `MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0` — census which
+computed-store RHS shapes the birth contract may admit (scalar
+arithmetic on `me.` fields/params is ownership-free; release and
+re-store arms need the same audit the existing exception took).
 
 ## Preserved contract boundaries
 

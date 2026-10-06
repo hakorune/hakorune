@@ -651,3 +651,112 @@ fn mixed_or_unproven_add_discards_terminal_and_all_staged_reads() {
         assert!(ledger.field_reads.borrow().is_empty(), "{suffix}");
     }
 }
+
+#[test]
+fn root_instance_call_admits_owned_field_receiver_with_sealed_children() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Holder { inner: Page
+        birth() { me.inner = new Page() }
+        run(): i64 { return 0 } }
+        static box Main { main() {
+        local holder = new Holder()
+        return holder.run() } }",
+    )
+    .expect("sealed owned-field receiver home source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    assert!(ledger.root_instance_call_expected(owner));
+    // `inner: Page` makes `Holder` `OwnedObjectFieldsNoHook`; its sole
+    // birth write is a `Provider` store of the declared class, so the
+    // children inventory seals and the home is releasable — the issuer
+    // keeps the `Ready` row for `emit_instance`.
+    assert!(!ledger.root_instance_call_is_empty());
+}
+
+#[test]
+fn root_instance_call_stays_unissued_for_owned_field_without_sealed_children() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Holder { inner: Page
+        birth() { }
+        run(): i64 { return 0 } }
+        static box Main { main() {
+        local holder = new Holder()
+        return holder.run() } }",
+    )
+    .expect("unsealed owned-field receiver home source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_completion_for_test().owner();
+    assert!(ledger.root_instance_call_expected(owner));
+    // `inner` is declared typed but never written in birth — no sealed
+    // residence, `children` is `None`, `end_available` can never hold,
+    // so the issuer still withholds the `Ready` row.
+    assert!(ledger.root_instance_call_is_empty());
+}
+
+#[test]
+fn owned_field_receiver_home_seals_call_entry_and_residence_release() {
+    // Mirror of `unreleasable_root_call_receiver_passes_finishing_but_not_
+    // the_seal` with a typed `inner: Page` field: the receiver home now
+    // reaches `end_available`, so the `Ready` row issues, `emit_instance`
+    // records the Call entry and the seal must accept — the whole chain,
+    // not just issue-time admission.
+    let mut package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { birth() { } }
+        box Holder { inner: Page
+        birth() { me.inner = new Page() }
+        run(): i64 { return 0 } }
+        static box Main { main(args) {
+        local holder = new Holder()
+        return holder.run() } }",
+    )
+    .expect("sealed owned-field receiver home source");
+    let mut loans = package.direct_call_loans.take();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .expect("app main");
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .expect("main declaration");
+    let mut builder = crate::mir::MirBuilder::new();
+    let mut function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                    main.catalog_key().clone(),
+                ),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                loans.as_mut(),
+            )
+        })
+        .expect("lowering input")
+        .unwrap_or_else(|e| panic!("owned-field root call lowers: {e}"));
+    if let Some(loans) = loans {
+        loans.finish_empty().expect("no direct-call rows owed");
+    }
+    let ledger = &package.ordinary_new_claim_ledger;
+    let observation = ledger
+        .validate_finalized_new_root(&function)
+        .expect("draft validation");
+    function
+        .install_root_ordinary_new_observation(observation)
+        .expect("observation install");
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .unwrap_or_else(|e| panic!("finishing: {e}"));
+    let birth_keys = std::collections::BTreeSet::from([
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Holder", 0),
+        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 0),
+    ]);
+    ledger
+        .seal_finalized_root_birth_handoff("Main.main/1".into(), &birth_keys, None)
+        .unwrap_or_else(|e| panic!("seal must accept the owned-field Call entry: {e}"));
+}
