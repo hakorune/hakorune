@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0"
+current_execution_row = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/stored-child-receiver"
-current_design_stop = "MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0"
+current_blocker_token = "selfhost-resume/nullable-field"
+current_design_stop = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NOBIRTH-PROVIDER-S0 landed: `ProviderConstructionChildV1`
-{BirthIndexed, NoBirthZero} sealed on the plan; dedicated NoBirth
-emission arm (NewBox + ObjectFieldSet + HomeRelease, no birth call,
-no recipe take, no ABI record) + validation arms. Pins 8/8; suites
-276/232/97/64/37/8/4 green; real binary-trees route clears
-`provider-birth-recipe-missing` to the preserved Invoke boundary.
-Next wall census: stored-child receiver (`local builder = me.builder`).
+NOBIRTH-PROVIDER-S0 landed (fc57455bb5); STORED-CHILD-RECEIVER-D0
+closed as ParkedSealed — sibling `STORED-CHILD-BORROWED-C-RECEIVER-S0`
+owns the family (`artifact-unowned-lifecycle-site` is its own recorded
+app observation). Probes: `field-get-route-drift` (object slot load),
+`admission-candidate-unavailable` (local-bound receiver).
+Next wall census: `TreeNode` nullable fields -> NULLABLE-FIELD-D0.
 """
-next_design_card = "MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0"
+next_design_card = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"

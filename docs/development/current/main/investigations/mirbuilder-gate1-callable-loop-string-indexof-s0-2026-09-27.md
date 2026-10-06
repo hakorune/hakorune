@@ -862,52 +862,12 @@ Forward/unwritten/parameter/object-field/pure-literal shapes decline.
 Pins: construction_plan 6/6 + suites (39/276/8/232); `bench_min`
 reaches the `Invoke` boundary.
 
-## Decision — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0 (accepted)
+## Landed — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0 + NOBIRTH-PROVIDER-S0
 
-Boundary: provider-store child construction when the child class has
-no `birth` row; excludes `run()` stored-child receivers, `TreeNode`
-nullable fields, `itemCheck`, Gates 2-4.
-
-Census: `new X()` arity-0 on a birthless class is ALREADY the sealed
-disposition `OrdinaryNewConstructorDispositionV1::NoBirthZero`
-(`no_birth_constructor_disposition`: arity 0 + no Birth row ->
-zero-init; arity > 0 -> `BirthConstructorMissing` fail-fast) — both
-claim paths mint it. `BinaryTreeBuilder` (fieldless, `PlainI64NoHook`,
-arity 0) matches it exactly; its `ProviderConstruction` plan row is
-minted today — the sole gap is emission's `take_birth_site_recipe`.
-`provider_births` records feed only the published Birth ABI closure
-(`selected_owners`/`actuals`) — a NoBirth child owes no record, and
-`provider_birth` is already `Option`. Validation pairs `object:Some`
-<=> `provider_birth:Some` and counts `3*birth_providers`
-(birth_call+reclaim+home_release); a NoBirth provider emits only the
-home_release tail (+1).
-
-Decision: option (a) — dedicated NoBirthZero provider arm. Option (b)
-(requiring explicit `birth() {}`) contradicts the sealed NoBirthZero
-contract and parks an emission gap on a `.hako` source workaround —
-expressivity-first forbids it.
-
-Source authority: `no_birth_constructor_disposition` contract applied
-to the provider child (arity 0 + no Birth row => NoBirthZero).
-Canonical issuer: `issue_construction_plan` seals a
-{`BirthIndexed`, `NoBirthZero`} marker on `ProviderConstruction` from
-the caller's Birth-row inventory (`loan.rows()`) + the child
-definition's field count — `NoBirthZero` requires arity 0 AND
-fieldless (a NoBirth class with fields has `construction_for` Err
-`InitializationContractMissing`).
-Non-authority: no index/raw-lane change, no claim-path change, no
-`record_provider_birth` for NoBirth, no `.hako` declaration
-requirement.
-Fail-fast boundary: arity>0 or non-fieldless NoBirth child declines at
-issue (`FieldContractUnsupported`); `BirthIndexed` still requires the
-`birth_site_index` recipe (`-missing`/`-drift` unchanged).
-Smallest next slice: `MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0` — marker +
-NewBox/ObjectFieldSet/HomeRelease arm + validation arm/count +
-positive/negative pins + real-route probe.
-Non-claims: `run()` stored-child receiver (sibling lane), `TreeNode`
-nullable, `itemCheck`, Gate-1 completion.
-
-## Landed — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0
+D0 tombstone (full record via git): arity-0 `new X()` on a birthless
+class is the already-sealed `NoBirthZero` disposition — dedicated
+emission arm, not a `.hako` `birth() {}` workaround. Plan seals
+{`BirthIndexed`,`NoBirthZero`} from `loan.rows()` + child field count.
 
 `ProviderConstructionChildV1::{BirthIndexed, NoBirthZero}` sealed on the
 plan by `issue_construction_plan` (Birth-row inventory + child field
@@ -931,6 +891,46 @@ outside this slice's edge.
 
 Next row: `MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0` — census of the
 `local builder = me.builder` wall (sibling `child_call` WIP included).
+
+## Census — MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 (closed)
+
+Boundary: `local b = me.<obj-field>; b.m(...)` in `run()` on the
+`--emit-exe` published route; excludes `TreeNode` nullable fields,
+`itemCheck`, `me.iterationCheck` borrowed actuals, Gates 2-4.
+
+Probe chain (published route): `local builder = me.builder` emits a
+`FieldGet`; projection `project_field_get` accepts only
+`slot_load_i64`/`slot_load_u64`/`slot_load_handle`-ArrayBox arms — a
+`Box(Builder)` slot load is `field-get-route-drift`. `local x =
+builder.m()` (i64 result) is `admission-candidate-unavailable`; the
+object-result shape is `artifact-unowned-lifecycle-site` — the exact
+token the sibling card records as its last unchanged-app observation.
+
+Ownership: sibling lane `MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0`
+(card `mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05`)
+already owns the stored-child receiver family — direct
+`me.<Provider field>.m(borrowed actual)`, the canonical field read in
+its bounded series, and WIP `instance_construction_child_call.rs`. Its
+accepted scope names only the direct spelling, so the local-bound
+variant is a boundary item inside the same family, not a new wall.
+
+Decision: `ParkedSealed` on the sibling owner — the wall is the same
+stored-child family already claimed, and this lane must not open a
+parallel receiver authority. Reopen trigger: sibling S0 lands and the
+local-bound spelling (`local b = me.builder; b.m(...)`) still rejects
+on the unchanged app -> new D0 for the residual arm only.
+
+Source authority: published `project_field_get` route inventory +
+call admission candidates. Canonical issuer: sibling lane's
+stored-child receiver arm (field read + receiver provenance).
+Non-authority: `.hako` rewrite of `run()`, a parallel field-load arm,
+local-receiver claims minted outside the sibling lane.
+Fail-fast boundary: `field-get-route-drift`, `-admission-candidate-`
+and `-lifecycle-site` freezes stay — no permissive arm added here.
+Smallest next slice: none in this lane — next in-scope wall census is
+`MIRBUILDER-GATE1-NULLABLE-FIELD-D0` (`TreeNode` `new T(null,..)`,
+`me.left == null`).
+Non-claims: sibling lane completion, nullable fields, Gates 2-4.
 
 ## Preserved contract boundaries
 
