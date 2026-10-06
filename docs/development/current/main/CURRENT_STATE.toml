@@ -1,10 +1,10 @@
 date = "2026-10-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/callee-return-outcome-d0"
-current_design_stop = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0"
+current_blocker_token = "selfhost-resume/callee-return-outcome-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -25,13 +25,15 @@ Child-relation mapping accepted inside same result Facts.
 Shared call composition closed (focused32; final source check).
 Child source relation S0 closed: real8, focused38, same production frontier.
 Per-site field refinement law fixed; owning-only inventory remains unchanged.
-Next solve direct/local returned-call acquisition and completion bridge.
+Terminal-value owner split closed (focused33); behavior unchanged.
+Immutable handoff mapping accepted: original homes + sealed Normal projection.
+Next implement direct/local owned returned-call source co-seal S0.
 Both315/318, field lifetime/cleanup and production EXE remain incomplete.
 """
-next_design_card = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

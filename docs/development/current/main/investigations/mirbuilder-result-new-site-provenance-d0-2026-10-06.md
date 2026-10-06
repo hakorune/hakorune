@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: outcome support D0 decision closed; callee return outcome D0 selected
+Status: terminal-value owner BoxShape closed; callee return outcome S0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -613,3 +613,162 @@ Decision validation: first pointer guard rejected the edited workstream row at
 retaining its current task and required frontier. Second pointer guard required
 the full selected task ID in the card; corrected the heading. Final pointer/
 scope/diff checks PASS; no unclassified red or new runtime acceptance claim.
+
+
+## MIRBUILDER-GATE1-TERMINAL-VALUE-OWNER-BOXSHAPE-S0 selected
+
+Decision: first move only the existing returned-value source identity owner out
+of home_terminal_relation.rs785; preserve its bodies, classifications, issuance
+scope and historical paths. This necessary capacity prerequisite is separate
+from returned-call meaning. Read-only worker corroborates dependency and scope.
+Source authority + canonical issuer: same terminal source walk and its existing
+TerminalValueReturn issuer; no new semantic authority or receipt.
+Non-authority: module location, source size, runtime class or build success.
+Fail-fast boundary: exactly unchanged; unsupported received/call returns remain
+unavailable and all existing source/lifecycle failure distinctions remain.
+Smallest next slice: contiguous TerminalReturnedSourceV1/TerminalValueReturnV1/
+terminal_returned_source block into private home_terminal_returned_value.rs,
+old paths reexported. No result kind, callback, flow, emitter or ABI change.
+Non-claims: no acquisition bridge, physical publication or real app progress.
+
+Selected paths: terminal relation parent/new child, existing lifecycle scope guard
+for the new source cap, resolved_semantics README owner pointer, this card and
+CURRENT_STATE selection. Existing issue797/scan751 and .hako/C stay untouched.
+Acceptance: source body/issuer-scope correspondence, historical public paths,
+focused ordinary_new_result_claim_tests + ordinary_new_coseal_tests +
+result_origin_tests + child_relation tests (nonzero counts), source-inclusive
+check, scope/pointer/diff/owned rustfmt, all changed source under800. No new test
+that merely mirrors relocation. Same production frontier receipt remains valid
+because behavior is unchanged; no fresh CLI/app benchmark required for this move.
+After green closeout restore CALLEE-RETURN-OUTCOME-D0 for the typed direct/local
+object-return contract, including exact call source, Return destination and
+Normal/Fault ownership disposition. Goal remains active.
+
+
+Terminal-value BoxShape implementation: parent785->668, new child129. Moved
+block bodies/comments byte-identical after only equivalent issuer-scope spelling;
+parent Value.owner now uses existing owner() getter instead of private field.
+Initial edit script stopped on guard-loop pattern assertion before guard/README
+writes; corrected those scoped edits. Initial source-inclusive check found
+this-change E0616 private owner access; getter correction made, final check active
+(/tmp/hako-terminal-value-owner-check-final.log), not yet PASS. Read-only final
+shape/accessor review PASS. New child included in existing hard800 guard loop.
+No source meaning or physical behavior changed; no new semantic acceptance claim.
+
+
+## TERMINAL-VALUE-OWNER-BOXSHAPE-S0 closeout
+
+Corrected source-inclusive check PASS1m04, lib-test760 warnings (same prior S0
+count; not hidden). /tmp/hako-terminal-value-owner-check-final.log. Focused33/33
+PASS,0 ignored,8665 filtered, runtime0.05s; quick build6m19s,
+/tmp/hako-terminal-value-owner-focused.log. Result construction, affine co-seal,
+source origin and real8 child relation families all execute. No new tests added
+for relocation alone. Initial E0616 is this-change and corrected; no outstanding
+this-change or unclassified failure. Scope/pointer/diff/owned rustfmt PASS.
+
+Read-only review and mechanical block comparison corroborate exact bodies and
+comments, same enclosing home_new_prefix issuer visibility and public reexports;
+only equivalent parent getter glue differs. Parent668/newchild129. New child is
+in the existing hard800 guard loop; no semantic guard weakening. Source scan751,
+issue797 and package issuer796 unchanged. This closes capacity prerequisite,
+not object-call acquisition. Existing app(6,2)/315/318 failure remains prior
+frontier, no new CLI/EXE/runtime acceptance or speedup claimed.
+
+Restore MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0, design_stop, next execution none.
+Read-only consultation fixes the next interface as ONE typed object-return source
+hook distinct from scalar terminal_call. Retain exact direct call/Return destination
+or received-local acquisition callsite, canonical selected key, verified source
+argument/receiver correspondence, existing immutable outcome witness references
+and priorHomes Fault. Local received states need exact acquisition site, never a
+fake New. Pure Object/Nullable qualification only; mixed get(None) stays unavailable.
+
+The source walk may issue a handoff OBLIGATION, not an acquired/transferred Home.
+VerifiedFunctionCompletion is control-flow completeness only. Direct return has
+no local to omit; a received-local return reserves its exact Normal handoff and
+keeps call Fault priorHomes unchanged. Unresolved handoff cannot authorize any
+Normal cleanup omission, Recipe preparation or publication. The final source
+co-seal uses successful same-site lifecycle construction/prefix/arguments plus
+exact callee Completion/terminal/path evidence; emitted commits and backend green
+remain later independent materialization checks, not construction entrance gates.
+
+Important phase correction from current source audit: issue.rs770-797 attaches
+ONLY root_completion/root_terminal_relation. The complete child indexes are
+attached by issuer.rs684 -> ordinary_new_completion_index.rs::retain_completion_index
+AFTER issue_s6c_semantic_child consumes its exclusive seed. Handoff source co-seal
+must occur after exact completed index retention, using same immutable Rc products;
+do not prematurely seal at the earlier ledger assembly. Use a private child of
+this existing index/ledger owner instead of growing issuer796 or issue797.
+Retain new object-return relations explicitly in child contract retention; current
+Value filter keeps Construction/Null only. No second source scanner or fixpoint.
+
+Next unresolved implementation detail is the immutable Normal-exit interface:
+RootHomeExit.homes()/all_exits_ready currently expose source homes directly and
+root_home/root_call_entry consume them. Preserve original source homes plus the
+handoff obligation; only the same co-sealed Return disposition may apply the
+Normal omission. Do not mutate shared Completion Rc or omit homes before gate
+then rely on a later artifact failure. Choose one source/verified projection
+used by preparation, normal cleanup and final validation before selecting S0.
+This finite interface decision is internal and actionable; goal remains active.
+
+
+## MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0 accepted mapping
+
+Decision: choose the immutable gate reviewed against current issuer/rootcleanup
+source. Keep original RootHomeExit homes and shared Completion unchanged; add an
+exact return-handoff obligation. After retain_completion_index retains all owners,
+its private owner co-seals per-(owner,exit) NormalReturnDisposition from exact
+source call/outcome ancestry, same leaf successful lifecycle claim and callee
+Completion. One ledger normal_exit_projection(owner,exit) owns readiness and the
+Normal cleanup delta; old no-obligation exits project identically.
+
+Source authority + canonical issuer: existing result witness product (no new
+scanner/fixpoint), canonical terminal source walker, existing source claim and
+completed-index co-seal owner. Typed object-return source hook is distinct from
+scalar terminal_call; received states retain exact acquisition CALL site. Direct
+return has Return destination and no local omission. Local return obligation
+names exact received binding/acquisition; only sealed projection omits it.
+Non-authority: passive class/witness alone, raw RootHomeExit/all_exits_ready,
+ordinary assignment, physical green or a different same-class claim. Do not
+mutate/rebuild Completion Rc or omit a Home before successful co-seal.
+Fail-fast boundary: absent or mismatched target, source argument/receiver, true
+exit, lifecycle claim, completion or source Normal/Fault disposition records
+unavailable and blocks preparation/publication. No borrowed/mixed outcome is
+sealed in this pure-owned slice; mixed get(None) remains None. Unresolved
+registered obligations reject artifact/SourceCompleteAtFinalization even where
+older generic branches would otherwise skip root validation.
+Smallest next slice: CALLEE-RETURN-OUTCOME-S0 implements both direct pure-owned/
+nullable object-call returns and exact received-local return obligations, final
+source co-seal and ONE Normal exit projection. Switch existing root_home_exit_is_complete,
+prepare_root_home_exit and validate_root_home_exit readiness/expected-homes to
+that projection; record/emission progress uses the same prepared result. Retain
+new terminal obligation rows in child contracts. Fault uses original priorHomes.
+Non-claims: mixed realloc support, anchored field installation/lifetime, new
+physical runtime carrier, EXE or entire migration completion. New source claims
+still require the independent physical owner to corroborate emitted call/Return,
+acquisition and cleanup before publication.
+
+Bounded paths: source terminal value owner/helper, received-local flow/scanner
+and canonical terminal/Completion forwarders; existing result Facts typed loan
+helper (no outcomes reanalysis); co-seal child terminal retention; private
+completion-index/ledger handoff verifier and Normal exit projection; root_home,
+root_call_entry if its preflight reads projected homes, emission_prepare and
+root_validation readiness/finalization; focused new source/handoff tests and
+required guard registration; relevant owner README, this card and pointer.
+Near-cap issue797/issuer796 receive delegation only within hard800. If a needed
+owner split is unavoidable, perform a separate bounded BoxShape before growing
+it; no compressed lines or combined semantic/refactor implementation.
+
+Focused acceptance: direct fresh and fresh/null relay; received local return
+with unrelated sibling Home; no-receipt cannot omit, exact sealed local removes
+ONLY returned binding, direct return identity, Fault priorHomes unchanged,
+final validator uses same projection; same-class sibling/foreign target/wrong
+exit/missing successful claim or completion reject; borrowed/mixed/unsupported
+receiver/rebound source reject; source-complete cannot bypass unresolved handoff.
+Unchanged Page.allocate->Heap.allocate207/211 true ancestry must be exercised;
+realloc's returned replacement source follows allocate, while mixed me.realloc
+and real315/318 stay outside this slice. Existing focused33 plus selected new
+positive/negative pins, source-inclusive check, scope/pointer/diff/rustfmt/caps;
+fresh CLI unchanged production frontier probe for semantic attachment. Compare
+exact source/Normal/Fault evidence, not result equality alone. Build prerequisites
+are the fixed mapping and acceptance above, not future green or emitted commits.
+CALLEE-RETURN-OUTCOME-D0 closes this interface; select S0 fast and construct it.

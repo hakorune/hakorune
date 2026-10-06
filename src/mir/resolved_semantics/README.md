@@ -44,6 +44,10 @@ the existing local, nullable, discard and borrowed terminal call lenders. The
 borrowed callback runs first; strict scalar and nested-call sealing keep their
 original selected-site and lexical receiver checks.
 
+The private `home_terminal_returned_value.rs` owns returned-value source identity;
+`home_terminal_relation.rs` retains its historical reexports and other terminal
+classifiers. The source walk and lifecycle authority are unchanged.
+
 The terminal relation additionally records non-i64 `return <value>` evidence
 through `TerminalValueReturnV1`: the exact returned source is a `MapLiteral`
 site, a map-local/Home binding root (with the Home's sealed `new` acquisition
