@@ -461,6 +461,32 @@ or support fails before publication. The existing constructor field contract
 must explicitly admit this anchored relation; an owning-only destination
 cannot silently accept a borrowed field.
 
+The destination contract is an exact per-construction refinement of the
+canonical constructor plan, keyed by the branded returned-New site and
+canonical field. Its issuer borrows the same constructor declaration and
+sealed store plan. The bounded refinement requires a locally verified
+ClosedCallable returned construction without field overrides, a unique
+nonweak typed user-object field store from the original Birth parameter,
+and exact constructor, parameter ordinal, ObjectFieldStores use and child
+class correspondence. This rule is generic; neither a class name nor an
+ordinary input's missing annotation grants the permission.
+
+The refinement explicitly permits the three relations above, subject to a
+separate verification of every actual outcome's acquisition or live support.
+It changes neither the class-wide owning-field inventory nor the ordinary
+parameter Home demand. A base owning-only destination remains owning-only;
+a forward-origin candidate cannot convert it into a borrowed residence.
+Destination permission alone cannot install a field or publish a result.
+
+A fresh child returned through calls retains the exact selected callee,
+source exit and original acquisition through each direct-return or local-return
+edge. The source lifecycle verifier must corroborate the leaf's exact
+result-position construction claim or returned Home, its completion, and each
+transfer/discharge obligation. An unrelated construction of the same class,
+a nullable class observation, or an I64 call-return relation is insufficient.
+Physical emission subsequently discharges that same sealed plan; successful
+emission is not a new source ownership authority.
+
 A dependent result, its child reads and parent finalization may not outlive its
 supporting Home. An anchor release is rejected when a subsequent dependent use
 or finalization requires that support. A result rooted in a dying local or

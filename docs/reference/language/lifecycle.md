@@ -308,7 +308,13 @@ and receive no owning release; null has neither. Parent finalization still
 requires borrowed support to remain live. Runtime tags or pointer comparisons
 cannot reconstruct this classification. A sole source/completion plan must
 retain the true outcome witness and its exact field disposition to the physical
-cleanup owner. Current owning-only field schemas do not implement that sum.
+cleanup owner. The canonical constructor plan is the destination-contract
+owner; a branded per-construction refinement may explicitly permit the sum
+under the source rule in ownership.md. It leaves class-wide owning inventories
+and other construction sites unchanged. Permission is not verified installation:
+each source outcome still needs its exact acquired Home or live original anchor
+and its Normal/Fault disposition before publication. Current owning-only field
+schemas do not implement that sum.
 
 A complete anchored composite may cross a verified ClosedCallable relay;
 prepublication constructor Fault and postpublication relay Fault release each

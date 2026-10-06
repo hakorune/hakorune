@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: child source relation S0 closed; outcome support D0 selected
+Status: outcome support D0 decision closed; callee return outcome D0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -485,7 +485,7 @@ formal ordinal rejects WHOLE mixed candidate (7remain), foreign constructor batc
 issues0; no compatible Fresh/Null subset is promoted. Original Rc ledger remains
 immutable in corruption tests; scratch draft uses the same package's source batch.
 Source check PASS38.74s, scope/pointer/diff/owned rustfmt guards PASS.
-New source parent735/product106/preparation110/child366/tests241, no near-cap
+New source parent735/product106/preparation109/child366/tests241, no near-cap
 issue797 or construction743 growth. Canonical child identity is retained for
 later verification; no available Home or completed field installation issued.
 
@@ -535,3 +535,81 @@ by provenance. No AST/app workaround, fallback, implicit consume or take/share.
 This is internal contract work toward Gate1; goal remains active, not paused or
 blocked. Stored-child sibling and Gates2-4 remain parked. No physical implementation
 before exact source contract/issuer/failure boundary and acceptance are selected.
+
+
+## OUTCOME-SUPPORT-D0 decision / MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0 selected
+
+Decision (2026-10-07): resolve destination authority as a per-construction
+refinement issued by the existing instance_construction plan owner. Keep the
+base owning-only plan, field_demands, ordinary parameter ABI and class-wide
+owned_field_children inventory unchanged. The generic source rule is now
+normative in ownership.md, mirrored by lifecycle.md: exact ClosedCallable
+returned-New, no overrides, unique nonweak typed user-object field store,
+original Birth Parameter and exact ObjectFieldStores/formal/class correspondence.
+The refinement permits separately verified Null/OwnedFresh/BorrowedFromFormal;
+it does not establish acquisition, support, installation or cleanup. Owning-only
+permission must reject a borrowed actual. No name exception or silent inventory
+reinterpretation is allowed.
+
+Read-only worker reviewed the current source and confirmed the split. The new
+finding changes the next action: Fresh acquisition cannot jump from Heap.allocate
+source witnesses directly to replacement's Home. Heap.allocate directly returns
+me.small_page.allocate and me.medium_page.allocate (source207/211), while realloc
+returns a received replacement local. The current terminal returned-source
+vocabulary has Construction/Home/Handle/Null but no compositional object-call
+return contract. TerminalI64CallReturn is scalar. PrefixLocalFlow exposes direct
+New acquisition only. begin_nullable_call_emission's same-class claim/commit
+search determines canonical identity, not exact acquisition or returned-path
+transfer; reusing it as acquisition proof would accept an unrelated sibling.
+
+Source authority + canonical issuer: existing source call witness DAG and exact
+selected targets; source Home-prefix/terminal verifier co-sealed with Completion
+and exact result-position claim. ConstructionPlan's private refinement owns
+field permission; the later same-plan physical owner discharges obligations.
+Non-authority: class-wide claim lookup, NullableObject eligibility, pointer/tag
+identity, ordinary assignment, emitted artifact success, or immutable provenance
+alone. Mixed Facts get(None) must remain None.
+Fail-fast boundary: an absent leaf lifecycle claim, missing/failed exact callee
+completion, wrong returned exit, mismatched target/source batch, unverified call
+Normal/Fault transfer, expired support or owning-only borrowed destination leaves
+execution unavailable. Never retain only the convenient Fresh/Null subset.
+Smallest next work: CALLEE-RETURN-OUTCOME-D0 fixes the object returned-call bridge
+for BOTH direct returned receiver-field calls and returned received locals. Cover
+pure fresh/null call results first; compose their exact original acquisition and
+frame transfer/cleanup, without admitting the mixed borrowed realloc result.
+Once its issuer, bounded mapping and acceptance are fixed, implement
+CALLEE-RETURN-OUTCOME-S0; do not wait for downstream physical green to construct it.
+Non-claims: no executable residence refinement, Home acquisition, local mixed
+sum, anchor lifetime, new physical tag/ABI, EXE or final migration completion.
+
+Required next acceptance: generic pure-fresh and fresh/null direct-call relay,
+local received result returned once, exact Null leaf without Home, same-class
+unrelated claim cannot satisfy a missing leaf, wrong/foreign callee and wrong
+source exit reject, unavailable completion rejects, transferred Home removed only
+from Normal return obligation and retained on applicable pretransfer Fault,
+no duplicate return/release and no forwarded borrowed parameter treated as Fresh.
+Use exact terminal/completion/claim identity, not merely runtime result equality.
+The unchanged Heap.allocate and page.allocate sources must exercise the true
+returned-call ancestry. realloc's mixed relation and the real315/318 construction
+stay fail-closed until outcome/anchor/destination and physical consumers complete.
+
+Remaining required sequence: returned-call acquisition/completion bridge;
+explicit constructor refinement consumer; mixed local outcome flow and original
+formal support/lifetime; field Normal/Fault transfer and relay cleanup; sole
+physical outcome transport/publication; unchanged production EXE and full goal
+acceptance. These are prerequisites of the existing Gate1 task, not new optional
+audits. Stored-child sibling and Gates2-4 stay parked.
+
+Validation for this decision-only slice: source owner/path audit and read-only
+worker agree; pointer/scope guards and diff whitespace checks required. Rust/C/
+.hako unchanged, no Cargo rerun or reuse of prior green as new semantic acceptance.
+Previous compile-time inquiry inspected build receipts/settings only; it did not
+advance Gate1. This turn resolves a field-contract ambiguity and changes the
+selected proof task based on the direct/local returned-call gap, rather than
+repeating the existing frontier census. Goal remains active.
+
+Decision validation: first pointer guard rejected the edited workstream row at
+550 characters (this-change document formatting). Shortened only row H while
+retaining its current task and required frontier. Second pointer guard required
+the full selected task ID in the card; corrected the heading. Final pointer/
+scope/diff checks PASS; no unclassified red or new runtime acceptance claim.
