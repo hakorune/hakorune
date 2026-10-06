@@ -62,6 +62,13 @@ where
     if let Some(constructor) = constructor {
         if let OrdinaryNewConstructorDispositionV1::Birth(recipe) = constructor {
             let effects = recipe.physical_effect_mask();
+            if crate::config::env::builder_mir_compile_trace() {
+                eprintln!(
+                    "[mir-compile/raw-birth] function={} class={} receiver={dst:?} args={arg_values:?}",
+                    builder.function_state.current_function.as_ref()
+                        .map(|f| f.signature.name.as_str()).unwrap_or("<none>"), class
+                );
+            }
             builder.emit_instruction(MirInstruction::call(
                 None,
                 Callee::BirthConstructor {

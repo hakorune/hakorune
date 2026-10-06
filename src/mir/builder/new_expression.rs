@@ -149,6 +149,21 @@ impl PreparedRawNewExpressionV1 {
         } else {
             None
         };
+        if crate::config::env::builder_mir_compile_trace() {
+            eprintln!(
+                "[mir-compile/new-claim] function={} class={} selected={} claim={} arguments={:?}",
+                builder
+                    .function_state
+                    .current_function
+                    .as_ref()
+                    .map(|f| f.signature.name.as_str())
+                    .unwrap_or("<none>"),
+                self.class,
+                selected,
+                self.ordinary_claim.is_some(),
+                arguments
+            );
+        }
         self.selected_ordinary_claim = selected;
         Ok(())
     }

@@ -1660,3 +1660,9 @@ derived-predicate: `j + m <= n` compare over three distinct locals — carried
 renamed-locals variants). Emitted
 MIR has one `define @main`, one loop-header PHI with its backedges, and one
 value-return terminator.
+
+Result-new diagnostic tracing uses the existing `NYASH_MIR_COMPILE_TRACE`
+flag, default off. The raw claim port observes its single affine take and
+prepare result; raw construction reports its existing receiver/arguments.
+Trace context has no admission, source ownership or physical binding authority.
+It must not take claims again, issue substitute proofs or alter rejection.

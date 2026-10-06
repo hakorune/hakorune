@@ -4,6 +4,9 @@ use crate::mir::builder::fields::{PreparedExactFieldReadClaimV1, PreparedRawFiel
 #[path = "raw_ordinary_new_claim/terminal_call.rs"]
 mod terminal_call;
 
+#[path = "raw_ordinary_new_claim/result_claim_trace.rs"]
+mod result_claim_trace;
+
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     fn emit_terminal_i64_call_exit(
         &mut self,
@@ -517,9 +520,11 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         String,
     > {
         let Some(ledger) = self.ordinary_new_claim_ledger.as_ref() else {
+            result_claim_trace::missing("ledger-or-site-unavailable");
             return Ok(None);
         };
         let Some(site) = self.current_source_site_v1() else {
+            result_claim_trace::missing("ledger-or-site-unavailable");
             return Ok(None);
         };
         let Some(owner) = self.callable_owner_v1() else {
@@ -529,8 +534,9 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
             owner,
             crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
         );
-        ledger
-            .try_take_result(&site, class, argument_count)
+        let result = ledger.try_take_result(&site, class, argument_count);
+        result_claim_trace::take(&site, class, argument_count, &result);
+        result
             .map_err(|error| format!("[freeze:contract][raw-ordinary-new/result-claim] {error:?}"))
     }
 
@@ -540,10 +546,13 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         claim: &crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<bool, String> {
         self.check_new_emission_scope(claim.site())?;
-        self.ordinary_new_claim_ledger
+        let result = self
+            .ordinary_new_claim_ledger
             .as_ref()
             .expect("checked ledger")
-            .prepare_result_new_emission(claim)
+            .prepare_result_new_emission(claim);
+        result_claim_trace::prepare(claim, &result);
+        result
     }
 
     fn emit_result_new_claim(
