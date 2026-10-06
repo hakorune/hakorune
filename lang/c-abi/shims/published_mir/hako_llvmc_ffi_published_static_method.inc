@@ -349,8 +349,11 @@ static uint32_t hako_llvmc_published_array_write_kind_v1(const char* kind) {
   return 0;
 }
 
-static int hako_llvmc_published_static_method_take_array_write_row_v1(
-    struct HakoLlvmcPublishedCallRows* state,
+/* Shape validation for one candidate ArrayElementWrite site without
+ * consuming the row — the same-module prepass calls this so admission
+ * and the emit-time take share one shape owner. */
+static int hako_llvmc_published_array_write_peek_v1(
+    const struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -395,18 +398,39 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
       hako_llvmc_published_array_write_kind_v1(kind) != row->kind) {
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   }
+  if (out_row) *out_row = row;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
+static int hako_llvmc_published_static_method_take_array_write_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
+    const char* function_name,
+    long long block_id,
+    size_t instruction_index,
+    yyjson_val* instruction,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row = NULL;
+  int status;
+  if (out_row) *out_row = NULL;
+  status = hako_llvmc_published_array_write_peek_v1(
+      state, function_name, block_id, instruction_index, instruction, &row);
+  if (status != HAKO_LLVMC_PUBLISHED_ROW_READY)
+    return status;
   if (hako_llvmc_published_static_method_take_row_v1(state, row) < 0)
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   if (out_row) *out_row = row;
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
 }
 
-/* Exact-site take for a proven `ArrayBox.get` read.  The instruction
- * carries no `kind` — a single read family — so matching rests on the
- * four physical coordinates plus the always-present index/dst flags;
- * a dst-less or value-carrying row is ABI drift, never a repaired read. */
-static int hako_llvmc_published_static_method_take_array_read_row_v1(
-    struct HakoLlvmcPublishedCallRows* state,
+/* Shape validation for one candidate `ArrayBox.get` read site without
+ * consuming the row — mirrors `peek_array_write_row_v1` so the
+ * same-module prepass and the emit-time take share one shape owner.
+ * The instruction carries no `kind` — a single read family — so
+ * matching rests on the four physical coordinates plus the
+ * always-present index/dst flags; a dst-less or value-carrying row is
+ * ABI drift, never a repaired read. */
+static int hako_llvmc_published_array_read_peek_v1(
+    const struct HakoLlvmcPublishedCallRows* state,
     const char* function_name,
     long long block_id,
     size_t instruction_index,
@@ -441,6 +465,24 @@ static int hako_llvmc_published_static_method_take_array_read_row_v1(
                      HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT)) {
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   }
+  if (out_row) *out_row = row;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
+static int hako_llvmc_published_static_method_take_array_read_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
+    const char* function_name,
+    long long block_id,
+    size_t instruction_index,
+    yyjson_val* instruction,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row = NULL;
+  int status;
+  if (out_row) *out_row = NULL;
+  status = hako_llvmc_published_array_read_peek_v1(
+      state, function_name, block_id, instruction_index, instruction, &row);
+  if (status != HAKO_LLVMC_PUBLISHED_ROW_READY)
+    return status;
   if (hako_llvmc_published_static_method_take_row_v1(state, row) < 0)
     return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
   if (out_row) *out_row = row;

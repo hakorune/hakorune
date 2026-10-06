@@ -434,6 +434,23 @@
           }
           return 0;
         }
+        if (!strcmp(op, "array_element_write")) {
+          /* Published rows are the admission proof: an exact-site write
+           * row admits the op; absent or malformed stays hard-stopped.
+           * Peek never consumes — the emit-time take owns that. */
+          int write_site = hako_llvmc_published_array_write_peek_v1(
+              &invocation->published_call_rows,
+              fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
+          return write_site > 0;
+        }
+        if (!strcmp(op, "array_element_read")) {
+          int read_site = hako_llvmc_published_array_read_peek_v1(
+              &invocation->published_call_rows,
+              fn0 ? read_str(fn0, "name") : NULL, bid, ii, ins, NULL);
+          if (read_site <= 0) return 0;
+          set_type(read_int(ins, "dst"), T_I64);
+          return 1;
+        }
         if (!strcmp(op, "field_set")) {
           long long box_reg = read_int(ins, "box");
           const char* field = read_str(ins, "field");

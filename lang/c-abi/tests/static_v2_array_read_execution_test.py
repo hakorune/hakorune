@@ -58,10 +58,9 @@ def entry_body(read_index_value):
 
 
 def nested_body(read_index_value):
-    # The same-module walker shares the row take/emitter, but its prepass
-    # does not admit array_element_* ops yet — same boundary that already
-    # gates array_element_write. Kept here as the honest parked edge: the
-    # read consumer is wired, upstream admission is a separate decision.
+    # Same-module admission is row-gated: the prepass peeks (never
+    # consumes) the exact-site row and the emit-time take still owns
+    # consumption — no row-less admission, no second walker's fallback.
     main = dict(name="main", params=[], metadata=dict(
         same_module_function_definitions=[
             dict(target_symbol="nested", definition_kind="same_module_function")]),
@@ -105,24 +104,25 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-array-read-") as dir
         assert 'call i64 @nyash.array.slot_load_hi' in text, (label, text)
         exe = obj.with_suffix(".exe")
         link = subprocess.run(
-            ["cc", str(obj), KERNEL, "-lpthread", "-ldl", "-lm", "-o", str(exe)],
+            ["cc", str(obj), str(TESTS / 'static_v2_ny_main_entry.c'), KERNEL,
+             "-lpthread", "-ldl", "-lm", "-o", str(exe)],
             text=True, capture_output=True)
         assert link.returncode == 0, (label, link.stderr)
         run = subprocess.run([str(exe)], text=True, capture_output=True, env=ENV)
         assert run.returncode == expected, (label, run.returncode, run.stdout, run.stderr)
         print(label, "executes through slot_load_hi ->", expected)
 
-    for scope, make in (("entry", lambda i: (entry_body(i), rows("main", i))),):
+    for scope, make in (("entry", lambda i: (entry_body(i), rows("main", i))),
+                        ("nested", nested_body)):
         body, frame = make(0)
         run_case(scope + "-stored", body, frame, 7)
         body, frame = make(5)
         run_case(scope + "-oob", body, frame, 0)
 
-    # Same-module admission boundary: the prepass whitelist predates the
-    # row consumer — the read must fail there for the same reason a write
-    # already does, not silently succeed through one walker only.
+    # Same-module admission stays fail-closed without its row: the
+    # prepass peek is the boundary, not a generic walker fallback.
     body, frame = nested_body(0)
-    compile_case("nested-prepass-boundary", body, frame,
+    compile_case("nested-prepass-no-row", body, frame[:1],
                  "module_generic_prepass_failed")
 
     body, frame = make_entry = entry_body(0), rows("main", 0)
@@ -146,5 +146,5 @@ with tempfile.TemporaryDirectory(prefix="hakorune-static-v2-array-read-") as dir
     compile_case("missing-index-field", bad_shape, frame,
                  "published_array_read_row_mismatch")
 
-    print("Lane-A array read: stored/oob execute; malformed rows fail closed; "
-          "same-module prepass boundary pinned")
+    print("Lane-A array read: entry/nested stored+oob execute; "
+          "malformed or absent rows fail closed in both walkers")

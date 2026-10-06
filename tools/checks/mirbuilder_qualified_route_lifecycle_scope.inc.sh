@@ -81,6 +81,22 @@ rg -q 'take_array_read_row_v1' "$LANE_A_RMW"
 rg -q 'test_array_read_row_take' "$LANE_A_ROW_TEST"
 test -f "$LANE_A_READ_EXE_TEST"
 
+# MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0: same-module admission for
+# the whole `array_element_*` family is row-gated through shared
+# peek+take owners — the prepass peeks (never consumes) an exact-site
+# row, absence or malformed stays `module_generic_prepass_failed`, and
+# the emit-time take remains the consumption authority.
+LANE_A_PREPASS="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_same_module_prepass.inc"
+LANE_A_NY_MAIN_ENTRY="$ROOT_DIR/lang/c-abi/tests/static_v2_ny_main_entry.c"
+rg -q 'hako_llvmc_published_array_write_peek_v1' "$LANE_A_STATIC_METHOD"
+rg -q 'hako_llvmc_published_array_read_peek_v1' "$LANE_A_STATIC_METHOD"
+rg -q 'array_element_write' "$LANE_A_PREPASS"
+rg -q 'array_element_read' "$LANE_A_PREPASS"
+rg -q 'array_write_peek_v1' "$LANE_A_PREPASS"
+rg -q 'array_read_peek_v1' "$LANE_A_PREPASS"
+test -f "$LANE_A_NY_MAIN_ENTRY"
+rg -q 'static_v2_ny_main_entry' "$LANE_A_READ_EXE_TEST"
+
 # MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0: the
 # lent view extends to the dominated `new`-argument ordinal; non-literal i64
 # birth actuals (local/bound/entry-receiver field) ride the same kind==1

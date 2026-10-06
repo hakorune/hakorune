@@ -764,3 +764,107 @@ decision, not a read-only patch). After the consumer surface closes,
 the remaining frontier items — the production caller switch, selected
 legacy route retirement, and whole-goal acceptance — continue under
 `MIRBUILDER-FINAL-PIPELINE-v1`.
+
+## array_element_* same-module prepass Decision / 2026-10-06
+
+The Lane-A same-module walker is the physical emitter for nested
+functions (`emit_same_module_function_definitions` runs before the
+entry body), so a proven `me.<field>.set/get` inside a same-module
+method hits `module_generic_prepass_failed` today — the prepass
+whitelist contains no `array_element_*` arm at all. The boundary is
+shared: `array_element_write` was never admitted there either, so this
+is one family admission, not a read-only patch.
+
+Precedent is already in-file: `hako_llvmc_published_intrinsic_array_peek_v1`
+validates a row + full instruction shape WITHOUT consuming it;
+`intrinsic_array_take_v1` is `peek + take_row`; the `newbox` prepass
+arm accepts on `peek > 0` and rejects otherwise. The same pattern fits
+exactly:
+
+1. `published_static_method.inc`: extract
+   `peek_array_write_row_v1` / `peek_array_read_row_v1` — each is the
+   corresponding take's full shape validation minus consumption; both
+   takes become `peek + take_row` so the shape contract stays in one
+   owner (mirrors `intrinsic_array_peek_v1`/`take_v1` split).
+2. `same_module_prepass.inc`: `array_element_write` accepts on write
+   peek READY; `array_element_read` accepts on read peek READY and
+   registers `set_type(dst, T_I64)` (mirroring `field_get`). ABSENT or
+   MALFORMED peeks return 0 → the existing
+   `module_generic_prepass_failed` hard stop — no row-less admission,
+   no fallback.
+3. Emit unchanged: the rmw walker arms already take the same rows, so
+   consumption stays exactly-once; `rows_finish` still rejects
+   residual rows.
+4. `static_v2_array_read_execution_test.py`: `nested-prepass-boundary`
+   flips to positive stored/oob execution through the same-module
+   walker; a nested no-row case keeps `module_generic_prepass_failed`
+   as the absence boundary.
+5. Scope pins: peek owners, both prepass arms, nested exec cases.
+
+Decision: admit `array_element_*` to the same-module prepass through
+the existing peek-row precedent; one family admission covering the
+previously unwired write arm as well.
+
+Source authority + canonical issuer: `same_module_function_prepass_instruction`
+whitelist + the shared peek/take owner in `published_static_method.inc`;
+rows remain issued by `c_transport.rs`.
+
+Non-authority: entry-walker changes; new row kinds; direct-array plan
+fusion (`match_array_slot_direct_op_plan` only consumes `mir_call`
+shapes, no overlap); lifecycle-v4 lane.
+
+Fail-fast boundary: absent/malformed row → prepass return 0 →
+`module_generic_prepass_failed`; emit-time take stays the consumption
+authority; `rows_finish` residual check unchanged.
+
+Smallest next slice: `MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0` —
+the five items above.
+
+Non-claims: production caller switch; selected legacy retirement;
+entry-path behavior; direct-array fusion routes; `dst:None` transport.
+
+## same-module prepass admission landing / 2026-10-06
+
+`MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0` landed as the accepted
+Decision above — one family admission, read and write together:
+
+- `published_static_method.inc`: `hako_llvmc_published_array_write_peek_v1`
+  and `hako_llvmc_published_array_read_peek_v1` own the full site-shape
+  validation; both take functions are now `peek + take_row`, so prepass
+  admission and emit-time consumption share one shape owner (the
+  `intrinsic_array_peek_v1`/`take_v1` split, generalized).
+- `same_module_prepass.inc`: `array_element_write` accepts on write
+  peek READY; `array_element_read` accepts on read peek READY and
+  registers `set_type(dst, T_I64)`. ABSENT/MALFORMED → return 0 →
+  `module_generic_prepass_failed`. No row-less admission.
+- `static_v2_array_read_execution_test.py` 11/11: entry + nested
+  stored(7)/oob(0) execute through `slot_load_hi`; `nested-prepass-no-row`
+  keeps the absence boundary; malformed rows still fail closed.
+- `published_rows_preartifact_test` all PASS — including the
+  second-take `found == NULL` contract (take now NULLs `out_row` before
+  peek, regression caught and fixed in-slice).
+- `static_v2_execution_test.py` full suite green (formal, control,
+  copy, nested, backedge, operation-True same-module paths, original,
+  boxed, entry) — no write-family regression.
+- Scope pins added for both peek owners, both prepass arms, and the
+  nested execution cases.
+
+Environment repair recorded honestly: `target/release/libnyash_kernel.a`
+had been rebuilt with default `legacy-entry` (its own `main`) during
+this session, which broke every probe-linked suite link. The archive
+was rebuilt `--no-default-features --features lifecycle-core` (the
+suite's canonical no-main kernel); a minimal
+`static_v2_ny_main_entry.c` now supplies `main` for plain
+value-returning fixtures since the trap-observation probe entry is
+specialized. `TMPDIR` pointed at the workdisk after a transient
+/tmp-full link failure; both are environment artifacts, not lane
+changes.
+
+Next owed: `MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0` — audit whether
+a real production caller (app `--emit-exe` / host static invocation)
+reaches an `ArrayElementRead` site through publication into the Lane-A
+or v4 consumers; the earlier app frontier froze upstream at baseline
+(`artifact-unowned-lifecycle-site`), so reachability is a design-stop
+question, not an assumed one. Remaining frontier items — the caller
+switch, selected legacy route retirement, and whole-goal acceptance —
+continue under `MIRBUILDER-FINAL-PIPELINE-v1`.
