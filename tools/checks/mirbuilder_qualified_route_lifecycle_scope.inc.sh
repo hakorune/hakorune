@@ -741,4 +741,10 @@ if (( $(wc -l < "$ROW_OBLIGATIONS") >= 800 )); then
   echo "[$TAG] physical row-obligation owner reached hard 800-line boundary" >&2
   exit 1
 fi
+ROOT_INSTANCE_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_instance_value_tests.rs"
+rg -q 'mod instance_value_tests;' "$ROOT_LIFECYCLE_TESTS"
+if (( $(wc -l < "$ROOT_INSTANCE_TESTS") >= 800 )); then
+  echo "[$TAG] root instance-value test owner reached hard 800-line boundary" >&2
+  exit 1
+fi
 echo "[$TAG] ok"
