@@ -218,6 +218,11 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     /// by the argument's own (new site, ordinal) identity. Each admitted
     /// row spells `"tagged"` so the callee sees the proven kind==1 payload.
     tagged_birth_actuals: BTreeSet<(OwnedExprSiteV1, u32)>,
+    /// Object-field formal actuals admitted by the sealed
+    /// `ObjectFieldStores` contract, keyed like `tagged_birth_actuals`.
+    /// Each row rides the `nullable_kind_payload_v1` lane: `Null` spells
+    /// the (0,0) pair, an owned `Handle` actual the (3,payload) move.
+    object_birth_actuals: BTreeSet<(OwnedExprSiteV1, u32)>,
     process_result_site: u64,
     fault_abi_version: u32,
     runtime_requirements: PublishedLifecycleRuntimeRequirementsV1,
@@ -272,6 +277,14 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
         self.tagged_birth_actuals
             .contains(&(site.clone(), ordinal))
     }
+    /// Whether this exact (new site, ordinal) actual binds an
+    /// object-field formal through the `nullable_kind_payload_v1` lane:
+    /// `Null` encodes the (0,0) pair, an owned `Handle` the (3,payload)
+    /// move — never a scalar kind.
+    pub(crate) fn object_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> bool {
+        self.object_birth_actuals
+            .contains(&(site.clone(), ordinal))
+    }
     pub(crate) const fn process_result_site(&self) -> u64 {
         self.process_result_site
     }
@@ -324,7 +337,8 @@ impl<'module> PublishedMirBackendView<'module> {
         }
         // Exact call identity, arity and ordering were checked by compiled-entry.
         // Inspect every actual, including unused formals; never specialize a body.
-        let tagged_birth_actuals = self.issue_tagged_birth_actuals(&entry)?;
+        let (tagged_birth_actuals, object_birth_actuals) =
+            self.issue_tagged_birth_actuals(&entry)?;
         let diagnostic_sites = issue_diagnostic_sites(entry.program())?;
         let exact_numeric_checks =
             issue_exact_numeric_checks(self.module(), entry.program())?;
@@ -338,6 +352,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 diagnostic_sites: diagnostic_sites.into_boxed_slice(),
                 exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
                 tagged_birth_actuals,
+                object_birth_actuals,
                 process_result_site,
                 fault_abi_version: 1,
                 runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::NativeArray,
@@ -474,6 +489,7 @@ impl<'module> PublishedMirBackendView<'module> {
             diagnostic_sites: diagnostic_sites.into_boxed_slice(),
             exact_numeric_checks: exact_numeric_checks.into_boxed_slice(),
             tagged_birth_actuals,
+            object_birth_actuals,
             process_result_site,
             fault_abi_version: 1,
             runtime_requirements: PublishedLifecycleRuntimeRequirementsV1::TypedObject {
@@ -484,15 +500,21 @@ impl<'module> PublishedMirBackendView<'module> {
 
     /// The finalized draft admits a dominated `new`-argument lane per
     /// exact (site, ordinal): that emitted `Handle{binding}` actual is the
-    /// same lent Integer view and is transported as `"tagged"`. Every
-    /// other actual must still prove its scalar lane here — `null` and
-    /// non-admitted handle actuals fail closed.
+    /// same lent Integer view and is transported as `"tagged"`. An
+    /// `ObjectFieldStores` formal instead admits its nullable pair lane —
+    /// `Null` as (0,0) or an owned `Handle` actual as the (3,payload)
+    /// lease move. Every other actual must still prove its scalar lane
+    /// here — non-admitted actual kinds fail closed.
     fn issue_tagged_birth_actuals(
         &self,
         entry: &CompiledEntryContractV1<'_>,
-    ) -> Result<BTreeSet<(OwnedExprSiteV1, u32)>, String> {
+    ) -> Result<(
+        BTreeSet<(OwnedExprSiteV1, u32)>,
+        BTreeSet<(OwnedExprSiteV1, u32)>,
+    ), String> {
         use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
         let mut tagged = BTreeSet::new();
+        let mut object = BTreeSet::new();
         for call in entry.birth_calls() {
             let caller = entry
                 .program()
@@ -525,9 +547,10 @@ impl<'module> PublishedMirBackendView<'module> {
                 .unwrap_or_default();
             for actual in call.actual().arguments() {
                 // The bound formal's contract is the sole capability
-                // authority: an object-field formal admits exactly a `null`
-                // actual (handle actuals stay sealed for the move lane);
-                // a scalar or unused formal admits the scalar kinds only.
+                // authority: an object-field formal admits the nullable
+                // pair lane — `Null` or an owned `Handle` actual whose
+                // lease moves at the call edge; a scalar or unused formal
+                // admits the scalar kinds only.
                 let object_formal = entry
                     .births()
                     .iter()
@@ -563,15 +586,30 @@ impl<'module> PublishedMirBackendView<'module> {
                     }
                     continue;
                 }
-                if object_formal
-                    != matches!(actual.source().kind(), Kind::Null)
-                {
+                let object_actual = matches!(
+                    actual.source().kind(),
+                    Kind::Null | Kind::Handle { .. }
+                );
+                if object_formal != object_actual {
                     return Err(fault("actual-kind-unavailable"));
+                }
+                if object_formal {
+                    // The wire kind is selected at transport time from the
+                    // sealed source kind — `Null` (0,0) or `Handle` (3,
+                    // payload). Lease ownership stays unproven here: the
+                    // flow layer admits only a live owned handle for tag 3.
+                    if !object.insert((
+                        actual.source().new_site().clone(),
+                        actual.source().ordinal(),
+                    )) {
+                        return Err(fault("birth-actual-tagged-duplicate"));
+                    }
+                    continue;
                 }
                 scalar_actual_kind(actual.source().kind(), actual.value(), caller.value_types())?;
             }
         }
-        Ok(tagged)
+        Ok((tagged, object))
     }
 }
 

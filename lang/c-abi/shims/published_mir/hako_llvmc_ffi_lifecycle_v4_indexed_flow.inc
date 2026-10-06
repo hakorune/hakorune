@@ -450,17 +450,25 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           continue;
         }
         /* arg kind is exact: 0 is the const_null producer (the same pin
-           the ordinary borrowed lane owns), 1 is i64, 2 is bool —
-           anything else, including a missing field or a forged zero
-           payload, rejects rather than defaulting. */
+           the ordinary borrowed lane owns), 1 is i64, 2 is bool, 3 is an
+           owned handle moving into the callee's nullable pair formal —
+           the move completes on the invoke's Normal edge, so Fault keeps
+           the lease live for the caller's own unwind discharge. Anything
+           else, including a missing field or a forged zero payload,
+           rejects rather than defaulting. */
         uint32_t numeric_kind = lv4_u(arg, "kind");
         if (!value ||
             (numeric_kind == 0 &&
                 !lv4_is(value->instruction, "op", "const_null")) ||
-            (numeric_kind != 0 && numeric_kind != 1 && numeric_kind != 2) ||
+            (numeric_kind != 0 && numeric_kind != 1 && numeric_kind != 2 &&
+                numeric_kind != 3) ||
             (numeric_kind == 1 && value->kind != LV4_I64) ||
             (numeric_kind == 2 && value->kind != LV4_BOOL) ||
+            (numeric_kind == 3 &&
+                (value->origin < 0 ||
+                 !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, 0, 0))) ||
             (numeric_kind == 0 && value->kind != LV4_HANDLE)) return 0;
+        if (numeric_kind == 3) normal[value->origin] = 0;
       }
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));

@@ -1,0 +1,31 @@
+// nullable-birth-handle-actual-min
+//
+// Handle `new` actual: `local inner = new Inner()` then
+// `new Holder(inner)` moves the caller-owned live handle into the
+// object-field-only birth formal. The caller's Home lease is consumed
+// at the call's Normal edge (`consume_home`); the birth unit stores
+// the (3,nonzero) payload through checked `object_field_set`, and the
+// `home_release_if_live` fault tail releases it when live.
+
+box Inner {
+  value: i64 = 0
+
+  birth() {
+  }
+}
+
+box Holder {
+  inner: Inner
+
+  birth(inner) {
+    me.inner = inner
+  }
+}
+
+static box Main {
+  main() {
+    local inner = new Inner()
+    local holder = new Holder(inner)
+    return 0
+  }
+}

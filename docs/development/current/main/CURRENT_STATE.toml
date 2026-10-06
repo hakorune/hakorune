@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/nullable-new-actual"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/nested-object-field-teardown"
+current_design_stop = "nested-object-field-teardown"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NULLABLE-NEW-ACTUAL-S0 (Null half) landed: `Parameter{provided}` ->
-`ObjectFieldStores` formal capability -> `nullable_kind_payload_v1` ->
-kind-0 `const_null` arg -> `object_field_set` + `home_release_if_live`
-fault tail. C flow: `origin -3` param, k0/(3,nonzero) prologue,
-`if_live`-only release. 4 pins + `nullable_birth_actual_min_exe` PASS.
-`Handle` actual stays sealed — next row.
+NULLABLE-NEW-ACTUAL-S0 (S1) complete: `Parameter{provided}` ->
+`ObjectFieldStores` -> `nullable_kind_payload_v1` -> `object_field_set`
++ `if_live` tail. `Null`=(0,0); owned `Handle`=(3,payload) via
+`object_birth_actuals`; C consumes the lease on the Normal edge only.
+Pins 4/4; both smokes PASS. Next: nested-field teardown census (S2).
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0"
+next_execution_card = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
@@ -42,8 +41,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0 landed (S1 complete) — object_formal gate admits `Kind::Handle`; `object_birth_actuals` keys (site,ordinal) -> transport emits kind 3; C `call_transport` nullable rep admits 0/3; `indexed_flow` birth_call arm requires owned live handle (`origin >= 0`, LV4_LIVE) and consumes the lease on the Normal edge only (Fault keeps it for caller unwind). `nullable_birth_handle_actual_min_exe` PASS: v4-measure ok, EXE Result 0. Double-move -> `argument-source-unavailable`; pins 3/3 nullable. Baseline reds unchanged (4, parent-verified). Next: `selfhost-resume/nested-object-field-teardown` (D0).",
   "2026-10-06: MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (Null half) landed — `Parameter{provided}` seals at plan issue -> `ObjectFieldStores` formal capability -> `nullable_kind_payload_v1` param -> kind-0 `const_null` arg -> `object_field_set` + `home_release_if_live` fault tail. C: formal/call transport rep+kind-0, `origin -3` param class, object_field_set/if_live admission, prologue k0/(3,nonzero). Pins 4/4; suites construction 39/39, semantic 43/43, physical-object 7/7. `nullable_birth_actual_min_exe` PASS: v4-measure ok, EXE Result 0. Mismatched actuals -> `actual-kind-unavailable`. Baseline reds parent-verified (4). `Handle` actual stays sealed. Next: `selfhost-resume/nullable-new-actual` (`NULLABLE-HANDLE-NEW-ACTUAL-S0`).",
   "2026-10-06: MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 closed + NULLABLE-FIELD-D0 accepted (`bd3450e26f`, census docs) — `local b = me.builder; b.m()` parked on sibling `STORED-CHILD-BORROWED-C-RECEIVER-S0` (same `artifact-unowned-lifecycle-site` observation). Nullable probes: untyped `init` -> `SourceRelationMissing`; typed `left: T` -> self-ref children guard (`child != object`); `new Box2(null|local)` -> `Kind::Null`/`Handle` seal then `actual-kind-unavailable` at `scalar_actual_kind`. Decomposition: typed-init migration (prereq) + self-ref guard + actual-capability check + null-fed teardown (unissued authority — NoSafeSlice) + tag arms. Next: `selfhost-resume/nullable-owned-field` (teardown/disposition D0).",
-  "2026-10-06: MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0 landed — `ProviderConstructionChildV1::{BirthIndexed,NoBirthZero}` sealed on the plan (Birth-row inventory + field count; NoBirthZero = arity0 + fieldless); NoBirth arm emits NewBox+ObjectFieldSet+HomeRelease (no birth call/recipe/ABI record); `ProviderChildEmissionV1` + validation; accounting 3*birth+1*nobirth. Pins 8/8; suites 276/232/97/64/37/8/4 green. Real route clears `provider-birth-recipe-missing` -> preserved Invoke boundary; llvm compiles 14 fns -> backend_return_contract_capability_missing. Baseline red parent-reproduced: provider_owned_array_child + source_stringbox env race. Next: `selfhost-resume/stored-child-receiver`.",
   ]
 

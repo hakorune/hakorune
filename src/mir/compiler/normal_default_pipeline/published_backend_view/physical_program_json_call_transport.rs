@@ -247,6 +247,20 @@ pub(super) fn encode_birth_call(
             {
                 return Ok(json!({ "kind": "tagged", "value": argument.value().0 }));
             }
+            // An `ObjectFieldStores` formal rides the nullable pair lane:
+            // the sealed source kind selects (0,0) for `null` or
+            // (3,payload) for an owned handle move — the flow layer
+            // admits the live lease and discharges it at the call edge.
+            if input.object_birth_actual(argument.source().new_site(), argument.source().ordinal())
+            {
+                use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
+                let kind = match argument.source().kind() {
+                    Kind::Null => 0,
+                    Kind::Handle { .. } => 3,
+                    _ => return Err(fault("actual-kind-unavailable")),
+                };
+                return Ok(json!({ "kind": kind, "value": argument.value().0 }));
+            }
             Ok(
                 json!({ "kind": super::super::physical_abi::scalar_actual_kind(
                     argument.source().kind(), argument.value(), caller.value_types())?,

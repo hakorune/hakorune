@@ -273,6 +273,75 @@ fn nullable_birth_actual_rejects_lane_mismatched_pairs() {
     });
 }
 
+/// An owned `Handle` actual into the same `ObjectFieldStores` formal
+/// moves its lease through the nullable pair lane: the caller's actual
+/// spells kind 3 over the live handle value, never a borrowed rewrap —
+/// the callee's provided store and `home_release_if_live` tail are
+/// unchanged from the null pair.
+#[test]
+fn nullable_birth_handle_actual_publishes_move_pair() {
+    use crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1;
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.compile_normal_with_published(
+            request(include_str!("../../../../../apps/nullable-birth-handle-actual-min/main.hako")),
+            |view, verification| -> Result<(), String> {
+                assert!(verification.is_ok(), "{verification:?}");
+                let entry = view.issue_lifecycle_compiled_entry_contract()?;
+                let birth = entry
+                    .births()
+                    .iter()
+                    .find(|birth| {
+                        entry.program().functions()[birth.function_index() as usize]
+                            .name()
+                            .contains("Holder")
+                    })
+                    .expect("Holder birth row");
+                let object_formals: Vec<_> = birth
+                    .formals()
+                    .iter()
+                    .filter(|formal| {
+                        matches!(
+                            formal.contract().map(|contract| contract.uses()),
+                            Some(BirthFormalUseCoverageV1::ObjectFieldStores { .. })
+                        )
+                    })
+                    .collect();
+                assert_eq!(object_formals.len(), 1, "one object-field formal");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json = emit_lifecycle_physical_abi_json(&input)?;
+                let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                let functions = decoded["functions"].as_array().unwrap();
+                let caller = functions
+                    .iter()
+                    .find(|row| row["name"] == "main")
+                    .expect("caller row");
+                let call = caller["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .find(|row| row["operation"]["kind"] == "birth_call"
+                        && !row["operation"]["call"]["args"]
+                            .as_array()
+                            .map(|args| args.is_empty())
+                            .unwrap_or(true))
+                    .expect("Holder birth call edge");
+                assert_eq!(
+                    call["operation"]["call"]["args"][0]["kind"], 3,
+                    "the owned handle actual spells the object tag: {json}"
+                );
+                Ok(())
+            },
+        ).unwrap();
+    });
+}
+
 #[test]
 fn unannotated_pair_issues_tagged_input_from_retained_contract() {
     use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;

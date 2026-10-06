@@ -957,16 +957,17 @@ Fail-fast boundary: `actual-kind-unavailable`/`RetainedUnavailable`
 stay for non-capable actuals and nested children.
 Non-claims: nested teardown, field reads, Gates 2-4.
 
-## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (Null half)
+## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (S1 complete)
 
 `Parameter{provided}` seals at plan issue -> `ObjectFieldStores` formal
-capability -> `nullable_kind_payload_v1` param -> kind-0 `const_null` arg
--> `object_field_set` + `home_release_if_live` fault tail. C flow: `origin
--3` param class, k0/(3,nonzero) prologue, `if_live`-only release. `Handle`
-actuals stay sealed. Evidence: 4 pins green; `nullable_birth_actual_min_exe`
-PASS (v4-measure ok, EXE Result 0); mismatched actuals -> `actual-kind-
-unavailable`; 4 parent-verified reds. Next row `MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0` — the `Handle` actual
-(declared-object formal + `consume_home` move); teardown stays S2.
+capability -> `nullable_kind_payload_v1` param -> `object_field_set` +
+`home_release_if_live` fault tail. `Null` spells (0,0); owned `Handle`
+spells (3,payload) — `object_birth_actuals` keys (site,ordinal) and the
+C flow consumes the live lease on the Normal edge only. C: `origin -3` param
+class, k0/(3,nonzero) prologue; foreign handles reject. Evidence: pins
+4/4; both nullable smokes PASS (v4-measure ok, EXE Result 0); mismatched
+lanes reject; 4 baseline reds. Next row `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0`
+(S2 census + emit authority); field reads stay sibling family.
 
 ## Preserved contract boundaries
 
