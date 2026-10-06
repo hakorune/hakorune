@@ -61,6 +61,26 @@ rg -q 'slot_load_hi' "$LIFECYCLE_V4_EMIT"
 rg -q 'slot_load_hi' "$ARRAY_SLOT_LOAD_ALIAS"
 test -f "$GET_VIEW_EXE_TEST"
 
+# MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0: the published `ArrayGet` row
+# reaches the `hako_llvmc` static lane — kind 9 admission, one exact-site
+# `take_array_read_row_v1`, the shared `slot_load_hi` row emitter, and both
+# physical walkers plus the generic prescan need bundle.
+LANE_A_READ_EXE_TEST="$ROOT_DIR/lang/c-abi/tests/static_v2_array_read_execution_test.py"
+LANE_A_HEADER="$ROOT_DIR/lang/c-abi/include/hako_llvmc_ffi.h"
+LANE_A_STATIC_METHOD="$ROOT_DIR/lang/c-abi/shims/published_mir/hako_llvmc_ffi_published_static_method.inc"
+LANE_A_OP_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
+LANE_A_PRESCAN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
+LANE_A_RMW="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_same_module_typed_field_rmw_emit.inc"
+LANE_A_ROW_TEST="$ROOT_DIR/lang/c-abi/tests/published_rows_preartifact_test.c"
+rg -q 'PUBLISHED_CALL_KIND_ARRAY_GET 9u' "$LANE_A_HEADER"
+rg -q 'take_array_read_row_v1' "$LANE_A_STATIC_METHOD"
+rg -q 'EMIT_PUBLISHED_ARRAY_READ_ROW' "$LANE_A_STATIC_METHOD"
+rg -q 'array_element_read' "$LANE_A_OP_DISPATCH"
+rg -q 'arr_slot_load = 1' "$LANE_A_PRESCAN"
+rg -q 'take_array_read_row_v1' "$LANE_A_RMW"
+rg -q 'test_array_read_row_take' "$LANE_A_ROW_TEST"
+test -f "$LANE_A_READ_EXE_TEST"
+
 # MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0: the
 # lent view extends to the dominated `new`-argument ordinal; non-literal i64
 # birth actuals (local/bound/entry-receiver field) ride the same kind==1

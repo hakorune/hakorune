@@ -61,7 +61,8 @@ static int hako_llvmc_published_call_rows_begin(
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_PUSH ||
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_SET ||
         row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_INSERT ||
-        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW;
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_INTRINSIC_ARRAY_NEW ||
+        row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET;
     int valid_payload =
         (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_STATIC_METHOD ||
          row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_FREE_FUNCTION)
@@ -73,6 +74,14 @@ static int hako_llvmc_published_call_rows_begin(
       valid_payload = valid_payload && row->dst != UINT32_MAX &&
           row->flags == HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT &&
           !row->site_id && !row->receiver && !row->index && !row->value;
+    if (row->kind == HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET)
+      /* A proven `.get` read always carries index and dst; `value` stays
+         empty because reads never store. `dst:None` is dead-read drift —
+         fail closed at the typed-row boundary, never at emit time. */
+      valid_payload = valid_payload && row->dst != UINT32_MAX &&
+          !row->value &&
+          row->flags == (HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT |
+                         HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT);
     if (!(row->function_name && row->function_name[0] && valid_kind && valid_payload)) {
       return set_err_owned(
           err_out,
@@ -392,6 +401,52 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
   return HAKO_LLVMC_PUBLISHED_ROW_READY;
 }
 
+/* Exact-site take for a proven `ArrayBox.get` read.  The instruction
+ * carries no `kind` — a single read family — so matching rests on the
+ * four physical coordinates plus the always-present index/dst flags;
+ * a dst-less or value-carrying row is ABI drift, never a repaired read. */
+static int hako_llvmc_published_static_method_take_array_read_row_v1(
+    struct HakoLlvmcPublishedCallRows* state,
+    const char* function_name,
+    long long block_id,
+    size_t instruction_index,
+    yyjson_val* instruction,
+    const hako_llvmc_published_static_method_call_v1** out_row) {
+  const hako_llvmc_published_static_method_call_v1* row =
+      hako_llvmc_published_static_method_peek_row_for_site(
+          state, function_name, block_id, instruction_index);
+  yyjson_val* op_value = instruction ? yyjson_obj_get(instruction, "op") : NULL;
+  const char* op = op_value && yyjson_is_str(op_value) ? yyjson_get_str(op_value) : NULL;
+  uint32_t site_id = 0;
+  uint32_t receiver = 0;
+  uint32_t index = 0;
+  uint32_t dst = 0;
+  if (out_row) *out_row = NULL;
+  if (!row) return HAKO_LLVMC_PUBLISHED_ROW_ABSENT;
+  if (row->kind != HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET) {
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  }
+  if (!(op && !strcmp(op, "array_element_read") &&
+        hako_llvmc_published_mir_read_u32_field_v1(instruction, "site_id", &site_id) &&
+        hako_llvmc_published_mir_read_u32_field_v1(instruction, "receiver", &receiver) &&
+        hako_llvmc_published_mir_read_u32_field_v1(instruction, "index", &index) &&
+        hako_llvmc_published_mir_read_u32_field_v1(instruction, "dst", &dst))) {
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  }
+  if (site_id != row->site_id || receiver != row->receiver ||
+      index != row->index || dst != row->dst ||
+      yyjson_obj_get(instruction, "value") ||
+      yyjson_obj_get(instruction, "kind") ||
+      row->flags != (HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT |
+                     HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT)) {
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  }
+  if (hako_llvmc_published_static_method_take_row_v1(state, row) < 0)
+    return HAKO_LLVMC_PUBLISHED_ROW_MALFORMED;
+  if (out_row) *out_row = row;
+  return HAKO_LLVMC_PUBLISHED_ROW_READY;
+}
+
 /* Emit one already-admitted ArrayElementWrite row.  The macro is expanded
  * inside each physical instruction walker so it can use that walker's
  * register/constant environment; the row-to-symbol and operand order remain
@@ -438,6 +493,24 @@ static int hako_llvmc_published_static_method_take_array_write_row_v1(
     if (!_array_write_symbol || !_array_write_args[0]) return -1;              \
     fprintf((_f), "  call i64 @\"%s\"(%s)\n",                            \
             _array_write_symbol, _array_write_args);                            \
+  } while (0)
+
+/* Emit one already-admitted ArrayGet row: the sole runtime read surface
+ * is `slot_load_hi` — the same symbol the generic `call_method` lane
+ * lowers `ArrayBox.get` to — returning the i64-or-handle carrier with a
+ * miss reading the lane's null sentinel 0.  Unlike the write macro the
+ * call's result is bound: `%%r<dst>` names the read value. */
+#define HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_READ_ROW(_f, _row)                 \
+  do {                                                                        \
+    char _array_read_args[320];                                               \
+    _array_read_args[0] = '\0';                                               \
+    append_i64_arg_ref(_array_read_args, sizeof(_array_read_args),          \
+                       (long long)(_row)->receiver, 1);                       \
+    append_i64_arg_ref(_array_read_args, sizeof(_array_read_args),          \
+                       (long long)(_row)->index, 0);                          \
+    if (!_array_read_args[0]) return -1;                                      \
+    fprintf((_f), "  %%r%u = call i64 @\"nyash.array.slot_load_hi\"(%s)\n", \
+            (_row)->dst, _array_read_args);                                   \
   } while (0)
 
 static int hako_llvmc_published_static_method_rows_finish(

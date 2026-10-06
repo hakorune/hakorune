@@ -633,3 +633,134 @@ Next owed: `MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0` — the Lane-A
 `hako_llvmc` published-row consumer: `valid_kind` +
 `take_array_read_row_v1` + static row emitter over the existing
 `PublishedCallKindV1::ArrayGet` transport.
+
+## array_get Lane-A consumer Decision / 2026-10-06
+
+The `hako_llvmc` static published-row lane (Lane A) is the second
+consumer of `PublishedCallKindV1::ArrayGet` rows — Rust transport
+`c_transport.rs` already emits `kind=9` rows
+(`receiver`/`index`/`dst`/`site_id`, `INDEX_PRESENT` always,
+`DST_PRESENT` when the read has a dst). The C side rejects kind 9 at
+`valid_kind` today (`malformed typed row`), so any published program
+carrying an `ArrayElementRead` fails closed before object emission.
+
+Runtime surface is already decided: `nyash.array.slot_load_hi`, whose
+Lane-A declare exists as `needs.arr_slot_load`
+(`prescan.inc:642` — `declare i64 @nyash.array.slot_load_hi(i64,i64)`
+with readonly attrs). `MIR_CALL_NEED_ARRAY_GET` already sets
+`arr_get + arr_slot_load`, so the read arm mirrors the existing
+call_method need bundle — no new runtime symbol, no new declare list.
+
+Required wiring, all inside the existing fail-closed surfaces:
+
+1. `hako_llvmc_ffi.h`: `HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET 9u`.
+2. `published_static_method.inc`:
+   - `valid_kind` admits `ARRAY_GET`;
+   - payload = `target_symbol == NULL && arity == 0` (the generic
+     else-branch already covers it);
+   - new `take_array_read_row_v1` mirroring `take_array_write_row_v1`:
+     peek by exact site → kind `ARRAY_GET` → instruction
+     `op == "array_element_read"` with u32 `site_id`/`receiver`/`index`/
+     `dst` equal to row fields, `INDEX_PRESENT` and `DST_PRESENT` flags
+     required → one exact-site take. `dst: null` (no `DST_PRESENT`)
+     stays malformed — the dead-read transport non-claim holds.
+   - `HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_READ_ROW` macro:
+     `%r<dst> = call i64 @nyash.array.slot_load_hi(i64 <recv>, i64
+     <idx>)` through `append_i64_arg_ref` (copy/const resolution shared
+     with the write macro).
+3. Emit sites (mirror `array_element_write` exactly):
+   - `pure_compile_generic_lowering_op_dispatch.inc`: required arm —
+     non-READY is `GEN_ABORT` (the row always accompanies the op).
+     `set_type(dst, T_I64)`.
+   - `same_module_typed_field_rmw_emit.inc`: optional arm — ABSENT
+     falls through, MALFORMED is `-1`, READY emits and returns 1.
+   - `pure_compile_generic_lowering_prescan.inc`: `needs.arr_get =
+     needs.arr_slot_load = 1` for `array_element_read` — the same
+     declare bundle as `call_method` `ArrayBox.get`.
+4. `published_rows_preartifact_test.c`: positive take + second-take
+   reject + wrong-kind/op/shape rejects (mirroring
+   `test_array_row_rejects_second_take`).
+5. Scope pins in `mirbuilder_qualified_route_lifecycle_scope.inc.sh`.
+
+Decision: Lane A consumes `array_element_read` through the published
+`ArrayGet` row → one exact-site take → `slot_load_hi` emit; the read
+stays a plain op (no site-diagnostic consumer, no checked kind).
+
+Source authority + canonical issuer: `published_static_method.inc`'s
+row admission/take + the two physical instruction walkers; the row
+itself is issued by `c_transport.rs` from `array_element_reads`.
+
+Non-authority: kernel changes; a second runtime read surface;
+`dst:None` dead-read transport; selector-name dispatch; MapBox.get.
+
+Fail-fast boundary: missing/duplicate/mismatched row →
+`malformed typed row` / `GEN_ABORT` / `-1`; `dst` absent → malformed
+at take; unproven receivers stay upstream `call_method`.
+
+Smallest next slice: `MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0` — the
+five items above plus an end-to-end `--emit-exe` probe of an
+`ArrayElementRead`-carrying program if the lane is reachable.
+
+Non-claims: production caller switch; selected legacy retirement;
+app-frontier movement beyond the existing
+`artifact-unowned-lifecycle-site` baseline; `dst:None` transport.
+
+## array_get Lane-A consumer landed / 2026-10-06
+
+`MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0` landed — the `hako_llvmc`
+static published-row lane now consumes `PublishedCallKindV1::ArrayGet`
+rows end to end:
+
+- `hako_llvmc_ffi.h`: `HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET 9u`
+  matches the Rust transport discriminant.
+- `published_static_method.inc`: kind-9 admission plus an exact payload
+  pin (`INDEX_PRESENT | DST_PRESENT`, `dst != UINT32_MAX`, `value`
+  empty) — a dst-less dead read is rejected at the typed-row boundary,
+  never repaired at emit time. `take_array_read_row_v1` does one
+  exact-site take: function/block/instruction coordinate →
+  `op == "array_element_read"` with u32 `site_id`/`receiver`/`index`/
+  `dst` all equal to row fields and no stray `value`/`kind` keys →
+  mark consumed. `HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_READ_ROW` emits
+  `%r<dst> = call i64 @nyash.array.slot_load_hi(...)` through the shared
+  `append_i64_arg_ref` copy/const resolution.
+- `op_dispatch.inc`: required arm — a non-READY take is
+  `published_array_read_row_mismatch` → `GEN_ABORT` (no fallback).
+- `same_module_typed_field_rmw_emit.inc`: the same take+emit pair for
+  the same-module instruction walker.
+- `prescan.inc`: `array_element_read` publishes `needs.arr_get +
+  needs.arr_slot_load`, the same declare bundle the generic
+  `call_method` `ArrayBox.get` route already used — one declare list,
+  no second symbol-resolution authority.
+- `published_rows_preartifact_test.c`: `test_array_read_row_take`
+  covers the happy take, duplicate-take rejection, wrong-kind
+  malformed, and dst-less boundary rejection.
+- `static_v2_array_read_execution_test.py` (new): MIR+row fixtures
+  drive the real static-v2 ABI — stored index exits 7, out-of-range
+  index exits 0 through the same null sentinel; missing row, wrong
+  kind, dst-less flags and missing `index` field all reject; the
+  object's IR contains the `slot_load_hi` call.
+- `mirbuilder_qualified_route_lifecycle_scope.inc.sh` pins all of the
+  above.
+
+Boundary discovered during verification, recorded honestly: the
+same-module *prepass* whitelist does not admit `array_element_*` ops at
+all — `array_element_write` already faced exactly that gate before
+this slice. The nested case therefore stops at
+`module_generic_prepass_failed` (pinned as a negative in the execution
+test); same-module admission for array element ops is a separate
+upstream decision, not silently bypassed here. The rmw walker arm is
+wired so the row contract is identical in both walkers the moment that
+admission arrives.
+
+Evidence: `static_v2_array_read_execution_test.py` 8/8 (2 execute +
+6 fail-closed/pinned), `published_rows_preartifact_test` PASS,
+`published_lifecycle_v4_get_view_execution_test.py` 5/5 regression,
+`cargo test --release --lib array_i64` 27/27.
+
+Next owed: `MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0` — audit the
+same-module prepass whitelist for `array_element_*` ops (the boundary
+is shared with `array_element_write`, so admission is one family
+decision, not a read-only patch). After the consumer surface closes,
+the remaining frontier items — the production caller switch, selected
+legacy route retirement, and whole-goal acceptance — continue under
+`MIRBUILDER-FINAL-PIPELINE-v1`.

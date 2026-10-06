@@ -160,6 +160,11 @@
                         !strcmp(write_kind, "insert"))) {
               needs.arr_set = 1;
             }
+          } else if (strcmp(op, "array_element_read") == 0) {
+            /* Same need bundle as `call_method` `ArrayBox.get`: the array
+               helper family plus the sole slot-read surface. */
+            needs.arr_get = 1;
+            needs.arr_slot_load = 1;
           } else if (strcmp(op, "field_get")==0) {
             long long dst = read_int(ins, "dst");
             long long box_reg = read_int(ins, "box");

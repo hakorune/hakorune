@@ -187,6 +187,61 @@ static void test_array_row_rejects_second_take(void) {
   yyjson_doc_free(doc);
 }
 
+static void test_array_read_row_take(void) {
+  const char *body = "{\"op\":\"array_element_read\",\"site_id\":1,"
+      "\"dst\":5,\"receiver\":2,\"index\":3}";
+  yyjson_doc *doc = yyjson_read(body, strlen(body), 0);
+  assert(doc);
+  hako_llvmc_published_static_method_call_v1 row = {0};
+  row.function_name = "array_owner";
+  row.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_GET;
+  row.site_id = 1;
+  row.receiver = 2;
+  row.index = 3;
+  row.dst = 5;
+  row.flags = HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT |
+              HAKO_LLVMC_PUBLISHED_ROW_FLAG_DST_PRESENT;
+  char *error = NULL;
+  const hako_llvmc_published_static_method_call_v1 *found = NULL;
+  {
+    struct HakoLlvmcPublishedCallRows state = {0};
+    assert(hako_llvmc_published_static_method_rows_begin(&state, &row, 1, &error) == 0);
+    assert(hako_llvmc_published_static_method_take_array_read_row_v1(
+        &state, row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == 1);
+    assert(found == &row);
+    /* Duplicate take is malformed, never absence/generic fallback. */
+    assert(hako_llvmc_published_static_method_take_array_read_row_v1(
+        &state, row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == -1);
+    assert(found == NULL);
+    assert(hako_llvmc_published_static_method_rows_finish(&state, &error) == 0);
+    hako_llvmc_published_static_method_rows_end(&state);
+  }
+  {
+    /* Wrong kind for the same coordinate is malformed. */
+    struct HakoLlvmcPublishedCallRows state = {0};
+    hako_llvmc_published_static_method_call_v1 bad = row;
+    bad.kind = HAKO_LLVMC_PUBLISHED_CALL_KIND_ARRAY_SET;
+    assert(hako_llvmc_published_static_method_rows_begin(&state, &bad, 1, &error) == 0);
+    assert(hako_llvmc_published_static_method_take_array_read_row_v1(
+        &state, row.function_name, 0, 0, yyjson_doc_get_root(doc), &found) == -1);
+    hako_llvmc_published_static_method_rows_end(&state);
+  }
+  {
+    /* A dst-less read row is dead-read drift: it fails closed at the
+     * typed-row boundary and never reaches a walker. */
+    struct HakoLlvmcPublishedCallRows state = {0};
+    hako_llvmc_published_static_method_call_v1 bad = row;
+    bad.dst = 0;
+    bad.flags = HAKO_LLVMC_PUBLISHED_ROW_FLAG_INDEX_PRESENT;
+    assert(hako_llvmc_published_static_method_rows_begin(&state, &bad, 1, &error) != 0);
+    assert(error && strstr(error, "malformed typed row"));
+    free(error);
+    error = NULL;
+    hako_llvmc_published_static_method_rows_end(&state);
+  }
+  yyjson_doc_free(doc);
+}
+
 static void test_same_module_prepass_uses_published_row(void) {
   /* Physical consumer test, not a source/publication proof. The nested call
    * intentionally has no legacy lowering plan and its JSON name is not the
@@ -467,6 +522,7 @@ int main(int argc, char **argv) {
   test_intrinsic_array_allocation_rows();
   test_prepass_peek_and_emitter_take();
   test_array_row_rejects_second_take();
+  test_array_read_row_take();
   test_same_module_prepass_uses_published_row();
   test_selected_rejects_legacy_call_and_generic_compat_succeeds();
   test_missing_global_rows_cannot_use_legacy_names();

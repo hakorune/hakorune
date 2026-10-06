@@ -464,6 +464,18 @@
                   is_plain_i64_value((long long)typed_row->value));
           return 1;
         }
+        if (!strcmp(op, "array_element_read")) {
+          const char* active_function_name = fn0 ? read_str(fn0, "name") : NULL;
+          const hako_llvmc_published_static_method_call_v1* typed_row = NULL;
+          int typed_shape_rc =
+              hako_llvmc_published_static_method_take_array_read_row_v1(
+                  &invocation->published_call_rows,
+                  active_function_name, bid, ii, ins, &typed_row);
+          if (typed_shape_rc < 0) return -1;
+          if (typed_shape_rc == 0) return 0;
+          HAKO_LLVMC_EMIT_PUBLISHED_ARRAY_READ_ROW(f, typed_row);
+          return 1;
+        }
         if (!strcmp(op, "field_set")) {
           return same_module_function_emit_typed_object_field_set(ins, bid, ii);
         }
