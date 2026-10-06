@@ -733,4 +733,12 @@ if (( $(wc -l < "$INSTANCE_PROVIDER_SRC") >= 800 )); then
   echo "[$TAG] provider source owner reached hard 800-line boundary" >&2
   exit 1
 fi
+ROW_OBLIGATIONS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/physical_abi_row_obligations.rs"
+rg -q 'use row_obligations::' "$PHYS_ABI"
+rg -q 'fn issue_diagnostic_sites' "$ROW_OBLIGATIONS"
+rg -q 'fn issue_exact_numeric_checks' "$ROW_OBLIGATIONS"
+if (( $(wc -l < "$ROW_OBLIGATIONS") >= 800 )); then
+  echo "[$TAG] physical row-obligation owner reached hard 800-line boundary" >&2
+  exit 1
+fi
 echo "[$TAG] ok"
