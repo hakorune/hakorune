@@ -156,7 +156,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
     let empty_candidates = BTreeMap::new();
-    let empty_classes = BTreeMap::new();
+    let empty_classes = Default::default();
     let error = prepare_borrowed_formal_ingress_v1(
         package.batch(),
         &package.selected,
@@ -218,7 +218,7 @@ fn final_corroboration_rejects_changed_incoming_argument_ordinal() {
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
     let empty_candidates = BTreeMap::new();
-    let empty_classes = BTreeMap::new();
+    let empty_classes = Default::default();
     let mut borrowed = prepare_borrowed_formal_ingress_v1(
         package.batch(),
         &package.selected,

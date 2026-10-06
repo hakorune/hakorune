@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: source mapping and preparation closed; mixed result origin execution selected
+Status: mixed result origin S0 verified; pending composite result D0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -364,3 +364,102 @@ Unchanged production observation must retain the actual315/318 ownership frontie
 no app success claim from passive source outcomes. Conditional destination law
 and its alias/Fault/publication/available-Home caller chain remain subsequent
 mandatory work; no implicit share or ordinary-formal ownership exception.
+
+## MIXED-RESULT-ORIGIN-S0 implementation verification in progress
+
+One immutable source product now retains each branded return and its passive
+Null/Fresh/ForwardFormal alternatives; old lookup APIs expose only the safe
+projection. The same fold checks fresh coverage before dependent composition,
+exact selected target and source owner before publication. No Home or backend
+capability is issued. Real realloc pins map all eight exact source exit paths
+to their own alternatives, including both forwarded resize returns and the
+fresh replacement return; guarded nullness is not strengthened by this slice.
+
+Scope extends by two empty-product initializers in existing
+ordinary_new_borrowed_formal_source_tests.rs: the old BTreeMap construction is
+incompatible with the replacement product type. No production borrowed-formal
+contract change. First focused invocation used invalid Cargo filter syntax;
+corrected command then exposed these two E0308 this-change failures. Both
+initializers are corrected. Test-inclusive quick check is running before the
+focused executable build; no PASS or closeout claim until actual results.
+
+The first test-inclusive check caught this-change E0433 in the initializer
+qualification (test module depth differs from the production owner). Replace
+that qualification with inferred Default::default() at the existing typed call
+sites; no new visibility/export is needed. Corrected check is running. Scope
+guard PASS and unchanged app source SHA remains33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685.
+Read-only review confirms exact per-site pins, legacy projection and source
+identity guards; no implementation blocker. Future conditional destination
+contract remains separate and must preserve ordinary borrowed entry semantics.
+
+Corrected test-inclusive check PASS: cargo check --profile quick --tests,
+quick1m26s, /tmp/hako-mixed-origin-tests-check-fixed.log. E0308/E0433 are
+corrected this-change failures; no warning suppression. Focused test executable
+build is running with result_origin_tests, source_brand_tests, existing20-result
+cohort and borrowed-formal source tests in one invocation. Existing lifecycle
+scope guard gains four origin-test name pins (759 lines); it remains the same
+guard, with no new harness or semantic authority. CLI/app observation follows
+successful focused results, retaining unchanged source and selected route.
+
+Focused verification PASS:25/25 (existing20 result claims + four source-origin
+pins + foreign-owner/target pin), execution0.02s, quick build6m01s;
+/tmp/hako-mixed-origin-focused-tests-final.log. The guessed borrowed-formal
+module filter matched no additional tests; it is not counted as coverage.
+The two changed initializer callers were run by exact test names separately:
+2/2 PASS, execution0.01s, /tmp/hako-mixed-origin-borrowed-initializers-tests.log.
+No this-change or unclassified red remains. Real fixture census remains(6,2).
+CLI build is running; app observation still required for S0 closeout.
+
+## Next required destination design brief (read-only review integrated)
+
+Decision: reject eager body-inferred conditional input consumption. Investigate
+one pending composite result contract at the existing source-result/field
+construction owners. This is a design candidate, not accepted Home authority.
+It supersedes any interpretation of the earlier conditional-return discussion
+that silently moves an ordinary input Home at the call boundary.
+Source authority + canonical issuer: exact branded return outcomes, constructor
+field destinations and Completion; a future verified destination/completion
+product must identify the real source outcome, available Home and unique commit.
+Non-authority: class annotation, origin-set union, pointer equality, policy
+release(handle), ordinary parameter projection, worker proposal or raw MIR tag.
+Fail-fast boundary: ownership.md555-564 forbids body-invented consuming inputs;
+ordinary typed/unannotated entry remains borrowed. Current OrdinaryNewResultClaim
+assumes a fully owned fresh result at Return; it cannot publish an outer object
+with a pending borrowed child. No existing receipt represents that state.
+Smallest next slice: PENDING-COMPOSITE-RESULT-D0, resolve source result law,
+pending child/storage obligations, propagation and exact contextual destination
+commit. Clarify reference result/acquisition/publication contracts before any
+source or physical expansion. Pending candidate would preserve input Home on
+precommit Fault and release only acquired resources/unpublished outer storage.
+Non-claims: no automatic move at ordinary call entry/local assignment, no live
+pending result transport, no take/share activation or EXE acceptance.
+
+Caller scope includes realloc -> reallocResult315/318 and the real
+allocator_facade_box.reallocResult78-89 relay: its formal is unannotated and
+borrowed, it reads result.ok, updates counters, and forwards the composite.
+A store-only/terminal-tail-only law would not cover that relay. Required
+counterexamples: borrowed-only acquisition at final destination; ignored pending
+result; escaped/captured/stored incomplete outer; surviving alias after commit;
+Fault during facade counters; fresh/borrowed mixed cleanup; double destination;
+publication before commit. The fresh alternative's input Home is preserved;
+forwarded alternative can only acquire a separately proven available Home at
+one explicit destination commit. Neither law is implemented by passive S0.
+
+## MIXED-RESULT-ORIGIN-S0 closeout and selected next design
+
+Fresh CLI quick build PASS3m17s; /tmp/hako-mixed-origin-cli-build.log.
+Unchanged mimalloc-lite selected EXE probe exits1 with the same designed
+artifact-unowned-lifecycle-site frontier in HakoAllocHeap.reallocResult/2,
+block369 instruction3 raw Result birth receiver57. Both source315/318 still
+carry PrefixNotCovered(Body3); no EXE exists. This is classified required
+frontier observation, not app acceptance or this-change regression.
+Log: /tmp/hako-mixed-origin-production-probe.log. Scope/pointer/diff guards and
+owned-result source rustfmt check PASS. Passive S0 acceptance is complete;
+actual constructor ownership and whole production migration remain incomplete.
+
+Select MIRBUILDER-GATE1-PENDING-COMPOSITE-RESULT-D0 in design_stop; no execution
+card yet. Resolve the above source pending-result law and declaration-only demand
+conflict using the full facade caller, then seal one Decision and reference
+contract before implementation. This is ongoing internal design work, not a
+requested goal pause or blocked condition. Gates2-4 and stored-child sibling
+remain parked. No optimizer/profile or unrelated cleanup slice is selected.

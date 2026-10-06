@@ -76,6 +76,8 @@ impl BuilderInstallTokenV1 {
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]
+mod result_origin_tests;
+#[cfg(test)]
 mod declared_instance_locator_tests;
 #[cfg(test)]
 mod instance_entry_home_tests;
@@ -135,6 +137,7 @@ pub(crate) use model::{
     VerifiedQualifiedReceiverCatalogRelationV1,
 };
 pub(crate) use ordinary_new_coseal::{
+    ResultExitOriginV1, ResultValueOriginV1,
     BirthAbiHandoffV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
     FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1,
     OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,

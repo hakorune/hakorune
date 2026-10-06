@@ -1,10 +1,10 @@
 date = "2026-10-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-PENDING-COMPOSITE-RESULT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/mixed-result-origin-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/pending-composite-result-d0"
+current_design_stop = "MIRBUILDER-GATE1-PENDING-COMPOSITE-RESULT-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-result-new-site-provenance-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 latest_card_summary = """
-Result evaluator split08e11449ad verified; stale Provided child pin corrected,
-result cohort20/20 PASS. Select same-issuer source outcome product preserving
-Null/Fresh/ForwardFormal and old safe class projection; no Home mint/transfer.
-reallocResult315/318 owning-destination and app EXE remain incomplete.
+Mixed result source product verified25/25 plus initializer negatives2/2.
+Exact realloc return origins preserve old safe class projection; no Home mint.
+Unchanged app retains reallocResult315/318 PrefixNotCovered(Body3), no EXE.
+Next resolve pending composite result law without invisible consuming inputs.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+next_design_card = "MIRBUILDER-GATE1-PENDING-COMPOSITE-RESULT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

@@ -1,115 +1,153 @@
-//! Composition of the existing sealed result-exit draft.
-//! This private owner preserves the result solver's original projections;
-//! it does not observe source, issue a Home, or lower physical instructions.
-
-use std::collections::BTreeSet;
-
-use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
-
+//! Single composition fold over source exits; never a Home issuer.
+use super::product::SourceResultRowV1;
 use super::{
     parameter_contract, OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1, PendingExitV1,
+    PendingResultExitV1, ResultExitOriginV1, ResultValueOriginV1,
 };
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
+use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+use std::collections::BTreeSet;
 
-/// Whether every exit of this row now composes: `New`/`Null` are self-
-/// evident, `Fwd` waits on the callee's claim. Waiting on a key that is
-/// neither claimed nor still pending means the callee can never prove a
-/// class — the row is dead, not pending.
 pub(super) enum ExitVerdictV1 {
-    Resolvable(OrdinaryNewResultClassV1),
+    Resolvable(SourceResultRowV1),
     Waiting,
     Dead,
 }
 
 pub(super) fn evaluate_row(
-    exits: &[PendingExitV1],
+    exits: &[PendingResultExitV1],
     claims: &OrdinaryNewResultClassClaimsV1,
     pending: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     batch_slot: u32,
+    coverage: &ParserOrdinaryBoxSourceCoverageV1,
 ) -> ExitVerdictV1 {
-    use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+    let mut rows = Vec::new();
     let mut class: Option<Box<str>> = None;
-    let mut forwarded: Option<u32> = None;
+    let mut forwarded = None;
     let mut nullable = false;
     let mut waiting = false;
+    let mut legacy_eligible = true;
     for exit in exits {
-        let found_class: Box<str> = match exit {
+        let mut alternatives = BTreeSet::new();
+        match &exit.exit {
+            PendingExitV1::New(found) => {
+                alternatives.insert(ResultValueOriginV1::Fresh(found.clone()));
+            }
             PendingExitV1::Null => {
-                nullable = true;
-                continue;
+                alternatives.insert(ResultValueOriginV1::Null);
             }
             PendingExitV1::Formal { ordinal } => {
-                // An ordinary formal return is an identity claim —
-                // nullable because the caller may pass `null`. It never
-                // mints a class of its own and never coexists with one.
-                nullable = true;
-                match forwarded {
+                alternatives.insert(ResultValueOriginV1::Null);
+                alternatives.insert(ResultValueOriginV1::ForwardFormal { ordinal: *ordinal });
+            }
+            PendingExitV1::Fwd { key, actuals } => {
+                let Some(callee_rows) = claims.outcomes(key) else {
+                    if pending.contains(key) {
+                        waiting = true;
+                        continue;
+                    }
+                    return ExitVerdictV1::Dead;
+                };
+                // Passive outcomes cannot upgrade the historical ownership projection.
+                legacy_eligible &= claims.contains_key(key);
+                for origin in callee_rows.iter().flat_map(|row| row.alternatives()) {
+                    let origin = match origin {
+                        ResultValueOriginV1::ForwardFormal { ordinal } => {
+                            let Some(Some(binding)) = actuals.get(*ordinal as usize) else {
+                                return ExitVerdictV1::Dead;
+                            };
+                            let Some(parameter) =
+                                parameter_contract(parameter_contracts, batch_slot, *binding)
+                            else {
+                                return ExitVerdictV1::Dead;
+                            };
+                            if !matches!(
+                                parameter.kind,
+                                CallableParameterContractKindV1::DeclaredObject(_)
+                                    | CallableParameterContractKindV1::OpaqueHandle
+                            ) {
+                                return ExitVerdictV1::Dead;
+                            }
+                            ResultValueOriginV1::ForwardFormal {
+                                ordinal: parameter.ordinal,
+                            }
+                        }
+                        other => other.clone(),
+                    };
+                    alternatives.insert(origin);
+                }
+            }
+        }
+        if alternatives.is_empty() {
+            return ExitVerdictV1::Dead;
+        }
+        for origin in &alternatives {
+            match origin {
+                ResultValueOriginV1::Null => nullable = true,
+                ResultValueOriginV1::Fresh(found) => {
+                    // Check before exposing this row to any dependent composition.
+                    if coverage.row_for(found).ok().flatten().is_none() {
+                        return ExitVerdictV1::Dead;
+                    }
+                    match &class {
+                        None => class = Some(found.clone()),
+                        Some(existing) if existing == found => {}
+                        _ => return ExitVerdictV1::Dead,
+                    }
+                }
+                ResultValueOriginV1::ForwardFormal { ordinal } => match forwarded {
                     None => forwarded = Some(*ordinal),
                     Some(existing) if existing == *ordinal => {}
                     _ => return ExitVerdictV1::Dead,
-                }
-                continue;
-            }
-            PendingExitV1::New(found) => found.clone(),
-            PendingExitV1::Fwd { key, actuals } => match claims.get(key) {
-                Some(claim) => match claim {
-                    OrdinaryNewResultClassV1::Object(found)
-                    | OrdinaryNewResultClassV1::NullableObject(found) => {
-                        nullable |= claim.is_nullable();
-                        found.clone()
-                    }
-                    OrdinaryNewResultClassV1::NullableForwarded { ordinal } => {
-                        // An ordinary formal supplies a borrowed identity, not
-                        // a new Home, even when its class is declared.
-                        nullable = true;
-                        let Some(Some(binding)) = actuals.get(*ordinal as usize) else {
-                            return ExitVerdictV1::Dead;
-                        };
-                        let Some(parameter) =
-                            parameter_contract(parameter_contracts, batch_slot, *binding)
-                        else {
-                            return ExitVerdictV1::Dead;
-                        };
-                        if !matches!(
-                            parameter.kind,
-                            CallableParameterContractKindV1::DeclaredObject(_)
-                                | CallableParameterContractKindV1::OpaqueHandle
-                        ) {
-                            return ExitVerdictV1::Dead;
-                        }
-                        match forwarded {
-                            None => forwarded = Some(parameter.ordinal),
-                            Some(existing) if existing == parameter.ordinal => {}
-                            _ => return ExitVerdictV1::Dead,
-                        }
-                        continue;
-                    }
                 },
-                None if pending.contains(key) => {
-                    waiting = true;
-                    continue;
-                }
-                None => return ExitVerdictV1::Dead,
-            },
-        };
-        match &class {
-            None => class = Some(found_class),
-            Some(existing) if existing.as_ref() == found_class.as_ref() => {}
-            Some(_) => return ExitVerdictV1::Dead,
+            }
         }
+        rows.push(ResultExitOriginV1 {
+            site: exit.site.clone(),
+            alternatives,
+        });
     }
     if waiting {
         return ExitVerdictV1::Waiting;
     }
-    match (class, forwarded) {
-        (Some(class), None) => ExitVerdictV1::Resolvable(if nullable {
-            OrdinaryNewResultClassV1::NullableObject(class)
-        } else {
-            OrdinaryNewResultClassV1::Object(class)
-        }),
-        (None, Some(ordinal)) => {
-            ExitVerdictV1::Resolvable(OrdinaryNewResultClassV1::NullableForwarded { ordinal })
-        }
-        _ => ExitVerdictV1::Dead,
+    if rows.is_empty() {
+        return ExitVerdictV1::Dead;
     }
+    if let (Some(found), Some(ordinal)) = (&class, forwarded) {
+        let Some(parameter) = parameter_contracts
+            .iter()
+            .find(|row| row.batch_slot == batch_slot)
+            .and_then(|row| {
+                row.parameters
+                    .iter()
+                    .find(|parameter| parameter.ordinal == ordinal)
+            })
+        else {
+            return ExitVerdictV1::Dead;
+        };
+        if let CallableParameterContractKindV1::DeclaredObject(declared) = &parameter.kind {
+            if declared != found {
+                return ExitVerdictV1::Dead;
+            }
+        }
+    }
+    let projection = if legacy_eligible {
+        match (class, forwarded) {
+            (Some(class), None) => Some(if nullable {
+                OrdinaryNewResultClassV1::NullableObject(class)
+            } else {
+                OrdinaryNewResultClassV1::Object(class)
+            }),
+            (None, Some(ordinal)) => Some(OrdinaryNewResultClassV1::NullableForwarded { ordinal }),
+            _ => None,
+        }
+    } else {
+        None
+    };
+    ExitVerdictV1::Resolvable(SourceResultRowV1 {
+        exits: rows.into_boxed_slice(),
+        projection,
+    })
 }

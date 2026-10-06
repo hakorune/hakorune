@@ -142,7 +142,7 @@ impl OrdinaryNewClaimLedgerV1 {
             provider_births: RefCell::new(Vec::new()),
             field_write_claims: BTreeMap::new(),
             owned_field_children: BTreeMap::new(),
-            callable_result_classes: BTreeMap::new(),
+            callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1::new(),
             array_i64_fields: BTreeMap::new(),
             receiver_call_observations: BTreeMap::new(),
             terminal_relation: BTreeMap::new(),
@@ -446,5 +446,14 @@ impl OrdinaryNewClaimLedgerV1 {
         self.app_main_identity
             .as_ref()
             .is_some_and(|expected| expected.same_as(identity))
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Passive caller-branded return origins; never a Home or emission capability.
+    pub(in crate::mir::normal_callable_semantic_package) fn callable_result_origins(
+        &self, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&[result_class_claim::ResultExitOriginV1]> {
+        self.callable_result_classes.outcomes(key)
     }
 }

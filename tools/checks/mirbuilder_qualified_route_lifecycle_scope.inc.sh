@@ -474,6 +474,12 @@ rg -q 'provided_parameter_store_rejects_copied_local' "$RESULT_CLAIM_TESTS"
 rg -q 'defaulted_scalar_field_accepts_birth_overwrite' "$RESULT_CLAIM_TESTS"
 rg -q 'defaulted_object_field_rejects_birth_overwrite' "$RESULT_CLAIM_TESTS"
 rg -q 'page_heap_fixture_result_claim_census' "$RESULT_CLAIM_TESTS"
+# Passive mixed outcomes cannot upgrade the legacy owned-result projection.
+RESULT_ORIGIN_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/result_origin_tests.rs"
+rg -q 'real_realloc_preserves_every_return_origin_without_owned_projection' "$RESULT_ORIGIN_TESTS"
+rg -q 'mixed_forward_composes_caller_ordinal_and_keeps_caller_sites' "$RESULT_ORIGIN_TESTS"
+rg -q 'null_only_and_forwarded_null_never_gain_legacy_membership' "$RESULT_ORIGIN_TESTS"
+rg -q 'origin_rejects_rebind_unknown_actual_class_and_ungrounded_cycle' "$RESULT_ORIGIN_TESTS"
 
 # MIRBUILDER-APP-MIMALLOC-LITE-FORMAL-FORWARD-RESULT-S0: an explicit
 # `formal: <ordinary-box>` declaration resolves to the existing ordinary

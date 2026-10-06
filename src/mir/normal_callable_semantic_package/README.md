@@ -1192,3 +1192,11 @@ fixpoint scheduling in `ordinary_new_result_class_claim.rs`; its private
 and safe result projection. This split adds no source acceptance or Home
 acquisition. Mixed fresh/borrowed outcomes remain rejected by that projection
 until their exact result/destination contract is verified.
+
+The ordinary-new result solver now retains one passive source product with exact
+caller-branded return sites and Null/Fresh/ForwardFormal alternatives. Legacy
+class lookup exposes only the prior safe projection; mixed/null-only facts do
+not authorize receiver Homes, field transfers or physical lifecycle bindings.
+The one existing fixpoint composes formal identity through exact unrebound
+actual bindings and checks Fresh source coverage before exposing callee facts.
+Conditional owning destinations require their own verified contract.

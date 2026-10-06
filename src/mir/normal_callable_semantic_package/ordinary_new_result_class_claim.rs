@@ -19,9 +19,10 @@
 //! `null` exits — or forwarding to a `NullableObject` callee — degrades
 //! the claim to `NullableObject(C)`. `NullableObject` is never a Handle
 //! authorization. Missing inventories, value-less returns, forwarded
-//! edges to unclaimed callees, parameters, rebound locals, and mixed
-//! classes all leave the callable unclaimed — additive evidence, never a
-//! fallback.
+//! edges to unavailable callees, rebound locals, and mixed classes leave
+//! the callable unavailable. One product also retains exact passive
+//! Null/Fresh/ForwardFormal exit origins; mixed and null-only origins do
+//! not gain legacy class membership or ownership authority.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -39,6 +40,9 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 #[path = "ordinary_new_result_class_claim/evaluate.rs"]
 mod evaluate;
 use evaluate::{evaluate_row, ExitVerdictV1};
+#[path = "ordinary_new_result_class_claim/product.rs"]
+mod product;
+pub(crate) use product::{ResultExitOriginV1, ResultValueOriginV1};
 
 /// The proven result class of a selected callable. The class name is the
 /// agreed `new` class; the arm records whether a `null` literal exit
@@ -69,19 +73,10 @@ impl OrdinaryNewResultClassV1 {
             Self::NullableForwarded { .. } => None,
         }
     }
-
-    const fn is_nullable(&self) -> bool {
-        matches!(
-            self,
-            Self::NullableObject(_) | Self::NullableForwarded { .. }
-        )
-    }
 }
 
-/// Key: the selected canonical callable key. Value: the agreed result
-/// class claim every `return` satisfies.
-pub(crate) type OrdinaryNewResultClassClaimsV1 =
-    BTreeMap<CanonicalSameModuleCallableKeyV1, OrdinaryNewResultClassV1>;
+/// Single source product; legacy lookups expose only safe class projections.
+pub(crate) type OrdinaryNewResultClassClaimsV1 = product::VerifiedSourceCallableResultFactsV1;
 
 /// Pass-A exit classification. Forwarded shapes carry the exact source
 /// site so pass B can resolve the callee key from the same sealed facts.
@@ -117,10 +112,18 @@ enum PendingExitV1 {
     },
 }
 
+struct PendingResultExitV1 {
+    site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    exit: PendingExitV1,
+}
+
 struct ResultClassDraftRowV1 {
     key: CanonicalSameModuleCallableKeyV1,
     batch_slot: u32,
-    exits: Vec<ResultClassExitDraftV1>,
+    exits: Vec<(
+        crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ResultClassExitDraftV1,
+    )>,
 }
 
 #[derive(Default)]
@@ -427,7 +430,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
     /// `returns_value` proves every function exit is an explicit value
     /// return, so a nested `return` inside a trailing `if`/`loop` can
     /// never masquerade as the body tail. Any unclassifiable value — a
-    /// parameter, a field read, an upvar, a bare literal — drops the row
+    /// field read, an upvar, a non-null literal — drops the row
     /// entirely; the row can never compose a class.
     pub(crate) fn observe_function(
         &mut self,
@@ -454,7 +457,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             } else if function.direct_call_target(&site).is_some()
                 || function.method_call(&site).is_some()
             {
-                ResultClassExitDraftV1::ForwardCall(site)
+                ResultClassExitDraftV1::ForwardCall(site.clone())
             } else {
                 match function.variable_ref(&site) {
                     Some(ResolvedLexicalRefV1::Local(binding)) => {
@@ -477,7 +480,10 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     _ => return,
                 }
             };
-            exits.push(exit);
+            exits.push((
+                crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site),
+                exit,
+            ));
         }
         self.rows.push(ResultClassDraftRowV1 {
             key: key.clone(),
@@ -490,9 +496,9 @@ impl OrdinaryNewResultClassClaimDraftV1 {
     /// facts, then compose by monotone fixpoint — every iteration either
     /// mints newly-provable claims or removes rows whose forwarded callee
     /// can never claim, so iteration is bounded by the pending-key count.
-    /// Claims whose class is not an ordinary box of this package are
-    /// dropped at the end; `NullableForwarded` claims carry no class of
-    /// their own and always survive the filter.
+    /// Fresh classes require ordinary source coverage before insertion;
+    /// forwarded identities carry no acquired Home. Passive mixed/null-only
+    /// rows remain absent from the legacy class projection.
     pub(crate) fn finish(
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
@@ -502,9 +508,16 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     ) -> OrdinaryNewResultClassClaimsV1 {
         use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-        let mut pending: BTreeMap<CanonicalSameModuleCallableKeyV1, (u32, Vec<PendingExitV1>)> =
-            BTreeMap::new();
+        let mut pending: BTreeMap<
+            CanonicalSameModuleCallableKeyV1,
+            (u32, Vec<PendingResultExitV1>),
+        > = BTreeMap::new();
         for row in self.rows {
+            if !matches!(selected.key_for_batch_slot(row.batch_slot),
+                Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == &row.key)
+            {
+                continue;
+            }
             let resolved = batch.with_lowering_input(row.batch_slot, |input| {
                 let function = input.function();
                 let Some(body_shape) = input.body_shape() else {
@@ -512,43 +525,56 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                 };
                 row.exits
                     .iter()
-                    .map(|exit| match exit {
-                        ResultClassExitDraftV1::New(class) => {
-                            Some(PendingExitV1::New(class.clone()))
+                    .map(|(site, exit)| {
+                        if site.owner() != input.owner() {
+                            return None;
                         }
-                        ResultClassExitDraftV1::Null => Some(PendingExitV1::Null),
-                        ResultClassExitDraftV1::ForwardCall(site) => resolve_call_key(
-                            site,
-                            function,
-                            body_shape,
-                            &row.key,
-                            batch,
-                            selected,
-                            field_write_claims,
-                        )
-                        .map(|(key, actuals)| PendingExitV1::Fwd { key, actuals }),
-                        ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
-                            *binding,
-                            function,
-                            body_shape,
-                            &row.key,
-                            batch,
-                            selected,
-                            field_write_claims,
-                        ),
-                        ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
-                            // Both ordinary kinds borrow their input. A type
-                            // annotation proves class, not a moved-in Home.
-                            match parameter_contract(parameter_contracts, row.batch_slot, *binding)
-                                .map(|parameter| &parameter.kind)
-                            {
-                                Some(
-                                    CallableParameterContractKindV1::DeclaredObject(_)
-                                    | CallableParameterContractKindV1::OpaqueHandle,
-                                ) => Some(PendingExitV1::Formal { ordinal: *ordinal }),
-                                _ => None,
+                        let exit = match exit {
+                            ResultClassExitDraftV1::New(class) => {
+                                Some(PendingExitV1::New(class.clone()))
                             }
-                        }
+                            ResultClassExitDraftV1::Null => Some(PendingExitV1::Null),
+                            ResultClassExitDraftV1::ForwardCall(site) => resolve_call_key(
+                                site,
+                                function,
+                                body_shape,
+                                &row.key,
+                                batch,
+                                selected,
+                                field_write_claims,
+                            )
+                            .map(|(key, actuals)| PendingExitV1::Fwd { key, actuals }),
+                            ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
+                                *binding,
+                                function,
+                                body_shape,
+                                &row.key,
+                                batch,
+                                selected,
+                                field_write_claims,
+                            ),
+                            ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
+                                // Both ordinary kinds borrow their input. A type
+                                // annotation proves class, not a moved-in Home.
+                                match parameter_contract(
+                                    parameter_contracts,
+                                    row.batch_slot,
+                                    *binding,
+                                )
+                                .map(|parameter| &parameter.kind)
+                                {
+                                    Some(
+                                        CallableParameterContractKindV1::DeclaredObject(_)
+                                        | CallableParameterContractKindV1::OpaqueHandle,
+                                    ) => Some(PendingExitV1::Formal { ordinal: *ordinal }),
+                                    _ => None,
+                                }
+                            }
+                        }?;
+                        Some(PendingResultExitV1 {
+                            site: site.clone(),
+                            exit,
+                        })
                     })
                     .collect::<Option<Vec<_>>>()
             });
@@ -569,6 +595,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                     &pending_keys,
                     parameter_contracts,
                     *batch_slot,
+                    ordinary_box_coverage,
                 ) {
                     ExitVerdictV1::Resolvable(claim) => inserts.push((key.clone(), claim)),
                     ExitVerdictV1::Dead => deads.push(key.clone()),
@@ -587,15 +614,73 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             }
         }
         claims
-            .into_iter()
-            .filter(|(_, claim)| match claim.class() {
-                None => true,
-                Some(class) => ordinary_box_coverage
-                    .row_for(class)
-                    .ok()
-                    .flatten()
-                    .is_some(),
+    }
+}
+
+#[cfg(test)]
+mod source_brand_tests {
+    use super::*;
+    use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog as issue;
+
+    #[test]
+    fn foreign_owner_or_target_cannot_issue_result_origins() {
+        let source = "box Token { value: i64 birth(value) { me.value = value } } box Door { give(h: Token) { return h } } static box Main { main() { return 0 } }";
+        let package = issue(source).unwrap();
+        let foreign = issue(source).unwrap();
+        let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Door", "give", 1);
+        let slot = package
+            .batch
+            .declarations()
+            .find(|row| {
+                matches!(
+                    package.selected.key_for_batch_slot(row.batch_slot()),
+                    Some(SelectedNormalCallableKeyV1::Cataloged(found)) if found == &key
+                )
             })
-            .collect()
+            .unwrap()
+            .batch_slot();
+        let foreign_owner = foreign
+            .batch
+            .declarations()
+            .find(|row| {
+                matches!(
+                    foreign.selected.key_for_batch_slot(row.batch_slot()),
+                    Some(SelectedNormalCallableKeyV1::Cataloged(found)) if found == &key
+                )
+            })
+            .unwrap()
+            .owner();
+        for corrupt_target in [false, true] {
+            let mut draft = OrdinaryNewResultClassClaimDraftV1::new();
+            package
+                .batch
+                .with_lowering_input(slot, |input| draft.observe_function(input, &key, slot))
+                .unwrap();
+            assert_eq!(draft.rows.len(), 1);
+            if corrupt_target {
+                draft.rows[0].key =
+                    CanonicalSameModuleCallableKeyV1::instance_box_method("Foreign", "give", 1);
+            } else {
+                let site = &mut draft.rows[0].exits[0].0;
+                *site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                    foreign_owner,
+                    site.site().clone(),
+                );
+            }
+            let facts = draft.finish(
+                package.batch.ordinary_box_coverage(),
+                &package.batch,
+                &package.selected,
+                &package.ordinary_new_claim_ledger.field_write_claims,
+                &package.parameter_contracts,
+            );
+            assert!(facts.outcomes(&key).is_none());
+            assert!(facts
+                .outcomes(&CanonicalSameModuleCallableKeyV1::instance_box_method(
+                    "Foreign", "give", 1
+                ))
+                .is_none());
+            assert!(!facts.contains_key(&key));
+        }
     }
 }
