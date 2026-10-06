@@ -378,7 +378,8 @@ pub use generic_method_route_plan::{
     refresh_function_generic_method_routes, refresh_module_generic_method_routes,
 };
 pub use instruction::{
-    ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, ConstructionTarget,
+    ArrayElementWriteKind, ArrayReadSiteId, ArrayWriteProducerKind, ArrayWriteSiteId,
+    ConstructionTarget,
     MirInstruction, WeakFieldWriteSiteId,
 };
 pub use map_lookup_fusion_plan::{

@@ -18,6 +18,7 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::StaticDataLoad { .. } => "StaticDataLoad",
         MirInstruction::MapLiteralEntryWrite { .. } => "MapLiteralEntryWrite",
         MirInstruction::ArrayElementWrite { .. } => "ArrayElementWrite",
+        MirInstruction::ArrayElementRead { .. } => "ArrayElementRead",
         MirInstruction::ArrayStateContractClaim { .. } => "ArrayStateContractClaim",
         MirInstruction::VariantMake { .. } => "VariantMake",
         MirInstruction::VariantTag { .. } => "VariantTag",
@@ -79,6 +80,7 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "Await",
     "MapLiteralEntryWrite",
     "ArrayElementWrite",
+    "ArrayElementRead",
     "ArrayStateContractClaim",
     "Barrier",
     "BinOp",
@@ -166,6 +168,7 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         MirInstruction::Await { .. }
         | MirInstruction::MapLiteralEntryWrite { .. }
         | MirInstruction::ArrayElementWrite { .. }
+        | MirInstruction::ArrayElementRead { .. }
         | MirInstruction::ArrayStateContractClaim { .. }
         | MirInstruction::Barrier { .. }
         | MirInstruction::BinOp { .. }

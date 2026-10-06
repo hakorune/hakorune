@@ -193,15 +193,22 @@ fn match_array_rmw_add1_leaf_seed_route(
     expect_ops(
         &b6,
         &[
-            "const", "mir_call", "const", "const", "binop", "mir_call", "binop", "ret",
+            "const",
+            "array_read",
+            "const",
+            "const",
+            "binop",
+            "array_read",
+            "binop",
+            "ret",
         ],
     )?;
     if const_i64(b6[0])? != 0
-        || !method_call_is_with_receiver_arg(b6[1], &["ArrayBox"], "get", 1)
+        || !array_read_is(b6[1])
         || const_i64(b6[2])? != size
         || const_i64(b6[3])? != 1
         || !binop_is(b6[4], BinaryOp::Sub)
-        || !method_call_is_with_receiver_arg(b6[5], &["ArrayBox"], "get", 1)
+        || !array_read_is(b6[5])
         || !binop_is(b6[6], BinaryOp::Add)
     {
         return None;
@@ -256,6 +263,7 @@ fn op_name(inst: &MirInstruction) -> &'static str {
         MirInstruction::BinOp { .. } => "binop",
         MirInstruction::Compare { .. } => "compare",
         MirInstruction::LegacyCallV0 { .. } => "mir_call",
+        MirInstruction::ArrayElementRead { .. } => "array_read",
         MirInstruction::Branch { .. } => "branch",
         MirInstruction::Jump { .. } => "jump",
         MirInstruction::Return { .. } => "ret",
@@ -305,6 +313,12 @@ fn method_call_is(
         }
         _ => false,
     }
+}
+
+/// Canonical `ArrayBox.get/1` read — the sole physical read owner now
+/// occupies the slot the seed's final gets used to mint as `mir_call`.
+fn array_read_is(inst: &MirInstruction) -> bool {
+    matches!(inst, MirInstruction::ArrayElementRead { dst: Some(_), .. })
 }
 
 fn method_call_is_with_receiver_arg(
@@ -475,23 +489,11 @@ mod tests {
             25,
             vec![
                 const_i(63, 0),
-                method_call(
-                    Some(60),
-                    "ArrayBox",
-                    "get",
-                    64,
-                    vec![ValueId::new(62), ValueId::new(63)],
-                ),
+                array_read(60, 64, ValueId::new(63)),
                 const_i(75, 128),
                 const_i(76, 1),
                 binop(73, BinaryOp::Sub),
-                method_call(
-                    Some(70),
-                    "ArrayBox",
-                    "get",
-                    77,
-                    vec![ValueId::new(72), ValueId::new(73)],
-                ),
+                array_read(70, 77, ValueId::new(73)),
                 binop(80, BinaryOp::Add),
             ],
             MirInstruction::Return {
@@ -553,6 +555,15 @@ mod tests {
             dst: ValueId::new(dst),
             inputs: vec![],
             type_hint: None,
+        }
+    }
+
+    fn array_read(dst: u32, receiver: u32, index: ValueId) -> MirInstruction {
+        MirInstruction::ArrayElementRead {
+            site_id: crate::mir::ArrayReadSiteId::new(1),
+            dst: Some(ValueId::new(dst)),
+            receiver: ValueId::new(receiver),
+            index,
         }
     }
 

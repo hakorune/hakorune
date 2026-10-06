@@ -601,6 +601,7 @@ fn validate_instruction_with_context(
                     index: Some(_),
                     ..
                 }
+                | MirInstruction::ArrayElementRead { .. }
                 | MirInstruction::ReturnFault { .. }
                 | MirInstruction::FaultFrameEnter { .. }
                 | MirInstruction::Branch { .. }

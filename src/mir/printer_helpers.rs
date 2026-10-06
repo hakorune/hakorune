@@ -180,6 +180,21 @@ pub fn format_instruction(
             )
         }
 
+        MirInstruction::ArrayElementRead {
+            site_id,
+            dst,
+            receiver,
+            index,
+        } => {
+            let dst = dst
+                .map(|dst| format!("{} ", format_dst(&dst, types)))
+                .unwrap_or_default();
+            format!(
+                "{}array.read #{} get receiver={} index={}",
+                dst, site_id.0, receiver, index
+            )
+        }
+
         MirInstruction::ArrayStateContractClaim { contract_id, array } => {
             format!("array.contract.claim {} array={}", contract_id, array)
         }

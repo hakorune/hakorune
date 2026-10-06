@@ -43,6 +43,7 @@ pub(super) enum CompletedUnifiedCallEmissionV1 {
 pub(in crate::mir::builder) enum UnifiedCallAlternateRouteV1 {
     EarlyStringLikeRewrite,
     KnownArrayWrite,
+    KnownArrayRead,
     BoxCall,
 }
 

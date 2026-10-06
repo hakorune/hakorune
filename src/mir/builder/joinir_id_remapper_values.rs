@@ -46,6 +46,18 @@ impl JoinIrIdRemapper {
                 vals.push(*value);
                 vals
             }
+            ArrayElementRead {
+                dst,
+                receiver,
+                index,
+                ..
+            } => {
+                let mut vals = Vec::new();
+                vals.extend(dst.iter().copied());
+                vals.push(*receiver);
+                vals.push(*index);
+                vals
+            }
             ArrayStateContractClaim { array, .. } => vec![*array],
             MemOp { dst, operands, .. } => {
                 let mut vals = Vec::new();

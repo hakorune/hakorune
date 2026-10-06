@@ -336,6 +336,15 @@ fn encode_instruction(
             json!({ "op": "array_set", "array": value(receiver),
                 "index": value(index), "value": value(stored), "site": site })
         }
+        MirInstruction::ArrayElementRead {
+            dst,
+            receiver,
+            index,
+            ..
+        } => {
+            json!({ "op": "array_get", "array": value(receiver),
+                "index": value(index), "dst": dst.map(|value| value.0) })
+        }
         MirInstruction::ArrayResidenceRelease { value: released } => {
             require_native_input(abi_input)?;
             json!({ "op": "array_residence_release", "value": value(released) })

@@ -140,6 +140,12 @@ impl MirInterpreter {
                     } => {
                         self.execute_array_element_write(*dst, *kind, *receiver, *index, *value)?
                     }
+                    MirInstruction::ArrayElementRead {
+                        dst,
+                        receiver,
+                        index,
+                        ..
+                    } => self.execute_array_element_read(*dst, *receiver, *index)?,
                     MirInstruction::TypeOp { dst, op, value, ty } => {
                         self.handle_type_op(*dst, *op, *value, ty)?
                     }

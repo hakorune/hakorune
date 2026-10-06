@@ -1,9 +1,24 @@
 use crate::mir::{
-    ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, MirInstruction, ValueId,
+    ArrayElementWriteKind, ArrayReadSiteId, ArrayWriteProducerKind, ArrayWriteSiteId,
+    MirInstruction, ValueId,
 };
 use serde_json::Value;
 
 use super::helpers::require_u64;
+
+pub(super) fn parse_array_element_read(inst: &Value) -> Result<MirInstruction, String> {
+    let site_id = require_u64(inst, "site_id", "array_element_read site_id")? as u32;
+    let dst = inst
+        .get("dst")
+        .and_then(Value::as_u64)
+        .map(|value| ValueId::new(value as u32));
+    Ok(MirInstruction::ArrayElementRead {
+        site_id: ArrayReadSiteId::new(site_id),
+        dst,
+        receiver: value_id(inst, "receiver")?,
+        index: value_id(inst, "index")?,
+    })
+}
 
 pub(super) fn parse_array_element_write(inst: &Value) -> Result<MirInstruction, String> {
     let site_id = require_u64(inst, "site_id", "array_element_write site_id")? as u32;

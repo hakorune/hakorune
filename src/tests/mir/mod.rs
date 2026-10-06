@@ -1,3 +1,8 @@
+#[path = "../mir_array_element_read_lowering.rs"]
+pub mod mir_array_element_read_lowering;
+#[cfg(feature = "vm-reference")]
+#[path = "../mir_array_element_read_vm.rs"]
+pub mod mir_array_element_read_vm;
 #[path = "../mir_array_element_write_lowering.rs"]
 pub mod mir_array_element_write_lowering;
 #[cfg(feature = "vm-reference")]

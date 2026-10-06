@@ -43,6 +43,17 @@ pub(crate) fn same_value_root(
 
 pub(crate) fn match_array_get_call(inst: &MirInstruction) -> Option<ArrayGetCall<'_>> {
     match inst {
+        MirInstruction::ArrayElementRead {
+            dst: Some(dst),
+            receiver,
+            index,
+            ..
+        } => Some(ArrayGetCall {
+            array_value: *receiver,
+            index_value: *index,
+            output_value: *dst,
+            receiver_box_name: "ArrayBox",
+        }),
         MirInstruction::Call(call) => match &call.callee {
             Callee::Method {
                 box_name,

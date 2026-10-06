@@ -22,6 +22,7 @@ pub(crate) enum PublishedCallKindV1 {
     ArraySet = 6,
     ArrayInsert = 7,
     IntrinsicArrayNew = 8,
+    ArrayGet = 9,
 }
 
 pub(crate) const PUBLISHED_ROW_DST_PRESENT_V1: u32 = 1;
@@ -63,6 +64,7 @@ impl PublishedStaticMethodCFrameV1 {
             + view.free_function_calls.len()
             + view.builtin_print_calls.len()
             + view.array_element_writes.len()
+            + view.array_element_reads.len()
             + view.intrinsic_arrays.len();
         let mut function_names = Vec::with_capacity(total);
         let mut target_symbols =
@@ -209,6 +211,38 @@ impl PublishedStaticMethodCFrameV1 {
                 receiver: write.receiver().as_u32(),
                 index,
                 value: write.value().as_u32(),
+                dst,
+                flags,
+            });
+        }
+        for read in &view.array_element_reads {
+            let function_name = CString::new(read.function_name()).map_err(|_| {
+                PublishedMirBackendViewErrorV1::ArrayElementWriteShapeMismatch {
+                    function: read.function_name().to_owned(),
+                    kind: crate::mir::ArrayElementWriteKind::Set,
+                }
+            })?;
+            let mut flags = PUBLISHED_ROW_INDEX_PRESENT_V1;
+            let dst = read.dst().map_or(0, |value| {
+                flags |= PUBLISHED_ROW_DST_PRESENT_V1;
+                value.as_u32()
+            });
+            function_names.push(function_name);
+            let function_name_ptr = function_names
+                .last()
+                .expect("just-pushed array-read function name")
+                .as_ptr();
+            rows.push(PublishedStaticMethodCallCRowV1 {
+                function_name: function_name_ptr,
+                block_id: read.block_id(),
+                instruction_index: read.instruction_index(),
+                target_symbol: std::ptr::null(),
+                arity: 0,
+                kind: PublishedCallKindV1::ArrayGet as u32,
+                site_id: read.site_id(),
+                receiver: read.receiver().as_u32(),
+                index: read.index().as_u32(),
+                value: 0,
                 dst,
                 flags,
             });

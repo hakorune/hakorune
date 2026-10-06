@@ -77,7 +77,8 @@ impl MirInstruction {
             MirInstruction::Load { .. }
             | MirInstruction::StaticDataLoad { .. }
             | MirInstruction::FieldGet { .. }
-            | MirInstruction::ObjectFieldGet { .. } => EffectMask::READ,
+            | MirInstruction::ObjectFieldGet { .. }
+            | MirInstruction::ArrayElementRead { .. } => EffectMask::READ,
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
             | MirInstruction::WeakFieldWrite { .. }
@@ -188,7 +189,8 @@ impl MirInstruction {
 
             MirInstruction::Call(call) => call.dst,
             MirInstruction::LegacyCallV0 { dst, .. } => *dst,
-            MirInstruction::ArrayElementWrite { dst, .. } => *dst,
+            MirInstruction::ArrayElementWrite { dst, .. }
+            | MirInstruction::ArrayElementRead { dst, .. } => *dst,
             MirInstruction::MemOp { dst, .. } => *dst,
             MirInstruction::PinnedTextOp { dst, .. } => Some(*dst),
 
@@ -333,6 +335,10 @@ impl MirInstruction {
                 values.push(*value);
                 values
             }
+
+            MirInstruction::ArrayElementRead {
+                receiver, index, ..
+            } => vec![*receiver, *index],
 
             MirInstruction::UnaryOp { operand, .. }
             | MirInstruction::Load { ptr: operand, .. }

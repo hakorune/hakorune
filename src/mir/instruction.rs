@@ -45,7 +45,16 @@ impl FastMemRegionId {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ArrayWriteSiteId(pub u32);
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct ArrayReadSiteId(pub u32);
+
 impl ArrayWriteSiteId {
+    pub const fn new(id: u32) -> Self {
+        Self(id)
+    }
+}
+
+impl ArrayReadSiteId {
     pub const fn new(id: u32) -> Self {
         Self(id)
     }
@@ -347,6 +356,17 @@ pub enum MirInstruction {
         receiver: ValueId,
         index: Option<ValueId>,
         value: ValueId,
+    },
+
+    /// Canonical Array element read boundary — the sole physical owner for
+    /// a `Callee::Method{ArrayBox, get}` site whose receiver is proven
+    /// `ArrayBox`. A pure read: no fault edge and no lifecycle row, the
+    /// same surface `call_method` executed before it.
+    ArrayElementRead {
+        site_id: ArrayReadSiteId,
+        dst: Option<ValueId>,
+        receiver: ValueId,
+        index: ValueId,
     },
 
     /// Publication boundary that monotonically claims an Array state contract.

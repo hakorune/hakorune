@@ -44,10 +44,10 @@ until the v2 frame and both C consumers are ready. See the
 
 以下の行は CI/テストで参照する契約値（編集時は実装と同時更新）。
 
-DOC_SYNC_MIR_KEPT_COUNT=58
+DOC_SYNC_MIR_KEPT_COUNT=59
 DOC_SYNC_MIR_LOWERED_AWAY_COUNT=0
 DOC_SYNC_MIR_REMOVED_COUNT=16
-DOC_SYNC_MIR_VOCABULARY_COUNT=74
+DOC_SYNC_MIR_VOCABULARY_COUNT=75
 DOC_SYNC_MIR14_COUNT=13
 DOC_SYNC_CORE26_COUNT=26
 
@@ -60,6 +60,13 @@ The selected Script Array physical cutover adds these operations to existing
 Neither Unit operation embeds a destination or emits `InvokeNormalResult`.
 This cohort uses only LiteralAppend/Literal/no-index writes; existing shared
 write-kind vocabulary is not source acceptance permission.
+
+`ArrayElementRead { site_id, dst, receiver, index }` is the sole physical
+owner of a `Callee::Method{ArrayBox, get}` site whose resolved receiver box
+is `ArrayBox` — a pure `READ` surface call carried on a canonical instruction
+(runtime delegation is the same `ArrayBox.get/1` surface; OOB keeps the
+existing Null/strict-string behavior, no fault edge). Sites whose receiver
+is not proven `ArrayBox` keep `call_method` and are unaffected.
 
 `ArrayResidenceRelease { value }` is an ordinary non-pure WRITE instruction,
 without result, FaultFrame operand or source-Fault successor. It consumes the
@@ -313,6 +320,7 @@ allowlists are being updated.
 - CopyOwned
 - DestroyOwned
 - ArrayElementWrite
+- ArrayElementRead
 - MapLiteralEntryWrite
 - LocalContractWrite
 - RecordFieldContractCheck

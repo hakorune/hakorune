@@ -335,6 +335,18 @@ fn emit_instruction(
         } => Ok(array_write::emit(
             *site_id, *dst, *kind, *producer, *receiver, *index, *value,
         )),
+        I::ArrayElementRead {
+            site_id,
+            dst,
+            receiver,
+            index,
+        } => Ok(serde_json::json!({
+            "op": "array_element_read",
+            "site_id": site_id.0,
+            "dst": dst.map(|value| value.as_u32()),
+            "receiver": receiver.as_u32(),
+            "index": index.as_u32(),
+        })),
         I::Call(call) => calls::emit_call(
             &call.dst,
             &crate::mir::ValueId::INVALID,

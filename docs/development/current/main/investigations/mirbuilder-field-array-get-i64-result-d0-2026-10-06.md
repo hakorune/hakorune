@@ -387,3 +387,117 @@ Baseline debt (reproduces on `36b13d8d8e`/`1c0d68497e`):
 
 Next owed: physical read owner for `Callee::Method` get publication,
 production caller switch, selected legacy retirement.
+
+## Callee::Method get physical read owner integrated Decision / 2026-10-06
+
+Design-stop audit for `physical-read-owner/callee-method-get-publication`.
+The emitted `me.<ArrayBox field>.get(i)` is a `call_method` —
+`Callee::Method{ArrayBox, get}` — whose dst type is `Unknown`; it has no
+published row (`PublishedLifecycleCheckedOperationKindV1` has no
+array-read, `validate_instruction_supported` whitelists only the checked
+invoke vocabulary + bare `ArrayElementWrite`/field ops) so publication
+freezes `instruction-unsupported`. Meanwhile `set`/`push`/`insert` already
+own `MirInstruction::ArrayElementWrite` via
+`try_emit_known_array_method_write(dst, receiver, method, args)` at three
+sites — `boxcall_emit`, `unified_emitter`, plan `effect_emission` — and
+the mir_interpreter executes it by delegating to
+`execute_method_callee("ArrayBox", ..)`, i.e. the instruction is the
+validated physical carrier while the runtime op is the same surface.
+`ArrayBox.get` is `PureRead` (`invoke_surface` → `self.get(index)`): like
+`field.get` it needs no fault edge and no lifecycle-validation row —
+`field.get` is already a bare plain instruction outside the checked-op
+vocabulary.
+
+Decision: `Callee::Method{ArrayBox, get}` retires to a bare
+`MirInstruction::ArrayElementRead { site_id, dst, receiver, index }`
+minted by a sibling of `try_emit_known_array_method_write` at the two
+emit sites `Callee::Method{ArrayBox}` actually reaches —
+`unified_emitter` and `boxcall_emit` (plan `effect_emission` is
+`push|set|insert`-gated on `RuntimeDataBox`; `get` never arrives) — a
+shape swap on exactly the `call_method` sites where the receiver's
+resolved box name is `ArrayBox` today, never an admission widening. The
+dst keeps today's declared result type (the i64 seal rides the semantic
+result lane, not the physical type — upgrading the physical dst type is
+a follow-up).
+
+Source authority + canonical issuer: `ArrayMethodId::Get` name+arity at
+the existing emit arm (sole issuer); the published view collects
+`array_element_reads` and C transport adds
+`PublishedCallKindV1::ArrayGet` — receiver/index/dst — mirroring
+`array_element_writes`.
+
+Non-authority: selector-name matching at publication; inferring element
+type from the instruction; `generic_method_route_plan`'s
+`match_generic_get_route` (legacy plan for the remaining `call_method`
+sites — unproven receivers only); `MapBox.get`; `DirectArrayI64`;
+physical `Integer` dst typing; bounds-check semantics change.
+
+Fail-fast boundary: a `get` whose receiver is not proven `ArrayBox`
+keeps `call_method` and stays unpublished — `instruction-unsupported`,
+unchanged. OOB stays the runtime's `ArrayBox.get` surface behavior
+(`NullBox`/strict string, no Fault) — no new fault edge is minted, so
+the read is not a `PublishedLifecycleCheckedOperationKindV1`.
+
+Smallest next slice: `MIRBUILDER-ARRAY-ELEMENT-READ-OWNER-S0` —
+instruction variant + printer/`array.read` + `Get` arm at the two emit
+sites + `execute_array_element_read` (delegating to the same
+`execute_method_callee` surface) + backend-mode coverage +
+`validate_instruction_supported` admission + JSON transport +
+`PublishedCallKindV1::ArrayGet` C row + the
+`array_i64_get_call_stays_unpublished_until_read_owner` pin flips to a
+positive published-row check. Negative pin: unproven-receiver get keeps
+`instruction-unsupported`.
+
+Non-claims: OOB/bounds semantics, `Integer` physical dst typing,
+MapBox/DirectArrayI64 reads, non-`me` receiver element typing, production
+switch, retirement, finite goal.
+
+### ArrayElementRead owner landed / 2026-10-06
+
+`MirInstruction::ArrayElementRead` is the sole physical owner of
+`Callee::Method{ArrayBox, get}` sites. Sole issuer
+`try_emit_known_array_method_read(dst, receiver, method, args)` fires at
+the two `Callee::Method{ArrayBox}` emit arms; `Get/1` fails `from_name_and_arity`
+for every other selector, so `MapBox.get` and unproven receivers keep
+`call_method` untouched.
+
+Landed surface:
+- `array.read #N get receiver=%r index=%i` printer + `ArrayReadSiteId`;
+  `EffectMask::READ`, `dst()`/`used_values`/`dst_value` arms, SSA
+  `def_inst_kind`, `value_uses`/`query`/`value_consumer`/
+  `value_consumer_used_values`/`JoinIrIdRemapper` arms.
+- mir_interpreter `execute_array_element_read` delegates to the same
+  `execute_method_callee("ArrayBox", "get", ..)` surface — instruction
+  is the validated carrier, runtime op unchanged.
+- MIR JSON emit `array_element_read` + `mir_json_v0` decode round-trip;
+  `is_supported_mir_json_instruction`/`is_supported_vm_instruction`
+  allowlists + `instruction_tag`/`instruction_diet_cohort` vocabulary.
+- Published view `array_element_reads` rows +
+  `PublishedCallKindV1::ArrayGet` (9) C transport; physical program
+  `validate_instruction_supported` admits the bare read;
+  `physical_program_json` encodes `array_get`.
+- Shared recognizer `match_array_get_call` projects `ArrayElementRead`
+  as `ArrayBox` get (same pattern as `match_method_set_call`'s
+  `ArrayElementWrite` arm); `array_rmw_add1_leaf_seed` `op_name` +
+  expected tables see `array_read`.
+- Focused evidence: `array_i64_get_publishes_through_array_element_read`
+  (view row + ABI input issue), `array_get_lowers_to_explicit_read_operation`
+  (production lowering emits `array.read`, zero residual `call_method`),
+  `vm_array_element_read_delegates_to_array_surface` (returns element),
+  rmw/seed/observer plan tests green on the canonical form.
+
+Boundaries honestly retained: the lifecycle-v4 C shim has no `array_get`
+arm yet (`nyash.array.checked_get_*` export does not exist) — published
+modules containing reads fail closed at C compile until that consumer
+contract lands; `dst: None` reads encode `"dst": null` which the C
+shape validator rejects. App `--emit-exe` probe (mimalloc-lite) stays at
+`artifact-unowned-lifecycle-site` = baseline parity. Touched-region
+battery: 19 failures, all reproduced identically on baseline
+`858d00d09a` (corridor benchmarks, `mir_locals`, residence-release
+tests, FFI-dependent object test) — zero current-change failures.
+
+Next owed: `MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0`
+(Decision `physical-array-read/c-lifecycle-consumer`: kernel
+`checked_get` export + v4 validate/flow/emit arms for the published
+`array_get` row), then production caller switch and selected legacy
+retirement.

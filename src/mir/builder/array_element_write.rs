@@ -1,6 +1,7 @@
 use super::{MirBuilder, ValueId};
 use crate::mir::{
-    ArrayElementWriteKind, ArrayWriteProducerKind, ArrayWriteSiteId, MirInstruction, MirType,
+    ArrayElementWriteKind, ArrayReadSiteId, ArrayWriteProducerKind, ArrayWriteSiteId,
+    MirInstruction, MirType,
 };
 
 impl MirBuilder {
@@ -63,6 +64,67 @@ impl MirBuilder {
             value,
         )?;
         Ok(true)
+    }
+
+    pub(super) fn emit_array_element_read(
+        &mut self,
+        dst: Option<ValueId>,
+        receiver: ValueId,
+        index: ValueId,
+    ) -> Result<ArrayReadSiteId, String> {
+        let site_id = self.next_array_read_site_id();
+        self.emit_instruction(MirInstruction::ArrayElementRead {
+            site_id,
+            dst,
+            receiver,
+            index,
+        })?;
+        if let Some(dst) = dst {
+            self.function_state
+                .type_ctx
+                .value_types
+                .insert(dst, MirType::Unknown);
+            if let Some(function) = self.function_state.current_function.as_mut() {
+                function.metadata.value_types.insert(dst, MirType::Unknown);
+            }
+        }
+        Ok(site_id)
+    }
+
+    /// `ArrayBox.get/1` on a receiver whose `Callee::Method` already proved
+    /// `ArrayBox` — the caller gates the box name; this arm only checks the
+    /// method identity, the same contract the write arm keeps.
+    pub(super) fn try_emit_known_array_method_read(
+        &mut self,
+        dst: Option<ValueId>,
+        receiver: ValueId,
+        method: &str,
+        args: &[ValueId],
+    ) -> Result<bool, String> {
+        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, args.len())
+            != Some(crate::boxes::array::ArrayMethodId::Get)
+        {
+            return Ok(false);
+        }
+        self.emit_array_element_read(dst, receiver, args[0])?;
+        Ok(true)
+    }
+
+    pub(super) fn next_array_read_site_id(&self) -> ArrayReadSiteId {
+        let next = self
+            .function_state
+            .current_function
+            .as_ref()
+            .into_iter()
+            .flat_map(|function| function.blocks.values())
+            .flat_map(|block| block.all_instructions())
+            .filter_map(|instruction| match instruction {
+                MirInstruction::ArrayElementRead { site_id, .. } => Some(site_id.0),
+                _ => None,
+            })
+            .max()
+            .map_or(0, |site| site.saturating_add(1));
+        ArrayReadSiteId::new(next)
     }
 
     pub(super) fn next_array_write_site_id(&self) -> ArrayWriteSiteId {

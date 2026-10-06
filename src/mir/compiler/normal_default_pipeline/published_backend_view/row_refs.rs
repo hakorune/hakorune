@@ -113,6 +113,41 @@ pub(crate) struct PublishedArrayElementWriteRef<'module> {
     pub(super) value: ValueId,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct PublishedArrayElementReadRef<'module> {
+    pub(super) function_name: &'module str,
+    pub(super) block_id: u32,
+    pub(super) instruction_index: u32,
+    pub(super) site_id: u32,
+    pub(super) dst: Option<ValueId>,
+    pub(super) receiver: ValueId,
+    pub(super) index: ValueId,
+}
+
+impl<'module> PublishedArrayElementReadRef<'module> {
+    pub(crate) fn function_name(self) -> &'module str {
+        self.function_name
+    }
+    pub(crate) const fn block_id(self) -> u32 {
+        self.block_id
+    }
+    pub(crate) const fn instruction_index(self) -> u32 {
+        self.instruction_index
+    }
+    pub(crate) const fn site_id(self) -> u32 {
+        self.site_id
+    }
+    pub(crate) const fn dst(self) -> Option<ValueId> {
+        self.dst
+    }
+    pub(crate) const fn receiver(self) -> ValueId {
+        self.receiver
+    }
+    pub(crate) const fn index(self) -> ValueId {
+        self.index
+    }
+}
+
 impl<'module> PublishedArrayElementWriteRef<'module> {
     pub(crate) fn function_name(self) -> &'module str {
         self.function_name

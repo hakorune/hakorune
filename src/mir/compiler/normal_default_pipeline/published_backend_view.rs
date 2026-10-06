@@ -17,7 +17,8 @@ use crate::mir::{ArrayElementWriteKind, Callee, MirFunction, MirInstruction, Mir
 
 mod row_refs;
 pub(crate) use row_refs::{
-    PublishedArrayElementWriteRef, PublishedBuiltinPrintCallRef, PublishedFreeFunctionCallRef,
+    PublishedArrayElementReadRef, PublishedArrayElementWriteRef,
+    PublishedBuiltinPrintCallRef, PublishedFreeFunctionCallRef,
     PublishedStaticMethodCallRef,
 };
 
@@ -174,6 +175,7 @@ pub(crate) struct PublishedMirBackendView<'module> {
     free_function_calls: Vec<PublishedFreeFunctionCallRef<'module>>,
     builtin_print_calls: Vec<PublishedBuiltinPrintCallRef<'module>>,
     array_element_writes: Vec<PublishedArrayElementWriteRef<'module>>,
+    array_element_reads: Vec<PublishedArrayElementReadRef<'module>>,
     intrinsic_arrays: Vec<row_refs::PublishedIntrinsicArrayRef<'module>>,
     has_lifecycle_instructions: bool,
     pub(super) has_non_lifecycle_unsupported: bool,
@@ -190,6 +192,7 @@ impl<'module> PublishedMirBackendView<'module> {
         let mut free_function_calls = Vec::new();
         let mut builtin_print_calls = Vec::new();
         let mut array_element_writes = Vec::new();
+        let mut array_element_reads = Vec::new();
         let mut intrinsic_arrays = Vec::new();
         let mut has_lifecycle_instructions = false;
         let mut has_non_lifecycle_unsupported = false;
@@ -276,6 +279,24 @@ impl<'module> PublishedMirBackendView<'module> {
                             receiver: *receiver,
                             index: *index,
                             value: *value,
+                        });
+                        continue;
+                    }
+                    if let MirInstruction::ArrayElementRead {
+                        site_id,
+                        dst,
+                        receiver,
+                        index,
+                    } = instruction
+                    {
+                        array_element_reads.push(PublishedArrayElementReadRef {
+                            function_name: function_name.as_str(),
+                            block_id: block_id.as_u32(),
+                            instruction_index: instruction_index as u32,
+                            site_id: site_id.0,
+                            dst: *dst,
+                            receiver: *receiver,
+                            index: *index,
                         });
                         continue;
                     }
@@ -395,6 +416,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                array_element_reads,
                 intrinsic_arrays,
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
@@ -405,6 +427,7 @@ impl<'module> PublishedMirBackendView<'module> {
             && free_function_calls.is_empty()
             && builtin_print_calls.is_empty()
             && array_element_writes.is_empty()
+            && array_element_reads.is_empty()
             && intrinsic_arrays.is_empty()
             && !has_intrinsic_maps
         {
@@ -417,6 +440,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 free_function_calls,
                 builtin_print_calls,
                 array_element_writes,
+                array_element_reads,
                 intrinsic_arrays,
                 has_lifecycle_instructions,
                 has_non_lifecycle_unsupported,
@@ -432,6 +456,7 @@ impl<'module> PublishedMirBackendView<'module> {
             free_function_calls,
             builtin_print_calls,
             array_element_writes,
+            array_element_reads,
             intrinsic_arrays,
             has_lifecycle_instructions,
             has_non_lifecycle_unsupported,
@@ -521,6 +546,10 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(crate) fn builtin_print_calls(&self) -> &[PublishedBuiltinPrintCallRef<'module>] {
         &self.builtin_print_calls
+    }
+
+    pub(crate) fn array_element_reads(&self) -> &[PublishedArrayElementReadRef<'module>] {
+        &self.array_element_reads
     }
 
     pub(crate) fn array_element_writes(&self) -> &[PublishedArrayElementWriteRef<'module>] {

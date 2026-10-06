@@ -148,6 +148,13 @@ pub(super) fn lower_functions(functions: &[Value], module: &mut MirModule) -> Re
                         });
                         max_value_id = max_value_id.max(dst + 1);
                     }
+                    "array_element_read" => {
+                        let instruction = super::array_write::parse_array_element_read(inst)?;
+                        if let Some(dst) = instruction.dst_value() {
+                            max_value_id = max_value_id.max(dst.as_u32() + 1);
+                        }
+                        block_ref.add_instruction(instruction);
+                    }
                     "array_element_write" => {
                         let instruction = parse_array_element_write(inst)?;
                         if let Some(dst) = instruction.dst_value() {

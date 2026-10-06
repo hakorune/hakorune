@@ -423,6 +423,11 @@ impl UnifiedCallEmitterBox {
                         UnifiedCallAlternateRouteV1::KnownArrayWrite,
                     ));
                 }
+                if builder.try_emit_known_array_method_read(dst, *receiver, method, &args)? {
+                    return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
+                        UnifiedCallAlternateRouteV1::KnownArrayRead,
+                    ));
+                }
             }
         }
 

@@ -2,6 +2,22 @@ use super::*;
 use crate::mir::ArrayElementWriteKind;
 
 impl MirInterpreter {
+    /// A proven `ArrayBox.get/1` read — the same surface `call_method`
+    /// executed, carried on the canonical read instruction.
+    pub(in crate::backend::mir_interpreter) fn execute_array_element_read(
+        &mut self,
+        dst: Option<ValueId>,
+        receiver: ValueId,
+        index: ValueId,
+    ) -> Result<(), VMError> {
+        let result =
+            self.execute_method_callee("ArrayBox", "get", &Some(receiver), &[index])?;
+        if let Some(dst) = dst {
+            self.write_reg(dst, result);
+        }
+        Ok(())
+    }
+
     pub(in crate::backend::mir_interpreter) fn execute_array_element_write(
         &mut self,
         dst: Option<ValueId>,

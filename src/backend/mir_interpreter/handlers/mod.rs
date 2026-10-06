@@ -88,6 +88,12 @@ impl MirInterpreter {
                 value,
                 ..
             } => self.execute_array_element_write(*dst, *kind, *receiver, *index, *value)?,
+            MirInstruction::ArrayElementRead {
+                dst,
+                receiver,
+                index,
+                ..
+            } => self.execute_array_element_read(*dst, *receiver, *index)?,
             MirInstruction::FieldGet {
                 dst, base, field, ..
             } => {

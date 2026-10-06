@@ -4,11 +4,10 @@
 //! The whole-Box integer-store census seals a `me.<ArrayBox field>` whose
 //! `get/1` result may claim i64; the existing local-result lane then
 //! installs the binding as `Trivial`, so `return v` and downstream i64
-//! consumers complete. The emitted `Callee::Method{ArrayBox, get}` call
-//! itself keeps its raw-lane owner — the published lifecycle vocabulary
-//! has no array-read row yet, so `compile_normal` is the slice's edge and
-//! publication keeps `instruction-unsupported` until the physical read
-//! owner lands.
+//! consumers complete. The emitted `ArrayBox.get/1` site lowers to
+//! `MirInstruction::ArrayElementRead` — the sole physical read owner —
+//! which the published view collects as an `array_element_reads` row and
+//! transports as `PublishedCallKindV1::ArrayGet`.
 use super::*;
 
 fn array_page_source(body: &str) -> String {
@@ -63,12 +62,11 @@ fn array_i64_vetoed_field_keeps_dynamic_result() {
     }
 }
 
-/// Boundary pin: the emitted `Callee::Method{ArrayBox, get}` call has no
-/// published lifecycle row — publication keeps `instruction-unsupported`
-/// until the physical read owner lands. When that owner exists this pin
-/// must be revisited, not deleted.
+/// Positive publication evidence: the `ArrayBox.get/1` site lowers to
+/// `ArrayElementRead`, the published view collects exactly one read row
+/// for `probe`, and the lifecycle physical ABI input issues cleanly.
 #[test]
-fn array_i64_get_call_stays_unpublished_until_read_owner() {
+fn array_i64_get_publishes_through_array_element_read() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let result = MirCompiler::with_options(false).compile_normal_with_published(
@@ -76,16 +74,20 @@ fn array_i64_get_call_stays_unpublished_until_read_owner() {
                 "me.free.set(0, 7) local v = me.free.get(0) return v",
             )),
             |view, _verification| -> Result<(), String> {
+                let reads = view.array_element_reads();
+                assert_eq!(
+                    reads.len(),
+                    1,
+                    "expected exactly one published array read, got {reads:?}"
+                );
+                assert_eq!(reads[0].function_name(), "Page.probe/1");
+                assert!(reads[0].dst().is_some(), "get read must carry a dst");
                 view.issue_lifecycle_physical_abi_input()?;
                 Ok(())
             },
         );
-        let Err(error) = result else {
-            panic!("the get call published — the physical read owner landed; revisit this pin")
-        };
-        assert!(
-            error.contains("instruction-unsupported"),
-            "expected the unpublished-call boundary, got: {error}"
-        );
+        if let Err(error) = &result {
+            panic!("array read publication must complete: {error}");
+        }
     });
 }

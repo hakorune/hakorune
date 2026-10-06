@@ -162,6 +162,11 @@ impl super::super::MirBuilder {
                 );
                 return Ok(());
             }
+            if bx_name == "ArrayBox"
+                && self.try_emit_known_array_method_read(dst, box_val, &method, &args)?
+            {
+                return Ok(());
+            }
         }
         let mut map_write_replay = if bx_name == "MapBox" {
             let box_kind = classify_callee_box_kind_v1(
