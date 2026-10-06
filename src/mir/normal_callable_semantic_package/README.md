@@ -331,10 +331,17 @@ parameter receivers proven only when *every* caller edge matching the callee's
 selector+arity passes a claim-proven local of one agreed class. Ambiguous,
 rebound, call-result or non-lexical evidence vetoes arming instead of guessing;
 the variable receiver then keeps its existing dynamic path outside armed loops
-or becomes a named uncovered route item inside one. `me`/`this` receivers stay
-exclusively on the strict declared-instance locator; the issued row carries the
-exact call/receiver sites, the binding and the selected `InstanceBoxMethod`
-key — never a Callee, ValueId, dispatch strategy or runtime fallback.
+or becomes a named uncovered route item inside one. `me.<name>` receivers are a
+third, coverage-only shape: the caller's `Receiver` binding resolves the target
+through the caller's own selected `InstanceBoxMethod` key — the sole class
+authority — and the issued `SelfReceiver` row names the self-edge for incoming
+coverage, terminal/dependency checks and `lexical_instance_call_covered`, but
+never routes a lifecycle binding-group expectation (`local x = me.m(..)`
+emission and its `CallReceived` bookkeeping stay with the sealed receiver-call
+lane). `this`/other receivers stay exclusively on the strict declared-instance
+locator; every issued row carries the exact call/receiver sites, the binding
+and the selected `InstanceBoxMethod` key — never a Callee, ValueId, dispatch
+strategy or runtime fallback.
 Claim-local rows additionally co-seal the callee's result contract: when the
 caller-side scan independently minted a Handle local-call observation for the
 same site, the row records `InvokeCallResultKind::Handle` only if the callee's
@@ -394,12 +401,11 @@ declaration across the package's ordinary-box coverage —
 opaque formal's class is never inferred. Ambiguous names (`page_id`
 declared on two boxes), weak or non-integer declarations, and alias
 receivers all keep `false`. The same leaf arms `set`/`push` write values
-inside the census fixpoint and the `get` argument's neutrality check.
-The borrowed-result capture in `ordinary_new_borrowed_formal_result_pending`
-deliberately does not credit this leaf yet: sealing `return <formal-indexed
-get>` grounds the callee and forces `me.<name>` receiver call coverage,
-which stays a sibling row — until then those returns fail `source-not-i64`
-exactly as an unproven `Dynamic` get does.
+inside the census fixpoint and the `get` argument's neutrality check,
+and the borrowed-result capture in `ordinary_new_borrowed_formal_result_pending`
+credits it too — armed `return <formal-indexed get>` seals i64 because
+`me.<name>` receiver calls now resolve to the caller's own box, so a
+grounded callee's incoming coverage names every call edge.
 
 For direct-local Map entries, a scoped callback checks the same candidate's exact
 New site/binding, construction eligibility and PlainI64NoHook destruction.

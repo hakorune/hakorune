@@ -350,13 +350,14 @@ fn capture_field_array_get(
             get_calls.insert(method_call.site().clone(), field.clone());
         }
     }
-    // The borrowed-result capture keeps the pre-leaf index leaves only.
-    // A `formal.<field>` index would arm `return <get>` as a sealed i64
-    // result, and a grounded callee forces its incoming coverage to name
-    // every call edge — `me.<name>` receiver calls are still outside the
-    // lexical need inventory, so a real caller would freeze the package
-    // on `borrowed-formal/incoming-coverage`. This lane stays unarmed
-    // until the `me`-receiver call coverage row lands.
+    // `me.<name>` receiver coverage landed, so arming the
+    // `formal.<field>` leaf here is within reach — but a grounded
+    // callee's incoming coverage also names edges inside prefix-failed
+    // branch subtrees whose borrowed actuals are never staged, freezing
+    // `selected-incoming-unobserved` on the real app. The capture stays
+    // unarmed until unobserved-position incoming edges are staged.
+    let coverage = batch.ordinary_box_coverage();
+    let _ = coverage;
     let formal_i64_field = |_: &str| false;
     Ok(super::super::super::array_i64_fields::integer_source_at(
         &ledger,
@@ -611,6 +612,7 @@ fn seal_one(
         }
         match (&row.stored_receiver, &target.receiver) {
             (None, LexicalInstanceCallReceiverV1::Lexical(binding))
+            | (None, LexicalInstanceCallReceiverV1::SelfReceiver(binding))
                 if row.receiver_source
                     == ResolvedMethodCallReceiverSourceV1::Lexical(
                         ResolvedLexicalRefV1::Local(*binding),

@@ -3,7 +3,7 @@
 //!
 //! The resolver owns the MethodCall, initializer, variable-ref and binding
 //! facts. This issuer joins those facts with the already selected instance
-//! declarations and their physical signatures. It admits two receiver
+//! declarations and their physical signatures. It admits three receiver
 //! provenance shapes only:
 //!
 //! * claim-local receivers: `local x = new C()` then `x.m(...)` — the sole
@@ -11,7 +11,10 @@
 //! * parameter receivers: `m(self_box)` where every selector+arity candidate
 //!   edge in the package passes an argument that carries exactly one
 //!   ordinary-new claim class (the `map_argument_edge` caller->callee
-//!   argument-provenance precedent).
+//!   argument-provenance precedent);
+//! * `me` receivers: `me.m(...)` resolves to a method on the caller's own
+//!   box — the caller declaration's selected key is the sole authority for
+//!   that box name, never an inference.
 //!
 //! It never resolves a name from MIR or C input, never consumes Dynamic
 //! products, and never guesses a receiver class from declared-type spellings.
@@ -35,6 +38,12 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LexicalInstanceCallReceiverV1 {
     Lexical(BindingRefV1),
+    /// `me.<name>` — the receiver is the caller's own `Receiver` binding.
+    /// Coverage rows for this shape name incoming edges and answer
+    /// `lexical_instance_call_covered`, but the `local x = me.m(..)`
+    /// lifecycle emission stays with the sealed receiver-call lane —
+    /// a self row never routes lifecycle binding groups.
+    SelfReceiver(BindingRefV1),
     StoredOwnedChild {
         parent_binding: BindingRefV1,
         parent_site: SourceExprSiteV1,
@@ -79,9 +88,15 @@ impl LexicalInstanceCallSourceTargetV1 {
         &self.receiver_site
     }
 
+    /// `me.<name>` coverage row — never the local/parameter lane.
+    pub(crate) fn is_self_receiver(&self) -> bool {
+        matches!(self.receiver, LexicalInstanceCallReceiverV1::SelfReceiver(_))
+    }
+
     pub(crate) fn receiver_binding(&self) -> Result<BindingRefV1, String> {
         match self.receiver {
-            LexicalInstanceCallReceiverV1::Lexical(binding) => Ok(binding),
+            LexicalInstanceCallReceiverV1::Lexical(binding)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(binding) => Ok(binding),
             LexicalInstanceCallReceiverV1::StoredOwnedChild { .. } => Err(freeze(
                 "lexical-instance-call/stored-receiver-outside-terminal",
             )),
@@ -103,7 +118,8 @@ impl LexicalInstanceCallSourceTargetV1 {
                 field,
                 child,
             } => Some((*parent_binding, parent_site, *field, *child)),
-            LexicalInstanceCallReceiverV1::Lexical(_) => None,
+            LexicalInstanceCallReceiverV1::Lexical(_)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(_) => None,
         }
     }
 
@@ -116,7 +132,8 @@ impl LexicalInstanceCallSourceTargetV1 {
             return false;
         }
         match &self.receiver {
-            LexicalInstanceCallReceiverV1::Lexical(binding) => call.receiver()
+            LexicalInstanceCallReceiverV1::Lexical(binding)
+            | LexicalInstanceCallReceiverV1::SelfReceiver(binding) => call.receiver()
                 == ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(*binding)),
             LexicalInstanceCallReceiverV1::StoredOwnedChild { parent_binding, parent_site, .. } => {
                 input.body_shape().is_some_and(|shape| {
@@ -193,6 +210,9 @@ struct LexicalInstanceCallNeedV1 {
     /// `Some(index)` for parameter receivers; `None` for claim-local
     /// receivers whose sole initializer proves the class.
     parameter_index: Option<u32>,
+    /// `me` receivers: the class is the caller's own box, read from the
+    /// caller declaration's selected key — never inferred.
+    self_receiver: bool,
     selector: Box<str>,
     arity: u32,
     argument_sites: Box<[SourceExprSiteV1]>,
@@ -333,8 +353,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 (true, ..) => return Err(freeze("lexical-instance-call/handle-result-mismatch")),
                 // The observation owes the lifecycle lane: route the site
                 // so the emitter's binding-group expectation covers it.
+                // A `me.<name>` row is coverage-only — its emission stays
+                // with the sealed receiver-call lane, never this binding
+                // group inventory.
                 (false, true, Some(InvokeCallResultKind::I64)) => {
-                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                    if !source.is_self_receiver() {
+                        self.record_lifecycle_local_call_site(
+                            call_site.owner(),
+                            call_site.clone(),
+                        );
+                    }
                     Some(InvokeCallResultKind::I64)
                 }
                 (false, true, _) => {
@@ -358,7 +386,15 @@ impl OrdinaryNewClaimLedgerV1 {
                     // the checked release, while the routed binding group
                     // keeps the producer inventory the finalized-call
                     // visitor and the exit cleanup both claim.
-                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                    // A `me.<name>` row is coverage-only — the receiver-call
+                    // lane already owns `local x = me.m(..)` emission and
+                    // its own `CallReceived` bookkeeping.
+                    if !source.is_self_receiver() {
+                        self.record_lifecycle_local_call_site(
+                            call_site.owner(),
+                            call_site.clone(),
+                        );
+                    }
                     Some(InvokeCallResultKind::NullableHandle)
                 }
                 (false, false, _) if nullable_observation => {

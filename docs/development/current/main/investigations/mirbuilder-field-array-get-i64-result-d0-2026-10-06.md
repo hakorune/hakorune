@@ -171,3 +171,109 @@ the 800 hard stop via the shared `formal_i64_index_consult_v1` factory.
 Next owed: `me.<name>` receiver call coverage (sibling row — enables
 arming the leaf in the borrowed-result capture), then physical read
 owner, production switch, legacy retirement.
+
+## `me`-receiver call coverage integrated Decision / 2026-10-06
+
+Design-stop audit for `field-array-get/me-receiver-coverage-decision`
+(read-only, same-thread; all uncertainty resolved against sealed source).
+`me` reaches `call.receiver()` as `Lexical(Local(me_binding))` with
+`record.kind() == BindingKindV1::Receiver` (`BodyMeReceiverV1::Lexical`;
+static `me` is `CurrentOwner` and can never carry an instance call).
+`prepare_lexical_source_targets_v1` drops it at the `_ => continue` arm,
+so a name+arity match against an armed borrowed definition freezes
+`draft_borrowed_incoming_calls_v1` on `UnresolvedCaller`. The receiver's
+class needs no inference: it is exactly the caller declaration's own box,
+readable from the caller's selected key.
+
+Decision: admit the `Receiver` kind as a need in
+`prepare_lexical_source_targets_v1` — class = `selected
+.key_for_batch_slot(caller_slot).owner()` (the caller's own box),
+`unique_instance_target(own_box, selector, arity)` — issued as the
+existing `LexicalInstanceCallSourceTargetV1` with
+`receiver = LexicalInstanceCallReceiverV1::Lexical(me_binding)`, so the
+whole downstream chain (incoming-call draft self-edge, disposition,
+emission) reuses the lexical path unchanged. Same slice: flip
+`capture_field_array_get`'s `formal_i64_field` consult from `|_| false`
+to the shared `formal_i64_index_consult_v1` — the two changes are one
+production edge; either alone freezes the page-heap package
+(`incoming-coverage` without coverage, `stored-child/result-source-
+missing` without the armed leaf).
+
+Source authority + canonical issuer: the sealed `Receiver` binding kind,
+the caller's selected key owner, `unique_instance_target`; canonical
+issuer `prepare_lexical_source_targets_v1` (one match arm).
+
+Non-authority: receiver class from call-site actuals or layout;
+`CurrentOwner` receivers (static `me`); `QualifiedUnbound`/`Other`
+receivers — `stored_child_source_v1` keeps owning `me.<field>` receivers.
+
+Fail-fast boundary: ambiguous or missing self target → `Ok(None)`
+unarmed (structural, same as every declined class proof); the `rebound`
+census stays uniform (a `Receiver` binding is never an assignment
+target). Emission only activates where the caller-side scan mints an
+observation — `local_lexical_i64_call` consults armed targets, so
+`local x = me.allocate(size)` shapes can demand the i64 disposition and
+`emit_local_lexical_i64` must accept a `Receiver`-kind binding through
+`take_exact_lexical_read` + `prior_homes`; that acceptance is the
+slice's focused-gate obligation, not a fallback site.
+
+Smallest next slice: the `Receiver` arm + capture-leaf flip as one edge,
+focused pins (positive `me.<def>` self-edge coverage, non-definition
+`me.<name>` target arming, page_heap fixture issuing end-to-end,
+negative ambiguous/undeclared selector), README + card receipt.
+
+Non-claims: condition-position call-result admission (`if
+me.isLiveHandle(h) == 0` keeps its dynamic result — coverage is
+structural only), `QualifiedUnbound` receivers, `me` stores,
+DirectArrayI64, physical read owner, production switch, app EXE
+acceptance, finite goal.
+
+## `me`-receiver coverage landed / 2026-10-06
+
+`MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0` landed on
+`codex/birth-definition-publication`. What shipped vs the Decision:
+
+- `Receiver`-kind bindings enter `prepare_lexical_source_targets_v1`
+  exactly as decided; class = caller's selected key owner, target =
+  `unique_instance_target`. `CurrentOwner`, `QualifiedUnbound` and other
+  receiver shapes keep declining; the rebound census needs no arm (a
+  `Receiver` binding is never assigned).
+- Shipped shape differs on one point: the issued row carries a new
+  `LexicalInstanceCallReceiverV1::SelfReceiver(binding)` variant instead
+  of reusing `Lexical`. Reason found in implementation: `local x =
+  me.m(..)` is *already* emitted by the sealed receiver-call lane
+  (`ReceiverCallClassObservation` → `emit_receiver_nullable` →
+  `record_handle_call_emission`). A self row that also routed a
+  lifecycle binding group created a second bookkeeping owner for the
+  same site and froze `local-commit/local-call-binding-sequence` on the
+  real app. `SelfReceiver` rows are coverage-only: they name incoming
+  self-edges (`lexical_instance_call_covered`, `UnresolvedCaller`
+  resolution, terminal/dependency checks) but
+  `issue_lexical_instance_call_dispositions` never calls
+  `record_lifecycle_local_call_site` for them — one emission owner.
+- The borrowed-result capture leaf stayed `|_| false`. Arming it was
+  probed: `incoming-coverage`, `result-source-missing` and
+  `local-call-binding-sequence` all resolve, but a grounded callee's
+  named incoming edges include calls inside prefix-failed `if` branch
+  subtrees (e.g. `return me.small_page.isLiveHandle(handle)` under an
+  unprovable `handle.page_id == 0` guard) and condition-position calls —
+  sites the borrowed-actual statement-flow walk never stages, freezing
+  `borrowed-actual/selected-incoming-unobserved`. Staging actuals for
+  unobserved-position edges is a separate responsibility.
+- Evidence: focused battery 184 pass / 3 fail, all three pre-classified
+  baseline debt (`direct_array_extent` refresh-links, `map_value_get` ×
+  2). Self-edge pin `me_receiver_self_edge_covers_borrowed_definitions`,
+  negative `me.take(me.block_used)` → named `borrowed-actual`,
+  unresolved-incoming retained as named error. App probe
+  (`mimalloc-lite --emit-exe`) with the leaf unarmed: frontier
+  `artifact-unowned-lifecycle-site` — baseline parity, i.e. me-receiver
+  coverage adds no app-visible regression by itself.
+- Boundary for the armed leaf now recorded in
+  `ordinary_new_borrowed_formal_result_pending.rs`: arm only together
+  with unobserved-position incoming-edge staging.
+
+Next owed: `MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION` — stage
+borrowed actuals for named incoming edges whose callsite sits in a
+prefix-failed branch subtree or condition position (then arm the formal
+leaf in the capture), then physical read owner, production switch,
+legacy retirement.

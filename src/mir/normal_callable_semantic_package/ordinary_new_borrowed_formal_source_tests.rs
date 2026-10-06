@@ -175,7 +175,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
 
 #[test]
 fn selected_cohort_unresolved_incoming_is_retained_as_named_error() {
-    let source = "box Transport { birth() { } probe(p): i64 { local bad = me.probe(1) return 0 } sink(q): i64 { return 0 } } static box Main { main() { local recv = new Transport() local good = recv.probe(0) return 0 } }";
+    let source = "box Transport { birth() { } probe(p): i64 { local other = null local bad = other.probe(1) return 0 } sink(q): i64 { return 0 } } static box Main { main() { local recv = new Transport() local good = recv.probe(0) return 0 } }";
     let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).err().expect("unresolved selected incoming is terminal before continuation");
     let error = format!("{error:?}");
     assert!(

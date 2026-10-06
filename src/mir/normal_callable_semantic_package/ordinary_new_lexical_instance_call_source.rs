@@ -131,9 +131,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                     let Some(record) = input.function().binding(binding) else {
                         continue;
                     };
-                    let parameter_index = match record.kind() {
-                        BindingKindV1::Parameter { index } => Some(index),
-                        BindingKindV1::Local { .. } => None,
+                    let (parameter_index, self_receiver) = match record.kind() {
+                        BindingKindV1::Parameter { index } => (Some(index), false),
+                        BindingKindV1::Local { .. } => (None, false),
+                        // `me.<name>`: the receiver resolves to this
+                        // callable's own box through the selected key —
+                        // the same exact-target shape as a lexical local.
+                        BindingKindV1::Receiver => (None, true),
                         _ => continue,
                     };
                     let rebound = input.function().assignment_targets().any(|(_, target)| {
@@ -150,6 +154,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         receiver_site: call.receiver_site().clone(),
                         receiver_binding: binding,
                         parameter_index,
+                        self_receiver,
                         selector: call.selector().into(),
                         arity: call.arity(),
                         argument_sites: call
@@ -174,17 +179,32 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                 return row;
             };
             (|| -> Result<Option<PreparedSourceCallNeedV1>, String> {
-                let class = match need.parameter_index {
-                    Some(index) => {
-                        match source.prove_parameter_class(batch, selected, &need, index)? {
+                let class = if need.self_receiver {
+                    // `me.<name>` resolves to a method on the caller's own
+                    // box — the caller declaration's selected key is the
+                    // only authority for that box name.
+                    let Some(SelectedNormalCallableKeyV1::Cataloged(key)) =
+                        selected.key_for_batch_slot(need.callee_slot)
+                    else {
+                        return Ok(None);
+                    };
+                    if key.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+                        return Ok(None);
+                    }
+                    key.owner().into()
+                } else {
+                    match need.parameter_index {
+                        Some(index) => {
+                            match source.prove_parameter_class(batch, selected, &need, index)? {
+                                Some(class) => class,
+                                None => return Ok(None),
+                            }
+                        }
+                        None => match source.claim_local_class(batch, selected, &need)? {
                             Some(class) => class,
                             None => return Ok(None),
-                        }
+                        },
                     }
-                    None => match source.claim_local_class(batch, selected, &need)? {
-                        Some(class) => class,
-                        None => return Ok(None),
-                    },
                 };
                 // Missing or contradictory evidence leaves the call unarmed:
                 // outside an armed loop it keeps the existing dynamic path, and
@@ -211,10 +231,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                     return Ok(None);
                 };
 
+                let receiver = if need.self_receiver {
+                    LexicalInstanceCallReceiverV1::SelfReceiver(need.receiver_binding)
+                } else {
+                    LexicalInstanceCallReceiverV1::Lexical(need.receiver_binding)
+                };
                 Ok(Some(PreparedSourceCallNeedV1::Lexical(LexicalInstanceCallSourceTargetV1 {
                     call_site,
                     receiver_site: need.receiver_site,
-                    receiver: LexicalInstanceCallReceiverV1::Lexical(need.receiver_binding),
+                    receiver,
                     target,
                     target_batch_slot,
                     callee_owner,

@@ -387,11 +387,26 @@ fn array_i64_second_provider_keeps_dynamic_result() {
 /// not receivers vetoes the census as well.
 #[test]
 fn array_i64_field_escape_and_alias_rebind_keep_dynamic() {
+    // `me.take(me.block_used)` now resolves to the caller's own
+    // `Page.take` — a real edge to a borrowed definition — and the
+    // `me.<field>` actual still proves nothing, so the borrowed-actual
+    // census fails closed instead of leaving the call uncovered.
+    let error = issue_with_brand_catalog(
+        "box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
+        birth() { }
+        probe() {
+            me.take(me.block_used) me.block_used.set(0, 1) local x = me.block_used.get(0)
+            local item = new Page()
+            return 0
+        }
+        take(a) { }
+        }
+        static box Main { main() { return 0 } }",
+    )
+    .expect_err("an unproven `me.<field>` actual reaches a real edge");
     assert!(
-        !probe_covered(
-            "me.take(me.block_used) me.block_used.set(0, 1) local x = me.block_used.get(0)"
-        ),
-        "a `me.<field>` argument occurrence is not a neutral receiver"
+        format!("{error:?}").contains("borrowed-actual"),
+        "{error:?}"
     );
     // `local a = me.block_used` then rebinding `a` severs the proven
     // alias — the field is vetoed and the i64 arm does not fire.
@@ -508,11 +523,12 @@ fn array_i64_get_admits_formal_field_index() {
 }
 
 /// A borrowed `return` of the formal-indexed get keeps the pre-leaf
-/// boundary: the borrowed-result capture does not credit the
-/// `formal.<field>` leaf — arming it would ground the callee and force
-/// `me.<name>` receiver call coverage that does not exist yet — so the
-/// i64 proof names `source-not-i64` fail-closed, same as an unproven
-/// Dynamic get.
+/// boundary: the borrowed-result capture still does not credit the
+/// `formal.<field>` leaf — arming it grounds the callee, and incoming
+/// coverage then names stored-child/`me` edges inside prefix-failed
+/// branch subtrees whose borrowed actuals are never staged, freezing
+/// `selected-incoming-unobserved` — so the i64 proof names
+/// `source-not-i64` fail-closed, same as an unproven Dynamic get.
 #[test]
 fn array_i64_formal_field_index_borrowed_return_stays_unarmed() {
     for tail in [
@@ -526,6 +542,47 @@ fn array_i64_formal_field_index_borrowed_return_stays_unarmed() {
             "`{tail}`: {error:?}"
         );
     }
+}
+
+/// `me.<name>` receiver coverage: a self-call resolves to the caller's
+/// own box through the caller's selected key — the exact self-edge keeps
+/// a borrowed definition's incoming coverage complete instead of
+/// freezing `UnresolvedCaller`, and the chained i64 results seal.
+#[test]
+fn me_receiver_self_edge_covers_borrowed_definitions() {
+    // `local x = me.probe(h)` also exercises the coverage-only path:
+    // the receiver-minted observation already owns emission, so the
+    // self row must not route a second binding-group expectation
+    // (a routed site would freeze `local-call-binding-sequence`).
+    let package = issue_with_brand_catalog(
+        "box Page { probe(h): i64 { return 7 } check(h): i64 { local x = me.probe(h) return x } }
+        static box Main { main() { local a = new Page() local out = a.check(null) return 0 } }",
+    )
+    .expect("me-receiver self-edge package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let results = ledger.borrowed_i64_results_for_test();
+    assert_eq!(results.len(), 2, "probe and check stay armed: {results:?}");
+    assert!(results.iter().all(|(_, row)| row.is_ok()), "{results:?}");
+    let (owner, site) = package
+        .batch()
+        .declarations()
+        .find_map(|declaration| {
+            package
+                .batch()
+                .with_lowering_input(declaration.batch_slot(), |input| {
+                    input
+                        .function()
+                        .method_calls()
+                        .find(|(_, call)| call.selector() == "probe")
+                        .map(|(site, _)| (declaration.owner(), site.clone()))
+                })
+                .expect("batch loan")
+        })
+        .expect("me.probe call site");
+    assert!(
+        ledger.lexical_instance_call_covered(owner, &site),
+        "me.probe must resolve to the caller's own Page.probe"
+    );
 }
 
 /// The same leaf feeds `set`/`push` write values: `h.block_id` is an
