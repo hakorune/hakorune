@@ -682,29 +682,15 @@ Full design, census anchors and contract set recoverable via git.
 
 ## Decision — MIRBUILDER-NONCOND-CARRIER-D0 (closed, superseded)
 
-Recorded premise falsified: "`sum` carrier lacks ConditionRead" was a
-stale wall. Probe census showed outside-cohort rebinds already ride
-the armed LoopCond carrier path — `count += 1` (BodyRebind, no
-ConditionRead) compiles with a real phi and `iterationCheck`'s exact
-loop shape compiles end-to-end (`sum`/`i`/`iterations` phis, `icmp
-Le`, `call_same_module_instance`, `local.contract.write` Reassigns);
-`pow2`'s `out*2` multiplicative carrier clean. Binding classification
--> `ReadyWithBodyOnly` -> LoopCond route token -> recipe carrier mint
-is the sole carrier chain; `<=`+param bound, decl-init armed calls
-and `x = x + <call>` rebinds all admitted. The census instead
-surfaced the real callee-graph wall (`make` multi-exit `return
-new`), whose lineage landed below. `SourceItemsMissing` /
-`SourceCallOutsideSelectedFamily` / `facts-absent` /
-`VariableAccumRecurrence*` remain named fail-fast terminals; no
-Carrier reclassify or generic Outside consumer opened. Full census
-table recoverable via git.
-Next slice:
-  `MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0` under the
-  `MULTI-RETURN-RESULT-NEW` D0 lineage. `run()`'s
-  `root-call-entry-unavailable` still gates reachability upstream.
-Non-claims:
-  no `--dump-mir`->EXE equivalence, no `run()` progress, no callee-body
-  coverage claim beyond `iter`'s observed loop, no Gate-1 completion.
+Premise falsified (full census via git): outside-cohort rebinds already
+ride the armed LoopCond carrier path — `count += 1` and
+`iterationCheck`'s exact loop shape compile end-to-end. The census
+surfaced the real callee-graph wall (`make` multi-exit `return new`),
+whose lineage landed below. `SourceItemsMissing` /
+`SourceCallOutsideSelectedFamily` / `VariableAccumRecurrence*` remain
+named fail-fast terminals. Next slice was
+`MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0` (landed below).
+Non-claims: no `--dump-mir`->EXE equivalence, no Gate-1 completion.
 
 ## Census — MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0 (accepted)
 
@@ -843,54 +829,34 @@ Next row: `MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0` — census which
 ## Landed — ROOT-CALL-ENTRY-D0 + UNRELEASED-ROOT-HOME-D0 + ROOT-INSTANCE-ENTRY-S0
 
 Tombstone (full record via git): `root-call-entry-unavailable` was the
-`take_finalized_root_call` non-`Emitted` take; wall A = untyped `init`
-fields (migrated to typed decls per UNTYPED-OBJECT-STORAGE-D0 branch
-a); wall B = issuer `unreleasable` widened to `end_available` parity
-(owned fields + sealed children). Pins + suites green; baseline red
-`main_f1_rejects_..._before_lowering` is parent-reproduced debt. Wall
-A2 (bisected then landed): computed birth stores.
+`take_finalized_root_call` non-`Emitted` take; untyped `init` fields
+migrated to typed decls per UNTYPED-OBJECT-STORAGE-D0 branch (a);
+issuer `unreleasable` widened to `end_available` parity (owned fields
++ sealed children). Baseline red `main_f1_rejects_..._before_lowering`
+is parent-reproduced debt. Wall A2 (bisected, then landed below):
+computed birth stores.
 
 ## Landed — MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0 + BIRTH-COMPUTED-STORE-S0
 
-Accepted (a): plan-level read-after-write — a `me.<f>` read in a store
-RHS resolves to that field's already-sealed prior `LiteralI64` store
-(the ledger is the sole writer); field-read scalar BinOp folds
-Add/Sub/Mul via checked ops with >=1 field read required;
-`ConstructionStoreV1::me_reads` transports the `me` receiver sites,
-observed at take. No physical field read, no `BinOp` MIR in birth.
-Forward/unwritten/parameter/object-field/pure-literal shapes decline.
-Pins: construction_plan 6/6 + suites (39/276/8/232); `bench_min`
-reaches the `Invoke` boundary.
+Accepted (a): plan-level read-after-write — `me.<f>` reads in store
+RHS resolve to prior `LiteralI64` stores; field-read BinOp folds
+Add/Sub/Mul (checked ops, >=1 field read); `me_reads` transports `me`
+sites observed at take. Declines: forward/unwritten/parameter/
+object-field/pure-literal. Pins 6/6 + suites; `bench_min` reaches the
+`Invoke` boundary.
 
 ## Landed — MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0 + NOBIRTH-PROVIDER-S0
 
-D0 tombstone (full record via git): arity-0 `new X()` on a birthless
-class is the already-sealed `NoBirthZero` disposition — dedicated
-emission arm, not a `.hako` `birth() {}` workaround. Plan seals
-{`BirthIndexed`,`NoBirthZero`} from `loan.rows()` + child field count.
-
-`ProviderConstructionChildV1::{BirthIndexed, NoBirthZero}` sealed on the
-plan by `issue_construction_plan` (Birth-row inventory + child field
-count; `NoBirthZero` = arity 0 AND fieldless). Emission: shared `NewBox`
-then `ObjectFieldSet`; Birth arm unchanged; NoBirth arm skips recipe
-take, birth call and ABI record, adding the `HomeRelease` discharge tail
-(`ProviderChildEmissionV1`). Validation proves both shapes; invoke
-accounting `3*birth + 1*nobirth`. Pins:
-`construction_plan_marks_nobirth_provider_child_zero_init` +
-`_declines_nobirth_provider_variants` (8/8); suites 276/232/97/64/37/8/4
-green. Real route `apps/binary-trees/main.hako --emit-mir-json` clears
-`provider-birth-recipe-missing` to the preserved `Invoke` emit boundary
-(same wall as `bench_min`). Baseline red (parent `1dcdbba61b` repro):
-`provider_owned_array_child_reaches_artifact_lane` (assert 1 vs 2) and
-`source_stringbox_literal_uses_source_anchor_admission` — a latent
-parallel env race (`emit_plain_program_and_mir_json` reads ambient
-`NYASH_JSON_SCHEMA_V1`/`NYASH_MIR_UNIFIED_CALL` unguarded while sibling
-`ScopedEnvVar` drop windows flip them; reproduces on parent in the
-`host_providers::mir_builder` subset at >=4 threads). Both pre-existing,
-outside this slice's edge.
-
-Next row: `MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0` — census of the
-`local builder = me.builder` wall (sibling `child_call` WIP included).
+Tombstone (full record via git): arity-0 `new X()` on a birthless
+fieldless class is the already-sealed `NoBirthZero` disposition;
+`ProviderConstructionChildV1::{BirthIndexed, NoBirthZero}` sealed on
+the plan; NoBirth arm emits NewBox+ObjectFieldSet+HomeRelease without
+recipe/birth call/ABI record; accounting `3*birth + 1*nobirth`. Pins
+8/8, suites green; real route clears `provider-birth-recipe-missing`
+to the preserved `Invoke` boundary. Baseline red (parent repro):
+`provider_owned_array_child` assert and `source_stringbox` parallel
+env race (`emit_plain_program_and_mir_json` reads ambient env
+unguarded; `host_providers::mir_builder` subset at >=4 threads).
 
 ## Census — MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 (closed)
 
@@ -921,8 +887,7 @@ completion, nullable fields, Gates 2-4.
 
 Boundary: `TreeNode` (`init {left,right,value}`) — `make` result
 `new TreeNode(null|null|local,..)`; `itemCheck` `me.left == null` /
-`me.left.itemCheck()`. Excludes receiver ownership (sibling) and `run()`
-local-bound receiver (parked). Published `--emit-exe` probe map:
+`me.left.itemCheck()`. Published `--emit-exe` probe map:
 - `new T(null,null,v)` untyped `init` -> `artifact-source-unavailable`;
   retained row `construction=Err(SourceRelationMissing)`.
 - Typed decls `left: T` -> `RetainedUnavailable`:
@@ -930,31 +895,67 @@ local-bound receiver (parked). Published `--emit-exe` probe map:
   (`child != object`, ..._owned_children.rs:108).
 - Non-self-ref `new Box2(null|local)` -> `Kind::Null`/`Handle` seal,
   then `actual-kind-unavailable` at `scalar_actual_kind`
-  (physical_abi.rs:737) — `new` actuals take the scalar-tag path; the
-  tagged vocabulary (tag 0 null, `BorrowedTaggedValue`) exists for
-  ordinary calls only.
-- `me.<obj-field>` read/`== null`/`.itemCheck()` -> field-load +
-  stored-child receiver — sibling family (parked).
+  (physical_abi.rs:737).
+- `me.<obj-field>` read/`== null`/`.itemCheck()` -> sibling family.
 
-Decomposition: (1) typed-init migration — branch-(a) precedent,
-prerequisite only; (2) self-ref children guard; (3) `Null`/`Handle`
-actual admission vs field capability; (4) null-fed owned-field teardown
-— `OwnedObjectFieldsNoHook` releases unconditionally and no issuer
-seals release-if-live field semantics (NULLABLE-RESULT-ABI covers
-result-position locals only); (5) `scalar_actual_kind` Null/Handle tag
-arms — downstream of (3)/(4). No nullable field surface exists in
-`.hako`; whether `left: T` means always-live is the open question.
+Decomposition: (1) typed-init migration (prerequisite only);
+(2) self-ref children guard; (3) `Null`/`Handle` actual admission vs
+field capability; (4) null-fed owned-field teardown — no issuer
+(NULLABLE-RESULT-ABI covers result-position locals only); (5)
+`scalar_actual_kind` tag arms — downstream of (3)/(4). No nullable
+field surface exists in `.hako`; whether `left: T` means always-live
+is the open question -> forwarded to NULLABLE-OWNED-FIELD-D0 below.
 
-Decision: NoSafeSlice for implementation — the null-capable
-owned-field authority (disposition + null-aware children census +
-actual-capability check) is unissued; relaxing the guard or publishing
-tags without it admits UB (unconditional release of a null child).
-Smallest next slice: `MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0` —
-design census of the teardown/disposition authority, the capability
-check and the `.hako` field type surface. Non-authority: `.hako`
-surface invention, sibling field-load lane. Fail-fast boundary:
-`actual-kind-unavailable`, `NewEmissionUnavailable` stay.
-Non-claims: `itemCheck` reads, Gates 2-4.
+## Decision — MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0 (accepted)
+
+Boundary: null-capable owned fields — `new T(null|local,..)` actuals,
+`me.f = <possibly-null>` stores, object-field teardown. Excludes
+field reads/`== null`/receivers (sibling family), Gates 2-4.
+
+Authority map:
+- `OwnedObjectFieldsNoHook` means every field is a live user-object
+  residence; children census `owned_field_children_of` declines
+  self-reference (:108) and nested kinds (:155 PlainI64/OwnedArray
+  only); `end_plan` -> `OwnedObjectFieldRelease` walks child
+  `owned_residences` one level — "deeper teardown stays unadmitted"
+  (invoke.rs:117); `owned_object_residences` mark already published.
+- Physical layer is already null-tolerant: slots zero-init, every
+  field release is live-checked; `home_release_if_live` wire op and
+  `Handle` `new`-actual `consume_home` move accounting are landed.
+- Wire vocabulary complete: tag 0 = null pair, tag 3 = object +
+  `object_view` runtime-type check (ordinary params); the birth
+  prologue admits only kinds 1/2. `scalar_actual_kind` rejecting
+  `Null`/`Handle` is the sole arm for non-self-ref `new T(null|local)`.
+
+`.hako` surface resolution: object-typed fields are inherently
+null-capable handle slots — `left: T` needs no marker; `init`->typed
+migration is a prerequisite only.
+
+Ordered slices:
+S1 `NULLABLE-NEW-ACTUAL-S0` — capability gate (`Null`/`Handle` actual
+must bind a formal provably stored into an object-typed declared
+field via the construction relation; others freeze) +
+`scalar_actual_kind` `Null`->0/`Handle`->3 arms + birth-prologue
+object-param tag admission. Edge: `new Box2(null)`/`new Box2(local)`
+published route.
+S2 `NESTED-OBJECT-FIELD-TEARDOWN-S0` — children census admits
+`OwnedObjectFields` incl. self-reference + recursive nested release
+emit (flat unroll cannot express self-ref depth; a runtime
+`home_release_owned`-class helper) + TreeNode `init`->typed migration.
+Edge: `new TreeNode(null,null,v)` children seal.
+S3+ — `me.left` reads/`== null`/`.itemCheck()`: sibling family.
+
+Decision: `MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0` accepted as the
+smallest next slice.
+Source authority: sealed `OrdinaryNewTrivialArgumentKindV1` + the
+construction relation param->field map + declared field types.
+Canonical issuer: coseal argument-capability gate; `physical_abi`
+`scalar_actual_kind`; emit.inc birth-prologue object-param arm.
+Non-authority: `.hako` surface invention, census/emit relaxation for
+nested children (S2), unconditional release.
+Fail-fast boundary: `actual-kind-unavailable`/`RetainedUnavailable`
+stay for non-capable actuals and nested children.
+Non-claims: nested teardown, field reads, Gates 2-4.
 
 ## Preserved contract boundaries
 

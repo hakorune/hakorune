@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/nullable-owned-field"
-current_design_stop = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
+current_blocker_token = "selfhost-resume/nullable-new-actual"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,19 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NULLABLE-FIELD-D0 census accepted: `TreeNode` decomposes into
-typed-init migration (prerequisite), self-ref children guard,
-`Null`/`Handle` `new` actual admission, null-fed owned-field teardown
-(no issuer — NoSafeSlice), and `scalar_actual_kind` tag arms.
-Next wall census: NULLABLE-OWNED-FIELD-D0 (teardown/disposition
-authority + `.hako` field type surface).
+NULLABLE-OWNED-FIELD-D0 accepted: authority map sealed — physical
+layer already null-tolerant (zero-init slots, live-checked releases,
+`home_release_if_live`, `Handle` consume_home move); wire tags 0/3 +
+`object_view` exist for ordinary params; birth prologue admits 1/2
+only. Slices: S1 null/handle `new` actuals (capability gate + tag
+arms + birth prologue); S2 nested/self-ref teardown + TreeNode typed
+migration; S3+ field reads (sibling). Object fields are inherently
+null-capable — no `.hako` marker.
 """
-next_design_card = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
