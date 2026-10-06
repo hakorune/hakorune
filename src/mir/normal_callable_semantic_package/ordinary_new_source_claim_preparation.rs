@@ -85,10 +85,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         &field_residences,
         &mut owned_field_children,
     )?;
-    let callable_result_classes = result_class_draft.finish(
+    let mut callable_result_classes = result_class_draft.finish(
         batch.ordinary_box_coverage(),
         batch,
         selected,
+        &field_write_claims,
+        parameter_contracts,
+    );
+    result_class_claim::attach_source_child_relations_v1(
+        &mut callable_result_classes,
+        batch,
+        selected,
+        instance_constructors,
         &field_write_claims,
         parameter_contracts,
     );

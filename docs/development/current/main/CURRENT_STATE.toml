@@ -1,10 +1,10 @@
 date = "2026-10-07"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-CHILD-SOURCE-RELATION-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-OUTCOME-SUPPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/child-source-relation-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/outcome-support-d0"
+current_design_stop = "MIRBUILDER-GATE1-OUTCOME-SUPPORT-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -23,13 +23,14 @@ Source witness S0 complete (focused32); exact immutable DAG reaches Facts.
 Source preparation BoxShape complete (focused32); sole body retained.
 Child-relation mapping accepted inside same result Facts.
 Shared call composition closed (focused32; final source check).
-Next join exact constructor child relations in same Facts; no Home admission.
+Child source relation S0 closed: real8, focused38, same production frontier.
+Next verify true outcome acquisition/anchor support and explicit field contract.
 Both315/318, field lifetime/cleanup and production EXE remain incomplete.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-CHILD-SOURCE-RELATION-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+next_design_card = "MIRBUILDER-GATE1-OUTCOME-SUPPORT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

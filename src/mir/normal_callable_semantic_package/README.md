@@ -1222,3 +1222,13 @@ then composes existing immutable callee witnesses. The evaluator keeps source
 validation before missing-callee/pending handling, legacy projection eligibility
 and coverage checks. This extraction adds no constructor child admission or Home
 permission, and does not duplicate the result solver.
+
+Source preparation now joins direct returned-construction leaves to canonical
+constructor stores, Birth formal ordinals and exact caller arguments. Passive
+child relations live inside the same result Facts, preserving legacy projection
+and the preparation tuple. Null/declared-formal/call-initializer provenance uses
+the existing solver and shared composer; every alternative must match the sealed
+canonical child. Opaque/unavailable/foreign/rebound and unsupported actuals issue
+no relation. These source candidates add no Home acquisition, live-anchor receipt,
+field storage mode, cleanup or physical admission; those verified consumers remain
+required before executable anchored result publication.
