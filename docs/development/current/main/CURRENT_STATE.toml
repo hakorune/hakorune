@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-FINAL-PIPELINE-ACCEPTANCE-S0"
+current_execution_row = "MIRBUILDER-NONCOND-CARRIER-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "final-pipeline/acceptance"
-current_design_stop = "final-pipeline/acceptance"
+current_blocker_token = "selfhost-resume/noncond-carrier"
+current_design_stop = "selfhost-resume/noncond-carrier"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-field-array-get-i64-result-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-ARRAY-READ-FAMILY-CLOSEOUT-S0 census closed: every `ArrayBox.get` cell
-has a named owner — proven -> `ArrayElementRead` (Lane-A/v4/VM live),
-unproven `Union` -> dynamic facade (`runtime_array_get`/VM stop),
-`LegacyCallV0` -> zero ingress + fail-closed. All `LegacyCallV0`-input
-plan chains (`array_slot_load_any`->`DirectArrayAccessPlan::Load`/
-`stack_top_pop`, `array_getset_micro_seed_plan`) are ParkedSealed to
-the direct-array/micro-seed lane owner. Next:
-`final-pipeline/acceptance`.
+FINAL-PIPELINE-ACCEPTANCE-S0 census: whole-goal acceptance is row A's
+closed scope (fixed 11-entry EXE receipt, latest 4/11, seven reds owned
+by untyped-storage/exact-usize/Loop lanes) — NoSafeSlice for this lane;
+the receipt re-run reopens on the named owner cutovers. Array-read lane
+contribution complete; protected C/Array/Unit WIP is sibling-owned.
+Next: `selfhost-resume/noncond-carrier` (workstream row H next wall).
 """
-next_design_card = "MIRBUILDER-FINAL-PIPELINE-ACCEPTANCE-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
+next_design_card = "MIRBUILDER-NONCOND-CARRIER-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
