@@ -135,6 +135,144 @@ fn user_object_provider_physical_json_publishes_birth_chain() {
     });
 }
 
+/// `new Holder(null)` into an object-field-only birth formal publishes
+/// the nullable pair lane: the formal spells `nullable_kind_payload_v1`,
+/// the caller's actual carries kind 0 over the `const_null` value, and
+/// the provided store emits `object_field_set` with a
+/// `home_release_if_live` fault tail — the Void sentinel skips the
+/// release, never a plain `home_release`.
+#[test]
+fn nullable_birth_actual_publishes_nullable_pair_lane() {
+    use crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1;
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let mut compiler = MirCompiler::with_options(false);
+        compiler.compile_normal_with_published(
+            request(include_str!("../../../../../apps/nullable-birth-actual-min/main.hako")),
+            |view, verification| -> Result<(), String> {
+                assert!(verification.is_ok(), "{verification:?}");
+                let entry = view.issue_lifecycle_compiled_entry_contract()?;
+                let birth = entry
+                    .births()
+                    .iter()
+                    .find(|birth| {
+                        entry.program().functions()[birth.function_index() as usize]
+                            .name()
+                            .contains("Holder")
+                    })
+                    .expect("Holder birth row");
+                let object_formals: Vec<_> = birth
+                    .formals()
+                    .iter()
+                    .filter(|formal| {
+                        matches!(
+                            formal.contract().map(|contract| contract.uses()),
+                            Some(BirthFormalUseCoverageV1::ObjectFieldStores { .. })
+                        )
+                    })
+                    .collect();
+                assert_eq!(object_formals.len(), 1, "one object-field formal");
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let json = emit_lifecycle_physical_abi_json(&input)?;
+                let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
+                let functions = decoded["functions"].as_array().unwrap();
+                let birth = functions
+                    .iter()
+                    .find(|row| row["role"] == "birth_unit"
+                        && row["name"].as_str().unwrap_or_default().contains("Holder"))
+                    .expect("Holder birth unit");
+                assert_eq!(
+                    birth["params"][0]["representation"],
+                    "nullable_kind_payload_v1"
+                );
+                let instructions: Vec<&serde_json::Value> = birth["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .collect();
+                let kinds = |wanted: &str| {
+                    instructions
+                        .iter()
+                        .filter(|row| row["op"] == "invoke" && row["operation"]["kind"] == wanted)
+                        .count()
+                };
+                assert_eq!(kinds("object_field_set"), 1, "provided store: {json}");
+                assert_eq!(
+                    kinds("home_release_if_live"), 1,
+                    "nullable fault tail: {json}"
+                );
+                assert_eq!(kinds("home_release"), 0, "no plain release: {json}");
+                let caller = functions
+                    .iter()
+                    .find(|row| row["name"] == "main")
+                    .expect("caller row");
+                let caller_instructions: Vec<&serde_json::Value> = caller["blocks"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .flat_map(|block| {
+                        block["instructions"].as_array().unwrap().iter().chain(
+                            std::iter::once(&block["terminator"]["instruction"]),
+                        )
+                    })
+                    .collect();
+                let call = caller_instructions
+                    .iter()
+                    .find(|row| row["operation"]["kind"] == "birth_call")
+                    .expect("birth call edge");
+                assert_eq!(
+                    call["operation"]["call"]["args"][0]["kind"], 0,
+                    "the null actual spells the exact zero tag: {json}"
+                );
+                Ok(())
+            },
+        ).unwrap();
+    });
+}
+
+/// A scalar or bound actual into an object-field-only birth formal has
+/// no wire lane — the formal contract rejects the pair, never a silent
+/// scalar fill; a null actual into a scalar-only formal fails the same
+/// capability check from the other side.
+#[test]
+fn nullable_birth_actual_rejects_lane_mismatched_pairs() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for source in [
+            // Scalar actual into an object-field formal.
+            "box Node { value: i64\nbirth(v) { me.value = v } }
+             box Holder { inner: Node\nbirth(inner) { me.inner = inner } }
+             static box Main { main() { local h = new Holder(7) return 0 } }",
+            // Bound local actual into an object-field formal.
+            "box Node { value: i64\nbirth(v) { me.value = v } }
+             box Holder { inner: Node\nbirth(inner) { me.inner = inner } }
+             static box Main { main() { local n = 7 local h = new Holder(n) return 0 } }",
+            // Null actual into a scalar-only formal.
+            "box Page { value: i64\nbirth(value) { me.value = value } }
+             static box Main { main() { local p = new Page(null) return 0 } }",
+        ] {
+            let mut compiler = MirCompiler::with_options(false);
+            compiler
+                .compile_normal_with_published(request(source), |view, _| {
+                    let error = view
+                        .issue_lifecycle_physical_abi_input()
+                        .expect_err("lane-mismatched actual stays closed");
+                    assert!(
+                        error.contains("actual-kind-unavailable"),
+                        "{source}: {error}"
+                    );
+                    Ok(())
+                })
+                .unwrap();
+        }
+    });
+}
+
 #[test]
 fn unannotated_pair_issues_tagged_input_from_retained_contract() {
     use crate::mir::normal_callable_semantic_package::BirthFormalPhysicalDispositionV1;

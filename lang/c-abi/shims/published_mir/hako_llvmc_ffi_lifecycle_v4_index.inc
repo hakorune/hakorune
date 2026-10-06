@@ -289,6 +289,12 @@ static int lv4_index_open(hako_lv4_input* in) {
         /* Borrowed checked-map storage: caller-owned lease, never an
            allocation and never ended here. */
         param->kind = LV4_MAP; param->origin = -2;
+      } else if (!ordinary && lv4_is(row, "representation", "nullable_kind_payload_v1")) {
+        /* Nullable object formal (origin -3): a birth unit's
+           object-field-provided formal carries a possibly-Void handle
+           lane — the kind==0 prologue seals payload 0, so the value is
+           never a lease and admits no consume. */
+        param->kind = LV4_HANDLE; param->origin = -3;
       } else {
         param->kind = ordinary && !lv4_is(row, "representation", "borrowed_kind_payload_v1") ? LV4_I64 : LV4_TAGGED; param->origin = -1;
       }

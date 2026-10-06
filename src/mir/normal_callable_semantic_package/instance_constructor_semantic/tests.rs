@@ -667,6 +667,91 @@ fn construction_plan_marks_nobirth_provider_child_zero_init() {
 }
 
 #[test]
+fn construction_plan_seals_parameter_provided_object_child() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Node { value: i64\nbirth(v) { me.value = v } }
+        box Holder { inner: Node\nbirth(inner) { me.inner = inner } }",
+    )
+    .unwrap();
+    let batch = &package.instance_constructors;
+    let parent = batch.box_sources.row_for("Holder").unwrap().unwrap();
+    let plan = batch
+        .construction_for(parent, 1)
+        .unwrap()
+        .as_ref()
+        .expect("provided object param store seals");
+    let [store] = plan.stores() else {
+        panic!("one store: {:?}", plan.stores());
+    };
+    let ConstructionStoreRhsV1::Parameter { provided, .. } = store.rhs() else {
+        panic!("param store: {:?}", store.rhs());
+    };
+    let node_object = batch
+        .object_for(batch.box_sources.row_for("Node").unwrap().unwrap())
+        .unwrap();
+    assert_eq!(*provided, Some(node_object));
+    let row = package
+        .instance_constructors()
+        .rows()
+        .iter()
+        .find(|row| row.box_name() == "Holder")
+        .unwrap();
+    let [contract] = row.formal_contracts() else {
+        panic!("one formal contract");
+    };
+    assert_eq!(
+        contract.declaration(),
+        BirthFormalDeclarationClassV1::Unannotated
+    );
+    assert!(matches!(
+        contract.uses(),
+        BirthFormalUseCoverageV1::ObjectFieldStores { sites } if sites.len() == 1
+    ));
+    assert_eq!(
+        contract.disposition(),
+        BirthFormalPhysicalDispositionV1::DeferredActualBinding
+    );
+}
+
+#[test]
+fn construction_plan_keeps_mixed_and_self_referential_param_uses_closed() {
+    use super::super::instance_construction::ConstructionUnavailableV1 as U;
+    // A formal feeding both a scalar and an object-typed field has no
+    // single wire lane — the mixture stays uncovered, never guessed.
+    let mixed = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Node { value: i64\nbirth(v) { me.value = v } }
+        box Mix { inner: Node\nvalue: i64\nbirth(v) { me.inner = v\nme.value = v } }",
+    )
+    .unwrap();
+    let contract = &mixed
+        .instance_constructors()
+        .rows()
+        .iter()
+        .find(|row| row.box_name() == "Mix")
+        .unwrap()
+        .formal_contracts()[0];
+    assert!(matches!(
+        contract.uses(),
+        BirthFormalUseCoverageV1::UncoveredSelectedBody
+    ));
+    // A self-referential provided field stays the plan-level boundary —
+    // Node's own declared child class is itself, so the field contract
+    // rejects rather than reissuing the residence.
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Node { left: Node\nbirth(left) { me.left = left } }",
+    )
+    .unwrap();
+    let batch = &package.instance_constructors;
+    let parent = batch.box_sources.row_for("Node").unwrap().unwrap();
+    let error = batch
+        .construction_for(parent, 1)
+        .unwrap()
+        .as_ref()
+        .expect_err("self-referential provided store stays declined");
+    assert_eq!(error, &U::FieldContractUnsupported);
+}
+
+#[test]
 fn construction_plan_declines_nobirth_provider_variants() {
     use super::super::instance_construction::ConstructionUnavailableV1 as U;
     for (label, source) in [

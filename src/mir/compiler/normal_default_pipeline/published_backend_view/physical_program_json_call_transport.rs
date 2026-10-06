@@ -46,7 +46,40 @@ pub(super) fn encode_parameters(
                                 return Err(fault("param-carrier-drift"));
                             }
                             _ if function.role().ordinary_target().is_some() => "i64",
-                            _ => "kind_payload_v1",
+                            _ => {
+                                // A birth formal the sealed contract proves
+                                // feeds only object-typed declared fields
+                                // carries the nullable kind/payload lane —
+                                // the rep is read from the compiled-entry
+                                // contract, never guessed from the type.
+                                let nullable = u32::try_from(index).ok().is_some_and(|formal_ordinal| {
+                                    abi_input
+                                        .and_then(|input| {
+                                            input.entry().births().iter().find(|birth| {
+                                                birth.function_index() == ordinal
+                                            })
+                                        })
+                                        .and_then(|birth| {
+                                            birth.formals().iter().find(|formal| {
+                                                formal.source_ordinal()
+                                                    == Some(formal_ordinal)
+                                            })
+                                        })
+                                        .and_then(|formal| formal.contract())
+                                        .is_some_and(|contract| {
+                                            matches!(
+                                                contract.uses(),
+                                                crate::mir::normal_callable_semantic_package
+                                                    ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
+                                            )
+                                        })
+                                });
+                                if nullable {
+                                    "nullable_kind_payload_v1"
+                                } else {
+                                    "kind_payload_v1"
+                                }
+                            }
                         };
                         // A sealed formal object view rides the param row as
                         // `object_view`: the canonical object the guarded

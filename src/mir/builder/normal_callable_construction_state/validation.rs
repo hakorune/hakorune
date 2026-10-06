@@ -85,6 +85,18 @@ impl ConstructionState {
                 )
             })
             .count();
+        let provided_stores = stores
+            .values()
+            .filter(|store| {
+                matches!(
+                    &store.rhs,
+                    ConstructionStoreRhsV1::Parameter {
+                        provided: Some(_),
+                        ..
+                    }
+                )
+            })
+            .count();
         let (nested_releases, call_args): (usize, usize) = stores
             .values()
             .map(|store| match &store.progress {
@@ -109,12 +121,14 @@ impl ConstructionState {
         // tail — plus one `field_residence_release` per sealed nested
         // residence on the completed child store-Fault chain, prior-field
         // discharge and one `Call{Global, I64}`
-        // per sealed qualified-static argument row.
+        // per sealed qualified-static argument row. A provided-object
+        // store adds one `home_release_if_live` tail on the store fault edge.
         if actual_count
             != stores.len()
                 + provider_count
                 + 3 * birth_providers
                 + nobirth_providers
+                + provided_stores
                 + nested_releases
                 + stores
                     .values()
@@ -239,6 +253,18 @@ impl ConstructionState {
                         ..
                     },
                     Some(super::ProviderChildEmissionV1::NoBirthZero { store_discharge }),
+                ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
+                    Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
+                    if actual == &field && b == base && v == value && stored == child
+                        && normal_landing == normal
+                        && *fault_landing == *store_discharge
+                        && frame.is_some_and(|(id, _)| *fault_frame == id)),
+                (
+                    ConstructionStoreRhsV1::Parameter {
+                        provided: Some(child),
+                        ..
+                    },
+                    Some(super::ProviderChildEmissionV1::Provided { store_discharge }),
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
                     if actual == &field && b == base && v == value && stored == child
@@ -420,6 +446,33 @@ impl ConstructionState {
                     if !matches!(function.blocks.get(&discharge_tail).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
                             operation: InvokeOperation::HomeRelease { object, value: released },
+                            fault_frame,
+                            fault_landing,
+                            normal_landing,
+                        }) if *object == *child && *released == *value
+                            && normal_landing != fault_landing
+                            && lands_on(function, *normal_landing, *discharge)
+                            && lands_on(function, *fault_landing, *discharge)
+                            && frame.is_some_and(|(id, _)| *fault_frame == id))
+                    {
+                        return Err(fault("provider-discharge-drift"));
+                    }
+                }
+                (
+                    None,
+                    ConstructionStoreRhsV1::Parameter {
+                        provided: Some(child),
+                        ..
+                    },
+                    Some(super::ProviderChildEmissionV1::Provided { store_discharge }),
+                ) => {
+                    // A provided formal carries no owned lease: the store
+                    // fault tail discharges it with `home_release_if_live`
+                    // — the Void sentinel skips the reclaim — landing on
+                    // the shared prior-residence chain on both edges.
+                    if !matches!(function.blocks.get(store_discharge).and_then(|b| b.terminator.as_ref()),
+                        Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::HomeReleaseIfLive { object, value: released },
                             fault_frame,
                             fault_landing,
                             normal_landing,

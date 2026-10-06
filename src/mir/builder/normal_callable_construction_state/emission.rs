@@ -28,15 +28,21 @@ impl CallableSemanticLoweringState {
             return Err(fault("provider-value-foreign"));
         }
         let mut provider_site = None;
+        let mut provided_child = None;
         let value = match &taken.rhs {
             ConstructionStoreRhsV1::LiteralI64(value) => Some(
                 crate::mir::builder::emission::constant::emit_integer(builder, *value)?,
             ),
-            ConstructionStoreRhsV1::Parameter { site, binding } => {
+            ConstructionStoreRhsV1::Parameter {
+                site,
+                binding,
+                provided,
+            } => {
                 let value = self
                     .value_for_exact_binding(self.owner, *binding)
                     .map_err(|error| error.to_string())?;
                 self.observe_variable_site(site.node(), *binding, value)?;
+                provided_child = *provided;
                 Some(value)
             }
             ConstructionStoreRhsV1::ProviderConstruction { site, .. } => {
@@ -527,14 +533,51 @@ impl CallableSemanticLoweringState {
                     head,
                 )
             }
-            None => (
-                InvokeOperation::FieldSet {
-                    field: store.field,
-                    base,
-                    value,
-                },
-                fault_landing,
-            ),
+            None => match provided_child {
+                // A provided formal stored into an object-typed declared
+                // field is a checked object-field store of a possibly-Void
+                // value: the fault tail discharges the formal with
+                // `home_release_if_live` — the Void sentinel skips the
+                // reclaim, never a `home_release` on a caller-owned lease.
+                Some(child) => {
+                    let tail = builder.next_block_id();
+                    let tail_normal = jump_landing(builder, fault_landing)?;
+                    let tail_fault = jump_landing(builder, fault_landing)?;
+                    let function = builder
+                        .function_state
+                        .current_function
+                        .as_mut()
+                        .ok_or_else(|| fault("no-function"))?;
+                    let mut tail_block = BasicBlock::new(tail);
+                    tail_block.set_terminator(MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeReleaseIfLive {
+                            object: child,
+                            value,
+                        },
+                        fault_frame,
+                        normal_landing: tail_normal,
+                        fault_landing: tail_fault,
+                    });
+                    function.add_block(tail_block);
+                    (
+                        InvokeOperation::ObjectFieldSet {
+                            field: store.field,
+                            base,
+                            value,
+                            child,
+                        },
+                        tail,
+                    )
+                }
+                None => (
+                    InvokeOperation::FieldSet {
+                        field: store.field,
+                        base,
+                        value,
+                    },
+                    fault_landing,
+                ),
+            },
         };
         builder.emit_instruction(MirInstruction::Invoke {
             operation,
@@ -564,8 +607,12 @@ impl CallableSemanticLoweringState {
                             .unwrap_or_default(),
                     },
                 ))
+            } else if provider_nobirth {
+                Some(super::ProviderChildEmissionV1::NoBirthZero {
+                    store_discharge: store_fault_landing,
+                })
             } else {
-                provider_nobirth.then_some(super::ProviderChildEmissionV1::NoBirthZero {
+                provided_child.map(|_| super::ProviderChildEmissionV1::Provided {
                     store_discharge: store_fault_landing,
                 })
             },

@@ -51,7 +51,11 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
             !yyjson_is_uint(yyjson_obj_get(fn, "receiver")) ||
             !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
       }
-    } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1")) return 0;
+    } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&
+        /* A birth formal sealed as object-field-provided spells the
+           nullable lane — same pair transport, the kind==0 branch is
+           admitted beside the scalar kinds. */
+        !hako_physical_string(yyjson_obj_get(param, "representation"), "nullable_kind_payload_v1")) return 0;
   }
   return 1;
 }

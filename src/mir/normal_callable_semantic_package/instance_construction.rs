@@ -40,6 +40,11 @@ pub(crate) enum ConstructionStoreRhsV1 {
     Parameter {
         site: SourceExprSiteV1,
         binding: BindingRefV1,
+        /// The canonical child class this parameter feeds when the store's
+        /// field declares a user object type — sealed here from the field
+        /// declaration and exact membership, never re-derived downstream.
+        /// `None` stays on scalar/builtin/undeclared field stores.
+        provided: Option<CanonicalObjectIdV1>,
     },
     /// Coverage-only: the plan records the provider `new` site; the
     /// existing new-expression owner produces the value. Builtin class
@@ -377,27 +382,56 @@ pub(super) fn issue_construction_plan(
                 value: LiteralValue::Integer(value),
                 ..
             } => ConstructionStoreRhsV1::LiteralI64(*value),
-            ASTNode::Variable { .. } => shape
-                .expressions()
-                .iter()
-                .find_map(|expression| match expression {
-                    BodyExpressionShapeV1::Variable {
-                        site,
-                        resolved: ResolvedLexicalRefV1::Local(binding),
-                    } if site == row.value_site()
-                        && matches!(
-                            function.binding(*binding).map(|record| record.kind()),
-                            Some(BindingKindV1::Parameter { .. })
-                        ) =>
+            ASTNode::Variable { .. } => {
+                let binding = shape
+                    .expressions()
+                    .iter()
+                    .find_map(|expression| match expression {
+                        BodyExpressionShapeV1::Variable {
+                            site,
+                            resolved: ResolvedLexicalRefV1::Local(binding),
+                        } if site == row.value_site()
+                            && matches!(
+                                function.binding(*binding).map(|record| record.kind()),
+                                Some(BindingKindV1::Parameter { .. })
+                            ) =>
+                        {
+                            Some(*binding)
+                        }
+                        _ => None,
+                    })
+                    .ok_or(U::BodyCoverageUnsupported)?;
+                // A parameter stored into a field that declares a user
+                // object class is the provided-object arm: exact
+                // membership resolves the declared class to its canonical
+                // identity — the same lookup the provider `new` arm owns.
+                // Numeric, `ArrayBox`, builtin and undeclared fields keep
+                // the scalar-provided arm.
+                let provided = match field_decls[ordinal].declared_type_name.as_deref() {
+                    Some(declared)
+                        if crate::mir::declared_type_storage
+                            ::exact_numeric_storage_for_declared_type(declared)
+                            .is_none()
+                            && declared != "ArrayBox"
+                            && !crate::box_trait::is_builtin_box(declared) =>
                     {
-                        Some(ConstructionStoreRhsV1::Parameter {
-                            site: row.value_site().clone(),
-                            binding: *binding,
-                        })
+                        let mut resolved = objects
+                            .iter()
+                            .filter_map(|(own, id)| (own.name() == declared).then_some(*id));
+                        let child = resolved.next().ok_or(U::SourceRelationMissing)?;
+                        if resolved.next().is_some() {
+                            return Err(U::SourceRelationMissing);
+                        }
+                        Some(child)
                     }
                     _ => None,
-                })
-                .ok_or(U::BodyCoverageUnsupported)?,
+                };
+                ConstructionStoreRhsV1::Parameter {
+                    site: row.value_site().clone(),
+                    binding,
+                    provided,
+                }
+            }
             ASTNode::New { .. } => {
                 let construction = function
                     .expression_source()

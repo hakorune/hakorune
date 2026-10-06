@@ -315,7 +315,10 @@ impl<'module> PublishedMirBackendView<'module> {
             if contract.declaration() != Declaration::Unannotated {
                 return Err(fault("formal-declaration-unavailable"));
             }
-            if !matches!(contract.uses(), Uses::NoUse | Uses::I64FieldStores { .. }) {
+            if !matches!(
+                contract.uses(),
+                Uses::NoUse | Uses::I64FieldStores { .. } | Uses::ObjectFieldStores { .. }
+            ) {
                 return Err(fault("formal-use-unavailable"));
             }
         }
@@ -521,6 +524,28 @@ impl<'module> PublishedMirBackendView<'module> {
                 .transpose()?
                 .unwrap_or_default();
             for actual in call.actual().arguments() {
+                // The bound formal's contract is the sole capability
+                // authority: an object-field formal admits exactly a `null`
+                // actual (handle actuals stay sealed for the move lane);
+                // a scalar or unused formal admits the scalar kinds only.
+                let object_formal = entry
+                    .births()
+                    .iter()
+                    .find(|birth| birth.function_index() == call.function_index())
+                    .and_then(|birth| {
+                        birth.formals().iter().find(|formal| {
+                            formal.source_ordinal() == Some(actual.source().ordinal())
+                        })
+                    })
+                    .ok_or_else(|| fault("birth-actual-formal-missing"))?
+                    .contract()
+                    .is_some_and(|contract| {
+                        matches!(
+                            contract.uses(),
+                            crate::mir::normal_callable_semantic_package
+                                ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
+                        )
+                    });
                 let admitted = uses.iter().any(|(_, formal, site, ordinal)| {
                     *ordinal == actual.source().ordinal()
                         && site == actual.source().new_site()
@@ -529,7 +554,7 @@ impl<'module> PublishedMirBackendView<'module> {
                             Kind::Handle { binding } if binding == formal
                         )
                 });
-                if admitted {
+                if admitted && !object_formal {
                     if !tagged.insert((
                         actual.source().new_site().clone(),
                         actual.source().ordinal(),
@@ -537,6 +562,11 @@ impl<'module> PublishedMirBackendView<'module> {
                         return Err(fault("birth-actual-tagged-duplicate"));
                     }
                     continue;
+                }
+                if object_formal
+                    != matches!(actual.source().kind(), Kind::Null)
+                {
+                    return Err(fault("actual-kind-unavailable"));
                 }
                 scalar_actual_kind(actual.source().kind(), actual.value(), caller.value_types())?;
             }
@@ -724,6 +754,7 @@ pub(super) fn scalar_actual_kind(
 ) -> Result<u32, String> {
     use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
     match kind {
+        Kind::Null => Ok(0),
         Kind::Integer(_) => Ok(1),
         Kind::Bool(_) => Ok(2),
         Kind::Local { .. }
@@ -734,8 +765,7 @@ pub(super) fn scalar_actual_kind(
         {
             Ok(1)
         }
-        Kind::Null
-        | Kind::Local { .. }
+        Kind::Local { .. }
         | Kind::Handle { .. }
         | Kind::BoundValue { .. }
         | Kind::I64Field { .. }

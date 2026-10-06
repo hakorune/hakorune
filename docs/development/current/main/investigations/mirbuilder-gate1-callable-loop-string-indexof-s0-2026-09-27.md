@@ -957,6 +957,17 @@ Fail-fast boundary: `actual-kind-unavailable`/`RetainedUnavailable`
 stay for non-capable actuals and nested children.
 Non-claims: nested teardown, field reads, Gates 2-4.
 
+## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (Null half)
+
+`Parameter{provided}` seals at plan issue -> `ObjectFieldStores` formal
+capability -> `nullable_kind_payload_v1` param -> kind-0 `const_null` arg
+-> `object_field_set` + `home_release_if_live` fault tail. C flow: `origin
+-3` param class, k0/(3,nonzero) prologue, `if_live`-only release. `Handle`
+actuals stay sealed. Evidence: 4 pins green; `nullable_birth_actual_min_exe`
+PASS (v4-measure ok, EXE Result 0); mismatched actuals -> `actual-kind-
+unavailable`; 4 parent-verified reds. Next row `MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0` — the `Handle` actual
+(declared-object formal + `consume_home` move); teardown stays S2.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and
@@ -984,13 +995,5 @@ Non-claims: nested teardown, field reads, Gates 2-4.
 
 ## Evidence retained from the previous card (tombstone)
 
-Fixed-EXE suite `574d90ffc5`+`c82b7a415a` (5 PASS / 6 FAIL), reviewer
-remediation and the full landed-history table are recoverable at
-`git show 339674c77b:<this-file>`; no archive copy is created.
-
-## Organization closeout
-
-Scope: this card, CURRENT_STATE, the canonical Home ABI D0, the existing
-pointer guard (1,000-line budget; verified at `339674c77b`, pre-compaction
-record recoverable there). Worker findings integrated; no new observer
-census or semantic receipt landed.
+Fixed-EXE suite `574d90ffc5`+`c82b7a415a`, reviewer remediation and the
+organization closeout recover at `git show 339674c77b:<this-file>`.

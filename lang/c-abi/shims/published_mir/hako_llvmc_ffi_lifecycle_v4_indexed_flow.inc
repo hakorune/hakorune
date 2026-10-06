@@ -449,11 +449,18 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             return 0;
           continue;
         }
-        /* arg kind is exact: 1 is i64, 2 is bool — anything else,
-           including a missing field, rejects rather than defaulting. */
+        /* arg kind is exact: 0 is the const_null producer (the same pin
+           the ordinary borrowed lane owns), 1 is i64, 2 is bool —
+           anything else, including a missing field or a forged zero
+           payload, rejects rather than defaulting. */
         uint32_t numeric_kind = lv4_u(arg, "kind");
-        if (!value || (numeric_kind != 1 && numeric_kind != 2) ||
-            value->kind != (numeric_kind == 1 ? LV4_I64 : LV4_BOOL)) return 0;
+        if (!value ||
+            (numeric_kind == 0 &&
+                !lv4_is(value->instruction, "op", "const_null")) ||
+            (numeric_kind != 0 && numeric_kind != 1 && numeric_kind != 2) ||
+            (numeric_kind == 1 && value->kind != LV4_I64) ||
+            (numeric_kind == 2 && value->kind != LV4_BOOL) ||
+            (numeric_kind == 0 && value->kind != LV4_HANDLE)) return 0;
       }
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
@@ -504,22 +511,29 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       /* Inside a birth unit the checked store moves the provider child
          into the borrowed receiver's slot: the base is the stamped
          receiver (origin -2 admitted by lv4_indexed_live), the child is
-         still an in-flight live lease (origin >= 0). */
+         still an in-flight live lease (origin >= 0). A nullable formal
+         (origin -3) carries a possibly-Void payload instead: the slot
+         stores the pair's payload — zero means the slot stays Void and
+         no lease changes hands. */
+      int nullable_formal = value && value->origin == -3;
       if ((fi && !ordinary && !birth) || faulted || lv4_slot(in, op) < 0 || !value ||
-          value->kind != LV4_HANDLE || value->origin < 0 ||
+          value->kind != LV4_HANDLE || (value->origin < 0 && !nullable_formal) ||
           !lv4_layout(in, lv4_u(op, "child_object_id")) ||
-          !lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
-              lv4_u(op, "child_object_id"), 1) ||
+          (!nullable_formal &&
+              !lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
+                  lv4_u(op, "child_object_id"), 1)) ||
           !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
       /* A metadata-reserved object slot stores only the canonical child:
          the exact `owned_object_residences` tuple plus borrowed typed-live
-         provenance — the receiver or the same object's `new_box` root. */
+         provenance — the receiver or the same object's `new_box` root.
+         The nullable formal's provenance is its sealed representation,
+         not a live lease, so it names no typed-live source. */
       if (lv4_birth_reserved(in, op) &&
           (!lv4_birth_owned(in, op, 1) ||
-           !lv4_borrowed_typed_live(in, fn, value, state))) return 0;
+           (!nullable_formal && !lv4_borrowed_typed_live(in, fn, value, state)))) return 0;
       if (birth && !lv4_birth_commit(in, fn, op, normal, bi, 1)) return 0;
-      normal[value->origin] = 0;
+      if (!nullable_formal) normal[value->origin] = 0;
     } else if (lv4_is(op, "kind", "object_field_release")) {
       /* Same child-slot discharge as a field residence release, keyed on
          the canonical child object — the emitted helper owns the child's
@@ -544,10 +558,19 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       /* Birth units admit these only for an in-flight provider child
          (origin >= 0); the borrowed `me` receiver still fails the origin
-         check, so self-release can never slip through this lane. */
-      if ((fi && !ordinary && !birth) || !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
-              lv4_u(op, "object_id"), !nullable_release) || value->origin < 0) return 0;
-      normal[value->origin] = state[value->origin] = 0;
+         check, so self-release can never slip through this lane. A
+         nullable formal (origin -3) carries no lease at all: only the
+         `home_release_if_live` spelling admits it — the emitted liveness
+         check skips the Void sentinel and nothing is consumed. */
+      if ((fi && !ordinary && !birth) || !value) return 0;
+      if (value->origin == -3) {
+        if (!nullable_release || value->kind != LV4_HANDLE) return 0;
+      } else {
+        if (!lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
+                lv4_u(op, "object_id"), !nullable_release) ||
+            value->origin < 0) return 0;
+        normal[value->origin] = state[value->origin] = 0;
+      }
     } else if (lv4_is(op, "kind", "map_install_text") ||
         lv4_is(op, "kind", "map_install_empty_array")) {
       hako_lv4_value *key = lv4_index_value(fn, lv4_u(op, "key"));

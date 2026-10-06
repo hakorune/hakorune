@@ -1,0 +1,31 @@
+// nullable-birth-actual-min
+//
+// Nullable `new` actual: `new Holder(null)` passes the Void pair into a
+// birth formal used only by object-typed declared field stores. The
+// birth unit spells the nullable kind/payload lane
+// (`nullable_kind_payload_v1`): kind==0/payload==0 keeps `me.inner`
+// Void. The provided store emits checked `object_field_set` with a
+// `home_release_if_live` fault tail — the sentinel skips the release,
+// never a plain `home_release` on a caller-owned pair.
+
+box Inner {
+  value: i64 = 0
+
+  birth() {
+  }
+}
+
+box Holder {
+  inner: Inner
+
+  birth(inner) {
+    me.inner = inner
+  }
+}
+
+static box Main {
+  main() {
+    local holder = new Holder(null)
+    return 0
+  }
+}

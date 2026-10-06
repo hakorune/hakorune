@@ -22,7 +22,15 @@ static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
         continue;
       }
     }
-    if (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind) || (kind != 1 && kind != 2)) return 0;
+    if (!hako_physical_u32(yyjson_obj_get(arg, "kind"), &kind)) return 0;
+    /* A `nullable_kind_payload_v1` formal admits only the exact null pair
+       (kind 0): scalar kinds into an object-field formal and a forged
+       kind-0 into a scalar formal are both ABI drift, never a silent
+       rewrap. */
+    if (hako_physical_string(yyjson_obj_get(param, "representation"),
+        "nullable_kind_payload_v1")) {
+      if (kind != 0) return 0;
+    } else if (kind != 1 && kind != 2) return 0;
   }
   return 1;
 }

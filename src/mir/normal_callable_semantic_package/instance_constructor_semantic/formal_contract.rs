@@ -26,6 +26,11 @@ pub(crate) enum BirthFormalDeclarationClassV1 {
 pub(crate) enum BirthFormalUseCoverageV1 {
     NoUse,
     I64FieldStores { sites: Box<[SourceExprSiteV1]> },
+    /// Every sealed store for this formal lands in an object-typed
+    /// declared field — the plan's `provided` child seal marks exactly
+    /// that class authority, so the formal's wire lane admits a nullable
+    /// kind/payload actual instead of a scalar-only pair.
+    ObjectFieldStores { sites: Box<[SourceExprSiteV1]> },
     UncoveredSelectedBody,
 }
 
@@ -161,22 +166,35 @@ fn classify_uses(
     let Ok(plan) = construction else {
         return BirthFormalUseCoverageV1::UncoveredSelectedBody;
     };
-    let sites = plan
-        .stores()
-        .iter()
-        .filter_map(|store| match store.rhs() {
-            ConstructionStoreRhsV1::Parameter { site, binding: rhs } if *rhs == binding => {
-                Some(site.clone())
+    let mut scalar_sites = Vec::new();
+    let mut object_sites = Vec::new();
+    for store in plan.stores() {
+        match store.rhs() {
+            ConstructionStoreRhsV1::Parameter {
+                site,
+                binding: rhs,
+                provided,
+            } if *rhs == binding => {
+                if provided.is_some() {
+                    object_sites.push(site.clone());
+                } else {
+                    scalar_sites.push(site.clone());
+                }
             }
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    if sites.is_empty() {
-        BirthFormalUseCoverageV1::NoUse
-    } else {
-        BirthFormalUseCoverageV1::I64FieldStores {
-            sites: sites.into_boxed_slice(),
+            _ => {}
         }
+    }
+    match (scalar_sites.is_empty(), object_sites.is_empty()) {
+        (true, true) => BirthFormalUseCoverageV1::NoUse,
+        (false, true) => BirthFormalUseCoverageV1::I64FieldStores {
+            sites: scalar_sites.into_boxed_slice(),
+        },
+        (true, false) => BirthFormalUseCoverageV1::ObjectFieldStores {
+            sites: object_sites.into_boxed_slice(),
+        },
+        // A formal feeding both scalar and object fields has no single
+        // wire lane; the mixture stays uncovered rather than guessing.
+        (false, false) => BirthFormalUseCoverageV1::UncoveredSelectedBody,
     }
 }
 
@@ -189,7 +207,10 @@ fn disposition(
             BirthFormalPhysicalDispositionV1::UnavailableUnsupportedDeclaration
         }
         BirthFormalDeclarationClassV1::ExactText | BirthFormalDeclarationClassV1::Unannotated
-            if !matches!(uses, BirthFormalUseCoverageV1::NoUse) =>
+            if !matches!(
+                uses,
+                BirthFormalUseCoverageV1::NoUse | BirthFormalUseCoverageV1::ObjectFieldStores { .. }
+            ) =>
         {
             BirthFormalPhysicalDispositionV1::UnavailableTaggedOrCheckedRepresentation
         }

@@ -90,7 +90,24 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     }
   }
   if (birth) for (size_t i = 0; i < yyjson_arr_size(params); i++) {
-    uint32_t v = lv4_u(yyjson_arr_get(params, i), "value");
+    yyjson_val* param = yyjson_arr_get(params, i);
+    uint32_t v = lv4_u(param, "value");
+    if (lv4_is(param, "representation", "nullable_kind_payload_v1")) {
+      /* Nullable object formal: (0,0) is Void, (3,nonzero) a live handle.
+         Malformed pairs — null tag with a payload, object tag with zero —
+         never reach the slot. */
+      fprintf(f,
+          "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
+          "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
+          "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_zero%u\n"
+          "  %%arg_obj%u = icmp eq i32 %%k%u, 3\n"
+          "  %%arg_live%u = icmp ne i64 %%v%u, 0\n"
+          "  %%arg_objok%u = and i1 %%arg_obj%u, %%arg_live%u\n"
+          "  %%arg_ok%u = or i1 %%arg_nulok%u, %%arg_objok%u\n"
+          "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
+          v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+      continue;
+    }
     fprintf(f,
         "  %%arg_int%u = icmp eq i32 %%k%u, 1\n"
         "  %%arg_bool%u = icmp eq i32 %%k%u, 2\n"

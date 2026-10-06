@@ -95,6 +95,11 @@ pub(super) enum ProviderChildEmissionV1 {
     /// evidence is the store-fault `HomeRelease` chain head — the plan
     /// sealed arity 0 + fieldless, so no `birth_call`/`reclaim` exists.
     NoBirthZero { store_discharge: BasicBlockId },
+    /// Provided-object store (`me.<field> = <formal>` into a declared
+    /// user-class field): the value is a birth formal, not an
+    /// allocation, so the store-fault tail is `HomeReleaseIfLive` on the
+    /// formal — never a `HomeRelease` on a caller-owned lease.
+    Provided { store_discharge: BasicBlockId },
 }
 
 /// Emitted provider-Birth chain coordinates for one user-class provider
