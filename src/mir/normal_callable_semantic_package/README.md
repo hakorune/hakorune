@@ -1211,3 +1211,8 @@ arbitrarily branching call graphs. These witnesses carry no acquired Home,
 field residence, runtime discriminator or permission to publish an anchored
 composite. Outer constructor provenance must be joined with the later exact
 constructor child/destination and lifetime verification.
+
+The sole `prepare_source_claims` implementation resides in private
+`ordinary_new_source_claim_preparation.rs`, reexported through the existing
+source-claim owner. Field/provider/result preparation order and source error
+boundaries are unchanged; this move adds no child relation or Home permission.

@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: source origin witness S0 closed; source preparation BoxShape S0 selected
+Status: source preparation BoxShape S0 closed; child-relation D0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -669,3 +669,58 @@ or new test failure. After this move, select CHILD-RELATION-S0 only once its exa
 candidate mapping and acceptance above are verified against the actual APIs.
 Non-claims: no field/source widening, second scanner/fixpoint, input consume,
 borrowed field store, Home/anchor verifier or production completion.
+
+SOURCE-PREPARATION-BOXSHAPE-S0 implementation: source owner793->697, sole
+private child104 before rustfmt signature layout. Executable body bytes match
+parent a6b57ccebc exactly; only tuple signature whitespace formatted. Same
+production/test reexport paths, visibility, tuple, errors and observation/finish
+order. Read-only worker confirms sole implementation/no behavior change.
+Test-inclusive quick check PASS27.52s (before signature-only formatting), log
+/tmp/hako-source-preparation-shape-check.log. Initial new-child formatting red
+resolved with signature whitespace only; exact executable-body comparison PASS.
+Scope guard initially FAIL because its field_write_draft/result_class_draft
+pins still pointed at old file; update those two pins to new sole owner, keeping
+all semantic conditions. Guard/README owner pointers are necessary selected
+scope extensions. Focused32 execution after move remains required.
+
+## SOURCE-PREPARATION-BOXSHAPE-S0 closeout / next CHILD-RELATION-D0
+
+Corrected focused32/32 PASS,0 ignored,8660 filtered, runtime0.05s, quick build
+4m45s. Log /tmp/hako-source-preparation-shape-focused.log. Scope/pointer/diff and
+new-child rustfmt guards PASS. Executable preparation body byte-identical to
+parent a6b57ccebc; original implementation removed and only one fn remains.
+Same production/test callers route through reexport, no retry or second solver.
+Source owner697/new child101; scope guard760 (future growth requires responsibility
+review), active card under1000. Existing near-cap issue797 unchanged. Signature
+formatting and moved guard pointer reds are resolved; no new unclassified red.
+No additional CLI/probe required for byte-identical behavior-preserving move;
+prior witness CLI/frontier receipt retained. No compile-time speedup claim:
+measurements have different cache/incremental conditions.
+
+Select MIRBUILDER-GATE1-CHILD-RELATION-D0, design_stop, next execution none.
+Internal next contract audit is ongoing, not goal pause or external blocked.
+Verified API decision: put passive candidate map inside SAME
+VerifiedSourceCallableResultFactsV1, keyed (OwnedExprSiteV1,CanonicalFieldRefV1);
+retain preparation tuple and ledger callable_result_classes owner. Use private
+all-origin row/direct FreshConstruction leaf iterator; legacy get/iter/keys stay
+projection-only. Deduplicate original constructor site; never analyze a callee
+leaf using facade caller input. Constructor birth_for/construction_for, sealed
+plan stores field/RHS Parameter(binding,provided child), row formal_contracts
+binding/ordinal and branded CallArgument child navigation provide exact joins.
+Existing resolve_forward_local/sole_initializer_site/binding_is_unrebound supply
+local source identity; call composition currently inline in evaluate_row must
+be extracted once and reused, rather than duplicated or invoked with fake exit.
+
+D0 remaining concrete action: fix shared composer API/result/failure ownership,
+private candidate product sealing and unavailable-field behavior, then select
+separate composition BoxShape before child-relation semantic addition. Bounded
+source candidates315Null/318mixed/allocateResultFresh must coexist with old
+prefix errors/preparefalse. No acquired Home or field capability from candidates.
+Unsupported constructor/formal/actual identities, class/ordinal/foreign owner,
+rebind, missing facts, ungrounded recursion and unsupported field/index/upvar
+actuals remain unavailable. Subsequent anchor lifetime/acquisition, cleanup,
+sole physical outcome and publication remain required production work.
+
+Next-pointer guard initially rejected workstream row H length549; shorten only
+that current row while keeping full contract/evidence here. Corrected pointer
+and scope guards PASS; no outstanding guard red.
