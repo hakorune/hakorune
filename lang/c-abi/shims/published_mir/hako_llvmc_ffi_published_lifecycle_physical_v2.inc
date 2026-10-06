@@ -137,6 +137,7 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
       strcmp(op, "borrowed_null_compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
+      strcmp(op, "array_get") == 0 ||
       strcmp(op, "fault_frame_enter") == 0)
     return yyjson_obj_get(instruction, "dst");
   if (strcmp(op, "birth_call") != 0) return NULL;
@@ -628,6 +629,19 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         hako_physical_u32(yyjson_obj_get(instruction, "value"), &c) &&
         hako_physical_value_available_at(function, c, current_block, current_index) &&
         hako_physical_u64(yyjson_obj_get(instruction, "site"), NULL);
+  }
+  if (!strcmp(op, "array_get")) {
+    /* A routed `.get` element read: the array operand is the same
+       slot-loaded handle lane and the index a committed i64 — the emitted
+       call returns the i64-or-handle carrier (miss → the lane's null
+       sentinel 0), so the row carries no diagnostic site. */
+    static const char* const keys[] = {"op", "array", "index", "dst"};
+    return hako_physical_exact_keys(instruction, keys, 4) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "array"), &a) &&
+        hako_physical_value_available_at(function, a, current_block, current_index) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "index"), &b) &&
+        hako_physical_value_available_at(function, b, current_block, current_index) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "dst"), &c);
   }
   if (!strcmp(op, "invoke")) return hako_physical_exact_keys(instruction, invoke, 5) && hako_physical_u32(yyjson_obj_get(instruction, "fault_frame"), &a) && hako_physical_frame_mode(function, a, frame_mode) && hako_physical_value_available_at(function, a, current_block, current_index) && hako_physical_u32(yyjson_obj_get(instruction, "normal"), &b) && hako_physical_has_block(function, b) && hako_physical_u32(yyjson_obj_get(instruction, "fault"), &c) && hako_physical_has_block(function, c) && hako_physical_validate_operation(function, functions, layouts, yyjson_obj_get(instruction, "operation"), current_block, current_index, native);
   if (!strcmp(op, "invoke_normal_result")) { yyjson_val* invoke;

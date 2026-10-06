@@ -501,3 +501,135 @@ Next owed: `MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0`
 `checked_get` export + v4 validate/flow/emit arms for the published
 `array_get` row), then production caller switch and selected legacy
 retirement.
+
+## array_get v4 lifecycle consumer Decision / 2026-10-06
+
+Design-stop audit for `physical-array-read/c-lifecycle-consumer` —
+the published `array_get` row's C consumer in the v4 lifecycle lane.
+The audit revises the previous next-owed sketch: no `checked_get`
+kernel export is owed, and no diagnostic site is minted — the read
+stays a plain op in the checked lane exactly as the landed Decision
+recorded.
+
+Audit findings:
+
+- `nyash.array.slot_load_hi(handle, idx)` already exists
+  (`array_slot_load.rs` → `array_get_index_encoded_i64`): i64-or-handle
+  `MixedI64OrHandle` carrier, miss → `0`. It is the *same* surface the
+  generic lane already emits for `call_method{ArrayBox, get}` via the
+  generic route descriptors — one runtime surface, zero new semantics.
+- The v4 lane's null sentinel is `i64 0` on the wire (`const_null` →
+  `add i64 0, 0`), so `slot_load_hi`'s miss → `0` is the faithful
+  NullBox encoding — no fault is owed on OOB. Read-miss → `0`/Normal
+  is also the lane's own convention (`map_checked_get` writes `0` on a
+  missing key; `array_set`'s bounds fault is a write-contract property,
+  not a read one).
+- `object_field_get`/`nyash.object.type_id_h` establish that plain
+  (non-frame) calls sit in the v4 emit — a non-faulting read needs no
+  `site`, no `PublishedLifecycleCheckedOperationKindV1` arm, and no
+  change to `issue_diagnostic_sites`.
+- The `array_get` JSON already emitted —
+  `{"op","array","index","dst"}` — matches the required plain-op shape;
+  `dst: None` encodes `"dst": null`, which the C validator's
+  `hako_physical_u32` rejects — fail-closed boundary is already honest.
+- v4 wiring needed: `physical_v2` validate arm (exact keys
+  `{"op","array","index","dst"}`, `array`/`index` u32 +
+  `value_available_at`, `dst` u32), `v4_index` seed arm (`array_get`
+  dst → `LV4_I64` — the lane's i64/handle carrier; an encoded handle
+  result flows as opaque i64 and downstream live-lease consumers stay
+  fail-closed exactly as the `call_method` lowering today),
+  `v4_indexed_flow` arm (mirror `array_set`'s operand rules: `array`
+  and `index` `LV4_I64`, not faulted/birth, `lv4_slot` present for the
+  dst), `v4_emit` arm (`%v<dst> = call i64 @nyash.array.slot_load_hi`
+  — both native and non-native declare lists gain the declare).
+- Lane A (`hako_llvmc` published rows): `PublishedCallKindV1::ArrayGet`
+  rows reach `valid_kind` in `hako_llvmc_ffi_published_static_method.inc`
+  and are rejected today — `valid_kind` + `take_array_read_row_v1` +
+  an `EMIT_PUBLISHED_ARRAY_READ_ROW` (same `slot_load_hi`) is a sibling
+  consumer boundary, not this slice.
+
+Decision: `array_get` stays a PLAIN op in the checked lane and emits
+the lane's existing `slot_load_hi` surface — no `checked_get` export,
+no `site`, no checked-op kind.
+
+Source authority + canonical issuer: the v4 shim's `array_set` sibling
+arms — `physical_v2` validate, `v4_index` seed, `v4_indexed_flow`,
+`v4_emit` + declares — plus the `slot_load_hi` runtime alias (sole
+runtime surface shared with the generic lane).
+
+Non-authority: `checked_get_i64_v1` kernel export (the lane's read
+surface exists); fault recording on OOB (read-miss → `0` convention);
+`site`/`ArrayRead` checked-op kind; `hako_llvmc` row admission
+(sibling); box-element handle-lease reads; bounds semantics change.
+
+Fail-fast boundary: `dst: None` reads → `"dst": null` → C validate
+rejects (`hako_physical_u32`); `array_get` reaching a C lane without
+the arms stays `return 0` / `malformed typed row` — fail closed as
+today; unproven receivers keep `call_method` → unpublished upstream.
+
+Smallest next slice: `MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0` —
+the four v4 arms + declare lines + `array_get` entries in
+`mirbuilder_qualified_route_lifecycle_scope.inc.sh` + one execution
+test mirroring `published_lifecycle_v4_set_view_execution_test.py`.
+No kernel or Rust semantic change.
+
+Non-claims: lane-A `hako_llvmc` row consumer (`valid_kind` +
+`take_array_read_row_v1` + emit arm), `dst:None` dead-read transport,
+box-element lease provenance, bounds-fault semantics, production
+switch, app-frontier movement (still
+`artifact-unowned-lifecycle-site`).
+
+## array_get v4 lifecycle consumer landing / 2026-10-06
+
+Slice `MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0` landed as planned,
+with two implementation-time corrections recorded here:
+
+1. The planned `lv4_slot` destination check was dropped — `lv4_slot`
+   resolves `object_id`/`field_ordinal` layout slots and does not apply
+   to `array_get` (it returned <0 on every read). Destination validity
+   is already covered by physical validation: `dst` u32 + the unique
+   def registration through `hako_physical_instruction_dst`.
+2. Two more consumer touch points were required beyond the four named
+   arms — both inside the same fail-closed surfaces, no new vocabulary:
+   `hako_physical_instruction_dst` (the value-registration whitelist in
+   `physical_v2.inc`, without which `copy src=<dst>` stays unavailable)
+   and `lv4_type` in `v4_admission.inc` (def-based classification,
+   `array_get` → `LV4_I64`).
+
+Landed arms:
+
+- `physical_v2.inc`: `array_get` in `instruction_dst`; exact-key arm
+  `{"op","array","index","dst"}` with operand availability.
+- `v4_admission.inc`: `lv4_type` classifies `array_get` → `LV4_I64`.
+- `v4_index.inc`: seed classifies `array_get` → `LV4_I64`.
+- `v4_indexed_flow.inc`: arm mirrors `array_set` operand rules minus
+  `value`/`lv4_slot` — `array`/`index` `LV4_I64`, not faulted/birth.
+- `v4_emit.inc`: `%v<dst> = call i64 @nyash.array.slot_load_hi(i64
+  %v<array>, i64 %v<index>)`; declare added to both native and
+  non-native declare lists.
+- `mirbuilder_qualified_route_lifecycle_scope.inc.sh`: `array_get` /
+  `slot_load_hi` pins + exec-test existence.
+
+Evidence:
+
+- `array_i64_get_publishes_through_array_element_read` emits
+  `hako-issued-get-view-{ok,oob}.json` and pins the row shape
+  (`dst`/`array`/`index` u64, no `site`).
+- `published_lifecycle_v4_get_view_execution_test.py` drives both
+  fixtures through driver → object → probe: `ok` exits 7 (slot read),
+  `oob` exits 0 (miss → null sentinel); `dst:null` and extra-`site`
+  mutated rows reject at validation — no Fault in normal runs.
+- Regression: `set_view`, `checked_compare`, `add_view` execution
+  tests unchanged; all four `array_i64_field_call_tests` green.
+- The route-scope guard's pre-existing 800-line violation
+  (`normal_default_root_catalog_lifecycle_tests.rs` = 1351 at HEAD)
+  predates this slice — unchanged baseline debt.
+
+Non-claims unchanged: lane-A `hako_llvmc` row consumer, `dst:None`
+transport, lease provenance, production switch, app frontier
+(`artifact-unowned-lifecycle-site` parity).
+
+Next owed: `MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0` — the Lane-A
+`hako_llvmc` published-row consumer: `valid_kind` +
+`take_array_read_row_v1` + static row emitter over the existing
+`PublishedCallKindV1::ArrayGet` transport.

@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0"
+current_execution_row = "MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "physical-array-read/c-lifecycle-consumer"
-current_design_stop = "physical-array-read/c-lifecycle-consumer"
+current_blocker_token = "physical-array-read/lane-a-consumer"
+current_design_stop = "physical-array-read/lane-a-consumer"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,22 +17,18 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-field-array-get-i64-result-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-ARRAY-ELEMENT-READ-OWNER-S0 landed: `MirInstruction::ArrayElementRead
-{ site_id, dst, receiver, index }` is the sole physical owner of proven
-`Callee::Method{ArrayBox, get}` sites — `try_emit_known_array_method_read`
-fires at the two `ArrayBox` emit arms (unified_emitter + boxcall_emit);
-MapBox.get and unproven receivers keep `call_method`. Runtime delegates
-to the same `execute_method_callee("ArrayBox","get")` surface; published
-view collects `array_element_reads` and transports
-`PublishedCallKindV1::ArrayGet`; MIR JSON emit/decode + allowlists +
-vocabulary + reference docs synced; `match_array_get_call` and the
-exact-seed rmw route see `array_read`. Focused 7+2+201 green; touched
-battery's 19 reds reproduce on baseline `858d00d09a`; app `--emit-exe`
-= baseline `artifact-unowned-lifecycle-site`. C lifecycle shim has no
-`array_get` arm yet — fail-closed until the consumer contract lands.
-Next: `physical-array-read/c-lifecycle-consumer` Decision.
+ARRAY-READ-C-LIFECYCLE-CONSUMER-S0 landed: the v4 checked lane consumes
+`array_get` end-to-end — physical validate arm (exact
+`{"op","array","index","dst"}`, operand availability), `instruction_dst`
+whitelist, `lv4_type`/`v4_index` seed → `LV4_I64`, `v4_indexed_flow`
+arm (`array`/`index` LV4_I64, not faulted/birth), `v4_emit` emits
+`%v<dst> = call i64 @nyash.array.slot_load_hi` with declares on both
+lists — plain op, no checked_get/site/kind. Exec evidence: ok exits 7,
+oob exits 0 (null sentinel); `dst:null` + extra-`site` rows reject;
+set_view/checked_compare/add_view regression green. Lane-A `hako_llvmc`
+row consumer remains owed.
 """
-next_design_card = "MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0"
+next_design_card = "MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
@@ -50,8 +46,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-06: MIRBUILDER-ARRAY-ELEMENT-READ-OWNER-S0 landed — `MirInstruction::ArrayElementRead { site_id, dst, receiver, index }` is the sole physical owner of proven `Callee::Method{ArrayBox, get}` sites; sole issuer `try_emit_known_array_method_read` at the two `ArrayBox` emit arms. MapBox.get / unproven receivers keep `call_method`; runtime delegates to the same `ArrayBox.get` surface; published view collects `array_element_reads` + `PublishedCallKindV1::ArrayGet` transport; MIR JSON round-trip, allowlists, vocabulary, and reference docs synced. `match_array_get_call` and exact-seed rmw route recognize `array_read`. Focused 7+2+201 green; battery's 19 reds = baseline debt; app `--emit-exe` = baseline `artifact-unowned-lifecycle-site`. C lifecycle shim `array_get` arm owed. Next: `physical-array-read/c-lifecycle-consumer` Decision.",
-  "2026-10-06: MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0 landed — staging-only `stage_unobserved_statement_actuals` (sealed `method_calls()` inventory, outermost calls, one `observe_borrowed_call_actuals` callback on the pre-statement `prefix_known`; no claims / terminal relations / Home joins / physical rows) wired to `If` condition subtrees + prefix-failed interiors + unadmitted statements. Entry-stable bindings stay observable on uncovered paths; new `DeclaredFormal` source = caller's sealed `DeclaredObject` contract (tag 3). Companion `literal-physical-drift` fix (terminal literal Return owed on the generic lane). Formal unique-i64 get leaf armed; `loop`-interior edges freeze `borrowed-actual`. App `--emit-exe` = baseline `artifact-unowned-lifecycle-site`. Next: physical read owner for `Callee::Method` get publication Decision.",
-  "2026-10-06: MIRBUILDER-ME-RECEIVER-CALL-COVERAGE-S0 landed — `Receiver`-kind `me` bindings enter `prepare_lexical_source_targets_v1` (class = caller's own selected key owner, `unique_instance_target`) issued as coverage-only `SelfReceiver` rows: self-edges named for incoming coverage / terminal / dependency checks, lifecycle routing skipped (emission stays with the sealed receiver-call lane). Capture leaf stays `|_| false`: armed probe resolved incoming-coverage / result-source-missing / local-call-binding-sequence, next named contract `borrowed-actual/selected-incoming-unobserved` (prefix-failed branch subtrees + condition-position calls never stage actuals). Focused 184 pass / 3 baseline debt; app `--emit-exe` = baseline `artifact-unowned-lifecycle-site`. Next: unobserved-position incoming-edge staging Decision.",
+  "2026-10-06: MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0 landed — the v4 checked lane consumes `array_get`: exact-key validate + `instruction_dst` registration + `lv4_type`/seed `LV4_I64` + indexed-flow arm + `%v<dst> = call i64 @nyash.array.slot_load_hi` emit with declares on both lists; plain op (no checked_get/site/kind). Exec: ok=7, oob=0 (null sentinel); `dst:null`/`extra-site` reject; set_view/checked_compare/add_view regression green. Planned `lv4_slot` dst check dropped (field-slot helper, N/A to reads) — dst validity rests on u32 + unique-def registration. Next: `physical-array-read/lane-a-consumer` Decision.",
+  "2026-10-06: MIRBUILDER-ARRAY-ELEMENT-READ-OWNER-S0 landed — `MirInstruction::ArrayElementRead { site_id, dst, receiver, index }` is the sole physical owner of proven `Callee::Method{ArrayBox, get}` sites; sole issuer `try_emit_known_array_method_read` at the two `ArrayBox` emit arms. MapBox.get / unproven receivers keep `call_method`; runtime delegates to the same `ArrayBox.get` surface; published view collects `array_element_reads` + `PublishedCallKindV1::ArrayGet` transport; MIR JSON round-trip, allowlists, vocabulary, and reference docs synced. `match_array_get_call` and exact-seed rmw route recognize `array_read`. Focused 7+2+201 green; battery's 19 reds = baseline debt; app `--emit-exe` = baseline `artifact-unowned-lifecycle-site`.",
+  "2026-10-06: MIRBUILDER-BORROWED-ACTUAL-UNOBSERVED-POSITION-S0 landed — staging-only `stage_unobserved_statement_actuals` (sealed `method_calls()` inventory, outermost calls, one `observe_borrowed_call_actuals` callback on the pre-statement `prefix_known`; no claims / terminal relations / Home joins / physical rows) wired to `If` condition subtrees + prefix-failed interiors + unadmitted statements. Entry-stable bindings stay observable on uncovered paths; new `DeclaredFormal` source = caller's sealed `DeclaredObject` contract (tag 3). Companion `literal-physical-drift` fix (terminal literal Return owed on the generic lane). Formal unique-i64 get leaf armed; `loop`-interior edges freeze `borrowed-actual`. App `--emit-exe` = baseline `artifact-unowned-lifecycle-site`.",
   ]
 

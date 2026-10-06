@@ -191,6 +191,15 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (faulted || birth || !array || array->kind != LV4_I64 ||
           !index || index->kind != LV4_I64 ||
           !value || (value->kind != LV4_I64 && value->kind != LV4_TAGGED)) return 0;
+    } else if (lv4_is(ins, "op", "array_get")) {
+      /* A routed `.get` element read: the array operand is the same
+         slot-loaded handle lane and the index a committed i64 — the read
+         consumes neither and needs no site (miss → the null sentinel 0);
+         the dst is the i64-or-handle carrier. */
+      hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
+          *index = lv4_index_value(fn, lv4_u(ins, "index"));
+      if (faulted || birth || !array || array->kind != LV4_I64 ||
+          !index || index->kind != LV4_I64) return 0;
     } else if (lv4_is(ins, "op", "object_field_get")) {
       /* A borrowed formal's guarded read carries no owned lease: the
          tagged pair's payload names the object, and the param's sealed

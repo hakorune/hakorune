@@ -44,6 +44,23 @@ rg -q 'array_set' "$LIFECYCLE_V4_EMIT"
 rg -q 'checked_set_i64_v1' "$FAULT_CHECKED_ARRAY"
 test -f "$SET_VIEW_EXE_TEST"
 
+# MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0: the canonical
+# `ArrayElementRead` row lowers to the plain `array_get` op whose sole C
+# surface is the existing `nyash.array.slot_load_hi` slot-read export —
+# a miss reads the lane's null sentinel 0, so no checked export, no site,
+# no new checked-operation kind.
+GET_VIEW_EXE_TEST="$ROOT_DIR/lang/c-abi/tests/published_lifecycle_v4_get_view_execution_test.py"
+LIFECYCLE_V4_INDEX_SEED="$ROOT_DIR/lang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_index.inc"
+LIFECYCLE_V4_ADMISSION="$ROOT_DIR/lang/c-abi/shims/published_mir/hako_llvmc_ffi_lifecycle_v4_admission.inc"
+ARRAY_SLOT_LOAD_ALIAS="$ROOT_DIR/crates/nyash_kernel/src/plugin/array_runtime_aliases.rs"
+rg -q 'array_get' "$LIFECYCLE_C_PARSER"
+rg -q 'array_get' "$LIFECYCLE_V4_ADMISSION"
+rg -q 'array_get' "$LIFECYCLE_V4_INDEX_SEED"
+rg -q 'array_get' "$LIFECYCLE_V4_INDEXED"
+rg -q 'slot_load_hi' "$LIFECYCLE_V4_EMIT"
+rg -q 'slot_load_hi' "$ARRAY_SLOT_LOAD_ALIAS"
+test -f "$GET_VIEW_EXE_TEST"
+
 # MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-TASK4-CTORARG-S0: the
 # lent view extends to the dominated `new`-argument ordinal; non-literal i64
 # birth actuals (local/bound/entry-receiver field) ride the same kind==1
