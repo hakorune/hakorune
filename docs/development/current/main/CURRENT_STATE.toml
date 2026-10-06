@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-NONCOND-CARRIER-D0"
+current_execution_row = "MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/noncond-carrier"
-current_design_stop = "selfhost-resume/noncond-carrier"
+current_blocker_token = "selfhost-resume/multi-exit-return-new"
+current_design_stop = "selfhost-resume/multi-exit-return-new"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,18 +13,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
-latest_card = "mirbuilder-field-array-get-i64-result-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-FINAL-PIPELINE-ACCEPTANCE-S0 census: whole-goal acceptance is row A's
-closed scope (fixed 11-entry EXE receipt, latest 4/11, seven reds owned
-by untyped-storage/exact-usize/Loop lanes) — NoSafeSlice for this lane;
-the receipt re-run reopens on the named owner cutovers. Array-read lane
-contribution complete; protected C/Array/Unit WIP is sibling-owned.
-Next: `selfhost-resume/noncond-carrier` (workstream row H next wall).
+NONCOND-CARRIER-D0 census: the recorded `sum`-carrier wall is stale —
+outside-cohort rebinds already ride the armed LoopCond carrier path
+(`iterationCheck`'s exact loop compiles end-to-end; `pow2`'s `out*2`
+also clean). Observed next wall inside the callee graph: `make`'s
+multi-exit `return new` (`ordinary-new/local-commit/handle-result-terminal-missing`,
+MULTI-RETURN-RESULT-NEW lineage); `run()`'s `root-call-entry-unavailable`
+still gates reachability upstream.
 """
-next_design_card = "MIRBUILDER-NONCOND-CARRIER-D0"
+next_design_card = "MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
@@ -42,8 +43,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-NONCOND-CARRIER-D0 closed — recorded `sum`-carrier wall stale: outside-cohort rebinds already ride the armed LoopCond carrier path (`iterationCheck`'s exact loop + `pow2`'s `out*2` compile end-to-end under `--dump-mir`). Layered census: binding classification -> `ReadyWithBodyOnly` -> LoopCond route/token -> recipe carrier mint; `<=`+param bound, decl-init armed calls, `x = x + <call>` rebinds all admitted. Real next wall in the callee graph: `make` multi-exit `return new` -> `handle-result-terminal-missing` (MULTI-RETURN-RESULT-NEW lineage); `root-call-entry-unavailable` gates upstream. Next: `selfhost-resume/multi-exit-return-new` census.",
   "2026-10-06: MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0 landed — `callsite_canonicalize/array_read.rs` rewrites proven `Call`+`Callee::Method{ArrayBox,get}` residuals to `ArrayElementRead` at the shared canonicalize boundary (Known certainty, or Union with receiver-origin proof via `receiver_origin_box_name`; `get(index)` and receiver-duplicated surfaces only). Union-without-origin, `DirectArrayI64`/`MapBox`/`RuntimeDataBox`, and `LegacyCallV0` rows stay untouched — the pass never launders retired carriers (Decision narrowed from 'Call and LegacyCallV0' accordingly). 9 focused pins + `callsite_canonicalize` 23/23 + `mir_json_v0` 17/17 green; downstream pin proves the canonicalized row reaches `PublishedMirBackendView` `CanonicalTyped` as the sole `array_element_reads` row. Next: `physical-array-read/production-switch` Decision.",
   "2026-10-06: MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0 landed — `published_array_element_read_compiles_through_production_entry` drives real source (`values.get(0)`) through `MirCompiler`, asserts one `ArrayElementRead` sole physical owner, emits a non-empty object via `try_compile_published_static_method_object`, and (archive-gated) links+runs the exe: `Result: 7`, exit 7 through `slot_load_hi`. Adjacent baseline repair: `emit_published_view_exe` reorders the non-lifecycle `enforce_published_backend_supported` before the nyrt requirement, restoring the `78b0a873b2` capability-before-transport contract (`typed_contract_rejects_before_object` green again). Serial family run 5/5; `HAKO_BACKEND_COMPILE_RECIPE` env race is pre-existing test-infra debt. Next: `physical-array-read/legacy-route` Decision.",
-  "2026-10-06: MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0 landed — same-module prepass admits the `array_element_*` family through shared peek+take row owners: `array_write_peek_v1`/`array_read_peek_v1` validate exact-site shape without consuming (takes are now `peek + take_row`, one shape owner); write arm accepts on peek READY, read arm accepts on peek READY + `set_type(dst, T_I64)`; absent/malformed stays `module_generic_prepass_failed`. Exec: entry+nested stored=7/oob=0 via `slot_load_hi`, nested no-row fails closed, malformed rows reject; full static_v2 suite + preartifact green. Kernel archive stays canonical `legacy-entry`; the suite links a separately built no-main archive, `static_v2_ny_main_entry.c` supplies main for value-returning fixtures. Next: `physical-array-read/production-caller` Decision.",
   ]
 

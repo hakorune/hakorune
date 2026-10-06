@@ -836,6 +836,80 @@ Non-claims:
 - S0c/S0d/S0e — folded into S0b (single owner + one wire vocabulary);
   no separate rows remain.
 
+## Decision — MIRBUILDER-NONCOND-CARRIER-D0 (census, accepted)
+
+Recorded premise corrected. Workstream row H named the next wall
+"`sum` carrier lacks ConditionRead". Probe census falsifies it: an
+outside-cohort rebind already rides the armed LoopCond carrier path —
+`count += 1` (BodyRebind, no ConditionRead) compiles with a real phi,
+and a source fixture replicating `iterationCheck`'s exact loop shape
+compiles end-to-end under `--dump-mir`.
+
+Scope: callable-lane coverage for `BinaryTreesBench.iterationCheck`'s
+`sum` — `local sum = 0; loop(i <= iterations) { local positive =
+builder.make(depth,i); local negative = builder.make(depth,0-i);
+sum += positive.itemCheck(); sum += negative.itemCheck(); i += 1 }
+return sum`. Census covers binding classification -> `ReadyWithBodyOnly`
+-> route match -> route-token coverage -> physical carrier. Excludes
+`run()`'s upstream `root-call-entry-unavailable` (still first),
+production EXE acceptance, and `itemCheck`'s own body.
+
+### Layered census (probe-observed)
+
+| Layer | Shape | Disposition |
+| --- | --- | --- |
+| Binding | `sum`: BodyRead+BodyRebind, no ConditionRead | `outside_bindings` -> `ReadyWithBodyOnly` — by design (outside-observed-class D0); not a defect |
+| Outside carrier | `count += 1`, `sum += <call>` | rides a phi — carrier mint derives from the recipe, not the binding schedule |
+| Facts condition | `i <= <binding>` | `VarCompareBound{Le,Var}` observed — `<=` is not a facts wall |
+| Route | `i <= n` + 5-stmt body | LoopCond front-selects |
+| Recipe items | `Local`/`Assignment`/`MethodCall` | admitted `Stmt` vocabulary, incl. decl-init and call-valued rebinds |
+| Call coverage | `builder.make` param receiver, `positive.itemCheck()` claim-local | arms only via caller-edge/initializer claim provenance — unprovable in isolated probes (`SourceCallOutsideSelectedFamily`), closes in the real call graph (recorded at CALLRESULT-RECEIVER-RESULTCLASS-S0) |
+| CallFree arm | `local` decls, `<=`, non-scalar exprs | rejected by design (`<` + rebind-only + scalar) -> `SourceItemsMissing` for no-call variants — irrelevant on the armed path |
+| Accum deferral | 2-stmt `x = f(x, induction)` | `claims_variable_accum_family` defers exclusively to fixture-pinned VariableAccum (S10/M10b-I0-R0-VAR); binary-trees never reaches it |
+
+### Armed-path evidence
+
+`bt_full` probe (caller `local b = new Builder()` -> `me.iter(b,1,3)`;
+`iter` carries the exact loop): `iter` lowers with `sum`/`i`/`iterations`
+phis (`icmp Le`, two `call_same_module_instance`, `local.contract.write`
+Reassigns) — full compile, no freeze. `pow2`'s `out = out * 2`
+multiplicative outside carrier also compiles clean.
+
+The first real wall inside the callee graph surfaced at `make`: a
+`local left = me.make(...)` handle-result call whose callee has **two**
+`return new` exits (`if depth == 0 { return new TreeNode(..) }` /
+`return new TreeNode(left, right, value)`) freezes at
+`ordinary-new/local-commit/handle-result-terminal-missing` —
+`begin_handle_call_emission` admits only a single `Value(Construction)`
+terminal relation per callee, so a mixed multi-exit return-new callee
+stays unadmitted. That is the `MULTI-RETURN-RESULT-NEW` D0 lineage
+already decomposed above, not a carrier gap.
+
+Decision:
+  retire the recorded `sum`-carrier wall as stale; outside-cohort rebinds
+  are already carried by the armed LoopCond path.
+Source authority + canonical issuer:
+  binding classification -> `ReadyWithBodyOnly` -> selected LoopCond
+  route token + recipe carrier mint; outside rows stay verification
+  evidence in `body_only` via `consume_pre_effect`.
+Non-authority:
+  Carrier-class reclassify of body-only rebinds; VariableAccum fixture
+  widening; `claims_variable_accum_family` relaxation; generic Outside
+  consumers.
+Fail-fast boundary:
+  `SourceItemsMissing` / `SourceCallOutsideSelectedFamily` /
+  `facts-absent` / `VariableAccumRecurrence*` stay named terminals.
+Smallest next slice:
+  none for `sum` itself — the observed next wall inside the callee graph
+  is `make`'s multi-exit `return new` (`handle-result-terminal-missing`);
+  the per-exit membership census is
+  `MIRBUILDER-GATE1-MULTI-EXIT-RETURN-NEW-D0` under the
+  `MULTI-RETURN-RESULT-NEW` D0 lineage. `run()`'s
+  `root-call-entry-unavailable` still gates reachability upstream.
+Non-claims:
+  no `--dump-mir`->EXE equivalence, no `run()` progress, no callee-body
+  coverage claim beyond `iter`'s observed loop, no Gate-1 completion.
+
 ## Preserved contract boundaries
 
 - Generic `mir_json_emit` rejects lifecycle Invoke. Invoke, normal-result and
