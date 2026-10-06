@@ -850,14 +850,15 @@ Decision above — one family admission, read and write together:
   nested execution cases.
 
 Environment repair recorded honestly: `target/release/libnyash_kernel.a`
-had been rebuilt with default `legacy-entry` (its own `main`) during
-this session, which broke every probe-linked suite link. The archive
-was rebuilt `--no-default-features --features lifecycle-core` (the
-suite's canonical no-main kernel); a minimal
-`static_v2_ny_main_entry.c` now supplies `main` for plain
+was transiently rebuilt `--no-default-features` during verification.
+The canonical archive is the default `legacy-entry` build — required
+for native exe linking (`--emit-exe`/`ny-llvmc`) — so the probe-linked
+suite instead uses a separately built no-main archive
+(`--no-default-features --features lifecycle-core`, own CARGO_TARGET_DIR).
+A minimal `static_v2_ny_main_entry.c` supplies `main` for plain
 value-returning fixtures since the trap-observation probe entry is
 specialized. `TMPDIR` pointed at the workdisk after a transient
-/tmp-full link failure; both are environment artifacts, not lane
+/tmp-full link failure; all are environment artifacts, not lane
 changes.
 
 Next owed: `MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0` — audit whether
@@ -868,3 +869,109 @@ or v4 consumers; the earlier app frontier froze upstream at baseline
 question, not an assumed one. Remaining frontier items — the caller
 switch, selected legacy route retirement, and whole-goal acceptance —
 continue under `MIRBUILDER-FINAL-PIPELINE-v1`.
+
+## production caller reachability Decision / 2026-10-06
+
+Audit result — the routing spine already reaches `ArrayElementRead`:
+
+- `is_lifecycle_instruction` does not cover `ArrayElementRead`/`Write`;
+  a module carrying `array_element_reads` (and no lifecycle instruction,
+  no `has_non_lifecycle_unsupported`) routes `CanonicalTyped` →
+  `emit_published_view_body` → `compile_published_static_v2` → the
+  landed Lane-A kind-9/`slot_load_hi` consumer. A module that also
+  carries lifecycle instructions takes the v4 lane where the landed
+  `array_get` consumer emits the same `slot_load_hi`.
+- Real production entries: `--emit-exe` (`modes/mir.rs`
+  `emit_published_view_exe`), `ny-llvmc` lib/bin
+  (`emit_published_static_method_exe`), object
+  (`try_compile_published_static_method_object`).
+- Write-family precedent: `compile_array_element_writes_object_on_large_stack`
+  already drives the REAL entry (view → JSON → C ABI → .o, optional exe
+  when the archives exist). The read family has publication-level tests
+  and C-driver fixture tests, but no production-entry object evidence —
+  that is the one honest gap.
+- App-level `--emit-exe` remains frozen upstream at baseline
+  (`artifact-unowned-lifecycle-site`) — a separate blocker, not this
+  lane's gap.
+
+Decision: close the parity gap — add the read twin of the write
+production-entry test. A module with `newbox ArrayBox`, one `set`, one
+`ArrayElementRead` and `return dst` drives
+`try_compile_published_static_method_object` to a real `.o` through the
+actual Rust→C host path; when `libhako_llvmc_ffi.so` and the canonical
+legacy-entry `libnyash_kernel.a` exist, `emit_published_static_method_exe`
+produces a runnable executable whose exit is the stored value — one
+execution path, real callers.
+
+Source authority + canonical issuer: `PublishedMirBackendView::try_new`
+admission + `c_transport.rs` row issuance (already landed); this slice
+only observes them through the production entry.
+
+Non-authority: app `--emit-exe` frontier (upstream baseline freeze);
+v4 lane; source-level acceptance; legacy route retirement.
+
+Fail-fast boundary: the test asserts `Ok(true)` + `.o` exists — any
+row/admission failure surfaces as the existing typed error, never a
+repaired object; the optional exe branch keeps the same archive-gated
+pattern as the write twin.
+
+Smallest next slice: `MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0` — the
+read production-entry object/exe test.
+
+Non-claims: production cutover of real apps; whole-goal acceptance;
+v4 exe entry; `dst:None` transport.
+
+## production caller landing / 2026-10-06
+
+`MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0` landed. The landed test is
+stronger than the card's planned hand-built module:
+`published_array_element_read_compiles_through_production_entry` parses
+real source (`values.get(0)`), compiles it through `MirCompiler`,
+refreshes/validates at the Verifier boundary, asserts exactly one
+`ArrayElementRead` (the sole physical owner — no residual
+`Callee::Method{ArrayBox, get}`), then drives the real production entries:
+
+- `try_compile_published_static_method_object` -> `Ok(true)`, non-empty
+  `.o` through the actual Rust view -> JSON -> C ABI -> Lane-A
+  `slot_load_hi` path;
+- when `target/release/libnyash_kernel.a` (canonical legacy-entry) and
+  `target/release/libhako_llvmc_ffi.so` exist, `emit_published_static_method_exe`
+  links a runnable executable -> exit status `7` (`Result: 7` observed).
+
+Evidence chain closed: source -> compiler -> `ArrayElementRead` ->
+published view -> production C ABI entry -> object -> executable ->
+stored value. The optional exe branch keeps the write twin's
+archive-gated pattern, so environments without the archives still gate
+on the real object emission.
+
+Adjacent baseline repair in the same family: the write twin's
+`published_array_write_typed_contract_rejects_before_object` was red at
+baseline — `cd3810403c` moved the non-lifecycle backend-capability
+enforce inside `compile_published_view_object`, so the EXE entry hit the
+`--emit-exe-nyrt` requirement before the typed-array gate (restored the
+`78b0a873b2` contract "capability reject before executable transport").
+Fix: `emit_published_view_exe` now runs
+`enforce_published_backend_supported(view, "ny-llvmc-exe")` right after
+`select_published_route` for non-lifecycle modules — same check the
+object path already runs, just earlier and only for the canonical typed
+route; lifecycle modules keep their existing enforce order (typed-array
+enforce already runs inside `select_published_route`, input-bound
+enforces still run inside compile).
+
+Known environment caveat (not a lane defect):
+`HAKO_BACKEND_COMPILE_RECIPE` is process-global state mutated by
+`llvm_provider_flags` unit tests; running the published backend test
+group in parallel can surface `no_lowering_variant` in the optional exe
+branches. Run this family with `--test-threads=1`; a real serialization
+fix is test-infra work outside this lane.
+
+Next owed: `MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0` — design-stop census
+of residual `ArrayBox.get` consumers outside the sole physical owner:
+unproven-receiver `Callee::Method{ArrayBox,get}` lowering, mir_json_v0
+generic-lane reads, and any runtime dispatch that still interprets the
+source-level call instead of `ArrayElementRead`; select the bounded
+retirement from that inventory. The VM interpreter already owns an
+`ArrayElementRead` handler (`mir_interpreter/handlers`, `exec/block`),
+so the audit is about residual callers, not a missing consumer. Wider
+frontier items (selected legacy route retirement, whole-goal
+acceptance) continue under `MIRBUILDER-FINAL-PIPELINE-v1`.

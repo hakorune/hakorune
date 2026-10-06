@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0"
+current_execution_row = "MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "physical-array-read/production-caller"
-current_design_stop = "physical-array-read/production-caller"
+current_blocker_token = "physical-array-read/legacy-route"
+current_design_stop = "physical-array-read/legacy-route"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-field-array-get-i64-result-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-ARRAY-READ-SAME-MODULE-PREPASS-S0 landed: same-module admission for the
-whole `array_element_*` family is row-gated — shared peek owners
-(`array_write_peek_v1`/`array_read_peek_v1`) validate site shape
-without consuming; takes became `peek + take_row`; prepass admits
-write on peek READY and read on peek READY + `set_type(dst, T_I64)`;
-absent/malformed stays `module_generic_prepass_failed`. Exec: entry +
-nested stored=7/oob=0 through `slot_load_hi`; no-row nested rejects;
-suite + preartifact green. Next: `physical-array-read/production-caller`.
+ARRAY-READ-PRODUCTION-CALLER-S0 landed: real source
+(`values.get(0)`) compiles through `MirCompiler` to exactly one
+`ArrayElementRead` and drives the real production entries —
+`try_compile_published_static_method_object` emits a non-empty `.o`,
+`emit_published_static_method_exe` links a runnable exe that prints
+`Result: 7` and exits 7 (archive-gated like the write twin). Baseline
+repair: `emit_published_view_exe` restores the non-lifecycle backend
+capability enforce before the `--emit-exe-nyrt` requirement
+(`78b0a873b2` contract). Next: `physical-array-read/legacy-route`.
 """
-next_design_card = "MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0"
+next_design_card = "MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
@@ -44,8 +45,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-10-06: MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0 landed — same-module prepass admits the `array_element_*` family through shared peek+take row owners: `array_write_peek_v1`/`array_read_peek_v1` validate exact-site shape without consuming (takes are now `peek + take_row`, one shape owner); write arm accepts on peek READY, read arm accepts on peek READY + `set_type(dst, T_I64)`; absent/malformed stays `module_generic_prepass_failed`. Exec: entry+nested stored=7/oob=0 via `slot_load_hi`, nested no-row fails closed, malformed rows reject; full static_v2 suite + preartifact green. Kernel archive restored to no-main `lifecycle-core` build; `static_v2_ny_main_entry.c` supplies main for value-returning fixtures. Next: `physical-array-read/production-caller` Decision.",
+  "2026-10-06: MIRBUILDER-ARRAY-READ-PRODUCTION-CALLER-S0 landed — `published_array_element_read_compiles_through_production_entry` drives real source (`values.get(0)`) through `MirCompiler`, asserts one `ArrayElementRead` sole physical owner, emits a non-empty object via `try_compile_published_static_method_object`, and (archive-gated) links+runs the exe: `Result: 7`, exit 7 through `slot_load_hi`. Adjacent baseline repair: `emit_published_view_exe` reorders the non-lifecycle `enforce_published_backend_supported` before the nyrt requirement, restoring the `78b0a873b2` capability-before-transport contract (`typed_contract_rejects_before_object` green again). Serial family run 5/5; `HAKO_BACKEND_COMPILE_RECIPE` env race is pre-existing test-infra debt. Next: `physical-array-read/legacy-route` Decision.",
+  "2026-10-06: MIRBUILDER-ARRAY-READ-SAME-MODULE-PREPASS-S0 landed — same-module prepass admits the `array_element_*` family through shared peek+take row owners: `array_write_peek_v1`/`array_read_peek_v1` validate exact-site shape without consuming (takes are now `peek + take_row`, one shape owner); write arm accepts on peek READY, read arm accepts on peek READY + `set_type(dst, T_I64)`; absent/malformed stays `module_generic_prepass_failed`. Exec: entry+nested stored=7/oob=0 via `slot_load_hi`, nested no-row fails closed, malformed rows reject; full static_v2 suite + preartifact green. Kernel archive stays canonical `legacy-entry`; the suite links a separately built no-main archive, `static_v2_ny_main_entry.c` supplies main for value-returning fixtures. Next: `physical-array-read/production-caller` Decision.",
   "2026-10-06: MIRBUILDER-ARRAY-READ-LANE-A-CONSUMER-S0 landed — `hako_llvmc` static lane consumes `PublishedCallKindV1::ArrayGet` end-to-end: kind-9 `valid_kind` admission + INDEX|DST exact payload pin, `take_array_read_row_v1` exact-site take, `EMIT_PUBLISHED_ARRAY_READ_ROW` shared `slot_load_hi` emitter, `array_element_read` arms in op_dispatch + rmw walkers, prescan `arr_get`/`arr_slot_load` need bundle. Exec: stored=7 / oob=0 through the real static-v2 ABI + kernel; missing/wrong-kind/dst-less/missing-index rows fail closed; `test_array_read_row_take` covers take/duplicate/kind/dst drift. Parked boundary: same-module prepass admits no `array_element_*` op (write parity) — `nested-prepass-boundary` pinned. Next: `physical-array-read/same-module-prepass` Decision.",
-  "2026-10-06: MIRBUILDER-ARRAY-READ-C-LIFECYCLE-CONSUMER-S0 landed — the v4 checked lane consumes `array_get`: exact-key validate + `instruction_dst` registration + `lv4_type`/seed `LV4_I64` + indexed-flow arm + `%v<dst> = call i64 @nyash.array.slot_load_hi` emit with declares on both lists; plain op (no checked_get/site/kind). Exec: ok=7, oob=0 (null sentinel); `dst:null`/`extra-site` reject; set_view/checked_compare/add_view regression green. Planned `lv4_slot` dst check dropped (field-slot helper, N/A to reads) — dst validity rests on u32 + unique-def registration.",
   ]
 

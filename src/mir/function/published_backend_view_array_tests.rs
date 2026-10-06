@@ -203,6 +203,104 @@ fn published_array_element_writes_compile_object_without_void_result_leak() {
         .expect("large-stack object compile test");
 }
 
+/// `ArrayBox.get` reaches the real production entry: a compiler-produced
+/// module whose sole read owner is `ArrayElementRead` compiles to a
+/// native object through the same `try_compile_published_static_method_object`
+/// the `ny-llvmc-obj` lane invokes — and, when the FFI library and the
+/// canonical legacy-entry runtime archive exist, to a runnable executable
+/// whose exit code is the stored element.
+#[test]
+fn published_array_element_read_compiles_through_production_entry() {
+    std::thread::Builder::new()
+        .name("published-array-read-object".to_owned())
+        .stack_size(32 * 1024 * 1024)
+        .spawn(compile_array_element_read_object_on_large_stack)
+        .expect("spawn large-stack object compile test")
+        .join()
+        .expect("large-stack object compile test");
+}
+
+fn compile_array_element_read_object_on_large_stack() {
+    let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = r#"
+static box Main {
+  main() {
+    local values = [7]
+    return values.get(0)
+  }
+}
+"#;
+    let ast = crate::parser::NyashParser::parse_from_string(source)
+        .expect("array read source parses");
+    let mut compiler = crate::mir::MirCompiler::with_options(false);
+    let mut module = compiler
+        .compile(ast)
+        .expect("array read source compiles")
+        .module;
+    crate::mir::semantic_refresh::refresh_and_validate_for_boundary(
+        &mut module,
+        crate::mir::ContractRefreshBoundary::Verifier,
+    )
+    .expect("complete input contracts before publishing the borrowed view");
+    let read_count = module
+        .functions
+        .values()
+        .flat_map(|function| function.blocks.values())
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(instruction, MirInstruction::ArrayElementRead { .. }))
+        .count();
+    assert_eq!(read_count, 1, "expected one sole physical read owner");
+
+    let out = std::env::temp_dir().join(format!(
+        "hakorune-array-read-object-{}.o",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_file(&out);
+    let result = crate::host_providers::llvm_codegen::try_compile_published_static_method_object(
+        &module,
+        out.to_str().expect("temporary path is valid UTF-8"),
+    );
+    assert_eq!(
+        result,
+        Ok(true),
+        "typed array read object compile failed: {result:?}"
+    );
+    assert!(out.exists(), "typed array read object was not emitted");
+    assert!(std::fs::metadata(&out).expect("object metadata").len() > 0);
+    let _ = std::fs::remove_file(&out);
+
+    // Same archive-gated optional exe smoke as the write twin: the
+    // canonical legacy-entry archive supplies `main` -> `ny_main`.
+    let runtime_archive = std::path::Path::new("target/release/libnyash_kernel.a");
+    let ffi_library = std::path::Path::new("target/release/libhako_llvmc_ffi.so");
+    if runtime_archive.exists() && ffi_library.exists() {
+        let exe = std::env::temp_dir().join(format!(
+            "hakorune-array-read-object-{}",
+            std::process::id()
+        ));
+        let exe_result = crate::host_providers::llvm_codegen::emit_published_static_method_exe(
+            &module,
+            exe.to_str().expect("temporary path is valid UTF-8"),
+            Some("target/release"),
+            None,
+        );
+        assert_eq!(
+            exe_result,
+            Ok(true),
+            "typed array read exe compile failed: {exe_result:?}"
+        );
+        let status = std::process::Command::new(&exe)
+            .status()
+            .expect("run typed array read executable");
+        assert_eq!(
+            status.code(),
+            Some(7),
+            "typed array read executable must exit with the stored element: {status}"
+        );
+        let _ = std::fs::remove_file(exe);
+    }
+}
+
 fn compile_array_element_writes_object_on_large_stack(target: crate::mir::ConstructionTarget) {
     let mut function = MirFunction::new(
         FunctionSignature {

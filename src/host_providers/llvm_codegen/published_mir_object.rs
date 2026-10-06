@@ -136,6 +136,12 @@ pub(crate) fn emit_published_view_exe(
     if !select_published_route(view)? {
         return Ok(false);
     }
+    if !view.has_lifecycle_instructions() {
+        crate::mir::backend_capability::enforce_published_backend_supported(
+            view,
+            "ny-llvmc-exe",
+        )?;
+    }
     let object_path = format!("{}.published-static-method.o", exe_out);
     let result = (|| {
         let runtime_dir = nyrt_dir
