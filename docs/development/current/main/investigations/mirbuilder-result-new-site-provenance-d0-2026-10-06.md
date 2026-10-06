@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: source mapping closed; mixed result origin design selected
+Status: source mapping and preparation closed; mixed result origin execution selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -295,3 +295,72 @@ owned result, parameter contract, constructor or physical binding changes.
 Next repair the stale provided-child test boundary in a separate slice, then
 implement the selected same-issuer mixed-origin product. Owning destination,
 source315/318 and production EXE remain incomplete.
+
+## MIRBUILDER-GATE1-PROVIDED-CHILD-TEST-BOUNDARY-S0 selected
+
+Decision: correct one stale construction-disposition test after verified parent
+reproduction; production acceptance is unchanged. Split published08e11449ad.
+Authority:265e67753a's existing declared Provided user-child disposition and
+source-owned-child canonical inventory. The test observes that existing plan.
+Non-authority: class-name guesses in production, runtime tags, a new constructor
+plan, Home demand, widened source admission or fixture workaround.
+Replace old uniform Err expectation with exact builtin ArrHolder rejection and
+RichHolder construction Ok plus one Object child equal to the canonical Rich
+identity from this package's instance-constructor catalog. Keep both source
+fixtures unchanged. Rename the stale pin to describe the current boundary and
+update its existing stable guard reference; fix the exact stale child-kind
+owner comment. No separate guard/test harness, source rewrite or backend edit.
+Paths: ordinary_new_result_claim_tests.rs, ordinary_new_coseal.rs comment,
+mirbuilder_qualified_route_lifecycle_scope.inc.sh test pointer, this card and
+CURRENT_STATE. Acceptance:20-test result claim cohort including both sides of
+this boundary; nonzero, scope/pointer guards, rustfmt/diff check. No app or whole
+pipeline PASS claim. After closeout select the mixed-origin product execution.
+
+Test-boundary first build caught this-change E0599: result claims deliberately
+have no children accessor. Use the existing ledger canonical object inventory
+instead; no production API is added for this test. Cargo ended101 before the
+correction/retest. This is corrected this-change, not baseline debt.
+
+## PROVIDED-CHILD-TEST-BOUNDARY-S0 closeout
+
+Corrected-source result claim cohort20/20 PASS, nozero; quick4m48s, execution0.02s.
+Log: /tmp/hako-provided-child-test-boundary-tests-fixed.log.
+Read-only review confirms exact builtin rejection is strengthened and admitted
+nested child retains one canonical Rich identity. No API or production source
+admission change. First E0599 is corrected; no this-change/unclassified failure
+remains. The old baseline assertion is now repaired, not excluded or ignored.
+Test owner716, other source owners<800; scope/pointer/diff guards PASS.
+No source EXE, Fault teardown or whole-suite completion is claimed by this pin.
+
+## MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-S0 execution contract
+
+Select the same-issuer product described above. Production caller is the existing
+prepare_source_claims -> result_class_draft.finish -> source-cohort/ledger slot;
+replace loss of mixed/null-only source outcomes there. Parameter demand and
+physical emission remain unchanged. One Completion observation and one result
+fixpoint issue exact branded caller ReturnValue sites plus passive origin sets.
+Private product/vocabulary owns immutable outcomes and the compatibility view.
+Existing get/contains_key/iter/keys read only the old safe class projection;
+unknown, mixed and null-only provenance cannot grant its membership. No second
+scanner/fixpoint or mutable external map. Preserve old class eligibility rules
+through transitive calls: neither observing NullOnly nor mapping a borrowed
+formal identity may invent a newly acquired Home/class projection. Fresh source
+coverage is checked before facts are available to dependent composition.
+Origin composition uses exact callee/formal actual binding and no-rebind proof;
+callee return sites never replace the caller's own branded exit sites.
+
+Paths fixed: ordinary_new_result_class_claim.rs + private evaluate/product/origin
+children, ordinary_new_ledger.rs empty initialization + read API, new private
+result-origin test owner and its existing parent registration, package README,
+this card/pointer. Existing source prepare/issue tuples retain their single slot
+without growth in793/797-line owners. No app, parameter, constructor or C change.
+Acceptance: current20 result pins remain green; focused origin positives cover
+real realloc all exits, null-only, nested exits, multistage forward and formal
+ordinal permutation/declaration order. Negatives cover unresolved/foreign source
+or target, rebind, fresh coverage and ungrounded recursion. Assert mixed/null-only
+facts are absent from old get/contains_key and owned receiver observations;
+keep page-heap census(6,2). Required scope/pointer guards and file caps.
+Unchanged production observation must retain the actual315/318 ownership frontier;
+no app success claim from passive source outcomes. Conditional destination law
+and its alias/Fault/publication/available-Home caller chain remain subsequent
+mandatory work; no implicit share or ordinary-formal ownership exception.

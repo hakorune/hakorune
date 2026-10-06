@@ -177,8 +177,8 @@ pub(crate) struct OwnedFieldChildV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum OwnedFieldChildKindV1 {
     Array,
-    /// The child object's canonical identity; S0 admits only
-    /// `PlainI64NoHook` children (the helper-teardown bound is later).
+    /// The child object's canonical identity. Eligible no-hook user children
+    /// retain their sealed nested field inventory for teardown.
     Object(CanonicalObjectIdV1),
 }
 

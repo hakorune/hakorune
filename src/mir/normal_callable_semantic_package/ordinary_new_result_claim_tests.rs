@@ -346,11 +346,10 @@ fn provided_parameter_object_store_seals_and_prepares() {
     );
 }
 
-/// The provided-store arm is bound to `PlainI64NoHook` user classes —
-/// a builtin declared field (`ArrayBox`) and a non-plain declared child
-/// both keep `FieldContractUnsupported`.
+/// Provided builtin fields stay unsupported; an admitted nested user-object
+/// field retains its canonical child identity and verified construction.
 #[test]
-fn provided_parameter_store_rejects_builtin_and_non_plain_fields() {
+fn provided_parameter_store_rejects_builtin_and_seals_nested_object() {
     let package = issue(
         "box Token { v: i64 birth(v) { me.v = v } }
          box Rich { tok: Token birth(t) { me.tok = t } }
@@ -366,14 +365,45 @@ fn provided_parameter_store_rejects_builtin_and_non_plain_fields() {
     let claims = package
         .ordinary_new_claim_ledger
         .pending_result_claims_for_test();
-    for (site, claim) in claims.iter() {
-        assert!(
-            claim.construction().is_err(),
-            "{site:?} {} stays FieldContractUnsupported",
-            claim.class()
-        );
-    }
-    assert_eq!(claims.len(), 2, "both rejection sites are retained");
+    let builtin = claims
+        .values()
+        .find(|claim| claim.class() == "ArrHolder")
+        .expect("builtin provided-field claim");
+    assert!(
+        matches!(
+            builtin.construction(),
+            Err(super::ConstructionUnavailableV1::FieldContractUnsupported)
+        ),
+        "builtin provided field remains unsupported"
+    );
+    let nested = claims
+        .values()
+        .find(|claim| claim.class() == "RichHolder")
+        .expect("nested provided-field claim");
+    assert!(
+        nested.construction().is_ok(),
+        "nested user-object construction is supported"
+    );
+    let children = package
+        .ordinary_new_claim_ledger
+        .owned_field_children
+        .get(&nested.object())
+        .and_then(|children| children.as_deref())
+        .expect("nested child inventory seals");
+    let [child] = children else {
+        panic!("one Rich child is required");
+    };
+    let rich = package
+        .instance_constructors
+        .rows()
+        .iter()
+        .find(|row| row.box_name() == "Rich")
+        .expect("canonical Rich source row");
+    assert_eq!(
+        child.kind,
+        super::OwnedFieldChildKindV1::Object(rich.object())
+    );
+    assert_eq!(claims.len(), 2, "both boundary sites are retained");
 }
 
 /// Parser normalization prepends `me.<field> = <default>` to every birth,
