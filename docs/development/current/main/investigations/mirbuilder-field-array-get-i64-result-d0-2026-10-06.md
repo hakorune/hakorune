@@ -41,136 +41,23 @@ whole-field integer-store census; keep manifest `Dynamic` otherwise.
   provider prerequisite), condition-position and nested-receiver
   admission, and the physical read owner for the `Callee::Method` get.
 
-## Verified closeout / 2026-10-06
+## FORMAL-INDEX cohort landed / 2026-10-06 (condensed)
 
-S0 landed. `array_i64_fields.rs` issues the census once in co-seal
-preflight; the claim ledger transports `array_i64_fields` to the prefix
-arm, the borrowed-result pending fold and test-only accessors. A field is
-proven only when declared `ArrayBox`, exactly one birth-store
-`new ArrayBox()` provides it (inline initializers reach birth through the
-prologue row), every `set`/`push` value on attributed `me.<f>` or
-proven-alias writers is integer-source (literals, integer locals, proven
-`me.<i64>` reads and proven-field `get` results fixpoint), and no
-escape/foreign selector/unattributed write/alias rebind/second provider
-remains. `capture_field_array_get` in `ordinary_new_borrowed_formal_
-result_pending.rs` seals a borrowed callee's direct or local-bound
-`return`; vetoed fields keep manifest `Dynamic` coverage and an unproven
-borrowed return fails `source-not-i64` through `BorrowedFormalIngress`.
+`array_i64_fields.rs` census + FORMAL-INDEX-S0 landed earlier this card:
+`me.<f>` fields declared `ArrayBox` with exactly one `new ArrayBox()`
+birth-store and integer-source write coverage are proven; formal
+`handle.<field>` reads join the integer-source leaf only when the field
+resolves to exactly one non-weak `i64` declaration across the ordinary
+box coverage. Evidence at the time: 15 catalog/view pins green,
+regression battery 1158 PASS / 6 FAIL — all six identical on baseline
+`36b13d8d8e` (classified known baseline debt); unchanged
+`apps/mimalloc-lite` `--emit-exe` stopped at
+`artifact-unowned-lifecycle-site` identical to baseline.
 
-Evidence: 11 brand-catalog pins + 4 published-view pins green — i64
-install, `me.<i64>` index, chained get-as-index, borrowed direct/local
-return seal; vetoes for non-integer writes, second provider, escape,
-rebind, foreign selector, non-integer/null/homes index; condition-position
-keeps the raw-compare boundary; non-borrowed `return me.<f>.get(..)` mints
-no terminal relation; `Callee::Method` get stays unpublished until the
-physical read owner. Regression battery 1158 PASS / 6 FAIL, all six
-reproduced identically on baseline 36b13d8d8e — zero current-change
-failures. Unchanged `apps/mimalloc-lite` `--emit-exe` stops at
-`artifact-unowned-lifecycle-site`, identical to baseline (app sites use
-the `handle.block_id` sibling index). Scope guard stops at the unchanged
-root1351 baseline; touched sources stay under 800 (coseal_issue 793).
-
-Staged: `array_i64_fields.rs`; `brand_catalog_array_i64_tests.rs`;
-`array_i64_field_call_tests.rs`; census/issue wiring in
-`ordinary_new_coseal{,_issue,_issue_lexical,_issue_source}`; ledger field
-+ accessors in `ordinary_new_ledger`; predicate/re-export in
-`ordinary_new_terminal_home`; profile param in
-`ordinary_new_borrowed_formal_profile`; capture arm in
-`ordinary_new_borrowed_formal_result_pending`; census plumbing in
-`home_new_prefix{,_scan,_arguments,_branch,_field_call}` and
-`function_control_new_homes`; module registrations
-(`brand_catalog_tests`, `map_value_completion_tests`,
-`borrowed_source_publication_tests`); `normal_callable_semantic_package`
-README paragraph; this card and the pointer.
-
-Non-claims: `handle.block_id` formal-field-read index admission is the
-named sibling — app `isLiveHandle`/`release`/`resizeInPlace` stay
-unadmitted; declared-DirectArrayI64 arm still blocked on the
-`FieldContractUnsupported` provider prerequisite; no physical read owner
-or `Callee::Method` publication route; no condition-position or
-nested-receiver admission; production caller switch, selected legacy
-retirement, unchanged-app frontier and the finite product goal remain
-owed. Parked lanes unchanged; protected sibling WIP intact.
-
-## Formal-field index integrated Decision / 2026-10-06
-
-Design-stop audit for `field-array-get/formal-index-decision` (read-only,
-same-thread; no worker needed — all uncertainty resolved against sealed
-source). App inventory: every `handle` formal in `release`/`isLiveHandle`/
-`resizeInPlace` is untyped (`OpaqueHandle`); `handle.block_id` reads are all
-dominated by `if handle == null` guards (admitted `FieldReadOperand` draft
-shape already — liveness is that lane's product, not this arm's). The only
-index leaf missing from `integer_source_at` is a formal field read:
-`handle` carries no declared type and its actuals are Dynamic
-(`handles.get(0)`), so neither parameter contracts nor call-site provenance
-can prove the class. Within the package's ordinary-box coverage `block_id`
-is declared exactly once, non-weak `i64`, on `HakoAllocHandle`;
-`HakoAllocFastPathHandle.block_id` lives in a different module outside the
-coverage. `handle.page_id`/`requested_size` are ambiguous or write-only
-and stay unproven — their sites are conditions/foreign stores already
-owned elsewhere.
-
-Decision: admit `formal.<field>` as an integer source when the formal
-binding is a package parameter (non-`me`, non-local) and `field` resolves
-to exactly one non-weak `i64` declaration across
-`ParserOrdinaryBoxSourceCoverageV1::rows()` via the existing
-`source_declared_field` lookup — issued as one new leaf inside
-`integer_source_at` shared by the census write-value check, the prefix
-get-index arm and `capture_field_array_get`. Execution row
-MIRBUILDER-FIELD-ARRAY-GET-I64-FORMAL-INDEX-S0.
-
-Source authority + canonical issuer: sealed `FieldAccess` object binding
-(`ResolvedLexicalRefV1::Local` parameter kind), the ordinary-box coverage
-row set, and constructor-batch field declarations; canonical issuer
-`integer_source_at` in `array_i64_fields.rs` with the coverage lookup
-carried on the existing co-seal closure channel.
-
-Non-authority: declared parameter types (absent), call-site actual
-classes (Dynamic for `handles.get(0)`), null-guard narrowing (liveness,
-not class), MIR/layout tags, typed-formal `DeclaredObject` proofs.
-
-Fail-fast boundary: zero or ambiguous declarations, weak or non-i64
-declared type, unknown type name, local/alias receivers, and `me`-rooted
-objects all keep the existing `false` — `source-not-i64` for armed
-borrowed returns, manifest `Dynamic` elsewhere.
-
-Smallest next slice: the single leaf plus focused pins — `get`/`set`
-index positions and `set`/`push` value positions in the census fixpoint
-(`free_stack.set(me.free_top, handle.block_id)`), ambiguous `page_id`
-staying unproven, and the unchanged app frontier observation.
-
-Non-claims: `handle.page_id` ambiguity resolution, formal field stores
-(`handle.requested_size = x`), typed-parameter class proofs, alias-chain
-receivers (`local h = handle; h.block_id`), condition-position admission,
-the physical read owner, app EXE acceptance, production switch and the
-finite goal.
-
-## FORMAL-INDEX-S0 landing / 2026-10-06
-
-Shipped boundary differs from the integrated Decision in one place:
-`capture_field_array_get` does not credit the formal leaf. Arming it
-sealed `return me.block_used.get(handle.block_id)` inside
-`HakoAllocPageModel.isLiveHandle`, which grounded the callee and forced
-incoming coverage for `me.small_page.isLiveHandle(handle)`; `me.<name>`
-receiver calls are outside the lexical need inventory, so the real app
-package froze on `borrowed-formal/incoming-coverage` then
-`stored-child/result-source-missing`. That receiver-call coverage is its
-own bounded row (needs → targets → argument edges), so this slice keeps
-the leaf for exactly the census write-value check, the prefix get-index
-arm and the argument-neutrality gate, and pins the capture decline as
-`source-not-i64` — identical to the pre-leaf Dynamic-get boundary.
-
-Landed evidence: `cargo test --lib -- array_i64` 27/27 green (positive
-formal index, `set`/`push` write value, ambiguous/non-integer/local-alias
-declines, unarmed borrowed-return pin, and the pre-leaf publication
-rows); `page_heap_fixture` 4/4 green — matching the `c887c073d9` baseline
-which fails identically only on `map_value_get_*` Unknown contract debt;
-`ordinary_new_coseal_issue.rs` 796 / `_source.rs` 785 lines stay inside
-the 800 hard stop via the shared `formal_i64_index_consult_v1` factory.
-
-Next owed: `me.<name>` receiver call coverage (sibling row — enables
-arming the leaf in the borrowed-result capture), then physical read
-owner, production switch, legacy retirement.
+Non-claims preserved: `isLiveHandle`/`release`/`resizeInPlace` stayed
+unadmitted; declared-DirectArrayI64 arm blocked on the
+`FieldContractUnsupported` provider prerequisite; `Callee::Method` get
+publication deferred to the physical read owner (landed below).
 
 ## `me`-receiver call coverage integrated Decision / 2026-10-06
 
@@ -975,3 +862,139 @@ retirement from that inventory. The VM interpreter already owns an
 so the audit is about residual callers, not a missing consumer. Wider
 frontier items (selected legacy route retirement, whole-goal
 acceptance) continue under `MIRBUILDER-FINAL-PIPELINE-v1`.
+
+## legacy route census / 2026-10-06 (design_stop audit)
+
+`MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0` audit — residual `ArrayBox.get`
+consumers outside the sole physical owner. Census boundary: producers of
+`Callee::Method`-carried gets and every consumer that can still execute
+them. Excludes `DirectArrayI64`/`RuntimeDataBox`/`MapBox` `get` (separate
+semantic surfaces — the 296x direct-array lane and the dynamic facade
+own those).
+
+### Producer inventory
+
+| Producer | Emits | Status |
+|---|---|---|
+| Builder `emit_box_or_plugin_call` + `unified_emitter` + indexing load, receiver proven `ArrayBox` | `ArrayElementRead` | sole canonical path — `try_emit_known_array_method_read` intercepts before any callee emission at every entry |
+| Builder, receiver proven `DirectArrayI64` | `Call`+`Callee::Method{DirectArrayI64,get,Known}` | separate surface (296x) |
+| Builder, receiver unproven | `Call`+`Callee::Method{RuntimeDataBox,get,Union}` | dynamic facade — different meaning ("call get on whatever") |
+| mir_json_v0 `boxcall` | `Call`+`Callee::Method{box_name,get,Union}` | only compat ingress that can spell `box_name:"ArrayBox"`; `call`/`mir_call` ops already freeze at decode |
+| `LegacyCallV0`+`Callee::Method` | — | **no production ingress** (R7-S6; `callsite_canonicalize` header: no production ingress mints `LegacyCallV0`) |
+
+### Consumer inventory
+
+| Consumer | Input | Route |
+|---|---|---|
+| VM reference lane | `Call`+Method / `LegacyCallV0` | **fail-closed** — canonical Call admits only `Callee::Global` targets; `reject_legacy_call` stops Method/Value/Extern |
+| `generic_method_route_plan` | `LegacyCallV0`+Method get only (canonical `Call`+Method is not matched) | `CoreMethodOp::ArrayGet`/`ArraySlotLoadAny` WarmDirectAbi — **input-less in production** since R7-S6 |
+| C same-module `emit_method_call_mir_call` | `mir_call`+Method | special cases -> `emit_generic_method_mir_call` (plan view or NULL) |
+| C generic compat `mir_call_dispatch` Method arm | `mir_call`+Method | `GenericMethodRouteState` -> `runtime_array_get` runtime export — the live residual executor for `boxcall`-spelled `ArrayBox.get` |
+| `SameModuleArraySlotDirectOpPlan` | `mir_call`+Method+`ArrayBox`+get/set fused at `acquire_usize/1` b45 | `slot_load_store_i64_hihi` — 296x by-name perf shim; `me.free`/`block_used` are `DirectArrayI64` so `bname=="ArrayBox"` matching is suspect for current MIR — liveness unverified while the app path is baseline-frozen upstream |
+| Published `try_new` | `Call`/`LegacyCallV0` + `Callee::Method` | untracked `Some(_) => {}` passthrough into the JSON body — no flag, no stop |
+
+### Finding
+
+A **proven** `ArrayBox.get` has no production residual: every fresh
+producer emits `ArrayElementRead`, and the only compat ingress that can
+still spell `box_name:"ArrayBox"` (v0 `boxcall`) marks it `Union` —
+duck-typed "call get on whatever", a different meaning correctly owned
+by the generic compat family, not by `ArrayElementRead`.
+
+But the authority boundary has one hole: a `Callee::Method{ArrayBox,get}`
+that arrives with a **proof** — `Known` certainty on either `Call` or
+`LegacyCallV0`, or a `Union` row whose receiver origin independently
+proves `ArrayBox` — currently falls through `try_new`'s `Some(_) => {}`
+into the generic compat emit instead of the sole owner. No live
+producer does this today (builders canonicalize first; boxcall decode
+always marks Union; `LegacyCallV0` mint is retired), so the hole is a
+missing boundary rule, not a live route.
+
+### Decision
+
+Canonicalize proven `Callee::Method{ArrayBox,get}` residuals at the
+shared `canonicalize_callsites` boundary — the one pass that runs for
+both `MirCompilerPostRc` and `MirJsonV0Loader` ingresses — instead of
+adding a second consumer or rejecting the meaning.
+
+Decision: one bounded canonicalization arm — `Callee::Method{box_name ==
+"ArrayBox", method == "get", receiver: Some(_), args.len() == 1}` on
+`Call` **and** `LegacyCallV0` rewrites to `ArrayElementRead` when the row
+carries a proof (`TypeCertainty::Known`, or `receiver` origin resolves
+to `ArrayBox`); proven meaning, sole owner.
+
+Source authority + canonical issuer: `canonicalize_callsites`
+(`MirCompilerPostRc` + `MirJsonV0Loader` sites); site ids minted at the
+same boundary.
+
+Non-authority: `Union` rows without receiver-origin proof (dynamic
+facade — "call get on whatever" is a different meaning and stays on the
+generic compat family); `DirectArrayI64`/`RuntimeDataBox`/`MapBox` get
+surfaces (296x lane / facade owners); `LegacyCallV0` carrier itself
+(sunset rides `RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001`);
+`SameModuleArraySlotDirectOpPlan` (296x parked perf shim — removal, if
+dead, is that lane's call).
+
+Fail-fast boundary: `Callee::Method{ArrayBox,get}` with a wrong arity,
+no receiver, or no proof stays exactly as today — compat emit or
+backend named-stop; no silent repair, no second semantic owner.
+
+Smallest next slice: `MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0`
+implementation — the canonicalize arm + focused tests: hand-built
+`Call`/`LegacyCallV0` `Known` rows rewrite to `ArrayElementRead`;
+`Union`-without-origin rows pass through untouched; `DirectArrayI64` /
+`MapBox` / `RuntimeDataBox` rows untouched; `array_element_read` still
+emits `slot_load_hi` downstream.
+
+Non-claims: v0 `call`/`mir_call` op unfreezing; `LegacyCallV0` deletion;
+296x shim retirement; a second get consumer; whole-goal acceptance.
+
+## legacy route canonicalization landing / 2026-10-06
+
+`MIRBUILDER-ARRAY-READ-LEGACY-ROUTE-S0` landed with one boundary
+correction to the Decision above: the arm covers `Call` only, not
+`LegacyCallV0`. The pass's stated contract is "residual legacy rows are
+never rewritten here ... this post-pass is deliberately not a second
+resolver and does not launder retired carriers" — laundering a
+`LegacyCallV0` row would violate that contract, and R7-S6 already
+guarantees zero production ingress for the carrier, so covering it
+would be dead code. Residual `LegacyCallV0` keeps hitting backend
+named-stops exactly as today.
+
+Shipped: `callsite_canonicalize/array_read.rs` —
+`canonicalize_proven_array_method_reads` runs per function inside the
+shared `canonicalize_callsites` boundary (both `MirCompilerPostRc` and
+`MirJsonV0Loader` sites). A `Call`+`Callee::Method{ArrayBox,get}` row
+rewrites to `ArrayElementRead` when `TypeCertainty::Known`, or when a
+`Union` row's receiver origin independently proves `ArrayBox` via
+`receiver_origin_box_name` (`def_map` built lazily, only when a Union
+candidate exists). Arity accepts `get(index)` and the
+receiver-duplicated `get(receiver, index)` surface only when `args[0]`
+is literally the receiver value. Site ids continue above the function's
+existing `ArrayReadSiteId` max; `dst` registers `MirType::Unknown` in
+`metadata.value_types`, mirroring builder emission.
+
+Evidence: 9 focused pins green — Known rewrite, Union+origin rewrite,
+Union-without-origin untouched, `DirectArrayI64`/`MapBox`/
+`RuntimeDataBox` untouched, `LegacyCallV0` untouched, malformed arity
+untouched, receiver-duplicated surface picks the real index, site-id
+continuity, and a downstream pin proving the canonicalized row reaches
+`PublishedMirBackendView` `CanonicalTyped` with exactly one
+`array_element_reads` row (the sole Lane-A/v4 consumer family).
+`callsite_canonicalize` suite 23/23 and `mir_json_v0` suite 17/17
+green — the v0 `boxcall` compat surface now canonicalizes proven
+`ArrayBox.get` through the same boundary instead of the generic compat
+emit.
+
+Non-claims: unproven `Union` rows still flow to generic compat emit
+(their dynamic-facade meaning is unchanged); `call`/`mir_call` v0 ops
+stay frozen; `LegacyCallV0` untouched; the 296x
+`SameModuleArraySlotDirectOpPlan` shim untouched; no second get
+consumer; whole-goal acceptance still owed under
+`MIRBUILDER-FINAL-PIPELINE-v1`.
+
+Next owed: `MIRBUILDER-ARRAY-READ-PRODUCTION-SWITCH-S0` —
+`physical-array-read/production-switch` design_stop census to select
+the bounded production-caller switch edge and the legacy-route
+retirement target now that every proven `ArrayBox.get` producer flows
+through the sole physical owner.

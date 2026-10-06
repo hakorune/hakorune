@@ -4,6 +4,7 @@ use crate::ast::ASTNode;
 use crate::mir::function::ClosureBodyId;
 use crate::mir::{MirInstruction, MirModule};
 
+use super::array_read::canonicalize_proven_array_method_reads;
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
 /// Canonicalize call-site instructions.
@@ -36,6 +37,7 @@ pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
             }
         }
         rewritten += rewrite_cfg_stable_receiver_operands(func);
+        rewritten += canonicalize_proven_array_method_reads(func);
     }
 
     module.metadata.closure_bodies = closure_bodies;

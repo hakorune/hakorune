@@ -18,7 +18,13 @@
 //! - Stage1 Program(JSON) BuildBox routing now lives in MIR-owned
 //!   `global_call_routes` metadata. This pass no longer rewrites BuildBox
 //!   authority calls to the Stage1 extern helper.
+//! - Proven `Call` + `Callee::Method { ArrayBox, get }` residuals (Known
+//!   certainty, or Union with receiver origin proving `ArrayBox`)
+//!   canonicalize to `ArrayElementRead`, the sole physical read owner.
+//!   Unproven `Union` rows keep their dynamic-facade meaning untouched.
 
+#[path = "callsite_canonicalize/array_read.rs"]
+mod array_read;
 #[path = "callsite_canonicalize/pass.rs"]
 mod pass;
 #[path = "callsite_canonicalize/receiver_operand.rs"]

@@ -6,6 +6,7 @@ use crate::mir::{
     MirType, UserBoxFieldDecl, ValueId,
 };
 
+mod array_read;
 mod mcl;
 mod ncl;
 mod ucm;
