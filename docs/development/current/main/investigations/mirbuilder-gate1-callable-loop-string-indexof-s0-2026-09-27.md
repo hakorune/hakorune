@@ -667,108 +667,18 @@ Prefix coverage stays owned by the existing per-function Home-flow scan;
 point inside `prepare_new_emission`/`prepare_result_new_emission`.
 `RETAINED-NEW-HOME-FLOW-S0` executed; full record via git.
 
-## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted)
+## Decision — MIRBUILDER-GATE1-NULLABLE-RESULT-ABI-D0 (accepted, landed)
 
-Decision: a dedicated nullable-result lane — never a reuse of Handle.
-
-Source authority + canonical issuer:
-  `OrdinaryNewResultClassV1::NullableObject(C)` (sealed claim) +
-  `ReceiverCallClassObservationV1` (site-keyed, entry-loan-gated,
-  exact destination) — both already issued inside one co-seal sweep.
-Non-authority:
-  `callable_result_class` stays `Object`-only; `BoundValue` stays the
-  unclassified floor; no consumer may infer ownership from the
-  observation row alone.
-Fail-fast boundary:
-  emit-time, not verify-time — missing observation, destination drift,
-  unsupported carrier, or claim↔kind disagreement all freeze.
-Smallest next slice:
-  one new semantic observation product + one physical result arm + one
-  lowering owner for exactly `local x = me.m(<args>)` whose callee is
-  `NullableObject` and whose destination is provably live-stored.
-Non-claims:
-  no backend execution contract exists today; enum arms alone move no
-  call; no implementation has been done under this row.
-
-### Census evidence anchors (worker, read-only)
-
-- Executable result chain is `I64 | Map | Handle` (+`Unit`) everywhere:
-  `LocalCallResultClassV1` (`home_local_call_flow.rs:14-25`),
-  `InvokeCallResultKind`/`InvokeNormalResultKind`
-  (`instruction/invoke.rs:34-45`, `invoke_map.rs:4-17`), `StoredLocal`
-  (`home_prefix_local_flow.rs:22-48`), published roles
-  (`physical_program.rs:34-73`, JSON `"i64"|"map"|"handle"` at
-  `physical_program_json.rs:501-581`), verifier matrix
-  (`verification/invoke.rs:164-216`). No nullable arm anywhere.
-- `local handle = me.allocate(size)` (`page_heap_box.hako:219`) is
-  doubly excluded: non-literal argument + non-definite class →
-  `install_inventoried_call_result` floors it to `BoundValue`
-  (`home_prefix_local_flow.rs:390-409`, prefix `PrefixNotCovered`).
-- `LocalCallObservationV1.arguments: Box<[i64]>` is literal-only
-  (`home_local_call_flow.rs:35`, gates :131-143/:183-195) — a
-  `Receiver`-kind `me` receiver and parameter arguments are both
-  ineligible; the nullable lane needs typed arguments, i.e. a *new*
-  observation product, not an arm on this row.
-- `CallReceivedCommitV1` emits unconditional `HomeRelease`
-  (`call_received.rs:87-91`) — structurally incompatible with null
-  paths; conditional release needs a checked-null operation that does
-  not exist yet.
-- Claim↔terminal divergence to resolve at design time: `allocate`
-  ends in `return <call>` which `call_result_kind` classifies `I64`
-  while the claim says `NullableObject` — the D0 names the claim map
-  the sole authority for the caller's ABI edge.
-- No `Option`/`MirType` nullability, no tag+payload carrier, no
-  null-check instruction (`physical_abi.rs:429-444` has null only as
-  a non-scalar argument tag); null representation (sentinel vs tagged
-  pair) is an open decision for the S0 slice.
-- Reads of a nullable local (`handle.f`, null checks) are out of
-  scope: unsupported downstream use keeps `PrefixNotCovered`.
-
-### Named contracts (spanning set, ordered)
-
-1. Semantic: a new receiver-call observation consumption product (typed
-   arguments — binding/literal kinds like `SelectedNewArgumentKindV1`,
-   not `Box<[i64]>`), or widening `LocalCallObservationV1`; decide one.
-2. Physical: `InvokeCallResultKind` + `InvokeNormalResultKind` nullable
-   arm with a `MirType` carrier; `verification/invoke.rs:164-216`
-   admits it per callee class; exactly one `InvokeNormalResult`.
-3. Lowering owner: extend the `emit_local_lexical` lane
-   (`terminal_call.rs:307-396`) to consume the observation row +
-   a disposition whose `row.result()` admits nullable (`:316`,
-   port `:87-92`), emitting `Call { SameModuleInstance, result:
-   <nullable> }`.
-4. Local state: `StoredLocal` + `OrdinaryObservation` nullable arm;
-   `stored_local_same`/`join_branch` stay fail-closed.
-5. Conditional cleanup: a new commit variant with a checked-null
-   release — never reuse `CallReceivedCommitV1`'s unconditional
-   `HomeRelease`.
-6. Publication: `OrdinaryNullableHandle` role + wire name +
-   `"nullable_handle"` JSON + `compiled_entry_contract` pairing.
-
-### Split plan — NULLABLE-RESULT-ABI-S0
-
-- S0a (semantic) — landed: `ReceiverCallClassObservationV1` carries
-  typed arguments (`SelectedNewArgumentV1` — Integer/Bool/Null/Local
-  only; anything else leaves the site unobserved). Consumption evidence
-  complete, still no emission change.
-- S0b (emit owner) — landed: `emit_receiver_nullable` inside the
-  `handle_call` emission owner consumes the sealed row and emits
-  `Invoke { Call { SameModuleInstance, result: NullableHandle } }` +
-  `InvokeNormalResult { NullableHandle }` with `MirType::Box(C)` on the
-  live arm. `LocalCallResultClassV1::Nullable` +
-  `StoredLocal::ReceivedNullable` carry the flow; `CallReceivedNullable`
-  commits with `HomeReleaseIfLive` (never unconditional `HomeRelease`).
-  Publication: `OrdinaryNullableHandle` role, `"nullable_handle"` wire
-  result, `const_null` sentinel (Void → i64 0), `home_release_if_live`
-  cleanup, `compiled_entry_contract` pair enforcement, C shim
-  (`const_null` seeds a handle-lane slot with negative origin;
-  release-if-live discharges the lease and calls the kernel only for
-  live handles). Return-position `new` birth actuals now mint from
-  `Result` commit rows (`destination` is `Option` — the site owner is
-  the only owner authority there). End-to-end JSON:
-  `nullable_receiver_call_serializes_nullable_handle_and_checked_release`.
-- S0c/S0d/S0e — folded into S0b (single owner + one wire vocabulary);
-  no separate rows remain.
+Nullable receiver-call result ABI landed as `NULLABLE-RESULT-ABI-S0`
+(S0a observation product + S0b emission/publication; S0c-e folded):
+`ReceiverCallClassObservationV1` typed arguments, `Nullable` local-call
+class + `StoredLocal::ReceivedNullable`, `CallReceivedNullable` with
+`HomeReleaseIfLive` (never unconditional `HomeRelease`),
+`OrdinaryNullableHandle` role + `"nullable_handle"` wire result +
+`const_null` sentinel + `compiled_entry_contract` pairing + C shim.
+The claim map stays the sole authority for the caller's ABI edge;
+`handle-release-unproven` and `PrefixNotCovered` floors unchanged.
+Full design, census anchors and contract set recoverable via git.
 
 ## Decision — MIRBUILDER-NONCOND-CARRIER-D0 (census, accepted)
 
@@ -919,6 +829,64 @@ Census boundary: `handle_call_source` Handle-class local calls ->
 pin. Excludes SameModuleInstance/dynamic-call routes (no gate),
 `itemCheck` i64 results, upstream `root-call-entry-unavailable`,
 selected-C, Gates 2-4.
+
+## Decision — MIRBUILDER-GATE1-MULTI-EXIT-RESULT-ABI-D0 (accepted)
+
+The fork from the census above collapses once `CanonicalObjectIdV1`'s
+level is read correctly: it encodes the module declaration index —
+class-level, not per-site. `construction_result_callee` already
+requires "every verified explicit `return` exit constructs `new` of
+one agreed class" for the Handle class mint, so any Handle-minted
+multi-exit callee is already class-uniform. `make`'s two exits both
+construct `TreeNode` -> one shared canonical object -> identical
+`end_children` (children are class field residences, not
+construction-arg provenance).
+
+```text
+Decision:
+  admit multi-exit `return new` at `begin_handle_call_emission` under
+  the uniform-shared-object rule — every `Value` terminal relation of
+  the callee must be `Construction(site)` owned by the callee, and
+  every site must resolve to the SAME canonical object (verify all,
+  never pick arbitrarily). The singleton `as_slice()` check was the
+  pre-multi-exit shape of the same invariant.
+Source authority + canonical issuer:
+  `construction_result_callee` (uniform-class Handle mint) upstream +
+  re-verified per-site `result_object` equality at the gate ->
+  `CallReceivedCommitV1.object` shared object -> `end_children`.
+Non-authority:
+  construction-arg provenance (exit1 `null,null` vs exit2
+  `left,right`) never decides children — field residences are
+  class-level and the release ops (`OwnedObjectFieldRelease`,
+  `OwnedFieldResidenceRelease`) are conditional on runtime liveness
+  ("slots are zero-initialized, so an unwritten field is skipped").
+  `HomeRelease { object }` is class-level too — exit-uniform.
+Fail-fast boundary:
+  zero relations -> `handle-result-terminal-missing` unchanged;
+  any non-Value/non-Construction or foreign-owner relation and any
+  object-id divergence -> `handle-result-terminal-mismatch` /
+  `-missing` stay named. Mixed-class multi-exit (unreachable under
+  the Handle mint but re-verified) never admits.
+Smallest next slice:
+  `MIRBUILDER-GATE1-MULTI-EXIT-UNIFORM-CLASS-S0` — LANDED: the gate
+  now iterates all `Value(Construction)` relations and requires one
+  shared canonical object (every site re-resolved, never picked).
+  Pins: `handle_result_local_call_admits_uniform_class_multi_exit_
+  callee` (2-exit `Point` callee lowers: Handle invoke + one
+  HomeRelease + finalized artifact validates) and
+  `handle_result_lane_rejects_mixed_class_multi_exit_callee`
+  (Point/Other exits fail closed at issue). Suites: handle_result 9/9,
+  direct_call_lifecycle 34/34, ordinary_new 273/273, lexical 232/232.
+  No new receipt, ABI arm or exit witness minted.
+Non-claims:
+  no production `run()` reachability (upstream `root-call-entry-
+  unavailable` still gates); no receiver-arming change; no mixed-class
+  or non-Construction exit admission; no `itemCheck`/i64 result
+  contract; no Gate-1 completion.
+Next row: `MIRBUILDER-GATE1-ROOT-CALL-ENTRY-D0` — census which
+  `RootHomeExitEntry` kind `run()`'s root Home needs; the multi-exit
+  gate is now downstream-reachable once that entry admits.
+```
 
 ## Preserved contract boundaries
 

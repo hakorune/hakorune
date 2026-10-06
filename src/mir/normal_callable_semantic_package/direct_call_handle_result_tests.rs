@@ -529,3 +529,128 @@ fn lexical_handle_lane_leaves_nonconstruction_callee_dynamic() {
     );
     let _ = package.direct_call_loans.take();
 }
+
+#[test]
+fn handle_result_local_call_admits_uniform_class_multi_exit_callee() {
+    // `make` has two `return new` exits of the same class: every
+    // `Value(Construction)` relation resolves to the same canonical
+    // object (the module declaration index is class-level), so the
+    // caller's received handle pins one object and one release plan.
+    let mut package = issue(
+        r#"box Point { x: i64 y: i64 birth(x, y) { me.x = x me.y = y } }
+        static box Main {
+            main() { local h = make(0) return 30 }
+            make(args: i64) {
+                if args == 0 { return new Point(1, 2) }
+                return new Point(3, 4)
+            }
+        }"#,
+    )
+    .expect("uniform-class multi-exit callee package");
+    let mut loans = package.direct_call_loans.take().unwrap();
+    let main = package
+        .declaration_catalog()
+        .source_backed_app_main()
+        .unwrap();
+    let declaration = package
+        .batch()
+        .declarations()
+        .find(|row| row.identity().same_as(main.parser_identity()))
+        .unwrap();
+    let mut builder = MirBuilder::new();
+    let function = package
+        .batch()
+        .with_lowering_input_and_source_identity(declaration.batch_slot(), |input, identity| {
+            builder.lower_map_dependency_for_test(
+                input,
+                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                main.parser_identity(),
+                identity.method_source_observation().cloned(),
+                std::rc::Rc::clone(&package.ordinary_new_claim_ledger),
+                Some(&mut loans),
+            )
+        })
+        .unwrap()
+        .expect("uniform-class multi-exit handle call lowers");
+    loans.finish_empty().expect("the handle Call row is consumed");
+    let received: Vec<ValueId> = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter_map(|instruction| match instruction {
+            MirInstruction::InvokeNormalResult { invoke_block, dst }
+                if function.blocks[invoke_block].all_instructions().any(|i| {
+                    matches!(
+                        i,
+                        MirInstruction::Invoke {
+                            operation: InvokeOperation::Call {
+                                result: InvokeCallResultKind::Handle,
+                                ..
+                            },
+                            ..
+                        }
+                    )
+                }) =>
+            {
+                Some(*dst)
+            }
+            _ => None,
+        })
+        .collect();
+    let [received] = received.as_slice() else {
+        panic!("exactly one handle-result projection expected")
+    };
+    let received = *received;
+    let releases = function
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| {
+            matches!(
+                instruction,
+                MirInstruction::Invoke {
+                    operation: InvokeOperation::HomeRelease { value, .. },
+                    ..
+                } if *value == received
+            )
+        })
+        .count();
+    assert_eq!(releases, 1, "exactly one HomeRelease on the received object");
+    crate::mir::verification::MirVerifier::new_strict()
+        .verify_function(&function)
+        .expect("multi-exit handle-receive CFG verifies");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let observation = ledger
+        .validate_finalized_new_root(&function)
+        .expect("finalized multi-exit handle-receive root");
+    let mut function = function;
+    function
+        .install_root_ordinary_new_observation(observation)
+        .unwrap();
+    ledger
+        .validate_after_compiler_finishing(&function)
+        .expect("finished multi-exit handle-receive artifact");
+}
+
+#[test]
+fn handle_result_lane_rejects_mixed_class_multi_exit_callee() {
+    // `pick` returns `new Point` on one exit and `new Other` on another:
+    // the class mint requires one agreed class across exits
+    // (`construction_result_callee` declines), so no result-class loan
+    // seals and the package fails closed.
+    let package = issue(
+        r#"box Point { x: i64 birth(x) { me.x = x } }
+        box Other { n: i64 birth(n) { me.n = n } }
+        static box Main {
+            main() { local h = pick(0) return 30 }
+            pick(args: i64) {
+                if args == 0 { return new Point(1) }
+                return new Other(1)
+            }
+        }"#,
+    );
+    assert!(
+        package.is_err(),
+        "a mixed-class multi-exit callee must fail closed"
+    );
+}

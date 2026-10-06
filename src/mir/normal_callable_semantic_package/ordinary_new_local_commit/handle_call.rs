@@ -258,22 +258,38 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(declaration, SourceBindingSiteV1::Local { .. }) {
             return Err(freeze("handle-call-declaration-drift"));
         }
-        // The callee must prove exactly one `return new` exit: several
-        // construction sites mint different canonical objects, and the
-        // caller cannot observe which exit ran — a mixed callee stays
-        // unadmitted rather than borrowing an arbitrary site's object.
-        let construction_site = match self.terminal_relations_for_owner(callee).as_slice() {
-            [TerminalRelationV1::Value(row)] if row.owner() == callee => match row.returned() {
-                TerminalReturnedSourceV1::Construction(owned) if owned.owner() == callee => {
-                    owned.clone()
-                }
-                _ => return Err(freeze("handle-result-terminal-mismatch")),
-            },
-            _ => return Err(freeze("handle-result-terminal-missing")),
-        };
-        let object = self
-            .result_object(&construction_site)
-            .ok_or_else(|| freeze("handle-result-object-missing"))?;
+        // Every exit of the callee must be a `return new` construction
+        // owned by the callee, and all of them must mint the same
+        // canonical object — the class-level identity the received
+        // handle keeps. The Handle result class already requires one
+        // agreed class across exits (`construction_result_callee`), so
+        // a uniform-object multi-exit callee like `make` admits; a
+        // mixed callee stays unadmitted rather than borrowing an
+        // arbitrary site's object.
+        let mut object = None;
+        for relation in self.terminal_relations_for_owner(callee) {
+            let TerminalRelationV1::Value(row) = relation else {
+                return Err(freeze("handle-result-terminal-mismatch"));
+            };
+            if row.owner() != callee {
+                return Err(freeze("handle-result-terminal-mismatch"));
+            }
+            let TerminalReturnedSourceV1::Construction(owned) = row.returned() else {
+                return Err(freeze("handle-result-terminal-mismatch"));
+            };
+            if owned.owner() != callee {
+                return Err(freeze("handle-result-terminal-mismatch"));
+            }
+            let site_object = self
+                .result_object(owned)
+                .ok_or_else(|| freeze("handle-result-object-missing"))?;
+            match &object {
+                None => object = Some(site_object),
+                Some(existing) if *existing == site_object => {}
+                Some(_) => return Err(freeze("handle-result-terminal-mismatch")),
+            }
+        }
+        let object = object.ok_or_else(|| freeze("handle-result-terminal-missing"))?;
         let mut rows = self.local_commits.borrow_mut();
         if rows.contains_key(site) {
             return Err(freeze("handle-duplicate-emission"));
