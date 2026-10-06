@@ -66,6 +66,23 @@ fn witness_composition_rejects_foreign_call_actual_and_wrong_argument_site() {
                     ),
                     ExitVerdictV1::Dead
                 ));
+                let PendingExitV1::Fwd { key, .. } = &exits[0].exit else {
+                    unreachable!("forwarded source")
+                };
+                let pending = BTreeSet::from([key.clone()]);
+                let unresolved = evaluate_row(
+                    &exits,
+                    &OrdinaryNewResultClassClaimsV1::new(),
+                    &pending,
+                    &package.parameter_contracts,
+                    slot,
+                    package.batch.ordinary_box_coverage(),
+                );
+                if corruption < 3 {
+                    assert!(matches!(unresolved, ExitVerdictV1::Dead));
+                } else {
+                    assert!(matches!(unresolved, ExitVerdictV1::Waiting));
+                }
             })
             .unwrap();
     }

@@ -1,9 +1,8 @@
 //! Single composition fold over source exits; never a Home issuer.
 use super::product::SourceResultRowV1;
 use super::{
-    parameter_contract, OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1, PendingExitV1,
-    PendingResultExitV1, ResultExitOriginV1, ResultFormalSubstitutionV1, ResultOriginWitnessV1,
-    ResultValueOriginV1, ResultWitnessStepV1,
+    OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1, PendingExitV1, PendingResultExitV1,
+    ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
@@ -63,22 +62,11 @@ pub(super) fn evaluate_row(
                 key,
                 actuals,
             } => {
-                if call_site.owner() != exit.site.owner() || actuals.len() != key.arity() as usize {
+                let Some(call_source) = super::call_witness::CallWitnessSourceV1::verify(
+                    &exit.site, call_site, key, actuals,
+                ) else {
                     return ExitVerdictV1::Dead;
-                }
-                for (ordinal, actual) in actuals.iter().enumerate() {
-                    let mut expected = call_site.site().node().segments().to_vec();
-                    expected.push(
-                        crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(
-                            ordinal as u32,
-                        ),
-                    );
-                    if actual.site.owner() != call_site.owner()
-                        || actual.site.site().node().segments() != expected
-                    {
-                        return ExitVerdictV1::Dead;
-                    }
-                }
+                };
                 let Some(callee_rows) = claims.outcomes(key) else {
                     if pending.contains(key) {
                         waiting = true;
@@ -87,57 +75,12 @@ pub(super) fn evaluate_row(
                     return ExitVerdictV1::Dead;
                 };
                 legacy_eligible &= claims.contains_key(key);
-                for callee in callee_rows.iter().flat_map(|row| row.witnesses()) {
-                    let substitution = if let Some(ordinal) = callee.formal_ordinal() {
-                        let Some(actual) = actuals.get(ordinal as usize) else {
-                            return ExitVerdictV1::Dead;
-                        };
-                        let Some(binding) = actual.binding else {
-                            return ExitVerdictV1::Dead;
-                        };
-                        let Some(parameter) =
-                            parameter_contract(parameter_contracts, batch_slot, binding)
-                        else {
-                            return ExitVerdictV1::Dead;
-                        };
-                        if !matches!(
-                            parameter.kind,
-                            CallableParameterContractKindV1::DeclaredObject(_)
-                                | CallableParameterContractKindV1::OpaqueHandle
-                        ) {
-                            return ExitVerdictV1::Dead;
-                        }
-                        Some(ResultFormalSubstitutionV1 {
-                            argument_site: actual.site.clone(),
-                            binding,
-                            callee_ordinal: ordinal,
-                            caller_ordinal: parameter.ordinal,
-                        })
-                    } else {
-                        None
-                    };
-                    let origin = match (callee.origin(), &substitution) {
-                        (ResultValueOriginV1::ForwardFormal { .. }, Some(row)) => {
-                            ResultValueOriginV1::ForwardFormal {
-                                ordinal: row.caller_ordinal,
-                            }
-                        }
-                        (ResultValueOriginV1::ForwardFormal { .. }, None) => {
-                            return ExitVerdictV1::Dead
-                        }
-                        (other, _) => other.clone(),
-                    };
-                    witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
-                        site: exit.site.clone(),
-                        origin,
-                        step: ResultWitnessStepV1::Call {
-                            site: call_site.clone(),
-                            key: key.clone(),
-                            callee: std::rc::Rc::clone(callee),
-                            substitution,
-                        },
-                    }));
-                }
+                let Some(composed) =
+                    call_source.compose(callee_rows, parameter_contracts, batch_slot)
+                else {
+                    return ExitVerdictV1::Dead;
+                };
+                witnesses = composed;
             }
         }
         let alternatives: BTreeSet<_> = witnesses

@@ -1216,3 +1216,9 @@ The sole `prepare_source_claims` implementation resides in private
 `ordinary_new_source_claim_preparation.rs`, reexported through the existing
 source-claim owner. Field/provider/result preparation order and source error
 boundaries are unchanged; this move adds no child relation or Home permission.
+
+The private `call_witness` owner corroborates the exact source-call edges once,
+then composes existing immutable callee witnesses. The evaluator keeps source
+validation before missing-callee/pending handling, legacy projection eligibility
+and coverage checks. This extraction adds no constructor child admission or Home
+permission, and does not duplicate the result solver.

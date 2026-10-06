@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: child-relation D0 accepted; call witness composition BoxShape S0 selected
+Status: composition BoxShape S0 closed; child source relation S0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -771,3 +771,89 @@ requires it. No candidate map, field contract, Home, app or C edit in this slice
 After this separately verified extraction, source child candidate semantic slice
 uses the SAME helper and product. Lifetime/cleanup/physical/publication and
 unchanged production EXE remain incomplete, Gates2-4/stored-child remain parked.
+
+COMPOSITION-BOXSHAPE-S0 implementation verification in progress: parent732,
+evaluator162, new private call_witness111, witness tests199. Source verify and
+composition retain original conditions/loop; only output-site parameter and
+Dead-to-None wrapper changed. Evaluator maps None to same Dead and keeps pending
+lookup and legacy policy outside. Normalized source comparison PASS after
+explicit rustfmt arm braces/comma normalization; initial comparison harness
+mistook formatting for source drift, no code repair. Read-only review PASS.
+Test-inclusive check PASS27.92s, /tmp/hako-call-witness-shape-check.log. Parent
+module declaration order rustfmt red fixed (alphabetical private modules only).
+Scope/diff/owned rustfmt PASS. Focused32 executable build active, not yet PASS;
+/tmp/hako-call-witness-shape-focused.log. Old evaluator parameter_contract import
+became unused after the move; remove it after Cargo terminal, then verify final
+source with type check. All moved execution/test bodies are retained.
+
+## COMPOSITION-BOXSHAPE-S0 closeout
+
+Focused32/32 PASS,0 ignored,8660 filtered, runtime0.05s; quick build5m24s.
+Log /tmp/hako-call-witness-shape-focused.log. Pending-corruption assertions
+execute inside existing negative test. After terminal, remove ONLY newly unused
+evaluator parameter_contract import; no execution/test body change. Final
+source-inclusive check PASS27.54s, warnings back to prior758;
+/tmp/hako-call-witness-shape-final-check.log. Focused binary precedes this
+import-only cleanup; final check covers the cleanup, no runtime behavior changed.
+Scope/pointer/diff/owned rustfmt PASS. Source parent732/evaluate162/new helper111/
+witness-tests199. One source verification/composition implementation replaces
+the inline bodies; no old competing loop remains. No field/Home/admission change,
+no CLI/probe repetition required by this behavior-preserving contract.
+
+## CHILD-SOURCE-RELATION-S0 selected execution contract
+
+Select MIRBUILDER-GATE1-CHILD-SOURCE-RELATION-S0, fast. Source authority + canonical
+issuer: SAME finished result Facts and canonical constructor store/formal plans,
+one private result-class child relation join called once by source preparation
+after finish. Candidate map inside VerifiedSourceCallableResultFactsV1 keyed
+(OwnedExprSiteV1,CanonicalFieldRefV1), passive borrowed getter; existing preparation
+tuple and ledger storage unchanged. Only private join can insert sealed candidate
+rows. Private all-origin/direct FreshConstruction iteration, original batch owner
+and selected key; no facade Call-wrapper reanalysis or scanner/fixpoint.
+
+One exact returned New outer site joins sealed constructor object/source id/owner,
+store canonical field, RHS Parameter(binding,provided child), matching Birth formal
+binding/ordinal/ObjectFieldStores RHS use, then branded actual CallArgument(ordinal).
+Bounded actual grammar: literal Null, original declared-object formal, direct call,
+unrebound local with sole call initializer. Reuse existing resolve_call_key,
+resolve_forward_local and shared CallWitnessSource; no fake return exit. Unsupported
+nested New/field/index/upvar/rebound/missingcallee/ungrounded recursive actuals
+leave candidate unavailable. Source witness output site is exact actual expression;
+initializer call site remains independently branded, same owner.
+
+Class corroboration: every Fresh(name) and DeclaredObject(name) resolves through
+ordinary_box_coverage.row_for -> instance_constructors.object_for(source_row) and
+must equal sealed RHS provided child canonical identity. Opaque formal has no class
+proof and stays unavailable in this bounded S0. Check ALL alternatives; do not
+cherry-pick compatible Fresh/Null from a rejected mixed relation. Literal Null has
+no child acquisition; formal-derived Null preserves its original ancestry. No
+hardcoded class/caller names. Existing canonical destination is never authority
+for an unknown actual class.
+
+Replacement/caller: prepare_source_claims currently loses returned-constructor
+child argument relations; add these relations to its SAME finished source product.
+Existing get/contains/iter/keys projection and ordinary execution callers unchanged.
+Non-authority: candidate presence, class annotation, owning child metadata, Fresh
+source leaf or ordinary parameter/local identity cannot mint Home, support lifetime,
+consume input or change field residence. No new physical route or fallback.
+Fail-fast boundary: exact constructor/formal/field/actual owner/path/ordinal/class
+and existing source substitution validation. Missing relation issues no candidate,
+never a default Null/Fresh or completed all-fields contract.
+
+Acceptance: unchanged full page_heap_box source has8 exact Result-field candidates
+(allocateResult3,reallocResult5), especially315 literalNull and318 replacement
+Null/Fresh/Forward0, allocateResult224 Null/Fresh. Pin field declaration ordinal2,
+Birth formalordinal2 and actualArgument2 identities with constructor-source identity.
+Pair candidate presence with existing last2 PrefixNotCovered(Body3)/preparefalse;
+legacy8-site census remains6covered/2uncovered. Wrong class/multipleFreshclasses,
+foreign owner/binding/field/ordinal, rebind/missingfacts/cycle, unsupported actual
+and class-only fake acquisition remain rejected. Existing focused32 plus selected
+new candidate pins, check/scope/pointer/diff/rustfmt/source caps. Fresh CLI unchanged
+mimalloc-lite frontier probe is required for semantic product attachment; it must
+remain fail-closed until later Home/support verification and physical publication.
+Paths: result product/registration/new child join/tests, preparation101, existing
+phase test helper only if its borrowed inspection needs context, owner README,
+active card/current pointers. Existing issue797/instance_construction743 untouched.
+No app/C/parameter/field-store/cleanup/physical admission change in this slice.
+Goal remains incomplete: actual315/318 construction, anchored lifetime/cleanup,
+true outcome physical transport/publication and production EXE remain required.

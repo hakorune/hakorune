@@ -37,6 +37,8 @@ use crate::mir::resolved_semantics::{
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
+#[path = "ordinary_new_result_class_claim/call_witness.rs"]
+mod call_witness;
 #[path = "ordinary_new_result_class_claim/evaluate.rs"]
 mod evaluate;
 use evaluate::{evaluate_row, ExitVerdictV1};
