@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: mixed result origin S0 verified; pending composite result D0 selected
+Status: anchored composite result D0 accepted; source origin witness S0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -463,3 +463,64 @@ conflict using the full facade caller, then seal one Decision and reference
 contract before implementation. This is ongoing internal design work, not a
 requested goal pause or blocked condition. Gates2-4 and stored-child sibling
 remain parked. No optimizer/profile or unrelated cleanup slice is selected.
+
+## PENDING-COMPOSITE-RESULT-D0 Decision (2026-10-07)
+
+Accept completed fresh outer + exact Null/OwnedFresh/BorrowedFromFormal child
+relation; reject pending ownership-hole completion as the unchanged-source path.
+Evidence: apps/mimalloc-result-contract-proof/main.hako11-12 passes alloc.handle
+and same.handle, then22-24 reads alloc/same/moved. Those reads are handles,
+not owning roots; field move-out would require a separate parked law and alter
+later reads. Facade78-89 supplies an ordinary unannotated formal and contains no
+consuming destination. Delaying consumption until local result assignment would
+still violate declaration-only parameter demand. Preserve input Home and infer
+an anchored result lifetime, not a consuming parameter.
+
+Source authority + canonical issuer: sealed source return outcomes, existing
+constructor/field destination and Home-prefix/completion verification. The
+language result law is clarified in ownership.md composite anchored results,
+and exact construction residence teardown in lifecycle.md Fields and ordering.
+These are target semantics only; current owning-only child schema is unchanged.
+Non-authority: source origin sets, worker proposal, class-wide payload type,
+pointer equality, policy release, local assignment or runtime representation.
+Fail-fast boundary: acquired child requires verified Home transfer; borrowed
+child requires exact original support and lifetime; neither can impersonate the
+other. Complete outer publication and Fault/drop obligations must be verified.
+Smallest next slice: MIRBUILDER-GATE1-RESULT-ORIGIN-WITNESS-S0 — retain immutable
+source witness DAG in the SAME result Facts draft/fixpoint/product. Multiple
+same-origin source paths and formal-derived null provenance must survive.
+Non-claims: no input move, field store/cleanup expansion, runtime discriminator,
+anchored residence receipt or production EXE from this observation-only slice.
+
+### RESULT-ORIGIN-WITNESS-S0 execution contract
+
+Production caller: prepare_source_claims -> existing result draft.finish ->
+ledger product. Replace erased source derivations in that existing product;
+keep old class/membership exactly unchanged. Leaf witnesses retain exact owned
+return site and NullLiteral/FreshConstruction/Formal(binding,ordinal) kind.
+Call edges retain caller return site, actual initializer/direct call site,
+callee key and immutable callee witness plus exact argument-site/binding/ordinal
+substitution for formal provenance. Share already resolved callee witnesses;
+no second scanner or fixpoint. Formal-derived null retains its formal anchor
+provenance. Fresh source leaf is not an acquisition/ownership receipt.
+
+Paths: result-class parent and evaluate/product + private witness child,
+existing origin test owner and registration/reexports, package README, active
+card/pointer; existing scope guard pins only if needed. No source preparation
+793/797 owner growth, app, parameter, constructor or C edit. Source brand and
+actual ordinal/site corruption must leave the row unavailable. Acceptance:
+prior25-result pins plus2 initializer tests remain; exact realloc paths,
+multiple same-origin leaves, direct/local forwarding and two-hop ordinal
+permutation; facade outer-constructor relay witnesses; foreign owner/target,
+rebind, class/ordinal and cycles remain rejected. Scope/pointer/diff/file caps.
+Result.handle child relation is NOT claimed by outer-constructor witnesses:
+constructor argument/destination verification must join these with realloc's
+result provenance and prove acquisition or support in the later required slice.
+Unchanged production frontier315/318 stays required and fail-closed.
+
+Required follow-on sequence: source constructor argument/anchored-field relation
+verification -> Home-prefix and completion lifetime/cleanup integration -> sole
+physical owner retains source-issued owned/borrowed disposition and true outcome
+-> publication and unchanged production acceptance. Both315 and318, facade
+scalar observations/effects, ignored results, anchor escape/release, dying local,
+forged acquisition and constructor/relay Fault are mandatory counterexamples.

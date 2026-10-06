@@ -299,6 +299,24 @@ C′ applies only to fields classified as verified owning Home destinations by
 `OWN-FIELD-CONTAINER-DEST-D0`. A current Box-typed field is not silently
 reclassified merely from its spelling.
 
+The accepted ClosedCallable composite anchored-result target in
+[ownership.md](ownership.md#closedcallable-composite-anchored-results) refines
+an exact construction residence, not the whole class by its payload type.
+`OwnedFresh` children have verified acquired Homes and participate in reverse
+field release; `BorrowedFromFormal` children retain an exact support dependency
+and receive no owning release; null has neither. Parent finalization still
+requires borrowed support to remain live. Runtime tags or pointer comparisons
+cannot reconstruct this classification. A sole source/completion plan must
+retain the true outcome witness and its exact field disposition to the physical
+cleanup owner. Current owning-only field schemas do not implement that sum.
+
+A complete anchored composite may cross a verified ClosedCallable relay;
+prepublication constructor Fault and postpublication relay Fault release each
+acquired obligation exactly once and never release the borrowed anchor. An
+uninitialized or unsupported residence is not a completed borrowed residence.
+This target does not permit publishing an incomplete parent or postponing
+ownership acquisition to ordinary caller result assignment.
+
 For a fully constructed parent:
 
 ```text

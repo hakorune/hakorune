@@ -428,6 +428,53 @@ Returning an available local Home is terminal forwarding; it does not require
 `return take local`. Returning a handle whose Home dies at function exit is a
 compile error.
 
+### ClosedCallable composite anchored results
+
+Decision (2026-10-07): a locally verified composite result may own fresh outer
+storage while a child field has the exact relation `Null`, `OwnedFresh`, or
+`BorrowedFromFormal(ordinal)`. This is an accepted target contract; passive
+result-origin Facts alone do not activate field storage, transfer or cleanup.
+
+| Verified child relation | Home effect |
+| --- | --- |
+| Null | no child Home or supporting anchor |
+| OwnedFresh | transfer an already verified acquired child Home into the outer |
+| BorrowedFromFormal | retain a non-owning child handle supported by the original caller Home |
+
+The borrowed arm never consumes an ordinary input Home, creates another Home,
+or changes an ordinary parameter's declaration-only Handle demand. A caller
+may pass an existing field handle when its original support is verified; the
+result relation does not turn that read into field move-out. This permits the
+source to inspect the original object while the dependent result is alive.
+
+The exact construction/field destination issuer must verify the child relation
+at the source constructor and store sites. A class annotation, object identity,
+origin union, or pointer equality cannot select it. Multiple source paths with
+the same origin retain distinct witnesses. Fresh-construction provenance is
+not proof that its acquisition, transfer and cleanup have completed.
+
+The outer is complete before ordinary publication: every acquired child has
+an owned residence, every borrowed child has a verified supporting anchor,
+and each residence has its exact Normal/Fault disposition. There is no pending
+ownership hole completed by an ordinary result assignment. Unknown residence
+or support fails before publication. The existing constructor field contract
+must explicitly admit this anchored relation; an owning-only destination
+cannot silently accept a borrowed field.
+
+A dependent result, its child reads and parent finalization may not outlive its
+supporting Home. An anchor release is rejected when a subsequent dependent use
+or finalization requires that support. A result rooted in a dying local or
+unverified temporary cannot escape. ClosedCallable relays may inspect verified
+scalar fields, perform separately verified effects, and return the same relation;
+those effects add no ownership. Fault during the relay cleans the outer and
+acquired children, preserving the borrowed anchor. Exported, dynamic or opaque
+boundaries require an exact declared/imported relation and cannot infer it.
+
+Null, fresh and borrowed alternatives remain distinguished by verified source
+outcome/completion evidence. An ordinary result alias adds no Home. Borrowed
+children receive no owning release on parent teardown, ignored result cleanup
+or constructor Fault. This adds no `take`/`share` syntax or implicit RC.
+
 ### Independent owner
 
 `share` is the only ordinary source operation that may add another owner for
