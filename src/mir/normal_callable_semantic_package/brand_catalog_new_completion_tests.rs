@@ -422,6 +422,15 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             .validate_artifact_after_compiler_finishing(&extra_lifecycle)
             .unwrap_err();
         assert!(error.contains(expected_error), "{error}");
+        if expected_error == "artifact-unowned-lifecycle-site" {
+            assert!(
+                error.contains(&format!("function={}", physical.signature.name)),
+                "{error}"
+            );
+            assert!(error.contains("block=BasicBlockId(99)"), "{error}");
+            assert!(error.contains("instruction_index=0"), "{error}");
+            assert!(error.contains("instruction=ReturnFault"), "{error}");
+        }
     }
     ledger
         .validate_artifact_after_compiler_finishing(&physical)

@@ -1180,3 +1180,8 @@ Equality or inequality with the null literal, in either operand order, produces
 Bool through the existing scalar-expression and borrowed-null-compare owners.
 An undeclared field or comparison with a non-null operand remains rejected.
 This contract adds no read-chain, stored-child call, branch or Bool-return arm.
+
+Artifact lifecycle coverage rejects any instruction lacking its exact
+source-issued block/instruction binding. Its existing freeze token reports the
+function, block, physical instruction index and instruction for frontier
+diagnosis; diagnostic context grants no new source or emission authority.

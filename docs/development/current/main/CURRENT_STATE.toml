@@ -1,9 +1,9 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0"
+current_execution_row = "MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-SITE-DIAGNOSTIC-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/object-field-read-s0"
+current_blocker_token = "selfhost-resume/artifact-lifecycle-site-diagnostic-s0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,21 +13,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
-latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-artifact-lifecycle-site-diagnostic-s0-2026-10-06.md"
+latest_card = "mirbuilder-artifact-lifecycle-site-diagnostic-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-artifact-lifecycle-site-diagnostic-s0-2026-10-06.md"
 latest_card_summary = """
-OBJECT-FIELD-READ-D0 accepted — object-typed `receiver.field` reads
-issue through the staged `LocalFieldRead`/`ObjectFieldGet` arm (never
-the `FieldGet` route spelling); `me` borrowed receiver joins the
-provenance set, C `lv4_child_field_object` is the physical contract.
-`if`/`loop` coverage is a separate uncovered family.
-Next: `OBJECT-FIELD-READ-S0` (`me` provenance + `== null` compare).
+OBJECT-FIELD-READ-S0 landed d356229c30; fresh EXE eq/ne and missing-field rejection PASS.
+Production mimalloc-lite retains artifact-unowned-lifecycle-site. Selected diagnostic
+slice preserves rejection and reports exact function/block/instruction before
+choosing the required coverage owner.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-OBJECT-FIELD-READ-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
+next_execution_card = "MIRBUILDER-GATE1-ARTIFACT-LIFECYCLE-SITE-DIAGNOSTIC-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-artifact-lifecycle-site-diagnostic-s0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

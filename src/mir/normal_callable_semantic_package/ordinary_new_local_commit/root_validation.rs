@@ -327,14 +327,24 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         for block in function.blocks.values() {
-            for actual in block
+            for (instruction_index, actual) in block
                 .all_instructions()
-                .filter(|i| i.requires_lifecycle_validation())
+                .enumerate()
+                .filter(|(_, i)| i.requires_lifecycle_validation())
             {
                 let index = expected
                     .iter()
                     .position(|(id, instruction)| *id == block.id && *instruction == actual)
-                    .ok_or_else(|| freeze("artifact-unowned-lifecycle-site"))?;
+                    .ok_or_else(|| {
+                        format!(
+                            "{} function={} block={:?} instruction_index={} instruction={:?}",
+                            freeze("artifact-unowned-lifecycle-site"),
+                            function.signature.name,
+                            block.id,
+                            instruction_index,
+                            actual
+                        )
+                    })?;
                 expected.swap_remove(index);
             }
         }
