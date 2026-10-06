@@ -804,9 +804,11 @@ pub(super) fn issue_construction_plan(
                 }
                 // Caller-provided object store: birth formals are
                 // unannotated, so the declared field class is the sole
-                // class authority and it must resolve to a non-self
-                // `PlainI64NoHook` user class — the same child bound a
-                // `ProviderConstruction` carries.
+                // class authority and it must resolve to a releasable
+                // user class — self-reference included: the emitted
+                // teardown call graph recurses on the instance, not the
+                // type. The disposition bound matches the release op's
+                // child admission exactly.
                 ConstructionStoreRhsV1::Parameter { .. } => {
                     if crate::runtime::CoreBoxId::from_name(name).is_some() {
                         false
@@ -815,14 +817,17 @@ pub(super) fn issue_construction_plan(
                             .iter()
                             .filter_map(|(own, id)| (own.name() == name).then_some(*id));
                         match (resolved.next(), resolved.next()) {
-                            (Some(child), None) if child != object_id => {
-                                definitions
-                                    .get(child.declaration_index() as usize)
-                                    .map(|definition| definition.destruction_disposition())
-                                    == Some(
-                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook,
+                            (Some(child), None) => definitions
+                                .get(child.declaration_index() as usize)
+                                .map(|definition| definition.destruction_disposition())
+                                .is_some_and(|disposition| {
+                                    matches!(
+                                        disposition,
+                                        crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
                                     )
-                            }
+                                }),
                             _ => false,
                         }
                     }

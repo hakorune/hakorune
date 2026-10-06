@@ -15,6 +15,101 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 }
 
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
+
+/* A layout carries a teardown inventory when either mark list is
+ * nonempty: `owned_residences` array slots or `owned_object_residences`
+ * (field,child) rows — the sealed census rows the physical ABI pins. */
+static int lv4_layout_marked(yyjson_val* layout) {
+  return layout &&
+      (yyjson_arr_size(yyjson_obj_get(layout, "owned_residences")) > 0 ||
+       yyjson_arr_size(yyjson_obj_get(layout, "owned_object_residences")) > 0);
+}
+
+/* The generated per-class teardown helper — the sole physical owner of
+ * an object's marked-field contents. `object_field_release` calls it on
+ * the live child, and each object mark inside it calls the child's own
+ * helper before that child's plain Home release, so nested depth and
+ * self-reference recurse through the emitted call graph on live
+ * instances — never through a census-time unroll. `%site` carries the
+ * calling op's diagnostic site so a nested fault attributes to the
+ * outermost release. Status contract: 0 contents released, nonzero is
+ * the kernel status (1 fault edge, 2 contract violation). */
+static int lv4_emit_teardown(FILE* f, const hako_lv4_input* in, uint32_t id,
+    yyjson_val* layout) {
+  yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
+  yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
+  size_t na = yyjson_arr_size(arrays), no = yyjson_arr_size(objects);
+  long long type = (long long)lv4_u(layout, "runtime_type_id");
+  fprintf(f,
+      "define internal i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%handle, i64 %%site) {\nstart:\n",
+      id);
+  for (size_t i = 0; i < na + no; i++)
+    fprintf(f, "  %%td_read%zu = alloca i64, align 8\n", i);
+  /* Newest-first across both mark lists: each walks declaration order,
+     so the merge picks the larger pending ordinal — the same reverse
+     declaration order `end_plan` emits. */
+  for (size_t ai = na, oi = no, mi = 0; ai > 0 || oi > 0; mi++) {
+    int array_mark = ai > 0 &&
+        (oi == 0 || (uint32_t)yyjson_get_uint(yyjson_arr_get(arrays, ai - 1)) >
+            lv4_u(yyjson_arr_get(objects, oi - 1), "field_ordinal"));
+    if (array_mark) {
+      ai--;
+      int slot = lv4_layout_slot(layout,
+          (uint32_t)yyjson_get_uint(yyjson_arr_get(arrays, ai)));
+      if (slot < 0) return 0;
+      fprintf(f,
+          "  %%td_get%zu = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%handle, i64 %lld, i64 %d, ptr %%td_read%zu)\n"
+          "  %%td_ok%zu = icmp eq i32 %%td_get%zu, 0\n"
+          "  br i1 %%td_ok%zu, label %%td_step%zu, label %%bad\ntd_step%zu:\n",
+          mi, in->profile, type, slot, mi, mi, mi, mi, mi, mi);
+      fprintf(f,
+          "  %%td_val%zu = load i64, ptr %%td_read%zu, align 8\n"
+          "  %%td_live%zu = icmp ne i64 %%td_val%zu, 0\n"
+          "  br i1 %%td_live%zu, label %%td_rel%zu, label %%td_done%zu\ntd_rel%zu:\n"
+          "  call void @nyrt_handle_release_h(i64 %%td_val%zu)\n"
+          "  br label %%td_done%zu\ntd_done%zu:\n",
+          mi, mi, mi, mi, mi, mi, mi, mi, mi, mi, mi);
+      continue;
+    }
+    oi--;
+    yyjson_val* row = yyjson_arr_get(objects, oi);
+    uint32_t ordinal = lv4_u(row, "field_ordinal");
+    uint32_t child_id = lv4_u(row, "child_object_id");
+    yyjson_val* child = lv4_layout(in, child_id);
+    int slot = lv4_layout_slot(layout, ordinal);
+    if (!child || slot < 0) return 0;
+    fprintf(f,
+        "  %%td_get%zu = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%handle, i64 %lld, i64 %d, ptr %%td_read%zu)\n"
+        "  %%td_ok%zu = icmp eq i32 %%td_get%zu, 0\n"
+        "  br i1 %%td_ok%zu, label %%td_step%zu, label %%bad\ntd_step%zu:\n",
+        mi, in->profile, type, slot, mi, mi, mi, mi, mi, mi);
+    fprintf(f,
+        "  %%td_val%zu = load i64, ptr %%td_read%zu, align 8\n"
+        "  %%td_live%zu = icmp ne i64 %%td_val%zu, 0\n"
+        "  br i1 %%td_live%zu, label %%td_chain%zu, label %%td_done%zu\ntd_chain%zu:\n",
+        mi, mi, mi, mi, mi, mi, mi, mi);
+    if (lv4_layout_marked(child))
+      fprintf(f,
+          "  %%td_call%zu = call i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%td_val%zu, i64 %%site)\n"
+          "  %%td_cok%zu = icmp eq i32 %%td_call%zu, 0\n"
+          "  br i1 %%td_cok%zu, label %%td_home%zu, label %%td_prop%zu\ntd_prop%zu:\n"
+          "  ret i32 %%td_call%zu\ntd_home%zu:\n",
+          mi, child_id, mi, mi, mi, mi, mi, mi, mi, mi, mi);
+    else
+      fprintf(f, "  br label %%td_home%zu\ntd_home%zu:\n", mi, mi);
+    fprintf(f,
+        "  %%td_rel%zu = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %%site, i64 %%td_val%zu, i64 %lld)\n"
+        "  %%td_rok%zu = icmp eq i32 %%td_rel%zu, 0\n"
+        "  br i1 %%td_rok%zu, label %%td_done%zu, label %%td_prop2%zu\ntd_prop2%zu:\n"
+        "  ret i32 %%td_rel%zu\ntd_done%zu:\n",
+        mi, in->profile, mi,
+        (long long)lv4_u(child, "runtime_type_id"),
+        mi, mi, mi, mi, mi, mi, mi, mi);
+  }
+  fprintf(f, "  ret i32 0\nbad:\n  ret i32 2\n}\n");
+  return !ferror(f);
+}
+
 /* LLVM text emission from the admitted physical graph. No generic dispatcher. */
 static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     const hako_llvmc_lifecycle_target_session_v2* session, size_t fi) {
@@ -68,13 +163,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "field_residence_release"))
       fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
-    if (op && lv4_is(op, "kind", "object_field_release")) {
-      yyjson_val* child = lv4_layout(in, lv4_u(op, "child_object_id"));
-      yyjson_val* marks = child ? yyjson_obj_get(child, "owned_residences") : NULL;
+    if (op && lv4_is(op, "kind", "object_field_release"))
       fprintf(f, "  %%ofr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
-      for (size_t ni = 0; ni < yyjson_arr_size(marks); ni++)
-        fprintf(f, "  %%ofr_nread%u_%zu = alloca i64, align 8\n", lv4_u(block, "id"), ni);
-    }
     /* A nested i64 call writes through a caller-local slot; the callee's
        own %%out_i64 remains reserved for this function's result. A birth
        caller's sealed provider-argument calls are ExactI64 only — the
@@ -510,14 +600,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       }
       if (lv4_is(op, "kind", "object_field_release")) {
         /* Owned user-object field: read the slot, then under the live
-           child release each `owned_residences` slot of the child's own
-           layout — newest-first — before the child's plain Home release.
-           A plain child carries an empty mark list and keeps the plain
-           release unchanged. The child's status drives this op's fault
-           edge; a failed slot read is contract violation. */
+           child call the child's generated teardown — the per-class
+           `hako_lifecycle_teardown_<id>` helper owns its own marked
+           residences (arrays released, object children torn down then
+           Home-released), so nested depth and self-reference recurse
+           through the call graph — before the child's plain Home
+           release. A plain child carries an empty mark list and keeps
+           the plain release unchanged. The child's status drives this
+           op's fault edge; a failed slot read is contract violation. */
         yyjson_val* child = lv4_layout(in, lv4_u(op, "child_object_id"));
-        yyjson_val* marks = child ? yyjson_obj_get(child, "owned_residences") : NULL;
-        size_t nested = yyjson_arr_size(marks);
         fprintf(f,
             "  %%ofr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%ofr_read%u)\n"
             "  %%ofr_ok%u = icmp eq i32 %%ofr_get%u, 0\n"
@@ -529,28 +620,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%ofr_live%u = icmp ne i64 %%ofr_val%u, 0\n"
             "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n",
             b, b, b, b, b, b, b, b);
-        for (size_t ni = nested; ni > 0; ni--) {
-          size_t idx = ni - 1;
-          int slot = lv4_layout_slot(child,
-              (uint32_t)yyjson_get_uint(yyjson_arr_get(marks, idx)));
+        if (lv4_layout_marked(child))
           fprintf(f,
-              "  %%ofr_nget%u_%zu = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%ofr_val%u, i64 %lld, i64 %d, ptr %%ofr_nread%u_%zu)\n",
-              b, idx, in->profile, b,
-              (long long)lv4_u(child, "runtime_type_id"), slot, b, idx);
-          fprintf(f,
-              "  %%ofr_nok%u_%zu = icmp eq i32 %%ofr_nget%u_%zu, 0\n"
-              "  br i1 %%ofr_nok%u_%zu, label %%ofr_nstep%u_%zu, label %%invalid\nofr_nstep%u_%zu:\n",
-              b, idx, b, idx, b, idx, b, idx, b, idx);
-          fprintf(f,
-              "  %%ofr_nval%u_%zu = load i64, ptr %%ofr_nread%u_%zu, align 8\n"
-              "  %%ofr_nlive%u_%zu = icmp ne i64 %%ofr_nval%u_%zu, 0\n"
-              "  br i1 %%ofr_nlive%u_%zu, label %%ofr_nrel%u_%zu, label %%ofr_ndone%u_%zu\nofr_nrel%u_%zu:\n",
-              b, idx, b, idx, b, idx, b, idx, b, idx, b, idx, b, idx, b, idx);
-          fprintf(f,
-              "  call void @nyrt_handle_release_h(i64 %%ofr_nval%u_%zu)\n"
-              "  br label %%ofr_ndone%u_%zu\nofr_ndone%u_%zu:\n",
-              b, idx, b, idx, b, idx);
-        }
+              "  %%ofr_td%u = call i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%ofr_val%u, i64 %llu)\n"
+              "  switch i32 %%ofr_td%u, label %%invalid [ i32 0, label %%ofr_home%u i32 1, label %%%s ]\nofr_home%u:\n",
+              b, lv4_u(op, "child_object_id"), b, site,
+              b, b, fault_label, b);
         fprintf(f,
             "  %%ofr_status%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%ofr_val%u, i64 %lld)\n"
             "  switch i32 %%ofr_status%u, label %%invalid [ i32 0, label %%ofr_done%u i32 1, label %%%s ]\nofr_done%u:\n"
@@ -701,6 +776,13 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
     for (uint32_t i = 0; i < count; i++) fprintf(f, "%si32 %u", i ? ", " : "", HAKO_LLVMC_LIFECYCLE_STORAGE_I64);
     fprintf(f, "]\n");
   }
+  /* The per-class teardown family: one helper per marked layout, emitted
+     before any caller — self-reference and cross-class recursion resolve
+     inside the module's own call graph. */
+  for (size_t li = 0; li < in->layout_count; li++)
+    if (lv4_layout_marked(in->layouts[li].row) &&
+        !lv4_emit_teardown(f, in, in->layouts[li].id, in->layouts[li].row))
+      return 0;
   for (size_t fi = 1; fi < in->index_count; fi++)
     if (!lv4_emit_function(f, in, abi, fi)) return 0;
   return lv4_emit_function(f, in, abi, 0);

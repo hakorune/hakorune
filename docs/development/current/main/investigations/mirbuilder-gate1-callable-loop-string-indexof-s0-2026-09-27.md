@@ -896,45 +896,42 @@ class, k0/(3,nonzero) prologue; foreign handles reject. Evidence: pins
 lanes reject; 4 baseline reds. Next row `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0`
 (S2 census + emit authority); field reads stay sibling family.
 
-## Census — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0 (accepted)
+## Census — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0 (accepted, closed)
 
-Boundary: `OwnedObjectFieldsNoHook` children (incl. `child == object`
-self-reference) in the teardown chain — `new TreeNode(null,null,v)`
-after `init`->typed migration. Excludes reads/receivers (sibling) +
-Gates 2-4.
+Generated per-class `hako_lifecycle_teardown_<object_id>` family owns
+nested release inside the emitted module — one authority in the
+emitter, no new kernel ABI. Census keeps a `visiting` set; non-self
+type cycles stay declined. Full text recovers at
+`git show c6201f5208:<this-file>`.
 
-Authority map: `owned_field_children_of` declines (`child != object`
-:108, `OwnedObjectFields` child -> `None` :155 -> `NewEmission-
-Unavailable`); `OwnedObjectFieldRelease` verification admits child
-`PlainI64`/`OwnedArray` only (invoke.rs:186-199) and is the sole
-physical spelling; emit walks child `owned_residences` one level —
-no recursion; kernel has `home_release_plain_i64_v1` only, no
-layout-aware recursive helper.
+## Landed — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0 (S2 complete)
 
-Resolution: a generated per-class teardown family
-(`hako_lifecycle_teardown_<object_id>`) owns nested release inside the
-emitted module — one authority in the emitter, no new kernel ABI.
-`object_field_release` emits slot-read -> live-check -> generated
-teardown -> plain release; self-reference recurses through the call
-graph (owned trees are acyclic — a field binds only a pre-existing
-object, each binding moves once). Census keeps a visited set; a
-shared descendant under two fields stays declined (unconstructible
-under `Provided`/move accounting, pinned by S0).
-
-S2 `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0` — cycle-safe
-children census + `OwnedObjectFieldRelease` child-disposition
-admission + generated teardown emit + TreeNode typed migration. Edge:
-`new TreeNode(null,null,v)` EXE with teardown. S3+ reads/`== null`
-stay sibling family.
-
-Decision: accepted. Source authority: canonical definitions'
-destruction disposition + sealed `owned_field_children` + declared
-field types. Canonical issuer: `owned_field_children_of` cycle-safe
-seal; `OwnedObjectFieldRelease` verification; `emit.inc` generated
-teardown. Non-authority: kernel layout re-encoding, flat unroll,
-`.hako` read admission. Fail-fast: `NewEmissionUnavailable` /
-`object-field-release-invalid` stay for unproven children. Non-claims:
-cycles (unconstructible), sibling reads, Gates 2-4.
+`owned_field_children_of` is cycle-safe: `child == object` admits
+directly, `OwnedObjectFields` children seal through their own sealed
+inventory, and `visiting` declines non-self cycles — nested seals
+memoize into `owned_field_children` for the reclaim/discharge and
+release consumers. `Parameter{provided}` supports `PlainI64`/
+`OwnedArray`/`OwnedObjectFields` (self-ref included); provider arms
+keep prior bounds. `ObjectFieldSet`/`OwnedObjectFieldRelease`
+verification admits `OwnedObjectFields` children; the physical JSON
+validator accepts self tuples. Emit: `lv4_layout_marked` +
+`lv4_emit_teardown` generate one helper per marked layout —
+newest-first merged marks, slot read -> live-check -> child helper ->
+plain Home release; `object_field_release` calls it on the live child.
+Evidence: pins 8/8 (self-ref seal, nested seal, nested decline,
+non-self cycle, provider self, self-ref layout tuple, construction,
+array regressions); `nested_object_field_teardown_min_exe` smoke PASS
+(v4-measure ok, EXE Result 0, depth-3 tree); `new Node(7,..)` rejects
+`actual-kind-unavailable`; C shim `-fsyntax-only` clean; baseline reds
+unchanged (4 named + 2 catalogued this lane:
+`provider_owned_array_child_reaches_artifact_lane`,
+`owned_array_fields_release_in_reverse_order_before_home_release`).
+`binary-trees` typed migration stays sibling WIP — the min fixture
+carries the pin instead. Stored-child receivers stay the sibling
+`MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0` lane; Gates 2-4
+parked. Next row `MIRBUILDER-GATE1-OBJECT-FIELD-READ-D0` — census for
+the `me.<obj-field>`/stored read + `== null` compare family the
+TreeNode typed migration still needs.
 
 ## Preserved contract boundaries
 

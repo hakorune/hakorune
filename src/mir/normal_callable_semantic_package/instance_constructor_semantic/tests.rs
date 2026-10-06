@@ -714,8 +714,7 @@ fn construction_plan_seals_parameter_provided_object_child() {
 }
 
 #[test]
-fn construction_plan_keeps_mixed_and_self_referential_param_uses_closed() {
-    use super::super::instance_construction::ConstructionUnavailableV1 as U;
+fn construction_plan_keeps_mixed_param_uses_closed_admits_self_reference() {
     // A formal feeding both a scalar and an object-typed field has no
     // single wire lane — the mixture stays uncovered, never guessed.
     let mixed = super::super::brand_catalog_tests::issue_with_brand_catalog(
@@ -734,21 +733,30 @@ fn construction_plan_keeps_mixed_and_self_referential_param_uses_closed() {
         contract.uses(),
         BirthFormalUseCoverageV1::UncoveredSelectedBody
     ));
-    // A self-referential provided field stays the plan-level boundary —
-    // Node's own declared child class is itself, so the field contract
-    // rejects rather than reissuing the residence.
+    // A self-referential provided field resolves: Node's own declared
+    // child class is itself — `provided` seals the canonical identity
+    // and the releasable `OwnedObjectFields` disposition admits it (the
+    // emitted teardown call graph recurses on the instance, not the
+    // type).
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Node { left: Node\nbirth(left) { me.left = left } }",
     )
     .unwrap();
     let batch = &package.instance_constructors;
     let parent = batch.box_sources.row_for("Node").unwrap().unwrap();
-    let error = batch
+    let plan = batch
         .construction_for(parent, 1)
         .unwrap()
         .as_ref()
-        .expect_err("self-referential provided store stays declined");
-    assert_eq!(error, &U::FieldContractUnsupported);
+        .expect("self-referential provided store issues");
+    let [store] = plan.stores() else {
+        panic!("one store: {:?}", plan.stores());
+    };
+    let ConstructionStoreRhsV1::Parameter { provided, .. } = store.rhs() else {
+        panic!("param store: {:?}", store.rhs());
+    };
+    let node_object = batch.object_for(parent).unwrap();
+    assert_eq!(*provided, Some(node_object));
 }
 
 #[test]

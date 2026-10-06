@@ -85,6 +85,78 @@ fn owned_object_layout_keeps_ignored_null_only_declared_parent() {
 }
 
 #[test]
+fn owned_object_layout_publishes_self_referential_child_tuple() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for optimize in [false, true] {
+            let text = "box Node { left: Node\nright: Node\nvalue: i64
+                birth(left, right, value) {
+                    me.left = left
+                    me.right = right
+                    me.value = value
+                } }
+                static box Main { main() {
+                    local item = new Node(null, null, 1)
+                    return 0
+                } }";
+            MirCompiler::with_options(optimize)
+                .compile_normal_with_published(
+                    request(text),
+                    |view, verification| -> Result<(), String> {
+                        assert!(verification.is_ok(), "{verification:?}");
+                        let input = view.issue_lifecycle_physical_abi_input()?;
+                        let wire = emit_lifecycle_physical_abi_json(&input)?;
+                        let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                        let birth = json["functions"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|row| row["name"] == "Node.birth/3")
+                            .unwrap();
+                        let stores: Vec<_> = birth["blocks"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .map(|row| &row["terminator"]["instruction"]["operation"])
+                            .filter(|row| row["kind"] == "object_field_set")
+                            .collect();
+                        assert_eq!(stores.len(), 2, "both nullable fields store");
+                        let layout = json["layouts"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .find(|row| {
+                                row["object_id"] == stores[0]["object_id"]
+                            })
+                            .unwrap();
+                        // The self-referential census seals the object's
+                        // own identity in both mark rows — the emitted
+                        // teardown calls its own helper on each live child.
+                        assert_eq!(
+                            layout["owned_object_residences"],
+                            serde_json::json!([
+                                {"field_ordinal": 0,
+                                 "child_object_id": layout["object_id"]},
+                                {"field_ordinal": 1,
+                                 "child_object_id": layout["object_id"]},
+                            ])
+                        );
+                        std::fs::write(
+                            std::env::temp_dir().join(format!(
+                                "hako-owned-layout-selfref-opt{optimize}.json"
+                            )),
+                            wire,
+                        )
+                        .unwrap();
+                        Ok(())
+                    },
+                )
+                .unwrap();
+        }
+    });
+}
+
+#[test]
 fn owned_object_layout_publishes_constructed_child_canonical_tuple() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

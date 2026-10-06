@@ -257,15 +257,19 @@ pub(super) fn append_source_claims(
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
         }
-        let children = owned_field_children_of(
-            &site,
-            batch,
-            instance_constructors,
-            &box_source,
-            destruction,
-            &field_residences,
-            owned_field_children,
-        )?;
+        let children = {
+            let mut visiting = std::collections::BTreeSet::new();
+            owned_field_children_of(
+                &site,
+                batch,
+                instance_constructors,
+                &box_source,
+                destruction,
+                &field_residences,
+                owned_field_children,
+                &mut visiting,
+            )?
+        };
         if matches!(
             destruction,
             ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
@@ -339,15 +343,19 @@ pub(super) fn append_source_claims(
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
             }
         }
-        let children = owned_field_children_of(
-            &site,
-            batch,
-            instance_constructors,
-            &box_source,
-            destruction,
-            &field_residences,
-            owned_field_children,
-        )?;
+        let children = {
+            let mut visiting = std::collections::BTreeSet::new();
+            owned_field_children_of(
+                &site,
+                batch,
+                instance_constructors,
+                &box_source,
+                destruction,
+                &field_residences,
+                owned_field_children,
+                &mut visiting,
+            )?
+        };
         if matches!(
             destruction,
             ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook

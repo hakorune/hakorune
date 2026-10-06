@@ -136,6 +136,158 @@ fn ordinary_new_owned_object_children_seal_in_declaration_order() {
     );
 }
 
+/// A self-referential provided field is the admitted recursion:
+/// `left: Node`/`right: Node` seal `Object` children whose canonical
+/// identity is the enclosing object itself — the emitted per-class
+/// teardown calls its own helper on each live instance, so the census
+/// admits the type-level cycle while the release graph bottoms out on
+/// real children.
+#[test]
+fn ordinary_new_owned_self_referential_children_seal() {
+    use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1;
+    let package = issue_with_brand_catalog(
+        "box Node {
+            left: Node
+            right: Node
+            value: i64
+            birth(left, right, value) {
+                me.left = left
+                me.right = right
+                me.value = value
+            }
+        }
+        static box Main {
+            main() { local item = new Node(null, null, 1) return 0 }
+        }",
+    )
+    .expect("self-referential package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Node")
+        .collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one Node claim, got {claims:?}")
+    };
+    assert_eq!(
+        claim.destruction(),
+        crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+    );
+    let children = claim.children().expect("self-referential residences seal");
+    assert_eq!(children.len(), 2);
+    for (ordinal, child) in children.iter().enumerate() {
+        assert_eq!(child.field.declaration_ordinal() as usize, ordinal);
+        let OwnedFieldChildKindV1::Object(inner) = child.kind else {
+            panic!("self-referential field seals an Object child, got {child:?}")
+        };
+        assert_eq!(
+            inner,
+            claim.object(),
+            "the sealed child identity is the enclosing object itself"
+        );
+    }
+}
+
+/// A non-self `OwnedObjectFieldsNoHook` child resolves through the same
+/// recursion: `mid: Mid` seals while `Mid`'s own inventory seals —
+/// nesting depth is a runtime property of the emitted teardown call
+/// graph, never a census bound.
+#[test]
+fn ordinary_new_owned_nested_object_child_seals() {
+    use crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1;
+    let package = issue_with_brand_catalog(
+        "box Inner {
+            value: i64
+            birth(value) { me.value = value }
+        }
+        box Mid {
+            inner: Inner
+            birth(inner) { me.inner = inner }
+        }
+        box Top {
+            mid: Mid
+            birth(mid) { me.mid = mid }
+        }
+        static box Main {
+            main() {
+                local inner = new Inner(7)
+                local mid = new Mid(inner)
+                local top = new Top(mid)
+                return 0
+            }
+        }",
+    )
+    .expect("nested object package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Top")
+        .collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one Top claim, got {claims:?}")
+    };
+    let children = claim.children().expect("nested object residences seal");
+    let [child] = children.as_ref() else {
+        panic!("one Object child, got {children:?}")
+    };
+    assert!(
+        matches!(child.kind, OwnedFieldChildKindV1::Object(_)),
+        "nested object child seals as an Object child, got {child:?}"
+    );
+    // The nested inventory lands in the ledger too — `inner`'s own
+    // children are the sealed rows the teardown walks at runtime.
+    let mid_claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Mid")
+        .collect();
+    let [mid] = mid_claims.as_slice() else {
+        panic!("one Mid claim, got {mid_claims:?}")
+    };
+    assert!(
+        mid.children().is_some(),
+        "the nested child's own inventory seals through the same census"
+    );
+}
+
+/// The nested recursion stays fail-closed: a `OwnedObjectFields` child
+/// whose own inventory cannot seal — an unproven object-field residence
+/// — leaves the enclosing children unsealed rather than guessing a
+/// release shape.
+#[test]
+fn ordinary_new_owned_nested_object_child_stays_unproven_on_rejected_evidence() {
+    let package = issue_with_brand_catalog(
+        "box Inner { value: i64\nbirth(value) { me.value = value } }
+        box Mid { inner: Inner\nbirth() { } }
+        box Top { mid: Mid\nbirth(mid) { me.mid = mid } }
+        static box Main {
+            main() {
+                local mid = new Mid()
+                local top = new Top(mid)
+                return 0
+            }
+        }",
+    )
+    .expect("unproven nested package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Top")
+        .collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one Top claim, got {claims:?}")
+    };
+    assert!(
+        claim.children().is_none(),
+        "an unproven nested child leaves the inventory unsealed"
+    );
+}
+
 /// A child owning sealed `ArrayBox` residences is the admitted bounded
 /// nesting: `child: OwnChild = new OwnChild()` seals an `Object` child
 /// while the child's own teardown inventory lands in the ledger —
@@ -177,9 +329,8 @@ fn ordinary_new_owned_nested_array_child_seals() {
 }
 
 /// The user-object residence proof stays fail-closed: missing or ambiguous
-/// birth stores, a wrong-class store, a child deeper than the bounded
-/// owned-`ArrayBox` level or with unproven nested residences, and a
-/// self-referential field each leave `children` unsealed — the lifecycle
+/// birth stores, a wrong-class store, or a child whose own nested
+/// residences never proved each leave `children` unsealed — the lifecycle
 /// gate refuses the teardown rather than guessing a release shape.
 #[test]
 fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
@@ -198,20 +349,12 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
         ),
         // The sole birth store must write exactly the declared class.
         ("wrong-class", "child: Child = new Other()\nbirth() { }"),
-        // A child owning a user-object field is deeper than the bounded
-        // owned-`ArrayBox` nesting level.
-        (
-            "deeper-child",
-            "child: DeepChild = new DeepChild()\nbirth() { }",
-        ),
         // A child whose own `ArrayBox` residence never proved a birth
         // provider keeps the whole nested claim unsealed.
         (
             "unproven-nested",
             "child: HalfChild = new HalfChild()\nbirth() { }",
         ),
-        // A field of the enclosing class can never terminate in S0.
-        ("self", "child: Parent = new Parent()\nbirth() { }"),
     ] {
         let source = format!(
             "box Child {{ v: i64 = 0\nbirth() {{ }} }}
@@ -243,4 +386,46 @@ fn ordinary_new_owned_object_children_stay_unproven_on_rejected_evidence() {
             "{label}: rejected residence evidence stays unsealed"
         );
     }
+}
+
+/// A non-self ownership cycle stays declined: `PeerA -> PeerB -> PeerA`
+/// revisits an in-progress ancestor, so the `visiting` set declines the
+/// nested seal and the enclosing claim keeps `children` unsealed. Mutual
+/// ownership is source-unconstructible — each binding moves once — and
+/// its teardown could never bottom out, so the census refuses the type
+/// shape rather than inventing a release order.
+#[test]
+fn ordinary_new_owned_object_children_decline_non_self_cycles() {
+    let package = issue_with_brand_catalog(
+        "box PeerA {
+            peer: PeerB
+            birth(peer) { me.peer = peer }
+        }
+        box PeerB {
+            peer: PeerA
+            birth(peer) { me.peer = peer }
+        }
+        box Parent {
+            child: PeerA
+            birth(child) { me.child = child }
+        }
+        static box Main {
+            main() { local item = new Parent(null) return 0 }
+        }",
+    )
+    .expect("mutual-ownership package");
+    let rows = package
+        .ordinary_new_claim_ledger
+        .pending_claims_for_test();
+    let claims: Vec<_> = rows
+        .values()
+        .filter(|claim| claim.class() == "Parent")
+        .collect();
+    let [claim] = claims.as_slice() else {
+        panic!("one Parent claim, got {claims:?}")
+    };
+    assert!(
+        claim.children().is_none(),
+        "a non-self ownership cycle stays unsealed"
+    );
 }

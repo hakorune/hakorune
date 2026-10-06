@@ -1,0 +1,35 @@
+// nested-object-field-teardown-min
+//
+// Self-referential owned object fields: `left: Node` / `right: Node`
+// are nullable handle slots whose sealed children census admits
+// `child == object`. `Handle` `new` actuals move caller-owned live
+// children into each parent's fields at the call's Normal edge. At the
+// root's teardown the emitted `object_field_release` ops call the
+// generated per-class `hako_lifecycle_teardown_<id>` helper — which
+// releases each live child slot (null-tolerant), recurses into the
+// child's own teardown on a different instance, then Home-releases it
+// — before the parent's own Home release. Depth 3 exercises
+// helper→helper→helper recursion, never a census-time unroll.
+
+box Node {
+    left: Node
+    right: Node
+    value: i64
+
+    birth(left, right, value) {
+        me.left = left
+        me.right = right
+        me.value = value
+    }
+}
+
+static box Main {
+  main() {
+    local ll = new Node(null, null, 1)
+    local lr = new Node(null, null, 2)
+    local l = new Node(ll, lr, 3)
+    local r = new Node(null, null, 4)
+    local n = new Node(l, r, 5)
+    return 0
+  }
+}

@@ -162,10 +162,11 @@ pub(super) fn check_module_with_source(
                         // An owned object-field release names the field's
                         // declared user class resolved through exact object
                         // membership — never a name guess. The child must
-                        // be `PlainI64NoHook` or a sealed
-                        // `OwnedArrayFieldsNoHook` (the bounded nested
-                        // bound) and the parent an owned-object-fields
-                        // object.
+                        // carry a releasable disposition — plain, owned
+                        // array, or owned object fields (nesting is a
+                        // runtime property of the emitted teardown call
+                        // graph, not a verification bound) — and the
+                        // parent an owned-object-fields object.
                         InvokeOperation::OwnedObjectFieldRelease { field, child, .. }
                             if !(module.canonical_field_definition(*field).is_some_and(
                                 |definition| {
@@ -189,6 +190,7 @@ pub(super) fn check_module_with_source(
                                         definition.destruction_disposition(),
                                         crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
                                             | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
                                     )
                                 })
                                 && module
@@ -208,11 +210,12 @@ pub(super) fn check_module_with_source(
                         // An object-field store names the field's declared
                         // user class resolved through exact object
                         // membership — the same authority as the release
-                        // side, never a name guess. The child carries the
-                        // same bounded bound: `PlainI64NoHook` or a sealed
-                        // `OwnedArrayFieldsNoHook` whose residences the
-                        // in-flight discharge releases before the child
-                        // storage.
+                        // side, never a name guess. The child must carry a
+                        // releasable disposition — plain, owned array, or
+                        // owned object fields (nesting is a runtime
+                        // property of the emitted teardown call graph, not
+                        // a verification bound) — matching the release
+                        // side's bound exactly.
                         InvokeOperation::ObjectFieldSet { field, child, .. }
                             if !(module.canonical_field_definition(*field).is_some_and(
                                 |definition| {
@@ -236,6 +239,7 @@ pub(super) fn check_module_with_source(
                                         definition.destruction_disposition(),
                                         crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
                                             | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                            | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
                                     )
                                 })
                                 && module

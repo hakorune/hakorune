@@ -5,6 +5,7 @@
 //! reads one ledger. This private move preserves call order and failure
 //! boundaries.
 use std::collections::BTreeMap;
+use std::collections::BTreeSet;
 
 use super::super::super::{
     field_write_claim, OrdinaryNewCoSealIssueV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
@@ -18,16 +19,22 @@ use crate::mir::resolved_semantics::OwnedExprSiteV1;
 /// `OwnedArrayFieldsNoHook`/`OwnedObjectFieldsNoHook` objects carry their
 /// residence-capable declared fields in declaration order only when each
 /// field has a sealed birth-side residence whose written class equals the
-/// declared type. A user-object child additionally admits exactly one
-/// bounded nesting level: a `PlainI64NoHook` object always resolves,
-/// while an `OwnedArrayFieldsNoHook` child resolves only when its own
-/// `ArrayBox` residences seal — releasing its slots is sound exactly
-/// while every residence is a proven provider store. The child's sealed
+/// declared type. A user-object child admits: a `PlainI64NoHook` object
+/// always resolves; an `OwnedArrayFieldsNoHook` child resolves only when
+/// its own `ArrayBox` residences seal; an `OwnedObjectFieldsNoHook` child
+/// resolves when its own inventory seals — the emitted per-class
+/// teardown calls it, so nesting depth is a runtime property, not a
+/// census bound. Self-reference (`child == object`) is admitted directly:
+/// the inventory being sealed is the child's own, and the teardown call
+/// graph recurses on a different instance. `visiting` marks the
+/// in-progress ancestor chain — a revisit is a non-self type cycle
+/// (mutual ownership is source-unconstructible, and its teardown would
+/// never bottom out), so the inventory declines it. The child's sealed
 /// inventory is inserted into `owned_field_children` for the downstream
-/// reclaim/discharge and release consumers; deeper teardown, cycles and
-/// unproven child residences stay unadmitted. Any unproven field — or a
-/// missing object definition — yields `None`, which every consumer
-/// treats as unadmitted, never silently plain.
+/// reclaim/discharge and release consumers; unproven child residences
+/// stay unadmitted. Any unproven field — or a missing object definition
+/// — yields `None`, which every consumer treats as unadmitted, never
+/// silently plain.
 pub(super) fn owned_field_children_of(
     site: &OwnedExprSiteV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -39,6 +46,7 @@ pub(super) fn owned_field_children_of(
         hakorune_mir_defs::CanonicalObjectIdV1,
         Option<Box<[OwnedFieldChildV1]>>,
     >,
+    visiting: &mut BTreeSet<hakorune_mir_defs::CanonicalObjectIdV1>,
 ) -> Result<Option<Box<[OwnedFieldChildV1]>>, OrdinaryNewCoSealIssueV1> {
     use crate::mir::function::ObjectDestructionDispositionV1;
     if !matches!(
@@ -54,6 +62,9 @@ pub(super) fn owned_field_children_of(
     let mut issue_error = None;
     let children = instance_constructors
         .with_source_object_definition(box_source, |object, definition| {
+            if !visiting.insert(object) {
+                return None;
+            }
             let mut children = Vec::new();
             for (ordinal, field) in definition.fields().iter().enumerate() {
                 let declared = field.declared_type_name.as_deref();
@@ -70,6 +81,7 @@ pub(super) fn owned_field_children_of(
                     field.name.clone().into_boxed_str(),
                 );
                 let Some(residence) = residences.get(&key) else {
+                    visiting.remove(&object);
                     return None;
                 };
                 let class: &str = match residence {
@@ -79,8 +91,15 @@ pub(super) fn owned_field_children_of(
                     // it must be a user class — builtin/`ArrayBox` fields
                     // keep their provider-only boundary.
                     field_write_claim::OwnedFieldResidenceV1::Provided => {
-                        let name = declared?;
+                        let name = match declared {
+                            Some(name) => name,
+                            None => {
+                                visiting.remove(&object);
+                                return None;
+                            }
+                        };
                         if name == "ArrayBox" || crate::box_trait::is_builtin_box(name) {
+                            visiting.remove(&object);
                             return None;
                         }
                         name
@@ -90,6 +109,7 @@ pub(super) fn owned_field_children_of(
                 // exactly — a proven residence of a different class does
                 // not satisfy the typed field.
                 if declared != Some(class) {
+                    visiting.remove(&object);
                     return None;
                 }
                 let field_ref = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
@@ -101,58 +121,102 @@ pub(super) fn owned_field_children_of(
                 } else {
                     let child_source = match batch.ordinary_box_coverage().row_for(class) {
                         Ok(Some(row)) => row,
-                        _ => return None,
+                        _ => {
+                            visiting.remove(&object);
+                            return None;
+                        }
                     };
                     let (child, child_destruction) =
                         match instance_constructors.destruction_for(child_source) {
-                            Ok((child, destruction)) if child != object => (child, destruction),
-                            _ => return None,
+                            Ok((child, destruction)) => (child, destruction),
+                            _ => {
+                                visiting.remove(&object);
+                                return None;
+                            }
                         };
                     match child_destruction {
                         ObjectDestructionDispositionV1::PlainI64NoHook => {}
-                        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook => {
-                            // The bounded nested admission: the child owns
-                            // `ArrayBox` residences only when its own
-                            // teardown inventory seals — releasing its
-                            // slots is sound exactly while every residence
-                            // is a proven provider store.
-                            let nested = match owned_field_children_of(
-                                site,
-                                batch,
-                                instance_constructors,
-                                child_source,
-                                child_destruction,
-                                residences,
-                                owned_field_children,
-                            ) {
-                                Ok(Some(nested)) => nested,
-                                Ok(None) => return None,
-                                Err(error) => {
-                                    issue_error = Some(error);
-                                    return None;
+                        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                        | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
+                            if child == object =>
+                        {
+                            // Self-reference: the inventory being sealed is
+                            // the child's own — no recursion. The emitted
+                            // teardown calls the same class's helper on a
+                            // different instance, so the release graph
+                            // bottoms out on live children, not types.
+                        }
+                        ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                        | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+                            // The nested admission: the child resolves only
+                            // when its own teardown inventory seals. The
+                            // `OwnedArray` arm additionally requires the
+                            // sealed rows to stay array-typed — releasing
+                            // its slots is sound exactly while every
+                            // residence is a proven provider store. A
+                            // memoized seal answers first; the visited set
+                            // declines a non-self cycle back into an
+                            // in-progress ancestor.
+                            let nested = match owned_field_children.get(&child) {
+                                Some(sealed) => sealed.clone(),
+                                None => {
+                                    // `visiting` already marks every
+                                    // in-progress ancestor; the callee
+                                    // inserts `child` itself, so a revisit
+                                    // there is exactly a non-self cycle.
+                                    let nested = match owned_field_children_of(
+                                        site,
+                                        batch,
+                                        instance_constructors,
+                                        child_source,
+                                        child_destruction,
+                                        residences,
+                                        owned_field_children,
+                                        visiting,
+                                    ) {
+                                        Ok(nested) => nested,
+                                        Err(error) => {
+                                            visiting.remove(&object);
+                                            issue_error = Some(error);
+                                            return None;
+                                        }
+                                    };
+                                    match owned_field_children.entry(child) {
+                                        std::collections::btree_map::Entry::Vacant(entry) => {
+                                            entry.insert(nested.clone());
+                                        }
+                                        std::collections::btree_map::Entry::Occupied(entry)
+                                            if *entry.get() == nested => {}
+                                        std::collections::btree_map::Entry::Occupied(_) => {
+                                            visiting.remove(&object);
+                                            issue_error =
+                                                Some(OrdinaryNewCoSealIssueV1::DuplicateSite {
+                                                    site: site.clone(),
+                                                });
+                                            return None;
+                                        }
+                                    }
+                                    nested
                                 }
                             };
-                            if nested
-                                .iter()
-                                .any(|row| !matches!(row.kind, OwnedFieldChildKindV1::Array))
+                            let Some(nested) = nested else {
+                                visiting.remove(&object);
+                                return None;
+                            };
+                            if child_destruction
+                                == ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                                && nested.iter().any(|row| {
+                                    !matches!(row.kind, OwnedFieldChildKindV1::Array)
+                                })
                             {
+                                visiting.remove(&object);
                                 return None;
                             }
-                            match owned_field_children.entry(child) {
-                                std::collections::btree_map::Entry::Vacant(entry) => {
-                                    entry.insert(Some(nested));
-                                }
-                                std::collections::btree_map::Entry::Occupied(entry)
-                                    if entry.get().as_deref() == Some(nested.as_ref()) => {}
-                                std::collections::btree_map::Entry::Occupied(_) => {
-                                    issue_error = Some(OrdinaryNewCoSealIssueV1::DuplicateSite {
-                                        site: site.clone(),
-                                    });
-                                    return None;
-                                }
-                            }
                         }
-                        _ => return None,
+                        _ => {
+                            visiting.remove(&object);
+                            return None;
+                        }
                     }
                     OwnedFieldChildKindV1::Object(child)
                 };
@@ -161,6 +225,7 @@ pub(super) fn owned_field_children_of(
                     kind,
                 });
             }
+            visiting.remove(&object);
             Some(children.into_boxed_slice())
         })
         .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
@@ -245,15 +310,19 @@ pub(super) fn seal_provider_owned_children_v1(
                     arity: arguments.len(),
                 });
             }
-            let children = owned_field_children_of(
-                &owned_site,
-                batch,
-                instance_constructors,
-                child_source,
-                child_destruction,
-                residences,
-                owned_field_children,
-            )?;
+            let children = {
+                let mut visiting = BTreeSet::new();
+                owned_field_children_of(
+                    &owned_site,
+                    batch,
+                    instance_constructors,
+                    child_source,
+                    child_destruction,
+                    residences,
+                    owned_field_children,
+                    &mut visiting,
+                )?
+            };
             match owned_field_children.entry(child_object) {
                 std::collections::btree_map::Entry::Vacant(entry) => {
                     entry.insert(children);
@@ -363,15 +432,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(field) = field else {
         return Ok(None);
     };
-    let inventory = owned_field_children_of(
-        site,
-        batch,
-        constructors,
-        source,
-        destruction,
-        residences,
-        owned,
-    )
+    let inventory = {
+        let mut visiting = BTreeSet::new();
+        owned_field_children_of(
+            site,
+            batch,
+            constructors,
+            source,
+            destruction,
+            residences,
+            owned,
+            &mut visiting,
+        )
+    }
     .map_err(|error| format!("[freeze:contract][stored-child/residence]{error:?}"))?;
     let Some(inventory) = inventory else {
         return Ok(None);
