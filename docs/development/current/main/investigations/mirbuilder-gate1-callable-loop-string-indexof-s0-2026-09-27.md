@@ -895,42 +895,66 @@ Next row: `MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0` — census of the
 ## Census — MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 (closed)
 
 Boundary: `local b = me.<obj-field>; b.m(...)` in `run()` on the
-`--emit-exe` published route; excludes `TreeNode` nullable fields,
-`itemCheck`, `me.iterationCheck` borrowed actuals, Gates 2-4.
-
-Probe chain (published route): `local builder = me.builder` emits a
-`FieldGet`; projection `project_field_get` accepts only
-`slot_load_i64`/`slot_load_u64`/`slot_load_handle`-ArrayBox arms — a
-`Box(Builder)` slot load is `field-get-route-drift`. `local x =
-builder.m()` (i64 result) is `admission-candidate-unavailable`; the
-object-result shape is `artifact-unowned-lifecycle-site` — the exact
-token the sibling card records as its last unchanged-app observation.
+`--emit-exe` published route. Probe chain: `me.builder` `FieldGet`
+projection admits only `slot_load_i64/u64`/ArrayBox-handle arms — a
+`Box` slot load is `field-get-route-drift`; i64-result `b.m()` is
+`admission-candidate-unavailable`; object-result shape is
+`artifact-unowned-lifecycle-site` — the exact token the sibling card
+records as its last unchanged-app observation.
 
 Ownership: sibling lane `MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0`
 (card `mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05`)
-already owns the stored-child receiver family — direct
-`me.<Provider field>.m(borrowed actual)`, the canonical field read in
-its bounded series, and WIP `instance_construction_child_call.rs`. Its
-accepted scope names only the direct spelling, so the local-bound
-variant is a boundary item inside the same family, not a new wall.
+owns the stored-child receiver family (direct `me.<field>.m(..)`,
+canonical field read, WIP `instance_construction_child_call.rs`); the
+local-bound variant is a boundary item inside the same family.
 
-Decision: `ParkedSealed` on the sibling owner — the wall is the same
-stored-child family already claimed, and this lane must not open a
-parallel receiver authority. Reopen trigger: sibling S0 lands and the
-local-bound spelling (`local b = me.builder; b.m(...)`) still rejects
-on the unchanged app -> new D0 for the residual arm only.
+Decision: `ParkedSealed` on the sibling owner — no parallel receiver
+authority. Reopen trigger: sibling S0 lands and the local-bound
+spelling still rejects on the unchanged app -> new D0 for the
+residual arm only. Non-authority: `.hako` rewrite, parallel field-load
+arm. Fail-fast boundary: `field-get-route-drift`, `-lifecycle-site`
+stay. Smallest next slice: none here — next census is
+`MIRBUILDER-GATE1-NULLABLE-FIELD-D0`. Non-claims: sibling lane
+completion, nullable fields, Gates 2-4.
 
-Source authority: published `project_field_get` route inventory +
-call admission candidates. Canonical issuer: sibling lane's
-stored-child receiver arm (field read + receiver provenance).
-Non-authority: `.hako` rewrite of `run()`, a parallel field-load arm,
-local-receiver claims minted outside the sibling lane.
-Fail-fast boundary: `field-get-route-drift`, `-admission-candidate-`
-and `-lifecycle-site` freezes stay — no permissive arm added here.
-Smallest next slice: none in this lane — next in-scope wall census is
-`MIRBUILDER-GATE1-NULLABLE-FIELD-D0` (`TreeNode` `new T(null,..)`,
-`me.left == null`).
-Non-claims: sibling lane completion, nullable fields, Gates 2-4.
+## Census — MIRBUILDER-GATE1-NULLABLE-FIELD-D0 (accepted)
+
+Boundary: `TreeNode` (`init {left,right,value}`) — `make` result
+`new TreeNode(null|null|local,..)`; `itemCheck` `me.left == null` /
+`me.left.itemCheck()`. Excludes receiver ownership (sibling) and `run()`
+local-bound receiver (parked). Published `--emit-exe` probe map:
+- `new T(null,null,v)` untyped `init` -> `artifact-source-unavailable`;
+  retained row `construction=Err(SourceRelationMissing)`.
+- Typed decls `left: T` -> `RetainedUnavailable`:
+  `owned_field_children_of` declines self-referential children
+  (`child != object`, ..._owned_children.rs:108).
+- Non-self-ref `new Box2(null|local)` -> `Kind::Null`/`Handle` seal,
+  then `actual-kind-unavailable` at `scalar_actual_kind`
+  (physical_abi.rs:737) — `new` actuals take the scalar-tag path; the
+  tagged vocabulary (tag 0 null, `BorrowedTaggedValue`) exists for
+  ordinary calls only.
+- `me.<obj-field>` read/`== null`/`.itemCheck()` -> field-load +
+  stored-child receiver — sibling family (parked).
+
+Decomposition: (1) typed-init migration — branch-(a) precedent,
+prerequisite only; (2) self-ref children guard; (3) `Null`/`Handle`
+actual admission vs field capability; (4) null-fed owned-field teardown
+— `OwnedObjectFieldsNoHook` releases unconditionally and no issuer
+seals release-if-live field semantics (NULLABLE-RESULT-ABI covers
+result-position locals only); (5) `scalar_actual_kind` Null/Handle tag
+arms — downstream of (3)/(4). No nullable field surface exists in
+`.hako`; whether `left: T` means always-live is the open question.
+
+Decision: NoSafeSlice for implementation — the null-capable
+owned-field authority (disposition + null-aware children census +
+actual-capability check) is unissued; relaxing the guard or publishing
+tags without it admits UB (unconditional release of a null child).
+Smallest next slice: `MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0` —
+design census of the teardown/disposition authority, the capability
+check and the `.hako` field type surface. Non-authority: `.hako`
+surface invention, sibling field-load lane. Fail-fast boundary:
+`actual-kind-unavailable`, `NewEmissionUnavailable` stay.
+Non-claims: `itemCheck` reads, Gates 2-4.
 
 ## Preserved contract boundaries
 
@@ -957,40 +981,11 @@ Non-claims: sibling lane completion, nullable fields, Gates 2-4.
   explicit-contract precedent (`b16c3548ac`); not evidence for the
   unannotated input.
 
-## Evidence retained from the previous card
+## Evidence retained from the previous card (tombstone)
 
-### Fixed EXE suite — recorded 2026-09-29, not rerun here
-
-Receipt: `574d90ffc5` + `c82b7a415a`; full record at
-`339674c77b:this-file` — 5 PASS / 6 FAIL, retained-result completion and
-explicit-LLVM-18 fallback repaired; suite failure is not "six designed
-stops".
-
-### Reviewer remediation — recorded at 339674c77b
-
-Stale pins corrected, six oversized parents split under 800 lines,
-focused suites recorded green; one root-catalog failure reproduced on
-parent `053b659637`. Full record at `339674c77b:this-file`.
-
-### Landed history tombstone
-
-Full designs, rejected alternatives and old terminal order are in Git;
-`git show 339674c77b:docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md`
-recovers the complete prior card. No archive copy or new card is created.
-
-| Commit | Landed responsibility / evidence |
-| --- | --- |
-| `d3a259a01c`..`43b706e07e` | Early slices: StringIndexOf/1, flat call-free LoopCond, MiWorkload contract, instance receivers, StringLen, field-write provenance — full record via git. |
-| `179c6c67c7` | Uniform return-new result-class claims and call-result receivers. |
-| `5fd8f3fd17` | Non-condition carrier coverage, root-call unavailable finishing/seal distinction, binary-trees result annotation. |
-| `4e89bbb551` | Generic Invoke rejection preserved; untyped-field smoke uses physical route. |
-| `e054920b05` | Unreleasable artifact boundary; mimalloc smoke physical route. |
-| `c8c930d8e6` | Child retained-unavailable rejection before lifecycle coverage. |
-| `30ffce464c` | Exact Return-position new claims and artifact bindings. |
-| `1dad229932` | Direct Handle result ABI; lifecycle focused 29/29. |
-| `493e55de4e` | Claim-local lexical Handle result; lifecycle focused 32/32. |
-| `574d90ffc5`, `c82b7a415a` | Recorded suite and retained-result / explicit-tool fixes. |
-| `339674c77b` | Guard pins and six source splits; focused results above. |
+Fixed-EXE suite `574d90ffc5`+`c82b7a415a` (5 PASS / 6 FAIL), reviewer
+remediation and the full landed-history table are recoverable at
+`git show 339674c77b:<this-file>`; no archive copy is created.
 
 ## Organization closeout
 

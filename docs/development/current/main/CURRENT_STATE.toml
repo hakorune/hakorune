@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
+current_execution_row = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/nullable-field"
-current_design_stop = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
+current_blocker_token = "selfhost-resume/nullable-owned-field"
+current_design_stop = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NOBIRTH-PROVIDER-S0 landed (fc57455bb5); STORED-CHILD-RECEIVER-D0
-closed as ParkedSealed — sibling `STORED-CHILD-BORROWED-C-RECEIVER-S0`
-owns the family (`artifact-unowned-lifecycle-site` is its own recorded
-app observation). Probes: `field-get-route-drift` (object slot load),
-`admission-candidate-unavailable` (local-bound receiver).
-Next wall census: `TreeNode` nullable fields -> NULLABLE-FIELD-D0.
+NULLABLE-FIELD-D0 census accepted: `TreeNode` decomposes into
+typed-init migration (prerequisite), self-ref children guard,
+`Null`/`Handle` `new` actual admission, null-fed owned-field teardown
+(no issuer — NoSafeSlice), and `scalar_actual_kind` tag arms.
+Next wall census: NULLABLE-OWNED-FIELD-D0 (teardown/disposition
+authority + `.hako` field type surface).
 """
-next_design_card = "MIRBUILDER-GATE1-NULLABLE-FIELD-D0"
+next_design_card = "MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -42,8 +42,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 closed + NULLABLE-FIELD-D0 accepted (`bd3450e26f`, census docs) — `local b = me.builder; b.m()` parked on sibling `STORED-CHILD-BORROWED-C-RECEIVER-S0` (same `artifact-unowned-lifecycle-site` observation). Nullable probes: untyped `init` -> `SourceRelationMissing`; typed `left: T` -> self-ref children guard (`child != object`); `new Box2(null|local)` -> `Kind::Null`/`Handle` seal then `actual-kind-unavailable` at `scalar_actual_kind`. Decomposition: typed-init migration (prereq) + self-ref guard + actual-capability check + null-fed teardown (unissued authority — NoSafeSlice) + tag arms. Next: `selfhost-resume/nullable-owned-field` (teardown/disposition D0).",
   "2026-10-06: MIRBUILDER-GATE1-NOBIRTH-PROVIDER-S0 landed — `ProviderConstructionChildV1::{BirthIndexed,NoBirthZero}` sealed on the plan (Birth-row inventory + field count; NoBirthZero = arity0 + fieldless); NoBirth arm emits NewBox+ObjectFieldSet+HomeRelease (no birth call/recipe/ABI record); `ProviderChildEmissionV1` + validation; accounting 3*birth+1*nobirth. Pins 8/8; suites 276/232/97/64/37/8/4 green. Real route clears `provider-birth-recipe-missing` -> preserved Invoke boundary; llvm compiles 14 fns -> backend_return_contract_capability_missing. Baseline red parent-reproduced: provider_owned_array_child + source_stringbox env race. Next: `selfhost-resume/stored-child-receiver`.",
   "2026-10-06: MIRBUILDER-GATE1-BIRTH-COMPUTED-STORE-S0 landed — `issue_construction_plan` admits `me.<field>` RHS reads resolving read-after-write to prior `LiteralI64` stores + field-read BinOp folding (Add/Sub/Mul, checked ops, >=1 field read required); `ConstructionStoreV1::me_reads` transports `me` receiver sites consumed at `take_construction_store` via `observe_variable_site` — no birth ObjectFieldGet, no BinOp MIR. Pins: construction_plan 6/6 (folded literals + decline pins: forward/unwritten/parameter/object-field/pure-literal); suites instance_constructor 39/39, ordinary_new 276/276, root_instance_call 8/8, lexical 232/232. `bench_min` probe reaches the Invoke emit boundary. Wall A3: NoBirth provider child -> `provider-birth-recipe-missing`. Next: `selfhost-resume/nobirth-provider-child`.",
-  "2026-10-06: MIRBUILDER-GATE1-ROOT-INSTANCE-ENTRY-S0 landed — `BinaryTreesBench` `init` fields migrated to typed decls (builder: BinaryTreeBuilder + 4 i64) per UNTYPED-OBJECT-STORAGE-D0 branch (a); `issue_root_instance_call_dispositions` `unreleasable` widened to `end_available` parity (PlainI64NoHook OR Owned*FieldsNoHook+sealed children). Pins: owned-field Call entry seals (Holder/Page fixture), unissued without children; focused root_instance_call 8/8, handle_result 9/9, ordinary_new 276/276, lexical 232/232. --emit-mir-json probes reach the known Invoke boundary. Wall A2 bisected: computed birth stores (`me.b = me.a + 1`) -> BodyCoverageUnsupported. Baseline red noted: main_f1_rejects_direct_call_and_nested_owner_before_lowering reproduces on parent 7b754359e1. Next: `selfhost-resume/birth-store-rhs`.",
   ]
 
