@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: source preparation BoxShape S0 closed; child-relation D0 selected
+Status: child-relation D0 accepted; call witness composition BoxShape S0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -724,3 +724,50 @@ sole physical outcome and publication remain required production work.
 Next-pointer guard initially rejected workstream row H length549; shorten only
 that current row while keeping full contract/evidence here. Corrected pointer
 and scope guards PASS; no outstanding guard red.
+
+## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
+
+Read-only review corroborates exact current APIs and prelookup failure order.
+Decision: one private borrowed CallWitnessSourceV1 view verifies output/call owner,
+arity and each actual owner/Argument(index) identity; sole verify constructor
+returns Option<Self>. Its compose(self,callee_rows,parameter_contracts,batch_slot)
+returns Option<Vec<Rc<ResultOriginWitnessV1>>> with existing formal substitutions.
+No new public/semantic receipt: ephemeral view groups current checks only.
+Original evaluator keeps verify-before-lookup, missing/pending handling and legacy
+eligibility, then composition and unchanged alternatives/coverage/class fold.
+Reject an all-in-one Waiting/Ready helper: finished candidate joins should not
+invent pending policy. Reject duplicated verification or fake return exits.
+Malformed pending source must stay Dead; valid unresolved source stays Waiting.
+
+Source child relation mapping accepted: private candidate map in SAME finished
+result Facts, keyed branded outer construction site+canonical field. Private
+all-origin direct FreshConstruction enumeration avoids projection-only iter/keys
+and skips facade Call wrappers; original owning callable supplies lowering input.
+Join sealed constructor store/formal/actual identities and existing sole local
+initializer+call source witnesses. Missing/unsupported field relations expose no
+candidate, never default Null/Fresh or all-fields completion. Partial passive
+relations cannot authorize a completed construction. Fresh/forward witnesses
+are not acquired Home/anchor lifetime. Actual field admission stays unchanged.
+
+Select MIRBUILDER-GATE1-CALL-WITNESS-COMPOSITION-BOXSHAPE-S0, fast, first.
+Source authority + canonical issuer: current evaluate_row Fwd arm and exact
+existing PendingExit source rows; private call_witness child owns sole verify
+and compose implementation, called only by the existing result fold for now.
+Replacement: inline identity and callee-witness composition loops; switch the
+one existing evaluator caller and remove those inline bodies in this slice.
+Non-authority: ephemeral grouping, candidate/class/source origins, pointer tags.
+Fail-fast boundary: preserve ALL current identity/arity/formal-kind/substitution
+checks and prelookup Dead versus Waiting order. No pending/legacy/coverage policy
+inside composer, no second scan or fixed point, no execution admission.
+Acceptance: test-inclusive quick check and existing focused32; extend existing
+corruption test with missing-pending callee cases proving malformed call/actual
+owner/path stays Dead and structurally valid missing formal binding stays Waiting
+until callee resolution. Existing multi-hop/formal-null/same-origin sharing and
+full facade source pins retain composition behavior. Scope/pointer/diff/rustfmt
+and source caps; no full CLI rebuild for shape-only change absent behavior drift.
+Paths: result-class registration/evaluate/new call_witness, existing witness test,
+package README, active card and changed current pointers; guard only if moved pin
+requires it. No candidate map, field contract, Home, app or C edit in this slice.
+After this separately verified extraction, source child candidate semantic slice
+uses the SAME helper and product. Lifetime/cleanup/physical/publication and
+unchanged production EXE remain incomplete, Gates2-4/stored-child remain parked.
