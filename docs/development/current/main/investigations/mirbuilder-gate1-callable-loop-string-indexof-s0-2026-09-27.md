@@ -860,102 +860,29 @@ unguarded; `host_providers::mir_builder` subset at >=4 threads).
 
 ## Census — MIRBUILDER-GATE1-STORED-CHILD-RECEIVER-D0 (closed)
 
-Boundary: `local b = me.<obj-field>; b.m(...)` in `run()` on the
-`--emit-exe` published route. Probe chain: `me.builder` `FieldGet`
-projection admits only `slot_load_i64/u64`/ArrayBox-handle arms — a
-`Box` slot load is `field-get-route-drift`; i64-result `b.m()` is
-`admission-candidate-unavailable`; object-result shape is
-`artifact-unowned-lifecycle-site` — the exact token the sibling card
-records as its last unchanged-app observation.
+`local b = me.<obj-field>; b.m()` is `ParkedSealed` on sibling lane
+`MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0` (card
+`mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05`), which
+owns the family and already records the same
+`artifact-unowned-lifecycle-site` observation. Reopen trigger: sibling
+S0 lands and the local-bound spelling still rejects on the unchanged
+app -> new D0 for the residual arm only. Full census text recovers at
+`git show bd3450e26f:<this-file>`; `field-get-route-drift` and
+`-lifecycle-site` stay fail-fast.
 
-Ownership: sibling lane `MIRBUILDER-STORED-CHILD-BORROWED-C-RECEIVER-S0`
-(card `mirbuilder-stored-child-borrowed-call-receiver-d0-2026-10-05`)
-owns the stored-child receiver family (direct `me.<field>.m(..)`,
-canonical field read, WIP `instance_construction_child_call.rs`); the
-local-bound variant is a boundary item inside the same family.
+## Census — MIRBUILDER-GATE1-NULLABLE-FIELD-D0 (accepted, closed)
 
-Decision: `ParkedSealed` on the sibling owner — no parallel receiver
-authority. Reopen trigger: sibling S0 lands and the local-bound
-spelling still rejects on the unchanged app -> new D0 for the
-residual arm only. Non-authority: `.hako` rewrite, parallel field-load
-arm. Fail-fast boundary: `field-get-route-drift`, `-lifecycle-site`
-stay. Smallest next slice: none here — next census is
-`MIRBUILDER-GATE1-NULLABLE-FIELD-D0`. Non-claims: sibling lane
-completion, nullable fields, Gates 2-4.
+`TreeNode` probe map + decomposition; superseded by the decisions
+below. Full text recovers at `git show 001abed6e4:<this-file>`.
 
-## Census — MIRBUILDER-GATE1-NULLABLE-FIELD-D0 (accepted)
+## Decision — MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0 (accepted, closed)
 
-Boundary: `TreeNode` (`init {left,right,value}`) — `make` result
-`new TreeNode(null|null|local,..)`; `itemCheck` `me.left == null` /
-`me.left.itemCheck()`. Published `--emit-exe` probe map:
-- `new T(null,null,v)` untyped `init` -> `artifact-source-unavailable`;
-  retained row `construction=Err(SourceRelationMissing)`.
-- Typed decls `left: T` -> `RetainedUnavailable`:
-  `owned_field_children_of` declines self-referential children
-  (`child != object`, ..._owned_children.rs:108).
-- Non-self-ref `new Box2(null|local)` -> `Kind::Null`/`Handle` seal,
-  then `actual-kind-unavailable` at `scalar_actual_kind`
-  (physical_abi.rs:737).
-- `me.<obj-field>` read/`== null`/`.itemCheck()` -> sibling family.
-
-Decomposition: (1) typed-init migration (prerequisite only);
-(2) self-ref children guard; (3) `Null`/`Handle` actual admission vs
-field capability; (4) null-fed owned-field teardown — no issuer
-(NULLABLE-RESULT-ABI covers result-position locals only); (5)
-`scalar_actual_kind` tag arms — downstream of (3)/(4). No nullable
-field surface exists in `.hako`; whether `left: T` means always-live
-is the open question -> forwarded to NULLABLE-OWNED-FIELD-D0 below.
-
-## Decision — MIRBUILDER-GATE1-NULLABLE-OWNED-FIELD-D0 (accepted)
-
-Boundary: null-capable owned fields — `new T(null|local,..)` actuals,
-`me.f = <possibly-null>` stores, object-field teardown. Excludes
-field reads/`== null`/receivers (sibling family), Gates 2-4.
-
-Authority map:
-- `OwnedObjectFieldsNoHook` means every field is a live user-object
-  residence; children census `owned_field_children_of` declines
-  self-reference (:108) and nested kinds (:155 PlainI64/OwnedArray
-  only); `end_plan` -> `OwnedObjectFieldRelease` walks child
-  `owned_residences` one level — "deeper teardown stays unadmitted"
-  (invoke.rs:117); `owned_object_residences` mark already published.
-- Physical layer is already null-tolerant: slots zero-init, every
-  field release is live-checked; `home_release_if_live` wire op and
-  `Handle` `new`-actual `consume_home` move accounting are landed.
-- Wire vocabulary complete: tag 0 = null pair, tag 3 = object +
-  `object_view` runtime-type check (ordinary params); the birth
-  prologue admits only kinds 1/2. `scalar_actual_kind` rejecting
-  `Null`/`Handle` is the sole arm for non-self-ref `new T(null|local)`.
-
-`.hako` surface resolution: object-typed fields are inherently
-null-capable handle slots — `left: T` needs no marker; `init`->typed
-migration is a prerequisite only.
-
-Ordered slices:
-S1 `NULLABLE-NEW-ACTUAL-S0` — capability gate (`Null`/`Handle` actual
-must bind a formal provably stored into an object-typed declared
-field via the construction relation; others freeze) +
-`scalar_actual_kind` `Null`->0/`Handle`->3 arms + birth-prologue
-object-param tag admission. Edge: `new Box2(null)`/`new Box2(local)`
-published route.
-S2 `NESTED-OBJECT-FIELD-TEARDOWN-S0` — children census admits
-`OwnedObjectFields` incl. self-reference + recursive nested release
-emit (flat unroll cannot express self-ref depth; a runtime
-`home_release_owned`-class helper) + TreeNode `init`->typed migration.
-Edge: `new TreeNode(null,null,v)` children seal.
-S3+ — `me.left` reads/`== null`/`.itemCheck()`: sibling family.
-
-Decision: `MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0` accepted as the
-smallest next slice.
-Source authority: sealed `OrdinaryNewTrivialArgumentKindV1` + the
-construction relation param->field map + declared field types.
-Canonical issuer: coseal argument-capability gate; `physical_abi`
-`scalar_actual_kind`; emit.inc birth-prologue object-param arm.
-Non-authority: `.hako` surface invention, census/emit relaxation for
-nested children (S2), unconditional release.
-Fail-fast boundary: `actual-kind-unavailable`/`RetainedUnavailable`
-stay for non-capable actuals and nested children.
-Non-claims: nested teardown, field reads, Gates 2-4.
+Null-capable owned fields resolved: object-typed fields are inherently
+null-capable handle slots (`left: T` needs no marker); physical layer
+already null-tolerant (zero-init, live-checked release); wire tags
+0/3 complete. Slices: S1 `NULLABLE-NEW-ACTUAL-S0` (landed below),
+S2 `NESTED-OBJECT-FIELD-TEARDOWN-S0` (census below). Full text recovers
+at `git show 663b989c2b:<this-file>`.
 
 ## Landed — MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (S1 complete)
 
@@ -968,6 +895,46 @@ class, k0/(3,nonzero) prologue; foreign handles reject. Evidence: pins
 4/4; both nullable smokes PASS (v4-measure ok, EXE Result 0); mismatched
 lanes reject; 4 baseline reds. Next row `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0`
 (S2 census + emit authority); field reads stay sibling family.
+
+## Census — MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0 (accepted)
+
+Boundary: `OwnedObjectFieldsNoHook` children (incl. `child == object`
+self-reference) in the teardown chain — `new TreeNode(null,null,v)`
+after `init`->typed migration. Excludes reads/receivers (sibling) +
+Gates 2-4.
+
+Authority map: `owned_field_children_of` declines (`child != object`
+:108, `OwnedObjectFields` child -> `None` :155 -> `NewEmission-
+Unavailable`); `OwnedObjectFieldRelease` verification admits child
+`PlainI64`/`OwnedArray` only (invoke.rs:186-199) and is the sole
+physical spelling; emit walks child `owned_residences` one level —
+no recursion; kernel has `home_release_plain_i64_v1` only, no
+layout-aware recursive helper.
+
+Resolution: a generated per-class teardown family
+(`hako_lifecycle_teardown_<object_id>`) owns nested release inside the
+emitted module — one authority in the emitter, no new kernel ABI.
+`object_field_release` emits slot-read -> live-check -> generated
+teardown -> plain release; self-reference recurses through the call
+graph (owned trees are acyclic — a field binds only a pre-existing
+object, each binding moves once). Census keeps a visited set; a
+shared descendant under two fields stays declined (unconstructible
+under `Provided`/move accounting, pinned by S0).
+
+S2 `MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0` — cycle-safe
+children census + `OwnedObjectFieldRelease` child-disposition
+admission + generated teardown emit + TreeNode typed migration. Edge:
+`new TreeNode(null,null,v)` EXE with teardown. S3+ reads/`== null`
+stay sibling family.
+
+Decision: accepted. Source authority: canonical definitions'
+destruction disposition + sealed `owned_field_children` + declared
+field types. Canonical issuer: `owned_field_children_of` cycle-safe
+seal; `OwnedObjectFieldRelease` verification; `emit.inc` generated
+teardown. Non-authority: kernel layout re-encoding, flat unroll,
+`.hako` read admission. Fail-fast: `NewEmissionUnavailable` /
+`object-field-release-invalid` stay for unproven children. Non-claims:
+cycles (unconstructible), sibling reads, Gates 2-4.
 
 ## Preserved contract boundaries
 

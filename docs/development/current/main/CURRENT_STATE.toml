@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/nested-object-field-teardown"
-current_design_stop = "nested-object-field-teardown"
+current_blocker_token = "selfhost-resume/nested-object-field-teardown-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-NULLABLE-NEW-ACTUAL-S0 (S1) complete: `Parameter{provided}` ->
-`ObjectFieldStores` -> `nullable_kind_payload_v1` -> `object_field_set`
-+ `if_live` tail. `Null`=(0,0); owned `Handle`=(3,payload) via
-`object_birth_actuals`; C consumes the lease on the Normal edge only.
-Pins 4/4; both smokes PASS. Next: nested-field teardown census (S2).
+NULLABLE-NEW-ACTUAL-S0 (S1) complete; NESTED-OBJECT-FIELD-TEARDOWN-D0
+accepted — cycle-safe children census + `OwnedObjectFieldRelease`
+child-disposition admission + generated per-class teardown family
+(`hako_lifecycle_teardown_<object_id>`) in emit.inc, no new kernel ABI.
+Next: `NESTED-OBJECT-FIELD-TEARDOWN-S0` (+TreeNode typed migration).
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-D0"
+next_execution_card = "MIRBUILDER-GATE1-NESTED-OBJECT-FIELD-TEARDOWN-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
