@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ARRAY-READ-FAMILY-CLOSEOUT-S0"
+current_execution_row = "MIRBUILDER-FINAL-PIPELINE-ACCEPTANCE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "physical-array-read/family-closeout"
-current_design_stop = "physical-array-read/family-closeout"
+current_blocker_token = "final-pipeline/acceptance"
+current_design_stop = "final-pipeline/acceptance"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-field-array-get-i64-result-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 latest_card_summary = """
-PRODUCTION-SWITCH-S0 census closed: production switch already complete
-(every proven `ArrayBox.get` producer reaches `ArrayElementRead`); the
-only retirement candidate — `ArrayGet`/`array_slot_load_any` route arms
-— co-owns a fully production-dead chain with the direct-array lane's
-`DirectArrayAccessPlan::Load` + `stack_top_pop` store-proof minting and
-is `ParkedSealed` to that lane owner (partial retirement would leave
-unreachable-but-pinned plan arms, a hidden dead authority). No
-in-scope edge remains. Next: `physical-array-read/family-closeout`.
+ARRAY-READ-FAMILY-CLOSEOUT-S0 census closed: every `ArrayBox.get` cell
+has a named owner — proven -> `ArrayElementRead` (Lane-A/v4/VM live),
+unproven `Union` -> dynamic facade (`runtime_array_get`/VM stop),
+`LegacyCallV0` -> zero ingress + fail-closed. All `LegacyCallV0`-input
+plan chains (`array_slot_load_any`->`DirectArrayAccessPlan::Load`/
+`stack_top_pop`, `array_getset_micro_seed_plan`) are ParkedSealed to
+the direct-array/micro-seed lane owner. Next:
+`final-pipeline/acceptance`.
 """
-next_design_card = "MIRBUILDER-ARRAY-READ-FAMILY-CLOSEOUT-S0"
+next_design_card = "MIRBUILDER-FINAL-PIPELINE-ACCEPTANCE-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-field-array-get-i64-result-d0-2026-10-06.md"

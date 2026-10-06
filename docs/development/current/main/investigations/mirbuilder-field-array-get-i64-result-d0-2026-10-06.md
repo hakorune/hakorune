@@ -949,3 +949,52 @@ Next owed: `MIRBUILDER-ARRAY-READ-FAMILY-CLOSEOUT-S0` —
 remaining in-scope legacy read path (all carriers incl. VM consumed,
 all producers canonical) and select the array-read family's closeout /
 acceptance handoff under `MIRBUILDER-FINAL-PIPELINE-v1`.
+
+## array-read family closeout census / 2026-10-06 (design_stop audit)
+
+Design-stop audit for `physical-array-read/family-closeout`. Census
+boundary: every producer/consumer of `ArrayBox.get`-semantic reads
+from all module ingresses to all executors (carriers
+`ArrayElementRead`, `Call`+`Callee::Method`, `LegacyCallV0`, v4
+`array_get` op + pattern-matching plan families); excludes
+`DirectArrayI64`/`MapBox`/`RuntimeDataBox` surfaces (sibling owners).
+
+Producer coverage: all module ingresses run `canonicalize_callsites`
+— `MirCompilerPostRc` (compiler, raw-root drain/postprocess),
+`MirJsonV0Loader`, `ProgramJsonV0Bridge` — and route metadata is
+rebuilt when rows change.
+
+Family map — every cell has a named owner:
+
+- proven `ArrayBox.get` (fresh builder gates + canonicalized v0
+  `boxcall`) -> `ArrayElementRead` sole physical owner -> Lane-A
+  kind-9 `slot_load_hi`, v4 `array_get` op -> `slot_load_hi`, VM —
+  all live-proven by landed slices.
+- unproven `Union` `Call`+`Callee::Method{ArrayBox,get}` -> dynamic
+  facade: C lane `runtime_array_get`; VM fail-closed on
+  `Callee::Method` — a different meaning with named owners.
+- `LegacyCallV0` get/set -> zero production ingress (R7-S6);
+  downstream fail-closed named stops.
+- `array_get` v4 op -> live only inside the v4 lifecycle lane emit
+  (`a083fabd90`).
+
+Dead-input plan chains (all `LegacyCallV0`, zero ingress):
+`generic_method_route_plan` `array_slot_load_any` arms ->
+`DirectArrayAccessPlan::Load` + `stack_top_pop` store proofs +
+`mir_json_emit` envelopes + `route_decision` (previous section), AND
+`array_getset_micro_seed_plan` (`direct_stack_array_getset_micro`) —
+same dead-input class, owned by the direct-array/micro-seed lane.
+
+Decision: no in-scope legacy read path remains without a named owner
+— the family is closed (one meaning, one authority, one execution
+path per cell). All `LegacyCallV0`-input plan chains are `ParkedSealed`
+to their lane owners; partial retirement from this lane is
+non-authority.
+
+Non-claims: direct-array/micro-seed lane chain retirements;
+`runtime_array_get` compat emit retirement (live unproven input);
+write-family closeout; whole-goal acceptance evidence.
+
+Next owed: `MIRBUILDER-FINAL-PIPELINE-ACCEPTANCE-S0` —
+`final-pipeline/acceptance` design_stop census scoping whole-goal
+acceptance under `MIRBUILDER-FINAL-PIPELINE-v1`.
