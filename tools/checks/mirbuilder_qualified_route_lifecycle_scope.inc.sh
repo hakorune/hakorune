@@ -460,6 +460,7 @@ rg -q 'get_result_index_rejects_plain_copy_of_get_result' "$BORROWED_FORMAL_SOUR
 # only on ordinals carrying a `Parameter` store (provider ordinals keep
 # the strict `Handle` requirement).
 INSTANCE_CONSTRUCTION_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/instance_construction.rs"
+INSTANCE_PROVIDER_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/instance_construction_provider.rs"
 CONSTRUCTION_STATE_SRC="$ROOT_DIR/src/mir/builder/normal_callable_construction_state.rs"
 COSEAL_ISSUE_CHILDREN="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal_issue_source_owned_children.rs"
 RESULT_CLAIM_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_result_claim_tests.rs"
@@ -590,8 +591,9 @@ rg -q 'QualifiedStaticCall' "$ORD_ARGS"
 rg -q 'QualifiedStaticCallArgumentKindV1' "$ORD_ARGS"
 rg -q 'fn claim_target' "$QUALIFIED_STATIC_CLAIM_SRC"
 rg -q 'provider_static_claims' "$INSTANCE_CONSTRUCTION_SRC"
-rg -q 'QualifiedUnbound' "$INSTANCE_CONSTRUCTION_SRC"
-rg -q 'claim_target' "$INSTANCE_CONSTRUCTION_SRC"
+rg -q 'provider::issue_provider_rhs_v1' "$INSTANCE_CONSTRUCTION_SRC"
+rg -q 'QualifiedUnbound' "$INSTANCE_PROVIDER_SRC"
+rg -q 'claim_target' "$INSTANCE_PROVIDER_SRC"
 rg -q 'birth_constructor' "$INSTANCE_CTOR_SEMANTIC"
 rg -q 'static_claim_index' "$PKG_ISSUER"
 rg -q 'fn take_provider_static_result_publication' "$CORE_METHOD_CONSUMER"
@@ -727,4 +729,8 @@ for file in "$SCALAR_EXPR" "$LOCAL_FIELD_SRC" "$SCALAR_CLAIM_TESTS" "$SCALAR_EMI
   fi
 done
 
+if (( $(wc -l < "$INSTANCE_PROVIDER_SRC") >= 800 )); then
+  echo "[$TAG] provider source owner reached hard 800-line boundary" >&2
+  exit 1
+fi
 echo "[$TAG] ok"
