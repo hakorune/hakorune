@@ -88,7 +88,7 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
-pub(crate) use result_class_claim::{OrdinaryNewResultClassV1, ResultExitOriginV1, ResultValueOriginV1};
+pub(crate) use result_class_claim::{OrdinaryNewResultClassV1, ResultExitOriginV1, ResultValueOriginV1, ResultOriginWitnessV1, ResultWitnessStepV1};
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
@@ -471,3 +471,6 @@ pub(in crate::mir) use local_commit::{
     EmittedLexicalCallProjectionV1, FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };
+
+#[cfg(test)]
+pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;

@@ -1200,3 +1200,14 @@ not authorize receiver Homes, field transfers or physical lifecycle bindings.
 The one existing fixpoint composes formal identity through exact unrebound
 actual bindings and checks Fresh source coverage before exposing callee facts.
 Conditional owning destinations require their own verified contract.
+
+Source result outcomes also retain immutable `ResultOriginWitnessV1` ancestry in
+the same draft/fixpoint/product. Each caller exit keeps its own branded site;
+call edges keep the direct/initializer site, selected callee and exact formal
+actual-site/binding/ordinal substitution. Formal-derived null remains distinct
+from literal null. Multiple same-origin paths share immutable callee nodes and
+remain individually observable; this does not claim bounded path count for
+arbitrarily branching call graphs. These witnesses carry no acquired Home,
+field residence, runtime discriminator or permission to publish an anchored
+composite. Outer constructor provenance must be joined with the later exact
+constructor child/destination and lifetime verification.

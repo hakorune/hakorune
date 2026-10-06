@@ -129,6 +129,15 @@ fn mixed_forward_composes_caller_ordinal_and_keeps_caller_sites() {
         assert!(contains(relay, ResultValueOriginV1::ForwardFormal { ordinal: 1 }));
         assert!(contains(top, ResultValueOriginV1::ForwardFormal { ordinal: 0 }));
         assert!(contains(top, ResultValueOriginV1::Fresh("Token".into())));
+        for witness in top[0].witnesses() {
+            if let super::ResultWitnessStepV1::Call { callee, substitution: Some(outer), .. } = witness.step() {
+                assert_eq!((outer.callee_ordinal, outer.caller_ordinal), (1, 0));
+                let super::ResultWitnessStepV1::Call { callee: leaf, substitution: Some(inner), .. } = callee.step() else { panic!("relay substitution") };
+                assert_eq!((inner.callee_ordinal, inner.caller_ordinal), (0, 1));
+                assert!(matches!(leaf.step(), super::ResultWitnessStepV1::Formal { ordinal: 0, .. }));
+                assert_ne!(outer.binding, inner.binding, "bindings retain declaration identity");
+            }
+        }
         assert_ne!(mixed[0].site().owner(), relay[0].site().owner());
         assert_ne!(relay[0].site().owner(), top[0].site().owner());
         for (name, arity) in [("mixed",2), ("relay",3), ("top",2)] {
@@ -177,5 +186,173 @@ fn origin_rejects_rebind_unknown_actual_class_and_ungrounded_cycle() {
                 .is_none(),
             "{name} remains unavailable"
         );
+    }
+}
+
+fn witness_leaf(witness: &super::ResultOriginWitnessV1) -> &super::ResultOriginWitnessV1 {
+    match witness.step() {
+        super::ResultWitnessStepV1::Call { callee, .. } => witness_leaf(callee),
+        _ => witness,
+    }
+}
+
+#[test]
+fn realloc_witnesses_retain_call_initializer_and_formal_null_provenance() {
+    use super::ResultWitnessStepV1;
+    let package = issue(include_str!(
+        "../../../lang/src/hako_alloc/memory/page_heap_box.hako"
+    ))
+    .unwrap();
+    let rows = origins(&package, "HakoAllocHeap", "realloc", 2);
+    let mut resize_edges = Vec::new();
+    let mut literal_sites = std::collections::BTreeSet::new();
+    let mut allocated = 0;
+    for row in rows {
+        assert!(!row.witnesses().is_empty());
+        for witness in row.witnesses() {
+            assert_eq!(witness.site(), row.site());
+            match witness.step() {
+                ResultWitnessStepV1::NullLiteral => {
+                    literal_sites.insert(witness.site());
+                }
+                ResultWitnessStepV1::Call {
+                    site,
+                    key,
+                    substitution,
+                    ..
+                } if key.name() == "resizeInPlace" => {
+                    assert_ne!(
+                        site,
+                        witness.site(),
+                        "initializer differs from returned local use"
+                    );
+                    assert_eq!(site.owner(), witness.site().owner());
+                    if matches!(
+                        witness_leaf(witness).step(),
+                        ResultWitnessStepV1::NullLiteral
+                    ) {
+                        assert!(substitution.is_none());
+                        assert_eq!(witness.origin(), &ResultValueOriginV1::Null);
+                        continue;
+                    }
+                    let actual = substitution
+                        .as_ref()
+                        .expect("formal-derived null also keeps its binding");
+                    assert_eq!((actual.callee_ordinal, actual.caller_ordinal), (0, 0));
+                    assert_eq!(actual.argument_site.owner(), site.owner());
+                    assert!(matches!(
+                        witness_leaf(witness).step(),
+                        ResultWitnessStepV1::Formal { ordinal: 0, .. }
+                    ));
+                    if matches!(witness.origin(), ResultValueOriginV1::ForwardFormal { .. }) {
+                        resize_edges.push(site);
+                    }
+                }
+                ResultWitnessStepV1::Call { key, .. } if key.name() == "allocate" => {
+                    if matches!(witness.origin(), ResultValueOriginV1::Fresh(_)) {
+                        assert!(matches!(
+                            witness_leaf(witness).step(),
+                            ResultWitnessStepV1::FreshConstruction
+                        ));
+                        allocated += 1;
+                    }
+                }
+                _ => panic!("unexpected realloc witness {witness:?}"),
+            }
+        }
+    }
+    assert_eq!(literal_sites.len(), 5);
+    assert_eq!(resize_edges.len(), 2);
+    assert_ne!(resize_edges[0], resize_edges[1]);
+    assert_eq!(
+        allocated, 2,
+        "both page allocator call paths retain the shared fresh leaf"
+    );
+}
+
+#[test]
+fn same_origin_paths_share_callee_nodes_without_deduplicating_source_leaves() {
+    use super::ResultWitnessStepV1;
+    let package = issue(&format!("{TOKEN} box Door {{ duo(choose: i64) {{ if choose == 0 {{ return new Token(1) }} return new Token(2) }} relay(choose: i64) {{ return me.duo(choose) }} }} static box Main {{ main() {{ return 0 }} }}")).unwrap();
+    let duo = origins(&package, "Door", "duo", 1);
+    let relay = origins(&package, "Door", "relay", 1);
+    assert_eq!(relay[0].alternatives().len(), 1);
+    assert_eq!(relay[0].witnesses().len(), 2);
+    let leaves: std::collections::BTreeSet<_> = relay[0]
+        .witnesses()
+        .iter()
+        .map(|w| witness_leaf(w).site())
+        .collect();
+    assert_eq!(leaves.len(), 2);
+    for witness in relay[0].witnesses() {
+        let ResultWitnessStepV1::Call {
+            callee,
+            substitution,
+            ..
+        } = witness.step()
+        else {
+            panic!("call witness")
+        };
+        assert!(substitution.is_none());
+        assert!(duo
+            .iter()
+            .flat_map(|row| row.witnesses())
+            .any(|existing| std::rc::Rc::ptr_eq(existing, callee)));
+    }
+}
+
+#[test]
+fn facade_result_witnesses_retain_outer_constructor_sites_without_child_ownership_claim() {
+    use super::ResultWitnessStepV1;
+    let source = format!(
+        "{}\n{}",
+        include_str!("../../../lang/src/hako_alloc/memory/page_heap_box.hako"),
+        include_str!("../../../lang/src/hako_alloc/memory/allocator_facade_box.hako")
+    );
+    let facts = super::ordinary_new_coseal::source_result_facts_for_test(&source);
+    let inner = facts
+        .outcomes(&CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "HakoAllocHeap",
+            "reallocResult",
+            2,
+        ))
+        .unwrap();
+    let relay = facts
+        .outcomes(&CanonicalSameModuleCallableKeyV1::instance_box_method(
+            "HakoAllocProductionFacade",
+            "reallocResult",
+            2,
+        ))
+        .unwrap();
+    assert_eq!(inner.len(), 5);
+    assert_eq!(relay.len(), 2);
+    for row in relay {
+        assert_eq!(row.witnesses().len(), inner.len());
+        for witness in row.witnesses() {
+            let ResultWitnessStepV1::Call {
+                site,
+                key,
+                callee,
+                substitution,
+            } = witness.step()
+            else {
+                panic!("facade relay")
+            };
+            assert_eq!(key.owner(), "HakoAllocHeap");
+            assert_eq!(site.owner(), row.site().owner());
+            assert_ne!(site, row.site());
+            assert!(
+                substitution.is_none(),
+                "fresh outer provenance has no child relation"
+            );
+            assert!(matches!(
+                witness_leaf(callee).step(),
+                ResultWitnessStepV1::FreshConstruction
+            ));
+            assert_eq!(
+                witness_leaf(callee).origin(),
+                &ResultValueOriginV1::Fresh("HakoAllocHandleResult".into())
+            );
+        }
     }
 }

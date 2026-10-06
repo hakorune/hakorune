@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: anchored composite result D0 accepted; source origin witness S0 selected
+Status: source origin witness S0 closed; source preparation BoxShape S0 selected
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -524,3 +524,148 @@ physical owner retains source-issued owned/borrowed disposition and true outcome
 -> publication and unchanged production acceptance. Both315 and318, facade
 scalar observations/effects, ignored results, anchor escape/release, dying local,
 forged acquisition and constructor/relay Fault are mandatory counterexamples.
+
+## RESULT-ORIGIN-WITNESS-S0 implementation verification
+
+Implementation retains immutable Rc source ancestry in the existing fold.
+Direct leaves distinguish literal null, source construction and original formal
+(binding/ordinal); formal-derived null carries the same provenance as forward.
+Call composition retains exact caller return, initializer/direct call, callee
+and actual substitution while sharing existing callee nodes. Per-path witnesses
+are not deduplicated with the alternatives cache. Exact owner/argument path,
+position, arity and declared formal ordinal reject corruption. No Home,
+constructor capability, physical field mode or admission consumer was added.
+
+First test-inclusive check found this-change E0599: boxed actual source rows
+need Clone where the existing target classifier shares its actual inventory.
+Derive Clone on that private source row; no added scan or mutation authority.
+Corrected check PASS43.03s, /tmp/hako-result-origin-witness-check-fixed.log.
+Read-only review confirms same fold/projection compatibility and branded edge
+checks, no blocking issue. Shared ancestry does not claim elimination of path
+count growth in arbitrary branching chains; current acceptance is the selected
+bounded source cohort. Focused32-test executable build running, not yet PASS.
+New negatives exercise foreign call/actual owners, wrong argument path, missing
+formal binding and declaration ordinal disagreement. Actual facade source pins
+both terminal relays with intervening scalar reads/counters; witnesses identify
+only fresh outer constructor leaves, not Result.handle ownership. Source owners
+parent727, evaluate218, product76, witness57, witness tests97, origin tests338.
+
+First executable invocation ran53 tests because bare witness_tests also matched
+unrelated temporal/lineage suites. Result50PASS/3FAIL: two this-change test
+assumptions, one incidental Array get Call-count assertion needing parent proof.
+Resize has both literal-null and formal-null callee exits; only the latter has
+formal substitution. Correct that witness test distinction without weakening
+formal-derived null checks. Full facade package issue stops later at existing
+BorrowedFormalIngress stored-child/receiver-unavailable; use its unchanged full
+source through the actual production prepare_source_claims phase, not a reduced
+facade fixture or source workaround. Test-only loan builds the canonical catalog,
+constructors, batch, selected map and parameter catalog, then invokes that same
+source preparation. No package/EXE or later ingress acceptance is claimed.
+
+Scope expands by two internal visibility lines in coseal_issue/source_claims,
+limited to the enclosing ordinary-New module, for the phase-specific test loan;
+no line growth (797/793), tuples, production caller or meaning change. Private
+loan stays in witness_tests. Its first check E0433 used wrong module spelling
+(issue vs coseal_issue); corrected. Exact incidental Array rerun still fails;
+first abbreviated --exact attempt ran0 and is not evidence. Parent-source
+isolated evidence is required before classifying that unrelated red as baseline.
+
+Parent-source baseline comparison completed: exact Array temporal test at
+3a5a96b299 executes1 and fails the SAME call_count0/expected1 assertion at516;
+/tmp/hako-result-witness-parent-array-test.log. This is known baseline debt,
+not witness-source regression. Parent test build finished normally (Cargo101
+from assertion), driver restored all8 tracked Rust files byte-for-byte, SHA256
+checks PASS, restore.json has0 conflicts. No new private source was removed.
+Current corrected phase-test source is restored; previous30 selected tests had
+28PASS/2 this-change test assumptions, both corrected as described above.
+Source check and properly qualified32-test invocation remain required.
+
+Corrected source test-inclusive check PASS27.72s;
+/tmp/hako-result-origin-witness-phase-check-final.log. Scoped32 test command
+uses ordinary_new_coseal::result_class_claim::witness_tests, not the bare
+witness_tests filter. Running executable build is not yet test PASS. Scope
+guard, pointer guard, diff check and owned Rust formatting PASS. Current source
+lines: parent730/evaluate218/product76/witness57/witness-tests182/origin-tests358;
+existing source preparation owners remain797/793. Final read-only review finds
+no authority or admission expansion; both internal visibility lines stay within
+ordinary_new_coseal and phase helper is cfg(test).
+
+Corrected scoped executable invocation PASS32/32,0 ignored,8660 filtered,
+runtime0.04s; build quick5m39s. Log:
+/tmp/hako-result-origin-witness-focused-final.log. All prior25 result/source
+pins,2 initializer corroboration pins and5 new witness pins execute. Full
+unchanged facade source passes source-preparation witness assertions, not
+later package/EXE admission. Corrected test assumptions and E0599/E0433 are
+resolved; incidental Array assertion remains parent-proven baseline debt.
+Fresh CLI build and unchanged app frontier observation remain required.
+
+### Next child-relation source design brief (read-only, not execution admission)
+
+Decision: join exact returned-construction child source relations using existing
+constructor stores and finished result witness Facts. Preserve fail-closed
+execution until later acquired-Home/anchored lifetime and cleanup verification.
+Source authority + canonical issuer: existing prepare_source_claims after
+result_class_draft.finish, before prefix verification; exact FreshConstruction
+leaf site joined to instance constructor construction_for/birth_for, canonical
+store field/RHS Parameter binding/provided child and Birth formal ordinal.
+Resolve the exact caller actual with branded expr_at and child_expr_from_expr
+CallArgument(ordinal); existing sole initializer/no-rebind and call witness
+composition provide forwarded provenance, without another scanner/fixpoint.
+Non-authority: class-only Fresh, ordinary local assignment, pointer identity,
+OwnedFieldChildKind::Object metadata or candidate availability.
+Fail-fast boundary: malformed field/constructor/formal/actual identity, ordinal,
+owner/path/class, rebound locals or missing callable provenance cannot issue a
+candidate. Source Fresh is not available Home; formal source is not acquired
+child. Owning-only field schema cannot authorize anchored residence.
+Smallest next slice: first separate behavior-preserving extraction of existing
+prepare_source_claims from793-line issue_source into a private preparation
+module; preserve sole caller, source order/tuple and failure boundary. Then
+semantic candidate join there and a shared private call-witness composer.
+Non-claims: no Home transfer, input consume, borrowed field store, cleanup,
+physical discriminator, publication or EXE from the source candidate.
+
+Required candidate acceptance: exact315 null-child,318 replacement initializer
+mixed provenance and existing allocateResult fresh-child reference; canonical
+field and Birth formal/actual ordinal identity plus corruption/rebind/missing
+facts negatives. Candidate availability must coexist with PrefixNotCovered and
+preparefalse. Later lifetime/cleanup and sole physical/publication slices remain
+required. Gate1 is incomplete; stored-child sibling and Gates2-4 stay parked.
+
+## RESULT-ORIGIN-WITNESS-S0 closeout
+
+Fresh CLI quick PASS3m06s, /tmp/hako-result-origin-witness-cli.log.
+Unchanged mimalloc-lite SHA256
+33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685;
+EXE probe exits1 with the same required fail-closed frontier: both315/318
+PrefixNotCovered(Body3), selectedfalse, then artifact-unowned-lifecycle-site in
+reallocResult/2 block369 instruction3 raw birth receiver57. No EXE produced.
+Log /tmp/hako-result-origin-witness-production.log. Required frontier observation
+is complete; this is not app PASS or a new regression. Focused32/32 and guards
+close the passive witness slice. Source witnesses now reach the existing ledger
+product through the sole result solver; no old physical execution edge retired.
+Anchored field lifetime/cleanup and actual production EXE remain outstanding.
+
+## SOURCE-PREPARATION-BOXSHAPE-S0 Decision and execution contract
+
+Select MIRBUILDER-GATE1-SOURCE-PREPARATION-BOXSHAPE-S0, work_mode fast.
+Source authority + canonical issuer: existing prepare_source_claims called by
+issue_ordinary_source_cohort_v1 and test-only source phase loan. Move this exact
+function into private ordinary_new_source_claim_preparation.rs registered under
+source_claims; reexport with the SAME enclosing ordinary_new_coseal visibility.
+Keep its body byte-identical, signatures/tuple, observation and finish order,
+provider child sealing, errors and caller behavior. No semantic candidate added
+in this slice. Reduce issue_source793 before adding any child-relation logic.
+Non-authority: extraction, module placement or source facts do not mint Home.
+Fail-fast boundary: all current source coverage, projection, corruption and
+PrefixNotCovered boundaries retained. No duplicate implementation/caller retry.
+Replacement: old prepare_source_claims body in issue_source; after caller
+reexport switch confirm only one implementation and unchanged callers, then
+remove the original body in the same bounded move.
+Acceptance: exact function body comparison, test-inclusive quick check,
+focused32 positive/negative pins, scope/pointer/diff and owned rustfmt guards,
+source caps; unchanged-source frontier baseline already captured above. This
+shape-only slice does not require another full CLI build absent changed behavior
+or new test failure. After this move, select CHILD-RELATION-S0 only once its exact
+candidate mapping and acceptance above are verified against the actual APIs.
+Non-claims: no field/source widening, second scanner/fixpoint, input consume,
+borrowed field store, Home/anchor verifier or production completion.

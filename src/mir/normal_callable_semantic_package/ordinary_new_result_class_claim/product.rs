@@ -16,6 +16,7 @@ pub(crate) enum ResultValueOriginV1 {
 pub(crate) struct ResultExitOriginV1 {
     pub(super) site: OwnedExprSiteV1,
     pub(super) alternatives: BTreeSet<ResultValueOriginV1>,
+    pub(super) witnesses: Box<[std::rc::Rc<super::ResultOriginWitnessV1>]>,
 }
 impl ResultExitOriginV1 {
     pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
@@ -23,6 +24,9 @@ impl ResultExitOriginV1 {
     }
     pub(crate) fn alternatives(&self) -> &BTreeSet<ResultValueOriginV1> {
         &self.alternatives
+    }
+    pub(crate) fn witnesses(&self) -> &[std::rc::Rc<super::ResultOriginWitnessV1>] {
+        &self.witnesses
     }
 }
 

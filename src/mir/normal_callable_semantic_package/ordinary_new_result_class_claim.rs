@@ -43,6 +43,9 @@ use evaluate::{evaluate_row, ExitVerdictV1};
 #[path = "ordinary_new_result_class_claim/product.rs"]
 mod product;
 pub(crate) use product::{ResultExitOriginV1, ResultValueOriginV1};
+#[path = "ordinary_new_result_class_claim/witness.rs"]
+mod witness;
+pub(crate) use witness::{ResultFormalSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
 
 /// The proven result class of a selected callable. The class name is the
 /// agreed `new` class; the arm records whether a `null` literal exit
@@ -104,12 +107,20 @@ enum PendingExitV1 {
     New(Box<str>),
     Null,
     Fwd {
+        call_site: crate::mir::resolved_semantics::OwnedExprSiteV1,
         key: CanonicalSameModuleCallableKeyV1,
-        actuals: Box<[Option<BindingRefV1>]>,
+        actuals: Box<[ResultActualSourceV1]>,
     },
     Formal {
+        binding: BindingRefV1,
         ordinal: u32,
     },
+}
+
+#[derive(Clone)]
+struct ResultActualSourceV1 {
+    site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+    binding: Option<BindingRefV1>,
 }
 
 struct PendingResultExitV1 {
@@ -260,10 +271,16 @@ fn call_actual_binding(
 fn call_actual_bindings(
     sites: &[SourceExprSiteV1],
     function: &VerifiedResolvedFunctionV1,
-) -> Box<[Option<BindingRefV1>]> {
+) -> Box<[ResultActualSourceV1]> {
     sites
         .iter()
-        .map(|site| call_actual_binding(site, function))
+        .map(|site| ResultActualSourceV1 {
+            site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                function.owner(),
+                site.clone(),
+            ),
+            binding: call_actual_binding(site, function),
+        })
         .collect()
 }
 
@@ -284,7 +301,7 @@ fn resolve_call_key(
     field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Option<(
     CanonicalSameModuleCallableKeyV1,
-    Box<[Option<BindingRefV1>]>,
+    Box<[ResultActualSourceV1]>,
 )> {
     if let Some(target) = function.direct_call_target(site) {
         let callee_owner = target.callable().owner();
@@ -315,10 +332,16 @@ fn resolve_call_key(
         };
     }
     let call = function.method_call(site)?;
-    let actuals: Box<[Option<BindingRefV1>]> = call
+    let actuals: Box<[ResultActualSourceV1]> = call
         .arguments()
         .iter()
-        .map(|argument| call_actual_binding(argument.site(), function))
+        .map(|argument| ResultActualSourceV1 {
+            site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                function.owner(),
+                argument.site().clone(),
+            ),
+            binding: call_actual_binding(argument.site(), function),
+        })
         .collect();
     match call.receiver() {
         ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding)) => {
@@ -401,7 +424,14 @@ fn resolve_forward_local(
         selected,
         field_write_claims,
     )
-    .map(|(key, actuals)| PendingExitV1::Fwd { key, actuals })
+    .map(|(key, actuals)| PendingExitV1::Fwd {
+        call_site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            function.owner(),
+            initializer_site,
+        ),
+        key,
+        actuals,
+    })
 }
 
 /// Exact ordinal/kind of one original formal binding in its declaration.
@@ -543,7 +573,14 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                                 selected,
                                 field_write_claims,
                             )
-                            .map(|(key, actuals)| PendingExitV1::Fwd { key, actuals }),
+                            .map(|(key, actuals)| PendingExitV1::Fwd {
+                                call_site: crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                                    input.owner(),
+                                    site.clone(),
+                                ),
+                                key,
+                                actuals,
+                            }),
                             ResultClassExitDraftV1::ForwardLocal(binding) => resolve_forward_local(
                                 *binding,
                                 function,
@@ -556,19 +593,19 @@ impl OrdinaryNewResultClassClaimDraftV1 {
                             ResultClassExitDraftV1::ForwardFormal { binding, ordinal } => {
                                 // Both ordinary kinds borrow their input. A type
                                 // annotation proves class, not a moved-in Home.
-                                match parameter_contract(
-                                    parameter_contracts,
-                                    row.batch_slot,
-                                    *binding,
-                                )
-                                .map(|parameter| &parameter.kind)
-                                {
-                                    Some(
-                                        CallableParameterContractKindV1::DeclaredObject(_)
-                                        | CallableParameterContractKindV1::OpaqueHandle,
-                                    ) => Some(PendingExitV1::Formal { ordinal: *ordinal }),
-                                    _ => None,
-                                }
+                                parameter_contract(parameter_contracts, row.batch_slot, *binding)
+                                    .filter(|parameter| parameter.ordinal == *ordinal)
+                                    .filter(|parameter| {
+                                        matches!(
+                                            parameter.kind,
+                                            CallableParameterContractKindV1::DeclaredObject(_)
+                                                | CallableParameterContractKindV1::OpaqueHandle
+                                        )
+                                    })
+                                    .map(|_| PendingExitV1::Formal {
+                                        binding: *binding,
+                                        ordinal: *ordinal,
+                                    })
                             }
                         }?;
                         Some(PendingResultExitV1 {
@@ -684,3 +721,10 @@ mod source_brand_tests {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_result_class_claim/witness_tests.rs"]
+mod witness_tests;
+
+#[cfg(test)]
+pub(in crate::mir::normal_callable_semantic_package) use witness_tests::source_result_facts_for_test;

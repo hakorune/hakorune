@@ -2,7 +2,8 @@
 use super::product::SourceResultRowV1;
 use super::{
     parameter_contract, OrdinaryNewResultClassClaimsV1, OrdinaryNewResultClassV1, PendingExitV1,
-    PendingResultExitV1, ResultExitOriginV1, ResultValueOriginV1,
+    PendingResultExitV1, ResultExitOriginV1, ResultFormalSubstitutionV1, ResultOriginWitnessV1,
+    ResultValueOriginV1, ResultWitnessStepV1,
 };
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
@@ -30,19 +31,54 @@ pub(super) fn evaluate_row(
     let mut waiting = false;
     let mut legacy_eligible = true;
     for exit in exits {
-        let mut alternatives = BTreeSet::new();
+        let mut witnesses = Vec::new();
         match &exit.exit {
-            PendingExitV1::New(found) => {
-                alternatives.insert(ResultValueOriginV1::Fresh(found.clone()));
+            PendingExitV1::New(found) => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                site: exit.site.clone(),
+                origin: ResultValueOriginV1::Fresh(found.clone()),
+                step: ResultWitnessStepV1::FreshConstruction,
+            })),
+            PendingExitV1::Null => witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                site: exit.site.clone(),
+                origin: ResultValueOriginV1::Null,
+                step: ResultWitnessStepV1::NullLiteral,
+            })),
+            PendingExitV1::Formal { binding, ordinal } => {
+                for origin in [
+                    ResultValueOriginV1::Null,
+                    ResultValueOriginV1::ForwardFormal { ordinal: *ordinal },
+                ] {
+                    witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                        site: exit.site.clone(),
+                        origin,
+                        step: ResultWitnessStepV1::Formal {
+                            binding: *binding,
+                            ordinal: *ordinal,
+                        },
+                    }));
+                }
             }
-            PendingExitV1::Null => {
-                alternatives.insert(ResultValueOriginV1::Null);
-            }
-            PendingExitV1::Formal { ordinal } => {
-                alternatives.insert(ResultValueOriginV1::Null);
-                alternatives.insert(ResultValueOriginV1::ForwardFormal { ordinal: *ordinal });
-            }
-            PendingExitV1::Fwd { key, actuals } => {
+            PendingExitV1::Fwd {
+                call_site,
+                key,
+                actuals,
+            } => {
+                if call_site.owner() != exit.site.owner() || actuals.len() != key.arity() as usize {
+                    return ExitVerdictV1::Dead;
+                }
+                for (ordinal, actual) in actuals.iter().enumerate() {
+                    let mut expected = call_site.site().node().segments().to_vec();
+                    expected.push(
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(
+                            ordinal as u32,
+                        ),
+                    );
+                    if actual.site.owner() != call_site.owner()
+                        || actual.site.site().node().segments() != expected
+                    {
+                        return ExitVerdictV1::Dead;
+                    }
+                }
                 let Some(callee_rows) = claims.outcomes(key) else {
                     if pending.contains(key) {
                         waiting = true;
@@ -50,36 +86,64 @@ pub(super) fn evaluate_row(
                     }
                     return ExitVerdictV1::Dead;
                 };
-                // Passive outcomes cannot upgrade the historical ownership projection.
                 legacy_eligible &= claims.contains_key(key);
-                for origin in callee_rows.iter().flat_map(|row| row.alternatives()) {
-                    let origin = match origin {
-                        ResultValueOriginV1::ForwardFormal { ordinal } => {
-                            let Some(Some(binding)) = actuals.get(*ordinal as usize) else {
-                                return ExitVerdictV1::Dead;
-                            };
-                            let Some(parameter) =
-                                parameter_contract(parameter_contracts, batch_slot, *binding)
-                            else {
-                                return ExitVerdictV1::Dead;
-                            };
-                            if !matches!(
-                                parameter.kind,
-                                CallableParameterContractKindV1::DeclaredObject(_)
-                                    | CallableParameterContractKindV1::OpaqueHandle
-                            ) {
-                                return ExitVerdictV1::Dead;
-                            }
+                for callee in callee_rows.iter().flat_map(|row| row.witnesses()) {
+                    let substitution = if let Some(ordinal) = callee.formal_ordinal() {
+                        let Some(actual) = actuals.get(ordinal as usize) else {
+                            return ExitVerdictV1::Dead;
+                        };
+                        let Some(binding) = actual.binding else {
+                            return ExitVerdictV1::Dead;
+                        };
+                        let Some(parameter) =
+                            parameter_contract(parameter_contracts, batch_slot, binding)
+                        else {
+                            return ExitVerdictV1::Dead;
+                        };
+                        if !matches!(
+                            parameter.kind,
+                            CallableParameterContractKindV1::DeclaredObject(_)
+                                | CallableParameterContractKindV1::OpaqueHandle
+                        ) {
+                            return ExitVerdictV1::Dead;
+                        }
+                        Some(ResultFormalSubstitutionV1 {
+                            argument_site: actual.site.clone(),
+                            binding,
+                            callee_ordinal: ordinal,
+                            caller_ordinal: parameter.ordinal,
+                        })
+                    } else {
+                        None
+                    };
+                    let origin = match (callee.origin(), &substitution) {
+                        (ResultValueOriginV1::ForwardFormal { .. }, Some(row)) => {
                             ResultValueOriginV1::ForwardFormal {
-                                ordinal: parameter.ordinal,
+                                ordinal: row.caller_ordinal,
                             }
                         }
-                        other => other.clone(),
+                        (ResultValueOriginV1::ForwardFormal { .. }, None) => {
+                            return ExitVerdictV1::Dead
+                        }
+                        (other, _) => other.clone(),
                     };
-                    alternatives.insert(origin);
+                    witnesses.push(std::rc::Rc::new(ResultOriginWitnessV1 {
+                        site: exit.site.clone(),
+                        origin,
+                        step: ResultWitnessStepV1::Call {
+                            site: call_site.clone(),
+                            key: key.clone(),
+                            callee: std::rc::Rc::clone(callee),
+                            substitution,
+                        },
+                    }));
                 }
             }
         }
+        let alternatives: BTreeSet<_> = witnesses
+            .iter()
+            .map(|witness| witness.origin().clone())
+            .collect();
         if alternatives.is_empty() {
             return ExitVerdictV1::Dead;
         }
@@ -107,6 +171,7 @@ pub(super) fn evaluate_row(
         rows.push(ResultExitOriginV1 {
             site: exit.site.clone(),
             alternatives,
+            witnesses: witnesses.into_boxed_slice(),
         });
     }
     if waiting {

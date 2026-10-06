@@ -52,7 +52,7 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_recei
 mod walk_triggers;
 
 #[path = "ordinary_new_coseal_issue_source.rs"]
-mod source_claims;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) mod source_claims;
 use source_claims::collect_birth_site_index_v1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(

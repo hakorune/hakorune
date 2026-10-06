@@ -97,7 +97,7 @@ pub(super) fn prepare_local_candidates_by_slot_v1(
         .collect()
 }
 
-pub(super) fn prepare_source_claims(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn prepare_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
