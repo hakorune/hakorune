@@ -537,3 +537,83 @@ fn constructor_loan_rejects_lost_shape_and_completion() {
             .unwrap();
     }
 }
+
+#[test]
+fn construction_plan_resolves_me_field_reads_to_prior_scalar_stores() {
+    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
+        "box Page { a: i64\nb: i64\nc: i64
+        birth() { me.a = 4\nme.b = me.a + 1\nme.c = me.a } }",
+    )
+    .unwrap();
+    let batch = &package.instance_constructors;
+    let parent = batch.box_sources.row_for("Page").unwrap().unwrap();
+    let plan = batch
+        .construction_for(parent, 0)
+        .unwrap()
+        .as_ref()
+        .expect("computed scalar stores seal");
+    let rhs: Vec<_> = plan
+        .stores()
+        .iter()
+        .map(|store| store.rhs().clone())
+        .collect();
+    assert_eq!(
+        rhs,
+        vec![
+            ConstructionStoreRhsV1::LiteralI64(4),
+            ConstructionStoreRhsV1::LiteralI64(5),
+            ConstructionStoreRhsV1::LiteralI64(4),
+        ]
+    );
+    // Each `me.<field>` read registers its `me` receiver site for
+    // consumption; the literal-only store carries none.
+    assert!(plan.stores()[0].me_reads().is_empty());
+    assert_eq!(plan.stores()[1].me_reads().len(), 1);
+    assert_eq!(plan.stores()[2].me_reads().len(), 1);
+}
+
+#[test]
+fn construction_plan_declines_forward_and_parameter_field_reads() {
+    use super::super::instance_construction::ConstructionUnavailableV1 as U;
+    for (label, source) in [
+        (
+            "read-before-store",
+            "box Page { a: i64\nb: i64\nbirth() { me.b = me.a + 1\nme.a = 4 } }",
+        ),
+        (
+            "unwritten-field-read",
+            "box Page { a: i64\nb: i64\nc: i64\nbirth() { me.b = me.c\nme.a = 4 } }",
+        ),
+        (
+            "parameter-store-read",
+            "box Page { a: i64\nb: i64\nbirth(x) { me.a = x\nme.b = me.a } }",
+        ),
+        (
+            "parameter-in-arithmetic",
+            "box Page { a: i64\nb: i64\nbirth(x) { me.b = x + 1\nme.a = 4 } }",
+        ),
+        (
+            "object-field-read",
+            "box Child { birth() {} }
+            box Page { a: i64\ninner: Child\nb: i64
+            birth() { me.inner = new Child()\nme.b = me.inner\nme.a = 4 } }",
+        ),
+    ] {
+        let package =
+            super::super::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+        let batch = &package.instance_constructors;
+        let name = if source.contains("Page") { "Page" } else { "Child" };
+        let parent = batch.box_sources.row_for(name).unwrap().unwrap();
+        let arity = if source.contains("birth(x)") { 1 } else { 0 };
+        let error = batch
+            .construction_for(parent, arity)
+            .unwrap()
+            .as_ref()
+            .expect_err(&format!("{label} stays declined"));
+        assert_eq!(
+            error,
+            &U::BodyCoverageUnsupported,
+            "{label} fails closed"
+        );
+    }
+}

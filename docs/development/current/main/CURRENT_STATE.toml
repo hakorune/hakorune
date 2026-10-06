@@ -1,10 +1,10 @@
 date = "2026-10-06"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0"
+current_execution_row = "MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/birth-store-rhs"
-current_design_stop = "selfhost-resume/birth-store-rhs"
+current_blocker_token = "selfhost-resume/nobirth-provider-child"
+current_design_stop = "selfhost-resume/nobirth-provider-child"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-gate1-callable-loop-string-indexof-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 latest_card_summary = """
-ROOT-INSTANCE-ENTRY-S0 landed: `BinaryTreesBench` fields typed +
-`unreleasable` gate widened to `end_available` parity
-(`Owned*FieldsNoHook` + sealed children). Typed-field fixtures reach
-the `Invoke` emit boundary. New wall A2: computed birth stores
-(`me.b = me.a + 1`) hit `BodyCoverageUnsupported` — `ConstructionStoreRhsV1`
-admits only {LiteralI64, Parameter, ProviderConstruction}.
+BIRTH-COMPUTED-STORE-S0 landed: `me.<field>` birth-store reads
+resolve read-after-write to prior sealed stores (literal only);
+field-read BinOp folds Add/Sub/Mul via checked ops; `me_reads` are
+observed at take — no physical field read, no BinOp MIR in birth.
+`bench_min` reaches the Invoke boundary. Wall A3: NoBirth provider
+child -> `provider-birth-recipe-missing`.
 """
-next_design_card = "MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0"
+next_design_card = "MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md"
@@ -42,8 +42,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-06: MIRBUILDER-GATE1-BIRTH-COMPUTED-STORE-S0 landed — `issue_construction_plan` admits `me.<field>` RHS reads resolving read-after-write to prior `LiteralI64` stores + field-read BinOp folding (Add/Sub/Mul, checked ops, >=1 field read required); `ConstructionStoreV1::me_reads` transports `me` receiver sites consumed at `take_construction_store` via `observe_variable_site` — no birth ObjectFieldGet, no BinOp MIR. Pins: construction_plan 6/6 (folded literals + decline pins: forward/unwritten/parameter/object-field/pure-literal); suites instance_constructor 39/39, ordinary_new 276/276, root_instance_call 8/8, lexical 232/232. `bench_min` probe reaches the Invoke emit boundary. Wall A3: NoBirth provider child -> `provider-birth-recipe-missing`. Next: `selfhost-resume/nobirth-provider-child`.",
   "2026-10-06: MIRBUILDER-GATE1-ROOT-INSTANCE-ENTRY-S0 landed — `BinaryTreesBench` `init` fields migrated to typed decls (builder: BinaryTreeBuilder + 4 i64) per UNTYPED-OBJECT-STORAGE-D0 branch (a); `issue_root_instance_call_dispositions` `unreleasable` widened to `end_available` parity (PlainI64NoHook OR Owned*FieldsNoHook+sealed children). Pins: owned-field Call entry seals (Holder/Page fixture), unissued without children; focused root_instance_call 8/8, handle_result 9/9, ordinary_new 276/276, lexical 232/232. --emit-mir-json probes reach the known Invoke boundary. Wall A2 bisected: computed birth stores (`me.b = me.a + 1`) -> BodyCoverageUnsupported. Baseline red noted: main_f1_rejects_direct_call_and_nested_owner_before_lowering reproduces on parent 7b754359e1. Next: `selfhost-resume/birth-store-rhs`.",
   "2026-10-06: MIRBUILDER-GATE1-UNRELEASED-ROOT-HOME-D0 accepted — wall A maps to the landed untyped-storage contract (branch a: declare typed fields; `typed-object-birth-param-min` precedent). `BinaryTreesBench` gets `builder: BinaryTreeBuilder` + 4 i64 decls -> `OwnedObjectFieldsNoHook` -> sealed `builder` residence -> `end_available`. Wall B named in-lane: `issue_root_instance_call_dispositions` `unreleasable` gate widens to `PlainI64NoHook` OR `Owned*FieldsNoHook`+sealed children. `TreeNode` nullable owned fields parked (no nullable arm). Next: `MIRBUILDER-GATE1-ROOT-INSTANCE-ENTRY-S0`.",
-  "2026-10-06: MIRBUILDER-GATE1-MULTI-EXIT-UNIFORM-CLASS-S0 landed — `begin_handle_call_emission` admits N>=1 `Value(Construction)` terminal relations iff every site resolves to the SAME canonical object (module declaration index, class-level; `construction_result_callee` already enforces one agreed class per Handle mint). Pins: `handle_result_local_call_admits_uniform_class_multi_exit_callee` (2-exit Point callee lowers — Handle invoke + one HomeRelease + artifact validates) + `handle_result_lane_rejects_mixed_class_multi_exit_callee` (fails closed at issue); suites handle_result 9/9, direct_call_lifecycle 34/34, ordinary_new 273/273, lexical 232/232. `me.make` SameModuleInstance untouched; no new receipt/ABI arm. Next: `selfhost-resume/root-call-entry` census — the upstream gate on `run()`.",
   ]
 

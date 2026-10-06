@@ -69,6 +69,7 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
                 receiver_binding,
                 rhs: ConstructionStoreRhsV1::LiteralI64(7),
                 fault_discharge: Box::new([]),
+                me_reads: Box::new([]),
                 progress: StoreProgress::Emitted {
                     block: origin,
                     normal,

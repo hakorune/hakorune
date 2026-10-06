@@ -15,8 +15,9 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
     HomeDemandV1, OwnedExprSiteV1, ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1,
-    ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedMethodCallReceiverSourceV1,
+    ResolvedAssignmentTargetV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
+    ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    VerifiedResolvedBodyShapeInventoryV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -72,6 +73,11 @@ pub(crate) struct ConstructionStoreV1 {
     /// Prior Normal-committed residences, sealed newest-first from the
     /// constructor's source-ordered stores. The current store is excluded.
     fault_discharge: Box<[OwnedFieldChildV1]>,
+    /// `me` receiver sites this store's sealed RHS reads through
+    /// (read-after-write field reads and folded scalar operands). They
+    /// carry no physical field read — take time observes them against
+    /// the receiver object.
+    me_reads: Box<[SourceExprSiteV1]>,
 }
 
 impl ConstructionStoreV1 {
@@ -97,6 +103,10 @@ impl ConstructionStoreV1 {
 
     pub(crate) fn fault_discharge(&self) -> &[OwnedFieldChildV1] {
         &self.fault_discharge
+    }
+
+    pub(crate) fn me_reads(&self) -> &[SourceExprSiteV1] {
+        &self.me_reads
     }
 }
 
@@ -333,6 +343,10 @@ pub(super) fn issue_construction_plan(
                 row.value_site().clone(),
             ))
             .map_err(|_| U::SourceRelationMissing)?;
+        // `me` receiver sites this store's sealed RHS reads through —
+        // consumed at take time against the receiver object, never as a
+        // physical field read.
+        let mut me_reads = Vec::new();
         let rhs = match rhs.node() {
             ASTNode::Literal {
                 value: LiteralValue::Integer(value),
@@ -545,6 +559,64 @@ pub(super) fn issue_construction_plan(
                         .ok_or(U::SourceRelationMissing)?,
                 }
             }
+            ASTNode::FieldAccess { .. } => {
+                // `me.<field>` RHS read: the sealed store ledger is the
+                // sole writer inside this constructor, so the read
+                // resolves to the newest already-sealed store of the
+                // same field (read-after-write). No physical field
+                // read is emitted — birth `ObjectFieldGet` is
+                // unconditionally rejected as `unowned-exact-field-read`.
+                // `Parameter`/object-field stores stay unsupported: the
+                // `Parameter` arm's site must be an unconsumed variable
+                // site of that binding, and the read's `me` site is not.
+                let (field, me_site) = me_field_read_row(
+                    shape,
+                    *receiver,
+                    row.value_site(),
+                    object_id,
+                    fields,
+                )?;
+                expressions.insert(me_site.clone());
+                me_reads.push(me_site);
+                match prior_store_rhs(&stores, field) {
+                    Some(ConstructionStoreRhsV1::LiteralI64(value)) => {
+                        ConstructionStoreRhsV1::LiteralI64(*value)
+                    }
+                    _ => return Err(U::BodyCoverageUnsupported),
+                }
+            }
+            ASTNode::BinaryOp { .. } => {
+                // Scalar arithmetic on `me.<field>` reads folds to a
+                // `LiteralI64` store — literal-only folding keeps the
+                // birth free of physical field reads and `BinOp` MIR.
+                // At least one operand must read a field: pure
+                // literal-literal arithmetic stays declined, and
+                // trap/overflow operators or `Parameter` operands stay
+                // unsupported rather than changing runtime semantics.
+                let binary = function
+                    .expression_source()
+                    .binary(row.value_site())
+                    .ok_or(U::SourceRelationMissing)?;
+                let (lhs, lhs_sites, lhs_reads) = scalar_literal_operand(
+                    &input, shape, *receiver, object_id, fields, &stores, binary.lhs(),
+                )?;
+                let (rhs_value, rhs_sites, rhs_reads) = scalar_literal_operand(
+                    &input, shape, *receiver, object_id, fields, &stores, binary.rhs(),
+                )?;
+                if lhs_reads.is_empty() && rhs_reads.is_empty() {
+                    return Err(U::BodyCoverageUnsupported);
+                }
+                expressions.extend(lhs_sites.into_iter().chain(rhs_sites));
+                me_reads.extend(lhs_reads.into_iter().chain(rhs_reads));
+                let folded = match binary.operator() {
+                    ResolvedBinaryOperatorV1::Add => lhs.checked_add(rhs_value),
+                    ResolvedBinaryOperatorV1::Subtract => lhs.checked_sub(rhs_value),
+                    ResolvedBinaryOperatorV1::Multiply => lhs.checked_mul(rhs_value),
+                    _ => None,
+                }
+                .ok_or(U::BodyCoverageUnsupported)?;
+                ConstructionStoreRhsV1::LiteralI64(folded)
+            }
             _ => return Err(U::BodyCoverageUnsupported),
         };
         expressions.extend([
@@ -605,6 +677,7 @@ pub(super) fn issue_construction_plan(
             receiver_binding: *receiver,
             rhs,
             fault_discharge,
+            me_reads: me_reads.into_boxed_slice(),
         });
     }
     // Reject residual syntax/child owners; SequenceItem or absent Call events
@@ -689,4 +762,98 @@ pub(super) fn issue_construction_plan(
     plan.field_demands = demands.into_boxed_slice();
     plan.stores = stores.into_boxed_slice();
     Ok(plan)
+}
+
+/// Newest already-sealed store for `field` in this constructor.
+fn prior_store_rhs(
+    stores: &[ConstructionStoreV1],
+    field: CanonicalFieldRefV1,
+) -> Option<&ConstructionStoreRhsV1> {
+    stores
+        .iter()
+        .rev()
+        .find(|store| store.field() == field)
+        .map(|store| store.rhs())
+}
+
+/// Corroborate a `me.<field>` read site: the shape FieldAccess row
+/// claims the site, its receiver is this constructor's `me` binding,
+/// and the field name belongs to the declaring box. Returns the
+/// canonical field plus the `me` receiver site for coverage.
+fn me_field_read_row(
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+    receiver: BindingRefV1,
+    access_site: &SourceExprSiteV1,
+    object_id: CanonicalObjectIdV1,
+    fields: &[String],
+) -> Result<(CanonicalFieldRefV1, SourceExprSiteV1), ConstructionUnavailableV1> {
+    use ConstructionUnavailableV1 as U;
+    let (object, field) = shape
+        .expressions()
+        .iter()
+        .find_map(|expression| match expression {
+            BodyExpressionShapeV1::FieldAccess { site, object, field }
+                if site == access_site =>
+            {
+                Some((object, field))
+            }
+            _ => None,
+        })
+        .ok_or(U::SourceRelationMissing)?;
+    if !shape.expressions().iter().any(|expression| {
+        matches!(expression,
+        BodyExpressionShapeV1::Me { site, receiver: BodyMeReceiverV1::Lexical(binding) }
+            if site == object && *binding == receiver)
+    }) {
+        return Err(U::BodyCoverageUnsupported);
+    }
+    let ordinal = fields
+        .iter()
+        .position(|name| name == field.as_ref())
+        .ok_or(U::SourceRelationMissing)?;
+    let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
+        .ok_or(U::SourceRelationMissing)?;
+    Ok((field, object.clone()))
+}
+
+/// One BinOp operand sealed to an i64 literal: a direct integer
+/// literal or a `me.<field>` read resolving to a prior `LiteralI64`
+/// store. `Parameter`/object-field reads stay unsupported so folding
+/// never replaces runtime semantics. Returned sites are the coverage
+/// rows the caller registers (operand site plus any `me` site) and the
+/// `me` receiver sites the store must observe at take time.
+fn scalar_literal_operand(
+    input: &ResolvedFunctionLoweringInputV1<'_>,
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+    receiver: BindingRefV1,
+    object_id: CanonicalObjectIdV1,
+    fields: &[String],
+    stores: &[ConstructionStoreV1],
+    site: &SourceExprSiteV1,
+) -> Result<(i64, Vec<SourceExprSiteV1>, Vec<SourceExprSiteV1>), ConstructionUnavailableV1>
+{
+    use ConstructionUnavailableV1 as U;
+    let node = input
+        .source()
+        .expr_at(&OwnedExprSiteV1::new(input.owner(), site.clone()))
+        .map_err(|_| U::SourceRelationMissing)?;
+    let mut sites = vec![site.clone()];
+    match node.node() {
+        ASTNode::Literal {
+            value: LiteralValue::Integer(value),
+            ..
+        } => Ok((*value, sites, Vec::new())),
+        ASTNode::FieldAccess { .. } => {
+            let (field, me_site) =
+                me_field_read_row(shape, receiver, site, object_id, fields)?;
+            sites.push(me_site.clone());
+            match prior_store_rhs(stores, field) {
+                Some(ConstructionStoreRhsV1::LiteralI64(value)) => {
+                    Ok((*value, sites, vec![me_site]))
+                }
+                _ => Err(U::BodyCoverageUnsupported),
+            }
+        }
+        _ => Err(U::BodyCoverageUnsupported),
+    }
 }

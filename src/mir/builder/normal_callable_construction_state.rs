@@ -118,6 +118,9 @@ pub(super) struct SelectedConstructionStore {
     receiver_binding: crate::mir::resolved_semantics::BindingRefV1,
     rhs: ConstructionStoreRhsV1,
     fault_discharge: Box<[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1]>,
+    /// `me` receiver sites the sealed RHS reads through — observed
+    /// against the receiver object at take time, never a field read.
+    me_reads: Box<[crate::mir::resolved_semantics::SourceExprSiteV1]>,
     progress: StoreProgress,
 }
 
@@ -219,6 +222,7 @@ impl CallableSemanticLoweringState {
                         receiver_binding: store.receiver_binding(),
                         rhs: store.rhs().clone(),
                         fault_discharge: store.fault_discharge().into(),
+                        me_reads: store.me_reads().into(),
                         progress: StoreProgress::Pending,
                     },
                 )
@@ -246,35 +250,40 @@ impl CallableSemanticLoweringState {
             return Ok(None);
         }
         let binding = self.receiver.ok_or_else(|| fault("receiver-missing"))?;
-        let (field, receiver_site, receiver_binding, rhs) = match &self.construction {
-            ConstructionState::Selected {
-                stores, completed, ..
-            } => {
-                if *completed {
-                    return Err(fault("take-after-completion"));
+        let (field, receiver_site, receiver_binding, rhs, me_reads) =
+            match &self.construction {
+                ConstructionState::Selected {
+                    stores, completed, ..
+                } => {
+                    if *completed {
+                        return Err(fault("take-after-completion"));
+                    }
+                    let store = stores
+                        .get(site)
+                        .ok_or_else(|| fault("foreign-or-missing-store"))?;
+                    if !matches!(store.progress, StoreProgress::Pending) {
+                        return Err(fault("duplicate-store-take"));
+                    }
+                    if store.receiver_binding != binding {
+                        return Err(fault("receiver-binding-drift"));
+                    }
+                    (
+                        store.field,
+                        store.receiver_site.clone(),
+                        store.receiver_binding,
+                        store.rhs.clone(),
+                        store.me_reads.clone(),
+                    )
                 }
-                let store = stores
-                    .get(site)
-                    .ok_or_else(|| fault("foreign-or-missing-store"))?;
-                if !matches!(store.progress, StoreProgress::Pending) {
-                    return Err(fault("duplicate-store-take"));
-                }
-                if store.receiver_binding != binding {
-                    return Err(fault("receiver-binding-drift"));
-                }
-                (
-                    store.field,
-                    store.receiver_site.clone(),
-                    store.receiver_binding,
-                    store.rhs.clone(),
-                )
-            }
-            _ => unreachable!(),
-        };
+                _ => unreachable!(),
+            };
         let receiver = self
             .value_for_exact_binding(self.owner, binding)
             .map_err(|error| error.to_string())?;
         self.observe_variable_site(receiver_site.node(), receiver_binding, receiver)?;
+        for read_site in me_reads.iter() {
+            self.observe_variable_site(read_site.node(), receiver_binding, receiver)?;
+        }
         let ConstructionState::Selected {
             stores, completed, ..
         } = &mut self.construction

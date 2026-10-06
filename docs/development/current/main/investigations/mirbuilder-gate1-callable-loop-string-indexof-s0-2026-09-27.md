@@ -864,17 +864,73 @@ reach the known `Invoke` emit boundary — `root-call-entry` cleared.
 Known baseline red: `main_f1_rejects_direct_call_and_nested_owner_`
 `before_lowering` reproduces on parent `7b754359e1`; not this change.
 
-New wall A2 (bisected): `me.b = me.a + 1` — computed birth store.
-`ConstructionStoreRhsV1` admits only `{LiteralI64, Parameter,
-ProviderConstruction}`; `me.max_depth + 1` / `me.max_depth` RHS is
-`BodyCoverageUnsupported` -> claim `construction()` Err -> emission
-never `Emitted` -> `Unavailable`. `BinaryTreesBench.birth` has both
-(`stretch_depth = me.max_depth + 1`, `long_lived_depth = me.max_depth`).
+Wall A2 (bisected): `me.b = me.a + 1` computed birth store (also
+`long_lived_depth = me.max_depth`) -> `BodyCoverageUnsupported` ->
+claim Err -> `Unavailable`.
 
-Next row: `MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0` — census which
-computed-store RHS shapes the birth contract may admit (scalar
-arithmetic on `me.` fields/params is ownership-free; release and
-re-store arms need the same audit the existing exception took).
+## Decision — MIRBUILDER-GATE1-BIRTH-STORE-RHS-D0 (accepted)
+
+Boundary: `issue_construction_plan` store-RHS admission; excludes
+non-Assignment statements, forward reads, object-typed reads and
+non-foldable arithmetic.
+
+Census: `ConstructionStoreRhsV1` = {`LiteralI64`, `Parameter`,
+`ProviderConstruction`}; a `me.<f>` read or BinOp RHS lands in
+`BodyCoverageUnsupported`. Physical `ObjectFieldGet` inside birth is
+unconditionally rejected at final validation
+(`unowned-exact-field-read`) — emitting real field reads or `BinOp`
+in birth is contract-blocked; the app's `birth()` takes 0 params and
+both computed stores fold.
+
+Decision: option (a) — plan-level read-after-write resolution. The
+store ledger is the sole writer inside a sealed constructor, so a
+`me.<f>` read in a store RHS resolves to that field's already-sealed
+prior store RHS; read-before-store, object-typed fields and
+re-stores stay `BodyCoverageUnsupported`. Literal-only resolution:
+a `Parameter` prior store is NOT resolvable (the `Parameter` arm's
+site must be an unconsumed variable site of that binding — the
+read's `me` site is not), and pure literal-literal arithmetic stays
+declined (existing pin is the fail-closed boundary). Scalar BinOp
+with at least one `me.<f>` read folds to `LiteralI64`. The read's
+`me` receiver site travels on `ConstructionStoreV1::me_reads` and is
+consumed at take via `observe_variable_site` against the receiver —
+no physical field read, no `BinOp` MIR in birth.
+
+Source authority + canonical issuer:
+  prior-store ledger inside `issue_construction_plan` -> resolved
+  `LiteralI64` `ConstructionStoreRhsV1` arm + `me_reads` transport.
+Non-authority:
+  no MIR field read, no `BinOp` emission in birth, no `local` decls
+  or non-Assignment statements, no forward/self-class reads, no
+  `Parameter`-resolving or pure-literal arithmetic.
+Fail-fast boundary:
+  unresolved or non-foldable RHS keeps `BodyCoverageUnsupported`.
+
+S0 landed — `MIRBUILDER-GATE1-BIRTH-COMPUTED-STORE-S0`: two RHS arms
+(FieldAccess read-after-write; field-read BinOp folding Add/Sub/Mul
+with checked ops) + `me_reads` observed at
+`take_construction_store`. Pins in `instance_constructor_semantic/
+tests`: folded literals + `me_reads` arity; forward/unwritten/
+parameter/object-field reads all decline. Suites: construction_plan
+6/6, instance_constructor 39/39, ordinary_new 276/276,
+root_instance_call 8/8, lexical 232/232. `bench_min` probe
+(`me.b = me.a + 1` birth) reaches the known `Invoke` emit boundary —
+`root-call-entry` cleared for the computed-store shape.
+
+New wall A3 (bisected): `me.builder = new BinaryTreeBuilder()` on a
+birthless child — `collect_birth_site_index_v1` skips classes with
+no Birth row (`birth_for` -> `Ok(None)`), so the provider store's
+emission finds no recipe -> `provider-birth-recipe-missing`.
+`BinaryTreeBuilder` is fieldless NoBirth. Fork: (a) admit NoBirth
+provider children (new provider emission arm without `birth_call`);
+(b) require an explicit `birth() { }` on provider children — the
+same explicit-declaration contract as typed fields.
+
+Next row: `MIRBUILDER-GATE1-NOBIRTH-PROVIDER-CHILD-D0` — pick the
+fork; the real app's `run()` then stands behind the sibling-lane
+stored-child receiver (`local builder = me.builder`).
+Non-claims: no `run()` stored-child receiver (sibling lane), no
+`TreeNode` nullable typing, no `itemCheck`, no Gate-1 completion.
 
 ## Preserved contract boundaries
 
