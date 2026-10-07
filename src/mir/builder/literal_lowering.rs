@@ -9,6 +9,28 @@ use crate::mir::numeric_substrate::{
 };
 
 impl MirBuilder {
+    /// Source-scoped plain Integer completion through the same Const owner.
+    pub(in crate::mir::builder) fn build_literal_with_port_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        literal: LiteralValue,
+    ) -> Result<ValueId, String>
+    where
+        Port: super::recursive_child_lowering_port::RecursiveChildLoweringPortV1,
+    {
+        match literal {
+            LiteralValue::Integer(value) => {
+                let loan = port.prepare_compare_integer_literal_v1(value)?;
+                let completed = super::emission::constant::emit_integer_recorded(self, value)?;
+                if let Some(loan) = loan {
+                    port.complete_compare_integer_literal_v1(loan, &completed)?;
+                }
+                Ok(completed.value())
+            }
+            other => self.build_literal(other),
+        }
+    }
+
     /// Build a literal value.
     pub(in crate::mir::builder) fn build_literal(
         &mut self,

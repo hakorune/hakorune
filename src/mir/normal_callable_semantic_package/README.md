@@ -1240,3 +1240,13 @@ This passive retention preserves the existing Greater/direct-if admission.
 It grants no physical correspondence or transport authority: original Const
 materialization and LocalSSA-to-final-operand correspondence remain required
 before the physical comparison consumer may use these source records.
+
+The same borrowed entry retains targeted compare Integer literal materialization
+by original emitted destination. The source loan is prepared from the retained
+CompareOperand descriptor before emission and consumed once after the same
+Const append. Recording rechecks exact source membership, installed entry and
+Integer payload; duplicate destination and changed source identity are errors.
+Repeated evaluation of one original child retains distinct append observations.
+Known source membership with a missing entry is an error before emission.
+These are original observations only: final SSA correspondence, mandatory
+comparison bindings and source-to-physical comparison coverage remain required.

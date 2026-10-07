@@ -13,17 +13,55 @@ fn emit_exact_const_at(
     target: Option<BasicBlockId>,
     value: ConstValue,
 ) -> Result<ValueId, String> {
+    emit_exact_const_at_recorded(b, target, value).map(|completed| completed.value())
+}
+
+/// Immutable observation of the same canonical append; not source authority.
+#[derive(Debug)]
+pub(in crate::mir) struct CompletedConstV1 {
+    value: ValueId,
+    original: (BasicBlockId, MirInstruction),
+}
+
+impl CompletedConstV1 {
+    pub(in crate::mir) fn value(&self) -> ValueId {
+        self.value
+    }
+    pub(in crate::mir) fn original(&self) -> &(BasicBlockId, MirInstruction) {
+        &self.original
+    }
+}
+
+fn emit_exact_const_at_recorded(
+    b: &mut MirBuilder,
+    target: Option<BasicBlockId>,
+    value: ConstValue,
+) -> Result<CompletedConstV1, String> {
     let dst = b.next_value_id();
     let prepared =
         PreparedCanonicalConstTypeV1::prepare(&value, b.function_state.type_ctx.get_type(dst))
             .map_err(|error| error.to_string())?;
+    let block = target.or(b.function_state.current_block);
     let instruction = MirInstruction::Const { dst, value };
     match target {
-        Some(block) => b.emit_instruction_at(block, instruction)?,
-        None => b.emit_instruction(instruction)?,
+        Some(block) => b.emit_instruction_at(block, instruction.clone())?,
+        None => b.emit_instruction(instruction.clone())?,
     }
     prepared.commit(dst, &mut b.function_state.type_ctx);
-    Ok(dst)
+    Ok(CompletedConstV1 {
+        value: dst,
+        original: (
+            block.expect("successful Const append has a block"),
+            instruction,
+        ),
+    })
+}
+
+pub(in crate::mir) fn emit_integer_recorded(
+    builder: &mut MirBuilder,
+    value: i64,
+) -> Result<CompletedConstV1, String> {
+    emit_exact_const_at_recorded(builder, None, ConstValue::Integer(value))
 }
 
 fn emit_exact_const(b: &mut MirBuilder, value: ConstValue) -> Result<ValueId, String> {

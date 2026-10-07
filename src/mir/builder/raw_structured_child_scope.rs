@@ -171,6 +171,25 @@ where
         self.child.complete_ordinary_binary_expression_v1(completed)
     }
 
+    fn prepare_compare_integer_literal_v1(
+        &mut self,
+        value: i64,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1>,
+        String,
+    > {
+        self.child.prepare_compare_integer_literal_v1(value)
+    }
+
+    fn complete_compare_integer_literal_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
+        completed: &super::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        self.child
+            .complete_compare_integer_literal_v1(loan, completed)
+    }
+
     fn script_direct_static_claim_ingress_v1(
         &mut self,
         box_name: &str,

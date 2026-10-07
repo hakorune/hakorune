@@ -1681,3 +1681,11 @@ Structured child scopes forward it to their existing child without retaining a
 second completion or evaluating syntax again. Compatibility ports remain
 unarmed; a source-backed implementation must still lend its original source
 and scalar materialization before recording a borrowed comparison.
+
+Plain Integer literal descent prepares a targeted original compare-child loan
+before the same canonical Const append, then completes it through the existing
+recursive port. Structured scopes delegate both hooks; compatibility literals
+stay unarmed. The immutable append observation is paired with exact original
+source membership on the existing borrowed-entry owner, never inferred by
+scanning equal Const payloads. It does not prove final SSA operands or grant a
+new borrowed comparison operator.

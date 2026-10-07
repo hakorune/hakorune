@@ -8,6 +8,42 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn prepare_compare_integer_literal_v1(
+        &mut self,
+        value: i64,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1>, String> {
+        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else {
+            return Ok(None);
+        };
+        if !ledger.has_borrowed_compare_integer_literal_source_v1(owner) {
+            return Ok(None);
+        }
+        let site = self.current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-literal/source-site-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+        );
+        ledger.prepare_borrowed_compare_integer_literal_v1(owner, &site, value)
+    }
+
+    fn complete_compare_integer_literal_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
+        completed: &crate::mir::builder::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        let ledger = self.ordinary_new_claim_ledger.as_ref()
+            .ok_or_else(|| "[freeze:contract][borrowed-literal/ledger-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(loan.owner()) {
+            return Err("[freeze:contract][borrowed-literal/owner-drift]".into());
+        }
+        let node = self.current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-literal/source-site-missing]".to_owned())?;
+        if loan.site().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node) {
+            return Err("[freeze:contract][borrowed-literal/source-site-drift]".into());
+        }
+        ledger.record_borrowed_compare_integer_literal_v1(loan, completed)
+    }
+
     fn take_construction_store_v1(&mut self) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::construction::TakenConstructionStore>, String>{
         let Some(ledger) = self.callable_ledger.as_ref() else {
             return Ok(None);

@@ -632,3 +632,6 @@ mod call_result_tests;
 
 #[path = "array_i64_field_call_tests.rs"]
 mod array_i64_field_call_tests;
+
+#[path = "borrowed_source_publication_compare_literal_tests.rs"]
+mod compare_literal_tests;

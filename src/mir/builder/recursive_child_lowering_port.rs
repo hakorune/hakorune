@@ -97,6 +97,25 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Ok(())
     }
 
+    /// Only exact selected compare literals acquire this original source loan.
+    fn prepare_compare_integer_literal_v1(
+        &mut self,
+        _value: i64,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1>,
+        String,
+    > {
+        Ok(None)
+    }
+
+    fn complete_compare_integer_literal_v1(
+        &mut self,
+        _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
+        _completed: &super::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][borrowed-literal/consumer-unavailable]".into())
+    }
+
     fn take_construction_store_v1(&mut self) -> Result<Option<TakenConstructionStore>, String> {
         Ok(None)
     }

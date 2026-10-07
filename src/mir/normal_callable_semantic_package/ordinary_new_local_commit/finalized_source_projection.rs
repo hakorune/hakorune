@@ -240,6 +240,18 @@ impl FinalizedRootSourceHandoffV1 {
             .with_borrowed_ordinary_alias_copies_v1(owner, visit)
     }
 
+    /// Same original literal observations, not final operand correspondence.
+    pub(in crate::mir) fn with_borrowed_ordinary_compare_integer_literals_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        visit: impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1, ValueId,
+            &(BasicBlockId, MirInstruction)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        self.ledger.with_borrowed_ordinary_compare_integer_literals_v1(owner, visit)
+    }
+
     /// Original alias tuple -> the same held Boundary -> exact final coordinate.
     /// None is allowed only by the original optional Copy cone, never a scan.
     pub(in crate::mir) fn borrowed_ordinary_alias_copy_coordinate_v1(

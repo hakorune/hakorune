@@ -180,7 +180,7 @@ impl super::MirBuilder {
         };
         match ast {
             // Regular expressions
-            ASTNode::Literal { value, .. } => self.build_literal(value),
+            ASTNode::Literal { value, .. } => self.build_literal_with_port_v1(port, value),
 
             node @ ASTNode::BinaryOp { .. } => {
                 let left_source =

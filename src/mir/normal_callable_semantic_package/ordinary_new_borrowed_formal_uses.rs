@@ -53,6 +53,14 @@ pub(super) struct BorrowedCompareSourceV1 {
     integer_literal: Option<(OwnedExprSiteV1, i64)>,
 }
 
+impl BorrowedCompareSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_literal(
+        &self,
+    ) -> Option<(&OwnedExprSiteV1, i64)> {
+        self.integer_literal.as_ref().map(|(site, value)| (site, *value))
+    }
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BorrowedFormalUseDraftKindV1 {
     Copy {

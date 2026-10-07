@@ -79,6 +79,7 @@ mod lexical_instance_call;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
+pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
