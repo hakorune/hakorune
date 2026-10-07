@@ -1,4 +1,4 @@
-use super::{arg, cmp_operand, strict_planner_required, try_ensure, LocalKind};
+use super::{arg, strict_planner_required, try_cmp_operand, try_ensure, LocalKind};
 use crate::mir::builder::ssa::phi_input_contract;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirInstruction, ValueId};
@@ -208,8 +208,8 @@ pub fn finalize_compare(
 ) -> Result<(), String> {
     check_non_dominating_use(builder, *lhs, "CompareOperand")?;
     check_non_dominating_use(builder, *rhs, "CompareOperand")?;
-    *lhs = cmp_operand(builder, *lhs);
-    *rhs = cmp_operand(builder, *rhs);
+    *lhs = try_cmp_operand(builder, *lhs)?;
+    *rhs = try_cmp_operand(builder, *rhs)?;
     if crate::config::env::builder_local_ssa_trace() {
         if let Some(bb) = builder.function_state.current_block {
             let ring0 = crate::runtime::get_global_ring0();

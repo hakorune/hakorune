@@ -189,6 +189,7 @@ fn borrowed_literal_final_loan_rejects_same_value_different_source_and_changed_d
             .integer_literals
             .get_mut(&completed.value())
             .unwrap();
+        let record = Rc::get_mut(record).expect("unshared source-observation fixture");
         if change_site {
             record.source.site = other_site;
         } else if let MirInstruction::Const { dst, .. } = &mut record.original.1 {

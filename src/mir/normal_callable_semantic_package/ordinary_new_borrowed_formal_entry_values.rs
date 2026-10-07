@@ -11,8 +11,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntr
     aliases: BTreeMap<BindingRefV1, alias_materialization::BorrowedAliasMaterializationV1>,
     comparisons: BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
     comparison_consumers: Option<BTreeMap<ValueId, (Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>)>>,
+    literal_consumers: Option<BTreeMap<ValueId, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>>,
     integer_literals:
-        BTreeMap<ValueId, integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>,
+        BTreeMap<ValueId, std::rc::Rc<integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>>,
 }
 
 #[path = "ordinary_new_borrowed_alias_materialization.rs"]
@@ -21,6 +22,7 @@ mod alias_materialization;
 #[path = "ordinary_new_borrowed_compare_integer_literal.rs"]
 mod integer_literal;
 pub(crate) use integer_literal::BorrowedCompareIntegerLiteralLoanV1;
+pub(in crate::mir) use integer_literal::BorrowedCompareIntegerLiteralMaterializationV1;
 
 #[path = "ordinary_new_borrowed_compare_materialization.rs"]
 mod compare_materialization;
@@ -29,6 +31,8 @@ pub(in crate::mir) use compare_materialization::BorrowedCompareMaterializationV1
 
 #[path = "ordinary_new_borrowed_compare_consumers.rs"]
 mod compare_consumers;
+#[path = "ordinary_new_borrowed_compare_literal_consumers.rs"]
+mod literal_consumers;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Loan the original declared classes for exactly the validated pre-entry
@@ -74,6 +78,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 aliases: BTreeMap::new(),
                 comparisons: BTreeMap::new(),
                 comparison_consumers: None,
+                literal_consumers: None,
                 integer_literals: BTreeMap::new(),
             },
         );

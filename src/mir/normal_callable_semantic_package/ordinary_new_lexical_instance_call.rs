@@ -262,6 +262,7 @@ pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(crate) use borrowed_formal_entry::BorrowedCompareIntegerLiteralLoanV1;
 pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
+pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
 #[cfg(test)]
 pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;

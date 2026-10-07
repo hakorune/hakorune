@@ -481,7 +481,7 @@ fn dominated_set_view_publishes_from_original_source() {
                             .iter()
                             .filter(|row| row["instruction"]["op"] == "compare")
                             .collect();
-                        assert_eq!(compares.len(), 2, "{suffix}");
+                        assert_eq!(compares.len(), 1, "one original checked execution: {suffix}");
                         let sets: Vec<_> = rows
                             .iter()
                             .filter(|row| row["instruction"]["op"] == "array_set")

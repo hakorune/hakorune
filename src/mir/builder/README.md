@@ -1720,3 +1720,11 @@ recorded membership, unique definitions, rooted Bool dataflow, reachable
 dominance and instruction ordering; missing source coverage or consumer groups
 refuse. These bindings do not change ordinary operation admission. V4 runtime
 kind-Fault behavior is verified separately from this MIR correspondence.
+
+Selected Compare integer literals share the original source-bound Const record
+with the function-owned checked reuse state. Same-block operands retain identity;
+cross-block operands use an exact dominating Integer Copy. The canonical compare
+finalizer propagates failures, and selected values bypass generic cache/pin and
+Const rematerialization paths. The ordinary ledger validates ordered source
+child correspondence before accepting the handoff; original Const and Copy
+bindings remain mandatory through existing FinishedBindings validation.

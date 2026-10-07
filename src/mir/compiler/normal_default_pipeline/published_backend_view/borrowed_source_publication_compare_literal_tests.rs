@@ -30,6 +30,7 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                     sites.insert(site.clone());
                     Ok(())
                 })?;
+                assert_eq!(function.blocks.values().flat_map(|block| block.instructions.iter()).filter(|row| matches!(row, crate::mir::MirInstruction::Const { value: crate::mir::ConstValue::Integer(0), .. })).count(), 1, "selected literal is never rematerialized");
                 assert_eq!(sites.len(), 1, "one original literal child: {condition}");
                 assert_eq!(values.len(), 1, "one original raw literal append: {condition}");
                 // The selected Cond consumes the original checked Bool;
@@ -74,6 +75,12 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                         |_, _, _| panic!("final execution/consumer drift must refuse before source loan")).is_err());
                 }
 
+                let mut missing_literal = function.clone();
+                for block in missing_literal.blocks.values_mut() {
+                    block.instructions.retain(|row| !matches!(row, crate::mir::MirInstruction::Const { dst, .. } if values.contains(dst)));
+                }
+                assert!(source.with_borrowed_ordinary_compares_v1(owner, &missing_literal,
+                    |_, _, _| panic!("deleted original literal must refuse before source loan")).is_err());
                 let mut foreign = function.clone();
                 foreign.signature.name = "foreign/0".into();
                 assert!(source.with_borrowed_ordinary_compare_integer_literals_v1(owner, &foreign,

@@ -23,7 +23,8 @@ impl MirBuilder {
                 let loan = port.prepare_compare_integer_literal_v1(value)?;
                 let completed = super::emission::constant::emit_integer_recorded(self, value)?;
                 if let Some(loan) = loan {
-                    port.complete_compare_integer_literal_v1(loan, &completed)?;
+                    let record = port.complete_compare_integer_literal_v1(loan, &completed)?;
+                    super::ssa::local::checked_compare::install_literal(self, record)?;
                 }
                 Ok(completed.value())
             }

@@ -134,7 +134,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         &mut self,
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         _completed: &super::emission::constant::CompletedConstV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
         Err("[freeze:contract][borrowed-literal/consumer-unavailable]".into())
     }
 

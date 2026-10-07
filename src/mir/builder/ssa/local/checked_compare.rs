@@ -14,6 +14,10 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction, MirType, ValueId};
 
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState as Entry;
 
+#[path = "checked_compare_literal.rs"]
+mod literal;
+pub(in crate::mir::builder) use literal::install_literal;
+
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
@@ -27,18 +31,21 @@ struct BoolCopy {
 #[derive(Debug, Default)]
 pub(in crate::mir::builder) struct CheckedCompareReuseV1 {
     entry: Option<Weak<RefCell<Entry>>>,
+    literals: literal::LiteralReuse,
     records: BTreeMap<ValueId, Rc<Record>>,
     copies: BTreeMap<ValueId, BoolCopy>,
     branches: Vec<(Rc<Record>, Binding)>,
 }
 impl CheckedCompareReuseV1 {
     pub(in crate::mir::builder) fn is_empty(&self) -> bool {
-        self.entry.is_none()
+        self.literals.is_empty()
+            && self.entry.is_none()
             && self.records.is_empty()
             && self.copies.is_empty()
             && self.branches.is_empty()
     }
     pub(in crate::mir::builder) fn clear(&mut self) {
+        self.literals = literal::LiteralReuse::default();
         self.entry = None;
         self.records.clear();
         self.copies.clear();
@@ -72,10 +79,15 @@ impl CheckedCompareReuseV1 {
         Ok(())
     }
     pub(in crate::mir::builder) fn contains(&self, value: ValueId) -> bool {
-        self.records.contains_key(&value) || self.copies.contains_key(&value)
+        self.literals.contains(value)
+            || self.records.contains_key(&value)
+            || self.copies.contains_key(&value)
     }
     pub(in crate::mir::builder) fn records(&self) -> impl Iterator<Item = &Rc<Record>> {
         self.records.values()
+    }
+    pub(in crate::mir::builder) fn literal_observations(&self) -> impl Iterator<Item = (&Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, Vec<Binding>)>{
+        self.literals.observations()
     }
     pub(in crate::mir::builder) fn observations(
         &self,
@@ -110,6 +122,7 @@ impl CheckedCompareReuseV1 {
             .current_function
             .as_ref()
             .ok_or_else(|| fault("function-missing"))?;
+        self.literals.verify(builder)?;
         for record in self.records.values() {
             check_owner(builder, record)?;
             exact_definition(function, record.value(), record.original())?;
@@ -150,7 +163,10 @@ impl CheckedCompareReuseV1 {
 fn fault(reason: &str) -> String {
     format!("[freeze:contract][checked-compare-reuse/{reason}]")
 }
-fn check_owner(builder: &MirBuilder, record: &Record) -> Result<(), String> {
+fn check_entry_owner(
+    builder: &MirBuilder,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> Result<(), String> {
     let entry = builder
         .function_state
         .checked_compare_reuse
@@ -159,9 +175,13 @@ fn check_owner(builder: &MirBuilder, record: &Record) -> Result<(), String> {
         .and_then(Weak::upgrade)
         .ok_or_else(|| fault("entry-missing"))?;
     let entry = entry.try_borrow().map_err(|_| fault("entry-borrow"))?;
-    if entry.checked_compare_entry_owner_v1()? != record.owner() {
+    if entry.checked_compare_entry_owner_v1()? != owner {
         return Err(fault("owner"));
     }
+    Ok(())
+}
+fn check_owner(builder: &MirBuilder, record: &Record) -> Result<(), String> {
+    check_entry_owner(builder, record.owner())?;
     if builder.function_state.type_ctx.get_type(record.value()) != Some(&MirType::Bool) {
         return Err(fault("bool-type"));
     }
@@ -264,6 +284,14 @@ pub(in crate::mir::builder) fn install(
 /// Called before generic cache/pin paths. Cross-block reuse is a Copy of the
 /// original post-Normal Bool; original checked operations are never cloned.
 pub(super) fn materialize(builder: &mut MirBuilder, value: ValueId) -> Result<ValueId, Error> {
+    if builder
+        .function_state
+        .checked_compare_reuse
+        .literals
+        .contains(value)
+    {
+        return literal::materialize(builder, value);
+    }
     let (record, definition) = builder
         .function_state
         .checked_compare_reuse

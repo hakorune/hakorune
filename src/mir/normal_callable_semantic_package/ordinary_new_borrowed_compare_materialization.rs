@@ -48,6 +48,9 @@ pub(in crate::mir) struct BorrowedCompareMaterializationV1 {
 }
 
 impl BorrowedCompareMaterializationV1 {
+    pub(super) fn source(&self) -> &BorrowedCompareSourceLoanV1 { &self.source }
+    pub(super) fn children(&self) -> (ValueId, ValueId) { self.children }
+
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
         self.source.owner()
     }

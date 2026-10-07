@@ -188,3 +188,14 @@ pub fn field_base(builder: &mut MirBuilder, v: ValueId) -> ValueId {
 pub fn cmp_operand(builder: &mut MirBuilder, v: ValueId) -> ValueId {
     ensure(builder, v, LocalKind::CompareOperand)
 }
+
+pub(in crate::mir::builder) fn try_cmp_operand(
+    builder: &mut MirBuilder,
+    v: ValueId,
+) -> Result<ValueId, String> {
+    if builder.function_state.checked_compare_reuse.contains(v) {
+        ensure_inner(builder, v, LocalKind::CompareOperand, false)
+    } else {
+        Ok(cmp_operand(builder, v))
+    }
+}

@@ -83,7 +83,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         completed: &crate::mir::builder::emission::constant::CompletedConstV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
         let ledger = self.ordinary_new_claim_ledger.as_ref()
             .ok_or_else(|| "[freeze:contract][borrowed-literal/ledger-missing]".to_owned())?;
         if self.callable_owner_v1() != Some(loan.owner()) {
@@ -206,6 +206,8 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if let Some(news) = &self.ordinary_new_claim_ledger {
             news.verify_borrowed_compare_reuse_v1(state.owner(),
                 builder.function_state.checked_compare_reuse.records())?;
+            news.record_borrowed_compare_literal_consumers_v1(state.owner(), function,
+                builder.function_state.checked_compare_reuse.literal_observations())?;
             news.record_borrowed_compare_consumers_v1(state.owner(), function,
                 builder.function_state.checked_compare_reuse.observations())?;
             news.complete_new_emissions(state.owner(), function)?;

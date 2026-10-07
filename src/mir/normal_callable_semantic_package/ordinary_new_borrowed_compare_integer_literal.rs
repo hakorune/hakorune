@@ -21,9 +21,30 @@ impl BorrowedCompareIntegerLiteralLoanV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct BorrowedCompareIntegerLiteralMaterializationV1 {
+pub(in crate::mir) struct BorrowedCompareIntegerLiteralMaterializationV1 {
     source: BorrowedCompareIntegerLiteralLoanV1,
     original: (BasicBlockId, MirInstruction),
+}
+
+impl BorrowedCompareIntegerLiteralMaterializationV1 {
+    pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.owner()
+    }
+    pub(in crate::mir) fn binary(&self) -> &OwnedExprSiteV1 {
+        &self.source.binary
+    }
+    pub(in crate::mir) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.source.site
+    }
+    pub(in crate::mir) fn value(&self) -> ValueId {
+        self.original
+            .1
+            .dst_value()
+            .expect("sealed Const destination")
+    }
+    pub(in crate::mir) fn original(&self) -> &(BasicBlockId, MirInstruction) {
+        &self.original
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -99,7 +120,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         loan: BorrowedCompareIntegerLiteralLoanV1,
         completed: &CompletedConstV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<BorrowedCompareIntegerLiteralMaterializationV1>, String> {
         self.check_compare_integer_literal_loan(&loan)?;
         let original = completed.original();
         if !matches!(&original.1, MirInstruction::Const { dst, value: ConstValue::Integer(value) }
@@ -114,14 +135,14 @@ impl OrdinaryNewClaimLedgerV1 {
         if entry.integer_literals.contains_key(&completed.value()) {
             return Err(freeze("borrowed-literal/duplicate-materialization"));
         }
-        entry.integer_literals.insert(
-            completed.value(),
-            BorrowedCompareIntegerLiteralMaterializationV1 {
-                source: loan,
-                original: original.clone(),
-            },
-        );
-        Ok(())
+        let record = std::rc::Rc::new(BorrowedCompareIntegerLiteralMaterializationV1 {
+            source: loan,
+            original: original.clone(),
+        });
+        entry
+            .integer_literals
+            .insert(completed.value(), std::rc::Rc::clone(&record));
+        Ok(record)
     }
 
     fn check_compare_integer_literal_loan(

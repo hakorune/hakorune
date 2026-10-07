@@ -205,7 +205,7 @@ where
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         completed: &super::emission::constant::CompletedConstV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
         self.child
             .complete_compare_integer_literal_v1(loan, completed)
     }

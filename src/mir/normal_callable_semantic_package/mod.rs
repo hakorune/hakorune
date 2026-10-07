@@ -137,6 +137,7 @@ pub(crate) use model::{
     VerifiedQualifiedReceiverCatalogRelationV1,
 };
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
+pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(crate) use ordinary_new_coseal::{
     BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     ResultExitOriginV1, ResultValueOriginV1, ResultOriginWitnessV1, ResultWitnessStepV1,
