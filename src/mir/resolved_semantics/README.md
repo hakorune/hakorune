@@ -11,6 +11,13 @@ canonical function AST
   -> VerifiedResolvedFunctionV1
 ```
 
+## Exact signed immediate source query
+
+`negative_integer_immediate` borrows the original unary operator and literal
+operand. Only Minus(Integer) yields its checked negation; another operator,
+non-integer operand, wrong site or overflow yields no integer. This query does
+not fold expressions, convert types, issue a carrier, or authorize transport.
+
 ## Map source shape
 
 The existing body-shape issuer retains Map literal keys in source order,

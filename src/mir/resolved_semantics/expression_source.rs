@@ -303,6 +303,17 @@ impl ResolvedExpressionSourceInventoryV1 {
         self.literals.get(site)
     }
 
+    /// Exact signed immediate already admitted by borrowed actual observation.
+    /// This performs no folding or conversion; overflow has no integer result.
+    pub(crate) fn negative_integer_immediate(&self, site: &SourceExprSiteV1) -> Option<i64> {
+        self.unary(site)
+            .filter(|row| row.operator() == ResolvedUnaryOperatorV1::Minus)
+            .and_then(|row| match self.literal(row.operand()) {
+                Some(ResolvedLiteralSourceV1::Integer(value)) => value.checked_neg(),
+                _ => None,
+            })
+    }
+
     pub(crate) fn unary(
         &self,
         site: &SourceExprSiteV1,
@@ -608,6 +619,61 @@ fn map_literal(value: &LiteralValue) -> ResolvedLiteralSourceV1 {
         LiteralValue::Bool(value) => ResolvedLiteralSourceV1::Bool(*value),
         LiteralValue::Null => ResolvedLiteralSourceV1::Null,
         LiteralValue::Void => ResolvedLiteralSourceV1::Void,
+    }
+}
+
+#[cfg(test)]
+mod integer_immediate_tests {
+    use super::*;
+
+    #[test]
+    fn negative_immediate_preserves_exact_operator_operand_and_overflow_boundary() {
+        let site = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+        ]));
+        let operand = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::Operand,
+        ]));
+        for (operator, literal, expected) in [
+            (
+                ResolvedUnaryOperatorV1::Minus,
+                ResolvedLiteralSourceV1::Integer(7),
+                Some(-7),
+            ),
+            (
+                ResolvedUnaryOperatorV1::Minus,
+                ResolvedLiteralSourceV1::Integer(0),
+                Some(0),
+            ),
+            (
+                ResolvedUnaryOperatorV1::Minus,
+                ResolvedLiteralSourceV1::Integer(i64::MIN),
+                None,
+            ),
+            (
+                ResolvedUnaryOperatorV1::Not,
+                ResolvedLiteralSourceV1::Integer(7),
+                None,
+            ),
+            (
+                ResolvedUnaryOperatorV1::Minus,
+                ResolvedLiteralSourceV1::Bool(true),
+                None,
+            ),
+        ] {
+            let source = ResolvedExpressionSourceInventoryV1::from_parts_for_test(
+                [],
+                [ResolvedUnaryExpressionSourceV1 {
+                    site: site.clone(),
+                    operator,
+                    operand: operand.clone(),
+                }],
+                [(operand.clone(), literal)],
+            );
+            assert_eq!(source.negative_integer_immediate(&site), expected);
+            assert_eq!(source.negative_integer_immediate(&operand), None);
+        }
     }
 }
 
