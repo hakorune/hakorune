@@ -11,7 +11,7 @@ fn package(source: &str) -> Package {
     .unwrap()
 }
 const INSTANCE: &str = "box Heap { lookup(p) { return 0 } unused(q) { return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) return 0 } }";
-const STATIC: &str = "static box Layout { class_id(p) { return 0 } } static box Main { main() { local k = Layout.class_id(7) return 0 } }";
+const STATIC: &str = "static box Layout { class_id(p) { local alias: i64 = p return 0 } } static box Main { main() { local k = Layout.class_id(7) return 0 } }";
 
 #[test]
 fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
@@ -64,6 +64,8 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         BorrowedIncomingDraftErrorV1::NoIncoming(row.callee),
     ] {
         let inventory = BorrowedIncomingInventoryV1 {
+            unsupported_static_spelling: Default::default(),
+            unsupported_static_context: Default::default(),
             owners: owners.clone(),
             static_observations: BTreeMap::new(),
             observations: vec![
@@ -75,6 +77,8 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         assert!(inventory.project(&Default::default()).unwrap().is_empty());
     }
     let inventory = BorrowedIncomingInventoryV1 {
+        unsupported_static_spelling: Default::default(),
+        unsupported_static_context: Default::default(),
         owners: owners.clone(),
         static_observations: BTreeMap::new(),
         observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],
@@ -255,6 +259,8 @@ fn source_graph_partial_scan_preserves_global_loan_fault_before_orphan_check() {
         main: None,
     };
     let mut inventory = BorrowedIncomingInventoryV1 {
+        unsupported_static_spelling: Default::default(),
+        unsupported_static_context: Default::default(),
         owners: Default::default(),
         static_observations: BTreeMap::new(),
         observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],

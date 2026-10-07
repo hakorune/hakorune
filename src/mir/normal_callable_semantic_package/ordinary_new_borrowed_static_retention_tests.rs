@@ -6,7 +6,7 @@ use super::*;
 use std::rc::Rc;
 type Package =
     crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
-const SOURCE: &str = "static box Layout { class_id(a,b,c) { return 0 } } box Heap { lookup(size,other) { local k = Layout.class_id(size,other,3) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7,8) local x = Layout.class_id(1,2,3) return 0 } }";
+const SOURCE: &str = "static box Layout { class_id(a,b,c) { local alias: i64 = a return 0 } } box Heap { lookup(size,other) { local k = Layout.class_id(size,other,3) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7,8) local x = Layout.class_id(1,2,3) return 0 } }";
 fn package() -> Package {
     crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         SOURCE,
@@ -304,7 +304,7 @@ fn static_retention_foreign_index_and_reissued_sibling_refuse() {
 #[test]
 fn static_retention_absent_claim_keeps_unavailable_observation() {
     let package = package();
-    let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog("static box Layout { class_id(a,b,c) { return 0 } } static box Main { main() { return 0 } }").unwrap();
+    let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog("static box Layout { class_id(a,b,c) { local alias: i64 = a return 0 } } static box Main { main() { return 0 } }").unwrap();
     let main = borrow_app_main_source_v1(
         package.batch(),
         package.catalog.catalog().source_backed_app_main(),

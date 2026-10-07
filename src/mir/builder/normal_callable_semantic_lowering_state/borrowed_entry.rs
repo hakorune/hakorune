@@ -44,11 +44,23 @@ impl CallableSemanticLoweringState {
             .current_function
             .as_ref()
             .ok_or_else(|| freeze("borrowed-entry/no-current-function"))?;
-        let offset = usize::from(entry.receiver().is_some());
-        if !matches!(
-            function.signature.params.first(),
-            Some(crate::mir::MirType::Box(_))
-        ) || function.params.first().copied() != entry.receiver()
+        let receiver_required = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .unwrap()
+            .borrowed_ordinary_entry_receiver_required_v1(self.owner)?;
+        let offset = usize::from(receiver_required);
+        if (receiver_required
+            && (!matches!(
+                function.signature.params.first(),
+                Some(crate::mir::MirType::Box(_))
+            ) || function.params.first().copied() != entry.receiver()))
+            || (!receiver_required
+                && function
+                    .metadata
+                    .declared_param_decls
+                    .iter()
+                    .any(|row| row.implicit_receiver))
             || function.params.get(offset..) != Some(entry.parameters())
             || function.signature.params.len() != function.params.len()
         {
@@ -60,7 +72,7 @@ impl CallableSemanticLoweringState {
             .as_deref()
             .ok_or_else(|| freeze("borrowed-entry/carrier-column-missing"))?;
         if original.len() != function.params.len()
-            || original.first() != Some(&Carrier::ExistingCallableI64)
+            || (receiver_required && original.first() != Some(&Carrier::ExistingCallableI64))
             || original.contains(&Carrier::BorrowedTaggedValue)
         {
             return Err(freeze("borrowed-entry/carrier-column-drift"));
@@ -136,7 +148,15 @@ impl CallableSemanticLoweringState {
         if self.ordinary_new_claim_ledger.is_none() {
             return Err(freeze("borrowed-entry/source-ledger-missing"));
         }
-        if self.receiver.is_none() || entry.receiver().is_none() || formals.is_empty() {
+        let receiver_required = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .unwrap()
+            .borrowed_ordinary_entry_receiver_required_v1(self.owner)?;
+        if self.receiver.is_some() != receiver_required
+            || entry.receiver().is_some() != receiver_required
+            || formals.is_empty()
+        {
             return Err(freeze("borrowed-entry/instance-shape"));
         }
         let mut seen = BTreeSet::new();

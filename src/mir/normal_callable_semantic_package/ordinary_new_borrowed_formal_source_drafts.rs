@@ -96,3 +96,55 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     Ok((ordinary_callers, definitions, dominated_view_sites))
 }
+
+/// Borrow the original qualified incoming certification, then close ALL callers
+/// with the existing graph and inventory projection. This issues no new claim.
+pub(super) fn seed_static_transport_owners_v1(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    inventory: &BorrowedIncomingInventoryV1,
+    owners: &mut BTreeSet<FunctionOwnerIdV1>,
+) -> Result<(), String> {
+    for source in inventory
+        .static_observations()
+        .values()
+        .filter_map(|row| row.as_ref().ok())
+    {
+        if !definitions.contains_key(&source.callee_owner())
+            || inventory.has_unsupported_static_spelling(source.callee_owner())
+            || inventory.has_unsupported_static_context(source.callee_owner())
+        {
+            continue;
+        }
+        let mut contracts = contracts
+            .iter()
+            .filter(|row| row.owner == source.callee_owner());
+        let contract = contracts
+            .next()
+            .ok_or_else(|| freeze("borrowed-static/seed-contract-missing"))?;
+        if contracts.next().is_some()
+            || contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+            || contract.batch_slot != source.target_batch_slot()
+            || !matches!(selected.key_for_batch_slot(contract.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                    if key == source.target())
+            || source.target().namespace()
+                != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+            || source.parameters().len() != contract.parameters.len()
+            || source
+                .parameters()
+                .iter()
+                .zip(contract.parameters.iter())
+                .any(|(original, formal)| {
+                    original.ordinal != formal.ordinal
+                        || original.binding != formal.binding
+                        || original.kind != formal.kind
+                })
+        {
+            return Err(freeze("borrowed-static/seed-source-identity"));
+        }
+        owners.insert(contract.owner);
+    }
+    Ok(())
+}

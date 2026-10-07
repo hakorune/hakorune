@@ -208,6 +208,13 @@ pub(super) fn finish_ingress_from_drafts_v1(
         static_context.as_ref(),
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    source_drafts::seed_static_transport_owners_v1(
+        selected,
+        contracts,
+        &definitions,
+        &inventory,
+        &mut transport_owners,
+    )?;
     let call_sources = borrow_call_sources_v1(
         &calls,
         inventory

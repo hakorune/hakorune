@@ -162,6 +162,34 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     {
         return Err(freeze("borrowed-actual/source-identity"));
     }
+    if incoming_row.source.as_loan().declaration_mode() != contract.mode {
+        return Err(freeze("borrowed-actual/source-mode"));
+    }
+    if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(original) =
+        &incoming_row.source
+    {
+        let retained = prepared
+            .source_incoming
+            .static_observations()
+            .get(call)
+            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if !std::rc::Rc::ptr_eq(original, retained)
+            || original.parameters().len() != contract.parameters.len()
+            || original
+                .parameters()
+                .iter()
+                .zip(&contract.parameters)
+                .any(|(source, formal)| {
+                    source.ordinal != formal.ordinal
+                        || source.binding != formal.binding
+                        || source.kind != formal.kind
+                })
+        {
+            return Err(freeze("borrowed-static/executable-source-identity"));
+        }
+    }
     // The opaque subset cannot prove the unchanged scalar arguments beside
     // it. Cover every source ordinal before lending any successful actuals
     // to entry adoption or a continuation of this selected definition.

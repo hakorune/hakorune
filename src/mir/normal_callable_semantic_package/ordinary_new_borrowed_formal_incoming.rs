@@ -10,6 +10,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 struct BorrowedIncomingInventoryV1
 {
     owners: std::collections::BTreeSet<FunctionOwnerIdV1>,
+    unsupported_static_spelling: std::collections::BTreeSet<FunctionOwnerIdV1>,
+    unsupported_static_context: std::collections::BTreeSet<FunctionOwnerIdV1>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) static_observations:
         BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1>,
     observations: Vec<(
@@ -18,6 +20,19 @@ struct BorrowedIncomingInventoryV1
     )>,
 }
 impl BorrowedIncomingInventoryV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_unsupported_static_spelling(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.unsupported_static_spelling.contains(&owner)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_unsupported_static_context(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.unsupported_static_context.contains(&owner)
+    }
+
     /// Orphan proof requires a complete scan. A global loan failure remains
     /// retained and fails every final projection, including the empty set.
     fn corroborate_scan_completeness(
@@ -143,6 +158,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let mut static_observations = BTreeMap::new();
     let mut static_seen = std::collections::BTreeSet::new();
     let mut observations = Vec::new();
+    let mut unsupported_static_spelling = std::collections::BTreeSet::new();
+    let mut unsupported_static_context = std::collections::BTreeSet::new();
     let mut seen = std::collections::BTreeSet::new();
     for declaration in batch.declarations() {
         let loan = batch.with_lowering_input(declaration.batch_slot(), |input| {
@@ -169,6 +186,35 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     }
                     let exact = match contract.mode {
                         CallableParameterDeclarationModeV1::InstanceBoxMethod => {
+                            // A qualified original Static loan belongs to a different
+                            // namespace. Missing/failed authority remains a veto.
+                            if let Some(Ok(original)) = static_observations.get(&owned) {
+                                let mut target_contracts = contracts.iter().filter(|row|
+                                    row.owner == original.callee_owner());
+                                let target_contract = target_contracts.next()
+                                    .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
+                                if instance.is_some()
+                                    || original.call_site() != &owned
+                                    || original.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                                    || original.target().name() != call.selector()
+                                    || original.target().arity() != call.arity()
+                                    || original.argument_sites().len() != call.arguments().len()
+                                    || target_contracts.next().is_some()
+                                    || target_contract.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+                                    || target_contract.batch_slot != original.target_batch_slot()
+                                    || !matches!(selected.key_for_batch_slot(target_contract.batch_slot),
+                                        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(target)) if target == original.target())
+                                    || original.parameters().len() != target_contract.parameters.len()
+                                    || original.parameters().iter().zip(&target_contract.parameters).any(|(source, formal)|
+                                        source.ordinal != formal.ordinal || source.binding != formal.binding || source.kind != formal.kind)
+                                    || !call.arguments().iter().enumerate().all(|(ordinal, argument)|
+                                        argument.ordinal() as usize == ordinal
+                                            && original.argument_sites()[ordinal] == *argument.site())
+                                {
+                                    return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
+                                }
+                                continue;
+                            }
                             instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
                         }
                         CallableParameterDeclarationModeV1::StaticBoxMethod => {
@@ -244,6 +290,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         ));
                         continue;
                     }
+                    // Capability exclusions apply to the whole callee. Retain
+                    // the original row below, including every caller and veto.
+                    if contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod {
+                        if !input.function().expression_source().initializers().any(|initializer|
+                            initializer.initializer_site() == Some(site)) {
+                            unsupported_static_context.insert(*callee);
+                        }
+                        if call.arguments().iter().zip(&contract.parameters).any(|(argument, formal)|
+                            formal.kind.is_ordinary_borrowed_handle()
+                                && crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, argument.site()).is_none()) {
+                            unsupported_static_spelling.insert(*callee);
+                        }
+                    }
                     let arguments = call
                         .arguments()
                         .iter()
@@ -285,6 +344,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let inventory = BorrowedIncomingInventoryV1 {
         owners: drafts.keys().copied().collect(),
+        unsupported_static_spelling,
+        unsupported_static_context,
         observations,
         static_observations,
     };
@@ -299,3 +360,7 @@ mod tests;
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_static_source_domain_tests.rs"]
 mod static_source_domain_tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_static_capability_tests.rs"]
+mod static_capability_tests;

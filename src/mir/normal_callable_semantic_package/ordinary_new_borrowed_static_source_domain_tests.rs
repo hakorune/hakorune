@@ -38,13 +38,13 @@ fn formal(package: &Package, class: &str, name: &str) -> BindingRefV1 {
 const SOURCE: &str = "static box Layout { pick(p) { return 0 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local a = heap.lookup(7) local b = Layout.pick(8) return 0 } }";
 
 #[test]
-fn static_source_domain_keeps_full_original_incoming_and_same_rc_without_transport() {
+fn static_source_domain_keeps_full_original_incoming_and_same_rc_with_closed_transport() {
     let package = package(SOURCE);
     let source = ingress(&package);
     let p = formal(&package, "Layout", "pick");
     assert!(source.candidate_integer_agreement(p));
-    assert!(!source.formal_integer_agreement(p));
-    assert!(!source.contains_definition_for_test(p.owner()));
+    assert!(source.formal_integer_agreement(p));
+    assert!(source.contains_definition_for_test(p.owner()));
     assert_eq!(
         source.candidate_input_inventory_for_test(p.owner()),
         (2, false)
@@ -73,8 +73,8 @@ fn static_source_domain_keeps_full_original_incoming_and_same_rc_without_transpo
             assert!(Rc::ptr_eq(retained, fact.retained_call_source()));
         }
     }
-    assert!(source.incoming.is_empty());
-    assert!(source.forwards.is_empty());
+    assert_eq!(source.incoming.len(), 3);
+    assert_eq!(source.forwards.len(), 1);
     assert!(source.object_views.is_empty());
 }
 
@@ -93,8 +93,8 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
             source.candidate_input_inventory_for_test(p.owner()),
             (2, false)
         );
-        assert!(!source.contains_definition_for_test(p.owner()));
-        assert!(source.incoming.is_empty());
+        assert!(source.contains_definition_for_test(p.owner()));
+        assert_eq!(source.incoming.len(), 3);
     }
 }
 
@@ -263,7 +263,7 @@ fn static_source_domain_proven_instance_namespace_does_not_poison_static_agreeme
         source.candidate_input_inventory_for_test(p.owner()),
         (1, false)
     );
-    assert!(!source.contains_definition_for_test(p.owner()));
+    assert!(source.contains_definition_for_test(p.owner()));
 }
 
 #[test]
@@ -315,4 +315,55 @@ fn static_source_domain_declared_object_does_not_gain_pending_result_or_entry() 
         .borrowed_i64_results_for_test()
         .iter()
         .any(|(owner, _)| *owner == p.owner()));
+}
+
+#[test]
+fn static_source_domain_missing_static_authority_retains_instance_same_name_veto() {
+    let package = package("box Transport { pick(p) { local k = Layout.other(p) return 0 } } static box Layout { other(q) { return 0 } pick(p) { return 0 } } static box Main { main() { local recv = new Transport() local a = recv.pick(true) local b = Layout.pick(7) return 0 } }");
+    let source = ingress(&package);
+    let instance = source
+        .source_incoming
+        .exact_rows()
+        .find_map(|row| row.source.instance())
+        .unwrap();
+    let contract = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.owner == instance.callee_owner())
+        .unwrap();
+    let draft = package
+        .batch()
+        .with_lowering_input(contract.batch_slot, |input| {
+            super::super::draft_borrowed_formal_uses_v1(
+                input,
+                contract,
+                &package.instance_constructors,
+                None,
+            )
+            .unwrap()
+        })
+        .unwrap();
+    let definitions = BTreeMap::from([(contract.owner, draft)]);
+    let calls = BTreeMap::from([(instance.call_site().clone(), instance)]);
+    let scope = package
+        .batch()
+        .declarations()
+        .map(|row| row.owner())
+        .collect();
+    let inventory = inventory_borrowed_incoming_calls_v1(
+        package.batch(),
+        &package.selected,
+        &definitions,
+        &package.parameter_contracts,
+        &calls,
+        &scope,
+        None,
+    )
+    .unwrap();
+    assert_eq!(inventory.exact_rows().count(), 1);
+    assert!(inventory.vetoed_owners().contains(&contract.owner));
+    assert!(matches!(
+        inventory.project(&BTreeSet::from([contract.owner])),
+        Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))
+    ));
 }

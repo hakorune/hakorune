@@ -47,7 +47,8 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
             .iter()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand {
-                    binary, ..
+                    binary,
+                    ..
                 } => Some((row.binding, row.formal, binary)),
                 _ => None,
             })
@@ -195,10 +196,23 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(input.semantic(), SelectedCallableSemanticRefV1::Ordinary) {
             return Ok(None);
         }
-        if !matches!(input.selected_key(), crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)
-            if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)
-        {
+        let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key()
+        else {
             return Ok(None);
+        };
+        let receiver_required = match key.namespace() {
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => true,
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => false,
+            _ => return Ok(None),
+        };
+        let has_receiver = input.source().function().declaration_sites().any(|site| {
+            matches!(
+                site,
+                crate::mir::resolved_semantics::SourceBindingSiteV1::Receiver
+            )
+        });
+        if has_receiver != receiver_required {
+            return Err(freeze("borrowed-entry/source-mode-shape"));
         }
         let parameters = input.parameter_contracts().collect::<Vec<_>>();
         if !parameters
@@ -207,10 +221,46 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Ok(None);
         }
-        if !self.completion_index.contains_key(&input.source().owner()) {
+        if !self
+            .completion_index
+            .get(&input.source().owner())
+            .is_some_and(|row| {
+                row.as_ref()
+                    .is_ok_and(|completion| completion.owner() == input.source().owner())
+            })
+        {
             return Err(freeze("borrowed-entry/foreign-source-loan"));
         }
         self.borrowed_entry_source_for_contract(input.source().owner(), &parameters)
+    }
+
+    /// Original incoming namespace determines the entry's receiver law.
+    /// This does not infer mode from the physical receiver's presence.
+    pub(crate) fn borrowed_ordinary_entry_receiver_required_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<bool, String> {
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        let mut modes = source
+            .incoming
+            .iter()
+            .filter(|row| row.callee == owner)
+            .map(|row| row.source.as_loan().declaration_mode());
+        let mode = modes
+            .next()
+            .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
+        if modes.any(|other| other != mode) {
+            return Err(freeze("borrowed-entry/incoming-mode-drift"));
+        }
+        match mode {
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod => Ok(true),
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod => Ok(false),
+        }
     }
 
     fn borrowed_entry_source_for_contract(
@@ -429,12 +479,12 @@ mod tests;
 #[path = "ordinary_new_borrowed_formal_entry_values.rs"]
 mod entry_values;
 
-pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedOrdinaryEntryPhysicalV1;
-pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;
-pub(crate) use entry_values::BorrowedCompareSourceLoanV1;
-pub(in crate::mir) use entry_values::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
+pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use entry_values::BorrowedCompareIntegerLiteralMaterializationV1;
+pub(in crate::mir) use entry_values::BorrowedCompareMaterializationV1;
+pub(crate) use entry_values::BorrowedCompareSourceLoanV1;
+pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedOrdinaryEntryPhysicalV1;
 
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_incoming_kind_tests.rs"]

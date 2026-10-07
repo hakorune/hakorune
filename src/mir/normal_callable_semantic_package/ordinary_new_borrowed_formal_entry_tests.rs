@@ -359,7 +359,7 @@ fn foreign_installed_instance_loan_cannot_be_classified_outside_profile() {
 }
 
 #[test]
-fn static_opaque_loan_does_not_demand_an_ordinary_instance_profile() {
+fn static_opaque_loan_preserves_the_ordinary_source_failure() {
     let source = "box Transport { birth() { } probe(p): i64 { return 0 } }
         static box Utility { probe(p): i64 { return 0 } }
         static box Main { main() { local recv = new Transport() local out = recv.probe(0) return 0 } }";
@@ -379,10 +379,12 @@ fn static_opaque_loan_does_not_demand_an_ordinary_instance_profile() {
         .begin_lowering(&context)
         .unwrap()
         .with_selected_lowering_input(&key, |input| {
-            assert!(ledger
-                .borrowed_ordinary_entry_source_v1(&input)
-                .unwrap()
-                .is_none());
+            assert_eq!(
+                ledger
+                    .borrowed_ordinary_entry_source_v1(&input)
+                    .unwrap_err(),
+                "unrelated-source-error"
+            );
         })
         .unwrap();
 }
@@ -585,7 +587,10 @@ fn final_entry_loan_retains_original_targets_and_rechecks_recorded_values() {
             .as_ref()
             .unwrap();
         for (target, original) in loan.incoming_targets().zip(source.incoming.iter()) {
-            assert!(std::ptr::eq(target.unwrap(), original.source.require_instance().unwrap()));
+            assert!(std::ptr::eq(
+                target.unwrap(),
+                original.source.require_instance().unwrap()
+            ));
         }
     }
     assert!(ledger
@@ -638,5 +643,59 @@ fn final_entry_loan_does_not_hide_pending_or_changed_incoming() {
                 "changed-incoming"
             }
         );
+    }
+}
+
+#[test]
+fn static_entry_loan_requires_original_successful_completion() {
+    for rejected in 0..3 {
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog("static box Layout { pick(p) { return 0 } } static box Main { main() { local a = Layout.pick(7) return 0 } }").unwrap();
+        let owner = package
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .incoming[0]
+            .callee;
+        let slot = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.owner == owner)
+            .unwrap()
+            .batch_slot;
+        let key = package.selected.key_for_batch_slot(slot).unwrap().clone();
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        if rejected == 1 {
+            ledger.completion_index.insert(owner, Err(crate::mir::resolved_control_flow::FunctionCompletionVerificationErrorV1::OwnerClosureMismatch));
+        } else if rejected == 2 {
+            let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog("static box Foreign { pick(p) { return 0 } } static box Main { main() { local a = Foreign.pick(7) return 0 } }").unwrap();
+            let completion = foreign
+                .ordinary_new_claim_ledger
+                .completion_index
+                .values()
+                .find_map(|row| row.as_ref().ok())
+                .unwrap();
+            assert_ne!(completion.owner(), owner);
+            ledger
+                .completion_index
+                .insert(owner, Ok(Rc::clone(completion)));
+        } else {
+            ledger.completion_index.remove(&owner);
+        }
+        let ledger = Rc::clone(&package.ordinary_new_claim_ledger);
+        let mut context = crate::mir::builder::CompilationContext::new();
+        let installed = package.prepare_install(&mut context).unwrap().commit();
+        installed
+            .begin_lowering(&context)
+            .unwrap()
+            .with_selected_lowering_input(&key, |input| {
+                assert!(ledger
+                    .borrowed_ordinary_entry_source_v1(&input)
+                    .unwrap_err()
+                    .contains("foreign-source-loan"));
+            })
+            .unwrap();
     }
 }

@@ -90,8 +90,8 @@ projects the same immutable inventory; it never filters callers to obtain
 agreement, and global batch-loan errors remain global. Instance and qualified
 Static sources keep their original owned record or shared Rc. The existing
 finite closure, forward join and final source corroboration borrow their common
-coordinates. Static destinations remain outside accepted definitions until their
-separate contracts close. Receiver/object-only consumers explicitly require
+coordinates. Static destinations use the same full-cohort transport closure
+when their original source capabilities close. Receiver/object-only consumers explicitly require
 Instance; physical iterator errors reach both independent verifiers.
 
 ## Original incoming domain agreement
@@ -119,11 +119,24 @@ literal calls and unavailable-call vetoes, and feeds the existing domain solver.
 Known Instance calls are another namespace only after their original call-site
 and ordered argument coordinates agree. Missing authority never removes a caller.
 
-Transport selection, pending result owners and conditional class lenders keep
-their original Instance-only scope. A Static source agreement issues neither
-Executable nor entry permission. Required-I64 ordinals retain result dependence;
-they do not substitute for the full incoming input contract. Guard receipt,
-actual transport, Completion, entry and emitter activation remain later duties.
+Source agreement alone grants no execution or entry permission. The same
+incoming scan records unsupported Static actual spelling and non-initializer
+context per callee without dropping any source row or veto. An exact original
+Static target/slot/full formal contract seeds the existing transport closure;
+Instance/Static namespace exclusions require the original opposite-mode proof.
+Unavailable proof retains the caller veto, and conflicting proofs reject.
+
+Final Static actuals require the same inventory Rc, full contract and ordered
+argument coordinates. Their explicit Executable projector uses the existing
+actual proof; SourceStatic is never promoted. Required-I64 ordinals still demand
+Integer agreement independently of Bool/null transport. On successful final
+closure only, exact Static incoming sites extend the same dispatch set to Main
+literals and the canonical verified walk retains real Completion. Entry loans
+require the successful original owner-indexed Completion; the original
+namespace and Receiver declaration determine receiver mode and offset0/1.
+Physical incoming projection remains Instance-only until its separate packet,
+verifier and shared-emitter contracts close. No Static ABI/publication or full
+production acceptance follows from the semantic entry loan.
 
 ## Source and install ownership
 

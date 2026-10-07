@@ -4,7 +4,7 @@ use super::*;
 #[test]
 fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
-        "static box Layout { class_id(size) { return 0 } } box Heap { lookup(size) { local k = Layout.class_id(size) return 0 } } static box Main { main() { local heap = new Heap() local a = heap.lookup(7) local b = heap.lookup(8) return 0 } }",
+        "static box Layout { class_id(size) { local alias: i64 = size return 0 } } box Heap { lookup(size) { local k = Layout.class_id(size) return 0 } } static box Main { main() { local heap = new Heap() local a = heap.lookup(7) local b = heap.lookup(8) return 0 } }",
     ).unwrap();
     let source = package
         .ordinary_new_claim_ledger
@@ -183,7 +183,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_and_unresolved_source_veto() 
 #[test]
 fn candidate_integer_forward_retains_agreement_without_reviving_transport() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
-        "static box Layout { class_id(size) { return 0 } } box Heap { lookup(size) { local k = Layout.class_id(size) local recv = new Heap() local out = recv.sink(size) return 0 } sink(value) { local k = Layout.class_id(value) return 0 } } static box Main { main() { local heap = new Heap() local out = heap.lookup(7) return 0 } }",
+        "static box Layout { class_id(size) { local alias: i64 = size return 0 } } box Heap { lookup(size) { local k = Layout.class_id(size) local recv = new Heap() local out = recv.sink(size) return 0 } sink(value) { local k = Layout.class_id(value) return 0 } } static box Main { main() { local heap = new Heap() local out = heap.lookup(7) return 0 } }",
     ).unwrap();
     let source = package
         .ordinary_new_claim_ledger

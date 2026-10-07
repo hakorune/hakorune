@@ -62,16 +62,25 @@ fn state_from_package(
     package: VerifiedNormalCallableSemanticPackageV1,
     arity: u32,
 ) -> CallableSemanticLoweringState {
+    state_for_key(
+        package,
+        SelectedNormalCallableKeyV1::Cataloged(
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+                "Transport",
+                "probe",
+                arity,
+            ),
+        ),
+    )
+}
+
+fn state_for_key(
+    package: VerifiedNormalCallableSemanticPackageV1,
+    key: SelectedNormalCallableKeyV1,
+) -> CallableSemanticLoweringState {
     let mut context = CompilationContext::new();
     let installed = package.prepare_install(&mut context).unwrap().commit();
     let ledger = installed.ordinary_new_claim_ledger();
-    let key = SelectedNormalCallableKeyV1::Cataloged(
-        hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
-            "Transport",
-            "probe",
-            arity,
-        ),
-    );
     installed
         .begin_lowering(&context)
         .unwrap()
@@ -412,3 +421,84 @@ mod alias_materialization_tests;
 
 #[path = "borrowed_declared_entry_tests.rs"]
 mod declared_entry_tests;
+
+fn static_borrowed_state() -> CallableSemanticLoweringState {
+    state_for_key(package_from_text("static box Layout { probe(p, q: i64) { return 0 } } static box Main { main() { local a = Layout.probe(true, 7) return 0 } }"), SelectedNormalCallableKeyV1::Cataloged(hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "probe", 2)))
+}
+
+#[test]
+fn static_borrowed_entry_replaces_parameter_zero_without_receiver_column() {
+    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+    let mut state = static_borrowed_state();
+    let mut function = carrier_function(&[ValueId(72), ValueId(73)]);
+    function.signature.params[0] = crate::mir::MirType::Unknown;
+    let builder = carrier_builder(&function);
+    let entry = PreparedCallableEntryValuesV1::static_function(&builder, 2).unwrap();
+    let projected = state
+        .prepare_borrowed_entry_carriers(&entry, &builder)
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        &*projected.0,
+        &[Carrier::BorrowedTaggedValue, Carrier::ExistingCallableI64]
+    );
+    assert!(
+        projected.1.is_empty(),
+        "opaque formal has no declared-class type projection"
+    );
+    state.install_entry_values(&entry).unwrap();
+    assert!(state.receiver.is_none());
+    assert_eq!(state.values.get(&state.parameters[0]), Some(&ValueId(72)));
+    assert_eq!(state.values.get(&state.parameters[1]), Some(&ValueId(73)));
+    assert_eq!(
+        state
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .unwrap()
+            .borrowed_ordinary_entry_values_v1(state.owner)
+            .unwrap()
+            .as_ref(),
+        &[(0, state.parameters[0], ValueId(72))]
+    );
+}
+
+#[test]
+fn static_borrowed_entry_rejects_injected_receiver_and_physical_receiver_metadata() {
+    let mut state = static_borrowed_state();
+    state.receiver = Some(state.parameters[0]);
+    let mut function = carrier_function(&[ValueId(51), ValueId(72), ValueId(73)]);
+    let builder = carrier_builder(&function);
+    let entry = PreparedCallableEntryValuesV1::instance_method(&builder, 2).unwrap();
+    assert!(state
+        .install_entry_values(&entry)
+        .unwrap_err()
+        .contains("borrowed-entry/instance-shape"));
+    assert!(!state.entry_installed);
+    let state = static_borrowed_state();
+    function = carrier_function(&[ValueId(72), ValueId(73)]);
+    function.signature.params[0] = crate::mir::MirType::Unknown;
+    function.metadata.declared_param_decls = vec![crate::mir::function::MirParamDecl {
+        name: "me".into(),
+        declared_type_name: None,
+        implicit_receiver: true,
+    }];
+    let builder = carrier_builder(&function);
+    let entry = PreparedCallableEntryValuesV1::static_function(&builder, 2).unwrap();
+    assert!(state
+        .prepare_borrowed_entry_carriers(&entry, &builder)
+        .unwrap_err()
+        .contains("physical-signature-drift"));
+}
+
+#[test]
+fn instance_borrowed_entry_rejects_missing_original_receiver_even_with_matching_shape() {
+    let mut state = state("0");
+    state.receiver = None;
+    let builder = carrier_builder(&carrier_function(&[ValueId(72)]));
+    let entry = PreparedCallableEntryValuesV1::static_function(&builder, 1).unwrap();
+    assert!(state
+        .install_entry_values(&entry)
+        .unwrap_err()
+        .contains("borrowed-entry/instance-shape"));
+    assert!(!state.entry_installed);
+}

@@ -1,5 +1,5 @@
-//! Source-only Static observations use the original incoming/fact inventory.
-//! This phase owns no opaque actual and cannot activate an entry or ABI.
+//! Static source and executable projections share the original incoming inventory.
+//! SourceStatic itself owns no opaque actual and never activates an entry or ABI.
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
@@ -27,8 +27,8 @@ pub(super) fn prepare_static_source_actuals_v1(
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
-    // Only the selected original opaque-argument source sites enter this
-    // protocol. Literal-only Static/SELF/provider callers retain their owner.
+    // This source-only protocol uses original opaque-argument facts. Final
+    // incoming sites use the executable actual constructor before this branch.
     if !prepared
         .static_arguments
         .keys()
@@ -161,7 +161,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         .static_arguments
         .keys()
         .any(|(call, _)| call == site);
-    if !has_source_fact {
+    let has_final_static = prepared.incoming.iter().any(|row| {
+        &row.call == site
+            && matches!(
+                row.source,
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+            )
+    });
+    if !has_source_fact && !has_final_static {
         return Ok(None);
     }
     let rows = pending
@@ -169,6 +176,60 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         .ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
         .as_ref()
         .map_err(Clone::clone)?;
+    if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::Executable) {
+        let mut incoming = prepared.incoming.iter().filter(|row| &row.call == site);
+        let call = incoming
+            .next()
+            .ok_or_else(|| freeze("borrowed-static/executable-incoming-missing"))?;
+        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(original) =
+            &call.source
+        else {
+            return Err(freeze("borrowed-static/executable-source-kind"));
+        };
+        let retained = prepared
+            .source_incoming
+            .static_observations()
+            .get(site)
+            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+            .as_ref()
+            .map_err(Clone::clone)?;
+        if incoming.next().is_some()
+            || !Rc::ptr_eq(original, retained)
+            || original.call_site() != site
+            || claim.required_i64_arguments() != original.required_i64_arguments()
+        {
+            return Err(freeze("borrowed-static/executable-source-identity"));
+        }
+        let arguments = rows.ordered_arguments_for_v1(call)?;
+        for ordinal in claim.required_i64_arguments() {
+            let integer = match arguments.get(*ordinal as usize) {
+                Some(LocalCallArgumentV1::Integer(_) | LocalCallArgumentV1::Scalar(_)) => true,
+                Some(LocalCallArgumentV1::BorrowedActual { ordinal, .. }) => rows
+                    .opaque_actuals
+                    .iter()
+                    .find(|actual| actual.ordinal == *ordinal)
+                    .is_some_and(|actual| match &actual.source {
+                        BorrowedFormalActualSourceV1::Integer(_) => true,
+                        BorrowedFormalActualSourceV1::Scalar {
+                            kind: SourceScalarKind::Integer,
+                            ..
+                        } => true,
+                        BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
+                            prepared.candidate_integer_agreement(*formal)
+                        }
+                        _ => false,
+                    }),
+                _ => false,
+            };
+            if !integer {
+                return Err(freeze("borrowed-static/required-integer-source-unproved"));
+            }
+        }
+        return Ok(Some(arguments.into()));
+    }
+    if !has_source_fact {
+        return Err(freeze("borrowed-static/source-fact-required"));
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };

@@ -104,7 +104,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             ))
         }
     };
-    let static_source_sites = Ok(static_arguments
+    let mut static_source_sites: Result<BTreeSet<OwnedExprSiteV1>, String> = Ok(static_arguments
         .keys()
         .map(|(site, _)| site.clone())
         .collect());
@@ -195,6 +195,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             static_arguments,
         )
     })();
+    // Successful final closure adds literal-only Main sites. An error retains
+    // the original fact selection and its existing failure scope.
+    if let (Ok(prepared), Ok(sites)) = (&ingress, &mut static_source_sites) {
+        sites.extend(
+            prepared
+                .incoming
+                .iter()
+                .filter(|row| {
+                    matches!(
+                        row.source,
+                        super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+                    )
+                })
+                .map(|row| row.call.clone()),
+        );
+    }
     let results = seal_pending_results_v1(pending, &ingress, batch, constructors);
     Ok((targets, ingress, static_source_sites, results))
 }
