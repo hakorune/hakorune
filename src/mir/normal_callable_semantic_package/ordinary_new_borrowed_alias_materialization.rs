@@ -83,14 +83,14 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         entry.aliases.insert(
             binding,
-            BorrowedAliasMaterializationV1 {
+            std::rc::Rc::new(BorrowedAliasMaterializationV1 {
                 site,
                 declaration: initializer.declaration_site().clone(),
                 formal,
                 source_binding,
                 value,
                 proof: proof.clone(),
-            },
+            }),
         );
         Ok(Some(formal))
     }
@@ -213,3 +213,7 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_alias_materialization_tests.rs"]
 mod tests;
+
+#[path = "ordinary_new_borrowed_compare_carrier_operand.rs"]
+mod compare_carrier_operand;
+pub(in crate::mir) use compare_carrier_operand::BorrowedCompareCarrierOperandLoanV1;

@@ -1272,3 +1272,13 @@ The published Compare loan carries its finished binding with the SAME original
 source capability; original descent children still do not prove final operand
 lineage. Integer versus Null/Bool/Object execution is checked separately by the
 existing V4 runtime test; alias correspondence and other operators stay separate.
+
+Compare carrier operand loans borrow the original entry formal or the same
+immutable alias record and its LocalProvenance Copy chain. Each loan retains
+the original binary and operand site, binding/formal, entry ValueId and alias
+ValueId. Revalidation requires source membership and the same canonical alias
+Rc, so an equal replacement record cannot substitute for the original. Loans
+for both source sides may share a ValueId; source coverage remains per site.
+This source loan grants no Integer projection or additional Copy permission.
+The production comparison consumer and final operand mapping remain separate
+required work before carrier reuse is activated.

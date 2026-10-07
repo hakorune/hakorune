@@ -433,4 +433,5 @@ pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedO
 pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;
 pub(crate) use entry_values::BorrowedCompareSourceLoanV1;
 pub(in crate::mir) use entry_values::BorrowedCompareMaterializationV1;
+pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use entry_values::BorrowedCompareIntegerLiteralMaterializationV1;

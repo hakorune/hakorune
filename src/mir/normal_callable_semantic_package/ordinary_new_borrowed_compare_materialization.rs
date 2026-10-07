@@ -161,7 +161,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(selected)
     }
 
-    fn check_borrowed_compare_source_loan(
+    pub(super) fn check_borrowed_compare_source_loan(
         &self,
         loan: &BorrowedCompareSourceLoanV1,
     ) -> Result<(), String> {

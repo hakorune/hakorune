@@ -8,7 +8,7 @@ type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
     pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
-    aliases: BTreeMap<BindingRefV1, alias_materialization::BorrowedAliasMaterializationV1>,
+    aliases: BTreeMap<BindingRefV1, std::rc::Rc<alias_materialization::BorrowedAliasMaterializationV1>>,
     comparisons: BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
     comparison_consumers: Option<BTreeMap<ValueId, (Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>)>>,
     literal_consumers: Option<BTreeMap<ValueId, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>>,
@@ -18,6 +18,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntr
 
 #[path = "ordinary_new_borrowed_alias_materialization.rs"]
 mod alias_materialization;
+pub(in crate::mir) use alias_materialization::BorrowedCompareCarrierOperandLoanV1;
 
 #[path = "ordinary_new_borrowed_compare_integer_literal.rs"]
 mod integer_literal;
