@@ -164,6 +164,13 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn complete_ordinary_binary_expression_v1(
+        &mut self,
+        completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.child.complete_ordinary_binary_expression_v1(completed)
+    }
+
     fn script_direct_static_claim_ingress_v1(
         &mut self,
         box_name: &str,

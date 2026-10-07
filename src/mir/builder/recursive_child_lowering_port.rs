@@ -88,6 +88,15 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type StatementInput;
     type ExpressionInput;
 
+    /// Observe the sole ordinary Binary completion after ordered child descent.
+    /// Compatibility ports stay unarmed; this tuple alone grants no source proof.
+    fn complete_ordinary_binary_expression_v1(
+        &mut self,
+        _completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        Ok(())
+    }
+
     fn take_construction_store_v1(&mut self) -> Result<Option<TakenConstructionStore>, String> {
         Ok(None)
     }

@@ -80,6 +80,13 @@ where
 {
     type BinaryInput = RawLegacyBinaryInputV1;
 
+    fn complete_binary_expression_v1(
+        &mut self,
+        completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.complete_ordinary_binary_expression_v1(completed)
+    }
+
     fn binary_syntax<'input>(
         &self,
         input: &'input Self::BinaryInput,

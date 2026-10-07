@@ -1674,3 +1674,10 @@ compatibility APIs return the same value and arithmetic carries no Compare.
 The completion port hook grants no source identity or semantic permission.
 Exact source loans and mandatory FinishedBindings correspondence remain required
 before using this observation to admit new borrowed comparison operators.
+
+The raw AST Binary blanket adapter delegates that same completion through
+`RecursiveChildLoweringPortV1::complete_ordinary_binary_expression_v1`.
+Structured child scopes forward it to their existing child without retaining a
+second completion or evaluating syntax again. Compatibility ports remain
+unarmed; a source-backed implementation must still lend its original source
+and scalar materialization before recording a borrowed comparison.
