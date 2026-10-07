@@ -11,8 +11,11 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
     let Some((observed_site, call)) = input
         .function()
@@ -46,9 +49,15 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         if !stored {
             return Ok(None);
         }
-        return Ok(borrowed_arguments(site, None)?
-            .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
-            .map(|arguments| arguments.into_vec()));
+        return Ok(
+            borrowed_arguments(site, BorrowedCallActualRequestV1::ScalarArguments)?
+                .and_then(|row| match row {
+                    BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
+                    BorrowedCallArgumentsV1::StaticSource(_) => None,
+                })
+                .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
+                .map(|arguments| arguments.into_vec()),
+        );
     }
     seal_i64_call_arguments(
         input,
@@ -74,12 +83,17 @@ fn seal_i64_call_arguments<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
     let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
-    if let Some(arguments) = borrowed_arguments(&owned, None)? {
-        return Ok(Some(arguments.into_vec()));
+    match borrowed_arguments(&owned, BorrowedCallActualRequestV1::ScalarArguments)? {
+        Some(BorrowedCallArgumentsV1::Scalar(arguments)) => return Ok(Some(arguments.into_vec())),
+        Some(BorrowedCallArgumentsV1::StaticSource(_)) => return Ok(None),
+        None => {}
     }
     if !allow_strict || !is_selected_call(&owned)? {
         return Ok(None);
@@ -124,8 +138,11 @@ fn seal_argument_call<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<ArgumentCallObservationV1>, E> {
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
     let Some((observed_site, call)) = input

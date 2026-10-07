@@ -64,16 +64,33 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
 /// The same pending call owns both its opaque proofs and the full ordered
 /// argument projection. No second site inventory or domain authority is minted.
 #[derive(Debug, Clone, PartialEq, Eq)]
+enum BorrowedCallActualEvidencePhaseV1 {
+    Executable,
+    SourceStatic(static_source::StaticSourceActualIdentityV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCallActualsV1 {
+    phase: BorrowedCallActualEvidencePhaseV1,
     pub(super) opaque_actuals: Box<[PreparedBorrowedFormalActualV1]>,
     pub(super) ordered_arguments: Box<[LocalCallArgumentV1]>,
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    pub(super) fn require_executable_v1(&self) -> Result<(), String> {
+        match self.phase {
+            BorrowedCallActualEvidencePhaseV1::Executable => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Err(freeze(
+                "ordinary-new/borrowed-entry/source-only-static-actuals",
+            )),
+        }
+    }
+
     pub(super) fn ordered_arguments_for_v1(
         &self,
         call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     ) -> Result<&[LocalCallArgumentV1], String> {
+        self.require_executable_v1()?;
         if self.ordered_arguments.len() != call.source.argument_sites().len() {
             return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
         }
@@ -124,7 +141,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
-        return Ok(None);
+        return static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals);
     };
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
@@ -360,6 +377,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         })
         .collect::<Result<Vec<_>, String>>()?;
     Ok(Some(PreparedBorrowedCallActualsV1 {
+        phase: BorrowedCallActualEvidencePhaseV1::Executable,
         opaque_actuals: rows.into_boxed_slice(),
         ordered_arguments: ordered_arguments.into_boxed_slice(),
     }))
@@ -444,6 +462,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn reject_borrowed_actuals_
             staged.insert(incoming.call.clone(), Err(issue.clone()));
         }
     }
+    for (site, row) in staged.iter_mut().filter(|(site, _)| site.owner() == owner) {
+        if matches!(row, Ok(actuals) if matches!(actuals.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)))
+        {
+            *row = Err(format!("{issue} call={site:?}"));
+        }
+    }
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn finish_borrowed_call_actuals_v1(
@@ -466,3 +490,7 @@ mod tests;
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_formal_discard_tests.rs"]
 mod discard_tests;
+
+#[path = "ordinary_new_borrowed_static_source_actuals.rs"]
+mod static_source;
+pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_v1;

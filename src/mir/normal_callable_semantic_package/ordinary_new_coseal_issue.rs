@@ -128,6 +128,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         mut local_candidates,
         lexical_source_targets,
         borrowed_formal_source,
+        static_source_sites,
         borrowed_i64_results,
     ) = lexical::prepare_source_preflight_v1(
         batch,
@@ -300,7 +301,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
-                        &borrowed_formal_source, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
+                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -340,27 +341,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     batch.ordinary_box_coverage(), receiver_proof,
                 )?;
                 let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
+                let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites);
                 let seed_completion = seed_eligible
                     && !has_map
                     && !has_nullable_receiver_call
                     && !has_me_object_field_read
                     && !has_stored_terminal
+                    && !has_static_source_local
                     && !has_formal_field_read
                     && !child_new_ready
                     && !child_result_ready
                     && (is_app_main || owner_loan.is_none());
-                let app_main_integer_result = is_app_main
-                    && candidates.is_empty()
-                    && result_sites.is_empty()
-                    && !has_map
-                    && owner_loan.is_none()
-                    && !function
-                        .declaration_sites()
-                        .any(|site| matches!(site, SourceBindingSiteV1::Receiver))
-                    && input
-                        .forest()
-                        .ordered_capture_demands(input.owner())
-                        .is_empty();
+                let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
+                    input,
+                    is_app_main,
+                    candidates.is_empty() && result_sites.is_empty(),
+                    !has_map && owner_loan.is_none(),
+                    &static_source_sites,
+                );
                 if seed_completion || app_main_integer_result {
                     let completion = Rc::new(
                         crate::mir::resolved_control_flow::verify_function_completion_v1(input)
@@ -400,6 +398,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let verified_walk = owner_loan.is_some()
                     || has_nullable_receiver_call
                     || has_me_object_field_read
+                    || has_static_source_local
                     || has_formal_field_read
                     || has_stored_terminal
                     || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
@@ -612,7 +611,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         ), &mut local_field_read, &mut |site, actuals| {
                             borrowed_call_arguments_callback_v1(
                                 &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
-                                &borrowed_formal_source, &mut borrowed_formal_actuals, &borrowed_i64_results,
+                                &borrowed_formal_source, &static_source_sites, &mut borrowed_formal_actuals, &borrowed_i64_results,
                                 &mut |binding| lexical::nullable_received_result_class(
                                     selected, batch, &callable_result_classes, &candidates, input, binding,
                                 ),

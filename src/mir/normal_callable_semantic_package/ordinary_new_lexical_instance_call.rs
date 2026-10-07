@@ -145,7 +145,10 @@ impl LexicalInstanceCallSourceTargetV1 {
 
     /// `me.<name>` coverage row — never the local/parameter lane.
     pub(crate) fn is_self_receiver(&self) -> bool {
-        matches!(self.receiver, LexicalInstanceCallReceiverV1::SelfReceiver(_))
+        matches!(
+            self.receiver,
+            LexicalInstanceCallReceiverV1::SelfReceiver(_)
+        )
     }
 
     pub(crate) fn receiver_binding(&self) -> Result<BindingRefV1, String> {
@@ -280,9 +283,7 @@ mod provenance;
 
 #[path = "ordinary_new_lexical_instance_call_source.rs"]
 mod source;
-pub(super) use source::{
-    PreparedLexicalInstanceCallSourceTargetsV1, StoredReceiverSourceV1,
-};
+pub(super) use source::{PreparedLexicalInstanceCallSourceTargetsV1, StoredReceiverSourceV1};
 
 #[path = "ordinary_new_borrowed_static_argument.rs"]
 mod borrowed_static_argument;
@@ -298,9 +299,7 @@ mod borrowed_formal_actuals;
 
 #[path = "ordinary_new_borrowed_formal_result.rs"]
 mod borrowed_formal_result;
-pub(super) use borrowed_formal_result::{
-    BorrowedI64ResultSourceV1,
-};
+pub(super) use borrowed_formal_result::BorrowedI64ResultSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_profile.rs"]
 mod profile;
@@ -310,18 +309,18 @@ pub(super) use profile::prepare_borrowed_profile_v1;
 mod borrowed_formal_entry;
 pub(super) use borrowed_formal_actuals::{
     prepare_borrowed_call_actuals_v1, project_pending_borrowed_i64_arguments_v1,
-    reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
-    PendingBorrowedFormalActualsV1,
+    project_pending_static_source_arguments_v1, reject_borrowed_actuals_for_owner_v1,
+    stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
 };
 pub(in crate::mir) use borrowed_formal_actuals::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
-pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
-pub(crate) use borrowed_formal_entry::BorrowedCompareIntegerLiteralLoanV1;
-pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
-pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareCarrierOperandLoanV1;
+pub(crate) use borrowed_formal_entry::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareIntegerLiteralMaterializationV1;
+pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
+pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
+pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
 #[cfg(test)]
 pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;
@@ -559,4 +558,6 @@ mod source_requirement_tests;
 
 #[path = "ordinary_new_borrowed_app_main_source.rs"]
 mod app_main_source;
-pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{borrow_app_main_source_v1, BorrowedAppMainSourceLoanV1};
+pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{
+    borrow_app_main_source_v1, BorrowedAppMainSourceLoanV1,
+};

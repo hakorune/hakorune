@@ -89,3 +89,49 @@ pub(super) fn has_me_object_field_read_v1(
     }
     Ok(found)
 }
+
+/// An original opaque Static local continuation must retain its observation in
+/// the canonical verified root flow. Only original initializer/fact membership
+/// selects the walk; no new local classifier or completed ledger is consulted.
+pub(super) fn has_static_source_local_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &Result<std::collections::BTreeSet<OwnedExprSiteV1>, String>,
+) -> bool {
+    let Ok(source) = source else {
+        return false;
+    };
+    input
+        .function()
+        .expression_source()
+        .initializers()
+        .any(|initializer| {
+            initializer.initializer_site().is_some_and(|site| {
+                source.contains(&OwnedExprSiteV1::new(input.owner(), site.clone()))
+            })
+        })
+}
+
+/// Keep the existing plain root literal path separate from a selected Static
+/// continuation's canonical root flow. This predicates source membership only.
+pub(super) fn plain_main_integer_result_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    is_main: bool,
+    no_sites: bool,
+    no_map_or_owner_loan: bool,
+    source: &Result<std::collections::BTreeSet<OwnedExprSiteV1>, String>,
+) -> bool {
+    is_main
+        && no_sites
+        && no_map_or_owner_loan
+        && !has_static_source_local_v1(input, source)
+        && !input.function().declaration_sites().any(|site| {
+            matches!(
+                site,
+                crate::mir::resolved_semantics::SourceBindingSiteV1::Receiver
+            )
+        })
+        && input
+            .forest()
+            .ordered_capture_demands(input.owner())
+            .is_empty()
+}

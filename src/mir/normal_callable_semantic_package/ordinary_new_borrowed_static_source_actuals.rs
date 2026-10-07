@@ -1,0 +1,245 @@
+//! Source-only Static observations use the original incoming/fact inventory.
+//! This phase owns no opaque actual and cannot activate an entry or ABI.
+use super::*;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
+use std::rc::Rc;
+
+#[derive(Debug, Clone)]
+pub(super) struct StaticSourceActualIdentityV1 {
+    source: Rc<QualifiedStaticIncomingSourceV1>,
+    candidates: Box<[BorrowedCallActualCandidateV1]>,
+    integer_evidence: Box<[bool]>,
+}
+
+impl PartialEq for StaticSourceActualIdentityV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.source, &other.source)
+            && self.candidates == other.candidates
+            && self.integer_evidence == other.integer_evidence
+    }
+}
+impl Eq for StaticSourceActualIdentityV1 {}
+
+pub(super) fn prepare_static_source_actuals_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
+    // Only the selected original opaque-argument source sites enter this
+    // protocol. Literal-only Static/SELF/provider callers retain their owner.
+    if !prepared
+        .static_arguments
+        .keys()
+        .any(|(site, _)| site == call)
+    {
+        return Ok(None);
+    }
+    let source = prepared
+        .source_incoming
+        .static_observations()
+        .get(call)
+        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    let mut matching = contracts
+        .iter()
+        .filter(|row| row.owner == source.callee_owner());
+    let contract = matching
+        .next()
+        .ok_or_else(|| freeze("borrowed-static/target-contract"))?;
+    if matching.next().is_some()
+        || source.call_site() != call
+        || contract.batch_slot != source.target_batch_slot()
+        || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
+        || contract.parameters.len() != source.parameters().len()
+        || actuals.len() != source.argument_sites().len()
+        || actuals.len() != contract.parameters.len()
+    {
+        return Err(freeze("borrowed-static/source-actual-identity"));
+    }
+    let mut arguments = Vec::with_capacity(actuals.len());
+    let mut integer_evidence = Vec::with_capacity(actuals.len());
+    for (index, ((formal, original), actual)) in contract
+        .parameters
+        .iter()
+        .zip(source.parameters())
+        .zip(actuals)
+        .enumerate()
+    {
+        if formal.ordinal as usize != index
+            || formal.ordinal != original.ordinal
+            || formal.binding != original.binding
+            || formal.kind != original.kind
+            || formal.binding.owner() != contract.owner
+            || actual.ordinal != formal.ordinal
+            || source.argument_sites().get(index) != Some(&actual.site)
+        {
+            return Err(freeze("borrowed-static/source-actual-identity"));
+        }
+        if let Some(fact) = prepared
+            .static_arguments
+            .get(&(call.clone(), actual.ordinal))
+        {
+            let same_binding = match &actual.value {
+                BorrowedCallActualValueV1::SelfRooted { binding, root } => {
+                    *binding == fact.binding() && *root == fact.formal()
+                }
+                BorrowedCallActualValueV1::Scalar(binding, _) => *binding == fact.binding(),
+                _ => false,
+            };
+            if !Rc::ptr_eq(fact.retained_call_source(), source)
+                || fact.call() != call
+                || fact.ordinal() != actual.ordinal
+                || fact.use_site().site() != &actual.site
+                || fact.target_formal() != formal.binding
+                || !same_binding
+            {
+                return Err(freeze("borrowed-static/forward-source-identity"));
+            }
+        }
+        let integer = match &actual.value {
+            BorrowedCallActualValueV1::Integer(_) => true,
+            BorrowedCallActualValueV1::Bool(_) | BorrowedCallActualValueV1::Null => false,
+            BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
+                *kind == SourceScalarKind::Integer
+            }
+            BorrowedCallActualValueV1::SelfRooted { root, .. } => {
+                if !prepared
+                    .static_arguments
+                    .contains_key(&(call.clone(), actual.ordinal))
+                {
+                    return Err(freeze("borrowed-static/forward-source-missing"));
+                }
+                prepared.candidate_integer_agreement(*root)
+            }
+            _ => return Err(freeze("borrowed-static/source-actual-unavailable")),
+        };
+        let argument = match &formal.kind {
+            kind if kind.is_ordinary_borrowed_handle() => LocalCallArgumentV1::BorrowedActual {
+                ordinal: actual.ordinal,
+                site: actual.site.clone(),
+            },
+            CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64() => {
+                match actual.value {
+                    BorrowedCallActualValueV1::Integer(value) => {
+                        LocalCallArgumentV1::Integer(value)
+                    }
+                    BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer)
+                        if binding.owner() == call.owner() =>
+                    {
+                        LocalCallArgumentV1::Scalar(binding)
+                    }
+                    _ => return Err(freeze("borrowed-static/nonopaque-integer-unproved")),
+                }
+            }
+            _ => return Err(freeze("borrowed-static/input-contract-unsupported")),
+        };
+        arguments.push(argument);
+        integer_evidence.push(integer);
+    }
+    Ok(Some(PreparedBorrowedCallActualsV1 {
+        opaque_actuals: Box::new([]),
+        ordered_arguments: arguments.into_boxed_slice(),
+        phase: BorrowedCallActualEvidencePhaseV1::SourceStatic(StaticSourceActualIdentityV1 {
+            source: Rc::clone(source),
+            candidates: actuals.to_vec().into_boxed_slice(),
+            integer_evidence: integer_evidence.into_boxed_slice(),
+        }),
+    }))
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_source_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1,
+    claim: &QualifiedStaticCallClaimV1,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    let prepared = source.as_ref().map_err(Clone::clone)?;
+    let has_source_fact = prepared
+        .static_arguments
+        .keys()
+        .any(|(call, _)| call == site);
+    if !has_source_fact {
+        return Ok(None);
+    }
+    let rows = pending
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-static/source-unobserved"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
+        return Err(freeze("borrowed-static/source-phase-required"));
+    };
+    let retained = prepared
+        .source_incoming
+        .static_observations()
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if !Rc::ptr_eq(retained, &identity.source)
+        || identity.source.call_site() != site
+        || claim.required_i64_arguments() != identity.source.required_i64_arguments()
+        || rows.ordered_arguments.len() != identity.source.argument_sites().len()
+        || identity.candidates.len() != rows.ordered_arguments.len()
+        || identity.integer_evidence.len() != rows.ordered_arguments.len()
+        || !rows.opaque_actuals.is_empty()
+    {
+        return Err(freeze("borrowed-static/source-projection-identity"));
+    }
+    for (index, ((formal, candidate), argument)) in identity
+        .source
+        .parameters()
+        .iter()
+        .zip(identity.candidates.iter())
+        .zip(rows.ordered_arguments.iter())
+        .enumerate()
+    {
+        if formal.ordinal as usize != index
+            || candidate.ordinal != formal.ordinal
+            || formal.binding.owner() != identity.source.callee_owner()
+            || identity.source.argument_sites().get(index) != Some(&candidate.site)
+        {
+            return Err(freeze("borrowed-static/source-projection-identity"));
+        }
+        let matches = match (&formal.kind, &candidate.value, argument) {
+            (kind, _, LocalCallArgumentV1::BorrowedActual { ordinal, site })
+                if kind.is_ordinary_borrowed_handle() =>
+            {
+                *ordinal == formal.ordinal && site == &candidate.site
+            }
+            (
+                CallableParameterContractKindV1::ExactTrivial(abi),
+                BorrowedCallActualValueV1::Integer(expected),
+                LocalCallArgumentV1::Integer(actual),
+            ) if abi.is_i64() => expected == actual,
+            (
+                CallableParameterContractKindV1::ExactTrivial(abi),
+                BorrowedCallActualValueV1::Scalar(expected, SourceScalarKind::Integer),
+                LocalCallArgumentV1::Scalar(actual),
+            ) if abi.is_i64() => expected == actual && actual.owner() == site.owner(),
+            _ => false,
+        };
+        if !matches {
+            return Err(freeze("borrowed-static/source-projection-identity"));
+        }
+    }
+    if claim
+        .required_i64_arguments()
+        .iter()
+        .any(|ordinal| identity.integer_evidence.get(*ordinal as usize) != Some(&true))
+    {
+        return Err(freeze("borrowed-static/required-integer-source-unproved"));
+    }
+    Ok(Some(rows.ordered_arguments.clone()))
+}
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_static_source_actual_tests.rs"]
+mod tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_static_local_issuer_tests.rs"]
+mod local_issuer_tests;

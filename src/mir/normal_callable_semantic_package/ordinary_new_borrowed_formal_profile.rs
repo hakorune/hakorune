@@ -49,6 +49,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     (
         PreparedLexicalInstanceCallSourceTargetsV1,
         Result<PreparedBorrowedFormalIngressV1, String>,
+        Result<BTreeSet<OwnedExprSiteV1>, String>,
         BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
     ),
     OrdinaryNewCoSealIssueV1,
@@ -74,8 +75,39 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     );
     let (ordinary_callers, definitions, dominated_view_sites) = match drafts {
         Ok(rows) => rows,
-        Err(error) => return Ok((Err(error.clone()), Err(error), BTreeMap::new())),
+        Err(error) => {
+            return Ok((
+                Err(error.clone()),
+                Err(error.clone()),
+                Err(error),
+                BTreeMap::new(),
+            ))
+        }
     };
+    // Retain exact dispatch membership before later ingress failures. This is
+    // a projection of the original facts, never a second classifier or grant.
+    let static_arguments = match super::borrowed_static_argument::collect_static_argument_sources_v1(
+        batch,
+        selected,
+        contracts,
+        &definitions,
+        Some(static_call_claims),
+        app_main,
+    ) {
+        Ok(rows) => rows,
+        Err(error) => {
+            return Ok((
+                Err(error.clone()),
+                Err(error.clone()),
+                Err(error),
+                BTreeMap::new(),
+            ))
+        }
+    };
+    let static_source_sites = Ok(static_arguments
+        .keys()
+        .map(|(site, _)| site.clone())
+        .collect());
     let pending = prepare_pending_results_v1(
         batch,
         selected,
@@ -160,10 +192,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             Some(static_call_claims),
             app_main,
             (ordinary_callers, definitions, dominated_view_sites),
+            static_arguments,
         )
     })();
     let results = seal_pending_results_v1(pending, &ingress, batch, constructors);
-    Ok((targets, ingress, results))
+    Ok((targets, ingress, static_source_sites, results))
 }
 
 /// After eligibility, retain the exact demand instead of erasing it into a row error.

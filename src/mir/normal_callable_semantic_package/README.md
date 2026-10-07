@@ -23,6 +23,22 @@ Selected Pair V4 EXE/independent OBJ and Fault cleanup are verified there.
 That does not authorize other source families or turn package retention into
 backend permission. Historical implementation steps belong to Git history.
 
+## Source-only Static local observations
+
+The original Static fact collector runs once during profile preparation. Its
+exact call-site membership survives later ingress failure as a dispatch
+projection; unavailable source selection remains an error. Original facts move
+into the existing ingress without a second classifier or inventory walk.
+
+The same argument callback stages `SourceStatic` evidence with the retained
+incoming `Rc`, complete formal/argument contract, candidate vector and Integer
+evidence. Qualified Static local issuance consumes that projection through the
+canonical verified walk, retaining destination and prior Homes. Selection or
+source/argument drift is rejected without retry; unrelated unselected literal
+sites retain the existing strict protocol. Failed owner walks revoke staged
+source evidence. SourceStatic grants no executable actuals, Static entry, ABI,
+physical packet or publication permission; those require later owner closure.
+
 ## Original object-return source qualification
 
 `ObjectReturnCallQualificationV1` borrows the original result solver's exact

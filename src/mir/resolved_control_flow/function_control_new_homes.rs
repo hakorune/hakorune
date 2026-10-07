@@ -171,18 +171,16 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     >,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
     // The issuer's dominated-view use membership — `true` only when the
     // sealed borrowed-formal draft admits an `ArrayElementValue`,
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
-    view_use: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-    ) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<
     Result<
         (

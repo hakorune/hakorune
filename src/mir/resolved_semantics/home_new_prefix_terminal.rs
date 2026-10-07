@@ -42,9 +42,11 @@ pub(super) fn observe_terminal_statement<'a, E>(
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[local_call_flow::BorrowedCallActualCandidateV1]>,
-    )
-        -> Result<Option<Box<[local_call_flow::LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
     let borrowed_terminal = local_call_flow::issue_borrowed_i64_terminal_call(

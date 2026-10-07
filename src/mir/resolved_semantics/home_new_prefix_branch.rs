@@ -99,9 +99,9 @@ fn walk_branch<'a, E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
@@ -165,9 +165,9 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
     prefix_known: bool,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
 ) -> Result<(), E> {
@@ -190,9 +190,9 @@ fn stage_subtree_call_actuals<E>(
     prefix_known: bool,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
 ) -> Result<(), E> {
@@ -205,21 +205,14 @@ fn stage_subtree_call_actuals<E>(
         .collect();
     for site in subtree_calls.iter().filter(|site| {
         !subtree_calls.iter().any(|outer| {
-            outer != *site
-                && site
-                    .node()
-                    .segments()
-                    .starts_with(outer.node().segments())
+            outer != *site && site.node().segments().starts_with(outer.node().segments())
         })
     }) {
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-        for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
-            input,
-            &owned,
-            locals,
-            prefix_known,
-        ) {
-            borrowed_actuals(&call_site, Some(&actuals))?;
+        for (call_site, actuals) in
+            local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known)
+        {
+            borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
         }
     }
     Ok(())
@@ -327,9 +320,9 @@ pub(super) fn observe_if_statement<'a, E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
@@ -646,10 +639,8 @@ pub(super) fn observe_if_statement<'a, E>(
     let mut join_locals = join_locals;
     let guarded = null_guarded_local(input.function(), condition.site());
     if let Some((binding, operator)) = guarded {
-        let narrowed = matches!(operator, ResolvedBinaryOperatorV1::Equal)
-            && then_path.terminated
-            || matches!(operator, ResolvedBinaryOperatorV1::NotEqual)
-                && else_path.terminated;
+        let narrowed = matches!(operator, ResolvedBinaryOperatorV1::Equal) && then_path.terminated
+            || matches!(operator, ResolvedBinaryOperatorV1::NotEqual) && else_path.terminated;
         if narrowed {
             join_locals.mark_nonnull(binding);
         }

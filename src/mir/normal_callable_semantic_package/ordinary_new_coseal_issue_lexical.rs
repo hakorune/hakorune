@@ -4,6 +4,9 @@ use super::super::lexical_instance_call::{
     PreparedLexicalInstanceCallSourceTargetsV1,
 };
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+};
 use crate::mir::resolved_semantics::BindingKindV1;
 
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
@@ -327,6 +330,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     candidates: &[OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    static_source_sites: &Result<std::collections::BTreeSet<OwnedExprSiteV1>, String>,
     pending: &mut super::super::lexical_instance_call::PendingBorrowedFormalActualsV1,
     results: &BTreeMap<
         FunctionOwnerIdV1,
@@ -334,14 +338,9 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     >,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     site: &OwnedExprSiteV1,
-    actuals: Option<
-        &[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1],
-    >,
-) -> Result<
-    Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
-    OrdinaryNewCoSealIssueV1,
-> {
-    if let Some(actuals) = actuals {
+    request: BorrowedCallActualRequestV1<'_>,
+) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if let BorrowedCallActualRequestV1::Observe(actuals) = request {
         let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
             source,
             contracts,
@@ -355,6 +354,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             pending, site, prepared,
         );
         return Ok(None);
+    }
+    if matches!(
+        request,
+        BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(_)
+    ) {
+        let sites = static_source_sites.as_ref().map_err(|issue| {
+            OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue: issue.clone(),
+            }
+        })?;
+        if !sites.contains(site) {
+            return Ok(None);
+        }
     }
     if source.is_err() {
         // A failed preparation staged Err even for unrelated observed calls.
@@ -374,13 +387,38 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                         })
                 })
         });
-        if !borrowed_target {
+        if !borrowed_target
+            && !matches!(
+                request,
+                BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(_)
+            )
+        {
             return Ok(None);
         }
     }
-    super::super::lexical_instance_call::project_pending_borrowed_i64_arguments_v1(
-        source, pending, results, site,
-    )
+    match request {
+        BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim) => {
+            super::super::lexical_instance_call::project_pending_static_source_arguments_v1(
+                source, pending, site, claim,
+            )
+            .and_then(|row| {
+                row.map(BorrowedCallArgumentsV1::StaticSource)
+                    .map(Some)
+                    .ok_or_else(|| {
+                        "[freeze:contract][borrowed-static/source-selection-identity]".to_owned()
+                    })
+            })
+        }
+        BorrowedCallActualRequestV1::ScalarArguments => {
+            super::super::lexical_instance_call::project_pending_borrowed_i64_arguments_v1(
+                source, pending, results, site,
+            )
+            .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
+        }
+        BorrowedCallActualRequestV1::Observe(_) => {
+            unreachable!("observation handled before demand")
+        }
+    }
     .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
         site: site.clone(),
         issue,
@@ -443,11 +481,12 @@ mod borrowed_callback_tests {
                 &[],
                 None,
                 &Err("source-sentinel".into()),
+                &Ok(std::collections::BTreeSet::new()),
                 &mut pending,
                 &BTreeMap::new(),
                 &mut |_| None,
                 target.call_site(),
-                None,
+                BorrowedCallActualRequestV1::ScalarArguments,
             );
             if borrowed {
                 assert!(
@@ -486,6 +525,7 @@ pub(super) fn prepare_source_preflight_v1(
         BTreeMap<u32, Result<Vec<OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>>,
         PreparedLexicalInstanceCallSourceTargetsV1,
         Result<PreparedBorrowedFormalIngressV1, String>,
+        Result<std::collections::BTreeSet<OwnedExprSiteV1>, String>,
         BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
     ),
     OrdinaryNewCoSealIssueV1,
@@ -509,7 +549,7 @@ pub(super) fn prepare_source_preflight_v1(
         .flatten()
         .map(|candidate| (candidate.site.clone(), candidate.class.clone()))
         .collect();
-    let (lexical_source_targets, borrowed_formal_source, borrowed_i64_results) =
+    let (lexical_source_targets, borrowed_formal_source, static_source_sites, borrowed_i64_results) =
         super::super::lexical_instance_call::prepare_borrowed_profile_v1(
             batch,
             selected,
@@ -553,6 +593,7 @@ pub(super) fn prepare_source_preflight_v1(
         local_candidates,
         lexical_source_targets,
         borrowed_formal_source,
+        static_source_sites,
         borrowed_i64_results,
     ))
 }
@@ -581,3 +622,7 @@ pub(super) fn has_stored_terminal_v1(
     })?;
     Ok(true)
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_static_dispatch_tests.rs"]
+mod static_dispatch_tests;

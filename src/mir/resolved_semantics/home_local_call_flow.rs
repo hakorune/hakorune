@@ -11,6 +11,7 @@ use super::{
     ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
     SourceExprSiteV1, SourceStmtSiteV1,
 };
+use super::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
 /// Package-issued membership proof for one qualified static-box call site.
@@ -282,6 +283,10 @@ pub(crate) fn issue_qualified_static_local_call<E>(
     qualified_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     let Some(claim) = qualified_static_call(site)? else {
         return Ok(None);
@@ -298,24 +303,53 @@ pub(crate) fn issue_qualified_static_local_call<E>(
     {
         return Ok(None);
     }
-    let mut arguments = Vec::with_capacity(call.arguments().len());
-    for argument in call.arguments() {
-        let (row, i64_evidence) = match locals.observe(argument.site()) {
-            Some(OrdinaryObservation::Integer(value)) => {
-                (LocalCallArgumentV1::Integer(value), true)
+    let arguments = match borrowed_arguments(
+        site,
+        BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(&claim),
+    )? {
+        Some(BorrowedCallArgumentsV1::StaticSource(arguments)) => {
+            if arguments.len() != call.arguments().len()
+                || arguments
+                    .iter()
+                    .zip(call.arguments())
+                    .any(|(argument, original)| match argument {
+                        LocalCallArgumentV1::BorrowedActual { ordinal, site } => {
+                            *ordinal != original.ordinal() || site != original.site()
+                        }
+                        LocalCallArgumentV1::Integer(_) => false,
+                        LocalCallArgumentV1::Scalar(binding) => binding.owner() != input.owner(),
+                        _ => true,
+                    })
+            {
+                return Ok(None);
             }
-            Some(OrdinaryObservation::Bool(value)) => (LocalCallArgumentV1::Bool(value), false),
-            Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => (
-                LocalCallArgumentV1::Scalar(binding),
-                kind == SourceScalarKind::Integer,
-            ),
-            _ => return Ok(None),
-        };
-        if claim.required_i64_arguments().contains(&argument.ordinal()) && !i64_evidence {
-            return Ok(None);
+            arguments.into_vec()
         }
-        arguments.push(row);
-    }
+        Some(BorrowedCallArgumentsV1::Scalar(_)) => return Ok(None),
+        None => {
+            let mut arguments = Vec::with_capacity(call.arguments().len());
+            for argument in call.arguments() {
+                let (row, i64_evidence) = match locals.observe(argument.site()) {
+                    Some(OrdinaryObservation::Integer(value)) => {
+                        (LocalCallArgumentV1::Integer(value), true)
+                    }
+                    Some(OrdinaryObservation::Bool(value)) => {
+                        (LocalCallArgumentV1::Bool(value), false)
+                    }
+                    Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => (
+                        LocalCallArgumentV1::Scalar(binding),
+                        kind == SourceScalarKind::Integer,
+                    ),
+                    _ => return Ok(None),
+                };
+                if claim.required_i64_arguments().contains(&argument.ordinal()) && !i64_evidence {
+                    return Ok(None);
+                }
+                arguments.push(row);
+            }
+            arguments
+        }
+    };
     Ok(Some(LocalCallObservationV1::issue(
         input.owner(),
         statement.clone(),
@@ -343,8 +377,11 @@ pub(crate) fn issue_lexical_i64_local_call<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     issue_lexical_i64_call(
         input,
@@ -384,8 +421,11 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     if !local_lexical_nullable_call(site)? {
         return Ok(None);
@@ -425,8 +465,11 @@ pub(crate) fn issue_lexical_i64_discard_call<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     if statement.owner() != input.owner()
         || !matches!(statement.node(), crate::ast::ASTNode::MethodCall { .. })
@@ -461,8 +504,11 @@ fn issue_lexical_i64_call<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<LocalCallObservationV1>, E> {
     let Some(arguments) = seal_lexical_i64_arguments_at(
         input,
@@ -496,8 +542,11 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
-        Option<&[BorrowedCallActualCandidateV1]>,
-    ) -> Result<Option<Box<[LocalCallArgumentV1]>>, E>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
+    ) -> Result<
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
+        E,
+    >,
 ) -> Result<Option<super::TerminalI64CallReturnV1>, E> {
     if statement.owner() != input.owner()
         || !matches!(
@@ -657,3 +706,27 @@ pub(crate) use borrowed_actuals::{BorrowedCallActualCandidateV1, BorrowedCallAct
 #[path = "home_local_call_arguments.rs"]
 mod arguments;
 use arguments::seal_lexical_i64_arguments_at;
+
+#[cfg(test)]
+pub(crate) fn issue_static_source_local_for_test(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    original: &LocalCallObservationV1,
+    claim: &QualifiedStaticCallClaimV1,
+    callback: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, String>,
+) -> Result<Option<LocalCallObservationV1>, String> {
+    let (declaration, destination) = original.local_binding().unwrap();
+    issue_qualified_static_local_call(
+        input,
+        original.statement(),
+        original.site(),
+        declaration.clone(),
+        destination,
+        original.prior_homes(),
+        &PrefixLocalFlow::new(input),
+        &mut |_| Ok(Some(claim.clone())),
+        callback,
+    )
+}

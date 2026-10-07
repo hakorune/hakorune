@@ -115,9 +115,9 @@ pub(super) fn scan_statement_flow<'a, E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
     // The issuer's dominated-view use membership — `true` only when the
@@ -152,7 +152,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals,
                 unavailable.is_none(),
             ) {
-                borrowed_actuals(&call_site, Some(&actuals))?;
+                borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
             }
         }
 
@@ -338,7 +338,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.is_none(),
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
-                borrowed_actuals(&call_site, Some(&actuals))?;
+                borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
             }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
@@ -367,6 +367,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &homes,
                 locals,
                 local_static_call,
+                borrowed_actuals,
             )? {
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);

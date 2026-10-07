@@ -151,6 +151,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         None,
         None,
         drafts,
+        BTreeMap::new(),
     )
 }
 
@@ -178,6 +179,10 @@ pub(super) fn finish_ingress_from_drafts_v1(
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         BTreeSet<OwnedExprSiteV1>,
     ),
+    static_arguments: BTreeMap<
+        (OwnedExprSiteV1, u32),
+        super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
+    >,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let (ordinary_callers, definitions, dominated_view_sites) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
@@ -188,14 +193,6 @@ pub(super) fn finish_ingress_from_drafts_v1(
         })
         .map(|row| row.owner)
         .collect();
-    let static_arguments = super::borrowed_static_argument::collect_static_argument_sources_v1(
-        batch,
-        selected,
-        contracts,
-        &definitions,
-        static_claims,
-        app_main,
-    )?;
     let static_context = static_claims.map(|claims| StaticIncomingContextV1 {
         claims,
         arguments: &static_arguments,
@@ -570,6 +567,10 @@ impl PreparedBorrowedFormalIngressV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         self.incoming.iter().any(|row| row.call.owner() == owner)
+            || self
+                .static_arguments
+                .keys()
+                .any(|(call, _)| call.owner() == owner)
     }
 
     /// `true` when this owner's sealed use draft admits a dominated

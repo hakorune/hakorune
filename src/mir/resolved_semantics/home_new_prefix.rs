@@ -127,8 +127,7 @@ pub(crate) use terminal_relation::{
     TerminalCallArgumentV1, TerminalI64AddReturnV1, TerminalI64CallReturnV1,
     TerminalI64FieldReturnV1, TerminalI64ScalarReturnV1, TerminalIntegerLiteralReturnV1,
     TerminalMapGetReceiverClassV1, TerminalMapGetReturnV1, TerminalOpaqueCallReturnV1,
-    TerminalRelationV1,
-    TerminalReturnedSourceV1, TerminalUnitReturnV1, TerminalValueReturnV1,
+    TerminalRelationV1, TerminalReturnedSourceV1, TerminalUnitReturnV1, TerminalValueReturnV1,
 };
 
 pub(crate) fn issue_new_home_prefixes_v1(
@@ -291,9 +290,9 @@ pub(crate) fn scan_new_home_flow<E>(
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        Option<&[crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualCandidateV1]>,
+        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
     ) -> Result<
-        Option<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
         E,
     >,
     // The issuer's dominated-view use membership — `true` only when the
@@ -450,3 +449,10 @@ pub(crate) fn scan_new_home_flow<E>(
         result_prefixes,
     ))
 }
+
+#[path = "home_borrowed_call_port.rs"]
+mod borrowed_call_port;
+pub(crate) use borrowed_call_port::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
+
+#[cfg(test)]
+pub(crate) use local_call_flow::issue_static_source_local_for_test;

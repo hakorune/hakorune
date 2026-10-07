@@ -101,7 +101,6 @@ pub(super) fn prepare_local_candidates_by_slot_v1(
         .collect()
 }
 
-
 pub(super) fn append_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
@@ -423,14 +422,12 @@ pub(super) fn probe_source_home_prefixes_v1(
     candidates: &[OrdinaryNewCandidate],
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver_proof: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
-    array_i64_field_sets: &BTreeMap<
-        Box<str>,
-        BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>,
-    >,
+    array_i64_field_sets: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     borrowed_formal_source: &Result<
         super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         String,
     >,
+    static_source_sites: &Result<BTreeSet<OwnedExprSiteV1>, String>,
     lexical_source_targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
     borrowed_i64_results: &BTreeMap<
         FunctionOwnerIdV1,
@@ -619,6 +616,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                 candidates,
                 receiver_proof,
                 borrowed_formal_source,
+                static_source_sites,
                 pending_actuals,
                 borrowed_i64_results,
                 &mut |binding| {
@@ -647,15 +645,13 @@ pub(super) fn has_nullable_receiver_call_v1(
         receiver_call_observation::ReceiverCallClassObservationV1,
     >,
 ) -> bool {
-    receiver_call_observations
-        .iter()
-        .any(|(site, row)| {
-            site.owner() == owner
-                && matches!(
-                    row.class(),
-                    result_class_claim::OrdinaryNewResultClassV1::NullableObject(_)
-                )
-        })
+    receiver_call_observations.iter().any(|(site, row)| {
+        site.owner() == owner
+            && matches!(
+                row.class(),
+                result_class_claim::OrdinaryNewResultClassV1::NullableObject(_)
+            )
+    })
 }
 
 /// Exact ordinary candidate lookup; preserve the verified walk's existing gate.
@@ -665,9 +661,12 @@ pub(super) fn ordinary_candidate_compatible_v1(
     binding: BindingRefV1,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1> {
     let mut exact = candidates.iter().filter(|row| &row.site == site);
-    let candidate = exact.next().ok_or_else(|| {
-        OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() }
-    })?;
+    let candidate =
+        exact
+            .next()
+            .ok_or_else(|| OrdinaryNewCoSealIssueV1::InitializerBindingMismatch {
+                site: site.clone(),
+            })?;
     if exact.next().is_some() || candidate.destination != binding {
         return Err(OrdinaryNewCoSealIssueV1::InitializerBindingMismatch { site: site.clone() });
     }
