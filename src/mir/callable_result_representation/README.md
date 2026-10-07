@@ -142,3 +142,10 @@ classes reject. The unconditional source-target projection covers String and
 Bool when no general row exists. Composite loop source consumers admit exact
 I64/Bool and preserve their source keys; direct I64-only routes stay unchanged.
 Runtime short-circuit evaluation remains owned by existing condition lowering.
+
+## Static exact-I64 requirement identity
+
+`VerifiedStaticExactI64RequirementV1::catalog_identity` uses the existing
+catalog allocation brand, matching its publication owner and handoff. Moving
+the catalog value preserves identity; an independently issued catalog does not.
+This identity query grants no activation or general call-result permission.

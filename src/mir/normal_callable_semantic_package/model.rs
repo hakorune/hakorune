@@ -175,6 +175,8 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 /// parameter catalog, Dynamic candidate, or private batch slot.
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
+    #[cfg(test)]
+    pub(super) source_static_claims_for_test: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,

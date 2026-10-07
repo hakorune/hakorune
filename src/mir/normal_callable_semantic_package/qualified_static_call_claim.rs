@@ -46,11 +46,15 @@ pub(in crate::mir::normal_callable_semantic_package) enum QualifiedStaticCallCla
 /// pair as their AST-free provider-argument fact.
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallClaimIndexV1 {
+    catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     rows: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
         (QualifiedStaticCallClaimV1, CanonicalSameModuleCallableKeyV1),
     >,
 }
+
+#[path = "qualified_static_incoming_source.rs"]
+pub(super) mod incoming_source;
 
 impl QualifiedStaticCallClaimIndexV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
@@ -89,7 +93,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
-        Ok(Self { rows })
+        Ok(Self { catalog_brand: declarations.brand().clone(), rows })
     }
 
     /// Membership lookup for the homes-aware predicate. `Some` means the

@@ -42,6 +42,18 @@ Facts qualifications. `ForwardIdentityV1` exposes read-only coordinates from
 the existing forward join; its fields and construction remain private.
 No source requirement grants a Home, result slot, ABI or cleanup permission.
 
+## Original qualified Static input source
+
+The existing qualified-static claim index retains its catalog brand and lends
+one exact target with all original formal contracts. AppMain borrows its existing
+parser/catalog co-seal; it is not synthesized as a selected callable. Result
+required-i64 ordinals do not erase opaque carrier contracts. Retained input and
+publication handoff use the same stable brand through catalog moves. Missing,
+duplicate or drifted source/contract identities fail closed. This is a source
+loan; entry execution, argument transport and physical publication stay separate.
+Tests retain the one factory-issued index in the package and installation drops
+that test-only observation. Production has no additional index registry.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

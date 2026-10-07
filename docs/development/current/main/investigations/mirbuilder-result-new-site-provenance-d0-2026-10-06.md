@@ -803,3 +803,46 @@ remain below800. Initial E0425 test-helper reference was corrected, not baseline
 Read-only review confirms the model-only qualification getter test grants no
 valid target join; real forward/default and refusal tests use original issuers.
 No production switch, original mimalloc EXE, Both315/318 or full S0/goal claim.
+
+## Original qualified Static input-source dependency
+
+Decision (read-only reviewed): the SAME original qualified claim index lends
+its target together with the complete original callable parameter contract,
+exact typed AppMain catalog identity and stable catalog brand. This source join
+grants no Static entry execution, argument ABI, Home, cleanup or publication.
+The exact existing result requirement uses the same stable brand as publication;
+its old catalog struct address is not identity after moving the owner.
+Production closure: qualified index brand/child/issue hunk, original incoming
+source child, original typed Main child and narrow exports, stable-brand requirement.
+Test seam: move the SAME already issued index once into cfg(test) package storage;
+no reissue. Installation explicitly discards this test-only observation. When
+OriginalLexicalPhase is integrated, keep this single moved storage and preserve
+its existing borrowing API; do not duplicate the index in phase and package.
+Acceptance: unselected Main identity/full opaque formal/empty required positions;
+Heap exact required[0]; real publication across actual catalog move, foreign brand,
+and double take; original input contract and retained-source drift refusals.
+Static collector/inventory/profile/actuals/completion/packet/emitter activation,
+source_finish and full production/goal completion remain excluded here.
+Candidate evidence: initial source tests9/9; expanded identity tests10/10;
+final stable existing-disposition source loan tests14/14 PASS (including prior
+passive defaults/forward pins). Result representation regression95/95 PASS;
+non-test library PASS21.72s; scope/COPY-UNKNOWN/pointer/diff/new-source rustfmt PASS.
+Protected original WIP initially found10 THISCHANGE compile errors in prior
+passive tests that accessed the older incoming concrete type. Tests now borrow
+source_target from the SAME already-issued affine row by original call_site,
+using no production compatibility branch. Ready is not assumed to mint I64.
+Original single-index test-storage adaptation is under focused validation;
+source_finish production operations are unchanged and remain outside this
+candidate commit. No mimalloc EXE or full acceptance/goal completion claim.
+Original protected WIP integration now PASS19/19: source-finish identity,
+original imported mimalloc static observation, complete Static inventory and
+publication, plus new source/default/forward tests. The earlier10 compile
+errors are resolved through existing row loans; no production compatibility
+API added. Phase now borrows the package-held test index; its old test storage
+and single setter caller are absent. Candidate scope is exact17 paths; source_finish
+and unrelated original issuer/normal-return/emitter changes remain unstaged.
+Original scope guard initially stopped on its obsolete index-retention setter
+pin (THISCHANGE stale guard expectation). The uncommitted source-finish scope
+pin now requires constructor move, same package-field borrow and absent obsolete
+setter; full original scope guard PASS. This guard belongs to the still-uncommitted
+source-finish dependency and is excluded from the exact17-path candidate.

@@ -73,7 +73,7 @@ mod ordinary_new_admission;
 mod variable_read;
 pub(in crate::mir) use callable_declaration_catalog::issue_source_backed_same_module_callable_catalog_v1;
 pub(crate) use callable_declaration_catalog::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
+    AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
     SameModuleCallableNamespaceV1, SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
     VerifiedSameModuleCallableDeclarationV1, VerifiedSelectedNormalCallableSourceInventoryV1,

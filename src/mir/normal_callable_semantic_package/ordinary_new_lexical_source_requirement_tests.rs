@@ -23,7 +23,12 @@ fn lexical_source_requirement_keeps_original_lexical_and_stored_defaults() {
     let mut stored = 0;
     let mut lexical = 0;
     for incoming in &source.incoming {
-        let target = &incoming.source;
+        let site = incoming.source.call_site();
+        let row = ledger
+            .take_lexical_instance_call(site.owner(), site.site())
+            .unwrap()
+            .unwrap();
+        let target = row.source_target();
         assert!(matches!(
             target.result_requirement,
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
@@ -55,13 +60,19 @@ fn lexical_source_requirement_borrows_original_witnesses_without_arming_a_call()
         .unwrap()
         .as_ref()
         .unwrap();
-    let mut target = source
+    let site = source
         .incoming
         .iter()
         .find(|row| row.source.stored_receiver().is_some())
         .unwrap()
         .source
-        .clone();
+        .call_site();
+    let row = package
+        .ordinary_new_claim_ledger
+        .take_lexical_instance_call(site.owner(), site.site())
+        .unwrap()
+        .unwrap();
+    let mut target = row.source_target().clone();
     let original = target.clone();
     let facts = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::source_result_facts_for_test(
         "box Token { birth() { } } box Door { make() { return new Token() }
@@ -95,14 +106,6 @@ fn lexical_source_requirement_borrows_original_witnesses_without_arming_a_call()
     assert_eq!(target.receiver_site(), original.receiver_site());
     assert_eq!(target.target(), original.target());
     assert_eq!(target.argument_sites(), original.argument_sites());
-    // Only this test-local passive model changes; no ledger disposition is replaced.
-    assert_eq!(
-        &source
-            .incoming
-            .iter()
-            .find(|row| row.source.stored_receiver().is_some())
-            .unwrap()
-            .source,
-        &original
-    );
+    // This passive clone issues nothing; the original already-issued row is unchanged.
+    assert_eq!(row.source_target(), &original);
 }

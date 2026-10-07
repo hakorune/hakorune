@@ -62,7 +62,7 @@ impl<'result, 'catalog> VerifiedStaticExactI64RequirementV1<'result, 'catalog> {
     }
 
     pub(crate) fn catalog_identity(&self) -> usize {
-        self.declarations as *const _ as usize
+        self.declarations.brand().identity()
     }
 }
 

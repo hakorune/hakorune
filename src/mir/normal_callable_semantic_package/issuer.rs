@@ -771,6 +771,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         )?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
+        #[cfg(test)]
+        source_static_claims_for_test: static_claim_index,
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,

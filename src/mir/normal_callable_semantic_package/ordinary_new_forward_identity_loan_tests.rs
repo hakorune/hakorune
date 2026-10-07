@@ -20,12 +20,19 @@ fn forward_identity_loan_keeps_original_contract_use_and_call_coordinates() {
         .unwrap()
         .as_ref()
         .unwrap();
-    let target = source
+    let site = source
         .incoming
         .iter()
         .find(|row| row.source.stored_receiver().is_some())
         .unwrap()
         .source
+        .call_site();
+    let target = package
+        .ordinary_new_claim_ledger
+        .take_lexical_instance_call(site.owner(), site.site())
+        .unwrap()
+        .unwrap()
+        .source_target()
         .clone();
     let need = PreparedSourceCallNeedV1::Lexical(target.clone());
     let forwards = forward_identities_v1(&need, &package.parameter_contracts, &source.definitions)
@@ -64,19 +71,31 @@ fn forward_identity_loan_retains_missing_duplicate_and_foreign_use_rejection() {
         let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(SOURCE)
             .expect("source-issued forwarding caller");
         let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let site = ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .incoming
+            .iter()
+            .find(|row| row.source.stored_receiver().is_some())
+            .unwrap()
+            .source
+            .call_site()
+            .clone();
+        let target = ledger
+            .take_lexical_instance_call(site.owner(), site.site())
+            .unwrap()
+            .unwrap()
+            .source_target()
+            .clone();
         let source = ledger
             .borrowed_formal_source
             .as_mut()
             .unwrap()
             .as_mut()
             .unwrap();
-        let target = source
-            .incoming
-            .iter()
-            .find(|row| row.source.stored_receiver().is_some())
-            .unwrap()
-            .source
-            .clone();
         let need = PreparedSourceCallNeedV1::Lexical(target.clone());
         let forwards =
             forward_identities_v1(&need, &package.parameter_contracts, &source.definitions)

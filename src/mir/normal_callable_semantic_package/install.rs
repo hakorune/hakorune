@@ -442,6 +442,8 @@ impl VerifiedNormalCallableSemanticPackageV1 {
 impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
     pub(crate) fn commit(self) -> InstalledNormalCallableSemanticPackageV1 {
         let VerifiedNormalCallableSemanticPackageV1 {
+            #[cfg(test)]
+            source_static_claims_for_test: _,
             root_execution,
             catalog,
             batch,

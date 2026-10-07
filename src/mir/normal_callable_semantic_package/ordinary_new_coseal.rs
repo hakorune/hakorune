@@ -76,6 +76,7 @@ mod birth_abi_handoff;
 mod candidate;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;

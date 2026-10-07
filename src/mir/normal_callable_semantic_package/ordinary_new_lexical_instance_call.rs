@@ -553,3 +553,7 @@ fn freeze(reason: &str) -> String {
 #[cfg(test)]
 #[path = "ordinary_new_lexical_source_requirement_tests.rs"]
 mod source_requirement_tests;
+
+#[path = "ordinary_new_borrowed_app_main_source.rs"]
+mod app_main_source;
+pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{borrow_app_main_source_v1, BorrowedAppMainSourceLoanV1};
