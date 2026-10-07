@@ -78,6 +78,7 @@ fn fixture_with_continuation(copy_block: BasicBlockId, discard: bool) -> Fixture
     ledger.root_exits.borrow_mut().insert(
         (packet.call_site().owner(), exit.clone()),
         RootHomeExitProgress::Emitted {
+            order: super::super::RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap(),
             origins: vec![],
             bindings: cleanup,
             entry: RootHomeExitEntry::Plain {

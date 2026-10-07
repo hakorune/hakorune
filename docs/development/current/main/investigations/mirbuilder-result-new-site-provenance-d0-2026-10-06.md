@@ -233,85 +233,18 @@ close the passive witness slice. Source witnesses now reach the existing ledger
 product through the sole result solver; no old physical execution edge retired.
 Anchored field lifetime/cleanup and actual production EXE remain outstanding.
 
-## SOURCE-PREPARATION-BOXSHAPE-S0 Decision and execution contract
+## SOURCE-PREPARATION-BOXSHAPE-S0 closed
 
-Select MIRBUILDER-GATE1-SOURCE-PREPARATION-BOXSHAPE-S0, work_mode fast.
-Source authority + canonical issuer: existing prepare_source_claims called by
-issue_ordinary_source_cohort_v1 and test-only source phase loan. Move this exact
-function into private ordinary_new_source_claim_preparation.rs registered under
-source_claims; reexport with the SAME enclosing ordinary_new_coseal visibility.
-Keep its body byte-identical, signatures/tuple, observation and finish order,
-provider child sealing, errors and caller behavior. No semantic candidate added
-in this slice. Reduce issue_source793 before adding any child-relation logic.
-Non-authority: extraction, module placement or source facts do not mint Home.
-Fail-fast boundary: all current source coverage, projection, corruption and
-PrefixNotCovered boundaries retained. No duplicate implementation/caller retry.
-Replacement: old prepare_source_claims body in issue_source; after caller
-reexport switch confirm only one implementation and unchanged callers, then
-remove the original body in the same bounded move.
-Acceptance: exact function body comparison, test-inclusive quick check,
-focused32 positive/negative pins, scope/pointer/diff and owned rustfmt guards,
-source caps; unchanged-source frontier baseline already captured above. This
-shape-only slice does not require another full CLI build absent changed behavior
-or new test failure. After this move, select CHILD-RELATION-S0 only once its exact
-candidate mapping and acceptance above are verified against the actual APIs.
-Non-claims: no field/source widening, second scanner/fixpoint, input consume,
-borrowed field store, Home/anchor verifier or production completion.
-
-SOURCE-PREPARATION-BOXSHAPE-S0 implementation: source owner793->697, sole
-private child104 before rustfmt signature layout. Executable body bytes match
-parent a6b57ccebc exactly; only tuple signature whitespace formatted. Same
-production/test reexport paths, visibility, tuple, errors and observation/finish
-order. Read-only worker confirms sole implementation/no behavior change.
-Test-inclusive quick check PASS27.52s (before signature-only formatting), log
-/tmp/hako-source-preparation-shape-check.log. Initial new-child formatting red
-resolved with signature whitespace only; exact executable-body comparison PASS.
-Scope guard initially FAIL because its field_write_draft/result_class_draft
-pins still pointed at old file; update those two pins to new sole owner, keeping
-all semantic conditions. Guard/README owner pointers are necessary selected
-scope extensions. Focused32 execution after move remains required.
-
-## SOURCE-PREPARATION-BOXSHAPE-S0 closeout / next CHILD-RELATION-D0
-
-Corrected focused32/32 PASS,0 ignored,8660 filtered, runtime0.05s, quick build
-4m45s. Log /tmp/hako-source-preparation-shape-focused.log. Scope/pointer/diff and
-new-child rustfmt guards PASS. Executable preparation body byte-identical to
-parent a6b57ccebc; original implementation removed and only one fn remains.
-Same production/test callers route through reexport, no retry or second solver.
-Source owner697/new child101; scope guard760 (future growth requires responsibility
-review), active card under1000. Existing near-cap issue797 unchanged. Signature
-formatting and moved guard pointer reds are resolved; no new unclassified red.
-No additional CLI/probe required for byte-identical behavior-preserving move;
-prior witness CLI/frontier receipt retained. No compile-time speedup claim:
-measurements have different cache/incremental conditions.
-
-Select MIRBUILDER-GATE1-CHILD-RELATION-D0, design_stop, next execution none.
-Internal next contract audit is ongoing, not goal pause or external blocked.
-Verified API decision: put passive candidate map inside SAME
-VerifiedSourceCallableResultFactsV1, keyed (OwnedExprSiteV1,CanonicalFieldRefV1);
-retain preparation tuple and ledger callable_result_classes owner. Use private
-all-origin row/direct FreshConstruction leaf iterator; legacy get/iter/keys stay
-projection-only. Deduplicate original constructor site; never analyze a callee
-leaf using facade caller input. Constructor birth_for/construction_for, sealed
-plan stores field/RHS Parameter(binding,provided child), row formal_contracts
-binding/ordinal and branded CallArgument child navigation provide exact joins.
-Existing resolve_forward_local/sole_initializer_site/binding_is_unrebound supply
-local source identity; call composition currently inline in evaluate_row must
-be extracted once and reused, rather than duplicated or invoked with fake exit.
-
-D0 remaining concrete action: fix shared composer API/result/failure ownership,
-private candidate product sealing and unavailable-field behavior, then select
-separate composition BoxShape before child-relation semantic addition. Bounded
-source candidates315Null/318mixed/allocateResultFresh must coexist with old
-prefix errors/preparefalse. No acquired Home or field capability from candidates.
-Unsupported constructor/formal/actual identities, class/ordinal/foreign owner,
-rebind, missing facts, ungrounded recursion and unsupported field/index/upvar
-actuals remain unavailable. Subsequent anchor lifetime/acquisition, cleanup,
-sole physical outcome and publication remain required production work.
-
-Next-pointer guard initially rejected workstream row H length549; shorten only
-that current row while keeping full contract/evidence here. Corrected pointer
-and scope guards PASS; no outstanding guard red.
+Verified and landed at `0383a32420`; original execution/closeout and intermediate
+child-relation brief remain at `de7f6fbfb4:<this-card>`. Sole prepare_source_claims
+moved unchanged into private ordinary_new_source_claim_preparation under the same
+source_claims reexport. Body bytes match parenta6b57ccebc; tuple/visibility/callers,
+observation/finish/provider/error order retained. Old body physically removed.
+Focused32/32, test-inclusive check27.52s, scope/pointer/fmt/diff PASS; signature
+formatting and moved guard pointer failures corrected. Parent697/child101. No
+source widening, new solver, Home/input/field capability or speedup claim.
+Subsequent accepted child-relation mapping is retained below; original315/318,
+anchor lifetime/acquisition/cleanup, sole physical outcome and EXE remain required.
 
 ## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
 
@@ -996,3 +929,20 @@ Neutral argument-lender prerequisite verified: focused3/3 and final291/291 PASS 
 Decision (read-only review_cleanup_path): neutral constructor prerequisite extracts only post-incoming selection contract/ordinal/candidate-to-actual construction into private construct_borrowed_call_actuals_v1. Existing final selection/duplicate/static-source/error order unchanged; ORIGINAL incoming row is the input. Typed Object executable closure later must join same raw allcaller projection, unique selected contract/key/slot, indexed Completion and original OrdinaryScalar/InstanceReceiver signature; no fabricated borrowed entry. Excluded opaque owners require concrete production evidence and accepted outgoing-use closure, never universal promotion. This prerequisite is isolated in /tmp/hako-object-actual-constructor-shape-20261008-checkout; semantic WIP remains protected.
 
 Neutral original-actual constructor verified: focused32/32, original regression291/291 (.61s), non-test quick check50.57s and scope/COPY/pointer/diff PASS. /tmp/hako-object-actual-constructor-neutral-{focused,regression,check,scope,copy,pointer}.log. Constructor body byte-identical SHA3d9af3b09f936b4d78ce50c91906601890eb9317c826beae981b415780881e65; selection/error order unchanged, new input/Normal/artifact authority=0. Protected original160 working paths snapshotted; candidate semantic WIP is outside this verification/publication. Typed fullcaller input closure and completed-index Normal/production acceptance remain required.
+
+Neutral root cleanup retention checkpoint: original installed Home end-plan
+origins now remain in existing root progress through preparation, emission and
+finalized state. Full/Normal/acquisition sequences share exact original origins;
+argument maps prepend atomically, and record requires emitted Normal agreement.
+Plain/MapGet restoration and double-take preserve the order. Existing F=N graphs,
+pending gates and ordinary admission stay unchanged. Final source holder retains
+same ledger Rc; FinishedBindings/final graph attachment remains later work.
+Candidate focused38/38, expanded421/421 and non-test check20.07s PASS; logs
+/tmp/hako-root-cleanup-order-{corrected,regression,check}.log. Four initial test
+constructor errors were THISCHANGE and corrected with original issuer/path APIs.
+Isolated neutral-base focused38/38, expanded339/339 and non-test check49.20s
+PASS; /tmp/hako-root-cleanup-retention-neutral-{focused,regression,check}.log.
+Pointer/scope/COPY/diff and changed-source/new-child fmt PASS. Unrelated old test
+formatting excluded after exact rustfmt-canonical code equality corroboration;
+only the required progress-field change remains in that test file.
+No Object return semantics, artifact permission or real EXE/full-goal claim.

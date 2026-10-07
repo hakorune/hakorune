@@ -5,19 +5,23 @@
 //! recorded and final validation has checked the release operation.
 
 use super::*;
+#[path = "root_home_cleanup_order.rs"]
+mod cleanup_order;
+pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::RootHomeCleanupOrderV1;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
     Unprepared,
     Unavailable,
-    Prepared(Vec<RootHomeReleaseOriginV1>),
-    Emitting,
+    Prepared(RootHomeCleanupOrderV1),
+    Emitting(RootHomeCleanupOrderV1),
     Emitted {
+        order: RootHomeCleanupOrderV1,
         origins: Vec<RootHomeReleaseEmissionV1>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         entry: RootHomeExitEntry,
     },
-    Finalized,
+    Finalized(RootHomeCleanupOrderV1),
 }
 
 #[derive(Debug)]
@@ -143,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
                                 Some(
                                     RootHomeExitProgress::Unavailable
                                         | RootHomeExitProgress::Emitted { .. }
-                                        | RootHomeExitProgress::Finalized
+                                        | RootHomeExitProgress::Finalized(_)
                                 )
                             )
                         })
@@ -194,7 +198,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             .iter()
                             .any(|group| group.site() == site),
                         Some(RootHomeExitProgress::Unavailable)
-                        | Some(RootHomeExitProgress::Finalized) => true,
+                        | Some(RootHomeExitProgress::Finalized(_)) => true,
                         _ => false,
                     }
                 })
@@ -254,7 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         *progress = if available {
-            RootHomeExitProgress::Prepared(origins)
+            RootHomeExitProgress::Prepared(RootHomeCleanupOrderV1::ordinary(origins)?)
         } else {
             RootHomeExitProgress::Unavailable
         };
@@ -273,11 +277,12 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(*progress, RootHomeExitProgress::Prepared(_)) {
             return Err(freeze("root-exit-not-prepared"));
         }
-        let RootHomeExitProgress::Prepared(operands) =
-            std::mem::replace(&mut *progress, RootHomeExitProgress::Emitting)
+        let RootHomeExitProgress::Prepared(order) =
+            std::mem::replace(&mut *progress, RootHomeExitProgress::Unprepared)
         else {
             unreachable!()
         };
+        *progress = RootHomeExitProgress::Emitting(order);
         drop(exits);
         // Call-argument maps are the youngest caller-owned resources: they
         // are constructed inside the terminal expression, the callee borrows
@@ -332,7 +337,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        operations.extend(operands);
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, site.clone()))
+        else {
+            return Err(freeze("root-exit-not-emitting"));
+        };
+        order.prepend_argument_maps(operations)?;
+        let operations = order.normal();
         Ok(operations)
     }
 
@@ -368,9 +379,25 @@ impl OrdinaryNewClaimLedgerV1 {
         let progress = exits
             .get_mut(&(owner, site.clone()))
             .ok_or_else(|| freeze("root-exit-record-without-prepare"))?;
-        if !matches!(*progress, RootHomeExitProgress::Emitting) || bindings.is_empty() {
+        if !matches!(*progress, RootHomeExitProgress::Emitting(_)) || bindings.is_empty() {
             return Err(freeze("root-exit-record-without-emission"));
         }
+        let RootHomeExitProgress::Emitting(order) = &*progress else {
+            unreachable!()
+        };
+        if order.normal()
+            != origins
+                .iter()
+                .map(|(origin, _, _)| origin.clone())
+                .collect::<Vec<_>>()
+        {
+            return Err(freeze("root-exit-origin-order"));
+        }
+        let RootHomeExitProgress::Emitting(order) =
+            std::mem::replace(progress, RootHomeExitProgress::Unprepared)
+        else {
+            unreachable!()
+        };
         let origins = origins
             .into_iter()
             .map(|(origin, block, instruction)| RootHomeReleaseEmissionV1 {
@@ -380,6 +407,7 @@ impl OrdinaryNewClaimLedgerV1 {
             })
             .collect();
         *progress = RootHomeExitProgress::Emitted {
+            order,
             origins,
             bindings,
             entry,
@@ -414,10 +442,19 @@ impl OrdinaryNewClaimLedgerV1 {
             match progress {
                 RootHomeExitProgress::Unavailable => {}
                 RootHomeExitProgress::Emitted {
+                    order,
                     origins,
                     bindings,
                     entry,
                 } => {
+                    if order.normal()
+                        != origins
+                            .iter()
+                            .map(|row| row.origin.clone())
+                            .collect::<Vec<_>>()
+                    {
+                        return Err(freeze("root-exit-origin-order"));
+                    }
                     self.validate_call_entry(
                         owner,
                         expected_exit,
@@ -575,6 +612,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 origins,
                 bindings,
                 entry,
+                ..
             } = progress
             else {
                 continue;

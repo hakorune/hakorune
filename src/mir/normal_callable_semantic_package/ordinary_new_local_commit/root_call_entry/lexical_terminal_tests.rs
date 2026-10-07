@@ -141,10 +141,12 @@ fn record(
     cleanup: Vec<Binding>,
 ) {
     let owner = packet.call_site().owner();
-    ledger
-        .root_exits
-        .borrow_mut()
-        .insert((owner, exit.clone()), RootHomeExitProgress::Emitting);
+    ledger.root_exits.borrow_mut().insert(
+        (owner, exit.clone()),
+        RootHomeExitProgress::Emitting(
+            super::super::RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap(),
+        ),
+    );
     ledger
         .record_root_call_exit(
             owner,

@@ -1459,3 +1459,14 @@ The existing pending actual producer delegates construction to the private
 construct_borrowed_call_actuals_v1 after selecting its original incoming row.
 The constructor preserves contract, ordinal, domain and candidate checks in
 their original order; this extraction adds no source phase or entry authority.
+
+
+Root Home exit progress retains one exact cleanup order across Prepared, Emitting,
+Emitted and Finalized. Full obligations, Normal and acquisition-Fault sequences
+share original source origins; membership and order are checked before retention.
+Argument-map origins prepend to both original sequences atomically. Record checks
+emitted Normal origins before moving progress; Plain/MapGet restoration and
+repeated finalized take retain the same order. Final source holders keep the same
+ledger Rc. Ordinary F=N graphs and preparation/publication gates remain unchanged;
+Received omission, Direct result attachment and FinishedBindings/Fault residual
+validation are later semantic work, not permission granted by this retention.

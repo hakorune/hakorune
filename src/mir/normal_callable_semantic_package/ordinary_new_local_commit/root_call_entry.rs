@@ -337,9 +337,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(progress) = exits.get_mut(&(owner, site.clone())) else {
             return Ok(None);
         };
-        let state = std::mem::replace(progress, RootHomeExitProgress::Finalized);
+        let state = std::mem::replace(progress, RootHomeExitProgress::Unprepared);
         match state {
             RootHomeExitProgress::Emitted {
+                order,
                 bindings,
                 entry:
                     RootHomeExitEntry::Call {
@@ -351,23 +352,28 @@ impl OrdinaryNewClaimLedgerV1 {
                         frame,
                     },
                 ..
-            } => Ok(Some((
-                RootHomeExitEntry::Call {
-                    row,
-                    local_bindings,
-                    arguments,
-                    invoke,
-                    projection,
-                    frame,
-                },
-                bindings,
-            ))),
+            } => {
+                *progress = RootHomeExitProgress::Finalized(order);
+                Ok(Some((
+                    RootHomeExitEntry::Call {
+                        row,
+                        local_bindings,
+                        arguments,
+                        invoke,
+                        projection,
+                        frame,
+                    },
+                    bindings,
+                )))
+            }
             RootHomeExitProgress::Emitted {
+                order,
                 origins,
                 bindings,
                 entry: RootHomeExitEntry::Plain { local_bindings },
             } => {
                 *progress = RootHomeExitProgress::Emitted {
+                    order,
                     origins,
                     bindings,
                     entry: RootHomeExitEntry::Plain { local_bindings },
@@ -378,6 +384,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // physical instructions already live in the finished function
             // body, so the handoff carries no separate read receipt.
             RootHomeExitProgress::Emitted {
+                order,
                 origins,
                 bindings,
                 entry:
@@ -389,6 +396,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     },
             } => {
                 *progress = RootHomeExitProgress::Emitted {
+                    order,
                     origins,
                     bindings,
                     entry: RootHomeExitEntry::MapGet {
@@ -400,7 +408,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 };
                 Ok(None)
             }
-            RootHomeExitProgress::Finalized => Err(freeze("root-call-already-finalized")),
+            RootHomeExitProgress::Finalized(order) => {
+                *progress = RootHomeExitProgress::Finalized(order);
+                Err(freeze("root-call-already-finalized"))
+            }
             other => {
                 *progress = other;
                 Err(freeze("root-call-entry-unavailable"))
