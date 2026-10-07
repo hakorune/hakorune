@@ -146,6 +146,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
     }
+    construct_borrowed_call_actuals_v1(
+        prepared, incoming_row, contracts, call, actuals, candidates, receiver, nullable_class,
+    )
+}
+
+/// Construct from an original incoming row after the caller has selected it.
+/// Source selection and all later entry/Completion permissions stay separate.
+#[allow(clippy::too_many_arguments)]
+fn construct_borrowed_call_actuals_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    incoming_row: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+    candidates: &[super::super::candidate::OrdinaryNewCandidate],
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
+) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let mut callee_contracts = contracts
         .iter()
         .filter(|row| row.owner == incoming_row.callee);

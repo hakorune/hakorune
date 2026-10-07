@@ -1454,3 +1454,8 @@ row and ordered executable actuals. It does not demand or issue a result proof.
 The I64 projector borrows that same lender, then applies its existing source-result
 corroboration in the same error order. Object-result qualification and handoff must
 be checked by their own requesting lane; argument lending alone grants neither.
+
+The existing pending actual producer delegates construction to the private
+construct_borrowed_call_actuals_v1 after selecting its original incoming row.
+The constructor preserves contract, ordinal, domain and candidate checks in
+their original order; this extraction adds no source phase or entry authority.
