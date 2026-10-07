@@ -64,6 +64,7 @@ impl BorrowedI64ResultSourceV1 {
 
 #[path = "ordinary_new_borrowed_formal_result_pending.rs"]
 mod pending;
+pub(in crate::mir::normal_callable_semantic_package) use pending::ForwardIdentityV1;
 pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1};
 
 impl OrdinaryNewClaimLedgerV1 {

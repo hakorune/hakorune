@@ -32,6 +32,16 @@ and inconsistent outer-class dependencies. Its lookup and dependency view do
 not observe a second AST, acquire a Home, seal NormalReturn, emit an Invoke,
 or authorize cleanup/publication. Execution requires the existing later owners.
 
+## Lexical call source requirement loans
+
+`LexicalInstanceCallSourceTargetV1` retains a passive result requirement.
+Both original lexical and stored-child constructors select
+`ExistingBorrowedResult`; final affine disposition and result sealing stay
+with their existing issuers. Object dependency/return views borrow original
+Facts qualifications. `ForwardIdentityV1` exposes read-only coordinates from
+the existing forward join; its fields and construction remain private.
+No source requirement grants a Home, result slot, ABI or cleanup permission.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

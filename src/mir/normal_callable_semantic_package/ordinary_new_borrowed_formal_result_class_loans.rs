@@ -138,3 +138,7 @@ pub(super) fn conditional_class_loans_v1(
         })
         .collect()
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_forward_identity_loan_tests.rs"]
+mod forward_identity_loan_tests;

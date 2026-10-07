@@ -22,7 +22,7 @@ pub(super) enum BorrowedResultSourcePhaseV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct ForwardIdentityV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct ForwardIdentityV1 {
     site: OwnedExprSiteV1,
     binding: BindingRefV1,
     source_formal: BindingRefV1,
@@ -30,6 +30,32 @@ pub(super) struct ForwardIdentityV1 {
     target: CanonicalSameModuleCallableKeyV1,
     ordinal: u32,
     callee_formal: BindingRefV1,
+}
+
+impl ForwardIdentityV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.site
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn binding(&self) -> BindingRefV1 {
+        self.binding
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn source_formal(&self) -> BindingRefV1 {
+        self.source_formal
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn call(&self) -> &OwnedExprSiteV1 {
+        &self.call
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn target(
+        &self,
+    ) -> &CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn ordinal(&self) -> u32 {
+        self.ordinal
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn callee_formal(&self) -> BindingRefV1 {
+        self.callee_formal
+    }
 }
 
 #[derive(Debug, Clone)]

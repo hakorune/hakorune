@@ -56,6 +56,18 @@ pub(crate) enum LexicalInstanceCallReceiverV1 {
 #[path = "ordinary_new_stored_child_receiver_tests.rs"]
 mod stored_child_receiver_tests;
 
+/// Source requirement only; result execution still needs its final handoff seal.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum LexicalCallSourceResultRequirementV1 {
+    ExistingBorrowedResult,
+    ObjectProducerDependency(Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>),
+    ObjectReturnSource {
+        qualification: super::result_class_claim::ObjectReturnCallQualificationV1,
+        /// Original source identities survive execution-profile selection.
+        forwards: Box<[borrowed_formal_result::ForwardIdentityV1]>,
+    },
+}
+
 /// Immutable source-target relation shared by preflight and final issuance.
 /// Result, completion, ABI adoption and affine consumption are not issued here.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -70,6 +82,7 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     callee_owner: FunctionOwnerIdV1,
     /// Exact non-receiver argument sites in source order.
     argument_sites: Box<[SourceExprSiteV1]>,
+    result_requirement: LexicalCallSourceResultRequirementV1,
 }
 
 #[derive(Debug)]
@@ -80,6 +93,48 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
 }
 
 impl LexicalInstanceCallSourceTargetV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn has_object_source_requirement(
+        &self,
+    ) -> bool {
+        !matches!(
+            self.result_requirement,
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
+        &self,
+    ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
+        match &self.result_requirement {
+            LexicalCallSourceResultRequirementV1::ObjectProducerDependency(rows) => Some(rows),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn object_return_source(
+        &self,
+    ) -> Option<&super::result_class_claim::ObjectReturnCallQualificationV1> {
+        match &self.result_requirement {
+            LexicalCallSourceResultRequirementV1::ObjectReturnSource { qualification, .. } => {
+                Some(qualification)
+            }
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
+        }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_forwards(
+        &self,
+    ) -> Option<&[borrowed_formal_result::ForwardIdentityV1]> {
+        match &self.result_requirement {
+            LexicalCallSourceResultRequirementV1::ObjectReturnSource { forwards, .. } => {
+                Some(forwards)
+            }
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
+        }
+    }
+
     pub(crate) fn call_site(&self) -> &OwnedExprSiteV1 {
         &self.call_site
     }
@@ -494,3 +549,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn unique_instance_target(
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][ordinary-new/{reason}]")
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_lexical_source_requirement_tests.rs"]
+mod source_requirement_tests;

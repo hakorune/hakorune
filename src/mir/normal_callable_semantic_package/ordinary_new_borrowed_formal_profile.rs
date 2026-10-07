@@ -124,6 +124,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     target_batch_slot: reference.target_batch_slot,
                                     callee_owner: reference.callee_owner,
                                     argument_sites: reference.argument_sites,
+                                    result_requirement: LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                                 }))
                             }
                         }

@@ -783,3 +783,23 @@ Decision: extract the checked Minus(Integer) accessor and its operator/type/site
 ## Source-only object-return loan prerequisite
 
 Scope: immutable existing ResultOriginWitness membership and exact call/value/key/class, including original Direct/received source distinction. The model supplies no NormalReturn, Home, argument, cleanup, Invoke or publication permission. Candidate contains only the source qualification model, exact witness/foreign-product/dependency tests, its private module/reexport, owner README and this receipt; pending observer/source_finish/emitter consumers are excluded. Candidate evidence: focused model + existing result-origin12/12 PASS; non-test library check PASS31.16s; scope/pointer/diff PASS. Logs /tmp/hako-object-source-loan-candidate-focused.log and candidate-production-check.log. This passive source-model prerequisite is closed; physical handoff and full goal remain unproven.
+
+## Passive lexical source requirement dependency closure
+
+Decision (read-only worker reviewed): retain the original source-target relation,
+add a passive result requirement and readonly original forward identity loan.
+Existing lexical/stored constructors keep ExistingBorrowedResult. Source authority
+is the original Facts qualification and unchanged forward join; no final slot,
+issuer, pending seal, source_finish, production route or physical permission changes.
+Acceptance: real lexical/stored defaults; original witness Rc identity; forward
+contract/use/call coordinates; missing/duplicate/foreign use rejection; existing
+lexical one-shot and stored negative tests; production library and scope guards.
+Initial focused build found THISCHANGE E0425: test helper qualified at the wrong
+module; correct its test-only path after Cargo terminates, then rerun.
+Final evidence: candidate HEAD4ecd plus only this dependency: focused11/11
+PASS (1m35s build/.04s runtime), production library PASS30.10s; scope,
+COPY-UNKNOWN, current pointer and diff checks PASS. New source/test files
+remain below800. Initial E0425 test-helper reference was corrected, not baseline.
+Read-only review confirms the model-only qualification getter test grants no
+valid target join; real forward/default and refusal tests use original issuers.
+No production switch, original mimalloc EXE, Both315/318 or full S0/goal claim.

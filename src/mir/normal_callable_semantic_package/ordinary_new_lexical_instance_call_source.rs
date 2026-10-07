@@ -244,6 +244,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                     target_batch_slot,
                     callee_owner,
                     argument_sites: need.argument_sites,
+                    result_requirement: LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                 })))
             })()
         })
