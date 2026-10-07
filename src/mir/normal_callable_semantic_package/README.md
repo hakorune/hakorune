@@ -23,6 +23,15 @@ Selected Pair V4 EXE/independent OBJ and Fault cleanup are verified there.
 That does not authorize other source families or turn package retention into
 backend permission. Historical implementation steps belong to Git history.
 
+## Original object-return source qualification
+
+`ObjectReturnCallQualificationV1` borrows the original result solver's exact
+value/call/target/class and shared witness identities. It rejects foreign
+products, absent callee membership, borrowed/mixed alternatives, wrong owner
+and inconsistent outer-class dependencies. Its lookup and dependency view do
+not observe a second AST, acquire a Home, seal NormalReturn, emit an Invoke,
+or authorize cleanup/publication. Execution requires the existing later owners.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

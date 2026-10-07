@@ -48,8 +48,11 @@ use evaluate::{evaluate_row, ExitVerdictV1};
 #[path = "ordinary_new_result_class_claim/product.rs"]
 mod product;
 pub(crate) use product::{ResultExitOriginV1, ResultValueOriginV1};
+#[path = "ordinary_new_result_class_claim/object_return_loan.rs"]
+mod object_return_loan;
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
+pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;
 pub(crate) use witness::{ResultFormalSubstitutionV1, ResultOriginWitnessV1, ResultWitnessStepV1};
 
 /// The proven result class of a selected callable. The class name is the
