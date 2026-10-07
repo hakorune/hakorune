@@ -43,6 +43,16 @@ pub(super) enum BorrowedFormalUseDraftErrorV1 {
     AmbiguousUse(OwnedExprSiteV1),
 }
 
+/// Immutable original operands lent by the existing checked-compare classifier.
+/// No ValueId, physical coordinate, or transport authority is issued here.
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct BorrowedCompareSourceV1 {
+    operator: crate::mir::resolved_semantics::ResolvedBinaryOperatorV1,
+    left: OwnedExprSiteV1,
+    right: OwnedExprSiteV1,
+    integer_literal: Option<(OwnedExprSiteV1, i64)>,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BorrowedFormalUseDraftKindV1 {
     Copy {
@@ -59,6 +69,7 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// to this binding/ValueId only.
     CompareOperand {
         binary: OwnedExprSiteV1,
+        source: BorrowedCompareSourceV1,
     },
     /// An ordered `+` operand use dominated by an admitted checked compare
     /// of the same formal, under the operation owner's
@@ -481,7 +492,7 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         if copies.contains_key(site) || is_call_argument(input, site)? {
             continue;
         }
-        if let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary }) =
+        if let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary, .. }) =
             compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?
         {
             let guard = function

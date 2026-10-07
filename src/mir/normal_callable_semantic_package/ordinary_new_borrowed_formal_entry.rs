@@ -47,7 +47,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
             .iter()
             .filter_map(|row| match &row.kind {
                 super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand {
-                    binary,
+                    binary, ..
                 } => Some((row.binding, row.formal, binary)),
                 _ => None,
             })

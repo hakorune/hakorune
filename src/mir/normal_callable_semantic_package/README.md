@@ -1232,3 +1232,11 @@ canonical child. Opaque/unavailable/foreign/rebound and unsupported actuals issu
 no relation. These source candidates add no Home acquisition, live-anchor receipt,
 field storage mode, cleanup or physical admission; those verified consumers remain
 required before executable anchored result publication.
+
+Checked-compare source drafts retain the original operator, ordered owned
+operand sites, and an optional exact integer-literal sibling (site and value)
+from the same sealed expression inventory used by the existing classifier.
+This passive retention preserves the existing Greater/direct-if admission.
+It grants no physical correspondence or transport authority: original Const
+materialization and LocalSSA-to-final-operand correspondence remain required
+before the physical comparison consumer may use these source records.

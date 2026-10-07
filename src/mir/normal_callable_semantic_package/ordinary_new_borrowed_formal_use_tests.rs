@@ -690,3 +690,6 @@ fn ignored_formal_without_any_incoming_edge_does_not_authorize_an_abi_change() {
         Err(BorrowedIncomingDraftErrorV1::NoIncoming(_))
     ));
 }
+
+#[path = "ordinary_new_borrowed_formal_compare_source_tests.rs"]
+mod comparison_source_tests;

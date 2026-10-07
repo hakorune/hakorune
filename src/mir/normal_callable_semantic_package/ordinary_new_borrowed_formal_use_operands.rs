@@ -17,7 +17,7 @@ use crate::mir::resolved_semantics::{
     SourceNodeSiteV1, SourcePathSegmentV1,
 };
 
-use super::{BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
+use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
 
 /// `site` is a checked-compare operand of a `>` binary only when the binary
 /// is a direct `if` condition and the sibling operand proves the
@@ -76,6 +76,17 @@ pub(super) fn compare_operand_kind(
     .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
     Ok(Some(BorrowedFormalUseDraftKindV1::CompareOperand {
         binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
+        source: BorrowedCompareSourceV1 {
+            operator: binary.operator(),
+            left: OwnedExprSiteV1::new(input.owner(), binary.lhs().clone()),
+            right: OwnedExprSiteV1::new(input.owner(), binary.rhs().clone()),
+            integer_literal: match function.expression_source().literal(other) {
+                Some(ResolvedLiteralSourceV1::Integer(value)) => {
+                    Some((OwnedExprSiteV1::new(input.owner(), other.clone()), *value))
+                }
+                _ => None,
+            },
+        },
     }))
 }
 
