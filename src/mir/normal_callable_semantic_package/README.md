@@ -1438,3 +1438,13 @@ check the union of root and indexed relations before claiming success, including
 a root row hidden by an empty same-owner index. The original completed-index
 callee Completion/leaf handoff seal is still required; source qualification and
 an empty argument row issue no Normal transfer or physical execution permission.
+
+
+The completed-index owner corroborates primitive Fresh/null leaves against the
+same immutable Facts witness Rc, indexed callee Completion, exact Return row,
+and exact result-New claim. Fresh snapshots retain original destruction and
+owned-child descriptors before affine claim take; prior Homes stay with the
+callee exit. Missing/rejected indexed Completion is unavailable and never
+retries root Completion. Foreign witness/owner, substituted claim/prefix, or
+exit drift cannot corroborate. This prerequisite grants no Normal handoff,
+caller Home, result-slot upgrade, transport or artifact permission.
