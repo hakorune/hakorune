@@ -76,8 +76,6 @@ impl BuilderInstallTokenV1 {
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]
-mod result_origin_tests;
-#[cfg(test)]
 mod declared_instance_locator_tests;
 #[cfg(test)]
 mod instance_entry_home_tests;
@@ -99,6 +97,8 @@ mod physical_signature_tests;
 mod resolved_selected_handoff_tests;
 #[cfg(test)]
 mod resolver_deferred_tests;
+#[cfg(test)]
+mod result_origin_tests;
 #[cfg(test)]
 mod s6c_child_tests;
 #[cfg(test)]
@@ -136,20 +136,20 @@ pub(crate) use model::{
     QualifiedReceiverCatalogTakeV1, VerifiedNormalCallableSemanticPackageV1,
     VerifiedQualifiedReceiverCatalogRelationV1,
 };
-pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
+pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(crate) use ordinary_new_coseal::{
-    BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
-    ResultExitOriginV1, ResultValueOriginV1, ResultOriginWitnessV1, ResultWitnessStepV1,
-    BirthAbiHandoffV1, FinalizedBirthActualsV1, FinalizedRootResultAbiV1,
-    FinalizedRootSourceHandoffV1, LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1,
-    OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1,
-    OrdinaryNewResultClassV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
-    OwnedFieldChildKindV1, OwnedFieldChildV1, PreparedTerminalI64AddReturnV1,
-    PreparedTerminalI64FieldReturnV1, PreparedTerminalMapGetReturnV1,
-    QualifiedStaticCallArgumentKindV1, ReceiverCallClassObservationV1, RootCallDispositionV1,
-    RootInstanceCallDispositionRowV1, VerifiedOrdinaryNewBirthRecipeV1,
+    BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
+    FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
+    OrdinaryNewConstructorDispositionV1, OrdinaryNewResultClaimV1, OrdinaryNewResultClassV1,
+    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1, OwnedFieldChildKindV1,
+    OwnedFieldChildV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
+    PreparedTerminalMapGetReturnV1, QualifiedStaticCallArgumentKindV1,
+    ReceiverCallClassObservationV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
+    ResultWitnessStepV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
+    VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
@@ -187,7 +187,8 @@ mod terminal_value_return_tests;
 mod map_physical_dependency_tests;
 
 pub(in crate::mir) use ordinary_new_coseal::{
-    BorrowedFormalActualSourceV1, EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
+    BorrowedFormalActualSourceV1, CallPacketSourceLoanV1, CallPacketSourceV1,
+    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
 };
 

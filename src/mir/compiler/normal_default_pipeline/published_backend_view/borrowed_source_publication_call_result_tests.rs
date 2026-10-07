@@ -102,42 +102,46 @@ fn borrowed_stored_child_call_results_publish_original_receivers() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         for (parameter, body, variant) in [
-            ("p: Item", "if p == null { return 7 } return p.value", "declared"),
+            (
+                "p: Item",
+                "if p == null { return 7 } return p.value",
+                "declared",
+            ),
             ("p", "if p == null { return 7 } return p.value", "opaque"),
             ("p", "return 5", "scalar"),
         ] {
-        for reverse in [false, true] {
-            for annotated in [false, true] {
-                let result = if annotated { ": i64" } else { "" };
-                let leaf = format!(
-                    "box Leaf {{ flag: i64 birth() {{ me.flag = 0 }}
+            for reverse in [false, true] {
+                for annotated in [false, true] {
+                    let result = if annotated { ": i64" } else { "" };
+                    let leaf = format!(
+                        "box Leaf {{ flag: i64 birth() {{ me.flag = 0 }}
                     read({parameter}){result} {{ {body} }} }}"
-                );
-                let parent = format!(
-                    "box Parent {{ left: Leaf right: Leaf
+                    );
+                    let parent = format!(
+                        "box Parent {{ left: Leaf right: Leaf
                     birth() {{ me.left = new Leaf() me.right = new Leaf() }}
                     first(p: Item){result} {{ return me.left.read(p) }}
                     second(p: Item){result} {{ return me.right.read(p) }} }}"
-                );
-                let definitions = if reverse {
-                    format!("{parent} {leaf}")
-                } else {
-                    format!("{leaf} {parent}")
-                };
-                for (domain, prefix, actual) in [
-                    ("object", "local item = new Item()", "item"),
-                    ("null", "", "null"),
-                ] {
-                    for method in ["first", "second"] {
-                        let other = if method == "first" { "second" } else { "first" };
-                        let text = format!(
-                            "box Item {{ value: i64 birth() {{ me.value = 5 }} }}
+                    );
+                    let definitions = if reverse {
+                        format!("{parent} {leaf}")
+                    } else {
+                        format!("{leaf} {parent}")
+                    };
+                    for (domain, prefix, actual) in [
+                        ("object", "local item = new Item()", "item"),
+                        ("null", "", "null"),
+                    ] {
+                        for method in ["first", "second"] {
+                            let other = if method == "first" { "second" } else { "first" };
+                            let text = format!(
+                                "box Item {{ value: i64 birth() {{ me.value = 5 }} }}
                             {definitions} static box Main {{ main() {{ local parent = new Parent()
                                 {prefix} local ignored = parent.{other}({actual})
                                 return parent.{method}({actual}) }} }}"
-                        );
-                        for optimize in [false, true] {
-                            MirCompiler::with_options(optimize).compile_normal_with_published(
+                            );
+                            for optimize in [false, true] {
+                                MirCompiler::with_options(optimize).compile_normal_with_published(
                                 request(&text), |view, verification| -> Result<(), String> {
                                     classify_pretransform_report(verification);
                                     let input = view.issue_lifecycle_physical_abi_input()?;
@@ -181,11 +185,11 @@ fn borrowed_stored_child_call_results_publish_original_receivers() {
                                     Ok(())
                                 },
                             ).unwrap_or_else(|error| panic!("{variant}/{domain}/{method}/reverse{reverse}/annotated{annotated}/opt{optimize}: {error}"));
+                            }
                         }
                     }
                 }
             }
-        }
         }
     });
 }
@@ -220,6 +224,90 @@ fn borrowed_stored_child_callee_fault_publishes_original_scratch_birth() {
                     Ok(())
                 },
             ).unwrap_or_else(|error| panic!("stored callee Fault/opt{optimize}: {error}"));
+        }
+    });
+}
+
+#[test]
+fn borrowed_static_local_original_cohort_publishes_receiver_free_and_forwarded_calls() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (label, actual) in [
+            ("integer", "7"),
+            ("negative", "-7"),
+            ("bool", "true"),
+            ("null", "null"),
+        ] {
+            let text = format!("static box Layout {{ pick(p) {{ return 0 }} }} box Heap {{ lookup(size) {{ local k = Layout.pick(size) return 0 }} }} static box Main {{ main() {{ local heap = new Heap() local k = heap.lookup({actual}) local a = Layout.pick({actual}) return 0 }} }}");
+            for optimize in [false, true] {
+                MirCompiler::with_options(optimize).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
+                    classify_pretransform_report(verification);
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let functions = json["functions"].as_array().unwrap();
+                    let layout = functions.iter().find(|f| f["name"] == "Layout.pick/1").expect("original Static definition");
+                    assert_eq!(layout["role"], "ordinary_i64");
+                    assert_eq!(layout["params"].as_array().unwrap().len(), 1);
+                    assert_eq!(layout["params"][0]["representation"], "borrowed_kind_payload_v1");
+                    std::fs::write(std::env::temp_dir().join(format!(
+                        "hako-issued-borrowed-static-local-cohort-{label}-opt{optimize}.json"
+                    )), &wire).unwrap();
+                    if label == "integer" && !optimize {
+                        std::fs::write(std::env::temp_dir().join("hako-issued-borrowed-static-local-cohort.json"), &wire).unwrap();
+                    }
+                    Ok(())
+                }).unwrap_or_else(|error| panic!("Static {label}/opt{optimize}: {error}"));
+            }
+        }
+    });
+}
+
+#[test]
+fn borrowed_static_mixed_scalar_original_cohort_publishes_exact_ordinal_carriers() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "static box Layout { pick(p, q: i64) { return q } } box Heap { lookup(size) { local q = 9 local k = Layout.pick(size, q) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) local a = Layout.pick(8, 9) return 0 } }";
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let layout = json["functions"].as_array().unwrap().iter().find(|f| f["name"] == "Layout.pick/2").unwrap();
+                assert_eq!(layout["params"].as_array().unwrap().len(), 2);
+                assert_eq!(layout["params"][0]["representation"], "borrowed_kind_payload_v1");
+                assert_ne!(layout["params"][1]["representation"], "borrowed_kind_payload_v1");
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-static-mixed-opt{optimize}.json")), wire).unwrap();
+                Ok(())
+            }).unwrap_or_else(|error| panic!("mixed scalar Static/opt{optimize}: {error}"));
+        }
+    });
+}
+
+#[test]
+fn borrowed_static_guard_original_cohort_publishes_all_calls_with_prior_home_cleanup() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "static box Layout { pick(p) { if p > 0 { return 1 } return 0 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) local a = Layout.pick(8) return 0 } }";
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let functions = json["functions"].as_array().unwrap();
+                let mut calls = 0;
+                for function in functions {
+                    for block in function["blocks"].as_array().unwrap() {
+                        let operation = &block["terminator"]["instruction"]["operation"];
+                        calls += usize::from(operation["kind"] == "ordinary_call");
+                    }
+                }
+                assert_eq!(calls, 3, "all three original source calls publish");
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-static-guard-opt{optimize}.json")), wire).unwrap();
+                Ok(())
+            }).unwrap_or_else(|error| panic!("guarded Static/opt{optimize}: {error}"));
         }
     });
 }

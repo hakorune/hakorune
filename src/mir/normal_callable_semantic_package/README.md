@@ -1416,3 +1416,14 @@ comparison, before producing a Bool. Le Normal proves Integer, not positivity.
 Existing Normal-dominated Add/set/new consumers accept this same Integer proof;
 null comparison supplies no such permission. This does not close incoming
 actual source receipts, static argument projection, or executable transport.
+
+Static local physical calls retain the same original incoming Rc, canonical local
+observation and affine result-publication handoff in the existing call packet.
+The selected lender requires successful callee Completion, all incoming executable
+actuals and exact full ordered-argument correspondence. Opaque and declared I64
+arguments use the same existing ordered emitter; Static has no receiver.
+The original dispatch projection retains per-site error demand: unrelated sites
+never demand a failed ingress. Late co-seal marks only successful final incoming
+routes before emission, and a failed source grants no route. Both independent
+physical verifiers consume the same original source loan and exact canonical
+Global declaration/coordinate coverage. Instance-only return seams stay sealed.

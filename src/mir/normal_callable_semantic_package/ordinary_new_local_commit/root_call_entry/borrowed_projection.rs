@@ -8,13 +8,13 @@ use crate::mir::resolved_semantics::SourceExprSiteV1;
 pub(super) fn value(
     projection: &LexicalCallArgumentProjectionV1,
     owner: FunctionOwnerIdV1,
-    row: &LexicalInstanceCallDispositionRowV1,
+    row: CallPacketSourceLoanV1<'_>,
     ordinal: u32,
     site: &SourceExprSiteV1,
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<ValueId, String> {
-    let actuals = ledger
-        .borrowed_call_actuals_v1(row)?
+    let actuals = row
+        .borrowed_actuals(ledger)?
         .ok_or_else(|| freeze("lexical-i64/borrowed-actuals-missing"))?;
     let mut matches = actuals.iter().filter(|actual| actual.ordinal == ordinal);
     let actual = matches
@@ -109,7 +109,7 @@ pub(super) fn value(
 pub(super) fn copies<'a>(
     projection: &'a LexicalCallArgumentProjectionV1,
     owner: FunctionOwnerIdV1,
-    row: &LexicalInstanceCallDispositionRowV1,
+    row: CallPacketSourceLoanV1<'_>,
     ledger: &OrdinaryNewClaimLedgerV1,
 ) -> Result<&'a [Binding], String> {
     let LexicalCallArgumentProjectionV1::BorrowedRead {

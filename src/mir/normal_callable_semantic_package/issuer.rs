@@ -762,6 +762,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             &physical_signature,
             &result_contracts,
         )
+        .and_then(|_| ordinary_new_claim_ledger.co_seal_static_local_routes_v1())
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;

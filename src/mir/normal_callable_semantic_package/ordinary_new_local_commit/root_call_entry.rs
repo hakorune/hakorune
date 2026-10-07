@@ -559,8 +559,8 @@ mod validation;
 #[path = "root_call_entry/lexical_projection.rs"]
 mod lexical_projection;
 pub(in crate::mir) use lexical_projection::{
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1,
+    CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
 };
 
 #[path = "root_call_entry/local_binding_group.rs"]

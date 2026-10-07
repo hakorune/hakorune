@@ -594,7 +594,7 @@ fn static_entry_refuses_same_shaped_reissued_incoming_rc() {
 }
 
 #[test]
-fn static_entry_installed_loan_retains_all_actuals_and_physical_refusal() {
+fn static_entry_installed_loan_retains_all_actuals_and_physical_source() {
     let package = package("static box Layout { pick(p) { return 0 } } static box Main { main() { local a = Layout.pick(-7) local b = Layout.pick(true) local c = Layout.pick(null) return 0 } }");
     let ledger = Rc::clone(&package.ordinary_new_claim_ledger);
     let owner = ledger
@@ -633,7 +633,8 @@ fn static_entry_installed_loan_retains_all_actuals_and_physical_refusal() {
             ));
             assert!(entry
                 .incoming_targets()
-                .all(|target| target.unwrap_err().contains("instance-source-required")));
+                .all(|target| target.unwrap().target().namespace()
+                    == crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod));
         })
         .unwrap();
 }

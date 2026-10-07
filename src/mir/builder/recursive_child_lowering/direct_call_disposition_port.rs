@@ -52,6 +52,63 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         Ok(Some(value))
     }
 
+    fn emit_local_static_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner_name: &str,
+        method: &str,
+        arity: usize,
+    ) -> Result<Option<ValueId>, String> {
+        use crate::mir::builder::static_result_publication_ingress::{
+            StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
+        };
+        let Some(owner) = self.callable_owner_v1() else {
+            return Ok(None);
+        };
+        let Some(site) = self.current_source_site_v1() else {
+            return Ok(None);
+        };
+        let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
+        let Some(ledger) = self.ordinary_new_claim_ledger.clone() else {
+            return Ok(None);
+        };
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        let Some(original) = ledger.selected_static_local_source_v1(&owned)? else {
+            return Ok(None);
+        };
+        if original.target().owner() != owner_name
+            || original.target().name() != method
+            || original.target().arity() as usize != arity
+        {
+            return Err("[freeze:contract][borrowed-static/local-target-drift]".into());
+        }
+        let ingress = self
+            .take_static_result_publication_ingress_v1(
+                builder.comp_ctx.callable_declaration_catalog().ok(),
+                owner_name,
+                method,
+                arity,
+            )
+            .map_err(|error| error.to_string())?;
+        let StaticResultPublicationIngressV1::Selected(publication) = ingress else {
+            return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".into());
+        };
+        let source =
+            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::qualified_static(
+                original,
+                publication,
+                &ledger,
+            )?;
+        let state = self
+            .callable_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][borrowed-static/local-state-missing]".to_owned())?;
+        let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_source(
+            builder, &mut state.borrow_mut(), &ledger, owner, &site, source,
+        )?;
+        Ok(Some(value))
+    }
+
     fn emit_local_lexical_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -83,14 +140,10 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         // site: the disposition row must exist, agree on the selector, and
         // carry the same result contract. Any half-sealed edge freezes.
         let Some(row) = ledger.take_lexical_instance_call(owner, &site)? else {
-            return Err(
-                "[freeze:contract][lexical-instance-call/disposition-missing]".to_owned()
-            );
+            return Err("[freeze:contract][lexical-instance-call/disposition-missing]".to_owned());
         };
         if row.target().name() != method {
-            return Err(
-                "[freeze:contract][lexical-instance-call/target-mismatch]".to_owned()
-            );
+            return Err("[freeze:contract][lexical-instance-call/target-mismatch]".to_owned());
         }
         let expected = if handle {
             crate::mir::instruction::InvokeCallResultKind::Handle
@@ -100,9 +153,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             crate::mir::instruction::InvokeCallResultKind::I64
         };
         if row.result() != Some(expected) {
-            return Err(
-                "[freeze:contract][lexical-instance-call/result-mismatch]".to_owned()
-            );
+            return Err("[freeze:contract][lexical-instance-call/result-mismatch]".to_owned());
         }
         let state = self
             .callable_ledger

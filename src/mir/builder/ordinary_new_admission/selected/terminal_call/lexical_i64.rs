@@ -2,6 +2,7 @@
 use super::*;
 use crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalReadV1;
 use crate::mir::normal_callable_semantic_package::{
+    CallPacketSourceLoanV1 as SourceLoan, CallPacketSourceV1 as CallSource,
     EmittedLexicalCallProjectionV1 as EmittedCall,
     LexicalCallArgumentProjectionV1 as ArgumentProjection,
     PreparedLexicalCallProjectionV1 as PreparedCall,
@@ -28,8 +29,27 @@ pub(in crate::mir::builder) fn emit_local_lexical_i64(
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     row: LexicalInstanceCallDispositionRowV1,
 ) -> Result<ValueId, String> {
+    emit_local_lexical_source(
+        builder,
+        state,
+        ledger,
+        owner,
+        site,
+        CallSource::instance(row),
+    )
+}
+
+/// Both original source kinds use the same retained continuation and emitter.
+pub(in crate::mir::builder) fn emit_local_lexical_source(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    row: CallSource,
+) -> Result<ValueId, String> {
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
-    if row.call_site() != &owned_site {
+    if row.loan().call_site() != &owned_site {
         return Err(freeze("lexical-i64/call-site-drift"));
     }
     let relation = ledger
@@ -69,24 +89,37 @@ fn emit_lexical_i64_call(
     owner: FunctionOwnerIdV1,
     prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     sealed_arguments: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
-    row: LexicalInstanceCallDispositionRowV1,
+    original: CallSource,
     bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
 ) -> Result<EmittedCall, String> {
+    let row = original.loan();
     if row.result() != Some(InvokeCallResultKind::I64) {
         return Err(freeze("lexical-i64-result-mismatch"));
     }
-    if prior_homes.is_empty() || !prior_homes.contains(&row.receiver_binding()?) {
-        return Err(freeze("lexical-i64-receiver-home-missing"));
+    if let SourceLoan::Instance(instance) = row {
+        if prior_homes.is_empty() || !prior_homes.contains(&instance.receiver_binding()?) {
+            return Err(freeze("lexical-i64-receiver-home-missing"));
+        }
     }
+    row.validate_static(ledger)?;
     let unwind = ledger.prior_home_unwind_for(prior_homes)?;
     if sealed_arguments.len() != row.argument_sites().len()
         || row.argument_sites().len() != row.target().arity() as usize
     {
         return Err(freeze("lexical-i64-arity-mismatch"));
     }
-    let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
-        .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?;
+    let receiver = match row {
+        SourceLoan::Instance(instance) => Some(
+            state
+                .take_exact_lexical_read(
+                    owner,
+                    instance.receiver_site().node(),
+                    instance.receiver_binding()?,
+                )
+                .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?,
+        ),
+        SourceLoan::QualifiedStatic { .. } => None,
+    };
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();
     let outward = builder.next_block_id();
@@ -101,17 +134,17 @@ fn emit_lexical_i64_call(
     // The call's fault path unwinds the prior Homes exactly like the
     // Handle lane does — the receiver Home can never leak past a fault.
     let fault_landing = cleanup_chain(builder, frame, unwind, outward, bindings)?;
-    let prepared = prepare_arguments(
+    let prepared = prepare_arguments_for_source(
         builder,
         state,
         ledger,
         owner,
         receiver,
         sealed_arguments,
-        &row,
+        row,
         bindings,
     )?;
-    let call = prepared.materialize_with_ledger(owner, &row, sealed_arguments, ledger)?;
+    let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
     let origin = builder
         .function_state
         .current_block
@@ -141,7 +174,9 @@ fn emit_lexical_i64_call(
     let projection = (normal_landing, projection);
     bindings.push(invoke.clone());
     bindings.push(projection.clone());
-    Ok(EmittedCall::new(row, prepared, invoke, projection))
+    Ok(EmittedCall::from_source(
+        original, prepared, invoke, projection,
+    ))
 }
 
 /// Materialize only the source-issued receiver/ordered arguments. The caller
@@ -154,6 +189,28 @@ pub(in crate::mir::builder) fn prepare_arguments(
     receiver: ExactLexicalReadV1,
     source: &[LocalCallArgumentV1],
     row: &LexicalInstanceCallDispositionRowV1,
+    bindings: &mut Vec<Binding>,
+) -> Result<PreparedCall, String> {
+    prepare_arguments_for_source(
+        builder,
+        state,
+        ledger,
+        owner,
+        Some(receiver),
+        source,
+        SourceLoan::Instance(row),
+        bindings,
+    )
+}
+
+fn prepare_arguments_for_source(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    receiver: Option<ExactLexicalReadV1>,
+    source: &[LocalCallArgumentV1],
+    row: SourceLoan<'_>,
     bindings: &mut Vec<Binding>,
 ) -> Result<PreparedCall, String> {
     let mut arguments = Vec::with_capacity(source.len());
@@ -196,7 +253,7 @@ pub(in crate::mir::builder) fn prepare_arguments(
                     owner,
                     inner.prior_homes(),
                     inner.arguments(),
-                    inner_row,
+                    CallSource::instance(inner_row),
                     bindings,
                 )?))
             }
@@ -207,8 +264,8 @@ pub(in crate::mir::builder) fn prepare_arguments(
                 if original != site {
                     return Err(freeze("lexical-i64/borrowed-site"));
                 }
-                let actuals = ledger
-                    .borrowed_call_actuals_v1(row)?
+                let actuals = row
+                    .borrowed_actuals(ledger)?
                     .ok_or_else(|| freeze("lexical-i64/borrowed-actuals-missing"))?;
                 let actual = actuals
                     .iter()
@@ -323,5 +380,5 @@ pub(in crate::mir::builder) fn prepare_arguments(
         };
         arguments.push(projection);
     }
-    Ok(PreparedCall::new(receiver, arguments))
+    PreparedCall::for_source(row, receiver, arguments)
 }

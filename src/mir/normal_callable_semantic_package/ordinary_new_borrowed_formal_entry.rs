@@ -8,6 +8,7 @@ use crate::mir::normal_callable_semantic_package::{
     SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
@@ -150,12 +151,38 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,
-    ) -> impl Iterator<Item = Result<&super::LexicalInstanceCallSourceTargetV1, String>> {
+    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>, String>>
+    {
         self.source
             .incoming
             .iter()
             .filter(move |row| row.callee == self.owner)
-            .map(|row| row.source.require_instance())
+            .map(|row| {
+                let loan = row.source.as_loan();
+                if loan.call_site() != &row.call
+                    || loan.callee_owner() != row.callee
+                    || row.callee != self.owner
+                {
+                    return Err(freeze("borrowed-entry/incoming-source-identity"));
+                }
+                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+                    original,
+                ) = &row.source
+                {
+                    let retained = self
+                        .source
+                        .source_incoming
+                        .static_observations()
+                        .get(&row.call)
+                        .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?
+                        .as_ref()
+                        .map_err(Clone::clone)?;
+                    if !Rc::ptr_eq(retained, original) {
+                        return Err(freeze("borrowed-entry/incoming-source-drift"));
+                    }
+                }
+                Ok(row.source.as_loan())
+            })
     }
 }
 
@@ -489,3 +516,6 @@ pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedO
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_incoming_kind_tests.rs"]
 mod incoming_kind_tests;
+
+#[path = "ordinary_new_borrowed_static_packet_entry.rs"]
+mod static_packet_entry;

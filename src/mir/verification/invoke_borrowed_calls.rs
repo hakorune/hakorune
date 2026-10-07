@@ -43,7 +43,7 @@ pub(super) fn original_call_slots(
     source.visit_finalized_lexical_call_nodes_v1(
         module,
         |_, _, packet, arguments, caller, coordinate, _| {
-            let row = packet.original_row();
+            let row = packet.original_source();
             let symbol = module
                 .canonical_callable_definition_symbol(row.target())
                 .ok_or_else(|| "borrowed-source-target-missing".to_owned())?;
@@ -53,11 +53,11 @@ pub(super) fn original_call_slots(
             if !selected_source && !selected.contains(symbol) {
                 return Ok(());
             }
-            if row.target().namespace()
-                != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            {
-                return Err("borrowed-source-nonordinary-target".into());
-            }
+            let offset = match row.target().namespace() {
+                hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => 1,
+                hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => 0,
+                _ => return Err("borrowed-source-nonordinary-target".into()),
+            };
             let callee = module
                 .functions
                 .get(symbol)
@@ -70,7 +70,6 @@ pub(super) fn original_call_slots(
                 .physical_param_carriers
                 .as_deref()
                 .ok_or_else(|| "borrowed-source-carrier-missing".to_owned())?;
-            let offset = 1; // Original selected ordinary instance owner has `me`.
             if carriers.len() != callee.params.len()
                 || callee.signature.params.len() != callee.params.len()
             {
@@ -93,7 +92,7 @@ pub(super) fn original_call_slots(
                 }
                 proven.insert(slot);
             }
-            if slots != proven || slots.is_empty() || slots.contains(&0) {
+            if slots != proven || slots.is_empty() || (offset == 1 && slots.contains(&0)) {
                 return Err("borrowed-source-entry-coverage".into());
             }
             for target in entry.incoming_targets() {
@@ -104,7 +103,7 @@ pub(super) fn original_call_slots(
                 incoming.insert(target.call_site().clone());
             }
             let actuals = source
-                .borrowed_call_actuals_v1(row)?
+                .borrowed_packet_actuals_v1(packet)?
                 .ok_or_else(|| "borrowed-source-actuals-missing".to_owned())?;
             let actual_slots: BTreeSet<_> = actuals
                 .iter()

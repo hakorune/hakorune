@@ -8,12 +8,11 @@ use crate::mir::builder::normal_callable_binding_materialization_port::{
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
 use crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1;
 use crate::mir::compiler::capability::CanonicalLoweringPreflightV1;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::normal_callable_semantic_package::DirectCallDispositionRowV1;
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
-    SourceExprSiteV1,
+    FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
 };
 use crate::mir::{MirBuilder, ValueId};
 use crate::parser::CallableDeclarationIdentityV1;
@@ -247,7 +246,11 @@ pub(super) fn lower_app_main_root_body_v1(
                         // qualified static calls there).  The arity check
                         // uses the DECLARED parameter count — the wrapper's
                         // physical formals are always 0 on this route.
-                        let value = if arity0
+                        // Exact co-sealed Static locals use the same ordinary
+                        // root source owner as instance lexical calls.
+                        let static_local_route = ordinary_new_claim_ledger
+                            .has_routed_static_local_for_owner_v1(identity.owner())?;
+                        let value = if arity0 && !static_local_route
                             && input.function().method_calls().any(|(_, call)| {
                                 call.receiver()
                                     == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
@@ -361,6 +364,17 @@ impl DirectCallDispositionPortV1
     ) -> Result<Option<crate::mir::ValueId>, String> {
         self.inner
             .emit_local_lifecycle_call_v1(builder, row, arguments)
+    }
+
+    fn emit_local_static_lifecycle_call_v1(
+        &mut self,
+        builder: &mut crate::mir::MirBuilder,
+        owner: &str,
+        method: &str,
+        arity: usize,
+    ) -> Result<Option<crate::mir::ValueId>, String> {
+        self.inner
+            .emit_local_static_lifecycle_call_v1(builder, owner, method, arity)
     }
 
     fn emit_local_lexical_lifecycle_call_v1(

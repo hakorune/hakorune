@@ -32,9 +32,8 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     SelectedNewArgumentUnavailableV1, TerminalRelationV1,
 };
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
-    VerifiedResolvedFunctionV1,
+    BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
@@ -89,14 +88,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     // Owned field children per canonical object: `Some` means every
     // residence-capable declared field has a sealed birth-side residence,
     // `None` means the disposition needs children the package never proved.
-    let (
-        field_write_claims,
-        field_residences,
-        callable_result_classes,
-        mut owned_field_children,
-    ) = source_claims::prepare_source_claims(
-        batch, selected, instance_constructors, parameter_contracts,
-    )?;
+    let (field_write_claims, field_residences, callable_result_classes, mut owned_field_children) =
+        source_claims::prepare_source_claims(
+            batch,
+            selected,
+            instance_constructors,
+            parameter_contracts,
+        )?;
     let dynamic_slot = match dynamic {
         super::super::model::NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => {
             Some(*batch_slot)
@@ -774,6 +772,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         names,
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
+    ledger.borrowed_static_source_sites = Some(static_source_sites);
     ledger.install_borrowed_formal_preparation_v1(
         borrowed_formal_source,
         borrowed_formal_actuals,

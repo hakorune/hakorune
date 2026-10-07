@@ -71,7 +71,10 @@ impl RootHomeExitEntry {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RootHomeReleaseSubjectV1 {
     Binding(BindingRefV1),
-    ArgumentMap { site: OwnedExprSiteV1, ordinal: u32 },
+    ArgumentMap {
+        site: OwnedExprSiteV1,
+        ordinal: u32,
+    },
     FieldResidence {
         binding: BindingRefV1,
         field: hakorune_mir_defs::CanonicalFieldRefV1,
@@ -479,12 +482,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     for binding in expected_homes {
                         let home =
                             installed_home(&rows, *binding).map_err(|error| match error {
-                                HomeLookupError::Missing => {
-                                    freeze("root-home-not-installed")
-                                }
-                                HomeLookupError::Duplicate => {
-                                    freeze("duplicate-root-home")
-                                }
+                                HomeLookupError::Missing => freeze("root-home-not-installed"),
+                                HomeLookupError::Duplicate => freeze("duplicate-root-home"),
                             })?;
                         expected_subjects.extend(
                             home.end_plan()
@@ -612,8 +611,8 @@ mod call_entry;
 mod map_get_entry;
 
 pub(in crate::mir) use call_entry::{
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1,
+    CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
 };
 
 pub(crate) use call_entry::RootLocalCallBindingGroupV1;

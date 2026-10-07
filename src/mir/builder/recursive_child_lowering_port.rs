@@ -143,7 +143,7 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         &mut self,
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         _completed: &super::emission::constant::CompletedConstV1,
-    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String>{
         Err("[freeze:contract][borrowed-literal/consumer-unavailable]".into())
     }
 
@@ -313,6 +313,17 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
         _builder: &mut MirBuilder,
         _row: DirectCallDispositionRowV1,
         _arguments: Vec<ValueId>,
+    ) -> Result<Option<ValueId>, String> {
+        Ok(None)
+    }
+
+    /// The exact original final Static incoming selects the shared local emitter.
+    fn emit_local_static_lifecycle_call_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _owner: &str,
+        _method: &str,
+        _arity: usize,
     ) -> Result<Option<ValueId>, String> {
         Ok(None)
     }

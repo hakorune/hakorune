@@ -188,6 +188,13 @@ impl FinalizedRootSourceHandoffV1 {
         Ok(coordinate)
     }
 
+    pub(in crate::mir) fn borrowed_packet_actuals_v1(
+        &self,
+        packet: &EmittedLexicalCallProjectionV1,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        packet.original_source().borrowed_actuals(&self.ledger)
+    }
+
     pub(in crate::mir) fn borrowed_call_actuals_v1(
         &self,
         row: &LexicalInstanceCallDispositionRowV1,
@@ -243,22 +250,32 @@ impl FinalizedRootSourceHandoffV1 {
     /// SAME original source capability at its mandatory finished Compare.
     /// Children remain original descent observations, not final operand lineage.
     pub(in crate::mir) fn with_borrowed_ordinary_compares_v1(
-        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
-        mut visit: impl FnMut(&crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1, (ValueId, ValueId),
-            &(BasicBlockId, MirInstruction)) -> Result<(), String>,
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        mut visit: impl FnMut(
+            &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+            (ValueId, ValueId),
+            &(BasicBlockId, MirInstruction),
+        ) -> Result<(), String>,
     ) -> Result<(), String> {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        self.ledger.with_finished_projection(owner, |symbol, projection| {
-            if function.signature.name != symbol { return Err(freeze("borrowed-compare/finished-function")); }
-            self.ledger.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                project_recorded(symbol, projection, original).map(|(_, binding)| binding)
+        self.ledger
+            .with_finished_projection(owner, |symbol, projection| {
+                if function.signature.name != symbol {
+                    return Err(freeze("borrowed-compare/finished-function"));
+                }
+                self.ledger
+                    .verify_finished_borrowed_compares_v1(owner, function, |original| {
+                        project_recorded(symbol, projection, original).map(|(_, binding)| binding)
+                    })
+            })?;
+        self.ledger
+            .with_borrowed_ordinary_compares_v1(owner, |loan, children, original| {
+                let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
+                find_finished_producer(&symbol, &finished, function)?;
+                visit(loan, children, &finished)
             })
-        })?;
-        self.ledger.with_borrowed_ordinary_compares_v1(owner, |loan, children, original| {
-            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
-            find_finished_producer(&symbol, &finished, function)?;
-            visit(loan, children, &finished)
-        })
     }
 
     /// Same original literal observations, not final operand correspondence.
@@ -266,11 +283,16 @@ impl FinalizedRootSourceHandoffV1 {
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        visit: impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1, ValueId,
-            &(BasicBlockId, MirInstruction)) -> Result<(), String>,
+        visit: impl FnMut(
+            &OwnedExprSiteV1,
+            &OwnedExprSiteV1,
+            ValueId,
+            &(BasicBlockId, MirInstruction),
+        ) -> Result<(), String>,
     ) -> Result<(), String> {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        self.ledger.with_borrowed_ordinary_compare_integer_literals_v1(owner, visit)
+        self.ledger
+            .with_borrowed_ordinary_compare_integer_literals_v1(owner, visit)
     }
 
     /// Original alias tuple -> the same held Boundary -> exact final coordinate.
@@ -282,9 +304,10 @@ impl FinalizedRootSourceHandoffV1 {
         original: &(BasicBlockId, MirInstruction),
     ) -> Result<Option<(BasicBlockId, usize)>, String> {
         self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        self.ledger.with_finished_projection(owner, |_, projection| {
-            projection.borrowed_copy_coordinate(function, original)
-        })
+        self.ledger
+            .with_finished_projection(owner, |_, projection| {
+                projection.borrowed_copy_coordinate(function, original)
+            })
     }
 
     pub(in crate::mir) fn borrowed_ordinary_entry_values_v1(
@@ -298,10 +321,7 @@ impl FinalizedRootSourceHandoffV1 {
     /// `owner` recorded borrowed entry values. Birth-actual publication
     /// enumerates every caller, including non-borrowed owners, so it asks
     /// here before demanding the per-owner projections.
-    pub(in crate::mir) fn has_borrowed_ordinary_entry_v1(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
+    pub(in crate::mir) fn has_borrowed_ordinary_entry_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.ledger.has_borrowed_ordinary_entry_v1(owner)
     }
 
@@ -423,9 +443,7 @@ impl FinalizedRootSourceHandoffV1 {
         let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
         Ok(source
             .new_argument_uses()
-            .map(|(binding, formal, site, ordinal)| {
-                (binding, formal, site.clone(), ordinal)
-            })
+            .map(|(binding, formal, site, ordinal)| (binding, formal, site.clone(), ordinal))
             .collect())
     }
 }

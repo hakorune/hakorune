@@ -177,7 +177,7 @@ fn finalized_call_visitor_lends_original_nested_nodes_in_evaluation_order() {
                 ));
                 assert_eq!(
                     arguments.len(),
-                    packet.original_row().argument_sites().len()
+                    packet.original_row().unwrap().argument_sites().len()
                 );
                 assert!(matches!(
                     function.blocks[&block].all_instructions().nth(index),
@@ -190,7 +190,10 @@ fn finalized_call_visitor_lends_original_nested_nodes_in_evaluation_order() {
                     })
                 ));
                 for (original, finished) in copies {
-                    assert_eq!(function.blocks[&finished.0].instructions[finished.1], original.1);
+                    assert_eq!(
+                        function.blocks[&finished.0].instructions[finished.1],
+                        original.1
+                    );
                 }
                 seen.push((owner, group_site.clone(), packet.call_site().clone()));
                 Ok(())

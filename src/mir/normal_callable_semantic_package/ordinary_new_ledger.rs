@@ -61,9 +61,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         box_name: &str,
     ) -> usize {
-        self.array_i64_fields
-            .get(box_name)
-            .map_or(0, BTreeSet::len)
+        self.array_i64_fields.get(box_name).map_or(0, BTreeSet::len)
     }
 
     /// The per-owner borrowed-return source proofs folded to their i64
@@ -73,7 +71,10 @@ impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_i64_results_for_test(
         &self,
-    ) -> Vec<(crate::mir::resolved_semantics::FunctionOwnerIdV1, Result<(), String>)> {
+    ) -> Vec<(
+        crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        Result<(), String>,
+    )> {
         self.borrowed_i64_results
             .iter()
             .map(|(owner, row)| {
@@ -129,6 +130,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,
             borrowed_formal_source: None,
+            borrowed_static_source_sites: None,
             borrowed_formal_actuals: BTreeMap::new(),
             borrowed_i64_results: BTreeMap::new(),
             borrowed_entry_values: RefCell::new(BTreeMap::new()),
@@ -452,7 +454,8 @@ impl OrdinaryNewClaimLedgerV1 {
 impl OrdinaryNewClaimLedgerV1 {
     /// Passive caller-branded return origins; never a Home or emission capability.
     pub(in crate::mir::normal_callable_semantic_package) fn callable_result_origins(
-        &self, key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        &self,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     ) -> Option<&[result_class_claim::ResultExitOriginV1]> {
         self.callable_result_classes.outcomes(key)
     }

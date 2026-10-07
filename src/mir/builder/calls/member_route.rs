@@ -120,6 +120,14 @@ impl MirBuilder {
                     let syntax = port.method_call_syntax(input)?;
                     (syntax.method().to_owned(), syntax.arguments())
                 };
+                if let Some(value) = port.emit_local_static_lifecycle_call_v1(
+                    self,
+                    &box_name,
+                    &method,
+                    arguments.len(),
+                )? {
+                    return Ok(value);
+                }
                 match port.script_direct_static_claim_ingress_v1(
                     &box_name,
                     &method,
@@ -227,9 +235,7 @@ impl MirBuilder {
                 // the lexical disposition row must agree before the
                 // dynamic member route may take the site.
                 let method = port.method_call_syntax(input)?.method().to_owned();
-                if let Some(value) =
-                    port.emit_local_lexical_lifecycle_call_v1(self, &method)?
-                {
+                if let Some(value) = port.emit_local_lexical_lifecycle_call_v1(self, &method)? {
                     return Ok(value);
                 }
                 self.execute_prepared_member_call_route_v1(

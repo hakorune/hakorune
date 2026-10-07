@@ -79,12 +79,12 @@ mod lexical_instance_call;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
-pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
-pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
-pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
-pub(in crate::mir) use lexical_instance_call::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareCarrierOperandLoanV1;
+pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareIntegerLiteralMaterializationV1;
+pub(in crate::mir) use lexical_instance_call::BorrowedCompareMaterializationV1;
+pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
+pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
@@ -94,20 +94,23 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 #[path = "ordinary_new_result_class_claim.rs"]
 mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
-pub(crate) use result_class_claim::{OrdinaryNewResultClassV1, ResultExitOriginV1, ResultValueOriginV1, ResultOriginWitnessV1, ResultWitnessStepV1};
+pub(crate) use result_class_claim::{
+    OrdinaryNewResultClassV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
+    ResultWitnessStepV1,
+};
+#[path = "array_i64_fields.rs"]
+mod array_i64_fields;
 #[path = "ordinary_new_root_instance_call.rs"]
 mod root_instance_call;
 #[path = "ordinary_new_terminal_access.rs"]
 mod terminal_access;
-#[path = "array_i64_fields.rs"]
-mod array_i64_fields;
 #[path = "ordinary_new_terminal_home.rs"]
 mod terminal_home;
+use candidate::OrdinaryNewCandidate;
 pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
     entry_receiver_box_proof, nullable_result_integer_field, receiver_array_field,
     receiver_scalar_field,
 };
-use candidate::OrdinaryNewCandidate;
 
 pub(crate) use local_commit::{
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
@@ -282,6 +285,8 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // prefix callback; neither Ok nor Err installs or changes a carrier.
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
+    // The existing source dispatch projection retains per-site error scope.
+    borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
     // Existing formal values joined to the borrowed source projection. This
     // correspondence does not install a carrier or authorize a backend.
@@ -290,10 +295,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         Result<lexical_instance_call::BorrowedI64ResultSourceV1, String>,
     >,
     borrowed_entry_values: RefCell<
-        BTreeMap<
-            FunctionOwnerIdV1,
-            lexical_instance_call::BorrowedOrdinaryEntryPhysicalV1,
-        >,
+        BTreeMap<FunctionOwnerIdV1, lexical_instance_call::BorrowedOrdinaryEntryPhysicalV1>,
     >,
     lexical_instance_calls: RefCell<
         BTreeMap<OwnedExprSiteV1, lexical_instance_call::LexicalInstanceCallDispositionSlotV1>,
@@ -474,7 +476,8 @@ mod terminal_result_tests;
 mod tests;
 
 pub(in crate::mir) use local_commit::{
-    EmittedLexicalCallProjectionV1, FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
+    CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
+    FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
     PreparedLexicalCallProjectionV1,
 };
 

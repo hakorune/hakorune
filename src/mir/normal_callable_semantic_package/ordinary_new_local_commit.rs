@@ -102,7 +102,8 @@ impl FinalizedBirthActualsV1 {
         self.destination
     }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
-        self.destination.map_or_else(|| self.site.owner(), |binding| binding.owner())
+        self.destination
+            .map_or_else(|| self.site.owner(), |binding| binding.owner())
     }
     pub(crate) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {
         &self.target
@@ -223,9 +224,9 @@ impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn local_call_binding_groups(
         &self,
     ) -> impl Iterator<Item = (FunctionOwnerIdV1, &RootLocalCallBindingGroupV1)> {
-        self.local_calls.iter().flat_map(|(owner, groups)| {
-            groups.iter().map(move |group| (*owner, group))
-        })
+        self.local_calls
+            .iter()
+            .flat_map(|(owner, groups)| groups.iter().map(move |group| (*owner, group)))
     }
 
     fn sole_terminal(&self) -> Option<&TerminalRelationV1> {
@@ -518,9 +519,7 @@ impl NewLocalCommitV1 {
     /// the object's own Home. `end_available` already gated the sealed
     /// residence proof, so `children` is always `Some` on an owned-field
     /// disposition.
-    fn end_plan(
-        &self,
-    ) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
+    fn end_plan(&self) -> Box<[(root_home::RootHomeReleaseSubjectV1, InvokeOperation)]> {
         let base = self.emission.local().expect("installed Home");
         let children = match (&self.children, self.destruction) {
             (Some(children), _) => children.as_ref(),
@@ -734,8 +733,8 @@ mod finalized_root_handoff;
 mod physical_boundary;
 
 pub(in crate::mir) use root_home::{
-    EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1,
+    CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
 };
 
 pub(crate) use root_home::RootLocalCallBindingGroupV1;

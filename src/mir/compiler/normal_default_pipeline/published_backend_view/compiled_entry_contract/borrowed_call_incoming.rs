@@ -16,7 +16,10 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     module: &MirModule,
 ) -> Result<
     (
-        BTreeMap<(usize, crate::mir::BasicBlockId, usize), &'module [PreparedBorrowedFormalActualV1]>,
+        BTreeMap<
+            (usize, crate::mir::BasicBlockId, usize),
+            &'module [PreparedBorrowedFormalActualV1],
+        >,
         BTreeMap<u32, BTreeMap<u32, u32>>,
     ),
     String,
@@ -33,7 +36,16 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             .role()
             .ordinary_target()
             .ok_or_else(|| fault("borrowed-incoming/nonordinary-carrier"))?;
-        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+        if !matches!(
+            key.namespace(),
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                | hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+        ) || (key.namespace()
+            == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+            && !matches!(
+                function.role(),
+                PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+            ))
             || carriers.len() != function.params().len()
             || callees.insert(key, function).is_some()
         {
@@ -64,10 +76,34 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 else {
                     continue;
                 };
-                let Callee::SameModuleInstance { key, .. } = &call.callee else {
-                    continue;
+                let callee = match &call.callee {
+                    Callee::SameModuleInstance { key, .. } => callees.get(key).copied(),
+                    Callee::Global(global) => {
+                        let mut matching = Vec::new();
+                        for (key, function) in &callees {
+                            if key.namespace()
+                                == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                                && &key.canonical_global_target_v1()? == global
+                            {
+                                let symbol = module
+                                    .canonical_callable_definition_symbol(key)
+                                    .ok_or_else(|| {
+                                        fault("borrowed-incoming/static-definition-missing")
+                                    })?;
+                                if symbol != function.name() {
+                                    return Err(fault("borrowed-incoming/static-definition-drift"));
+                                }
+                                matching.push(*function);
+                            }
+                        }
+                        if matching.len() > 1 {
+                            return Err(fault("borrowed-incoming/static-definition-duplicate"));
+                        }
+                        matching.pop()
+                    }
+                    _ => None,
                 };
-                let Some(callee) = callees.get(key) else {
+                let Some(callee) = callee else {
                     continue;
                 };
                 // The callee's published role names the one result contract
@@ -106,7 +142,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     source.visit_finalized_lexical_call_nodes_v1(
         module,
         |_, _, packet, arguments, caller, (block, index), copies| {
-            let row = packet.original_row();
+            let row = packet.original_source();
             let selected_source = arguments.iter().any(|argument| matches!(argument,
                 crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { .. }));
             let callee = callees.get(row.target());
@@ -114,7 +150,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 return Ok(());
             }
             let Some(callee) = callee else {
-                source.borrowed_call_actuals_v1(row)?
+                source.borrowed_packet_actuals_v1(packet)?
                     .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
                 return Err(fault("borrowed-incoming/callee-carrier-missing"));
             };
@@ -162,7 +198,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 }
                 incoming.insert(target.call_site().clone());
             }
-            let actuals = source.borrowed_call_actuals_v1(row)?
+            let actuals = source.borrowed_packet_actuals_v1(packet)?
                 .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
             // Source use admissions are function obligations; incoming actuals
             // and their entry correspondence remain checked on every call.

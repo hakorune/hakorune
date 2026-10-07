@@ -9,8 +9,8 @@ use crate::mir::normal_callable_semantic_package::{
     RootInstanceCallDispositionRowV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-pub(in crate::mir::builder) use lexical_i64::emit_local_lexical_i64;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
+pub(in crate::mir::builder) use lexical_i64::{emit_local_lexical_i64, emit_local_lexical_source};
 
 pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
     pub(super) source: Source,

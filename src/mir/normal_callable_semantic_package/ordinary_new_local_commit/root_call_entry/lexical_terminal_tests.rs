@@ -188,7 +188,10 @@ fn lexical_return_record_keeps_original_packet_and_moves_affinely() {
         panic!("packet");
     };
     assert!(Rc::ptr_eq(&packet, &retained));
-    assert_eq!(retained.original_row().call_site(), packet.call_site());
+    assert_eq!(
+        retained.original_row().unwrap().call_site(),
+        packet.call_site()
+    );
     assert!(ledger
         .take_finalized_root_call(owner, &exit)
         .unwrap_err()
@@ -226,8 +229,14 @@ fn lexical_return_refuses_foreign_exit_lender_and_changed_original_producer() {
             .is_err());
     }
     let (ledger, _, packet, _) = fixture();
-    let wrong_exit =
-        SourceStmtSiteV1::from_node(packet.original_row().receiver_site().node().clone());
+    let wrong_exit = SourceStmtSiteV1::from_node(
+        packet
+            .original_row()
+            .unwrap()
+            .receiver_site()
+            .node()
+            .clone(),
+    );
     assert!(ledger
         .validate_lexical_terminal_packet(packet.call_site().owner(), &wrong_exit, &packet)
         .is_err());
