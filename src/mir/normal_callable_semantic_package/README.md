@@ -78,6 +78,21 @@ coordinates. Static destinations remain outside accepted definitions until their
 separate contracts close. Receiver/object-only consumers explicitly require
 Instance; physical iterator errors reach both independent verifiers.
 
+## Original incoming domain agreement
+
+The original raw Instance drafts survive transport closure; that closure only
+removes selected owner ids. The same incoming inventory supplies exact rows and
+callee vetoes to one Integer/Object fixed point. Global source faults poison all
+raw owners, and an omitted caller cannot create agreement. Object views and
+declared-object mismatches project only onto final transport owners.
+
+Exact Integer literals, signed immediates, and stable direct declared-I64
+parameters provide source seeds. Candidate-only opaque forwarding carries
+Integer agreement only; it cannot widen Object authority. Mixed bool/null/object
+actuals, unproved locals, rebind/capture and unresolved cycles decline. Source
+Integer agreement neither revives transport nor issues a payload cast, Home,
+Executable or Static entry permission. Guard-derived facts remain unissued.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

@@ -13,6 +13,12 @@ mod source_drafts;
 
 pub(super) use source_drafts::collect_borrowed_source_drafts_v1;
 
+#[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
+mod source_seeds;
+#[path = "ordinary_new_borrowed_formal_value_domain.rs"]
+mod value_domain;
+use source_seeds::prepare_borrowed_formal_views_v1;
+
 /// The sealed class view one borrowed formal may carry on a dominated
 /// `formal.field` read: minted only when every incoming actual names one
 /// agreed ordinary class (the exact `null` literal is always admissible —
@@ -59,16 +65,24 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) forwards: Box<[BorrowedForwardUseDraftRowV1]>,
     pub(super) incoming: Box<[BorrowedIncomingCallDraftV1]>,
     /// Raw source facts survive transport pruning; these grant no execution.
-    pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<(OwnedExprSiteV1, u32), super::borrowed_static_argument::QualifiedStaticArgumentSourceV1>,
-    pub(in crate::mir::normal_callable_semantic_package) source_incoming: BorrowedIncomingInventoryV1,
+    pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<
+        (OwnedExprSiteV1, u32),
+        super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
+    >,
+    pub(in crate::mir::normal_callable_semantic_package) source_incoming:
+        BorrowedIncomingInventoryV1,
     /// `formal -> sealed class view`, complete across the co-sealed
     /// incoming call set. A formal absent from the map has no agreed
     /// class — its guarded field read stays fail-closed.
     pub(super) object_views: BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
+    /// Complete original incoming agreement; never execution or payload permission.
+    pub(super) integer_agreements: BTreeSet<BindingRefV1>,
 }
 
 /// One incoming argument's contribution to a callee formal's class view.
 pub(super) enum FormalActualSeedV1 {
+    /// Exact source integer, distinct from bool/null and carrier payload.
+    Integer,
     /// A class-carrying actual: claim-local `new` local, the entry
     /// receiver, a sealed received nullable, or a resolved forward.
     Class(Box<str>),
@@ -77,7 +91,9 @@ pub(super) enum FormalActualSeedV1 {
     /// The caller's own opaque formal (or its copy) forwarded onward —
     /// the class resolves to that formal's view, possibly pending.
     Forward(BindingRefV1),
-    /// Scalar actual, unproven/foreign binding, or inline construction —
+    /// Outside-profile source forwards Integer only, preserving Object authority.
+    ForwardIntegerOnly(BindingRefV1),
+    /// Unsupported scalar actual, unproven/foreign binding, or inline construction —
     /// the formal's view mints no row.
     Conflict,
 }
@@ -162,12 +178,20 @@ pub(super) fn finish_ingress_from_drafts_v1(
         BTreeSet<OwnedExprSiteV1>,
     ),
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
-    let (ordinary_callers, mut definitions, dominated_view_sites) = drafts;
+    let (ordinary_callers, definitions, dominated_view_sites) = drafts;
+    let mut transport_owners: BTreeSet<_> = definitions.keys().copied().collect();
     let static_arguments = super::borrowed_static_argument::collect_static_argument_sources_v1(
-        batch, selected, contracts, &definitions, static_claims, app_main,
+        batch,
+        selected,
+        contracts,
+        &definitions,
+        static_claims,
+        app_main,
     )?;
     let static_context = static_claims.map(|claims| StaticIncomingContextV1 {
-        claims, arguments: &static_arguments, main: app_main,
+        claims,
+        arguments: &static_arguments,
+        main: app_main,
     });
     let inventory = inventory_borrowed_incoming_calls_v1(
         batch,
@@ -179,14 +203,24 @@ pub(super) fn finish_ingress_from_drafts_v1(
         static_context.as_ref(),
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
-    let call_sources = borrow_call_sources_v1(&calls, inventory.static_observations().values().filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())))?;
+    let call_sources = borrow_call_sources_v1(
+        &calls,
+        inventory
+            .static_observations()
+            .values()
+            .filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())),
+    )?;
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.
     loop {
         let mut outside = BTreeSet::new();
-        for (owner, draft) in &definitions {
-            if !call_sources.values().any(|call| call.callee_owner() == *owner) {
+        for owner in &transport_owners {
+            let draft = &definitions[owner];
+            if !call_sources
+                .values()
+                .any(|call| call.callee_owner() == *owner)
+            {
                 outside.insert(*owner);
             }
             for row in &draft.uses {
@@ -213,7 +247,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
                 {
                     return Err(freeze("borrowed-formal/forward-source-identity"));
                 }
-                if !definitions.contains_key(&contract.owner)
+                if !transport_owners.contains(&contract.owner)
                     || contract
                         .parameters
                         .get(*ordinal as usize)
@@ -227,178 +261,49 @@ pub(super) fn finish_ingress_from_drafts_v1(
             break;
         }
         for owner in outside {
-            definitions.remove(&owner);
+            transport_owners.remove(&owner);
         }
     }
+    let (mut object_views, integer_agreements, source_declared_mismatches) =
+        prepare_borrowed_formal_views_v1(
+            batch,
+            selected,
+            entry_home_loans,
+            instance_constructors,
+            callable_result_classes,
+            local_candidates,
+            contracts,
+            &definitions,
+            &transport_owners,
+            &inventory,
+        )?;
+    let definitions: BTreeMap<_, _> = definitions
+        .into_iter()
+        .filter(|(owner, _)| transport_owners.contains(owner))
+        .collect();
     let forwards = join_borrowed_forward_uses_v1(&definitions, contracts, &call_sources)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/forward-coverage")))?;
-    // After profile selection, unresolved or outside-scope incoming calls are
-    // named terminals. Never remove the selected definition to regain old ABI.
-    let incoming = inventory.project(&definitions.keys().copied().collect())
+    // Project the SAME immutable inventory; retain it for candidate activation.
+    let incoming = inventory
+        .project(&transport_owners)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
-    let object_views = prepare_borrowed_formal_object_views_v1(
-        batch,
-        selected,
-        entry_home_loans,
-        instance_constructors,
-        callable_result_classes,
-        local_candidates,
-        contracts,
-        &definitions,
-        &incoming,
-    )?;
+    if source_declared_mismatches
+        .iter()
+        .any(|formal| transport_owners.contains(&formal.owner()))
+    {
+        return Err(freeze("borrowed-view/declared-object-class"));
+    }
+    object_views.retain(|formal, _| transport_owners.contains(&formal.owner()));
     Ok(PreparedBorrowedFormalIngressV1 {
         definitions,
         dominated_view_sites,
         forwards,
         incoming,
-        static_arguments,
         source_incoming: inventory,
         object_views,
+        integer_agreements,
+        static_arguments,
     })
-}
-
-/// Co-seal every borrowed formal's object view before the declaration
-/// walk: classify each incoming argument's exact source expression — never
-/// MIR types or runtime layout — then agree the classes per callee formal
-/// across all calls, resolving forwarded chains to a fixed point. This
-/// mints admission evidence only; the physical param row still must carry
-/// the canonical object id it claims.
-#[allow(clippy::too_many_arguments)]
-fn prepare_borrowed_formal_object_views_v1(
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    selected: &VerifiedSelectedCallableBatchMapV1,
-    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
-    instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
-    local_candidates: &BTreeMap<
-        u32,
-        Result<
-            Vec<super::super::candidate::OrdinaryNewCandidate>,
-            super::super::OrdinaryNewCoSealIssueV1,
-        >,
-    >,
-    contracts: &[OwnedCallableParameterContractDeclarationV1],
-    definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    incoming: &[BorrowedIncomingCallDraftV1],
-) -> Result<BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>, String> {
-    let slots: BTreeMap<FunctionOwnerIdV1, u32> = batch
-        .declarations()
-        .map(|row| (row.owner(), row.batch_slot()))
-        .collect();
-    let mut seeds: BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>> = BTreeMap::new();
-    let mut declared = BTreeSet::new();
-    for contract in contracts
-        .iter()
-        .filter(|row| definitions.contains_key(&row.owner))
-    {
-        for formal in &contract.parameters {
-            if let CallableParameterContractKindV1::DeclaredObject(class) = &formal.kind {
-                declared.insert(formal.binding);
-                seeds
-                    .entry(formal.binding)
-                    .or_default()
-                    .push(FormalActualSeedV1::Class(class.clone()));
-            }
-        }
-    }
-    for call in incoming {
-        let caller = call.call.owner();
-        let caller_slot = slots
-            .get(&caller)
-            .ok_or_else(|| freeze("borrowed-view/caller-slot"))?;
-        let candidates = local_candidates
-            .get(caller_slot)
-            .and_then(|rows| rows.as_ref().ok())
-            .map(Vec::as_slice)
-            .unwrap_or(&[]);
-        let receiver =
-            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
-                selected,
-                batch,
-                entry_home_loans.for_batch_slot(*caller_slot),
-                *caller_slot,
-            );
-        let arguments: Vec<_> = call.arguments.to_vec();
-        batch
-            .with_lowering_input(*caller_slot, |input| {
-                for (_, site, formal) in &arguments {
-                    seeds.entry(*formal).or_default().push(classify_actual_seed(
-                        input,
-                        batch,
-                        selected,
-                        callable_result_classes,
-                        caller,
-                        candidates,
-                        receiver,
-                        definitions,
-                        contracts,
-                        site,
-                    ));
-                }
-            })
-            .map_err(|_| freeze("borrowed-view/caller-loan"))?;
-    }
-    // `Some(view)` proves agreement; `None` records a proven refusal so
-    // dependent forwards decline instead of waiting forever.
-    let mut resolved: BTreeMap<BindingRefV1, Option<BorrowedFormalObjectViewV1>> = BTreeMap::new();
-    loop {
-        let mut progressed = false;
-        for (formal, rows) in &seeds {
-            if resolved.contains_key(formal) {
-                continue;
-            }
-            let mut class: Option<Box<str>> = None;
-            let mut blocked = false;
-            let mut declined = false;
-            for seed in rows {
-                match seed {
-                    FormalActualSeedV1::Null => {}
-                    FormalActualSeedV1::Class(name) => {
-                        declined |= class.as_ref().is_some_and(|prev| prev != name);
-                        class = class.or_else(|| Some(name.clone()));
-                    }
-                    FormalActualSeedV1::Forward(origin) => match resolved.get(origin) {
-                        None => blocked = true,
-                        Some(None) => declined = true,
-                        Some(Some(view)) => {
-                            declined |= class.as_ref().is_some_and(|prev| *prev != view.class);
-                            class = class.or_else(|| Some(view.class.clone()));
-                        }
-                    },
-                    FormalActualSeedV1::Conflict => declined = true,
-                }
-            }
-            if declined {
-                resolved.insert(*formal, None);
-                progressed = true;
-            } else if !blocked {
-                let view =
-                    class.and_then(|name| object_view_for(batch, instance_constructors, &name));
-                resolved.insert(*formal, view);
-                progressed = true;
-            }
-        }
-        if !progressed {
-            // Remaining rows are cycles of unresolved forwards — they carry
-            // no seed of their own and decline like an all-null formal.
-            for formal in seeds.keys() {
-                resolved.entry(*formal).or_insert(None);
-            }
-            break;
-        }
-    }
-    for formal in &declared {
-        let view = resolved
-            .get_mut(formal)
-            .and_then(Option::as_mut)
-            .ok_or_else(|| freeze("borrowed-view/declared-object-class"))?;
-        view.declared = true;
-    }
-    Ok(resolved
-        .into_iter()
-        .filter_map(|(formal, view)| view.map(|view| (formal, view)))
-        .collect())
 }
 
 /// One incoming argument's exact source class evidence. The walk mirrors
@@ -406,7 +311,7 @@ fn prepare_borrowed_formal_object_views_v1(
 /// claim-local candidate class, the entry receiver names the owner box, a
 /// received nullable names its sealed `NullableObject` claim, and a
 /// formal-rooted binding forwards to the caller's own view. Anything else
-/// conflicts — a scalar, foreign, or unproven actual can never carry a
+/// conflicts — an Integer, foreign, or unproven actual can never carry a
 /// borrowed object class.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn classify_actual_seed(
@@ -421,17 +326,59 @@ pub(super) fn classify_actual_seed(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &SourceExprSiteV1,
 ) -> FormalActualSeedV1 {
+    classify_actual_seed_in_scope(
+        input,
+        batch,
+        selected,
+        callable_result_classes,
+        caller,
+        candidates,
+        receiver,
+        definitions,
+        contracts,
+        site,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn classify_actual_seed_in_scope(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    caller: FunctionOwnerIdV1,
+    candidates: &[super::super::candidate::OrdinaryNewCandidate],
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    site: &SourceExprSiteV1,
+    transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
+) -> FormalActualSeedV1 {
     let function = input.function();
     match function.expression_source().literal(site) {
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null) => {
             return FormalActualSeedV1::Null;
         }
+        Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => {
+            return FormalActualSeedV1::Integer;
+        }
         Some(_) => return FormalActualSeedV1::Conflict,
         None => {}
+    }
+    if function
+        .expression_source()
+        .negative_integer_immediate(site)
+        .is_some()
+    {
+        return FormalActualSeedV1::Integer;
     }
     let Some(mut binding) = arg_site_binding(input, site) else {
         return FormalActualSeedV1::Conflict;
     };
+    if value_domain::declared_integer_seed_v1(input, contracts, binding) {
+        return FormalActualSeedV1::Integer;
+    }
     let mut visited = BTreeSet::new();
     loop {
         if binding.owner() != caller || !visited.insert(binding) {
@@ -468,6 +415,7 @@ pub(super) fn classify_actual_seed(
             .get(&caller)
             .and_then(|draft| draft.origins.get(&binding))
         {
+            let candidate_only = transport_owners.is_some_and(|owners| !owners.contains(&caller));
             if let Some(class) = contracts
                 .iter()
                 .find(|row| row.owner == caller)
@@ -477,9 +425,17 @@ pub(super) fn classify_actual_seed(
                     _ => None,
                 })
             {
-                return FormalActualSeedV1::Class(class.clone());
+                return if candidate_only {
+                    FormalActualSeedV1::Conflict
+                } else {
+                    FormalActualSeedV1::Class(class.clone())
+                };
             }
-            return FormalActualSeedV1::Forward(*formal);
+            return if candidate_only {
+                FormalActualSeedV1::ForwardIntegerOnly(*formal)
+            } else {
+                FormalActualSeedV1::Forward(*formal)
+            };
         }
         match alias_source_binding(input, binding) {
             Some(next) => binding = next,
@@ -554,6 +510,44 @@ fn object_view_for(
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Source agreement only; an explicit physical projection is still required.
+    pub(in crate::mir::normal_callable_semantic_package) fn formal_integer_agreement(
+        &self,
+        formal: BindingRefV1,
+    ) -> bool {
+        self.definitions.contains_key(&formal.owner()) && self.integer_agreements.contains(&formal)
+    }
+
+    /// Complete input agreement independent of outgoing profile/transport permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn candidate_integer_agreement(
+        &self,
+        formal: BindingRefV1,
+    ) -> bool {
+        self.integer_agreements.contains(&formal)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn contains_definition_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> bool {
+        self.definitions.contains_key(&owner)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn candidate_input_inventory_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> (usize, bool) {
+        (
+            self.source_incoming
+                .exact_rows()
+                .filter(|row| row.callee == owner)
+                .count(),
+            self.source_incoming.vetoed_owners().contains(&owner),
+        )
+    }
+
     /// The co-sealed object view for one callee formal: `Some` only when
     /// every incoming actual agreed on one ordinary class.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_object_view(
@@ -627,20 +621,25 @@ impl PreparedBorrowedFormalIngressV1 {
             .collect();
         let call_sources = borrow_call_sources_v1(
             &calls,
-            self.source_incoming.static_observations().values()
+            self.source_incoming
+                .static_observations()
+                .values()
                 .filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())),
         )?;
         for incoming in &self.incoming {
             match &incoming.source {
                 BorrowedIncomingSourceV1::Instance(original) => {
-                    let source = *calls.get(&incoming.call)
+                    let source = *calls
+                        .get(&incoming.call)
                         .ok_or_else(|| freeze("borrowed-formal/final-source-missing"))?;
                     if source != original {
                         return Err(freeze("borrowed-formal/final-incoming-drift"));
                     }
                 }
                 BorrowedIncomingSourceV1::QualifiedStatic(original) => {
-                    let observed = self.source_incoming.static_observations()
+                    let observed = self
+                        .source_incoming
+                        .static_observations()
                         .get(&incoming.call)
                         .and_then(|row| row.as_ref().ok())
                         .ok_or_else(|| freeze("borrowed-formal/final-static-source-missing"))?;
@@ -692,3 +691,7 @@ mod tests;
 #[cfg(test)]
 #[path = "ordinary_new_declared_borrow_source_tests.rs"]
 mod declared_tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_formal_candidate_veto_tests.rs"]
+mod candidate_veto_tests;

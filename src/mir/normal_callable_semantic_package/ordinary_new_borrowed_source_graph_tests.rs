@@ -79,6 +79,7 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         static_observations: BTreeMap::new(),
         observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],
     };
+    assert_eq!(inventory.vetoed_owners(), inventory.owners);
     for selected in [owners, Default::default()] {
         assert_eq!(
             inventory.project(&selected).unwrap_err(),

@@ -51,6 +51,23 @@ impl BorrowedIncomingInventoryV1 {
             .iter()
             .filter_map(|(_, row)| row.as_ref().ok())
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn vetoed_owners(
+        &self,
+    ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
+        let mut vetoes = std::collections::BTreeSet::new();
+        for (owner, row) in &self.observations {
+            if row.is_err() {
+                match owner {
+                    Some(owner) => {
+                        vetoes.insert(*owner);
+                    }
+                    None => return self.owners.clone(),
+                }
+            }
+        }
+        vetoes
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project(
         &self,
         owners: &std::collections::BTreeSet<FunctionOwnerIdV1>,
