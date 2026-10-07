@@ -60,7 +60,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) incoming: Box<[BorrowedIncomingCallDraftV1]>,
     /// Raw source facts survive transport pruning; these grant no execution.
     pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<(OwnedExprSiteV1, u32), super::borrowed_static_argument::QualifiedStaticArgumentSourceV1>,
-    pub(in crate::mir::normal_callable_semantic_package) static_observations: BTreeMap<OwnedExprSiteV1, Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1>, String>>,
+    pub(in crate::mir::normal_callable_semantic_package) source_incoming: BorrowedIncomingInventoryV1,
     /// `formal -> sealed class view`, complete across the co-sealed
     /// incoming call set. A formal absent from the map has no agreed
     /// class — its guarded field read stays fail-closed.
@@ -169,13 +169,24 @@ pub(super) fn finish_ingress_from_drafts_v1(
     let static_context = static_claims.map(|claims| StaticIncomingContextV1 {
         claims, arguments: &static_arguments, main: app_main,
     });
+    let inventory = inventory_borrowed_incoming_calls_v1(
+        batch,
+        selected,
+        &definitions,
+        contracts,
+        &calls,
+        &ordinary_callers,
+        static_context.as_ref(),
+    )
+    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    let call_sources = borrow_call_sources_v1(&calls, inventory.static_observations().values().filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())))?;
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.
     loop {
         let mut outside = BTreeSet::new();
         for (owner, draft) in &definitions {
-            if !calls.values().any(|call| call.callee_owner() == *owner) {
+            if !call_sources.values().any(|call| call.callee_owner() == *owner) {
                 outside.insert(*owner);
             }
             for row in &draft.uses {
@@ -183,7 +194,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
                 else {
                     continue;
                 };
-                let Some(target) = calls.get(call) else {
+                let Some(target) = call_sources.get(call) else {
                     outside.insert(*owner);
                     continue;
                 };
@@ -219,22 +230,12 @@ pub(super) fn finish_ingress_from_drafts_v1(
             definitions.remove(&owner);
         }
     }
-    let forwards = join_borrowed_forward_uses_v1(&definitions, contracts, &calls)
+    let forwards = join_borrowed_forward_uses_v1(&definitions, contracts, &call_sources)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/forward-coverage")))?;
     // After profile selection, unresolved or outside-scope incoming calls are
     // named terminals. Never remove the selected definition to regain old ABI.
-    let inventory = inventory_borrowed_incoming_calls_v1(
-        batch,
-        selected,
-        &definitions,
-        contracts,
-        &calls,
-        &ordinary_callers,
-        static_context.as_ref(),
-    )
-    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
-    let incoming = inventory.incoming;
-    let static_observations = inventory.static_observations;
+    let incoming = inventory.project(&definitions.keys().copied().collect())
+        .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let object_views = prepare_borrowed_formal_object_views_v1(
         batch,
         selected,
@@ -252,7 +253,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         forwards,
         incoming,
         static_arguments,
-        static_observations,
+        source_incoming: inventory,
         object_views,
     })
 }
@@ -621,18 +622,39 @@ impl PreparedBorrowedFormalIngressV1 {
                 row.as_ref()
                     .ok()
                     .and_then(Option::as_ref)
-                    .map(|row| (row.call_site(), row))
+                    .map(|row| (row.call_site().clone(), row))
             })
             .collect();
+        let call_sources = borrow_call_sources_v1(
+            &calls,
+            self.source_incoming.static_observations().values()
+                .filter_map(|row| row.as_ref().ok().map(|source| source.as_ref())),
+        )?;
         for incoming in &self.incoming {
-            let source = calls
-                .get(&incoming.call)
-                .ok_or_else(|| freeze("borrowed-formal/final-source-missing"))?;
+            match &incoming.source {
+                BorrowedIncomingSourceV1::Instance(original) => {
+                    let source = *calls.get(&incoming.call)
+                        .ok_or_else(|| freeze("borrowed-formal/final-source-missing"))?;
+                    if source != original {
+                        return Err(freeze("borrowed-formal/final-incoming-drift"));
+                    }
+                }
+                BorrowedIncomingSourceV1::QualifiedStatic(original) => {
+                    let observed = self.source_incoming.static_observations()
+                        .get(&incoming.call)
+                        .and_then(|row| row.as_ref().ok())
+                        .ok_or_else(|| freeze("borrowed-formal/final-static-source-missing"))?;
+                    if !std::rc::Rc::ptr_eq(original, observed) {
+                        return Err(freeze("borrowed-formal/final-static-source-drift"));
+                    }
+                }
+            }
+            let source = incoming.source.as_loan();
             let draft = self
                 .definitions
                 .get(&incoming.callee)
                 .ok_or_else(|| freeze("borrowed-formal/final-definition-missing"))?;
-            if *source != &incoming.source
+            if source.call_site() != &incoming.call
                 || source.callee_owner() != incoming.callee
                 || incoming.arguments.iter().any(|(ordinal, site, formal)| {
                     source.argument_sites().get(*ordinal as usize) != Some(site)
@@ -643,7 +665,7 @@ impl PreparedBorrowedFormalIngressV1 {
             }
         }
         for forward in &self.forwards {
-            let source = calls
+            let source = call_sources
                 .get(&forward.call)
                 .ok_or_else(|| freeze("borrowed-formal/final-source-missing"))?;
             if source.target() != &forward.target

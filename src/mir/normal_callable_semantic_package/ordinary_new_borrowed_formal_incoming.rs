@@ -8,10 +8,63 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct BorrowedIncomingInventoryV1
 {
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) incoming:
-        Box<[BorrowedIncomingCallDraftV1]>,
+    owners: std::collections::BTreeSet<FunctionOwnerIdV1>,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) static_observations:
         BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1>,
+    observations: Vec<(
+        Option<FunctionOwnerIdV1>,
+        Result<BorrowedIncomingCallDraftV1, BorrowedIncomingDraftErrorV1>,
+    )>,
+}
+impl BorrowedIncomingInventoryV1 {
+    /// Orphan proof requires a complete scan. A global loan failure remains
+    /// retained and fails every final projection, including the empty set.
+    fn corroborate_scan_completeness(
+        &self,
+        seen: &std::collections::BTreeSet<OwnedExprSiteV1>,
+        context: Option<&StaticIncomingContextV1<'_>>,
+    ) -> Result<(), BorrowedIncomingDraftErrorV1> {
+        if self.observations.iter().any(|(owner, row)| {
+            owner.is_none() && matches!(row, Err(BorrowedIncomingDraftErrorV1::BatchLoan))
+        }) {
+            return Ok(());
+        }
+        if context.is_some_and(|context| {
+            context
+                .arguments
+                .keys()
+                .any(|(site, _)| !seen.contains(site))
+        }) {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_observations(
+        &self,
+    ) -> &BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1> {
+        &self.static_observations
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn exact_rows(
+        &self,
+    ) -> impl Iterator<Item = &BorrowedIncomingCallDraftV1> {
+        self.observations
+            .iter()
+            .filter_map(|(_, row)| row.as_ref().ok())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project(
+        &self,
+        owners: &std::collections::BTreeSet<FunctionOwnerIdV1>,
+    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
+        if !owners.is_subset(&self.owners) {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        self.observations
+            .iter()
+            .filter(|(owner, _)| owner.is_none_or(|owner| owners.contains(&owner)))
+            .map(|(_, row)| row.clone())
+            .collect::<Result<Vec<_>, _>>()
+            .map(Vec::into_boxed_slice)
+    }
 }
 
 /// Enumerate the complete source batch, including unselected callers. An
@@ -58,99 +111,125 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     let mut static_observations = BTreeMap::new();
     let mut static_seen = std::collections::BTreeSet::new();
-    let mut rows = Vec::new();
+    let mut observations = Vec::new();
     let mut seen = std::collections::BTreeSet::new();
     for declaration in batch.declarations() {
-        batch
-            .with_lowering_input(declaration.batch_slot(), |input| {
-                for (site, call) in input.function().method_calls() {
-                    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-                    static_seen.insert(owned.clone());
-                    if let Some(context) = static_context {
-                        if let Some(row) = context.observe(
-                            declaration.batch_slot(),
-                            &owned,
-                            call,
-                            selected,
-                            contracts,
-                        )? {
-                            if static_observations.insert(owned.clone(), row).is_some() {
-                                return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned));
-                            }
-                        }
-                    }
-                    let exact = calls.get(&owned);
-                    for (callee, (contract, key)) in &definitions {
-                        if call.selector() != key.name() || call.arity() != key.arity() {
-                            continue;
-                        }
-                        let Some(exact) = exact else {
-                            return Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(owned));
-                        };
-                        // A proven different receiver class is not an incoming
-                        // edge of this definition, despite the same method name.
-                        if exact.target() != *key {
-                            continue;
-                        }
-                        if !ordinary_callers.contains(&input.owner()) {
-                            return Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(owned));
-                        }
-                        if exact.call_site() != &owned
-                            || exact.callee_owner() != *callee
-                            || exact.target_batch_slot() != contract.batch_slot
-                            || call.owner() != input.owner()
-                            || call.site() != site
-                            || call.arguments().len() != contract.parameters.len()
-                            || exact.argument_sites().len() != call.arguments().len()
-                            || !call
-                                .arguments()
-                                .iter()
-                                .enumerate()
-                                .all(|(ordinal, argument)| {
-                                    argument.ordinal() as usize == ordinal
-                                        && exact.argument_sites()[ordinal] == *argument.site()
-                                        && contract.parameters[ordinal].ordinal as usize == ordinal
-                                })
-                        {
+        let loan = batch.with_lowering_input(declaration.batch_slot(), |input| {
+            for (site, call) in input.function().method_calls() {
+                let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+                static_seen.insert(owned.clone());
+                if let Some(context) = static_context {
+                    if let Some(row) = context.observe(
+                        declaration.batch_slot(),
+                        &owned,
+                        call,
+                        selected,
+                        contracts,
+                    )? {
+                        if static_observations.insert(owned.clone(), row).is_some() {
                             return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned));
                         }
-                        let arguments = call
+                    }
+                }
+                let exact = calls.get(&owned);
+                for (callee, (contract, key)) in &definitions {
+                    if call.selector() != key.name() || call.arity() != key.arity() {
+                        continue;
+                    }
+                    let Some(exact) = exact else {
+                        observations.push((
+                            Some(*callee),
+                            Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(
+                                owned.clone(),
+                            )),
+                        ));
+                        continue;
+                    };
+                    // A proven different receiver class is not an incoming
+                    // edge of this definition, despite the same method name.
+                    if exact.target() != *key {
+                        continue;
+                    }
+                    if !ordinary_callers.contains(&input.owner()) {
+                        observations.push((
+                            Some(*callee),
+                            Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(
+                                owned.clone(),
+                            )),
+                        ));
+                        continue;
+                    }
+                    if exact.call_site() != &owned
+                        || exact.callee_owner() != *callee
+                        || exact.target_batch_slot() != contract.batch_slot
+                        || call.owner() != input.owner()
+                        || call.site() != site
+                        || call.arguments().len() != contract.parameters.len()
+                        || exact.argument_sites().len() != call.arguments().len()
+                        || !call
                             .arguments()
                             .iter()
-                            .zip(&contract.parameters)
-                            .filter(|(_, formal)| formal.kind.is_ordinary_borrowed_handle())
-                            .map(|(argument, formal)| {
-                                (argument.ordinal(), argument.site().clone(), formal.binding)
+                            .enumerate()
+                            .all(|(ordinal, argument)| {
+                                argument.ordinal() as usize == ordinal
+                                    && exact.argument_sites()[ordinal] == *argument.site()
+                                    && contract.parameters[ordinal].ordinal as usize == ordinal
                             })
-                            .collect();
-                        rows.push(BorrowedIncomingCallDraftV1 {
-                            source: (*exact).clone(),
+                    {
+                        observations.push((
+                            Some(*callee),
+                            Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone())),
+                        ));
+                        continue;
+                    }
+                    let arguments = call
+                        .arguments()
+                        .iter()
+                        .zip(&contract.parameters)
+                        .filter(|(_, formal)| formal.kind.is_ordinary_borrowed_handle())
+                        .map(|(argument, formal)| {
+                            (argument.ordinal(), argument.site().clone(), formal.binding)
+                        })
+                        .collect();
+                    observations.push((
+                        Some(*callee),
+                        Ok(BorrowedIncomingCallDraftV1 {
+                            source: BorrowedIncomingSourceV1::Instance((*exact).clone()),
                             call: owned.clone(),
                             callee: *callee,
                             arguments,
-                        });
-                        seen.insert(*callee);
-                    }
+                        }),
+                    ));
+                    seen.insert(*callee);
                 }
-                Ok(())
-            })
-            .map_err(|_| BorrowedIncomingDraftErrorV1::BatchLoan)??;
+            }
+            Ok(())
+        });
+        match loan {
+            Ok(result) => result?,
+            Err(_) => {
+                observations.push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
+                break;
+            }
+        }
     }
     for owner in definitions.keys() {
         if !seen.contains(owner) {
-            return Err(BorrowedIncomingDraftErrorV1::NoIncoming(*owner));
+            observations.push((
+                Some(*owner),
+                Err(BorrowedIncomingDraftErrorV1::NoIncoming(*owner)),
+            ));
         }
     }
-    if static_context.is_some_and(|context| {
-        context
-            .arguments
-            .keys()
-            .any(|(site, _)| !static_seen.contains(site))
-    }) {
-        return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-    }
-    Ok(BorrowedIncomingInventoryV1 {
-        incoming: rows.into_boxed_slice(),
+    let inventory = BorrowedIncomingInventoryV1 {
+        owners: drafts.keys().copied().collect(),
+        observations,
         static_observations,
-    })
+    };
+    inventory.corroborate_scan_completeness(&static_seen, static_context)?;
+    Ok(inventory)
 }
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_source_graph_tests.rs"]
+mod tests;

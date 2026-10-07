@@ -166,7 +166,7 @@ pub(super) struct BorrowedForwardUseDraftRowV1 {
     pub(super) callee_formal: BindingRefV1,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum BorrowedIncomingDraftErrorV1 {
     SourceIdentity,
     BatchLoan,
@@ -176,17 +176,24 @@ pub(super) enum BorrowedIncomingDraftErrorV1 {
     NoIncoming(FunctionOwnerIdV1),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(super) struct BorrowedIncomingCallDraftV1 {
-    pub(super) source: super::LexicalInstanceCallSourceTargetV1,
+    pub(super) source: BorrowedIncomingSourceV1,
     pub(super) call: OwnedExprSiteV1,
     pub(super) callee: FunctionOwnerIdV1,
     pub(super) arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
 }
 
+#[path = "ordinary_new_borrowed_call_source.rs"]
+mod call_source;
+pub(super) use call_source::{borrow_call_sources_v1, BorrowedCallSourceLoanV1};
+#[path = "ordinary_new_borrowed_incoming_source.rs"]
+mod incoming_source;
+pub(super) use incoming_source::BorrowedIncomingSourceV1;
+
 #[path = "ordinary_new_borrowed_formal_incoming.rs"]
 mod incoming;
-pub(super) use incoming::{inventory_borrowed_incoming_calls_v1, StaticIncomingContextV1};
+pub(super) use incoming::{inventory_borrowed_incoming_calls_v1, BorrowedIncomingInventoryV1, StaticIncomingContextV1};
 
 /// Existing direct-test adapter uses the same whole-batch scan.
 #[cfg(test)]
@@ -200,7 +207,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
 ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
     inventory_borrowed_incoming_calls_v1(
         batch, selected, drafts, contracts, calls, ordinary_callers, None,
-    ).map(|inventory| inventory.incoming)
+    )?.project(&drafts.keys().copied().collect())
 }
 
 /// Join every unresolved argument to the existing exact lexical disposition
@@ -210,7 +217,7 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
 pub(super) fn join_borrowed_forward_uses_v1(
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
-    calls: &BTreeMap<OwnedExprSiteV1, &super::LexicalInstanceCallSourceTargetV1>,
+    calls: &BTreeMap<OwnedExprSiteV1, BorrowedCallSourceLoanV1<'_>>,
 ) -> Result<Box<[BorrowedForwardUseDraftRowV1]>, BorrowedForwardJoinDraftErrorV1> {
     let mut rows = Vec::new();
     for (owner, draft) in drafts {
@@ -229,8 +236,7 @@ pub(super) fn join_borrowed_forward_uses_v1(
                 || use_row.formal.owner() != *owner
                 || draft.origins.get(&use_row.binding) != Some(&use_row.formal)
                 || exact_call.call_site() != call
-                || exact_call.target().namespace()
-                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                || exact_call.target().namespace() != exact_call.namespace()
                 || exact_call.argument_sites().get(*ordinal as usize) != Some(use_row.site.site())
             {
                 return Err(BorrowedForwardJoinDraftErrorV1::CallIdentity(error_site));
@@ -246,7 +252,7 @@ pub(super) fn join_borrowed_forward_uses_v1(
             })?;
             if matching.next().is_some()
                 || contract.batch_slot != exact_call.target_batch_slot()
-                || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+                || contract.mode != exact_call.declaration_mode()
                 || contract.parameters.len() != exact_call.argument_sites().len()
                 || contract.parameters.len() != exact_call.target().arity() as usize
             {

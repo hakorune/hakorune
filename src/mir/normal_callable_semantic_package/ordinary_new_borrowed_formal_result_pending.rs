@@ -632,7 +632,7 @@ fn seal_one(
         let actual = incoming
             .next()
             .ok_or_else(|| freeze("borrowed-result/source-not-i64"))?;
-        let target = &actual.source;
+        let target = actual.source.require_instance()?;
         if incoming.next().is_some()
             || CallTargetReferenceV1::from_target(target) != row.reference
             || actual.callee != row.reference.callee_owner

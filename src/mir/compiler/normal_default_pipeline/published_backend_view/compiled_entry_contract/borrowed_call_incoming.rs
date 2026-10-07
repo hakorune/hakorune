@@ -156,6 +156,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 return Err(fault("borrowed-incoming/entry-coverage"));
             }
             for target in entry.incoming_targets() {
+                let target = target?;
                 if target.target() != row.target() || target.callee_owner() != row.callee_owner() {
                     return Err(fault("borrowed-incoming/source-target"));
                 }

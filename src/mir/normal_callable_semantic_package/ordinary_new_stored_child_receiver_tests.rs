@@ -25,7 +25,7 @@ fn stored_child_receiver_corroboration_rejects_identity_drift() {
         let mut prepared: Vec<_> = borrowed
             .incoming
             .iter()
-            .map(|row| Ok(Some(row.source.clone())))
+            .map(|row| Ok(Some(row.source.require_instance().unwrap().clone())))
             .collect();
         borrowed.corroborate_source_targets(&prepared).unwrap();
         let indices: Vec<_> = prepared

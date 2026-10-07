@@ -560,7 +560,7 @@ fn exact_lexical_forward_join_retains_both_formal_identities() {
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| {
         match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
+            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
             _ => None,
         }
     }).collect();
@@ -586,7 +586,7 @@ fn finite_mutual_forward_join_does_not_assume_unvisited_owner_success() {
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| {
         match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
+            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
             _ => None,
         }
     }).collect();

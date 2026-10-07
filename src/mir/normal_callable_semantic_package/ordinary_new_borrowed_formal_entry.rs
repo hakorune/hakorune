@@ -149,12 +149,12 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     /// Loan the original target, including its source owner and batch identity.
     pub(crate) fn incoming_targets(
         &self,
-    ) -> impl Iterator<Item = &super::LexicalInstanceCallSourceTargetV1> {
+    ) -> impl Iterator<Item = Result<&super::LexicalInstanceCallSourceTargetV1, String>> {
         self.source
             .incoming
             .iter()
             .filter(move |row| row.callee == self.owner)
-            .map(|row| &row.source)
+            .map(|row| row.source.require_instance())
     }
 }
 
@@ -300,7 +300,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         if incoming.next().is_some()
             || call.callee != row.callee_owner()
-            || row.source_target() != &call.source
+            || row.source_target() != call.source.require_instance()?
             || row.argument_sites().len() != row.target().arity() as usize
             || call
                 .arguments
@@ -435,3 +435,7 @@ pub(crate) use entry_values::BorrowedCompareSourceLoanV1;
 pub(in crate::mir) use entry_values::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use entry_values::BorrowedCompareIntegerLiteralMaterializationV1;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_incoming_kind_tests.rs"]
+mod incoming_kind_tests;

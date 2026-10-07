@@ -55,7 +55,7 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
             .unwrap()
             .incoming
             .iter()
-            .map(|row| Ok(Some(row.source.clone())))
+            .map(|row| Ok(Some(row.source.require_instance().unwrap().clone())))
             .collect();
         ledger.corroborate_borrowed_result_cohort_v1(&original, &package.result_contracts);
         let callers: Vec<_> = ledger

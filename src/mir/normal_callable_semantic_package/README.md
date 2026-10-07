@@ -66,6 +66,18 @@ incoming rows, mint integer agreement, or grant Executable/physical entry.
 Missing fact identities and orphan coordinates fail closed. Existing transport
 closure, forward join and object-view solve retain their own contracts.
 
+## Original incoming source graph
+
+One whole-batch scan retains raw accepted Instance definitions' exact incoming
+rows and callee-specific vetoes before transport closure. The final callee set
+projects the same immutable inventory; it never filters callers to obtain
+agreement, and global batch-loan errors remain global. Instance and qualified
+Static sources keep their original owned record or shared Rc. The existing
+finite closure, forward join and final source corroboration borrow their common
+coordinates. Static destinations remain outside accepted definitions until their
+separate contracts close. Receiver/object-only consumers explicitly require
+Instance; physical iterator errors reach both independent verifiers.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

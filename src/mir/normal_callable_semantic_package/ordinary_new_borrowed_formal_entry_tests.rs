@@ -585,7 +585,7 @@ fn final_entry_loan_retains_original_targets_and_rechecks_recorded_values() {
             .as_ref()
             .unwrap();
         for (target, original) in loan.incoming_targets().zip(source.incoming.iter()) {
-            assert!(std::ptr::eq(target, &original.source));
+            assert!(std::ptr::eq(target.unwrap(), original.source.require_instance().unwrap()));
         }
     }
     assert!(ledger

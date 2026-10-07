@@ -97,6 +97,7 @@ pub(super) fn original_call_slots(
                 return Err("borrowed-source-entry-coverage".into());
             }
             for target in entry.incoming_targets() {
+                let target = target?;
                 if target.target() != row.target() || target.callee_owner() != row.callee_owner() {
                     return Err("borrowed-source-target-drift".into());
                 }

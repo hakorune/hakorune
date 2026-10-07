@@ -33,7 +33,7 @@ fn pending_stored_result_rejects_projection_and_completion_permission() {
         let prepared: Vec<_> = source
             .incoming
             .iter()
-            .map(|row| Ok(Some(row.source.clone())))
+            .map(|row| Ok(Some(row.source.require_instance().unwrap().clone())))
             .collect();
         let proof = ledger
             .borrowed_i64_results

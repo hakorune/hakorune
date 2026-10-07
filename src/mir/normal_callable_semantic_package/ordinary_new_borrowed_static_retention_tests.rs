@@ -25,7 +25,7 @@ fn static_retention_keeps_raw_opaque_facts_and_literal_sibling_after_pruning() {
         .as_ref()
         .unwrap();
     assert_eq!(ingress.static_arguments.len(), 2);
-    assert_eq!(ingress.static_observations.len(), 2);
+    assert_eq!(ingress.source_incoming.static_observations().len(), 2);
     let facts: Vec<_> = ingress.static_arguments.values().collect();
     assert!(Rc::ptr_eq(
         facts[0].retained_call_source(),
@@ -38,7 +38,7 @@ fn static_retention_keeps_raw_opaque_facts_and_literal_sibling_after_pruning() {
     assert_eq!(facts[0].ordinal(), 0);
     assert_eq!(facts[1].ordinal(), 1);
     assert!(Rc::ptr_eq(
-        ingress.static_observations[source.call_site()]
+        ingress.source_incoming.static_observations()[source.call_site()]
             .as_ref()
             .unwrap(),
         facts[0].retained_call_source()
@@ -90,7 +90,8 @@ fn static_retention_main_literal_observation_uses_original_main_loan() {
         .find(|row| main.matches_contract(row))
         .unwrap();
     let observations: Vec<_> = ingress
-        .static_observations
+        .source_incoming
+        .static_observations()
         .iter()
         .filter(|(site, _)| site.owner() == main_contract.owner)
         .collect();
@@ -140,21 +141,21 @@ fn static_retention_missing_main_authority_is_retained_error() {
         Some(&context),
     )
     .unwrap();
-    assert_eq!(inventory.static_observations.len(), 2);
+    assert_eq!(inventory.static_observations().len(), 2);
     assert_eq!(
         inventory
-            .static_observations
+            .static_observations()
             .values()
             .filter(|row| row.is_err())
             .count(),
         1
     );
     assert!(inventory
-        .static_observations
+        .static_observations()
         .values()
         .filter_map(|row| row.as_ref().err())
         .all(|error| error.contains("caller-key-unavailable")));
-    assert!(inventory.incoming.is_empty());
+    assert!(inventory.exact_rows().next().is_none());
 }
 
 #[test]
@@ -325,12 +326,12 @@ fn static_retention_absent_claim_keeps_unavailable_observation() {
         Some(&context),
     )
     .unwrap();
-    assert_eq!(inventory.static_observations.len(), 2);
+    assert_eq!(inventory.static_observations().len(), 2);
     assert!(inventory
-        .static_observations
+        .static_observations()
         .values()
         .all(|row| row.as_ref().unwrap_err().contains("claim-unavailable")));
-    assert!(inventory.incoming.is_empty());
+    assert!(inventory.exact_rows().next().is_none());
     assert!(borrow_app_main_source_v1(package.batch(), None)
         .unwrap()
         .is_none());
