@@ -149,6 +149,16 @@ impl super::MirBuilder {
         lhs_raw: ValueId,
         rhs_raw: ValueId,
     ) -> Result<ValueId, String> {
+        self.build_binary_op_from_values_recorded(operator, lhs_raw, rhs_raw)
+            .map(|completed| completed.value())
+    }
+
+    pub(in crate::mir::builder) fn build_binary_op_from_values_recorded(
+        &mut self,
+        operator: BinaryOperator,
+        lhs_raw: ValueId,
+        rhs_raw: ValueId,
+    ) -> Result<CompletedOrdinaryBinaryV1, String> {
         let mir_op = converters::convert_binary_operator(operator)?;
 
         match mir_op {
@@ -157,9 +167,36 @@ impl super::MirBuilder {
                 let lhs = crate::mir::builder::ssa::local::arg(self, lhs_raw);
                 let rhs = crate::mir::builder::ssa::local::arg(self, rhs_raw);
                 arithmetic::build_arithmetic_op(self, op, lhs, rhs)
+                    .map(|value| CompletedOrdinaryBinaryV1::Arithmetic(value))
             }
             // Comparison operations
-            BinaryOpType::Comparison(op) => self.build_comparison_op(op, lhs_raw, rhs_raw),
+            BinaryOpType::Comparison(op) => self
+                .build_comparison_op_recorded(op, lhs_raw, rhs_raw)
+                .map(CompletedOrdinaryBinaryV1::Comparison),
+        }
+    }
+}
+
+/// Ordered Binary completion keeps the original Compare only when one was
+/// actually emitted. Arithmetic never fabricates a comparison observation.
+#[derive(Debug)]
+pub(in crate::mir::builder) enum CompletedOrdinaryBinaryV1 {
+    Arithmetic(ValueId),
+    Comparison(comparison::CompletedOrdinaryComparisonV1),
+}
+impl CompletedOrdinaryBinaryV1 {
+    pub(in crate::mir::builder) fn value(&self) -> ValueId {
+        match self {
+            Self::Arithmetic(value) => *value,
+            Self::Comparison(completed) => completed.value,
+        }
+    }
+    pub(in crate::mir::builder) fn comparison_original(
+        &self,
+    ) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
+        match self {
+            Self::Comparison(completed) => Some(completed.original()),
+            Self::Arithmetic(_) => None,
         }
     }
 }

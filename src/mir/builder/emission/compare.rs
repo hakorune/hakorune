@@ -13,12 +13,24 @@ pub fn emit_to(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<(), String> {
+    emit_to_recorded(b, dst, op, lhs, rhs).map(|_| ())
+}
+
+/// The same append lends its immutable original tuple after operand finalization.
+/// This physical observation carries no source identity or admission permission.
+pub(in crate::mir::builder) fn emit_to_recorded(
+    b: &mut MirBuilder,
+    dst: ValueId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(crate::mir::BasicBlockId, MirInstruction), String> {
     require_existing_current_compare_block(b)?;
     let block = b
         .function_state
         .current_block
         .expect("current block validated");
-    emit_to_at(b, block, dst, op, lhs, rhs)
+    emit_to_at_recorded(b, block, dst, op, lhs, rhs)
 }
 
 #[inline]
@@ -30,13 +42,25 @@ pub(in crate::mir::builder) fn emit_to_at(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<(), String> {
+    emit_to_at_recorded(b, block, dst, op, lhs, rhs).map(|_| ())
+}
+
+fn emit_to_at_recorded(
+    b: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    dst: ValueId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(crate::mir::BasicBlockId, MirInstruction), String> {
     require_existing_compare_block(b, block)?;
     let prepared =
         PreparedCanonicalCompareBoolTypeV1::prepare(b.function_state.type_ctx.get_type(dst))
             .map_err(|error| error.to_string())?;
-    b.emit_instruction_at(block, MirInstruction::Compare { dst, op, lhs, rhs })?;
+    let instruction = MirInstruction::Compare { dst, op, lhs, rhs };
+    b.emit_instruction_at(block, instruction.clone())?;
     prepared.commit(dst, &mut b.function_state.type_ctx);
-    Ok(())
+    Ok((block, instruction))
 }
 
 fn require_existing_current_compare_block(builder: &MirBuilder) -> Result<(), String> {

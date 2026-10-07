@@ -63,6 +63,15 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
         &self,
         input: &Self::BinaryInput,
     ) -> Result<Self::ExpressionInput, String>;
+
+    /// Observation of the same finalized append; the default issues no source
+    /// proof. Source-scoped consumers must corroborate their retained loan.
+    fn complete_binary_expression_v1(
+        &mut self,
+        _completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 impl<Port> BinaryExpressionDescentPortV1 for Port
@@ -113,5 +122,7 @@ where
     let right_input = port.binary_right_input(input)?;
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
-    builder.build_binary_op_from_values(operator, left, right)
+    let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
+    port.complete_binary_expression_v1(&completed)?;
+    Ok(completed.value())
 }

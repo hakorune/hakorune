@@ -1666,3 +1666,11 @@ flag, default off. The raw claim port observes its single affine take and
 prepare result; raw construction reports its existing receiver/arguments.
 Trace context has no admission, source ownership or physical binding authority.
 It must not take claims again, issue substitute proofs or alter rejection.
+
+Ordinary Binary descent now retains the same structured completion after its
+ordered children. The existing comparison owner finalizes SSA and borrows the
+shared Compare append's immutable original `(block, instruction)` tuple;
+compatibility APIs return the same value and arithmetic carries no Compare.
+The completion port hook grants no source identity or semantic permission.
+Exact source loans and mandatory FinishedBindings correspondence remain required
+before using this observation to admit new borrowed comparison operators.

@@ -37,6 +37,9 @@ struct RecordingBinaryPortV1 {
     events: RefCell<Vec<&'static str>>,
     failure: FailureV1,
     emit_child_values: bool,
+    completions: Vec<Option<(crate::mir::BasicBlockId, MirInstruction)>>,
+    fail_completion: bool,
+    child_values: Vec<ValueId>,
 }
 
 impl RecordingBinaryPortV1 {
@@ -45,6 +48,9 @@ impl RecordingBinaryPortV1 {
             events: RefCell::new(Vec::new()),
             failure,
             emit_child_values: true,
+            completions: Vec::new(),
+            fail_completion: false,
+            child_values: Vec::new(),
         }
     }
 
@@ -53,6 +59,9 @@ impl RecordingBinaryPortV1 {
             events: RefCell::new(Vec::new()),
             failure: FailureV1::None,
             emit_child_values: false,
+            completions: Vec::new(),
+            fail_completion: false,
+            child_values: Vec::new(),
         }
     }
 
@@ -97,19 +106,33 @@ impl RecursiveChildLoweringPortV1 for RecordingBinaryPortV1 {
                 }
             }
         }
-        if self.emit_child_values {
-            crate::mir::builder::emission::constant::emit_integer(builder, input.value)
+        let value = if self.emit_child_values {
+            crate::mir::builder::emission::constant::emit_integer(builder, input.value)?
         } else {
-            Ok(ValueId(match input.side {
+            ValueId(match input.side {
                 SideV1::Left => 0,
                 SideV1::Right => 1,
-            }))
-        }
+            })
+        };
+        self.child_values.push(value);
+        Ok(value)
     }
 }
 
 impl BinaryExpressionDescentPortV1 for RecordingBinaryPortV1 {
     type BinaryInput = BinaryInputV1;
+
+    fn complete_binary_expression_v1(
+        &mut self,
+        completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.completions
+            .push(completed.comparison_original().cloned());
+        if self.fail_completion {
+            return Err("completion-refused".into());
+        }
+        Ok(())
+    }
 
     fn binary_syntax<'input>(
         &self,
@@ -356,4 +379,168 @@ fn terminal_failure_occurs_after_both_children_without_retry() {
     let mut fresh_port = RecordingBinaryPortV1::new(FailureV1::None);
     drive(&mut fresh_builder, &mut fresh_port, BinaryOperator::Add).unwrap();
     assert_eq!(fresh_port.events().len(), 5);
+}
+
+#[test]
+fn binary_completion_retains_same_emitted_compare_and_never_fabricates_arithmetic_compare() {
+    for operator in [
+        BinaryOperator::Greater,
+        BinaryOperator::LessEqual,
+        BinaryOperator::Add,
+    ] {
+        let mut builder = builder("binary_completion_original/0");
+        let mut port = RecordingBinaryPortV1::new(FailureV1::None);
+        let expected = match operator {
+            BinaryOperator::Greater => Some(CompareOp::Gt),
+            BinaryOperator::LessEqual => Some(CompareOp::Le),
+            _ => None,
+        };
+        let is_compare = expected.is_some();
+        let output = drive(&mut builder, &mut port, operator).unwrap();
+        assert_eq!(
+            port.events().len(),
+            5,
+            "children observed once in source order"
+        );
+        assert_eq!(port.completions.len(), 1);
+        if is_compare {
+            let (block, original) = port.completions[0].as_ref().unwrap();
+            assert!(matches!(original, MirInstruction::Compare { dst, .. } if *dst == output));
+            let MirInstruction::Compare { op, lhs, rhs, .. } = original else {
+                unreachable!()
+            };
+            assert_eq!(Some(*op), expected);
+            let rows = instructions(&builder);
+            for (final_value, child_value) in [*lhs, *rhs].into_iter().zip(&port.child_values) {
+                let constant = |value| {
+                    rows.iter()
+                        .find_map(|row| match row {
+                            MirInstruction::Const {
+                                dst,
+                                value: literal,
+                            } if *dst == value => Some(literal),
+                            _ => None,
+                        })
+                        .expect("original or rematerialized integer literal")
+                };
+                assert_eq!(
+                    constant(final_value),
+                    constant(*child_value),
+                    "ordered child source survives SSA rematerialization"
+                );
+            }
+            let function = builder.function_state.current_function.as_ref().unwrap();
+            assert_eq!(
+                function.blocks[block]
+                    .instructions
+                    .iter()
+                    .filter(|row| *row == original)
+                    .count(),
+                1
+            );
+            assert_eq!(
+                instructions(&builder)
+                    .iter()
+                    .filter(|row| matches!(row, MirInstruction::Compare { .. }))
+                    .count(),
+                1
+            );
+            assert_eq!(
+                builder.function_state.type_ctx.get_type(output),
+                Some(&MirType::Bool)
+            );
+        } else {
+            assert!(port.completions[0].is_none());
+        }
+    }
+}
+
+#[test]
+fn binary_completion_is_not_called_before_children_or_retried_after_refusal() {
+    let mut builder = builder("binary_completion_early_failure/0");
+    let mut early = RecordingBinaryPortV1::new(FailureV1::RightLowering);
+    assert!(drive(&mut builder, &mut early, BinaryOperator::LessEqual).is_err());
+    assert!(early.completions.is_empty());
+    assert!(!instructions(&builder)
+        .iter()
+        .any(|row| matches!(row, MirInstruction::Compare { .. })));
+
+    let mut builder = self::builder("binary_completion_late_failure/0");
+    let mut late = RecordingBinaryPortV1::new(FailureV1::None);
+    late.fail_completion = true;
+    assert!(drive(&mut builder, &mut late, BinaryOperator::LessEqual)
+        .unwrap_err()
+        .contains("completion-refused"));
+    assert_eq!(late.events().len(), 5);
+    assert_eq!(late.completions.len(), 1);
+    assert_eq!(
+        instructions(&builder)
+            .iter()
+            .filter(|row| matches!(row, MirInstruction::Compare { .. }))
+            .count(),
+        1
+    );
+}
+
+#[test]
+fn binary_comparison_completion_keeps_final_ssa_operands_after_cross_block_materialization() {
+    let mut builder = builder("binary_completion_final_ssa/0");
+    let lhs = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
+    let rhs = crate::mir::builder::emission::constant::emit_integer(&mut builder, 3).unwrap();
+    let target = crate::mir::BasicBlockId(1);
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .unwrap()
+        .add_block(crate::mir::BasicBlock::new(target));
+    builder
+        .emit_instruction(MirInstruction::Jump {
+            target,
+            edge_args: None,
+        })
+        .unwrap();
+    builder.function_state.current_block = Some(target);
+    let completed = builder
+        .build_binary_op_from_values_recorded(BinaryOperator::LessEqual, lhs, rhs)
+        .unwrap();
+    let (block, original) = completed.comparison_original().unwrap();
+    assert_eq!(*block, target);
+    let MirInstruction::Compare {
+        dst,
+        op,
+        lhs: final_lhs,
+        rhs: final_rhs,
+    } = original
+    else {
+        unreachable!()
+    };
+    assert_eq!(*dst, completed.value());
+    assert_eq!(*op, CompareOp::Le);
+    assert_ne!(
+        (*final_lhs, *final_rhs),
+        (lhs, rhs),
+        "finalized values rather than raw child IDs"
+    );
+    let body = &builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&target];
+    assert_eq!(
+        body.instructions
+            .iter()
+            .filter(|row| *row == original)
+            .count(),
+        1
+    );
+    for value in [final_lhs, final_rhs] {
+        assert!(
+            body.instructions
+                .iter()
+                .any(|row| row.dst_value() == Some(*value)),
+            "SSA operand is defined in comparison block"
+        );
+    }
 }

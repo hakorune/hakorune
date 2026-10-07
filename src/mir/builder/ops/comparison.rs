@@ -30,13 +30,15 @@ impl super::super::MirBuilder {
     /// - `op`: Comparison operator (Eq, Ne, Lt, Le, Gt, Ge)
     /// - `lhs`, `rhs`: Operand ValueIds (already slotified by caller if needed)
     ///
-    /// **Returns**: ValueId of comparison result (typed as Bool)
-    pub(in crate::mir::builder) fn build_comparison_op(
+    /// **Returns**: Bool value with its immutable original append observation.
+    /// Retain the final SSA operands and exact shared-emitter tuple for the
+    /// source-scoped Binary consumer. The Binary value facade borrows this core.
+    pub(in crate::mir::builder) fn build_comparison_op_recorded(
         &mut self,
         op: CompareOp,
         lhs: ValueId,
         rhs: ValueId,
-    ) -> Result<ValueId, String> {
+    ) -> Result<CompletedOrdinaryComparisonV1, String> {
         let dst = self.next_value_id();
 
         // The legacy Builder operator-call route is rejected at compiler
@@ -78,8 +80,24 @@ impl super::super::MirBuilder {
         let mut lhs2 = lhs2_raw;
         let mut rhs2 = rhs2_raw;
         crate::mir::builder::ssa::local::finalize_compare(self, &mut lhs2, &mut rhs2)?;
-        crate::mir::builder::emission::compare::emit_to(self, dst, op, lhs2, rhs2)?;
+        let original =
+            crate::mir::builder::emission::compare::emit_to_recorded(self, dst, op, lhs2, rhs2)?;
 
-        Ok(dst)
+        Ok(CompletedOrdinaryComparisonV1 {
+            value: dst,
+            original,
+        })
+    }
+}
+
+/// Immutable physical append observation; not a semantic or source receipt.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CompletedOrdinaryComparisonV1 {
+    pub(super) value: ValueId,
+    original: (crate::mir::BasicBlockId, MirInstruction),
+}
+impl CompletedOrdinaryComparisonV1 {
+    pub(in crate::mir::builder) fn original(&self) -> &(crate::mir::BasicBlockId, MirInstruction) {
+        &self.original
     }
 }
