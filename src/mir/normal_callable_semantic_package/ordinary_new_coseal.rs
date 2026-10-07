@@ -80,6 +80,7 @@ mod lexical_instance_call;
 mod local_commit;
 pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
+pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };

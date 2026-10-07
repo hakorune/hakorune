@@ -51,9 +51,22 @@ pub(super) struct BorrowedCompareSourceV1 {
     left: OwnedExprSiteV1,
     right: OwnedExprSiteV1,
     integer_literal: Option<(OwnedExprSiteV1, i64)>,
+    envelope:
+        &'static crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1,
 }
 
 impl BorrowedCompareSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn comparison_parts(
+        &self,
+    ) -> (
+        crate::mir::resolved_semantics::ResolvedBinaryOperatorV1,
+        &OwnedExprSiteV1,
+        &OwnedExprSiteV1,
+        &'static crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1,
+    ) {
+        (self.operator, &self.left, &self.right, self.envelope)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn integer_literal(
         &self,
     ) -> Option<(&OwnedExprSiteV1, i64)> {

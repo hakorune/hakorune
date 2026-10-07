@@ -92,7 +92,7 @@ impl super::super::MirBuilder {
 
 /// Immutable physical append observation; not a semantic or source receipt.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CompletedOrdinaryComparisonV1 {
+pub(in crate::mir) struct CompletedOrdinaryComparisonV1 {
     pub(super) value: ValueId,
     original: (crate::mir::BasicBlockId, MirInstruction),
 }

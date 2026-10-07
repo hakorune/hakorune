@@ -8,6 +8,59 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn prepare_borrowed_compare_source_v1(
+        &mut self,
+        operator: &crate::ast::BinaryOperator,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1>,
+        String,
+    > {
+        let (Some(ledger), Some(owner)) =
+            (&self.ordinary_new_claim_ledger, self.callable_owner_v1())
+        else {
+            return Ok(None);
+        };
+        if !ledger.has_borrowed_compare_source_v1(owner) {
+            return Ok(None);
+        }
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-compare/source-site-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
+        );
+        let operator =
+            match super::super::ops::converters::convert_binary_operator(operator.clone())? {
+                super::super::ops::converters::BinaryOpType::Comparison(operator) => Some(operator),
+                super::super::ops::converters::BinaryOpType::Arithmetic(_) => None,
+            };
+        ledger.prepare_borrowed_compare_source_v1(owner, &site, operator)
+    }
+
+    fn complete_borrowed_compare_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][borrowed-compare/ledger-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(loan.owner()) {
+            return Err("[freeze:contract][borrowed-compare/owner-drift]".into());
+        }
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-compare/source-site-missing]".to_owned())?;
+        if loan.site().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node)
+        {
+            return Err("[freeze:contract][borrowed-compare/source-site-drift]".into());
+        }
+        ledger.record_borrowed_compare_v1(loan, children, completed)
+    }
+
     fn prepare_compare_integer_literal_v1(
         &mut self,
         value: i64,

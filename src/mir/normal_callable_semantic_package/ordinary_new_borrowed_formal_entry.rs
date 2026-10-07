@@ -431,3 +431,4 @@ mod entry_values;
 
 pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedOrdinaryEntryPhysicalV1;
 pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;
+pub(crate) use entry_values::BorrowedCompareSourceLoanV1;

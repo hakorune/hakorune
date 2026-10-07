@@ -66,17 +66,19 @@ pub(super) fn compare_operand_kind(
     use crate::mir::dynamic_operator_contract::{
         DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorValueClassV1,
     };
-    crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
-        DynamicOperatorDomainV1::new(
-            DynamicOperatorFamilyV1::Greater,
-            DynamicOperatorValueClassV1::NormalInteger,
-            DynamicOperatorValueClassV1::NormalInteger,
-        ),
-    )
-    .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+    let envelope =
+        crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
+            DynamicOperatorDomainV1::new(
+                DynamicOperatorFamilyV1::Greater,
+                DynamicOperatorValueClassV1::NormalInteger,
+                DynamicOperatorValueClassV1::NormalInteger,
+            ),
+        )
+        .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
     Ok(Some(BorrowedFormalUseDraftKindV1::CompareOperand {
         binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
         source: BorrowedCompareSourceV1 {
+            envelope,
             operator: binary.operator(),
             left: OwnedExprSiteV1::new(input.owner(), binary.lhs().clone()),
             right: OwnedExprSiteV1::new(input.owner(), binary.rhs().clone()),

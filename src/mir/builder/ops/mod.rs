@@ -153,7 +153,7 @@ impl super::MirBuilder {
             .map(|completed| completed.value())
     }
 
-    pub(in crate::mir::builder) fn build_binary_op_from_values_recorded(
+    pub(in crate::mir) fn build_binary_op_from_values_recorded(
         &mut self,
         operator: BinaryOperator,
         lhs_raw: ValueId,
@@ -180,18 +180,18 @@ impl super::MirBuilder {
 /// Ordered Binary completion keeps the original Compare only when one was
 /// actually emitted. Arithmetic never fabricates a comparison observation.
 #[derive(Debug)]
-pub(in crate::mir::builder) enum CompletedOrdinaryBinaryV1 {
+pub(in crate::mir) enum CompletedOrdinaryBinaryV1 {
     Arithmetic(ValueId),
     Comparison(comparison::CompletedOrdinaryComparisonV1),
 }
 impl CompletedOrdinaryBinaryV1 {
-    pub(in crate::mir::builder) fn value(&self) -> ValueId {
+    pub(in crate::mir) fn value(&self) -> ValueId {
         match self {
             Self::Arithmetic(value) => *value,
             Self::Comparison(completed) => completed.value,
         }
     }
-    pub(in crate::mir::builder) fn comparison_original(
+    pub(in crate::mir) fn comparison_original(
         &self,
     ) -> Option<&(crate::mir::BasicBlockId, crate::mir::MirInstruction)> {
         match self {

@@ -64,6 +64,25 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
         input: &Self::BinaryInput,
     ) -> Result<Self::ExpressionInput, String>;
 
+    fn prepare_binary_source_v1(
+        &mut self,
+        _operator: &BinaryOperator,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1>,
+        String,
+    > {
+        Ok(None)
+    }
+
+    fn complete_binary_source_v1(
+        &mut self,
+        _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        _children: (ValueId, ValueId),
+        _completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][borrowed-compare/consumer-unavailable]".into())
+    }
+
     /// Observation of the same finalized append; the default issues no source
     /// proof. Source-scoped consumers must corroborate their retained loan.
     fn complete_binary_expression_v1(
@@ -79,6 +98,25 @@ where
     Port: RawAstChildLoweringPortV1,
 {
     type BinaryInput = RawLegacyBinaryInputV1;
+
+    fn prepare_binary_source_v1(
+        &mut self,
+        operator: &BinaryOperator,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1>,
+        String,
+    > {
+        self.prepare_borrowed_compare_source_v1(operator)
+    }
+
+    fn complete_binary_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.complete_borrowed_compare_source_v1(loan, children, completed)
+    }
 
     fn complete_binary_expression_v1(
         &mut self,
@@ -124,12 +162,16 @@ where
         ));
     }
 
+    let source = port.prepare_binary_source_v1(&operator)?;
     let left_input = port.binary_left_input(input)?;
     let left = drive_legacy_expression_v1(builder, port, left_input)?;
     let right_input = port.binary_right_input(input)?;
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
     let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
+    if let Some(source) = source {
+        port.complete_binary_source_v1(source, (left, right), &completed)?;
+    }
     port.complete_binary_expression_v1(&completed)?;
     Ok(completed.value())
 }

@@ -64,6 +64,8 @@ fn structured_scope_delegates_the_non_consuming_hook() {
 }
 
 struct BinaryCompletionPort {
+    preparations: usize,
+    reject_preparation: bool,
     children: usize,
     completions: Vec<Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>,
     reject_completion: bool,
@@ -73,6 +75,8 @@ struct BinaryCompletionPort {
 impl BinaryCompletionPort {
     fn new() -> Self {
         Self {
+            preparations: 0,
+            reject_preparation: false,
             children: 0,
             completions: Vec::new(),
             reject_completion: false,
@@ -111,6 +115,21 @@ impl RecursiveChildLoweringPortV1 for BinaryCompletionPort {
             unreachable!("binary children are exact integers")
         };
         super::emission::constant::emit_integer(builder, value)
+    }
+
+    fn prepare_borrowed_compare_source_v1(
+        &mut self,
+        _: &crate::ast::BinaryOperator,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1>,
+        String,
+    > {
+        self.preparations += 1;
+        assert_eq!(self.children, 0, "prepare before either child");
+        if self.reject_preparation {
+            return Err("original-source-preparation-refusal".into());
+        }
+        Ok(None)
     }
 
     fn complete_ordinary_binary_expression_v1(
@@ -159,6 +178,7 @@ fn raw_binary_completion_crosses_nested_structured_scopes_exactly_once() {
     .unwrap();
     inner.complete_exact_demands_v1().unwrap();
     outer.complete_exact_demands_v1().unwrap();
+    assert_eq!(child.preparations, 1);
     assert_eq!(child.children, 2);
     assert_eq!(child.completions.len(), 1);
     let (block, original) = child.completions[0].as_ref().unwrap();
@@ -232,4 +252,24 @@ fn raw_arithmetic_completion_does_not_fabricate_comparison() {
     .unwrap();
     assert_eq!(child.children, 2);
     assert_eq!(child.completions, vec![None]);
+}
+
+#[test]
+fn raw_binary_source_preparation_refusal_precedes_children_and_append_without_retry() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("raw_source_preparation_refusal/0".into());
+    let mut child = BinaryCompletionPort::new();
+    child.reject_preparation = true;
+    let mut scope = RawStructuredChildScopePortV1::new(&mut child, vec![], vec![]);
+    let error = super::ops::drive_ordinary_binary_expression_v1(
+        &mut builder,
+        &mut scope,
+        &binary_completion_input(crate::ast::BinaryOperator::Greater),
+    )
+    .unwrap_err();
+    assert_eq!(error, "original-source-preparation-refusal");
+    assert_eq!(child.preparations, 1);
+    assert_eq!(child.children, 0);
+    assert!(child.completions.is_empty());
+    assert!(builder.current_function_instructions().is_empty());
 }

@@ -1250,3 +1250,13 @@ Repeated evaluation of one original child retains distinct append observations.
 Known source membership with a missing entry is an error before emission.
 These are original observations only: final SSA correspondence, mandatory
 comparison bindings and source-to-physical comparison coverage remain required.
+
+The checked-compare classifier retains the original static envelope reference
+already lent by the canonical operation issuer. Before child descent, the same
+borrowed-entry owner lends an owned exact binary/ordered-operand source loan;
+each contributing operand row retains its own binding, formal and original
+contract reference. One actual Compare append is recorded once even when two
+borrowed operand rows share that binary. Missing entry, source/operator/receipt
+drift, arithmetic completion and duplicate destination remain errors. Recorded
+child ValueIds are pre-finalization observations; they do not prove the final
+Compare operands, replayability, Normal execution or source-to-physical coverage.

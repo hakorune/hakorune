@@ -171,6 +171,26 @@ where
         self.child.complete_ordinary_binary_expression_v1(completed)
     }
 
+    fn prepare_borrowed_compare_source_v1(
+        &mut self,
+        operator: &crate::ast::BinaryOperator,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1>,
+        String,
+    > {
+        self.child.prepare_borrowed_compare_source_v1(operator)
+    }
+
+    fn complete_borrowed_compare_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> {
+        self.child
+            .complete_borrowed_compare_source_v1(loan, children, completed)
+    }
+
     fn prepare_compare_integer_literal_v1(
         &mut self,
         value: i64,

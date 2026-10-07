@@ -1689,3 +1689,11 @@ stay unarmed. The immutable append observation is paired with exact original
 source membership on the existing borrowed-entry owner, never inferred by
 scanning equal Const payloads. It does not prove final SSA operands or grant a
 new borrowed comparison operator.
+
+Ordinary Binary descent prepares the selected borrowed-comparison source loan
+before either child. The same completion consumes that loan after ordered child
+lowering and the canonical Compare append. Structured scopes retain no second
+source context and delegate to the original parent port, whose exact binary site
+must be restored at completion. Unselected ports remain unarmed. This original
+observation is a prerequisite for checked Bool reuse; it does not authorize
+replaying an opaque comparison or prove final SSA operand correspondence.

@@ -45,10 +45,57 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                 } else {
                     view.issue_lifecycle_physical_abi_input()?;
                 }
+                let mut comparisons = 0;
+                source.with_borrowed_ordinary_compares_v1(owner, function, |loan, children, original| {
+                    assert_eq!(loan.owner(), owner);
+                    assert_eq!(loan.operator(), crate::mir::CompareOp::Gt);
+                    assert_eq!(loan.operand_sites().0.owner(), owner);
+                    assert_eq!(loan.operand_sites().1.owner(), owner);
+                    assert_ne!(children.0, children.1);
+                    assert!(matches!(&original.1, crate::mir::MirInstruction::Compare { op: crate::mir::CompareOp::Gt, .. }));
+                    comparisons += 1;
+                    Ok(())
+                })?;
+                assert_eq!(comparisons, 1, "one original source Compare completion: {condition}");
                 let mut foreign = function.clone();
                 foreign.signature.name = "foreign/0".into();
                 assert!(source.with_borrowed_ordinary_compare_integer_literals_v1(owner, &foreign,
                     |_, _, _, _| panic!("foreign function must not publish observations")).is_err());
+                Ok(())
+            }).unwrap();
+        }
+    });
+}
+
+#[test]
+fn borrowed_compare_two_formals_share_one_original_append_in_both_orders() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for condition in ["p > q", "q > p"] {
+            let text = format!("box Counter {{ birth() {{}} check(p,q): i64 {{ if {condition} {{ return 7 }} return 3 }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15,10) }} }}");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(),String> {
+                classify_pretransform_report(verification);
+                let handoff=view.retained_handoff.unwrap();
+                let key=crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter","check",2));
+                let owner=handoff.callables().unwrap().completed_result(&key).unwrap().owner();
+                let function=&view.module().functions["Counter.check/2"];
+                let source=handoff.root_source().unwrap();
+                let mut count=0;
+                source.with_borrowed_ordinary_compares_v1(owner,function,|loan,children,original| {
+                    assert_eq!(loan.owner(),owner);
+                    assert_eq!(loan.operator(),crate::mir::CompareOp::Gt);
+                    assert_ne!(loan.operand_sites().0,loan.operand_sites().1);
+                    assert_ne!(children.0,children.1);
+                    assert!(matches!(&original.1,crate::mir::MirInstruction::Compare {op:crate::mir::CompareOp::Gt,..}));
+                    count+=1;
+                    Ok(())
+                })?;
+                assert_eq!(count,1,"one original source append for two borrowed operands: {condition}");
+                view.issue_lifecycle_physical_abi_input()?;
+                let mut foreign=function.clone();
+                foreign.signature.name="foreign/0".into();
+                assert!(source.with_borrowed_ordinary_compares_v1(owner,&foreign,|_,_,_| panic!("foreign function")).is_err());
                 Ok(())
             }).unwrap();
         }

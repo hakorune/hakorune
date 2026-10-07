@@ -9,6 +9,7 @@ type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
     pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
     aliases: BTreeMap<BindingRefV1, alias_materialization::BorrowedAliasMaterializationV1>,
+    comparisons: BTreeMap<ValueId, compare_materialization::BorrowedCompareMaterializationV1>,
     integer_literals:
         BTreeMap<ValueId, integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>,
 }
@@ -19,6 +20,10 @@ mod alias_materialization;
 #[path = "ordinary_new_borrowed_compare_integer_literal.rs"]
 mod integer_literal;
 pub(crate) use integer_literal::BorrowedCompareIntegerLiteralLoanV1;
+
+#[path = "ordinary_new_borrowed_compare_materialization.rs"]
+mod compare_materialization;
+pub(crate) use compare_materialization::BorrowedCompareSourceLoanV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Loan the original declared classes for exactly the validated pre-entry
@@ -62,6 +67,7 @@ impl OrdinaryNewClaimLedgerV1 {
             BorrowedOrdinaryEntryPhysicalV1 {
                 values,
                 aliases: BTreeMap::new(),
+                comparisons: BTreeMap::new(),
                 integer_literals: BTreeMap::new(),
             },
         );
