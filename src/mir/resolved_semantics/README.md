@@ -18,6 +18,16 @@ operand. Only Minus(Integer) yields its checked negation; another operator,
 non-integer operand, wrong site or overflow yields no integer. This query does
 not fold expressions, convert types, issue a carrier, or authorize transport.
 
+## Borrowed actual source atoms
+
+`borrowed_actual_source_atom_v1` lends the existing literal/signed-immediate or
+original local-binding spelling from the sealed function source. The existing
+actual observer delegates to this query; binding flow, entry stability, Home
+acquisition and nullable state remain with the same PrefixLocalFlow owner.
+A passive Binding does not prove scalar kind, liveness or transport. Unsupported
+source spelling remains unknown to observation. No inventory or entry admission
+is added by this shared query.
+
 ## Map source shape
 
 The existing body-shape issuer retains Map literal keys in source order,

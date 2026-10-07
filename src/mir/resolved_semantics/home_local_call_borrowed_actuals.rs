@@ -30,6 +30,31 @@ pub(crate) struct BorrowedCallActualCandidateV1 {
     pub(crate) value: BorrowedCallActualValueV1,
 }
 
+/// Original source spelling only. A Binding has no flow, Home or entry grant.
+/// The same observer below supplies those proofs from the prefix-local state.
+pub(crate) fn borrowed_actual_source_atom_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<BorrowedCallActualValueV1> {
+    let source = input.function().expression_source();
+    match source.literal(site) {
+        Some(ResolvedLiteralSourceV1::Integer(value)) => {
+            Some(BorrowedCallActualValueV1::Integer(*value))
+        }
+        Some(ResolvedLiteralSourceV1::Bool(value)) => Some(BorrowedCallActualValueV1::Bool(*value)),
+        Some(ResolvedLiteralSourceV1::Null) => Some(BorrowedCallActualValueV1::Null),
+        _ => source
+            .negative_integer_immediate(site)
+            .map(BorrowedCallActualValueV1::Integer)
+            .or_else(|| match input.function().variable_ref(site) {
+                Some(ResolvedLexicalRefV1::Local(binding)) => {
+                    Some(BorrowedCallActualValueV1::Binding(binding))
+                }
+                _ => None,
+            }),
+    }
+}
+
 fn observe_one_borrowed_call_actuals(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
@@ -48,29 +73,9 @@ fn observe_one_borrowed_call_actuals(
             .iter()
             .map(|argument| {
                 let site = argument.site();
-                let source = input.function().expression_source();
-                let value = match source.literal(site) {
-                    Some(ResolvedLiteralSourceV1::Integer(value)) => {
-                        BorrowedCallActualValueV1::Integer(*value)
-                    }
-                    Some(ResolvedLiteralSourceV1::Bool(value)) => {
-                        BorrowedCallActualValueV1::Bool(*value)
-                    }
-                    // The exact `null` literal is its own candidate class —
-                    // never an integer-zero or bool-false payload.
-                    Some(ResolvedLiteralSourceV1::Null) => BorrowedCallActualValueV1::Null,
-                    _ => {
-                        // A signed immediate spelling retains its exact sealed unary
-                        // site and operand. Overflow is not wrapped into a payload.
-                        let negative = source.unary(site).filter(|row| {
-                    row.operator() == crate::mir::resolved_semantics::ResolvedUnaryOperatorV1::Minus
-                }).and_then(|row| match source.literal(row.operand()) {
-                    Some(ResolvedLiteralSourceV1::Integer(value)) => value.checked_neg(),
-                    _ => None,
-                });
-                        if let Some(value) = negative {
-                            BorrowedCallActualValueV1::Integer(value)
-                        } else if !prefix_known {
+                let value = match borrowed_actual_source_atom_v1(input, site) {
+                    Some(BorrowedCallActualValueV1::Binding(_)) => {
+                        if !prefix_known {
                             // An uncovered path proves no flow state, but
                             // sealed Parameter/`me` bindings are installed
                             // at entry — their self-rooted handle and
@@ -146,6 +151,8 @@ fn observe_one_borrowed_call_actuals(
                             }
                         }
                     }
+                    Some(value) => value,
+                    None => BorrowedCallActualValueV1::Unknown,
                 };
                 BorrowedCallActualCandidateV1 {
                     ordinal: argument.ordinal(),

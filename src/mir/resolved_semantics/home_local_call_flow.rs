@@ -701,7 +701,9 @@ pub(crate) fn issue_local_call<E>(
 #[path = "home_local_call_borrowed_actuals.rs"]
 mod borrowed_actuals;
 pub(super) use borrowed_actuals::observe_borrowed_call_actuals;
-pub(crate) use borrowed_actuals::{BorrowedCallActualCandidateV1, BorrowedCallActualValueV1};
+pub(crate) use borrowed_actuals::{
+    borrowed_actual_source_atom_v1, BorrowedCallActualCandidateV1, BorrowedCallActualValueV1,
+};
 
 #[path = "home_local_call_arguments.rs"]
 mod arguments;

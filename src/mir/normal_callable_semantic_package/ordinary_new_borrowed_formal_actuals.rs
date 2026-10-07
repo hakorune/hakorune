@@ -494,3 +494,7 @@ mod discard_tests;
 #[path = "ordinary_new_borrowed_static_source_actuals.rs"]
 mod static_source;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_v1;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_actual_source_atom_tests.rs"]
+mod source_atom_tests;
