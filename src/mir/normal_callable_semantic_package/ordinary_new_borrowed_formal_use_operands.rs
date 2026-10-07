@@ -1,7 +1,7 @@
 //! Operation-use operand classifiers for the borrowed-formal use draft.
 //!
 //! Exact bodies moved verbatim from the `use` parent (USESIZE-T0): the
-//! checked-compare `>` envelope, the ordered `+` envelope, their shared
+//! checked-compare `>` / `<=` envelopes, the ordered `+` envelope, their shared
 //! Normal-Integer sibling proof, the call-argument pre-pass loan and the
 //! source-order dominance helpers. No predicate, evaluation order, error
 //! arm or signature changed; this child issues no ABI and installs no
@@ -19,7 +19,7 @@ use crate::mir::resolved_semantics::{
 
 use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
 
-/// `site` is a checked-compare operand of a `>` binary only when the binary
+/// `site` is a checked-compare operand of a `>` or `<=` binary only when the binary
 /// is a direct `if` condition and the sibling operand proves the
 /// Normal-Integer class: an Integer literal, another borrowed view operand,
 /// or `me.<field>` whose declaration the entry-receiver proof resolves to a
@@ -44,9 +44,18 @@ pub(super) fn compare_operand_kind(
     let Some(binary) = matching.next() else {
         return Ok(None);
     };
-    if matching.next().is_some() || binary.operator() != ResolvedBinaryOperatorV1::Greater {
+    if matching.next().is_some() {
         return Ok(None);
     }
+    let family = match binary.operator() {
+        ResolvedBinaryOperatorV1::Greater => {
+            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater
+        }
+        ResolvedBinaryOperatorV1::LessEqual => {
+            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::LessEqual
+        }
+        _ => return Ok(None),
+    };
     if function
         .with_if_region_for_condition(binary.site(), |_| ())
         .is_err()
@@ -64,12 +73,12 @@ pub(super) fn compare_operand_kind(
     // The existing operation owner issues the checked-compare view envelope;
     // this draft is its first production consumer, not a new authority.
     use crate::mir::dynamic_operator_contract::{
-        DynamicOperatorDomainV1, DynamicOperatorFamilyV1, DynamicOperatorValueClassV1,
+        DynamicOperatorDomainV1, DynamicOperatorValueClassV1,
     };
     let envelope =
         crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorDomainV1::new(
-                DynamicOperatorFamilyV1::Greater,
+                family,
                 DynamicOperatorValueClassV1::NormalInteger,
                 DynamicOperatorValueClassV1::NormalInteger,
             ),

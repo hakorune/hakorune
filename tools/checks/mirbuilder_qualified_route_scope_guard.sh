@@ -674,11 +674,11 @@ ROOT_RESULT_NEW_TESTS="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_res
 
 # MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-CHECKED-COMPARE-NORMAL-INTEGER-S0: a
 # borrowed tagged formal may lend a NormalInteger view only to the exact
-# Greater compare operand. Source admission requires a direct if condition
-# beside an integer-literal or origin-sibling field; the published scan
-# accepts one Copy-fed view per admitted use, counts distinct operand
-# values (edge-port lowering re-emits the same compare), and rejects view
-# escape and coverage drift; the lifecycle C lane admits tagged compare
+# Greater/LessEqual compare operand. Source admission requires a direct if
+# condition beside an integer-literal or origin-sibling field; the published
+# scan matches exact finished coordinates and operand sides, preserves one
+# original comparison, and rejects view escape and coverage drift. The
+# lifecycle C lane admits tagged compare
 # operands only beside an emitted kind==1 site check and treats empty
 # carriers_only edge args as the null row.
 DYNAMIC_OPERATOR_ISSUER="$ROOT_DIR/src/mir/dynamic_operator_contract/issuer.rs"
@@ -692,7 +692,7 @@ rg -q 'checked_compare_admits_direct_if_greater_with_integer_or_origin_sibling' 
 rg -q 'checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling' "$BORROWED_FORMAL_USE_TESTS"
 rg -q 'fn scan_views' "$BORROWED_CALL_USES"
 rg -q 'compare_admissions' "$BORROWED_CALL_USES"
-rg -q 'borrowed_use_checked_compare_view_counts_distinct_operands_once' "$BORROWED_CALL_USES_TESTS"
+rg -q 'borrowed_use_checked_compare_counts_each_physical_operand_occurrence' "$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/compiled_entry_contract/borrowed_call_uses_compare_coverage_tests.rs"
 rg -q 'borrowed_use_rejects_compare_view_escape_and_coverage_drift' "$BORROWED_CALL_USES_TESTS"
 rg -q 'borrowed_use_rejects_view_shape_drift' "$BORROWED_CALL_USES_TESTS"
 rg -q 'checked_compare_view_publishes_from_original_source' "$BORROWED_SOURCE_PUBLICATION_TESTS"

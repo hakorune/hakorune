@@ -236,13 +236,30 @@ fn checked_compare_view_publishes_from_original_source() {
             ("alias-bool", "me.limit", "true"),
             ("alias-null", "me.limit", "null"),
             ("alias-object", "me.limit", "c"),
+            ("le-hi", "me.limit", "15"),
+            ("le-lo", "me.limit", "5"),
+            ("le-edge", "me.limit", "10"),
+            ("le-neg", "me.limit", "-1"),
+            ("le-bool", "me.limit", "true"),
+            ("le-null", "me.limit", "null"),
+            ("le-object", "me.limit", "c"),
+            ("le-alias-hi", "me.limit", "15"),
+            ("le-alias-lo", "me.limit", "5"),
+            ("le-alias-bool", "me.limit", "true"),
         ] {
-            let (prefix, operand) = if suffix.starts_with("alias-") {
+            let (prefix, operand) = if suffix.contains("alias-") {
                 ("local first = requested local alias = first", "alias")
-            } else { ("", "requested") };
+            } else {
+                ("", "requested")
+            };
+            let (operator, predicate) = if suffix.starts_with("le-") {
+                ("<=", "sle")
+            } else {
+                (">", "sgt")
+            };
             let text = format!(
                 "box Counter {{ limit: usize birth() {{ me.limit = 10 }} \
-                 check(requested): i64 {{ {prefix} if {operand} > {sibling} {{ return 7 }} \
+                 check(requested): i64 {{ {prefix} if {operand} {operator} {sibling} {{ return 7 }} \
                  return 3 }} }} static box Main {{ main() {{ \
                  local c = new Counter() return c.check({argument}) }} }}"
             );
@@ -263,9 +280,11 @@ fn checked_compare_view_publishes_from_original_source() {
                             .iter()
                             .find(|f| f["name"] == "Counter.check/1")
                             .unwrap();
-                        assert!(callee["params"].as_array().unwrap().iter().any(|p| {
-                            p["representation"] == "borrowed_kind_payload_v1"
-                        }));
+                        assert!(callee["params"]
+                            .as_array()
+                            .unwrap()
+                            .iter()
+                            .any(|p| { p["representation"] == "borrowed_kind_payload_v1" }));
                         let compares: Vec<_> = callee["blocks"]
                             .as_array()
                             .unwrap()
@@ -276,9 +295,9 @@ fn checked_compare_view_publishes_from_original_source() {
                         // The checked source operation executes once; its Bool
                         // feeds the condition without replaying the comparison.
                         assert_eq!(compares.len(), 1, "{suffix}");
-                        assert!(compares.iter().all(|row| {
-                            row["instruction"]["predicate"] == "sgt"
-                        }));
+                        assert!(compares
+                            .iter()
+                            .all(|row| { row["instruction"]["predicate"] == predicate }));
                         reject_erased_carriers(&input);
                         reject_drifted_compare_view(&input);
                         std::fs::write(
@@ -660,3 +679,6 @@ mod array_i64_field_call_tests;
 
 #[path = "borrowed_source_publication_compare_literal_tests.rs"]
 mod compare_literal_tests;
+
+#[path = "borrowed_source_publication_compare_le_tests.rs"]
+mod compare_le_tests;

@@ -317,11 +317,11 @@ impl FunctionUses {
         for (coordinate, instruction) in indexed {
             null_compare::observe_null_const(instruction, &mut null_consts);
             match instruction {
-                // Only the admitted checked compare (`>` + Normal-Integer
+                // Only the admitted checked compare (`>` / `<=` + Normal-Integer
                 // proof) anchors `+`/`.set`/`new` dominance cones; a null
                 // equality supplies non-null only, never the Integer lane.
                 MirInstruction::Compare {
-                    op: crate::mir::CompareOp::Gt,
+                    op: crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le,
                     lhs,
                     rhs,
                     ..
@@ -482,7 +482,7 @@ impl FunctionUses {
                 }
             }
             MirInstruction::Compare {
-                op: crate::mir::CompareOp::Gt,
+                op: crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le,
                 lhs,
                 rhs,
                 ..

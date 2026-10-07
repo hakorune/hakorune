@@ -1290,3 +1290,14 @@ ABI entry borrows that same checked loan and retains each source formal's exact
 finished Compare coordinate and operand side. Both module and publication scans
 must match these occurrences, including shared ValueIds and repeated comparisons.
 Whole-instruction projection drift remains rejected by the physical publisher.
+
+Checked borrowed comparisons admit direct-if `>` and `<=` through the same
+canonical NormalInteger operation envelope. The original operator and ordered
+operand sites remain part of the immutable source loan and exact finished
+Compare. The same Bool/carrier/literal reuse and ABI coordinate/side closure
+apply to both predicates; `Le` is serialized as `sle` and uses the existing
+kind-1 checks before the signed C comparison. Other kind lanes Fault at the
+comparison, before producing a Bool. Le Normal proves Integer, not positivity.
+Existing Normal-dominated Add/set/new consumers accept this same Integer proof;
+null comparison supplies no such permission. This does not close incoming
+actual source receipts, static argument projection, or executable transport.

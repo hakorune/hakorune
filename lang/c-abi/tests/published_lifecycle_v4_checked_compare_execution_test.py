@@ -36,6 +36,16 @@ CASES = [
     ('alias-bool', 70, True),
     ('alias-null', 70, True),
     ('alias-object', 70, True),
+    ('le-hi', 3, False),
+    ('le-lo', 7, False),
+    ('le-edge', 7, False),
+    ('le-neg', 7, False),
+    ('le-bool', 70, True),
+    ('le-null', 70, True),
+    ('le-object', 70, True),
+    ('le-alias-hi', 3, False),
+    ('le-alias-lo', 7, False),
+    ('le-alias-bool', 70, True),
 ]
 
 

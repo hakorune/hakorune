@@ -1,4 +1,4 @@
-//! Same classifier retains original compare operands; no new source admission.
+//! Same classifier retains original checked comparison operands and domains.
 use super::super::BorrowedFormalUseDraftKindV1;
 use super::draft;
 use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
@@ -89,7 +89,9 @@ fn checked_compare_source_borrowed_sibling_has_no_literal_receipt() {
 #[test]
 fn checked_compare_source_retention_does_not_expand_acceptance() {
     for body in [
-        "if p <= 0 { return 1 } return 0",
+        "if p <= true { return 1 } return 0",
+        "if p <= null { return 1 } return 0",
+        "local result = p <= 0 return 0",
         "if p < 0 { return 1 } return 0",
         "if p >= 0 { return 1 } return 0",
         "if p > true { return 1 } return 0",
@@ -97,5 +99,34 @@ fn checked_compare_source_retention_does_not_expand_acceptance() {
         "local result = p > 0 return 0",
     ] {
         assert!(draft(body).is_err(), "unchanged rejection: {body}");
+    }
+}
+
+#[test]
+fn checked_compare_source_less_equal_retains_exact_integer_domain_and_order() {
+    use crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1;
+    for body in [
+        "if p <= 5 { return 1 } return 0",
+        "if 5 <= p { return 1 } return 0",
+        "local a = p if a <= 5 { return 1 } return 0",
+        "local a = p if p <= a { return 1 } return 0",
+    ] {
+        let draft = draft(body).expect("original LessEqual source");
+        let mut count = 0;
+        for row in &draft.uses {
+            if let BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } = &row.kind {
+                assert_eq!(source.operator, ResolvedBinaryOperatorV1::LessEqual);
+                assert_eq!(
+                    source.envelope.domain().family(),
+                    DynamicOperatorFamilyV1::LessEqual
+                );
+                assert_ne!(source.left, source.right);
+                assert_eq!(source.left.owner(), binary.owner());
+                assert_eq!(source.right.owner(), binary.owner());
+                assert!(row.site == source.left || row.site == source.right);
+                count += 1;
+            }
+        }
+        assert!(count >= 1, "{body}");
     }
 }
