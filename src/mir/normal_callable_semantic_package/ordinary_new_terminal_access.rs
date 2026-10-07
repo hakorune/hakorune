@@ -450,3 +450,39 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 }
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Source-only call returns still owe the completed-index handoff seal.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_pending_object_return_v1(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> bool {
+        self.terminal_relation.values()
+            .chain(self.terminal_relation_index.values().flat_map(|rows| rows.values()))
+            .filter(|relation| relation.owner() == owner)
+            .any(|relation| {
+            matches!(relation, TerminalRelationV1::Value(row)
+                if matches!(row.returned(), crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::OwnedCall(_)))
+        })
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_no_pending_object_returns_v1(
+        &self,
+    ) -> Result<(), String> {
+        let pending = self.terminal_relation.values()
+            .chain(self.terminal_relation_index.values().flat_map(|rows| rows.values()))
+            .any(|relation| matches!(relation, TerminalRelationV1::Value(row)
+                if matches!(row.returned(), crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::OwnedCall(_))));
+        if pending {
+            Err(
+                "[freeze:contract][ordinary-new/local-commit/object-return-handoff-unavailable]"
+                    .to_string(),
+            )
+        } else {
+            Ok(())
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "ordinary_new_object_return_source_tests.rs"]
+mod object_return_source_tests;

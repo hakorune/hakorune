@@ -12,6 +12,7 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
     issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, NewFaultContinuationV1,
 };
@@ -165,6 +166,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         // leaf stays truthfully uncovered on this lane — the verified
         // completion lane owns the issuer predicate.
         &mut |_| Ok(false),
+        &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
     .0
@@ -186,6 +188,10 @@ mod scalar_expression;
 pub(crate) use field_read::{LocalFieldReadRequestV1, LocalFieldReadResultV1};
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
+#[path = "home_terminal_object_return.rs"]
+mod object_return;
+pub(crate) use object_return::{ObjectReturnAcquisitionV1, TerminalObjectReturnObligationV1};
+
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
 #[path = "home_new_prefix_terminal.rs"]
@@ -300,6 +306,9 @@ pub(crate) fn scan_new_home_flow<E>(
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<
     (
         BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
@@ -415,6 +424,7 @@ pub(crate) fn scan_new_home_flow<E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        object_return,
     )?;
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.

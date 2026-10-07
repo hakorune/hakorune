@@ -342,6 +342,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites);
                 let seed_completion = seed_eligible
                     && !has_map
+                    && !callable_result_classes.has_object_call_return(owner)
                     && !has_nullable_receiver_call
                     && !has_me_object_field_read
                     && !has_stored_terminal
@@ -394,6 +395,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // is issued only by this lane's `local_field_read` authority
                 // — the bounded sibling scan keeps it truthfully unavailable.
                 let verified_walk = owner_loan.is_some()
+                    || callable_result_classes.has_object_call_return(owner)
                     || has_nullable_receiver_call
                     || has_me_object_field_read
                     || has_static_source_local
@@ -533,7 +535,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 &candidates,
                                 input,
                                 site,
-                            ))
+                            ) || lexical::has_object_receiver_call_at_v1(&receiver_call_observations, site))
                         }, &mut |site| {
                             // Lexical `recv.m(..)` i64-result membership —
                             // the claim-local receiver, exact-i64 formals,
@@ -617,7 +619,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source,
-                        ))? {
+                        ), &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
                             completion,
                             prefixes,

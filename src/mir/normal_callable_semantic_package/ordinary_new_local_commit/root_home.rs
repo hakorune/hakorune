@@ -216,7 +216,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Per-exit admission is all-or-nothing per function: a sibling exit
         // whose row is unavailable keeps this exit on the generic path too,
         // so no `return` can silently skip proven release evidence.
-        if !flow.all_exits_ready() {
+        if self.has_pending_object_return_v1(owner) || !flow.all_exits_ready() {
             return Ok(false);
         }
         let exit = SourceStmtSiteV1::from_node(site.clone());
@@ -399,7 +399,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(());
         };
-        if !flow.all_exits_ready() {
+        if self.has_pending_object_return_v1(owner) || !flow.all_exits_ready() {
             return Ok(());
         }
         let exits = self.root_exits.borrow();

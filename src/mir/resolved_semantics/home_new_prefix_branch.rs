@@ -98,13 +98,14 @@ fn walk_branch<'a, E>(
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<BranchPath<'a>, E> {
     path.terminated = super::scan::scan_statement_flow(
         input,
@@ -142,6 +143,7 @@ fn walk_branch<'a, E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        object_return,
     )?;
     Ok(path)
 }
@@ -165,11 +167,8 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
     prefix_known: bool,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
     stage_subtree_call_actuals(
         input,
@@ -190,11 +189,8 @@ fn stage_subtree_call_actuals<E>(
     prefix_known: bool,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<(), E> {
     let prefix = site.segments();
     let subtree_calls: Vec<SourceExprSiteV1> = input
@@ -212,7 +208,7 @@ fn stage_subtree_call_actuals<E>(
         for (call_site, actuals) in
             local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known)
         {
-            borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
+            borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
         }
     }
     Ok(())
@@ -319,13 +315,14 @@ pub(super) fn observe_if_statement<'a, E>(
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<bool, E> {
     // The pre-`If` path basis: every staging this statement performs —
     // condition calls now, uncovered interiors on the early returns —
@@ -496,6 +493,7 @@ pub(super) fn observe_if_statement<'a, E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        object_return,
     )?;
     let else_path = match else_body {
         Ok(else_body) => walk_branch(
@@ -536,6 +534,7 @@ pub(super) fn observe_if_statement<'a, E>(
             local_field_read,
             borrowed_actuals,
             view_use,
+            object_return,
         )?,
         // A missing `else` joins the entry snapshot unchanged.
         Err(_) => BranchPath {

@@ -626,3 +626,21 @@ pub(super) fn has_stored_terminal_v1(
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_static_dispatch_tests.rs"]
 mod static_dispatch_tests;
+
+/// Same entry-receiver observation, restricted to its original non-null role.
+pub(super) fn has_object_receiver_call_at_v1(
+    observations: &BTreeMap<
+        OwnedExprSiteV1,
+        super::super::receiver_call_observation::ReceiverCallClassObservationV1,
+    >,
+    site: &OwnedExprSiteV1,
+) -> bool {
+    matches!(
+        observations.get(site).map(|row| row.class()),
+        Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(_))
+    )
+}
+
+#[cfg(test)]
+#[path = "ordinary_new_receiver_source_role_tests.rs"]
+mod receiver_source_role_tests;

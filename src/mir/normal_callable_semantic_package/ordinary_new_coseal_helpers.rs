@@ -110,6 +110,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                 if matches!(
                     value.returned(),
                     TerminalReturnedSourceV1::Construction(_)
+                        | TerminalReturnedSourceV1::OwnedCall(_)
                         | TerminalReturnedSourceV1::NullLiteral
                 )
         )

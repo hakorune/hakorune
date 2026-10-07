@@ -213,6 +213,23 @@ pub(crate) fn issue_lexical_local_call<E>(
     result: LocalCallResultClassV1,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<LocalCallObservationV1>, E> {
+    let self_receiver = input.function().method_call(site.site()).is_some_and(|call| {
+        matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+            if input.function().binding(binding).is_some_and(|row|
+                matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Receiver)))
+    });
+    if self_receiver {
+        return issue_receiver_local_call(
+            input,
+            statement,
+            site,
+            declaration,
+            destination,
+            prior_homes,
+            result,
+            is_selected_call,
+        );
+    }
     if !is_selected_call(site)? {
         return Ok(None);
     }
@@ -598,51 +615,9 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
 /// the expression or infers a callee class. Typed argument evidence stays
 /// on the package row (`ReceiverCallClassObservationV1`); the flow row
 /// records no argument literals because they are not `i64` literals alone.
-pub(crate) fn issue_receiver_local_call<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    statement: &SourceStmtSiteV1,
-    site: &OwnedExprSiteV1,
-    declaration: SourceBindingSiteV1,
-    destination: BindingRefV1,
-    prior_homes: &[BindingRefV1],
-    local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    if !local_nullable_call(site)? {
-        return Ok(None);
-    }
-    let Some((observed_site, call)) = input
-        .function()
-        .method_calls()
-        .find(|(observed_site, _)| *observed_site == site.site())
-    else {
-        return Ok(None);
-    };
-    // The sealed observation is sole membership — the predicate already
-    // proved this site is the entry-loan `me` receiver. The inventory
-    // check only retains that `me` in an instance method resolves to a
-    // lexical `Local` binding; `CurrentOwner`/`Other`/`QualifiedUnbound`
-    // receiver shapes can never agree with the sealed row.
-    if observed_site != site.site()
-        || !matches!(
-            call.receiver(),
-            super::ResolvedMethodCallReceiverSourceV1::Lexical(super::ResolvedLexicalRefV1::Local(
-                _
-            ))
-        )
-    {
-        return Ok(None);
-    }
-    Ok(Some(LocalCallObservationV1::issue(
-        input.owner(),
-        statement.clone(),
-        site.clone(),
-        declaration,
-        destination,
-        prior_homes.iter().copied().collect(),
-        Box::new([]),
-        LocalCallResultClassV1::Nullable,
-    )))
-}
+#[path = "home_receiver_local_call.rs"]
+mod receiver;
+pub(crate) use receiver::issue_receiver_local_call;
 
 /// Issue one exact literal-argument local Call from already-resolved source.
 /// The caller supplies the existing selected-call predicate and the result

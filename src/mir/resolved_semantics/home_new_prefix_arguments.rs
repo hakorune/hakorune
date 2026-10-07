@@ -6,8 +6,10 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, CallerNewHomePrefixV1, HomePrefixUnavailableV1, LocalFieldReadRequestV1,
-    LocalFieldReadResultV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
+    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+    CallerNewHomePrefixV1, HomePrefixUnavailableV1, LocalFieldReadRequestV1,
+    LocalFieldReadResultV1, ObjectReturnCallQualificationV1, ResultNewHomePrefixV1,
+    SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -79,6 +81,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // The dominated-view consult stays unavailable on this lane for
         // the same reason — a `Handle` leaf is truthfully uncovered here.
         &mut |_| Ok(false),
+        &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {});
     (prefixes, observations, result_prefixes)
@@ -179,17 +182,18 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     // The probe must see the same dominated-view use membership the
     // verified lane sees: an admitted `ArrayElementValue`/`AddOperand`/
     // `NewArgument` leaf keeps this walk covered exactly as the verified
     // lane admits it — the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>, E> {
     scan_new_home_flow(
         input,
@@ -216,6 +220,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        object_return,
     )
     .map(|outcome| outcome.0)
 }

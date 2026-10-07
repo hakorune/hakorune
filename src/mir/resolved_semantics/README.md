@@ -28,6 +28,21 @@ A passive Binding does not prove scalar kind, liveness or transport. Unsupported
 source spelling remains unknown to observation. No inventory or entry admission
 is added by this shared query.
 
+## Pending object-call return source
+
+`home_terminal_object_return.rs` retains the same result Facts qualification and
+witness identities on a terminal OwnedCall relation. Direct returns keep ordered
+original argument sites as pending source support, plus original Fault homes;
+Received returns keep the original covered local-call row and terminal exit homes.
+The qualification callback selects the existing verified walk exclusively, so an
+unavailable qualified object return cannot retry the scalar terminal observer.
+No argument values, Completion, Normal handoff, Home or physical execution are
+issued by this source product. The completed-index handoff remains required.
+Entry-receiver local source observations use the original Receiver-kind binding
+and the same receiver-call class observation: Object selects Handle and
+NullableObject selects Nullable. Other lexical receivers retain literal-only
+arguments. The flow's empty argument row never proves arity or executable values.
+
 ## Received-call source retention
 
 `home_prefix_received_call.rs` retains the original call initializer on the

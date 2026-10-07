@@ -114,17 +114,18 @@ pub(super) fn scan_statement_flow<'a, E>(
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     // The issuer's dominated-view use membership — `true` only when the
     // sealed borrowed-formal draft admits an `ArrayElementValue`,
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
 ) -> Result<bool, E> {
     let function = input.function();
     for index in 0..body.statements().len() {
@@ -152,7 +153,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals,
                 unavailable.is_none(),
             ) {
-                borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
+                borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
             }
         }
 
@@ -179,6 +180,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                 argument_i64_field,
                 local_lexical_i64_call,
                 borrowed_actuals,
+                object_return,
+                local_calls,
             )?;
             return Ok(true);
         }
@@ -219,6 +222,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_field_read,
                 borrowed_actuals,
                 view_use,
+                object_return,
             )?;
             if terminated {
                 return Ok(true);
@@ -338,7 +342,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 unavailable.is_none(),
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
-                borrowed_actuals(&call_site, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::Observe(&actuals))?;
+                borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
             }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
@@ -478,6 +482,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 declaration.clone(),
                 binding,
                 &homes,
+                local_call_flow::LocalCallResultClassV1::Nullable,
                 local_nullable_call,
             )? {
                 // A nullable `me.m(..)` result joins the owned-Home ledger:

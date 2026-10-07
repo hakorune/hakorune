@@ -95,6 +95,7 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
+    ObjectReturnCallQualificationV1,
     OrdinaryNewResultClassV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
     ResultWitnessStepV1,
 };

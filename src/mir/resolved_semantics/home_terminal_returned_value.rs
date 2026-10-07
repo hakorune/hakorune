@@ -14,6 +14,8 @@ pub(crate) enum TerminalReturnedSourceV1 {
     /// `return %{...}` — construction lives in the literal's MapHomeFlow
     /// row; this site joins the relation and the flow.
     MapLiteral(OwnedExprSiteV1),
+    /// Original qualified call return, pending Completion/leaf handoff proof.
+    OwnedCall(Box<super::super::TerminalObjectReturnObligationV1>),
     /// `return <binding>` — a live map-installed local or alias root.
     MapLocal(BindingRefV1),
     /// `return <binding>` — a live selected-New Home local; `acquisition`

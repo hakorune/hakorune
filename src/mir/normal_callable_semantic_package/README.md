@@ -1427,3 +1427,14 @@ never demand a failed ingress. Late co-seal marks only successful final incoming
 routes before emission, and a failed source grants no route. Both independent
 physical verifiers consume the same original source loan and exact canonical
 Global declaration/coordinate coverage. Instance-only return seams stay sealed.
+
+## Pending qualified object-return source
+
+The cohort lends the existing result Facts qualification to the terminal source
+walk, retaining Direct pending argument sites or the original covered Received
+call observation. Child and root-only terminal relations keep that obligation.
+Root preparation and SourceComplete cannot discharge it. Both artifact entrances
+check the union of root and indexed relations before claiming success, including
+a root row hidden by an empty same-owner index. The original completed-index
+callee Completion/leaf handoff seal is still required; source qualification and
+an empty argument row issue no Normal transfer or physical execution permission.

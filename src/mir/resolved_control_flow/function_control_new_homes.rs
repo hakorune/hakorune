@@ -59,6 +59,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         &mut |_| Ok(false),
+        &mut |_| Ok(None),
     )?;
     Ok(
         result.map(|(completion, prefixes, terminal_relations, _, _)| {
@@ -181,6 +182,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
+
+    object_return: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1>,
+        E,
+    >,
 ) -> Result<
     Result<
         (
@@ -242,6 +250,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             local_field_read,
             borrowed_actuals,
             view_use,
+            object_return,
         )?;
     match &mut completion {
         VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup.attach_root_flow(homes),

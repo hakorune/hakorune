@@ -634,6 +634,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             )
         },
         &mut dominated_view_use_consult_v1(borrowed_formal_source),
+        &mut |site| Ok(callable_result_classes.object_return_qualification(site)),
     )
 }
 

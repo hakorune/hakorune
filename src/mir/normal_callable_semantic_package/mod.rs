@@ -140,6 +140,7 @@ pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareCarrierOperandLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(crate) use ordinary_new_coseal::{
+    ObjectReturnCallQualificationV1,
     BirthAbiHandoffV1, BorrowedCompareIntegerLiteralLoanV1, BorrowedCompareSourceLoanV1,
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
     LexicalInstanceCallDispositionRowV1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,

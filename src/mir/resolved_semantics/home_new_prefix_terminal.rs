@@ -42,22 +42,66 @@ pub(super) fn observe_terminal_statement<'a, E>(
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
-        crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1<'_>,
-    ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>,
-        E,
-    >,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+
+    object_return: &mut impl FnMut(
+        &OwnedExprSiteV1,
+    ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
+    local_calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
-    let borrowed_terminal = local_call_flow::issue_borrowed_i64_terminal_call(
-        input,
-        statement,
-        homes,
-        locals,
-        local_lexical_i64_call,
-        borrowed_actuals,
-    )?;
-    let scalar_return = if let Some(terminal) = borrowed_terminal {
+    // Qualified object returns are exclusive, including unavailable support.
+    // They must never reach the scalar borrowed-argument shortcut.
+    let object_terminal = if matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
+        if let Ok(value) = input
+            .source()
+            .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
+        {
+            let site = OwnedExprSiteV1::new(input.owner(), value.site().clone());
+            if let Some(loan) = object_return(&site)? {
+                Some(super::object_return::observe_object_return_source(
+                    input,
+                    statement,
+                    loan,
+                    locals,
+                    local_calls,
+                    path_calls,
+                    homes,
+                )?)
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+    let borrowed_terminal = if object_terminal.is_none() {
+        local_call_flow::issue_borrowed_i64_terminal_call(
+            input,
+            statement,
+            homes,
+            locals,
+            local_lexical_i64_call,
+            borrowed_actuals,
+        )?
+    } else {
+        None
+    };
+    let scalar_return = if let Some(obligation) = object_terminal {
+        match obligation {
+            Ok(value) => {
+                relation = Some(TerminalRelationV1::Value(value));
+                true
+            }
+            Err(issue) => {
+                unavailable.get_or_insert(issue);
+                false
+            }
+        }
+    } else if let Some(terminal) = borrowed_terminal {
         relation = Some(TerminalRelationV1::Call(terminal));
         true
     } else {

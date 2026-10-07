@@ -600,6 +600,9 @@ impl OrdinaryNewClaimLedgerV1 {
             Some(Err(_)) => return Unavailable(CompletionRejected),
             Some(Ok(completion)) => completion,
         };
+        if self.has_pending_object_return_v1(owner) {
+            return Unavailable(TerminalHomesUnavailable);
+        }
         if !completion
             .cleanup()
             .root_flow()
