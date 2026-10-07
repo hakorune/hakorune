@@ -1448,3 +1448,9 @@ callee exit. Missing/rejected indexed Completion is unavailable and never
 retries root Completion. Foreign witness/owner, substituted claim/prefix, or
 exit drift cannot corroborate. This prerequisite grants no Normal handoff,
 caller Home, result-slot upgrade, transport or artifact permission.
+
+The pending borrowed-argument lender returns references to the existing incoming
+row and ordered executable actuals. It does not demand or issue a result proof.
+The I64 projector borrows that same lender, then applies its existing source-result
+corroboration in the same error order. Object-result qualification and handoff must
+be checked by their own requesting lane; argument lending alone grants neither.

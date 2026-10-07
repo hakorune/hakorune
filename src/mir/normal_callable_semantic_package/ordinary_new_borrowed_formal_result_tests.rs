@@ -345,7 +345,12 @@ fn borrowed_call_result_accepts_unannotated_complete_i64_source() {
 #[test]
 fn borrowed_call_result_keeps_unannotated_i64_bounded() {
     for (label, result, body, token) in [
-        ("opaque-return", "", "return p", "borrowed-result/source-not-i64"),
+        (
+            "opaque-return",
+            "",
+            "return p",
+            "borrowed-result/source-not-i64",
+        ),
         (
             "mixed-exit",
             "",
@@ -390,5 +395,99 @@ fn borrowed_call_result_keeps_unannotated_i64_bounded() {
                 "{label}: an opaque-return callee acquired an I64 permission"
             ),
         }
+    }
+}
+
+#[test]
+fn original_argument_lender_preserves_identity_without_result_authority() {
+    let mut package = package("p", ": i64", "return 0", "true");
+    let row = take(&package);
+    let site = row.call_site().clone();
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    ledger
+        .borrowed_i64_results
+        .remove(&row.callee_owner())
+        .unwrap()
+        .unwrap();
+    let source = ledger.borrowed_formal_source.as_ref().unwrap();
+    let actuals = &ledger.borrowed_formal_actuals;
+    let (incoming, arguments) =
+        super::super::borrowed_formal_actuals::lend_pending_borrowed_arguments_v1(
+            source, actuals, &site,
+        )
+        .unwrap()
+        .unwrap();
+    let original = &source.as_ref().unwrap().incoming[0];
+    assert!(std::ptr::eq(incoming, original));
+    assert!(std::ptr::eq(
+        arguments,
+        actuals[&site].as_ref().unwrap().ordered_arguments.as_ref()
+    ));
+    assert_eq!(incoming.callee, row.callee_owner());
+    assert!(super::super::project_pending_borrowed_i64_arguments_v1(
+        source,
+        actuals,
+        &ledger.borrowed_i64_results,
+        &site
+    )
+    .unwrap_err()
+    .contains("result-source-missing"));
+    assert!(
+        ledger.borrowed_call_actuals_v1(&row).is_err(),
+        "lending arguments grants no result"
+    );
+    let excluded = OwnedExprSiteV1::new(site.owner(), row.argument_sites()[0].clone());
+    assert!(
+        super::super::borrowed_formal_actuals::lend_pending_borrowed_arguments_v1(
+            source,
+            &BTreeMap::new(),
+            &excluded
+        )
+        .unwrap()
+        .is_none()
+    );
+}
+
+#[test]
+fn original_argument_lender_rejects_duplicate_incoming_and_argument_drift() {
+    for duplicate in [false, true] {
+        let mut package = package("p", ": i64", "return 0", "true");
+        let row = take(&package);
+        let site = row.call_site().clone();
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        if duplicate {
+            let source = ledger
+                .borrowed_formal_source
+                .as_mut()
+                .unwrap()
+                .as_mut()
+                .unwrap();
+            let mut incoming = source.incoming.to_vec();
+            incoming.push(incoming[0].clone());
+            source.incoming = incoming.into_boxed_slice();
+        } else {
+            let actuals = ledger
+                .borrowed_formal_actuals
+                .get_mut(&site)
+                .unwrap()
+                .as_mut()
+                .unwrap();
+            actuals.ordered_arguments[0] =
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(1);
+        }
+        let error = super::super::borrowed_formal_actuals::lend_pending_borrowed_arguments_v1(
+            ledger.borrowed_formal_source.as_ref().unwrap(),
+            &ledger.borrowed_formal_actuals,
+            &site,
+        )
+        .unwrap_err();
+        assert!(
+            error.contains(if duplicate {
+                "source-identity"
+            } else {
+                "ordered-arguments-identity"
+            }),
+            "{error}"
+        );
     }
 }

@@ -434,15 +434,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_borrowed_call_actu
 }
 
 /// Demand by exact selected site. Source failure cannot become an empty result.
-pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed_i64_arguments_v1(
-    source: &Result<PreparedBorrowedFormalIngressV1, String>,
-    actuals: &PendingBorrowedFormalActualsV1,
-    results: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
-    >,
+/// Borrow the original incoming target and exact ordered executable arguments.
+/// Result corroboration belongs to the requesting result lane, not this lender.
+pub(super) fn lend_pending_borrowed_arguments_v1<'a>(
+    source: &'a Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &'a PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
-) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+) -> Result<
+    Option<(
+        &'a super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+        &'a [LocalCallArgumentV1],
+    )>,
+    String,
+> {
     let source = source.as_ref().map_err(Clone::clone)?;
     let mut incoming = source.incoming.iter().filter(|call| &call.call == site);
     let Some(call) = incoming.next() else {
@@ -461,6 +465,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed
         .as_ref()
         .map_err(Clone::clone)?;
     let arguments = actuals.ordered_arguments_for_v1(call)?;
+    Ok(Some((call, arguments)))
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed_i64_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &PendingBorrowedFormalActualsV1,
+    results: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
+    >,
+    site: &OwnedExprSiteV1,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    let Some((call, arguments)) = lend_pending_borrowed_arguments_v1(source, actuals, site)? else {
+        return Ok(None);
+    };
     let proof = results
         .get(&call.callee)
         .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
