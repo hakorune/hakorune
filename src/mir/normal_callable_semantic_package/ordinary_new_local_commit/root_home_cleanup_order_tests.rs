@@ -110,3 +110,6 @@ fn root_cleanup_order_argument_prefix_preserves_both_original_sequences_atomical
     assert!(order.prepend_argument_maps(vec![prefix]).is_err());
     assert_eq!(order.full(), before);
 }
+
+#[path = "root_cleanup_order_path_tests.rs"]
+mod path_tests;

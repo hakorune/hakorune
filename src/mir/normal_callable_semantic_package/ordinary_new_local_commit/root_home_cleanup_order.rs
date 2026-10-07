@@ -71,7 +71,9 @@ impl RootHomeCleanupOrderV1 {
         Ok(())
     }
 
-    pub(super) fn normal(&self) -> Vec<RootHomeReleaseOriginV1> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn normal(
+        &self,
+    ) -> Vec<RootHomeReleaseOriginV1> {
         self.normal
             .iter()
             .map(|index| self.full[*index].clone())
@@ -82,14 +84,16 @@ impl RootHomeCleanupOrderV1 {
         &self.full
     }
 
-    pub(super) fn acquisition_fault(&self) -> Vec<RootHomeReleaseOriginV1> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn acquisition_fault(
+        &self,
+    ) -> Vec<RootHomeReleaseOriginV1> {
         self.acquisition_fault
             .iter()
             .map(|index| self.full[*index].clone())
             .collect()
     }
 
-    pub(super) fn fault_after_normal_step(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn fault_after_normal_step(
         &self,
         step: usize,
     ) -> Result<Vec<RootHomeReleaseOriginV1>, String> {

@@ -14,9 +14,16 @@ type Incoming = BTreeMap<(BasicBlockId, usize), (Discriminant<MirInstruction>, O
 #[path = "root_call_cleanup_graph.rs"]
 pub(super) mod call;
 
+#[path = "root_cleanup_order_paths.rs"]
+pub(super) mod ordered_paths;
+
+#[path = "root_cleanup_order_structure.rs"]
+pub(super) mod ordered_structure;
+
 /// Root-specific source-origin count and graph-shape validation.
 /// `release_count` counts source-issued release operations — homes and
 /// their owned field-residence children — not just Home bindings.
+#[cfg(test)]
 pub(super) fn validate_original(
     function: &MirFunction,
     bindings: &Bindings,
@@ -134,6 +141,7 @@ fn require_acyclic(nodes: &BTreeMap<BasicBlockId, &MirInstruction>) -> Result<()
     Ok(())
 }
 
+#[cfg(test)]
 fn recorded_nodes(
     bindings: &Bindings,
     release_count: usize,

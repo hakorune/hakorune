@@ -588,6 +588,14 @@ impl OrdinaryNewClaimLedgerV1 {
                             return Err(freeze("root-exit-binding-drift"));
                         }
                     }
+                    super::root_cleanup_graph::ordered_paths::validate(
+                        function, bindings, entry, order, projection,
+                    )?;
+                    if let Some(projection) = projection {
+                        super::root_cleanup_graph::ordered_structure::validate_projected(
+                            function, bindings, entry, projection,
+                        )?;
+                    }
                     let _ = mapped;
                 }
                 _ => return Err(freeze("root-exit-unconsumed")),
@@ -609,35 +617,20 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             let RootHomeExitProgress::Emitted {
-                origins,
                 bindings,
                 entry,
+                order,
                 ..
             } = progress
             else {
                 continue;
             };
-            match entry {
-                RootHomeExitEntry::Plain { .. } if !origins.is_empty() => {
-                    super::root_cleanup_graph::validate_original(function, bindings, origins.len())?
-                }
-                RootHomeExitEntry::Call {
-                    invoke, projection, ..
-                }
-                | RootHomeExitEntry::MapGet {
-                    invoke, projection, ..
-                } => super::root_cleanup_graph::call::validate_original(
-                    function,
-                    bindings,
-                    invoke,
-                    projection,
-                    &origins
-                        .iter()
-                        .map(|row| row.origin.operation())
-                        .collect::<Vec<_>>(),
-                )?,
-                _ => {}
-            }
+            super::root_cleanup_graph::ordered_paths::validate(
+                function, bindings, entry, order, None,
+            )?;
+            super::root_cleanup_graph::ordered_structure::validate_original(
+                function, bindings, entry,
+            )?;
         }
         Ok(())
     }

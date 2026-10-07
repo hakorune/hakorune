@@ -946,3 +946,21 @@ Pointer/scope/COPY/diff and changed-source/new-child fmt PASS. Unrelated old tes
 formatting excluded after exact rustfmt-canonical code equality corroboration;
 only the required progress-field change remains in that test file.
 No Object return semantics, artifact permission or real EXE/full-goal claim.
+
+Root validator checkpoint (2026-10-08, independent neutral baseline): SAME retained
+order sets actual Normal/acquisition/per-step Fault path expectations. Exact
+recorded graph/DAG/reachability replaces production fixed2N counts. Original
+terminal/instruction/incoming boundaries retained; projected entry uses original
+FinishedBindings destination, merged instructions checked by PhysicalBoundary
+before FinishingChecked. No source admission/Call kind/gate expansion.
+Pins: Fault-only semantics, joint record/MIR omission, wrong Normal/Fault operation
+and pending outcome; structural extra/missing/unreachable/foreign/cycle/duplicate
+nodes; actual FinishedBindings Plain entry contraction. Read-only worker confirms
+contract and caller-zero. Candidate focused49/expanded434 before removal,
+post-removal49/check16.30s PASS; neutral focused48/expanded347/check48.43s
+PASS (/tmp/hako-root-order-validator-neutral-*.log), warnings1693.
+Pointer/scope/COPY/fmt/diff/caps PASS; exact source hunk audit excludes semantic WIP.
+Deleted exactly Call count validate_original and exclusive skip_jumps/release;
+shared ingress preserved. Plain old count helper/recorded_nodes remain cfg(test)
+for existing RootCleanupBoundary tests. Direct/Received physical attachment and
+Finalized-order corroboration remain owed; no realEXE/fullS0/goal completion.

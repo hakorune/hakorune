@@ -1470,3 +1470,10 @@ repeated finalized take retain the same order. Final source holders keep the sam
 ledger Rc. Ordinary F=N graphs and preparation/publication gates remain unchanged;
 Received omission, Direct result attachment and FinishedBindings/Fault residual
 validation are later semantic work, not permission granted by this retention.
+
+Root cleanup paths independently walk actual MIR against the retained original
+Normal/acquisition/per-step Fault obligations. Exact recorded-node coverage, DAG
+and reachability replace fixed F=N counts. Projected topology uses original
+entry destinations; PhysicalBoundary checks merged instructions before finishing.
+Old Call count helper and its exclusive walkers are removed; shared ingress stays.
+Preparation/publication and Call result-kind admission remain unchanged.
