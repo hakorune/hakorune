@@ -899,3 +899,60 @@ unchanged; no fresh full-app EXE/frontier or full S0/goal completion claim.
 Next: build candidate CLI and probe unchanged mimalloc actual source; use exact
 retained source/domain/Completion boundary for next owned mapping. Both315/318,
 field lifetime/cleanup and full mandatory production acceptance still owed.
+Checkpoint0d2ca0eecbdd6591ccd407ab36e26bbfb1b9c548 Static physical shared-packet/emitter closure verified and pushed: final262/262 regression, non-test21.52s, scope/COPY/pointer/diff PASS;12 unchanged source JSON C compile/link/run exit0 and14 ABI negatives PASS. Original larger WIP working bytes preserved through publication; index empty; candidate code/index synchronized. Actual mimalloc source SHA33d3e8b9 unchanged; fresh candidate CLI/probe is next, not yet acceptance. Both315/318/field lifetime/full goal remain owed.
+Fresh unchanged mimalloc candidate probe after0d2ca0eecb: current CLI build PASS1m25; binary SHA7552a2940eac44f660be8181f91aab7c23c951d792e82c369fd39cd33dfc2b0a, source SHA33d3e8b9 unchanged. Initial rc2 was deprecated nyash basename guard (harness invocation, not source frontier); same binary copied as hakorune gives rc1/noEXE at ordinary-new/local-commit/artifact-unowned-lifecycle-site, HakoAllocHeap.reallocResult/2 block368 index4 plain BirthConstructor HakoAllocHandleResult.birth/3 receiver51 args48,49,50. /tmp/hako-static-packet-candidate-mimalloc-probe.{log,json} records exact run/source/binary/commit. This candidate boundary is distinct from protected full-WIP Page.allocate observation; neither certifies the other. Next read-only mapping is original result-New/Birth claim and final artifact ownership, not C emitter retry or app rewriting; next Decision pending worker review, goal active.
+
+Fresh same-binary original source trace confirms all8 HakoAllocHandleResult takes:
+6 selected Ok(true),2 retained claims with construction/argument proof but
+PrefixNotCovered at original Body(3); later result-New Body(4).IfThen(0).Value
+and Body(5).Value selected Ok(false). /tmp/hako-static-packet-candidate-mimalloc-source-trace.log.
+First physical reject differs by final block iteration (368/369), so block id
+is not the source authority. Original result census also independently checked.
+Next accepted Decision (read-only review_cleanup_path): complete original
+CALLEE-RETURN-OUTCOME Direct/Received source-to-completed-index handoff.
+Source authority + canonical issuer: SAME ResultOriginWitness DAG, existing
+passive ObjectReturnCallQualification loan, original terminal source relation /
+received acquisition site, original result-New leaf claim and successful callee
+Completion Rc. Original issuer completed-index boundary seals one per(owner,exit)
+NormalReturnDisposition after all Completion retention; no assumed source_finish
+or OriginalLexicalPhase owner from protected future WIP.
+Non-authority: class alone, NullableObject as an owned Home, block/index guesses,
+fabricated empty Completion, raw Birth fallback or suppressed artifact coverage.
+Smallest next dependency closure: source terminal-object-return obligation plus
+received-prefix acquisition retention, then same completed-index Normal projection
+and exact recipe teardown/Direct+Received shared emitter. Source model alone is
+not full S0; I64/noobligation behavior and original priorHomes Fault stay intact.
+Target replacements: terminal-return source callback/scanner/arguments/branch
+edges, issuer original index closure, root_home readiness/preparation/cleanup
+projection and existing returned-call physical emitter; no second registry/solver.
+ObjectArguments may enter only if the concrete qualified owned-result call needs
+its original argument loan before final profile, with exact separate qualification
+(not I64 Scalar port); no global object-domain widening.
+Acceptance: real Maker.make Fresh/null, Direct relay and local out-return Received;
+foreign source/callee/receiver/argument/exit, missing/rejected Completion or leaf,
+Normal/Fault cleanup and duplicate acquisition refuse. Imported mixed realloc
+Body(3) and Heap.allocate Page207/211 ancestry remain unavailable until their
+actual missing leaves/entries are proved. Do not claim8/0 from source-only work.
+Both315/318, field lifetime/cleanup and mandatory full production acceptance remain
+required; goal active. Next implementation not started at this recorded boundary.
+
+Received-source retention prerequisite selected (BoxShape): three original
+scanner installers retain SAME owned call initializer in existing local state;
+private child owns exact acquisition/covered original observation loans, parent
+655 lines. No terminal OwnedCall/ObjectArguments/normal-return or new admission.
+Read-only review confirms source-local declarations uniquely identify binding
+initializers, so exact branch equality rejects source drift, not valid old joins.
+Focused five original-source identity/invalidation/join/loan tests running;
+no PASS/closeout/publication claim until results and regressions are checked.
+Next terminal obligation must stay unavailable in readiness/artifact gates until
+original completed-index Completion co-seal lands; no source-only execution grant.
+Received retention first compile found8 THISCHANGE child-module path/privacy errors (moved methods still used former super paths and pub(super)); fixed original enclosing home_new_prefix visibility and exact source type paths, without broad public access. Corrected focused run1141 live, /tmp/hako-received-source-retention-corrected.log; no verified green yet. Protected original larger WIP untouched; candidate-only bounded implementation.
+Received retention corrected focused PASS5/5 (1m08s compile/.01s runtime);
+expanded original Instance/Static/source/result regression PASS267/267 (.57s),
+/tmp/hako-received-source-retention-{corrected,regression}.log. First broad
+invocation used Cargo filter arguments before -- and was refused by CLI; harness
+corrected, no tests ran in refused invocation. Scope/COPY/diff PASS. Non-test
+check4041 still running. Original index empty, all160 protected working paths
+snapshotted before publication; no original writes yet. Next exact terminal
+Direct/Received obligations and completed-index owner remain required.
+Received-source retention bounded checkpoint verified: non-test check PASS16.77s, /tmp/hako-received-source-retention-check.log; pointer/scope/COPY/fmt/diff PASS;5 new and267 expanded tests PASS, initial8 child-path/privacy errors corrected. No THISCHANGE/unclassified red in selected scope. Exact scanner original-site retention replaces prior source-dropping installers; no execution widening or full S0 claim. Parent655/child111/tests205/card below1000; next source terminal qualification closure still owed.

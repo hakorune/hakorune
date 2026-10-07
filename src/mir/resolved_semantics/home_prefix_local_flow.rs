@@ -28,11 +28,15 @@ enum StoredLocal {
     /// the caller's exit exactly one release like a `Home`, but its
     /// acquisition is a call site — never a `new` site — so the
     /// home-acquisition lookups must not surface it.
-    ReceivedHandle,
+    ReceivedHandle {
+        acquisition: OwnedExprSiteV1,
+    },
     /// A nullable receiver-call result the caller owns only when non-null.
     /// It owes the caller's exit a checked release and must never satisfy
     /// a `Handle`-only probe — the `Void` sentinel is a real outcome.
-    ReceivedNullable,
+    ReceivedNullable {
+        acquisition: OwnedExprSiteV1,
+    },
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
     /// read-only for the call. It reads like a live map but owns nothing:
@@ -119,8 +123,14 @@ impl OrdinaryObservation {
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
         (StoredLocal::Home { acquisition: a }, StoredLocal::Home { acquisition: b }) => a == b,
-        (StoredLocal::ReceivedHandle, StoredLocal::ReceivedHandle) => true,
-        (StoredLocal::ReceivedNullable, StoredLocal::ReceivedNullable) => true,
+        (
+            StoredLocal::ReceivedHandle { acquisition: a },
+            StoredLocal::ReceivedHandle { acquisition: b },
+        ) => a == b,
+        (
+            StoredLocal::ReceivedNullable { acquisition: a },
+            StoredLocal::ReceivedNullable { acquisition: b },
+        ) => a == b,
         (StoredLocal::Map, StoredLocal::Map) => true,
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
@@ -171,7 +181,7 @@ impl<'source> PrefixLocalFlow<'source> {
     /// sibling branch scope — ignores it.
     pub(super) fn mark_nonnull(&mut self, binding: BindingRefV1) {
         let narrowable = match self.locals.get(&binding) {
-            Some(StoredLocal::ReceivedNullable) => true,
+            Some(StoredLocal::ReceivedNullable { .. }) => true,
             Some(StoredLocal::Handle(root)) => *root == binding,
             _ => false,
         };
@@ -205,7 +215,7 @@ impl<'source> PrefixLocalFlow<'source> {
         };
         (matches!(
             self.locals.get(&binding),
-            Some(StoredLocal::ReceivedNullable)
+            Some(StoredLocal::ReceivedNullable { .. })
         ) && self.nonnull.contains(&binding))
         .then_some(binding)
     }
@@ -317,14 +327,14 @@ impl<'source> PrefixLocalFlow<'source> {
         };
         match self.locals.get(&binding)? {
             StoredLocal::Home { .. }
-            | StoredLocal::ReceivedHandle
+            | StoredLocal::ReceivedHandle { .. }
             | StoredLocal::Map
             | StoredLocal::BorrowedMap => Some(OrdinaryObservation::Handle(binding)),
             // A nullable result is a produced value, never a handle root —
             // the `Void` sentinel arm keeps every Handle-classified use
             // fail-closed while `new` argument observation can still name
             // the binding's value.
-            StoredLocal::ReceivedNullable => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::ReceivedNullable { .. } => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
             {
@@ -488,7 +498,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 StoredLocal::Home { .. }
                     | StoredLocal::Handle(_)
                     | StoredLocal::FieldAlias { .. }
-                    | StoredLocal::ReceivedNullable
+                    | StoredLocal::ReceivedNullable { .. }
                     | StoredLocal::Consumed
             )
         )
@@ -518,7 +528,7 @@ impl<'source> PrefixLocalFlow<'source> {
             }
             // A received nullable carries no field provenance until the
             // branch join proves the surviving path non-null.
-            StoredLocal::ReceivedNullable if self.nonnull.contains(&binding) => {
+            StoredLocal::ReceivedNullable { .. } if self.nonnull.contains(&binding) => {
                 Some(FieldReadReceiverV1::ReceivedNullable)
             }
             _ => None,
@@ -533,7 +543,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn is_received_nullable(&self, binding: BindingRefV1) -> bool {
         matches!(
             self.locals.get(&binding),
-            Some(StoredLocal::ReceivedNullable)
+            Some(StoredLocal::ReceivedNullable { .. })
         )
     }
 
@@ -562,19 +572,6 @@ impl<'source> PrefixLocalFlow<'source> {
     }
     pub(super) fn install_map(&mut self, binding: BindingRefV1) {
         self.store(binding, StoredLocal::Map);
-    }
-
-    /// A received call-result handle: the caller owns it as a Home but it
-    /// carries no `new` acquisition site, so it installs on its own arm.
-    pub(super) fn install_received_handle(&mut self, binding: BindingRefV1) {
-        self.store(binding, StoredLocal::ReceivedHandle);
-    }
-
-    /// A received nullable call result: the caller owns it conditionally —
-    /// the exit chain owes a checked release, and no acquisition site or
-    /// scalar class ever applies.
-    pub(super) fn install_received_nullable(&mut self, binding: BindingRefV1) {
-        self.store(binding, StoredLocal::ReceivedNullable);
     }
 
     pub(super) fn install_i64_call_result(&mut self, binding: BindingRefV1) {
@@ -649,3 +646,10 @@ impl<'source> PrefixLocalFlow<'source> {
         self.store(binding, stored);
     }
 }
+
+#[cfg(test)]
+#[path = "home_prefix_received_call_tests.rs"]
+mod received_call_tests;
+
+#[path = "home_prefix_received_call.rs"]
+mod received_call;

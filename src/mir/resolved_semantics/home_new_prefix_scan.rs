@@ -394,7 +394,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 homes.push(binding);
-                locals.install_received_nullable(binding);
+                locals.install_received_nullable(binding, &owned);
                 continue;
             }
             // Lexical-receiver `recv.m(..)` calls whose selected callee
@@ -468,7 +468,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 homes.push(binding);
-                locals.install_received_handle(binding);
+                locals.install_received_handle(binding, &owned);
                 continue;
             }
             if let Some(local_call) = local_call_flow::issue_receiver_local_call(
@@ -486,7 +486,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 path_calls.insert(local_call.site().clone());
                 local_calls.push(local_call);
                 homes.push(binding);
-                locals.install_received_nullable(binding);
+                locals.install_received_nullable(binding, &owned);
                 continue;
             }
             if let Some(destination) = selected.get(&owned) {

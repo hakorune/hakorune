@@ -28,6 +28,18 @@ A passive Binding does not prove scalar kind, liveness or transport. Unsupported
 source spelling remains unknown to observation. No inventory or entry admission
 is added by this shared query.
 
+## Received-call source retention
+
+`home_prefix_received_call.rs` retains the original call initializer on the
+existing PrefixLocalFlow ReceivedHandle/ReceivedNullable state. The scanner's
+three original installers pass the same owned expression site. Branch joins
+require identical acquisition sites; consumption and rebinding invalidate the
+retained source. Received values remain distinct from direct New acquisitions.
+The source query borrows exactly one covered original LocalCallObservation,
+matching owner, declaration, destination and result role, including its original
+arguments and prior Fault homes. This lends source identity only; it grants no
+callee Completion, returned Home, transfer or physical execution capability.
+
 ## Map source shape
 
 The existing body-shape issuer retains Map literal keys in source order,
