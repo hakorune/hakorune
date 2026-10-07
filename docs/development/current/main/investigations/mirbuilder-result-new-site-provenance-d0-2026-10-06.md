@@ -964,3 +964,22 @@ Deleted exactly Call count validate_original and exclusive skip_jumps/release;
 shared ingress preserved. Plain old count helper/recorded_nodes remain cfg(test)
 for existing RootCleanupBoundary tests. Direct/Received physical attachment and
 Finalized-order corroboration remain owed; no realEXE/fullS0/goal completion.
+
+Finalized cleanup join (2026-10-08, bounded checkpoint): SAME ledger owner/exit
+Finalized order joins moved rebound root Call payload without double mapping;
+Emitted child Call uses original bindings with SAME owner finishing map once.
+The production lexical-call visitor checks retained cleanup before enumeration,
+including zero lexical nodes. Mandatory cleanup/invoke/result/frame must be
+recorded AND exist in current MIR; independent order/path/topology remain.
+Unselected unfinished source-only rows retain existing gates; child Plain
+local-call fixture is not a cleanup authority. Existing fixture root identity
+and terminal cleanup node set corrected to their actual separate owners.
+Root contraction positive, current result/frame deletion and missing order
+negatives, real direct-source zero-lexical consumer positive: focused6 PASS.
+Candidate expanded440 / isolated67 PASS; initial fixture reds corrected.
+Pointer/scope/COPY/fmt/diff/caps PASS; isolated non-test check PASS.
+Evidence: /tmp/hako-final-cleanup-{fixtures,regression,neutral,neutral-check}.log.
+Read-only worker integrated: no further bounded fix; whole-function mutation
+continues through existing finishing/publication validators. Direct result
+provisional cleanup, Received attachment, exact Handle/Nullable ingress and
+pending/artifact activation, Both315/318/lifetime/realEXE/full acceptance owed.

@@ -112,6 +112,23 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     // instruction sequences before the owner can enter FinishingChecked.
     topology(function, &nodes, starts, plain_entry)
 }
+/// Root Call payloads are already rebound before their affine final handoff.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_finished_call(
+    function: &MirFunction,
+    bindings: &Bindings,
+    entry: &RootHomeExitEntry,
+) -> Result<(), String> {
+    let RootHomeExitEntry::Call {
+        invoke, projection, ..
+    } = entry
+    else {
+        return Err(fault("ordered-structure/final-entry"));
+    };
+    let nodes = collect_nodes(bindings)?;
+    let (clean, pending, _, _) = call::ingress(function, bindings, invoke, projection)?;
+    topology(function, &nodes, vec![clean, pending], None)
+}
+
 fn collect_nodes(bindings: &Bindings) -> Result<BTreeMap<BasicBlockId, &MirInstruction>, String> {
     let mut nodes = BTreeMap::new();
     for (id, terminal) in bindings {

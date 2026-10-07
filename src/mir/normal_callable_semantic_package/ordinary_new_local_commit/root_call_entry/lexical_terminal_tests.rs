@@ -129,7 +129,7 @@ pub(super) fn function(
                 .add_instruction(instruction.clone());
         }
     }
-    (function, frame.clone(), vec![frame, jump, normal, fault])
+    (function, frame, vec![normal, fault])
 }
 
 fn record(
@@ -252,7 +252,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     let bindings: Vec<_> = arguments
         .iter()
         .chain(cleanup.iter())
-        .chain([&packet.invoke, &packet.projection])
+        .chain([&frame, &packet.invoke, &packet.projection])
         .cloned()
         .collect();
     let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
@@ -321,6 +321,42 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
     };
+    let mut module = crate::mir::MirModule::new("final-root-cleanup".into());
+    module
+        .functions
+        .insert(finished.signature.name.clone(), finished.clone());
+    source.validate_finalized_root_cleanup_v1(&module).unwrap();
+    // Saved FinishedBindings must not hide mutation of the current result/frame.
+    for remove_result in [true, false] {
+        let mut changed = module.clone();
+        let function = changed.functions.get_mut(&finished.signature.name).unwrap();
+        for block in function.blocks.values_mut() {
+            block.instructions.retain(|instruction| {
+                if remove_result {
+                    !matches!(instruction, MirInstruction::InvokeNormalResult { .. })
+                } else {
+                    !matches!(instruction, MirInstruction::FaultFrameEnter { .. })
+                }
+            });
+        }
+        assert!(source
+            .validate_finalized_root_cleanup_v1(&changed)
+            .unwrap_err()
+            .contains("binding-unrecorded"));
+    }
+    let retained_order = ledger
+        .root_exits
+        .borrow_mut()
+        .remove(&(owner, exit.clone()))
+        .unwrap();
+    assert!(source
+        .validate_finalized_root_cleanup_v1(&module)
+        .unwrap_err()
+        .contains("order-missing"));
+    ledger
+        .root_exits
+        .borrow_mut()
+        .insert((owner, exit.clone()), retained_order);
     let coordinate = source
         .finished_terminal_call_producer_v1(
             owner,
@@ -376,7 +412,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
     let bindings: Vec<_> = arguments
         .iter()
         .chain(cleanup.iter())
-        .chain([&packet.invoke, &packet.projection])
+        .chain([&frame, &packet.invoke, &packet.projection])
         .cloned()
         .collect();
     let boundary = PhysicalBoundary::capture(&physical, &bindings).unwrap();

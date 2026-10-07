@@ -459,7 +459,7 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
-    fn with_finished_projection<T>(
+    pub(super) fn with_finished_projection<T>(
         &self,
         owner: FunctionOwnerIdV1,
         read: impl FnOnce(&str, &physical_boundary::FinishedBindings) -> Result<T, String>,

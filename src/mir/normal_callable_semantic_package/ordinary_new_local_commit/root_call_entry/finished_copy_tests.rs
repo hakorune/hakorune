@@ -271,12 +271,14 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     let source = FinalizedRootSourceHandoffV1 {
         ledger: Rc::clone(&ledger),
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
-        owner,
+        owner: ledger.root_owner().unwrap(),
         terminals: ledger.terminal_relation.clone(),
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
     };
+    let child_symbol = physical.signature.name.clone();
     let mut module = crate::mir::MirModule::new("borrowed-discard-loan".into());
+    module.functions.insert(root.signature.name.clone(), root);
     module
         .functions
         .insert(physical.signature.name.clone(), physical);
@@ -301,7 +303,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
     // optional aliases have their own omission permissions.
     for mutation in 0..3 {
         let mut changed = module.clone();
-        let function = changed.functions.values_mut().next().unwrap();
+        let function = changed.functions.get_mut(&child_symbol).unwrap();
         let original = &packet.copy_dependencies(&ledger).unwrap()[0].1;
         let dst = original.1.dst_value().unwrap();
         match mutation {
@@ -316,7 +318,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
             .unwrap_err();
         assert!(error.contains("finished-"), "{error}");
     }
-    let actual = module.functions.values().next().unwrap();
+    let actual = module.functions.get(&child_symbol).unwrap();
     let mut aliases = 0;
     source
         .with_borrowed_ordinary_alias_copies_v1(owner, actual, |_, _, _, _, value, copies| {

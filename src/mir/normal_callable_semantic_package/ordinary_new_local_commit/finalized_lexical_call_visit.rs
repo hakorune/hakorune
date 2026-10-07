@@ -37,6 +37,7 @@ impl FinalizedRootSourceHandoffV1 {
             &[((BasicBlockId, MirInstruction), (BasicBlockId, usize))],
         ) -> Result<(), String>,
     ) -> Result<(), String> {
+        self.validate_finalized_root_cleanup_v1(module)?;
         let mut source_sites = BTreeSet::new();
         let mut coordinates = BTreeSet::new();
         let mut walk = |owner,

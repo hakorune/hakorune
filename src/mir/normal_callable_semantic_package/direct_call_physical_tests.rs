@@ -383,6 +383,16 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             .is_some_and(|cleanup| !cleanup.is_empty()),
         "Call bindings stay retained"
     );
+    let mut module = MirModule::new("final-direct-root-cleanup".into());
+    module
+        .functions
+        .insert(function.signature.name.clone(), function);
+    root.validate_finalized_root_cleanup_v1(&module).unwrap();
+    // No lexical nodes: the public consumer must still validate root cleanup.
+    root.visit_finalized_lexical_call_nodes_v1(&module, |_, _, _, _, _, _, _| {
+        panic!("direct root has no lexical nodes")
+    })
+    .unwrap();
     let duplicate = ledger
         .seal_finalized_root_birth_handoff(
             "Main.main/0".into(),

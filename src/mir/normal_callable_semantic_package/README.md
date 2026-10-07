@@ -1477,3 +1477,11 @@ and reachability replace fixed F=N counts. Projected topology uses original
 entry destinations; PhysicalBoundary checks merged instructions before finishing.
 Old Call count helper and its exclusive walkers are removed; shared ingress stays.
 Preparation/publication and Call result-kind admission remain unchanged.
+
+Finalized cleanup corroboration lends SAME ledger owner/exit order before the
+public lexical-call visitor enumerates nodes, including nonlexical root calls.
+Root Call coordinates are already rebound; retained child Call coordinates
+project exactly once. Mandatory bindings must be recorded and present in current
+MIR. Ordered paths/topology remain independent; merged instruction sequences
+and other artifact laws retain their existing finishing/publication validators.
+Source-only unfinished rows grant no additional permission.
