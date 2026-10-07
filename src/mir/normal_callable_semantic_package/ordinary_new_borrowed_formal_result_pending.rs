@@ -4,6 +4,7 @@ use super::super::source::{
     CallTargetReferenceV1, PreparedSourceCallNeedV1, PreparedSourceNeedsV1, StoredReceiverSourceV1,
 };
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 use crate::mir::resolved_semantics::{
     BindingKindV1, ResolvedAssignmentTargetV1, ResolvedInitializerRelationV1,
     ResolvedMethodCallReceiverSourceV1,
@@ -484,6 +485,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     );
     drafts
         .keys()
+        .filter(|owner| contracts.iter().any(|row| row.owner == **owner
+            && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod))
         .map(|owner| {
             let proof = source_result_pending(
                 batch, selected, contracts, drafts, needs, constructors, proven_fields, *owner,

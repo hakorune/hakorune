@@ -93,6 +93,22 @@ actuals, unproved locals, rebind/capture and unresolved cycles decline. Source
 Integer agreement neither revives transport nor issues a payload cast, Home,
 Executable or Static entry permission. Guard-derived facts remain unissued.
 
+## Original Static source domain
+
+Raw Static drafts enter the existing classifier only through target membership
+in the same sealed qualified-static ExactI64 index and the original selected
+key, slot and complete formal contract. Static mode has no receiver. The same
+whole-batch scan retains each original QualifiedStatic Rc, including Main
+literal calls and unavailable-call vetoes, and feeds the existing domain solver.
+Known Instance calls are another namespace only after their original call-site
+and ordered argument coordinates agree. Missing authority never removes a caller.
+
+Transport selection, pending result owners and conditional class lenders keep
+their original Instance-only scope. A Static source agreement issues neither
+Executable nor entry permission. Required-I64 ordinals retain result dependence;
+they do not substitute for the full incoming input contract. Guard receipt,
+actual transport, Completion, entry and emitter activation remain later duties.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

@@ -1,5 +1,6 @@
 //! Sole incoming scan retains qualified Static evidence without transport admission.
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 #[path = "ordinary_new_borrowed_static_inventory.rs"]
 mod static_inventory;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use static_inventory::StaticIncomingContextV1;
@@ -109,14 +110,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         };
         if matching.next().is_some()
-            || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || !matches!(
+                (key.namespace(), contract.mode),
+                (
+                    hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod,
+                    CallableParameterDeclarationModeV1::InstanceBoxMethod
+                ) | (
+                    hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod,
+                    CallableParameterDeclarationModeV1::StaticBoxMethod
+                )
+            )
             || key.arity() as usize != contract.parameters.len()
-            || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-            || !contract.parameters.iter().enumerate().all(|(ordinal, formal)| {
-                formal.ordinal as usize == ordinal && formal.binding.owner() == *owner
-                    && (!formal.kind.is_ordinary_borrowed_handle()
-                        || drafts[owner].origins.get(&formal.binding) == Some(&formal.binding))
-            })
+            || !contract
+                .parameters
+                .iter()
+                .enumerate()
+                .all(|(ordinal, formal)| {
+                    formal.ordinal as usize == ordinal
+                        && formal.binding.owner() == *owner
+                        && (!formal.kind.is_ordinary_borrowed_handle()
+                            || drafts[owner].origins.get(&formal.binding) == Some(&formal.binding))
+                })
             || !contract
                 .parameters
                 .iter()
@@ -148,11 +162,42 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         }
                     }
                 }
-                let exact = calls.get(&owned);
+                let instance = calls.get(&owned);
                 for (callee, (contract, key)) in &definitions {
                     if call.selector() != key.name() || call.arity() != key.arity() {
                         continue;
                     }
+                    let exact = match contract.mode {
+                        CallableParameterDeclarationModeV1::InstanceBoxMethod => {
+                            instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
+                        }
+                        CallableParameterDeclarationModeV1::StaticBoxMethod => {
+                            // The original proved Instance source is another namespace.
+                            if let Some(original) = instance {
+                                if original.call_site() != &owned
+                                    || original.target().namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                                    || original.target().name() != call.selector()
+                                    || original.target().arity() != call.arity()
+                                    || original.argument_sites().len() != call.arguments().len()
+                                    || !call.arguments().iter().enumerate().all(|(ordinal, argument)|
+                                        argument.ordinal() as usize == ordinal
+                                        && original.argument_sites()[ordinal] == *argument.site())
+                                {
+                                    return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
+                                }
+                                continue;
+                            }
+                            static_observations
+                                .get(&owned)
+                                .and_then(|row| row.as_ref().ok())
+                                .map(|row| {
+                                    BorrowedIncomingSourceV1::QualifiedStatic(std::rc::Rc::clone(
+                                        row,
+                                    ))
+                                })
+                        }
+                        _ => return Err(BorrowedIncomingDraftErrorV1::SourceIdentity),
+                    };
                     let Some(exact) = exact else {
                         observations.push((
                             Some(*callee),
@@ -211,7 +256,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     observations.push((
                         Some(*callee),
                         Ok(BorrowedIncomingCallDraftV1 {
-                            source: BorrowedIncomingSourceV1::Instance((*exact).clone()),
+                            source: exact,
                             call: owned.clone(),
                             callee: *callee,
                             arguments,
@@ -250,3 +295,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_source_graph_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_borrowed_static_source_domain_tests.rs"]
+mod static_source_domain_tests;

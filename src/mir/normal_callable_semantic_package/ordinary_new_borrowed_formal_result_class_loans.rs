@@ -1,6 +1,7 @@
 //! Conditional declaration loans schedule results; only strict ingress issues views.
 use super::super::super::borrowed_formal_source::{classify_actual_seed, FormalActualSeedV1};
 use super::*;
+use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 
 pub(super) fn forward_identities_v1(
     need: &PreparedSourceCallNeedV1,
@@ -66,7 +67,8 @@ pub(super) fn conditional_class_loans_v1(
     // These are conditional declaration requirements, never all-incoming views.
     let mut proposals: BTreeMap<_, BTreeMap<Box<str>, ClassLenderV1>> = contracts
         .iter()
-        .filter(|row| drafts.contains_key(&row.owner))
+        .filter(|row| drafts.contains_key(&row.owner)
+            && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
         .flat_map(|row| row.parameters.iter())
         .filter_map(|row| match &row.kind {
             CallableParameterContractKindV1::DeclaredObject(class) => Some((
@@ -79,6 +81,10 @@ pub(super) fn conditional_class_loans_v1(
     loop {
         let mut progressed = false;
         for need in needs.iter().filter_map(|row| row.as_ref().ok()?.as_ref()) {
+            if !contracts.iter().any(|row| row.owner == need.reference().call_site.owner()
+                && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod) {
+                continue;
+            }
             let Some(forwards) = forward_identities_v1(need, contracts, drafts) else {
                 continue;
             };

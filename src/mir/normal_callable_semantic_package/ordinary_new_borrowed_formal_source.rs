@@ -133,6 +133,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         batch,
         selected,
         contracts,
+        None,
         app_main_slot,
         dynamic_slot,
         entry_home_loans,
@@ -179,7 +180,14 @@ pub(super) fn finish_ingress_from_drafts_v1(
     ),
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let (ordinary_callers, definitions, dominated_view_sites) = drafts;
-    let mut transport_owners: BTreeSet<_> = definitions.keys().copied().collect();
+    let mut transport_owners: BTreeSet<_> = contracts
+        .iter()
+        .filter(|row| {
+            row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+                && definitions.contains_key(&row.owner)
+        })
+        .map(|row| row.owner)
+        .collect();
     let static_arguments = super::borrowed_static_argument::collect_static_argument_sources_v1(
         batch,
         selected,

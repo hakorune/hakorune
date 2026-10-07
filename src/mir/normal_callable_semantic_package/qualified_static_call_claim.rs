@@ -96,6 +96,11 @@ impl QualifiedStaticCallClaimIndexV1 {
         Ok(Self { catalog_brand: declarations.brand().clone(), rows })
     }
 
+    /// Original sealed ExactI64 target membership only; no transport permission.
+    pub(super) fn contains_exact_i64_target(&self, target: &CanonicalSameModuleCallableKeyV1) -> bool {
+        self.rows.values().any(|(_, original)| original == target)
+    }
+
     /// Membership lookup for the homes-aware predicate. `Some` means the
     /// site's qualified receiver sealed to a `StaticBoxMethod` whose result
     /// disposition is `ExactI64`; the carried ordinals are the callee's

@@ -5,15 +5,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
+    static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
     app_main_slot: Option<u32>,
     dynamic_slot: Option<u32>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<(
-    BTreeSet<FunctionOwnerIdV1>,
-    BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    BTreeSet<OwnedExprSiteV1>,
-), String> {
+) -> Result<
+    (
+        BTreeSet<FunctionOwnerIdV1>,
+        BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+        BTreeSet<OwnedExprSiteV1>,
+    ),
+    String,
+> {
     let ordinary_callers: BTreeSet<_> = batch
         .declarations()
         .filter(|row| {
@@ -31,7 +35,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return Err(freeze("borrowed-formal/duplicate-source-contract"));
         }
         if !ordinary_callers.contains(&contract.owner)
-            || contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
             || !contract
                 .parameters
                 .iter()
@@ -39,12 +42,25 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         {
             continue;
         }
-        let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
-            selected,
-            batch,
-            entry_home_loans.for_batch_slot(contract.batch_slot),
-            contract.batch_slot,
-        );
+        let receiver = match contract.mode {
+            CallableParameterDeclarationModeV1::InstanceBoxMethod =>
+                crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                    selected, batch, entry_home_loans.for_batch_slot(contract.batch_slot), contract.batch_slot,
+                ),
+            CallableParameterDeclarationModeV1::StaticBoxMethod => {
+                let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+                    selected.key_for_batch_slot(contract.batch_slot) else { continue; };
+                if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                    || !static_claims.is_some_and(|index| index.contains_exact_i64_target(key)) {
+                    continue;
+                }
+                if key.arity() as usize != contract.parameters.len() {
+                    return Err(freeze("borrowed-formal/static-source-contract"));
+                }
+                None
+            }
+            _ => continue,
+        };
         let draft = batch
             .with_lowering_input(contract.batch_slot, |input| {
                 draft_borrowed_formal_uses_v1(input, contract, instance_constructors, receiver)
