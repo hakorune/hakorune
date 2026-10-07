@@ -54,6 +54,18 @@ loan; entry execution, argument transport and physical publication stay separate
 Tests retain the one factory-issued index in the package and installation drops
 that test-only observation. Production has no additional index registry.
 
+## Original Static argument retention
+
+The original qualified claim index and typed Main loan pass through the existing
+source preflight and borrowed profile. Raw accepted opaque argument drafts are
+joined before transport pruning. Facts for one call share one retained original
+incoming-source Rc; the same whole-batch incoming walk corroborates that Rc and
+also retains literal-only Main calls and unavailable claim/key observations.
+This source evidence does not seed Static definitions, change final Instance
+incoming rows, mint integer agreement, or grant Executable/physical entry.
+Missing fact identities and orphan coordinates fail closed. Existing transport
+closure, forward join and object-view solve retain their own contracts.
+
 ## Source and install ownership
 
 [The issuer](issuer.rs) co-seals sibling products from the same final source:

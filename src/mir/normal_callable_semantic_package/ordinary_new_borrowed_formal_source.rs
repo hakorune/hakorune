@@ -58,6 +58,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) dominated_view_sites: BTreeSet<OwnedExprSiteV1>,
     pub(super) forwards: Box<[BorrowedForwardUseDraftRowV1]>,
     pub(super) incoming: Box<[BorrowedIncomingCallDraftV1]>,
+    /// Raw source facts survive transport pruning; these grant no execution.
+    pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<(OwnedExprSiteV1, u32), super::borrowed_static_argument::QualifiedStaticArgumentSourceV1>,
+    pub(in crate::mir::normal_callable_semantic_package) static_observations: BTreeMap<OwnedExprSiteV1, Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1>, String>>,
     /// `formal -> sealed class view`, complete across the co-sealed
     /// incoming call set. A formal absent from the map has no agreed
     /// class — its guarded field read stays fail-closed.
@@ -128,6 +131,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         local_candidates,
         callable_result_classes,
         calls,
+        None,
+        None,
         drafts,
     )
 }
@@ -149,6 +154,8 @@ pub(super) fn finish_ingress_from_drafts_v1(
     >,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     calls: BTreeMap<OwnedExprSiteV1, &LexicalInstanceCallSourceTargetV1>,
+    static_claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
+    app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     drafts: (
         BTreeSet<FunctionOwnerIdV1>,
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
@@ -156,6 +163,12 @@ pub(super) fn finish_ingress_from_drafts_v1(
     ),
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let (ordinary_callers, mut definitions, dominated_view_sites) = drafts;
+    let static_arguments = super::borrowed_static_argument::collect_static_argument_sources_v1(
+        batch, selected, contracts, &definitions, static_claims, app_main,
+    )?;
+    let static_context = static_claims.map(|claims| StaticIncomingContextV1 {
+        claims, arguments: &static_arguments, main: app_main,
+    });
     // Close the finite graph before selection. Removing one outside-profile
     // destination invalidates every source that forwards an opaque value to it.
     // Repetition terminates because every nonfinal pass removes an owner.
@@ -210,15 +223,18 @@ pub(super) fn finish_ingress_from_drafts_v1(
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/forward-coverage")))?;
     // After profile selection, unresolved or outside-scope incoming calls are
     // named terminals. Never remove the selected definition to regain old ABI.
-    let incoming = draft_borrowed_incoming_calls_v1(
+    let inventory = inventory_borrowed_incoming_calls_v1(
         batch,
         selected,
         &definitions,
         contracts,
         &calls,
         &ordinary_callers,
+        static_context.as_ref(),
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    let incoming = inventory.incoming;
+    let static_observations = inventory.static_observations;
     let object_views = prepare_borrowed_formal_object_views_v1(
         batch,
         selected,
@@ -235,6 +251,8 @@ pub(super) fn finish_ingress_from_drafts_v1(
         dominated_view_sites,
         forwards,
         incoming,
+        static_arguments,
+        static_observations,
         object_views,
     })
 }

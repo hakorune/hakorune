@@ -58,16 +58,13 @@ use source_claims::collect_birth_site_index_v1;
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
+    app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     static_call_claims: &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-    // App Main's canonical catalog key — App Main is never a selected
-    // row, so its claim-lookup key comes from the catalog co-seal.
-    app_main_claim_key: Option<&CanonicalSameModuleCallableKeyV1>,
 ) -> Result<
     (
         OrdinaryNewClaimLedgerV1,
@@ -75,7 +72,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ),
     OrdinaryNewCoSealIssueV1,
 > {
-    let app_main_batch_slot = source_claims::app_main_batch_slot_v1(batch, app_main_identity)?;
+    let app_main = super::lexical_instance_call::borrow_app_main_source_v1(batch, app_main_source)?;
+    let app_main_batch_slot = app_main.as_ref().map(|main| main.batch_slot());
     let mut claims = Vec::new();
     let mut result_claims = Vec::new();
     let mut seeds = super::super::result_contract::VerifiedCallableResultContractBuilderV1::new();
@@ -136,7 +134,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         selected,
         instance_constructors,
         parameter_contracts,
+        static_call_claims,
         app_main_batch_slot,
+        app_main.as_ref(),
         dynamic_slot,
         entry_home_loans,
         &field_write_claims,
@@ -284,7 +284,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     super::super::qualified_static_call_claim::local_static_call_predicate(
                         static_call_claims,
                         super::super::qualified_static_call_claim::caller_key_for_function(
-                            selected, batch_slot, is_app_main, app_main_claim_key,
+                            selected, batch_slot, is_app_main, app_main_source.map(|main| main.catalog_key()),
                         ),
                     );
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
@@ -792,6 +792,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = root_terminal_relation;
-    ledger.app_main_identity = app_main_identity.cloned();
+    ledger.app_main_identity = app_main_source.map(|main| main.parser_identity().clone());
     Ok((ledger, seeds.finish()))
 }

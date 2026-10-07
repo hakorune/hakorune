@@ -661,17 +661,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
         &batch,
         &selected,
-        app_main_identity.as_ref(),
+        catalog.catalog().source_backed_app_main(),
         direct_call_loans.as_ref(),
         &parameter_contracts,
         &entry_home_loans,
         &mut dynamic,
         &instance_constructors,
         &static_claim_index,
-        catalog
-            .catalog()
-            .source_backed_app_main()
-            .map(|app_main| app_main.catalog_key()),
     )
     .map_err(|error| match error {
         OrdinaryNewCoSealIssueV1::CompletionSeed(error) => {

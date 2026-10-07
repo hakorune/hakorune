@@ -284,6 +284,9 @@ pub(super) use source::{
     PreparedLexicalInstanceCallSourceTargetsV1, StoredReceiverSourceV1,
 };
 
+#[path = "ordinary_new_borrowed_static_argument.rs"]
+mod borrowed_static_argument;
+
 #[path = "ordinary_new_borrowed_formal_uses.rs"]
 mod borrowed_formal_uses;
 

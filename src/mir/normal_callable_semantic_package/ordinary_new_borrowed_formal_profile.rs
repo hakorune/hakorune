@@ -19,7 +19,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     selected: &VerifiedSelectedCallableBatchMapV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
+    static_call_claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     app_main_slot: Option<u32>,
+    app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     dynamic_slot: Option<u32>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     local_candidates: &BTreeMap<
@@ -153,6 +155,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             local_candidates,
             callable_result_classes,
             calls,
+            Some(static_call_claims),
+            app_main,
             (ordinary_callers, definitions, dominated_view_sites),
         )
     })();

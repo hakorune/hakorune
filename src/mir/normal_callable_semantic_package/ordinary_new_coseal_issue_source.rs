@@ -639,27 +639,6 @@ pub(super) fn probe_source_home_prefixes_v1(
     )
 }
 
-/// Same exact declaration identity query, before any source cohort effects.
-pub(super) fn app_main_batch_slot_v1(
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    app_main_identity: Option<&crate::parser::CallableDeclarationIdentityV1>,
-) -> Result<Option<u32>, OrdinaryNewCoSealIssueV1> {
-    app_main_identity
-        .map(|identity| {
-            let mut matches = batch
-                .declarations()
-                .filter(|declaration| declaration.identity().same_as(identity));
-            let declaration = matches
-                .next()
-                .ok_or(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing)?;
-            if matches.next().is_some() {
-                return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityDuplicate);
-            }
-            Ok(declaration.batch_slot())
-        })
-        .transpose()
-}
-
 /// Query the existing sealed observations; issue no new class or completion.
 pub(super) fn has_nullable_receiver_call_v1(
     owner: FunctionOwnerIdV1,

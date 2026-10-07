@@ -184,10 +184,12 @@ pub(super) struct BorrowedIncomingCallDraftV1 {
     pub(super) arguments: Box<[(u32, SourceExprSiteV1, BindingRefV1)]>,
 }
 
-/// Enumerate the complete source batch, including unselected callers. An
-/// unresolved selector/arity match can veto selection but never proves a
-/// target. `ordinary_callers` must later be corroborated against the issued
-/// Ordinary source scopes; these draft rows install no ABI or live actual.
+#[path = "ordinary_new_borrowed_formal_incoming.rs"]
+mod incoming;
+pub(super) use incoming::{inventory_borrowed_incoming_calls_v1, StaticIncomingContextV1};
+
+/// Existing direct-test adapter uses the same whole-batch scan.
+#[cfg(test)]
 pub(super) fn draft_borrowed_incoming_calls_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::VerifiedSelectedCallableBatchMapV1,
@@ -196,105 +198,9 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
     calls: &BTreeMap<OwnedExprSiteV1, &super::LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
 ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
-    let mut definitions = BTreeMap::new();
-    for owner in drafts.keys() {
-        let mut matching = contracts.iter().filter(|row| row.owner == *owner);
-        let contract = matching
-            .next()
-            .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
-        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
-            selected.key_for_batch_slot(contract.batch_slot)
-        else {
-            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-        };
-        if matching.next().is_some()
-            || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-            || key.arity() as usize != contract.parameters.len()
-            || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
-            || !contract.parameters.iter().enumerate().all(|(ordinal, formal)| {
-                formal.ordinal as usize == ordinal && formal.binding.owner() == *owner
-                    && (!formal.kind.is_ordinary_borrowed_handle()
-                        || drafts[owner].origins.get(&formal.binding) == Some(&formal.binding))
-            })
-            || !contract
-                .parameters
-                .iter()
-                .any(|formal| formal.kind.is_ordinary_borrowed_handle())
-        {
-            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-        }
-        definitions.insert(*owner, (contract, key));
-    }
-    let mut rows = Vec::new();
-    let mut seen = std::collections::BTreeSet::new();
-    for declaration in batch.declarations() {
-        batch
-            .with_lowering_input(declaration.batch_slot(), |input| {
-                for (site, call) in input.function().method_calls() {
-                    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-                    let exact = calls.get(&owned);
-                    for (callee, (contract, key)) in &definitions {
-                        if call.selector() != key.name() || call.arity() != key.arity() {
-                            continue;
-                        }
-                        let Some(exact) = exact else {
-                            return Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(owned));
-                        };
-                        // A proven different receiver class is not an incoming
-                        // edge of this definition, despite the same method name.
-                        if exact.target() != *key {
-                            continue;
-                        }
-                        if !ordinary_callers.contains(&input.owner()) {
-                            return Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(owned));
-                        }
-                        if exact.call_site() != &owned
-                            || exact.callee_owner() != *callee
-                            || exact.target_batch_slot() != contract.batch_slot
-                            || call.owner() != input.owner()
-                            || call.site() != site
-                            || call.arguments().len() != contract.parameters.len()
-                            || exact.argument_sites().len() != call.arguments().len()
-                            || !call
-                                .arguments()
-                                .iter()
-                                .enumerate()
-                                .all(|(ordinal, argument)| {
-                                    argument.ordinal() as usize == ordinal
-                                        && exact.argument_sites()[ordinal] == *argument.site()
-                                        && contract.parameters[ordinal].ordinal as usize == ordinal
-                                })
-                        {
-                            return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned));
-                        }
-                        let arguments = call
-                            .arguments()
-                            .iter()
-                            .zip(&contract.parameters)
-                            .filter(|(_, formal)| formal.kind.is_ordinary_borrowed_handle())
-                            .map(|(argument, formal)| {
-                                (argument.ordinal(), argument.site().clone(), formal.binding)
-                            })
-                            .collect();
-                        rows.push(BorrowedIncomingCallDraftV1 {
-                            source: (*exact).clone(),
-                            call: owned.clone(),
-                            callee: *callee,
-                            arguments,
-                        });
-                        seen.insert(*callee);
-                    }
-                }
-                Ok(())
-            })
-            .map_err(|_| BorrowedIncomingDraftErrorV1::BatchLoan)??;
-    }
-    for owner in definitions.keys() {
-        if !seen.contains(owner) {
-            return Err(BorrowedIncomingDraftErrorV1::NoIncoming(*owner));
-        }
-    }
-    Ok(rows.into_boxed_slice())
+    inventory_borrowed_incoming_calls_v1(
+        batch, selected, drafts, contracts, calls, ordinary_callers, None,
+    ).map(|inventory| inventory.incoming)
 }
 
 /// Join every unresolved argument to the existing exact lexical disposition
