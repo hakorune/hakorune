@@ -31,6 +31,11 @@ CASES = [
     ('null', 70, True),
     ('object', 70, True),
     ('literal', 7, False),
+    ('alias-hi', 7, False),
+    ('alias-lo', 3, False),
+    ('alias-bool', 70, True),
+    ('alias-null', 70, True),
+    ('alias-object', 70, True),
 ]
 
 
@@ -66,4 +71,4 @@ with tempfile.TemporaryDirectory(prefix='hako checked compare ') as directory:
         else:
             assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         print(suffix, 'checked-compare view executes; kind lane governs the lent projection')
-    print('7 checked-compare inputs: Integer Normal; Null/Bool/Object Fault before condition result')
+    print(str(len(CASES)) + ' checked-compare inputs: direct/alias Integer Normal; Null/Bool/Object Fault before condition result')

@@ -18,6 +18,10 @@ use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemant
 mod literal;
 pub(in crate::mir::builder) use literal::install_literal;
 
+#[path = "checked_compare_carrier.rs"]
+mod carrier;
+pub(in crate::mir::builder) use carrier::install_carriers;
+
 type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug)]
@@ -32,19 +36,22 @@ struct BoolCopy {
 pub(in crate::mir::builder) struct CheckedCompareReuseV1 {
     entry: Option<Weak<RefCell<Entry>>>,
     literals: literal::LiteralReuse,
+    carriers: carrier::CarrierReuse,
     records: BTreeMap<ValueId, Rc<Record>>,
     copies: BTreeMap<ValueId, BoolCopy>,
     branches: Vec<(Rc<Record>, Binding)>,
 }
 impl CheckedCompareReuseV1 {
     pub(in crate::mir::builder) fn is_empty(&self) -> bool {
-        self.literals.is_empty()
+        self.carriers.is_empty()
+            && self.literals.is_empty()
             && self.entry.is_none()
             && self.records.is_empty()
             && self.copies.is_empty()
             && self.branches.is_empty()
     }
     pub(in crate::mir::builder) fn clear(&mut self) {
+        self.carriers = carrier::CarrierReuse::default();
         self.literals = literal::LiteralReuse::default();
         self.entry = None;
         self.records.clear();
@@ -82,6 +89,19 @@ impl CheckedCompareReuseV1 {
         self.literals.contains(value)
             || self.records.contains_key(&value)
             || self.copies.contains_key(&value)
+    }
+    pub(in crate::mir::builder) fn contains_operand(&self, value: ValueId) -> bool {
+        self.contains(value) || self.carriers.contains(value)
+    }
+    pub(in crate::mir::builder) fn carrier_observations(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareCarrierOperandLoanV1>,
+            Vec<Binding>,
+        ),
+    > {
+        self.carriers.observations()
     }
     pub(in crate::mir::builder) fn records(&self) -> impl Iterator<Item = &Rc<Record>> {
         self.records.values()
@@ -122,6 +142,7 @@ impl CheckedCompareReuseV1 {
             .current_function
             .as_ref()
             .ok_or_else(|| fault("function-missing"))?;
+        self.carriers.verify(builder)?;
         self.literals.verify(builder)?;
         for record in self.records.values() {
             check_owner(builder, record)?;
@@ -396,3 +417,10 @@ pub(in crate::mir::builder) fn observe_branch(
 #[cfg(test)]
 #[path = "checked_compare_tests.rs"]
 mod tests;
+
+pub(super) fn materialize_carrier(
+    builder: &mut MirBuilder,
+    value: ValueId,
+) -> Result<ValueId, Error> {
+    carrier::materialize(builder, value)
+}

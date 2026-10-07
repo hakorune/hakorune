@@ -95,7 +95,12 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
-    let checked = builder.function_state.checked_compare_reuse.contains(v);
+    let checked = builder.function_state.checked_compare_reuse.contains(v)
+        || (kind == LocalKind::CompareOperand
+            && builder
+                .function_state
+                .checked_compare_reuse
+                .contains_operand(v));
     let result = materialize::materialize_local_v1(
         builder,
         v,
@@ -193,7 +198,11 @@ pub(in crate::mir::builder) fn try_cmp_operand(
     builder: &mut MirBuilder,
     v: ValueId,
 ) -> Result<ValueId, String> {
-    if builder.function_state.checked_compare_reuse.contains(v) {
+    if builder
+        .function_state
+        .checked_compare_reuse
+        .contains_operand(v)
+    {
         ensure_inner(builder, v, LocalKind::CompareOperand, false)
     } else {
         Ok(cmp_operand(builder, v))

@@ -10,6 +10,7 @@ use crate::mir::{BasicBlockId, CompareOp, MirInstruction};
 
 #[derive(Debug, PartialEq, Eq)]
 struct SourceWitness {
+    site: OwnedExprSiteV1,
     binding: BindingRefV1,
     formal: BindingRefV1,
     envelope: &'static VerifiedDynamicOperatorExecutionEnvelopeV1,
@@ -34,6 +35,13 @@ impl BorrowedCompareSourceLoanV1 {
     }
     pub(in crate::mir) fn operand_sites(&self) -> (&OwnedExprSiteV1, &OwnedExprSiteV1) {
         (&self.left, &self.right)
+    }
+    pub(in crate::mir) fn operand_formals(
+        &self,
+    ) -> impl Iterator<Item = (BindingRefV1, usize)> + '_ {
+        self.witnesses
+            .iter()
+            .map(|witness| (witness.formal, usize::from(witness.site == self.right)))
     }
     pub(in crate::mir) fn operator(&self) -> CompareOp {
         self.operator
@@ -119,6 +127,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             let domain = envelope.domain();
             if operator != Some(expected)
+                || (row.site != *left && row.site != *right)
                 || left.owner() != owner
                 || right.owner() != owner
                 || definition.origins.get(&row.binding) != Some(&row.formal)
@@ -148,6 +157,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // Each operand row keeps its own original receipt. Each row
             // borrows the same original issuer reference without reissuing it.
             witnesses.push(SourceWitness {
+                site: row.site.clone(),
                 binding: row.binding,
                 formal: row.formal,
                 envelope: envelope,

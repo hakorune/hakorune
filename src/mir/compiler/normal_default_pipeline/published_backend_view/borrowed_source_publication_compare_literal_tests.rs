@@ -5,8 +5,8 @@ use super::*;
 fn borrowed_literal_original_source_records_exact_compare_child_only() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for condition in ["requested > 0", "0 > requested", "alias > 0"] {
-            let alias = if condition.starts_with("alias") {
+        for condition in ["requested > 0", "0 > requested", "alias > 0", "0 > alias"] {
+            let alias = if condition.contains("alias") {
                 "local alias = requested"
             } else {
                 ""
@@ -38,14 +38,7 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                 assert_eq!(function.blocks.values().flat_map(|block| block.instructions.iter())
                     .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Compare { .. }))
                     .count(), 1, "one original checked execution, reused Bool");
-                if condition.starts_with("alias") {
-                    // Source observation succeeds; the independently checked
-                    // alias rematerialization remains an explicit physical edge.
-                    let error = view.issue_lifecycle_physical_abi_input().unwrap_err();
-                    assert!(error.contains("borrowed-use/unproved-copy"), "{error}");
-                } else {
-                    view.issue_lifecycle_physical_abi_input()?;
-                }
+                view.issue_lifecycle_physical_abi_input()?;
                 let mut comparisons = 0;
                 source.with_borrowed_ordinary_compares_v1(owner, function, |loan, children, original| {
                     assert_eq!(loan.owner(), owner);
@@ -120,6 +113,37 @@ fn borrowed_compare_two_formals_share_one_original_append_in_both_orders() {
                 let mut foreign=function.clone();
                 foreign.signature.name="foreign/0".into();
                 assert!(source.with_borrowed_ordinary_compares_v1(owner,&foreign,|_,_,_| panic!("foreign function")).is_err());
+                Ok(())
+            }).unwrap();
+        }
+    });
+}
+
+#[test]
+fn borrowed_compare_shared_carriers_keep_each_source_operand_use() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for (body, expected) in [
+            ("if p > p { return 7 } return 3", 1),
+            ("local a = p local b = a if a > b { return 7 } return 3", 1),
+            ("if p > 0 { return 7 } if p > 0 { return 5 } return 3", 2),
+        ] {
+            let text = format!("box Counter {{ birth() {{}} check(p): i64 {{ {body} }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15) }} }}");
+            MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let handoff = view.retained_handoff.unwrap();
+                let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                    hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter", "check", 1));
+                let owner = handoff.callables().unwrap().completed_result(&key).unwrap().owner();
+                let function = &view.module().functions["Counter.check/1"];
+                let mut count = 0;
+                handoff.root_source().unwrap().with_borrowed_ordinary_compares_v1(owner, function, |loan, _, _| {
+                    assert_ne!(loan.operand_sites().0, loan.operand_sites().1);
+                    count += 1;
+                    Ok(())
+                })?;
+                assert_eq!(count, expected, "{body}");
+                view.issue_lifecycle_physical_abi_input()?;
                 Ok(())
             }).unwrap();
         }

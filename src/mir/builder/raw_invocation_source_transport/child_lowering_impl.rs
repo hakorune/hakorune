@@ -38,12 +38,34 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         ledger.prepare_borrowed_compare_source_v1(owner, &site, operator)
     }
 
+    fn prepare_borrowed_compare_operands_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        source: &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+    ) -> Result<(), String> {
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][borrowed-compare/carrier-ledger]".to_owned())?;
+        if self.callable_owner_v1() != Some(source.owner()) {
+            return Err("[freeze:contract][borrowed-compare/carrier-owner]".into());
+        }
+        let loans = ledger.borrow_compare_carrier_operands_v1(source)?;
+        super::super::ssa::local::checked_compare::install_carriers(
+            builder, source, children, loans,
+        )
+    }
+
     fn complete_borrowed_compare_source_v1(
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         children: (ValueId, ValueId),
         completed: &super::super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>, String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>,
+        String,
+    > {
         let ledger = self
             .ordinary_new_claim_ledger
             .as_ref()
@@ -64,8 +86,13 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn prepare_compare_integer_literal_v1(
         &mut self,
         value: i64,
-    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1>, String> {
-        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else {
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1>,
+        String,
+    > {
+        let (Some(ledger), Some(owner)) =
+            (&self.ordinary_new_claim_ledger, self.callable_owner_v1())
+        else {
             return Ok(None);
         };
         if !ledger.has_borrowed_compare_integer_literal_source_v1(owner) {
@@ -204,12 +231,31 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         let mut state = ledger.borrow_mut();
         state.complete_construction_stores(function)?;
         if let Some(news) = &self.ordinary_new_claim_ledger {
-            news.verify_borrowed_compare_reuse_v1(state.owner(),
-                builder.function_state.checked_compare_reuse.records())?;
-            news.record_borrowed_compare_literal_consumers_v1(state.owner(), function,
-                builder.function_state.checked_compare_reuse.literal_observations())?;
-            news.record_borrowed_compare_consumers_v1(state.owner(), function,
-                builder.function_state.checked_compare_reuse.observations())?;
+            news.verify_borrowed_compare_reuse_v1(
+                state.owner(),
+                builder.function_state.checked_compare_reuse.records(),
+            )?;
+            news.record_borrowed_compare_carrier_consumers_v1(
+                state.owner(),
+                function,
+                builder
+                    .function_state
+                    .checked_compare_reuse
+                    .carrier_observations(),
+            )?;
+            news.record_borrowed_compare_literal_consumers_v1(
+                state.owner(),
+                function,
+                builder
+                    .function_state
+                    .checked_compare_reuse
+                    .literal_observations(),
+            )?;
+            news.record_borrowed_compare_consumers_v1(
+                state.owner(),
+                function,
+                builder.function_state.checked_compare_reuse.observations(),
+            )?;
             news.complete_new_emissions(state.owner(), function)?;
         }
         Ok(())

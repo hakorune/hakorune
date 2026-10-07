@@ -25,9 +25,11 @@ struct FunctionUses {
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
     /// Checked-compare view admissions per formal, proved by the original
     /// source draft. Each admitted operand use must be observed through
-    /// exactly one distinct operand value per admitted use, in the module
-    /// and again in publication.
+    /// exactly one physical instruction coordinate and operand side per use.
+    /// Shared carriers retain distinct source uses in both scans.
     compare_admissions: BTreeMap<BindingRefV1, usize>,
+    /// Expected occurrences lent by the independently checked original Compare.
+    compare_coordinates: Option<BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>>,
     /// Dominated `+` operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     add_admissions: BTreeMap<BindingRefV1, usize>,
@@ -53,9 +55,8 @@ struct Scan {
     definitions: BTreeMap<ValueId, usize>,
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
-    /// Distinct operand values serving each formal's checked-compare view:
-    /// an edge-port model may evaluate the same projection more than once.
-    compare_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
+    /// Exact operand occurrences, including both sides of shared carriers.
+    compare_uses: BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>,
     /// Distinct operand values serving each formal's dominated `+` view.
     add_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Distinct element values serving each formal's dominated `.set` view.
@@ -131,6 +132,22 @@ impl BorrowedCallUses {
         {
             *state.compare_admissions.entry(*formal).or_default() += 1;
         }
+        let mut expected = BTreeMap::<_, BTreeSet<_>>::new();
+        source.with_borrowed_ordinary_compares_v1(owner, function, |loan, _, binding| {
+            let block = function.blocks.get(&binding.0)
+                .ok_or_else(|| fault("borrowed-use/compare-block"))?;
+            let mut rows = block.all_instructions().enumerate()
+                .filter(|(_, row)| **row == binding.1);
+            let (index, _) = rows.next().ok_or_else(|| fault("borrowed-use/compare-missing"))?;
+            if rows.next().is_some() { return Err(fault("borrowed-use/compare-duplicate")); }
+            for (formal, side) in loan.operand_formals() {
+                if !expected.entry(formal).or_default().insert(((binding.0, index), side)) {
+                    return Err(fault("borrowed-use/compare-source-duplicate"));
+                }
+            }
+            Ok(())
+        })?;
+        state.compare_coordinates = Some(expected);
         for (_, formal, _) in source
             .borrowed_ordinary_add_uses_v1(owner, function)?
             .iter()
@@ -472,13 +489,13 @@ impl FunctionUses {
             } => {
                 // A tracked operand is legal only through an admitted
                 // checked-compare view; the draft count closes coverage.
-                for operand in [lhs, rhs] {
+                for (side, operand) in [lhs, rhs].into_iter().enumerate() {
                     if let Some(formal) = tracked.get(operand).or(views.views.get(operand)) {
                         definitions
                             .compare_uses
                             .entry(*formal)
                             .or_default()
-                            .insert(*operand);
+                            .insert((coordinate, side));
                     }
                 }
             }
@@ -613,7 +630,10 @@ impl FunctionUses {
             .iter()
             .map(|(formal, values)| (*formal, values.len()))
             .collect();
-        if compare_uses != self.compare_admissions {
+        if compare_uses != self.compare_admissions
+            || self.compare_coordinates.as_ref().is_some_and(|expected|
+                *expected != definitions.compare_uses)
+        {
             return Err(fault("borrowed-use/compare-coverage"));
         }
         let add_uses: BTreeMap<_, _> = definitions

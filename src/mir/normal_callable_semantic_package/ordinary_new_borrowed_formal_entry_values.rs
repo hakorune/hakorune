@@ -8,12 +8,34 @@ type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
     pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
-    aliases: BTreeMap<BindingRefV1, std::rc::Rc<alias_materialization::BorrowedAliasMaterializationV1>>,
-    comparisons: BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
-    comparison_consumers: Option<BTreeMap<ValueId, (Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>)>>,
-    literal_consumers: Option<BTreeMap<ValueId, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>>,
-    integer_literals:
-        BTreeMap<ValueId, std::rc::Rc<integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>>,
+    aliases:
+        BTreeMap<BindingRefV1, std::rc::Rc<alias_materialization::BorrowedAliasMaterializationV1>>,
+    comparisons:
+        BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
+    carrier_consumers: Option<
+        BTreeMap<
+            (OwnedExprSiteV1, OwnedExprSiteV1),
+            (
+                std::rc::Rc<BorrowedCompareCarrierOperandLoanV1>,
+                Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+            ),
+        >,
+    >,
+    comparison_consumers: Option<
+        BTreeMap<
+            ValueId,
+            (
+                Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+                Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+            ),
+        >,
+    >,
+    literal_consumers:
+        Option<BTreeMap<ValueId, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>>,
+    integer_literals: BTreeMap<
+        ValueId,
+        std::rc::Rc<integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>,
+    >,
 }
 
 #[path = "ordinary_new_borrowed_alias_materialization.rs"]
@@ -27,9 +49,11 @@ pub(in crate::mir) use integer_literal::BorrowedCompareIntegerLiteralMaterializa
 
 #[path = "ordinary_new_borrowed_compare_materialization.rs"]
 mod compare_materialization;
-pub(crate) use compare_materialization::BorrowedCompareSourceLoanV1;
 pub(in crate::mir) use compare_materialization::BorrowedCompareMaterializationV1;
+pub(crate) use compare_materialization::BorrowedCompareSourceLoanV1;
 
+#[path = "ordinary_new_borrowed_compare_carrier_consumers.rs"]
+mod carrier_consumers;
 #[path = "ordinary_new_borrowed_compare_consumers.rs"]
 mod compare_consumers;
 #[path = "ordinary_new_borrowed_compare_literal_consumers.rs"]
@@ -78,6 +102,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 values,
                 aliases: BTreeMap::new(),
                 comparisons: BTreeMap::new(),
+                carrier_consumers: None,
                 comparison_consumers: None,
                 literal_consumers: None,
                 integer_literals: BTreeMap::new(),

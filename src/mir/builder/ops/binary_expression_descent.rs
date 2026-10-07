@@ -74,6 +74,15 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
         Ok(None)
     }
 
+    fn prepare_binary_operands_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _source: &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        _children: (ValueId, ValueId),
+    ) -> Result<(), String> {
+        Ok(())
+    }
+
     fn complete_binary_source_v1(
         &mut self,
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
@@ -110,6 +119,15 @@ where
         String,
     > {
         self.prepare_borrowed_compare_source_v1(operator)
+    }
+
+    fn prepare_binary_operands_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        source: &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+    ) -> Result<(), String> {
+        self.prepare_borrowed_compare_operands_v1(builder, source, children)
     }
 
     fn complete_binary_source_v1(
@@ -174,6 +192,9 @@ where
     let right_input = port.binary_right_input(input)?;
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
+    if let Some(source) = &source {
+        port.prepare_binary_operands_v1(builder, source, (left, right))?;
+    }
     let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
     if let Some(source) = source {
         let record = port.complete_binary_source_v1(source, (left, right), &completed)?;

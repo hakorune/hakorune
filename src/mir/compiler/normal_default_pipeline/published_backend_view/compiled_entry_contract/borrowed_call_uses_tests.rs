@@ -320,27 +320,6 @@ fn compare_fixture() -> (FunctionUses, MirFunction, ValueId, BindingRefV1) {
     (state, function, ValueId(700), formal)
 }
 
-#[test]
-fn borrowed_use_checked_compare_view_counts_distinct_operands_once() {
-    // The edge-port model may evaluate the same projection twice; the lent
-    // view is used once per admitted source operand.
-    let (mut state, mut function, view, _) = compare_fixture();
-    for (index, dst) in [(0usize, ValueId(701)), (1, ValueId(702))] {
-        let _ = index;
-        function
-            .blocks
-            .get_mut(&BasicBlockId(0))
-            .unwrap()
-            .instructions
-            .push(MirInstruction::Compare {
-                dst,
-                op: CompareOp::Gt,
-                lhs: view,
-                rhs: ValueId(800),
-            });
-    }
-    verify(&mut state, &function).unwrap();
-}
 
 #[test]
 fn borrowed_use_rejects_compare_view_escape_and_coverage_drift() {
@@ -763,3 +742,7 @@ fn borrowed_use_rejects_undominated_and_drifting_set_view() {
             .contains("forbidden-operand"));
     }
 }
+
+
+#[path = "borrowed_call_uses_compare_coverage_tests.rs"]
+mod compare_coverage_tests;

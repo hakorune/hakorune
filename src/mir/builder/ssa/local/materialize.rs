@@ -19,6 +19,15 @@ pub(super) fn materialize_local_v1(
     forbid_non_pure: bool,
     failure_policy: LocalSsaFailurePolicyV1,
 ) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+    if kind == LocalKind::CompareOperand
+        && builder
+            .function_state
+            .checked_compare_reuse
+            .contains_operand(v)
+        && !builder.function_state.checked_compare_reuse.contains(v)
+    {
+        return super::checked_compare::materialize_carrier(builder, v);
+    }
     if builder.function_state.checked_compare_reuse.contains(v) {
         return super::checked_compare::materialize(builder, v);
     }

@@ -1280,5 +1280,13 @@ ValueId. Revalidation requires source membership and the same canonical alias
 Rc, so an equal replacement record cannot substitute for the original. Loans
 for both source sides may share a ValueId; source coverage remains per site.
 This source loan grants no Integer projection or additional Copy permission.
-The production comparison consumer and final operand mapping remain separate
-required work before carrier reuse is activated.
+The raw binary consumer borrows these loans after its original ordered children.
+The selected LocalSSA CompareOperand consumer retains same-block identity and
+uses only a direct, dominating source-rooted Copy across blocks. Existing stored
+type propagation preserves the carrier; this grants no Integer classification.
+Original alias chains and added Copies are mandatory FinishedBindings, checked
+independently with ordered raw children before the public Compare loan is lent.
+ABI entry borrows that same checked loan and retains each source formal's exact
+finished Compare coordinate and operand side. Both module and publication scans
+must match these occurrences, including shared ValueIds and repeated comparisons.
+Whole-instruction projection drift remains rejected by the physical publisher.

@@ -231,10 +231,18 @@ fn checked_compare_view_publishes_from_original_source() {
             ("null", "me.limit", "null"),
             ("object", "me.limit", "c"),
             ("literal", "10", "15"),
+            ("alias-hi", "me.limit", "15"),
+            ("alias-lo", "me.limit", "5"),
+            ("alias-bool", "me.limit", "true"),
+            ("alias-null", "me.limit", "null"),
+            ("alias-object", "me.limit", "c"),
         ] {
+            let (prefix, operand) = if suffix.starts_with("alias-") {
+                ("local first = requested local alias = first", "alias")
+            } else { ("", "requested") };
             let text = format!(
                 "box Counter {{ limit: usize birth() {{ me.limit = 10 }} \
-                 check(requested): i64 {{ if requested > {sibling} {{ return 7 }} \
+                 check(requested): i64 {{ {prefix} if {operand} > {sibling} {{ return 7 }} \
                  return 3 }} }} static box Main {{ main() {{ \
                  local c = new Counter() return c.check({argument}) }} }}"
             );
@@ -425,7 +433,23 @@ fn reject_drifted_compare_view(input: &super::super::PublishedLifecyclePhysicalA
             }
         }
     }
-    assert!(views > 0, "checked-compare view copies present");
+    if views == 0 {
+        let mut changed = 0;
+        for (fi, function) in input.program().functions().iter().enumerate() {
+            for (bi, block) in function.blocks().iter().enumerate() {
+                for (ri, row) in block.instructions().iter().enumerate() {
+                    let MirInstruction::Compare { dst, op, lhs, .. } = row.instruction() else { continue; };
+                    let drift = MirInstruction::Compare { dst: *dst, op: *op, lhs: *lhs, rhs: ValueId(998) };
+                    let mut program = input.program().clone();
+                    program.functions[fi].blocks[bi].instructions[ri].instruction = &drift;
+                    assert!(super::super::physical_program_json::emit_lifecycle_physical_program_value(
+                        &program, Some(input)).is_err(), "original comparison drift");
+                    changed += 1;
+                }
+            }
+        }
+        assert!(changed > 0, "original comparison present");
+    }
 }
 
 /// `me.sizes.set(index, requested)` reads the same lent Normal-Integer view

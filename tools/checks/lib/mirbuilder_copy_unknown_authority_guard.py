@@ -87,9 +87,18 @@ def main() -> None:
     require_count(
         local,
         "LocalSsaFailurePolicyV1::Checked",
-        1,
-        "checked policy declaration",
+        2,
+        "checked policy consumers (selected reuse and explicit checked entry)",
     )
+
+    # Selected carrier reuse preserves stored type through the same Copy owner.
+    carrier = production_source(read(root, "src/mir/builder/ssa/local/checked_compare_carrier.rs"))
+    require_count(carrier, "LocalSsaSourceTypeEntryV1::classify(", 1, "carrier stored-type consumer")
+    require_count(carrier, "PreparedLocalSsaPhysicalCopyTypeV1::prepare(", 1, "carrier Copy decision")
+    require_count(carrier, "prepared.commit(", 1, "carrier Copy commit")
+    require_count(carrier, "src: loan.value()", 1, "direct original-carrier Copy")
+    require_absent(carrier, "MirType::Integer", "carrier Integer inference")
+    require_count(carrier, "!sites.insert(", 1, "input-batch carrier duplicate refusal")
 
     require_count(
         post_success,

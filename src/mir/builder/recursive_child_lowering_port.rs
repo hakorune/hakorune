@@ -107,6 +107,15 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Ok(None)
     }
 
+    fn prepare_borrowed_compare_operands_v1(
+        &mut self,
+        _builder: &mut MirBuilder,
+        _source: &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        _children: (ValueId, ValueId),
+    ) -> Result<(), String> {
+        Ok(())
+    }
+
     fn complete_borrowed_compare_source_v1(
         &mut self,
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,

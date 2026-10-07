@@ -82,6 +82,7 @@ impl OrdinaryNewClaimLedgerV1 {
             result.extend_from_slice(copies);
             result.extend_from_slice(branches);
         }
+        result.extend(self.borrowed_compare_carrier_bindings_v1(owner)?);
         result.extend(self.borrowed_compare_literal_bindings_v1(owner)?);
         Ok(result)
     }
@@ -130,6 +131,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .collect::<Result<Vec<_>, _>>()?;
             check_group(function, &original, &copies, &branches)?;
         }
+        self.verify_finished_borrowed_compare_carriers_v1(owner, function, &mut project)?;
         self.verify_finished_borrowed_compare_literals_v1(owner, function, project)?;
         Ok(())
     }

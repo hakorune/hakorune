@@ -181,12 +181,25 @@ where
         self.child.prepare_borrowed_compare_source_v1(operator)
     }
 
+    fn prepare_borrowed_compare_operands_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        source: &crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
+        children: (ValueId, ValueId),
+    ) -> Result<(), String> {
+        self.child
+            .prepare_borrowed_compare_operands_v1(builder, source, children)
+    }
+
     fn complete_borrowed_compare_source_v1(
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         children: (ValueId, ValueId),
         completed: &super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>, String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>,
+        String,
+    > {
         self.child
             .complete_borrowed_compare_source_v1(loan, children, completed)
     }
@@ -567,9 +580,7 @@ where
         class: &str,
         argument_count: usize,
     ) -> Result<
-        Option<
-            crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1,
-        >,
+        Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
         String,
     > {
         self.child

@@ -270,7 +270,17 @@ fn borrowed_compare_consumer_handoff_rejects_missing_and_orphan_groups() {
         .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Gt))
         .unwrap()
         .unwrap();
-    let (completed, children) = completed(crate::ast::BinaryOperator::Greater);
+    let loans = ledger.borrow_compare_carrier_operands_v1(&loan).unwrap();
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("consumer_groups/0".into());
+    let children = (ValueId(70), ValueId(71));
+    let completed = builder
+        .build_binary_op_from_values_recorded(
+            crate::ast::BinaryOperator::Greater,
+            children.0,
+            children.1,
+        )
+        .unwrap();
     let record = ledger
         .record_borrowed_compare_v1(loan, children, &completed)
         .unwrap();
@@ -293,7 +303,23 @@ fn borrowed_compare_consumer_handoff_rejects_missing_and_orphan_groups() {
             else_edge_args: None,
         },
     );
+    let crate::mir::MirInstruction::Compare { lhs, rhs, .. } = record.original().1 else {
+        panic!("Compare");
+    };
+    let copies: Vec<_> = [(children.0, lhs), (children.1, rhs)]
+        .into_iter()
+        .filter(|(src, dst)| src != dst)
+        .map(|(src, dst)| {
+            (
+                record.original().0,
+                crate::mir::MirInstruction::Copy { src, dst },
+            )
+        })
+        .collect();
     let block = function.blocks.get_mut(&record.original().0).unwrap();
+    for copy in &copies {
+        block.add_instruction(copy.1.clone());
+    }
     block.add_instruction(record.original().1.clone());
     block.add_instruction(branch.1.clone());
     ledger
@@ -301,6 +327,19 @@ fn borrowed_compare_consumer_handoff_rejects_missing_and_orphan_groups() {
             owner,
             &function,
             std::iter::once((&record, vec![], vec![branch])),
+        )
+        .unwrap();
+    function.params = vec![children.0, children.1];
+    let loans: Vec<_> = loans.into_iter().map(Rc::new).collect();
+    ledger
+        .record_borrowed_compare_carrier_consumers_v1(
+            owner,
+            &function,
+            loans.iter().map(|loan| {
+                (loan, copies.iter().filter(|copy|
+            matches!(copy.1, crate::mir::MirInstruction::Copy { src, .. } if src == loan.value()))
+            .cloned().collect())
+            }),
         )
         .unwrap();
     ledger.borrowed_compare_bindings_v1(owner).unwrap();
