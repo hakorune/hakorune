@@ -43,12 +43,15 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
       /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
           !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) {
-        /* Selected borrowed carrier belongs to an internal instance callee;
-           the same kind/payload transport serves i64 and nullable-handle
-           result roles — the prologue revalidates the exact pair either way. */
+        /* The selected internal carrier uses the same pair transport. Static
+           I64 has no receiver; nullable-handle keeps its instance boundary.
+           The ordinary prologue revalidates the exact pair either way. */
         if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) ||
-            !yyjson_is_uint(yyjson_obj_get(fn, "receiver")) ||
+            (!yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
+             !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+               yyjson_is_null(yyjson_obj_get(fn, "receiver")) &&
+               yyjson_is_null(yyjson_obj_get(fn, "receiver_object")))) ||
             !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;
       }
     } else if (!hako_physical_string(yyjson_obj_get(param, "representation"), "kind_payload_v1") &&

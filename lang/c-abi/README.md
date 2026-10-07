@@ -592,3 +592,20 @@ python3 lang/c-abi/tests/published_lifecycle_v4_null_compare_scalar_test.py \
 Its JSON input comes from `null_compare_publishes_the_dedicated_physical_row`;
 the test replaces the carrier at the physical boundary and covers both
 predicates and operand orders. It does not authorize new source shapes.
+
+## Receiver-free ordinary I64 borrowed formals
+
+A published `ordinary_i64` Static function may use the existing
+`borrowed_kind_payload_v1` formal with both `receiver` and `receiver_object`
+explicitly null. The same pair prologue, incoming argument checks and indexed
+flow verify it; no receiver is manufactured. Receiver-free nullable-result or
+map-result borrowed formals remain unsupported. Missing fields, inconsistent
+receiver geometry and receiver/argument/formal drift are rejected.
+
+Reproduce the source capture with
+`borrowed_static_local_original_cohort_publishes_receiver_free_and_forwarded_calls`,
+then run `tests/published_lifecycle_v4_static_borrowed_local_execution_test.py`
+with `/tmp/hako-issued-borrowed-static-local-cohort.json` and the lifecycle kernel
+archive. It builds a private current-source shim, compiles and executes unchanged
+source-issued JSON, and rejects fourteen external ABI mutations without artifacts.
+This tiny program does not prove full mimalloc or MirBuilder migration completion.
