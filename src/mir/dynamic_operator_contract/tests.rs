@@ -185,3 +185,85 @@ fn module_contains_no_partial_or_physical_authority() {
     }
     assert!(!model.contains("pub(crate) const fn sealed"));
 }
+
+#[test]
+fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract() {
+    for family in [
+        DynamicOperatorFamilyV1::Greater,
+        DynamicOperatorFamilyV1::LessEqual,
+    ] {
+        let domain = DynamicOperatorDomainV1::new(
+            family,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        );
+        let envelope = issue_dynamic_operator_execution_envelope_v1(domain).unwrap();
+        assert!(std::ptr::eq(
+            envelope,
+            issue_dynamic_operator_execution_envelope_v1(domain).unwrap()
+        ));
+        assert_eq!(envelope.domain(), domain);
+        assert_eq!(envelope.effect(), DynamicOperatorEffectV1::OpaqueObservable);
+        assert_eq!(
+            envelope.ordering(),
+            DynamicOperatorOrderingV1::SynchronousNonDetached
+        );
+        assert_eq!(
+            envelope.suspension(),
+            DynamicOperatorSuspensionV1::MaySuspend
+        );
+        assert_eq!(
+            envelope.control(),
+            DynamicOperatorControlV1::ExpressionBounded
+        );
+        assert_eq!(
+            envelope.input_access(),
+            DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation
+        );
+        assert_eq!(
+            envelope.normal_result(),
+            DynamicOperatorNormalResultV1::TrivialBool
+        );
+        assert_eq!(
+            envelope.fault(),
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        );
+        assert_eq!(envelope.lifecycle(), None);
+    }
+}
+
+#[test]
+fn less_equal_refuses_every_non_integer_operand_domain_without_borrowing_generic_less() {
+    let classes = [
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::I64,
+        DynamicOperatorValueClassV1::NormalInteger,
+        DynamicOperatorValueClassV1::Null,
+    ];
+    for left in classes {
+        for right in classes {
+            if left == DynamicOperatorValueClassV1::NormalInteger && right == left {
+                continue;
+            }
+            assert_eq!(
+                issue(DynamicOperatorFamilyV1::LessEqual, left, right),
+                Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
+                "{left:?}/{right:?}"
+            );
+        }
+    }
+    let general_less = issue(
+        DynamicOperatorFamilyV1::Less,
+        DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::Dynamic,
+    )
+    .unwrap();
+    assert_eq!(
+        general_less.domain().family(),
+        DynamicOperatorFamilyV1::Less
+    );
+    assert_ne!(
+        general_less.domain().left(),
+        DynamicOperatorValueClassV1::NormalInteger
+    );
+}

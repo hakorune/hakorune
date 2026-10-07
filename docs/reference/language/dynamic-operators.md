@@ -33,6 +33,30 @@ DynamicLess(Dynamic, Dynamic|I64):
 result is self-contained and is not a borrowed alias of either operand. This
 is an operator-result relation, not a Home classification.
 
+## Checked Integer comparisons
+
+Decision (2026-10-07): the same profile-neutral operator issuer provides
+`Greater(NormalInteger, NormalInteger)` and
+`LessEqual(NormalInteger, NormalInteger)`. Both publish a TrivialBool Normal
+result with no result lifecycle, borrow operands without escape, preserve
+source operand order, and Fault before any result or operand mutation when
+an operand cannot satisfy the logical signed-integer class. They retain the
+existing synchronous, expression-bounded, potentially suspending envelope.
+
+Successful evaluation establishes the Integer operand class on either Boolean
+Normal outcome; truth of the comparison is a separate value fact. Fault grants
+no refinement. Null equality and general Dynamic Less do not grant this
+Integer fact. The envelope alone proves no source dominance, actual-argument
+transport, Home, class, execution permission, or physical projection.
+
+The existing `>` source profile remains in place. The `<=` contract is a
+prerequisite for its exact source/physical correspondence, not permission to
+extend the physical verifier to an unchecked operator whitelist. Source
+admission must retain the original operator, root and condition site; final
+validation must reject an operator changed between source and publication.
+A dominated outgoing actual additionally requires the same stable origin and
+checked comparison's Normal path. Those adapters remain separate work.
+
 ## Selected borrowed null equality (landed NULLCOMPARE-S0)
 
 Decision (2026-10-03): the existing `dynamic_operator_contract` owner issues

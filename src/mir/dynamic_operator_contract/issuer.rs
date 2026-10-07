@@ -57,6 +57,20 @@ const GREATER_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnv
         None,
     );
 
+/// Inclusive checked comparison keeps the same borrowed operand and Fault
+/// laws; the Boolean result does not change either operand's Integer class.
+const LESS_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::LessEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
 /// A dominated use of the same lent view: both operands must prove the
 /// logical signed-integer class; the result is a fresh integer carrying
 /// no borrowed identity and no lifecycle obligation.
@@ -120,6 +134,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::NormalInteger,
             DynamicOperatorValueClassV1::NormalInteger,
         ) => Ok(&GREATER_NORMAL_INTEGER_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::LessEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&LESS_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::NormalInteger,

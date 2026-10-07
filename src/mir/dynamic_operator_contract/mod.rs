@@ -1,6 +1,6 @@
 //! Profile-neutral semantic contract for Dynamic operators.
 //!
-//! This module owns the complete language-wide Add/Less execution envelope.
+//! This module owns the complete language-wide supported operator execution envelopes.
 //! It owns no source/Recipe correspondence, runtime/provider implementation,
 //! Home classification, destination flow, or physical projection.
 

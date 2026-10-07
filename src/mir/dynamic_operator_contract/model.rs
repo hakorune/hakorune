@@ -5,6 +5,7 @@ pub(crate) enum DynamicOperatorFamilyV1 {
     Add,
     Less,
     Greater,
+    LessEqual,
     Equal,
 }
 
