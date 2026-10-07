@@ -32,11 +32,11 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                 })?;
                 assert_eq!(sites.len(), 1, "one original literal child: {condition}");
                 assert_eq!(values.len(), 1, "one original raw literal append: {condition}");
-                // LocalSSA materialize.rs re-materializes the Compare for its
-                // Cond consumer. This is not another original literal descent.
+                // The selected Cond consumes the original checked Bool;
+                // the opaque operation is not re-executed.
                 assert_eq!(function.blocks.values().flat_map(|block| block.instructions.iter())
                     .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Compare { .. }))
-                    .count(), 2, "original Compare and its SSA rematerialization");
+                    .count(), 1, "one original checked execution, reused Bool");
                 if condition.starts_with("alias") {
                     // Source observation succeeds; the independently checked
                     // alias rematerialization remains an explicit physical edge.
@@ -57,6 +57,23 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                     Ok(())
                 })?;
                 assert_eq!(comparisons, 1, "one original source Compare completion: {condition}");
+                for remove_compare in [true, false] {
+                    let mut drifted = function.clone();
+                    if remove_compare {
+                        for block in drifted.blocks.values_mut() {
+                            block.instructions.retain(|row| !matches!(row, crate::mir::MirInstruction::Compare { .. }));
+                        }
+                    } else {
+                        for block in drifted.blocks.values_mut() {
+                            if let Some(crate::mir::MirInstruction::Branch { condition, .. }) = &mut block.terminator {
+                                *condition = crate::mir::ValueId(u32::MAX);
+                            }
+                        }
+                    }
+                    assert!(source.with_borrowed_ordinary_compares_v1(owner, &drifted,
+                        |_, _, _| panic!("final execution/consumer drift must refuse before source loan")).is_err());
+                }
+
                 let mut foreign = function.clone();
                 foreign.signature.name = "foreign/0".into();
                 assert!(source.with_borrowed_ordinary_compare_integer_literals_v1(owner, &foreign,

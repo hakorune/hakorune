@@ -186,7 +186,7 @@ pub fn finalize_branch_cond(
     condition_v: &mut ValueId,
 ) -> Result<(), String> {
     check_non_dominating_use(builder, *condition_v, "Cond")?;
-    *condition_v = super::cond(builder, *condition_v);
+    *condition_v = super::try_cond(builder, *condition_v)?;
     if crate::config::env::builder_local_ssa_trace() {
         if let Some(bb) = builder.function_state.current_block {
             let ring0 = crate::runtime::get_global_ring0();

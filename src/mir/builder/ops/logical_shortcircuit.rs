@@ -88,7 +88,7 @@ where
     // Branch on LHS truthiness
     // AND: true → eval RHS, false → skip (result=false)
     //  OR: true → skip (result=true), false → eval RHS
-    let mut lhs_cond = builder.local_cond(lhs_val);
+    let mut lhs_cond = super::super::ssa::local::try_cond(builder, lhs_val)?;
     crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut lhs_cond)?;
     let (then_target, else_target) = if is_and {
         (eval_rhs_block, skip_block)
@@ -144,7 +144,7 @@ where
     )?;
     // Evaluate RHS and branch on its truthiness
     let rhs_val = lower_rhs(builder)?;
-    let mut rhs_cond = builder.local_cond(rhs_val);
+    let mut rhs_cond = super::super::ssa::local::try_cond(builder, rhs_val)?;
     crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut rhs_cond)?;
     crate::mir::builder::emission::branch::emit_conditional(
         builder,

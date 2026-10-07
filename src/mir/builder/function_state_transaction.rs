@@ -55,6 +55,7 @@ pub(super) struct CapturedFunctionOwnedStateV1 {
     pub(super) compilation: FunctionCompilationScratchV1,
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
+    pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
     pub(super) frag_emit_session: FragEmitSession,
@@ -98,6 +99,7 @@ impl FunctionOwnedStateTransactionV1 {
             compilation: std::mem::take(&mut state.compilation),
             pending_phis: std::mem::take(&mut state.pending_phis),
             local_ssa_map: std::mem::take(&mut state.local_ssa_map),
+            checked_compare_reuse: std::mem::take(&mut state.checked_compare_reuse),
             schedule_mat_map: std::mem::take(&mut state.schedule_mat_map),
             pin_slot_names: std::mem::take(&mut state.pin_slot_names),
             frag_emit_session: std::mem::take(&mut state.frag_emit_session),
@@ -145,6 +147,7 @@ impl FunctionOwnedStateTransactionV1 {
         state.compilation = caller.compilation;
         state.pending_phis = caller.pending_phis;
         state.local_ssa_map = caller.local_ssa_map;
+        state.checked_compare_reuse = caller.checked_compare_reuse;
         state.schedule_mat_map = caller.schedule_mat_map;
         state.pin_slot_names = caller.pin_slot_names;
         state.frag_emit_session = caller.frag_emit_session;

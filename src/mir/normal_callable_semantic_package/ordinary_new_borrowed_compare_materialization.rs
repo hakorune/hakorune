@@ -41,10 +41,25 @@ impl BorrowedCompareSourceLoanV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct BorrowedCompareMaterializationV1 {
+pub(in crate::mir) struct BorrowedCompareMaterializationV1 {
     source: BorrowedCompareSourceLoanV1,
     children: (ValueId, ValueId),
     original: (BasicBlockId, MirInstruction),
+}
+
+impl BorrowedCompareMaterializationV1 {
+    pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.owner()
+    }
+    pub(in crate::mir) fn value(&self) -> ValueId {
+        self.original
+            .1
+            .dst_value()
+            .expect("sealed Compare destination")
+    }
+    pub(in crate::mir) fn original(&self) -> &(BasicBlockId, MirInstruction) {
+        &self.original
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -169,7 +184,7 @@ impl OrdinaryNewClaimLedgerV1 {
         loan: BorrowedCompareSourceLoanV1,
         children: (ValueId, ValueId),
         completed: &crate::mir::builder::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<BorrowedCompareMaterializationV1>, String> {
         self.check_borrowed_compare_source_loan(&loan)?;
         let value = completed.value();
         let original = completed
@@ -187,14 +202,78 @@ impl OrdinaryNewClaimLedgerV1 {
         if entry.comparisons.contains_key(&value) {
             return Err(freeze("borrowed-compare/duplicate-materialization"));
         }
-        entry.comparisons.insert(
-            value,
-            BorrowedCompareMaterializationV1 {
-                source: loan,
-                children,
-                original: original.clone(),
-            },
-        );
+        let record = std::rc::Rc::new(BorrowedCompareMaterializationV1 {
+            source: loan,
+            children,
+            original: original.clone(),
+        });
+        entry.comparisons.insert(value, std::rc::Rc::clone(&record));
+        Ok(record)
+    }
+
+    /// Required-source coverage and SAME installed records; neither side may
+    /// erase an original source binary and silently restore comparison replay.
+    pub(in crate::mir) fn verify_borrowed_compare_reuse_v1<'a>(
+        &self,
+        owner: FunctionOwnerIdV1,
+        installed: impl Iterator<Item = &'a std::rc::Rc<BorrowedCompareMaterializationV1>>,
+    ) -> Result<(), String> {
+        let installed: Vec<_> = installed.collect();
+        let Some(source) = self
+            .borrowed_formal_source
+            .as_ref()
+            .and_then(|source| source.as_ref().ok())
+        else {
+            return if installed.is_empty() {
+                Ok(())
+            } else {
+                Err(freeze("borrowed-compare/source-missing"))
+            };
+        };
+        let Some(definition) = source.definitions.get(&owner) else {
+            return if installed.is_empty() {
+                Ok(())
+            } else {
+                Err(freeze("borrowed-compare/owner"))
+            };
+        };
+        let expected: std::collections::BTreeSet<_> = definition
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                Use::CompareOperand { binary, .. } => Some(binary.clone()),
+                _ => None,
+            })
+            .collect();
+        if expected.is_empty() && installed.is_empty() {
+            return Ok(());
+        }
+        let entries = self.borrowed_entry_values.borrow();
+        let entry = entries
+            .get(&owner)
+            .ok_or_else(|| freeze("borrowed-compare/entry-missing"))?;
+        self.check_borrowed_ordinary_entry_values_v1(owner, &entry.values)?;
+        let observed: std::collections::BTreeSet<_> = entry
+            .comparisons
+            .values()
+            .map(|record| record.source.binary.clone())
+            .collect();
+        if expected != observed || installed.len() != entry.comparisons.len() {
+            return Err(freeze("borrowed-compare/reuse-coverage"));
+        }
+        let mut values = std::collections::BTreeSet::new();
+        for record in installed {
+            self.check_borrowed_compare_source_loan(&record.source)?;
+            if record.owner() != owner
+                || !values.insert(record.value())
+                || !entry
+                    .comparisons
+                    .get(&record.value())
+                    .is_some_and(|original| std::rc::Rc::ptr_eq(original, record))
+            {
+                return Err(freeze("borrowed-compare/reuse-identity"));
+            }
+        }
         Ok(())
     }
 

@@ -137,5 +137,13 @@ pub fn emit_conditional_edgecfg(
         return Err("[emit_conditional_edgecfg] current_function is None".to_string());
     }
 
+    crate::mir::builder::ssa::local::checked_compare::observe_branch(
+        b,
+        pre_branch_bb,
+        condition_val,
+        then_block,
+        else_block,
+    )?;
+
     Ok(())
 }

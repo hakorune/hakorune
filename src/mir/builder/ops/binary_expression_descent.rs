@@ -79,7 +79,10 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         _children: (ValueId, ValueId),
         _completed: &super::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>,
+        String,
+    > {
         Err("[freeze:contract][borrowed-compare/consumer-unavailable]".into())
     }
 
@@ -114,7 +117,10 @@ where
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         children: (ValueId, ValueId),
         completed: &super::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>,
+        String,
+    > {
         self.complete_borrowed_compare_source_v1(loan, children, completed)
     }
 
@@ -170,7 +176,8 @@ where
 
     let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
     if let Some(source) = source {
-        port.complete_binary_source_v1(source, (left, right), &completed)?;
+        let record = port.complete_binary_source_v1(source, (left, right), &completed)?;
+        super::super::ssa::local::checked_compare::install(builder, record)?;
     }
     port.complete_binary_expression_v1(&completed)?;
     Ok(completed.value())

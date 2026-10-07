@@ -8,6 +8,17 @@ type PreparedCarriers = (
 );
 
 impl CallableSemanticLoweringState {
+    /// Lends the existing installed raw callable entry identity; no BindingId
+    /// authority is installed or synthesized for this legacy physical shell.
+    pub(in crate::mir::builder) fn checked_compare_entry_owner_v1(
+        &self,
+    ) -> Result<crate::mir::resolved_semantics::FunctionOwnerIdV1, String> {
+        if !self.entry_installed {
+            return Err(freeze("borrowed-compare/entry-not-installed"));
+        }
+        Ok(self.owner)
+    }
+
     /// Pre-effect projection onto the ordinary signature's existing column.
     /// This does not authorize backend expansion or a borrowed Invoke.
     pub(in crate::mir::builder) fn prepare_borrowed_entry_carriers(

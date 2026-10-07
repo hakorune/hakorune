@@ -34,6 +34,11 @@ pub struct DominatorTree {
 }
 
 impl DominatorTree {
+    /// Membership in the reachable CFG used by this same dominator computation.
+    pub(in crate::mir) fn is_reachable(&self, block: BasicBlockId) -> bool {
+        self.index_of.contains_key(&block)
+    }
+
     #[inline]
     pub fn dominates(&self, a: BasicBlockId, b: BasicBlockId) -> bool {
         // Preserve legacy behavior: unreachable blocks are treated as "dominated by everything"

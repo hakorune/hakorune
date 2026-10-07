@@ -1,6 +1,7 @@
 use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
+pub(in crate::mir::builder) mod checked_compare;
 mod copy_type;
 mod error;
 mod finalize;
@@ -94,12 +95,17 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
+    let checked = builder.function_state.checked_compare_reuse.contains(v);
     let result = materialize::materialize_local_v1(
         builder,
         v,
         kind,
         forbid_non_pure,
-        LocalSsaFailurePolicyV1::LegacyFacade,
+        if checked {
+            LocalSsaFailurePolicyV1::Checked
+        } else {
+            LocalSsaFailurePolicyV1::LegacyFacade
+        },
     );
 
     // A successfully materialized value is already local to this block.  Keep
@@ -116,6 +122,12 @@ fn ensure_inner(
     match result {
         Ok(value) => Ok(value),
         Err(LocalSsaMaterializationErrorV1::Contract(error)) => Err(error),
+        Err(LocalSsaMaterializationErrorV1::BlockCreation(error))
+        | Err(LocalSsaMaterializationErrorV1::InstructionEmission(error))
+            if checked =>
+        {
+            Err(error)
+        }
         Err(LocalSsaMaterializationErrorV1::BlockCreation(_))
         | Err(LocalSsaMaterializationErrorV1::InstructionEmission(_)) => unreachable!(
             "legacy LocalSSA materialization must resolve recoverable failures before returning"
@@ -147,6 +159,19 @@ pub fn recv(builder: &mut MirBuilder, v: ValueId) -> ValueId {
 #[inline]
 pub fn arg(builder: &mut MirBuilder, v: ValueId) -> ValueId {
     ensure(builder, v, LocalKind::Arg)
+}
+
+/// Selected checked Bool failures always propagate; unselected conditions keep
+/// their existing facade behavior.
+pub(in crate::mir::builder) fn try_cond(
+    builder: &mut MirBuilder,
+    v: ValueId,
+) -> Result<ValueId, String> {
+    if builder.function_state.checked_compare_reuse.contains(v) {
+        ensure_inner(builder, v, LocalKind::Cond, false)
+    } else {
+        Ok(cond(builder, v))
+    }
 }
 
 #[inline]

@@ -218,7 +218,7 @@ fn classify_pretransform_report(
 /// The borrowed tagged carrier keeps its physical identity while the
 /// checked-compare view lends exactly one Normal-Integer operand read: the
 /// `me.<numeric field>` sibling resolves through the entry-receiver proof,
-/// and the edge-port model may evaluate the same projection more than once.
+/// and the condition consumes the one checked comparison result.
 #[test]
 fn checked_compare_view_publishes_from_original_source() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -228,6 +228,7 @@ fn checked_compare_view_publishes_from_original_source() {
             ("lo", "me.limit", "5"),
             ("neg", "me.limit", "-1"),
             ("bool", "me.limit", "true"),
+            ("null", "me.limit", "null"),
             ("object", "me.limit", "c"),
             ("literal", "10", "15"),
         ] {
@@ -264,9 +265,9 @@ fn checked_compare_view_publishes_from_original_source() {
                             .flat_map(|b| b["instructions"].as_array().unwrap())
                             .filter(|row| row["instruction"]["op"] == "compare")
                             .collect();
-                        // One source compare; the edge-port model evaluates
-                        // the same projection twice.
-                        assert_eq!(compares.len(), 2, "{suffix}");
+                        // The checked source operation executes once; its Bool
+                        // feeds the condition without replaying the comparison.
+                        assert_eq!(compares.len(), 1, "{suffix}");
                         assert!(compares.iter().all(|row| {
                             row["instruction"]["predicate"] == "sgt"
                         }));
@@ -338,9 +339,9 @@ fn dominated_add_view_publishes_from_original_source() {
                             .iter()
                             .filter(|row| row["instruction"]["op"] == "compare")
                             .collect();
-                        // One source compare; the edge-port model evaluates
-                        // the same projection twice.
-                        assert_eq!(compares.len(), 2, "{suffix}");
+                        // The checked source operation executes once; its Bool
+                        // feeds the condition without replaying the comparison.
+                        assert_eq!(compares.len(), 1, "{suffix}");
                         assert!(compares.iter().all(|row| {
                             row["instruction"]["predicate"] == "sgt"
                         }));

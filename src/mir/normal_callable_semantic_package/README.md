@@ -1260,3 +1260,15 @@ borrowed operand rows share that binary. Missing entry, source/operator/receipt
 drift, arithmetic completion and duplicate destination remain errors. Recorded
 child ValueIds are pre-finalization observations; they do not prove the final
 Compare operands, replayability, Normal execution or source-to-physical coverage.
+
+Selected checked-comparison consumers return append observations to the SAME
+borrowed entry ledger: original Compare, exact rooted Bool Copies and successfully
+sealed Branch terminators. Required source inventory and exact consumer keysets
+prevent missing or orphan groups from escaping publication. These tuples join
+mandatory lifecycle bindings and use the existing FinishedBindings projection.
+Independent finishing and the public source loan recheck exact definitions,
+recorded coordinates, Bool dataflow, reachable dominance and instruction order.
+The published Compare loan carries its finished binding with the SAME original
+source capability; original descent children still do not prove final operand
+lineage. Integer versus Null/Bool/Object execution is checked separately by the
+existing V4 runtime test; alias correspondence and other operators stay separate.

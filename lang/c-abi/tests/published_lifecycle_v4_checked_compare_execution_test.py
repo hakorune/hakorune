@@ -14,7 +14,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+TARGET = Path(os.environ.get('CARGO_TARGET_DIR', ROOT / 'target'))
+ARCHIVE = TARGET / 'lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
@@ -27,6 +28,7 @@ CASES = [
     ('lo', 3, False),
     ('neg', 3, False),
     ('bool', 70, True),
+    ('null', 70, True),
     ('object', 70, True),
     ('literal', 7, False),
 ]
@@ -41,8 +43,8 @@ def checked(argv, **kwargs):
 with tempfile.TemporaryDirectory(prefix='hako checked compare ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'source.o', 'source')]
-    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
-             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
+    checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(TARGET / 'release'),
+             '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(TARGET / 'release'), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
              'object.checked_field_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
     for suffix, expected, faulted in CASES:
@@ -51,7 +53,7 @@ with tempfile.TemporaryDirectory(prefix='hako checked compare ') as directory:
         callee = next(f for f in data['functions'] if f['name'] == 'Counter.check/1')
         compares = [row['instruction'] for b in callee['blocks']
                     for row in b['instructions'] if row['instruction']['op'] == 'compare']
-        assert len(compares) == 2, 'edge-port re-evaluation of the one source compare'
+        assert len(compares) == 1, 'the source checked comparison must execute once'
         checked([driver, path, obj], env=ENV)
         assert not list(work.glob('source.o.*')), 'temporary artifact leak'
         checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
@@ -64,4 +66,4 @@ with tempfile.TemporaryDirectory(prefix='hako checked compare ') as directory:
         else:
             assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         print(suffix, 'checked-compare view executes; kind lane governs the lent projection')
-    print('4 checked-compare inputs execute unchanged; kind!=1 faults at the view site')
+    print('7 checked-compare inputs: Integer Normal; Null/Bool/Object Fault before condition result')

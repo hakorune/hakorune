@@ -77,6 +77,22 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
+            self.verify_finished_borrowed_compares_v1(owner, function, |original| {
+                let mapped = projection.binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
+                if !projection.recorded().contains(&mapped) {
+                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
+                }
+                Ok(mapped)
+            })?;
+                self.verify_finished_borrowed_compares_v1(owner, function, |original| {
+                let mapped = projection.binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
+                if !projection.recorded().contains(&mapped) {
+                    return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
+                }
+                Ok(mapped)
+            })?;
             self.validate_forwarded_copies(owner, function, &projection)?;
             if artifact {
                 // Children share the root's inadmissibility contract: a
@@ -472,6 +488,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 result.extend_from_slice(bindings);
             }
         }
+        result.extend(self.borrowed_compare_bindings_v1(owner)?);
         Ok(result)
     }
 }

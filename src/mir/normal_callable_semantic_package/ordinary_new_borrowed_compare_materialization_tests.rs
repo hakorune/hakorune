@@ -205,6 +205,8 @@ fn borrowed_compare_changed_source_receipt_and_physical_operator_refuse_before_v
             .comparisons
             .get_mut(&completed.value())
             .unwrap();
+        let record =
+            Rc::get_mut(record).expect("no installed consumer in this source-observation test");
         if change_source {
             record.source.witnesses[0].envelope = crate::mir::dynamic_operator_contract::issue_dynamic_operator_execution_envelope_v1(
                 crate::mir::dynamic_operator_contract::DynamicOperatorDomainV1::new(Family::LessEqual,Class::NormalInteger,Class::NormalInteger)).unwrap();
@@ -218,4 +220,133 @@ fn borrowed_compare_changed_source_receipt_and_physical_operator_refuse_before_v
             ))
             .is_err());
     }
+}
+
+#[test]
+fn borrowed_compare_reuse_coverage_requires_original_source_and_same_records() {
+    let (ledger, owner, site) = fixture("p > q");
+    // Missing both observation and installed consumer must not erase source demand.
+    assert!(ledger
+        .verify_borrowed_compare_reuse_v1(owner, std::iter::empty())
+        .unwrap_err()
+        .contains("reuse-coverage"));
+    let loan = ledger
+        .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Gt))
+        .unwrap()
+        .unwrap();
+    let (completed, children) = completed(crate::ast::BinaryOperator::Greater);
+    let record = ledger
+        .record_borrowed_compare_v1(loan, children, &completed)
+        .unwrap();
+    ledger
+        .verify_borrowed_compare_reuse_v1(owner, std::iter::once(&record))
+        .unwrap();
+    assert!(ledger
+        .verify_borrowed_compare_reuse_v1(owner, std::iter::empty())
+        .unwrap_err()
+        .contains("reuse-coverage"));
+    ledger
+        .borrowed_entry_values
+        .borrow_mut()
+        .get_mut(&owner)
+        .unwrap()
+        .comparisons
+        .clear();
+    assert!(ledger
+        .verify_borrowed_compare_reuse_v1(owner, std::iter::once(&record))
+        .unwrap_err()
+        .contains("reuse-coverage"));
+    assert!(ledger
+        .verify_borrowed_compare_reuse_v1(owner, std::iter::empty())
+        .unwrap_err()
+        .contains("reuse-coverage"));
+}
+
+#[test]
+fn borrowed_compare_consumer_handoff_rejects_missing_and_orphan_groups() {
+    use crate::mir::{EffectMask, FunctionSignature, MirFunction, MirType};
+    let (ledger, owner, site) = fixture("p > q");
+    let loan = ledger
+        .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Gt))
+        .unwrap()
+        .unwrap();
+    let (completed, children) = completed(crate::ast::BinaryOperator::Greater);
+    let record = ledger
+        .record_borrowed_compare_v1(loan, children, &completed)
+        .unwrap();
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "consumer_groups/0".into(),
+            params: vec![],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        record.original().0,
+    );
+    let branch = (
+        record.original().0,
+        MirInstruction::Branch {
+            condition: record.value(),
+            then_bb: BasicBlockId(1),
+            else_bb: BasicBlockId(2),
+            then_edge_args: None,
+            else_edge_args: None,
+        },
+    );
+    let block = function.blocks.get_mut(&record.original().0).unwrap();
+    block.add_instruction(record.original().1.clone());
+    block.add_instruction(branch.1.clone());
+    ledger
+        .record_borrowed_compare_consumers_v1(
+            owner,
+            &function,
+            std::iter::once((&record, vec![], vec![branch])),
+        )
+        .unwrap();
+    ledger.borrowed_compare_bindings_v1(owner).unwrap();
+    ledger
+        .verify_finished_borrowed_compares_v1(owner, &function, |binding| Ok(binding.clone()))
+        .unwrap();
+    assert!(ledger
+        .record_borrowed_compare_consumers_v1(
+            owner,
+            &function,
+            std::iter::once((&record, vec![], vec![]))
+        )
+        .is_err());
+    let mut entries = ledger.borrowed_entry_values.borrow_mut();
+    let groups = entries
+        .get_mut(&owner)
+        .unwrap()
+        .comparison_consumers
+        .as_mut()
+        .unwrap();
+    let original = groups[&record.value()].clone();
+    groups.insert(ValueId(u32::MAX), original.clone());
+    drop(entries);
+    assert!(ledger
+        .borrowed_compare_bindings_v1(owner)
+        .unwrap_err()
+        .contains("consumer-coverage"));
+    assert!(ledger
+        .verify_finished_borrowed_compares_v1(owner, &function, |binding| Ok(binding.clone()))
+        .unwrap_err()
+        .contains("consumer-coverage"));
+    let mut entries = ledger.borrowed_entry_values.borrow_mut();
+    let groups = entries
+        .get_mut(&owner)
+        .unwrap()
+        .comparison_consumers
+        .as_mut()
+        .unwrap();
+    groups.clear();
+    drop(entries);
+    assert!(ledger
+        .borrowed_compare_bindings_v1(owner)
+        .unwrap_err()
+        .contains("consumer-coverage"));
+    assert!(ledger
+        .verify_finished_borrowed_compares_v1(owner, &function, |binding| Ok(binding.clone()))
+        .unwrap_err()
+        .contains("consumer-coverage"));
 }

@@ -1697,3 +1697,26 @@ source context and delegate to the original parent port, whose exact binary site
 must be restored at completion. Unselected ports remain unarmed. This original
 observation is a prerequisite for checked Bool reuse; it does not authorize
 replaying an opaque comparison or prove final SSA operand correspondence.
+
+Selected borrowed Compare completion installs the SAME immutable ledger record
+into `ssa/local/checked_compare.rs`. The successful raw callable entry lends a
+weak reference to its existing semantic ledger; this does not install legacy
+BindingId veto authority. The checked materializer runs before cache and pin
+paths, preserves same-block Bool identity, and emits only a reachable dominating
+Copy across blocks. Copy typing uses the existing physical-copy type owner.
+Condition consumers propagate selected failures rather than recovering through
+the legacy Cond facade. Function transactions capture and restore the complete
+reuse state; block changes retain it and root close clears it. Finish requires
+original source coverage, SAME record identity, unchanged definitions and Copy
+ordering. Final published bindings and Fault-to-Cond evidence remain separate
+obligations; this lowering state alone does not prove them.
+
+The checked consumer observes the real Branch only after successful EdgeCFG
+sealing. At live-function completion it returns original Compare, rooted Bool
+Copies and sealed Branch tuples to the SAME ordinary entry ledger. These are
+mandatory lifecycle bindings, projected by the existing PhysicalBoundary and
+FinishedBindings owners. Root and child finishing independently require exact
+recorded membership, unique definitions, rooted Bool dataflow, reachable
+dominance and instruction ordering; missing source coverage or consumer groups
+refuse. These bindings do not change ordinary operation admission. V4 runtime
+kind-Fault behavior is verified separately from this MIR correspondence.

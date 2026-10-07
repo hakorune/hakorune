@@ -186,7 +186,7 @@ where
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         children: (ValueId, ValueId),
         completed: &super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>, String> {
         self.child
             .complete_borrowed_compare_source_v1(loan, children, completed)
     }

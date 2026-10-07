@@ -19,6 +19,9 @@ pub(super) fn materialize_local_v1(
     forbid_non_pure: bool,
     failure_policy: LocalSsaFailurePolicyV1,
 ) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+    if builder.function_state.checked_compare_reuse.contains(v) {
+        return super::checked_compare::materialize(builder, v);
+    }
     let bb_opt = builder.function_state.current_block;
 
     // Get function name and entry block for logging (debug only)

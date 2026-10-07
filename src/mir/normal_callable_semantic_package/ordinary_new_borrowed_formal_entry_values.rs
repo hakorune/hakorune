@@ -9,7 +9,8 @@ type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
     pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
     aliases: BTreeMap<BindingRefV1, alias_materialization::BorrowedAliasMaterializationV1>,
-    comparisons: BTreeMap<ValueId, compare_materialization::BorrowedCompareMaterializationV1>,
+    comparisons: BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
+    comparison_consumers: Option<BTreeMap<ValueId, (Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>, Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>)>>,
     integer_literals:
         BTreeMap<ValueId, integer_literal::BorrowedCompareIntegerLiteralMaterializationV1>,
 }
@@ -24,6 +25,10 @@ pub(crate) use integer_literal::BorrowedCompareIntegerLiteralLoanV1;
 #[path = "ordinary_new_borrowed_compare_materialization.rs"]
 mod compare_materialization;
 pub(crate) use compare_materialization::BorrowedCompareSourceLoanV1;
+pub(in crate::mir) use compare_materialization::BorrowedCompareMaterializationV1;
+
+#[path = "ordinary_new_borrowed_compare_consumers.rs"]
+mod compare_consumers;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Loan the original declared classes for exactly the validated pre-entry
@@ -68,6 +73,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 values,
                 aliases: BTreeMap::new(),
                 comparisons: BTreeMap::new(),
+                comparison_consumers: None,
                 integer_literals: BTreeMap::new(),
             },
         );

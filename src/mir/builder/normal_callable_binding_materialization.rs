@@ -61,6 +61,17 @@ impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
                 .metadata
                 .physical_param_carriers = Some(carriers);
         }
+        let owner = ledger.borrow().checked_compare_entry_owner_v1()?;
+        if self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .is_some_and(|news| news.has_borrowed_compare_source_v1(owner))
+        {
+            builder
+                .function_state
+                .checked_compare_reuse
+                .adopt_entry(ledger)?;
+        }
         Ok(())
     }
 }

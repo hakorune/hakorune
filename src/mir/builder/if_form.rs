@@ -24,7 +24,7 @@ impl MirBuilder {
         // Pre-pin heuristic was deprecated; keep operands as-is for predictability.
 
         let cond_ast_for_debug = condition_debug;
-        let condition_val = self.local_cond(condition_val);
+        let condition_val = crate::mir::builder::ssa::local::try_cond(self, condition_val)?;
 
         // Create blocks
         let then_block = self.next_block_id();

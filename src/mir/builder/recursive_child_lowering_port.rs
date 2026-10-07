@@ -112,7 +112,10 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         _loan: crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1,
         _children: (ValueId, ValueId),
         _completed: &super::ops::CompletedOrdinaryBinaryV1,
-    ) -> Result<(), String> {
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareMaterializationV1>,
+        String,
+    > {
         Err("[freeze:contract][borrowed-compare/consumer-unavailable]".into())
     }
 
