@@ -11,7 +11,7 @@ use std::rc::Rc;
 #[derive(Debug)]
 enum CallPacketSourceKindV1 {
     Instance(LexicalInstanceCallDispositionRowV1),
-    QualifiedStatic {
+    Static {
         original: Rc<StaticIncomingSourceV1>,
         observation: LocalCallObservationV1,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
@@ -26,7 +26,7 @@ pub(in crate::mir) struct CallPacketSourceV1 {
 #[derive(Clone, Copy)]
 pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
     Instance(&'a LexicalInstanceCallDispositionRowV1),
-    QualifiedStatic {
+    Static {
         original: &'a Rc<StaticIncomingSourceV1>,
         observation: &'a LocalCallObservationV1,
         publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
@@ -42,11 +42,11 @@ impl CallPacketSourceV1 {
     pub(in crate::mir) fn loan(&self) -> CallPacketSourceLoanV1<'_> {
         match &self.kind {
             CallPacketSourceKindV1::Instance(row) => CallPacketSourceLoanV1::Instance(row),
-            CallPacketSourceKindV1::QualifiedStatic {
+            CallPacketSourceKindV1::Static {
                 original,
                 observation,
                 publication,
-            } => CallPacketSourceLoanV1::QualifiedStatic {
+            } => CallPacketSourceLoanV1::Static {
                 original,
                 observation,
                 publication,
@@ -54,18 +54,17 @@ impl CallPacketSourceV1 {
         }
     }
 
-    pub(in crate::mir) fn qualified_static(
+    pub(in crate::mir) fn static_i64(
         original: Rc<StaticIncomingSourceV1>,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
-        original.require_qualified()?;
         let observation = ledger
             .local_call_for_owner(original.call_site().owner(), original.call_site().site())
             .ok_or_else(|| freeze("static-packet/local-source-missing"))?
             .clone();
         let source = Self {
-            kind: CallPacketSourceKindV1::QualifiedStatic {
+            kind: CallPacketSourceKindV1::Static {
                 original,
                 observation,
                 publication,
@@ -82,42 +81,42 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     ) -> Result<&'a LexicalInstanceCallDispositionRowV1, String> {
         match self {
             Self::Instance(row) => Ok(row),
-            Self::QualifiedStatic { .. } => Err(freeze("static-packet/instance-source-required")),
+            Self::Static { .. } => Err(freeze("static-packet/instance-source-required")),
         }
     }
 
     pub(in crate::mir) fn call_site(self) -> &'a OwnedExprSiteV1 {
         match self {
             Self::Instance(row) => row.call_site(),
-            Self::QualifiedStatic { original, .. } => original.call_site(),
+            Self::Static { original, .. } => original.call_site(),
         }
     }
 
     pub(in crate::mir) fn target(self) -> &'a hakorune_mir_defs::CanonicalSameModuleCallableKeyV1 {
         match self {
             Self::Instance(row) => row.target(),
-            Self::QualifiedStatic { original, .. } => original.target(),
+            Self::Static { original, .. } => original.target(),
         }
     }
 
     pub(in crate::mir) fn callee_owner(self) -> FunctionOwnerIdV1 {
         match self {
             Self::Instance(row) => row.callee_owner(),
-            Self::QualifiedStatic { original, .. } => original.callee_owner(),
+            Self::Static { original, .. } => original.callee_owner(),
         }
     }
 
     pub(in crate::mir) fn argument_sites(self) -> &'a [SourceExprSiteV1] {
         match self {
             Self::Instance(row) => row.argument_sites(),
-            Self::QualifiedStatic { original, .. } => original.argument_sites(),
+            Self::Static { original, .. } => original.argument_sites(),
         }
     }
 
     pub(in crate::mir) fn result(self) -> Option<InvokeCallResultKind> {
         match self {
             Self::Instance(row) => row.result(),
-            Self::QualifiedStatic { .. } => Some(InvokeCallResultKind::I64),
+            Self::Static { .. } => Some(InvokeCallResultKind::I64),
         }
     }
 
@@ -125,7 +124,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         self,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
-        let Self::QualifiedStatic {
+        let Self::Static {
             original,
             observation,
             publication,
@@ -146,10 +145,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         {
             return Err(freeze("static-packet/original-source-drift"));
         }
-        // This is the selected borrowed-static packet. Other static argument
-        // protocols keep their existing owners; absence of a borrowed kind
-        // is never permission to pass a scalar payload to Map/Text/Handle.
-        // The same executable ordered-argument proof also covers declared I64.
+        // The selected Static packet uses its original complete input proof:
+        // a checked zero-input cohort or the existing borrowed entry. An absent
+        // borrowed kind never permits a scalar payload for Map/Text/Handle.
         ledger
             .borrowed_static_packet_actuals_v1(original)?
             .ok_or_else(|| freeze("static-packet/actuals-missing"))?;
@@ -187,7 +185,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     >{
         match self {
             Self::Instance(row) => ledger.borrowed_call_actuals_v1(row),
-            Self::QualifiedStatic { original, .. } => {
+            Self::Static { original, .. } => {
                 self.validate_static(ledger)?;
                 ledger.borrowed_static_packet_actuals_v1(original)
             }

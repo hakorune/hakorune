@@ -101,7 +101,7 @@ impl PreparedLexicalCallProjectionV1 {
             (CallPacketSourceLoanV1::Instance(_), Some(read)) => {
                 LexicalReceiverProjectionV1::Lexical(read)
             }
-            (CallPacketSourceLoanV1::QualifiedStatic { .. }, None) => {
+            (CallPacketSourceLoanV1::Static { .. }, None) => {
                 LexicalReceiverProjectionV1::AbsentStatic
             }
             _ => return Err(freeze("lexical-i64/source-receiver-drift")),
@@ -169,7 +169,7 @@ impl PreparedLexicalCallProjectionV1 {
             return Err(freeze("lexical-i64/prepared-arity-or-owner"));
         }
         let callee = match row {
-            CallPacketSourceLoanV1::QualifiedStatic { observation, .. } => {
+            CallPacketSourceLoanV1::Static { observation, .. } => {
                 row.validate_static(ledger.ok_or_else(|| freeze("static-packet/ledger-missing"))?)?;
                 if !matches!(self.receiver, LexicalReceiverProjectionV1::AbsentStatic)
                     || source != observation.arguments()
@@ -442,7 +442,7 @@ impl EmittedLexicalCallProjectionV1 {
         projection: Binding,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
-        let row = CallPacketSourceV1::qualified_static(original, publication, ledger)?;
+        let row = CallPacketSourceV1::static_i64(original, publication, ledger)?;
         let packet = Self {
             row,
             prepared: PreparedLexicalCallProjectionV1 {
@@ -452,7 +452,7 @@ impl EmittedLexicalCallProjectionV1 {
             invoke,
             projection,
         };
-        let CallPacketSourceLoanV1::QualifiedStatic { observation, .. } = packet.row.loan() else {
+        let CallPacketSourceLoanV1::Static { observation, .. } = packet.row.loan() else {
             unreachable!("static source constructor");
         };
         packet.value_with_ledger(observation.owner(), observation.arguments(), ledger)?;

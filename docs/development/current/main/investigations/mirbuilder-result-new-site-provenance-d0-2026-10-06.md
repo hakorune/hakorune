@@ -937,28 +937,28 @@ hako-current-owner-call-operand-evidence.json. No SourceOnly/range/entry grant.
 
 Read-only review_cleanup_path: sole dynamic_operator_contract/borrowed arithmetic
 owner gains explicit Mul; Add unchanged. NormalInteger x NormalInteger yields
-fresh NormalInteger. SAME guard/ordered formal/alias/literal or call-child loan
-survive consult/result_pending/entry/FinishedBindings. Both scanners verify
+fresh NormalInteger. SAME guard/ordered formal/alias/literal or call-child loan survives finishing.
+Original bin<=8 then-arm requires checked Normal branch-region lending, not
+old Add's later-sibling-only scope check; physical CFG dominance remains owed. Both scanners verify
 exact operation/coordinates/ordinals/guard dominance, not counts/Add spelling.
 JSON/C validator/index/admission/flow/emit spell mul; Tagged kind1 required
 before result, wrong kinds Fault without mutation. Acceptance: original literal/
 call sibling, orders/alias/optimization, source->JSON->C; Bool/null Fault and
 wrong/missing guard/operation/operand/call/FinishedBindings refuse.
-CurrentOwner entry/context and all caller/veto laws remain unchanged.
+Current dynamic I64 arithmetic policy stays; exact-width checked overflow is
+separate. CurrentOwner entry/context and all caller/veto laws remain unchanged.
 Both315/318, cleanup, unchanged EXE, Gates2-4, old-edge retirement and final
 selfcompile remain open; Mul alone cannot close bin_size.
 
-Arithmetic append retention CLOSED62bf32f0e4; SAME Option/ordered original append
-contracts and verified focused/check/format receipts are owned by Git/README
-and /mnt/workdisk/hako-arithmetic-original-append-evidence.json. Mul remains open.
+Arithmetic append CLOSED62bf32f0e4; exact Option/ordered contracts and PASS
+receipts: Git/README and workdisk hako-arithmetic-original-append-evidence.json.
+Mul remains open.
 
 ## CurrentOwner zeroarg result/packet Decision (2026-10-09)
 
-Source part CLOSED12d022a270; Git/resolved owner README retain exact canonical
-Static index/incoming loan, zeroarg ExactI64 identity, atomic scalar preflight,
-ExpressionValue/priorHomes and original Return relations. Bool/Text/unknown
-siblings keep old scope; no fake local/discard. Evidence:
-/mnt/workdisk/hako-static-i64-source-evidence.json; focused/regressions PASS.
+Source CLOSED12d022a270: original canonical index/loan/zero-I64, atomic preflight,
+ExpressionValue/priorHomes/Return contracts and Bool/Text/unknown exclusions:
+Git/resolved README; workdisk hako-static-i64-source-evidence.json (PASS).
 Packet closure OPEN: ALL incoming/caller/veto, original signature/Completion,
 SAME Static Rc and unconsumed affine publication handoff remain mandatory.
 Existing lexical_i64 Invoke owns NormalResult/group/FinishedBindings; selected
@@ -972,27 +972,29 @@ Original nested/loop/short-circuit and runtime acceptance obligations remain.
 Opaque CurrentOwner input/context, Both315/318, cleanup, unchanged EXE, Gates2-4,
 selected old-edge retirement and nondelegating selfcompile remain required.
 
-## Zeroarg Static input finish construction (2026-10-09)
+Input CLOSED e3fb0c71e1: original contracts/corrected PASS at Git/README and
+/mnt/workdisk/hako-static-zero-input-evidence.json; no fake entry/packet grant.
 
-Decision: continue the zeroarg input/Invoke + original Mul semantic closure.
-Canonical issuer: SAME raw Static inventory, actuals owner and signature/result
-cohorts. Existing SourceStatic stages original zero-input candidates; proved
-scalar children stage after atomic whole-expression preflight. No fake borrowed
-entry. Input closure uses ALL raw callee rows/veto, original selected identity,
-Static lane0 signature, I64 result and SAME callee Completion Rc. Existing actual
-constructor regenerates ExecutableStaticZero holding original source/Completion;
-missing siblings keep all replacements pending, original Err stays refused.
-Demand-time lender rechecks raw cohort, duplicates, phase, all source/Completion
-Rc identities and empty ordered arguments; it lends input only, not publication.
-Acceptance: existing families + one parameterized zeroarg boundary test for
-source contexts, partial install and foreign/late drift.
-Input part VERIFIED; evidence: /mnt/workdisk/hako-static-zero-input-evidence.json.
-Initial callback/raw-census/annotation assumptions and foreign-site test diagnostic
-were THISCHANGE, corrected. Final no-run PASS8m42s/check PASS40.88s; focused1 and
-families7+11+10+16+26+11+9+362+30+13+1+28 PASS. Three zero filters were NOT PASS;
-corrected module filters ran successfully. Guard/pointer/format/caps/protected7 PASS.
-Raw zeroarg candidates stay in SAME census, not borrowed definitions. Shared
-source-I64 declaration agreement preserves Unannotated and excludes Void.
-No new guard; one independent parameterized test. Packet/composite closure OPEN.
-CurrentOwner packet hook/Invoke, Mul call-child, full caller finishing and original
-runtime acceptance remain required; full goal scope above is unchanged.
+## Static zero packet part VERIFIED (2026-10-09)
+
+Read-only review_static_zero_packet: original Currentzero seed selects ALL same
+owner/fulltarget/slot zeroStatic siblings independent of Completion/Ready.
+SAME Rc/routes/mask/packet; full raw/veto/retained-observation coverage, original
+signature/callee Completion, per-site I64/priorHomes and affine handoff required.
+Pending/refused is unmarked but selected emission Err precedes taking; no retry.
+New/old dispatch is exclusive by cohort; ready preflight precedes marks.
+Current hook and Main recipe issuer/consumer share the existing ordinary Static
+Invoke/NormalResult/FinishedBindings owner; no nonzero/Math widening or fake entry.
+Local Current/Qualified verified; original Mul in-branch context still requires
+joined closure above. THISCHANGE fixture/competing Main header resolved.
+Obsolete build interrupted (NOT PASS); final no-run PASS8m46/check PASS42.38s.
+6+3+1+11+26+16+10+22+31+362+13 PASS; publication8 PASS/1 baseline red.
+Chain root-exit-source-missing reproduces SAME diagnostic at saved e3fb input
+binary (9038 tests), unwaived. Source JSON opt false/true + private C compile/
+link/EXE2 PASS(rc0/noFault); guard/pointer/format/caps/protected7 PASS.
+Evidence: /mnt/workdisk/hako-static-zero-packet-evidence.json (links runtime evidence).
+No new guard; three independent tests, existing families reused. Shared generic
+bridge retained for unselected consumers; selected old-edge retirement still owed.
+Next Mul: explicit envelope, SAME guard Normal branch-region/ordered source and
+call-child loan/sole append/FinishedBindings/both scanners/C acceptance.
+Both315/318, cleanup, unchanged mimalloc EXE, Gates2-4/selfcompile remain OPEN.

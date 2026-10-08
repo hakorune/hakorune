@@ -209,3 +209,51 @@ fn static_packet_refuses_foreign_brand_raw_payload_and_physical_drift() {
         );
     }
 }
+
+#[test]
+fn static_zero_packet_preserves_current_source_and_original_affine_handoff() {
+    const ZERO: &str = "static box Layout { word() { return 8 } run() { local a = me.word() return 0 } } static box Main { main() { return 0 } }";
+    for foreign in [false, true] {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(ZERO).unwrap();
+        let original = source(&package);
+        assert!(original.current_owner_source().is_some());
+        assert!(!original.is_qualified());
+        let other = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(ZERO).unwrap();
+        let publication = if foreign {
+            handoff(&other, &source(&other))
+        } else {
+            handoff(&package, &original)
+        };
+        let (mut invoke, projection) = bindings(&original);
+        if let MirInstruction::Invoke {
+            operation: InvokeOperation::Call { call, .. },
+            ..
+        } = &mut invoke.1
+        {
+            call.args.clear();
+        }
+        let packet = EmittedLexicalCallProjectionV1::new_static(
+            original.clone(),
+            publication,
+            vec![],
+            invoke,
+            projection,
+            &package.ordinary_new_claim_ledger,
+        );
+        if foreign {
+            assert!(packet.unwrap_err().contains("original-source-drift"));
+        } else {
+            let packet = packet.unwrap();
+            assert_eq!(
+                packet
+                    .value_with_ledger(
+                        original.call_site().owner(),
+                        &[],
+                        &package.ordinary_new_claim_ledger
+                    )
+                    .unwrap(),
+                ValueId(79)
+            );
+        }
+    }
+}

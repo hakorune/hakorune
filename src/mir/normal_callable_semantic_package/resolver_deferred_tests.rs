@@ -348,6 +348,21 @@ fn app_main_qualified_receiver_relation_skips_arity_bearing_main() {
             .is_none(),
         "the arity-0 canonical route is the sole row consumer; `main(args)` rows are unconsumable"
     );
+    let source = final_source("static box Layout { word() { return 8 } run(p) { local a = me.word() local b = Layout.word() return 0 } } static box Main { main() { local r = Layout.run(7) return r } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(114).unwrap();
+    let package = issue_normal_callable_semantic_package_v1(&mut resolver, source).unwrap();
+    let imports = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+        package.declaration_catalog(),
+        [],
+    )
+    .unwrap();
+    assert!(
+        package
+            .issue_app_main_qualified_receiver_catalog_relation(&imports)
+            .unwrap()
+            .is_none(),
+        "co-sealed Static Main uses the existing ordinary root; no unused exact-scalar recipe"
+    );
 }
 
 #[test]
@@ -577,7 +592,8 @@ fn app_main_direct_call_accepts_top_level_free_function() {
                 &package.selected,
                 input,
             )
-            .unwrap().is_some());
+            .unwrap()
+            .is_some());
         })
         .unwrap();
     let main = package
@@ -620,7 +636,8 @@ fn app_main_direct_call_accepts_top_level_free_function() {
                         &isolated.selected,
                         input,
                     )
-                    .unwrap().is_some(),
+                    .unwrap()
+                    .is_some(),
                     scalar_header
                 );
             })

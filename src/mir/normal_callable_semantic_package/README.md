@@ -135,8 +135,8 @@ fact. CurrentOwner additionally corroborates CanonicalMe and
 the original same static owner/result row. Every context remains in the census.
 Opaque argument facts and source graph loans keep the same original `Rc`.
 CurrentOwner borrowed/nonzero-input entry is source-only: a Qualified sibling
-cannot seed it. Publication handoff, selected sites and physical packets still
-require the original Qualified route. Noninitializer/USIZE exclusions in that
+cannot seed it. Nonzero-input publication handoff, selected sites and physical
+packets still require the original Qualified route. Noninitializer/USIZE exclusions in that
 borrowed entry remain unchanged. No source observation grants an entry or ABI.
 
 The bounded zero-input ExactI64 law stages `SourceStatic` from the same original
@@ -155,7 +155,20 @@ Rc/Completion/phase/ordered snapshot; source-only, missing or replaced siblings
 cannot lend executable inputs. Caller observations are issued atomically after
 whole scalar-tree preflight, including original call children in conditions and
 returns. Input finishing alone grants no publication, Invoke or ABI permission;
-CurrentOwner packet cutover and original guarded Mul acceptance remain required.
+The bounded zero-input cohort seeded by an original CurrentOwner source retains
+all original Current/Qualified zero-input demands in the same selection mask,
+independent of caller Completion. Original route/Rc/full target/slot stay intact. Selected emission
+requires the checked whole zero-input cohort, original per-site I64 observation,
+priorHomes and affine handoff; pending/refused demand stops before publication.
+The lender requires every retained same-callee observation in the unique raw
+projection, so deleting a sibling cannot prove a smaller cohort. Issue-time
+pending calls remain source-only/unmarked. Ready routes are co-sealed
+before emission. Main's recipe issuer uses the same co-sealed Static route
+predicate as its consumer, so it issues no competing exact-scalar recipe.
+The shared Static packet owns Invoke/NormalResult and exact
+FinishedBindings; the Current production hook precedes generic handoff taking.
+Qualified borrowed input keeps its existing entry law; completed Qualified zero
+siblings use the same zero-input cap. Original guarded Mul acceptance remains required.
 
 
 The same index issuer retains original `CurrentOwnerStatic` routes separately

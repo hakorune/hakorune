@@ -383,3 +383,29 @@ fn owned_call_results_publish_original_child_handle_contracts() {
         }
     });
 }
+
+#[test]
+fn current_static_zero_original_source_publishes_invoke_without_generic_call() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "static box Layout { word() { return 8 } run(p) { local a = me.word() local b = Layout.word() return 0 } } static box Main { main() { local r = Layout.run(7) return r } }";
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let run = json["functions"].as_array().unwrap().iter().find(|f| f["name"] == "Layout.run/1").unwrap();
+                let calls: Vec<_> = run["blocks"].as_array().unwrap().iter().filter_map(|block| {
+                    let instruction = &block["terminator"]["instruction"];
+                    (instruction["operation"]["kind"] == "ordinary_call").then_some(instruction)
+                }).collect();
+                assert_eq!(calls.len(), 2, "{wire}");
+                assert_eq!(calls[0]["operation"]["result"], "i64");
+                assert!(calls[0]["operation"]["call"]["args"].as_array().unwrap().is_empty());
+                std::fs::write(std::env::temp_dir().join(format!("hako-issued-current-static-zero-opt{optimize}.json")), wire).unwrap();
+                Ok(())
+            }).unwrap_or_else(|error| panic!("Current zero/opt{optimize}: {error}"));
+        }
+    });
+}

@@ -184,6 +184,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 requested = Some(arguments);
             }
         }
+        for retained in source
+            .source_incoming
+            .static_observations()
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+        {
+            if retained.callee_owner() == owner && !seen.contains(retained.call_site()) {
+                return Err(freeze("static-zero/original-row-missing"));
+            }
+        }
         Ok(if missing { None } else { requested })
     }
 

@@ -34,6 +34,15 @@ impl BorrowedIncomingInventoryV1 {
         self.observations.push((owner, row));
     }
 
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn remove_exact_row_for_test(
+        &mut self,
+        site: &OwnedExprSiteV1,
+    ) {
+        self.observations
+            .retain(|(_, row)| !row.as_ref().is_ok_and(|row| &row.call == site));
+    }
+
     /// Original callers sharing a qualified callee retain input evidence only.
     /// The immutable inventory already corroborates its seed's sealed contract.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_object_input_callee_v1(

@@ -118,7 +118,7 @@ fn emit_lexical_i64_call(
                 )
                 .map_err(|error| format!("[freeze:contract][lexical-i64/receiver/{error:?}]"))?,
         ),
-        SourceLoan::QualifiedStatic { .. } => None,
+        SourceLoan::Static { .. } => None,
     };
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();

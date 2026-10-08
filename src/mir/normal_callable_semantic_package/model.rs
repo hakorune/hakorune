@@ -176,7 +176,8 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     #[cfg(test)]
-    pub(super) source_static_claims_for_test: super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+    pub(super) source_static_claims_for_test:
+        super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
@@ -260,6 +261,21 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         // main can never take a row here, so qualified static calls in
         // it belong to the static result publication owner instead.
         if caller.arity() != 0 {
+            return Ok(None);
+        }
+        // Match the actual Main consumer: co-sealed Static packets already
+        // select the ordinary root owner, so no unused exact-scalar recipe is
+        // issued for that same source. The packet and final collector remain
+        // responsible for every call; missing proof never selects this route.
+        let static_local_route = self
+            .batch
+            .with_lowering_input(main_slot, |input| {
+                self.ordinary_new_claim_ledger
+                    .has_routed_static_local_for_owner_v1(input.owner())
+            })
+            .map_err(|error| format!("[mir/main-import-view/static-route-input] {error:?}"))?
+            .map_err(|error| error.into_boxed_str())?;
+        if static_local_route {
             return Ok(None);
         }
         let mut rows = Vec::new();

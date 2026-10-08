@@ -5,8 +5,50 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Exact final incoming membership selects this packet; passive Static
-    /// source observations alone never replace another call protocol.
+    /// Only a cohort with an original CurrentOwner zero-input source selects
+    /// the new protocol. Selection is independent of readiness and Completion.
+    fn is_static_zero_packet_cohort_v1(&self, original: &StaticIncomingSourceV1) -> bool {
+        original.is_zeroarg_i64_v1()
+            && self.borrowed_formal_source.as_ref().is_some_and(|source| {
+                source.as_ref().is_ok_and(|source| {
+                    source
+                        .source_incoming
+                        .static_observations()
+                        .values()
+                        .any(|row| {
+                            row.as_ref().is_ok_and(|seed| {
+                                seed.current_owner_source().is_some()
+                                    && seed.is_zeroarg_i64_v1()
+                                    && seed.callee_owner() == original.callee_owner()
+                                    && seed.target() == original.target()
+                                    && seed.target_batch_slot() == original.target_batch_slot()
+                            })
+                        })
+                })
+            })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn select_static_zero_local_routes_v1(
+        &mut self,
+    ) {
+        let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
+            return;
+        };
+        let sites: Vec<_> = source
+            .source_incoming
+            .static_observations()
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+            .filter(|original| self.is_static_zero_packet_cohort_v1(original))
+            .map(|original| original.call_site().clone())
+            .collect();
+        if let Some(Ok(selected)) = self.borrowed_static_source_sites.as_mut() {
+            selected.extend(sites);
+        }
+    }
+
+    /// Final borrowed incoming or the bounded original zero-input cohort
+    /// selects this protocol. Membership alone grants no executable packet.
     pub(crate) fn selected_static_local_source_v1(
         &self,
         site: &OwnedExprSiteV1,
@@ -17,10 +59,22 @@ impl OrdinaryNewClaimLedgerV1 {
         if !selection.as_ref().map_err(Clone::clone)?.contains(site) {
             return Ok(None);
         }
-        let Some(source) = self.borrowed_formal_source.as_ref() else {
-            return Ok(None);
-        };
+        let source = self
+            .borrowed_formal_source
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-static/selected-source-missing"))?;
         let source = source.as_ref().map_err(Clone::clone)?;
+        if let Some(original) = source.source_incoming.static_observations().get(site) {
+            let original = original.as_ref().map_err(Clone::clone)?;
+            if self.is_static_zero_packet_cohort_v1(original) {
+                self.verify_original_static_packet_source_v1(original)?;
+                self.borrowed_static_packet_actuals_v1(original)?
+                    .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+                self.lexical_i64_call_source(site)
+                    .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
+                return Ok(Some(Rc::clone(original)));
+            }
+        }
         let mut rows = source.incoming.iter().filter(|row| &row.call == site);
         let Some(row) = rows.next() else {
             return Ok(None);
@@ -43,8 +97,8 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// Co-seal the original selected Static local edges before emission.
-    /// Validate the complete set first; a partial route must not survive a
-    /// missing entry, executable actual projection, or local completion.
+    /// Validate ready cohorts before marking. Unready zero-input cohorts stay
+    /// source-only; their selected demand still refuses at emission.
     pub(in crate::mir::normal_callable_semantic_package) fn co_seal_static_local_routes_v1(
         &self,
     ) -> Result<(), String> {
@@ -58,13 +112,30 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in &source.incoming {
             if !matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified() && !self.is_static_zero_packet_cohort_v1(original)
             ) {
                 continue;
             }
             self.selected_static_local_source_v1(&row.call)?
                 .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
             routed.push(row.call.clone());
+        }
+        // Source-only CurrentOwner packets are not co-sealed. Their canonical
+        // demand remains selected: emission will preserve the original refusal
+        // before taking publication instead of retrying the generic call.
+        for row in source.source_incoming.exact_rows() {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source
+            else {
+                continue;
+            };
+            if self.is_static_zero_packet_cohort_v1(original)
+                && self
+                    .selected_static_local_source_v1(&row.call)
+                    .is_ok_and(|row| row.is_some())
+            {
+                routed.push(row.call.clone());
+            }
         }
         for site in routed {
             self.record_lifecycle_local_call_site(site.owner(), site);
@@ -93,7 +164,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             if !matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified() && !self.is_static_zero_packet_cohort_v1(original)
             ) {
                 continue;
             }
@@ -107,6 +178,26 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             found = true;
         }
+        for row in source
+            .source_incoming
+            .exact_rows()
+            .filter(|row| row.call.owner() == owner)
+        {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source
+            else {
+                continue;
+            };
+            if self.is_static_zero_packet_cohort_v1(original)
+                && routed
+                    .get(&owner)
+                    .is_some_and(|sites| sites.contains(&row.call))
+            {
+                self.selected_static_local_source_v1(&row.call)?
+                    .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
+                found = true;
+            }
+        }
         Ok(found)
     }
 
@@ -114,7 +205,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
-        original.require_qualified()?;
+        if !original.is_zeroarg_i64_v1() {
+            original.require_qualified()?;
+        }
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -138,6 +231,24 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if self.is_static_zero_packet_cohort_v1(original) {
+            let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)? else {
+                return Ok(None);
+            };
+            let observation = self
+                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+                .ok_or_else(|| freeze("borrowed-static/local-source-missing"))?;
+            if observation.arguments() != arguments {
+                return Err(freeze("borrowed-static/ordered-arguments-drift"));
+            }
+            let rows = self
+                .borrowed_formal_actuals
+                .get(original.call_site())
+                .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
+                .as_ref()
+                .map_err(Clone::clone)?;
+            return Ok(Some(rows.opaque_actuals.as_ref()));
+        }
         original.require_qualified()?;
         let source = self
             .borrowed_formal_source

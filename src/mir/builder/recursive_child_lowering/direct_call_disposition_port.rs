@@ -93,12 +93,11 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         let StaticResultPublicationIngressV1::Selected(publication) = ingress else {
             return Err("[freeze:contract][borrowed-static/local-publication-not-selected]".into());
         };
-        let source =
-            crate::mir::normal_callable_semantic_package::CallPacketSourceV1::qualified_static(
-                original,
-                publication,
-                &ledger,
-            )?;
+        let source = crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(
+            original,
+            publication,
+            &ledger,
+        )?;
         let state = self
             .callable_ledger
             .as_ref()

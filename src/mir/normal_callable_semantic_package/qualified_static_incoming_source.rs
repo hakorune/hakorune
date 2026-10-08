@@ -95,7 +95,7 @@ impl StaticIncomingSourceV1 {
         &self,
         handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
     ) -> bool {
-        self.is_qualified() && handoff.catalog_identity() == self.catalog_brand.identity()
+        (self.is_qualified() || self.is_zeroarg_i64_v1()) && handoff.catalog_identity() == self.catalog_brand.identity()
             && handoff.caller() == &self.caller
             && handoff.site() == self.call.site()
             && handoff.target() == &self.target

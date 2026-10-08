@@ -43,7 +43,8 @@ Common original Static incoming/source graph and neutral C Return emission close
 Checked Integer Return source/finishing/C execution and exact USIZE parameter source/actuals closed.
 Original CurrentOwner zeroarg Integer comparison child source loan is closed.
 Neutral arithmetic original append retention is verified.
-Next zeroarg CurrentOwner result/packet, then full guarded Mul closure.
+Zeroarg Current/Qualified input and shared Static packet verified on local call shapes.
+Next full guarded Mul closure on the original in-branch call child.
 Whole CurrentOwner input/context entry remains required.
 Whole incoming/Completion/Normal/cleanup and packet closure remain required.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
