@@ -1352,6 +1352,11 @@ Index retention grants no collector, result ABI or artifact admission.
 The ledger retains the same AppMain co-seal catalog key together with its parser
 identity. Source-bearing collector handoff requires both before affine moves;
 Root result Facts use that key, never an OwnedCall qualification's callee key.
+Fresh leaf corroboration borrows either the exact pending result claim or its
+same-site moved Result commit through one private local_commit view. The original
+arity travels with the take; duplicate stores, wrong commit kinds and identity
+drift refuse. Construction/prefix/argument checks stay in the existing leaf owner.
+This source projection does not authorize an unavailable emission or finished Return.
 Semantic index membership and physical scalar storage have separate roles:
 the original Root keeps its site-only value books; indexed child values use
 owner + exit keys. Both owners still owe their own values and physical checks,

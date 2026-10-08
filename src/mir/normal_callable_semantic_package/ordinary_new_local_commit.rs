@@ -159,6 +159,7 @@ pub(super) struct NewLocalCommitV1 {
 #[derive(Debug)]
 pub(super) struct NewResultCommitV1 {
     site: OwnedExprSiteV1,
+    arity: usize,
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     construction: super::ConstructionEligibilityV1,
     object: hakorune_mir_defs::CanonicalObjectIdV1,
@@ -175,6 +176,9 @@ pub(super) struct NewResultCommitV1 {
     children: Option<Box<[super::OwnedFieldChildV1]>>,
     emission: NewEmissionProgress,
 }
+
+#[path = "ordinary_new_local_commit/result_new_source.rs"]
+mod result_new_source;
 
 #[path = "ordinary_new_local_commit/map.rs"]
 mod map;
@@ -445,6 +449,7 @@ impl NewResultCommitV1 {
     #[allow(clippy::too_many_arguments)]
     pub(super) fn pending(
         site: OwnedExprSiteV1,
+        arity: usize,
         home_prefix: Result<ResultNewHomePrefixV1, HomePrefixUnavailableV1>,
         box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
         construction: super::ConstructionEligibilityV1,
@@ -460,6 +465,7 @@ impl NewResultCommitV1 {
     ) -> Self {
         Self {
             site,
+            arity,
             box_source,
             construction,
             object,

@@ -890,11 +890,8 @@ selection stay unchanged. Scope: finalized_root_cleanup, owner README and this
 card. Existing finalized/cleanup/physical regression and non-test check/guards
 verify BoxShape; no new tests/guards. Later collector will borrow SAME core in a
 separate semantic slice. Read-only audit found no semantic/failure-order change.
-Preparation verified: existing focused15 PASS (build5m09s/.03s), remaining536 PASS
-(.26s), same required551 without repeated green execution; non-test check16.54s
-PASS. /tmp/hako-cleanup-borrowed-core-{focused,regression,production-check}.log
-and regression-evidence.json own exact results. Scope/fmt/caps/diff/protected7
-PASS; no new tests/guards, no current/unclassified red or collector admission.
+Preparation closed at aabadf0bef: required551 and production check PASS; exact
+/tmp/hako-cleanup-borrowed-core-* receipts retain evidence. No collector admission.
 
 
 Literal-control physical prerequisite closed (selected CALLEE-RETURN-OUTCOME-S0).
@@ -910,20 +907,15 @@ Foreign dst/extra Const/relocation/duplicate, operand/condition drift and missin
 recorded arm/entry refuse. Mandatory nodes/acyclic inventory stay unchanged.
 Original merged/nonmerged/split, Compare-only, exact unused cone/dead carrier
 removal and drift negatives share one existing boundary test. Whole bounded
-series acceptance579 distinct PASS (9 focused +570 regression); quick testbuild
-5m13s, final production+test type-check1m33s PASS. Logs/evidence in
-/tmp/hako-collector-preflight-carrier-final-* and final-evidence.json retain exact
-source/binary hashes and execution names. No general Phi substitution, source
-solver, new guard, result ABI or unchanged app EXE grant. Primitive prerequisite52ca2a28e5 owns this contract; collector cutover follows.
+series579 and production/test check PASS at 52ca2a28e5; exact receipts in
+/tmp/hako-collector-preflight-carrier-final-* and final-evidence.json. No general
+Phi substitution, source solver, new guard, result ABI or unchanged app EXE grant.
 
-Self-receiver terminal locator prerequisite f96eaa9b59 closed: the ordinary return shortcut
-consumes the SAME original declared-instance locator at the source row call
-expression before the existing once-only receiver read. Owner/call/receiver
-site+binding/canonical target corroborate; missing/drift/duplicate refuses.
-Lexical/stored receivers retain their existing authority. Existing direct physical
-test now confirms complete locator consumption; the bounded series579 distinct
-PASS and final production/test type-check PASS include this exact implementation.
-No new locator issuer, receiver replay, guard or selected-C capability grant.
+Self-receiver terminal locator closed at f96eaa9b59: ordinary Return consumes
+SAME original locator at row call expression before once-only receiver read;
+owner/call/receiver site+binding/target corroborate, missing/drift/duplicate refuse.
+Existing direct physical pin and579/check PASS. Lexical/stored authority remains;
+no locator issuer, receiver replay, guard or selected-C capability grant.
 
 Collector semantic cutover closed (same selected CALLEE-RETURN-OUTCOME-S0).
 Original Root/FinishingChecked child Completion inventories and strict selected
@@ -943,17 +935,12 @@ named-array owner/coverage negatives leave original entries/pools/rows untouched
 Repeat seal refuses. Full artifact Object pending stop remains verified.
 Both wrapper callers switched; caller-zero with_named_arrays setter physically
 retired (19lines only). Shared handoff enum/coverage owner and singular unselected
-Call take remain. Execution579 distinct PASS (focused9/.06s+regression570/.28s),
-quick build5m13s; final production+test check1m33s PASS after mechanical deletion.
-Only post-execution source delta is that unused setter deletion; final check
-verifies both production and cfg-test typing. Binary873e87a0b60b965a3fdeefce710442f15d093e0a62725a7351ec2cc03a56048c,
-/tmp/hako-collector-preflight-final-evidence.json and carrier-final logs retain
-source/binary fingerprints and exact executed names. Scope/COPY/pointer/fmt/caps/
-diff and protected7 PASS. Previous locator, Birth fixture and finishing failures
-were THISCHANGE and are now resolved; no current/unclassified red. Historical
-S0 debt remains recorded above, not waived. Six independent preflight tests share
-one family child; one uncovered control lemma uses the existing boundary owner;
-no new guard. No production .hako/C rewrite or Value/compiled Handle/EXE grant.
+Call take remain. Collector closed at 5cad2d9a4b: 579 distinct PASS and final
+production/test check PASS; /tmp/hako-collector-preflight-final-evidence.json and
+carrier-final logs retain exact names/source/binary hashes and resolved THISCHANGE
+failures. Scope/COPY/pointer/fmt/caps/diff/protected7 PASS; historical S0 debt
+remains above, not waived. Six independent preflight tests share one family child;
+no new guard or production .hako/C rewrite or Value/compiled Handle/EXE grant.
 
 Next Decision (read-only review_cleanup_path; mandatory source-to-ABI sequence):
 derive checked Object result from original finalized source owner, not class/tag.
@@ -990,8 +977,23 @@ it from argument count. Duplicate stores/wrong commit kind are corruption.
 OwnedCall keeps its existing sealed Leaf DAG; no second receipt registry/solver.
 Required next evidence includes real consumed-claim Fresh, missing/foreign commit,
 arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
-Root-key prerequisite verified: existing focused6 + same-binary regression573
-PASS (579 distinct), build5m45s, test .05s/.43s, production check25.03s PASS.
-/tmp/hako-object-root-key-{focused,regression,production-check}.log and regression.json
-retain evidence. Scope/COPY/pointer/fmt/diff/caps/protected7 PASS; no current red.
-No new test/guard, Object ABI or full S0 completion; exact-site Fresh view is next.
+Root-key transport closed at 6c7d192311: existing579 and production check PASS;
+/tmp/hako-object-root-key-* receipts retain exact evidence. No new test/guard,
+Object ABI or full S0 completion; exact-site Fresh view is next.
+
+Selected Fresh source-view construction: sole local_commit lends mutually exclusive
+exact-site claim or moved Result commit fields to the existing leaf corroborator.
+Retain original arity at affine take; duplicate/wrong-kind/site/class drift refuses,
+missing source remains unavailable. Source success grants no emitted/finished
+Return or teardown permission. Scope: ledger take, local_commit private source-view
+child, existing leaf checker/tests and collector test family, owner README/card.
+Existing real lowering matrix adds consumed Fresh/null checks; original leaf
+negative owners cover missing/foreign/prefix/arity and unavailable physical paths.
+Canonical take also rejects site/class drift and an already-present commit
+before Birth handoff removal or claim consumption. No new issuer/receipt registry,
+solver/test names/guard or pending/ABI switch.
+Fresh source-view prerequisite verified: existing focused16 + same-binary563
+(579 distinct) PASS; build5m43s, tests .05s/.43s, production check17.47s PASS.
+/tmp/hako-result-source-view-* retain hashes/names; only post-check source delta
+is one corrected doc comment. Scope/COPY/pointer/fmt/caps/protected7 PASS; no red.
+Next: checked Object descriptor/physical attachment; pending/ABI/anchored stays owed.

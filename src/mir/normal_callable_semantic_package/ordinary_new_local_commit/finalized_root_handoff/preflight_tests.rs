@@ -80,6 +80,24 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                     .document_preflight_parts_for_test(true)
                     .unwrap_or_else(|error| panic!("{label}: {error}"));
                 assert!(Rc::ptr_eq(&same, &ledger));
+                let maker_key = CanonicalSameModuleCallableKeyV1::instance_box_method(
+                    "Maker",
+                    "make",
+                    if zero { 0 } else { 1 },
+                );
+                for witness in ledger
+                    .callable_result_classes
+                    .outcomes(&maker_key)
+                    .unwrap()
+                    .iter()
+                    .flat_map(|row| row.witnesses())
+                {
+                    assert!(!ledger.result_claims.borrow().contains_key(witness.site()));
+                    assert!(ledger
+                        .checked_object_return_leaf_v1(&maker_key, witness)
+                        .unwrap_or_else(|error| panic!("{label}: {error}"))
+                        .is_some());
+                }
                 for function in module.functions.values() {
                     crate::mir::verification::MirVerifier::new_strict()
                         .verify_function(function)
@@ -159,6 +177,7 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
 
 #[test]
 fn late_child_entry_or_projection_failure_leaves_root_calls_and_local_pool_unconsumed() {
+    checked_finished_leaf_source_failures();
     for received_child in [false, true] {
         for foreign_projection in [false, true] {
             let (key, module, ledger, keys, cohort) = fixture(false);
@@ -394,4 +413,103 @@ fn named_array_owner_and_coverage_are_checked_on_borrowed_original_rows() {
         .unwrap_err();
     assert!(error.contains("named-array"), "{error}");
     assert_eq!(snapshot(&ledger), before);
+}
+
+// Independent source refusal at a real finished claim->commit seam.
+fn checked_finished_leaf_source_failures() {
+    for failure in 0..6 {
+        let (_, _, ledger, _, _) = fixture(false);
+        let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "make", 1);
+        let witness =
+            Rc::clone(&ledger.callable_result_classes.outcomes(&key).unwrap()[0].witnesses()[0]);
+        assert!(!ledger.result_claims.borrow().contains_key(witness.site()));
+        assert!(ledger
+            .checked_object_return_leaf_v1(&key, &witness)
+            .unwrap()
+            .is_some());
+        let expected = match failure {
+            0 => {
+                ledger
+                    .local_commits
+                    .borrow_mut()
+                    .remove(witness.site())
+                    .unwrap();
+                None
+            }
+            1 => {
+                let mut rows = ledger.local_commits.borrow_mut();
+                let LocalCommitV1::Result(row) = rows.get_mut(witness.site()).unwrap() else {
+                    panic!("exact result")
+                };
+                row.arity += 1;
+                Some("leaf-prefix-identity")
+            }
+            2 => {
+                let mut rows = ledger.local_commits.borrow_mut();
+                let LocalCommitV1::Result(row) = rows.get_mut(witness.site()).unwrap() else {
+                    panic!("exact result")
+                };
+                row.home_prefix = Err(HomePrefixUnavailableV1::TerminalNotCovered);
+                None
+            }
+            3 => {
+                let mut rows = ledger.local_commits.borrow_mut();
+                let other = rows
+                    .keys()
+                    .find(|site| *site != witness.site())
+                    .unwrap()
+                    .clone();
+                let LocalCommitV1::Result(row) = rows.get_mut(witness.site()).unwrap() else {
+                    panic!("exact result")
+                };
+                row.site = other;
+                Some("result-source/commit-identity")
+            }
+            4 => {
+                let mut rows = ledger.local_commits.borrow_mut();
+                let other = rows
+                    .iter()
+                    .find(|(_, row)| matches!(row, LocalCommitV1::Ordinary(_)))
+                    .map(|(site, _)| site.clone())
+                    .unwrap();
+                let wrong = rows.remove(&other).unwrap();
+                rows.insert(witness.site().clone(), wrong);
+                Some("result-source/commit-kind")
+            }
+            5 => {
+                let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+                    "box Token {} static box Work { make() { return new Token() } } static box Main { main() { return 0 } }"
+                ).unwrap();
+                let mut claim = foreign
+                    .ordinary_new_claim_ledger
+                    .result_claims
+                    .borrow_mut()
+                    .pop_first()
+                    .unwrap()
+                    .1;
+                // Corrupt exact duplicate: take must not overwrite the held Result.
+                claim.core.site = witness.site().clone();
+                ledger
+                    .result_claims
+                    .borrow_mut()
+                    .insert(witness.site().clone(), claim);
+                let held = format!("{:?}", ledger.local_commits.borrow());
+                let births = format!("{:?}", ledger.birth_abi_handoffs.borrow());
+                let claims = ledger.result_claims.borrow().len();
+                assert!(ledger.try_take_result(witness.site(), "Token", 0).is_err());
+                assert_eq!(format!("{:?}", ledger.local_commits.borrow()), held);
+                assert_eq!(format!("{:?}", ledger.birth_abi_handoffs.borrow()), births);
+                assert_eq!(ledger.result_claims.borrow().len(), claims);
+                Some("result-source/duplicate-store")
+            }
+            _ => unreachable!(),
+        };
+        let before = snapshot(&ledger);
+        let result = ledger.checked_object_return_leaf_v1(&key, &witness);
+        match expected {
+            Some(reason) => assert!(result.unwrap_err().contains(reason), "failure {failure}"),
+            None => assert!(result.unwrap().is_none(), "failure {failure}"),
+        }
+        assert_eq!(snapshot(&ledger), before);
+    }
 }

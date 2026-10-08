@@ -264,10 +264,17 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(claim) = claims.get(site) else {
             return Ok(None);
         };
-        if claim.class() != class || claim.arity() != arity {
+        if claim.site() != site
+            || claim.class() != class
+            || claim.arity() != arity
+            || claim.class() != claim.box_source().name()
+        {
             return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
         }
         let mut commits = self.local_commits.borrow_mut();
+        if commits.contains_key(site) {
+            return Err(OrdinaryNewClaimTakeErrorV1::Mismatch);
+        }
         if let Ok(prefix) = &claim.home_prefix {
             if prefix.required_unwind() != site
                 || prefix
@@ -290,6 +297,7 @@ impl OrdinaryNewClaimLedgerV1 {
             site.clone(),
             local_commit::LocalCommitV1::Result(local_commit::NewResultCommitV1::pending(
                 site.clone(),
+                claim.arity(),
                 claim.home_prefix.clone(),
                 claim.box_source().clone(),
                 claim.core.construction.clone(),

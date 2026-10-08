@@ -1,7 +1,9 @@
 //! Exact primitive returned-value corroboration in the completed-index owner.
 //! This prerequisite grants no caller Home, transfer or publication permission.
+#[cfg(test)]
+use super::super::OrdinaryNewResultClaimV1;
+use super::super::OwnedFieldChildV1;
 use super::super::{result_class_claim, OrdinaryNewClaimLedgerV1};
-use super::super::{OrdinaryNewResultClaimV1, OwnedFieldChildV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     TerminalRelationV1, TerminalReturnedSourceV1,
@@ -12,7 +14,7 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use result_class_claim::{ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1};
 use std::rc::Rc;
 
-/// Snapshot only of the exact returned New claim, retained before affine take.
+/// Snapshot of the same returned-New source, borrowed before or after affine take.
 /// This is not a cleanup reducer or an invocation/result permission.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct ObjectReturnTeardownDescriptorV1 {
@@ -40,6 +42,7 @@ impl ObjectReturnTeardownDescriptorV1 {
         }
     }
 
+    #[cfg(test)]
     fn from_exact_claim(claim: &OrdinaryNewResultClaimV1) -> Self {
         Self {
             object: claim.object(),
@@ -139,31 +142,32 @@ impl OrdinaryNewClaimLedgerV1 {
                 if site != witness.site() || name.as_ref() != class {
                     return Err(freeze("object-return/leaf-construction-identity"));
                 }
-                let claims = self.result_claims.borrow();
-                let Some(claim) = claims.get(site) else {
-                    return Ok(None);
-                };
-                if claim.site() != site || claim.class() != class {
-                    return Err(freeze("object-return/leaf-claim-identity"));
-                }
-                let (Ok(construction), Ok(prefix), Ok(arguments)) = (
-                    claim.construction(),
-                    claim.home_prefix(),
-                    claim.argument_rows(),
-                ) else {
-                    return Ok(None);
-                };
-                if construction.object() != claim.object()
-                    || prefix.required_unwind() != site
-                    || prefix.prior_homes() != homes.homes()
-                    || arguments.len() != claim.arity()
-                {
-                    return Err(freeze("object-return/leaf-prefix-identity"));
-                }
-                Ok(Some(VerifiedObjectReturnLeafV1::Fresh {
-                    site: site.clone(),
-                    teardown: ObjectReturnTeardownDescriptorV1::from_exact_claim(claim),
-                }))
+                self.with_result_new_source_v1(site, |source| {
+                    if source.site != site || source.class != class {
+                        return Err(freeze("object-return/leaf-claim-identity"));
+                    }
+                    let (Ok(construction), Ok(prefix), Ok(arguments)) =
+                        (source.construction, source.prefix, source.arguments)
+                    else {
+                        return Ok(None);
+                    };
+                    if construction.object() != source.object
+                        || prefix.required_unwind() != site
+                        || prefix.prior_homes() != homes.homes()
+                        || arguments.len() != source.arity
+                    {
+                        return Err(freeze("object-return/leaf-prefix-identity"));
+                    }
+                    Ok(Some(VerifiedObjectReturnLeafV1::Fresh {
+                        site: site.clone(),
+                        teardown: ObjectReturnTeardownDescriptorV1 {
+                            object: source.object,
+                            destruction: source.destruction,
+                            children: source.children.map(Into::into),
+                        },
+                    }))
+                })
+                .map(Option::flatten)
             }
             _ => Err(freeze("object-return/leaf-terminal-mismatch")),
         }
