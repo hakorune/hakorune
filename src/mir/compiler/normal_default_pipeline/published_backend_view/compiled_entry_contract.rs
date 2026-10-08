@@ -12,6 +12,11 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::{Callee, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "compiled_entry_contract/root_result.rs"]
+mod root_result;
+pub(super) use root_result::root_result_category;
+pub(crate) use root_result::CompiledEntryRootResultV1;
+
 #[path = "compiled_entry_contract/birth_calls.rs"]
 mod birth_calls;
 
@@ -34,13 +39,6 @@ use super::{
 pub(crate) enum CompiledEntryFormalKindV1 {
     Receiver,
     Parameter,
-}
-
-/// Backend-facing result category. Source terminal provenance stops here.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum CompiledEntryRootResultV1 {
-    I64,
-    Unit,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -749,18 +747,6 @@ fn issue_cleanup_coordinates(
         return Err(fault("compiled-entry-cleanup-missing"));
     }
     Ok(rows)
-}
-
-pub(super) fn root_result_category(result: FinalizedRootResultAbiV1) -> CompiledEntryRootResultV1 {
-    match result {
-        FinalizedRootResultAbiV1::CallReturn { .. }
-        | FinalizedRootResultAbiV1::I64AddReturn { .. }
-        | FinalizedRootResultAbiV1::IntegerLiteralReturn { .. }
-        | FinalizedRootResultAbiV1::I64FieldReturn { .. }
-        | FinalizedRootResultAbiV1::I64ScalarReturn { .. }
-        | FinalizedRootResultAbiV1::MapGetReturn { .. } => CompiledEntryRootResultV1::I64,
-        FinalizedRootResultAbiV1::UnitReturn { .. } => CompiledEntryRootResultV1::Unit,
-    }
 }
 
 fn fault(detail: &str) -> String {

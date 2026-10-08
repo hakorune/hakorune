@@ -988,10 +988,11 @@ consume Birth inputs on refusal. Source success grants no physical permission.
 Existing579 and production check PASS; /tmp/hako-result-source-view-* hold exact
 names/hashes/results. No new tests/guards/issuer/registry or pending/ABI switch.
 
-Result-owner preparation closed: unchanged getter/enum moved to private
-finalized_root_result child with original public paths; existing family pin follows
-sole owner. Exact committed bodies (trailing blank-line formatting only) corroborate.
-Lib+test type-check1m06s, scope/pointer/COPY/fmt/caps/diff/protected7 PASS.
-/tmp/hako-result-owner-move-{proof.json,check.log,scope.log} retain evidence.
-No new-revision runtime claim or authority/acceptance/permission expansion.
-Checked Object construction follows separately in the same result owner.
+Result-owner preparation closed at 66574888d1: exact getter/enum moved to private
+finalized_root_result with same public paths and family pin. Lib+test check1m06s
+and scope/pointer/COPY/fmt/caps/diff/protected7 PASS; /tmp/hako-result-owner-move-*
+hold exact bodies/evidence. No runtime/permission expansion claim.
+Compiled-result preparation closed: unchanged I64/Unit enum/category moved from
+772-line parent to private root_result child (parent758); public paths unchanged.
+Exact bodies, lib+test check1m05s, scope/pointer/fmt/diff/protected7 PASS;
+/tmp/hako-compiled-root-result-owner-move-* retain evidence. No runtime expansion.

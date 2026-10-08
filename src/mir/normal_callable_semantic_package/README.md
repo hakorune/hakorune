@@ -1351,6 +1351,8 @@ keep the same rows; finalized handoff retains its existing owned snapshot.
 Index retention grants no collector, result ABI or artifact admission.
 Finalized result projection and its enum reside in the private `finalized_root_result`
 child; public paths and terminal arms remain unchanged.
+The compiled-entry I64/Unit category remains in its physical owner, now its
+private `compiled_entry_contract/root_result` child with unchanged public paths.
 The ledger retains the same AppMain co-seal catalog key together with its parser
 identity. Source-bearing collector handoff requires both before affine moves;
 Root result Facts use that key, never an OwnedCall qualification's callee key.
