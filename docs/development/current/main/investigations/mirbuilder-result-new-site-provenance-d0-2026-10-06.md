@@ -888,27 +888,87 @@ Corruption/repeated join preserves old indices. Existing root lowering fixture
 source_terminal_call_payload_moves_into_final_root_handoff supplies the original
 Main identity/input/ledger; collector, Root ABI and artifact remain subsequent.
 
-Root terminal Rc preparation Decision (read-only review_cleanup_path): separate
-behavior-preserving transport preparation from later Main owner-index admission.
-SAME root map is wrapped once at canonical issue and retained as Rc; root read
-accessors are unchanged. Existing finalized handoff keeps its owned map clone;
-mutable corruption fixtures use Rc::make_mut and keep original observations.
-Named scope: ledger definition/initialization/cohort storage, root-map iteration,
-final handoff clone and its exact test constructors, existing mutation fixtures,
-owner README/card. Existing retain_completion_index is unchanged; no Root terminal
-index membership, construction/ABI/artifact permission or source reissue added.
-Acceptance: same506 exact positive/negative source/physical/Fault/finishing tests,
-non-test check and pointer/scope/COPY/fmt/caps/diff/protection guards. Root source
-index join remains the immediately following semantic responsibility.
+Root Rc preparation closed at7cb79ad3a4 (exact13 paths, pushed): canonical issue
+wraps SAME root table once; read accessors retain original rows, finalized handoff
+keeps its owned map clone and corruption fixtures use Rc::make_mut. Retention
+indices and artifact/source permissions stayed unchanged. Exact506 and non-test
+check16.20s PASS; pointer/scope/COPY/fmt/caps/diff/protection PASS. Two baseline
+formatter-only changes were removed with canonical formatted content identical
+to tested input; commit and /tmp/hako-root-terminal-rc-{regression,check}.log
+retain complete evidence. Protected7 docs were excluded. The following semantic
+join adds a retention-only error through the sole issuer's OrdinaryNew mapping,
+without source reissue, Completion reverification or error laundering.
 
-Root Rc preparation verified: exact506 PASS (including all9 adjusted mutation/
-handoff test callers), non-test quick check16.20s PASS. Logs
-/tmp/hako-root-terminal-rc-{regression,check}.log retain terminal evidence.
-Formatter-only baseline changes in2 handoff files were removed after Cargo ended;
-canonical formatted content is byte-identical to the tested input (saved in
-/tmp/hako-root-terminal-rc-compiled-format.json). Their pre-existing formatter
-sections stay untouched; scoped fmt/caps/pointer/scope/COPY/diff/protection PASS.
-No functional red; index admission and all original artifact stops unchanged.
-Scope exact13 excludes7 protected docs. Next semantic join uses a retention-only
-CoSealIssue variant and sole issuer's existing OrdinaryNew mapping; no Completion
-reverification/error laundering or source key/name authority is allowed.
+Root index join Decision (read-only audit_contract + review_cleanup_path): Rc
+preparation closed at7cb79ad3a4. Existing retain_completion_index stages original
+seed child indices, then joins Some(Ok(root Completion)) owner and SAME root table
+Rc. Live-root repeat/nonempty indices and root owner collision in either staged
+index reject; every root row corroborates owner/key/return-site/explicit-site before
+atomic install. Missing exits stay unavailable; root None/Err stays original and
+issues no root index. No new phase flag, source scan, selected Main row or retry.
+Sole production switch is issuer.rs retain call with existing OrdinaryNew mapping;
+CoSealIssue adds a retention-only named reason, not a Completion-verification error.
+Scope: completion-index owner/tests, shared CoSeal error enum, sole issuer caller,
+owner-contained cfg-test exit identity corruption helper, owner README/card.
+Acceptance: real Main Direct/Received typed/opaque/zero Handle/Nullable qualification,
+SAME Completion/table, Executable source packet, Normal/Fault projection and
+construction readiness; independent atomic collision/foreign/key/extra-exit/repeat
+negatives plus missing exits and None/Err preservation. Existing artifact pending,
+collector, Root Value ABI and compiled Handle gates are subsequent and retained.
+
+Root index focused5 initially4PASS/1RED (terminal rc101); diagnostic rerun kept
+the same4PASS and pinpointed Received typed Nullable at Body2 PrefixNotCovered.
+Direct all6 source variants passed. The new required acceptance is THISCHANGE;
+the index slice remains unclosed. Logs /tmp/hako-root-completion-retention-
+{focused,diagnostic}.log retain evidence; no missing row or fallback is invented.
+
+Prerequisite nullable argument-consumer Decision (read-only review_cleanup_path):
+the original Nullable predicate succeeds, but strict argument sealing then asks
+that same outer call for an I64 result. Typed calls have no legacy borrowed
+projection, so this mismatched result demand prevents the local observation.
+Use the already-proved Nullable membership only for the exact original outer
+OwnedExprSite; distinct argument-call sites retain the original I64 predicate.
+Canonical issuer, borrowed-first projection/Err, method-call identity and nested
+result constraints stay unchanged. No Main receiver authority or gate relaxation.
+This consumer correction is a separate semantic prerequisite from index join.
+Scope: home_local_call_flow.rs, owner-contained nullable-call tests, resolved
+semantics README and this card. Acceptance: literal/zero, exact nested I64,
+nonmember, original borrowed Err and noninteger argument negatives; original
+expanded506 regression plus named Root matrix observation. Index acceptance stays
+all12 variants; Received opaque Handle has its own original source/input consumer
+deficiency and must be closed separately, never by dropping its required variant.
+
+Nullable consumer verified independently: HEAD7cb79ad3a4 plus exact4 paths in
+/tmp/hako-nullable-outer-membership-only-20261008-checkout. Original Cargo.lock
+copied and --locked focused5/expanded511 PASS; non-test quick check50.04s PASS
+(1690warnings); pointer/scope/COPY/fmt/caps/diff/protection PASS. Initial fresh-checkout lock generation is informational only;
+authoritative logs /tmp/hako-nullable-outer-membership-locked-{focused,regression,
+check}.log use the original lock. Source hashes match the cumulative checkout.
+Combined Root matrix now passes11/12 variants; only Received opaque Handle is
+missing. This prerequisite closes independently; Root index and full S0 do not.
+
+Root index preservation Decision (read-only audit_contract): combined expanded
+regression502/511 exposed9 THISCHANGE failures; isolated nullable-only511/511
+proves they belong to the uncommitted Root index join. Index membership was used
+as physical Root/child scalar-storage role, so indexed Root literals were written
+into the child owner+site table while coverage/final handoff demanded the original
+Root table. Keep SAME all-table Root Rc and true semantic index membership.
+One physical-lane helper borrows original root_owner(); replace its5 scalar
+record/read/validation callers, and exclude that Root owner only from the two
+child-index scalar coverage scans. Original Root storage/final lookup stay required.
+Scope addition: terminal_access, terminal_field_return, root_validation, existing
+terminal-result tests and the affected CoSeal/owner README explanations. Acceptance:
+same-site Root/child independence, missing/duplicate/drift refusal, same-Rc index
+and atomic negatives plus the9 production regressions. No coverage gate is waived.
+
+Following qualified Handle consumer Decision (read-only review_cleanup_path):
+borrow exact ClaimLocal target and ALL original Facts qualifications for one
+Received Object call; lend matching source ordered ObjectArguments to the existing
+Handle local observer. Unavailable/missing/Err/loan or argument disagreement reject.
+SourceOnly remains source evidence; existing input-finish/Ready packet alone grants
+execution. Preserve unqualified literal lane. First separate the lexical observer
+into its own child without behavior change; then connect the qualified source
+consumer in a separate semantic slice. Original opaque Handle, typed/zero parity,
+ordinal/site/plural/all-caller refusal and phase negatives remain required.
+Root index WIP stays in the cumulative checkout. Both responsibilities, collector,
+Root Value ABI, compiled Handle, real315/318, anchor lifetime/cleanup and EXE remain owed.

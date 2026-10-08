@@ -40,8 +40,12 @@ No argument values, Completion, Normal handoff, Home or physical execution are
 issued by this source product. The completed-index handoff remains required.
 Entry-receiver local source observations use the original Receiver-kind binding
 and the same receiver-call class observation: Object selects Handle and
-NullableObject selects Nullable. Other lexical receivers retain literal-only
-arguments. The flow's empty argument row never proves arity or executable values.
+NullableObject selects Nullable. Claim-local Handle observations retain
+literal-only arguments. Claim-local nullable observations lend the already-proved
+Nullable membership only to their exact outer call; distinct argument calls
+still require the original I64-result predicate. Borrowed projection runs first,
+and its refusal propagates without strict retry. The entry-receiver flow's empty
+argument row never proves arity or executable values.
 
 ## Received-call source retention
 

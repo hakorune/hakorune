@@ -456,7 +456,15 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
         locals,
         true,
         BorrowedCallActualRequestV1::ScalarArguments,
-        local_lexical_i64_call,
+        &mut |candidate| {
+            // The outer result already has Nullable membership. Only
+            // distinct argument-call sites demand an I64 result proof.
+            if candidate == site {
+                Ok(true)
+            } else {
+                local_lexical_i64_call(candidate)
+            }
+        },
         borrowed_arguments,
     )?
     else {
@@ -688,6 +696,10 @@ pub(crate) use borrowed_actuals::{
 #[path = "home_local_call_arguments.rs"]
 mod arguments;
 use arguments::seal_lexical_i64_arguments_at;
+
+#[cfg(test)]
+#[path = "home_lexical_nullable_call_tests.rs"]
+mod nullable_tests;
 
 #[cfg(test)]
 pub(crate) fn issue_static_source_local_for_test(
