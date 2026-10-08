@@ -435,7 +435,7 @@ impl EmittedLexicalCallProjectionV1 {
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn new_static(
-        original: std::rc::Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1>,
+        original: std::rc::Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>,
         publication: crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
         arguments: Vec<LexicalCallArgumentProjectionV1>,
         invoke: Binding,

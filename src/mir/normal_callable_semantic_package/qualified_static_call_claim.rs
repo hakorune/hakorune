@@ -61,7 +61,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallC
 
 /// Original whole-inventory route and result, retained by the same index issuer.
 /// No receiver/argument classification or physical permission is reconstructed.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct CurrentOwnerStaticCallSourceV1 {
     route: crate::mir::source_call_target::VerifiedCurrentOwnerStaticCallTargetV1,
     result: VerifiedCallableResultDispositionV1,

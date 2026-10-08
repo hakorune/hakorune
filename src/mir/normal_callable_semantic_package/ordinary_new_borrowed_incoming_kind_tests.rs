@@ -26,7 +26,7 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
         call: original.call_site().clone(),
         callee: owner,
         arguments: Box::new([]),
-        source: BorrowedIncomingSourceV1::QualifiedStatic(original),
+        source: BorrowedIncomingSourceV1::Static(original),
     }]
     .into_boxed_slice();
     let entry = BorrowedOrdinaryEntrySourceRefV1 {
@@ -45,6 +45,6 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
     );
     assert!(matches!(
         loan,
-        super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::QualifiedStatic(_)
+        super::super::borrowed_formal_uses::BorrowedCallSourceLoanV1::Static(_)
     ));
 }

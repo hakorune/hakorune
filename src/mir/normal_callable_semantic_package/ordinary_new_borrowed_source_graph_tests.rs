@@ -330,15 +330,15 @@ fn source_graph_static_owner_preserves_rc_and_refuses_instance_authority() {
         .unwrap()
         .as_ref()
         .unwrap();
-    let owned = BorrowedIncomingSourceV1::QualifiedStatic(Rc::clone(original));
+    let owned = BorrowedIncomingSourceV1::Static(Rc::clone(original));
     assert_eq!(owned.call_site(), original.call_site());
     assert_eq!(owned.target(), original.target());
     assert_eq!(owned.argument_sites(), original.argument_sites());
     assert!(
-        matches!(owned.clone(), BorrowedIncomingSourceV1::QualifiedStatic(row) if Rc::ptr_eq(&row, original))
+        matches!(owned.clone(), BorrowedIncomingSourceV1::Static(row) if Rc::ptr_eq(&row, original))
     );
     assert!(
-        matches!(owned.as_loan(), BorrowedCallSourceLoanV1::QualifiedStatic(row) if std::ptr::eq(row, original.as_ref()))
+        matches!(owned.as_loan(), BorrowedCallSourceLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
     );
     assert!(owned
         .require_instance()

@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: Pending call attribution closed; Heap.allocate incoming entry next; S0 incomplete
+Status: Common Static incoming source closed; Return emission split then Integer Return next; full S0 incomplete
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -19,9 +19,11 @@ The latter source call has8 exact returns:5literalNull,2resize forwarded formal
 and1allocate call local (with multiple source ancestry paths). It requires mixed
 Null/Fresh/Forward input child handling, not fresh-only acquisition.
 
-Last unchanged-app probe stops at artifact-unowned-lifecycle-site, raw Result birth51
+Historical pre-3388a8937c probe stopped at artifact-unowned-lifecycle-site, raw Result birth51
 block368/instruction4 or57 block369/instruction3 (iteration-dependent samegap).
-No EXE published. MIR JSON unsupported Invoke lane remains a designed negative,
+Latest unchanged-app probe at2e56 (receipt3388a8937c) refuses SourceOnly object
+actuals at borrowed entry, with no EXE; exact evidence appears below.
+MIR JSON unsupported Invoke lane remains a designed negative,
 not alternate production acceptance. Source/app rewrites, AST fallback/retry,
 unused-method pruning and class-only ownership upgrades were rejected.
 
@@ -120,19 +122,10 @@ facts negatives. Candidate availability must coexist with PrefixNotCovered and
 preparefalse. Later lifetime/cleanup and sole physical/publication slices remain
 required. Gate1 is incomplete; stored-child sibling and Gates2-4 stay parked.
 
-## RESULT-ORIGIN-WITNESS-S0 closeout
-
-de7f6fbfb4 owns CLI quick3m06s, unchanged app SHA33d3e8b9 and production probe
-rc1/noEXE at both315/318 PrefixNotCovered(Body3), then raw Result birth artifact
-stop. Passive source witnesses reach the sole result solver/ledger; no physical
-edge retired. Anchor lifetime/cleanup and production EXE remain required.
-
-## SOURCE-PREPARATION-BOXSHAPE-S0 closed
-
-0383a32420/de7f6fbfb4 Git own unchanged private prepare_source_claims extraction,
-exact32/check/guard evidence and corrected diagnostics. Sole body, public tuple/
-visibility, observation/finish/provider/error order retained; old body removed.
-Both315/318, anchor lifetime/acquisition/cleanup and actual EXE remain required.
+Closed source/prepare history: de7f6fbfb4/0383a32420 own exact32/check/CLI/
+guards and historical both315/318/Result artifact probe. Sole source witness
+solver/body and observation/finish/provider/error order retained, old body removed.
+No physical retirement; anchor lifetime/cleanup and actual EXE remain owed.
 
 ## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
 
@@ -917,18 +910,13 @@ SAME original source/input/Completion, exact producers, whole Root ABI and
 neutral lender remain required. Object process entry refuses; SourceOnly grants
 no execution. Three saved93ac S6C reds remain unwaived final acceptance.
 
-Ready acquisition/compiled admission CLOSED488f1283b3/21e66c5e55 (pushed);
-exact contracts/evidence at commits. SAME checked return availability/packet,
-CallReceived ownership and sole whole-module preflight; pending-only stops retired.
-Typed8/opaque8 pass; focused31 and647/650 retain3known S6C debt, no new guard.
-C Return split/owned Handle admission CLOSED88eeede57f/2b1a32dd5b; exact
-contracts/Decision/evidence at commits/README and /mnt/workdisk/hako-c-*.
-Known ID0 valid, unknown Birth/borrowed/cycle/null/drift refuse; Normal transfers
-owned LIVE, Fault unwinds. Original16 runtime112, composed16/72, owned-slot2/32,
-Copy/reverse14/null5, ten refusals pass; Phi/unsupported owned envelopes unchanged.
-Diagnostic CLOSEDb115d46e05; original Pending call identity retained before take.
-Its older allocateResult->Heap.allocate probe and exact receipts are at commit;
-latest unchanged-app frontier and full owed acceptance are recorded below.
+Ready acquisition/compiled Handle admission CLOSED488f1283b3/21e66c5e55;
+C Return owner split/owned Handle admission CLOSED88eeede57f/2b1a32dd5b.
+Exact source/whole preflight, Normal LIVE transfer/Fault unwind and receiver
+once-only contracts remain; Git/README and workdisk hako-c-* own evidence.
+Typed8/opaque8 and original16 Normal/Fault EXEs pass; Phi/unsupported envelopes
+unchanged. S6C3 debt remains unwaived. b115d46e05 diagnostic is historical;
+latest unchanged-app frontier is the3388a8937c receipt below.
 
 Stored dispatch prerequisite CLOSEDf34af66d4a (pushed); exact contract/evidence
 at commit/README and /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
@@ -940,9 +928,8 @@ all15/no-veto/candidate Integer, final Heap entry still absent; no execution gra
 269+37 PASS/check/guards; /mnt/workdisk/hako-guarded-actual-final-evidence.json.
 Publication3 reproduce at saved93ac baseline; they and S6C3 remain unwaived.
 Stored receiver binding outside terminal remains refusal; no Lexical/Self disguise.
-Stored source evidence CLOSED b39432b001: SAME imported Page3/Heap3/BOTH loans/Rc;
-existing candidate4/callee6 PASS, evidence at commit and
-/mnt/workdisk/hako-stored-object-facts-evidence.json; no execution grant.
+Stored source CLOSED b39432b001: SAME Page3/Heap3/BOTH loans/Rc; candidate4/
+callee6 PASS, no execution grant; commit and workdisk stored-object-facts receipt.
 Stored Object source/actual phase CLOSED2e56def75f; exact Decision/contracts at
 commit/README and /mnt/workdisk/hako-stored-object-source-final-evidence.json.
 SAME qualifications/root witnesses and exact SelfRooted forward phase selection;
@@ -956,35 +943,50 @@ ordinary-new/borrowed-entry/source-only-object-actuals. Exact args/hashes/log:
 Stored physical owner already performs parent/ObjectFieldGet/with_stored_receiver.
 Whole final incoming remains mandatory; explicit other-callee-error test pins scope.
 
-Decision (read-only review_cleanup_path): CurrentOwnerStatic retention precedes
-Integer terminal return. Raw audit built8m36s; a new assertion wrongly required
-Qualified-only membership for SizeClass.size_to_bin and failed (THISCHANGE test).
-This does not prove result-solver rejection. Original whole-target inventory seals
-CanonicalMe + same static owner; index issue then discarded this original route.
-Its contains_exact_i64_target checks qualified rows only; static incoming also has
-no CurrentOwnerStatic arm. Preserve source authority instead of changing receiver.
-Source/canonical issuer: SAME whole-source inventory and existing result catalog
-inside SAME QualifiedStaticCallClaimIndexV1::issue, no new source scan/solver.
-Selected prerequisite: retain immutable original CurrentOwnerStatic route and ALL
-result dispositions by caller/site; missing original result is named drift.
-Replace original route discard; qualified claim/incoming lookups stay unchanged.
-No Ready, incoming/entry, result transport, Normal or cleanup authority is granted.
-Acceptance: original imported raw-draft pin and qualified/source families;
-one independent retained-route/result test (required-I64/String, foreign caller/
-site, no qualified claim/incoming). No new guard. Final build8m37s PASS;
-claims7/input-source4/candidate4 PASS (nonzero filters, same binary).
-Receipt: /mnt/workdisk/hako-current-owner-static-source-final-evidence.json.
-Two earlier audit assertions confused qualified target membership with per-call
-route (THISCHANGE test failures, corrected); zero-match filter was NOT PASS.
-Normal quick check20.56s/scope/pointer/diff PASS; protected7 unchanged.
-CurrentOwnerStatic source-retention prerequisite CLOSED; no execution grant.
-Next: same index lends original brand/caller/site/route/result into explicit
-CurrentOwnerStatic incoming; same scanner, full selected slot/callee contract and
-ordered arguments. Foreign cohort/missing/nonstatic/foreign-owner/arity/site/
-argument drift refuses; all callers/veto remain. No Qualified disguise/rescan.
+CurrentOwnerStatic original route/result retention CLOSED5cd70af994 (pushed):
+exact contracts/evidence at commit and workdisk hako-current-owner-static-source-final-evidence.json.
+Qualified claims unchanged; no execution grant; claims7/input4/candidate4/check/guards PASS.
+
+Decision (read-only review_cleanup_path): one common Static incoming carrier,
+private original Qualified/CurrentOwner route. SAME index/loan issuer checks
+brand/caller/site, source receiver and same owner, selected callee slot/full
+contract/ordered arguments. Existing batch scan and argument-source certification
+consume it; no duplicate scan, solver, Qualified disguise or second authority.
+Replace Qualified-only source observation/forward matching, keeping exact Rc.
+Required seed/executable selectors/publication/packet operations remain Qualified;
+CurrentOwner observation never activates transport/entry/Completion/Normal.
+Common Static incoming/source graph prerequisite CLOSED (selected commit below):
+SAME original route/loan/arg graph, full identity and Qualified-only activation.
+Cohort check PASS17.09s; final libtest8m38s + corrected8m37s. Domain1/candidate4/
+claims7/input4/physical-packet7 PASS. Lexical285/286 then corrected retention6 PASS;
+only one test name/diagnostic changed after the285 green snapshot, core unchanged.
+INIT/while/import and obsolete foreign-index claim-unavailable were THISCHANGE
+fixture/expectation failures, corrected; cancel143 and zero-match were NOT PASS.
+Literal-only foreign index now refuses via SAME selected-map original catalog
+token before lookup. Original good_size->me.size_to_bin same-Rc/arguments are
+mandatory in unchanged-app pin; raw eligibility unchanged. No new issuer/guard.
+Exact source/binary/log receipt: /mnt/workdisk/hako-current-owner-incoming-cohort-final-evidence.json.
+Protected7/caps/diff/scope/pointer PASS; no execution or full-goal completion claim.
+Noninitializer and USIZE laws/all caller vetoes stay unchanged. Acceptance:
+existing static input/retention/source graph/capability families plus original
+mimalloc source census; foreign cohort/owner/site/ordinal and reissued Rc refuse.
+Next: neutral C Return emission split, then checked Integer Return full mapping.
+Emitter793 cannot grow; extract existing Return arm to one child/helper unchanged.
+Static borrowed params use existing ordinary_i64+receiver/null+receiver_object/null
+geometry; do not simply remove receiver guard or admit receiver-free Handle lanes.
+Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes remain.
 CurrentOwner *_usize terminal wrappers/conditions/loop calls must all remain;
 noninitializer veto and ExactTrivial(USIZE) vs I64 seed law remain separate gaps;
 no omitted callers or blanket Integer grant.
+Next Return Decision (read-only review_cleanup_path): keep the SAME Compare Rc
+in IntegerReturn(exit,guard) and exact original value/binding/formal row.
+Pending result uses the raw draft; source loan uses definitions.or(source_only).
+Neither requires executable entry nor promotes SourceOnly. Final lender uses
+original root-exit binding + FinishedBindings; missing/removed/unrecorded refuses.
+Both physical scans require exact Return coverage and THAT Compare dominance;
+C ordinary_i64 checks exact borrowed param/Copy root and runtime tag1 before payload.
+Reuse source/guarded-actual/result-pending/physical/C runtime families; pin alias,
+bypass/wrong-formal, Return co-mutation, missing binding, Bool/null Fault.
 Then connect exact checked Integer terminal Return across original use/result/
 TerminalI64ScalarReturn, finished-coordinate/Compare dominance and C kind==1
 payload projection. Copy stays TAGGED; normalize_size return size and bin_size
@@ -994,5 +996,4 @@ No early owner filter, manual phase promotion, removed Page caller or .hako work
 Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, old-edge retirement,
 nondelegating selfcompile/final acceptance remain mandatory and incomplete.
 Space: root/tmp7.9GB, workdisk1.3TB; build/probe stay on workdisk.
-Inactive CLI versions preserved with original-path symlinks;350MB reclaimed;
-/mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.
+Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.

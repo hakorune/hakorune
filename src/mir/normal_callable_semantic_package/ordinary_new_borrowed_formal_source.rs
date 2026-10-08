@@ -69,7 +69,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     /// Raw source facts survive transport pruning; these grant no execution.
     pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<
         (OwnedExprSiteV1, u32),
-        super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
+        super::borrowed_static_argument::StaticArgumentSourceV1,
     >,
     pub(in crate::mir::normal_callable_semantic_package) source_incoming:
         BorrowedIncomingInventoryV1,
@@ -187,7 +187,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     ),
     static_arguments: BTreeMap<
         (OwnedExprSiteV1, u32),
-        super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
+        super::borrowed_static_argument::StaticArgumentSourceV1,
     >,
     stored_dispatch: Option<&super::source::PreparedSourceNeedsV1>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
@@ -711,7 +711,7 @@ impl PreparedBorrowedFormalIngressV1 {
                         return Err(freeze("borrowed-formal/final-incoming-drift"));
                     }
                 }
-                BorrowedIncomingSourceV1::QualifiedStatic(original) => {
+                BorrowedIncomingSourceV1::Static(original) => {
                     let observed = self
                         .source_incoming
                         .static_observations()

@@ -165,10 +165,11 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 {
                     return Err(freeze("borrowed-entry/incoming-source-identity"));
                 }
-                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
                     original,
                 ) = &row.source
                 {
+                    original.require_qualified()?;
                     let retained = self
                         .source
                         .source_incoming

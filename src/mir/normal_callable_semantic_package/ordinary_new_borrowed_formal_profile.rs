@@ -139,8 +139,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         }
     };
     let mut static_source_sites: Result<BTreeSet<OwnedExprSiteV1>, String> = Ok(static_arguments
-        .keys()
-        .map(|(site, _)| site.clone())
+        .iter()
+        .filter(|(_, fact)| fact.call_source().is_qualified())
+        .map(|((site, _), _)| site.clone())
         .collect());
     let pending = prepare_pending_results_v1(
         batch,
@@ -264,7 +265,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 .filter(|row| {
                     matches!(
                         row.source,
-                        super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+                        super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
                     )
                 })
                 .map(|row| row.call.clone()),

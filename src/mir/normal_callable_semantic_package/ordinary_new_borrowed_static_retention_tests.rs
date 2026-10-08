@@ -178,7 +178,7 @@ fn static_retention_orphan_fact_key_refuses_inventory() {
     let mut arguments = BTreeMap::new();
     arguments.insert(
         (foreign, fact.ordinal()),
-        QualifiedStaticArgumentSourceV1 {
+        StaticArgumentSourceV1 {
             source: Rc::clone(fact.retained_call_source()),
             ordinal: fact.ordinal(),
             use_site: fact.use_site().clone(),
@@ -271,7 +271,7 @@ fn static_retention_foreign_index_and_reissued_sibling_refuse() {
     for fact in facts {
         arguments.insert(
             (fact.call().clone(), fact.ordinal()),
-            QualifiedStaticArgumentSourceV1 {
+            StaticArgumentSourceV1 {
                 source: if fact.ordinal() == 1 {
                     Rc::clone(&reissued)
                 } else {
@@ -302,7 +302,7 @@ fn static_retention_foreign_index_and_reissued_sibling_refuse() {
 }
 
 #[test]
-fn static_retention_absent_claim_keeps_unavailable_observation() {
+fn static_retention_foreign_index_keeps_cohort_refusal_observation() {
     let package = package();
     let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog("static box Layout { class_id(a,b,c) { local alias: i64 = a return 0 } } static box Main { main() { return 0 } }").unwrap();
     let main = borrow_app_main_source_v1(
@@ -330,7 +330,7 @@ fn static_retention_absent_claim_keeps_unavailable_observation() {
     assert!(inventory
         .static_observations()
         .values()
-        .all(|row| row.as_ref().unwrap_err().contains("claim-unavailable")));
+        .all(|row| row.as_ref().unwrap_err().contains("incoming-source-cohort")));
     assert!(inventory.exact_rows().next().is_none());
     assert!(borrow_app_main_source_v1(package.batch(), None)
         .unwrap()

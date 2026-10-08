@@ -392,7 +392,7 @@ fn static_entry_profile_closes_original_incoming_and_retains_completion() {
         .iter()
         .filter(|row| row.callee == fact.call_source().callee_owner())
     {
-        let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+        let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
             original,
         ) = &call.source
         else {
@@ -446,7 +446,7 @@ fn static_entry_main_literal_retains_only_canonical_local_flow_without_home() {
         .iter()
         .find(|call| call.source.instance().is_none())
         .unwrap();
-    let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+    let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
         original,
     ) = &call.source
     else {
@@ -559,7 +559,7 @@ fn static_entry_refuses_same_shaped_reissued_incoming_rc() {
         .unwrap();
     let call = &mut source.incoming[0];
     call.source =
-        super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+        super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
             reissued,
         );
     let site = call.call.clone();

@@ -1,13 +1,13 @@
 //! Owned incoming identity preserves the original instance or static source kind.
 //! Common coordinates never grant a receiver, object authority or executable ABI.
 use super::*;
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) enum BorrowedIncomingSourceV1 {
     Instance(super::super::LexicalInstanceCallSourceTargetV1),
-    QualifiedStatic(Rc<QualifiedStaticIncomingSourceV1>),
+    Static(Rc<StaticIncomingSourceV1>),
 }
 
 impl BorrowedIncomingSourceV1 {
@@ -16,7 +16,7 @@ impl BorrowedIncomingSourceV1 {
     ) -> BorrowedCallSourceLoanV1<'_> {
         match self {
             Self::Instance(row) => BorrowedCallSourceLoanV1::Instance(row),
-            Self::QualifiedStatic(row) => BorrowedCallSourceLoanV1::QualifiedStatic(row),
+            Self::Static(row) => BorrowedCallSourceLoanV1::Static(row),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn instance(
@@ -24,7 +24,7 @@ impl BorrowedIncomingSourceV1 {
     ) -> Option<&super::super::LexicalInstanceCallSourceTargetV1> {
         match self {
             Self::Instance(row) => Some(row),
-            Self::QualifiedStatic(_) => None,
+            Self::Static(_) => None,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn require_instance(
@@ -39,13 +39,13 @@ impl BorrowedIncomingSourceV1 {
     ) -> &mut super::super::LexicalInstanceCallSourceTargetV1 {
         match self {
             Self::Instance(row) => row,
-            Self::QualifiedStatic(_) => panic!("Instance mutation requires Instance source"),
+            Self::Static(_) => panic!("Instance mutation requires Instance source"),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn call_site(&self) -> &OwnedExprSiteV1 {
         match self {
             Self::Instance(row) => row.call_site(),
-            Self::QualifiedStatic(row) => row.call_site(),
+            Self::Static(row) => row.call_site(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn target(
@@ -53,7 +53,7 @@ impl BorrowedIncomingSourceV1 {
     ) -> &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1 {
         match self {
             Self::Instance(row) => row.target(),
-            Self::QualifiedStatic(row) => row.target(),
+            Self::Static(row) => row.target(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn callee_owner(
@@ -61,13 +61,13 @@ impl BorrowedIncomingSourceV1 {
     ) -> FunctionOwnerIdV1 {
         match self {
             Self::Instance(row) => row.callee_owner(),
-            Self::QualifiedStatic(row) => row.callee_owner(),
+            Self::Static(row) => row.callee_owner(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn target_batch_slot(&self) -> u32 {
         match self {
             Self::Instance(row) => row.target_batch_slot(),
-            Self::QualifiedStatic(row) => row.target_batch_slot(),
+            Self::Static(row) => row.target_batch_slot(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn argument_sites(
@@ -75,7 +75,7 @@ impl BorrowedIncomingSourceV1 {
     ) -> &[SourceExprSiteV1] {
         match self {
             Self::Instance(row) => row.argument_sites(),
-            Self::QualifiedStatic(row) => row.argument_sites(),
+            Self::Static(row) => row.argument_sites(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn object_return_sources(&self) -> Option<&[crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ObjectReturnCallQualificationV1]>{

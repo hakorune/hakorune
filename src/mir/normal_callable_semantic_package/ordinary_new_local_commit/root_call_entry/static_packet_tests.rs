@@ -4,7 +4,7 @@ use crate::mir::callable_result_representation::{
     StaticCallResultPublicationTakeV1, VerifiedSameModuleCallableResultCatalogV1,
     VerifiedStaticCallResultPublicationOwnerV1,
 };
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::source_call_target::{
     VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
@@ -19,7 +19,7 @@ fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCall
 }
 fn source(
     package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
-) -> Rc<QualifiedStaticIncomingSourceV1> {
+) -> Rc<StaticIncomingSourceV1> {
     let ledger = &package.ordinary_new_claim_ledger;
     let site = ledger
         .borrowed_static_source_sites
@@ -38,7 +38,7 @@ fn source(
 }
 fn handoff(
     package: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
-    original: &QualifiedStaticIncomingSourceV1,
+    original: &StaticIncomingSourceV1,
 ) -> crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1 {
     let declarations = package.catalog.catalog();
     let imports = VerifiedStaticImportAliasViewV1::seal(declarations, []).unwrap();
@@ -64,7 +64,7 @@ fn handoff(
     );
     handoff
 }
-fn bindings(original: &QualifiedStaticIncomingSourceV1) -> (Binding, Binding) {
+fn bindings(original: &StaticIncomingSourceV1) -> (Binding, Binding) {
     (
         (
             BasicBlockId(10),

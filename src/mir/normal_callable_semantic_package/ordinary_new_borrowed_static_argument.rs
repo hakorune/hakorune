@@ -1,36 +1,36 @@
-//! Compose original opaque argument uses with the sole qualified-static index.
+//! Compose original opaque argument uses with the sole static-source index.
 //! This product proves source identity only, never integer view or transport.
 use super::borrowed_formal_uses::{BorrowedFormalUseDraftKindV1, BorrowedFormalUsesDraftV1};
 use super::*;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
-    caller_key_for_function, incoming_source::QualifiedStaticIncomingSourceV1,
+    caller_key_for_function, incoming_source::StaticIncomingSourceV1,
     QualifiedStaticCallClaimIndexV1,
 };
 use std::collections::BTreeMap;
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticArgumentSourceV1 {
-    source: std::rc::Rc<QualifiedStaticIncomingSourceV1>,
+pub(in crate::mir::normal_callable_semantic_package) struct StaticArgumentSourceV1 {
+    source: std::rc::Rc<StaticIncomingSourceV1>,
     ordinal: u32,
     use_site: OwnedExprSiteV1,
     binding: BindingRefV1,
     formal: BindingRefV1,
 }
 
-impl QualifiedStaticArgumentSourceV1 {
+impl StaticArgumentSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn call(&self) -> &OwnedExprSiteV1 {
         self.source.call_site()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn call_source(
         &self,
-    ) -> &QualifiedStaticIncomingSourceV1 {
+    ) -> &StaticIncomingSourceV1 {
         &self.source
     }
     pub(in crate::mir::normal_callable_semantic_package) fn retained_call_source(
         &self,
-    ) -> &std::rc::Rc<QualifiedStaticIncomingSourceV1> {
+    ) -> &std::rc::Rc<StaticIncomingSourceV1> {
         &self.source
     }
     pub(in crate::mir::normal_callable_semantic_package) fn ordinal(&self) -> u32 {
@@ -67,7 +67,7 @@ pub(super) fn collect_static_argument_sources_v1(
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     claims: Option<&QualifiedStaticCallClaimIndexV1>,
     app_main: Option<&super::BorrowedAppMainSourceLoanV1<'_>>,
-) -> Result<BTreeMap<(OwnedExprSiteV1, u32), QualifiedStaticArgumentSourceV1>, String> {
+) -> Result<BTreeMap<(OwnedExprSiteV1, u32), StaticArgumentSourceV1>, String> {
     let mut result = BTreeMap::new();
     let Some(claims) = claims else {
         return Ok(result);
@@ -144,7 +144,7 @@ pub(super) fn collect_static_argument_sources_v1(
                     {
                         return Err(freeze("borrowed-static/source-identity"));
                     }
-                    let fact = QualifiedStaticArgumentSourceV1 {
+                    let fact = StaticArgumentSourceV1 {
                         source: shared_source,
                         ordinal: *ordinal,
                         use_site: row.site.clone(),

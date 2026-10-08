@@ -268,8 +268,8 @@ fn same_incoming(a: &BorrowedIncomingCallDraftV1, b: &BorrowedIncomingCallDraftV
     let source = match (&a.source, &b.source) {
         (BorrowedIncomingSourceV1::Instance(a), BorrowedIncomingSourceV1::Instance(b)) => a == b,
         (
-            BorrowedIncomingSourceV1::QualifiedStatic(a),
-            BorrowedIncomingSourceV1::QualifiedStatic(b),
+            BorrowedIncomingSourceV1::Static(a),
+            BorrowedIncomingSourceV1::Static(b),
         ) => Rc::ptr_eq(a, b),
         _ => false,
     };

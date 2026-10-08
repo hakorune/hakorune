@@ -20,7 +20,7 @@ fn static_packet_selection_retains_exact_final_source_and_sealed_routes() {
         .unwrap();
     let mut count = 0;
     for row in &source.incoming {
-        let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(
+        let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
             original,
         ) = &row.source
         else {
@@ -57,7 +57,7 @@ fn static_packet_selection_refuses_missing_and_rejected_callee_completion() {
             .unwrap()
             .as_ref()
             .unwrap();
-        let row = source.incoming.iter().find(|row| matches!(row.source, super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_))).unwrap();
+        let row = source.incoming.iter().find(|row| matches!(row.source, super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(_))).unwrap();
         let site = row.call.clone();
         let owner = row.callee;
         if rejected {
@@ -174,7 +174,7 @@ fn static_packet_route_preflight_refuses_partial_marking_on_missing_completion()
         .unwrap()
         .as_ref()
         .unwrap();
-    let owner = source.incoming.iter().find(|row| matches!(row.source, super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_))).unwrap().callee;
+    let owner = source.incoming.iter().find(|row| matches!(row.source, super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(_))).unwrap().callee;
     ledger.lifecycle_local_call_sites.borrow_mut().clear();
     ledger.completion_index.remove(&owner);
     assert!(ledger

@@ -134,7 +134,10 @@ pub(super) fn seed_static_transport_owners_v1(
         .values()
         .filter_map(|row| row.as_ref().ok())
     {
-        if !definitions.contains_key(&source.callee_owner())
+        if !source.is_qualified()
+            || inventory.static_observations().values().filter_map(|row| row.as_ref().ok())
+                .any(|incoming| incoming.callee_owner() == source.callee_owner() && !incoming.is_qualified())
+            || !definitions.contains_key(&source.callee_owner())
             || inventory.has_unsupported_static_spelling(source.callee_owner())
             || inventory.has_unsupported_static_context(source.callee_owner())
         {

@@ -5,7 +5,7 @@ use crate::mir::callable_result_representation::{
     VerifiedStaticCallResultPublicationOwnerV1,
 };
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
-    caller_key_for_function, incoming_source::QualifiedStaticIncomingSourceV1,
+    caller_key_for_function, incoming_source::StaticIncomingSourceV1,
 };
 use crate::mir::source_call_target::{
     VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
@@ -30,7 +30,7 @@ fn issue(text: &str) -> Package {
 fn input_source(
     package: &Package,
     allow_main: bool,
-) -> Result<Rc<QualifiedStaticIncomingSourceV1>, String> {
+) -> Result<Rc<StaticIncomingSourceV1>, String> {
     let main = borrow_app_main_source_v1(
         package.batch(),
         package.catalog.catalog().source_backed_app_main(),

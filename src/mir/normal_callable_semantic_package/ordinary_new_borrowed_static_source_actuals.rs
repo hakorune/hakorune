@@ -1,13 +1,13 @@
 //! Static source and executable projections share the original incoming inventory.
 //! SourceStatic itself owns no opaque actual and never activates an entry or ABI.
 use super::*;
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
 use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
-    source: Rc<QualifiedStaticIncomingSourceV1>,
+    source: Rc<StaticIncomingSourceV1>,
     candidates: Box<[BorrowedCallActualCandidateV1]>,
     integer_evidence: Box<[bool]>,
 }
@@ -165,7 +165,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         &row.call == site
             && matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
             )
     });
     if !has_source_fact && !has_final_static {
@@ -181,11 +181,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         let call = incoming
             .next()
             .ok_or_else(|| freeze("borrowed-static/executable-incoming-missing"))?;
-        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(original) =
+        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
             &call.source
         else {
             return Err(freeze("borrowed-static/executable-source-kind"));
         };
+        original.require_qualified()?;
         let retained = prepared
             .source_incoming
             .static_observations()

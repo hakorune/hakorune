@@ -291,10 +291,16 @@ fn current_owner_source_retains_original_route_and_result_without_qualified_clai
             assert_eq!(row.route().receiver(), CurrentOwnerStaticReceiverV1::CanonicalMe);
             assert_eq!(row.route().target(), &CanonicalSameModuleCallableKeyV1::static_box_method("Layout", call.selector(), 1));
             assert!(claims.claim_target(&caller, site).is_none());
-            assert!(claims.incoming_source(
-                &caller, &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()),
-                call, &package.selected, &package.parameter_contracts, None,
-            ).unwrap().is_none(), "source retention cannot issue a qualified incoming loan");
+            let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
+            let loan = claims.incoming_source(
+                &caller, &owned, call, &package.selected, &package.parameter_contracts, None,
+            ).unwrap().expect("explicit original CurrentOwner incoming loan");
+            let retained = loan.retain();
+            assert!(loan.corroborates_retained(&retained));
+            assert_eq!(retained.current_owner_source(), Some(row));
+            assert_eq!(retained.argument_sites(), &[call.arguments()[0].site().clone()]);
+            assert_eq!(retained.parameters().len(), 1);
+            assert!(retained.require_qualified().is_err());
             match call.selector() {
                 "need" => assert!(matches!(row.result(), VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments } if required_i64_arguments.as_ref() == [0])),
                 "text" => assert_eq!(row.result(), &VerifiedCallableResultDispositionV1::ExactString),

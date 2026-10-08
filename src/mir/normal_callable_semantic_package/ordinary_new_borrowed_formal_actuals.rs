@@ -282,9 +282,10 @@ fn construct_borrowed_call_actuals_v1(
     if incoming_row.source.as_loan().declaration_mode() != contract.mode {
         return Err(freeze("borrowed-actual/source-mode"));
     }
-    if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(original) =
+    if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
         &incoming_row.source
     {
+        original.require_qualified()?;
         let retained = prepared
             .source_incoming
             .static_observations()

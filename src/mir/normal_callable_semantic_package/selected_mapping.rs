@@ -26,10 +26,16 @@ struct SelectedCallableBatchMapRowV1 {
 
 #[derive(Debug)]
 pub(super) struct VerifiedSelectedCallableBatchMapV1 {
+    catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     rows: Box<[SelectedCallableBatchMapRowV1]>,
 }
 
 impl VerifiedSelectedCallableBatchMapV1 {
+    /// The original catalog token retained by this same selected-map issuer.
+    pub(super) fn catalog_brand(&self) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {
+        &self.catalog_brand
+    }
+
     pub(super) fn main_static_child_rows(
         &self,
     ) -> impl Iterator<Item = SelectedCallableBatchMapRowRefV1<'_>> {
@@ -164,6 +170,7 @@ pub(super) fn issue_selected_callable_batch_map_v1(
     }
     rows.sort_by(|left, right| left.key.cmp(&right.key));
     Ok(VerifiedSelectedCallableBatchMapV1 {
+        catalog_brand: catalog.catalog().brand().clone(),
         rows: rows.into_boxed_slice(),
     })
 }

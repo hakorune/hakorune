@@ -126,6 +126,20 @@ Executable or Static entry permission. Guard-derived facts remain unissued.
 
 ## Original Static source domain
 
+The same incoming loan and batch walk retain Qualified and CurrentOwner sources
+in one `StaticIncomingSourceV1`, with a private original route. Caller/site,
+catalog brand, selected callee slot/owner, full formals, and ordered actual sites
+share one identity check. The selected map retains the original catalog token,
+and every loan checks it before lookup, including calls with no retained argument
+fact. CurrentOwner additionally corroborates CanonicalMe and
+the original same static owner/result row. Every context remains in the census.
+Opaque argument facts and source graph loans keep the same original `Rc`.
+CurrentOwner is source-only: a callee with any CurrentOwner incoming cannot be
+seeded by a Qualified sibling. Executable actuals, publication handoff, selected
+sites and physical packets require the original Qualified route; noninitializer
+and USIZE exclusions remain unchanged. No source row grants an entry or ABI.
+
+
 The same index issuer retains original `CurrentOwnerStatic` routes separately
 from qualified claims, keyed by their original caller and source site. Each row
 borrows the sealed CanonicalMe/same-owner target and its original result

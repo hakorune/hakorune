@@ -3,7 +3,7 @@
 use super::super::super::freeze;
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
-    caller_key_for_function, incoming_source::QualifiedStaticIncomingSourceV1,
+    caller_key_for_function, incoming_source::StaticIncomingSourceV1,
     QualifiedStaticCallClaimIndexV1,
 };
 use crate::mir::resolved_semantics::{
@@ -11,7 +11,7 @@ use crate::mir::resolved_semantics::{
 };
 use std::rc::Rc;
 
-pub(super) type StaticIncomingObservationV1 = Result<Rc<QualifiedStaticIncomingSourceV1>, String>;
+pub(super) type StaticIncomingObservationV1 = Result<Rc<StaticIncomingSourceV1>, String>;
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct StaticIncomingContextV1
@@ -21,7 +21,7 @@ struct StaticIncomingContextV1
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) arguments:
         &'a BTreeMap<
             (OwnedExprSiteV1, u32),
-            super::super::super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
+            super::super::super::borrowed_static_argument::StaticArgumentSourceV1,
         >,
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) main:
         Option<&'a super::super::super::BorrowedAppMainSourceLoanV1<'a>>,
@@ -46,7 +46,7 @@ impl StaticIncomingContextV1<'_> {
         {
             return Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()));
         }
-        if source.receiver() != ResolvedMethodCallReceiverSourceV1::QualifiedUnbound {
+        if !matches!(source.receiver(), ResolvedMethodCallReceiverSourceV1::QualifiedUnbound | ResolvedMethodCallReceiverSourceV1::CurrentOwner) {
             return if retained.is_some() {
                 Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()))
             } else {

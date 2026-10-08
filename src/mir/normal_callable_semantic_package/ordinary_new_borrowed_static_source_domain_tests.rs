@@ -58,7 +58,7 @@ fn static_source_domain_keeps_full_original_incoming_and_same_rc_with_closed_tra
         .collect();
     assert_eq!(rows.len(), 2);
     for row in rows {
-        let BorrowedIncomingSourceV1::QualifiedStatic(retained) = &row.source else {
+        let BorrowedIncomingSourceV1::Static(retained) = &row.source else {
             panic!("original Static source kind")
         };
         assert!(Rc::ptr_eq(
@@ -366,4 +366,105 @@ fn static_source_domain_missing_static_authority_retains_instance_same_name_veto
         inventory.project(&BTreeSet::from([contract.owner])),
         Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))
     ));
+}
+
+#[test]
+fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
+    use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
+    let package_fn = package;
+    let package = package_fn("static box Layout {
+        pick(p) { return 0 }
+        from_init(p) { local k = me.pick(p) return 0 }
+        tail(p) { return me.pick(p) }
+        cond(p) { if me.pick(p) > 0 { return 0 } return 0 }
+        looped(p) { loop(me.pick(p) > 0) { break } return 0 }
+    } static box Main { main() { return 0 } }");
+    let source = ingress(&package);
+    let mut callers = BTreeSet::new();
+    for (site, row) in source.source_incoming.static_observations() {
+        let row = row.as_ref().expect("original current-owner observation");
+        assert!(!row.is_qualified());
+        assert!(row.require_qualified().is_err());
+        assert!(row.current_owner_source().is_some());
+        assert_eq!(row.call_site(), site);
+        assert_eq!(row.caller().owner(), row.target().owner());
+        assert_eq!(row.target().name(), "pick");
+        assert_eq!(row.parameters().len(), 1);
+        assert_eq!(row.argument_sites().len(), 1);
+        callers.insert(row.caller().name().to_owned());
+        assert!(source.incoming.iter().all(|incoming| &incoming.call != site));
+        assert!(package.ordinary_new_claim_ledger.selected_static_local_source_v1(site).unwrap().is_none());
+        if let Some(fact) = source.static_arguments.get(&(site.clone(), 0)) {
+            assert!(Rc::ptr_eq(fact.retained_call_source(), row));
+        }
+    }
+    assert_eq!(callers, ["from_init", "tail", "cond", "looped"].into_iter().map(str::to_owned).collect());
+    assert!(source.incoming.is_empty());
+    // A Qualified initializer cannot activate a callee with a source-only
+    // CurrentOwner initializer, even without a noninitializer context veto.
+    let mixed = package_fn("static box Layout {
+        pick(p) { return 0 }
+        relay(p) { local k = me.pick(p) return 0 }
+    } static box Main { main() { local k = Layout.pick(7) return 0 } }");
+    let mixed_source = ingress(&mixed);
+    let pick = formal(&mixed, "Layout", "pick");
+    let observations: Vec<_> = mixed_source.source_incoming.static_observations().values()
+        .map(|row| row.as_ref().unwrap()).collect();
+    assert_eq!(observations.len(), 2);
+    assert_eq!(observations.iter().filter(|row| row.is_qualified()).count(), 1);
+    assert!(!mixed_source.contains_definition_for_test(pick.owner()));
+    assert!(mixed_source.incoming.iter().all(|row| row.callee != pick.owner()));
+    let both = package_fn("box Node {
+        pick(p) { return 0 }
+        relay(p) { local k = me.pick(p) return 0 }
+    } static box Layout {
+        pick(p) { return 0 }
+        relay(p) { local k = me.pick(p) return 0 }
+    } static box Main { main() { return 0 } }");
+    let arguments = BTreeMap::new();
+    let context = StaticIncomingContextV1 {
+        claims: &both.source_static_claims_for_test, arguments: &arguments, main: None,
+    };
+    let mut checked = 0;
+    for declaration in both.batch().declarations() {
+        both.batch().with_lowering_input(declaration.batch_slot(), |input| {
+            for (site, call) in input.function().method_calls() {
+                let site = OwnedExprSiteV1::new(input.owner(), site.clone());
+                let observed = context.observe(declaration.batch_slot(), &site, call,
+                    &both.selected, &both.parameter_contracts).unwrap();
+                match call.receiver() {
+                    ResolvedMethodCallReceiverSourceV1::Lexical(_) => assert!(observed.is_none()),
+                    ResolvedMethodCallReceiverSourceV1::CurrentOwner => {
+                        let row = observed.unwrap().unwrap();
+                        assert_eq!(row.caller().owner(), "Layout");
+                        assert!(!row.is_qualified());
+                    }
+                    other => panic!("unexpected original receiver {other:?}"),
+                }
+                checked += 1;
+            }
+        }).unwrap();
+    }
+    assert_eq!(checked, 2);
+    // No retained argument Rc is available to discover a foreign index.
+    // The same original catalog token must bind even a literal-only source.
+    let literal = "static box Layout {
+        pick(p) { return 0 }
+        relay() { local k = me.pick(7) return 0 }
+    } static box Main { main() { return 0 } }";
+    let original = package_fn(literal);
+    let foreign = package_fn(literal);
+    assert!(ingress(&original).static_arguments.is_empty());
+    assert!(!original.selected.catalog_brand().is_same(foreign.selected.catalog_brand()));
+    let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "relay", 0);
+    let slot = original.selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller.clone())).unwrap();
+    original.batch().with_lowering_input(slot, |input| {
+        let (site, call) = input.function().method_calls().next().unwrap();
+        let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+        assert!(original.source_static_claims_for_test.incoming_source(&caller, &owned,
+            call, &original.selected, &original.parameter_contracts, None).unwrap().is_some());
+        assert!(matches!(foreign.source_static_claims_for_test.incoming_source(&caller, &owned,
+            call, &original.selected, &original.parameter_contracts, None),
+            Err(error) if error.contains("incoming-source-cohort")));
+    }).unwrap();
 }

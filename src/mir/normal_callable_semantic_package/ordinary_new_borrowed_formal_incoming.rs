@@ -398,7 +398,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                 .get(&owned)
                                 .and_then(|row| row.as_ref().ok())
                                 .map(|row| {
-                                    BorrowedIncomingSourceV1::QualifiedStatic(std::rc::Rc::clone(
+                                    BorrowedIncomingSourceV1::Static(std::rc::Rc::clone(
                                         row,
                                     ))
                                 })

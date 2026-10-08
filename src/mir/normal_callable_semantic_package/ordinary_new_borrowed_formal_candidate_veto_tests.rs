@@ -196,6 +196,32 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             }
             let source = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap()
                 .as_ref().expect("retained original source incoming");
+            let good_size = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "good_size", 1);
+            let good_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(good_size.clone())).unwrap();
+            let good_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == good_slot).unwrap();
+            let bin_target = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
+            let bin_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(bin_target.clone())).unwrap();
+            let bin_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == bin_slot).unwrap();
+            package.batch().with_lowering_input(good_slot, |input| {
+                let mut calls = input.function().method_calls().filter(|(_, call)| call.selector() == "size_to_bin");
+                let (site, call) = calls.next().expect("original good_size CurrentOwner call");
+                assert!(calls.next().is_none());
+                assert_eq!(call.receiver(), crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner);
+                let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
+                let fact = source.static_arguments.get(&(owned.clone(), 0)).expect("original CurrentOwner opaque argument fact");
+                let observed = source.source_incoming.static_observations()[&owned].as_ref().unwrap();
+                assert!(std::rc::Rc::ptr_eq(fact.retained_call_source(), observed));
+                assert_eq!(fact.binding(), good_contract.parameters[0].binding);
+                assert_eq!(fact.formal(), good_contract.parameters[0].binding);
+                assert_eq!(fact.use_site().site(), call.arguments()[0].site());
+                assert_eq!(fact.target(), &bin_target);
+                assert_eq!(fact.target_formal(), bin_contract.parameters[0].binding);
+                assert_eq!(observed.current_owner_source(), claims.current_owner_source(&good_size, site));
+                assert!(!observed.is_qualified());
+                assert!(observed.require_qualified().is_err());
+                assert!(source.incoming.iter().all(|row| row.call != owned));
+                assert!(package.ordinary_new_claim_ledger.selected_static_local_source_v1(&owned).unwrap().is_none());
+            }).unwrap();
             let stored: Vec<_> = source.source_incoming.exact_rows().filter_map(|row| row.source.instance())
                 .filter(|row| row.call_site().owner() == heap_exits[0].site().owner()
                     && row.target() == &page_key && row.stored_receiver().is_some()).collect();

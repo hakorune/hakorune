@@ -1,7 +1,7 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
 use super::*;
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -10,7 +10,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn selected_static_local_source_v1(
         &self,
         site: &OwnedExprSiteV1,
-    ) -> Result<Option<Rc<QualifiedStaticIncomingSourceV1>>, String> {
+    ) -> Result<Option<Rc<StaticIncomingSourceV1>>, String> {
         let Some(selection) = self.borrowed_static_source_sites.as_ref() else {
             return Ok(None);
         };
@@ -25,11 +25,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(row) = rows.next() else {
             return Ok(None);
         };
-        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(original) =
+        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
             &row.source
         else {
             return Ok(None);
         };
+        original.require_qualified()?;
         if rows.next().is_some() {
             return Err(freeze("borrowed-static/local-incoming-duplicate"));
         }
@@ -57,7 +58,7 @@ impl OrdinaryNewClaimLedgerV1 {
         for row in &source.incoming {
             if !matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
             ) {
                 continue;
             }
@@ -92,7 +93,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             if !matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(_)
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
             ) {
                 continue;
             }
@@ -111,8 +112,9 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_packet_source_v1(
         &self,
-        original: &Rc<QualifiedStaticIncomingSourceV1>,
+        original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
+        original.require_qualified()?;
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -134,8 +136,9 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_static_packet_actuals_v1(
         &self,
-        original: &Rc<QualifiedStaticIncomingSourceV1>,
+        original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        original.require_qualified()?;
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -152,7 +155,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if incoming.next().is_some()
             || call.callee != original.callee_owner()
             || !matches!(&call.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::QualifiedStatic(retained)
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(retained)
                     if Rc::ptr_eq(retained, original))
             || original.argument_sites().len() != original.target().arity() as usize
             || call.arguments.iter().any(|(ordinal, site, formal)| {

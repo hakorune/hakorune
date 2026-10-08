@@ -2,7 +2,7 @@
 //! Static calls own the original publication handoff, never an instance row.
 use super::*;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
-use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::QualifiedStaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
@@ -12,7 +12,7 @@ use std::rc::Rc;
 enum CallPacketSourceKindV1 {
     Instance(LexicalInstanceCallDispositionRowV1),
     QualifiedStatic {
-        original: Rc<QualifiedStaticIncomingSourceV1>,
+        original: Rc<StaticIncomingSourceV1>,
         observation: LocalCallObservationV1,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
     },
@@ -27,7 +27,7 @@ pub(in crate::mir) struct CallPacketSourceV1 {
 pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
     Instance(&'a LexicalInstanceCallDispositionRowV1),
     QualifiedStatic {
-        original: &'a Rc<QualifiedStaticIncomingSourceV1>,
+        original: &'a Rc<StaticIncomingSourceV1>,
         observation: &'a LocalCallObservationV1,
         publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
     },
@@ -55,10 +55,11 @@ impl CallPacketSourceV1 {
     }
 
     pub(in crate::mir) fn qualified_static(
-        original: Rc<QualifiedStaticIncomingSourceV1>,
+        original: Rc<StaticIncomingSourceV1>,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
+        original.require_qualified()?;
         let observation = ledger
             .local_call_for_owner(original.call_site().owner(), original.call_site().site())
             .ok_or_else(|| freeze("static-packet/local-source-missing"))?
