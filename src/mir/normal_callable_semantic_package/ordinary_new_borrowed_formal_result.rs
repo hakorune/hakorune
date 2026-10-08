@@ -1,7 +1,7 @@
 //! Source-result projection for borrowed callers of the existing lexical owner.
 use super::borrowed_formal_actuals::PendingBorrowedFormalActualsV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
-use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1;
+use super::borrowed_formal_uses::BorrowedMulSourceV1;
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -12,13 +12,14 @@ use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, ResolvedLiteralSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
 };
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_formal_result_composition.rs"]
 mod composition;
 pub(super) use composition::grounded_source_results_v1;
 
 /// The sole result class a borrowed callee's uniform return sites prove.
-/// `I64` is the existing literal/exact-formal scalar lane; `Nullable` is
+/// `I64` includes original guarded scalar/operation Normal results; `Nullable` is
 /// the borrowed-result nullable-handle class — every explicit value-return
 /// site is `return null` or `return new ..`, the callee carries a
 /// `NullableObject` claim, and the caller's invoke mints `NullableHandle`.
@@ -36,6 +37,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSou
     pub(super) contract_corroborated: bool,
     /// Original call rows, never result permission inferred from an annotation.
     dependencies: Box<[LexicalInstanceCallSourceTargetV1]>,
+    /// SAME returned operation products; conditional Normal class, not input agreement.
+    multiplications: Box<[Rc<BorrowedMulSourceV1>]>,
     phase: pending::BorrowedResultSourcePhaseV1,
 }
 
@@ -93,6 +96,19 @@ impl OrdinaryNewClaimLedgerV1 {
             return;
         };
         if let Err(issue) = proof.require_source_sealed_v1() {
+            *pending = Err(issue);
+            return;
+        }
+        // Revalidate the complete retained set, including an erased set. The
+        // canonical target owns this proof; never infer its owner from a return.
+        let mul_issue = match self.borrowed_formal_source.as_ref() {
+            Some(Ok(ingress)) => pending::mul_result::verify_mul_returns(
+                source.callee_owner(), proof, ingress,
+            ),
+            Some(Err(issue)) => Err(issue.clone()),
+            None => Err(freeze("borrowed-result/mul-source-missing")),
+        };
+        if let Err(issue) = mul_issue {
             *pending = Err(issue);
             return;
         }

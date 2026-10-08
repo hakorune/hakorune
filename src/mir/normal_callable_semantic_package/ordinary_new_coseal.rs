@@ -88,6 +88,9 @@ pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
+pub(in crate::mir) use lexical_instance_call::{
+    BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
+};
 #[path = "ordinary_new_receiver_call_observation.rs"]
 mod receiver_call_observation;
 pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;

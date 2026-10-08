@@ -53,38 +53,55 @@ impl BorrowedMulSourceV1 {
         &self.binary
     }
 
-    pub(super) fn view_at(&self, side: BorrowedMulSideV1) -> Option<&CheckedIntegerOperandReachV1> {
+    /// Immutable source coordinates; consumers still owe physical producers.
+    pub(in crate::mir::normal_callable_semantic_package) fn operand_sites(
+        &self,
+    ) -> (&OwnedExprSiteV1, &OwnedExprSiteV1) {
+        (self.operands[0].site(), self.operands[1].site())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn view_binding(
+        &self,
+        side: BorrowedMulSideV1,
+    ) -> Option<(BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
+        self.view_at(side)
+            .map(CheckedIntegerOperandReachV1::operand)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn guard_binary(
+        &self,
+        side: BorrowedMulSideV1,
+    ) -> Option<&OwnedExprSiteV1> {
+        self.view_at(side).map(|reach| reach.guard().binary())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_literal(
+        &self,
+        side: BorrowedMulSideV1,
+    ) -> Option<(&OwnedExprSiteV1, i64)> {
         match &self.operands[side.index()] {
-            BorrowedMulOperandSourceV1::CheckedView(reach) => Some(reach),
+            BorrowedMulOperandSourceV1::IntegerLiteral { site, value } => Some((site, *value)),
             _ => None,
         }
     }
 
-    pub(super) fn integer_call_sources(&self) -> impl Iterator<Item = &Rc<StaticIncomingSourceV1>> {
-        self.operands.iter().filter_map(|operand| match operand {
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_call_source(
+        &self,
+        side: BorrowedMulSideV1,
+    ) -> Option<&Rc<StaticIncomingSourceV1>> {
+        match &self.operands[side.index()] {
             BorrowedMulOperandSourceV1::IntegerCall(call) => Some(call.original()),
             _ => None,
-        })
+        }
     }
 
-    /// Revalidate source and SAME per-formal Compare receipts. The canonical
-    /// Static inventory separately corroborates each retained call's full loan.
-    pub(super) fn corroborates(
+    /// The sealed product keeps the resolved reach. This checks its SAME retained
+    /// rows/guards, not a fresh AST analysis or an executable entry grant.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_retained_rows(
         &self,
-        input: ResolvedFunctionLoweringInputV1<'_>,
         draft: &BorrowedFormalUsesDraftV1,
     ) -> bool {
-        if self.binary.owner() != input.owner() || !std::ptr::eq(self.envelope, mul_envelope()) {
-            return false;
-        }
-        let function = input.function();
-        let Some(original) = function.expression_source().binary(self.binary.site()) else {
-            return false;
-        };
-        if original.operator() != ResolvedBinaryOperatorV1::Multiply
-            || self.operands[0].site().site() != original.lhs()
-            || self.operands[1].site().site() != original.rhs()
-        {
+        if !std::ptr::eq(self.envelope, mul_envelope()) {
             return false;
         }
         let mut seen = 0u8;
@@ -119,7 +136,60 @@ impl BorrowedMulSourceV1 {
             .into_iter()
             .filter(|side| self.view_at(*side).is_some())
             .fold(0u8, |mask, side| mask | (1 << side.index()));
-        if seen != required {
+        if seen != required || required == 0 {
+            return false;
+        }
+        [BorrowedMulSideV1::Left, BorrowedMulSideV1::Right]
+            .into_iter()
+            .filter_map(|side| self.view_at(side))
+            .all(|reach| {
+                let (binding, formal, _) = reach.operand();
+                draft.origins.get(&binding) == Some(&formal)
+                    && draft.uses.iter().any(|row| match &row.kind {
+                        BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } => {
+                            row.formal == formal
+                                && reach.guard().matches_compare(formal, binary, source)
+                        }
+                        _ => false,
+                    })
+            })
+    }
+
+    pub(super) fn view_at(&self, side: BorrowedMulSideV1) -> Option<&CheckedIntegerOperandReachV1> {
+        match &self.operands[side.index()] {
+            BorrowedMulOperandSourceV1::CheckedView(reach) => Some(reach),
+            _ => None,
+        }
+    }
+
+    pub(super) fn integer_call_sources(&self) -> impl Iterator<Item = &Rc<StaticIncomingSourceV1>> {
+        self.operands.iter().filter_map(|operand| match operand {
+            BorrowedMulOperandSourceV1::IntegerCall(call) => Some(call.original()),
+            _ => None,
+        })
+    }
+
+    /// Revalidate source and SAME per-formal Compare receipts. The canonical
+    /// Static inventory separately corroborates each retained call's full loan.
+    pub(super) fn corroborates(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        draft: &BorrowedFormalUsesDraftV1,
+    ) -> bool {
+        if self.binary.owner() != input.owner() || !std::ptr::eq(self.envelope, mul_envelope()) {
+            return false;
+        }
+        let function = input.function();
+        let Some(original) = function.expression_source().binary(self.binary.site()) else {
+            return false;
+        };
+        if original.operator() != ResolvedBinaryOperatorV1::Multiply
+            || self.operands[0].site().site() != original.lhs()
+            || self.operands[1].site().site() != original.rhs()
+        {
+            return false;
+        }
+        if !self.corroborates_retained_rows(draft) {
             return false;
         }
         self.operands.iter().all(|operand| {
@@ -128,14 +198,7 @@ impl BorrowedMulSourceV1 {
             }
             match operand {
                 BorrowedMulOperandSourceV1::CheckedView(reach) => {
-                    let (binding, formal, _) = reach.operand();
-                    draft.origins.get(&binding) == Some(&formal)
-                        && reach.corroborates(input)
-                        && draft.uses.iter().any(|row| match &row.kind {
-                            BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } =>
-                                row.formal == formal && reach.guard().matches_compare(formal, binary, source),
-                            _ => false,
-                        })
+                    reach.corroborates(input)
                 }
                 BorrowedMulOperandSourceV1::IntegerLiteral { site, value } =>
                     integer_literal(input, site.site()) == Some(*value),
@@ -276,6 +339,35 @@ pub(super) fn mul_operand_kind(
 }
 
 impl BorrowedFormalUsesDraftV1 {
+    /// Whole original binary consult for a returned Normal result. This retains
+    /// the SAME product; it grants no callee entry or physical publication.
+    pub(in crate::mir::normal_callable_semantic_package) fn mul_source_at(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<&Rc<BorrowedMulSourceV1>>, BorrowedFormalUseDraftErrorV1> {
+        if site.owner() != input.owner() {
+            return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+        }
+        let mut selected: Option<&Rc<BorrowedMulSourceV1>> = None;
+        for row in &self.uses {
+            let BorrowedFormalUseDraftKindV1::MulOperand { binary, source, .. } = &row.kind else {
+                continue;
+            };
+            if binary != site {
+                continue;
+            }
+            if source.binary() != site
+                || !source.corroborates(input, self)
+                || selected.is_some_and(|original| !Rc::ptr_eq(original, source))
+            {
+                return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+            }
+            selected = Some(source);
+        }
+        Ok(selected)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn mul_operand_at(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,

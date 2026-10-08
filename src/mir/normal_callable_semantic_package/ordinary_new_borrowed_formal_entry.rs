@@ -728,6 +728,7 @@ pub(in crate::mir) use entry_values::BorrowedCompareIntegerLiteralMaterializatio
 pub(in crate::mir) use entry_values::BorrowedCompareMaterializationV1;
 pub(crate) use entry_values::BorrowedCompareSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use entry_values::BorrowedOrdinaryEntryPhysicalV1;
+pub(in crate::mir) use entry_values::{BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1};
 
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_incoming_kind_tests.rs"]

@@ -122,6 +122,55 @@ fn borrowed_call_refuses_missing_or_uncorroborated_result_source() {
             "{error}"
         );
     }
+
+    // Erasing retained products cannot turn missing original ingress into
+    // permission. Reuse the result refusal owner for this combined boundary.
+    for mutation in 0..4 {
+        let mut package = package(
+            "p, q",
+            ": i64",
+            "if p <= q { return p * q } return 0",
+            "5, 6",
+        );
+        let row = take(&package);
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let proof = ledger
+            .borrowed_i64_results
+            .get_mut(&row.callee_owner())
+            .unwrap()
+            .as_mut()
+            .unwrap();
+        assert_eq!(proof.multiplications.len(), 1);
+        proof.multiplications = Box::new([]);
+        proof.contract_corroborated = false;
+        let expected = match mutation {
+            0 => "mul-return-coverage",
+            1 => {
+                ledger.borrowed_formal_source = None;
+                "mul-source-missing"
+            }
+            2 => {
+                ledger.borrowed_formal_source = Some(Err("original-ingress-failed".into()));
+                "original-ingress-failed"
+            }
+            _ => {
+                ledger
+                    .borrowed_formal_source
+                    .as_mut()
+                    .unwrap()
+                    .as_mut()
+                    .unwrap()
+                    .definitions
+                    .remove(&row.callee_owner());
+                "mul-entry-owner"
+            }
+        };
+        ledger.corroborate_borrowed_i64_result_v1(row.source_target(), &package.result_contracts);
+        let issue = ledger.borrowed_i64_results[&row.callee_owner()]
+            .as_ref()
+            .unwrap_err();
+        assert!(issue.contains(expected), "mutation {mutation}: {issue}");
+    }
 }
 
 #[test]
@@ -314,6 +363,8 @@ fn borrowed_call_result_accepts_unannotated_complete_i64_source() {
         ("p", "return 0", "0"),
         ("p", "if p > 0 { return 0 } return 1", "0"),
         ("p, q: i64", "return q", "true, 7"),
+        ("p, q", "if p <= q { return p * q } return 0", "5, 6"),
+        ("p", "if p <= 8 { return -2 * p } return 0", "5"),
     ] {
         let package = package(parameters, "", body, arguments);
         let row = take(&package);

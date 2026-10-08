@@ -44,6 +44,10 @@ fn mul_source_preserves_original_order_alias_guard_and_complete_use_coverage() {
                 for (site, binary, source, side) in &rows {
                     assert_eq!(source.binary(), binary);
                     assert!(source.corroborates(input, &draft), "{body}");
+                    assert!(Rc::ptr_eq(
+                        draft.mul_source_at(input, binary).unwrap().unwrap(),
+                        source
+                    ));
                     assert!(draft.mul_operand_at(input, site).unwrap().is_some());
                     let original = input
                         .function()

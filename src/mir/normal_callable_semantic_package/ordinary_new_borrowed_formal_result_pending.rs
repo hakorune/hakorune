@@ -14,6 +14,9 @@ use crate::mir::resolved_semantics::{
 mod class_loans;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use class_loans::collect_observed_forward_identities_v1;
 
+#[path = "ordinary_new_borrowed_mul_result_source.rs"]
+pub(super) mod mul_result;
+
 #[derive(Debug)]
 pub(super) enum BorrowedResultSourcePhaseV1 {
     Pending {
@@ -436,6 +439,7 @@ fn source_result_pending(
         let mut has_construction = false;
         let mut fields = Vec::new();
         let mut calls = Vec::new();
+        let mut multiplications = Vec::new();
         for site in &sites {
             let function = input.function();
             let integer = matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Integer(_)));
@@ -445,7 +449,9 @@ fn source_result_pending(
             let checked_return = draft.integer_return_at(input, &OwnedExprSiteV1::new(owner, site.clone()))
                 .map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.is_some();
             let site_class = if integer || exact || checked_return { BorrowedResultClassV1::I64 }
-            else if let Some(field) = capture_field(input, contract, draft, site) {
+            else if let Some(product) = mul_result::capture_mul_return(input, draft, site)? {
+                multiplications.push(product); BorrowedResultClassV1::I64
+            } else if let Some(field) = capture_field(input, contract, draft, site) {
                 fields.push(field); BorrowedResultClassV1::I64
             } else if let Some(call) = capture_call(input, site, needs)? {
                 calls.push(call); BorrowedResultClassV1::I64
@@ -462,7 +468,7 @@ fn source_result_pending(
         let class = class.expect("nonempty explicit return sites");
         if class == BorrowedResultClassV1::Nullable && !has_construction { return Err(freeze("borrowed-result/source-not-i64")); }
         Ok(BorrowedI64ResultSourceV1 { returns: sites.into_iter().map(|site| OwnedExprSiteV1::new(owner, site)).collect(),
-            class, contract_corroborated: false, dependencies: Box::new([]),
+            class, contract_corroborated: false, dependencies: Box::new([]), multiplications: multiplications.into_boxed_slice(),
             phase: BorrowedResultSourcePhaseV1::Pending { fields: fields.into_boxed_slice(), calls: calls.into_boxed_slice() } })
     }).map_err(|_| freeze("borrowed-result/source-loan"))?
 }
@@ -585,6 +591,7 @@ fn seal_one(
     let BorrowedResultSourcePhaseV1::Pending { fields, calls } = &proof.phase else {
         return proof.require_source_sealed_v1();
     };
+    mul_result::verify_mul_returns(owner, proof, source)?;
     for row in fields.iter() {
         if !source.definitions.get(&owner).is_some_and(|draft| draft.uses.iter().any(|use_row|
             use_row.formal == row.formal && use_row.site == row.use_site

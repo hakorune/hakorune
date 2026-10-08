@@ -6,7 +6,6 @@ Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
   mirbuilder-artifact-lifecycle-site-diagnostic-s0-2026-10-06.md;
   mirbuilder-gate1-callable-loop-string-indexof-s0-2026-09-27.md.
-
 ## Current production frontier and historical receipts
 
 Selected production caller: unchanged apps/mimalloc-lite/main.hako,
@@ -44,7 +43,6 @@ Borrowing this support must preserve original input Home and aliases.
 Source facts do not prove Home, acquired field, live anchor, runtime outcome,
 constructor Normal/Fault cleanup or physical publication. Gate1 incomplete;
 stored-child sibling and Gates2–4 parked; final selfcompile/acceptance still owed.
-
 ## PENDING-COMPOSITE-RESULT-D0 Decision (2026-10-07)
 
 Accept completed fresh outer + exact Null/OwnedFresh/BorrowedFromFormal child
@@ -72,7 +70,6 @@ source witness DAG in the SAME result Facts draft/fixpoint/product. Multiple
 same-origin source paths and formal-derived null provenance must survive.
 Non-claims: no input move, field store/cleanup expansion, runtime discriminator,
 anchored residence receipt or production EXE from this observation-only slice.
-
 ### RESULT-ORIGIN-WITNESS-S0 execution contract
 
 Closed at de7f6fbfb4; Git owns exact32/check/CLI receipts and corrected THISCHANGE.
@@ -84,12 +81,10 @@ Required follow-on sequence remains: constructor child relation -> Home-prefix/
 completion lifetime and cleanup -> sole physical owner -> unchanged production
 publication. Both315/318, facade scalar effects, ignored results, anchor escape/
 release, dying local, forged acquisition and constructor/relay Fault remain owed.
-
 ## RESULT-ORIGIN-WITNESS-S0 implementation verification
 
 Closed source witness receipts: de7f6fbfb4, baseline Array call-count3a5a96b299.
 No Home or physical grant; later facade/anchor lifetime/cleanup/EXE remain owed.
-
 ### Next child-relation source design brief (read-only, not execution admission)
 
 Decision: join exact returned-construction child source relations using existing
@@ -126,7 +121,6 @@ Closed source/prepare history: de7f6fbfb4/0383a32420 own exact32/check/CLI/
 guards and historical both315/318/Result artifact probe. Sole source witness
 solver/body and observation/finish/provider/error order retained, old body removed.
 No physical retirement; anchor lifetime/cleanup and actual EXE remain owed.
-
 ## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
 
 Read-only review corroborates exact current APIs and prelookup failure order.
@@ -178,7 +172,6 @@ COMPOSITION-BOXSHAPE-S0 closed at b6657f6f87. Git owns focused32/final27.54s
 check, source comparison, corrected formatting diagnostics and guard receipts.
 Sole private verifier/composer replaces original inline bodies; original Dead/
 Waiting/error/substitution ordering retained. No field/Home/physical permission.
-
 ## Closed child-source relation receipts
 
 CHILD-SOURCE-RELATION-S0 is closed; Git at b8cda4e125 and its ancestry retains
@@ -226,7 +219,6 @@ by provenance. No AST/app workaround, fallback, implicit consume or take/share.
 This is internal contract work toward Gate1; goal remains active, not paused or
 blocked. Stored-child sibling and Gates2-4 remain parked. No physical implementation
 before exact source contract/issuer/failure boundary and acceptance are selected.
-
 
 ## OUTCOME-SUPPORT-D0 decision / MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0 selected
 
@@ -305,14 +297,12 @@ retaining its current task and required frontier. Second pointer guard required
 the full selected task ID in the card; corrected the heading. Final pointer/
 scope/diff checks PASS; no unclassified red or new runtime acceptance claim.
 
-
 ## Closed terminal-value owner relocation
 
 CLOSED41f07cfa90: original body/visibility/reexports and focused33/source check
 receipts remain in Git. No acquisition/publication grant; original app/Both315/318
 and lifetime/EXE obligations remain. The accepted immutable handoff mapping below
 supersedes the historical design-stop/interface brief; current mode is CURRENT_STATE.
-
 ## MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0 accepted mapping
 
 Decision: choose the immutable gate reviewed against current issuer/rootcleanup
@@ -376,22 +366,18 @@ are the fixed mapping and acceptance above, not future green or emitted commits.
 CALLEE-RETURN-OUTCOME-D0 closes this interface; select S0 fast and construct it.
 
 Verified comparison source prerequisites (2026-10-07): `34799a210e` links exact original Integer child source to SAME Const append; `d0b429e518` links exact original Binary/operator/ordered operand sites and original canonical static envelope references to SAME completed Compare, once per actual append including two borrowed operands. These are source/append observations, not final SSA lineage or execution permission. Source-loan preparation precedes both children; missing entry, operator/owner/contract drift, Arithmetic completion and duplicate append refuse. Final regression: 200 passed/0 failed, source check16.19s, qualified-route scope/pointer/diff PASS, CLI52.58s. Fresh unchanged mimalloc probe rc1/noEXE at Heap.allocate33 Body1.IfThen0.Value -> Page.allocate26 source-only-object-actuals; alias physical ABI still refuses borrowed-use/unproved-copy. Next Decision: selected checked Compare must consume its post-Normal Bool via SAME-function dominating identity/Copy, without operation replay or legacy failure recovery. Function-owned state capture/reset/restore and independent Fault-no-Cond/finished bindings remain required. Final Const/alias SSA lineage, LE source/physical admission, guarded outgoing actuals and Result315/318 remain owed; full S0/Gate1/goal incomplete. Checked Compare Bool reuse checkpoint (2026-10-07): SAME entry Weak and original Compare Rc own selected GT/direct-if identity or reachable dominating typed Copy, checked before cache/pin and without replay/recovery. Successful sealed Branch observations join mandatory existing lifecycle bindings; SAME FinishedBindings maps Compare/Copy/Branch, and independent final/source consumers check coverage, identity, Bool dataflow/order/dominance. Focused46/0, regression199/0, check18.53s, scope/pointer/diff PASS; fresh V4 source JSON/object/link/runtime7/7: Integer Normal, Null/Bool/Object Fault, once-only Compare. CLI56.67s; unchanged mimalloc rc1/noEXE at SAME Heap.allocate33 Body1.IfThen0.Value -> Page.allocate26 source-only-object-actuals. Required next: original Const/alias final operand correspondence and LE/guarded outgoing actuals; Result315/318, full S0/Gate1/goal incomplete. Existing uncommitted unrelated semantic/profile/config work preserved. Targeted Const correspondence checkpoint: SAME source-literal Rc shared by ledger/function reuse; original identity or dominating typed Integer Copy before cache/pin; Result-capable canonical compare finalizer, exact ordered binary/site/raw-child to final operand, mandatory existing FinishedBindings and independent final-source checks. Stage literal consumer map, validate entirely before publishing; failed-handoff leaves consumers unpublished. Focused10PASS/0, real-source literal2PASS/0, dominated-set once-only pin1PASS/0; current broad311PASS/7FAIL/4ignored. Reconstructed predecessor preserves all nonselected WIP (21 selected source differences, independent worker/hash audit), baseline306PASS/8FAIL/4ignored: SAME seven panic/diagnostics before/after, stale Comparecount2 pin repaired. Seven are preexisting unresolved S0 debt, not goal acceptance; comparison logs predecessor-borrowed/current-borrowed-comparison and manifest/baseline-comparison JSON in /tmp/hako-compare-literal-* and /tmp/hako-literal-predecessor-manifest.json. Fresh CAPI object/link/EXE7/7 Integer Normal, Null/Bool/Object Fault; freshCLI56.63s; unchangedappSHA33d3e8b9 first stop Heap.allocate33 Body1.IfThen0.Value -> Page.allocate26 incoming source-only-object-actuals, rc1/noEXE. Scope/pointer/diff/caps PASS. Selected Const checkpoint closed, no full S0/Gate1/goal claim; alias/formal final operand, LE, guarded actual, result315/318, seven predecessor reds and full acceptance remain owed. Carrier source loan49a65a6237 and production wiring3a7b4e58fa closed: SAME original Rc/site/side and FinishedBindings, direct source-rooted carrier Copy, exact ABI coordinate/side; source drift/alias/physical negatives and C12cases PASS. Complete evidence retained in these commits. Seven baseline nullable/field debts and two compare baselines remain owed; unchanged mimalloc incoming-row frontier remains.  Next incoming prerequisite Decision (read-only worker integrated): close original Heap.allocate borrowed use contract; do not promote SourceObject or create a receipt-only detour. Actuals early object-source branch is selected because caller is absent from prepared.definitions; SourceObject reason=None means ordered source arguments complete, not opaque executable actuals. requireExecutable remains correct at real entry adoption. Source authority/canonical issuer: original CompareOperand classifier + canonical LessEqual NormalInteger envelope, exact source condition/ordered children and original Normal-to-actual relation, SAME complete15-caller incoming inventory/source_seeds/fixpoint; existing QualifiedStaticArgumentSource and target input contract subsequently close Heap static use. Non-authority: object-result qualification, complete ordered args, empty opaque_actuals, runtime success, caller filtering, inferred declaredI64, or positive-number inference. Fail-fast: all15 callers/vetoes retained; wrong site/operator/side, preguard/unrelatedbranch actual, rebind/capture/annotated alias and missing Normal relation refuse. Smallest next slice: Le source+physical Normal correspondence through SAME checked Compare/carrier/Bool/literal/final/ABI owners, with guard-following outgoing actual consuming its original source receipt in existing incoming classification. Fixture unannotated bridge(p){if p<=0{return null} return page.allocate(p)} with integer callers (including negative), plus Bool/Null/Object Fault and root/site/order/guard/veto negatives. Need canonical source-flow issuer audit before coding Normal-to-actual join; no second scan/solver or new semantic authority. Then exact static Integer payload projection/closure uses existing Executable actual producer; result315/318/Home/result publication remain separate owed. Non-claims: Le source receipt alone does not close actual entry or move production probe; full goal remains active. Le family closeout: original CompareOperand and canonical LessEqual NormalInteger issuer connected to SAME final source loan and ABI occurrence/side closure; JSON sle and C kind-1 checks retained. Real-source both orders/shared carrier/two-stage alias and Le-to-Gt drift PASS. Original-source 22-input C execution PASS (direct/alias, negative/edge integers, Bool/Null/Object Fault); real-source Le Normal Add/set/new positive and nested bypass negative 2/2PASS (/tmp/hako-compare-le-normal-consumers-fixed.log). Initial fixture unrelated unused provider produced check-uncovered-function; corrected to existing per-consumer fixtures, no production workaround. Final borrowed323PASS/7baseline/4ignored and compare86PASS/2baseline, exact normalized diagnoses match previous carrier runs; no new unclassified or THISCHANGE red. Scope/pointer/COPY-UNKNOWN/diff PASS; scope stale old occurrence-test name corrected to actual source-side coverage child. Fresh CLI29.64s PASS; unchanged mimalloc SHA33d3e8b9 still Heap.allocate33 Body1.IfThen0.Value -> Page.allocate26 source-only-object-actuals/incoming-row, rc1/noEXE (/tmp/hako-compare-le-mimalloc-probe.log). Selected Le family closed; guarded actual source proof, static payload, executable entry,315/318, seven old S0 debts and full acceptance remain owed. Guard-to-outgoing-actual Decision (read-only reviewed; supersedes sequence-later alone): source authority is SAME CompareOperand canonical envelope plus resolver-sealed If bundle, control-parent region and exact lexical scope. Require guard and actual in the same original ordinary statement sequence: exact guard prefix through its final ordinal position, equal segment kind and strictly later actual ordinal, same original region/scope; inner guard to outer actual, sibling arms, foreign container and preguard actual reject. No truth/positivity inference. SAME use-draft producer collects immutable exact call/ordinal/site/binding/root receipts after existing alias/rebind/capture/annotation validation; UnsupportedUse may retain first error while collecting source-only receipts, structural errors invalidate all. SAME source_seeds exact incoming rows/classifier consumes this fact per actual, retaining all15 callers/vetoes and one domain fixpoint; transport closure never resurrects rejected whole caller profiles. Smallest next slice original Normal-to-actual source proof and incoming classification; acceptance same-sequence direct/alias/post-guard (including dropped UnsupportedUse caller) and nested bypass/sibling/pre-guard/owner/root/ordinal/rebind/capture negatives, imported15-row census. Final checked Fault/SSA/ABI transport proof remains separate before Executable activation; source receipt alone grants no physical payload, Home, result or production acceptance.
-
 ## Static source prerequisite: exact signed immediate query
 
 Scope: original unary/literal lookup only; no transport or execution grant.
 Decision: extract the checked Minus(Integer) accessor and its operator/type/site/overflow pin as an independent dependency, excluding formatter changes and pending return/emitter consumers. Candidate HEAD8907e44db4 contains only expression_source accessor/test, owner README and this receipt. Candidate verification: expression-source focused5/5 PASS (2m33s), non-test library check PASS50.14s, scope/pointer/diff PASS. Evidence: /tmp/hako-static-source-prereq-candidate-focused.log and candidate-production-check.log. No unrelated unstaged source, profile changes or pending consumer was required; this query prerequisite is closed, full Static/source/physical goal remains open.
-
 ## Source-only object-return loan prerequisite
 
 Scope: immutable existing ResultOriginWitness membership and exact call/value/key/class, including original Direct/received source distinction. The model supplies no NormalReturn, Home, argument, cleanup, Invoke or publication permission. Candidate contains only the source qualification model, exact witness/foreign-product/dependency tests, its private module/reexport, owner README and this receipt; pending observer/source_finish/emitter consumers are excluded. Candidate evidence: focused model + existing result-origin12/12 PASS; non-test library check PASS31.16s; scope/pointer/diff PASS. Logs /tmp/hako-object-source-loan-candidate-focused.log and candidate-production-check.log. This passive source-model prerequisite is closed; physical handoff and full goal remain unproven.
-
 ## Passive lexical source requirement dependency closure
 
 CLOSED989ca86f58: Git retains exact target/Facts/forward source-only qualification,
 ExistingBorrowedResult defaults, Rc/coordinate/foreign/missing/duplicate/issuer tests.
 Focused11/11/non-test30.10s/guards/caps PASS; no Normal/Home/route/physical grant.
-
 ## Original qualified Static input-source dependency
 
 Decision (read-only reviewed): the SAME original qualified claim index lends
@@ -762,49 +748,19 @@ Root Rc indices and selected original Received packet now reach exact exit group
 Obsolete nullable facade is physically removed after source/check caller-zero;
 shared unselected legacy Handle remains. Collector/ABI/lifetime/realEXE stay owed.
 
-Next collector Decision (read-only review_cleanup_path, parent integrated): reuse
-existing seal_finalized_root_birth_handoff in the document production route.
-Preflight SAME Root plus FinishingChecked children, original source terminal/
-Normal projection, entry/order/mandatory finished bindings, every LocalCommit/
-Birth relation, orphan and Main identity BEFORE any affine take or pool movement.
-Canonical verified_terminal_call_source selects Direct Value OwnedCall and legacy
-Call for existing Root rebind/take; Received stays Plain, child entries stay Emitted.
-Reuse existing final cleanup validation via a private borrowed core, with original
-Root/child finishing projections explicitly lent inside collector. Public finalized
-projection getter keeps its ArtifactFinalized gate; no new phase/source permission.
-Named production callers are into_document_parts and into_artifact_parts; pass
-original module into seal. Borrow original cohort named-array rows and reuse
-existing owner/coverage validation before any take; immutable getter + shared
-borrowed checker suffice, no new proof schema. A whole-key/state checked batch
-take under ONE root-exit mutable borrow prevents partial entry moves. Then move
-local pool/named rows and install them once in ordinary handoff constructors;
-no post-seal with_named_arrays can discover new input errors. Script/unselected
-routes keep their own contract. No external callback enters this commit interval.
-Replace current Call-only root loop, post-take orphan/late Birth/identity checks;
-never convert absent siblings to skips. Existing source/Fault structure validators
-remain independent of physical recorded-binding agreement.
-Scope: root_validation, existing handoff/cleanup owners and a private preflight
-child if size requires, existing root call-entry batch owner, cohort/public
-named-array validator owner, both production wrappers and existing test owners.
-Acceptance: original Main Direct/Received+real child document handoff after CFG
-contraction, original packet/order, repeat refusal; late sibling/source/entry/orphan,
-missing or foreign projection, MIR+recorded Fault omission and late Birth negatives
-plus named-array owner/coverage errors leave entries, pools and cohort rows
-unconsumed. Value ABI, pending artifact and compiled Handle
-stops remain separate. Next construction is selected; no collector completion claim.
-
-Cleanup-checker preparation Decision: before semantic collector cutover, extract
-only existing final cleanup branch checks into a private borrowed function in
-the same owner. SAME recorded projection plus optional original-binding mapping
-retains mandatory bindings, source order/path/structure and original diagnostics.
-Current finalized visitor is its only consumer; permission gates and source/entry
-selection stay unchanged. Scope: finalized_root_cleanup, owner README and this
-card. Existing finalized/cleanup/physical regression and non-test check/guards
-verify BoxShape; no new tests/guards. Later collector will borrow SAME core in a
-separate semantic slice. Read-only audit found no semantic/failure-order change.
-Preparation closed at aabadf0bef: required551 and production check PASS; exact
-/tmp/hako-cleanup-borrowed-core-* receipts retain evidence. No collector admission.
-
+Closed collector/cleanup preparation contracts remain current; full Decision,
+caller switch and refusal matrices are in aabadf0bef,52ca2a28e,f96eaa9b59,
+5cad2d9a4b and owner README. Both document/artifact wrappers use the SAME
+original module, Root/child source/Completion/Normal/FinishedBindings, cleanup,
+Birth/identity/orphan and named-array preflight before any affine move. One
+checked root-exit batch moves entries/pools/cohort rows atomically; no post-seal
+input check, external callback or missing-sibling skip. Direct uses canonical
+terminal source; Received stays Plain, child entries Emitted. The private borrowed
+cleanup core preserves projections, mandatory bindings/order/path/diagnostics;
+public finalized projection retains its ArtifactFinalized gate. Script/unselected
+routes keep their own contract. Exact551/579/check and failure-order receipts:
+/tmp/hako-cleanup-borrowed-core-* and /tmp/hako-collector-preflight-*.
+Value ABI, pending artifact, compiled Handle and full-goal closure are separate.
 
 Literal-control/self-locator/collector cutover CLOSED52ca2a28e/f96eaa9b59/
 5cad2d9a4b; full Decision/contracts and579/check evidence at commits and
@@ -874,13 +830,11 @@ and corrected receipts are retained by Git and the prerequisite section below.
 Original source-only partition and complete caller obligations remain.
 Space: root/tmp8.6GB, workdisk1.3TB; build/probe stay on workdisk.
 Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.
-
 ## Verified source prerequisites (2026-10-09)
 
 CLOSED7f6a6efa83/a26502ff22/9bad8736b8: checked Return/exact Integer/Compare child;
 corrected PASS receipts/source/guard/finished/C/USIZE and caller/veto laws: Git/README.
 Original workdisk receipts remain; no SourceOnly/range/entry permission.
-
 ## Guarded Mul next Decision (2026-10-09)
 
 Read-only review_cleanup_path: sole dynamic_operator_contract/borrowed arithmetic
@@ -898,15 +852,12 @@ separate. CurrentOwner entry/context and all caller/veto laws remain unchanged.
 Both315/318, cleanup, unchanged EXE, Gates2-4, old-edge retirement and final
 selfcompile remain open; Mul alone cannot close bin_size.
 
-Arithmetic append CLOSED62bf32f0e4; exact Option/ordered contracts and PASS
-receipts: Git/README and workdisk hako-arithmetic-original-append-evidence.json.
-Mul remains open.
-
+Arithmetic append CLOSED62bf32f0e4: contracts/PASS receipts in Git/README and
+workdisk hako-arithmetic-original-append-evidence.json; Mul remains open.
 ## CurrentOwner zeroarg result/packet Decision (2026-10-09)
 
-Source CLOSED12d022a270: original canonical index/loan/zero-I64, atomic preflight,
-ExpressionValue/priorHomes/Return contracts and Bool/Text/unknown exclusions:
-Git/resolved README; workdisk hako-static-i64-source-evidence.json (PASS).
+Source CLOSED12d022a270: contracts/exclusions in Git/resolved README;
+workdisk hako-static-i64-source-evidence.json retains PASS.
 Packet closure OPEN: ALL incoming/caller/veto, original signature/Completion,
 SAME Static Rc and unconsumed affine publication handoff remain mandatory.
 Existing lexical_i64 Invoke owns NormalResult/group/FinishedBindings; selected
@@ -920,21 +871,20 @@ Original nested/loop/short-circuit and runtime acceptance obligations remain.
 Opaque CurrentOwner input/context, Both315/318, cleanup, unchanged EXE, Gates2-4,
 selected old-edge retirement and nondelegating selfcompile remain required.
 
-Input CLOSED e3fb0c71e1: original contracts/corrected PASS at Git/README and
+Input CLOSED e3fb0c71e1: contracts/PASS in Git/README and
 /mnt/workdisk/hako-static-zero-input-evidence.json; no fake entry/packet grant.
-
 ## Static zero packet part VERIFIED (2026-10-09)
 
-CLOSED6d7ac8f04e: full original Rc/cohort/Completion/affine shared Invoke laws in Git;
-/mnt/workdisk/hako-static-zero-packet-evidence.json retains focused/runtime/guard PASS.
-Publication baseline root-exit-source-missing reproduces at e3fb, unwaived.
-Shared generic bridge and all full-goal obligations above remain open.
-
+CLOSED6d7ac8f04e: original Rc/cohort/Completion/affine shared Invoke contracts
+and focused/runtime/guard evidence are retained in Git and
+/mnt/workdisk/hako-static-zero-packet-evidence.json. Publication baseline
+root-exit-source-missing reproduces at e3fb and remains unwaived;
+shared generic bridge and all full-goal obligations remain open.
 ## Guarded Mul source construction (2026-10-09)
 
-Normal branch lender CLOSED95fab122f2: exact SAME guard/branch/source laws,
-focused3+31+10 PASS, final build8m40; Git/owner README and
-/mnt/workdisk/hako-guarded-mul-normal-reach-evidence.json retain corrected receipts.
+Normal branch lender CLOSED95fab122f2: exact SAME guard/branch/source laws and
+corrected focused3+31+10 PASS/build8m40 receipts in Git/owner README and
+/mnt/workdisk/hako-guarded-mul-normal-reach-evidence.json.
 Decision integrated from read-only review_static_zero_packet: one immutable Mul
 product per original binary, ordered per-operand guard/origin/literal/Static child.
 Each source use keeps SAME product and exact side; whole view/Compare membership
@@ -942,20 +892,86 @@ is revalidated. Missing guard/origin/sibling proof stays UnsupportedUse.
 Existing Static inventory receives retained Compare/Mul child candidates from
 original drafts, rejects conflicting Rc and corroborates SAME canonical loan
 before reuse; no new global source map or Add count-proof admission.
-Source part VERIFIED: canonical Mul source/consult/entry getter/Static graft.
-Physical Mul remains unsupported pending sole append/FinishedBindings/both scans/JSON/C.
-Acceptance uses existing source/guard/Static families; original in-branch
-Current call-child, alias/orders/both formals and authority/side/guard refusals.
-Validation: final build8m41 PASS; focused/reused95 PASS, guards/format/diff/caps/protected7 PASS.
-Original in-branch Mul/production SAME-Rc and unchanged bin_size source partition pass.
-Evidence: /mnt/workdisk/hako-guarded-mul-source-final-evidence.json retains exact hashes/logs.
-Original source target-index gate failures and Bool veto expectation were THISCHANGE,
-corrected and verified; canceled build and two zero filters are not PASS.
-Static source-only collection now precedes qualified-target eligibility; canonical
-call-child/full incoming/entry/Completion/transport guards remain unchanged.
-Bool/Text retain passive draft + missing-result veto without Integer agreement or entry;
-rebound/captured source remains absent. Full Mul execution is still unverified.
+Source part CLOSED3b6cabeec1: canonical Mul source/consult/entry getter and
+Static graft contracts, corrected failures and focused/reused95 PASS are in
+Git/owner README and /mnt/workdisk/hako-guarded-mul-source-final-evidence.json.
+Original in-branch call child and unchanged bin_size source partition are
+verified; physical Mul execution remains unverified. Source-only collection
+precedes qualified-target eligibility without weakening incoming/entry/
+Completion/transport laws; Bool/Text gain no Integer agreement or entry.
 Next Decision (read-only worker): typed Compare/Mul dispatch in SAME binary driver;
 Mul retains SAME RootLocalCallBindingGroup lexical packet Rc/NormalResult + sole append.
 Finish/project exact guards/ordered operands/packet with both scans and JSON/C; no Add counts.
 All full-goal obligations above remain unwaived; no app source rewrite.
+## Mul original append retention VERIFIED part (2026-10-09)
+
+Decision integrated from read-only review_static_zero_packet: private Reach stays
+inside source owner; package-only ordered sites/view/guard/literal/SAME Static Rc
+lenders feed the validated physical loan. SAME selected entry owns Mul records,
+separate from Bool Compare records; no second emission driver or new source map.
+This part preserves original source Rc, raw child observations and actual sole
+BinOp::Mul append. Source-only owners, missing entry, wrong operation, erased
+coverage and substitute records refuse. No raw-child/final-operand equivalence.
+Full series still owes typed binary driver/carrier and original producer chains,
+Static lexical packet/NormalResult, mandatory bindings/finishing/both scans/JSON/C.
+Acceptance reuses source/Compare families plus two Mul record tests;
+full Mul/unchanged-app/goal closure remains unverified.
+Worker review found duplicate source-site appends; SAME source site now refuses
+another destination and coverage checks map/set cardinality. Existing two tests
+also cover replacement Rc, source-only entry, physical opcode drift and erasure.
+Initial build101 was THISCHANGE wrong type import (BinaryOp corrected); no tests ran.
+Corrected build89876 passed; both append tests failed at source-not-i64.
+This is selected missing returned-Mul source coverage, not a passing slice.
+Log: /mnt/workdisk/hako-guarded-mul-append-corrected-build-tests.log.
+
+Static operand Decision (read-only review_static_zero_packet): existing
+root_call_entry lends a validated clone of the unique original binding group.
+Require SAME Static source Rc, zeroarg ExactI64, existing source/recorded/NormalResult
+validation and exact observed child; retain the shared packet, not affine copies.
+Final handoff drains pending groups into FinalizedRootSourceHandoff.local_calls;
+final verification must find the unique original site and SAME packet pointer
+there. Neither drained-pool lookup nor trusting the retained clone alone suffices.
+Reuse local_binding_group/finished_projection test matrices for raw-result/Rc/
+missing/duplicate group and post-move membership; no new issuer or source map.
+
+Negative immediates reuse Unary minus's actual folded Const(-n) through the
+literal owner; no invented replacement producer or AST rewrite.
+
+Returned-Mul Decision: retain the SAME original Mul Rc in existing I64 result
+proofs at exact Return value sites. Seal full operation/return coverage against
+strict ingress and original raw Static incoming observations; transport-pruned
+incoming is not authority. Normal guard class does not impose unconditional
+Integer input agreement. Keep original return p*q fixtures unchanged.
+Revalidate complete retained coverage at result corroboration, including erased
+sets; use canonical callee owner, never indexing a possibly empty return list.
+Append/source-result edits remain unverified; no production/goal closure claim.
+
+Build3029 ended101: THISCHANGE verifier visibility too narrow, corrected;
+no tests ran. Read-only review found erased-product plus missing/failed ingress
+could bypass checks; successful ingress and canonical executable owner draft
+are now mandatory independent of retained set. Existing result refusal test
+covers erased products alone and absent/failed ingress or missing draft.
+Build83908 PASS8m40; append2 + result42 + source1 + Compare6 + carrier4 +
+source-graph8 PASS (63 scoped executions). Source/record retention verified;
+Static returned-Mul strict entry/runtime remains owed with full CurrentOwner.
+Unannotated returned-Mul/negative-immediate acceptance pin PASS1 (build8m43).
+Production/other tests unchanged; earlier63 scoped executions remain applicable.
+
+Next typed seam Decision (read-only worker): Compare|Mul stays in the existing
+ordered driver/recursive ports and sole append. Reuse carrier/alias/Copy owners;
+include Mul in consumer coverage without Bool installation. Home scalar/terminal
+must borrow the whole original returned Mul product and Static child observation,
+not whitelist Multiply. Guard Normal dominance and finalized SAME call-group
+membership remain separate mandatory evidence. Existing descent/carrier/result
+families cover refusal/order; full original in-branch call-child acceptance owed.
+
+Final evidence: /mnt/workdisk/hako-guarded-mul-append-final-evidence.json.
+Append/result part is verified; full Mul execution and full goal remain open.
+Next bounded Home Decision (read-only worker): existing IntegerMulReturn typed
+consult validates exact exit/Value plus SAME whole Mul product. A sibling
+integer_mul_return_target(input) matches original Return coordinates only to
+select existing walk; malformed selected evidence must reach error, not be
+hidden with is_ok(). Bounded scalar helper retains original Static observations
+and issues existing I64Scalar; generic Multiply grammar stays closed. Original
+source failures are preserved. Entry/context, packet and physical guard dominance
+remain owed. Reuse source/Mul/scalar-publication tests; no new framework.

@@ -1553,6 +1553,24 @@ The existing Static inventory borrows original Compare/Mul child Rc through its
 canonical incoming-loan corroboration seam; conflicting retained candidates refuse.
 No new source map or Add count proof is used. Ordered materialization,
 FinishedBindings and both independent physical scans still owe full Mul closure.
+The SAME selected entry also owns original Mul append observations. A private
+loan retains the exact source Rc and both ordered sites; source owner lends
+view/guard/literal/Static child identities without exposing resolved reach
+constructors. Acquisition rechecks full retained operand and Compare membership
+and the executable entry. Recording requires the actual arithmetic append with
+BinOp::Mul and its destination, and never installs a Bool Compare record.
+Raw child outcomes remain distinct from final SSA operands; producer, mandatory
+Copy, call packet and finishing correspondence are still required. Original
+source coverage and SAME record identity survive missing/erased observations.
+These observations alone grant no executable Mul publication or tagged payload
+projection; typed descent, shared carrier consumers and backend closure remain
+required before the operation is available end to end.
+The existing I64 result source proof retains the same operation Rc for exact
+returned Mul sites. Source sealing checks complete return/operation coverage,
+strict ingress and original Static incoming identity before result corroboration.
+The class is conditional on the original guard's successful Normal edge; it
+creates no unconditional Integer input agreement or executable publication.
+
 
 The same source-use owner admits an exact scalar Return after a checked Compare
 in one source sequence. IntegerReturn retains that Compare Rc plus its exact

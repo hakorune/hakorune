@@ -336,6 +336,9 @@ pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
 pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
 pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
+pub(in crate::mir) use borrowed_formal_entry::{
+    BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
+};
 #[cfg(test)]
 pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;
 pub(super) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
