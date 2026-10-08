@@ -847,29 +847,14 @@ FinishingChecked child original selected exits before all affine takes/pool move
 Received stays Plain; original artifact pending/result ABI/compiled Handle stops
 remain. Existing seal_finalized_root_birth_handoff and same validators own handoff.
 
-AppMain passive source-join Decision (read-only audit_contract): lend SAME
-BorrowedAppMainSourceLoanV1 from existing cohort issuer through prepare_source_claims
-to result_class_draft.finish. Canonical issuer remains the existing draft/fixpoint.
-Select Main by original loan slot, corroborate owner/slot/catalog key in observer
-and lowering-input finish; otherwise preserve selected-child membership. Never
-register Main as selected child or manufacture Root authority. Missing Main lends
-no facts; foreign same-text catalog fails original borrower, and foreign/drifted
-loan/row cannot issue Root facts. No success-based fallback or second sweep.
-Scope: four source owners, existing finish callers, focused source tests, owner
-README and this card. Positive Direct/Received typed/opaque/zero Root outcomes,
-exact callee/value/call and SAME witness Rc; negative observer and finish missing,
-foreign, owner/slot/key drift. Completion/Executable/collector/result ABI/artifact,
-Root fresh-composite child relation and production EXE are subsequent, not claims.
-
-AppMain passive source-join verified: focused3 (12 positive variants plus
-observer/finish negative families) and expanded506 exact tests PASS; non-test
-quick check16.42s PASS (1690warnings). Initial E0433 type-path failure was
-THISCHANGE, naturally ended rc101 before correction/restart; no remaining red.
-Logs /tmp/hako-main-result-source-join-{focused-corrected,regression,check}.log
-retain terminal evidence. Read-only audit_contract reports no further must-fix.
-Pointer/scope/COPY/fmt/diff/source caps PASS (issue798/result-owner750); scoped9
-paths exclude/protect7 Home/reference/handoff docs. No root indexed terminal map,
-Executable/collector/result ABI/artifact cutover or production EXE claim.
+AppMain passive source join closed atd14e0c2cbc (exact9 paths, pushed): SAME
+BorrowedAppMainSourceLoanV1 flows through original prepare_source_claims/draft
+finish, slot/owner/catalog corroboration in observer+input finish; Main never
+becomes selected child. Direct/Received typed/opaque/zero outcomes and missing/
+foreign/drift rejection use SAME witness Rc. Focused3/expanded506/non-testcheck
+16.42s PASS (1690warnings); guards/caps/protected7 pass. Commit and /tmp/hako-main-
+result-source-join-{focused-corrected,regression,check}.log retain full evidence;
+initial E0433 THISCHANGE was resolved. No Completion/Executable/artifact grant.
 
 Next root-retention Decision (read-only review_cleanup_path): existing
 retain_completion_index indexes original root Completion but omits original root
@@ -922,30 +907,15 @@ Direct all6 source variants passed. The new required acceptance is THISCHANGE;
 the index slice remains unclosed. Logs /tmp/hako-root-completion-retention-
 {focused,diagnostic}.log retain evidence; no missing row or fallback is invented.
 
-Prerequisite nullable argument-consumer Decision (read-only review_cleanup_path):
-the original Nullable predicate succeeds, but strict argument sealing then asks
-that same outer call for an I64 result. Typed calls have no legacy borrowed
-projection, so this mismatched result demand prevents the local observation.
-Use the already-proved Nullable membership only for the exact original outer
-OwnedExprSite; distinct argument-call sites retain the original I64 predicate.
-Canonical issuer, borrowed-first projection/Err, method-call identity and nested
-result constraints stay unchanged. No Main receiver authority or gate relaxation.
-This consumer correction is a separate semantic prerequisite from index join.
-Scope: home_local_call_flow.rs, owner-contained nullable-call tests, resolved
-semantics README and this card. Acceptance: literal/zero, exact nested I64,
-nonmember, original borrowed Err and noninteger argument negatives; original
-expanded506 regression plus named Root matrix observation. Index acceptance stays
-all12 variants; Received opaque Handle has its own original source/input consumer
-deficiency and must be closed separately, never by dropping its required variant.
-
-Nullable consumer verified independently: HEAD7cb79ad3a4 plus exact4 paths in
-/tmp/hako-nullable-outer-membership-only-20261008-checkout. Original Cargo.lock
-copied and --locked focused5/expanded511 PASS; non-test quick check50.04s PASS
-(1690warnings); pointer/scope/COPY/fmt/caps/diff/protection PASS. Initial fresh-checkout lock generation is informational only;
-authoritative logs /tmp/hako-nullable-outer-membership-locked-{focused,regression,
-check}.log use the original lock. Source hashes match the cumulative checkout.
-Combined Root matrix now passes11/12 variants; only Received opaque Handle is
-missing. This prerequisite closes independently; Root index and full S0 do not.
+Nullable consumer prerequisite closed atcde5f57591 (exact4 paths, pushed):
+use already-proved Nullable membership for the SAME outer OwnedExprSite only;
+distinct nested argument calls keep their I64 predicate. Borrowed-first/Err,
+canonical issuer and strict source kinds stay unchanged. Independent original-lock
+focused5/expanded511 PASS and non-test check50.04s PASS (1690warnings); source
+hashes matched cumulative input and pointer/scope/COPY/fmt/caps/diff/protection
+passed. Logs /tmp/hako-nullable-outer-membership-locked-{focused,regression,check}.log
+retain evidence; fresh-checkout generated lock was informational. Root matrix
+then passed11/12; Received opaque Handle remains required and unclosed.
 
 Root index preservation Decision (read-only audit_contract): combined expanded
 regression502/511 exposed9 THISCHANGE failures; isolated nullable-only511/511
@@ -972,3 +942,20 @@ consumer in a separate semantic slice. Original opaque Handle, typed/zero parity
 ordinal/site/plural/all-caller refusal and phase negatives remain required.
 Root index WIP stays in the cumulative checkout. Both responsibilities, collector,
 Root Value ABI, compiled Handle, real315/318, anchor lifetime/cleanup and EXE remain owed.
+
+Lexical observer preparation Decision (read-only review_cleanup_path): move only
+original issue_lexical_local_call doc/function to home_local_lexical_call child;
+parent reexports the same signature and the sole scanner caller stays original.
+Scope: source parent/child, resolved README and this card. Body/same receiver
+delegation/selected membership/literal order stay byte-identical; no new source
+acceptance or test owner. Required existing source/self-receiver/nullable tests,
+expanded regression, non-test check and guards precede its separate closeout.
+
+Lexical observer preparation verified separately: original function body unchanged;
+only its module/file-boundary blank separator differs after rustfmt. Same scanner
+caller/signature and self-receiver delegation remain. Existing source/receiver/
+nullable focused11 and SAME expanded545 names PASS in the cumulative checkout;
+non-test quick check16.52s PASS (1691warnings). Pointer/scope/COPY/fmt/caps/diff
+and protected7 PASS. Logs /tmp/hako-lexical-observer-split-{focused,regression,
+check,scope-guard}.log and split-equivalence.json retain evidence. No new tests
+or guards; qualified Handle and Root index acceptance stay pending independently.

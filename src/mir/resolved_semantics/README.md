@@ -46,6 +46,8 @@ Nullable membership only to their exact outer call; distinct argument calls
 still require the original I64-result predicate. Borrowed projection runs first,
 and its refusal propagates without strict retry. The entry-receiver flow's empty
 argument row never proves arity or executable values.
+The bounded lexical local-call observer lives in `home_local_lexical_call.rs`;
+`home_local_call_flow.rs` reexports its original signature for the sole scanner.
 
 ## Received-call source retention
 
