@@ -27,20 +27,11 @@ unused-method pruning and class-only ownership upgrades were rejected.
 
 Completed diagnostics and pre-anchored design history are compressed here;
 Git retains exact contracts, red classifications, tests and logs:
-- d877773df7 exact artifact source-site diagnostic.
-- 4ca8b7cd2d source/claim/prepare provenance D0;8915833d44 default-off trace.
-- 08e11449ad result-source evaluation extraction;7c2242c277 stale Provided child
-  pin repaired after parent baseline proof (20/20). ArrHolder rejection and
-  RichHolder canonical child admission retained.
-- dfad0a4980 passive mixed-origin Facts product, one existing fixpoint;25source/
-  result pins+2initializer pins. Ordinary APIs expose only old safe projection.
-- 3a5a96b299 accepted anchored composite language law; rejected pending outer
-  with ownership hole/ordinary-call or local-assignment input consumption.
-- a6b57ccebc immutable source witness DAG, focused32; CLI3m06/probe samefrontier.
-- 0383a32420 sole source preparation extraction, focused32, body retained.
-- 253ad3733a child-relation mapping and call-composer API Decision.
-- b6657f6f87 shared call source verification/composition, focused32; pending
-  malformed-source Dead-before-Waiting preserved; final source check27.54s.
+- Closed diagnostics/Facts/composition: d877773df7,4ca8b7cd2d,8915833d44,
+  08e11449ad,7c2242c277,dfad0a4980,3a5a96b299,a6b57ccebc,0383a32420,
+  253ad3733a,b6657f6f87. Git owns evidence; sole fixpoint/body, ArrHolder refusal/
+  RichHolder admission, no pending ownership-hole/input consumption and
+  malformed-source Dead-before-Waiting remain current.
 
 Input-law counterexamples remain current: ownership.md declaration-only demand;
 apps/mimalloc-result-contract-proof/main.hako11–12 reads alloc.handle/same.handle,
@@ -82,110 +73,20 @@ anchored residence receipt or production EXE from this observation-only slice.
 
 ### RESULT-ORIGIN-WITNESS-S0 execution contract
 
-Production caller: prepare_source_claims -> existing result draft.finish ->
-ledger product. Replace erased source derivations in that existing product;
-keep old class/membership exactly unchanged. Leaf witnesses retain exact owned
-return site and NullLiteral/FreshConstruction/Formal(binding,ordinal) kind.
-Call edges retain caller return site, actual initializer/direct call site,
-callee key and immutable callee witness plus exact argument-site/binding/ordinal
-substitution for formal provenance. Share already resolved callee witnesses;
-no second scanner or fixpoint. Formal-derived null retains its formal anchor
-provenance. Fresh source leaf is not an acquisition/ownership receipt.
+Closed at de7f6fbfb4; Git owns exact32/check/CLI receipts and corrected THISCHANGE.
+SAME immutable result Facts retain branded Null/Fresh/Formal leaves, exact call/
+actual/ordinal ancestry, Formal-derived null support and shared callee witnesses.
+No scanner/fixpoint, Home, acquired field, lifetime or physical grant was added.
 
-Paths: result-class parent and evaluate/product + private witness child,
-existing origin test owner and registration/reexports, package README, active
-card/pointer; existing scope guard pins only if needed. No source preparation
-793/797 owner growth, app, parameter, constructor or C edit. Source brand and
-actual ordinal/site corruption must leave the row unavailable. Acceptance:
-prior25-result pins plus2 initializer tests remain; exact realloc paths,
-multiple same-origin leaves, direct/local forwarding and two-hop ordinal
-permutation; facade outer-constructor relay witnesses; foreign owner/target,
-rebind, class/ordinal and cycles remain rejected. Scope/pointer/diff/file caps.
-Result.handle child relation is NOT claimed by outer-constructor witnesses:
-constructor argument/destination verification must join these with realloc's
-result provenance and prove acquisition or support in the later required slice.
-Unchanged production frontier315/318 stays required and fail-closed.
-
-Required follow-on sequence: source constructor argument/anchored-field relation
-verification -> Home-prefix and completion lifetime/cleanup integration -> sole
-physical owner retains source-issued owned/borrowed disposition and true outcome
--> publication and unchanged production acceptance. Both315 and318, facade
-scalar observations/effects, ignored results, anchor escape/release, dying local,
-forged acquisition and constructor/relay Fault are mandatory counterexamples.
+Required follow-on sequence remains: constructor child relation -> Home-prefix/
+completion lifetime and cleanup -> sole physical owner -> unchanged production
+publication. Both315/318, facade scalar effects, ignored results, anchor escape/
+release, dying local, forged acquisition and constructor/relay Fault remain owed.
 
 ## RESULT-ORIGIN-WITNESS-S0 implementation verification
 
-Implementation retains immutable Rc source ancestry in the existing fold.
-Direct leaves distinguish literal null, source construction and original formal
-(binding/ordinal); formal-derived null carries the same provenance as forward.
-Call composition retains exact caller return, initializer/direct call, callee
-and actual substitution while sharing existing callee nodes. Per-path witnesses
-are not deduplicated with the alternatives cache. Exact owner/argument path,
-position, arity and declared formal ordinal reject corruption. No Home,
-constructor capability, physical field mode or admission consumer was added.
-
-First test-inclusive check found this-change E0599: boxed actual source rows
-need Clone where the existing target classifier shares its actual inventory.
-Derive Clone on that private source row; no added scan or mutation authority.
-Corrected check PASS43.03s, /tmp/hako-result-origin-witness-check-fixed.log.
-Read-only review confirms same fold/projection compatibility and branded edge
-checks, no blocking issue. Shared ancestry does not claim elimination of path
-count growth in arbitrary branching chains; current acceptance is the selected
-bounded source cohort. Focused32-test executable build running, not yet PASS.
-New negatives exercise foreign call/actual owners, wrong argument path, missing
-formal binding and declaration ordinal disagreement. Actual facade source pins
-both terminal relays with intervening scalar reads/counters; witnesses identify
-only fresh outer constructor leaves, not Result.handle ownership. Source owners
-parent727, evaluate218, product76, witness57, witness tests97, origin tests338.
-
-First executable invocation ran53 tests because bare witness_tests also matched
-unrelated temporal/lineage suites. Result50PASS/3FAIL: two this-change test
-assumptions, one incidental Array get Call-count assertion needing parent proof.
-Resize has both literal-null and formal-null callee exits; only the latter has
-formal substitution. Correct that witness test distinction without weakening
-formal-derived null checks. Full facade package issue stops later at existing
-BorrowedFormalIngress stored-child/receiver-unavailable; use its unchanged full
-source through the actual production prepare_source_claims phase, not a reduced
-facade fixture or source workaround. Test-only loan builds the canonical catalog,
-constructors, batch, selected map and parameter catalog, then invokes that same
-source preparation. No package/EXE or later ingress acceptance is claimed.
-
-Scope expands by two internal visibility lines in coseal_issue/source_claims,
-limited to the enclosing ordinary-New module, for the phase-specific test loan;
-no line growth (797/793), tuples, production caller or meaning change. Private
-loan stays in witness_tests. Its first check E0433 used wrong module spelling
-(issue vs coseal_issue); corrected. Exact incidental Array rerun still fails;
-first abbreviated --exact attempt ran0 and is not evidence. Parent-source
-isolated evidence is required before classifying that unrelated red as baseline.
-
-Parent-source baseline comparison completed: exact Array temporal test at
-3a5a96b299 executes1 and fails the SAME call_count0/expected1 assertion at516;
-/tmp/hako-result-witness-parent-array-test.log. This is known baseline debt,
-not witness-source regression. Parent test build finished normally (Cargo101
-from assertion), driver restored all8 tracked Rust files byte-for-byte, SHA256
-checks PASS, restore.json has0 conflicts. No new private source was removed.
-Current corrected phase-test source is restored; previous30 selected tests had
-28PASS/2 this-change test assumptions, both corrected as described above.
-Source check and properly qualified32-test invocation remain required.
-
-Corrected source test-inclusive check PASS27.72s;
-/tmp/hako-result-origin-witness-phase-check-final.log. Scoped32 test command
-uses ordinary_new_coseal::result_class_claim::witness_tests, not the bare
-witness_tests filter. Running executable build is not yet test PASS. Scope
-guard, pointer guard, diff check and owned Rust formatting PASS. Current source
-lines: parent730/evaluate218/product76/witness57/witness-tests182/origin-tests358;
-existing source preparation owners remain797/793. Final read-only review finds
-no authority or admission expansion; both internal visibility lines stay within
-ordinary_new_coseal and phase helper is cfg(test).
-
-Corrected scoped executable invocation PASS32/32,0 ignored,8660 filtered,
-runtime0.04s; build quick5m39s. Log:
-/tmp/hako-result-origin-witness-focused-final.log. All prior25 result/source
-pins,2 initializer corroboration pins and5 new witness pins execute. Full
-unchanged facade source passes source-preparation witness assertions, not
-later package/EXE admission. Corrected test assumptions and E0599/E0433 are
-resolved; incidental Array assertion remains parent-proven baseline debt.
-Fresh CLI build and unchanged app frontier observation remain required.
+Closed source witness receipts: de7f6fbfb4, baseline Array call-count3a5a96b299.
+No Home or physical grant; later facade/anchor lifetime/cleanup/EXE remain owed.
 
 ### Next child-relation source design brief (read-only, not execution admission)
 
@@ -221,30 +122,17 @@ required. Gate1 is incomplete; stored-child sibling and Gates2-4 stay parked.
 
 ## RESULT-ORIGIN-WITNESS-S0 closeout
 
-Fresh CLI quick PASS3m06s, /tmp/hako-result-origin-witness-cli.log.
-Unchanged mimalloc-lite SHA256
-33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685;
-EXE probe exits1 with the same required fail-closed frontier: both315/318
-PrefixNotCovered(Body3), selectedfalse, then artifact-unowned-lifecycle-site in
-reallocResult/2 block369 instruction3 raw birth receiver57. No EXE produced.
-Log /tmp/hako-result-origin-witness-production.log. Required frontier observation
-is complete; this is not app PASS or a new regression. Focused32/32 and guards
-close the passive witness slice. Source witnesses now reach the existing ledger
-product through the sole result solver; no old physical execution edge retired.
-Anchored field lifetime/cleanup and actual production EXE remain outstanding.
+de7f6fbfb4 owns CLI quick3m06s, unchanged app SHA33d3e8b9 and production probe
+rc1/noEXE at both315/318 PrefixNotCovered(Body3), then raw Result birth artifact
+stop. Passive source witnesses reach the sole result solver/ledger; no physical
+edge retired. Anchor lifetime/cleanup and production EXE remain required.
 
 ## SOURCE-PREPARATION-BOXSHAPE-S0 closed
 
-Verified and landed at `0383a32420`; original execution/closeout and intermediate
-child-relation brief remain at `de7f6fbfb4:<this-card>`. Sole prepare_source_claims
-moved unchanged into private ordinary_new_source_claim_preparation under the same
-source_claims reexport. Body bytes match parenta6b57ccebc; tuple/visibility/callers,
-observation/finish/provider/error order retained. Old body physically removed.
-Focused32/32, test-inclusive check27.52s, scope/pointer/fmt/diff PASS; signature
-formatting and moved guard pointer failures corrected. Parent697/child101. No
-source widening, new solver, Home/input/field capability or speedup claim.
-Subsequent accepted child-relation mapping is retained below; original315/318,
-anchor lifetime/acquisition/cleanup, sole physical outcome and EXE remain required.
+0383a32420/de7f6fbfb4 Git own unchanged private prepare_source_claims extraction,
+exact32/check/guard evidence and corrected diagnostics. Sole body, public tuple/
+visibility, observation/finish/provider/error order retained; old body removed.
+Both315/318, anchor lifetime/acquisition/cleanup and actual EXE remain required.
 
 ## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
 
@@ -293,33 +181,10 @@ After this separately verified extraction, source child candidate semantic slice
 uses the SAME helper and product. Lifetime/cleanup/physical/publication and
 unchanged production EXE remain incomplete, Gates2-4/stored-child remain parked.
 
-COMPOSITION-BOXSHAPE-S0 implementation verification in progress: parent732,
-evaluator162, new private call_witness111, witness tests199. Source verify and
-composition retain original conditions/loop; only output-site parameter and
-Dead-to-None wrapper changed. Evaluator maps None to same Dead and keeps pending
-lookup and legacy policy outside. Normalized source comparison PASS after
-explicit rustfmt arm braces/comma normalization; initial comparison harness
-mistook formatting for source drift, no code repair. Read-only review PASS.
-Test-inclusive check PASS27.92s, /tmp/hako-call-witness-shape-check.log. Parent
-module declaration order rustfmt red fixed (alphabetical private modules only).
-Scope/diff/owned rustfmt PASS. Focused32 executable build active, not yet PASS;
-/tmp/hako-call-witness-shape-focused.log. Old evaluator parameter_contract import
-became unused after the move; remove it after Cargo terminal, then verify final
-source with type check. All moved execution/test bodies are retained.
-
-## COMPOSITION-BOXSHAPE-S0 closeout
-
-Focused32/32 PASS,0 ignored,8660 filtered, runtime0.05s; quick build5m24s.
-Log /tmp/hako-call-witness-shape-focused.log. Pending-corruption assertions
-execute inside existing negative test. After terminal, remove ONLY newly unused
-evaluator parameter_contract import; no execution/test body change. Final
-source-inclusive check PASS27.54s, warnings back to prior758;
-/tmp/hako-call-witness-shape-final-check.log. Focused binary precedes this
-import-only cleanup; final check covers the cleanup, no runtime behavior changed.
-Scope/pointer/diff/owned rustfmt PASS. Source parent732/evaluate162/new helper111/
-witness-tests199. One source verification/composition implementation replaces
-the inline bodies; no old competing loop remains. No field/Home/admission change,
-no CLI/probe repetition required by this behavior-preserving contract.
+COMPOSITION-BOXSHAPE-S0 closed at b6657f6f87. Git owns focused32/final27.54s
+check, source comparison, corrected formatting diagnostics and guard receipts.
+Sole private verifier/composer replaces original inline bodies; original Dead/
+Waiting/error/substitution ordering retained. No field/Home/physical permission.
 
 ## CHILD-SOURCE-RELATION-S0 selected execution contract
 
@@ -591,21 +456,10 @@ No source meaning or physical behavior changed; no new semantic acceptance claim
 
 ## TERMINAL-VALUE-OWNER-BOXSHAPE-S0 closeout
 
-Corrected source-inclusive check PASS1m04, lib-test760 warnings (same prior S0
-count; not hidden). /tmp/hako-terminal-value-owner-check-final.log. Focused33/33
-PASS,0 ignored,8665 filtered, runtime0.05s; quick build6m19s,
-/tmp/hako-terminal-value-owner-focused.log. Result construction, affine co-seal,
-source origin and real8 child relation families all execute. No new tests added
-for relocation alone. Initial E0616 is this-change and corrected; no outstanding
-this-change or unclassified failure. Scope/pointer/diff/owned rustfmt PASS.
-
-Read-only review and mechanical block comparison corroborate exact bodies and
-comments, same enclosing home_new_prefix issuer visibility and public reexports;
-only equivalent parent getter glue differs. Parent668/newchild129. New child is
-in the existing hard800 guard loop; no semantic guard weakening. Source scan751,
-issue797 and package issuer796 unchanged. This closes capacity prerequisite,
-not object-call acquisition. Existing app(6,2)/315/318 failure remains prior
-frontier, no new CLI/EXE/runtime acceptance or speedup claimed.
+Closed at `41f07cfa90`; Git retains detailed receipts and corrected E0616.
+Focused33 and source-inclusive check passed; exact relocated bodies/visibility,
+reexports and hard800 guard coverage retained. No semantic acquisition change.
+Existing app(6,2)/Both315/318 frontier and EXE/lifetime obligations stayed open.
 
 Restore MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0, design_stop, next execution none.
 Read-only consultation fixes the next interface as ONE typed object-return source
@@ -719,23 +573,12 @@ Scope: immutable existing ResultOriginWitness membership and exact call/value/ke
 
 ## Passive lexical source requirement dependency closure
 
-Decision (read-only worker reviewed): retain the original source-target relation,
-add a passive result requirement and readonly original forward identity loan.
-Existing lexical/stored constructors keep ExistingBorrowedResult. Source authority
-is the original Facts qualification and unchanged forward join; no final slot,
-issuer, pending seal, source_finish, production route or physical permission changes.
-Acceptance: real lexical/stored defaults; original witness Rc identity; forward
-contract/use/call coordinates; missing/duplicate/foreign use rejection; existing
-lexical one-shot and stored negative tests; production library and scope guards.
-Initial focused build found THISCHANGE E0425: test helper qualified at the wrong
-module; correct its test-only path after Cargo terminates, then rerun.
-Final evidence: candidate HEAD4ecd plus only this dependency: focused11/11
-PASS (1m35s build/.04s runtime), production library PASS30.10s; scope,
-COPY-UNKNOWN, current pointer and diff checks PASS. New source/test files
-remain below800. Initial E0425 test-helper reference was corrected, not baseline.
-Read-only review confirms the model-only qualification getter test grants no
-valid target join; real forward/default and refusal tests use original issuers.
-No production switch, original mimalloc EXE, Both315/318 or full S0/goal claim.
+Closed at `989ca86f58`; Git owns the detailed receipt and corrected test-path E0425.
+Original target/Facts qualification and forward loan remain source-only authority;
+existing lexical/stored defaults remain ExistingBorrowedResult, with no final-slot,
+Normal/Home, production-route or physical permission change. Focused11/11,
+non-test30.10s, scope/COPY/pointer/diff/caps passed. Exact Rc/forward coordinates,
+missing/duplicate/foreign refusal and real issuer tests are retained in that commit.
 
 ## Original qualified Static input-source dependency
 
@@ -869,27 +712,7 @@ actual missing leaves/entries are proved. Do not claim8/0 from source-only work.
 Both315/318, field lifetime/cleanup and mandatory full production acceptance remain
 required; goal active. Next implementation not started at this recorded boundary.
 
-Received-source retention prerequisite selected (BoxShape): three original
-scanner installers retain SAME owned call initializer in existing local state;
-private child owns exact acquisition/covered original observation loans, parent
-655 lines. No terminal OwnedCall/ObjectArguments/normal-return or new admission.
-Read-only review confirms source-local declarations uniquely identify binding
-initializers, so exact branch equality rejects source drift, not valid old joins.
-Focused five original-source identity/invalidation/join/loan tests running;
-no PASS/closeout/publication claim until results and regressions are checked.
-Next terminal obligation must stay unavailable in readiness/artifact gates until
-original completed-index Completion co-seal lands; no source-only execution grant.
-Received retention first compile found8 THISCHANGE child-module path/privacy errors (moved methods still used former super paths and pub(super)); fixed original enclosing home_new_prefix visibility and exact source type paths, without broad public access. Corrected focused run1141 live, /tmp/hako-received-source-retention-corrected.log; no verified green yet. Protected original larger WIP untouched; candidate-only bounded implementation.
-Received retention corrected focused PASS5/5 (1m08s compile/.01s runtime);
-expanded original Instance/Static/source/result regression PASS267/267 (.57s),
-/tmp/hako-received-source-retention-{corrected,regression}.log. First broad
-invocation used Cargo filter arguments before -- and was refused by CLI; harness
-corrected, no tests ran in refused invocation. Scope/COPY/diff PASS. Non-test
-check4041 still running. Original index empty, all160 protected working paths
-snapshotted before publication; no original writes yet. Next exact terminal
-Direct/Received obligations and completed-index owner remain required.
-Received-source retention bounded checkpoint verified: non-test check PASS16.77s, /tmp/hako-received-source-retention-check.log; pointer/scope/COPY/fmt/diff PASS;5 new and267 expanded tests PASS, initial8 child-path/privacy errors corrected. No THISCHANGE/unclassified red in selected scope. Exact scanner original-site retention replaces prior source-dropping installers; no execution widening or full S0 claim. Parent655/child111/tests205/card below1000; next source terminal qualification closure still owed.
-Checkpoint6678b6aac1f53e13b596910a710fb1bd9b9d3576 received source retention verified and pushed:5 original source identity pins +267 selected regressions PASS; non-test16.77s, scope/COPY/pointer/fmt/diff PASS. Original160 protected working paths preserved byte-for-byte through index-only publication, index empty; candidate synchronized, main untouched. Next source terminal Direct/Received obligation + same original completed-index Completion co-seal remains required; source-only obligation must stay unavailable in readiness/artifact boundaries before seal. No full-app advance/fullS0/goal-completion claim.
+Completed Received source retention: checkpoint6678b6aac1f53e13b596910a710fb1bd9b9d3576 owns design/error correction and full evidence (focused5, expanded267, check16.77s and required guards PASS). Original scanner acquisition-site identity is retained, protected160 paths preserved; no terminal execution/Normal/artifact grant. Pending source obligations and completed-index closure remain required below.
 
 Decision2026-10-08 (read-only review_cleanup_path): source terminal Direct/Received
 obligations retain SAME result qualification/witness Rc, exact original return,
@@ -899,10 +722,8 @@ Existing verified walk excludes plain seed on has_object_call_return; exact same
 Facts callback reaches verified/probe branch walks. Retain child OwnedCall rows.
 Pending guard stops owner root readiness/SourceComplete and both artifact entries,
 including root-only relations, until original completed-index co-seal replaces it.
-Completed pending-source/receiver development and corrected THISCHANGE errors: full evidence at b984a2b059; final279/279, focused16/16 and check29.43s PASS. Original opaque actual support and completed-index Normal handoff remain owed; no execution grant.
 Checkpointb984a2b059509783a7343af3c303b4328afe9ad2 qualified Direct/Received pending SOURCE obligations verified and pushed: final279/279, focused16/16, production check29.43s and scope/COPY/pointer/new-source fmt/diff PASS. Foreign selected qualifier never retries scalar/argument lane; original receiver Object/Nullable roles, root-only empty-index and artifact guards pinned. Original160 working paths preserved byte-for-byte through index-only publication; index empty; candidate synchronized, main untouched. No actual mimalloc EXE advancement/full S0/goal claim. Next read-only mapping targets actual completion-index installation (not future source_finish) plus exact qualified object arguments and original result-leaf/CompletionRc Normal handoff; full Direct+Received remains owed.
 
-Completed primitive Fresh/null leaf prerequisite: design/review/validation at d9aa5efa22; SAME indexed Completion and Facts Rc, exact claim/prefix/exit, shared cleanup availability, no root retry or Normal/transport grant. Current contracts remain in owner README and next argument Decision below.
 Checkpointd9aa5efa2267e9e7c48d28610d39be9938134972 exact completed-index primitive Fresh/null leaf corroboration verified/pushed: focused10 and expanded289 PASS, check29.91s, scope/COPY/pointer/fmt/diff/caps PASS. Null requires SAME cleanup exit like Fresh; indexed Err/missing cannot retry root. Exact original descriptor snapshot grants no Home/Normal/transport/artifact. Original160 working paths preserved byte-for-byte through index-only publication, index empty; candidate synchronized, main untouched. Next original Direct argument/domain + Received typed receiver join and original completed-index Normal handoff remain owed; no mimalloc EXE advancement/fullS0/goal claim.
 
 Decision next argument prerequisite (read-only review_cleanup_path): share existing PreparedActuals original incoming ordered-argument lender separately from I64 result corroboration. ObjectArguments borrows SAME original result qualification/witness Rc.
@@ -913,73 +734,262 @@ Smallest next slice: Direct/Received ObjectArguments under existing home_borrowe
 Non-claims: no pending relief/Home removal/transport/artifact; both Direct+Received and original opaque argument/domain support remain required before full completed-index Normal seal.
 Acceptance: Direct/Received Object/Nullable, zero-args, original ordered sites, foreign qualification, target/ordinal/site drift, missing actual/source-only refusal and receiver destination drift.
 
-Argument-lender neutral prerequisite selected under accepted next argument Decision:
-extract original incoming/actuals ordered lender inside existing actuals owner; I64
-wrapper retains SAME result proof, error priority, allocation and rejection behavior.
-Replacement: I64 projector embedded argument-lending block; no physical deletion set.
-Acceptance: SAME incoming/argument references without result authority; duplicate
-incoming and argument drift refusal; existing source/actual/result priority retained.
-ObjectArguments callback and Direct/Received semantic connection are subsequent
-separate semantic slice; original opaque source-domain/full Normal handoff remain owed.
-Neutral lender focused3/3 PASS: exact incoming/arguments pointer retention without I64 proof, no result grant, duplicate incoming/argument drift and source/actual/result error priority. Test-only Box slice .push compile error corrected via original-row Vec->Box, and unused Result warning corrected by requiring removed proof Ok; final regression in progress.
 Read-only review_cleanup_path confirms neutral error order and argument copy timing unchanged. Next Object join must require Instance target, exact loan.call/call/target site+key+callee owner/full arity, original Call witness/site/key and SAME Facts qualifier Rc membership; common getters cannot admit general Static Object path.
 Full-source argument Decision clarified by read-only review_cleanup_path: original source-only cut is final incoming+definitions lender and absence of Object source phase in existing actual producer. Subsequent SourceObject retains exact existing source_incoming row/forward identity in SAME actual owner, never fabricated opaque actuals or Executable. SAME full-callee incoming/veto/formal agreement closure must connect qualifying original sources to existing Executable producer; full Direct+Received, opaque/source-only inputs and complete caller coverage remain required before Normal handoff. Manifest extends only actual source-phase/revocation + original target/forward loan joins; no separate incoming scan/solver/registry, pending artifact gates stay.
-Neutral argument-lender prerequisite verified: focused3/3 and final291/291 PASS (.61s), production check16.46s PASS; scope/COPY/pointer/fmt/diff/caps547/493 PASS. /tmp/hako-object-argument-lender-{focused-fixed,regression,check,scope,copy,pointer}.log + exact regression argv JSON. Test-only Box mutation compile error and unused Result diagnostic corrected; no THISCHANGE/unclassified red in final scope. Existing I64 producer now shares original argument lender without result/physical admission widening. Next semantic ObjectArguments Direct+Received source/opaque closure remains required; no fullS0/EXE/goal claim.
+Checkpointa61a35fccedc22153f6654dd80815b1e6b29dd75 original argument-lender neutral prerequisite verified/pushed: focused3 and final291 PASS, check16.46s, scope/COPY/pointer/fmt/diff/caps PASS. Original incoming/argument references retained; I64 result and error order unchanged, no result grant. Original160 working paths preserved byte-for-byte through index-only publication, index empty; candidate synchronized, main untouched. Next ObjectArguments Direct+Received joins and original source-only/opaque full-callee closure, then completed-index Normal handoff remain owed; no real-app EXE/fullS0/goal completion claim.
 
-Decision (read-only review_cleanup_path): neutral constructor prerequisite extracts only post-incoming selection contract/ordinal/candidate-to-actual construction into private construct_borrowed_call_actuals_v1. Existing final selection/duplicate/static-source/error order unchanged; ORIGINAL incoming row is the input. Typed Object executable closure later must join same raw allcaller projection, unique selected contract/key/slot, indexed Completion and original OrdinaryScalar/InstanceReceiver signature; no fabricated borrowed entry. Excluded opaque owners require concrete production evidence and accepted outgoing-use closure, never universal promotion. This prerequisite is isolated in /tmp/hako-object-actual-constructor-shape-20261008-checkout; semantic WIP remains protected.
+ObjectArguments semantic connection in progress: SAME Facts reloan equality and
+unique original target/site/key/callee-witness/full arity select shared lender.
+Direct/Received source terminal requests acquisition call site and retains explicit
+Observed/Unavailable, never empty-row arity inference or Normal/artifact permission.
+Received self join requires original receiver observation key/class/destination/
+ordered typed source sites. Missing support stays pending; existing Err/drift refuse.
+First7 visibility/callback/exhaustiveness errors and second8 mechanical signature/
+test-scope/exhaustiveness errors are THISCHANGE, corrected; focused3/3 PASS.
+Read-only review confirmed self-Received missing receiver proof and incoming callee drift bypasses; both corrected in SAME object_arguments owner. Four receiver fixture attempts failed before target validation (consumed final target Option or unrelated current source/I64 gaps), classified THISCHANGE test setup failures. Canonical original source_incoming row now supplies projector-owner identity tests; no visibility widening, target reissue or duplicate production store. Existing .take() remains affine. Callback uses one receiver corroboration: self missing/wrong binding Err, missing observation unavailable, contradictory row Err, exact row accepted. Canonical receiver/callee-drift/staged-Err plus foreignFacts PASS4/4 at /tmp/hako-object-argument-original-identity-corrected.log; first filter mistakenly used filename instead of module and ran only foreignFacts (1/1), not accepted as full evidence. Expanded original regression PASS295/295 (.62s), production check PASS29.96s, scope/COPY/diff PASS. Guard invocation initially named a nonexistent wrapper (127), corrected existing scope owner and verified. No remaining THISCHANGE failure in selected evidence, but SourceObject/full caller closure, real Observed source and original Normal seal still owed; no full slice closeout/commit.
+SourceObject/full incoming/opaque domain closure remains mandatory next dependency.
+Next full-source implementation mapping (read-only review_cleanup_path): target issuance attaches SAME Facts qualification/original ForwardIdentity; same ingress raw inventory/domain solve closes full incoming/veto/formal identity; final incoming keeps existing Executable constructor priority, exact remaining raw Object input retains original candidates in SourceObject (opaque_actuals=[]). incoming_calls_for_owner includes exact raw Object membership and failed owner walk revokes those staged rows. Closed inputs regenerate via existing constructor using retained candidates, never phase-field promotion or rewalk. Direct+Received opaque forwarding/fullcaller veto/missing+duplicate forward/revocation/executable closure acceptance required. Decision (read-only review_cleanup_path): plural ObjectReturnSource qualifications retain ALL original terminal value sites for one exact acquisition call/key, with SAME witness Rc and deterministic unique-value membership; no choose-first or single-value fallback. Existing Facts owner lends qualifications_for_call; canonical profile needs attach before original inventory, not a second target issuer. SAME forward identity owner collects only exact UnresolvedArgument forwarded subset; literal/TypedHome actuals carry no fabricated forward identity. Old all-opaque forward API keeps its coverage requirement. SourceObject must preserve original candidates and subset; SelfRooted candidates require corresponding identity, full incoming/veto/domain closure before existing Executable generation. Multiple Received terminal source fixture running11682; fullS0/goal active.
 
-Neutral original-actual constructor verified: focused32/32, original regression291/291 (.61s), non-test quick check50.57s and scope/COPY/pointer/diff PASS. /tmp/hako-object-actual-constructor-neutral-{focused,regression,check,scope,copy,pointer}.log. Constructor body byte-identical SHA3d9af3b09f936b4d78ce50c91906601890eb9317c826beae981b415780881e65; selection/error order unchanged, new input/Normal/artifact authority=0. Protected original160 working paths snapshotted; candidate semantic WIP is outside this verification/publication. Typed fullcaller input closure and completed-index Normal/production acceptance remain required.
+Plural qualification connection in progress: existing Facts owner now lends all exact call/key original return qualifications sorted by original value site; target requirement and incoming loan use plural source membership, projector compares SAME qualification rather than one selected return. Original multi-Received source test PASS1/1 (56.28s compile), /tmp/hako-object-multiple-received-return.log. Focused plural/source-requirement/identity PASS11/11 (.02s), /tmp/hako-object-plural-qualification.log. SourceObject/canonical attach/full forward subset/fullcallee executable closure and original Normal handoff remain required; no new authority, full slice closeout or production EXE claim.
 
-Neutral root cleanup retention checkpoint: original installed Home end-plan
-origins now remain in existing root progress through preparation, emission and
-finalized state. Full/Normal/acquisition sequences share exact original origins;
-argument maps prepend atomically, and record requires emitted Normal agreement.
-Plain/MapGet restoration and double-take preserve the order. Existing F=N graphs,
-pending gates and ordinary admission stay unchanged. Final source holder retains
-same ledger Rc; FinishedBindings/final graph attachment remains later work.
-Candidate focused38/38, expanded421/421 and non-test check20.07s PASS; logs
-/tmp/hako-root-cleanup-order-{corrected,regression,check}.log. Four initial test
-constructor errors were THISCHANGE and corrected with original issuer/path APIs.
-Isolated neutral-base focused38/38, expanded339/339 and non-test check49.20s
-PASS; /tmp/hako-root-cleanup-retention-neutral-{focused,regression,check}.log.
-Pointer/scope/COPY/diff and changed-source/new-child fmt PASS. Unrelated old test
-formatting excluded after exact rustfmt-canonical code equality corroboration;
-only the required progress-field change remains in that test file.
-No Object return semantics, artifact permission or real EXE/full-goal claim.
+Canonical profile attachment implemented in candidate WIP: after SAME raw drafts and before pending/incoming, exact terminal call/key gets every original qualification. Original forward issuer now shares observed-subset collection; old API also demands all opaque coverage. Missing draft/subset proof remains Option::None, never empty-forward success. SourceObject phase/executable/full-callee closure still unimplemented. First attachment compile74928 found2 THISCHANGE reexport-privacy errors; corrected pending reexport to existing lexical-owner scope. Corrected attachment focused PASS13/13 (.03s), expanded297/297 (.62s); original canonical target attachment proof/forward pins PASS6/6 at /tmp/hako-object-qualified-target-source-proof.log; Read-only parity review confirmed valid nonopaque UnresolvedArgument rows would have changed old conditional-forward behavior; corrected shared opaque identity core, old API allopaque coverage only, new subset wrapper coordinate/duplicate checks excludes valid nonopaque row count. Parity correction focused PASS14/14 (.02s), /tmp/hako-object-qualified-target-parity-corrected.log, and expanded original regression PASS298/298 (.61s), /tmp/hako-object-qualified-target-parity-regression.log. Compiler checks/guards still owed for latest attachment; SourceObject/fullcaller closure and Normal seal remain unimplemented, so no full slice closeout or publication. Next concrete implementation: retain exact raw Instance candidates/qualifications/forward subset in SAME actual owner; extend probe membership and failed-walk revocation, then full incoming/domain closure through existing constructor.
 
-Root validator checkpoint (2026-10-08, independent neutral baseline): SAME retained
-order sets actual Normal/acquisition/per-step Fault path expectations. Exact
-recorded graph/DAG/reachability replaces production fixed2N counts. Original
-terminal/instruction/incoming boundaries retained; projected entry uses original
-FinishedBindings destination, merged instructions checked by PhysicalBoundary
-before FinishingChecked. No source admission/Call kind/gate expansion.
-Pins: Fault-only semantics, joint record/MIR omission, wrong Normal/Fault operation
-and pending outcome; structural extra/missing/unreachable/foreign/cycle/duplicate
-nodes; actual FinishedBindings Plain entry contraction. Read-only worker confirms
-contract and caller-zero. Candidate focused49/expanded434 before removal,
-post-removal49/check16.30s PASS; neutral focused48/expanded347/check48.43s
-PASS (/tmp/hako-root-order-validator-neutral-*.log), warnings1693.
-Pointer/scope/COPY/fmt/diff/caps PASS; exact source hunk audit excludes semantic WIP.
-Deleted exactly Call count validate_original and exclusive skip_jumps/release;
-shared ingress preserved. Plain old count helper/recorded_nodes remain cfg(test)
-for existing RootCleanupBoundary tests. Direct/Received physical attachment and
-Finalized-order corroboration remain owed; no realEXE/fullS0/goal completion.
+SourceObject implementation in progress: existing actual phase retains original Instance target, opaque source coordinates and original candidate vector; opaque_actuals empty, require_executable rejects source-only object input. Final incoming keeps old Executable producer priority; non-final original qualified Instance input is selected after disjoint Static source profile. Original full arity/contract/ordinal/site and SelfRooted forward identity are checked. Original raw Object membership extends probe selection; failed owner walk invalidates SourceObject staged rows. Initial SourceObject focused PASS5/5 (.01s), /tmp/hako-object-source-actual-first.log. Full retention/projector/domain closure and zero-arg/all-i64 Direct+Received are mandatory, not waived. Read-only mapping: partition ONE original draft map into final definitions and disjoint source_only_definitions; source lookup borrows union, execution keeps final subset. Whole borrowed scanner currently excludes zero-opaque callees; extend existing source inventory/typed input authority rather than fabricate empty domain.
 
-Finalized cleanup join (2026-10-08, bounded checkpoint): SAME ledger owner/exit
-Finalized order joins moved rebound root Call payload without double mapping;
-Emitted child Call uses original bindings with SAME owner finishing map once.
-The production lexical-call visitor checks retained cleanup before enumeration,
-including zero lexical nodes. Mandatory cleanup/invoke/result/frame must be
-recorded AND exist in current MIR; independent order/path/topology remain.
-Unselected unfinished source-only rows retain existing gates; child Plain
-local-call fixture is not a cleanup authority. Existing fixture root identity
-and terminal cleanup node set corrected to their actual separate owners.
-Root contraction positive, current result/frame deletion and missing order
-negatives, real direct-source zero-lexical consumer positive: focused6 PASS.
-Candidate expanded440 / isolated67 PASS; initial fixture reds corrected.
-Pointer/scope/COPY/fmt/diff/caps PASS; isolated non-test check PASS.
-Evidence: /tmp/hako-final-cleanup-{fixtures,regression,neutral,neutral-check}.log.
-Read-only worker integrated: no further bounded fix; whole-function mutation
-continues through existing finishing/publication validators. Direct result
-provisional cleanup, Received attachment, exact Handle/Nullable ingress and
-pending/artifact activation, Both315/318/lifetime/realEXE/full acceptance owed.
+Source-only draft retention now partitions the one original map into final/source_only definitions, with source_definition_for borrowing the disjoint union; executable final subset unchanged. ObjectArguments projector distinguishes retained SourceOnly from executable Observed, verifies original raw target/callee/opaque coordinates/argument cardinality and preserves staged Err. New positive/negative source retention pin validates original candidates, no opaque proofs/Executable permission and failed-walk revocation. Partition/retention focused PASS6/6 (.01s), /tmp/hako-object-source-retention-partition.log. Whole raw Object failure revocation for unobserved sites, original allcaller closure, zero-arg/all-i64 source membership and eventual Normal seal still owed; no fullS0/EXE/push claim.
+
+Raw Object failure revocation now records original error even before argument observation; source producer also verifies exact opaque formal/source subset before retention. New negatives cover candidate arity/ordinal/site drift, unobserved raw-call revocation and source draft partition pointer identity. Focused8/8 and expanded301/301 PASS; production check30.29s, scope/COPY/diff PASS, /tmp/hako-object-source-retention-{revocation,regression,check,scope,copy}.log. No Cargo remains live. Read-only next mapping settled for same whole-scan zero-arg/all-i64 Instance source coverage and whole caller veto before typed constructor connection. This is not goal completion or permanent raw-only support.
+
+Decision (read-only review_cleanup_path): SAME incoming scan unions original drafts with qualified Instance ObjectReturnSource zero-arg/all-i64 sealed callees. Selected key/slot/mode/ordinal/owner and original plural qualifications remain exact; NoIncoming, unknown receiver, OutsideOrdinaryScope and global BatchLoan veto cover the union. Empty opaque subset is not input-domain/body/Executable proof. Final transport owners/domain solve unchanged; existing typed entry/actual constructor must later join original full scalar candidates and Completion. Acceptance: Direct/Received zero/all-i64 original rows, distinct receiver same selector, unresolved caller veto, unsupported typed family exclusion and no empty-subset promotion. Implementation is in progress; full source/Normal/production acceptance remains required.
+
+Same incoming typed Object coverage verified: focused12/12 (zero/all-i64 Direct+Received, non-i64 exclusion, distinct receiver, unresolved sibling/OutsideOrdinaryScope/global loan veto) and expanded305/305 PASS; non-test quick check15.13s, scope/COPY/diff PASS. /tmp/hako-object-source-typed-inventory-{veto,regression,check,scope,copy}.log. First focused compile found2 THISCHANGE reference-comparison errors, corrected; no selected unclassified red remains. SAME inventory owners include added source callees, final transport/domain unchanged. No executable input closure/Normal seal/fullS0/EXE claim; semantic WIP remains uncommitted.
+
+Original typed input production probe strengthened: the four zero/all-i64 Direct/Received variants require SAME ledger staged row, original full argument cardinality and source-only executable refusal, not manual actual construction. PASS1/1 at /tmp/hako-object-source-typed-original-probe.log; latest expanded305/305 PASS (.64s) at /tmp/hako-object-source-typed-final-regression.log, scope/COPY/diff PASS. Non-test check above remains current (only test strengthened afterwards). No Cargo live; full executable/Normal/production handoff remains next.
+
+Neutral constructor prerequisite Decision (read-only review_cleanup_path): SAME private construct_borrowed_call_actuals_v1 accepts ORIGINAL incoming row after unchanged final selection/duplicate checks; body contract/ordinal/candidate/domain/error order unchanged. Isolated neutral checkout validates it separately; semantic WIP remains protected. Next typed input closure goes immediately after original physical_signature issue, with unique selected contract/key/slot, indexed Completion, source signature lanes and SAME allcaller projection; stage all replacements before install, no fake borrowed entry/universal opaque promotion or Normal grant.
+
+Checkpointde7f6fbfb44e521e7292a786fb2917b4c825fcad neutral original-incoming constructor extraction verified/pushed: focused32, original291, non-test50.57s and required guards PASS; body SHA3d9af3b0 byte-identical. Original160 paths unchanged/index empty; candidate HEAD/index synchronized without changing semantic working bytes, main untouched. Source selection/entry/result permission unchanged; semantic Object WIP still requires verification and full typed input/Normal/production closure.
+
+Decision (read-only review_cleanup_path): SourceObject retains qualified-callee INPUT membership from SAME immutable incoming inventory, including original unqualified siblings sharing exact callee owner/slot/key/contract. Their own result qualification remains None and original target unchanged; no fabricated return authority. Same membership selects source probe and failed-walk revocation. All caller candidates/errors remain required by later typed closure; missing stays unfinished, Err/veto refuses. ObjectArguments still requires the exact owned-return qualifier; Normal/artifact gates stay. Post-neutral candidate regression305/305 PASS (.62s); sibling-input focused13/13, expanded306/306 (.62s), non-test48.87s and scope/COPY/pointer/diff PASS; /tmp/hako-object-source-sibling-input-{focused,regression,check,scope,copy,pointer}.log. Original source producer retains unqualified sibling Integer8 with no own qualifier or executable permission; wrong-slot membership and unobserved sibling failed-walk revocation pinned. No selected THISCHANGE/unclassified red. Typed execution closure and Normal/production acceptance remain owed; semantic WIP not published.
+
+Next accepted typed-input mapping (read-only review_cleanup_path): invoke one ledger finish-input method immediately after physical_signature construction (issuer721+, after original Completion index680 and result contract seal703, before root/lexical dispositions). For each qualified zero/all-i64 owner corroborate unique original selected key/slot/contract, indexed Completion explicit source exits and original signature InstanceReceiver/OrdinaryScalar lanes; SAME project({owner}) includes all original callers/vetoes, including siblings. Require every original staged candidate/identity; missing remains unfinished, existing Err/drift refuses. Regenerate with construct_borrowed_call_actuals_v1 and install only after whole-callee success, not phase-field promotion. Object lender then borrows typed raw row/executable arguments only with its OWN original return qualification; scalar/Borrowed entry unchanged. Original terminal SourceOnly snapshot is not reissued: later Normal join demands generated argument equality. Keep pending/artifact guards. Implementation now connects original signature issuance to same-ledger typed finish; missing inputs stay Pending, existing Completion/exit/caller errors retain cause and refuse the cohort, structural identity contradictions remain outer errors. First3 compile errors were THISCHANGE and corrected. Focused9/9 and expanded311/311 PASS (.64s), including rejected Completion cause preservation; /tmp/hako-object-typed-input-finish-{corrected,regression}.log. Scope/COPY/diff PASS; COPY help invocation incorrectly treated --help as root (1), corrected explicit root PASS. Non-test quick check PASS (Finished `quick` profile [optimized] target(s) in 18.31s); /tmp/hako-object-typed-input-finish-check.log. Pointer/fmt/caps PASS. Existing compiler warnings remain; no warning-free claim. No universal excluded-opaque promotion, Normal seal, actual EXE advancement or slice completion claim. Next accepted worker mapping: completed-index ledger lender reuses same owner preflight read-only (Pending unavailable, Refused preserves cause, Ready only if replacement set empty and requested original row Executable); recheck all raw callers/Completion/signature at demand, require own exact return qualifier, never trust one Executable row or mutate prefinish source snapshots. Completed typed lender implemented in SAME object_input_finish owner: exact own Facts qualification/plural target membership, SAME per-owner validator rechecks all original callers, Completion and signature; Pending or uninstalled replacements unavailable, Refused preserves cause, only existing Executable lends original slice by reference. Focused9/9 and expanded315/315 PASS (.63s), non-test quick check17.29s, scope/COPY/diff/fmt/caps PASS; /tmp/hako-object-completed-input-lender-{focused,regression,check,scope,copy}.log. New lender is not yet connected to production Normal consumer and adds1 expected unused-method warning (1692 vs1691); no suppression or full slice closeout. Read-only worker maps next canonical consumer to completed-index seal_object_return_dispositions_v1(selected,contracts,signature), combining exact caller indexed Completion/exit/immutable Direct or covered Received acquisition, typed lender or original final opaque entry, full callee exits/SAME witness DAG and existing return_leaf. Preserve original obligation snapshots and pending/artifact gates until full source and physical closure. Protected original normal_return/acquisition/handoff proposals use older Direct.arguments and support error enum; candidate Direct.argument_sites plus obligation.arguments must be adapted, not copied wholesale. Next integrated Decision (read-only review_cleanup_path): canonical completed-index children return_acquisition, return_handoff and normal_return assemble one planned disposition map with Verified proof or Unavailable, no second acquisition registry; production issuer calls seal after original signature/typed finish. Acquisition uses SAME typed lender or existing borrowed_entry_source_for_contract plus final argument lender; preserve existing opaque checker whole-final-incoming failure scope, excluded opaque definitions remain unavailable. SourceOnly/Observed original obligation arguments must equal completed lender arguments for BOTH Direct/Received; original phase unchanged. Direct original argument_sites and Fault homes remain exact; Received exact covered observation/destination/receiver typed arguments and single exit Home are mandatory. Handoff borrows SAME full ordered Facts Rc edges and exact callee indexed Completion/all exits, existing Fresh/null leaf checker, per-pass memo/recursion guard. No Completion root fallback, home projection, physical permission or pending guard relaxation yet. Required tests include all typed/opaque Direct/Received, snapshot drift, sibling/veto, missing/Err Completion, receiver/binding drift, missing alternative/cycle and atomic map install. Callee closure now implemented in original completion-index child plus raw original-target borrow in source owner; first2 THISCHANGE test-scope/shadowing compile errors corrected, focused5/5 and expanded320/320 PASS (.67s), non-test quick check16.69s; /tmp/hako-object-completed-callee-{corrected,regression,check}.log. Scope/COPY/pointer/fmt/caps/diff PASS. No live Cargo remains. New source helper/callee checker are pending production handoff consumers; warnings1695 include this WIP, no suppression or zero-warning claim. No selected THISCHANGE/unclassified red remains. Next implement canonical return_acquisition joining BOTH typed and original opaque input validation, then full immutable DAG handoff and atomic planned normal_return disposition map at signature-ready issuer seam. Original protected WIP/main untouched; no production Normal/EXE/fullS0/goal claim. Acquisition implementation now joins original caller indexed Completion/exit, shared SourceOnly/Observed snapshot equality, exact Direct sites/Fault homes and Received covered observation/destination/receiver arguments to SAME typed lender or original final opaque entry/argument lender. Existing opaque whole-final-incoming scope is preserved; missing/nonExecutable source is explicitly unavailable at source acquisition, staged Err propagates; original final entry checker itself unchanged. First1 owned/source-site comparison compile error corrected. Initial raw-only opaque expectation was THISCHANGE fixture misclassification: Direct fixture has final definition and successful original input; tests now pin real final opaque positive. Received opaque uncovered original scalar-result authority bug (I64 observation minted from generic scalar arguments despite Object result), not a waived baseline. Read-only review_cleanup_path identified exact source confusion; accepted prerequisite extends SAME callback with I64ResultArguments using original sealed result proof class, preserving generic ScalarArguments for Nullable, original lender/error sequence and final result seal. I64 local/discard/terminal/nested calls select result-specific request; Nullable only borrows inputs. Result-membership first build2 THISCHANGE call-arity errors corrected. Focused acquisition5/5 PASS including exact original final opaque Direct/Received at /tmp/hako-object-acquisition-result-membership-corrected.log; previously failing opaque Received source now issues correct Object observation. Latest expanded regression adds explicit no-I64 observation and Received typed scalar binding, nested/Nullable/source result filters; pending /tmp/hako-object-completed-acquisition-regression.log; full source/Normal/production acceptance still owed. Expanded329 first run328 PASS/1 THISCHANGE stale expectation: nullable_receiver_call_mints_the_caller_local_call_flow_row assumed definite Object receiver never records source flow; corrected expectation requires exact Handle result and original destination after I64 membership separation, without Normal/physical permission. New Received typed scalar binding and no-I64 Object observation pins passed. Final regression329/329 PASS (.64s), non-test quick check20.67s; /tmp/hako-object-completed-acquisition-{final-regression,check}.log. Scope/COPY/pointer/fmt/caps/diff PASS. Initial1 type error,2 result-request call-arity errors and two fixture/old expectation failures were THISCHANGE and corrected; no selected unclassified/current red remains. Library warnings1701 include pending private acquisition/handoff consumers, not a zero-warning or all-baseline claim. No live Cargo remains. Current canonical acquisition accepts original typed/opaque Direct+Received inputs, including Received typed scalar binding; source observations and original snapshots retained without Normal/physical/artifact grant. Next finish required corruption/missing tests, same full DAG handoff and atomic normal_return disposition map, production signature-ready seal and later physical/source acceptance; semantic WIP remains uncommitted, main/protected original untouched. Raw-only opaque availability and snapshot drift/receiver corruption negatives still required before source handoff closeout; no such requirements waived. Acquisition missing/corruption focused9/9 PASS at /tmp/hako-object-acquisition-missing-corruption-corrected.log: typed/opaque Direct+Received missing staged input stays unavailable, Received missing original receiver stays unavailable, foreign receiver destination refuses identity and pending artifact gate remains. First8/9 had one THISCHANGE test-navigation error (foreign owner looked up using local owner); corrected by borrowing foreign original terminal and exact foreign observation, no production change. Scope/pointer/fmt/diff PASS; no Cargo live or staged changes. Snapshot drift/raw-only opaque/argument-binding corruption requirements remain owed, not covered by foreign receiver test. Read-only review_cleanup_path confirms next handoff proof holds original acquisition plus ordered Leaf/Call alternatives; reuse completed callee and leaf checker, pass same selected/contracts/signatures through recursion. One read-only seal-local memo keyed (owner,exit) retains original terminal identity; recursion path insert/remove, all unavailable siblings continue checking for errors; Formal/substitution unavailable under original pure-owned law. No new registry, solver, Normal/physical/EXE grant; atomic disposition map and production connection remain subsequent work. Completed-index handoff now implemented in ordinary_new_return_handoff.rs: original acquisition + SAME exact raw target + full completed callee exits + original ordered leaf/Call DAG; no new source solver/registry. Typed/opaque Direct+Received, typed Fresh/null order, nested original call, recursion-path guard and seal-local memo Rc reuse/terminal drift pinned. Missing leaf still checks later corrupt sibling and preserves leaf-prefix identity error. First focused5/6 had THISCHANGE incorrect late-boundary expectation (missing callee terminal is vetoed earlier by typed acquisition preflight); fixed expectation, no production change. Second expanded21/22 had THISCHANGE fixture selecting nonexistent extra successful prefix after removing first leaf; fixed by retaining exact removed first claim prefix before corruption. Final focused22/22 and expanded337/337 PASS (.64s), non-test quick check36.51s; /tmp/hako-object-completed-handoff-{final,regression,check}.log. Scope/COPY/pointer/fmt/source caps/diff PASS; no selected THISCHANGE/unclassified red or live Cargo remains. Library warnings1709 include pending handoff consumer and existing debt, not zero-warning/all-baseline claim. Source receipt not yet production-connected, Normal/artifact guards retained; acquisition snapshot/raw-only/binding negatives plus wider handoff acceptance still owed, no fullS0/goal closeout or EXE advancement. Next integrated Decision from read-only review_cleanup_path: one Option<BTreeMap<(owner,exit), Verified{proof}|Unavailable(reason)>> in original ledger; None unsealed, Some(empty) also sealed. Gather root+indexed original OwnedCall terminals, reject conflicting same-key values; one local memo verifies all into temporary map, install only after full success; Err leaves ledger untouched. Invoke after typed input finish in existing issuer_object_input_finish::issue_signature_and_finish_inputs_v1 so issuer797 does not grow. Empty/nonempty duplicate seal, conflicting terminal, late Err atomicity and factory Direct/Received retained proof/artifact refusal are required. No homes projection, transport, retry or guard weakening in this install responsibility; physical/source acceptance remains subsequent. Main and protected original untouched; semantic WIP uncommitted/index empty.
+
+Signature-ready source disposition install: production helper now calls the same ledger seal after typed finish; issuer remains797 lines. Option map stages all root/indexed OwnedCall proofs or unavailable reasons and installs once only after success. Empty/nonempty duplicate seal, conflicting terminals, unavailable input and late receiver failure are pinned; original pending/artifact gates retained.
+Focused6/6 and expanded343/343 PASS (.65s), non-test quick21.08s; /tmp/hako-object-normal-return-{final-focused,regression,check}.log. Scope/COPY/pointer/fmt/caps/diff PASS; no live Cargo or staged changes. Two THISCHANGE compile errors in corruption fixture (private constructor, then helper insertion mismatch) corrected via cfg(test)-only value-site corruption helper; production constructor visibility unchanged. No remaining selected current/unclassified red. Warnings1696 remain; no zero-warning claim.
+Related owner change: home_terminal_returned_value.rs only gains the test corruption helper needed to prove root/index collision rejection; no production source issuer widening. Main/protected original untouched; semantic WIP uncommitted.
+Next Decision (read-only review_cleanup_path): one Normal projection corroborates saved proof against exact current terminal/exit; Direct retains original homes, Received removes only its destination after exact-one membership, Fault retains original homes. Missing/unavailable/foreign/mismatched evidence refuses; non-OwnedCall uses original exit and rejects spurious disposition. Existing root_home cleanup preparation and validator will share this owner, with independent omission checks. Slot/physical attachment and Direct provisional result remain subsequent; artifact guards are not relaxed by source seal.
+Acquisition snapshot drift/raw-only opaque/binding negatives, broader handoff acceptance, full Normal/physical/source EXE and Both315/318/lifetime remain required; this source production connection is not full S0 or goal completion.
+
+Normal projection now joins exact saved proof/current terminal/value identity, original indexed Completion and exit snapshot. Direct borrows original homes; Received requires exact-one destination and removes only it in Normal order; Fault and covered calls borrow the original exit. Missing/unsealed/unavailable support does not lend; foreign/mismatched/spurious proof rejects. Root cleanup preparation and independent validator both consume it after unchanged pending/all-exits-ready gates.
+Verification: pre-cutover root34/34, initial projection7/7, cutover41/41; final focused43/43 and expanded381/381 PASS, non-test quick16.95s. /tmp/hako-object-normal-projection-{root-baseline,final-focused,final-regression,check}.log. Added missing indexed Completion/terminal (root copy cannot fill hole), original rejected Completion cause, exact destination missing/duplicate, foreign proof and changed terminal negatives. Source check precedes only the final test-only additions. Scope/COPY/pointer/fmt/caps/diff PASS; no selected current/unclassified red, live Cargo or staged changes. No OwnedCall physical activation/EXE or fullS0/goal claim; main/protected original unchanged.
+Next integrated Decision (read-only review_cleanup_path): original completed-index result child joins SAME result cohort Completion/terminal Rc and signature to sealed source handoff, verifies full Fresh/Null/Call alternatives and exact Handle/Nullable result. Original slot child checks target/input/signature and ALL plural return qualifications, then upgrades the SAME affine lexical source-pending slot after full success; missing input never masks malformed result/signature. No completion_for_owner fallback, one-qualification selection, duplicate solver/registry or guard relaxation.
+Acceptance: typed/opaque Direct+Received, Handle/Nullable, multiple Received returns, foreign Completion/signature, missing sibling, duplicate/Taken and plural qualification drift. Received physical return binds original acquisition; Direct must later attach exact Fresh teardown to SAME InvokeNormalResult, add provisional result only to post-success cleanup Fault (never acquisition Fault). Slot Ready alone cannot discharge pending/artifact guards; independent physical omission/attachment/MIR+FinishedBindings/Fault acceptance remains required.
+Acquisition snapshot/raw-only/binding negatives and both315/318/lifetime/full production EXE remain owed; projection tests do not replace them. Next construct accepted result+slot mapping, keeping full original completion criteria intact.
+
+Neutral callee sharing verified separately: original qualified method and target-only method delegate one private implementation with optional loan; qualification/Completion/Facts/Call-edge/exits order retained. Focused13/13 and expanded382/382, scope/COPY/diff PASS; /tmp/hako-object-callee-shared-neutral{,-regression,-scope,-copy}.log. No new result solver, source acceptance or physical grant. Semantic result join follows as a separate responsibility; producer-dependency retention and affine slot closure remain required.
+
+Completed-index result join verified: focused8/8 (typed/opaque Direct+Received Handle/Nullable, nested Call, Null-first, foreign/reissued Completion, cloned terminal table and saved disposition corruption), expanded390/390 PASS (.70s), non-test quick16.79s, scope/COPY/diff PASS. /tmp/hako-object-completed-result-{matrix,regression,check}.log. Same result cohort pointer authority and full original alternatives are required; no selected current red. Unqualified nested producer fixture deliberately remains unavailable because original source target lacks dependency retention. No affine-slot/physical/EXE closure claim.
+
+Next neutral input lender Decision (read-only review_cleanup_path): qualified wrappers retain original qualification-first (opaque contract+qualification) error order, then delegate SAME target-only input checker. Original typed membership/allcaller preflight and opaque whole-final-incoming scope remain; generic lender grants no caller result authority. Verify same borrowed storage, original unqualified sibling, missing and staged-Err parity before SourcePending/producer attachment semantics. Implementation and focused verification in progress; no neutral closeout yet.
+
+Neutral input sharing verified separately: existing qualified typed/opaque lenders delegate one target-only body after unchanged identity-first checks; SAME allcaller typed preflight and opaque whole-final-incoming scope preserved. Focused20/20 and expanded392/392 PASS (.69s), non-test quick16.94s, scope/COPY/pointer/fmt/diff PASS; /tmp/hako-object-input-shared-neutral-{final-focused,regression,check}.log. New pins prove pointer-identical argument storage, original unqualified sibling, missing/Err parity, foreign target/contract rejection and qualification-first simultaneous error. Read-only worker found no required correction. No selected red/live Cargo/staged changes; main/protected original untouched.
+Next fullslot remains separate semantics: retain original producer dependencies, introduce family-local SourcePending/Ready/Taken, verify original plural qualifications/result/signature/generic input before atomic upgrade; Pending take preserves its slot and refuses explicitly. Late sibling errors must leave all upgrades uninstalled. Existing pending/artifact gates and acquisition snapshot/raw-only/binding negatives, Both315/318/lifetime/physical/fullEXE acceptance remain required. No fullS0/production publication/goal-completion claim.
+
+Fullslot Decision (read-only review_cleanup_path): original lexical issuance retains Object requirements before terminal/uniform classification as family-local SourcePending. One finish pass at the existing lexical/static issuer seam uses original selected/contracts/signature/result, generic input lenders, full callee result and plural caller Normal projection. Stage all candidate upgrades/routes, recheck unchanged pending cells, then install once. Missing stays Pending; malformed refuses without partial upgrades; Pending take returns named refusal before consumption. Ready/Taken and existing terminal I64 checks remain. Producer-only requirements retain exact original Facts dependency list before the one incoming scan; same typed owner membership includes these original producers, without fabricated caller qualification.
+Implementation in progress. First build found4 THISCHANGE compile errors (private redundant validator call, two old generic enum test patterns, moved value in borrowed terminal scan); corrected without visibility expansion. No PASS/physical/EXE claim for that run. Accepted pending/artifact boundaries and remaining acquisition corruption/lifetime/EXE acceptance remain unchanged.
+
+Fullslot implementation now connects original lexical issuance to same-map finish before static co-seal through existing issuer child (issuer794). SourcePending take refuses before mutation; full plural Facts identity precedes missing-result/input checks, each retained terminal must carry the same OwnedCall qualification. Original indexed caller observation selects result/route; no root fallback or shared-helper rewrite. Source dependencies extend only same incoming/input membership, not caller result authority.
+Initial slot focused6/6 PASS (bare filter7 included unrelated verifier); strengthened own8/8 PASS. First expanded400 had398PASS/2THISCHANGE: actual mimalloc caller missing retained terminal and excluded size:usize input were incorrectly hard-demanded. Accepted failure-scope Decision: structural source/contract/signature checks precede explicit input-family eligibility, excluded/raw-only opaque staysPending, eligible Completion Err still propagates, missing own terminal unavailable and malformed/duplicate changed terminal Err. Corrected scoped10/10 PASS including both regressions. Caller-helper scoped12 initially11PASS/1THISCHANGE fixture-navigation failure: definite unqualified producer's caller has no completed source flow, so no Ready cell exists; use the already source-complete nullable producer to test index-hole/root-copy, retain definite producer's missing caller as frontier. Corrected12/12 PASS; final role-negative run pending. /tmp/hako-object-fullslot-{focused,strengthened,regression,regression-fix,caller-focused,caller-corrected,final-focused}.log.
+Read-only review confirmed atomicity/indexed caller and failure-scope mapping; Map/I64 local roles must reject even with missing result. Review's suggested Some(empty) dependency law was revalidated and corrected: original accessor returnsSome only for nonempty dependencies, so canonical behavior was not changed. No physical/EXE/fullS0/goal completion or publication claim; semantic WIP remains protected/uncommitted. Fullslot regression rerun, non-test check, guards and remaining qualification/signature/physical acceptance still required.
+
+Fullslot final verification: own10 tests plus the two previously failing original-input regressions12/12 PASS, expanded402/402 PASS (.72s), non-test quick20.46s, scope/COPY/pointer/fmt/caps/diff PASS. /tmp/hako-object-fullslot-{final-focused,final-regression,check}.log. All earlier selected THISCHANGE compile/fixture/failure-scope reds corrected; no live Cargo or staged changes. The selected production lexical issuer now retains and atomically closes source Object slots through original result/input/signature/caller index evidence; source take stays affine. Warnings1695 remain; no warning-free or compile-speed claim. Main/protected original untouched, semantic changes uncommitted.
+Full physical attachment remains next: bind same Direct/Received acquisition and Normal projection to sole Invoke/result owner; Direct provisional result contributes only post-success cleanup Fault; Received omission/destination requires exact bindings and independent validator. Pending/artifact gates remain. Remaining source snapshot/raw-only/binding and stronger foreign ownloan/signature geometry acceptance, definite unqualified caller source-flow frontier, Both315/318/lifetime/realEXE and scoped publication/old-edge retirement are not waived. Read-only review_cleanup_path is mapping cohesive physical caller switches and acceptance; goal stays active with its full original criteria.
+
+Physical handoff series Decision (read-only review_cleanup_path): SAME OwnedCall proof joins original Invoke/NormalResult and cleanup packet, never a new emitter/registry. Direct result acquires one provisional result at the original InvokeNormalResult; acquisition Fault excludes it, later cleanup Fault includes its source-derived Fresh teardown. Received returns original result binding, omits only that destination on Normal, retains it at appropriate Fault boundaries. One cleanup-order owner derives each Fault obligation set by removing already attempted Normal prefix; independent MIR/FinishedBindings validation remains. Selected callers: original terminal argument lender/lexical terminal emitter, root-exit progress/cleanup core and existing validators. Required evidence includes wrong/missing/duplicate result, foreign dst/kind, Normal omission and acquisition/post-success Fault separation, cleanup-order drift, record+MIR tampering and FinishedBindings holes.
+Smallest next responsibility: lend Verified Direct terminal source from SAME completed-index disposition to existing borrowed_terminal_arguments_v1; preserve original strict I64 path and Received distinction. Exact owner/exit/obligation/original target/arguments/result class plus Normal projection are required; missing stays unavailable, foreign evidence refuses. This prerequisite selects no physical emission or cleanup omission and retains every pending/artifact gate. Then connect same view to the existing lexical emitter and full exit packet within this bounded series, completing independent physical acceptance before guard cutover.
+
+Direct source lender prerequisite verified in candidate WIP: existing
+borrowed_terminal_arguments_v1 now lends the exact saved acquisition argument
+storage after indexed terminal/Normal projection/Facts/target/snapshot identity
+checks. Typed/opaque x Handle/Nullable, Received exclusion, missing original
+Completion/proof/terminal table, foreign proof and zero-argument nested original
+call packets are pinned. Final focused8/8 and expanded408/408 PASS;
+`/tmp/hako-object-direct-source-{final-focused,regression,check}.log`;
+non-test quick check20.79s PASS, scope/COPY/pointer/fmt/diff/caps PASS. First
+compile's target import and missing Debug errors were THISCHANGE and corrected.
+README now states this source contract. No physical/result-cleanup permission,
+artifact gate relaxation, real EXE advancement or full S0/goal closeout claimed.
+
+Next physical mapping (read-only review_cleanup_path) retains cleanup order in
+RootHomeExitProgress through Prepared -> Emitting -> Emitted -> finalized holder.
+F contains original full obligations; N preserves source-ordered Normal subset.
+Received excludes only destination operations from N. Direct derives one teardown
+recipe from SAME handoff Fresh descriptors; incompatible leaves or missing nullable
+owned-child envelope refuse. SAME InvokeNormalResult dst binds the result subject,
+never a fabricated Binding/Home. Acquisition Fault excludes result; each Normal
+cleanup Fault uses F minus attempted N prefix. Existing call-entry record/take and
+FinishedBindings retain/corroborate that same order; independent graph validation
+must reject jointly altered record/MIR omissions before publication gate changes.
+Source snapshot/raw-only/binding corruption evidence remains required; two explicit
+acquisition negatives are being added before physical attachment. Initial compile
+found four THISCHANGE path/private-access errors; corrected before the subsequent
+focused PASS. The initial failed run remains failure evidence.
+
+Acquisition corruption evidence: corrected focused19/19 PASS at
+`/tmp/hako-object-acquisition-corruption-corrected.log`. Same-identity terminal
+snapshot corruption rejects for Direct/Received, typed/opaque, SourceOnly/Observed;
+raw-only opaque draft cannot grant execution. Four initial compile errors fixed
+with test-only source-owner helpers, not production visibility widening. Source
+owner755 lines; test-only raw-draft mutation resides in its existing test child.
+
+Decision consumer stage (read-only review_cleanup_path): selected lexical_return
+corroborates the actually passed affine row before receiver/argument consumption;
+full target/result must equal SAME verified Direct view. Original view arguments,
+kind and class reach existing prepare/materialize/root Invoke core. Missing Object
+proof refuses, never I64 retry. Prepare/artifact gates unchanged; cleanup order,
+Received omission, InvokeNormalResult attachment and independent validators owed.
+Production mapping implemented; source-view/taken-row focused22/22 PASS at
+`/tmp/hako-object-direct-consumer-focused.log`. Actual builder pre-effect negative and class/type pin pass; initial3
+THISCHANGE private test access errors corrected using original public issuance
+and cfg-test-only fixture helper. Final focused26/26 and expanded417/417 PASS; non-test check18.23s PASS
+(1692 warnings), `/tmp/hako-object-direct-consumer-{corrected,regression,check}.log`.
+Pointer/scope/COPY/fmt/diff/caps PASS, index empty, no live Cargo. Remaining
+source binding corruption and physical cleanup/result attachment acceptance are
+not waived. Current semantic series remains uncommitted; main/protected WIP
+untouched. No real-app EXE/full S0/goal completion or publication claim.
+
+Closed root-order checkpoints e5262d1655/5898878cfc/786bbf45c2 own original
+retention, independent source/Fault graph and final SAME owner/exit/map/MIR
+corroboration, selected old Call validator retirement, exact pins/logs and
+corrected THISCHANGE errors. Remote/protection receipts remain in Git.
+Current law: SAME exit Fault Homes + Normal projection and installed end_plan;
+expand full Homes once in original child order, select Normal by exact binding.
+Duplicate/membership/order fail before lookup; unavailable cannot hide later
+missing/duplicate errors. Same Emitting origins/acquisition/per-N residual indices
+drive selected emission; both pending-Fault outcomes share remaining obligations.
+No store/MIR inference/retry/kind widening; admission gates remain unchanged.
+Retained semantic source/emitter WIP evidence: two-received-Home plain/owned,
+reverse FieldResidence order, Binding Normal omission/Fault retention and missing/
+duplicate negatives; focused52/expanded428/check18.14s PASS in
+/tmp/hako-root-home-owned-order-focused.log and /tmp/hako-root-fault-sequence-*.log.
+Installed-value fixtures do not prove actual Invoke/FinishedBindings completion;
+physical attachment/result-kind/Received acceptance and production EXE remain owed.
+Direct teardown prerequisite: SAME proof DAG retains exact Fresh descriptors,
+Null/unavailable ancestry; no new scan/solver/Home/Binding or executable grant.
+Verified12/444/check49.37s; /tmp/hako-object-return-teardown-*.log. WIP protected.
+
+Direct attachment Decision: private source retains SAME Rc handoff; prepare
+preserves gates and attaches descriptor without a physical value. After begin
+attaches argument maps, sole selected emitter binds original reserved result
+once. F=result+maps+Homes; N/acquisition Fault=maps+Homes; later Fault=F−N prefix.
+DirectResult/Field subjects name source call, no fake Home/Binding; children
+use reverse declaration order. Record checks source packet/site, kind, dst,
+invoke origin/Return; original and finalized validators recheck same attachment.
+Plain/MapGet, wrong-kind/duplicate bind or missing supported source refuse.
+I64 final ingress and pending/artifact gates retained. Received full-plan
+exclusion/physical attachment, exact Handle/Nullable ingress, actual Invoke/
+FinishedBindings/final mutation negatives and real EXE/full acceptance owed.
+Initial E0433/E0603 imports corrected with narrow owner reexport. Focused20/
+expanded446/check21.00s PASS (1691 warnings); pointer/scope/COPY/fmt/diff PASS.
+/tmp/hako-direct-result-bind-focused.log: empty-home source binding evidence and
+explicit graph-model map residual; not actual acquired Invoke/publication.
+Next real-acquisition prerequisite found by read-only worker: borrowed_call_actuals_v1
+still derives kind from borrowed_i64_results (I64|Nullable); Handle mismatch and
+typed zero/all-I64 absent opaque incoming return None. Reuse SAME input/result
+lenders and complete incoming/allcaller closure for taken Object row; graph
+kind widening alone is insufficient. No new solver or gate relaxation accepted.
+
+Object packet Decision (read-only review_cleanup_path): SAME Ready row retains
+input/result join after existing generic input/full result lenders; Ready→Taken
+moves seal. No registry, solver, context replay or phase promotion. Typed uses
+original callee projection; opaque whole-final-incoming checker/error scope.
+Full domain/source/actual snapshot, Executable phase and SAME Completion/terminal
+Rc precede exact result-kind match. Caller: borrowed_call_actuals_v1 through
+existing lexical materialize; original I64/pending/artifact boundaries retained.
+Taken packet closeout: typed zero/all-I64/opaque Direct/Received Handle/Nullable,
+SAME storage, missing/extra raw+final caller, SourceOnly zero, input/result drift,
+foreign Completion/index, nested producer and affine reuse pins PASS. Worker found
+raw opaque coverage gap; fixed SAME project/subset check before expanded run.
+THISCHANGE E0599 fixture Box.push corrected; focused20/expanded456/check21.82s
+PASS (1691warnings); pointer/scope/COPY/fmt/diff/source caps PASS. Logs:
+/tmp/hako-object-packet-{final-focused,regression,check}.log. Semantic WIP uncommitted.
+Terminal source/kind Decision (read-only review_cleanup_path): one loan joins
+Legacy Call(original site/arguments/I64) or SAME Direct(view/exactkind); Received
+stays Value. Selector, packet and final Call consumer share it. Ingress/path/
+structure/final topology use retained Direct order kind, otherwise I64; MIR kind
+never grants permission. Construction/collector cutover and actual Invoke plus
+Received/Fault/FinishedBindings acceptance remain subsequent; guards retained.
+Source/kind prerequisite verified: focused18/expanded463 and non-test quick check
+PASS; /tmp/hako-terminal-source-kind-{order-fixed,final-regression,check}.log.
+Syntax/import and E0616/E0433 test paths were THISCHANGE, corrected; failed test
+compiler stopped once after known E0433, termination checked before restart.
+First expanded462/463 exposed original return-site diagnostic ordering; fixed
+same legacy argument checker first, existing negative unchanged and final463PASS.
+Worker confirms no bounded must-fix. Guards/fmt/caps(max704)/diff PASS; semantic
+WIP/index empty retained, no Invoke emission/publication/full-goal claim.
+
+Next construction Decision (read-only review_cleanup_path): completed-index helper
+requires original indexed Completion for OwnedCall owner, ALL explicit terminal/
+projection identities, Direct same view+supported teardown or Received same
+Verified acquisition/projection; missing false, retained error/drift Err. Original
+all_exits_ready stays. Switch prepare/draft validation only; artifact pending stop
+stays. Existing home-end planner checks installed destination full plans. Collector
+preflights all selected Direct Value/old Call source+Emitted entries before take;
+Received stays Plain; result ABI is not inferred from construction readiness.
+Real canonical child lowering→draft→artifact=false finishing must pin prior Home,
+Direct/Received Handle/Nullable, owned fields, both Fault paths/contraction before
+artifact cutover; nullable owned-field teardown remains refused. Main/protected
+original untouched; exact next implementation starts this accepted mapping.
+
+Construction evidence: Direct/helper5PASS; initial matrix6/7→5/7→20/22 exposed
+SAME locator fixture, duplicate receiver read and nullable-owned draft expectation
+(THISCHANGE). Logs /tmp/hako-object-construction-{resumed-focused,same-locator}.log
+and /tmp/hako-object-receiver-packet-cutover.log retain results. Collector preflight,
+artifact handoff, production315/318 and EXE remain unclosed.
+Receiver packet Decision (read-only review_cleanup_path): select original Object
+source requirement, not successful Ready lookup; Pending/missing/Taken/drift Err.
+CanonicalInstance source locator/key/value corroborates SAME affine packet.
+Existing ObjectPacketSeal lends current Executable ordered/opaque arguments after
+all original cohort/result checks. Existing lexical_nullable physical owner adds
+Handle + borrowed SelfReceiver, with no receiver Home or source reissue; original
+slot issuer marks only checked Object upgrades. ExistingBorrowedResult keeps old
+Nullable typed-argument protocol, no failure retry. Exact class/binding/value/input
+checks precede begin/effects; prior Homes and existing cleanup order own Fault.
+
+Receiver transport Decision (read-only review_cleanup_path): SAME crosswalk read
+is consumed once, moved through DeclaredInstance ingress into the shared emitter;
+old Value API projects that read. No consumed reset or receipt from Value.
+Original indexed local acquisition selects receiver Object; terminal Direct is
+not a local shape and retains named refusal. ExistingBorrowedResult does not
+acquire unrelated ingress demand; exact original-site matching is unique.
+Original EmittedPacket Rc is shared by binding group and CallReceived progress,
+so ordered-argument checks survive artifact pool movement. Same packet/source,
+class/destination/kind/projection/bindings are checked before receipt installation.
+Handle binding groups/visitor gain exact routed membership; Self Object arguments
+come from SAME seal, legacy arguments remain unchanged. Nullable-owned end plan
+is still unavailable: test exact source/prepare/artifact refusal, not draft success.
+
+Receiver transport prerequisite verified: focused41/expanded493 PASS, actual18
+Invoke/Fault/finishing variants PASS. Expanded3 stale construction-stop pins were
+THISCHANGE: exact uninstalled-Home refusal and zero-actual original-index negative
+replace them; artifact gate retained. Full owned107 Rust fmt/caps(max797), source
+check after format15.94sPASS. Logs /tmp/hako-receiver-proof-transport-expanded-final.log
+and /tmp/hako-object-construction-checkpoint-final-check.log retain terminal evidence.
+
+Checkpoint Decision (read-only operation_design): commit exact109-path dependency
+closure for source/outcome proof -> existing Object-call construction and same
+receiver/read/packet transport. Receiver22 alone is not a compiling closure; no
+historical snapshot exists to split the shared9 paths safely. Exclude7 separate
+Home/reference/handoff docs; stage only the audited source/test/card/README set.
+Nullable owned teardown, collector/artifact handoff, production315/318 and EXE,
+anchored field lifetime/cleanup and full CALLEE-RETURN-OUTCOME-S0 remain unclosed.
+
+Next prerequisite Decision (read-only audit_contract + review_cleanup_path):
+real App Main Direct/Received requires SAME co-sealed main key/slot in the existing
+source-claim sweep and finish, before collector cutover. Both currently exclude
+App Main via selected membership. Never fabricate selected child/root authority.
+First close that source join with actual root qualification/index/packet/projection
+positive and foreign/missing main negatives; then collector preflights root +
+FinishingChecked child original selected exits before all affine takes/pool moves.
+Received stays Plain; original artifact pending/result ABI/compiled Handle stops
+remain. Existing seal_finalized_root_birth_handoff and same validators own handoff.

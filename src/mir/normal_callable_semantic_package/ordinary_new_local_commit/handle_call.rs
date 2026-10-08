@@ -1,5 +1,6 @@
 //! Handle-result local-call commit coordination on the shared ledger.
 use super::*;
+use crate::mir::instruction::InvokeCallResultKind;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// The sealed handle-result local call at this expression site: the
@@ -315,6 +316,48 @@ impl OrdinaryNewClaimLedgerV1 {
         result: ValueId,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
+        self.record_call_received_emission(site, result, bindings, None)
+    }
+
+    /// Retain the same emitted Object packet after its group moves to artifact.
+    pub(crate) fn record_receiver_object_call_emission_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+        result: ValueId,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        packet: std::rc::Rc<EmittedLexicalCallProjectionV1>,
+    ) -> Result<(), String> {
+        let source = packet.original_row()?;
+        if packet.call_site() != site || !source.source_target().is_self_receiver() {
+            return Err(freeze("receiver-object/record-source-drift"));
+        }
+        let arguments = self.receiver_object_packet_arguments_v1(source)?;
+        if packet.value_with_ledger(site.owner(), arguments, self)? != result {
+            return Err(freeze("receiver-object/record-result-drift"));
+        }
+        packet.validate_recorded(&bindings)?;
+        {
+            let groups = self.root_local_call_bindings.borrow();
+            let original = groups.get(&site.owner()).and_then(|groups| {
+                groups
+                    .iter()
+                    .find(|group| group.site() == site)
+                    .and_then(|group| group.lexical())
+            });
+            if original.is_none_or(|original| !std::ptr::eq(original, packet.as_ref())) {
+                return Err(freeze("receiver-object/record-packet-drift"));
+            }
+        }
+        self.record_call_received_emission(site, result, bindings, Some(packet))
+    }
+
+    fn record_call_received_emission(
+        &self,
+        site: &OwnedExprSiteV1,
+        result: ValueId,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        packet: Option<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
+    ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
         let Some(LocalCommitV1::CallReceived(row)) = rows.get_mut(site) else {
             return Err(freeze("handle-record-without-begin"));
@@ -322,9 +365,27 @@ impl OrdinaryNewClaimLedgerV1 {
         if !matches!(row.progress, CallReceivedProgress::Emitting) || bindings.is_empty() {
             return Err(freeze("handle-emission-state-drift"));
         }
+        if let Some(packet) = &packet {
+            let source = packet.original_row()?;
+            let observation = self
+                .receiver_call_observation(site)
+                .ok_or_else(|| freeze("receiver-object/record-observation-missing"))?;
+            let expected = match row.release {
+                CallReceivedReleaseV1::Handle => InvokeCallResultKind::Handle,
+                CallReceivedReleaseV1::Nullable => InvokeCallResultKind::NullableHandle,
+            };
+            if row.owner != site.owner()
+                || row.binding != observation.destination()
+                || source.target() != observation.callee()
+                || source.result() != Some(expected)
+            {
+                return Err(freeze("receiver-object/record-destination-drift"));
+            }
+        }
         row.progress = CallReceivedProgress::Emitted {
             result,
             bindings,
+            packet,
             phase: CallReceivedPhase::ExpressionCompleted,
         };
         Ok(())

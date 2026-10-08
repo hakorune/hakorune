@@ -204,7 +204,7 @@ impl MeCallPolicyBox {
             DeclaredInstanceReceiverIngressV1::Unarmed => {
                 Self::prepare(builder, method, arguments, descent)?
             }
-            DeclaredInstanceReceiverIngressV1::Ready { key, receiver } => {
+            DeclaredInstanceReceiverIngressV1::Ready { key, receiver, .. } => {
                 PreparedMeCallExecutionV1::CanonicalInstance { key, receiver }
             }
         };

@@ -39,10 +39,9 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 pub(crate) enum LexicalInstanceCallReceiverV1 {
     Lexical(BindingRefV1),
     /// `me.<name>` — the receiver is the caller's own `Receiver` binding.
-    /// Coverage rows for this shape name incoming edges and answer
-    /// `lexical_instance_call_covered`, but the `local x = me.m(..)`
-    /// lifecycle emission stays with the sealed receiver-call lane —
-    /// a self row never routes lifecycle binding groups.
+    /// ExistingBorrowedResult keeps its coverage/receiver protocol. Completed
+    /// Object local acquisition rows route lifecycle groups through the same
+    /// receiver-call owner and retain their original input/result packet.
     SelfReceiver(BindingRefV1),
     StoredOwnedChild {
         parent_binding: BindingRefV1,
@@ -62,9 +61,9 @@ pub(crate) enum LexicalCallSourceResultRequirementV1 {
     ExistingBorrowedResult,
     ObjectProducerDependency(Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>),
     ObjectReturnSource {
-        qualification: super::result_class_claim::ObjectReturnCallQualificationV1,
+        qualifications: Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>,
         /// Original source identities survive execution-profile selection.
-        forwards: Box<[borrowed_formal_result::ForwardIdentityV1]>,
+        forwards: Option<Box<[borrowed_formal_result::ForwardIdentityV1]>>,
     },
 }
 
@@ -90,6 +89,7 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
     source: LexicalInstanceCallSourceTargetV1,
     // Outcome authorization remains on the final affine disposition only.
     result: Option<InvokeCallResultKind>,
+    object_packet: Option<object_slot::ObjectPacketSealV1>,
 }
 
 impl LexicalInstanceCallSourceTargetV1 {
@@ -111,12 +111,12 @@ impl LexicalInstanceCallSourceTargetV1 {
         }
     }
 
-    pub(crate) fn object_return_source(
+    pub(crate) fn object_return_sources(
         &self,
-    ) -> Option<&super::result_class_claim::ObjectReturnCallQualificationV1> {
+    ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
         match &self.result_requirement {
-            LexicalCallSourceResultRequirementV1::ObjectReturnSource { qualification, .. } => {
-                Some(qualification)
+            LexicalCallSourceResultRequirementV1::ObjectReturnSource { qualifications, .. } => {
+                Some(qualifications)
             }
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
@@ -128,7 +128,7 @@ impl LexicalInstanceCallSourceTargetV1 {
     ) -> Option<&[borrowed_formal_result::ForwardIdentityV1]> {
         match &self.result_requirement {
             LexicalCallSourceResultRequirementV1::ObjectReturnSource { forwards, .. } => {
-                Some(forwards)
+                forwards.as_deref()
             }
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
@@ -223,6 +223,15 @@ impl LexicalInstanceCallSourceTargetV1 {
 }
 
 impl LexicalInstanceCallDispositionRowV1 {
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn with_result_for_test(
+        mut self,
+        result: Option<InvokeCallResultKind>,
+    ) -> Self {
+        self.result = result;
+        self
+    }
+
     pub(crate) const fn source_target(&self) -> &LexicalInstanceCallSourceTargetV1 {
         &self.source
     }
@@ -252,10 +261,15 @@ impl LexicalInstanceCallDispositionRowV1 {
     }
 }
 
-pub(crate) type LexicalInstanceCallDispositionSlotV1 =
-    crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1<
-        LexicalInstanceCallDispositionRowV1,
-    >;
+#[derive(Debug)]
+pub(crate) enum LexicalInstanceCallDispositionSlotV1 {
+    SourcePending(LexicalInstanceCallSourceTargetV1),
+    Ready(LexicalInstanceCallDispositionRowV1),
+    Taken,
+}
+
+#[path = "ordinary_new_lexical_object_slot.rs"]
+mod object_slot;
 
 /// One callee-side call site whose lexical receiver still needs a class.
 struct LexicalInstanceCallNeedV1 {
@@ -308,9 +322,11 @@ pub(super) use profile::prepare_borrowed_profile_v1;
 #[path = "ordinary_new_borrowed_formal_entry.rs"]
 mod borrowed_formal_entry;
 pub(super) use borrowed_formal_actuals::{
-    prepare_borrowed_call_actuals_v1, project_pending_borrowed_i64_arguments_v1,
-    project_pending_static_source_arguments_v1, reject_borrowed_actuals_for_owner_v1,
-    stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
+    corroborate_received_object_receiver_v1, prepare_borrowed_call_actuals_v1,
+    project_pending_borrowed_i64_arguments_v1, project_pending_i64_result_arguments_v1,
+    project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
+    reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
+    PendingBorrowedFormalActualsV1,
 };
 pub(in crate::mir) use borrowed_formal_actuals::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
@@ -361,6 +377,20 @@ impl OrdinaryNewClaimLedgerV1 {
             let target = source.target().clone();
             let call_site = source.call_site().clone();
             let callee_owner = source.callee_owner();
+            if source.has_object_source_requirement() {
+                if self
+                    .lexical_instance_calls
+                    .borrow_mut()
+                    .insert(
+                        call_site,
+                        LexicalInstanceCallDispositionSlotV1::SourcePending(source),
+                    )
+                    .is_some()
+                {
+                    return Err(freeze("lexical-instance-call/duplicate"));
+                }
+                continue;
+            }
             let terminal_selected = self.terminal_lexical_call_selected_v1(&call_site);
             if terminal_selected {
                 self.corroborate_terminal_lexical_result_v1(&source, results)?;
@@ -469,7 +499,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .insert(
                     call_site.clone(),
                     LexicalInstanceCallDispositionSlotV1::Ready(
-                        LexicalInstanceCallDispositionRowV1 { source, result },
+                        LexicalInstanceCallDispositionRowV1 {
+                            source,
+                            result,
+                            object_packet: None,
+                        },
                     ),
                 )
                 .is_some()
@@ -507,10 +541,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(slot) = rows.get_mut(&key) else {
             return Ok(None);
         };
+        if matches!(slot, LexicalInstanceCallDispositionSlotV1::SourcePending(_)) {
+            return Err(freeze("lexical-instance-call/source-pending"));
+        }
         match std::mem::replace(slot, LexicalInstanceCallDispositionSlotV1::Taken) {
             LexicalInstanceCallDispositionSlotV1::Ready(row) => Ok(Some(row)),
             LexicalInstanceCallDispositionSlotV1::Taken => {
                 Err(freeze("lexical-instance-call/already-taken"))
+            }
+            LexicalInstanceCallDispositionSlotV1::SourcePending(_) => {
+                unreachable!("pending checked before consumption")
             }
         }
     }

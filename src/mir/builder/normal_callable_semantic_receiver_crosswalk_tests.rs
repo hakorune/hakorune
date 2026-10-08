@@ -176,6 +176,44 @@ fn exact_receiver_value_rejects_receiver_and_site_mismatches() {
 }
 
 #[test]
+fn exact_receiver_read_is_affine_and_corroborates_original_relation() {
+    let (mut state, owner, binding, other, site) = materialized_receiver_fixture();
+    let read = state
+        .take_exact_receiver_read(owner, &site, binding)
+        .unwrap();
+    assert_eq!(read.value_for(owner, &site, binding), Ok(ValueId::new(77)));
+    assert_eq!(
+        state.take_exact_lexical_read(owner, &site, binding),
+        Err(ExactReceiverValueErrorV1::AlreadyTaken)
+    );
+    assert_eq!(
+        state.take_exact_receiver_value(owner, &site, binding),
+        Err(ExactReceiverValueErrorV1::AlreadyTaken)
+    );
+    assert_eq!(
+        read.value_for(owner, &site, other),
+        Err(ExactReceiverValueErrorV1::SiteBindingMismatch)
+    );
+    let foreign = FunctionOwnerIssuerV1::new_for_compilation()
+        .unwrap()
+        .issue()
+        .unwrap();
+    assert_eq!(
+        read.value_for(foreign, &site, binding),
+        Err(ExactReceiverValueErrorV1::OwnerMismatch)
+    );
+    let wrong = SourcePathV1::function_body()
+        .child(SourcePathSegmentV1::Argument(0))
+        .node();
+    assert_eq!(
+        read.value_for(owner, &wrong, binding),
+        Err(ExactReceiverValueErrorV1::SiteBindingMismatch)
+    );
+    state.values.insert(binding, ValueId::new(88));
+    assert_eq!(read.value_for(owner, &site, binding), Ok(ValueId::new(77)));
+}
+
+#[test]
 fn exact_lexical_read_retains_original_owner_site_binding_and_value() {
     let (mut state, owner, binding, _, site) = materialized_receiver_fixture();
     let read = state

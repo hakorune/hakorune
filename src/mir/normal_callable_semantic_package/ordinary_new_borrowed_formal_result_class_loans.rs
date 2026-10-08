@@ -3,7 +3,7 @@ use super::super::super::borrowed_formal_source::{classify_actual_seed, FormalAc
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 
-pub(super) fn forward_identities_v1(
+fn collect_opaque_forward_identities_v1(
     need: &PreparedSourceCallNeedV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
@@ -32,7 +32,9 @@ pub(super) fn forward_identities_v1(
         let mut rows = draft.uses.iter().filter(|row| row.site.site() == site
             && matches!(&row.kind, BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal }
                 if *call == reference.call_site && *ordinal == formal.ordinal));
-        let row = rows.next()?;
+        let Some(row) = rows.next() else {
+            continue;
+        };
         if rows.next().is_some()
             || row.site.owner() != reference.call_site.owner()
             || row.binding.owner() != row.site.owner()
@@ -56,6 +58,63 @@ pub(super) fn forward_identities_v1(
     Some(forwards)
 }
 
+/// Source-only subset validates all original argument coordinates while only
+/// opaque ordinals lend identities. Legacy consumers keep their former law.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn collect_observed_forward_identities_v1(
+    need: &PreparedSourceCallNeedV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+) -> Option<Vec<ForwardIdentityV1>> {
+    let forwards = collect_opaque_forward_identities_v1(need, contracts, drafts)?;
+    let reference = need.reference();
+    let draft = drafts.get(&reference.call_site.owner())?;
+    let contract = contracts
+        .iter()
+        .find(|row| row.owner == reference.callee_owner)?;
+    let mut seen = std::collections::BTreeSet::new();
+    let mut opaque = 0;
+    for row in &draft.uses {
+        let BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal } = &row.kind else {
+            continue;
+        };
+        if *call != reference.call_site {
+            continue;
+        }
+        let formal = contract.parameters.get(*ordinal as usize)?;
+        if formal.ordinal != *ordinal
+            || formal.binding.owner() != reference.callee_owner
+            || row.site.owner() != reference.call_site.owner()
+            || reference.argument_sites.get(*ordinal as usize) != Some(row.site.site())
+            || !seen.insert(*ordinal)
+        {
+            return None;
+        }
+        if formal.kind.is_ordinary_borrowed_handle() {
+            opaque += 1;
+        }
+    }
+    (opaque == forwards.len()).then_some(forwards)
+}
+
+pub(super) fn forward_identities_v1(
+    need: &PreparedSourceCallNeedV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+) -> Option<Vec<ForwardIdentityV1>> {
+    let forwards = collect_opaque_forward_identities_v1(need, contracts, drafts)?;
+    let reference = need.reference();
+    let contract = contracts
+        .iter()
+        .find(|row| row.owner == reference.callee_owner)?;
+    (forwards.len()
+        == contract
+            .parameters
+            .iter()
+            .filter(|formal| formal.kind.is_ordinary_borrowed_handle())
+            .count())
+    .then_some(forwards)
+}
+
 pub(super) fn conditional_class_loans_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -67,8 +126,10 @@ pub(super) fn conditional_class_loans_v1(
     // These are conditional declaration requirements, never all-incoming views.
     let mut proposals: BTreeMap<_, BTreeMap<Box<str>, ClassLenderV1>> = contracts
         .iter()
-        .filter(|row| drafts.contains_key(&row.owner)
-            && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+        .filter(|row| {
+            drafts.contains_key(&row.owner)
+                && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+        })
         .flat_map(|row| row.parameters.iter())
         .filter_map(|row| match &row.kind {
             CallableParameterContractKindV1::DeclaredObject(class) => Some((
@@ -81,8 +142,10 @@ pub(super) fn conditional_class_loans_v1(
     loop {
         let mut progressed = false;
         for need in needs.iter().filter_map(|row| row.as_ref().ok()?.as_ref()) {
-            if !contracts.iter().any(|row| row.owner == need.reference().call_site.owner()
-                && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod) {
+            if !contracts.iter().any(|row| {
+                row.owner == need.reference().call_site.owner()
+                    && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+            }) {
                 continue;
             }
             let Some(forwards) = forward_identities_v1(need, contracts, drafts) else {

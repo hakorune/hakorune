@@ -67,6 +67,30 @@ impl TerminalValueReturnV1 {
             returned,
         }
     }
+    /// Deliberate identity corruption for independent admission tests only.
+    #[cfg(test)]
+    pub(crate) fn with_value_site_for_test(&self, site: SourceExprSiteV1) -> Self {
+        let mut changed = self.clone();
+        changed.value_site = site;
+        changed
+    }
+
+    /// Keep the original exit identity while corrupting only its owned-call snapshot.
+    #[cfg(test)]
+    pub(crate) fn with_object_arguments_for_test(
+        &self,
+        arguments: crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1,
+    ) -> Self {
+        let mut changed = self.clone();
+        let TerminalReturnedSourceV1::OwnedCall(original) = &self.returned else {
+            panic!("owned-call test fixture required")
+        };
+        changed.returned = TerminalReturnedSourceV1::OwnedCall(Box::new(
+            original.with_arguments_for_test(arguments),
+        ));
+        changed
+    }
+
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }

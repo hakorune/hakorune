@@ -730,7 +730,7 @@ mod root_validation;
 
 use reclaim::ReclaimUnpublishedEmissionV1;
 pub(crate) use reclaim::ReclaimUnpublishedOriginV1;
-pub(super) use root_home::RootHomeExitProgress;
+pub(super) use root_home::{RootHomeExitProgress, RootHomeReleaseSubjectV1};
 
 #[path = "ordinary_new_local_commit/finalized_root_handoff.rs"]
 mod finalized_root_handoff;
@@ -744,3 +744,7 @@ pub(in crate::mir) use root_home::{
 };
 
 pub(crate) use root_home::RootLocalCallBindingGroupV1;
+
+#[cfg(test)]
+#[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]
+mod root_return_construction_tests;

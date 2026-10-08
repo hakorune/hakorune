@@ -391,9 +391,10 @@ impl DirectCallDispositionPortV1
         builder: &mut crate::mir::MirBuilder,
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver: crate::mir::ValueId,
+        read: Option<crate::mir::builder::ExactLexicalReadV1>,
     ) -> Result<Option<crate::mir::ValueId>, String> {
         self.inner
-            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver)
+            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver, read)
     }
 
     fn validate_current_call_argument_site_v1(

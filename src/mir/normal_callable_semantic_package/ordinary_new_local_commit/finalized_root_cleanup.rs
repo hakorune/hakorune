@@ -51,11 +51,15 @@ impl FinalizedRootSourceHandoffV1 {
                                     return Err(freeze("final-cleanup/binding-unrecorded"));
                                 }
                             }
+                            order.validate_direct_entry(entry, bindings, None)?;
                             root_cleanup_graph::ordered_paths::validate(
                                 function, bindings, entry, order, None,
                             )?;
                             root_cleanup_graph::ordered_structure::validate_finished_call(
-                                function, bindings, entry,
+                                function,
+                                bindings,
+                                entry,
+                                order.ingress_result_kind(),
                             )
                         })?;
                 }
@@ -110,6 +114,7 @@ impl FinalizedRootSourceHandoffV1 {
                                     return Err(freeze("final-cleanup/binding-unrecorded"));
                                 }
                             }
+                            order.validate_direct_entry(entry, bindings, Some(projection))?;
                             root_cleanup_graph::ordered_paths::validate(
                                 function,
                                 bindings,
@@ -118,7 +123,11 @@ impl FinalizedRootSourceHandoffV1 {
                                 Some(projection),
                             )?;
                             root_cleanup_graph::ordered_structure::validate_projected(
-                                function, bindings, entry, projection,
+                                function,
+                                bindings,
+                                entry,
+                                projection,
+                                order.ingress_result_kind(),
                             )
                         })?;
                 }

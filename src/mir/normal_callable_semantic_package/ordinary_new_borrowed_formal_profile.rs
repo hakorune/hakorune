@@ -54,7 +54,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     ),
     OrdinaryNewCoSealIssueV1,
 > {
-    let needs = source::prepare_lexical_source_targets_v1(
+    let mut needs = source::prepare_lexical_source_targets_v1(
         batch,
         selected,
         new_classes,
@@ -84,6 +84,44 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             ))
         }
     };
+    // Attach original terminal qualifications before the one incoming inventory.
+    // Missing forward drafts remain explicit; they never become an empty proof.
+    if let Ok(rows) = &mut needs {
+        for row in rows {
+            let Ok(Some(need)) = row else {
+                continue;
+            };
+            let PreparedSourceCallNeedV1::Lexical(target) = need else {
+                continue;
+            };
+            let qualifications = callable_result_classes
+                .qualifications_for_call(target.call_site(), target.target());
+            if qualifications.is_empty() {
+                if let Some(dependencies) = callable_result_classes
+                    .object_return_dependencies(target.target(), target.callee_owner())
+                {
+                    target.result_requirement =
+                        LexicalCallSourceResultRequirementV1::ObjectProducerDependency(
+                            dependencies,
+                        );
+                }
+                continue;
+            }
+            let forwards = super::borrowed_formal_result::collect_observed_forward_identities_v1(
+                need,
+                contracts,
+                &definitions,
+            )
+            .map(Vec::into_boxed_slice);
+            let PreparedSourceCallNeedV1::Lexical(target) = need else {
+                unreachable!()
+            };
+            target.result_requirement = LexicalCallSourceResultRequirementV1::ObjectReturnSource {
+                qualifications,
+                forwards,
+            };
+        }
+    }
     // Retain exact dispatch membership before later ingress failures. This is
     // a projection of the original facts, never a second classifier or grant.
     let static_arguments = match super::borrowed_static_argument::collect_static_argument_sources_v1(

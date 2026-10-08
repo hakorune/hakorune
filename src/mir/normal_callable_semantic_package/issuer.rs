@@ -38,6 +38,8 @@ use std::rc::Rc;
 mod app_main_relation;
 #[path = "direct_call_co_seal.rs"]
 mod direct_call_co_seal;
+#[path = "issuer_object_input_finish.rs"]
+mod object_input_finish;
 
 use self::direct_call_co_seal::validate_cataloged_source_co_seal_v1;
 use super::core_method_source::{
@@ -718,13 +720,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         }
     }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
-    let physical_signature = issue_callable_physical_signature_v1(
+    let physical_signature = object_input_finish::issue_signature_and_finish_inputs_v1(
         catalog.catalog().brand().clone(),
         &batch,
         &selected,
         &parameter_contracts,
-    )
-    .map_err(|error| NormalCallableSemanticPackageIssueV1::PhysicalSignature { _error: error })?;
+        &mut ordinary_new_claim_ledger,
+    )?;
     let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {
         batch
             .declarations()
@@ -755,17 +757,14 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     .map_err(
         |error| NormalCallableSemanticPackageIssueV1::DeclaredInstanceLocator { _error: error },
     )?;
-    ordinary_new_claim_ledger
-        .issue_lexical_instance_call_dispositions(
-            &batch,
-            &selected,
-            &physical_signature,
-            &result_contracts,
-        )
-        .and_then(|_| ordinary_new_claim_ledger.co_seal_static_local_routes_v1())
-        .map_err(
-            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
-        )?;
+    object_input_finish::issue_and_finish_lexical_slots_v1(
+        &batch,
+        &selected,
+        &parameter_contracts,
+        &physical_signature,
+        &result_contracts,
+        &mut ordinary_new_claim_ledger,
+    )?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         #[cfg(test)]

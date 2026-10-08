@@ -20,38 +20,135 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
     site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     row: LexicalInstanceCallDispositionRowV1,
 ) -> Result<ValueId, String> {
+    emit_object(builder, state, ledger, owner, site, row, None)
+}
+
+/// The same physical owner consumes completed entry-receiver Object packets.
+/// The declared locator is corroboration, never a replacement source issuer.
+pub(in crate::mir::builder) fn emit_receiver_object(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    row: LexicalInstanceCallDispositionRowV1,
+    key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+    receiver: ValueId,
+    read: crate::mir::builder::ExactLexicalReadV1,
+) -> Result<ValueId, String> {
+    emit_object(
+        builder,
+        state,
+        ledger,
+        owner,
+        site,
+        row,
+        Some((key, receiver, read)),
+    )
+}
+
+fn emit_object(
+    builder: &mut MirBuilder,
+    state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    row: LexicalInstanceCallDispositionRowV1,
+    entry: Option<(
+        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        ValueId,
+        crate::mir::builder::ExactLexicalReadV1,
+    )>,
+) -> Result<ValueId, String> {
     let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
     if row.call_site() != &owned_site {
         return Err(freeze("lexical-nullable/call-site-drift"));
     }
-    if row.result() != Some(InvokeCallResultKind::NullableHandle) {
+    let result_kind = row
+        .result()
+        .ok_or_else(|| freeze("lexical-nullable/result-mismatch"))?;
+    if !matches!(
+        result_kind,
+        InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle
+    ) || (entry.is_none() && result_kind != InvokeCallResultKind::NullableHandle)
+    {
         return Err(freeze("lexical-nullable/result-mismatch"));
     }
-    let relation = ledger
-        .nullable_call_source(&owned_site)
-        .ok_or_else(|| freeze("lexical-nullable/source-missing"))?;
-    if relation.prior_homes().is_empty()
-        || !relation.prior_homes().contains(&row.receiver_binding()?)
+    let relation = match result_kind {
+        InvokeCallResultKind::Handle => ledger.handle_call_source(&owned_site),
+        _ => ledger.nullable_call_source(&owned_site),
+    }
+    .ok_or_else(|| freeze("lexical-nullable/source-missing"))?;
+    let borrowed_receiver = row.source_target().is_self_receiver();
+    if borrowed_receiver != entry.is_some()
+        || (!borrowed_receiver
+            && (relation.prior_homes().is_empty()
+                || !relation.prior_homes().contains(&row.receiver_binding()?)))
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
-    if relation.arguments().len() != row.argument_sites().len()
+    let source_arguments = if borrowed_receiver {
+        ledger.receiver_object_packet_arguments_v1(&row)?
+    } else {
+        relation.arguments()
+    };
+    if source_arguments.len() != row.argument_sites().len()
         || row.argument_sites().len() != row.target().arity() as usize
     {
         return Err(freeze("lexical-nullable/arity-mismatch"));
     }
-    let class = ledger
-        .nullable_result_class(row.target())
-        .ok_or_else(|| freeze("lexical-nullable/class-drift"))?
-        .to_owned();
+    let class = match result_kind {
+        InvokeCallResultKind::Handle => ledger.callable_result_class(row.target()),
+        _ => ledger.nullable_result_class(row.target()),
+    }
+    .ok_or_else(|| freeze("lexical-nullable/class-drift"))?;
+    let result_type = result_type(result_kind, Some(class))?;
+    let (receiver, locator) = match entry {
+        Some((key, expected, read)) => (read, Some((key, expected))),
+        None => (
+            state
+                .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
+                .map_err(|error| {
+                    format!("[freeze:contract][lexical-nullable/receiver/{error:?}]")
+                })?,
+            None,
+        ),
+    };
+    if let Some((key, expected)) = locator {
+        if row.target() != key
+            || receiver
+                .value_for(owner, row.receiver_site().node(), row.receiver_binding()?)
+                .map_err(|error| error.to_string())?
+                != expected
+        {
+            return Err(freeze("receiver-object/locator-drift"));
+        }
+        let observation = ledger
+            .receiver_call_observation(&owned_site)
+            .ok_or_else(|| freeze("receiver-object/observation-missing"))?;
+        let class_matches = matches!((result_kind, observation.class()),
+            (InvokeCallResultKind::Handle, crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::Object(name))
+            | (InvokeCallResultKind::NullableHandle, crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(name))
+                if name.as_ref() == class);
+        if observation.callee() != key
+            || !class_matches
+            || relation
+                .local_binding()
+                .is_none_or(|(_, destination)| destination != observation.destination())
+        {
+            return Err(freeze("receiver-object/observation-drift"));
+        }
+    }
+    let unwind = ledger.prior_home_unwind_for(relation.prior_homes())?;
     // The `CallReceived` commit for this exact site mints the canonical
     // object the live arm carries and selects the checked release — the
     // `Void` arm keeps no residence.
-    ledger.begin_nullable_call_emission(&owned_site, row.target())?;
-    let unwind = ledger.nullable_call_prior_home_unwind(&owned_site)?;
-    let receiver = state
-        .take_exact_lexical_read(owner, row.receiver_site().node(), row.receiver_binding()?)
-        .map_err(|error| format!("[freeze:contract][lexical-nullable/receiver/{error:?}]"))?;
+    match result_kind {
+        InvokeCallResultKind::Handle => {
+            ledger.begin_handle_call_emission(&owned_site, row.callee_owner())?
+        }
+        _ => ledger.begin_nullable_call_emission(&owned_site, row.target())?,
+    }
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();
     let outward = builder.next_block_id();
@@ -73,11 +170,11 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
         ledger,
         owner,
         receiver,
-        relation.arguments(),
+        source_arguments,
         &row,
         &mut bindings,
     )?;
-    let call = prepared.materialize_with_ledger(owner, &row, relation.arguments(), ledger)?;
+    let call = prepared.materialize_with_ledger(owner, &row, source_arguments, ledger)?;
     let origin = builder
         .function_state
         .current_block
@@ -85,7 +182,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
     let invoke = MirInstruction::Invoke {
         operation: InvokeOperation::Call {
             call,
-            result: InvokeCallResultKind::NullableHandle,
+            result: result_kind,
         },
         fault_frame: frame,
         normal_landing,
@@ -102,7 +199,7 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
         .function_state
         .type_ctx
         .value_types
-        .insert(result, result_type(InvokeCallResultKind::NullableHandle, Some(class.as_ref()))?);
+        .insert(result, result_type);
     let emitted = EmittedCall::new(
         row,
         prepared,
@@ -115,12 +212,16 @@ pub(in crate::mir::builder) fn emit_local_lexical_nullable(
     // cleanup claims it in source order exactly like the scalar lane —
     // while the `CallReceived` commit owns the received Home and the
     // checked release at the caller's exits.
-    ledger.record_root_lexical_call_bindings(
+    let packet = ledger.record_root_lexical_call_bindings(
         owner,
         owned_site.clone(),
         bindings.clone(),
         emitted,
     )?;
-    ledger.record_handle_call_emission(&owned_site, result, bindings)?;
+    if borrowed_receiver {
+        ledger.record_receiver_object_call_emission_v1(&owned_site, result, bindings, packet)?;
+    } else {
+        ledger.record_handle_call_emission(&owned_site, result, bindings)?;
+    }
     Ok(result)
 }

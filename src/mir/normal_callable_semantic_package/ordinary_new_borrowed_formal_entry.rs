@@ -290,6 +290,152 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
+    /// Original final opaque entry and argument join for completed return acquisition.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_opaque_object_arguments_v1(
+        &self,
+        target: &LexicalInstanceCallSourceTargetV1,
+        loan: &crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,
+        contract: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1,
+    ) -> Result<
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>,
+        String,
+    > {
+        if contract.owner != target.callee_owner()
+            || contract.batch_slot != target.target_batch_slot()
+            || loan.call() != target.call_site()
+            || loan.key() != target.target()
+            || self
+                .callable_result_classes
+                .object_return_qualification(loan.value())
+                .as_ref()
+                != Some(loan)
+            || !target
+                .object_return_sources()
+                .is_some_and(|rows| rows.contains(loan))
+        {
+            return Err(freeze("object-return/opaque-input-identity"));
+        }
+        self.checked_completed_opaque_object_target_arguments_v1(target, contract)
+    }
+
+    /// Shares the original whole-final-incoming input check without a caller result loan.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_opaque_object_target_arguments_v1(
+        &self,
+        target: &LexicalInstanceCallSourceTargetV1,
+        contract: &crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1,
+    ) -> Result<
+        Option<&[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>,
+        String,
+    > {
+        if contract.owner != target.callee_owner()
+            || contract.batch_slot != target.target_batch_slot()
+        {
+            return Err(freeze("object-return/opaque-input-identity"));
+        }
+        let Some(source) = &self.borrowed_formal_source else {
+            return Ok(None);
+        };
+        let ingress = source.as_ref().map_err(Clone::clone)?;
+        if !ingress.definitions.contains_key(&contract.owner) {
+            return Ok(None);
+        }
+        let projected = ingress
+            .source_incoming
+            .project(&[contract.owner].into_iter().collect())
+            .map_err(|issue| {
+                format!("{}: {issue:?}", freeze("borrowed-formal/incoming-coverage"))
+            })?;
+        for call in &projected {
+            if !ingress
+                .incoming
+                .iter()
+                .any(|final_call| final_call.call == call.call)
+            {
+                return Ok(None);
+            }
+        }
+        // Preserve the existing whole-final-incoming checker failure scope.
+        let mut missing = false;
+        for call in &ingress.incoming {
+            match self.borrowed_formal_actuals.get(&call.call) {
+                None => missing = true,
+                Some(Err(issue)) => return Err(issue.clone()),
+                Some(Ok(actuals)) => {
+                    if actuals.require_executable_v1().is_err() {
+                        missing = true;
+                    }
+                }
+            }
+        }
+        if missing {
+            return Ok(None);
+        }
+        let parameters: Vec<_> = contract
+            .parameters
+            .iter()
+            .map(|row| (row.ordinal, row.binding, row.kind.clone()))
+            .collect();
+        if self
+            .borrowed_entry_source_for_contract(contract.owner, &parameters)?
+            .is_none()
+        {
+            return Ok(None);
+        }
+        let Some((call, arguments)) =
+            super::borrowed_formal_actuals::lend_pending_borrowed_arguments_v1(
+                source,
+                &self.borrowed_formal_actuals,
+                target.call_site(),
+            )?
+        else {
+            return Ok(None);
+        };
+        if call.source.require_instance()? != target || call.callee != contract.owner {
+            return Err(freeze("object-return/opaque-target"));
+        }
+        Ok(Some(arguments))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_opaque_receiver_argument_v1(
+        &self,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        kind: &crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1,
+    ) -> Result<bool, String> {
+        use super::borrowed_formal_actuals::BorrowedFormalActualSourceV1 as Source;
+        use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1 as Kind;
+        let Some(actuals) = self.borrowed_formal_actuals.get(call) else {
+            return Ok(false);
+        };
+        let actuals = actuals.as_ref().map_err(Clone::clone)?;
+        actuals.require_executable_v1()?;
+        let mut rows = actuals
+            .opaque_actuals
+            .iter()
+            .filter(|row| row.ordinal == ordinal);
+        let Some(row) = rows.next() else {
+            return Ok(false);
+        };
+        if rows.next().is_some() {
+            return Err(freeze("object-return/receiver-ordinal"));
+        }
+        Ok(match (&row.source, kind) {
+            (Source::Integer(a), Kind::Integer(b)) => a == b,
+            (Source::Bool(a), Kind::Bool(b)) => a == b,
+            (Source::Null, Kind::Null) => true,
+            (
+                Source::ReceivedNullable { binding, .. }
+                | Source::Scalar { binding, .. }
+                | Source::TypedHome { binding, .. }
+                | Source::EntryReceiver { binding, .. }
+                | Source::DeclaredFormal { binding, .. }
+                | Source::Forwarded { binding, .. },
+                Kind::Local { binding: actual } | Kind::Handle { binding: actual },
+            ) => binding == actual,
+            _ => false,
+        })
+    }
+
     fn borrowed_entry_source_for_contract(
         &self,
         owner: FunctionOwnerIdV1,
@@ -358,6 +504,9 @@ impl OrdinaryNewClaimLedgerV1 {
         ) {
             return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
         }
+        if row.source_target().has_object_source_requirement() {
+            return row.checked_object_packet_actuals_v1(self).map(Some);
+        }
         let source = self
             .borrowed_formal_source
             .as_ref()
@@ -422,7 +571,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)
     }
 
-    fn checked_borrowed_entry_incoming<'a>(
+    pub(super) fn checked_borrowed_entry_incoming<'a>(
         &'a self,
         source: &'a PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,

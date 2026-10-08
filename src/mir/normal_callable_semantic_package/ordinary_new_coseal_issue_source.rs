@@ -439,6 +439,7 @@ pub(super) fn probe_source_home_prefixes_v1(
         Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
         OrdinaryNewCoSealIssueV1,
     >,
+    receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
 ) -> Result<
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     OrdinaryNewCoSealIssueV1,
@@ -631,6 +632,8 @@ pub(super) fn probe_source_home_prefixes_v1(
                 },
                 site,
                 actuals,
+                callable_result_classes,
+                receiver_rows,
             )
         },
         &mut dominated_view_use_consult_v1(borrowed_formal_source),

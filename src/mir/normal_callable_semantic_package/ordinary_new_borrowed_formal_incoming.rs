@@ -1,4 +1,4 @@
-//! Sole incoming scan retains qualified Static evidence without transport admission.
+//! Sole incoming scan retains qualified Static/Object evidence without transport admission.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 #[path = "ordinary_new_borrowed_static_inventory.rs"]
@@ -20,6 +20,37 @@ struct BorrowedIncomingInventoryV1
     )>,
 }
 impl BorrowedIncomingInventoryV1 {
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn duplicate_object_row_for_test(
+        &mut self,
+        site: &OwnedExprSiteV1,
+    ) {
+        let (owner, row) = self
+            .observations
+            .iter()
+            .find(|(_, row)| row.as_ref().is_ok_and(|row| &row.call == site))
+            .unwrap()
+            .clone();
+        self.observations.push((owner, row));
+    }
+
+    /// Original callers sharing a qualified callee retain input evidence only.
+    /// The immutable inventory already corroborates its seed's sealed contract.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_object_input_callee_v1(
+        &self,
+        target: &super::super::LexicalInstanceCallSourceTargetV1,
+    ) -> bool {
+        self.exact_rows().any(|seed| {
+            seed.source.instance().is_some_and(|original| {
+                original.has_object_source_requirement()
+                    && seed.callee == target.callee_owner()
+                    && original.callee_owner() == seed.callee
+                    && original.call_site() == &seed.call
+                    && original.target() == target.target()
+                    && original.target_batch_slot() == target.target_batch_slot()
+            })
+        })
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_unsupported_static_spelling(
         &self,
         owner: FunctionOwnerIdV1,
@@ -154,6 +185,66 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
         definitions.insert(*owner, (contract, key));
+    }
+    // Qualified Object calls with typed inputs still need the same whole-batch
+    // caller census. Their empty opaque subset grants no borrowed entry/domain.
+    for (site, target) in calls {
+        if !target.has_object_source_requirement() {
+            continue;
+        }
+        let qualifications = target.object_return_sources();
+        let mut matching = contracts
+            .iter()
+            .filter(|row| row.owner == target.callee_owner());
+        let contract = matching
+            .next()
+            .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
+        let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+            selected.key_for_batch_slot(contract.batch_slot)
+        else {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        };
+        if matching.next().is_some()
+            || qualifications.is_some_and(|rows| {
+                rows.is_empty()
+                    || rows
+                        .iter()
+                        .any(|loan| loan.call() != site || loan.key() != target.target())
+            })
+            || target
+                .object_producer_dependencies()
+                .is_some_and(|rows| rows.is_empty())
+            || target.call_site() != site
+            || target.target() != key
+            || target.target_batch_slot() != contract.batch_slot
+            || key.namespace()
+                != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
+            || key.arity() as usize != contract.parameters.len()
+            || target.argument_sites().len() != contract.parameters.len()
+            || contract
+                .parameters
+                .iter()
+                .enumerate()
+                .any(|(ordinal, formal)| {
+                    formal.ordinal as usize != ordinal || formal.binding.owner() != contract.owner
+                })
+        {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        if contract
+            .parameters
+            .iter()
+            .any(|formal| formal.kind.is_ordinary_borrowed_handle())
+        {
+            continue;
+        }
+        if !contract.parameters.iter().all(|formal| matches!(formal.kind,
+            crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
+                if abi == crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)) {
+            continue;
+        }
+        definitions.insert(contract.owner, (contract, key));
     }
     let mut static_observations = BTreeMap::new();
     let mut static_seen = std::collections::BTreeSet::new();
@@ -343,7 +434,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
     }
     let inventory = BorrowedIncomingInventoryV1 {
-        owners: drafts.keys().copied().collect(),
+        owners: definitions.keys().copied().collect(),
         unsupported_static_spelling,
         unsupported_static_context,
         observations,

@@ -116,7 +116,7 @@ fn source_contract_identity_corruption_is_not_profile_outside() {
     let prepared = Ok(slots
         .values()
         .filter_map(|slot| match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => {
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => {
                 Some(Ok(Some(row.source_target().clone())))
             }
             _ => None,
@@ -211,7 +211,7 @@ fn final_corroboration_rejects_changed_incoming_argument_ordinal() {
         .lexical_instance_calls
         .borrow();
     let source_rows = slots.values().filter_map(|slot| match slot {
-        crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
         _ => None,
     }).collect::<Vec<_>>();
     let prepared = Ok(source_rows);
@@ -255,8 +255,9 @@ fn field_receiver_package(
          run() {{ return me.probe.check(9) }} }} \
          static box Main {{ main() {{ local outer = new Outer() return outer.run() }} }}"
     );
-    crate::mir::normal_callable_semantic_package::brand_catalog_tests::
-        issue_with_brand_catalog(&source)
+    crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        &source,
+    )
     .expect("field-receiver package")
 }
 
@@ -321,7 +322,11 @@ fn field_receiver_callee_keeps_dominated_view_sites_outside_transport() {
         "`me.probe.check` is a field-receiver edge — no lexical incoming call"
     );
     let sites = view_sites_of(prepared, check_owner);
-    assert_eq!(sites.len(), 2, "`.set` value and `+` operand rows: {sites:?}");
+    assert_eq!(
+        sites.len(),
+        2,
+        "`.set` value and `+` operand rows: {sites:?}"
+    );
     assert!(
         sites.iter().any(|site| site.segments().last()
             == Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(1))),
@@ -374,4 +379,17 @@ fn get_result_index_rejects_plain_copy_of_get_result() {
             == Some(&crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(1))),
         "no `.set` element-value row through a plain copy: {sites:?}"
     );
+}
+
+impl super::PreparedBorrowedFormalIngressV1 {
+    /// Retain a raw draft while deliberately removing its executable membership.
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn retain_only_source_definition_for_test(
+        &mut self,
+        owner: FunctionOwnerIdV1,
+    ) {
+        let draft = self.definitions.remove(&owner).expect("final definition");
+        assert!(self.source_only_definitions.insert(owner, draft).is_none());
+        assert!(self.source_definition_for(owner).is_some());
+    }
 }

@@ -396,9 +396,8 @@ static box Main {
     // A bare parameter return is not a negative: it mints the class-free
     // forwarded identity claim — usable only through caller-side actual
     // substitution, never as a callable's own class evidence.
-    let (param_key, param_claim) =
-        result_class_claim_row(&package, "Work", "param_return")
-            .expect("parameter return mints the forwarded identity claim");
+    let (param_key, param_claim) = result_class_claim_row(&package, "Work", "param_return")
+        .expect("parameter return mints the forwarded identity claim");
     assert!(matches!(
         param_claim,
         super::OrdinaryNewResultClassV1::NullableForwarded { ordinal: 0 }
@@ -683,12 +682,17 @@ static box Main {
                 "the flow row keeps the exact declared destination"
             );
         } else {
-            // `Object` receiver observations keep the generic call floor —
-            // no lifecycle flow row is minted for the Handle-absent `me`
-            // receiver lane.
-            assert!(
-                local.is_none(),
-                "{site:?} definite receiver calls mint no lifecycle flow row"
+            // Original Object result membership records a Handle source row.
+            // Argument borrowing cannot classify it as an I64 result; this
+            // source observation alone grants no Normal or physical permission.
+            let local = local.expect("definite receiver records its original Handle source");
+            assert_eq!(
+                local.result(),
+                crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+            );
+            assert_eq!(
+                local.local_binding().expect("local destination").1,
+                row.destination()
             );
         }
     }

@@ -597,3 +597,4 @@ pub(in crate::mir::builder) use lexical_return::emit as emit_borrowed_return;
 #[path = "terminal_call/lexical_nullable.rs"]
 mod lexical_nullable;
 pub(in crate::mir::builder) use lexical_nullable::emit_local_lexical_nullable;
+pub(in crate::mir::builder) use lexical_nullable::emit_receiver_object;

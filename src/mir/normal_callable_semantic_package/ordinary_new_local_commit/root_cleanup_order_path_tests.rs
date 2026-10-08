@@ -164,6 +164,7 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
         &RootHomeExitEntry::Plain {
             local_bindings: vec![],
         },
+        crate::mir::instruction::InvokeCallResultKind::I64,
     )
     .unwrap();
 }
@@ -218,6 +219,7 @@ fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_node
                 &RootHomeExitEntry::Plain {
                     local_bindings: vec![]
                 },
+                crate::mir::instruction::InvokeCallResultKind::I64
             )
             .is_err(),
             "mutation {mutation}"
@@ -248,6 +250,7 @@ fn root_ordered_structure_and_paths_accept_finished_plain_entry_contraction() {
         &bindings,
         &entry,
         &projection,
+        crate::mir::instruction::InvokeCallResultKind::I64,
     )
     .unwrap();
     ordered_paths::validate(&function, &bindings, &entry, &order, Some(&projection)).unwrap();

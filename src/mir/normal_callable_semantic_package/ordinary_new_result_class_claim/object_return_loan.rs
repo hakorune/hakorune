@@ -109,6 +109,23 @@ impl OrdinaryNewResultClassClaimsV1 {
         (!dependencies.is_empty()).then(|| dependencies.into_boxed_slice())
     }
 
+    /// All original return values associated with one acquisition. No single
+    /// terminal value stands in for another return of the same received local.
+    pub(in crate::mir::normal_callable_semantic_package) fn qualifications_for_call(
+        &self,
+        call: &OwnedExprSiteV1,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> Box<[ObjectReturnCallQualificationV1]> {
+        let mut loans: Vec<_> = self
+            .source_rows()
+            .flat_map(|(_, exits)| exits.iter())
+            .filter_map(|exit| self.object_return_qualification(exit.site()))
+            .filter(|loan| loan.call() == call && loan.key() == key)
+            .collect();
+        loans.sort_by(|a, b| a.value().cmp(b.value()));
+        loans.into_boxed_slice()
+    }
+
     /// Only the existing solver product can lend this source qualification.
     /// The terminal observer must still seal arguments/live receiver and the
     /// completed-index owner must verify exact callee lifecycle obligations.

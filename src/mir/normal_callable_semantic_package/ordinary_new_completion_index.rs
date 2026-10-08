@@ -28,3 +28,32 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[path = "ordinary_new_return_leaf.rs"]
 mod return_leaf;
+
+#[path = "ordinary_new_return_callee.rs"]
+mod return_callee;
+
+#[path = "ordinary_new_return_acquisition.rs"]
+mod return_acquisition;
+
+#[path = "ordinary_new_return_handoff.rs"]
+mod return_handoff;
+
+#[path = "ordinary_new_normal_return.rs"]
+mod normal_return;
+pub(super) use normal_return::NormalReturnDispositionV1;
+
+#[path = "ordinary_new_return_result.rs"]
+mod return_result;
+
+#[path = "ordinary_new_direct_return_source.rs"]
+mod direct_return_source;
+
+#[path = "ordinary_new_direct_return_cleanup.rs"]
+mod direct_return_cleanup;
+pub(super) use direct_return_cleanup::DirectRootCleanupSourceV1;
+
+#[path = "ordinary_new_terminal_call_source.rs"]
+mod terminal_call_source;
+
+#[path = "ordinary_new_return_construction.rs"]
+mod return_construction;

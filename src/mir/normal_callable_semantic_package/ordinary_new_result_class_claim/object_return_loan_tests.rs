@@ -123,3 +123,55 @@ fn object_producer_dependencies_reject_outer_class_disagreement_with_qualified_c
         .object_return_dependencies(&key, site.owner())
         .is_none());
 }
+
+#[test]
+fn object_return_dependencies_preserve_multiple_received_returns_of_one_acquisition() {
+    let facts = super::super::super::source_result_facts_for_test(
+        "box Token {} box Door { make() { return new Token() } relay(flag: i64) { local item = me.make() if flag == 0 { return item } return item } } static box Main { main() { return 0 } }"
+    );
+    let key = key("relay", 1);
+    let exits = facts.outcomes(&key).unwrap();
+    assert_eq!(exits.len(), 2);
+    let dependencies = facts
+        .object_return_dependencies(&key, exits[0].site().owner())
+        .unwrap();
+    assert_eq!(dependencies.len(), 2);
+    assert_eq!(dependencies[0].call(), dependencies[1].call());
+    assert_ne!(dependencies[0].value(), dependencies[1].value());
+    for (dependency, exit) in dependencies.iter().zip(exits) {
+        assert_eq!(dependency.value(), exit.site());
+        assert_eq!(
+            *dependency,
+            facts.object_return_qualification(exit.site()).unwrap()
+        );
+        assert!(dependency
+            .witnesses()
+            .iter()
+            .zip(exit.witnesses())
+            .all(|(actual, original)| Rc::ptr_eq(actual, original)));
+    }
+}
+
+#[test]
+fn object_call_qualification_projection_retains_all_received_values_and_exact_call_key() {
+    let facts = super::super::super::source_result_facts_for_test(
+        "box Token {} box Door { make() { return new Token() } relay(flag: i64) { local item = me.make() if flag == 0 { return item } return item } } static box Main { main() { return 0 } }"
+    );
+    let exits = facts.outcomes(&key("relay", 1)).unwrap();
+    let first = facts.object_return_qualification(exits[0].site()).unwrap();
+    let loans = facts.qualifications_for_call(first.call(), first.key());
+    assert_eq!(loans.len(), 2);
+    for exit in exits {
+        let original = facts.object_return_qualification(exit.site()).unwrap();
+        assert_eq!(loans.iter().filter(|loan| **loan == original).count(), 1);
+    }
+    assert!(facts
+        .qualifications_for_call(first.call(), &key("relay", 1))
+        .is_empty());
+    let foreign = super::super::super::source_result_facts_for_test(
+        "box Token {} box Door { make() { return new Token() } relay(flag: i64) { local item = me.make() if flag == 0 { return item } return item } } static box Main { main() { return 0 } }"
+    );
+    assert!(foreign
+        .qualifications_for_call(first.call(), first.key())
+        .is_empty());
+}

@@ -102,3 +102,77 @@ impl MirBuilder {
             .ok_or_else(|| "dependency function missing".into())
     }
 }
+
+impl MirBuilder {
+    /// Actual sealed Instance declaration through the sole port-aware draft owner.
+    pub(in crate::mir) fn lower_instance_dependency_for_test(
+        &mut self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        key: SelectedNormalCallableKeyV1,
+        observation: CallableMethodSourceObservationV1,
+        ledger: Rc<OrdinaryNewClaimLedgerV1>,
+        locator: crate::mir::normal_callable_semantic_package::DeclaredInstanceCallLocatorScopeV1<
+            '_,
+        >,
+    ) -> Result<crate::mir::MirFunction, String> {
+        let SelectedNormalCallableKeyV1::Cataloged(key) = key else {
+            return Err("dependency requires cataloged Instance".into());
+        };
+        if key.namespace() != SameModuleCallableNamespaceV1::InstanceBoxMethod {
+            return Err("dependency requires Instance namespace".into());
+        }
+        let ASTNode::FunctionDeclaration {
+            params,
+            param_decls,
+            return_type_name,
+            body,
+            uses,
+            attrs,
+            is_static,
+            ..
+        } = input.source().root()
+        else {
+            return Err("dependency declaration missing".into());
+        };
+        if *is_static || key.arity() as usize != params.len() {
+            return Err("dependency declaration shape drift".into());
+        }
+        let function_name = key.mir_symbol_projection();
+        let box_name = key.owner().to_owned();
+        let mut invocation =
+            ModuleLoweringInvocationV1::with_collector(self, ModuleDraftCollectorV1::default());
+        let prepared = invocation.with_module_port(|builder, port| {
+            let mut inner = RawInvocationChildPortV1::new(port);
+            super::source_scope::with_callable_source_scope(
+                &mut inner,
+                RawInvocationRootLineageV1::Cataloged(key),
+                input,
+                None,
+                std::collections::BTreeMap::new(),
+                Some(observation),
+                None,
+                ledger,
+                None,
+                |inner, transport| {
+                    inner.with_declared_instance_locator_scope(locator, |inner| {
+                        inner.with_source_transport_v1(transport, |inner, ()| {
+                            builder.build_instance_method_draft_with_port_v1(
+                                inner,
+                                function_name,
+                                box_name,
+                                params.clone(),
+                                param_decls.clone(),
+                                return_type_name.clone(),
+                                body.clone(),
+                                uses.clone(),
+                                attrs.clone(),
+                            )
+                        })
+                    })
+                },
+            )
+        })?;
+        drop(invocation);
+        self.finalize_port_aware_draft_for_legacy_v1(prepared)
+    }
+}

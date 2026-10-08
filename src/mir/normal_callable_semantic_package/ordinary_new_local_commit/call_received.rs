@@ -35,6 +35,8 @@ pub(super) enum CallReceivedProgress {
     Emitted {
         result: ValueId,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
+        /// The original physical packet shared with its binding group.
+        packet: Option<std::rc::Rc<EmittedLexicalCallProjectionV1>>,
         phase: CallReceivedPhase,
     },
 }
@@ -71,11 +73,9 @@ impl CallReceivedCommitV1 {
     }
     pub(super) fn install(&mut self, local: ValueId) {
         match &mut self.progress {
-            CallReceivedProgress::Emitted {
-                result,
-                phase,
-                ..
-            } if *result == local && *phase == CallReceivedPhase::ExpressionCompleted => {
+            CallReceivedProgress::Emitted { result, phase, .. }
+                if *result == local && *phase == CallReceivedPhase::ExpressionCompleted =>
+            {
                 *phase = CallReceivedPhase::Installed
             }
             _ => unreachable!("call-received local batch preflight"),
@@ -83,9 +83,7 @@ impl CallReceivedCommitV1 {
     }
     pub(super) fn mark_checked(&mut self) {
         match &mut self.progress {
-            CallReceivedProgress::Emitted { phase, .. } => {
-                *phase = CallReceivedPhase::Checked
-            }
+            CallReceivedProgress::Emitted { phase, .. } => *phase = CallReceivedPhase::Checked,
             _ => unreachable!("call-received emission batch validation"),
         }
     }

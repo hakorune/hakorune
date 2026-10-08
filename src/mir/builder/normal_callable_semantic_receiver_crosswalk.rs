@@ -152,39 +152,24 @@ impl CallableSemanticLoweringState {
         receiver_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         expected_binding: BindingRefV1,
     ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        self.take_exact_receiver_read(expected_owner, receiver_site, expected_binding)?
+            .value_for(expected_owner, receiver_site, expected_binding)
+    }
+
+    /// Keep the same one-shot read for the downstream physical call packet.
+    pub(in crate::mir::builder) fn take_exact_receiver_read(
+        &mut self,
+        expected_owner: FunctionOwnerIdV1,
+        receiver_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<ExactLexicalReadV1, ExactReceiverValueErrorV1> {
         if self.owner != expected_owner || expected_binding.owner() != self.owner {
             return Err(ExactReceiverValueErrorV1::OwnerMismatch);
         }
         if self.receiver != Some(expected_binding) {
             return Err(ExactReceiverValueErrorV1::ReceiverBindingMismatch);
         }
-        let Some(binding) = self.variables.get(receiver_site).copied() else {
-            return Err(ExactReceiverValueErrorV1::ReceiverSiteUnavailable);
-        };
-        if binding != expected_binding {
-            return Err(ExactReceiverValueErrorV1::SiteBindingMismatch);
-        }
-        if self.consumed_variables.contains(receiver_site) {
-            return Err(ExactReceiverValueErrorV1::AlreadyTaken);
-        }
-        let value = self
-            .value_for_exact_binding(expected_owner, expected_binding)
-            .map_err(|error| match error {
-                ExactBindingValueErrorV1::EntryNotInstalled => {
-                    ExactReceiverValueErrorV1::EntryNotInstalled
-                }
-                ExactBindingValueErrorV1::ValueUnavailable => {
-                    ExactReceiverValueErrorV1::ValueUnavailable
-                }
-                ExactBindingValueErrorV1::OwnerMismatch => ExactReceiverValueErrorV1::OwnerMismatch,
-                ExactBindingValueErrorV1::ForeignBinding => {
-                    ExactReceiverValueErrorV1::ReceiverBindingMismatch
-                }
-            })?;
-        if !self.consumed_variables.insert(receiver_site.clone()) {
-            return Err(ExactReceiverValueErrorV1::AlreadyTaken);
-        }
-        Ok(value)
+        self.take_exact_lexical_read(expected_owner, receiver_site, expected_binding)
     }
 
     /// Consume one exact lexical source read without requiring the callable's

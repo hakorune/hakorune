@@ -201,6 +201,7 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver: ValueId,
+        read: Option<crate::mir::builder::ExactLexicalReadV1>,
     ) -> Result<Option<ValueId>, String> {
         let Some(RawInvocationSourceContextV1::Located {
             root: RawInvocationRootLineageV1::Cataloged(_),
@@ -218,6 +219,18 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         };
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        if let Some(row) = ledger.take_receiver_object_packet_v1(owner, &site, key)? {
+            let read =
+                read.ok_or_else(|| "[freeze:contract][receiver-object/read-missing]".to_owned())?;
+            let state = self
+                .callable_ledger
+                .as_ref()
+                .ok_or_else(|| "[freeze:contract][receiver-object/state-missing]".to_owned())?;
+            let value = crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_receiver_object(
+                builder, &mut state.borrow_mut(), ledger, owner, &site, row, key, receiver, read,
+            )?;
+            return Ok(Some(value));
+        }
         if ledger.nullable_call_source(&owned).is_none() {
             return Ok(None);
         }

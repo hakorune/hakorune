@@ -7,6 +7,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     function: &MirFunction,
     bindings: &Bindings,
     entry: &RootHomeExitEntry,
+    expected_kind: crate::mir::instruction::InvokeCallResultKind,
 ) -> Result<(), String> {
     let nodes = collect_nodes(bindings)?;
     let (starts, plain_entry, projected_result) = match entry {
@@ -38,7 +39,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         | RootHomeExitEntry::MapGet {
             invoke, projection, ..
         } => {
-            let (clean, pending, _, _) = call::ingress(function, bindings, invoke, projection)?;
+            let (clean, pending, _, _) =
+                call::ingress(function, bindings, invoke, projection, expected_kind)?;
             (vec![clean, pending], None, Some(projection))
         }
     };
@@ -74,6 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     original: &Bindings,
     entry: &RootHomeExitEntry,
     projection: &super::super::physical_boundary::FinishedBindings,
+    expected_kind: crate::mir::instruction::InvokeCallResultKind,
 ) -> Result<(), String> {
     let bindings = projection.bindings(original)?;
     let nodes = collect_nodes(&bindings)?;
@@ -104,7 +107,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             let result = projection
                 .binding(result.0, &result.1)?
                 .ok_or_else(|| fault("ordered-structure/missing-result"))?;
-            let (clean, pending, _, _) = call::ingress(function, &bindings, &invoke, &result)?;
+            let (clean, pending, _, _) =
+                call::ingress(function, &bindings, &invoke, &result, expected_kind)?;
             (vec![clean, pending], None)
         }
     };
@@ -117,6 +121,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     function: &MirFunction,
     bindings: &Bindings,
     entry: &RootHomeExitEntry,
+    expected_kind: crate::mir::instruction::InvokeCallResultKind,
 ) -> Result<(), String> {
     let RootHomeExitEntry::Call {
         invoke, projection, ..
@@ -125,7 +130,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
         return Err(fault("ordered-structure/final-entry"));
     };
     let nodes = collect_nodes(bindings)?;
-    let (clean, pending, _, _) = call::ingress(function, bindings, invoke, projection)?;
+    let (clean, pending, _, _) =
+        call::ingress(function, bindings, invoke, projection, expected_kind)?;
     topology(function, &nodes, vec![clean, pending], None)
 }
 

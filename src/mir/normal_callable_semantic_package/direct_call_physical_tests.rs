@@ -663,3 +663,6 @@ pub(super) fn cleanup_path_releases(
     }
     panic!("cyclic source cleanup");
 }
+
+#[path = "direct_object_return_physical_tests.rs"]
+mod object_return;

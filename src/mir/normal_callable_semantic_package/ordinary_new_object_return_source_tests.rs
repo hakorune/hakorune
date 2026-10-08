@@ -91,9 +91,15 @@ fn source_object_return_retains_direct_original_arguments_and_pending_boundary()
             .validate_no_pending_object_returns_v1()
             .unwrap_err()
             .contains("object-return-handoff-unavailable"));
-        assert!(!ledger
-            .prepare_root_home_exit(value.owner(), value.return_site().node())
+        assert!(ledger
+            .object_return_construction_ready_v1(value.owner())
             .unwrap());
+        assert_eq!(
+            ledger
+                .prepare_root_home_exit(value.owner(), value.return_site().node())
+                .unwrap_err(),
+            "[freeze:contract][ordinary-new/local-commit/root-home-not-installed]"
+        );
     }
 }
 
@@ -116,9 +122,15 @@ fn source_object_return_retains_received_call_and_distinct_fault_exit_homes() {
         assert_eq!(original.site(), obligation.qualification().call());
         assert!(ledger.has_pending_object_return_v1(value.owner()));
         assert!(ledger.validate_no_pending_object_returns_v1().is_err());
-        assert!(!ledger
-            .prepare_root_home_exit(value.owner(), value.return_site().node())
+        assert!(ledger
+            .object_return_construction_ready_v1(value.owner())
             .unwrap());
+        assert_eq!(
+            ledger
+                .prepare_root_home_exit(value.owner(), value.return_site().node())
+                .unwrap_err(),
+            "[freeze:contract][ordinary-new/local-commit/root-home-not-installed]"
+        );
     }
 }
 
@@ -164,7 +176,8 @@ fn root_only_pending_object_return_survives_same_owner_empty_index_and_artifact_
 
 #[test]
 fn zero_argument_direct_object_return_is_pending_source_not_empty_argument_permission() {
-    let package = issue_with_brand_catalog("box Token {} box Maker { make() { return new Token() } relay() { return me.make() } } static box Main { main() { return 0 } }").unwrap();
+    const SOURCE: &str = "box Token {} box Maker { make() { return new Token() } relay() { return me.make() } } static box Main { main() { return 0 } }";
+    let package = issue_with_brand_catalog(SOURCE).unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "relay", 0);
     let owner = ledger.callable_result_classes.outcomes(&key).unwrap()[0]
@@ -183,9 +196,30 @@ fn zero_argument_direct_object_return_is_pending_source_not_empty_argument_permi
     assert!(argument_sites.is_empty());
     assert!(ledger.has_pending_object_return_v1(owner));
     assert!(ledger.validate_no_pending_object_returns_v1().is_err());
-    assert!(!ledger
+    assert!(ledger.object_return_construction_ready_v1(owner).unwrap());
+    assert!(ledger
         .prepare_root_home_exit(owner, value.return_site().node())
         .unwrap());
+    assert!(ledger.validate_no_pending_object_returns_v1().is_err());
+
+    // Zero actuals do not replace the original source completion proof.
+    let mut missing = issue_with_brand_catalog(SOURCE).unwrap();
+    let owner = missing
+        .ordinary_new_claim_ledger
+        .callable_result_classes
+        .outcomes(&key)
+        .unwrap()[0]
+        .site()
+        .owner();
+    let exit = missing
+        .ordinary_new_claim_ledger
+        .terminal_relations_for_owner(owner)[0]
+        .return_site()
+        .clone();
+    let ledger = std::rc::Rc::get_mut(&mut missing.ordinary_new_claim_ledger).unwrap();
+    ledger.completion_index.remove(&owner);
+    assert!(!ledger.prepare_root_home_exit(owner, exit.node()).unwrap());
+    assert!(ledger.validate_no_pending_object_returns_v1().is_err());
 }
 
 #[test]

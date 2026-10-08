@@ -479,17 +479,25 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
                     return Err("[freeze:contract][declared-instance/relation-mismatch]".to_owned());
                 }
                 let mut state = ledger.borrow_mut();
-                state
-                    .take_exact_receiver_value(
+                let read = state
+                    .take_exact_receiver_read(
                         owner,
                         relation.receiver_site().node(),
                         relation.receiver_binding(),
                     )
-                    .map(|receiver| DeclaredInstanceReceiverIngressV1::Ready {
-                        key: relation.target_key().clone(),
-                        receiver,
-                    })
-                    .map_err(|error| error.to_string())
+                    .map_err(|error| error.to_string())?;
+                let receiver = read
+                    .value_for(
+                        owner,
+                        relation.receiver_site().node(),
+                        relation.receiver_binding(),
+                    )
+                    .map_err(|error| error.to_string())?;
+                Ok(DeclaredInstanceReceiverIngressV1::Ready {
+                    key: relation.target_key().clone(),
+                    receiver,
+                    read,
+                })
             })
             .map_err(|error| format!("[freeze:contract][declared-instance/locator/{error:?}]"))
     }

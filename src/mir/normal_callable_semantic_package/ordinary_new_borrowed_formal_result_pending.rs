@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::{
 
 #[path = "ordinary_new_borrowed_formal_result_class_loans.rs"]
 mod class_loans;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use class_loans::collect_observed_forward_identities_v1;
 
 #[derive(Debug)]
 pub(super) enum BorrowedResultSourcePhaseV1 {
@@ -351,7 +352,9 @@ fn capture_field_array_get(
                     numeric_fields.insert(row.name.clone().into_boxed_str());
                 }
                 let Some(canonical) =
-                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)
+                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                        object, ordinal,
+                    )
                 else {
                     continue;
                 };
@@ -485,43 +488,48 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     );
     drafts
         .keys()
-        .filter(|owner| contracts.iter().any(|row| row.owner == **owner
-            && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod))
+        .filter(|owner| {
+            contracts.iter().any(|row| {
+                row.owner == **owner
+                    && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+            })
+        })
         .map(|owner| {
             let proof = source_result_pending(
-                batch, selected, contracts, drafts, needs, constructors, proven_fields, *owner,
-            ).and_then(
-                |mut proof| {
-                    if let BorrowedResultSourcePhaseV1::Pending { fields, .. } = &mut proof.phase {
-                        for row in fields.iter_mut() {
-                            if let Some(loan) = loans.get(&row.formal) {
-                                if let Some(field) =
-                                    super::super::super::nullable_result_integer_field(
-                                        constructors,
-                                        batch.ordinary_box_coverage(),
-                                        &loan.class,
-                                        &row.read_site,
-                                        &row.field_name,
-                                    )
-                                    .map_err(|error| {
-                                        format!(
-                                            "{}: {error:?}",
-                                            freeze("borrowed-result/field-authority")
-                                        )
-                                    })?
-                                {
-                                    row.requirement = Some(ConditionalFieldRequirementV1 {
-                                        class: loan.class.clone(),
-                                        field,
-                                        lender: loan.lender.clone(),
-                                    });
-                                }
+                batch,
+                selected,
+                contracts,
+                drafts,
+                needs,
+                constructors,
+                proven_fields,
+                *owner,
+            )
+            .and_then(|mut proof| {
+                if let BorrowedResultSourcePhaseV1::Pending { fields, .. } = &mut proof.phase {
+                    for row in fields.iter_mut() {
+                        if let Some(loan) = loans.get(&row.formal) {
+                            if let Some(field) = super::super::super::nullable_result_integer_field(
+                                constructors,
+                                batch.ordinary_box_coverage(),
+                                &loan.class,
+                                &row.read_site,
+                                &row.field_name,
+                            )
+                            .map_err(|error| {
+                                format!("{}: {error:?}", freeze("borrowed-result/field-authority"))
+                            })? {
+                                row.requirement = Some(ConditionalFieldRequirementV1 {
+                                    class: loan.class.clone(),
+                                    field,
+                                    lender: loan.lender.clone(),
+                                });
                             }
                         }
                     }
-                    Ok(proof)
-                },
-            );
+                }
+                Ok(proof)
+            });
             (*owner, proof)
         })
         .collect()

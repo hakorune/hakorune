@@ -199,8 +199,8 @@ fn checked_compare_admits_direct_if_greater_with_integer_or_origin_sibling() {
             .count();
         assert!(compares >= 1, "compare operand admitted: {body}");
     }
-    let aliased = draft("local a = p if a > 5 { return 1 } return 0")
-        .expect("alias compare operand");
+    let aliased =
+        draft("local a = p if a > 5 { return 1 } return 0").expect("alias compare operand");
     assert_eq!(aliased.uses.len(), 2);
     let compare = aliased
         .uses
@@ -339,7 +339,9 @@ fn add_operand_rejects_unguarded_undominated_and_unproved_sibling_uses() {
     }
 }
 
-fn draft_with_fields(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+fn draft_with_fields(
+    body: &str,
+) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
     let source = format!(
         "box BorrowUse {{ sizes: ArrayBox birth() {{ }} probe(p): i64 {{ {body} }} \
          sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ return 0 }} }}"
@@ -409,7 +411,9 @@ fn set_element_value_without_entry_receiver_loan_stays_unresolved() {
     }
 }
 
-fn draft_with_child(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+fn draft_with_child(
+    body: &str,
+) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
     let source = format!(
         "box Child {{ a: i64 b: i64 birth(a, b) {{ me.a = a me.b = b }} }} \
          box BorrowUse {{ birth() {{ }} probe(p): i64 {{ {body} }} \
@@ -461,8 +465,14 @@ fn draft_with_child(body: &str) -> Result<BorrowedFormalUsesDraftV1, BorrowedFor
 #[test]
 fn dominated_new_argument_admits_exact_site_and_ordinal() {
     for (body, ordinal) in [
-        ("if p > 5 { return 1 } local h = new Child(p, 0) return 0", 0),
-        ("if p > 5 { return 1 } local h = new Child(0, p) return 0", 1),
+        (
+            "if p > 5 { return 1 } local h = new Child(p, 0) return 0",
+            0,
+        ),
+        (
+            "if p > 5 { return 1 } local h = new Child(0, p) return 0",
+            1,
+        ),
     ] {
         let row = draft_with_child(body).expect("admitted new argument");
         assert!(
@@ -560,7 +570,7 @@ fn exact_lexical_forward_join_retains_both_formal_identities() {
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| {
         match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
             _ => None,
         }
     }).collect();
@@ -586,7 +596,7 @@ fn finite_mutual_forward_join_does_not_assume_unvisited_owner_success() {
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| {
         match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some((site.clone(), BorrowedCallSourceLoanV1::Instance(row.source_target()))),
             _ => None,
         }
     }).collect();
@@ -620,7 +630,7 @@ fn all_incoming_edges_must_be_exact_and_in_the_same_ordinary_scope() {
         .lexical_instance_calls
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| match slot {
-        crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
         _ => None,
     }).collect();
     let mut scope = drafts.keys().copied().collect();
@@ -674,7 +684,7 @@ fn ignored_formal_without_any_incoming_edge_does_not_authorize_an_abi_change() {
         .lexical_instance_calls
         .borrow();
     let calls = slots.iter().filter_map(|(site, slot)| match slot {
-        crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some((site.clone(), row.source_target())),
         _ => None,
     }).collect();
     let scope = drafts.keys().copied().collect();

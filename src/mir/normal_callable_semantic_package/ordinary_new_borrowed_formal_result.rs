@@ -64,6 +64,7 @@ impl BorrowedI64ResultSourceV1 {
 
 #[path = "ordinary_new_borrowed_formal_result_pending.rs"]
 mod pending;
+pub(super) use pending::collect_observed_forward_identities_v1;
 pub(in crate::mir::normal_callable_semantic_package) use pending::ForwardIdentityV1;
 pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1};
 
@@ -164,6 +165,10 @@ impl OrdinaryNewClaimLedgerV1 {
         String,
     > {
         use crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1;
+        if let Some(source) = self.verified_direct_object_return_source_v1(owner, exit)? {
+            return Ok(Some(source.arguments().into()));
+        }
+
         let Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(
             terminal,
         )) = self.terminal_relation_for_owner_at(owner, exit)
@@ -420,20 +425,24 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         exit: &crate::mir::resolved_semantics::SourceStmtSiteV1,
     ) -> Result<Option<LexicalInstanceCallDispositionRowV1>, String> {
-        if self.borrowed_terminal_arguments_v1(owner, exit)?.is_none() {
+        let Some(source) = self.verified_terminal_call_source_v1(owner, exit)? else {
+            return Ok(None);
+        };
+        if source.lexical_arguments().is_none() {
             return Ok(None);
         }
-        let (_, terminal) = self
-            .call_source_completion_for_owner_at(owner, exit)
-            .ok_or_else(|| freeze("borrowed-terminal/source-missing"))?;
         let row = self
-            .take_lexical_instance_call(owner, terminal.call_site())?
+            .take_lexical_instance_call(owner, source.call_site())?
             .ok_or_else(|| freeze("borrowed-terminal/disposition-missing"))?;
-        // A strict outer node has no borrowed incoming edge of its own. Its
-        // selected result was corroborated by the same final lexical issuer.
-        self.borrowed_call_actuals_v1(&row)?;
-        if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
-            return Err(freeze("borrowed-terminal/result-not-i64"));
+        if source.legacy_terminal().is_some() {
+            // Preserve the existing input-before-result failure order.
+            self.borrowed_call_actuals_v1(&row)?;
+            if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
+                return Err(freeze("borrowed-terminal/result-not-i64"));
+            }
+        } else {
+            source.corroborate_row(&row)?;
+            self.borrowed_call_actuals_v1(&row)?;
         }
         Ok(Some(row))
     }

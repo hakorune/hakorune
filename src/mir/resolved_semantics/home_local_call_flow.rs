@@ -342,7 +342,9 @@ pub(crate) fn issue_qualified_static_local_call<E>(
             }
             arguments.into_vec()
         }
-        Some(BorrowedCallArgumentsV1::Scalar(_)) => return Ok(None),
+        Some(BorrowedCallArgumentsV1::Scalar(_)) | Some(BorrowedCallArgumentsV1::Object { .. }) => {
+            return Ok(None)
+        }
         None => {
             let mut arguments = Vec::with_capacity(call.arguments().len());
             for argument in call.arguments() {
@@ -453,6 +455,7 @@ pub(crate) fn issue_lexical_nullable_local_call<E>(
         prior_homes,
         locals,
         true,
+        BorrowedCallActualRequestV1::ScalarArguments,
         local_lexical_i64_call,
         borrowed_arguments,
     )?
@@ -533,6 +536,7 @@ fn issue_lexical_i64_call<E>(
         prior_homes,
         locals,
         allow_strict,
+        BorrowedCallActualRequestV1::I64ResultArguments,
         is_selected_call,
         borrowed_arguments,
     )?
@@ -589,6 +593,7 @@ pub(super) fn issue_borrowed_i64_terminal_call<E>(
         prior_homes,
         locals,
         true,
+        BorrowedCallActualRequestV1::I64ResultArguments,
         is_selected_call,
         borrowed_arguments,
     )?

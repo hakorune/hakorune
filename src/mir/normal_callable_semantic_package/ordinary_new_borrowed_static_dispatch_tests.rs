@@ -67,6 +67,8 @@ fn static_dispatch_preserves_selected_error_and_unselected_literal_scope() {
             &mut |_| None,
             site,
             BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
+            &package.ordinary_new_claim_ledger.callable_result_classes,
+            &package.ordinary_new_claim_ledger.receiver_call_observations,
         );
         assert!(pending.is_empty());
         result
@@ -139,6 +141,8 @@ fn static_dispatch_selected_missing_fact_cannot_fall_back() {
         &mut |_| None,
         &site,
         BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(&claim),
+        &package.ordinary_new_claim_ledger.callable_result_classes,
+        &package.ordinary_new_claim_ledger.receiver_call_observations,
     );
     assert!(
         matches!(result, Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. }) if issue.contains("source-selection-identity"))

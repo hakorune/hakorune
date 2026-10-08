@@ -14,6 +14,226 @@ const INSTANCE: &str = "box Heap { lookup(p) { return 0 } unused(q) { return 0 }
 const STATIC: &str = "static box Layout { class_id(p) { local alias: i64 = p return 0 } } static box Main { main() { local k = Layout.class_id(7) return 0 } }";
 
 #[test]
+fn object_source_inventory_retains_unqualified_sibling_input_without_return_authority() {
+    let package = package("box Token {} box Maker { make(size: i64) { return new Token() } relay() { return me.make(7) } ignored() { local item = me.make(8) return 0 } } static box Main { main() { return 0 } }");
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap();
+    let ingress = source.as_ref().unwrap();
+    let rows: Vec<_> = ingress.source_incoming.exact_rows().collect();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.source.object_return_sources().is_some())
+            .count(),
+        1
+    );
+    let sibling = rows
+        .iter()
+        .find(|row| row.source.object_return_sources().is_none())
+        .unwrap();
+    let target = sibling.source.require_instance().unwrap();
+    assert!(ingress.source_incoming.has_object_input_callee_v1(target));
+    let actuals = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_actuals
+        .get(&sibling.call)
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    assert_eq!(
+        actuals.ordered_arguments.as_ref(),
+        &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(8)]
+    );
+    assert!(actuals.require_executable_v1().is_ok());
+    assert!(target.object_return_sources().is_none());
+    let mut foreign = target.clone();
+    foreign.target_batch_slot += 1;
+    assert!(!ingress.source_incoming.has_object_input_callee_v1(&foreign));
+    let mut pending = BTreeMap::new();
+    super::super::super::reject_borrowed_actuals_for_owner_v1(
+        source,
+        sibling.call.owner(),
+        &mut pending,
+        "failed-sibling-walk".into(),
+    );
+    assert_eq!(
+        pending.get(&sibling.call).unwrap().as_ref().unwrap_err(),
+        "failed-sibling-walk"
+    );
+}
+
+#[test]
+fn object_source_inventory_keeps_zero_and_i64_inputs_for_direct_and_received() {
+    for (parameters, arguments) in [("", ""), ("size: i64", "7")] {
+        for result in [
+            format!("return me.make({arguments})"),
+            format!("local out = me.make({arguments}) return out"),
+        ] {
+            let source = format!("box Token {{}} box Maker {{ make({parameters}) {{ return new Token() }} relay() {{ {result} }} }} static box Main {{ main() {{ return 0 }} }}");
+            let package = package(&source);
+            let ingress = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            let rows: Vec<_> = ingress
+                .source_incoming
+                .exact_rows()
+                .filter(|row| row.source.object_return_sources().is_some())
+                .collect();
+            assert_eq!(rows.len(), 1, "{source}");
+            let row = rows[0];
+            assert!(row.arguments.is_empty(), "opaque subset only");
+            assert_eq!(
+                row.source.argument_sites().len(),
+                usize::from(!parameters.is_empty())
+            );
+            assert!(ingress.source_incoming.owners.contains(&row.callee));
+            assert!(!ingress.definitions.contains_key(&row.callee));
+            assert!(ingress
+                .incoming
+                .iter()
+                .all(|final_row| final_row.callee != row.callee));
+            let owners = [row.callee].into_iter().collect();
+            assert_eq!(ingress.source_incoming.project(&owners).unwrap().len(), 1);
+            let actuals = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_actuals
+                .get(&row.call)
+                .expect("original source probe observes typed input")
+                .as_ref()
+                .expect("original source actuals remain retained");
+            assert_eq!(
+                actuals.ordered_arguments.len(),
+                row.source.argument_sites().len()
+            );
+            assert!(actuals.require_executable_v1().is_ok());
+        }
+    }
+}
+
+#[test]
+fn object_source_inventory_excludes_non_i64_typed_contract() {
+    let package = package("box Token {} box Maker { make(size: usize) { return new Token() } relay() { return me.make(7) } } static box Main { main() { return 0 } }");
+    let ingress = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    assert!(ingress
+        .source_incoming
+        .exact_rows()
+        .all(|row| row.source.object_return_sources().is_none()));
+}
+
+#[test]
+fn object_source_inventory_preserves_unresolved_outside_and_global_vetoes() {
+    let package = package("box Token {} box Maker { make(size: i64) { return new Token() } relay() { return me.make(7) } again() { local out = me.make(8) return out } } static box Main { main() { return 0 } }");
+    let ingress = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let rows: Vec<_> = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| row.source.object_return_sources().is_some())
+        .collect();
+    assert_eq!(rows.len(), 2);
+    let owners = [rows[0].callee].into_iter().collect();
+    let scopes = package
+        .batch()
+        .declarations()
+        .map(|row| row.owner())
+        .collect();
+    let calls = BTreeMap::from([(
+        rows[0].call.clone(),
+        rows[0].source.require_instance().unwrap(),
+    )]);
+    let omitted = inventory_borrowed_incoming_calls_v1(
+        package.batch(),
+        &package.selected,
+        &ingress.definitions,
+        &package.parameter_contracts,
+        &calls,
+        &scopes,
+        None,
+    )
+    .unwrap();
+    assert!(omitted.owners.contains(&rows[0].callee));
+    assert_eq!(
+        omitted.project(&owners).unwrap_err(),
+        BorrowedIncomingDraftErrorV1::UnresolvedCaller(rows[1].call.clone())
+    );
+    assert!(omitted.vetoed_owners().contains(&rows[0].callee));
+    let calls = rows
+        .iter()
+        .map(|row| (row.call.clone(), row.source.require_instance().unwrap()))
+        .collect();
+    let mut scopes = scopes;
+    scopes.remove(&rows[1].call.owner());
+    let mut outside = inventory_borrowed_incoming_calls_v1(
+        package.batch(),
+        &package.selected,
+        &ingress.definitions,
+        &package.parameter_contracts,
+        &calls,
+        &scopes,
+        None,
+    )
+    .unwrap();
+    assert_eq!(
+        outside.project(&owners).unwrap_err(),
+        BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(rows[1].call.clone())
+    );
+    outside.observations.clear();
+    outside
+        .observations
+        .push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
+    assert!(outside.vetoed_owners().contains(&rows[0].callee));
+    assert_eq!(
+        outside.project(&owners).unwrap_err(),
+        BorrowedIncomingDraftErrorV1::BatchLoan
+    );
+}
+
+#[test]
+fn object_source_inventory_separates_same_selector_on_distinct_receivers() {
+    let package = package("box Token {} box Maker { make() { return new Token() } relay() { return me.make() } } box Other { make() { return new Token() } relay() { local out = me.make() return out } } static box Main { main() { return 0 } }");
+    let ingress = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let rows: Vec<_> = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| row.source.object_return_sources().is_some())
+        .collect();
+    assert_eq!(rows.len(), 2);
+    assert_ne!(rows[0].callee, rows[1].callee);
+    for row in rows {
+        let projected = ingress
+            .source_incoming
+            .project(&[row.callee].into_iter().collect())
+            .unwrap();
+        assert_eq!(projected.len(), 1);
+        assert_eq!(projected[0].call, row.call);
+    }
+}
+
+#[test]
 fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
     let package = package(INSTANCE);
     let source = package
@@ -124,7 +344,7 @@ fn source_graph_static_owner_preserves_rc_and_refuses_instance_authority() {
         .require_instance()
         .unwrap_err()
         .contains("instance-source-required"));
-    assert!(owned.object_return_source().is_none());
+    assert!(owned.object_return_sources().is_none());
     assert!(owned.object_source_forwards().is_none());
     assert!(owned.object_producer_dependencies().is_none());
     assert!(owned.stored_receiver().is_none());
@@ -287,7 +507,7 @@ fn source_graph_final_instance_correspondence_rejects_owned_source_mutation() {
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let prepared = ledger.lexical_instance_calls.borrow().values().filter_map(|slot| {
         match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
             _ => None,
         }
     }).collect::<Vec<_>>();

@@ -67,6 +67,7 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
 enum BorrowedCallActualEvidencePhaseV1 {
     Executable,
     SourceStatic(static_source::StaticSourceActualIdentityV1),
+    SourceObject(object_source::ObjectSourceActualIdentityV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -77,9 +78,24 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_for_test(
+        ingress: &PreparedBorrowedFormalIngressV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        call: &OwnedExprSiteV1,
+        candidates: &[BorrowedCallActualCandidateV1],
+    ) -> Self {
+        object_source::prepare_object_source_actuals_v1(ingress, contracts, call, candidates)
+            .unwrap()
+            .unwrap()
+    }
+
     pub(super) fn require_executable_v1(&self) -> Result<(), String> {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::SourceObject(_) => Err(freeze(
+                "ordinary-new/borrowed-entry/source-only-object-actuals",
+            )),
             BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-static-actuals",
             )),
@@ -141,13 +157,25 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
-        return static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals);
+        if let Some(actuals) =
+            static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals)?
+        {
+            return Ok(Some(actuals));
+        }
+        return object_source::prepare_object_source_actuals_v1(prepared, contracts, call, actuals);
     };
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
     }
     construct_borrowed_call_actuals_v1(
-        prepared, incoming_row, contracts, call, actuals, candidates, receiver, nullable_class,
+        prepared,
+        incoming_row,
+        contracts,
+        call,
+        actuals,
+        candidates,
+        receiver,
+        nullable_class,
     )
 }
 
@@ -486,6 +514,36 @@ pub(super) fn lend_pending_borrowed_arguments_v1<'a>(
     Ok(Some((call, arguments)))
 }
 
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_result_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &PendingBorrowedFormalActualsV1,
+    results: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
+    >,
+    site: &OwnedExprSiteV1,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    let arguments = project_pending_borrowed_i64_arguments_v1(source, actuals, results, site)?;
+    let Some(arguments) = arguments else {
+        return Ok(None);
+    };
+    let ingress = source.as_ref().map_err(Clone::clone)?;
+    let call = ingress
+        .incoming
+        .iter()
+        .find(|row| &row.call == site)
+        .ok_or_else(|| freeze("borrowed-call/source-identity"))?;
+    let proof = results
+        .get(&call.callee)
+        .ok_or_else(|| freeze("borrowed-call/result-source-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if proof.class != super::borrowed_formal_result::BorrowedResultClassV1::I64 {
+        return Ok(None);
+    }
+    Ok(Some(arguments))
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed_i64_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
@@ -526,9 +584,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn reject_borrowed_actuals_
         {
             staged.insert(incoming.call.clone(), Err(issue.clone()));
         }
+        for incoming in prepared.source_incoming.exact_rows().filter(|row| {
+            row.call.owner() == owner
+                && row.source.instance().is_some_and(|target| {
+                    prepared.source_incoming.has_object_input_callee_v1(target)
+                })
+        }) {
+            staged.insert(incoming.call.clone(), Err(issue.clone()));
+        }
     }
     for (site, row) in staged.iter_mut().filter(|(site, _)| site.owner() == owner) {
-        if matches!(row, Ok(actuals) if matches!(actuals.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_)))
+        if matches!(row, Ok(actuals) if matches!(actuals.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_) | BorrowedCallActualEvidencePhaseV1::SourceObject(_)))
         {
             *row = Err(format!("{issue} call={site:?}"));
         }
@@ -563,3 +629,15 @@ pub(in crate::mir::normal_callable_semantic_package) use static_source::project_
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_actual_source_atom_tests.rs"]
 mod source_atom_tests;
+
+#[path = "ordinary_new_borrowed_object_arguments.rs"]
+mod object_arguments;
+pub(in crate::mir::normal_callable_semantic_package) use object_arguments::{
+    corroborate_received_object_receiver_v1, project_pending_object_arguments_v1,
+};
+
+#[path = "ordinary_new_borrowed_object_source_actuals.rs"]
+mod object_source;
+
+#[path = "ordinary_new_borrowed_object_input_finish.rs"]
+mod object_input_finish;

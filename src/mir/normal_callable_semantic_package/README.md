@@ -446,17 +446,16 @@ parameter receivers proven only when *every* caller edge matching the callee's
 selector+arity passes a claim-proven local of one agreed class. Ambiguous,
 rebound, call-result or non-lexical evidence vetoes arming instead of guessing;
 the variable receiver then keeps its existing dynamic path outside armed loops
-or becomes a named uncovered route item inside one. `me.<name>` receivers are a
-third, coverage-only shape: the caller's `Receiver` binding resolves the target
-through the caller's own selected `InstanceBoxMethod` key — the sole class
-authority — and the issued `SelfReceiver` row names the self-edge for incoming
-coverage, terminal/dependency checks and `lexical_instance_call_covered`, but
-never routes a lifecycle binding-group expectation (`local x = me.m(..)`
-emission and its `CallReceived` bookkeeping stay with the sealed receiver-call
-lane). `this`/other receivers stay exclusively on the strict declared-instance
-locator; every issued row carries the exact call/receiver sites, the binding
-and the selected `InstanceBoxMethod` key — never a Callee, ValueId, dispatch
-strategy or runtime fallback.
+or becomes a named uncovered route item inside one. `me.<name>` targets come
+from the caller's selected `InstanceBoxMethod` key. ExistingBorrowedResult
+SelfReceiver rows keep their coverage/receiver protocol; completed Object local
+acquisitions route Handle/Nullable lifecycle groups through the shared emitter.
+The declared locator moves its SAME one-shot read there, never taking it twice.
+The SAME emitted packet Rc backs both the group and CallReceived argument checks,
+including after the artifact takes the pending group pool. Terminal Direct is
+not a local acquisition. Source failure never retries the old protocol.
+`this`/other receivers retain the strict locator; source rows issue no physical
+value, dispatch strategy or receiver Home.
 Claim-local rows additionally co-seal the callee's result contract: when the
 caller-side scan independently minted a Handle local-call observation for the
 same site, the row records `InvokeCallResultKind::Handle` only if the callee's
@@ -1455,10 +1454,181 @@ The I64 projector borrows that same lender, then applies its existing source-res
 corroboration in the same error order. Object-result qualification and handoff must
 be checked by their own requesting lane; argument lending alone grants neither.
 
+ObjectArguments requests reloan the same immutable result Facts qualification and
+select one original Instance target by exact acquisition site. Target/key/arity
+and original Call witnesses are checked before lending the existing arguments.
+Received self calls require their original entry receiver binding before joining
+the receiver observation, class, destination and typed source argument sites.
+Missing observation stays unavailable; missing or contradictory binding is an
+error. Incoming callee identity is checked before transport-profile availability. Direct/Received terminals retain
+source support availability only; missing support does not imply zero arguments
+or cleanup readiness, and pending artifact guards remain mandatory. Source-only
+Object actual retention and full incoming/domain closure still precede Normal seal.
+
+One acquisition may support multiple original Received return values. Its source
+requirement retains every qualified terminal value and its original witness Rc;
+ObjectArguments requires exact membership in that plural set. A single terminal
+loan never substitutes for another return, and a plural set never retries the
+ExistingBorrowedResult lane. The Facts projection only filters original source
+outcomes by exact acquisition and key; it does not solve results again.
+
+The canonical profile attaches plural terminal qualifications after its original
+raw drafts and before incoming inventory. Forward evidence is an optional proved
+subset: absent drafts remain None, distinct from Some(empty). The shared opaque
+identity core preserves the legacy all-opaque coverage law; source-only subset
+validation checks coordinates and duplicates without counting valid nonopaque
+ordinals as forwarded opaque identities. These requirements grant no execution.
+
+SourceObject actuals retain the original Instance target, incoming opaque
+coordinates and candidate vector on the same pending row. Their opaque proofs
+remain empty and executable requests reject this phase. ObjectArguments reports
+SourceOnly separately from Observed; failed owner walks revoke retained rows.
+The single original draft map is partitioned into final and source-only owners,
+so source lookup can retain excluded proofs without changing final eligibility.
+Full caller/domain/body coverage must precede existing executable construction.
+
+The same whole-batch incoming scan retains qualified Instance Object source
+callees with zero parameters or exact i64 parameters beside the opaque draft
+owners. Canonical key/slot/mode/ordinal identity is checked before census;
+unknown callers, callers outside Ordinary scopes and global batch-loan failure
+veto those owners as well. Different proved receiver targets remain separate.
+An empty opaque subset is source coverage only, not a borrowed entry, input
+domain, successful body Completion or executable actual proof. The final
+transport owner set and formal-domain solver remain unchanged.
+
 The existing pending actual producer delegates construction to the private
 construct_borrowed_call_actuals_v1 after selecting its original incoming row.
 The constructor preserves contract, ordinal, domain and candidate checks in
 their original order; this extraction adds no source phase or entry authority.
+
+SourceObject input membership also covers an original incoming sibling of the
+same qualified callee (exact owner, slot and key). The inventory retains that
+sibling target unchanged, including absent own ObjectReturnSource qualification;
+input retention never manufactures a return qualifier. Source probe selection
+and failed-walk revocation use the same membership. All incoming candidates
+remain mandatory for later typed closure, including these unqualified siblings.
+
+Typed Object input finishing runs immediately after original physical signature
+issuance, using the same ledger and indexed Completion. Zero/all-i64 Instance
+callees require exact selected contract and receiver/scalar signature lanes,
+all original caller candidates and the same inventory veto projection. The
+private original actual constructor regenerates every source row before any
+replacement is installed for that callee. Missing proof keeps source-only rows;
+existing Completion, exit or sibling refusal retains its cause across the
+cohort, while structural identity contradictions reject issuance. Unqualified
+siblings receive input support without return authority. This does not issue a
+borrowed entry, completed-index Object return seal or artifact permission.
+
+The completed typed Object argument lender rechecks the same whole-callee input
+validator at demand. It also requires the request's own original result Facts
+qualification and exact membership in the retained target's plural loans. It
+borrows the existing executable argument slice only when no source replacement
+remains uninstalled; it never installs rows while lending. This prerequisite
+still requires connection to the completed-index Normal return consumer.
+
+The completed-index callee exit checker maps every explicit return to the
+original result Facts and retains the original ordered witness Rc edges.
+Missing indexed Completion or terminal coverage stays incomplete; rejected
+Completion and exit rows preserve their causes. It does not retry a root
+Completion. Foreign qualifications, duplicate/mismatched values or changed
+edge membership reject. This is an input to the upcoming full Object return
+handoff seal, without a Normal or physical permission of its own.
+
+Completed Object acquisition checks the original caller indexed Completion and
+exit snapshot, then joins the original raw target to typed inputs or the
+existing final opaque entry. Direct preserves argument sites and Fault homes;
+Received preserves its covered observation, destination and receiver arguments.
+Observed and SourceOnly snapshots must equal the completed ordered arguments
+without changing the original source phase. Missing source support stays
+unavailable and existing staged errors retain their cause.
+
+Scalar argument lending alone does not prove an I64 call result. The same
+callback now distinguishes ScalarArguments (also used by Nullable inputs) from
+I64ResultArguments. The latter borrows the original lender and sealed source
+result proof, requiring its I64 class before the I64 observation is issued.
+Non-I64 sources do not acquire scalar result authority; independent strict-I64
+membership and final result verification retain their existing boundaries.
+
+Completed Object handoff joins the exact acquisition to every original callee
+exit and ordered Facts witness. Fresh/null reuse the existing leaf checker;
+Call edges recurse through their original OwnedCall terminal and witness Rc
+membership. One read-only seal pass owns the memo and recursion path, keyed
+by owner/exit with the exact original terminal retained. Missing alternatives
+keep the whole handoff unavailable while later siblings are still checked for
+errors. This source ancestry proof does not project Normal homes, install a
+disposition map, or grant physical/publication capability.
+
+The signature-ready issuer now invokes one completed-index disposition seal
+after typed input finishing. The same ledger stores an optional map of source
+handoff proofs or unavailable reasons: None means unsealed; Some(empty) also
+means sealed. Root/indexed terminal conflicts and handoff errors abort before
+installation. All rows are staged in one local map and installed only after
+full success. Reissuance rejects even an empty map. This connection retains
+source proof only; original Normal cleanup and pending artifact gates remain.
+
+Normal cleanup preparation and independent root-exit validation now borrow one
+completed-index projection after the existing pending/all-exits-ready gates.
+It requires a sealed disposition map, exact indexed Completion and retained
+terminal. OwnedCall proofs must equal the current original obligation and
+value/exit identity. Direct borrows original homes; Received removes only its
+exactly-once destination while preserving the order of every other home.
+Fault homes and covered-call evidence are borrowed from the original exit.
+Missing terminal/proof support is unavailable, not ordinary cleanup evidence;
+foreign or changed evidence rejects. This projection does not activate the
+OwnedCall physical path or relax artifact gates. Physical omission/attachment
+and Fault execution acceptance remain separate required work.
+
+The completed-index Object result join requires pointer identity with the original
+result cohort's Completion and terminal table, exact source result class and all
+ordered Fresh/Null/Call alternatives. Call leaves require the saved original
+Normal disposition; all caller qualifications and retained producer dependencies
+must equal the original Facts rows. Missing producer-dependency retention stays
+unfinished. This result check alone grants no input, affine slot or artifact
+permission; signature/input joining and physical attachment remain required.
+
+Qualified Object input lenders retain their original qualification-first checks
+and delegate to the same target-only input body. The target-only typed lender
+reuses the exact source inventory and whole-callee Completion/signature preflight;
+the opaque lender keeps its original whole-final-incoming and final-entry checks.
+Both borrow the same staged argument storage without granting caller qualification,
+result authority, or slot readiness. Missing and original refusal remain distinct.
+
+Object source requirements now occupy a family-local lexical SourcePending cell
+before the legacy uniform-result classification. The original profile retains
+nonempty producer dependency loans from the same Facts, and the sole incoming
+inventory includes their supported typed input owners without creating caller
+return qualifications. Qualified and producer-only source targets share the same
+result/input closure. Structural target, full plural loan, dependency and signature
+identity are checked before executable demands; excluded formal families and raw-only
+opaque owners stay pending. Eligible Completion errors preserve their original cause.
+Missing original caller terminals stay pending; foreign or changed obligations reject.
+The caller observation check borrows only its indexed Completion, never a root copy;
+local result roles must be Handle/Nullable and agree with the completed callee result.
+All slot upgrades and local lifecycle route marks are staged, rechecked and installed
+only after the full pass succeeds. Pending take refuses before consuming the cell;
+Ready remains affine and Taken refuses reuse. Source Ready is not physical result
+attachment, cleanup permission or artifact readiness. Direct provisional-result and
+Received physical handoff/omission, Fault cleanup and independent validation remain
+required before production publication can pass the original pending guards.
+
+
+The Direct terminal argument lender borrows a verified source view from the exact
+indexed terminal and its saved Normal handoff proof. Original Facts qualification,
+call/key, ordered argument sites and retained snapshot must agree; result kind and
+class come from that same qualification. It lends the proof's original argument
+storage to borrowed_terminal_arguments_v1. Received does not represent an outer
+terminal call packet. Missing index/proof remains unavailable, and foreign proof
+or snapshot drift rejects without retrying the I64 lane. This source view grants
+no cleanup, physical result attachment, or artifact permission; existing pending
+publication gates remain until those independent obligations are verified.
+
+The selected lexical-return emitter now corroborates its actual taken affine row
+against that Direct view before consuming receiver/argument leases. Full source
+target and result kind must agree. Object rows missing the original proof reject;
+only the original I64 lane uses its legacy terminal lender. Direct arguments are
+borrowed directly from the view, and result type/class reach the existing Invoke
+core from the same Facts. This consumer stage does not relax preparation or
+publication gates, nor certify cleanup graph/result attachment completion.
 
 
 Root Home exit progress retains one exact cleanup order across Prepared, Emitting,
@@ -1471,12 +1641,33 @@ ledger Rc. Ordinary F=N graphs and preparation/publication gates remain unchange
 Received omission, Direct result attachment and FinishedBindings/Fault residual
 validation are later semantic work, not permission granted by this retention.
 
-Root cleanup paths independently walk actual MIR against the retained original
-Normal/acquisition/per-step Fault obligations. Exact recorded-node coverage, DAG
-and reachability replace fixed F=N counts. Projected topology uses original
-entry destinations; PhysicalBoundary checks merged instructions before finishing.
-Old Call count helper and its exclusive walkers are removed; shared ingress stays.
-Preparation/publication and Call result-kind admission remain unchanged.
+Root preparation now expands original Fault Home end plans once and selects
+Normal plans by the same projection's exact binding membership. It never
+reconstructs Fault obligations from Normal. Duplicate Homes and foreign or
+reordered Normal bindings refuse before lookup; unavailable end plans still
+allow later missing/duplicate installed-Home errors to surface. This retained
+mapping grants no OwnedCall preparation or publication: graph/result attachment
+and independent FinishedBindings validation remain prerequisites.
+
+The existing root emitter borrows full origins and original-index Fault sequences
+from the same Emitting order. Its pending chains share exact index suffixes and
+carry both outcomes to the remaining obligations. Call acquisition Fault uses
+its own retained sequence. This does not relax admission: independent residual
+graph validation and Direct result attachment are still required.
+
+The root ordered-path checker walks actual MIR against the SAME retained Normal,
+acquisition-Fault and per-step residual sequences, at raw and FinishedBindings
+validation points. It rejects joint record/MIR Fault-only omissions. Existing
+structural/entry checks still own node coverage, extra instructions, source
+return/frame and exact Call result identity. F!=N structural coverage and
+Finalized-order corroboration remain required before admission changes.
+
+Root cleanup shape validation now uses exact recorded-node coverage, DAG,
+reachability, actual terminals/instructions and existing ingress boundaries,
+without F=N count formulas. Projected topology uses original entry destinations;
+merged instructions remain independently checked by PhysicalBoundary before
+FinishingChecked. Source-ordered paths independently verify release semantics.
+This does not widen Call result admission or authorize pending object returns.
 
 Finalized cleanup corroboration lends SAME ledger owner/exit order before the
 public lexical-call visitor enumerates nodes, including nonlexical root calls.
@@ -1485,3 +1676,38 @@ project exactly once. Mandatory bindings must be recorded and present in current
 MIR. Ordered paths/topology remain independent; merged instruction sequences
 and other artifact laws retain their existing finishing/publication validators.
 Source-only unfinished rows grant no additional permission.
+
+The SAME sealed object-return handoff reduces its original Fresh teardown
+descriptors once per DAG node; Direct source view lends that retained result.
+Object/destruction/children must agree exactly. Null contributes nullable ancestry
+without a descriptor. Unavailable nodes retain descriptor/null ancestry for
+parent consistency checks; only Verified lends a teardown descriptor.
+NoFresh null-only ancestry may join a sibling Fresh; unsupported child teardown
+propagates refusal. Nullable owned-field teardown remains unavailable until its
+physical envelope is accepted. This reduction does not open artifact/Home gates.
+
+Direct root cleanup retains a private source carrying the SAME sealed handoff.
+The sole root emitter binds its reserved InvokeNormalResult value once after
+argument-map attachment. Result teardown is a Fault-only prefix: Normal and
+acquisition Fault retain prior obligations; cleanup Fault includes the result.
+Record/final checks join original call site, exact kind, projection dst, invoke
+origin and Return; pending/artifact gates and I64 final ingress stay unchanged.
+
+Object lexical Ready rows retain the checked input/result join produced by the
+same full-slot finish; affine take moves that seal with the row. Packet actual
+lending checks current original incoming domains and full source/actual snapshots
+using the existing Executable/ordered-argument checker. Typed zero/all-I64 uses
+the original projected callee cohort; opaque retains whole-final-incoming checks
+and their failure ordering. Input errors precede SAME callee Completion/terminal
+Rc and exact Handle/Nullable result checks. Empty executable actuals are allowed;
+source-only empty actuals refuse. This joins the existing packet materializer,
+without issuing physical/artifact permission or weakening pending-return gates.
+
+The terminal lexical selector and independent packet/Call validators share one
+checked terminal source loan. Legacy Call retains original arguments and I64;
+Direct OwnedCall lends the SAME sealed target/arguments/exact result kind;
+Received remains a Value return. Call ingress, ordered paths and original,
+projected or already-finished topology receive the source-retained order's
+expected kind. MIR result spelling is never an admission authority. Preparation
+and artifact pending gates remain until the actual acquisition/cleanup series
+closes its full acceptance.

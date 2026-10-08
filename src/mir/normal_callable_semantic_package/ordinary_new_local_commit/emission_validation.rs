@@ -261,6 +261,37 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(LocalCommitV1::CallReceived(row)) = rows.get(site) else {
             return Err(freeze("handle-progress-missing"));
         };
+        let CallReceivedProgress::Emitted {
+            result,
+            bindings,
+            packet,
+            ..
+        } = &row.progress
+        else {
+            return Err(freeze("handle-emission-incomplete"));
+        };
+        let packet_arguments = if let Some(packet) = packet {
+            if packet.call_site() != site {
+                return Err(freeze("receiver-object/record-source-drift"));
+            }
+            let arguments = self.receiver_object_packet_arguments_v1(packet.original_row()?)?;
+            if packet.value_with_ledger(site.owner(), arguments, self)? != *result {
+                return Err(freeze("receiver-object/record-result-drift"));
+            }
+            packet.validate_recorded(bindings)?;
+            Some(arguments)
+        } else {
+            if self.receiver_call_observation(site).is_some()
+                && self
+                    .lifecycle_local_call_sites
+                    .borrow()
+                    .get(&site.owner())
+                    .is_some_and(|sites| sites.contains(site))
+            {
+                return Err(freeze("receiver-object/record-packet-missing"));
+            }
+            None
+        };
         // Flow membership and argument evidence share one sealed edge:
         // Handle rows carry literal arguments on the flow row itself, while
         // the Nullable row's typed arguments live on the receiver-call
@@ -275,7 +306,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     call.local_binding()
                         .ok_or_else(|| freeze("handle-call-destination-drift"))?
                         .1,
-                    call.arguments().len(),
+                    packet_arguments
+                        .map_or_else(|| call.arguments().len(), |arguments| arguments.len()),
                 )
             }
             CallReceivedReleaseV1::Nullable => {
@@ -287,9 +319,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 // calls seal the same arguments on the flow row itself —
                 // exactly one of the two shapes seals each site, so the
                 // sealed one names the expected arity.
-                let arity = self.receiver_call_observation(site).map_or_else(
-                    || call.arguments().len(),
-                    |observation| observation.arguments().len(),
+                let arity = packet_arguments.map_or_else(
+                    || {
+                        self.receiver_call_observation(site).map_or_else(
+                            || call.arguments().len(),
+                            |observation| observation.arguments().len(),
+                        )
+                    },
+                    |arguments| arguments.len(),
                 );
                 (
                     call.local_binding()
@@ -306,12 +343,6 @@ impl OrdinaryNewClaimLedgerV1 {
         if row.binding != call_destination || row.local().is_none() {
             return Err(freeze("handle-local-incomplete"));
         }
-        let CallReceivedProgress::Emitted {
-            result, bindings, ..
-        } = &row.progress
-        else {
-            return Err(freeze("handle-emission-incomplete"));
-        };
         let invokes: Vec<_> = bindings
             .iter()
             .filter(|(_, instruction)| {

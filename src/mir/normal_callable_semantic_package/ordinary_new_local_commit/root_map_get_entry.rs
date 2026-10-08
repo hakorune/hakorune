@@ -118,6 +118,7 @@ impl OrdinaryNewClaimLedgerV1 {
             &cleanup,
             &mapped(invoke)?,
             &mapped(projection)?,
+            crate::mir::instruction::InvokeCallResultKind::I64,
         )?;
         Ok(())
     }

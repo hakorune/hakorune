@@ -38,20 +38,21 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         packet: &EmittedLexicalCallProjectionV1,
     ) -> Result<(), String> {
-        let (completion, terminal) = self
-            .call_source_completion_for_owner_at(owner, exit)
+        let source = self
+            .verified_terminal_call_source_v1(owner, exit)?
             .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
-        if completion.owner() != owner
-            || terminal.return_site() != exit
-            || packet.call_site().owner() != owner
-            || packet.call_site().site() != terminal.call_site()
-        {
+        if packet.call_site().owner() != owner || packet.call_site().site() != source.call_site() {
             return Err(freeze("lexical-terminal/source-identity"));
         }
-        let source = self
-            .borrowed_terminal_arguments_v1(owner, exit)?
+        if source.legacy_terminal().is_none() {
+            source.corroborate_row(packet.original_row()?)?;
+        } else if packet.original_source().result() != Some(source.result()) {
+            return Err(freeze("lexical-terminal/result-kind"));
+        }
+        let source = source
+            .lexical_arguments()
             .ok_or_else(|| freeze("lexical-terminal/arguments-missing"))?;
-        packet.call_with_ledger(owner, &source, self)?;
+        packet.call_with_ledger(owner, source, self)?;
         Ok(())
     }
 }

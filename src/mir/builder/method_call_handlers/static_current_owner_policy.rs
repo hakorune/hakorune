@@ -80,13 +80,18 @@ impl MeCallPolicyBox {
         let receiver = descent
             .terminal_port()
             .take_declared_instance_receiver_value_v1(builder)?;
-        let prepared = match receiver {
+        let (prepared, read) = match receiver {
             DeclaredInstanceReceiverIngressV1::Unarmed => {
-                Self::prepare(builder, method, arguments, descent)?
+                (Self::prepare(builder, method, arguments, descent)?, None)
             }
-            DeclaredInstanceReceiverIngressV1::Ready { key, receiver } => {
-                PreparedMeCallExecutionV1::CanonicalInstance { key, receiver }
-            }
+            DeclaredInstanceReceiverIngressV1::Ready {
+                key,
+                receiver,
+                read,
+            } => (
+                PreparedMeCallExecutionV1::CanonicalInstance { key, receiver },
+                Some(read),
+            ),
         };
         Self::validate_prepared_me_arity_before_descent(
             &prepared,
@@ -101,7 +106,7 @@ impl MeCallPolicyBox {
         if let PreparedMeCallExecutionV1::CanonicalInstance { ref key, receiver } = prepared {
             if let Some(value) = descent
                 .terminal_port()
-                .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver)?
+                .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver, read)?
             {
                 return Ok(Some(value));
             }

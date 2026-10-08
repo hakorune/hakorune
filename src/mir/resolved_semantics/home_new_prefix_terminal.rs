@@ -68,6 +68,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     local_calls,
                     path_calls,
                     homes,
+                    borrowed_actuals,
                 )?)
             } else {
                 None

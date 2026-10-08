@@ -21,9 +21,21 @@ pub(crate) struct TerminalObjectReturnObligationV1 {
     return_site: SourceStmtSiteV1,
     acquisition: ObjectReturnAcquisitionV1,
     exit_homes: Box<[BindingRefV1]>,
+    arguments: ObjectCallSourceSupportV1,
 }
 
 impl TerminalObjectReturnObligationV1 {
+    /// Corrupt the retained snapshot without changing its source identity.
+    #[cfg(test)]
+    pub(crate) fn with_arguments_for_test(&self, arguments: ObjectCallSourceSupportV1) -> Self {
+        let mut changed = self.clone();
+        changed.arguments = arguments;
+        changed
+    }
+
+    pub(crate) fn arguments(&self) -> &ObjectCallSourceSupportV1 {
+        &self.arguments
+    }
     pub(crate) fn qualification(&self) -> &ObjectReturnCallQualificationV1 {
         &self.qualification
     }
@@ -47,6 +59,10 @@ pub(super) fn observe_object_return_source<E>(
     calls: &[LocalCallObservationV1],
     covered: &BTreeSet<OwnedExprSiteV1>,
     homes: &[BindingRefV1],
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Result<TerminalValueReturnV1, HomePrefixUnavailableV1>, E> {
     let unavailable = || HomePrefixUnavailableV1::ReturnValueNotCovered(statement.site().clone());
     let Ok(value) = input
@@ -119,11 +135,31 @@ pub(super) fn observe_object_return_source<E>(
         }
         ObjectReturnAcquisitionV1::Received(original.clone())
     };
+    let arguments = match borrowed_actuals(
+        loan.call(),
+        BorrowedCallActualRequestV1::ObjectArguments(
+            &loan,
+            match &acquisition {
+                ObjectReturnAcquisitionV1::Received(row) => {
+                    row.local_binding().map(|(_, binding)| binding)
+                }
+                ObjectReturnAcquisitionV1::Direct { .. } => None,
+            },
+        ),
+    )? {
+        Some(BorrowedCallArgumentsV1::Object {
+            qualification,
+            arguments,
+        }) if qualification == loan => arguments,
+        None => ObjectCallSourceSupportV1::Unavailable,
+        _ => return Ok(Err(unavailable())),
+    };
     let obligation = TerminalObjectReturnObligationV1 {
         qualification: loan,
         return_site: statement.site().clone(),
         acquisition,
         exit_homes,
+        arguments,
     };
     Ok(Ok(TerminalValueReturnV1::issue(
         input.owner(),

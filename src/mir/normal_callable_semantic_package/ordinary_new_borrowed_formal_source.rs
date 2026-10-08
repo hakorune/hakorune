@@ -53,6 +53,8 @@ impl BorrowedFormalObjectViewV1 {
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedFormalIngressV1 {
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    // Disjoint excluded owners from the same original draft issuance.
+    pub(super) source_only_definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     /// Dominated-view value-use sites across every classified owner —
     /// `ArrayElementValue`, `AddOperand`, or `NewArgument` rows recorded
     /// at draft classification time, before borrowed-transport selection.
@@ -289,10 +291,9 @@ pub(super) fn finish_ingress_from_drafts_v1(
             &transport_owners,
             &inventory,
         )?;
-    let definitions: BTreeMap<_, _> = definitions
+    let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
-        .filter(|(owner, _)| transport_owners.contains(owner))
-        .collect();
+        .partition(|(owner, _)| transport_owners.contains(owner));
     let forwards = join_borrowed_forward_uses_v1(&definitions, contracts, &call_sources)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/forward-coverage")))?;
     // Project the SAME immutable inventory; retain it for candidate activation.
@@ -308,6 +309,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     object_views.retain(|formal, _| transport_owners.contains(&formal.owner()));
     Ok(PreparedBorrowedFormalIngressV1 {
         definitions,
+        source_only_definitions,
         dominated_view_sites,
         forwards,
         incoming,
@@ -522,6 +524,40 @@ fn object_view_for(
 }
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Source lookup borrows the one original draft map's disjoint partition.
+    /// This does not make an excluded owner eligible for executable transport.
+    pub(super) fn source_definition_for(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&BorrowedFormalUsesDraftV1> {
+        self.definitions
+            .get(&owner)
+            .or_else(|| self.source_only_definitions.get(&owner))
+    }
+
+    /// Borrow one original raw Instance target after affine preparation is consumed.
+    /// This lookup grants no incoming/domain or executable permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn object_source_target_at_v1(
+        &self,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<&LexicalInstanceCallSourceTargetV1>, String> {
+        let mut rows = self
+            .source_incoming
+            .exact_rows()
+            .filter(|row| &row.call == site);
+        let Some(row) = rows.next() else {
+            return Ok(None);
+        };
+        let target = row.source.require_instance()?;
+        if rows.next().is_some()
+            || target.call_site() != site
+            || target.callee_owner() != row.callee
+        {
+            return Err(freeze("object-source/target-identity"));
+        }
+        Ok(Some(target))
+    }
+
     /// Source agreement only; an explicit physical projection is still required.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_integer_agreement(
         &self,
@@ -574,6 +610,12 @@ impl PreparedBorrowedFormalIngressV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         self.incoming.iter().any(|row| row.call.owner() == owner)
+            || self.source_incoming.exact_rows().any(|row| {
+                row.call.owner() == owner
+                    && row.source.instance().is_some_and(|target| {
+                        self.source_incoming.has_object_input_callee_v1(target)
+                    })
+            })
             || self
                 .static_arguments
                 .keys()

@@ -524,3 +524,36 @@ fn borrowed_terminal_call_frame_role_stays_bound_to_original_root_owner() {
         .unwrap_err();
     assert!(error.contains("call-frame-drift"), "{error}");
 }
+
+#[test]
+fn direct_terminal_missing_sealed_source_cannot_validate_plain_entry() {
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Token {} box Maker { make(size: i64) { return new Token() } relay() { return me.make(7) } } static box Main { main() { return 0 } }",
+    ).unwrap();
+    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let (owner, exit) = ledger
+        .normal_return_dispositions
+        .as_ref()
+        .unwrap()
+        .keys()
+        .next()
+        .unwrap()
+        .clone();
+    ledger.normal_return_dispositions.as_mut().unwrap().clear();
+    let function = crate::mir::MirFunction::new(
+        crate::mir::FunctionSignature {
+            name: "missing-direct-source".into(),
+            params: vec![],
+            return_type: crate::mir::MirType::Box("Token".into()),
+            effects: crate::mir::EffectMask::PURE,
+        },
+        BasicBlockId(0),
+    );
+    let entry = RootHomeExitEntry::Plain {
+        local_bindings: vec![],
+    };
+    assert!(ledger
+        .validate_call_entry(owner, &exit, &function, None, &entry, &[])
+        .unwrap_err()
+        .contains("direct-result-source-missing"));
+}

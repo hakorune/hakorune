@@ -462,7 +462,9 @@ pub(crate) fn scan_new_home_flow<E>(
 
 #[path = "home_borrowed_call_port.rs"]
 mod borrowed_call_port;
-pub(crate) use borrowed_call_port::{BorrowedCallActualRequestV1, BorrowedCallArgumentsV1};
+pub(crate) use borrowed_call_port::{
+    BorrowedCallActualRequestV1, BorrowedCallArgumentsV1, ObjectCallSourceSupportV1,
+};
 
 #[cfg(test)]
 pub(crate) use local_call_flow::issue_static_source_local_for_test;

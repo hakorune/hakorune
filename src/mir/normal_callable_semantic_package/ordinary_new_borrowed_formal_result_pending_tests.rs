@@ -122,7 +122,7 @@ fn conflicting_conditional_classes_do_not_depend_on_wrapper_order() {
         let calls = ledger.lexical_instance_calls.borrow();
         let mut lexical = 0;
         for row in calls.values() {
-            if let crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) = row {
+            if let crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) = row {
                 assert!(row.source_target().stored_receiver().is_none(), "no stored call is promoted");
                 lexical += 1;
             }

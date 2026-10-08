@@ -257,6 +257,15 @@ fn emit_root_home_exit_payload(
     ingress: Option<RootExitIngress>,
 ) -> Result<ValueId, String> {
     let operations = ledger.begin_root_home_exit(owner, site)?;
+    if let Some(RootExitIngress::Call(call)) = &ingress {
+        ledger.bind_root_direct_result_v1(owner, site, statement_result, call.result)?;
+    }
+    let fault_sequences = ledger.root_home_fault_sequences(owner, site)?;
+    let fault_operations: Vec<_> = fault_sequences
+        .full
+        .iter()
+        .map(|origin| origin.operation().clone())
+        .collect();
     let mut bindings = Vec::new();
     let mut clean = builder.next_block_id();
     append_block(
@@ -267,29 +276,34 @@ fn emit_root_home_exit_payload(
         },
         &mut bindings,
     )?;
-    let count = operations.len();
-    let mut origins = Vec::with_capacity(count);
+    let mut origins = Vec::with_capacity(operations.len());
     // Empty-Home Plain has no Fault edge. Do not issue a disconnected terminal
     // that finishing would remove while its recorded binding stayed live —
     // and do not materialize a frame definition no Invoke would consume.
     if !operations.is_empty() || ingress.is_some() {
         let frame = state.borrow_fault_frame(builder)?;
-        let mut fault = builder.next_block_id();
+        let fault_terminal = builder.next_block_id();
         append_block(
             builder,
-            fault,
+            fault_terminal,
             MirInstruction::ReturnFault { fault_frame: frame },
             &mut bindings,
         )?;
-        for (index, origin) in operations.into_iter().rev().enumerate() {
-            let operation = origin.operation().clone();
-            // A clean ingress's Fault skips its own retry and joins the
-            // remaining fault-pending suffix. Later Normal outcomes cannot
-            // clear that Fault.
+        let mut fault_nodes = std::collections::BTreeMap::new();
+        fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
+        for (index, origin) in operations.into_iter().enumerate().rev() {
+            let fault = emit_pending_root_fault_sequence(
+                builder,
+                frame,
+                &fault_operations,
+                &fault_sequences.after_normal[index],
+                &mut fault_nodes,
+                &mut bindings,
+            )?;
             let next_clean = cleanup_step(
                 builder,
                 frame,
-                operation.clone(),
+                origin.operation().clone(),
                 clean,
                 fault,
                 &mut bindings,
@@ -299,11 +313,20 @@ fn emit_root_home_exit_payload(
                 .cloned()
                 .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
             origins.push((origin, block, instruction));
-            if ingress.is_some() || index + 1 < count {
-                fault = cleanup_step(builder, frame, operation, fault, fault, &mut bindings)?;
-            }
             clean = next_clean;
         }
+        let fault = if ingress.is_some() {
+            emit_pending_root_fault_sequence(
+                builder,
+                frame,
+                &fault_operations,
+                &fault_sequences.acquisition,
+                &mut fault_nodes,
+                &mut bindings,
+            )?
+        } else {
+            fault_terminal
+        };
         origins.reverse();
         match ingress {
             Some(RootExitIngress::Call(call)) => {
@@ -372,6 +395,33 @@ fn emit_root_home_exit_payload(
     bindings.push((origin, jump));
     ledger.record_root_home_exit(owner, site, origins, bindings)?;
     Ok(statement_result)
+}
+
+/// Share only exact original-origin suffixes within this emission.
+fn emit_pending_root_fault_sequence(
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    full: &[InvokeOperation],
+    sequence: &[usize],
+    nodes: &mut std::collections::BTreeMap<Vec<usize>, crate::mir::BasicBlockId>,
+    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
+) -> Result<crate::mir::BasicBlockId, String> {
+    let mut next = *nodes
+        .get(&Vec::new())
+        .ok_or_else(|| freeze("root-fault-terminal-missing"))?;
+    for offset in (0..sequence.len()).rev() {
+        let suffix = &sequence[offset..];
+        if let Some(existing) = nodes.get(suffix) {
+            next = *existing;
+            continue;
+        }
+        let origin = full
+            .get(sequence[offset])
+            .ok_or_else(|| freeze("root-fault-origin-missing"))?;
+        next = cleanup_step(builder, frame, origin.clone(), next, next, bindings)?;
+        nodes.insert(suffix.to_vec(), next);
+    }
+    Ok(next)
 }
 
 pub(in crate::mir::builder) fn emit_terminal_i64_add_return(

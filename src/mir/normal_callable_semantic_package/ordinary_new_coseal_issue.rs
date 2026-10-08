@@ -299,7 +299,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
-                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call,
+                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -615,7 +615,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 &mut |binding| lexical::nullable_received_result_class(
                                     selected, batch, &callable_result_classes, &candidates, input, binding,
                                 ),
-                                site, actuals,
+                                site, actuals, &callable_result_classes, &receiver_call_observations,
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source,

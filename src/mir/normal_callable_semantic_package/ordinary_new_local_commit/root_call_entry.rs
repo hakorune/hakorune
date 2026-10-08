@@ -4,6 +4,25 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Simulate the pending pool moving into its finalized artifact owner.
+    #[cfg(test)]
+    pub(crate) fn validate_new_emissions_after_local_pool_move_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let groups = self
+            .root_local_call_bindings
+            .borrow_mut()
+            .remove(&owner)
+            .ok_or_else(|| freeze("local-call-pool-missing"))?;
+        let result = self.validate_new_emissions(owner, function);
+        self.root_local_call_bindings
+            .borrow_mut()
+            .insert(owner, groups);
+        result
+    }
+
     pub(crate) fn record_map_read_bindings(
         &self,
         owner: FunctionOwnerIdV1,
@@ -40,11 +59,13 @@ impl OrdinaryNewClaimLedgerV1 {
         site: OwnedExprSiteV1,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         packet: EmittedLexicalCallProjectionV1,
-    ) -> Result<(), String> {
+    ) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
+        let packet = std::rc::Rc::new(packet);
         self.record_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(site, bindings, Some(std::rc::Rc::new(packet)))?,
-        )
+            RootLocalCallBindingGroupV1::new(site, bindings, Some(std::rc::Rc::clone(&packet)))?,
+        )?;
+        Ok(packet)
     }
 
     fn record_local_call_binding_group(
@@ -109,6 +130,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 matches!(
                     call.result(),
                     crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
                         | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
                 ) && routed.is_some_and(|sites| sites.contains(call.site()))
             })
@@ -145,6 +167,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 matches!(
                     call.result(),
                     crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
                         | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
                 ) && covered.contains(call.site())
                     && routed.is_some_and(|sites| sites.contains(call.site()))

@@ -218,7 +218,7 @@ where
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         completed: &super::emission::constant::CompletedConstV1,
-    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String>{
         self.child
             .complete_compare_integer_literal_v1(loan, completed)
     }
@@ -377,9 +377,10 @@ where
         builder: &mut MirBuilder,
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver: ValueId,
+        read: Option<crate::mir::builder::ExactLexicalReadV1>,
     ) -> Result<Option<ValueId>, String> {
         self.child
-            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver)
+            .emit_receiver_nullable_lifecycle_call_v1(builder, key, receiver, read)
     }
 
     fn validate_current_call_argument_site_v1(

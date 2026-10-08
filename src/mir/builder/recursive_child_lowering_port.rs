@@ -55,12 +55,13 @@ impl std::fmt::Display for ScriptDirectStaticClaimCompletionErrorV1 {
 /// receiver.  `Unarmed` is the explicit compatibility state; `Ready` is only
 /// returned after the package-owned locator and callable state have agreed on
 /// the current source site.  The hook never infers a receiver.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub(in crate::mir::builder) enum DeclaredInstanceReceiverIngressV1 {
     Unarmed,
     Ready {
         key: CanonicalSameModuleCallableKeyV1,
         receiver: ValueId,
+        read: crate::mir::builder::ExactLexicalReadV1,
     },
 }
 
@@ -353,6 +354,7 @@ pub(in crate::mir::builder) trait DirectCallDispositionPortV1 {
         _builder: &mut MirBuilder,
         _key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         _receiver: ValueId,
+        _read: Option<crate::mir::builder::ExactLexicalReadV1>,
     ) -> Result<Option<ValueId>, String> {
         Ok(None)
     }

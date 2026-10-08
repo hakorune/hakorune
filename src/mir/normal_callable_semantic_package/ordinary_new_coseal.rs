@@ -95,9 +95,8 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
-    ObjectReturnCallQualificationV1,
-    OrdinaryNewResultClassV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
-    ResultWitnessStepV1,
+    ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1, ResultExitOriginV1,
+    ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;
@@ -359,6 +358,13 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // keep `(owner -> site -> relation)` in the index. One exit's evidence
     // is never borrowed for another.
     terminal_relation: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    // One signature-ready source seal; Some(empty) is also sealed.
+    normal_return_dispositions: Option<
+        BTreeMap<
+            (FunctionOwnerIdV1, SourceStmtSiteV1),
+            completion_index::NormalReturnDispositionV1,
+        >,
+    >,
     terminal_relation_index:
         BTreeMap<FunctionOwnerIdV1, Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>>,
     terminal_integer_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,

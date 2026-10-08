@@ -339,7 +339,54 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     site: &OwnedExprSiteV1,
     request: BorrowedCallActualRequestV1<'_>,
+    classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if let BorrowedCallActualRequestV1::ObjectArguments(loan, destination) = request {
+        let demand = || -> Result<Option<BorrowedCallArgumentsV1>, String> {
+            if site != loan.call()
+                || classes.object_return_qualification(loan.value()).as_ref() != Some(loan)
+            {
+                return Err("[freeze:contract][borrowed-call/foreign-object-qualification]".into());
+            }
+            let mut matching = Vec::new();
+            for row in targets.as_ref().map_err(Clone::clone)? {
+                if let Some(target) = row.as_ref().map_err(Clone::clone)? {
+                    if target.call_site() == site {
+                        matching.push(target);
+                    }
+                }
+            }
+            let target = match matching.as_slice() {
+                [] => return Ok(None),
+                [target] => *target,
+                _ => return Err("[freeze:contract][borrowed-call/object-target-not-unique]".into()),
+            };
+            if let Some(destination) = destination {
+                if !super::super::lexical_instance_call::corroborate_received_object_receiver_v1(
+                    target,
+                    loan,
+                    destination,
+                    receiver.map(|(binding, _)| binding),
+                    receiver_rows,
+                )? {
+                    return Ok(None);
+                }
+            }
+            let arguments =
+                super::super::lexical_instance_call::project_pending_object_arguments_v1(
+                    source, pending, target, loan,
+                )?;
+            Ok(Some(BorrowedCallArgumentsV1::Object {
+                qualification: loan.clone(),
+                arguments,
+            }))
+        };
+        return demand().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue,
+        });
+    }
     if let BorrowedCallActualRequestV1::Observe(actuals) = request {
         let prepared = super::super::lexical_instance_call::prepare_borrowed_call_actuals_v1(
             source,
@@ -409,13 +456,20 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                     })
             })
         }
+        BorrowedCallActualRequestV1::I64ResultArguments => {
+            super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
+                source, pending, results, site,
+            )
+            .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
+        }
         BorrowedCallActualRequestV1::ScalarArguments => {
             super::super::lexical_instance_call::project_pending_borrowed_i64_arguments_v1(
                 source, pending, results, site,
             )
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
-        BorrowedCallActualRequestV1::Observe(_) => {
+        BorrowedCallActualRequestV1::Observe(_)
+        | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")
         }
     }
@@ -445,7 +499,7 @@ mod borrowed_callback_tests {
         // identical source targets. Borrow those rows without another resolver.
         let slots = ledger.lexical_instance_calls.borrow();
         let targets: super::super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1 = Ok(slots.values().filter_map(|slot| match slot {
-            crate::mir::normal_callable_semantic_package::disposition_slot::DispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1::Ready(row) => Some(Ok(Some(row.source_target().clone()))),
             _ => None,
         }).collect());
         for (name, borrowed) in [("readData", true), ("readStrict", false)] {
@@ -487,6 +541,8 @@ mod borrowed_callback_tests {
                 &mut |_| None,
                 target.call_site(),
                 BorrowedCallActualRequestV1::ScalarArguments,
+                &ledger.callable_result_classes,
+                &ledger.receiver_call_observations,
             );
             if borrowed {
                 assert!(
@@ -644,3 +700,7 @@ pub(super) fn has_object_receiver_call_at_v1(
 #[cfg(test)]
 #[path = "ordinary_new_receiver_source_role_tests.rs"]
 mod receiver_source_role_tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_object_arguments_port_tests.rs"]
+mod object_arguments_port_tests;

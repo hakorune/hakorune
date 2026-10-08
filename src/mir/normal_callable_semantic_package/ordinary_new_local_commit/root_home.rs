@@ -75,6 +75,13 @@ impl RootHomeExitEntry {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) enum RootHomeReleaseSubjectV1 {
     Binding(BindingRefV1),
+    DirectResult {
+        site: OwnedExprSiteV1,
+    },
+    DirectResultField {
+        site: OwnedExprSiteV1,
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+    },
     ArgumentMap {
         site: OwnedExprSiteV1,
         ordinal: u32,
@@ -104,7 +111,9 @@ impl RootHomeReleaseOriginV1 {
         match self.subject {
             RootHomeReleaseSubjectV1::Binding(binding)
             | RootHomeReleaseSubjectV1::FieldResidence { binding, .. } => Some(binding),
-            RootHomeReleaseSubjectV1::ArgumentMap { .. } => None,
+            RootHomeReleaseSubjectV1::ArgumentMap { .. }
+            | RootHomeReleaseSubjectV1::DirectResult { .. }
+            | RootHomeReleaseSubjectV1::DirectResultField { .. } => None,
         }
     }
 
@@ -130,6 +139,14 @@ impl RootHomeReleaseEmissionV1 {
     ) -> &RootHomeReleaseOriginV1 {
         &self.origin
     }
+}
+
+/// Temporary immutable emission projection of the SAME retained root order.
+/// Indices identify original obligations, never operation-payload equivalence.
+pub(crate) struct RootHomeFaultSequencesV1 {
+    pub(crate) full: Vec<RootHomeReleaseOriginV1>,
+    pub(crate) acquisition: Vec<usize>,
+    pub(crate) after_normal: Vec<Vec<usize>>,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -211,6 +228,9 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<bool, String> {
+        if !self.object_return_construction_ready_v1(owner)? {
+            return Ok(false);
+        }
         let Some(completion) = self.completion_for_owner(owner) else {
             return Ok(false);
         };
@@ -220,15 +240,15 @@ impl OrdinaryNewClaimLedgerV1 {
         // Per-exit admission is all-or-nothing per function: a sibling exit
         // whose row is unavailable keeps this exit on the generic path too,
         // so no `return` can silently skip proven release evidence.
-        if self.has_pending_object_return_v1(owner) || !flow.all_exits_ready() {
+        if !flow.all_exits_ready() {
             return Ok(false);
         }
         let exit = SourceStmtSiteV1::from_node(site.clone());
         if !completion.explicit_sites().contains(&exit) {
             return Err(freeze("root-exit-site-mismatch"));
         }
-        let Some(Ok(row)) = flow.exit_row(&exit) else {
-            return Err(freeze("root-exit-site-mismatch"));
+        let Some(row) = self.normal_exit_projection_v1(owner, &exit)? else {
+            return Ok(false);
         };
         let mut exits = self.root_exits.borrow_mut();
         let progress = exits
@@ -238,31 +258,60 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("duplicate-root-exit-prepare"));
         }
         let rows = self.local_commits.borrow();
-        let mut origins = Vec::new();
-        let mut available = true;
-        for binding in row.homes() {
-            let home = installed_home(&rows, *binding).map_err(|error| match error {
-                HomeLookupError::Missing => freeze("root-home-not-installed"),
-                HomeLookupError::Duplicate => freeze("duplicate-root-home"),
-            })?;
-            available &= home.end_available();
-            if !home.end_available() {
-                continue;
+        let order = RootHomeCleanupOrderV1::from_home_end_plans(
+            &rows,
+            &exit,
+            row.fault_homes(),
+            row.homes(),
+        )?;
+        let available = order.is_some();
+        *progress = match order {
+            Some(mut order) => {
+                if let Some(view) = self.verified_direct_object_return_source_v1(owner, &exit)? {
+                    let Some(source) = view.cleanup_source() else {
+                        *progress = RootHomeExitProgress::Unavailable;
+                        return Ok(false);
+                    };
+                    order.retain_direct_source(source)?;
+                }
+                RootHomeExitProgress::Prepared(order)
             }
-            for (subject, operation) in home.end_plan().into_vec() {
-                origins.push(RootHomeReleaseOriginV1 {
-                    subject,
-                    exit: exit.clone(),
-                    operation,
-                });
-            }
-        }
-        *progress = if available {
-            RootHomeExitProgress::Prepared(RootHomeCleanupOrderV1::ordinary(origins)?)
-        } else {
-            RootHomeExitProgress::Unavailable
+            None => RootHomeExitProgress::Unavailable,
         };
         Ok(available)
+    }
+
+    pub(crate) fn bind_root_direct_result_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        value: ValueId,
+        kind: crate::mir::instruction::InvokeCallResultKind,
+    ) -> Result<(), String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, exit.clone()))
+        else {
+            return Err(freeze("direct-result-not-emitting"));
+        };
+        order.bind_direct_result(value, kind)
+    }
+
+    pub(crate) fn root_home_fault_sequences(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> Result<RootHomeFaultSequencesV1, String> {
+        let exits = self.root_exits.borrow();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get(&(owner, site.clone())) else {
+            return Err(freeze("root-exit-not-emitting"));
+        };
+        Ok(RootHomeFaultSequencesV1 {
+            full: order.full().to_vec(),
+            acquisition: order.acquisition_fault_indices().to_vec(),
+            after_normal: (0..order.normal().len())
+                .map(|index| order.fault_indices_after_normal_step(index))
+                .collect::<Result<_, _>>()?,
+        })
     }
 
     pub(crate) fn begin_root_home_exit(
@@ -393,6 +442,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("root-exit-origin-order"));
         }
+        order.validate_direct_entry(&entry, &bindings, None)?;
         let RootHomeExitProgress::Emitting(order) =
             std::mem::replace(progress, RootHomeExitProgress::Unprepared)
         else {
@@ -421,18 +471,21 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
+        if !self.object_return_construction_ready_v1(owner)? {
+            return Ok(());
+        }
         let Some(completion) = self.completion_for_owner(owner) else {
             return Ok(());
         };
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(());
         };
-        if self.has_pending_object_return_v1(owner) || !flow.all_exits_ready() {
+        if !flow.all_exits_ready() {
             return Ok(());
         }
         let exits = self.root_exits.borrow();
         for expected_exit in completion.explicit_sites() {
-            let Some(Ok(exit_row)) = flow.exit_row(expected_exit) else {
+            let Some(exit_row) = self.normal_exit_projection_v1(owner, expected_exit)? else {
                 return Err(freeze("root-exit-source-missing"));
             };
             let expected_homes = exit_row.homes();
@@ -588,12 +641,17 @@ impl OrdinaryNewClaimLedgerV1 {
                             return Err(freeze("root-exit-binding-drift"));
                         }
                     }
+                    order.validate_direct_entry(entry, bindings, projection)?;
                     super::root_cleanup_graph::ordered_paths::validate(
                         function, bindings, entry, order, projection,
                     )?;
                     if let Some(projection) = projection {
                         super::root_cleanup_graph::ordered_structure::validate_projected(
-                            function, bindings, entry, projection,
+                            function,
+                            bindings,
+                            entry,
+                            projection,
+                            order.ingress_result_kind(),
                         )?;
                     }
                     let _ = mapped;
@@ -629,7 +687,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 function, bindings, entry, order, None,
             )?;
             super::root_cleanup_graph::ordered_structure::validate_original(
-                function, bindings, entry,
+                function,
+                bindings,
+                entry,
+                order.ingress_result_kind(),
             )?;
         }
         Ok(())

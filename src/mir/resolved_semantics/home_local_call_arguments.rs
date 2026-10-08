@@ -8,6 +8,7 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
     prior_homes: &[BindingRefV1],
     locals: &PrefixLocalFlow<'_>,
     allow_strict: bool,
+    request: BorrowedCallActualRequestV1<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -49,15 +50,14 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         if !stored {
             return Ok(None);
         }
-        return Ok(
-            borrowed_arguments(site, BorrowedCallActualRequestV1::ScalarArguments)?
-                .and_then(|row| match row {
-                    BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
-                    BorrowedCallArgumentsV1::StaticSource(_) => None,
-                })
-                .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
-                .map(|arguments| arguments.into_vec()),
-        );
+        return Ok(borrowed_arguments(site, request)?
+            .and_then(|row| match row {
+                BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
+                BorrowedCallArgumentsV1::StaticSource(_)
+                | BorrowedCallArgumentsV1::Object { .. } => None,
+            })
+            .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
+            .map(|arguments| arguments.into_vec()));
     }
     seal_i64_call_arguments(
         input,
@@ -65,6 +65,7 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         call,
         prior_homes,
         allow_strict,
+        request,
         is_selected_call,
         borrowed_arguments,
     )
@@ -80,6 +81,7 @@ fn seal_i64_call_arguments<E>(
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     prior_homes: &[BindingRefV1],
     allow_strict: bool,
+    request: BorrowedCallActualRequestV1<'_>,
     is_selected_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -90,9 +92,10 @@ fn seal_i64_call_arguments<E>(
     >,
 ) -> Result<Option<Vec<LocalCallArgumentV1>>, E> {
     let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
-    match borrowed_arguments(&owned, BorrowedCallActualRequestV1::ScalarArguments)? {
+    match borrowed_arguments(&owned, request)? {
         Some(BorrowedCallArgumentsV1::Scalar(arguments)) => return Ok(Some(arguments.into_vec())),
-        Some(BorrowedCallArgumentsV1::StaticSource(_)) => return Ok(None),
+        Some(BorrowedCallArgumentsV1::StaticSource(_))
+        | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
         None => {}
     }
     if !allow_strict || !is_selected_call(&owned)? {
@@ -167,6 +170,7 @@ fn seal_argument_call<E>(
         call,
         prior_homes,
         true,
+        BorrowedCallActualRequestV1::I64ResultArguments,
         is_selected_call,
         borrowed_arguments,
     )?

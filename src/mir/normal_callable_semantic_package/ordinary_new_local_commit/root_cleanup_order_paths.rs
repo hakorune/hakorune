@@ -40,11 +40,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                 normal_landing,
                 fault_landing,
                 fault_frame,
-                ..
+                operation,
             } = invoke
             else {
                 return Err(fault("ordered-path/ingress"));
             };
+            let kind = order.ingress_result_kind();
+            match operation {
+                InvokeOperation::Call { result, call } if result == kind && call.dst.is_none() => {}
+                InvokeOperation::Map(
+                    crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. },
+                ) if kind == crate::mir::instruction::InvokeCallResultKind::I64 => {}
+                _ => return Err(fault("ordered-path/ingress-kind")),
+            }
             let MirInstruction::InvokeNormalResult { dst, .. } = projected else {
                 return Err(fault("ordered-path/result"));
             };

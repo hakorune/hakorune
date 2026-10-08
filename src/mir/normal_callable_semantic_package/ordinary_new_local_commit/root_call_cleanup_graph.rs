@@ -11,18 +11,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     bindings: &Bindings,
     invoke: &(BasicBlockId, MirInstruction),
     projection: &(BasicBlockId, MirInstruction),
+    expected_kind: InvokeCallResultKind,
 ) -> Result<(BasicBlockId, BasicBlockId, ValueId, ValueId), String> {
     let (fault_frame, normal_landing, fault_landing) = match &invoke.1 {
         MirInstruction::Invoke {
-            operation:
-                InvokeOperation::Call {
-                    call,
-                    result: InvokeCallResultKind::I64,
-                },
+            operation: InvokeOperation::Call { call, result },
             fault_frame,
             normal_landing,
             fault_landing,
-        } if call.dst.is_none() => (*fault_frame, *normal_landing, *fault_landing),
+        } if call.dst.is_none() && *result == expected_kind => {
+            (*fault_frame, *normal_landing, *fault_landing)
+        }
         // The readable-Map terminal shares the exact ingress graph: one
         // checked read invoke, Normal result projection, Fault cleanup.
         MirInstruction::Invoke {
@@ -33,7 +32,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             fault_frame,
             normal_landing,
             fault_landing,
-        } => (*fault_frame, *normal_landing, *fault_landing),
+        } if expected_kind == InvokeCallResultKind::I64 => {
+            (*fault_frame, *normal_landing, *fault_landing)
+        }
         _ => return Err(fault("call-ingress")),
     };
     let MirInstruction::InvokeNormalResult {
@@ -83,3 +84,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     }
     Ok((normal_landing, fault_landing, fault_frame, *dst))
 }
+
+#[cfg(test)]
+#[path = "root_call_cleanup_graph_tests.rs"]
+mod tests;

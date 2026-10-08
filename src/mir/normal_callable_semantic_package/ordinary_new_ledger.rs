@@ -149,6 +149,7 @@ impl OrdinaryNewClaimLedgerV1 {
             receiver_call_observations: BTreeMap::new(),
             terminal_relation: BTreeMap::new(),
             terminal_relation_index: BTreeMap::new(),
+            normal_return_dispositions: None,
             terminal_integer_literal_value: RefCell::new(BTreeMap::new()),
             terminal_integer_literal_values: RefCell::new(BTreeMap::new()),
             terminal_i64_field_value: RefCell::new(BTreeMap::new()),

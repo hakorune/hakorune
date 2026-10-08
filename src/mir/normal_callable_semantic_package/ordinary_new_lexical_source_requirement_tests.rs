@@ -34,7 +34,7 @@ fn lexical_source_requirement_keeps_original_lexical_and_stored_defaults() {
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
         ));
         assert!(!target.has_object_source_requirement());
-        assert!(target.object_return_source().is_none());
+        assert!(target.object_return_sources().is_none());
         assert!(target.object_producer_dependencies().is_none());
         assert!(target.object_source_forwards().is_none());
         if target.stored_receiver().is_some() {
@@ -85,17 +85,19 @@ fn lexical_source_requirement_borrows_original_witnesses_without_arming_a_call()
         vec![qualification.clone()].into_boxed_slice(),
     );
     assert!(target.has_object_source_requirement());
-    assert!(target.object_return_source().is_none());
+    assert!(target.object_return_sources().is_none());
     assert!(target.object_source_forwards().is_none());
     assert_eq!(
         target.object_producer_dependencies().unwrap(),
         &[qualification.clone()]
     );
     target.result_requirement = LexicalCallSourceResultRequirementV1::ObjectReturnSource {
-        qualification: qualification.clone(),
-        forwards: Box::new([]),
+        qualifications: vec![qualification.clone()].into_boxed_slice(),
+        forwards: Some(Box::new([])),
     };
-    let loan = target.object_return_source().unwrap();
+    let loans = target.object_return_sources().unwrap();
+    assert_eq!(loans.len(), 1);
+    let loan = &loans[0];
     assert_eq!(loan, &qualification);
     for (actual, original) in loan.witnesses().iter().zip(exit.witnesses()) {
         assert!(std::rc::Rc::ptr_eq(actual, original));

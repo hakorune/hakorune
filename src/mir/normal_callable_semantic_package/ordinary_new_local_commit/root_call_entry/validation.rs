@@ -14,7 +14,17 @@ impl OrdinaryNewClaimLedgerV1 {
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
-        let Some((_, terminal)) = self.call_source_completion_for_owner_at(owner, exit) else {
+        let Some(source) = self.verified_terminal_call_source_v1(owner, exit)? else {
+            use crate::mir::resolved_semantics::home_new_prefix::{
+                ObjectReturnAcquisitionV1, TerminalRelationV1, TerminalReturnedSourceV1,
+            };
+            if matches!(self.terminal_relation_for_owner_at(owner, exit),
+                Some(TerminalRelationV1::Value(value))
+                    if matches!(value.returned(), TerminalReturnedSourceV1::OwnedCall(call)
+                        if matches!(call.acquisition(), ObjectReturnAcquisitionV1::Direct { .. })))
+            {
+                return Err(freeze("direct-result-source-missing"));
+            }
             return match entry {
                 RootHomeExitEntry::Plain { local_bindings } => {
                     // A source MapGet terminal owes its checked-read entry;
@@ -52,6 +62,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 ),
             };
         };
+        let expected_kind = source.result();
         let RootHomeExitEntry::Call {
             local_bindings,
             row,
@@ -64,6 +75,9 @@ impl OrdinaryNewClaimLedgerV1 {
             let RootHomeExitEntry::Plain { local_bindings } = entry else {
                 return Err(freeze("call-entry-missing"));
             };
+            if source.legacy_terminal().is_none() {
+                return Err(freeze("direct-result-entry-missing"));
+            }
             self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
             return if self.root_instance_call_expected(owner) {
                 // The source method is known, but its target result contract
@@ -83,11 +97,14 @@ impl OrdinaryNewClaimLedgerV1 {
             if original_invoke != invoke || original_projection != projection {
                 return Err(freeze("lexical-terminal/original-outer-drift"));
             }
-            let source = self
-                .borrowed_terminal_arguments_v1(owner, exit)?
+            let arguments = source
+                .lexical_arguments()
                 .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
-            packet.call_with_ledger(owner, &source, self)?
+            packet.call_with_ledger(owner, arguments, self)?
         } else {
+            let terminal = source
+                .legacy_terminal()
+                .ok_or_else(|| freeze("direct-result-legacy-row"))?;
             let row_argument_count = match row {
                 RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
                 RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
@@ -212,8 +229,8 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         };
         if !matches!(&invoke.1, MirInstruction::Invoke {
-            operation: InvokeOperation::Call { call, result: InvokeCallResultKind::I64 }, ..
-        } if *call == expected)
+            operation: InvokeOperation::Call { call, result }, ..
+        } if *call == expected && *result == expected_kind)
         {
             return Err(freeze("call-target-drift"));
         }
@@ -256,6 +273,7 @@ impl OrdinaryNewClaimLedgerV1 {
             &cleanup,
             &mapped(invoke)?,
             &mapped(projection)?,
+            expected_kind,
         )?;
         Ok(())
     }

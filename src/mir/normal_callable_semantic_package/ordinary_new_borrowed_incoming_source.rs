@@ -78,8 +78,8 @@ impl BorrowedIncomingSourceV1 {
             Self::QualifiedStatic(row) => row.argument_sites(),
         }
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn object_return_source(&self) -> Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ObjectReturnCallQualificationV1>{
-        self.instance().and_then(|row| row.object_return_source())
+    pub(in crate::mir::normal_callable_semantic_package) fn object_return_sources(&self) -> Option<&[crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ObjectReturnCallQualificationV1]>{
+        self.instance().and_then(|row| row.object_return_sources())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn object_source_forwards(
         &self,

@@ -21,6 +21,25 @@ pub(in crate::mir::normal_callable_semantic_package) struct ObjectReturnTeardown
     children: Option<Box<[OwnedFieldChildV1]>>,
 }
 impl ObjectReturnTeardownDescriptorV1 {
+    pub(super) fn object(&self) -> CanonicalObjectIdV1 {
+        self.object
+    }
+    pub(super) fn children(&self) -> &[OwnedFieldChildV1] {
+        self.children.as_deref().unwrap_or(&[])
+    }
+
+    pub(super) fn supports_direct_teardown(&self, nullable: bool) -> bool {
+        match self.destruction {
+            ObjectDestructionDispositionV1::PlainI64NoHook => self.children.is_none(),
+            ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+            | ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook => {
+                // Nullable child-field release has no accepted envelope yet.
+                !nullable && self.children.is_some()
+            }
+            ObjectDestructionDispositionV1::Unavailable(_) => false,
+        }
+    }
+
     fn from_exact_claim(claim: &OrdinaryNewResultClaimV1) -> Self {
         Self {
             object: claim.object(),
