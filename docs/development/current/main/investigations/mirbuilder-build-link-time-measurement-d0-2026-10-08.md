@@ -1,6 +1,6 @@
 # MirBuilder host build and link time measurement
 
-Status: measurement selected; linker adoption unverified
+Status: required-build observation recorded; linker adoption unverified
 Date: 2026-10-08
 Scope: independent tooling improvement; not a finite_product_goal completion condition
 Related:
@@ -62,3 +62,22 @@ Primary references: [mold usage](https://github.com/rui314/mold#how-to-use),
 [Cargo timings](https://doc.rust-lang.org/cargo/reference/timings.html),
 [Cargo fingerprints](https://doc.rust-lang.org/stable/nightly-rustc/cargo/core/compiler/fingerprint/index.html),
 [Cargo LTO profiles](https://doc.rust-lang.org/cargo/reference/profiles.html#lto).
+
+## First required-build observation (Root key transport)
+
+At source revision 6c7d192311, the required focused quick build with unchanged
+LLD flags/profile/jobs/target completed in 5m45s; focused6 tests took .05s and
+same-binary regression573 took .43s wall time. A temporary read-only sampler,
+attached after build start and before linker launch, sampled rustc descendants
+at requested .2s intervals (plus enumeration overhead). Clang and ld.lld each
+appeared in five samples spanning .864s immediately before rustc exit. The full
+observed rustc window was 332.47s; this includes compilation/codegen/link, not
+frontend-only time. /proc enumeration recorded 67 process-exit read races.
+Evidence: /tmp/hako-object-root-key-process-timing.json, focused.log and
+regression.json. This is sampled process residence, not exact linker CPU time or
+an LLD/mold comparison. No complete link argv/temporary input set was retained.
+
+For this workload, the observed link residence is a small part of build time;
+keep LLD and prioritize compiler/codegen/incremental evidence for substantial
+build reductions. A mold trial remains optional if another required workload
+shows material link time. No config/profile change, new gate or speedup claim.
