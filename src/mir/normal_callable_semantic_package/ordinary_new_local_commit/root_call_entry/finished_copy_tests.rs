@@ -272,7 +272,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         ledger: Rc::clone(&ledger),
         app_main_identity: ledger.app_main_identity.as_ref().unwrap().clone(),
         owner: ledger.root_owner().unwrap(),
-        terminals: ledger.terminal_relation.clone(),
+        terminals: ledger.terminal_relation.as_ref().clone(),
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
     };

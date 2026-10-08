@@ -357,7 +357,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // the App Main root map is owner-implied (App Main only), while children
     // keep `(owner -> site -> relation)` in the index. One exit's evidence
     // is never borrowed for another.
-    terminal_relation: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+    terminal_relation: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
     // One signature-ready source seal; Some(empty) is also sealed.
     normal_return_dispositions: Option<
         BTreeMap<

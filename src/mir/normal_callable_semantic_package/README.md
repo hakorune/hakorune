@@ -1333,6 +1333,9 @@ original borrowed AppMain owner/slot/catalog key joins the same result observer
 and fixpoint without registering a selected child. Observer and finish independently
 corroborate source identity; missing/foreign/drifted Main cannot issue Root facts.
 Passive Root results add no Home, Completion, Executable packet or artifact permission.
+The original root terminal table is wrapped once in immutable shared storage.
+Root accessors keep the same rows; finalized handoff retains its existing owned
+snapshot. This storage preparation adds no root terminal-index membership.
 
 The private `call_witness` owner corroborates the exact source-call edges once,
 then composes existing immutable callee witnesses. The evaluator keeps source

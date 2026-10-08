@@ -792,7 +792,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.local_field_reads = std::cell::RefCell::new(local_field_reads);
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.owned_field_children = owned_field_children;
-    ledger.terminal_relation = root_terminal_relation;
+    ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
     ledger.app_main_identity = app_main_source.map(|main| main.parser_identity().clone());
     Ok((ledger, seeds.finish()))
 }

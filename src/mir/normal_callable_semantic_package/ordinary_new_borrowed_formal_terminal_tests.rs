@@ -188,7 +188,7 @@ fn sibling_relation_misseated_at_another_exit_rejects_without_consuming_either_c
             .terminal_relation_index
             .insert(owner, std::rc::Rc::new(changed));
     } else {
-        ledger.terminal_relation.insert(exits[0].clone(), wrong);
+        std::rc::Rc::make_mut(&mut ledger.terminal_relation).insert(exits[0].clone(), wrong);
     }
     let error = ledger
         .take_borrowed_lexical_call_for_return_v1(owner, &exits[0])
@@ -623,7 +623,7 @@ fn final_terminal_ready_closure_uses_the_same_index_priority_as_source_accessors
             canonical,
         )])),
     );
-    ledger.terminal_relation.insert(exits[1].clone(), stale);
+    std::rc::Rc::make_mut(&mut ledger.terminal_relation).insert(exits[1].clone(), stale);
     assert_eq!(ledger.call_relations_for_owner(owner).len(), 1);
     assert!(ledger
         .terminal_relation_for_owner_at(owner, &exits[1])

@@ -139,9 +139,9 @@ fn root_only_pending_object_return_survives_same_owner_empty_index_and_artifact_
     let mut package = package(false, false);
     let value = value(&package);
     let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    ledger.terminal_relation.clear();
+    std::rc::Rc::make_mut(&mut ledger.terminal_relation).clear();
     ledger.terminal_relation_index.clear();
-    ledger.terminal_relation.insert(
+    std::rc::Rc::make_mut(&mut ledger.terminal_relation).insert(
         value.return_site().clone(),
         TerminalRelationV1::Value(value.clone()),
     );

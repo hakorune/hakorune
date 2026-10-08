@@ -169,7 +169,7 @@ fn direct_return_source_missing_terminal_index_cannot_borrow_root_relation() {
     let (owner, exit) = identity(&package);
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let relation = ledger.terminal_relation_index.remove(&owner).unwrap()[&exit].clone();
-    ledger.terminal_relation.insert(exit.clone(), relation);
+    Rc::make_mut(&mut ledger.terminal_relation).insert(exit.clone(), relation);
     assert!(ledger
         .verified_direct_object_return_source_v1(owner, &exit)
         .unwrap()

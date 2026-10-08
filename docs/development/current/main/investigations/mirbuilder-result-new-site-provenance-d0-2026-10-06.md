@@ -887,3 +887,28 @@ Received destination omitted once from Normal, retained for acquisition Fault.
 Corruption/repeated join preserves old indices. Existing root lowering fixture
 source_terminal_call_payload_moves_into_final_root_handoff supplies the original
 Main identity/input/ledger; collector, Root ABI and artifact remain subsequent.
+
+Root terminal Rc preparation Decision (read-only review_cleanup_path): separate
+behavior-preserving transport preparation from later Main owner-index admission.
+SAME root map is wrapped once at canonical issue and retained as Rc; root read
+accessors are unchanged. Existing finalized handoff keeps its owned map clone;
+mutable corruption fixtures use Rc::make_mut and keep original observations.
+Named scope: ledger definition/initialization/cohort storage, root-map iteration,
+final handoff clone and its exact test constructors, existing mutation fixtures,
+owner README/card. Existing retain_completion_index is unchanged; no Root terminal
+index membership, construction/ABI/artifact permission or source reissue added.
+Acceptance: same506 exact positive/negative source/physical/Fault/finishing tests,
+non-test check and pointer/scope/COPY/fmt/caps/diff/protection guards. Root source
+index join remains the immediately following semantic responsibility.
+
+Root Rc preparation verified: exact506 PASS (including all9 adjusted mutation/
+handoff test callers), non-test quick check16.20s PASS. Logs
+/tmp/hako-root-terminal-rc-{regression,check}.log retain terminal evidence.
+Formatter-only baseline changes in2 handoff files were removed after Cargo ended;
+canonical formatted content is byte-identical to the tested input (saved in
+/tmp/hako-root-terminal-rc-compiled-format.json). Their pre-existing formatter
+sections stay untouched; scoped fmt/caps/pointer/scope/COPY/diff/protection PASS.
+No functional red; index admission and all original artifact stops unchanged.
+Scope exact13 excludes7 protected docs. Next semantic join uses a retention-only
+CoSealIssue variant and sole issuer's existing OrdinaryNew mapping; no Completion
+reverification/error laundering or source key/name authority is allowed.

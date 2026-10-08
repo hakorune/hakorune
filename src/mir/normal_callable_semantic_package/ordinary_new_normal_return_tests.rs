@@ -116,7 +116,7 @@ fn normal_return_conflicting_root_index_terminal_leaves_map_uninstalled() {
     let conflict = value.with_value_site_for_test(original.qualification().call().site().clone());
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     ledger.normal_return_dispositions = None;
-    ledger.terminal_relation.insert(
+    std::rc::Rc::make_mut(&mut ledger.terminal_relation).insert(
         value.return_site().clone(),
         TerminalRelationV1::Value(conflict),
     );

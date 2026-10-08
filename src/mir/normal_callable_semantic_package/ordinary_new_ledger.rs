@@ -147,7 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
             callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1::new(),
             array_i64_fields: BTreeMap::new(),
             receiver_call_observations: BTreeMap::new(),
-            terminal_relation: BTreeMap::new(),
+            terminal_relation: Rc::new(BTreeMap::new()),
             terminal_relation_index: BTreeMap::new(),
             normal_return_dispositions: None,
             terminal_integer_literal_value: RefCell::new(BTreeMap::new()),

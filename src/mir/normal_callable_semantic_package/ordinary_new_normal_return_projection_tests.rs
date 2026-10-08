@@ -249,7 +249,7 @@ fn normal_projection_missing_index_or_terminal_never_retries_root_evidence() {
                 .remove(&exit)
                 .unwrap();
             // Keep a root-spelled copy: the exact indexed hole remains missing.
-            ledger.terminal_relation.insert(exit.clone(), relation);
+            Rc::make_mut(&mut ledger.terminal_relation).insert(exit.clone(), relation);
         }
         assert!(ledger
             .normal_exit_projection_v1(owner, &exit)

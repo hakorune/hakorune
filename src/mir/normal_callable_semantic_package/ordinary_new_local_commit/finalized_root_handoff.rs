@@ -30,7 +30,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // Structural exclusivity replaces collision checks, not physical
         // progress. Every exit row stands on its own site: no relation may
         // satisfy, or be satisfied by, a sibling exit's evidence.
-        for (exit, terminal) in &self.terminal_relation {
+        for (exit, terminal) in self.terminal_relation.iter() {
             if terminal.return_site() != exit {
                 return Err(freeze("artifact-root-site-drift"));
             }
@@ -114,7 +114,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("artifact-root-field-unavailable"));
         }
         let mut call_entries = std::collections::BTreeMap::new();
-        for (site, terminal) in &self.terminal_relation {
+        for (site, terminal) in self.terminal_relation.iter() {
             if !matches!(terminal, TerminalRelationV1::Call(_)) {
                 continue;
             }
@@ -310,7 +310,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
                         .clone(),
                     owner,
-                    terminals: self.terminal_relation.clone(),
+                    terminals: self.terminal_relation.as_ref().clone(),
                     call_entries,
                     local_calls: std::mem::take(
                         &mut *self.root_local_call_bindings.borrow_mut(),
