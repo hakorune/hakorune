@@ -157,11 +157,69 @@ fn unsupported_domains_fail_without_fallback() {
             DynamicOperatorValueClassV1::I64,
             DynamicOperatorValueClassV1::I64,
         ),
+        (
+            DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::Dynamic,
+            DynamicOperatorValueClassV1::I64,
+        ),
+        (
+            DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::I64,
+            DynamicOperatorValueClassV1::I64,
+        ),
+        (
+            DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::Null,
+        ),
     ] {
         assert_eq!(
             issue(domain.0, domain.1, domain.2),
             Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain)
         );
+    }
+}
+
+#[test]
+fn checked_integer_arithmetic_produces_fresh_result_under_one_complete_contract() {
+    for family in [DynamicOperatorFamilyV1::Add, DynamicOperatorFamilyV1::Mul] {
+        let domain = DynamicOperatorDomainV1::new(
+            family,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        );
+        let envelope = issue_dynamic_operator_execution_envelope_v1(domain).unwrap();
+        assert!(std::ptr::eq(
+            envelope,
+            issue_dynamic_operator_execution_envelope_v1(domain).unwrap()
+        ));
+        assert_eq!(envelope.domain(), domain);
+        assert_eq!(
+            envelope.normal_result(),
+            DynamicOperatorNormalResultV1::NormalInteger
+        );
+        assert_eq!(
+            envelope.input_access(),
+            DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation
+        );
+        assert_eq!(
+            envelope.ordering(),
+            DynamicOperatorOrderingV1::SynchronousNonDetached
+        );
+        assert_eq!(
+            envelope.suspension(),
+            DynamicOperatorSuspensionV1::MaySuspend
+        );
+        assert_eq!(
+            envelope.control(),
+            DynamicOperatorControlV1::ExpressionBounded
+        );
+        assert_eq!(envelope.effect(), DynamicOperatorEffectV1::OpaqueObservable);
+        assert_eq!(
+            envelope.fault(),
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        );
+        assert_eq!(envelope.lifecycle(), None);
     }
 }
 

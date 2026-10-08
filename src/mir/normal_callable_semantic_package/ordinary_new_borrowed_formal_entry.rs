@@ -113,6 +113,30 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Original Mul source products and exact side; no legacy Add counts.
+    /// The consumer must retain the source through materialization/finishing.
+    pub(crate) fn mul_source_uses(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &OwnedExprSiteV1,
+            &Rc<super::borrowed_formal_uses::BorrowedMulSourceV1>,
+            super::borrowed_formal_uses::BorrowedMulSideV1,
+        ),
+    > {
+        self.source.definitions[&self.owner]
+            .uses
+            .iter()
+            .filter_map(|row| match &row.kind {
+                super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand {
+                    binary,
+                    source,
+                    side,
+                } => Some((binary, source, *side)),
+                _ => None,
+            })
+    }
+
     /// Dominated `.set` element-value admissions this owner's draft proved:
     /// `(binding, formal, call site)` rows on a proven `me.<ArrayBox>`
     /// receiver guarded by an admitted compare. Admission evidence only;

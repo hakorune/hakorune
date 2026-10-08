@@ -59,12 +59,22 @@ fn checked_operand_reach_lends_exact_normal_branch_and_retains_original_guard() 
             |_| {},
             |input, product| {
                 let product = product.expect(body);
-                // A reach loan is not a Mul contract or permission to bypass its
-                // still-unimplemented source/materialization/finishing consumer.
-                assert!(matches!(
-                    product.draft,
-                    Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
-                ));
+                // An instance call has no Static child loan in this fixture.
+                // Literal cases now have an explicit Mul source; neither the
+                // reach nor that source grants materialization/finishing.
+                if let Ok(draft) = &product.draft {
+                    assert!(admitted);
+                    for row in &draft.uses {
+                        if matches!(row.kind, BorrowedFormalUseDraftKindV1::MulOperand { .. }) {
+                            assert!(draft.mul_operand_at(input, &row.site).unwrap().is_some());
+                        }
+                    }
+                } else {
+                    assert!(matches!(
+                        product.draft,
+                        Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+                    ));
+                }
                 let actual = product.guarded_actuals.values().next().expect(body);
                 let guard = &actual.guard;
                 let multiply = input
@@ -164,7 +174,7 @@ fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
         (
             "if p > 0 { } local bad = p * 2 local out = me.sink(p) return 0",
             1,
-            true,
+            false,
         ),
         (
             "local out = me.sink(p) if p <= 0 { return 0 } return 0",

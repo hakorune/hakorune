@@ -59,7 +59,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     // Disjoint excluded owners from the same original draft issuance.
     pub(super) source_only_definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     /// Dominated-view value-use sites across every classified owner —
-    /// `ArrayElementValue`, `AddOperand`, or `NewArgument` rows recorded
+    /// `ArrayElementValue`, `AddOperand`, `MulOperand`, or `NewArgument` rows recorded
     /// at draft classification time, before borrowed-transport selection.
     /// Owners whose only incoming edges are non-lexical (for example an
     /// `me.<field>` receiver call) are never part of the borrowed-entry
@@ -667,7 +667,7 @@ impl PreparedBorrowedFormalIngressV1 {
 
     /// `true` when `owner`'s sealed use draft admitted a dominated-view
     /// value use at this exact leaf site — `ArrayElementValue`,
-    /// `AddOperand`, or `NewArgument`. The consult reads classification
+    /// `AddOperand`, `MulOperand`, or `NewArgument`. The consult reads classification
     /// output, not borrowed-transport membership: an owner invoked only
     /// through `me.<field>` receivers never enters the borrowed-entry
     /// profile, yet its draft still proves these uses. This is a

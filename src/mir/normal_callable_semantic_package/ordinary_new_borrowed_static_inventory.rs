@@ -35,6 +35,7 @@ impl StaticIncomingContextV1<'_> {
         source: &VerifiedResolvedMethodCallSourceV1,
         selected: &super::super::super::VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
+        operand_retained: Option<&Rc<StaticIncomingSourceV1>>,
     ) -> Result<Option<StaticIncomingObservationV1>, BorrowedIncomingDraftErrorV1> {
         let mut existing = self
             .arguments
@@ -46,7 +47,18 @@ impl StaticIncomingContextV1<'_> {
         {
             return Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()));
         }
-        if !matches!(source.receiver(), ResolvedMethodCallReceiverSourceV1::QualifiedUnbound | ResolvedMethodCallReceiverSourceV1::CurrentOwner) {
+        if retained
+            .zip(operand_retained)
+            .is_some_and(|(argument, operand)| !Rc::ptr_eq(argument, operand))
+        {
+            return Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()));
+        }
+        let retained = retained.or(operand_retained);
+        if !matches!(
+            source.receiver(),
+            ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+                | ResolvedMethodCallReceiverSourceV1::CurrentOwner
+        ) {
             return if retained.is_some() {
                 Err(BorrowedIncomingDraftErrorV1::CallIdentity(site.clone()))
             } else {

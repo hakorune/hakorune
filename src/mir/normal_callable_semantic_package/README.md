@@ -1544,9 +1544,15 @@ guard Rc, original formal/binding/site, branch pair and parent control; another
 If's arm, a nested scope and the comparison condition itself are not admitted.
 The existing same-sequence following-statement path stays a separate arm.
 Origin/alias/rebind closure remains the classifier's responsibility. This lender
-does not change Add, Return or outgoing-argument rules and does not by itself
-admit Mul: its original call-child, ordered materialization, FinishedBindings
-and both independent physical scans still need the complete Mul consumer.
+does not change Add, Return or outgoing-argument rules. The explicit Mul source
+factory issues one ordered product per original binary after stable origin and
+rebind closure. Each view retains its own checked reach; literals and original
+zero-I64 Static children are separate operand producers. Exact side/site and
+complete shared source/Compare coverage are revalidated before source consult.
+The existing Static inventory borrows original Compare/Mul child Rc through its
+canonical incoming-loan corroboration seam; conflicting retained candidates refuse.
+No new source map or Add count proof is used. Ordered materialization,
+FinishedBindings and both independent physical scans still owe full Mul closure.
 
 The same source-use owner admits an exact scalar Return after a checked Compare
 in one source sequence. IntegerReturn retains that Compare Rc plus its exact
@@ -1983,3 +1989,8 @@ product owns its retained source Rc. This observes the child's Normal Integer
 result, not a physical value or new entry permission; Fault/Normal lowering and
 whole CurrentOwner input/packet remain independently required. Mul and calls
 with input arguments remain outside this comparison child slice.
+
+Static original-use collection requires the co-sealed source context and exact
+selected Static owner/contract, not qualified incoming target membership.
+Uncalled and CurrentOwner-only caller drafts remain passive source; canonical
+call-child loans and all incoming/entry/Completion gates still decide execution.

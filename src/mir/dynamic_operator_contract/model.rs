@@ -3,6 +3,7 @@ use crate::mir::dynamic_carrier_contract::DynamicCarrierLifecycleObligationV1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorFamilyV1 {
     Add,
+    Mul,
     Less,
     Greater,
     LessEqual,

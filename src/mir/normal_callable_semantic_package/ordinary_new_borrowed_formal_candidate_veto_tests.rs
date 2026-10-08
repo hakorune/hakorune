@@ -192,8 +192,13 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert!(loan.corroborates_retained(original));
                 assert!(original.required_i64_arguments().is_empty());
                 assert!(original.require_qualified().is_err());
-                assert!(!package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
-                    .contains_definition_for_test(input.owner()), "remaining Mul is not source-complete");
+                let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+                assert!(ingress.source_definition_for(input.owner()).is_some(), "original Mul closes formal-use source only");
+                assert!(!ingress.contains_definition_for_test(input.owner()), "CurrentOwner-only source is not executable entry");
+                let draft = ingress.source_definition_for(input.owner()).unwrap();
+                let row = draft.uses.iter().find(|row| matches!(row.kind, BorrowedFormalUseDraftKindV1::MulOperand { .. }))
+                    .expect("unchanged bin_size original guarded Mul");
+                assert!(draft.mul_operand_at(input, &row.site).unwrap().is_some());
             }).unwrap();
             let facts = &package.ordinary_new_claim_ledger.callable_result_classes;
             use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{OrdinaryNewResultClassV1, ResultWitnessStepV1};

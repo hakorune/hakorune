@@ -86,6 +86,18 @@ const ADD_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelop
         None,
     );
 
+const MUL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::NormalInteger,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
 /// The bounded borrowed-value/null equality: one operand is the borrowed
 /// tagged carrier, the other the exact `null` literal producer, in either
 /// source order. Equality reads the carrier kind — Null is true, every
@@ -144,6 +156,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::NormalInteger,
             DynamicOperatorValueClassV1::NormalInteger,
         ) => Ok(&ADD_NORMAL_INTEGER_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::Mul,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&MUL_NORMAL_INTEGER_NORMAL_INTEGER),
         // The borrowed carrier and the exact null literal share one
         // envelope in either source operand order.
         (

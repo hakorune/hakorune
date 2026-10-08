@@ -100,10 +100,11 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
 
 #[test]
 fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee() {
-    for body in [
-        "return true",
-        "p = true return 0",
-        "local captured = fn() { return p } return 0",
+    for (body, passive_source) in [
+        ("return true", true),
+        ("return \"value\"", true),
+        ("p = true return 0", false),
+        ("local captured = fn() { return p } return 0", false),
     ] {
         let program = SOURCE.replace("pick(p) { return 0 }", &format!("pick(p) {{ {body} }}"));
         let package = package(&program);
@@ -112,8 +113,11 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         assert!(!source.candidate_integer_agreement(p), "{body}");
         assert_eq!(
             source.candidate_input_inventory_for_test(p.owner()),
-            (0, false)
+            (0, passive_source)
         );
+        assert_eq!(source.source_definition_for(p.owner()).is_some(), passive_source);
+        // A retained Bool/Text source keeps its missing-result veto; neither
+        // that draft nor its veto grants executable entry or Integer agreement.
         assert!(!source.contains_definition_for_test(p.owner()));
     }
 }
@@ -431,7 +435,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
             for (site, call) in input.function().method_calls() {
                 let site = OwnedExprSiteV1::new(input.owner(), site.clone());
                 let observed = context.observe(declaration.batch_slot(), &site, call,
-                    &both.selected, &both.parameter_contracts).unwrap();
+                    &both.selected, &both.parameter_contracts, None).unwrap();
                 match call.receiver() {
                     ResolvedMethodCallReceiverSourceV1::Lexical(_) => assert!(observed.is_none()),
                     ResolvedMethodCallReceiverSourceV1::CurrentOwner => {

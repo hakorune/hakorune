@@ -31,6 +31,14 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(false);
         };
         match request {
+            BorrowedViewUseRequestV1::Operand
+                if draft
+                    .mul_operand_at(input, site)
+                    .map_err(|_| freeze("borrowed-mul/source-identity"))?
+                    .is_some() =>
+            {
+                Ok(self.dominated_view_use_at(input.owner(), site))
+            }
             BorrowedViewUseRequestV1::Operand => Ok(self
                 .dominated_view_use_at(input.owner(), site)
                 && draft.uses.iter().any(|row| {

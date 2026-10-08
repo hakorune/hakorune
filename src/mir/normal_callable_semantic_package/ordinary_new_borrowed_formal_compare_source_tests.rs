@@ -222,6 +222,31 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
             true,
         ),
         (
+            "if p <= 8 { return p * me.limit() } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "if p <= 8 { return me.limit() * p } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "local q = p if q <= 8 { return q * me.limit() } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "if p <= 8 { return p * me.limit() } return 0",
+            "limit() { return true }",
+            false,
+        ),
+        (
+            "if p <= 8 { return p * me.limit(7) } return 0",
+            "limit(q: i64) { return q }",
+            false,
+        ),
+        (
             "if p > me.limit() { return 1 } return 0",
             "limit() { return true }",
             false,
@@ -259,19 +284,32 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
                 return;
             }
             let draft = product.draft.unwrap();
-            let row = draft.uses.iter().find(|row| matches!(row.kind, BorrowedFormalUseDraftKindV1::CompareOperand { .. })).unwrap();
-            let BorrowedFormalUseDraftKindV1::CompareOperand { source, .. } = &row.kind else { unreachable!() };
-            assert!(source.integer_literal.is_none());
-            let original = source.integer_call_source().unwrap();
-            assert!(original.call_site() == &source.left || original.call_site() == &source.right);
+            let call_site = input.function().method_calls().find(|(_, row)| row.selector() == "limit").unwrap().0;
+            let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), call_site.clone());
+            let original = draft.static_operand_call_source_at(input, &owned).unwrap().unwrap();
+            for row in &draft.uses {
+                if let BorrowedFormalUseDraftKindV1::MulOperand { source, .. } = &row.kind {
+                    assert!(draft.mul_operand_at(input, &row.site).unwrap().is_some());
+                    assert!(source.integer_call_sources().any(|child| std::rc::Rc::ptr_eq(child, original)));
+                }
+            }
             assert_eq!(original.caller(), &caller);
             assert_eq!(original.target(), &CanonicalSameModuleCallableKeyV1::static_box_method("Gate", "limit", 0));
             assert!(original.argument_sites().is_empty());
             assert!(original.parameters().is_empty());
             assert!(original.required_i64_arguments().is_empty());
             assert!(original.require_qualified().is_err());
-            let cloned = std::rc::Rc::clone(source);
-            assert!(std::rc::Rc::ptr_eq(original, cloned.integer_call_source().unwrap()));
+            // The production inventory must reuse the SAME source from its own
+            // original draft; this transient draft intentionally has its own Rc.
+            let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            let production_draft = ingress.source_definition_for(input.owner()).unwrap_or_else(|| panic!("original caller source missing: {body}"));
+            let retained = production_draft.static_operand_call_source_at(input, &owned).unwrap().unwrap();
+            let observed = ingress.source_incoming.exact_rows().find_map(|row| match &row.source {
+                crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source)
+                    if source.call_site() == &owned => Some(source),
+                _ => None,
+            }).unwrap();
+            assert!(std::rc::Rc::ptr_eq(retained, observed));
             assert!(draft_borrowed_formal_source_product_v1(
                 input, contract, &package.instance_constructors, None, None,
             ).unwrap().draft.is_err(), "no index source, no call operand proof");

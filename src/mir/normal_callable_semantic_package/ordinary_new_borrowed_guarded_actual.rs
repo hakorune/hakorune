@@ -55,6 +55,10 @@ pub(super) struct CheckedIntegerOperandReachV1 {
 }
 
 impl CheckedIntegerOperandReachV1 {
+    pub(super) fn operand(&self) -> (BindingRefV1, BindingRefV1, &OwnedExprSiteV1) {
+        (self.binding, self.formal, &self.site)
+    }
+
     pub(super) fn guard(&self) -> &Rc<CheckedIntegerGuardV1> {
         &self.guard
     }

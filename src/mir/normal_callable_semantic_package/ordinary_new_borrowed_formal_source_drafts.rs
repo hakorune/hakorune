@@ -52,8 +52,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             CallableParameterDeclarationModeV1::StaticBoxMethod => {
                 let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
                     selected.key_for_batch_slot(contract.batch_slot) else { continue; };
+                // Collect original source before entry/Completion eligibility.
+                // Qualified target membership is not caller source authority:
+                // CurrentOwner-only and uncalled owners still need their draft.
+                // Canonical call-child loans and transport seeding stay strict.
                 if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
-                    || !static_claims.is_some_and(|index| index.contains_exact_i64_target(key)) {
+                    || static_claims.is_none() {
                     continue;
                 }
                 if key.arity() as usize != contract.parameters.len() {
@@ -110,6 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         row.kind,
                         BorrowedFormalUseDraftKindV1::ArrayElementValue { .. }
                             | BorrowedFormalUseDraftKindV1::AddOperand { .. }
+                            | BorrowedFormalUseDraftKindV1::MulOperand { .. }
                             | BorrowedFormalUseDraftKindV1::NewArgument { .. }
                             | BorrowedFormalUseDraftKindV1::IntegerReturn { .. }
                     ) {

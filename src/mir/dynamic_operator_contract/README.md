@@ -1,7 +1,7 @@
 # Dynamic operator contract
 
 This module is the sole profile-neutral semantic owner for supported Dynamic
-Add/Less/Greater/LessEqual/Equal execution domains.
+Add/Mul/Less/Greater/LessEqual/Equal execution domains.
 
 It issues only complete borrowed envelopes. Callers cannot construct or pair
 effect, ordering, suspension, control, input access, Normal result, Fault, or
@@ -17,3 +17,7 @@ Boolean outcome establishes the operand class; Fault grants no refinement.
 These complete envelopes do not issue source guards or actual-argument proof.
 The LessEqual source/physical correspondence is a separate required adapter;
 its existence here does not expand the borrowed operand verifier.
+
+NormalInteger multiplication produces a fresh NormalInteger without result
+lifecycle or operand mutation. Its exact source/guard/call-child and physical
+correspondence are separate required consumers; the envelope activates no ABI.

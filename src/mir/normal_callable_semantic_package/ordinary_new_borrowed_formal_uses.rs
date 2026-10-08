@@ -37,6 +37,10 @@ pub(super) use operands::compare_operand_kind;
 mod guarded_actual;
 pub(super) use guarded_actual::BorrowedGuardedActualV1;
 
+#[path = "ordinary_new_borrowed_mul_source.rs"]
+mod mul_source;
+pub(in crate::mir) use mul_source::{BorrowedMulSideV1, BorrowedMulSourceV1};
+
 use operands::{
     add_operand_kind, is_call_argument, normal_integer_operand, null_compare_operand_kind,
     use_dominated_by_if,
@@ -120,6 +124,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// no borrowed identity into the fresh-integer result.
     AddOperand {
         binary: OwnedExprSiteV1,
+    },
+    /// Exact ordered Mul product, including each operand's original guard.
+    /// This does not use the legacy Add count-only admission.
+    MulOperand {
+        binary: OwnedExprSiteV1,
+        source: Rc<BorrowedMulSourceV1>,
+        side: BorrowedMulSideV1,
     },
     /// Exact value Return after the SAME checked Compare in one sequence.
     /// This source use neither changes the tagged carrier nor activates entry.
@@ -556,6 +567,8 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
         }
     }
 
+    let mul_sources =
+        mul_source::collect_mul_sources(input, &numeric_origins, &integer_guards, static_operands)?;
     let mut uses = Vec::new();
     let mut unsupported = None;
     let mut guarded_actuals = BTreeMap::new();
@@ -643,6 +656,9 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
                 &compare_guards,
                 site,
             )?;
+        }
+        if kind.is_none() && numeric_origins.contains_key(binding) {
+            kind = mul_source::mul_operand_kind(&mul_sources, *binding, formal, site)?;
         }
         if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = integer_guards.get(&formal).and_then(|guards| {

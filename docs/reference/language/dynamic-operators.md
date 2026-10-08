@@ -57,6 +57,25 @@ validation must reject an operator changed between source and publication.
 A dominated outgoing actual additionally requires the same stable origin and
 checked comparison's Normal path. Those adapters remain separate work.
 
+## Checked Integer multiplication
+
+Decision (2026-10-09): the same canonical operator issuer provides
+`Mul(NormalInteger, NormalInteger)`. It borrows operands in source order,
+publishes a fresh NormalInteger with no borrowed identity or result lifecycle,
+and retains the existing synchronous, expression-bounded, potentially suspending
+envelope. An operand outside the Integer class Faults before any result, operand
+mutation or rebind. This preserves the current I64 arithmetic policy; it grants
+no exact-width checked-overflow or `usize` range proof.
+
+Each borrowed operand requires its original stable origin and the SAME checked
+comparison's Normal reach. A resolver-sealed immediate then/else branch and a
+later statement in the same sequence are distinct reach witnesses; the condition
+itself, unrelated branches and nested scopes gain no permission from spelling.
+An Integer call child additionally retains the original canonical Static source.
+Source reach and the envelope alone do not grant entry or execution: original
+ordered operands, sole Mul append, FinishedBindings and independent physical
+validation remain required. Add and outgoing-argument reach laws are unchanged.
+
 ## Selected borrowed null equality (landed NULLCOMPARE-S0)
 
 Decision (2026-10-03): the existing `dynamic_operator_contract` owner issues

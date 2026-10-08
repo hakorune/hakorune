@@ -357,6 +357,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         call,
                         selected,
                         contracts,
+                        drafts.get(&input.owner())
+                            .map(|draft| draft.static_operand_call_source_at(input, &owned))
+                            .transpose()
+                            .map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()))?
+                            .flatten(),
                     )? {
                         if static_observations.insert(owned.clone(), row).is_some() {
                             return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned));
