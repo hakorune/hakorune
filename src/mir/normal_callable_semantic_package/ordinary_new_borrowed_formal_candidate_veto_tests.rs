@@ -123,7 +123,34 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
             ).expect("one original factory");
             let claims = &package.source_static_claims_for_test;
+            let facts = &package.ordinary_new_claim_ledger.callable_result_classes;
+            use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{OrdinaryNewResultClassV1, ResultWitnessStepV1};
+            let page_key = CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocPage", "allocate", 1);
+            assert!(matches!(facts.get(&page_key), Some(OrdinaryNewResultClassV1::NullableObject(name)) if name.as_ref() == "HakoAllocHandle"));
+            let page_exits = facts.outcomes(&page_key).expect("all original Page exits");
+            assert_eq!(page_exits.len(), 3);
+            let page_witnesses: Vec<_> = page_exits.iter().flat_map(|row| row.witnesses()).collect();
+            assert_eq!(page_witnesses.len(), 3);
+            assert_eq!(page_witnesses.iter().filter(|row| matches!(row.step(), ResultWitnessStepV1::NullLiteral)).count(), 2);
+            assert_eq!(page_witnesses.iter().filter(|row| matches!(row.step(), ResultWitnessStepV1::FreshConstruction)).count(), 1);
+            assert!(facts.object_return_dependencies(&page_key, page_exits[0].site().owner()).is_none(), "leaf Fresh/null has no call dependency");
             let heap_key = CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocHeap", "allocate", 1);
+            assert!(matches!(facts.get(&heap_key), Some(OrdinaryNewResultClassV1::NullableObject(name)) if name.as_ref() == "HakoAllocHandle"));
+            let heap_exits = facts.outcomes(&heap_key).expect("BOTH Page calls plus null");
+            assert_eq!(heap_exits.len(), 3);
+            assert_eq!(heap_exits.iter().flat_map(|row| row.witnesses()).count(), 7);
+            let dependencies = facts.object_return_dependencies(&heap_key, heap_exits[0].site().owner()).expect("both original call-return loans");
+            assert_eq!(dependencies.len(), 2);
+            for dependency in &dependencies {
+                assert_eq!(dependency.key(), &page_key);
+                assert_eq!(dependency.witnesses().len(), 3);
+                for witness in dependency.witnesses() {
+                    let ResultWitnessStepV1::Call { key, callee, substitution, .. } = witness.step() else { panic!("original call witness") };
+                    assert_eq!(key, &page_key);
+                    assert!(substitution.is_none());
+                    assert!(page_witnesses.iter().any(|original| std::rc::Rc::ptr_eq(original, callee)), "same leaf witness, no reissue");
+                }
+            }
             let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(heap_key.clone())).unwrap();
             let contract = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap();
             assert_eq!(contract.parameters[0].kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle);

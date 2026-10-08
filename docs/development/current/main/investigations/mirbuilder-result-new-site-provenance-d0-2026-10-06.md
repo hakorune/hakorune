@@ -961,32 +961,11 @@ Stored dispatch prerequisite CLOSEDf34af66d4a (pushed); exact contract/evidence
 at commit/README and /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
 All15 retained; exact different-callee exclusion only, SAME unknown stays veto.
 
-Next checked-actual Decision (read-only review_cleanup_path): retain original
-compare source once in existing use prepass and reuse it in the same use loop.
-SAME source product returns old draft result plus exact guarded actual facts;
-UnsupportedUse retains facts, rebind/capture/annotated-alias retains none.
-Private child checks original If parent region/scope and later SAME Body/If arm
-sequence, original binary operands/formal and call/ordinal/actual binding/site.
-Checked Normal reach proves Integer, never positivity or Object/entry permission.
-Existing source collector and SAME incoming seed borrow exact facts; no second
-classifier, scan or ingress issuer. Public classifier passes no fact. Reuse import
-Heap15 pin and existing positive/negative families; source758 cap limits wiring.
-Heap-to-Page executable outgoing protocol remains a separate subsequent slice.
-Checked-actual selected scope: uses/operands + private guarded-actual child,
-source-drafts/source-seeds/source/profile wiring; existing use-test fixture and
-imported candidate pin + independent guarded-actual family; README/card/pointer.
-Source772 retains only wiring; private child owns exact dominance/corroboration.
-Acceptance: all15 original/no-veto/candidate Integer; final Heap entry still absent;
-Normal reach and same-arm aliases pass, nested/before/loop escape/poison/drift refuse.
-Checked-actual source prerequisite CLOSED (selected paths; commit in Git).
-269/269 + compiled borrowed-use22/22 + compare15/15 PASS; final test37857
-terminal0/4m35s, final production check23906 terminal0/15.29s; guards/caps/diff PASS.
-Compare issuer and C kind==1/Fault law corroborate conditional Normal Integer.
-Source772 keeps wiring; private child owns corroboration; inherited uses fmt kept.
-Earlier64810 missing test arg and one invalid NonTerminalReturn fixture are fixed.
-Publication42/45: same3 fail names/errors reproduce in saved pre-change93ac binary
-(41/44); known baseline debts remain unwaived, beside existing S6C3. Exact names,
-binary hashes and logs: /mnt/workdisk/hako-guarded-actual-final-evidence.json.
+Checked-actual prerequisite CLOSEDa0080da903 (pushed); exact contract/Decision
+at commit/README. SAME Compare source/Normal kind law and exact later argument;
+all15/no-veto/candidate Integer, final Heap entry still absent; no execution grant.
+269+37 PASS/check/guards; /mnt/workdisk/hako-guarded-actual-final-evidence.json.
+Publication3 reproduce at saved93ac baseline; they and S6C3 remain unwaived.
 Next Stored Object Decision (read-only review_cleanup_path): first confirm
 original Page Fresh/null witnesses and Heap BOTH Page calls+null in SAME Facts.
 Lend plural qualifications/dependencies and canonical forwarding subset to SAME
@@ -995,3 +974,20 @@ Keep old I64 law; choose original Object requirement's verified terminal walk,
 not unconditional stored I64 gate or Lexical/Self receiver disguise. Receiver
 binding-outside-terminal stays refusal. Full entry/Completion/input/cleanup,
 Normal/Fault and FinishedBindings remain required for subsequent executable closure.
+Stored source evidence PASS: SAME imported pin confirms Page3 (Null2/Fresh1),
+Heap3 (Call2/null1), seven Heap witnesses, BOTH original Page loans and callee Rc.
+Candidate4/4 and existing completed-callee6/6 PASS; quick test build4m39s.
+Import-path compile errors were THISCHANGE, corrected; initial callee filter0
+was NOT PASS, corrected to completion_index::return_callee::tests (six).
+/mnt/workdisk/hako-stored-object-facts-{test-build,focused,callee}.log retains evidence.
+No new test/guard/scanner or execution grant; final Heap entry remains absent.
+Stored Object source Decision (read-only review_cleanup_path): SAME need gains
+existing result_requirement, SAME attachment serves Lexical and Stored. Before
+receiver issue, recheck unique selected contract/key/slot/owner/ordered actuals,
+original Facts whole exits/alternatives, plural qualification Rc and every callee
+root in exact order/count; producer dependencies equal original accessor rows.
+Reuse observed-forward subset: None never means empty; missing/Unknown/Formal/
+cycle stays unavailable, drift refuses without I64 retry. Old I64 eligibility
+unchanged; its terminal gate only handles ExistingBorrowedResult Stored rows.
+Reuse source-check responsibility from return_callee without requiring Completion;
+Completion/Normal/teardown/Ready remain subsequent executable obligations.
