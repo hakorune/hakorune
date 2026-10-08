@@ -33,33 +33,8 @@ impl FinalizedRootSourceHandoffV1 {
                                 .get(symbol)
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
-                            let RootHomeExitEntry::Call {
-                                invoke,
-                                projection: result,
-                                frame,
-                                ..
-                            } = entry
-                            else {
-                                return Err(freeze("final-cleanup/entry-kind"));
-                            };
-                            for binding in bindings.iter().chain([invoke, result, frame]) {
-                                if !projection.recorded().contains(binding)
-                                    || !physical_boundary::check_binding(
-                                        function, None, binding.0, &binding.1,
-                                    )?
-                                {
-                                    return Err(freeze("final-cleanup/binding-unrecorded"));
-                                }
-                            }
-                            order.validate_direct_entry(entry, bindings, None)?;
-                            root_cleanup_graph::ordered_paths::validate(
-                                function, bindings, entry, order, None,
-                            )?;
-                            root_cleanup_graph::ordered_structure::validate_finished_call(
-                                function,
-                                bindings,
-                                entry,
-                                order.ingress_result_kind(),
+                            validate_finished_cleanup_entry(
+                                function, projection, order, entry, bindings, None,
                             )
                         })?;
                 }
@@ -79,55 +54,13 @@ impl FinalizedRootSourceHandoffV1 {
                                 .get(symbol)
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
-                            let mut mandatory = projection.bindings(bindings)?;
-                            match entry {
-                                RootHomeExitEntry::Call {
-                                    invoke,
-                                    projection: result,
-                                    frame,
-                                    ..
-                                }
-                                | RootHomeExitEntry::MapGet {
-                                    invoke,
-                                    projection: result,
-                                    frame,
-                                    ..
-                                } => {
-                                    for original in [invoke, result, frame] {
-                                        mandatory.push(
-                                            projection
-                                                .binding(original.0, &original.1)?
-                                                .ok_or_else(|| {
-                                                    freeze("final-cleanup/entry-binding-missing")
-                                                })?,
-                                        );
-                                    }
-                                }
-                                RootHomeExitEntry::Plain { .. } => {}
-                            }
-                            for binding in mandatory {
-                                if !projection.recorded().contains(&binding)
-                                    || !physical_boundary::check_binding(
-                                        function, None, binding.0, &binding.1,
-                                    )?
-                                {
-                                    return Err(freeze("final-cleanup/binding-unrecorded"));
-                                }
-                            }
-                            order.validate_direct_entry(entry, bindings, Some(projection))?;
-                            root_cleanup_graph::ordered_paths::validate(
+                            validate_finished_cleanup_entry(
                                 function,
-                                bindings,
-                                entry,
-                                order,
-                                Some(projection),
-                            )?;
-                            root_cleanup_graph::ordered_structure::validate_projected(
-                                function,
-                                bindings,
-                                entry,
                                 projection,
-                                order.ingress_result_kind(),
+                                order,
+                                entry,
+                                bindings,
+                                Some(projection),
                             )
                         })?;
                 }
@@ -136,5 +69,77 @@ impl FinalizedRootSourceHandoffV1 {
             }
         }
         Ok(())
+    }
+}
+
+/// Borrow the existing final-binding and source-order checks without moving an
+/// exit. `finishing` maps original storage; finalized Call storage is already
+/// rebound by its existing owner and supplies `None`.
+pub(super) fn validate_finished_cleanup_entry(
+    function: &MirFunction,
+    projection: &physical_boundary::FinishedBindings,
+    order: &super::root_home::RootHomeCleanupOrderV1,
+    entry: &RootHomeExitEntry,
+    bindings: &[(BasicBlockId, MirInstruction)],
+    finishing: Option<&physical_boundary::FinishedBindings>,
+) -> Result<(), String> {
+    let mut mandatory = match finishing {
+        Some(finishing) => finishing.bindings(bindings)?,
+        None => bindings.to_vec(),
+    };
+    match (finishing, entry) {
+        (
+            finishing,
+            RootHomeExitEntry::Call {
+                invoke,
+                projection: result,
+                frame,
+                ..
+            },
+        )
+        | (
+            finishing @ Some(_),
+            RootHomeExitEntry::MapGet {
+                invoke,
+                projection: result,
+                frame,
+                ..
+            },
+        ) => {
+            for original in [invoke, result, frame] {
+                mandatory.push(match finishing {
+                    Some(finishing) => finishing
+                        .binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("final-cleanup/entry-binding-missing"))?,
+                    None => original.clone(),
+                });
+            }
+        }
+        (Some(_), RootHomeExitEntry::Plain { .. }) => {}
+        (None, _) => return Err(freeze("final-cleanup/entry-kind")),
+    }
+    for binding in mandatory {
+        if !projection.recorded().contains(&binding)
+            || !physical_boundary::check_binding(function, None, binding.0, &binding.1)?
+        {
+            return Err(freeze("final-cleanup/binding-unrecorded"));
+        }
+    }
+    order.validate_direct_entry(entry, bindings, finishing)?;
+    root_cleanup_graph::ordered_paths::validate(function, bindings, entry, order, finishing)?;
+    match finishing {
+        Some(finishing) => root_cleanup_graph::ordered_structure::validate_projected(
+            function,
+            bindings,
+            entry,
+            finishing,
+            order.ingress_result_kind(),
+        ),
+        None => root_cleanup_graph::ordered_structure::validate_finished_call(
+            function,
+            bindings,
+            entry,
+            order.ingress_result_kind(),
+        ),
     }
 }

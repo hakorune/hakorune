@@ -918,14 +918,9 @@ required, with wrong result/projection refusal. Value Root ABI staysNone and exa
 object-return-handoff-unavailable artifact refusal remains. These two existing
 owners' additions are unverified WIP until focused and regression receipts close.
 
-Root physical attempts are retained in /tmp/hako-root-completion-physical-focused
-{,-corrected,-final,-local-copy}.log. Initial fixture/API mistakes and source Home
-Copy/order expectations were THISCHANGE and corrected; one build was cancelled
-rc130 and its processes confirmed stopped. Final local-copy run ended rc101:
-20/21 PASS, original Main packet all12 PASS and Direct physical all6 PASS through
-Normal/Fault, physical mutations, actual finishing and retained artifact refusal.
-Received typed Handle stops at local-call-binding-sequence during lowering;
-required acceptance remains unclosed, not baseline. No Cargo is running.
+Root physical acceptance and resolved THISCHANGE attempts are retained atb8cda4e125
+and /tmp/hako-root-completion-physical-focused{,-corrected,-final,-local-copy}.log.
+They grant no collector/result ABI/production EXE; latest closure follows below.
 
 Received physical dependency Decision (read-only operation_design): the selected
 ClaimLocal Handle still enters the old literal emitter, which records received
@@ -948,23 +943,12 @@ through a cfg-test borrower, with no production visibility or new test/guard own
 Acceptance: all12 original Main physical variants, original packet/group retained,
 zero SourceOnly/Ready/missing or drifted sibling refusal, prior-home acquisition
 Fault and result-first post-success residual Fault, full original regressions.
-Root prerequisite closure verified: focused21 PASS (build5m25s/runtime.04s),
-including all12 original Main Direct/Received physical variants and existing
-Instance18. Existing required551 names reused20 focused passes; remaining531 PASS
-(.25s), total552 distinct tests with no repeated green execution. Non-test quick
-check49.43s PASS. Logs /tmp/hako-root-received-shared-emitter-{focused-corrected,
-regression,production-check}.log and regression-evidence.json retain exact names,
-binary hash and counts. Initial1 THISCHANGE test getter compile error corrected
-by owner-contained cfg-test borrow; no production API widening. Pointer/scope/COPY,
-scoped Rust fmt/caps/diff and protected7 PASS; root_validation retains exactly its
-selected2 hunks with baseline formatting unchanged. No current/unclassified red.
-Sole issuer installs SAME original Root Completion/table atomically; selected
-Received Handle uses shared original Object packet emitter and exact exit group.
-Old nullable facade has source/check caller-zero and is removed; shared legacy
-Handle remains only for positively unselected source requirements. No new guard.
-CURRENT_STATE descriptive summary is corrected to this checkpoint/next action;
-selected row, Main identity and parked lanes stay unchanged. Collector/Root ABI/
-compiled Handle/real315/318/anchor lifetime/cleanup/production EXE remain unclosed.
+Root indexed Object-call prerequisite closed atb8cda4e125 (pushed). Commit owns
+focused21/Main12/Instance18 plus531 unrepeated regressions (552 distinct), check,
+pointer/scope/COPY/fmt/caps/protected7 and corrected test getter evidence. Same
+Root Rc indices and selected original Received packet now reach exact exit groups.
+Obsolete nullable facade is physically removed after source/check caller-zero;
+shared unselected legacy Handle remains. Collector/ABI/lifetime/realEXE stay owed.
 
 Next collector Decision (read-only review_cleanup_path, parent integrated): reuse
 existing seal_finalized_root_birth_handoff in the document production route.
@@ -977,14 +961,37 @@ Reuse existing final cleanup validation via a private borrowed core, with origin
 Root/child finishing projections explicitly lent inside collector. Public finalized
 projection getter keeps its ArtifactFinalized gate; no new phase/source permission.
 Named production callers are into_document_parts and into_artifact_parts; pass
-original module into seal and move named-array take after successful preflight.
+original module into seal. Borrow original cohort named-array rows and reuse
+existing owner/coverage validation before any take; immutable getter + shared
+borrowed checker suffice, no new proof schema. A whole-key/state checked batch
+take under ONE root-exit mutable borrow prevents partial entry moves. Then move
+local pool/named rows and install them once in ordinary handoff constructors;
+no post-seal with_named_arrays can discover new input errors. Script/unselected
+routes keep their own contract. No external callback enters this commit interval.
 Replace current Call-only root loop, post-take orphan/late Birth/identity checks;
 never convert absent siblings to skips. Existing source/Fault structure validators
 remain independent of physical recorded-binding agreement.
 Scope: root_validation, existing handoff/cleanup owners and a private preflight
-child if size requires, both production wrappers and existing handoff test owners.
+child if size requires, existing root call-entry batch owner, cohort/public
+named-array validator owner, both production wrappers and existing test owners.
 Acceptance: original Main Direct/Received+real child document handoff after CFG
 contraction, original packet/order, repeat refusal; late sibling/source/entry/orphan,
 missing or foreign projection, MIR+recorded Fault omission and late Birth negatives
-leave entries and pools unconsumed. Value ABI, pending artifact and compiled Handle
+plus named-array owner/coverage errors leave entries, pools and cohort rows
+unconsumed. Value ABI, pending artifact and compiled Handle
 stops remain separate. Next construction is selected; no collector completion claim.
+
+Cleanup-checker preparation Decision: before semantic collector cutover, extract
+only existing final cleanup branch checks into a private borrowed function in
+the same owner. SAME recorded projection plus optional original-binding mapping
+retains mandatory bindings, source order/path/structure and original diagnostics.
+Current finalized visitor is its only consumer; permission gates and source/entry
+selection stay unchanged. Scope: finalized_root_cleanup, owner README and this
+card. Existing finalized/cleanup/physical regression and non-test check/guards
+verify BoxShape; no new tests/guards. Later collector will borrow SAME core in a
+separate semantic slice. Read-only audit found no semantic/failure-order change.
+Preparation verified: existing focused15 PASS (build5m09s/.03s), remaining536 PASS
+(.26s), same required551 without repeated green execution; non-test check16.54s
+PASS. /tmp/hako-cleanup-borrowed-core-{focused,regression,production-check}.log
+and regression-evidence.json own exact results. Scope/fmt/caps/diff/protected7
+PASS; no new tests/guards, no current/unclassified red or collector admission.

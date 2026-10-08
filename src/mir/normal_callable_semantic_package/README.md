@@ -1359,6 +1359,12 @@ calls. The local flow must agree. Its original emitted packet and binding group
 carry producer verification; the received Home owns exit cleanup. Missing groups
 remain rejected by the unchanged whole-exit selection.
 
+Final cleanup validation keeps its mandatory finished bindings and independent
+source order/path/structure checks in one private borrowed function. Finalized
+Call entries use their existing rebound storage; emitted entries use the same
+finishing projection for original bindings. The existing finalized visitor remains
+the consumer; this extraction grants no collector or artifact permission.
+
 The private `call_witness` owner corroborates the exact source-call edges once,
 then composes existing immutable callee witnesses. The evaluator keeps source
 validation before missing-callee/pending handling, legacy projection eligibility
