@@ -139,9 +139,14 @@ impl<'module> PublishedMirBackendView<'module> {
 
     pub(crate) fn retained_root_result(
         &self,
-    ) -> Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1> {
-        self.retained_handoff
-            .and_then(|handoff| handoff.root_result())
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1>,
+        String,
+    > {
+        match self.retained_handoff {
+            Some(handoff) => handoff.root_result(self.module()),
+            None => Ok(None),
+        }
     }
 
     pub(crate) fn retained_root_source(

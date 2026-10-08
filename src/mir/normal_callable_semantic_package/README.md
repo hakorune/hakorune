@@ -1793,3 +1793,9 @@ that exact producer in FinishedBindings and actual MIR before accepting Return.
 Fresh returns join their exact Construction site to the retained Result commit
 and NewBox allocation/normal projection, then to that same exit Return. A function-wide
 Return count does not replace this correspondence; retained diagnostics grant no ABI.
+
+Root result ABI now joins the original whole-Root descriptor with its retained
+source snapshot, finishing bindings, producers and actual MIR through
+`result_abi(module) -> Result<Option<_>, String>`. Object results carry the
+original owner and Handle/NullableHandle kind; unavailable Fresh diagnostics
+cannot issue that ABI. Process-entry Object admission remains a separate boundary.

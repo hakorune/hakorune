@@ -660,7 +660,8 @@ fn issue_birth_calls(
     result: FinalizedRootResultAbiV1,
 ) -> Result<Vec<CompiledEntryBirthCallV1>, String> {
     let owner = match result {
-        FinalizedRootResultAbiV1::CallReturn { owner }
+        FinalizedRootResultAbiV1::ObjectReturn { owner, .. }
+        | FinalizedRootResultAbiV1::CallReturn { owner }
         | FinalizedRootResultAbiV1::I64AddReturn { owner }
         | FinalizedRootResultAbiV1::UnitReturn { owner }
         | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }

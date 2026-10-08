@@ -172,7 +172,7 @@ fn published_consumer_admits_lifecycle_only_after_final_artifact_preparation() {
                     .retained_root_source()
                     .expect("final lifecycle view retains its source relation");
                 assert!(matches!(
-                    view.retained_root_result(),
+                    view.retained_root_result().unwrap(),
                     Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
                         if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
                 ));
@@ -423,7 +423,7 @@ fn normal_ingress_preserves_app_main_free_static_definition_after_finish() {
                     assert!(verification.is_ok(), "{verification:?}");
                     assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
                     assert!(matches!(
-                        view.retained_root_result(),
+                        view.retained_root_result().unwrap(),
                         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
                     ));
                     assert_eq!(view.module().canonical_callable_definition_count(), 1);
@@ -477,7 +477,7 @@ fn normal_ingress_preserves_top_level_free_function_after_finish() {
                     assert!(verification.is_ok(), "{verification:?}");
                     assert_eq!(view.route(), crate::mir::function::PublishedStaticMethodRouteV1::CanonicalTyped);
                     assert!(matches!(
-                        view.retained_root_result(),
+                        view.retained_root_result().unwrap(),
                         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. })
                     ));
                     assert_eq!(view.module().canonical_callable_definition_symbol(&key), Some("helper/1"));
@@ -733,7 +733,7 @@ fn direct_i64_field_return_reaches_completed_entry_contract() {
         let mut compiler = MirCompiler::with_options(false);
         compiler.compile_normal_with_published(published_request(source), |view, _| -> Result<(), String> {
             let source = view.retained_root_source().ok_or_else(|| "root source missing".to_owned())?;
-            assert!(matches!(view.retained_root_result(),
+            assert!(matches!(view.retained_root_result().unwrap(),
                 Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64FieldReturn { owner })
                     if source.terminal_i64_field_return().is_some_and(|relation| relation.owner() == owner)));
             let input = view.issue_lifecycle_physical_abi_input()?;
@@ -766,7 +766,7 @@ fn explicit_bare_return_retains_unit_source_before_physical_stop() {
         let mut compiler = MirCompiler::with_options(false);
         compiler.compile_normal_with_published(published_request(source), |view, _| -> Result<(), String> {
             let source = view.retained_root_source().expect("retained Unit source");
-            assert!(matches!(view.retained_root_result(),
+            assert!(matches!(view.retained_root_result().unwrap(),
                 Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })
                     if source.terminal_unit_return().is_some_and(|relation| relation.owner() == owner)));
             let error = view.issue_lifecycle_physical_abi_input().expect_err("Unit physical input remains unsupported");

@@ -82,9 +82,14 @@ impl FinalizedRootHandoffV1 {
         }
     }
 
-    pub(crate) fn root_result(&self) -> Option<FinalizedRootResultAbiV1> {
-        self.root_source()
-            .and_then(FinalizedRootSourceHandoffV1::result_abi)
+    pub(crate) fn root_result(
+        &self,
+        module: &crate::mir::MirModule,
+    ) -> Result<Option<FinalizedRootResultAbiV1>, String> {
+        match self.root_source() {
+            Some(source) => source.result_abi(module),
+            None => Ok(None),
+        }
     }
 
     pub(crate) fn root_source(&self) -> Option<&FinalizedRootSourceHandoffV1> {

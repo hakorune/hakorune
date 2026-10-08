@@ -96,8 +96,10 @@ impl<'module> PublishedMirBackendView<'module> {
                 }
             }
         } else {
-            match handoff.root_result() {
-                Some(result) => super::super::compiled_entry_contract::root_result_category(result),
+            match handoff.root_result(self.module())? {
+                Some(result) => {
+                    super::super::compiled_entry_contract::root_result_category(result)?
+                }
                 None => return Err(fault("root-result-missing")),
             }
         };

@@ -34,16 +34,8 @@ pub(super) fn issue_birth_calls_for_program(
     }
     let root_owner = program
         .handoff()
-        .root_result()
-        .map(|result| match result {
-            FinalizedRootResultAbiV1::CallReturn { owner }
-            | FinalizedRootResultAbiV1::I64AddReturn { owner }
-            | FinalizedRootResultAbiV1::UnitReturn { owner }
-            | FinalizedRootResultAbiV1::IntegerLiteralReturn { owner }
-            | FinalizedRootResultAbiV1::I64FieldReturn { owner }
-            | FinalizedRootResultAbiV1::I64ScalarReturn { owner }
-            | FinalizedRootResultAbiV1::MapGetReturn { owner } => owner,
-        })
+        .root_source()
+        .map(|source| source.owner())
         .ok_or_else(|| fault("compiled-entry-root-owner-missing"))?;
     let mut consumed = vec![false; actuals.len()];
     let mut referenced = vec![false; indexed.len()];

@@ -369,7 +369,7 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
         local_calls: [(owner, vec![group])].into(),
     };
     assert_eq!(source.owner(), owner);
-    assert!(source.result_abi().is_none());
+    assert!(source.result_abi(&crate::mir::MirModule::new("empty".into())).unwrap().is_none());
     assert_eq!(
         source.local_call_binding_groups().count(),
         1,

@@ -2,6 +2,8 @@
 use super::*;
 #[path = "return_producer_tests.rs"]
 mod return_producers;
+#[path = "root_object_abi_tests.rs"]
+mod root_object_abi;
 use crate::mir::builder::{
     CompletedNormalDefaultRootCatalogLifecycleV1, SelectedNormalCallableKeyV1,
 };
@@ -116,10 +118,17 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                 let handoff = ledger
                     .seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort)
                     .unwrap_or_else(|error| panic!("{label}: {error}"));
+                let expected_kind = if nullable {
+                    crate::mir::instruction::InvokeCallResultKind::NullableHandle
+                } else {
+                    crate::mir::instruction::InvokeCallResultKind::Handle
+                };
                 assert_eq!(
-                    handoff.root_result(),
-                    None,
-                    "Object Value ABI remains pending"
+                    handoff.root_result(&module).unwrap(),
+                    Some(FinalizedRootResultAbiV1::ObjectReturn {
+                        owner: ledger.root_owner().unwrap(),
+                        kind: expected_kind
+                    })
                 );
                 let retained = handoff.root_source().unwrap();
                 let descriptor = ledger
@@ -342,6 +351,7 @@ fn joint_mir_and_recorded_fault_omission_is_rejected_before_take() {
     return_producers::null_return_joint_drift_and_missing_finished_binding();
     return_producers::received_return_joint_drift_and_missing_producer();
     return_producers::fresh_return_exact_exit_and_finished_producer();
+    root_object_abi::mixed_fresh_null_abi_preserves_source_and_physical_producers();
     let (key, mut module, ledger, keys, cohort) = fixture(false);
     let owner = ledger.root_owner().unwrap();
     let exit = ledger.completion_for_owner(owner).unwrap().explicit_sites()[0].clone();

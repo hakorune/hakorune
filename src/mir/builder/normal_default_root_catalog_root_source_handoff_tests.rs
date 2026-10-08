@@ -30,7 +30,7 @@ fn final_handoff_retains_exact_source_for_alias_and_multiple_homes() {
             .expect("selected Pair root handoff");
         let source = handoff.root_source().expect("retained source relation");
         assert!(matches!(
-            handoff.root_result(),
+            handoff.root_result(&module).unwrap(),
             Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
                 if source.terminal_i64_add().expect("I64 source relation").owner() == owner
         ));
@@ -97,7 +97,7 @@ fn artifact_validation_retains_issued_root_birth_handoff() {
         .root_source()
         .expect("Pair root retains its issued source relation");
     assert!(matches!(
-        handoff.root_result(),
+        handoff.root_result(&module).unwrap(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::I64AddReturn { owner })
             if root_source.terminal_i64_add().expect("I64 source relation").owner() == owner
     ));
@@ -147,7 +147,7 @@ fn selected_bare_return_emits_value_free_root_terminator() {
         .expect("artifact validation")
         .expect("Pair handoff");
     let source = handoff.root_source().expect("Unit source relation");
-    assert!(matches!(handoff.root_result(),
+    assert!(matches!(handoff.root_result(&module).unwrap(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::UnitReturn { owner })
             if source.terminal_unit_return().is_some_and(|terminal| terminal.owner() == owner)));
 }
@@ -271,7 +271,7 @@ fn scalar_app_main_keeps_its_source_integer_result_through_artifact_handoff() {
         .expect("source-issued integer literal relation");
     assert_eq!(terminal.value(), 0);
     assert!(matches!(
-        handoff.root_result(),
+        handoff.root_result(&module).unwrap(),
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::IntegerLiteralReturn { owner })
             if owner == terminal.owner()
     ));

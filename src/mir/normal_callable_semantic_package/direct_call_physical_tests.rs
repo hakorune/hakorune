@@ -377,7 +377,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
         .root_source()
         .expect("retained Call source relation");
     assert!(matches!(
-        handoff.root_result(),
+        handoff.root_result(&module).unwrap(),
         Some(
             crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
         )

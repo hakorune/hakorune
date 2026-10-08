@@ -23,7 +23,7 @@ fn script_array_reaches_published_callback_and_rejects_callable_admission() {
                             let handoff = view.retained_handoff.expect("one borrowed handoff");
                             assert!(std::ptr::eq(array, handoff.script_array().unwrap()));
                             assert!(view.retained_root_source().is_none());
-                            assert!(view.retained_root_result().is_none());
+                            assert!(view.retained_root_result().unwrap().is_none());
                             assert!(view.retained_birth_abi().is_none());
                             assert!(view.lifecycle_storage_profile().is_none());
                             let generic = PublishedMirBackendView::try_new(view.module()).unwrap();

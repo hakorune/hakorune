@@ -942,25 +942,16 @@ failures. Scope/COPY/pointer/fmt/caps/diff/protected7 PASS; historical S0 debt
 remains above, not waived. Six independent preflight tests share one family child;
 no new guard or production .hako/C rewrite or Value/compiled Handle/EXE grant.
 
-Next Decision (read-only review_cleanup_path; mandatory source-to-ABI sequence):
-derive checked Object result from original finalized source owner, not class/tag.
-Authority: immutable result Facts witness DAG, indexed Completion, SAME verified
-Normal disposition and exact Fresh/null/forward Home/lifetime proof. Issuer stays
-existing completed-index co-seal; no source reanalysis or second result solver.
-Replace finalized source result_abi Value blanket None with a private borrowed
-projection for proof-complete owned Handle/Nullable exits, preserving every exit's
-class/kind/acquisition and exact source/finished attachment. Missing proof remains
-unavailable; foreign/drift/late-sibling corruption refuses before descriptor.
-Physical coordinates borrow SAME collector/FinishedBindings. Scope: existing
-ordinary_new_local_commit result owner/private child, shared finalized getter,
-required enum consumer plumbing and existing test owners. Whole actual Main/child
-matrix plus Fresh/null order/nested forward and witness/class/kind/Return/Fault
-cleanup negatives are required. Anchored support is never replaced by owned proof.
-Compiled process entry remains I64/Unit until separately closed Object ABI/cleanup
-consumer; child Handle/Nullable physical roles and pending gate switch only after
-whole selected proof+independent physical attachment. Both315/318, full anchored
-lifetime/cleanup, unchanged mimalloc EXE, Gates2-4, migration/retirement/selfcompile
-and final acceptance remain mandatory. Collector closeout is not S0/goal completion.
+Source-to-ABI sequence (read-only review_cleanup_path): original Facts witness DAG,
+indexed Completion/SAME Normal disposition and exact Fresh/null/forward proof issue
+through existing completed-index co-seal; no source reanalysis/second solver.
+Every explicit exit retains class/kind/acquisition and exact source/finished attachment.
+Missing proof is unavailable; drift/late siblings refuse. SAME collector/FinishedBindings
+supply physical coordinates. Whole Main/child matrix and source/physical/cleanup negatives
+are acceptance. Compiled process entry stays I64/Unit until Object consumer is closed.
+Both315/318, anchored lifetime/cleanup, unchanged mimalloc EXE, Gates2-4,
+migration/retirement/selfcompile and final acceptance remain mandatory.
+Collector/owned-source closure never substitute for S0/goal completion.
 
 Root source prerequisites: SAME AppMain key/parser identity (6c7d192311),
 not callee keys, selects Root Facts; Result<Option<_>,String> preserves errors.
@@ -969,27 +960,19 @@ wrong kind/duplicate store rejects; OwnedCall retains its sealed Leaf DAG.
 No second registry/solver, pending publication or anchored ABI permission.
 Closed prerequisites: key6c7d192311, Fresh05cacecf80, splits66574888d1/7114201848, Root source4b9ff8f7bd/a6201577b4 (joins/orphan law); no ABI grant.
 Evidence: /tmp/hako-object-root-key-*, /tmp/hako-result-source-view-*, /tmp/hako-*-owner-move-*, /tmp/hako-root-object-descriptor-*; required runtime/production PASS.
-Null append closed81163fc815: exact source-scoped Const/Return receipt,
-independent finishing producer membership; unselected states retain diagnostics.
-Contract and full evidence recover at that commit; no second registry/ABI grant.
-Physical integration review: Direct retains exact order/Call result; Null retains
-source Const; Received joins original installed destination and projected Return.
-Fresh exact-site-to-exit correspondence is still owed: function-wide Return count
-alone cannot reject a joint swap of two Fresh exits. Close before Object ABI mint.
-Null producer closed81163fc815: original Const/Return and finishing binding,
-regression581/lib23.57s/guards/protected PASS; /tmp/hako-terminal-null-append-*.
+Null producer closed81163fc815: exact source-scoped Const/Return receipt,
+independent finishing membership/actual; unselected diagnostics retained. Full
+contract and regression581/lib23.57s evidence recover there and /tmp/hako-terminal-null-append-*.
+Direct exact packet/order and Received installed-destination laws remain independent;
+Fresh exact exit correspondence is closed87a0d0c398, not just function-wide count.
 Received producer closed e4c7a9a59c (pushed): exact installed producer/Return;
 preflight6+regression575 PASS, lib17.20s, scope/pointer/fmt/protected PASS.
 Evidence /tmp/hako-received-return-producer-*; THISCHANGE timing/protocol reds fixed.
-Fresh Decision (read-only review_cleanup_path): SAME indexed Construction site ->
-existing Result commit -> unique NewBox allocation/projection -> exact exit Return.
-Record accepts ExpressionCompleted; finishing requires Checked. Early actual check
-precedes membership; post-complete collector retains mandatory producer. Diagnostic
-RetainedUnavailable stays None without ABI permission. Missing/wrong commit, phase,
-producer or Return rejects. Extend joint preflight family with two dynamic Fresh
-exits swapped in recorded+actual MIR, proving count=1 insufficient and atomicity.
-Allocation/projection both require final membership/actual equality; late allocation drift rejects. No new issuer/registry/guard; whole ABI/S0/goal incomplete.
-Fresh producer closed87a0d0c398 (pushed): final preflight6+regression575 PASS, build5m15s/lib16.70s, fmt/scope/pointer/protected PASS; /tmp/hako-fresh-return-producer-* holds exact evidence. No ABI grant.
+Fresh producer closed87a0d0c398: exact Construction/exit/value-site + retained
+Result allocation/projection, Checked finishing and independent mandatory/actual
+law; unavailable diagnostics retain None without ABI permission. Full contract
+and preflight6/regression575/lib16.70s evidence recover at that commit and
+/tmp/hako-fresh-return-producer-*; no new test name/guard.
 Root ABI Decision (read-only review_cleanup_path): original descriptor + SAME
 finished producer/cleanup/actual MIR -> result_abi(module): Result<Option<_>,String>.
 Every Fresh requires Some allocation/projection; unavailable diagnostics grant no ABI.
@@ -998,3 +981,20 @@ process-entry Object explicitly refuses until its selected consumer is closed.
 Birth caller ownership borrows retained Root source.owner, not repeated ABI checking.
 Acceptance: whole Main matrix, Fresh/null orders and late producer drift; existing
 families/guards only. Both315/318, anchored lifetime and full production goals remain.
+Root ABI slice CLOSED: checked original descriptor plus retained Value snapshot,
+exact final producer/cleanup/actual MIR; wrappers preserve Result and Birth reuses
+source owner. Focused7/7 PASS (5m26s build); regression587:586 PASS,1 BASELINE.
+Baseline229ddf39f2 clean checkout reproduces identical TopLevel missing Completion
+(1/1 FAILED,7m47s build): /tmp/hako-root-object-result-abi-baseline-free-function.log.
+Current binary4d3bd3d2254c... evidence /tmp/hako-root-object-result-abi-{preflight-final-fixed,regression,production-check}.*; lib16.80s PASS.
+THISCHANGE test namespace error fixed before final runs; no unclassified red.
+Parent compiled_entry_contract759/pipeline_tests777; existing private owners only.
+Object process entry explicitly refuses; no compiled Handle/EXE or S0/goal closure.
+Next Decision (read-only review_cleanup_path): TopLevel scalar Completion retention.
+Borrow SAME lowering-input source header (CallableHeaderSyntaxViewV1) and selected
+TopLevel occurrence/declaration owner/slot/name/arity/formal bindings; reuse scalar
+classifier, original verifier once and seeds.push_completion/validate_result.
+No Box parameter-catalog widening, fake Cataloged key, second map or collector skip.
+Production free-function test + existing source-retention family are acceptance;
+foreign occurrence/owner/formal coverage/unsupported spelling remain fail-closed.
+Then compiled Handle and full anchored/production obligations above remain owed.

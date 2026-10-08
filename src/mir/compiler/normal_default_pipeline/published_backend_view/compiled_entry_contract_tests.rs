@@ -3,6 +3,7 @@ use crate::mir::{MirCompiler, NormalCompileRequestV1};
 
 #[test]
 fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
+    original_object_root_result_refuses_process_entry_category();
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         // Existing two-destination cohort; Local is retained, never promoted to i64.
@@ -45,7 +46,7 @@ fn per_new_actuals_survive_definition_dedup_and_are_consumed_once() {
                 assert_eq!(formal.source_ordinal(), Some(source.ordinal()));
                 assert_eq!(formal.disposition(), Some(source.disposition()));
             }
-            let result = view.retained_root_result().unwrap();
+            let result = view.retained_root_result().unwrap().unwrap();
             let mut reordered = actuals.to_vec();
             reordered.reverse();
             assert_eq!(issue_birth_calls(root, births, &reordered, result)?, contract.birth_calls());
@@ -363,4 +364,19 @@ fn provider_publication_selects_original_birth_caller_closure() {
             }
         }
     });
+}
+
+
+fn original_object_root_result_refuses_process_entry_category() {
+    let text = "box Token {} static box Main { main() { return new Token() } }";
+    let (completed, original) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, ledger, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+    assert!(std::rc::Rc::ptr_eq(&original, &ledger));
+    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort).unwrap();
+    let result = handoff.root_result(&module).unwrap().unwrap();
+    assert!(matches!(result, crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::ObjectReturn {
+        kind: crate::mir::instruction::InvokeCallResultKind::Handle, ..
+    }));
+    assert!(root_result_category(result).unwrap_err()
+        .contains("compiled-entry-object-result-unsupported"));
 }

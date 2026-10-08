@@ -27,8 +27,9 @@ selected Received Handle uses the existing shared Object producer owner.
 Original Root/child collector now preflights all sources/cleanup/Birth/identity
 and named rows before affine moves; both wrappers switched, old setter retired.
 Original Root Object source descriptor and Null/Received/Fresh exact producers are checked.
-Next: checked whole Root Object ABI and its consumers, then compiled Handle closure.
-Both315/318, anchored lifetime/cleanup, Root ABI and production EXE remain incomplete.
+Checked whole Root Object ABI and error-preserving consumers are closed; process Object refuses.
+Next: original TopLevel scalar Completion retention (baseline free-function failure), then compiled Handle.
+Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"
 next_design_card_path = "none"

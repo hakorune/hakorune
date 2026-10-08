@@ -44,7 +44,7 @@ fn script_source_survives_scope_and_reaches_both_finishing_consumers() {
             .validate_root_binding(&module.functions[handoff.root_key().expect("Script root")])
             .unwrap();
         assert!(handoff.root_source().is_none());
-        assert!(handoff.root_result().is_none());
+        assert!(handoff.root_result(&module).unwrap().is_none());
         assert!(handoff.births().is_none());
         assert!(handoff.birth_keys().is_none());
     }
