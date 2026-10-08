@@ -539,8 +539,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(slot) = rows.get_mut(&key) else {
             return Ok(None);
         };
-        if matches!(slot, LexicalInstanceCallDispositionSlotV1::SourcePending(_)) {
-            return Err(freeze("lexical-instance-call/source-pending"));
+        if let LexicalInstanceCallDispositionSlotV1::SourcePending(source) = slot {
+            return Err(format!(
+                "{}: call={:?}, target={:?}, callee={:?}",
+                freeze("lexical-instance-call/source-pending"),
+                source.call_site(),
+                source.target(),
+                source.callee_owner()
+            ));
         }
         match std::mem::replace(slot, LexicalInstanceCallDispositionSlotV1::Taken) {
             LexicalInstanceCallDispositionSlotV1::Ready(row) => Ok(Some(row)),

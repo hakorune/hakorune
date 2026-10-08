@@ -94,11 +94,13 @@ fn object_receiver_selection_keeps_pending_and_duplicate_source_failures() {
     let package = package(true, false, false);
     let (site, key) = receiver_source_identity(&package);
     rearm_pending(&package.ordinary_new_claim_ledger);
-    assert!(package
+    let error = package
         .ordinary_new_claim_ledger
         .take_receiver_object_packet_v1(site.owner(), site.site(), &key)
-        .unwrap_err()
-        .contains("source-pending"));
+        .unwrap_err();
+    assert!(error.contains("source-pending"));
+    assert!(error.contains(&format!("{site:?}")));
+    assert!(error.contains(&format!("{key:?}")));
     assert!(matches!(
         package
             .ordinary_new_claim_ledger

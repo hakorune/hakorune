@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: Root/child collector preflight closed; Object result descriptor next; S0 incomplete
+Status: Pending call attribution closed; Heap.allocate incoming entry next; S0 incomplete
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -894,26 +894,15 @@ Preparation closed at aabadf0bef: required551 and production check PASS; exact
 /tmp/hako-cleanup-borrowed-core-* receipts retain evidence. No collector admission.
 
 
-Literal-control physical prerequisite closed (selected CALLEE-RETURN-OUTCOME-S0).
-Canonical SimplifyCFG folds original I64 literal Compare/Branch and contracts the
-chosen New block. SAME evaluator and traced value_origin Copy query retain exact
-original definitions, Bool, target/args and dependency/control carrier blocks.
-Existing sequence/incoming owner corroborates original or folded form, entry/
-approach and every recorded arm. Proof-only all-block defs/uses/return_env census
-allows pure unrecorded DCE only with no actual definition/use. Missing carrier
-must be dead in the normalized ORIGINAL graph with every proof dst omitted;
-retained original Branch must map and captured-condition Branch count <=1.
-Foreign dst/extra Const/relocation/duplicate, operand/condition drift and missing
-recorded arm/entry refuse. Mandatory nodes/acyclic inventory stay unchanged.
-Original merged/nonmerged/split, Compare-only, exact unused cone/dead carrier
-removal and drift negatives share one existing boundary test. Whole bounded
-series579 and production/test check PASS at 52ca2a28e5; exact receipts in
-/tmp/hako-collector-preflight-carrier-final-* and final-evidence.json. No general
-Phi substitution, source solver, new guard, result ABI or unchanged app EXE grant.
+Literal-control prerequisite CLOSED52ca2a28e; contracts/evidence at commit.
+Original evaluator/Copy retain definitions, Bool/target/args/control carriers;
+proof-only census permits pure DCE only without actual definition/use. Entry/arms,
+dead original graph, retained Branch and drift refusals remain required.
+Whole579/check PASS; /tmp/hako-collector-preflight-carrier-final-* receipts.
+No general Phi substitution, solver, result ABI or production EXE grant.
 
-Self receiver locator CLOSEDf96eaa9b59: SAME original call/key/binding before
-once-only read, foreign/duplicate/missing refusal; physical pin579/check PASS.
-No new locator issuer, replay or selected-C grant; contract/evidence at commit.
+Self receiver locator CLOSEDf96eaa9b59: exact call/key/binding, once-only
+read and drift refusal;579/check PASS. Contract/evidence/no-grants at commit.
 
 Collector semantic cutover CLOSED5cad2d9a4b; full contract/Decision at commit.
 SAME Root/child Completion, source/cleanup/Birth/identity and named-array preflight
@@ -946,54 +935,41 @@ remaining650=647PASS/3known S6C, source/lib check PASS; exact names/binary/logs
 /mnt/workdisk/hako-compiled-handle-membership-*; inherited fmt baseline documented
 at commits, protected seven unchanged. Full acceptance does not waive S6C debt.
 
-C actual frontier: typed Handle4 rejects parser/function-body; Nullable4 object files
-and actual Rust-runtime-linked EXEs exit0, COUNTS 1 0 3 0 0 1 (size7 nonnull arm).
-/mnt/workdisk/hako-compiled-handle-admission-{capi-frontier,nullable-execution}.json.
-Header-geometry driver is not runtime descriptor admission; no Handle/Fault/Null
-runtime or unchanged mimalloc EXE completion claim.
-Next C Decision (read-only review_cleanup_path): exact handle/ordinary_handle
-contract after the neutral Return split below; current flow730.
-Existing index gets known identity bit (object0 is valid), original New/Copy/Call
-NormalResult and all owned callee Return summary after every index is built.
-Missing/cycle/foreign landing/disagreeing object/null/borrowed Handle return refuses;
-release metadata never supplies identity. Owned LIVE lease transfers on Normal only,
-Fault keeps caller unwind. Existing nullable protocol and unsupported owned envelope
-stay separate. Reuse existing C execution family and original JSON; no new guard.
-Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected retirement,
-nondelegating selfcompile and final acceptance remain mandatory/incomplete.
-
-C Return split CLOSED88eeede57f (pushed), exact contract/evidence at commit.
-Existing composed16/72 Normal+Fault runs and original nullable4 linked EXEs pass;
-Handle4 still refuses. indexed_flow stays sole state/worklist owner, flow730.
-
-C Handle implementation Decision (read-only review_cleanup_path):
-C physical input parser and existing V4 index/flow are sole independent consumers.
-Retain original definition block beside each value, known bit distinct from ID0,
-and per-function owned Return summary after all indexes are built. Exact Copy
-chain/New/Call Normal landing, Handle role/result pair and all Return identity
-must match; unknown/cycle/null/borrowed/disagreeing objects refuse. Copy traversal
-is bounded iterative; summary traversal visits each function, no kind-union identity.
-Summary proves identity only: LIVE lease and Normal-only transfer stay in existing
-Return flow; Fault retains caller unwind. Never infer identity from release rows.
-Scope: existing parser/formal transport/index/flow/Return/emit + private identity
-child, existing execution script/runtime probe, owner README/card. Same sixteen
-original source JSON variants, exact-role/identity/landing/cycle/null/borrowed
-negatives and allocation/cleanup Fault injection; existing C family reused.
-Nullable handling/Handle PHI/unsupported owned envelope stay unextended. No new
-source issuer, guard, test-only matcher or changed .hako; all full goals stay owed.
-
-C owned Handle admission CLOSED (selected paths; commit reference in Git).
-Parser/formal transport/index/flow/Return/emitter consume original handle Call
-through the sole V4 path. Known ID0 is valid; unknown Birth receiver refuses.
-Independent identity summary never replaces LIVE lease proof. Final C build PASS.
-Existing composed16/72 and owned-slot2/32 Normal/Fault runs PASS. Original
-source typed8/opaque8 executes112 Normal/allocation/cleanup Fault runs PASS;
-Copy/reversed callees add14, nullable null physical arm adds5. Actual runtime
-ledger checks one release per acquired handle/type; cleanup Fault is after release.
-Ten role/object/borrowed/null/cycle/landing/spent/all-Return refusals PASS.
-Logs /mnt/workdisk/hako-c-{owned,composed,owned-slot}-final.log and
-hako-c-owned-result-build-final.log. Mutations are independent C input probes,
-not altered source cutover. No new guard or Cargo build for this C slice.
-Next: unchanged mimalloc probe for remaining mixed-result/anchored frontier.
+C Return split CLOSED88eeede57f and owned Handle admission CLOSED2b1a32dd5b
+(pushed); exact Decision, contracts and evidence at commits/owner README.
+Original New/Copy/Call landing and all Return identities require known object;
+ID0 valid, unknown Birth receiver refuses, cycle/null/borrowed/drift refuses.
+Independent summary never grants LIVE: sole flow transfers only on Normal and
+preserves Fault unwind. Nullable/Handle Phi/unsupported owned envelopes unchanged.
+Final C build, composed16/72, owned-slot2/32 and original typed8/opaque8
+Normal/allocation/cleanup Fault112 PASS; Copy/reverse14/null-arm5 also PASS.
+Actual runtime ledger checks exact type/one release; ten distinct refusals PASS.
+/mnt/workdisk/hako-c-{owned,composed,owned-slot}-final.log retains receipts.
+C input mutations are independent probes, not modified source acceptance.
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected
-retirement, nondelegating selfcompile and final acceptance still owed.
+retirement, nondelegating selfcompile and final acceptance remain owed.
+
+Fresh unchanged-app at2b1a32dd5b: quick CLI3m55s PASS, binary76e095b2,
+source33d3e8b9 unchanged, rc1/noEXE at lexical-instance-call/source-pending.
+/mnt/workdisk/hako-owned-result-mimalloc-probe/{evidence.json,probe.log}.
+Current error lacks site/target; earlier artifact frontier is historical only.
+Decision (read-only review_cleanup_path): bounded diagnostic retains SAME pending
+call-site/selected target/callee owner in existing take error; no promotion retry,
+qualification change, new scanner or availability grant. Reuse pending/duplicate
+source tests for attribution/nonconsume, then probe unchanged production source.
+Mixed/Forward acquisition and anchored lifetime remain required, but generic
+source-pending does not prove they are the first current stopping edge.
+Diagnostic attribution CLOSED (selected paths; commit reference in Git): same
+Pending source formatted before affine take; original call/key retained in error.
+Existing object_slot12/12 PASS; focused build22451 terminal0, CLI30761 terminal0
+38.89s. Setup49873 cancelled101 before actual diagnostic build, not a PASS.
+Scope/COPY/pointer/format/caps/protected7/diff PASS; no new tests/guards.
+Fresh unchanged source probe identifies owner34 Body1.Initializer0 ->
+HakoAllocHeap.allocate/1 owner33: allocateResult's local handle=me.allocate(size).
+/mnt/workdisk/hako-pending-call-diagnostic-{focused.log,focused.json,cli-build.log}
+and mimalloc-probe/{evidence.json,probe.log}; binary9b7a3f97/source33d3e8b9,
+rc1/noEXE. No semantic acceptance change or full goal completion claim.
+Next: SAME existing borrowed profile/target ingress proof for this selected edge;
+known imported pin has no Heap.allocate final definition and retained unresolved
+caller veto. Verify actual missing authority before semantic widening; never drop
+unresolved caller or replace all-outcome proof with one convenient source arm.

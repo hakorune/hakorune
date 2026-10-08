@@ -33,7 +33,8 @@ Ready acquisition and compiled Handle admission closed through existing whole-mo
 Pending-only production finishing stops retired; typed8/opaque8 original production pass.
 Neutral C Return flow split closed; existing Normal/Fault execution preserved.
 C owned Handle identity/LIVE admission closed; original16 Normal/Fault EXEs pass.
-Next: unchanged mimalloc probe for mixed-result/anchored frontier.
+Fresh unchanged mimalloc identifies allocateResult local -> Heap.allocate Pending.
+Next: exact Heap.allocate incoming entry authority; unresolved callers stay vetoes.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"
