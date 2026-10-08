@@ -609,3 +609,11 @@ with `/tmp/hako-issued-borrowed-static-local-cohort.json` and the lifecycle kern
 archive. It builds a private current-source shim, compiles and executes unchanged
 source-issued JSON, and rejects fourteen external ABI mutations without artifacts.
 This tiny program does not prove full mimalloc or MirBuilder migration completion.
+
+### V4 Return emission owner
+
+`hako_llvmc_ffi_lifecycle_v4_emit.inc` calls the private
+`hako_llvmc_ffi_lifecycle_v4_return_emit.inc` helper once for an admitted Return.
+The child keeps existing Birth/Map/ordinary/root output and Fault order; it
+issues no role, source permission, or lease. Final stream errors remain with
+the function emitter. Indexed Return admission is a separate existing owner.

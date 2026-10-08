@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: Common Static incoming source closed; Return emission split then Integer Return next; full S0 incomplete
+Status: Common Static incoming source and neutral C Return emission closed; Integer Return next; full S0 incomplete
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -955,23 +955,24 @@ consume it; no duplicate scan, solver, Qualified disguise or second authority.
 Replace Qualified-only source observation/forward matching, keeping exact Rc.
 Required seed/executable selectors/publication/packet operations remain Qualified;
 CurrentOwner observation never activates transport/entry/Completion/Normal.
-Common Static incoming/source graph prerequisite CLOSED (selected commit below):
-SAME original route/loan/arg graph, full identity and Qualified-only activation.
-Cohort check PASS17.09s; final libtest8m38s + corrected8m37s. Domain1/candidate4/
-claims7/input4/physical-packet7 PASS. Lexical285/286 then corrected retention6 PASS;
-only one test name/diagnostic changed after the285 green snapshot, core unchanged.
-INIT/while/import and obsolete foreign-index claim-unavailable were THISCHANGE
-fixture/expectation failures, corrected; cancel143 and zero-match were NOT PASS.
-Literal-only foreign index now refuses via SAME selected-map original catalog
-token before lookup. Original good_size->me.size_to_bin same-Rc/arguments are
-mandatory in unchanged-app pin; raw eligibility unchanged. No new issuer/guard.
-Exact source/binary/log receipt: /mnt/workdisk/hako-current-owner-incoming-cohort-final-evidence.json.
-Protected7/caps/diff/scope/pointer PASS; no execution or full-goal completion claim.
+Common Static incoming/source graph CLOSED075d1bc2b4 (pushed): SAME source/
+argument graph, full original catalog token/route/identity and Qualified-only
+activation. Exact corrected build/test/red classifications are at commit and
+/mnt/workdisk/hako-current-owner-incoming-cohort-final-evidence.json.
+Claims7/input4/domain1/candidate4/packet7 and285+corrected-retention6 PASS.
+No execution grant/new guard; protected7 unchanged; prior cancel/zero-match not PASS.
 Noninitializer and USIZE laws/all caller vetoes stay unchanged. Acceptance:
 existing static input/retention/source graph/capability families plus original
 mimalloc source census; foreign cohort/owner/site/ordinal and reissued Rc refuse.
-Next: neutral C Return emission split, then checked Integer Return full mapping.
-Emitter793 cannot grow; extract existing Return arm to one child/helper unchanged.
+C Return emission split CLOSED (this slice): exact original Return body moved
+once to return_emit helper; emitter793->757, child45. No role/identity/lease/output
+or ferror-order change. Existing composed16/72, owned16/112 and Static+14 refusals
+PASS; original Map-call2 modes return30 with exact storage counts.
+Broad synthetic Map suite ABI-layout refusal reproduces at075d baseline: known
+fixture debt, not PASS/waived. Initial wrong entry archive and isolated-copy header
+setup failures are corrected orchestration errors. Exact retention/build/source/
+runtime/baseline evidence: /mnt/workdisk/hako-c-return-emission-split-evidence.json.
+Next: checked Integer Return full source/result/finished-coordinate/C mapping.
 Static borrowed params use existing ordinary_i64+receiver/null+receiver_object/null
 geometry; do not simply remove receiver guard or admit receiver-free Handle lanes.
 Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes remain.
