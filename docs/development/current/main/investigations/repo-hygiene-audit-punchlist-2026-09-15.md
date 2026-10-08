@@ -64,8 +64,8 @@ selection claim.
 Queued user request (2026-10-08): [test/guard responsibility retirement task](test-guard-responsibility-retirement-task-2026-10-08.md).
 First bounded candidate is the live daily MIR root facade/import family:
 measure, preserve distinct checks, switch callers and physically retire the
-exclusive old script. The active compiler slice and parked lanes stay selected
-as before; this link does not claim deletion or a timing improvement.
+exclusive old script. The active compiler selection stays unchanged; parked
+lanes remain parked. This link does not claim deletion or a timing improvement.
 
 | # | Finding | Verified evidence | Required action |
 |---|---|---|---|
