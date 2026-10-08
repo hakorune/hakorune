@@ -943,30 +943,11 @@ Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-ve
 
 ## Checked Integer Return closeout (2026-10-09)
 
-Decision (read-only review_cleanup_path): original IntegerReturn selects verified
-Completion (no plain seed); ALL SAME I64Scalar siblings retained, per-use exact.
-Source Jump3->Return6(value2) becomes Branch2->Return6(value2) under SimplifyCFG.
-SAME PhysicalBoundary certifies original empty Jump(None) forwarding only from
-original validated Branch arms to the exact PHI-free validated successor.
-Exact selected arm args omission is shared by instruction/edge equality;
-complete sequences/Return equality remain. No final Return search or new issuer.
-Nonempty/Phi/value args/unvalidated/ambiguous originals refuse; no generic view escape.
-Acceptance: quick lib no-run70951 PASS8m33s; focused7 (8 original source cases,
-formal/alias/typed sibling, optimizefalse/true), boundary matrix1, regressions
-12+22+9+28+4+362+44+2 PASS. SAME immutable binary and SHA:
-/mnt/workdisk/hako-checked-integer-return-threading-regression-evidence.json.
-C execution PASS8 original source-issued EXEs +12 external Bool/null/zero probes:
-/mnt/workdisk/hako-checked-integer-return-full-runtime.log.
-Existing C22/composed16+72Fault/owned16+112Fault remain PASS without code drift.
-Scope/pointer/diff/selected source caps/protected7 PASS; new format edits only.
-Whole-rustfmt diagnostics include existing baseline debt; scoped formatting audit
-/mnt/workdisk/hako-checked-integer-return-format-audit.json distinguishes unchanged
-baseline hunks; final edit is formatting only, no semantic acceptance change.
-Prior failed type imports/finishing cases and partial C run are superseded by
-these complete source/runtime results, not waived. No this-change red remains.
-Production use chain now joins exact source guard/Return, result and terminal
-contracts, SAME finished coordinates, both physical scans and C tag1 projection.
-Copy remains tagged; runtime wrong kind refuses before payload. No broad opaque grant.
+Closed7f6a6efa83; Git owns exact source/guarded Return/finished/C contracts.
+Original guard/Return, ALL I64Scalar siblings and exact empty-Jump certificate
+retained. No generic view escape, final Return search or SourceOnly promotion.
+Evidence: /mnt/workdisk/hako-checked-integer-return-threading-regression-evidence.json
+and hako-checked-integer-return-full-runtime.log; original8+external12 PASS.
 
 ## Exact declared Integer parameter source closeout (2026-10-09)
 
@@ -984,14 +965,31 @@ Evidence: /mnt/workdisk/hako-usize-declared-integer-source-composite-evidence.js
 Existing scope/pointer/format/source caps/protected7/diff PASS; no new test/guard.
 This closes original source/actual registration, not whole allocator execution.
 
-Next Decision (read-only review_cleanup_path, refined against source): exact
-CurrentOwner zero-argument I64 call source from SAME incoming_source index loan
-feeds the existing Compare sibling consumer (original bin>me.max_regular_bin()).
-Retain brand/caller/site/target/slot/contract and SAME source; required ordinals
-must be empty until original argument proof exists. Normal only; Fault skips compare.
-Mul is absent in existing operation/scalar issuers: subsequent distinct slice
-must close sole dynamic operator law/source/physical checks, never disguise Add.
-Then full-context CurrentOwner entry/packet; terminal *_usize, condition/loop and
-qualified terminal callers remain mandatory. Neither first slice proves bin_size
-complete/Ready. Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4,
-selected old-edge retirement and nondelegating final selfcompile remain open.
+## CurrentOwner Integer comparison child closeout (2026-10-09)
+
+Decision (read-only review_cleanup_path): SAME incoming_source loan retains
+exact zeroarg CurrentOwner ExactI64 child in SAME Compare product. Original
+brand/caller/site/target/slot/full contract and empty required ordinals checked.
+Source observation is not a physical call/result grant or new entry permission.
+Check22404/no-run72651 PASS; focused1 and existing4+30+9+10+8+26+10+22+7+362+7 PASS.
+Initial visibility errors corrected; zero-test static filter not PASS, corrected
+qualified_static_call_claim_tests7 PASS. Scope/pointer/protected7/caps PASS.
+Evidence: /mnt/workdisk/hako-current-owner-call-operand-evidence.json.
+Original bin>me.max_regular_bin() exact loan retained; whole bin_size stays
+incomplete. All15 Heap inputs, BOTH Page calls and vetoes retained. One matrix
+in existing comparison owner; no new guard/scanner/result fixpoint.
+
+## Guarded Mul next Decision (2026-10-09)
+
+Read-only review_cleanup_path: sole dynamic_operator_contract/borrowed arithmetic
+owner gains explicit Mul; Add unchanged. NormalInteger x NormalInteger yields
+fresh NormalInteger. SAME guard/ordered formal/alias/literal or call-child loan
+survive consult/result_pending/entry/FinishedBindings. Both scanners verify
+exact operation/coordinates/ordinals/guard dominance, not counts/Add spelling.
+JSON/C validator/index/admission/flow/emit spell mul; Tagged kind1 required
+before result, wrong kinds Fault without mutation. Acceptance: original literal/
+call sibling, orders/alias/optimization, source->JSON->C; Bool/null Fault and
+wrong/missing guard/operation/operand/call/FinishedBindings refuse.
+CurrentOwner entry/context and all caller/veto laws remain unchanged.
+Both315/318, cleanup, unchanged EXE, Gates2-4, old-edge retirement and final
+selfcompile remain open; Mul alone cannot close bin_size.

@@ -70,6 +70,25 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     contract,
                     instance_constructors,
                     receiver,
+                    static_claims
+                        .and_then(
+                            |index| match selected.key_for_batch_slot(contract.batch_slot) {
+                                Some(
+                                    crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                                        caller,
+                                    ),
+                                ) => Some(
+                                    super::super::borrowed_formal_uses::StaticOperandContextV1 {
+                                        index,
+                                        selected,
+                                        contracts,
+                                        caller,
+                                    },
+                                ),
+                                _ => None,
+                            },
+                        )
+                        .as_ref(),
                 )
             })
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
@@ -136,8 +155,13 @@ pub(super) fn seed_static_transport_owners_v1(
         .filter_map(|row| row.as_ref().ok())
     {
         if !source.is_qualified()
-            || inventory.static_observations().values().filter_map(|row| row.as_ref().ok())
-                .any(|incoming| incoming.callee_owner() == source.callee_owner() && !incoming.is_qualified())
+            || inventory
+                .static_observations()
+                .values()
+                .filter_map(|row| row.as_ref().ok())
+                .any(|incoming| {
+                    incoming.callee_owner() == source.callee_owner() && !incoming.is_qualified()
+                })
             || !definitions.contains_key(&source.callee_owner())
             || inventory.has_unsupported_static_spelling(source.callee_owner())
             || inventory.has_unsupported_static_context(source.callee_owner())

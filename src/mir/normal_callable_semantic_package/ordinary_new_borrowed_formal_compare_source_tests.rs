@@ -172,6 +172,7 @@ fn checked_integer_return_retains_same_compare_and_exact_alias_source() {
                 left: source.left.clone(),
                 right: source.right.clone(),
                 integer_literal: source.integer_literal.clone(),
+                integer_call: source.integer_call.clone(),
                 envelope: source.envelope,
             });
             assert!(!guard.matches_compare(formal, binary, &reissued));
@@ -188,5 +189,112 @@ fn checked_integer_return_rejects_bypass_inner_arm_and_rebound_source() {
         "if p <= 0 { return 0 } p = 7 return p",
     ] {
         assert!(draft(body).is_err(), "no checked Return loan: {body}");
+    }
+}
+
+#[test]
+fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
+    use super::super::{draft_borrowed_formal_source_product_v1, StaticOperandContextV1};
+    use crate::mir::builder::SelectedNormalCallableKeyV1;
+    use crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog;
+    use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
+    use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
+    let program = |body: &str, limit: &str| {
+        format!(
+        "static box Gate {{ probe(p) {{ {body} }} {limit} }} static box Main {{ main() {{ return 0 }} }}"
+    )
+    };
+    let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Gate", "probe", 1);
+    for (body, limit, accepted) in [
+        (
+            "if p > me.limit() { return 1 } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "if me.limit() > p { return 1 } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "local q = p if q <= me.limit() { return 1 } return 0",
+            "limit() { return 8 }",
+            true,
+        ),
+        (
+            "if p > me.limit() { return 1 } return 0",
+            "limit() { return true }",
+            false,
+        ),
+        (
+            "if p > me.limit(7) { return 1 } return 0",
+            "limit(q: i64) { return q }",
+            false,
+        ),
+    ] {
+        let text = program(body, limit);
+        let package = issue_with_brand_catalog(&text).unwrap();
+        let foreign = issue_with_brand_catalog(&text).unwrap();
+        let slot = package
+            .selected
+            .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(caller.clone()))
+            .unwrap();
+        let contract = package
+            .parameter_contracts
+            .iter()
+            .find(|row| row.batch_slot == slot)
+            .unwrap();
+        let context = StaticOperandContextV1 {
+            index: &package.source_static_claims_for_test,
+            selected: &package.selected,
+            contracts: &package.parameter_contracts,
+            caller: &caller,
+        };
+        package.batch().with_lowering_input(slot, |input| {
+            let product = draft_borrowed_formal_source_product_v1(
+                input, contract, &package.instance_constructors, None, Some(&context),
+            ).unwrap();
+            if !accepted {
+                assert!(product.draft.is_err(), "{body}: {limit}");
+                return;
+            }
+            let draft = product.draft.unwrap();
+            let row = draft.uses.iter().find(|row| matches!(row.kind, BorrowedFormalUseDraftKindV1::CompareOperand { .. })).unwrap();
+            let BorrowedFormalUseDraftKindV1::CompareOperand { source, .. } = &row.kind else { unreachable!() };
+            assert!(source.integer_literal.is_none());
+            let original = source.integer_call_source().unwrap();
+            assert!(original.call_site() == &source.left || original.call_site() == &source.right);
+            assert_eq!(original.caller(), &caller);
+            assert_eq!(original.target(), &CanonicalSameModuleCallableKeyV1::static_box_method("Gate", "limit", 0));
+            assert!(original.argument_sites().is_empty());
+            assert!(original.parameters().is_empty());
+            assert!(original.required_i64_arguments().is_empty());
+            assert!(original.require_qualified().is_err());
+            let cloned = std::rc::Rc::clone(source);
+            assert!(std::rc::Rc::ptr_eq(original, cloned.integer_call_source().unwrap()));
+            assert!(draft_borrowed_formal_source_product_v1(
+                input, contract, &package.instance_constructors, None, None,
+            ).unwrap().draft.is_err(), "no index source, no call operand proof");
+            for bad_context in [
+                StaticOperandContextV1 { index: &foreign.source_static_claims_for_test, ..context },
+                StaticOperandContextV1 { selected: &foreign.selected, ..context },
+            ] {
+                assert!(draft_borrowed_formal_source_product_v1(
+                    input, contract, &package.instance_constructors, None, Some(&bad_context),
+                ).is_err(), "foreign source cohort");
+            }
+            let duplicate: Vec<_> = package.parameter_contracts.iter().chain(package.parameter_contracts.iter()).map(|row| {
+                OwnedCallableParameterContractDeclarationV1 {
+                    owner: row.owner, batch_slot: row.batch_slot, mode: row.mode,
+                    parameters: row.parameters.iter().map(|formal| crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractV1 {
+                        ordinal: formal.ordinal, binding: formal.binding, kind: formal.kind.clone(),
+                    }).collect(),
+                }
+            }).collect();
+            let bad_context = StaticOperandContextV1 { contracts: &duplicate, ..context };
+            assert!(draft_borrowed_formal_source_product_v1(
+                input, contract, &package.instance_constructors, None, Some(&bad_context),
+            ).is_err(), "duplicate caller/target contracts");
+        }).unwrap();
     }
 }

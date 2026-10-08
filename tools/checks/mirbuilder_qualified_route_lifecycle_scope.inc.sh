@@ -751,7 +751,8 @@ rg -q 'use row_obligations::' "$PHYS_ABI"
 rg -q 'fn issue_diagnostic_sites' "$ROW_OBLIGATIONS"
 rg -q 'fn issue_exact_numeric_checks' "$ROW_OBLIGATIONS"
 rg -q 'mod instance_value_tests;' "$ROOT_LIFECYCLE_TESTS"
-for file in "$INSTANCE_PROVIDER_SRC" "$WALK_TRIGGERS" "$ROW_OBLIGATIONS" "$ROOT_INSTANCE_TESTS"; do
+CALL_OPERAND_SOURCE="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_use_call_operand.rs"
+for file in "$INSTANCE_PROVIDER_SRC" "$WALK_TRIGGERS" "$ROW_OBLIGATIONS" "$ROOT_INSTANCE_TESTS" "$CALL_OPERAND_SOURCE"; do
   if (( $(wc -l < "$file") >= 800 )); then
     echo "[$TAG] private source owner reached hard 800-line boundary: $file" >&2
     exit 1

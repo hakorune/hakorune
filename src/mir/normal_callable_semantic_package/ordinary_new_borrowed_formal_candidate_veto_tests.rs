@@ -170,6 +170,31 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                     }), "SAME original guard, not merely a Return admission");
                 }
             }
+            let bin_key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size", 1);
+            let bin_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(bin_key.clone())).unwrap();
+            let bin_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == bin_slot).unwrap();
+            let operand_context = super::super::borrowed_formal_uses::StaticOperandContextV1 {
+                index: claims, selected: &package.selected, contracts: &package.parameter_contracts, caller: &bin_key,
+            };
+            package.batch().with_lowering_input(bin_slot, |input| {
+                let (call_site, call) = input.function().method_calls().find(|(_, call)| call.selector() == "max_regular_bin").unwrap();
+                let binary = input.function().expression_source().binaries().find(|binary| binary.rhs() == call_site).unwrap();
+                let formal = bin_contract.parameters[0].binding;
+                let Some(BorrowedFormalUseDraftKindV1::CompareOperand { source, .. }) =
+                    super::super::borrowed_formal_uses::compare_operand_kind(input,
+                        &BTreeMap::from([(formal, formal)]), &package.instance_constructors,
+                        None, binary.lhs(), Some(&operand_context)).unwrap() else { panic!("original bin comparison child") };
+                let original = source.integer_call_source().unwrap();
+                assert_eq!(original.call_site().site(), call_site);
+                assert_eq!(original.target(), &CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "max_regular_bin", 0));
+                let loan = claims.incoming_source(&bin_key, original.call_site(), call,
+                    &package.selected, &package.parameter_contracts, None).unwrap().unwrap();
+                assert!(loan.corroborates_retained(original));
+                assert!(original.required_i64_arguments().is_empty());
+                assert!(original.require_qualified().is_err());
+                assert!(!package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+                    .contains_definition_for_test(input.owner()), "remaining Mul is not source-complete");
+            }).unwrap();
             let facts = &package.ordinary_new_claim_ledger.callable_result_classes;
             use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{OrdinaryNewResultClassV1, ResultWitnessStepV1};
             let page_key = CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocPage", "allocate", 1);

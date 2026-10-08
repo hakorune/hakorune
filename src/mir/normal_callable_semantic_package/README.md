@@ -1931,3 +1931,12 @@ install supplies its original Integer scalar candidate. Original ordinal,
 owner, declaration, duplicate, rebind and capture checks remain; scalar aliases
 are not declaration evidence. This source agreement does not alias `usize` to
 `i64` for Return, grant a range check, or promote SourceOnly to execution.
+
+Borrowed checked comparisons may retain an exact CurrentOwner zero-argument
+Integer call child from the same static index `incoming_source` loan. Original
+brand, caller/site, target/slot and complete contracts are corroborated; only
+ExactI64 with empty required ordinals is admitted here. The same comparison
+product owns its retained source Rc. This observes the child's Normal Integer
+result, not a physical value or new entry permission; Fault/Normal lowering and
+whole CurrentOwner input/packet remain independently required. Mul and calls
+with input arguments remain outside this comparison child slice.

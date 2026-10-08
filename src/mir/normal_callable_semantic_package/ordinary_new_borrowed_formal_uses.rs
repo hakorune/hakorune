@@ -25,16 +25,21 @@ mod field_read;
 #[path = "ordinary_new_borrowed_formal_use_new_argument.rs"]
 mod new_argument;
 
+#[path = "ordinary_new_borrowed_formal_use_call_operand.rs"]
+mod call_operand;
 #[path = "ordinary_new_borrowed_formal_use_operands.rs"]
 mod operands;
+use call_operand::IntegerCallOperandSourceV1;
+pub(super) use call_operand::StaticOperandContextV1;
+pub(super) use operands::compare_operand_kind;
 
 #[path = "ordinary_new_borrowed_guarded_actual.rs"]
 mod guarded_actual;
 pub(super) use guarded_actual::BorrowedGuardedActualV1;
 
 use operands::{
-    add_operand_kind, compare_operand_kind, is_call_argument, normal_integer_operand,
-    null_compare_operand_kind, use_dominated_by_if,
+    add_operand_kind, is_call_argument, normal_integer_operand, null_compare_operand_kind,
+    use_dominated_by_if,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -56,11 +61,21 @@ pub(super) struct BorrowedCompareSourceV1 {
     left: OwnedExprSiteV1,
     right: OwnedExprSiteV1,
     integer_literal: Option<(OwnedExprSiteV1, i64)>,
+    integer_call: Option<IntegerCallOperandSourceV1>,
     envelope:
         &'static crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1,
 }
 
 impl BorrowedCompareSourceV1 {
+    /// Original source-only call child; this is not a physical result value.
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_call_source(
+        &self,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>>{
+        self.integer_call
+            .as_ref()
+            .map(IntegerCallOperandSourceV1::original)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn comparison_parts(
         &self,
     ) -> (
@@ -75,7 +90,9 @@ impl BorrowedCompareSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn integer_literal(
         &self,
     ) -> Option<(&OwnedExprSiteV1, i64)> {
-        self.integer_literal.as_ref().map(|(site, value)| (site, *value))
+        self.integer_literal
+            .as_ref()
+            .map(|(site, value)| (site, *value))
     }
 }
 
@@ -239,7 +256,10 @@ pub(super) use incoming_source::BorrowedIncomingSourceV1;
 mod incoming;
 #[cfg(test)]
 pub(super) use incoming::inventory_borrowed_incoming_calls_v1;
-pub(super) use incoming::{inventory_borrowed_incoming_with_stored_dispatch_v1, BorrowedIncomingInventoryV1, StaticIncomingContextV1};
+pub(super) use incoming::{
+    inventory_borrowed_incoming_with_stored_dispatch_v1, BorrowedIncomingInventoryV1,
+    StaticIncomingContextV1,
+};
 
 /// Existing direct-test adapter uses the same whole-batch scan.
 #[cfg(test)]
@@ -252,8 +272,15 @@ pub(super) fn draft_borrowed_incoming_calls_v1(
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
 ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
     inventory_borrowed_incoming_calls_v1(
-        batch, selected, drafts, contracts, calls, ordinary_callers, None,
-    )?.project(&drafts.keys().copied().collect())
+        batch,
+        selected,
+        drafts,
+        contracts,
+        calls,
+        ordinary_callers,
+        None,
+    )?
+    .project(&drafts.keys().copied().collect())
 }
 
 /// Join every unresolved argument to the existing exact lexical disposition
@@ -342,7 +369,7 @@ pub(super) fn draft_borrowed_formal_uses_v1(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
 ) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
-    draft_borrowed_formal_source_product_v1(input, contract, constructors, receiver)?.draft
+    draft_borrowed_formal_source_product_v1(input, contract, constructors, receiver, None)?.draft
 }
 
 pub(super) fn draft_borrowed_formal_source_product_v1(
@@ -350,6 +377,7 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
     contract: &OwnedCallableParameterContractDeclarationV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    static_operands: Option<&StaticOperandContextV1<'_>>,
 ) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
     if input.owner() != contract.owner
@@ -492,7 +520,14 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
             continue;
         }
         if let Some(kind @ BorrowedFormalUseDraftKindV1::CompareOperand { .. }) =
-            compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?
+            compare_operand_kind(
+                input,
+                &numeric_origins,
+                constructors,
+                receiver,
+                site,
+                static_operands,
+            )?
         {
             let BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } = &kind else {
                 unreachable!()

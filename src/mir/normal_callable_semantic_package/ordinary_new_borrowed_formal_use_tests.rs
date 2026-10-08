@@ -67,6 +67,7 @@ pub(super) fn with_source_product<R>(
                     &contract,
                     package.instance_constructors(),
                     None,
+                    None,
                 ),
             )
         })

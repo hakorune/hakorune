@@ -24,12 +24,13 @@ use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1, BorrowedForm
 /// Normal-Integer class: an Integer literal, another borrowed view operand,
 /// or `me.<field>` whose declaration the entry-receiver proof resolves to a
 /// numeric-integer name. Anything else stays outside the draft profile.
-pub(super) fn compare_operand_kind(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn compare_operand_kind(
     input: ResolvedFunctionLoweringInputV1<'_>,
     origins: &BTreeMap<BindingRefV1, BindingRefV1>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     site: &SourceExprSiteV1,
+    static_operands: Option<&super::StaticOperandContextV1<'_>>,
 ) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
     if !matches!(function.variable_ref(site), Some(ResolvedLexicalRefV1::Local(binding))
@@ -67,9 +68,16 @@ pub(super) fn compare_operand_kind(
     } else {
         binary.lhs()
     };
-    if !normal_integer_operand(input, origins, constructors, receiver, other)? {
-        return Ok(None);
-    }
+    let integer_call = if normal_integer_operand(input, origins, constructors, receiver, other)? {
+        None
+    } else {
+        let Some(source) =
+            super::call_operand::integer_call_operand_source_v1(input, other, static_operands)?
+        else {
+            return Ok(None);
+        };
+        Some(source)
+    };
     // The existing operation owner issues the checked-compare view envelope;
     // this draft is its first production consumer, not a new authority.
     use crate::mir::dynamic_operator_contract::{
@@ -91,6 +99,7 @@ pub(super) fn compare_operand_kind(
             operator: binary.operator(),
             left: OwnedExprSiteV1::new(input.owner(), binary.lhs().clone()),
             right: OwnedExprSiteV1::new(input.owner(), binary.rhs().clone()),
+            integer_call,
             integer_literal: match function.expression_source().literal(other) {
                 Some(ResolvedLiteralSourceV1::Integer(value)) => {
                     Some((OwnedExprSiteV1::new(input.owner(), other.clone()), *value))
