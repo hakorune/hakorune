@@ -77,16 +77,31 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
     lhs: ValueId,
     rhs: ValueId,
 ) -> Result<ValueId, String> {
+    build_arithmetic_op_recorded(builder, op, lhs, rhs).map(|completed| completed.value)
+}
+
+/// The sole arithmetic append lends its original tuple to ordered Binary
+/// completion. Existing value callers borrow this core through the adapter.
+pub(in crate::mir::builder) fn build_arithmetic_op_recorded(
+    builder: &mut super::super::MirBuilder,
+    op: crate::mir::BinaryOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<CompletedOrdinaryArithmeticV1, String> {
     let dst = builder.next_value_id();
 
-    if let (Some(func), Some(cur_bb)) = (
+    let original = if let (Some(func), Some(cur_bb)) = (
         builder.function_state.current_function.as_mut(),
         builder.function_state.current_block,
     ) {
-        crate::mir::ssot::binop_lower::emit_binop_to_dst(func, cur_bb, dst, op, lhs, rhs);
+        crate::mir::ssot::binop_lower::emit_binop_to_dst_recorded(func, cur_bb, dst, op, lhs, rhs)
     } else {
         builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
-    }
+        builder
+            .function_state
+            .current_block
+            .map(|block| (block, MirInstruction::BinOp { dst, op, lhs, rhs }))
+    };
 
     // TypeFacts SSOT: direct BinOp emission records only source-backed types.
     if matches!(op, crate::mir::BinaryOp::Add) {
@@ -155,7 +170,26 @@ pub(in crate::mir::builder) fn build_arithmetic_op(
         }
     }
 
-    Ok(dst)
+    Ok(CompletedOrdinaryArithmeticV1 {
+        value: dst,
+        original,
+    })
+}
+
+/// Immutable append observation, with no source identity or semantic grant.
+/// None means the existing emitter did not append into an existing block.
+#[derive(Debug)]
+pub(in crate::mir) struct CompletedOrdinaryArithmeticV1 {
+    pub(super) value: ValueId,
+    original: Option<(crate::mir::BasicBlockId, MirInstruction)>,
+}
+
+impl CompletedOrdinaryArithmeticV1 {
+    pub(in crate::mir::builder) fn original(
+        &self,
+    ) -> Option<&(crate::mir::BasicBlockId, MirInstruction)> {
+        self.original.as_ref()
+    }
 }
 
 #[cfg(test)]

@@ -1728,3 +1728,13 @@ finalizer propagates failures, and selected values bypass generic cache/pin and
 Const rematerialization paths. The ordinary ledger validates ordered source
 child correspondence before accepting the handoff; original Const and Copy
 bindings remain mandatory through existing FinishedBindings validation.
+
+
+Ordinary arithmetic Binary completion retains an immutable observation of the
+same `ssot::binop_lower` append, separate from the Compare observation. The
+existing value adapter preserves result IDs, type facts and emission policy.
+A missing target block in the existing direct arithmetic emitter produces no
+observation; no source consumer may manufacture an original BinOp from that
+result ID. This preparation issues no source, guard, entry or physical ABI
+permission. Guarded Mul requires its original source/ordered-child/guard proof
+and complete independent physical closure before accepted draft activation.

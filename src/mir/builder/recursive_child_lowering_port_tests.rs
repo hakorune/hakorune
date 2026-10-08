@@ -68,6 +68,7 @@ struct BinaryCompletionPort {
     reject_preparation: bool,
     children: usize,
     completions: Vec<Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>,
+    arithmetic_completions: Vec<Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>>,
     reject_completion: bool,
     reject_child: bool,
 }
@@ -79,6 +80,7 @@ impl BinaryCompletionPort {
             reject_preparation: false,
             children: 0,
             completions: Vec::new(),
+            arithmetic_completions: Vec::new(),
             reject_completion: false,
             reject_child: false,
         }
@@ -138,6 +140,8 @@ impl RecursiveChildLoweringPortV1 for BinaryCompletionPort {
     ) -> Result<(), String> {
         self.completions
             .push(completed.comparison_original().cloned());
+        self.arithmetic_completions
+            .push(completed.arithmetic_original().cloned());
         if self.reject_completion {
             return Err("original-completion-refusal".into());
         }
@@ -241,17 +245,45 @@ fn raw_binary_child_refusal_never_reaches_completion() {
 
 #[test]
 fn raw_arithmetic_completion_does_not_fabricate_comparison() {
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("raw_arithmetic_completion/0".into());
-    let mut child = BinaryCompletionPort::new();
-    super::ops::drive_ordinary_binary_expression_v1(
-        &mut builder,
-        &mut child,
-        &binary_completion_input(crate::ast::BinaryOperator::Add),
-    )
-    .unwrap();
-    assert_eq!(child.children, 2);
-    assert_eq!(child.completions, vec![None]);
+    use crate::ast::BinaryOperator;
+    use crate::mir::{BinaryOp, MirInstruction};
+    for (operator, expected) in [
+        (BinaryOperator::Add, BinaryOp::Add),
+        (BinaryOperator::Subtract, BinaryOp::Sub),
+        (BinaryOperator::Multiply, BinaryOp::Mul),
+        (BinaryOperator::Divide, BinaryOp::Div),
+        (BinaryOperator::Modulo, BinaryOp::Mod),
+        (BinaryOperator::Shl, BinaryOp::Shl),
+        (BinaryOperator::Shr, BinaryOp::Shr),
+        (BinaryOperator::BitAnd, BinaryOp::BitAnd),
+        (BinaryOperator::BitOr, BinaryOp::BitOr),
+        (BinaryOperator::BitXor, BinaryOp::BitXor),
+    ] {
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("raw_arithmetic_completion/0".into());
+        let mut child = BinaryCompletionPort::new();
+        let value = super::ops::drive_ordinary_binary_expression_v1(
+            &mut builder,
+            &mut child,
+            &binary_completion_input(operator),
+        )
+        .unwrap();
+        assert_eq!(child.children, 2);
+        assert_eq!(child.completions, vec![None]);
+        let [Some((block, original))] = child.arithmetic_completions.as_slice() else {
+            panic!("one actual arithmetic append")
+        };
+        assert!(matches!(original, MirInstruction::BinOp { dst, op, .. }
+        if *dst == value && *op == expected));
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        assert_eq!(
+            function.blocks[block]
+                .all_instructions()
+                .filter(|row| *row == original)
+                .count(),
+            1
+        );
+    }
 }
 
 #[test]

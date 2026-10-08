@@ -909,29 +909,17 @@ Whole final incoming remains mandatory; explicit other-callee-error test pins sc
 CurrentOwnerStatic retention CLOSED5cd70af994: exact contracts/evidence at
 commit/README and hako-current-owner-static-source-final-evidence.json.
 
-Decision (read-only review_cleanup_path): one common Static incoming carrier,
-private original Qualified/CurrentOwner route. SAME index/loan issuer checks
-brand/caller/site, source receiver and same owner, selected callee slot/full
-contract/ordered arguments. Existing batch scan and argument-source certification
-consume it; no duplicate scan, solver, Qualified disguise or second authority.
-Replace Qualified-only source observation/forward matching, keeping exact Rc.
-Required seed/executable selectors/publication/packet operations remain Qualified;
-CurrentOwner observation never activates transport/entry/Completion/Normal.
-Common Static incoming/source graph CLOSED075d1bc2b4; exact contract/evidence:
-commit/README and hako-current-owner-incoming-cohort-final-evidence.json.
-Noninitializer and USIZE laws/all caller vetoes stay unchanged. Acceptance:
-existing static input/retention/source graph/capability families plus original
-mimalloc source census; foreign cohort/owner/site/ordinal and reissued Rc refuse.
-C Return emission split CLOSED ef01d2ac6d (pushed): exact contract/evidence at
-commit/README and /mnt/workdisk/hako-c-return-emission-split-evidence.json.
-Composed16/72, owned16/112, Static+14 and Map2 modes PASS; broad synthetic Map
-ABI-layout baseline debt remains unwaived. Corrected setup errors are not baseline.
-WIP: checked Integer Return full source/result/finished-coordinate/C mapping.
+Common original Static incoming/source graph CLOSED075d1bc2b4: SAME canonical
+index/loan checks original brand/caller/site/route/callee/full contract/arguments
+and exact Rc. Git/README own details; source observation grants no transport or
+entry. C Return emission split CLOSED ef01d2ac6d; evidence at commit/README and
+/mnt/workdisk/hako-c-return-emission-split-evidence.json. Composed16/72,
+owned16/112, Static+14 and Map2 PASS; broad synthetic Map ABI debt remains.
 Static borrowed params use existing ordinary_i64+receiver/null+receiver_object/null
 geometry; do not simply remove receiver guard or admit receiver-free Handle lanes.
 Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes remain.
-CurrentOwner *_usize terminal wrappers/conditions/loop calls must all remain;
-noninitializer veto and ExactTrivial(USIZE) vs I64 seed law remain separate gaps;
+CurrentOwner *_usize terminal wrappers/conditions/loop calls remain mandatory;
+noninitializer veto unchanged. Exact declared Integer seed is closed below;
 no omitted callers or blanket Integer grant.
 Checked Integer Return closed at7f6a6efa83; Git owns source/guarded-actual/
 result/terminal, finished lender, both physical scans and C tag1 contracts plus
@@ -951,33 +939,18 @@ and hako-checked-integer-return-full-runtime.log; original8+external12 PASS.
 
 ## Exact declared Integer parameter source closeout (2026-10-09)
 
-Decision (read-only review_cleanup_path): SAME canonical exact parameter ABI
-Integer lane supplies both declared seed and original PrefixLocalFlow install.
-Owner/ordinal/declaration/duplicate/rebind/capture/full-count checks remain;
-scalar aliases are not declared parameter evidence. No I64 Return alias/range/
-literal/profile permission or SourceOnly promotion; original fixtures retained.
-Check36246 PASS1m16s; no-run48893 PASS8m39s; same fresh binary9+4+8+10+2+26+362+7
-PASS, scalar Return ABI2 PASS. Exact original Scalar Integer actual/call/formal
-is pinned. Production pin preserves all15 Heap inputs and BOTH Page calls.
-Inherited7f6a6e stale normalize_size refusal (prior immutable binary reproduced)
-now pins SAME guard/Return. Seed-only usize Unsupported red fully corrected.
+Closeda26502ff22: SAME exact Integer ABI seed/PrefixLocalFlow, no Return alias,
+range permission or SourceOnly promotion. Git/README retain exact identity and
+all caller obligations. Check36246/no-run48893 and focused regressions PASS;
+inherited7f6a6e stale normalize_size expectation reproduced then corrected.
 Evidence: /mnt/workdisk/hako-usize-declared-integer-source-composite-evidence.json.
-Existing scope/pointer/format/source caps/protected7/diff PASS; no new test/guard.
-This closes original source/actual registration, not whole allocator execution.
 
 ## CurrentOwner Integer comparison child closeout (2026-10-09)
 
-Decision (read-only review_cleanup_path): SAME incoming_source loan retains
-exact zeroarg CurrentOwner ExactI64 child in SAME Compare product. Original
-brand/caller/site/target/slot/full contract and empty required ordinals checked.
-Source observation is not a physical call/result grant or new entry permission.
-Check22404/no-run72651 PASS; focused1 and existing4+30+9+10+8+26+10+22+7+362+7 PASS.
-Initial visibility errors corrected; zero-test static filter not PASS, corrected
-qualified_static_call_claim_tests7 PASS. Scope/pointer/protected7/caps PASS.
+Closed9bad8736b8; original exact zeroarg CurrentOwner ExactI64 SAME loan,
+Compare product identity, source-only boundary and all caller/veto obligations
+are owned by Git/README. Focused1 plus4+30+9+10+8+26+10+22+7+362+7 PASS.
 Evidence: /mnt/workdisk/hako-current-owner-call-operand-evidence.json.
-Original bin>me.max_regular_bin() exact loan retained; whole bin_size stays
-incomplete. All15 Heap inputs, BOTH Page calls and vetoes retained. One matrix
-in existing comparison owner; no new guard/scanner/result fixpoint.
 
 ## Guarded Mul next Decision (2026-10-09)
 
@@ -993,3 +966,28 @@ wrong/missing guard/operation/operand/call/FinishedBindings refuse.
 CurrentOwner entry/context and all caller/veto laws remain unchanged.
 Both315/318, cleanup, unchanged EXE, Gates2-4, old-edge retirement and final
 selfcompile remain open; Mul alone cannot close bin_size.
+
+## Arithmetic append retention prerequisite closeout (2026-10-09)
+
+Decision (read-only review_cleanup_path): BoxShape preparation before atomic
+accepted Mul/physical closure. SAME binop_lower append lends its original
+block/BinOp; arithmetic value adapter and ordered Binary completion retain it.
+Existing missing-block no-append behavior returns no observation; future semantic
+consumer must refuse missing binding. Type facts/allocation/strict Add errors,
+Compare identity and all language/entry/ABI laws unchanged. No new permission.
+Scope: binop_lower, arithmetic/mod, existing recursive child test owner, Builder
+README and this card. Check9971 PASS1m14s; no-run77132 PASS; same fresh immutable
+binary2+19+7+15+7+22 PASS, existing arithmetic matrix covers10 operators. No new
+test/guard. Scope/pointer/protected7/source caps/format/diff PASS. Evidence:
+/mnt/workdisk/hako-arithmetic-original-append-evidence.json.
+
+Ordering refinement (read-only review_cleanup_path): original zeroarg
+CurrentOwner ExactI64 call-result/packet precedes accepted Mul. Retain ALL
+word_size incoming/caller/veto plus exact signature/Completion. Original observer
+issues each nested/condition/terminal I64 observation and Fault priorHomes.
+CallPacketSource owns SAME Static Rc plus unconsumed affine handoff; corroborate
+brand/caller/site/target/ExactI64/required-empty. Existing lexical_i64 Invoke
+owner issues NormalResult/group/FinishedBindings; selected CurrentOwner generic
+bridge caller switches. Generic Call JSON birth_call is not static-call ABI;
+no new generic permission or mandatory generic-append detour. Opaque CurrentOwner
+input/context remains separate; original call-child runtime closure is mandatory.
