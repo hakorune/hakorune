@@ -195,10 +195,19 @@ impl LexicalInstanceCallDispositionRowV1 {
 
 impl OrdinaryNewClaimLedgerV1 {
     /// One Taken Object packet lends its original executable ordered arguments.
-    /// Entry-receiver flow rows intentionally carry no argument authority.
-    pub(crate) fn receiver_object_packet_arguments_v1<'a>(
+    /// Typed and zero-argument calls owe the same completed incoming proof.
+    pub(crate) fn object_packet_arguments_v1<'a>(
         &'a self,
         row: &LexicalInstanceCallDispositionRowV1,
+    ) -> Result<&'a [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1], String>
+    {
+        self.object_packet_arguments_for_v1(row, false)
+    }
+
+    fn object_packet_arguments_for_v1<'a>(
+        &'a self,
+        row: &LexicalInstanceCallDispositionRowV1,
+        receiver_only: bool,
     ) -> Result<&'a [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1], String>
     {
         if !matches!(
@@ -208,12 +217,21 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
         }
         if !row.source_target().has_object_source_requirement()
-            || !row.source_target().is_self_receiver()
+            || (receiver_only && !row.source_target().is_self_receiver())
         {
             return Err(freeze("receiver-object/source-requirement"));
         }
         row.checked_object_packet_inputs_v1(self)
             .map(|inputs| inputs.1)
+    }
+
+    /// Entry-receiver flow rows intentionally carry no argument authority.
+    pub(crate) fn receiver_object_packet_arguments_v1<'a>(
+        &'a self,
+        row: &LexicalInstanceCallDispositionRowV1,
+    ) -> Result<&'a [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1], String>
+    {
+        self.object_packet_arguments_for_v1(row, true)
     }
 }
 

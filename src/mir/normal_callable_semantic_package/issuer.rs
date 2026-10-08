@@ -679,7 +679,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     })?;
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
-    ordinary_new_claim_ledger.retain_completion_index(&completion_seeds);
+    ordinary_new_claim_ledger
+        .retain_completion_index(&completion_seeds)
+        .map_err(|_error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error })?;
     let map_read_facts = super::map_read_fact::issue_map_read_facts_v1(
         &batch,
         direct_call_loans.as_ref(),

@@ -7,6 +7,10 @@ use std::collections::BTreeSet;
 #[path = "terminal_field_projection_tests.rs"]
 mod terminal_field_projection_tests;
 
+#[cfg(test)]
+#[path = "terminal_literal_storage_tests.rs"]
+mod terminal_literal_storage_tests;
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Called on the exact physical root after all module finalization passes.
     /// Script-only packages never register a callable root; an empty New set
@@ -298,7 +302,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for relation in relations {
             let site = relation.return_site();
-            let value = if self.terminal_relation_is_indexed(owner, site) {
+            let value = if self.terminal_scalar_uses_child_storage(owner, site) {
                 self.terminal_integer_literal_values
                     .borrow()
                     .get(&(owner, site.clone()))

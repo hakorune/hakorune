@@ -3,16 +3,15 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1 as EmittedCall;
 
 /// Emit one source-issued `local x = recv.m(..)` call whose sealed
-/// local-call row carries `Nullable` and whose minted disposition row
-/// corroborates `InvokeCallResultKind::NullableHandle` — a claim-local
-/// receiver, the callee's `NullableObject` claim, and the same sealed
+/// local-call row carries Handle or Nullable and whose minted disposition row
+/// corroborates the Object result — a claim-local
+/// receiver, the callee's Object/NullableObject claim, and the same sealed
 /// argument evidence the i64 lane materializes (literal/scalar/borrowed
-/// actuals and nested call rows). The received binding is an owned
-/// nullable Home: the caller's exits owe `HomeReleaseIfLive`, never an
-/// unconditional release, and prior Homes unwind on the fault edge. The
+/// actuals and nested call rows). The received Home owes HomeRelease for
+/// Handle and HomeReleaseIfLive for Nullable; prior Homes unwind on Fault. The
 /// recorded binding group keeps the physical producer inventory the
 /// finalized-call visitor and the exit cleanup both claim.
-pub(in crate::mir::builder) fn emit_local_lexical_nullable(
+pub(in crate::mir::builder) fn emit_local_lexical_object(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,
@@ -70,7 +69,9 @@ fn emit_object(
     if !matches!(
         result_kind,
         InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle
-    ) || (entry.is_none() && result_kind != InvokeCallResultKind::NullableHandle)
+    ) || (entry.is_none()
+        && result_kind == InvokeCallResultKind::Handle
+        && !row.source_target().has_object_source_requirement())
     {
         return Err(freeze("lexical-nullable/result-mismatch"));
     }
@@ -89,6 +90,12 @@ fn emit_object(
     }
     let source_arguments = if borrowed_receiver {
         ledger.receiver_object_packet_arguments_v1(&row)?
+    } else if row.source_target().has_object_source_requirement() {
+        let arguments = ledger.object_packet_arguments_v1(&row)?;
+        if arguments != relation.arguments() {
+            return Err(freeze("lexical-object/flow-arguments-drift"));
+        }
+        arguments
     } else {
         relation.arguments()
     };

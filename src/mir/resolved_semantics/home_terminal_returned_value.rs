@@ -75,6 +75,14 @@ impl TerminalValueReturnV1 {
         changed
     }
 
+    /// Deliberate exit-identity corruption for retention boundary tests only.
+    #[cfg(test)]
+    pub(crate) fn with_return_site_for_test(&self, site: SourceStmtSiteV1) -> Self {
+        let mut changed = self.clone();
+        changed.return_site = site;
+        changed
+    }
+
     /// Keep the original exit identity while corrupting only its owned-call snapshot.
     #[cfg(test)]
     pub(crate) fn with_object_arguments_for_test(

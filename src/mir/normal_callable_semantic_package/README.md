@@ -1339,8 +1339,25 @@ and fixpoint without registering a selected child. Observer and finish independe
 corroborate source identity; missing/foreign/drifted Main cannot issue Root facts.
 Passive Root results add no Home, Completion, Executable packet or artifact permission.
 The original root terminal table is wrapped once in immutable shared storage.
-Root accessors keep the same rows; finalized handoff retains its existing owned
-snapshot. This storage preparation adds no root terminal-index membership.
+The owner-index retains that SAME table and original successful root Completion
+after owner/exit identity checks. Child/root indices install together; collision,
+foreign/site/explicit-exit drift and live-root repeat reject before installation.
+Missing exits and unavailable root Completion remain unavailable. Root accessors
+keep the same rows; finalized handoff retains its existing owned snapshot.
+Index retention grants no collector, result ABI or artifact admission.
+Semantic index membership and physical scalar storage have separate roles:
+the original Root keeps its site-only value books; indexed child values use
+owner + exit keys. Both owners still owe their own values and physical checks,
+even when their source exits share the same path.
+
+Received ClaimLocal Object calls use the existing shared Object emitter for
+Handle and Nullable results. The original source requirement selects this route;
+unselected legacy Handle calls retain their existing protocol. Before effects,
+the same Taken packet lends executable ordered arguments after all incoming and
+original Completion/table identity checks, including typed and zero-argument
+calls. The local flow must agree. Its original emitted packet and binding group
+carry producer verification; the received Home owns exit cleanup. Missing groups
+remain rejected by the unchanged whole-exit selection.
 
 The private `call_witness` owner corroborates the exact source-call edges once,
 then composes existing immutable callee witnesses. The evaluator keeps source

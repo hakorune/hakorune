@@ -4,6 +4,18 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn with_local_call_binding_groups_for_test<
+        R,
+    >(
+        &self,
+        owner: FunctionOwnerIdV1,
+        visit: impl FnOnce(&[RootLocalCallBindingGroupV1]) -> R,
+    ) -> R {
+        let groups = self.root_local_call_bindings.borrow();
+        visit(groups.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
+    }
+
     /// Simulate the pending pool moving into its finalized artifact owner.
     #[cfg(test)]
     pub(crate) fn validate_new_emissions_after_local_pool_move_for_test(

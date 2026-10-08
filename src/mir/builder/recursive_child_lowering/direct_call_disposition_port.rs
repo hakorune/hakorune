@@ -160,8 +160,8 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             .as_ref()
             .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?;
         let mut state = state.borrow_mut();
-        let value = if handle {
-            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
+        let value = if nullable || (handle && row.source_target().has_object_source_requirement()) {
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_object(
                 builder,
                 &mut state,
                 ledger,
@@ -169,8 +169,8 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
                 &site,
                 row,
             )?
-        } else if nullable {
-            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_nullable(
+        } else if handle {
+            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical(
                 builder,
                 &mut state,
                 ledger,

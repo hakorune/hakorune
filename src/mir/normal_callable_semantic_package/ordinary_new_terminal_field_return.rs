@@ -80,7 +80,7 @@ impl OrdinaryNewClaimLedgerV1 {
         ) {
             return Err(fault("duplicate-emission"));
         }
-        if self.terminal_relation_is_indexed(owner, site) {
+        if self.terminal_scalar_uses_child_storage(owner, site) {
             if self
                 .terminal_i64_field_values
                 .borrow_mut()
@@ -111,6 +111,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let indexed_ready = self
             .terminal_relation_index
             .iter()
+            .filter(|(owner, _)| Some(**owner) != self.root_owner())
             .flat_map(|(owner, relations)| {
                 relations
                     .iter()
@@ -174,7 +175,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
     ) -> Option<ValueId> {
-        if self.terminal_relation_is_indexed(owner, site) {
+        if self.terminal_scalar_uses_child_storage(owner, site) {
             self.terminal_i64_field_values
                 .borrow()
                 .get(&(owner, site.clone()))

@@ -1,4 +1,4 @@
-date = "2026-10-07"
+date = "2026-10-08"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
@@ -17,18 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-result-new-site-provenance-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 latest_card_summary = """
-Anchored composite result law accepted: fresh outer with exact owned-fresh or
-borrowed-from-formal child; no pending publication or input consumption.
-Source witness S0 complete (focused32); exact immutable DAG reaches Facts.
-Source preparation BoxShape complete (focused32); sole body retained.
-Child-relation mapping accepted inside same result Facts.
-Shared call composition closed (focused32; final source check).
-Child source relation S0 closed: real8, focused38, same production frontier.
-Per-site field refinement law fixed; owning-only inventory remains unchanged.
-Terminal-value owner split closed (focused33); behavior unchanged.
-Immutable handoff mapping accepted: original homes + sealed Normal projection.
-Next implement direct/local owned returned-call source co-seal S0.
-Both315/318, field lifetime/cleanup and production EXE remain incomplete.
+Anchored composite result law retained: exact fresh or borrowed child,
+without pending publication or input consumption.
+Object source/construction closure landed at f6ae79a9e1.
+AppMain passive source and shared Root table preparation are closed.
+Original successful Root Completion and SAME terminal table join atomically.
+Main Direct/Received typed/opaque/zero packet, cleanup and finishing pass;
+selected Received Handle uses the existing shared Object producer owner.
+Next: original Root/child collector preflight before all affine takes/pool moves.
+Both315/318, anchored lifetime/cleanup, Root ABI and production EXE remain incomplete.
 """
 next_design_card = "none"
 next_design_card_path = "none"

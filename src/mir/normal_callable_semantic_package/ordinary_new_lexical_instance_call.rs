@@ -93,9 +93,7 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
 }
 
 impl LexicalInstanceCallSourceTargetV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn has_object_source_requirement(
-        &self,
-    ) -> bool {
+    pub(crate) fn has_object_source_requirement(&self) -> bool {
         !matches!(
             self.result_requirement,
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult

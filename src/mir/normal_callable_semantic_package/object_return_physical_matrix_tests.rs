@@ -9,6 +9,17 @@ fn package(
     owned: bool,
     zero: bool,
 ) -> VerifiedNormalCallableSemanticPackageV1 {
+    package_with_caller(received, opaque, nullable, owned, zero, false)
+}
+
+fn package_with_caller(
+    received: bool,
+    opaque: bool,
+    nullable: bool,
+    owned: bool,
+    zero: bool,
+    root: bool,
+) -> VerifiedNormalCallableSemanticPackageV1 {
     let formal = if zero {
         ""
     } else if opaque {
@@ -30,12 +41,264 @@ fn package(
     } else {
         "return new Token()".to_owned()
     };
-    let relay = if received {
-        format!("local spare = new Spare() local item = me.make({actual}) return item")
+    let receiver = if root { "maker" } else { "me" };
+    let tail = if received {
+        format!("local spare = new Spare() local item = {receiver}.make({actual}) return item")
     } else {
-        format!("local spare = new Spare() return me.make({actual})")
+        format!("local spare = new Spare() return {receiver}.make({actual})")
     };
-    issue(&format!("box Spare {{}} box Token {{ {fields} }} box Maker {{ make({formal}) {{ {make} }} relay() {{ {relay} }} }} static box Main {{ main() {{ return 0 }} }}")).unwrap()
+    let relay = if root {
+        String::new()
+    } else {
+        format!("relay() {{ {tail} }}")
+    };
+    let main = if root {
+        format!("local maker = new Maker() {tail}")
+    } else {
+        "return 0".into()
+    };
+    issue(&format!("box Spare {{}} box Token {{ {fields} }} box Maker {{ make({formal}) {{ {make} }} {relay} }} static box Main {{ main() {{ {main} }} }}")).unwrap()
+}
+
+#[test]
+fn original_main_object_return_matrix_preserves_source_cleanup_and_finished_refusal() {
+    for received in [false, true] {
+        for (opaque, zero) in [(false, false), (true, false), (false, true)] {
+            for nullable in [false, true] {
+                let label = format!(
+                    "Root received={received} opaque={opaque} nullable={nullable} zero={zero}"
+                );
+                let package = package_with_caller(received, opaque, nullable, false, zero, true);
+                let ledger = &package.ordinary_new_claim_ledger;
+                let completion = ledger.root_completion_for_test();
+                let exit = &completion.explicit_sites()[0];
+                let projection = ledger
+                    .normal_exit_projection_v1(completion.owner(), exit)
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(projection.homes().len(), 2, "{label}");
+                assert_eq!(
+                    projection.fault_homes().len(),
+                    if received { 3 } else { 2 },
+                    "{label}: terminal exit snapshot"
+                );
+                let expected_objects: Vec<_> = projection
+                    .homes()
+                    .iter()
+                    .map(|binding| {
+                        ledger
+                            .pending_claims_for_test()
+                            .values()
+                            .find(|claim| {
+                                claim
+                                    .home_prefix()
+                                    .is_ok_and(|prefix| prefix.destination() == *binding)
+                            })
+                            .unwrap()
+                            .object()
+                    })
+                    .collect();
+                let main = package
+                    .declaration_catalog()
+                    .source_backed_app_main()
+                    .unwrap();
+                let declaration = package
+                    .batch()
+                    .declarations()
+                    .find(|row| row.identity().same_as(main.parser_identity()))
+                    .unwrap();
+                let expected_target = package
+                    .batch()
+                    .declarations()
+                    .find_map(
+                        |row| match package.selected.key_for_batch_slot(row.batch_slot()) {
+                            Some(SelectedNormalCallableKeyV1::Cataloged(key))
+                                if key.name() == "make" =>
+                            {
+                                Some(key.clone())
+                            }
+                            _ => None,
+                        },
+                    )
+                    .unwrap();
+                let mut builder = MirBuilder::new();
+                let mut function = package
+                    .batch()
+                    .with_lowering_input_and_source_identity(
+                        declaration.batch_slot(),
+                        |input, identity| {
+                            builder.lower_map_dependency_for_test(
+                                input,
+                                SelectedNormalCallableKeyV1::Cataloged(main.catalog_key().clone()),
+                                main.parser_identity(),
+                                identity.method_source_observation().cloned(),
+                                std::rc::Rc::clone(ledger),
+                                None,
+                            )
+                        },
+                    )
+                    .unwrap()
+                    .unwrap_or_else(|issue| panic!("{label}: {issue}"));
+                ledger.with_local_call_binding_groups_for_test(completion.owner(), |groups| {
+                    assert_eq!(groups.len(), usize::from(received), "{label}");
+                    if received {
+                        let group = &groups[0];
+                        let packet = group.lexical().expect("original Received Object packet");
+                        let row = packet.original_row().unwrap();
+                        assert_eq!(row.call_site(), group.site(), "{label}");
+                        assert!(
+                            row.source_target().has_object_source_requirement(),
+                            "{label}"
+                        );
+                        assert_eq!(row.target(), &expected_target, "{label}");
+                        packet.validate_recorded(group.bindings()).unwrap();
+                    }
+                });
+                let calls: Vec<_> = function.blocks.iter().filter_map(|(id, block)| match block.terminator.as_ref() {
+                    Some(MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, normal_landing, fault_landing, .. })
+                        if matches!(&call.callee, hakorune_mir_defs::Callee::SameModuleInstance { key, .. } if key == &expected_target) => {
+                        assert_eq!(*result, if nullable { InvokeCallResultKind::NullableHandle } else { InvokeCallResultKind::Handle }, "{label}");
+                        Some((*id, *normal_landing, *fault_landing))
+                    }, _ => None,
+                }).collect();
+                let [(origin, normal, acquisition_fault)] = calls.as_slice() else {
+                    panic!("{label}: original producer {calls:?}")
+                };
+                let (origin, normal, acquisition_fault) = (*origin, *normal, *acquisition_fault);
+                let results: Vec<_> = function
+                    .blocks
+                    .values()
+                    .flat_map(|block| block.all_instructions())
+                    .filter_map(|instruction| match instruction {
+                        MirInstruction::InvokeNormalResult { invoke_block, dst }
+                            if *invoke_block == origin =>
+                        {
+                            Some(*dst)
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                let [result] = results.as_slice() else {
+                    panic!("{label}: exact original result {results:?}")
+                };
+                assert!(function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Return { value: Some(value) } if value == result)), "{label}");
+                let expected_homes: Vec<_> = expected_objects
+                    .iter()
+                    .map(|object| {
+                        let births: Vec<_> = function.blocks.iter().filter_map(|(id, block)| matches!(block.terminator.as_ref(),
+                            Some(MirInstruction::Invoke { operation: InvokeOperation::NewBox { object: actual }, .. }) if actual == object).then_some(*id)).collect();
+                        let [birth] = births.as_slice() else {
+                            panic!("{label}: exact source allocation {births:?}")
+                        };
+                        let projections: Vec<_> = function.blocks.values().flat_map(|block| block.all_instructions()).filter_map(|instruction| match instruction {
+                            MirInstruction::InvokeNormalResult { invoke_block, dst } if invoke_block == birth => Some(*dst), _ => None,
+                        }).collect();
+                        let [allocation] = projections.as_slice() else {
+                            panic!("{label}: exact allocation projection {projections:?}")
+                        };
+                        // Ordinary New locals install their Home through the source
+                        // materialization Copy, before any cleanup is emitted.
+                        let copies: Vec<_> = function.blocks.values().flat_map(|block| block.all_instructions()).filter_map(|instruction| match instruction {
+                            MirInstruction::Copy { dst, src } if src == allocation => Some(*dst), _ => None,
+                        }).collect();
+                        let [local] = copies.as_slice() else {
+                            panic!("{label}: exact installed local {copies:?}")
+                        };
+                        assert_ne!(local, allocation, "{label}: source local Copy");
+                        *local
+                    })
+                    .collect();
+                assert_eq!(
+                    home_values(&function, normal),
+                    expected_homes,
+                    "{label}: source Normal cleanup order"
+                );
+                assert_eq!(
+                    home_values(&function, acquisition_fault),
+                    expected_homes,
+                    "{label}: original acquisition Fault"
+                );
+                assert!(
+                    !reachable_release(&function, acquisition_fault, *result),
+                    "{label}: result not acquired"
+                );
+                let head = follow_jumps(&function, normal);
+                let Some(MirInstruction::Invoke {
+                    fault_landing: cleanup_fault,
+                    ..
+                }) = function.blocks[&head].terminator.as_ref()
+                else {
+                    panic!("{label}: first cleanup")
+                };
+                let mut residual = vec![*result];
+                residual.extend_from_slice(&expected_homes[1..]);
+                assert_eq!(
+                    home_values(&function, *cleanup_fault),
+                    residual,
+                    "{label}: post-success residual Fault"
+                );
+                assert!(
+                    reachable_release(&function, *cleanup_fault, *result),
+                    "{label}"
+                );
+                // The existing result-ABI owner leaves Value terminals unavailable.
+                // Do not request a collector handoff to fabricate one here.
+                assert!(matches!(ledger.sole_terminal_relation_for_owner(completion.owner()),
+                    Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Value(_))), "{label}: original Value terminal");
+                for mutation in 0..2 {
+                    let mut changed = function.clone();
+                    if mutation == 0 {
+                        let Some(MirInstruction::Invoke {
+                            operation: InvokeOperation::Call { result, .. },
+                            ..
+                        }) = &mut changed.blocks.get_mut(&origin).unwrap().terminator
+                        else {
+                            panic!("original producer")
+                        };
+                        *result = InvokeCallResultKind::I64;
+                    } else {
+                        let foreign_origin = function.entry_block;
+                        assert_ne!(foreign_origin, origin);
+                        let projection = changed.blocks.values_mut().flat_map(|block| block.instructions.iter_mut()).find(|instruction| matches!(instruction, MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == origin)).unwrap();
+                        let MirInstruction::InvokeNormalResult { invoke_block, .. } = projection
+                        else {
+                            unreachable!()
+                        };
+                        *invoke_block = foreign_origin;
+                    }
+                    assert!(
+                        ledger.validate_finalized_new_root(&changed).is_err(),
+                        "{label}: physical mutation={mutation}"
+                    );
+                }
+                let observation = ledger
+                    .validate_finalized_new_root(&function)
+                    .unwrap_or_else(|issue| panic!("{label}: {issue}"));
+                assert_eq!(
+                    observation,
+                    crate::mir::function::RootOrdinaryNewObservation::Unavailable(
+                        crate::mir::function::RootOrdinaryNewUnavailable::TerminalHomesUnavailable
+                    )
+                );
+                function
+                    .install_root_ordinary_new_observation(observation)
+                    .unwrap();
+                let mut module = MirModule::new(label.clone());
+                module
+                    .functions
+                    .insert(function.signature.name.clone(), function);
+                crate::mir::passes::simplify_cfg::simplify(&mut module);
+                let function = module.functions.values().next().unwrap();
+                crate::mir::verification::MirVerifier::new_strict()
+                    .verify_function(function)
+                    .unwrap_or_else(|issues| panic!("{label}: strict finishing {issues:?}"));
+                ledger
+                    .validate_after_compiler_finishing(function)
+                    .unwrap_or_else(|issue| panic!("{label}: {issue}"));
+                assert_eq!(ledger.validate_artifact_after_compiler_finishing(function).unwrap_err(), "[freeze:contract][ordinary-new/local-commit/object-return-handoff-unavailable]", "{label}: retained artifact gate");
+            }
+        }
+    }
 }
 
 fn lower_relay(

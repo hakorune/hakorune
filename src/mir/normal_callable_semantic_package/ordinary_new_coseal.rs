@@ -354,9 +354,10 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     receiver_call_observations:
         BTreeMap<OwnedExprSiteV1, receiver_call_observation::ReceiverCallClassObservationV1>,
     // Terminal relations are keyed by the exact source exit statement site:
-    // the App Main root map is owner-implied (App Main only), while children
-    // keep `(owner -> site -> relation)` in the index. One exit's evidence
-    // is never borrowed for another.
+    // the App Main root map is owner-implied and the owner index shares
+    // that SAME map alongside child maps. Physical scalar storage keeps
+    // the original Root site-only and child owner+site books separately.
+    // One exit's evidence is never borrowed for another.
     terminal_relation: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
     // One signature-ready source seal; Some(empty) is also sealed.
     normal_return_dispositions: Option<
@@ -398,6 +399,9 @@ mod ledger;
 #[derive(Debug)]
 pub(crate) enum OrdinaryNewCoSealIssueV1 {
     CompletionSeed(super::physical_header::CallablePhysicalHeaderIssueV1),
+    CompletionIndexRetention {
+        reason: &'static str,
+    },
     RootTerminalSource(HomePrefixUnavailableV1),
     BorrowedFormalIngress {
         site: OwnedExprSiteV1,

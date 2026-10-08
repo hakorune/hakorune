@@ -267,6 +267,7 @@ impl OrdinaryNewClaimLedgerV1 {
             && self
                 .terminal_relation_index
                 .iter()
+                .filter(|(owner, _)| Some(**owner) != self.root_owner())
                 .flat_map(|(owner, relations)| {
                     relations
                         .iter()
@@ -284,12 +285,9 @@ impl OrdinaryNewClaimLedgerV1 {
             && self.root_instance_call_is_empty()
     }
 
-    /// Whether `owner`'s relation at `site` was retained through the child
-    /// index — deciding which value lane the record/read must use.
-    /// Source statement sites carry no owner identity: a site-only probe of
-    /// the root map collides across owners whose bodies share `Body(N)`
-    /// paths, so the lane is chosen by where the relation was retained,
-    /// mirroring `terminal_relation_for_owner_at`'s index-first lookup.
+    /// Whether this exact source relation is retained in the owner index.
+    /// The Root and child owners can both be indexed; membership alone
+    /// does not select the physical scalar value's storage.
     pub(in crate::mir::normal_callable_semantic_package) fn terminal_relation_is_indexed(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -298,6 +296,16 @@ impl OrdinaryNewClaimLedgerV1 {
         self.terminal_relation_index
             .get(&owner)
             .is_some_and(|index| index.contains_key(site))
+    }
+
+    /// Child scalar values use owner + exit keys. The original Root keeps
+    /// its site-only storage even when its SAME source table is indexed.
+    pub(in crate::mir::normal_callable_semantic_package) fn terminal_scalar_uses_child_storage(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1,
+    ) -> bool {
+        self.root_owner() != Some(owner) && self.terminal_relation_is_indexed(owner, site)
     }
 
     /// The sole root terminal relation — `None` when the root retains zero
@@ -402,7 +410,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if relation.owner() != owner
             || completion.owner() != owner
             || !completion.explicit_sites().contains(&stmt_site)
-            || if self.terminal_relation_is_indexed(owner, &stmt_site) {
+            || if self.terminal_scalar_uses_child_storage(owner, &stmt_site) {
                 self.terminal_integer_literal_values
                     .borrow()
                     .contains_key(&(owner, stmt_site.clone()))
@@ -430,7 +438,7 @@ impl OrdinaryNewClaimLedgerV1 {
         ) {
             return Err("[freeze:contract][ordinary-new/literal-duplicate]".into());
         }
-        if self.terminal_relation_is_indexed(owner, &stmt_site) {
+        if self.terminal_scalar_uses_child_storage(owner, &stmt_site) {
             if self
                 .terminal_integer_literal_values
                 .borrow_mut()
@@ -486,3 +494,7 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 #[path = "ordinary_new_object_return_source_tests.rs"]
 mod object_return_source_tests;
+
+#[cfg(test)]
+#[path = "ordinary_new_terminal_storage_tests.rs"]
+mod storage_tests;
