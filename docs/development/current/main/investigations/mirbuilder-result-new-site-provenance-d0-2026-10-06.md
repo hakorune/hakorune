@@ -988,12 +988,12 @@ Fresh/null uses the existing exact leaf checker after affine take. All siblings
 are visited; foreign identity is Err, genuinely unavailable is None. Source
 success grants no physical result or Object process-entry ABI permission.
 Existing Root matrix/atomicity and real finished Main/child families extended;
-No new test/guard. Initial lib+tests check29.54s and runtime Root5/finished1 PASS
-(build6m48s); receipts /tmp/hako-root-object-descriptor-*. Shared original Normal
-exit-domain law now rejects orphan proof before missing index, with existing
-negative family pin. Final build live50369; final-focused.log is not PASS.
-Scope/pointer/fmt/diff/protected7 PASS. Full source coverage and physical boundary
-integration remain required before replacing Value None or closing descriptor.
+Source inspection prerequisite closed4b9ff8f7bd: Root5/finished1/regression574 and
+production check PASS (build5m21s/check36.88s). Shared Normal exit-domain law
+rejects orphan proof before missing index; no new test/guard. Scope/pointer/fmt/
+diff/protected7 PASS; /tmp/hako-root-object-descriptor-* hold exact hashes/names.
+Wrong guard filename invocation was informational; corrected scope guard PASS.
+Source success grants no physical ABI; full descriptor/integration still owed.
 Physical integration review: Direct/Fresh reuse exact existing producer/Return
 checks. Received must match original installed local destination to projected
 exit Return. Null needs SAME emit_null append retained at source site; no final
