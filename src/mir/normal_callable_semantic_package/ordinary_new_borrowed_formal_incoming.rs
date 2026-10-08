@@ -70,18 +70,21 @@ impl BorrowedIncomingInventoryV1 {
         &self,
         seen: &std::collections::BTreeSet<OwnedExprSiteV1>,
         context: Option<&StaticIncomingContextV1<'_>>,
+        stored_complete: bool,
     ) -> Result<(), BorrowedIncomingDraftErrorV1> {
         if self.observations.iter().any(|(owner, row)| {
             owner.is_none() && matches!(row, Err(BorrowedIncomingDraftErrorV1::BatchLoan))
         }) {
             return Ok(());
         }
-        if context.is_some_and(|context| {
-            context
-                .arguments
-                .keys()
-                .any(|(site, _)| !seen.contains(site))
-        }) {
+        if !stored_complete
+            || context.is_some_and(|context| {
+                context
+                    .arguments
+                    .keys()
+                    .any(|(site, _)| !seen.contains(site))
+            })
+        {
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
         Ok(())
@@ -135,6 +138,7 @@ impl BorrowedIncomingInventoryV1 {
 /// unresolved selector/arity match can veto selection but never proves a
 /// target. `ordinary_callers` must later be corroborated against the issued
 /// Ordinary source scopes; these draft rows install no ABI or live actual.
+#[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn inventory_borrowed_incoming_calls_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::VerifiedSelectedCallableBatchMapV1,
@@ -144,6 +148,54 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     static_context: Option<&StaticIncomingContextV1<'_>>,
 ) -> Result<BorrowedIncomingInventoryV1, BorrowedIncomingDraftErrorV1> {
+    inventory_borrowed_incoming_with_stored_dispatch_v1(
+        batch,
+        selected,
+        drafts,
+        contracts,
+        calls,
+        ordinary_callers,
+        static_context,
+        None,
+    )
+}
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn inventory_borrowed_incoming_with_stored_dispatch_v1(
+    batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    selected: &super::super::VerifiedSelectedCallableBatchMapV1,
+    drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    calls: &BTreeMap<OwnedExprSiteV1, &super::super::LexicalInstanceCallSourceTargetV1>,
+    ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
+    static_context: Option<&StaticIncomingContextV1<'_>>,
+    stored_dispatch: Option<&super::super::source::PreparedSourceNeedsV1>,
+) -> Result<BorrowedIncomingInventoryV1, BorrowedIncomingDraftErrorV1> {
+    let mut stored = BTreeMap::new();
+    if let Some(prepared) = stored_dispatch {
+        for need in prepared
+            .as_ref()
+            .map_err(|_| BorrowedIncomingDraftErrorV1::SourceIdentity)?
+        {
+            let need = need
+                .as_ref()
+                .map_err(|_| BorrowedIncomingDraftErrorV1::SourceIdentity)?;
+            if let Some(super::super::source::PreparedSourceCallNeedV1::Stored {
+                reference,
+                receiver,
+            }) = need
+            {
+                if stored
+                    .insert(&reference.call_site, (reference, receiver))
+                    .is_some()
+                {
+                    return Err(BorrowedIncomingDraftErrorV1::CallIdentity(
+                        reference.call_site.clone(),
+                    ));
+                }
+            }
+        }
+    }
+    let mut stored_seen = std::collections::BTreeSet::new();
     let mut definitions = BTreeMap::new();
     for owner in drafts.keys() {
         let mut matching = contracts.iter().filter(|row| row.owner == *owner);
@@ -271,6 +323,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     }
                 }
                 let instance = calls.get(&owned);
+                let stored_target = if let Some((reference, receiver)) = stored.get(&owned) {
+                    corroborate_stored_dispatch_v1(input, call, reference, receiver, selected, contracts)?;
+                    if instance.is_some_and(|row| super::super::source::CallTargetReferenceV1::from_target(row) != **reference) {
+                        return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
+                    }
+                    stored_seen.insert(owned.clone());
+                    Some(&reference.target)
+                } else { None };
                 for (callee, (contract, key)) in &definitions {
                     if call.selector() != key.name() || call.arity() != key.arity() {
                         continue;
@@ -306,9 +366,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                 }
                                 continue;
                             }
+                            // Passive dispatch excludes only a proved different callee.
+                            // The same callee still requires its executable receiver.
+                            if stored_target.is_some_and(|target| target != *key) {
+                                continue;
+                            }
                             instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
                         }
                         CallableParameterDeclarationModeV1::StaticBoxMethod => {
+                            // Passive source identity is also exact about the namespace.
+                            if stored_target.is_some() {
+                                continue;
+                            }
                             // The original proved Instance source is another namespace.
                             if let Some(original) = instance {
                                 if original.call_site() != &owned
@@ -440,7 +509,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         observations,
         static_observations,
     };
-    inventory.corroborate_scan_completeness(&static_seen, static_context)?;
+    inventory.corroborate_scan_completeness(
+        &static_seen,
+        static_context,
+        stored_seen.len() == stored.len(),
+    )?;
     Ok(inventory)
 }
 
@@ -455,3 +528,74 @@ mod static_source_domain_tests;
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_static_capability_tests.rs"]
 mod static_capability_tests;
+
+/// Check original passive field dispatch against the exact source call.
+/// This issues no receiver inventory, incoming actual or physical permission.
+fn corroborate_stored_dispatch_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+    reference: &super::super::source::CallTargetReferenceV1,
+    receiver: &super::super::source::StoredReceiverSourceV1,
+    selected: &super::super::VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+) -> Result<(), BorrowedIncomingDraftErrorV1> {
+    use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
+    let invalid = || BorrowedIncomingDraftErrorV1::CallIdentity(reference.call_site.clone());
+    if reference.call_site.owner() != input.owner()
+        || call.owner() != input.owner()
+        || reference.call_site.site() != call.site()
+        || reference.receiver_site != *call.receiver_site()
+        || reference.target.namespace()
+            != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+        || reference.target.owner() != receiver.child_class.as_ref()
+        || reference.target.name() != call.selector()
+        || reference.target.arity() != call.arity()
+        || reference.argument_sites.len() != call.arguments().len()
+        || !call
+            .arguments()
+            .iter()
+            .enumerate()
+            .all(|(ordinal, actual)| {
+                actual.ordinal() as usize == ordinal
+                    && actual.site() == &reference.argument_sites[ordinal]
+            })
+        || receiver.parent_binding.owner() != input.owner()
+        || input
+            .function()
+            .binding(receiver.parent_binding)
+            .is_none_or(|row| row.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver)
+    {
+        return Err(invalid());
+    }
+    let shape = input.body_shape().ok_or_else(invalid)?;
+    if !matches!(shape.expression_shape(&reference.receiver_site),
+        Some(BodyExpressionShapeV1::FieldAccess { object, field, .. })
+            if object == &receiver.parent_site && field == &receiver.field_name)
+        || !matches!(shape.expression_shape(&receiver.parent_site),
+            Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                if binding == &receiver.parent_binding)
+    {
+        return Err(invalid());
+    }
+    let mut targets = contracts
+        .iter()
+        .filter(|row| row.owner == reference.callee_owner);
+    let target = targets
+        .next()
+        .filter(|row| {
+            row.batch_slot == reference.target_batch_slot
+                && row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
+                && row.parameters.len() == reference.argument_sites.len()
+        })
+        .ok_or_else(invalid)?;
+    if targets.next().is_some()
+        || !matches!(selected.key_for_batch_slot(target.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key == &reference.target)
+        || !contracts.iter().any(|row| row.owner == input.owner()
+            && matches!(selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                    if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                        && key.owner() == receiver.parent_class.as_ref()))
+    { return Err(invalid()); }
+    Ok(())
+}

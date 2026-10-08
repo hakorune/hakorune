@@ -486,16 +486,25 @@ fn source_graph_partial_scan_preserves_global_loan_fault_before_orphan_check() {
         observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],
     };
     inventory
-        .corroborate_scan_completeness(&Default::default(), Some(&context))
+        .corroborate_scan_completeness(&Default::default(), Some(&context), true)
         .unwrap();
     assert_eq!(
         inventory.project(&Default::default()).unwrap_err(),
         BorrowedIncomingDraftErrorV1::BatchLoan
     );
+    inventory
+        .corroborate_scan_completeness(&Default::default(), None, false)
+        .unwrap();
     inventory.observations.clear();
     assert_eq!(
         inventory
-            .corroborate_scan_completeness(&Default::default(), Some(&context))
+            .corroborate_scan_completeness(&Default::default(), None, false)
+            .unwrap_err(),
+        BorrowedIncomingDraftErrorV1::SourceIdentity
+    );
+    assert_eq!(
+        inventory
+            .corroborate_scan_completeness(&Default::default(), Some(&context), true)
             .unwrap_err(),
         BorrowedIncomingDraftErrorV1::SourceIdentity
     );

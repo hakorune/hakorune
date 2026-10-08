@@ -157,13 +157,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         array_i64_fields,
     );
     let grounded = grounded_source_results_v1(&pending);
-    let targets: PreparedLexicalInstanceCallSourceTargetsV1 = match needs {
-        Err(issue) => Err(issue),
+    let targets: PreparedLexicalInstanceCallSourceTargetsV1 = match &needs {
+        Err(issue) => Err(issue.clone()),
         Ok(needs) => {
             let mut targets = Vec::new();
             for row in needs {
                 let target = match row {
-                    Err(issue) => Err(issue),
+                    Err(issue) => Err(issue.clone()),
                     Ok(None) => Ok(None),
                     Ok(Some(need)) => {
                         if need.stored().is_some()
@@ -179,7 +179,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                             continue;
                         }
                         match need {
-                            PreparedSourceCallNeedV1::Lexical(target) => Ok(Some(target)),
+                            PreparedSourceCallNeedV1::Lexical(target) => Ok(Some(target.clone())),
                             PreparedSourceCallNeedV1::Stored {
                                 reference,
                                 receiver,
@@ -190,13 +190,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     issue,
                                 )?;
                                 Ok(Some(LexicalInstanceCallSourceTargetV1 {
-                                    call_site: reference.call_site,
-                                    receiver_site: reference.receiver_site,
+                                    call_site: reference.call_site.clone(),
+                                    receiver_site: reference.receiver_site.clone(),
                                     receiver,
-                                    target: reference.target,
+                                    target: reference.target.clone(),
                                     target_batch_slot: reference.target_batch_slot,
                                     callee_owner: reference.callee_owner,
-                                    argument_sites: reference.argument_sites,
+                                    argument_sites: reference.argument_sites.clone(),
                                     result_requirement:
                                         LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                                 }))
@@ -231,6 +231,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             app_main,
             (ordinary_callers, definitions, dominated_view_sites),
             static_arguments,
+            Some(&needs),
         )
     })();
     // Successful final closure adds literal-only Main sites. An error retains

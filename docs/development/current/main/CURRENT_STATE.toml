@@ -34,7 +34,8 @@ Pending-only production finishing stops retired; typed8/opaque8 original product
 Neutral C Return flow split closed; existing Normal/Fault execution preserved.
 C owned Handle identity/LIVE admission closed; original16 Normal/Fault EXEs pass.
 Fresh unchanged mimalloc identifies allocateResult local -> Heap.allocate Pending.
-Next: exact Heap.allocate incoming entry authority; unresolved callers stay vetoes.
+Passive Stored dispatch now removes only exact different-callee false vetoes.
+Next: checked Normal Integer guard -> exact incoming actual authority; all callers retained.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"

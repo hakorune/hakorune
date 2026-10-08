@@ -949,27 +949,48 @@ C input mutations are independent probes, not modified source acceptance.
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected
 retirement, nondelegating selfcompile and final acceptance remain owed.
 
-Fresh unchanged-app at2b1a32dd5b: quick CLI3m55s PASS, binary76e095b2,
-source33d3e8b9 unchanged, rc1/noEXE at lexical-instance-call/source-pending.
-/mnt/workdisk/hako-owned-result-mimalloc-probe/{evidence.json,probe.log}.
-Current error lacks site/target; earlier artifact frontier is historical only.
-Decision (read-only review_cleanup_path): bounded diagnostic retains SAME pending
-call-site/selected target/callee owner in existing take error; no promotion retry,
-qualification change, new scanner or availability grant. Reuse pending/duplicate
-source tests for attribution/nonconsume, then probe unchanged production source.
-Mixed/Forward acquisition and anchored lifetime remain required, but generic
-source-pending does not prove they are the first current stopping edge.
-Diagnostic attribution CLOSED (selected paths; commit reference in Git): same
-Pending source formatted before affine take; original call/key retained in error.
-Existing object_slot12/12 PASS; focused build22451 terminal0, CLI30761 terminal0
-38.89s. Setup49873 cancelled101 before actual diagnostic build, not a PASS.
-Scope/COPY/pointer/format/caps/protected7/diff PASS; no new tests/guards.
-Fresh unchanged source probe identifies owner34 Body1.Initializer0 ->
-HakoAllocHeap.allocate/1 owner33: allocateResult's local handle=me.allocate(size).
-/mnt/workdisk/hako-pending-call-diagnostic-{focused.log,focused.json,cli-build.log}
-and mimalloc-probe/{evidence.json,probe.log}; binary9b7a3f97/source33d3e8b9,
-rc1/noEXE. No semantic acceptance change or full goal completion claim.
-Next: SAME existing borrowed profile/target ingress proof for this selected edge;
-known imported pin has no Heap.allocate final definition and retained unresolved
-caller veto. Verify actual missing authority before semantic widening; never drop
-unresolved caller or replace all-outcome proof with one convenient source arm.
+Diagnostic attribution CLOSEDb115d46e05 (pushed); SAME Pending identity before
+any affine take; existing object_slot12/12/check/guards PASS, no new tests/guards.
+Fresh unchanged mimalloc source33d3e8b9, binary9b7a3f97, rc1/noEXE:
+owner34 Body1.Initializer0 -> HakoAllocHeap.allocate/1 owner33, allocateResult
+local handle=me.allocate(size). /mnt/workdisk/hako-pending-call-diagnostic-*
+retains names/hash/build/probe receipts. Setup49873 cancelled101 was not PASS.
+Earlier artifact frontier is historical. Mixed/Forward/anchored obligations remain.
+
+Stored dispatch source Decision (read-only review_cleanup_path): SAME original
+PreparedSourceCallNeed::Stored reference/passive receiver survives eligibility
+until the sole incoming scanner. Validate source owner/receiver/field/binding,
+selected target/slot/contract and ordered actual sites. Only exact DIFFERENT
+callee excludes a same-selector veto. SAME callee without executable source,
+missing/duplicate/drift proof retains refusal; no filtered caller subset.
+Production profile lends original needs; canonical incoming body is sole scan.
+Old no-stored entry becomes test-only adapter to that body (no production caller).
+Physical stored_eligible/receiver issuance/call_sources/forward closure unchanged.
+Reuse imported Heap15 census and existing unresolved-veto family; independent
+missing/same-target/identity/duplicate refusals use one existing family test.
+This source prerequisite cannot claim pending closure: checked guard-to-actual
+and Heap-to-Page executable outgoing protocol remain required next.
+Scope: profile/source/incoming/uses owners, candidate-veto/source-graph families, README,
+active card/pointer only; no additional semantic issuer, new guard or app rewrite.
+Stored completeness joins the existing orphan check after global BatchLoan;
+existing partial-scan pin covers both static and Stored orphan precedence.
+Stored dispatch prerequisite CLOSED (selected paths; commit reference in Git).
+Final test build27396 terminal0/5m10s; lexical family267/267 PASS (0.17s),
+including source-graph BatchLoan precedence and unchanged imported Heap15/no-veto.
+Final production check67132 terminal0; scope/COPY/pointer/fmt/caps/diff PASS.
+Inherited uses-format baseline retained; protected7 unchanged. Exact test names,
+binary SHA and logs: /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
+Old scanner has no production caller; cfg(test) delegates to the SAME sole scan.
+Candidate Integer/final transport still absent; no pending or full-goal closure.
+
+Next checked-actual Decision (read-only review_cleanup_path): retain original
+compare source once in existing use prepass and reuse it in the same use loop.
+SAME source product returns old draft result plus exact guarded actual facts;
+UnsupportedUse retains facts, rebind/capture/annotated-alias retains none.
+Private child checks original If parent region/scope and later SAME Body/If arm
+sequence, original binary operands/formal and call/ordinal/actual binding/site.
+Checked Normal reach proves Integer, never positivity or Object/entry permission.
+Existing source collector and SAME incoming seed borrow exact facts; no second
+classifier, scan or ingress issuer. Public classifier passes no fact. Reuse import
+Heap15 pin and existing positive/negative families; source758 cap limits wiring.
+Heap-to-Page executable outgoing protocol remains a separate subsequent slice.

@@ -154,6 +154,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         None,
         drafts,
         BTreeMap::new(),
+        None,
     )
 }
 
@@ -185,6 +186,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         (OwnedExprSiteV1, u32),
         super::borrowed_static_argument::QualifiedStaticArgumentSourceV1,
     >,
+    stored_dispatch: Option<&super::source::PreparedSourceNeedsV1>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let (ordinary_callers, definitions, dominated_view_sites) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
@@ -200,7 +202,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         arguments: &static_arguments,
         main: app_main,
     });
-    let inventory = inventory_borrowed_incoming_calls_v1(
+    let inventory = inventory_borrowed_incoming_with_stored_dispatch_v1(
         batch,
         selected,
         &definitions,
@@ -208,6 +210,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         &calls,
         &ordinary_callers,
         static_context.as_ref(),
+        stored_dispatch,
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     source_drafts::seed_static_transport_owners_v1(

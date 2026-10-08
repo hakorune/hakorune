@@ -1562,6 +1562,16 @@ An empty opaque subset is source coverage only, not a borrowed entry, input
 domain, successful body Completion or executable actual proof. The final
 transport owner set and formal-domain solver remain unchanged.
 
+Original Stored field dispatch is lent to the same incoming scanner before
+execution eligibility filters it. Source owner/field/receiver, selected contract,
+slot and ordered arguments must match. Only an exact different target or
+namespace excludes a false same-selector veto. Missing or malformed proof refuses;
+a same-target Stored call without its executable receiver remains unresolved.
+This borrowed source correspondence issues no receiver inventory, actual, input
+domain, forward protocol or execution permission. Existing stored eligibility and
+physical receiver issuance remain unchanged; opaque outgoing closure and checked
+guard-to-actual proof still precede transport activation.
+
 The existing pending actual producer delegates construction to the private
 construct_borrowed_call_actuals_v1 after selecting its original incoming row.
 The constructor preserves contract, ordinal, domain and candidate checks in

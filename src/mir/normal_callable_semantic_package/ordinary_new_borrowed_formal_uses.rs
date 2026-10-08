@@ -193,7 +193,9 @@ pub(super) use incoming_source::BorrowedIncomingSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_incoming.rs"]
 mod incoming;
-pub(super) use incoming::{inventory_borrowed_incoming_calls_v1, BorrowedIncomingInventoryV1, StaticIncomingContextV1};
+#[cfg(test)]
+pub(super) use incoming::inventory_borrowed_incoming_calls_v1;
+pub(super) use incoming::{inventory_borrowed_incoming_with_stored_dispatch_v1, BorrowedIncomingInventoryV1, StaticIncomingContextV1};
 
 /// Existing direct-test adapter uses the same whole-batch scan.
 #[cfg(test)]

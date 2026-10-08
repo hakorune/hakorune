@@ -86,7 +86,7 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
 }
 
 #[test]
-fn real_mimalloc_incoming_domain_keeps_all_callers_and_unresolved_source_veto() {
+fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
     std::thread::Builder::new().name("mimalloc-original-static-claim".into())
         .stack_size(32 * 1024 * 1024).spawn(|| {
         let env_updates: Vec<_> = crate::test_support::JOINIR_DEFAULT_MODE.into_iter().chain([
@@ -158,21 +158,12 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_and_unresolved_source_veto() 
                 assert_eq!(target_formal.kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle,
                     "the original static input stays opaque despite its constant-i64 result");
                 assert!(!ingress.contains_definition_for_test(input.owner()));
-                assert_eq!(ingress.candidate_input_inventory_for_test(input.owner()), (15, true));
-                let rejection = ingress.source_incoming.project(&BTreeSet::from([input.owner()])).unwrap_err();
-                let BorrowedIncomingDraftErrorV1::UnresolvedCaller(rejected_site) = rejection else {
-                    panic!("expected original unresolved receiver call: {rejection:?}");
-                };
-                let rejected_slot = package.batch().declarations()
-                    .find(|row| row.owner() == rejected_site.owner()).unwrap().batch_slot();
-                package.batch().with_lowering_input(rejected_slot, |original| {
-                    let (_, call) = original.function().method_calls()
-                        .find(|(site, _)| *site == rejected_site.site()).unwrap();
-                    assert_eq!(call.selector(), "allocate");
-                    assert_eq!(call.arity(), 1);
-                }).unwrap();
-                // Exact rows and unresolved same-selector calls both participate.
-                // Neither missing guard proof nor a source veto can be discarded.
+                assert_eq!(ingress.candidate_input_inventory_for_test(input.owner()), (15, false));
+                let rows = ingress.source_incoming.project(&BTreeSet::from([input.owner()])).unwrap();
+                assert_eq!(rows.len(), 15, "all original Heap callers remain mandatory");
+                assert!(rows.iter().all(|row| row.callee == input.owner() && row.source.target() == &heap_key));
+                // Exact different Page dispatch removes a false veto, not missing
+                // outgoing transport or guard-qualified actual authority.
                 assert!(!ingress.candidate_integer_agreement(contract.parameters[0].binding));
                 assert!(!ingress.formal_integer_agreement(contract.parameters[0].binding));
             }).unwrap();
@@ -205,4 +196,148 @@ fn candidate_integer_forward_retains_agreement_without_reviving_transport() {
     }
     assert!(source.incoming.is_empty());
     assert!(source.forwards.is_empty());
+}
+
+#[test]
+fn passive_stored_dispatch_excludes_only_exact_different_targets() {
+    use super::super::source::{
+        CallTargetReferenceV1, PreparedSourceCallNeedV1, PreparedSourceNeedsV1,
+        StoredReceiverSourceV1,
+    };
+    use crate::mir::resolved_semantics::BodyExpressionShapeV1;
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Item { value: i64 birth() { me.value = 5 } }
+        box Leaf { flag: i64 birth() { me.flag = 0 }
+            read(p: Item) { if p == null { return 7 } return p.value } }
+        box Parent { left: Leaf right: Leaf
+            birth() { me.left = new Leaf() me.right = new Leaf() }
+            first(p: Item) { return me.left.read(p) }
+            second(p: Item) { return me.right.read(p) } }
+        box Other { read(p) { return 0 } }
+        static box Main { main() { local parent = new Parent() local item = new Item()
+            local other = new Other() local z = other.read(7)
+            local ignored = parent.second(item) return parent.first(item) } }").unwrap();
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let mut passive = Vec::new();
+    let mut calls = BTreeMap::new();
+    let mut leaf_owner = None;
+    for row in source.incoming.iter() {
+        let target = row.source.require_instance().unwrap();
+        if let Some((parent_binding, parent_site, _, _)) = target.stored_receiver() {
+            leaf_owner = Some(target.callee_owner());
+            let caller = package
+                .parameter_contracts
+                .iter()
+                .find(|c| c.owner == row.call.owner())
+                .unwrap();
+            let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(caller_key) = package
+                .selected
+                .key_for_batch_slot(caller.batch_slot)
+                .unwrap()
+            else {
+                panic!("instance caller")
+            };
+            let field_name = package
+                .batch()
+                .with_lowering_input(caller.batch_slot, |input| {
+                    let Some(BodyExpressionShapeV1::FieldAccess { field, .. }) = input
+                        .body_shape()
+                        .unwrap()
+                        .expression_shape(target.receiver_site())
+                    else {
+                        panic!("field source")
+                    };
+                    field.clone()
+                })
+                .unwrap();
+            passive.push((
+                CallTargetReferenceV1::from_target(target),
+                StoredReceiverSourceV1 {
+                    parent_binding,
+                    parent_site: parent_site.clone(),
+                    parent_class: caller_key.owner().into(),
+                    field_name,
+                    child_class: target.target().owner().into(),
+                },
+            ));
+        } else {
+            calls.insert(row.call.clone(), target);
+        }
+    }
+    assert_eq!(passive.len(), 2);
+    let other_key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+        "Other", "read", 1,
+    );
+    let other = package
+        .parameter_contracts
+        .iter()
+        .find(|c| {
+            matches!(package.selected.key_for_batch_slot(c.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(k)) if k == &other_key)
+        })
+        .unwrap()
+        .owner;
+    let scope = package
+        .batch()
+        .declarations()
+        .map(|row| row.owner())
+        .collect();
+    let scan = |needs: Option<&PreparedSourceNeedsV1>| {
+        inventory_borrowed_incoming_with_stored_dispatch_v1(
+            package.batch(),
+            &package.selected,
+            &source.definitions,
+            &package.parameter_contracts,
+            &calls,
+            &scope,
+            None,
+            needs,
+        )
+    };
+    let prepared =
+        |pairs: Vec<(CallTargetReferenceV1, StoredReceiverSourceV1)>| -> PreparedSourceNeedsV1 {
+            Ok(pairs
+                .into_iter()
+                .map(|(reference, receiver)| {
+                    Ok(Some(PreparedSourceCallNeedV1::Stored {
+                        reference,
+                        receiver,
+                    }))
+                })
+                .collect())
+        };
+    let missing = scan(None).unwrap();
+    assert!(matches!(
+        missing.project(&BTreeSet::from([other])),
+        Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))
+    ));
+    let original = prepared(passive.clone());
+    let checked = scan(Some(&original)).unwrap();
+    let rows = checked.project(&BTreeSet::from([other])).unwrap();
+    assert_eq!(rows.len(), 1);
+    assert_eq!(rows[0].source.target(), &other_key);
+    assert!(matches!(
+        checked.project(&BTreeSet::from([leaf_owner.unwrap()])),
+        Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))
+    ));
+    for change in 0..7 {
+        let mut pairs = passive.clone();
+        match change {
+            0 => pairs.push(pairs[0].clone()),
+            1 => pairs[0].0.receiver_site = pairs[0].0.argument_sites[0].clone(),
+            2 => pairs[0].1.field_name = "missing".into(),
+            3 => pairs[0].0.target_batch_slot += 1,
+            4 => pairs[0].0.argument_sites[0] = pairs[0].0.receiver_site.clone(),
+            5 => pairs[0].1.child_class = "Other".into(),
+            _ => pairs[0].1.parent_site = pairs[0].0.receiver_site.clone(),
+        }
+        let changed = prepared(pairs);
+        assert!(scan(Some(&changed)).is_err(), "identity change {change}");
+    }
 }
