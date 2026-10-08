@@ -945,25 +945,11 @@ observer uses SAME prepared dependency/Facts/ClaimLocal and original incoming lo
 Observed/SourceOnly never grants execution, selected errors retain SourceMismatch.
 Evidence /mnt/workdisk/hako-{object-target-lender-refactor,received-producer-source}-*.
 
-Ready acquisition CLOSED488f1283b3 (read-only review_cleanup_path):
-SAME full callee exit checker returns kind plus availability using checked Fresh/Null
-and SAME verified OwnedCall Normal proof through existing return_teardown::reduce.
-Missing sibling yields None; partial Unavailable never becomes Verified. Ready seal
-retains original Completion/terminal Rc and whole input. Taken source/input checks
-lend exact object and original children Option to existing CallReceived owner.
-Selected acquisition replaces Fresh-only search; unselected prior protocol stays.
-Kind/nullable drift, duplicate begin and unsupported nullable-owned refuse before
-commit. Nullable-owned result Home stays uninstalled, affine exit not prepared.
-Existing result/packet/matrix/preflight tests reused, no new test/guard.
-
-Compiled admission CLOSED in this commit (read-only review_cleanup_path):
-Whole-module collector is sole artifact admission; two pending-only production
-finishing stops retire. Construction/coverage/physical and duplicate-finishing checks
-remain. Existing Handle role issuer is reused by membership, physical Call census,
-compiled entry exact key/arity/receiver and borrowed incoming Handle/Nullable pairs.
-Original typed8 source variants unchanged; same family adds opaque8 with actual
-BorrowedTaggedValue and wrong-role mutation; module-wide membership covers all kinds.
-No test-only matcher, new issuer, name-derived qualification or old-lane retry.
+Ready acquisition CLOSED488f1283b3 and compiled admission CLOSED21e66c5e55
+(pushed). Exact Decision/contracts at commits: SAME checked return availability,
+Ready/Taken original packet, existing CallReceived ownership; whole-module sole
+artifact preflight replaces pending-only stops. Original typed8 plus opaque8 and
+wrong-role refusal pass, construction/coverage/finishing checks remain. No new guard.
 
 Required evidence for this bounded series:
 Cargo45871 terminal0/no-run5m26s; source/lib Cargo46083 terminal0/check19.09s.
@@ -981,8 +967,8 @@ and actual Rust-runtime-linked EXEs exit0, COUNTS 1 0 3 0 0 1 (size7 nonnull arm
 /mnt/workdisk/hako-compiled-handle-admission-{capi-frontier,nullable-execution}.json.
 Header-geometry driver is not runtime descriptor admission; no Handle/Fault/Null
 runtime or unchanged mimalloc EXE completion claim.
-Next C Decision (read-only review_cleanup_path): first neutral flow Return/role
-responsibility split (current flow759), then exact handle/ordinary_handle contract.
+Next C Decision (read-only review_cleanup_path): exact handle/ordinary_handle
+contract after the neutral Return split below; current flow730.
 Existing index gets known identity bit (object0 is valid), original New/Copy/Call
 NormalResult and all owned callee Return summary after every index is built.
 Missing/cycle/foreign landing/disagreeing object/null/borrowed Handle return refuses;
@@ -991,3 +977,14 @@ Fault keeps caller unwind. Existing nullable protocol and unsupported owned enve
 stay separate. Reuse existing C execution family and original JSON; no new guard.
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected retirement,
 nondelegating selfcompile and final acceptance remain mandatory/incomplete.
+
+C Return split CLOSED in this commit (BoxShape prerequisite, read-only review):
+Exact original Return/Fault body moved to indexed_return; indexed_flow stays sole
+state/worklist owner (759->730). No identity, role, transfer or failure-order change.
+Source .so build14244 terminal0; existing composed execution18084 terminal0,
+16 cases/72 Normal+Fault runtime runs PASS. Original owned typed8 frontier unchanged:
+Handle4 parser refusal; Nullable4 linked EXEs exit0/same counters. Scope/pointer/
+diff/caps/protected7 and exact old-body retention PASS; no test/guard/Rust rebuild.
+Evidence /mnt/workdisk/hako-c-flow-return-split-{build,execution}.log and frontier.json.
+Next concrete action: known object identity child after all indexes, then owned
+Handle C role/lease integration using existing execution family and original JSON.

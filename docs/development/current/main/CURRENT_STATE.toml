@@ -31,7 +31,8 @@ Checked whole Root Object ABI and error-preserving consumers are closed; process
 Original TopLevel scalar input/Completion retained in SAME result row; production free-function passes.
 Ready acquisition and compiled Handle admission closed through existing whole-module collector.
 Pending-only production finishing stops retired; typed8/opaque8 original production pass.
-Next: neutral C flow split, then owned ordinary_handle result identity and lease admission.
+Neutral C Return flow split closed; existing Normal/Fault execution preserved.
+Next: owned ordinary_handle result identity and lease admission.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"

@@ -625,3 +625,7 @@ Rules:
   existing `HakoLlvmcInvocation`. String constant hoisting, constant-result
   emission, and folded-string route tracing consume that same value. Accepted
   values are exactly `1`, `on`, `true`, and `yes`; other values are false.
+
+Indexed lifecycle Return/Fault completion lives in the private `indexed_return`
+child of `indexed_flow`. The flow owner lends its checked lease state; role
+selection, return transfer and failure order are unchanged by this split.
