@@ -19,6 +19,14 @@ impl BorrowedAppMainSourceLoanV1<'_> {
     ) -> &CanonicalSameModuleCallableKeyV1 {
         self.source.catalog_key()
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_function(
+        &self,
+        owner: FunctionOwnerIdV1,
+        batch_slot: u32,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
+        self.owner == owner && self.batch_slot == batch_slot && self.catalog_key() == key
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn matches_contract(
         &self,
         contract: &OwnedCallableParameterContractDeclarationV1,

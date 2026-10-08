@@ -1328,8 +1328,11 @@ constructor child/destination and lifetime verification.
 
 The sole `prepare_source_claims` implementation resides in private
 `ordinary_new_source_claim_preparation.rs`, reexported through the existing
-source-claim owner. Field/provider/result preparation order and source error
-boundaries are unchanged; this move adds no child relation or Home permission.
+source-claim owner. Field/provider/result preparation order is unchanged. The
+original borrowed AppMain owner/slot/catalog key joins the same result observer
+and fixpoint without registering a selected child. Observer and finish independently
+corroborate source identity; missing/foreign/drifted Main cannot issue Root facts.
+Passive Root results add no Home, Completion, Executable packet or artifact permission.
 
 The private `call_witness` owner corroborates the exact source-call edges once,
 then composes existing immutable callee witnesses. The evaluator keeps source

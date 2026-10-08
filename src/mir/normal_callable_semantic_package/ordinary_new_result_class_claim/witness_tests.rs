@@ -107,6 +107,7 @@ fn source_witness_rejects_formal_ordinal_disagreement() {
         package.batch.ordinary_box_coverage(),
         &package.batch,
         &package.selected,
+        None,
         &package.ordinary_new_claim_ledger.field_write_claims,
         &package.parameter_contracts,
     );
@@ -118,6 +119,29 @@ fn source_witness_rejects_formal_ordinal_disagreement() {
 pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_test(
     source: &str,
 ) -> OrdinaryNewResultClassClaimsV1 {
+    with_source_claims_fixture(source, |batch, selected, constructors, parameters, main| {
+        let (_, _, result, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
+            batch,
+            selected,
+            main,
+            constructors,
+            parameters,
+        )
+        .unwrap();
+        result
+    })
+}
+
+fn with_source_claims_fixture<R>(
+    source: &str,
+    test: impl FnOnce(
+        &VerifiedResolvedCallableSemanticBatchV1,
+        &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        &crate::mir::normal_callable_semantic_package::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
+        &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
+        Option<&super::super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
+    ) -> R,
+) -> R {
     use crate::mir::builder::{
         issue_source_backed_same_module_callable_catalog_v1, NormalRootExecutionConsumerV1,
     };
@@ -168,10 +192,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_
         .unwrap();
     let selected =
         selected_mapping::issue_selected_callable_batch_map_v1(&catalog, &batch).unwrap();
-    let catalog =
+    let main = super::super::lexical_instance_call::borrow_app_main_source_v1(
+        &batch,
+        catalog.catalog().source_backed_app_main(),
+    )
+    .unwrap();
+    let parameter_catalog =
         crate::mir::callable_parameter_contract::issue_callable_parameter_contract_v1(&batch)
             .unwrap();
-    let parameters: Vec<_> = catalog
+    let parameters: Vec<_> = parameter_catalog
         .declarations()
         .map(|row| model::OwnedCallableParameterContractDeclarationV1 {
             batch_slot: row.batch_slot(),
@@ -188,12 +217,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_
                 .collect(),
         })
         .collect();
-    let (_, _, result, _) = super::super::coseal_issue::source_claims::prepare_source_claims(
-        &batch,
-        &selected,
-        &constructors,
-        &parameters,
-    )
-    .unwrap();
-    result
+    test(&batch, &selected, &constructors, &parameters, main.as_ref())
 }
+
+#[path = "main_source_tests.rs"]
+mod main_source_tests;

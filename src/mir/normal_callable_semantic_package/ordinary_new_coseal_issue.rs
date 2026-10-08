@@ -92,6 +92,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         source_claims::prepare_source_claims(
             batch,
             selected,
+            app_main.as_ref(),
             instance_constructors,
             parameter_contracts,
         )?;

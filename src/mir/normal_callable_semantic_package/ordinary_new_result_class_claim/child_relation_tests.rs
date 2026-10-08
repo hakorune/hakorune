@@ -31,6 +31,7 @@ fn rebuild(
         package.batch.ordinary_box_coverage(),
         &package.batch,
         &package.selected,
+        None,
         &package.ordinary_new_claim_ledger.field_write_claims,
         &package.parameter_contracts,
     )

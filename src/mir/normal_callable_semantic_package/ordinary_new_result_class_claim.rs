@@ -5,8 +5,8 @@
 //! `method_call()`/`variable_ref()` membership — the same passive facts
 //! the birth-site index and field-write claims already walk. Canonical
 //! issuer: this module's draft, driven from
-//! `issue_ordinary_source_cohort_v1` where the selected-key map is
-//! already in scope.
+//! `issue_ordinary_source_cohort_v1` using the selected-key map and the
+//! original AppMain source loan, without selected-child registration.
 //!
 //! Pass A (`observe_function`) classifies every sealed `return` exit of
 //! every keyed callable into `New` / `Null` / `ForwardCall` /
@@ -542,6 +542,7 @@ impl OrdinaryNewResultClassClaimDraftV1 {
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        app_main: Option<&super::lexical_instance_call::BorrowedAppMainSourceLoanV1<'_>>,
         field_write_claims: &super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
         parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
     ) -> OrdinaryNewResultClassClaimsV1 {
@@ -551,12 +552,22 @@ impl OrdinaryNewResultClassClaimDraftV1 {
             (u32, Vec<PendingResultExitV1>),
         > = BTreeMap::new();
         for row in self.rows {
-            if !matches!(selected.key_for_batch_slot(row.batch_slot),
+            let main = app_main.filter(|main| main.batch_slot() == row.batch_slot);
+            if let Some(main) = main {
+                if main.catalog_key() != &row.key {
+                    continue;
+                }
+            } else if !matches!(selected.key_for_batch_slot(row.batch_slot),
                 Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == &row.key)
             {
                 continue;
             }
             let resolved = batch.with_lowering_input(row.batch_slot, |input| {
+                if main.is_some_and(|main| {
+                    !main.matches_function(input.owner(), row.batch_slot, &row.key)
+                }) {
+                    return None;
+                }
                 let function = input.function();
                 let Some(body_shape) = input.body_shape() else {
                     return None;
@@ -716,6 +727,7 @@ mod source_brand_tests {
                 package.batch.ordinary_box_coverage(),
                 &package.batch,
                 &package.selected,
+                None,
                 &package.ordinary_new_claim_ledger.field_write_claims,
                 &package.parameter_contracts,
             );

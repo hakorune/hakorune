@@ -1,10 +1,12 @@
 //! Sole ordinary-New source claim preparation, before Home-prefix verification.
-//! Behavior-preserving extraction: source observation, finish order and errors stay intact.
+//! Selected callables and the original AppMain loan share one result draft/fixpoint.
 use super::*;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1;
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn prepare_source_claims(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
 ) -> Result<
@@ -24,21 +26,33 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
     let mut field_write_draft = field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
     let mut result_class_draft = result_class_claim::OrdinaryNewResultClassClaimDraftV1::new();
     for declaration in batch.declarations() {
-        let selected_key = selected
-            .keys()
-            .filter_map(|selected_key| {
-                let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                    return None;
-                };
-                (selected.batch_slot(selected_key) == Some(declaration.batch_slot()))
-                    .then(|| key.clone())
-            })
-            .next();
+        let main = app_main.filter(|main| main.batch_slot() == declaration.batch_slot());
+        let source_key = if let Some(main) = main {
+            if !main.matches_function(
+                declaration.owner(),
+                declaration.batch_slot(),
+                main.catalog_key(),
+            ) {
+                return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing);
+            }
+            Some(main.catalog_key().clone())
+        } else {
+            selected
+                .keys()
+                .filter_map(|selected_key| {
+                    let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                        return None;
+                    };
+                    (selected.batch_slot(selected_key) == Some(declaration.batch_slot()))
+                        .then(|| key.clone())
+                })
+                .next()
+        };
         // Field-write claims belong to instance boxes; the result-class
         // claim admits any cataloged key — a static-box sibling returning
         // `return new <class>` names the class for the direct-call
         // handle-result edge too.
-        let owner_box = selected_key
+        let owner_box = source_key
             .as_ref()
             .filter(|key| key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod)
             .map(|key| key.owner());
@@ -50,11 +64,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
                     owner_box,
                     false,
                 );
-                if let Some(key) = &selected_key {
+                if let Some(key) = &source_key {
+                    if main.is_some_and(|main| {
+                        !main.matches_function(input.owner(), declaration.batch_slot(), key)
+                    }) {
+                        return Err(OrdinaryNewCoSealIssueV1::AppMainIdentityMissing);
+                    }
                     result_class_draft.observe_function(input, key, declaration.batch_slot());
                 }
+                Ok(())
             })
-            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
+            .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     }
     batch
         .with_normal_program_source_loan(|loan| -> Result<(), OrdinaryNewCoSealIssueV1> {
@@ -89,6 +109,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         batch.ordinary_box_coverage(),
         batch,
         selected,
+        app_main,
         &field_write_claims,
         parameter_contracts,
     );
