@@ -49,6 +49,7 @@ pub(super) struct VerifiedCallableResultContractRowV1 {
     role: SelectedCallableConsumptionRoleV1,
     result: Option<ExactTrivialScalarAbiV1>,
     completion: Rc<VerifiedFunctionCompletionV1>,
+    top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
     // Exit-site keyed terminal relations; consumers needing a single row
     // must name the site or prove a uniform projection over the whole map.
     terminal_relations: Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
@@ -111,6 +112,7 @@ impl VerifiedCallableResultContractRowV1 {
         Option<ExactTrivialScalarAbiV1>,
         Rc<VerifiedFunctionCompletionV1>,
         Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>,
+        Option<top_level::VerifiedTopLevelScalarInputV1>,
     ) {
         (
             self.batch_slot,
@@ -120,6 +122,7 @@ impl VerifiedCallableResultContractRowV1 {
             self.result,
             self.completion,
             self.terminal_relations,
+            self.top_level_input,
         )
     }
 
@@ -220,11 +223,48 @@ impl VerifiedCallableResultContractBuilderV1 {
         completion: Rc<VerifiedFunctionCompletionV1>,
         terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     ) -> Result<(), CallablePhysicalHeaderIssueV1> {
+        self.push_completion_with_top_level_input(
+            declaration,
+            selected,
+            completion,
+            terminal_relations,
+            None,
+        )
+    }
+
+    pub(super) fn push_completion_with_top_level_input(
+        &mut self,
+        declaration: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticDeclarationRefV1<'_>,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        completion: Rc<VerifiedFunctionCompletionV1>,
+        terminal_relations: BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+        top_level_input: Option<top_level::VerifiedTopLevelScalarInputV1>,
+    ) -> Result<(), CallablePhysicalHeaderIssueV1> {
         let batch_slot = declaration.batch_slot();
         let result = validate_result(completion.as_ref(), declaration.owner(), batch_slot)?;
         let role = selected
             .role_for_batch_slot(batch_slot)
             .ok_or(CallablePhysicalHeaderIssueV1::SelectedBatchSlotUnavailable)?;
+        match (
+            selected.key_for_batch_slot(batch_slot),
+            top_level_input.as_ref(),
+        ) {
+            (Some(key @ SelectedNormalCallableKeyV1::TopLevel(_)), Some(input)) => {
+                input.validate_attachment(
+                    batch_slot,
+                    declaration.owner(),
+                    declaration.identity(),
+                    key,
+                )?;
+                input.validate_declaration_origin(declaration.function_origin())?;
+            }
+            (Some(SelectedNormalCallableKeyV1::Cataloged(_)), None) => {}
+            _ => {
+                return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
+                    _batch_slot: batch_slot,
+                })
+            }
+        }
         self.rows.push(VerifiedCallableResultContractRowV1 {
             batch_slot,
             owner: declaration.owner(),
@@ -232,6 +272,7 @@ impl VerifiedCallableResultContractBuilderV1 {
             role,
             result,
             completion,
+            top_level_input,
             terminal_relations: Rc::new(terminal_relations),
         });
         Ok(())
@@ -405,6 +446,25 @@ impl VerifiedCallableResultContractCohortV1 {
             {
                 return Err(Issue::ResultContractMismatch);
             }
+            if let Some(key @ SelectedNormalCallableKeyV1::TopLevel(_)) =
+                selected.key_for_batch_slot(row.batch_slot)
+            {
+                row.top_level_input
+                    .as_ref()
+                    .ok_or(Issue::MissingParameterContract)?
+                    .validate_attachment(row.batch_slot, row.owner, &row.identity, key)
+                    .map_err(|_| Issue::ResultContractMismatch)?;
+                if parameters
+                    .iter()
+                    .any(|parameter| parameter.batch_slot == row.batch_slot)
+                {
+                    return Err(Issue::DuplicateParameterContract);
+                }
+                continue;
+            }
+            if row.top_level_input.is_some() {
+                return Err(Issue::ResultContractMismatch);
+            }
             let mut matches = parameters.iter().filter(|p| p.batch_slot == row.batch_slot);
             let parameter = matches.next().ok_or(Issue::MissingParameterContract)?;
             if matches.next().is_some() {
@@ -434,9 +494,22 @@ impl VerifiedCallableResultContractCohortV1 {
         key: &CanonicalSameModuleCallableKeyV1,
     ) -> Option<FunctionOwnerIdV1> {
         let (selected, _) = self.completed_context.as_ref()?;
-        let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
-        let batch_slot = selected.batch_slot(&selected_key)?;
-        self.row(batch_slot).map(|row| row.owner())
+        match key.namespace() {
+            hakorune_mir_defs::SameModuleCallableNamespaceV1::FreeFunction => {
+                let mut matches = self.rows.iter().filter(|row| {
+                    row.top_level_input
+                        .as_ref()
+                        .is_some_and(|input| input.matches_canonical_key(key))
+                });
+                let row = matches.next()?;
+                (matches.next().is_none()).then_some(row.owner())
+            }
+            _ => {
+                let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
+                let batch_slot = selected.batch_slot(&selected_key)?;
+                self.row(batch_slot).map(|row| row.owner())
+            }
+        }
     }
 }
 
@@ -473,3 +546,7 @@ impl VerifiedCallableResultContractCohortV1 {
         std::mem::take(&mut self.named_array_emissions)
     }
 }
+
+#[path = "result_contract_top_level.rs"]
+mod top_level;
+pub(super) use top_level::{issue_top_level_scalar_input_v1, VerifiedTopLevelScalarInputV1};

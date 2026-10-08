@@ -28,7 +28,8 @@ Original Root/child collector now preflights all sources/cleanup/Birth/identity
 and named rows before affine moves; both wrappers switched, old setter retired.
 Original Root Object source descriptor and Null/Received/Fresh exact producers are checked.
 Checked whole Root Object ABI and error-preserving consumers are closed; process Object refuses.
-Next: original TopLevel scalar Completion retention (baseline free-function failure), then compiled Handle.
+Original TopLevel scalar input/Completion retained in SAME result row; production free-function passes.
+Next: compiled Handle admission through existing whole-module collector; retire pending-only gates.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"

@@ -37,6 +37,9 @@ use crate::mir::resolved_semantics::{
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
+#[path = "ordinary_new_coseal_issue_completion_seed.rs"]
+mod completion_seed;
+
 #[path = "ordinary_new_coseal_issue_lexical.rs"]
 mod lexical;
 use lexical::{
@@ -188,6 +191,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             result_prefixes,
         ) = batch
             .with_lowering_input(batch_slot, |input| -> Result<_, OrdinaryNewCoSealIssueV1> {
+                let mut top_level_input =
+                    super::super::result_contract::issue_top_level_scalar_input_v1(
+                        declaration,
+                        selected,
+                        input,
+                    )
+                    .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                 let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
@@ -341,7 +351,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 )?;
                 let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
                 let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites);
-                let seed_completion = seed_eligible
+                let seed_completion = (seed_eligible
+                    || (top_level_input.is_some() && new_sites.is_empty() && result_sites.is_empty()))
                     && !has_map
                     && !callable_result_classes.has_object_call_return(owner)
                     && !has_nullable_receiver_call
@@ -359,38 +370,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     !has_map && owner_loan.is_none(),
                     &static_source_sites,
                 );
-                if seed_completion || app_main_integer_result {
-                    let completion = Rc::new(
-                        crate::mir::resolved_control_flow::verify_function_completion_v1(input)
-                            .map_err(|issue| OrdinaryNewCoSealIssueV1::CompletionSeed(
-                            super::super::physical_header::CallablePhysicalHeaderIssueV1::Completion {
-                                _batch_slot: batch_slot, _issue: issue,
-                            }))?,
-                    );
-                    if app_main_integer_result {
-                        if let Some(relation) = crate::mir::resolved_semantics::home_new_prefix::issue_terminal_integer_literal_return_from_completion_v1(
-                            input,
-                            completion.as_ref(),
-                        )
-                        .map_err(OrdinaryNewCoSealIssueV1::RootTerminalSource)?
-                        {
-                            root_completion = Some(Ok(Rc::clone(&completion)));
-                            root_terminal_relation.insert(
-                                relation.return_site().clone(),
-                                TerminalRelationV1::IntegerLiteral(relation),
-                            );
-                        }
-                    }
-                    if seed_completion {
-                        seeds.push_completion(
-                            declaration,
-                            selected,
-                            Rc::clone(&completion),
-                            BTreeMap::new(),
-                        )
-                        .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
-                    }
-                }
+                completion_seed::issue_plain_completion(
+                    input,
+                    declaration,
+                    selected,
+                    seed_completion,
+                    app_main_integer_result,
+                    &mut seeds,
+                    &mut root_completion,
+                    &mut root_terminal_relation,
+                    &mut top_level_input,
+                )?;
                 // A callee whose sealed use draft admits a dominated
                 // `formal.field` read needs the verified walk too: the read
                 // is issued only by this lane's `local_field_read` authority
@@ -688,8 +678,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .into_iter()
                                     .filter(|(_, row)| retain_child_terminal_relation(row, has_map))
                                     .collect();
-                                seeds.push_completion(declaration, selected, Rc::new(completion), relation)
-                                    .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
+                                seeds.push_completion_with_top_level_input(
+                                    declaration, selected, Rc::new(completion), relation, top_level_input.take(),
+                                ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
                             }
                             (prefixes, observations, result_prefixes)
                         }

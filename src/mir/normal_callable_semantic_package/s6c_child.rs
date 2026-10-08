@@ -72,6 +72,7 @@ pub(in crate::mir) enum S6CSemanticChildIssueV1 {
     MissingCompletionSeed,
     CompletionShared,
     UnexpectedTerminalRelation,
+    UnexpectedTopLevelSource,
     DuplicateCandidate,
     ResultMismatch,
 }
@@ -284,8 +285,11 @@ fn issue_s6c_child_for_row(
             let contract_row = seeds
                 .take_main_child_row(map_row)
                 .ok_or(S6CSemanticChildIssueV1::MissingCompletionSeed)?;
-            let (batch_slot, owner, identity, role, _, completion, terminal_relations) =
+            let (batch_slot, owner, identity, role, _, completion, terminal_relations, top_level_input) =
                 contract_row.into_parts();
+            if top_level_input.is_some() {
+                return Err(S6CSemanticChildIssueV1::UnexpectedTopLevelSource);
+            }
             if !terminal_relations.is_empty() {
                 return Err(S6CSemanticChildIssueV1::UnexpectedTerminalRelation);
             }

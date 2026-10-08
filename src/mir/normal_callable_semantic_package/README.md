@@ -1799,3 +1799,10 @@ source snapshot, finishing bindings, producers and actual MIR through
 `result_abi(module) -> Result<Option<_>, String>`. Object results carry the
 original owner and Handle/NullableHandle kind; unavailable Fresh diagnostics
 cannot issue that ABI. Process-entry Object admission remains a separate boundary.
+
+Plain selected TopLevel scalar callables borrow the original lowering-input header and
+formal bindings once, retaining a nonClone verified input in the same result row
+alongside original Completion. Completed-context and FreeFunction owner lookup
+consume that source input; missing/foreign input refuses. Box parameter catalogs
+remain unchanged; untyped/non-scalar formals issue no scalar seed, and New/Map
+Home-walk eligibility is preserved. Collector coverage is still mandatory.
