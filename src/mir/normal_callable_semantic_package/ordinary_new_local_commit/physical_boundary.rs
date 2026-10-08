@@ -1,5 +1,5 @@
 //! Physical correspondence for recorded lifecycle blocks, never source inference.
-//! Only an original Jump into a deleted sole-predecessor block may concatenate.
+//! Proven literal folds and original sole-predecessor edges permit contraction.
 use super::*;
 use crate::mir::EdgeArgs;
 use std::collections::{BTreeMap, BTreeSet};
@@ -7,6 +7,9 @@ use std::collections::{BTreeMap, BTreeSet};
 #[path = "physical_boundary_borrowed_copies.rs"]
 mod borrowed_copies;
 use borrowed_copies::OriginalBorrowedCopies;
+#[path = "physical_boundary_literal_controls.rs"]
+mod literal_controls;
+use literal_controls::LiteralControls;
 
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<
@@ -47,6 +50,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
     removable_copies: BTreeSet<ValueId>,
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
     borrowed_copies: OriginalBorrowedCopies,
+    literal_controls: LiteralControls,
 }
 
 #[derive(Debug)]
@@ -57,6 +61,7 @@ pub(super) struct FinishedBindings {
     removable_copies: BTreeSet<ValueId>,
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
     borrowed_copies: OriginalBorrowedCopies,
+    literal_controls: LiteralControls,
 }
 
 impl PhysicalBoundary {
@@ -259,15 +264,41 @@ impl PhysicalBoundary {
             removable_copies,
             source_copies,
             borrowed_copies,
+            literal_controls: LiteralControls::capture(function),
         })
     }
 
     pub(super) fn project(&self, function: &MirFunction) -> Result<FinishedBindings, String> {
+        let literal_controls = self.literal_controls.select(function)?;
+        let walk_graph: BTreeMap<_, _> = self
+            .walk_graph
+            .iter()
+            .map(|(id, node)| {
+                let terminal = literal_controls.instruction(node.terminal.clone());
+                let edges = match &terminal {
+                    MirInstruction::Jump { target, .. } => vec![*target],
+                    _ => node.edges.clone(),
+                };
+                (
+                    *id,
+                    Node {
+                        instructions: node
+                            .instructions
+                            .iter()
+                            .cloned()
+                            .map(|instruction| literal_controls.instruction(instruction))
+                            .collect(),
+                        terminal,
+                        edges,
+                    },
+                )
+            })
+            .collect();
         // A sole predecessor means one predecessor *block*, matching the
         // finishing merge's `predecessors.len() == 1` on the deduplicated
         // predecessor set — a both-arms-equal `Branch` is still one.
         let mut predecessors: BTreeMap<_, Vec<_>> = BTreeMap::new();
-        for (id, node) in &self.walk_graph {
+        for (id, node) in &walk_graph {
             for target in &node.edges {
                 let preds = predecessors.entry(*target).or_default();
                 if !preds.contains(id) {
@@ -276,6 +307,9 @@ impl PhysicalBoundary {
             }
         }
         for ((id, _), (_, target, _)) in &self.incoming {
+            if !literal_controls.permits_edge(*id, *target) {
+                continue;
+            }
             let preds = predecessors.entry(*target).or_default();
             if !preds.contains(id) {
                 preds.push(*id);
@@ -283,7 +317,7 @@ impl PhysicalBoundary {
         }
         let mut destinations = BTreeMap::new();
         let mut expected = BTreeMap::new();
-        for (id, node) in &self.walk_graph {
+        for (id, node) in &walk_graph {
             if !function.blocks.contains_key(id) {
                 continue;
             }
@@ -294,7 +328,8 @@ impl PhysicalBoundary {
             // predecessor: the merged sequence still lands at the surviving
             // walk start, so the expected sequence is recorded whenever the
             // walk carried any binding block, not only when the start is one.
-            let mut carries_binding = self.nodes.contains_key(id);
+            let mut carries_binding =
+                self.nodes.contains_key(id) || literal_controls.carries_validation(*id);
             loop {
                 if destinations.insert(cursor, *id).is_some() {
                     return Err(fault("duplicate-or-cycle"));
@@ -332,17 +367,18 @@ impl PhysicalBoundary {
                 if predecessors.get(&target).map(Vec::as_slice) != Some(&[cursor][..]) {
                     return Err(fault("contraction-predecessor"));
                 }
-                current = self
-                    .walk_graph
+                current = walk_graph
                     .get(&target)
                     .ok_or_else(|| fault("foreign-target"))?;
                 cursor = target;
                 carries_binding |= self.nodes.contains_key(&cursor);
+                carries_binding |= literal_controls.carries_validation(cursor);
             }
             if carries_binding {
                 expected.insert(*id, (instructions, current.terminal.clone()));
             }
         }
+        literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
         Ok(FinishedBindings {
             destinations,
             recorded: Vec::new(),
@@ -350,6 +386,7 @@ impl PhysicalBoundary {
             removable_copies: self.removable_copies.clone(),
             source_copies: self.source_copies.clone(),
             borrowed_copies: self.borrowed_copies.clone(),
+            literal_controls,
         })
     }
 
@@ -386,6 +423,11 @@ impl PhysicalBoundary {
             for expected in &instructions {
                 if remaining.peek().is_some_and(|actual| *actual == expected) {
                     remaining.next();
+                } else if projection
+                    .literal_controls
+                    .accepts_omission(expected, &self.recorded_dsts)?
+                {
+                    // The original proof cone owns this no-definition/no-use omission.
                 } else if self.borrowed_copies.contains(expected) {
                     if !self.borrowed_copies.may_omit(function, expected) {
                         return Err(fault("borrowed-copy-omission"));
@@ -418,8 +460,11 @@ impl PhysicalBoundary {
             }
         }
         let surviving: BTreeSet<BasicBlockId> = self
-            .nodes
+            .walk_graph
             .keys()
+            .filter(|id| {
+                self.nodes.contains_key(id) || projection.literal_controls.carries_validation(**id)
+            })
             .filter_map(|id| projection.destinations.get(id))
             .copied()
             .collect();
@@ -444,6 +489,9 @@ impl PhysicalBoundary {
         let mut expected_edges: Vec<_> = self
             .all_edges
             .iter()
+            .filter(|(source, target, _)| {
+                projection.literal_controls.permits_edge(*source, *target)
+            })
             .filter_map(|(source, target, args)| {
                 let mapped_source = *projection.destinations.get(source)?;
                 let mapped_target = *projection.destinations.get(target)?;
@@ -453,19 +501,15 @@ impl PhysicalBoundary {
                 {
                     return None;
                 }
-                let discriminant = std::mem::discriminant(
-                    &self
-                        .walk_graph
+                let terminal = projection.literal_controls.instruction(
+                    self.walk_graph
                         .get(source)
                         .expect("walk-graph edge source is a walk node")
-                        .terminal,
+                        .terminal
+                        .clone(),
                 );
-                let (discriminant, args) = match &self
-                    .walk_graph
-                    .get(source)
-                    .expect("walk-graph edge source is a walk node")
-                    .terminal
-                {
+                let discriminant = std::mem::discriminant(&terminal);
+                let (discriminant, args) = match &terminal {
                     MirInstruction::Branch {
                         then_bb,
                         else_bb,
@@ -568,6 +612,7 @@ impl FinishedBindings {
             && !used_values(function).contains(&local))
     }
     fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
+        instruction = self.literal_controls.instruction(instruction);
         // Finishing may contract or re-route a draft block; every block id
         // embedded in a recorded instruction rewrites through the same
         // destination map the binding block itself resolves against.

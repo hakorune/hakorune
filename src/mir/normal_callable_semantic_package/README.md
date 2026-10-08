@@ -1745,3 +1745,11 @@ projected or already-finished topology receive the source-retained order's
 expected kind. MIR result spelling is never an admission authority. Preparation
 and artifact pending gates remain until the actual acquisition/cleanup series
 closes its full acceptance.
+
+Physical finishing retains integer-literal control certificates from the original
+MIR using the shared SimplifyCFG evaluator and value-origin Copy query. The
+existing sequence checker also owns their original dependency/control carriers,
+including unmerged blocks. Original entry/approach and every recorded arm remain
+required; proof definitions may disappear only when absent and unused in all
+blocks. Final Bool/target values never issue authority. General Phi substitution
+remains outside this bounded certificate.

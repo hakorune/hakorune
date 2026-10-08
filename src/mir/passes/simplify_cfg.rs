@@ -184,6 +184,31 @@ fn compare_to_bool_const(
     }
 }
 
+/// The physical correspondence checker borrows this existing evaluator for
+/// original integer-literal comparisons; it grants no source or route authority.
+pub(in crate::mir) fn literal_integer_compare_to_bool(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    op: crate::mir::CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Option<bool> {
+    for value in [lhs, rhs] {
+        let origin = resolve_value_origin(function, def_map, value);
+        let (block, index) = def_map.get(&origin)?;
+        if !matches!(
+            function.blocks.get(block)?.instructions.get(*index)?,
+            MirInstruction::Const {
+                value: ConstValue::Integer(_),
+                ..
+            }
+        ) {
+            return None;
+        }
+    }
+    compare_to_bool_const(function, def_map, op, lhs, rhs)
+}
+
 fn const_bool_value(function: &MirFunction, def_map: &ValueDefMap, value: ValueId) -> Option<bool> {
     match const_value(function, def_map, value) {
         Some(ConstValue::Bool(b)) => Some(b),

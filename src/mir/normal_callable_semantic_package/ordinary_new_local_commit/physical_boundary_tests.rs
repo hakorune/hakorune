@@ -110,6 +110,317 @@ fn only_original_unrecorded_unused_constants_may_disappear() {
     }
 }
 
+fn literal_control_fixture(shape: &str) -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
+    let (mut function, _) = fixture();
+    let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    entry.instructions.clear();
+    for (dst, value) in [(1, 1), (2, 0)] {
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(dst),
+            value: ConstValue::Integer(value),
+        });
+    }
+    let control = if shape == "split" {
+        BasicBlockId(6)
+    } else {
+        BasicBlockId(0)
+    };
+    if control != BasicBlockId(0) {
+        entry.set_terminator(MirInstruction::Jump {
+            target: control,
+            edge_args: None,
+        });
+        function.add_block(BasicBlock::new(control));
+    }
+    let predicate = function.blocks.get_mut(&control).unwrap();
+    predicate.add_instruction(MirInstruction::Copy {
+        dst: ValueId(6),
+        src: ValueId(1),
+    });
+    predicate.add_instruction(MirInstruction::Compare {
+        dst: ValueId(3),
+        op: crate::mir::CompareOp::Gt,
+        lhs: ValueId(6),
+        rhs: ValueId(2),
+    });
+    predicate.add_instruction(MirInstruction::Copy {
+        dst: ValueId(7),
+        src: ValueId(3),
+    });
+    predicate.set_terminator(MirInstruction::Branch {
+        condition: ValueId(7),
+        then_bb: BasicBlockId(1),
+        else_bb: BasicBlockId(2),
+        then_edge_args: None,
+        else_edge_args: None,
+    });
+    let mut bindings = Vec::new();
+    for (id, dst) in [(1, 4), (2, 5)] {
+        let mut block = BasicBlock::new(BasicBlockId(id));
+        let frame = MirInstruction::FaultFrameEnter {
+            dst: ValueId(dst),
+            mode: crate::mir::instruction::FaultFrameMode::RootOwned,
+        };
+        block.add_instruction(frame.clone());
+        block.set_terminator(if shape == "nonmerged" && id == 2 {
+            MirInstruction::Jump {
+                target: BasicBlockId(1),
+                edge_args: None,
+            }
+        } else {
+            MirInstruction::Return { value: None }
+        });
+        function.add_block(block);
+        bindings.push((BasicBlockId(id), frame));
+    }
+    (function, bindings)
+}
+
+fn boundary_result(
+    boundary: &PhysicalBoundary,
+    function: &MirFunction,
+    bindings: &Bindings,
+) -> Result<(), String> {
+    let mut projection = boundary.project(function)?;
+    boundary.validate_complete(function, &mut projection, bindings)
+}
+
+fn replace_definition(function: &mut MirFunction, dst: ValueId, replacement: MirInstruction) {
+    let original = function
+        .blocks
+        .values_mut()
+        .flat_map(|b| &mut b.instructions)
+        .find(|i| i.dst_value() == Some(dst))
+        .unwrap();
+    *original = replacement;
+}
+
+#[test]
+fn literal_integer_control_folds_preserve_all_recorded_arms() {
+    for shape in ["merged", "nonmerged", "split"] {
+        let (original, bindings) = literal_control_fixture(shape);
+        let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+        assert!(
+            boundary_result(&boundary, &original, &bindings).is_ok(),
+            "{shape} original"
+        );
+        let mut compare_only = original.clone();
+        replace_definition(
+            &mut compare_only,
+            ValueId(3),
+            MirInstruction::Const {
+                dst: ValueId(3),
+                value: ConstValue::Bool(true),
+            },
+        );
+        assert!(
+            boundary_result(&boundary, &compare_only, &bindings).is_ok(),
+            "{shape} Compare only"
+        );
+        for mutation in [
+            "retained-branch-wrong-bool",
+            "operand-literal",
+            "condition-copy",
+        ] {
+            let mut changed = if mutation == "retained-branch-wrong-bool" {
+                compare_only.clone()
+            } else {
+                original.clone()
+            };
+            let replacement = match mutation {
+                "retained-branch-wrong-bool" => MirInstruction::Const {
+                    dst: ValueId(3),
+                    value: ConstValue::Bool(false),
+                },
+                "operand-literal" => MirInstruction::Const {
+                    dst: ValueId(1),
+                    value: ConstValue::Integer(-1),
+                },
+                "condition-copy" => MirInstruction::Copy {
+                    dst: ValueId(7),
+                    src: ValueId(2),
+                },
+                _ => unreachable!(),
+            };
+            replace_definition(&mut changed, replacement.dst_value().unwrap(), replacement);
+            assert!(
+                boundary_result(&boundary, &changed, &bindings).is_err(),
+                "{shape} {mutation}"
+            );
+        }
+        let mut module = crate::mir::MirModule::new("literal-control".into());
+        module
+            .functions
+            .insert(original.signature.name.clone(), original);
+        assert!(crate::mir::passes::simplify_cfg::simplify(&mut module) > 0);
+        let finished = module.functions.values().next().unwrap();
+        assert_eq!(
+            finished.blocks.contains_key(&BasicBlockId(1)),
+            shape == "nonmerged"
+        );
+        assert!(
+            boundary_result(&boundary, finished, &bindings).is_ok(),
+            "{shape} canonical fold"
+        );
+        let mut omitted = finished.clone();
+        for block in omitted.blocks.values_mut() {
+            block
+                .instructions
+                .retain(|i| !matches!(i.dst_value(), Some(ValueId(1 | 2 | 3 | 6 | 7))));
+        }
+        assert!(
+            boundary_result(&boundary, &omitted, &bindings).is_ok(),
+            "{shape} unused cone DCE"
+        );
+        for mutation in [
+            "opposite-bool",
+            "foreign-dst",
+            "extra-const",
+            "wrong-target",
+            "missing-arm",
+            "unreachable-duplicate",
+            "foreign-definition",
+            "unreachable-use",
+            "return-env-use",
+            "opposite-entry",
+        ] {
+            let mut changed = if matches!(mutation, "unreachable-use" | "return-env-use") {
+                omitted.clone()
+            } else {
+                finished.clone()
+            };
+            match mutation {
+                "opposite-bool" | "foreign-dst" => replace_definition(
+                    &mut changed,
+                    ValueId(3),
+                    MirInstruction::Const {
+                        dst: ValueId(if mutation == "foreign-dst" { 99 } else { 3 }),
+                        value: ConstValue::Bool(mutation != "opposite-bool"),
+                    },
+                ),
+                "extra-const" => changed
+                    .blocks
+                    .get_mut(&BasicBlockId(0))
+                    .unwrap()
+                    .add_instruction(MirInstruction::Const {
+                        dst: ValueId(99),
+                        value: ConstValue::Integer(9),
+                    }),
+                "wrong-target" => changed
+                    .blocks
+                    .get_mut(&BasicBlockId(0))
+                    .unwrap()
+                    .set_terminator(MirInstruction::Jump {
+                        target: BasicBlockId(2),
+                        edge_args: None,
+                    }),
+                "missing-arm" => {
+                    changed.blocks.remove(&BasicBlockId(2));
+                }
+                "unreachable-duplicate"
+                | "foreign-definition"
+                | "unreachable-use"
+                | "return-env-use" => {
+                    let mut foreign = BasicBlock::new(BasicBlockId(90));
+                    if mutation == "foreign-definition" {
+                        for block in changed.blocks.values_mut() {
+                            block
+                                .instructions
+                                .retain(|i| i.dst_value() != Some(ValueId(3)));
+                        }
+                    }
+                    if matches!(mutation, "unreachable-duplicate" | "foreign-definition") {
+                        foreign.add_instruction(MirInstruction::Const {
+                            dst: ValueId(3),
+                            value: ConstValue::Bool(true),
+                        });
+                    }
+                    foreign.set_terminator(MirInstruction::Return {
+                        value: (mutation == "unreachable-use").then_some(ValueId(3)),
+                    });
+                    if mutation == "return-env-use" {
+                        foreign.return_env = Some(vec![ValueId(3)]);
+                    }
+                    changed.add_block(foreign);
+                }
+                "opposite-entry" => {
+                    changed.blocks.remove(&BasicBlockId(0));
+                    changed.entry_block = BasicBlockId(2);
+                }
+                _ => unreachable!(),
+            }
+            assert!(
+                boundary_result(&boundary, &changed, &bindings).is_err(),
+                "{shape} {mutation}"
+            );
+        }
+    }
+    // Dead carriers may disappear, but identical definitions/Branches cannot
+    // relocate outside the original physical correspondence scope.
+    for kind in ["definition", "branch"] {
+        let (mut original, bindings) = literal_control_fixture("merged");
+        let mut carrier = BasicBlock::new(BasicBlockId(9));
+        if kind == "definition" {
+            carrier.add_instruction(MirInstruction::Compare {
+                dst: ValueId(20),
+                op: crate::mir::CompareOp::Gt,
+                lhs: ValueId(1),
+                rhs: ValueId(2),
+            });
+            carrier.set_terminator(MirInstruction::Return { value: None });
+        } else {
+            original
+                .blocks
+                .get_mut(&BasicBlockId(0))
+                .unwrap()
+                .add_instruction(MirInstruction::Copy {
+                    dst: ValueId(8),
+                    src: ValueId(3),
+                });
+            carrier.set_terminator(MirInstruction::Branch {
+                condition: ValueId(8),
+                then_bb: BasicBlockId(10),
+                else_bb: BasicBlockId(11),
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+            for id in [10, 11] {
+                let mut arm = BasicBlock::new(BasicBlockId(id));
+                arm.set_terminator(MirInstruction::Return { value: None });
+                original.add_block(arm);
+            }
+        }
+        original.add_block(carrier);
+        let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+        assert!(boundary_result(&boundary, &original, &bindings).is_ok());
+        let mut removed = original.clone();
+        let removed_carrier = removed.blocks.remove(&BasicBlockId(9)).unwrap();
+        assert!(
+            boundary_result(&boundary, &removed, &bindings).is_ok(),
+            "dead {kind} removal"
+        );
+        let mut relocated = removed;
+        let mut foreign = BasicBlock::new(BasicBlockId(90));
+        foreign.instructions = removed_carrier.instructions;
+        foreign.terminator = removed_carrier.terminator;
+        relocated.add_block(foreign);
+        assert!(
+            boundary_result(&boundary, &relocated, &bindings).is_err(),
+            "dead {kind} relocation"
+        );
+        if kind == "branch" {
+            let mut duplicated = original.clone();
+            let mut foreign = duplicated.blocks[&BasicBlockId(9)].clone();
+            foreign.id = BasicBlockId(90);
+            duplicated.add_block(foreign);
+            assert!(
+                boundary_result(&boundary, &duplicated, &bindings).is_err(),
+                "dead Branch duplicate"
+            );
+        }
+    }
+}
+
 /// A `new`-style join fixture: entry branches into two arms that both
 /// jump into a shared block where a recorded instruction lives. `phi`
 /// controls whether the recorded block carries a leading phi, `arms`
@@ -143,7 +454,10 @@ fn join_fixture(
             then_edge_args: None,
             else_edge_args: None,
         });
-        phi_inputs = vec![(BasicBlockId(1), ValueId(11)), (BasicBlockId(2), ValueId(12))];
+        phi_inputs = vec![
+            (BasicBlockId(1), ValueId(11)),
+            (BasicBlockId(2), ValueId(12)),
+        ];
     } else {
         entry.set_terminator(MirInstruction::Jump {
             target: BasicBlockId(3),

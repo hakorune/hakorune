@@ -43,38 +43,11 @@ impl<'a> ValueOriginQueryContext<'a> {
         if let Some(origin) = self.memo.get(&value).copied() {
             return origin;
         }
-
-        let start = value;
-        let mut value = value;
-        let mut path = Vec::new();
-        let mut visited = BTreeSet::new();
-
-        while visited.insert(value) {
-            if let Some(origin) = self.memo.get(&value).copied() {
-                self.memo_path(path, origin);
-                self.memo.insert(start, origin);
-                return origin;
-            }
-
-            path.push(value);
-            let Some((bbid, idx)) = self.def_map.get(&value).copied() else {
-                break;
-            };
-            let Some(block) = self.function.blocks.get(&bbid) else {
-                break;
-            };
-            let Some(inst) = block.instructions.get(idx) else {
-                break;
-            };
-            match inst {
-                MirInstruction::Copy { src, .. } => value = *src,
-                _ => break,
-            }
-        }
-
-        self.memo_path(path, value);
-        self.memo.insert(start, value);
-        value
+        let (origin, path) =
+            walk_value_origin(self.function, self.def_map, value, Some(&self.memo));
+        self.memo_path(path, origin);
+        self.memo.insert(value, origin);
+        origin
     }
 
     fn memo_path(&mut self, path: Vec<ValueId>, origin: ValueId) {
@@ -82,6 +55,48 @@ impl<'a> ValueOriginQueryContext<'a> {
             self.memo.insert(value, origin);
         }
     }
+}
+
+/// The same copy-chain query, retaining every visited definition for consumers
+/// that must corroborate a proof after MIR finishing. Memo shortcuts are omitted
+/// so the returned chain always includes the complete original dependency path.
+pub(in crate::mir) fn trace_value_origin(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    value: ValueId,
+) -> (ValueId, Vec<ValueId>) {
+    walk_value_origin(function, def_map, value, None)
+}
+
+fn walk_value_origin(
+    function: &MirFunction,
+    def_map: &ValueDefMap,
+    mut value: ValueId,
+    memo: Option<&HashMap<ValueId, ValueId>>,
+) -> (ValueId, Vec<ValueId>) {
+    let mut path = Vec::new();
+    let mut visited = BTreeSet::new();
+    while visited.insert(value) {
+        if let Some(origin) = memo.and_then(|memo| memo.get(&value)).copied() {
+            return (origin, path);
+        }
+        path.push(value);
+        let Some((bbid, idx)) = def_map.get(&value).copied() else {
+            break;
+        };
+        let Some(inst) = function
+            .blocks
+            .get(&bbid)
+            .and_then(|block| block.instructions.get(idx))
+        else {
+            break;
+        };
+        match inst {
+            MirInstruction::Copy { src, .. } => value = *src,
+            _ => break,
+        }
+    }
+    (value, path)
 }
 
 pub fn resolve_value_origin(
@@ -144,6 +159,13 @@ mod tests {
         assert_eq!(
             resolve_value_origin(&function, &def_map, ValueId::new(3)),
             ValueId::new(1)
+        );
+        assert_eq!(
+            trace_value_origin(&function, &def_map, ValueId::new(3)),
+            (
+                ValueId::new(1),
+                vec![ValueId::new(3), ValueId::new(2), ValueId::new(1)]
+            )
         );
     }
 

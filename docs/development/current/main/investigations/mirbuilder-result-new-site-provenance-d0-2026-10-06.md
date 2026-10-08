@@ -186,115 +186,15 @@ check, source comparison, corrected formatting diagnostics and guard receipts.
 Sole private verifier/composer replaces original inline bodies; original Dead/
 Waiting/error/substitution ordering retained. No field/Home/physical permission.
 
-## CHILD-SOURCE-RELATION-S0 selected execution contract
+## Closed child-source relation receipts
 
-Select MIRBUILDER-GATE1-CHILD-SOURCE-RELATION-S0, fast. Source authority + canonical
-issuer: SAME finished result Facts and canonical constructor store/formal plans,
-one private result-class child relation join called once by source preparation
-after finish. Candidate map inside VerifiedSourceCallableResultFactsV1 keyed
-(OwnedExprSiteV1,CanonicalFieldRefV1), passive borrowed getter; existing preparation
-tuple and ledger storage unchanged. Only private join can insert sealed candidate
-rows. Private all-origin/direct FreshConstruction iteration, original batch owner
-and selected key; no facade Call-wrapper reanalysis or scanner/fixpoint.
-
-One exact returned New outer site joins sealed constructor object/source id/owner,
-store canonical field, RHS Parameter(binding,provided child), matching Birth formal
-binding/ordinal/ObjectFieldStores RHS use, then branded actual CallArgument(ordinal).
-Bounded actual grammar: literal Null, original declared-object formal, direct call,
-unrebound local with sole call initializer. Reuse existing resolve_call_key,
-resolve_forward_local and shared CallWitnessSource; no fake return exit. Unsupported
-nested New/field/index/upvar/rebound/missingcallee/ungrounded recursive actuals
-leave candidate unavailable. Source witness output site is exact actual expression;
-initializer call site remains independently branded, same owner.
-
-Class corroboration: every Fresh(name) and DeclaredObject(name) resolves through
-ordinary_box_coverage.row_for -> instance_constructors.object_for(source_row) and
-must equal sealed RHS provided child canonical identity. Opaque formal has no class
-proof and stays unavailable in this bounded S0. Check ALL alternatives; do not
-cherry-pick compatible Fresh/Null from a rejected mixed relation. Literal Null has
-no child acquisition; formal-derived Null preserves its original ancestry. No
-hardcoded class/caller names. Existing canonical destination is never authority
-for an unknown actual class.
-
-Replacement/caller: prepare_source_claims currently loses returned-constructor
-child argument relations; add these relations to its SAME finished source product.
-Existing get/contains/iter/keys projection and ordinary execution callers unchanged.
-Non-authority: candidate presence, class annotation, owning child metadata, Fresh
-source leaf or ordinary parameter/local identity cannot mint Home, support lifetime,
-consume input or change field residence. No new physical route or fallback.
-Fail-fast boundary: exact constructor/formal/field/actual owner/path/ordinal/class
-and existing source substitution validation. Missing relation issues no candidate,
-never a default Null/Fresh or completed all-fields contract.
-
-Acceptance: unchanged full page_heap_box source has8 exact Result-field candidates
-(allocateResult3,reallocResult5), especially315 literalNull and318 replacement
-Null/Fresh/Forward0, allocateResult224 Null/Fresh. Pin field declaration ordinal2,
-Birth formalordinal2 and actualArgument2 identities with constructor-source identity.
-Pair candidate presence with existing last2 PrefixNotCovered(Body3)/preparefalse;
-legacy8-site census remains6covered/2uncovered. Wrong class/multipleFreshclasses,
-foreign owner/binding/field/ordinal, rebind/missingfacts/cycle, unsupported actual
-and class-only fake acquisition remain rejected. Existing focused32 plus selected
-new candidate pins, check/scope/pointer/diff/rustfmt/source caps. Fresh CLI unchanged
-mimalloc-lite frontier probe is required for semantic product attachment; it must
-remain fail-closed until later Home/support verification and physical publication.
-Paths: result product/registration/new child join/tests, preparation101, existing
-phase test helper only if its borrowed inspection needs context, owner README,
-active card/current pointers. Existing issue797/instance_construction743 untouched.
-No app/C/parameter/field-store/cleanup/physical admission change in this slice.
-Goal remains incomplete: actual315/318 construction, anchored lifetime/cleanup,
-true outcome physical transport/publication and production EXE remain required.
-
-CHILD-SOURCE-RELATION-S0 implementation verification in progress: one private
-child join attaches candidate map inside existing result Facts after finish,
-preparation tuple/ledger unchanged. Direct construction leaves only, original
-source owner/compilation; canonical constructor source/root/object, unique field
-store, RHS provided child and ObjectFieldStores formal site/ordinal corroborated.
-Branded actual source uses existing initializer/direct-call resolution and shared
-composer; every origin canonical class-checked. Forward formals additionally
-match declaration owner/binding owner/source parameter index; opaque stays absent.
-
-First checks found this-change E0364/E0603 private reexport, E0609 test field name,
-E0061 missing context argument and E0596 mutable Rc ledger attempt. Corrected:
-attach visibility stays enclosing ordinary-New; test uses instance_constructors;
-class check gets real lowering input; corruption tests rebuild source draft in
-SAME package source batch and mutate a scratch Facts value, leaving original Rc
-ledger immutable. All corrected source-inclusive check PASS38.74s,
-/tmp/hako-child-source-relation-check-corroborated.log. Focused38 executable build
-active (/tmp/hako-child-source-relation-focused.log), not yet PASS.
-Read-only final source/authority review PASS; same resolver Session establishes
-constructor/caller compilation membership. No Home or execution admission.
-
-First focused38 run executes37PASS/1FAIL,0 ignored,8660 filtered,0.06s;
-/tmp/hako-child-source-relation-focused.log. Real8 and all identity/census/facade
-pins PASS. Failure is this-change negative fixture parse: method name loop is a
-reserved token, so recursive/mixed-class subcases were not reached. Rename test
-method to cycle, preserving recursive ungrounded relation; no compiler acceptance
-or production .hako edit. Corrected focused38 rerun required. Scope/diff/owned
-rustfmt PASS. Active card history compacted859->467 with published commit receipts;
-current contracts/frontier/counterexamples retained, no scope expansion.
-
-## CHILD-SOURCE-RELATION-S0 closeout / next OUTCOME-SUPPORT-D0
-
-Corrected focused38/38 PASS,0 ignored,8660 filtered,0.06s; quick build1m16s
-(incremental cache condition, not speedup claim). Log
-/tmp/hako-child-source-relation-focused-final.log. All real8 and source class/
-owner/ordinal/rebind/unsupported/cycle/mixed-class negatives execute. Changed
-formal ordinal rejects WHOLE mixed candidate (7remain), foreign constructor batch
-issues0; no compatible Fresh/Null subset is promoted. Original Rc ledger remains
-immutable in corruption tests; scratch draft uses the same package's source batch.
-Source check PASS38.74s, scope/pointer/diff/owned rustfmt guards PASS.
-New source parent735/product106/preparation109/child366/tests241, no near-cap
-issue797 or construction743 growth. Canonical child identity is retained for
-later verification; no available Home or completed field installation issued.
-
-Fresh CLI quick PASS3m03s, /tmp/hako-child-source-relation-cli.log. Unchanged
-mimalloc-lite SHA33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685
-probe exits1 with both315/318 PrefixNotCovered(Body3), preparefalse and same
-artifact-unowned-lifecycle-site block369 instruction3 birth receiver57. No EXE.
-Log /tmp/hako-child-source-relation-production.log. This is required designed
-frontier evidence, not app PASS or this-change regression. No unclassified red.
-S0 closes passive source relations at the named production preparation caller;
-ordinary execution ownership and final migration still incomplete.
+CHILD-SOURCE-RELATION-S0 is closed; Git at b8cda4e125 and its ancestry retains
+its original execution contract, complete closeout and corrected attempt logs.
+The SAME finished Facts retain exact constructor/field/formal/actual identities
+and all compatible Null/Fresh/Forward witnesses; no compatible subset is promoted.
+Original8 candidate sites remain paired with6covered/2uncovered construction.
+Class/source candidate presence never grants Home, anchoring, acquisition or field
+installation. Both315/318, lifetime/cleanup/physical publication and EXE remain owed.
 
 Select MIRBUILDER-GATE1-OUTCOME-SUPPORT-D0, design_stop, next execution none.
 Read-only review identifies exact remaining proof owners:
@@ -995,3 +895,24 @@ Preparation verified: existing focused15 PASS (build5m09s/.03s), remaining536 PA
 PASS. /tmp/hako-cleanup-borrowed-core-{focused,regression,production-check}.log
 and regression-evidence.json own exact results. Scope/fmt/caps/diff/protected7
 PASS; no new tests/guards, no current/unclassified red or collector admission.
+
+
+Literal-control physical prerequisite closed (selected CALLEE-RETURN-OUTCOME-S0).
+Canonical SimplifyCFG folds original I64 literal Compare/Branch and contracts the
+chosen New block. SAME evaluator and traced value_origin Copy query retain exact
+original definitions, Bool, target/args and dependency/control carrier blocks.
+Existing sequence/incoming owner corroborates original or folded form, entry/
+approach and every recorded arm. Proof-only all-block defs/uses/return_env census
+allows pure unrecorded DCE only with no actual definition/use. Missing carrier
+must be dead in the normalized ORIGINAL graph with every proof dst omitted;
+retained original Branch must map and captured-condition Branch count <=1.
+Foreign dst/extra Const/relocation/duplicate, operand/condition drift and missing
+recorded arm/entry refuse. Mandatory nodes/acyclic inventory stay unchanged.
+Original merged/nonmerged/split, Compare-only, exact unused cone/dead carrier
+removal and drift negatives share one existing boundary test. Whole bounded
+series acceptance579 distinct PASS (9 focused +570 regression); quick testbuild
+5m13s, final production+test type-check1m33s PASS. Logs/evidence in
+/tmp/hako-collector-preflight-carrier-final-* and final-evidence.json retain exact
+source/binary hashes and execution names. No general Phi substitution, source
+solver, new guard, result ABI or unchanged app EXE grant. Collector cutover and
+self-receiver terminal locator remain separately owned prerequisites/construction.
