@@ -47,10 +47,38 @@ pub(in crate::mir::normal_callable_semantic_package) enum QualifiedStaticCallCla
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallClaimIndexV1 {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
+    // The original current-owner route stays disjoint from qualified claims.
+    // Retaining its result disposition grants no incoming or executable ABI.
+    current_owner_rows: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        CurrentOwnerStaticCallSourceV1,
+    >,
     rows: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
         (QualifiedStaticCallClaimV1, CanonicalSameModuleCallableKeyV1),
     >,
+}
+
+/// Original whole-inventory route and result, retained by the same index issuer.
+/// No receiver/argument classification or physical permission is reconstructed.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct CurrentOwnerStaticCallSourceV1 {
+    route: crate::mir::source_call_target::VerifiedCurrentOwnerStaticCallTargetV1,
+    result: VerifiedCallableResultDispositionV1,
+}
+
+impl CurrentOwnerStaticCallSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn route(
+        &self,
+    ) -> &crate::mir::source_call_target::VerifiedCurrentOwnerStaticCallTargetV1 {
+        &self.route
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn result(
+        &self,
+    ) -> &VerifiedCallableResultDispositionV1 {
+        &self.result
+    }
 }
 
 #[path = "qualified_static_incoming_source.rs"]
@@ -70,7 +98,25 @@ impl QualifiedStaticCallClaimIndexV1 {
         let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
         let mut rows = BTreeMap::new();
+        let mut current_owner_rows = BTreeMap::new();
         for ((caller, site), source_target) in targets.rows() {
+            if let VerifiedSourceStaticCallTargetV1::CurrentOwnerStatic(route) = source_target {
+                let result = results.disposition(route.target()).ok_or_else(|| {
+                    QualifiedStaticCallClaimIndexIssueV1::ResultCatalog(
+                        CallableResultCatalogErrorV1::StableResultDrift {
+                            key: route.target().clone(),
+                        },
+                    )
+                })?;
+                current_owner_rows.insert(
+                    (caller.clone(), site.clone()),
+                    CurrentOwnerStaticCallSourceV1 {
+                        route: route.clone(),
+                        result: result.clone(),
+                    },
+                );
+                continue;
+            }
             // Only qualified receivers (`Alias.m(..)`) join the claim lane;
             // `me.m(..)` inside a static box keeps its own route family.
             if !matches!(
@@ -93,11 +139,43 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
-        Ok(Self { catalog_brand: declarations.brand().clone(), rows })
+        Ok(Self {
+            catalog_brand: declarations.brand().clone(),
+            rows,
+            current_owner_rows,
+        })
+    }
+
+    /// Borrow only the original CurrentOwnerStatic route for this caller/site.
+    /// Missing is not a qualified claim, and a non-I64 result stays non-I64.
+    pub(in crate::mir::normal_callable_semantic_package) fn current_owner_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&CurrentOwnerStaticCallSourceV1> {
+        self.current_owner_rows.get(&(caller.clone(), site.clone()))
+    }
+
+    #[cfg(test)]
+    pub(super) fn current_owner_sources_for_test(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &CanonicalSameModuleCallableKeyV1,
+            &SourceExprSiteV1,
+            &CurrentOwnerStaticCallSourceV1,
+        ),
+    > {
+        self.current_owner_rows
+            .iter()
+            .map(|((caller, site), row)| (caller, site, row))
     }
 
     /// Original sealed ExactI64 target membership only; no transport permission.
-    pub(super) fn contains_exact_i64_target(&self, target: &CanonicalSameModuleCallableKeyV1) -> bool {
+    pub(super) fn contains_exact_i64_target(
+        &self,
+        target: &CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
         self.rows.values().any(|(_, original)| original == target)
     }
 

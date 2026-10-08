@@ -263,3 +263,48 @@ fn qualified_static_call_claim_covers_me_receiver_out_of_scope() {
         "the `new` past an out-of-scope `me` call keeps PrefixNotCovered"
     );
 }
+
+#[test]
+fn current_owner_source_retains_original_route_and_result_without_qualified_claim() {
+    use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
+    use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
+    use crate::mir::resolved_semantics::SourcePathV1;
+    use crate::mir::source_call_target::CurrentOwnerStaticReceiverV1;
+    let package = issue(
+        "static box Layout {
+        need(p) { return p }
+        text(p) { return \"text\" }
+        relay(p) { local a = me.need(p) local b = me.text(p) return 0 }
+    } static box Main { main() { return 0 } }",
+    )
+    .unwrap();
+    let caller = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "relay", 1);
+    let slot = package
+        .selected
+        .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(caller.clone()))
+        .unwrap();
+    let claims = &package.source_static_claims_for_test;
+    let mut checked = 0;
+    package.batch().with_lowering_input(slot, |input| {
+        for (site, call) in input.function().method_calls() {
+            let row = claims.current_owner_source(&caller, site).expect("original current-owner source");
+            assert_eq!(row.route().receiver(), CurrentOwnerStaticReceiverV1::CanonicalMe);
+            assert_eq!(row.route().target(), &CanonicalSameModuleCallableKeyV1::static_box_method("Layout", call.selector(), 1));
+            assert!(claims.claim_target(&caller, site).is_none());
+            assert!(claims.incoming_source(
+                &caller, &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()),
+                call, &package.selected, &package.parameter_contracts, None,
+            ).unwrap().is_none(), "source retention cannot issue a qualified incoming loan");
+            match call.selector() {
+                "need" => assert!(matches!(row.result(), VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments } if required_i64_arguments.as_ref() == [0])),
+                "text" => assert_eq!(row.result(), &VerifiedCallableResultDispositionV1::ExactString),
+                other => panic!("unexpected original call {other}"),
+            }
+            let foreign = CanonicalSameModuleCallableKeyV1::static_box_method("Foreign", "relay", 1);
+            assert!(claims.current_owner_source(&foreign, site).is_none());
+            assert!(claims.current_owner_source(&caller, &SourcePathV1::root_body(99).expr()).is_none());
+            checked += 1;
+        }
+    }).unwrap();
+    assert_eq!(checked, 2);
+}

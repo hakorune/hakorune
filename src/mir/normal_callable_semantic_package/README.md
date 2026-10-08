@@ -126,6 +126,15 @@ Executable or Static entry permission. Guard-derived facts remain unissued.
 
 ## Original Static source domain
 
+The same index issuer retains original `CurrentOwnerStatic` routes separately
+from qualified claims, keyed by their original caller and source site. Each row
+borrows the sealed CanonicalMe/same-owner target and its original result
+catalog disposition, including non-I64 and unavailable outcomes. A missing
+result is named drift; no second source scan or result solver runs. This
+retention does not issue a qualified incoming loan, receiver, input transport,
+Completion or execution permission. The subsequent current-owner incoming
+issuer must preserve this index's catalog brand and complete call/input identity.
+
 Raw Static drafts enter the existing classifier only through target membership
 in the same sealed qualified-static ExactI64 index and the original selected
 key, slot and complete formal contract. Static mode has no receiver. The same

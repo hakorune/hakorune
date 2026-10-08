@@ -123,6 +123,49 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
             ).expect("one original factory");
             let claims = &package.source_static_claims_for_test;
+            // Inspect the original excluded draft before attributing the
+            // executable SourceOnly stop to a receiver or packet consumer.
+            for (class, method, rejected_return) in [
+                ("LayoutBox", "class_id", false),
+                ("SizeClassBox", "good_size", false),
+                ("SizeClassBox", "size_to_bin", false),
+                ("SizeClassBox", "normalize_size", true),
+            ] {
+                let key = CanonicalSameModuleCallableKeyV1::static_box_method(class, method, 1);
+                let slot = package.selected.batch_slot(
+                    &SelectedNormalCallableKeyV1::Cataloged(key.clone()),
+                ).expect("original static chain declaration");
+                let contract = package.parameter_contracts.iter()
+                    .find(|row| row.batch_slot == slot).unwrap();
+                let original = package.batch().with_lowering_input(slot, |input| {
+                    super::super::borrowed_formal_uses::draft_borrowed_formal_uses_v1(
+                        input, contract, &package.instance_constructors, None,
+                    )
+                }).unwrap();
+                if class == "LayoutBox" || method == "good_size" {
+                    assert!(claims.contains_exact_i64_target(&key), "original qualified target {key:?}");
+                } else {
+                    let current: Vec<_> = claims.current_owner_sources_for_test()
+                        .filter(|(_, _, row)| row.route().target() == &key).collect();
+                    assert!(!current.is_empty(), "original current-owner route {key:?}");
+                    for (caller, site, row) in current {
+                        assert_eq!(caller.owner(), key.owner());
+                        assert!(std::ptr::eq(claims.current_owner_source(caller, site).unwrap(), row));
+                        assert!(claims.claim_target(caller, site).is_none());
+                    }
+                }
+                if rejected_return {
+                    let Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(site)) = original else {
+                        panic!("{key:?}: expected original terminal-formal exclusion, got {original:?}")
+                    };
+                    assert_eq!(site.owner(), contract.owner);
+                    assert_eq!(site.site().node().segments(), &[
+                        SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value,
+                    ]);
+                } else {
+                    assert!(original.is_ok(), "{key:?}: original outgoing draft {original:?}");
+                }
+            }
             let facts = &package.ordinary_new_claim_ledger.callable_result_classes;
             use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::{OrdinaryNewResultClassV1, ResultWitnessStepV1};
             let page_key = CanonicalSameModuleCallableKeyV1::instance_box_method("HakoAllocPage", "allocate", 1);
