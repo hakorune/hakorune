@@ -617,3 +617,15 @@ This tiny program does not prove full mimalloc or MirBuilder migration completio
 The child keeps existing Birth/Map/ordinary/root output and Fault order; it
 issues no role, source permission, or lease. Final stream errors remain with
 the function emitter. Indexed Return admission is a separate existing owner.
+
+For an `ordinary_i64` Return only, the indexed owner admits an exact borrowed
+kind/payload formal or its original Copy root. Instance geometry requires the
+explicit receiver/object; Static geometry requires both fields explicitly null.
+The emitter checks kind 1 before storing the payload. Copy retains both lanes;
+no Handle/Nullable/Map/Unit result, ownership transfer or implicit receiver is
+introduced. Rust source and both final physical scans retain the exact Return
+and its original dominating Compare independently of this C input check.
+The existing checked-compare execution family accepts `integer-return` as its
+second argument for the source-issued formal/alias captures in both finishing
+modes, plus external zero/Bool/null actual probes. Those mutations test the C
+input/runtime boundary and do not supply new source-language authority.

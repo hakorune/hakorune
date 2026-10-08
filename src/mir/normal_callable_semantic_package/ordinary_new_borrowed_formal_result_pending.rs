@@ -442,7 +442,9 @@ fn source_result_pending(
             let exact = matches!(function.variable_ref(site), Some(ResolvedLexicalRefV1::Local(binding))
                 if contract.parameters.iter().any(|row| row.binding == binding
                     && row.kind == CallableParameterContractKindV1::ExactTrivial(ExactTrivialParameterAbiV1::I64)));
-            let site_class = if integer || exact { BorrowedResultClassV1::I64 }
+            let checked_return = draft.integer_return_at(input, &OwnedExprSiteV1::new(owner, site.clone()))
+                .map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.is_some();
+            let site_class = if integer || exact || checked_return { BorrowedResultClassV1::I64 }
             else if let Some(field) = capture_field(input, contract, draft, site) {
                 fields.push(field); BorrowedResultClassV1::I64
             } else if let Some(call) = capture_call(input, site, needs)? {

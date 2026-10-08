@@ -130,3 +130,63 @@ fn checked_compare_source_less_equal_retains_exact_integer_domain_and_order() {
         assert!(count >= 1, "{body}");
     }
 }
+
+#[test]
+fn checked_integer_return_retains_same_compare_and_exact_alias_source() {
+    for body in [
+        "if p <= 0 { return 0 } return p",
+        "local q = p if q > 0 { return 0 } return q",
+        "local q = p if p <= 0 { return 0 } return q",
+    ] {
+        let draft = draft(body).expect("checked Integer Return");
+        let row = draft
+            .uses
+            .iter()
+            .find(|row| matches!(row.kind, BorrowedFormalUseDraftKindV1::IntegerReturn { .. }))
+            .unwrap();
+        let BorrowedFormalUseDraftKindV1::IntegerReturn { guard, exit } = &row.kind else {
+            unreachable!()
+        };
+        assert_eq!(
+            exit.node().segments().first(),
+            row.site.site().node().segments().first()
+        );
+        assert_eq!(draft.origins.get(&row.binding), Some(&row.formal));
+        let compares: Vec<_> = draft
+            .uses
+            .iter()
+            .filter_map(|compare| match &compare.kind {
+                BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } => {
+                    Some((compare.formal, binary, source))
+                }
+                _ => None,
+            })
+            .collect();
+        assert!(compares
+            .iter()
+            .any(|(formal, binary, source)| guard.matches_compare(*formal, binary, source)));
+        for (formal, binary, source) in compares {
+            // Equal text/domain reconstructed into a new Rc must never substitute the original.
+            let reissued = std::rc::Rc::new(super::super::BorrowedCompareSourceV1 {
+                operator: source.operator,
+                left: source.left.clone(),
+                right: source.right.clone(),
+                integer_literal: source.integer_literal.clone(),
+                envelope: source.envelope,
+            });
+            assert!(!guard.matches_compare(formal, binary, &reissued));
+        }
+    }
+}
+
+#[test]
+fn checked_integer_return_rejects_bypass_inner_arm_and_rebound_source() {
+    for body in [
+        "return p",
+        "if p <= 0 { return p } return 0",
+        "if true { if p <= 0 { return 0 } } return p",
+        "if p <= 0 { return 0 } p = 7 return p",
+    ] {
+        assert!(draft(body).is_err(), "no checked Return loan: {body}");
+    }
+}

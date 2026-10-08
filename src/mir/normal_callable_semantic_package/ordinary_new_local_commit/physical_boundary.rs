@@ -10,6 +10,9 @@ use borrowed_copies::OriginalBorrowedCopies;
 #[path = "physical_boundary_literal_controls.rs"]
 mod literal_controls;
 use literal_controls::LiteralControls;
+#[path = "physical_boundary_branch_threading.rs"]
+mod branch_threading;
+use branch_threading::ThreadedBranches;
 
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<
@@ -62,6 +65,7 @@ pub(super) struct FinishedBindings {
     source_copies: BTreeMap<ValueId, (BasicBlockId, MirInstruction)>,
     borrowed_copies: OriginalBorrowedCopies,
     literal_controls: LiteralControls,
+    threaded_branches: ThreadedBranches,
 }
 
 impl PhysicalBoundary {
@@ -378,6 +382,13 @@ impl PhysicalBoundary {
                 expected.insert(*id, (instructions, current.terminal.clone()));
             }
         }
+        let threaded_branches = ThreadedBranches::project(
+            &self.nodes,
+            &walk_graph,
+            function,
+            &mut destinations,
+            &expected,
+        )?;
         literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
         Ok(FinishedBindings {
             destinations,
@@ -387,6 +398,7 @@ impl PhysicalBoundary {
             source_copies: self.source_copies.clone(),
             borrowed_copies: self.borrowed_copies.clone(),
             literal_controls,
+            threaded_branches,
         })
     }
 
@@ -501,7 +513,7 @@ impl PhysicalBoundary {
                 {
                     return None;
                 }
-                let terminal = projection.literal_controls.instruction(
+                let terminal = projection.instruction(
                     self.walk_graph
                         .get(source)
                         .expect("walk-graph edge source is a walk node")
@@ -519,7 +531,12 @@ impl PhysicalBoundary {
                     } if then_bb == else_bb && then_edge_args == else_edge_args => {
                         (jump_discriminant, then_edge_args.clone())
                     }
-                    _ => (discriminant, args.clone()),
+                    _ => (
+                        discriminant,
+                        projection
+                            .threaded_branches
+                            .edge_args(*source, *target, args),
+                    ),
                 };
                 Some((mapped_source, discriminant, mapped_target, args))
             })
@@ -613,6 +630,7 @@ impl FinishedBindings {
     }
     fn instruction(&self, mut instruction: MirInstruction) -> MirInstruction {
         instruction = self.literal_controls.instruction(instruction);
+        instruction = self.threaded_branches.instruction(instruction);
         // Finishing may contract or re-route a draft block; every block id
         // embedded in a recorded instruction rewrites through the same
         // destination map the binding block itself resolves against.

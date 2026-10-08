@@ -104,6 +104,12 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     AddOperand {
         binary: OwnedExprSiteV1,
     },
+    /// Exact value Return after the SAME checked Compare in one sequence.
+    /// This source use neither changes the tagged carrier nor activates entry.
+    IntegerReturn {
+        exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
+        guard: Rc<guarded_actual::CheckedIntegerGuardV1>,
+    },
     /// The value argument of a `.set(index, value)` element write on a
     /// proven `me.<ArrayBox>` receiver, dominated by an admitted checked
     /// compare of the same formal. The call site pins the sole admitted
@@ -150,6 +156,39 @@ pub(super) struct BorrowedFormalUsesDraftV1 {
     /// Includes ignored formals and each direct Copy's actual binding.
     pub(super) origins: BTreeMap<BindingRefV1, BindingRefV1>,
     pub(super) uses: Box<[BorrowedFormalUseDraftRowV1]>,
+}
+
+impl BorrowedFormalUsesDraftV1 {
+    /// Read the original source row and replay its SAME guard/exit/value
+    /// correspondence. This is source proof, never entry or ABI permission.
+    pub(super) fn integer_return_at(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        value: &OwnedExprSiteV1,
+    ) -> Result<Option<&BorrowedFormalUseDraftRowV1>, BorrowedFormalUseDraftErrorV1> {
+        if value.owner() != input.owner() {
+            return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+        }
+        let mut rows = self.uses.iter().filter(|row| &row.site == value);
+        let Some(row) = rows.next() else {
+            return Ok(None);
+        };
+        if rows.next().is_some() {
+            return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(value.clone()));
+        }
+        let BorrowedFormalUseDraftKindV1::IntegerReturn { guard, .. } = &row.kind else {
+            return Ok(None);
+        };
+        if self.origins.get(&row.binding) != Some(&row.formal)
+            || guard
+                .return_kind(input, row.formal, row.binding, value.site())
+                .as_ref()
+                != Some(&row.kind)
+        {
+            return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
+        }
+        Ok(Some(row))
+    }
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -569,6 +608,13 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
                 &compare_guards,
                 site,
             )?;
+        }
+        if kind.is_none() && numeric_origins.contains_key(binding) {
+            kind = integer_guards.get(&formal).and_then(|guards| {
+                guards
+                    .iter()
+                    .find_map(|guard| guard.return_kind(input, formal, *binding, site))
+            });
         }
         if kind.is_none() {
             kind = null_compare_operand_kind(input, site)?;

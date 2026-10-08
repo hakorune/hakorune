@@ -67,7 +67,7 @@ fn proven_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(shape) = input.body_shape() else {
         return Ok(None);
@@ -214,7 +214,7 @@ fn argument_subtree_neutral<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     let prefix = root.node().segments();
     let subtree: Vec<&BodyExpressionShapeV1> = shape
@@ -256,7 +256,10 @@ fn argument_subtree_neutral<E>(
                 // the issuer's predicate is the consult, the draft stays
                 // the sole admission authority.
                 _ => {
-                    if !view_use(&OwnedExprSiteV1::new(input.owner(), site.clone()))? {
+                    if !view_use(
+                        &OwnedExprSiteV1::new(input.owner(), site.clone()),
+                        BorrowedViewUseRequestV1::Operand,
+                    )? {
                         return Ok(false);
                     }
                 }
@@ -360,7 +363,7 @@ pub(super) fn observe_statement_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::MethodCall { .. }) {
         return Ok(false);
@@ -418,7 +421,7 @@ pub(super) fn observe_local_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(kind) = proven_field_call(
         input,

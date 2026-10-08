@@ -393,3 +393,42 @@ impl super::PreparedBorrowedFormalIngressV1 {
         assert!(self.source_definition_for(owner).is_some());
     }
 }
+
+#[test]
+fn checked_integer_return_walk_trigger_keeps_source_only_membership_passive() {
+    let mut product = package(
+        "if p <= 0 { return 0 } return p",
+        "return 0",
+        "local recv = new Transport() local out = recv.probe(15) return 0",
+    );
+    let ledger = std::rc::Rc::get_mut(&mut product.ordinary_new_claim_ledger).unwrap();
+    let owner = ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .incoming[0]
+        .callee;
+    let exits = ledger.completion_index[&owner]
+        .as_ref()
+        .unwrap()
+        .explicit_sites();
+    for exit in exits {
+        assert!(ledger
+            .normal_exit_projection_v1(owner, exit)
+            .unwrap()
+            .is_some());
+    }
+    let source = ledger
+        .borrowed_formal_source
+        .as_mut()
+        .unwrap()
+        .as_mut()
+        .unwrap();
+    assert!(source.integer_return_target(owner));
+    source.retain_only_source_definition_for_test(owner);
+    assert!(source.integer_return_target(owner));
+    assert!(!source.definitions.contains_key(&owner));
+    assert!(source.source_only_definitions.contains_key(&owner));
+}

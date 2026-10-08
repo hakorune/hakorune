@@ -526,3 +526,195 @@ fn non_leading_phi_in_a_join_recorded_block_still_rejects() {
         "a phi after a non-phi instruction is not a join head: {error}"
     );
 }
+fn threaded_return_fixture() -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "threaded-return-boundary".into(),
+            params: vec![MirType::Integer, MirType::Integer],
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId(0),
+    );
+    function.params = vec![ValueId(1), ValueId(2)];
+    let compare = MirInstruction::Compare {
+        dst: ValueId(4),
+        op: crate::mir::CompareOp::Le,
+        lhs: ValueId(1),
+        rhs: ValueId(3),
+    };
+    let mut entry = BasicBlock::new(BasicBlockId(0));
+    entry.add_instruction(MirInstruction::Const {
+        dst: ValueId(3),
+        value: ConstValue::Integer(0),
+    });
+    entry.add_instruction(compare.clone());
+    entry.set_terminator(MirInstruction::Branch {
+        condition: ValueId(4),
+        then_bb: BasicBlockId(1),
+        else_bb: BasicBlockId(2),
+        then_edge_args: Some(EdgeArgs {
+            layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+            values: vec![],
+        }),
+        else_edge_args: None,
+    });
+    function.add_block(entry);
+    let jump = MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    };
+    let mut middle = BasicBlock::new(BasicBlockId(1));
+    middle.set_terminator(jump.clone());
+    function.add_block(middle);
+    let mut bindings = vec![(BasicBlockId(0), compare), (BasicBlockId(1), jump)];
+    for (block, value) in [(2, 1), (3, 2)] {
+        let returned = MirInstruction::Return {
+            value: Some(ValueId(value)),
+        };
+        let mut row = BasicBlock::new(BasicBlockId(block));
+        row.set_terminator(returned.clone());
+        function.add_block(row);
+        bindings.push((BasicBlockId(block), returned));
+    }
+    function.update_cfg();
+    (function, bindings)
+}
+
+fn thread_return_arm(function: &mut MirFunction) {
+    function.blocks.remove(&BasicBlockId(1));
+    let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    let Some(MirInstruction::Branch {
+        then_bb,
+        then_edge_args,
+        ..
+    }) = &mut entry.terminator
+    else {
+        panic!("original branch");
+    };
+    *then_bb = BasicBlockId(3);
+    *then_edge_args = None;
+    function.update_cfg();
+}
+
+#[test]
+fn empty_branch_trampoline_preserves_original_return_and_complete_boundary() {
+    let (original, bindings) = threaded_return_fixture();
+    let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+    boundary_result(&boundary, &original, &bindings).unwrap();
+    let mut finished = original.clone();
+    thread_return_arm(&mut finished);
+    boundary_result(&boundary, &finished, &bindings).unwrap();
+    for case in [
+        "return",
+        "incoming",
+        "missing-target",
+        "extra-instruction",
+        "branch-args",
+    ] {
+        let mut drift = finished.clone();
+        match case {
+            "return" => drift
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .set_terminator(MirInstruction::Return {
+                    value: Some(ValueId(1)),
+                }),
+            "incoming" => {
+                if let Some(MirInstruction::Branch { then_bb, .. }) =
+                    &mut drift.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator
+                {
+                    *then_bb = BasicBlockId(2);
+                }
+            }
+            "missing-target" => {
+                drift.blocks.remove(&BasicBlockId(3));
+            }
+            "extra-instruction" => drift
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .add_instruction(MirInstruction::Const {
+                    dst: ValueId(10),
+                    value: ConstValue::Integer(8),
+                }),
+            "branch-args" => {
+                if let Some(MirInstruction::Branch { then_edge_args, .. }) =
+                    &mut drift.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator
+                {
+                    *then_edge_args = Some(EdgeArgs {
+                        layout: crate::mir::edge_args::JumpArgsLayout::CarriersOnly,
+                        values: vec![],
+                    });
+                }
+            }
+            _ => unreachable!(),
+        }
+        assert!(
+            boundary_result(&boundary, &drift, &bindings).is_err(),
+            "{case}"
+        );
+    }
+    for case in [
+        "nonempty",
+        "edge-values",
+        "phi",
+        "unvalidated-successor",
+        "unvalidated-branch",
+        "duplicate-branch",
+    ] {
+        let (mut original, mut bindings) = threaded_return_fixture();
+        match case {
+            "nonempty" => original
+                .blocks
+                .get_mut(&BasicBlockId(1))
+                .unwrap()
+                .add_instruction(MirInstruction::Const {
+                    dst: ValueId(10),
+                    value: ConstValue::Integer(8),
+                }),
+            "edge-values" => {
+                if let Some(MirInstruction::Branch {
+                    then_edge_args: Some(args),
+                    ..
+                }) = &mut original
+                    .blocks
+                    .get_mut(&BasicBlockId(0))
+                    .unwrap()
+                    .terminator
+                {
+                    args.values.push(ValueId(1));
+                }
+            }
+            "phi" => original
+                .blocks
+                .get_mut(&BasicBlockId(3))
+                .unwrap()
+                .add_instruction(MirInstruction::Phi {
+                    dst: ValueId(10),
+                    inputs: vec![(BasicBlockId(1), ValueId(2))],
+                    type_hint: None,
+                }),
+            "unvalidated-successor" => bindings.retain(|(id, _)| *id != BasicBlockId(3)),
+            "unvalidated-branch" => bindings.retain(|(id, _)| *id != BasicBlockId(0)),
+            "duplicate-branch" => {
+                let mut extra = BasicBlock::new(BasicBlockId(4));
+                extra.set_terminator(
+                    original.blocks[&BasicBlockId(0)]
+                        .terminator
+                        .clone()
+                        .unwrap(),
+                );
+                original.add_block(extra);
+            }
+            _ => unreachable!(),
+        }
+        let accepted = PhysicalBoundary::capture(&original, &bindings).and_then(|boundary| {
+            let mut finished = original.clone();
+            thread_return_arm(&mut finished);
+            boundary_result(&boundary, &finished, &bindings)
+        });
+        assert!(accepted.is_err(), "unproved {case}");
+    }
+}

@@ -5,6 +5,9 @@ use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDisposition
 
 type Binding = (BasicBlockId, MirInstruction);
 
+#[path = "finalized_integer_return_projection.rs"]
+mod integer_return;
+
 impl FinalizedRootSourceHandoffV1 {
     /// Preserve unissued class views separately from explicitly unproven ownership.
     pub(in crate::mir) fn owned_field_inventory_v1(

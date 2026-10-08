@@ -13,7 +13,7 @@ use crate::mir::resolved_semantics::{
 use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1};
 
 #[derive(Debug)]
-pub(super) struct CheckedIntegerGuardV1 {
+pub(in crate::mir) struct CheckedIntegerGuardV1 {
     binary: OwnedExprSiteV1,
     source: Rc<BorrowedCompareSourceV1>,
     formal: BindingRefV1,
@@ -22,7 +22,32 @@ pub(super) struct CheckedIntegerGuardV1 {
     scope: ScopeId,
 }
 
+impl PartialEq for CheckedIntegerGuardV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.binary == other.binary
+            && Rc::ptr_eq(&self.source, &other.source)
+            && self.formal == other.formal
+            && self.statement == other.statement
+            && self.parent == other.parent
+            && self.scope == other.scope
+    }
+}
+impl Eq for CheckedIntegerGuardV1 {}
+
 impl CheckedIntegerGuardV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn binary(&self) -> &OwnedExprSiteV1 {
+        &self.binary
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn matches_compare(
+        &self,
+        formal: BindingRefV1,
+        binary: &OwnedExprSiteV1,
+        source: &Rc<BorrowedCompareSourceV1>,
+    ) -> bool {
+        self.formal == formal && self.binary == *binary && Rc::ptr_eq(&self.source, source)
+    }
+
     pub(super) fn from_compare(
         input: ResolvedFunctionLoweringInputV1<'_>,
         formal: BindingRefV1,
@@ -56,6 +81,42 @@ impl CheckedIntegerGuardV1 {
             statement,
             parent,
             scope,
+        })
+    }
+
+    /// The existing use classifier lends this SAME guard for one exact
+    /// value Return. Aliases and rebound/capture closure stay with its caller.
+    pub(super) fn return_kind(
+        self: &Rc<Self>,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        formal: BindingRefV1,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<super::BorrowedFormalUseDraftKindV1> {
+        use crate::mir::resolved_semantics::BodyStatementShapeV1;
+        if self.formal != formal
+            || binding.owner() != input.owner()
+            || input.function().variable_ref(site) != Some(ResolvedLexicalRefV1::Local(binding))
+            || !self.corroborates(input)
+            || !self.precedes(input, site)
+        {
+            return None;
+        }
+        let shape = input.body_shape()?;
+        let mut returns = shape.statements().iter().filter_map(|row| match row {
+            BodyStatementShapeV1::Return {
+                site: exit,
+                value: Some(value),
+            } if value == site => Some(exit),
+            _ => None,
+        });
+        let exit = returns.next()?;
+        if returns.next().is_some() {
+            return None;
+        }
+        Some(super::BorrowedFormalUseDraftKindV1::IntegerReturn {
+            exit: exit.clone(),
+            guard: Rc::clone(self),
         })
     }
 

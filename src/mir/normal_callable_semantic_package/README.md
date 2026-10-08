@@ -1505,6 +1505,30 @@ Existing Normal-dominated Add/set/new consumers accept this same Integer proof;
 null comparison supplies no such permission. This does not close incoming
 actual source receipts, static argument projection, or executable transport.
 
+The same source-use owner admits an exact scalar Return after a checked Compare
+in one source sequence. IntegerReturn retains that Compare Rc plus its exact
+Return exit, value site, binding and formal. The typed source-only consult does
+not turn generic operand membership into a Return contract or activate entry.
+An exact source IntegerReturn selects the existing verified Completion walk
+instead of the plain seed. It verifies every exit and yields genuine Home flow,
+including empty Home sets; no Home is introduced and no unavailable exit is hidden.
+That owner retains every I64Scalar sibling from the SAME verified walk, including
+ordinary typed-formal returns; per-Return borrowed permission remains exact.
+Final entry lends the original formal/alias value independently of the original
+Plain exit's Return binding, then uses the SAME FinishedBindings and original
+Compare materialization. Missing, removed, duplicate or unrecorded bindings refuse.
+The SAME finishing owner certifies a deleted original empty Jump(None) only
+through its original Branch arm into an independently validated, PHI-free original
+successor. It shares exact arm argument omission with full sequence and boundary
+edge checks; final Return search, nonempty/value-carrying intermediates and an
+unvalidated destination grant no correspondence.
+Both independent physical scans require exact Return coordinates/operand coverage,
+that original Compare's instruction and dominance, and the tracked source alias.
+A new Copy, a different alias of the same formal, or another comparison is not
+substitute evidence. The tagged carrier stays borrowed; the ABI consumer checks
+kind 1 before storing an ordinary I64 payload. Other result roles and CurrentOwner
+activation remain unchanged. Full incoming/Completion/cleanup still precede entry.
+
 Static local physical calls retain the same original incoming Rc, canonical local
 observation and affine result-publication handoff in the existing call packet.
 The selected lender requires successful callee Completion, all incoming executable

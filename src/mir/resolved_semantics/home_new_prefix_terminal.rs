@@ -45,6 +45,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
@@ -313,7 +314,22 @@ pub(super) fn observe_terminal_statement<'a, E>(
                             }
                         }
                         _ => {
-                            match return_scalar(input, value.site(), &locals, field_is_integer)? {
+                            let checked_return = match input.function().variable_ref(value.site()) {
+                                Some(ResolvedLexicalRefV1::Local(binding)) => view_use(
+                                    &OwnedExprSiteV1::new(input.owner(), value.site().clone()),
+                                    BorrowedViewUseRequestV1::IntegerReturn {
+                                        exit: statement.site(),
+                                        binding,
+                                    },
+                                )?,
+                                _ => false,
+                            };
+                            let scalar = if checked_return {
+                                Some(ReturnScalar::Integer)
+                            } else {
+                                return_scalar(input, value.site(), &locals, field_is_integer)?
+                            };
+                            match scalar {
                                 Some(ReturnScalar::I64Add { site, field_reads }) => {
                                     relation = Some(TerminalRelationV1::I64Add(
                                         TerminalI64AddReturnV1::issue(

@@ -46,7 +46,7 @@ pub(super) fn observe_receiver_field_write<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::Assignment { .. }) {
         return Ok(false);
@@ -106,7 +106,10 @@ pub(super) fn observe_receiver_field_write<E>(
                 // dominated-view value use at this exact site; the issuer's
                 // predicate is the consult, the draft stays the authority.
                 if !locals.observe(site).is_some_and(|row| row.is_trivial())
-                    && !view_use(&OwnedExprSiteV1::new(input.owner(), site.clone()))?
+                    && !view_use(
+                        &OwnedExprSiteV1::new(input.owner(), site.clone()),
+                        BorrowedViewUseRequestV1::Operand,
+                    )?
                 {
                     return Ok(false);
                 }

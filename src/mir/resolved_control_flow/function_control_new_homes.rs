@@ -1,6 +1,7 @@
 //! Completion forwarding for source-issued ordinary-New Home/terminal relations.
 //! The source scanner owns selection; this owner only binds its cleanup to Completion.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1;
 
 /// First Completion issuance for the parameter-free selected New loan. Prefix and
 /// terminal obligations come from the same input and one ownership walk.
@@ -58,7 +59,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _, _, _, _| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
-        &mut |_| Ok(false),
+        &mut |_, _| Ok(false),
         &mut |_| Ok(None),
     )?;
     Ok(
@@ -181,7 +182,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     // sealed borrowed-formal draft admits an `ArrayElementValue`,
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
-    view_use: &mut impl FnMut(&crate::mir::resolved_semantics::OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(
+        &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        BorrowedViewUseRequestV1<'_>,
+    ) -> Result<bool, E>,
 
     object_return: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,

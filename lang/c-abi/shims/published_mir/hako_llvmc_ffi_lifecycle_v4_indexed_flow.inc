@@ -54,7 +54,12 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
   /* The dominated `new`-argument view rides the same borrowed kind/payload
      formal on i64 and nullable-handle callees alike — the tagged pair
      transport is identical; only the result lane differs. */
-  if (!value || value->kind != LV4_TAGGED || !fn->receiver_object_set ||
+  int instance = fn->receiver_object_set &&
+      yyjson_is_uint(yyjson_obj_get(fn->function, "receiver"));
+  int static_i64 = lv4_is(fn->function, "role", "ordinary_i64") &&
+      yyjson_is_null(yyjson_obj_get(fn->function, "receiver")) &&
+      yyjson_is_null(yyjson_obj_get(fn->function, "receiver_object"));
+  if (!value || value->kind != LV4_TAGGED || (!instance && !static_i64) ||
       (!lv4_is(fn->function, "role", "ordinary_i64") &&
        !lv4_is(fn->function, "role", "ordinary_handle") &&
        !lv4_is(fn->function, "role", "ordinary_nullable_handle"))) return 0;

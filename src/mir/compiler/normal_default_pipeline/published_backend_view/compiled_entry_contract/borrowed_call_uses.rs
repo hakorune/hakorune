@@ -1,5 +1,7 @@
 //! Final operand closure over original entry/Copy/Forwarded loans.
 //! These temporary sets corroborate one publication; they issue no authority.
+#[path = "borrowed_call_uses_integer_return.rs"]
+mod integer_return;
 #[path = "borrowed_call_uses_null_compare.rs"]
 mod null_compare;
 #[path = "borrowed_call_uses_object_field.rs"]
@@ -20,6 +22,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Default)]
 struct FunctionUses {
+    integer_returns: BTreeMap<Coordinate, integer_return::IntegerReturnUse>,
     roots: BTreeMap<ValueId, BindingRefV1>,
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
@@ -52,6 +55,7 @@ struct FunctionUses {
 
 #[derive(Default)]
 struct Scan {
+    integer_returns: BTreeSet<Coordinate>,
     definitions: BTreeMap<ValueId, usize>,
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
@@ -148,6 +152,7 @@ impl BorrowedCallUses {
             Ok(())
         })?;
         state.compare_coordinates = Some(expected);
+        integer_return::entry(state, source, owner, function)?;
         for (_, formal, _) in source
             .borrowed_ordinary_add_uses_v1(owner, function)?
             .iter()
@@ -261,6 +266,7 @@ impl FunctionUses {
         tracked: &BTreeMap<ValueId, BindingRefV1>,
         indexed: &[(Coordinate, &MirInstruction)],
     ) -> Result<ViewScan, String> {
+        integer_return::guards(self, indexed)?;
         let mut defs: BTreeMap<ValueId, &MirInstruction> = BTreeMap::new();
         for (_, instruction) in indexed {
             if let Some(dst) = instruction.dst_value() {
@@ -605,6 +611,9 @@ impl FunctionUses {
                         .insert(*value);
                 }
             }
+            MirInstruction::Return { value } if self.integer_returns.contains_key(&coordinate) => {
+                integer_return::observe(self, tracked, coordinate, value, definitions, dominates)?;
+            }
             _ if instruction.used_values().iter().any(|value| {
                 tracked.contains_key(value) || views.views.contains_key(value)
             }) =>
@@ -622,6 +631,7 @@ impl FunctionUses {
         params: &[ValueId],
         definitions: &Scan,
     ) -> Result<(), String> {
+        integer_return::coverage(self, definitions)?;
         if definitions.arguments != self.arguments.keys().copied().collect() {
             return Err(fault("borrowed-use/argument-coverage"));
         }

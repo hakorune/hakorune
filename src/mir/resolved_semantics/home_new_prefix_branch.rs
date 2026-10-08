@@ -101,7 +101,7 @@ fn walk_branch<'a, E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -318,7 +318,7 @@ pub(super) fn observe_if_statement<'a, E>(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,

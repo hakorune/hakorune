@@ -18,6 +18,16 @@ use crate::mir::resolved_control_flow::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 
+/// Exact source-use request; this port consults original evidence only.
+#[derive(Clone, Copy)]
+pub(crate) enum BorrowedViewUseRequestV1<'a> {
+    Operand,
+    IntegerReturn {
+        exit: &'a SourceStmtSiteV1,
+        binding: BindingRefV1,
+    },
+}
+
 #[path = "selected_new_arguments.rs"]
 mod selected_new_arguments;
 pub(crate) use selected_new_arguments::{
@@ -165,7 +175,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         // The bounded sibling consults no dominated-view draft: a `Handle`
         // leaf stays truthfully uncovered on this lane — the verified
         // completion lane owns the issuer predicate.
-        &mut |_| Ok(false),
+        &mut |_, _| Ok(false),
         &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
@@ -305,7 +315,7 @@ pub(crate) fn scan_new_home_flow<E>(
     // sealed borrowed-formal draft admits an `ArrayElementValue`,
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,

@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: Common Static incoming source and neutral C Return emission closed; Integer Return next; full S0 incomplete
+Status: Checked Integer Return source/finishing/C execution closed; full S0 incomplete
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -306,46 +306,13 @@ the full selected task ID in the card; corrected the heading. Final pointer/
 scope/diff checks PASS; no unclassified red or new runtime acceptance claim.
 
 
-## MIRBUILDER-GATE1-TERMINAL-VALUE-OWNER-BOXSHAPE-S0 selected
+## Terminal-value owner relocation history
 
-Decision: first move only the existing returned-value source identity owner out
-of home_terminal_relation.rs785; preserve its bodies, classifications, issuance
-scope and historical paths. This necessary capacity prerequisite is separate
-from returned-call meaning. Read-only worker corroborates dependency and scope.
-Source authority + canonical issuer: same terminal source walk and its existing
-TerminalValueReturn issuer; no new semantic authority or receipt.
-Non-authority: module location, source size, runtime class or build success.
-Fail-fast boundary: exactly unchanged; unsupported received/call returns remain
-unavailable and all existing source/lifecycle failure distinctions remain.
-Smallest next slice: contiguous TerminalReturnedSourceV1/TerminalValueReturnV1/
-terminal_returned_source block into private home_terminal_returned_value.rs,
-old paths reexported. No result kind, callback, flow, emitter or ABI change.
-Non-claims: no acquisition bridge, physical publication or real app progress.
-
-Selected paths: terminal relation parent/new child, existing lifecycle scope guard
-for the new source cap, resolved_semantics README owner pointer, this card and
-CURRENT_STATE selection. Existing issue797/scan751 and .hako/C stay untouched.
-Acceptance: source body/issuer-scope correspondence, historical public paths,
-focused ordinary_new_result_claim_tests + ordinary_new_coseal_tests +
-result_origin_tests + child_relation tests (nonzero counts), source-inclusive
-check, scope/pointer/diff/owned rustfmt, all changed source under800. No new test
-that merely mirrors relocation. Same production frontier receipt remains valid
-because behavior is unchanged; no fresh CLI/app benchmark required for this move.
-After green closeout restore CALLEE-RETURN-OUTCOME-D0 for the typed direct/local
-object-return contract, including exact call source, Return destination and
-Normal/Fault ownership disposition. Goal remains active.
-
-
-Terminal-value BoxShape implementation: parent785->668, new child129. Moved
-block bodies/comments byte-identical after only equivalent issuer-scope spelling;
-parent Value.owner now uses existing owner() getter instead of private field.
-Initial edit script stopped on guard-loop pattern assertion before guard/README
-writes; corrected those scoped edits. Initial source-inclusive check found
-this-change E0616 private owner access; getter correction made, final check active
-(/tmp/hako-terminal-value-owner-check-final.log), not yet PASS. Read-only final
-shape/accessor review PASS. New child included in existing hard800 guard loop.
-No source meaning or physical behavior changed; no new semantic acceptance claim.
-
+Closed prerequisite at41f07cfa90; Git retains the selected Decision, source body/
+issuer correspondence, original acceptance and corrected E0616 attempt receipts.
+Same TerminalReturnedSource/TerminalValueReturn owner moved to private child;
+historical paths, source meaning and failure boundaries remained unchanged.
+This relocation did not authorize returned-call acquisition or publication.
 
 ## TERMINAL-VALUE-OWNER-BOXSHAPE-S0 closeout
 
@@ -910,13 +877,11 @@ SAME original source/input/Completion, exact producers, whole Root ABI and
 neutral lender remain required. Object process entry refuses; SourceOnly grants
 no execution. Three saved93ac S6C reds remain unwaived final acceptance.
 
-Ready acquisition/compiled Handle admission CLOSED488f1283b3/21e66c5e55;
-C Return owner split/owned Handle admission CLOSED88eeede57f/2b1a32dd5b.
-Exact source/whole preflight, Normal LIVE transfer/Fault unwind and receiver
-once-only contracts remain; Git/README and workdisk hako-c-* own evidence.
-Typed8/opaque8 and original16 Normal/Fault EXEs pass; Phi/unsupported envelopes
-unchanged. S6C3 debt remains unwaived. b115d46e05 diagnostic is historical;
-latest unchanged-app frontier is the3388a8937c receipt below.
+Ready acquisition/compiled Handle and C owned Return CLOSED488f1283b3,
+21e66c5e55/88eeede57f/2b1a32dd5b; contracts/evidence at Git/README/hako-c-*.
+Typed8/opaque8 + original16 Normal/Fault EXEs PASS; exact whole preflight,
+Normal LIVE/Fault unwind/receiver once-only and Phi refusals remain.
+S6C3 unwaived; latest unchanged-app frontier is3388a8937c below.
 
 Stored dispatch prerequisite CLOSEDf34af66d4a (pushed); exact contract/evidence
 at commit/README and /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
@@ -930,11 +895,9 @@ Publication3 reproduce at saved93ac baseline; they and S6C3 remain unwaived.
 Stored receiver binding outside terminal remains refusal; no Lexical/Self disguise.
 Stored source CLOSED b39432b001: SAME Page3/Heap3/BOTH loans/Rc; candidate4/
 callee6 PASS, no execution grant; commit and workdisk stored-object-facts receipt.
-Stored Object source/actual phase CLOSED2e56def75f; exact Decision/contracts at
-commit/README and /mnt/workdisk/hako-stored-object-source-final-evidence.json.
-SAME qualifications/root witnesses and exact SelfRooted forward phase selection;
-source absence stays unavailable, drift refuses, no receiver/Completion/Normal/Ready.
-Final270+7+6/check/guards PASS; one independent phase test, no new guard.
+Stored Object source/actual phase CLOSED2e56def75f: contract/Decision at commit
+and hako-stored-object-source-final-evidence.json. Source absence unavailable,
+drift refuses; no receiver/Completion/Normal/Ready. All270+7+6/guards PASS.
 
 Fresh unchanged-app evidence at2e56def75f, recorded3388a8937c: CLI3m16s PASS,
 source33d3e8b9/binary4136af29; probe rc1/noEXE at
@@ -943,9 +906,8 @@ ordinary-new/borrowed-entry/source-only-object-actuals. Exact args/hashes/log:
 Stored physical owner already performs parent/ObjectFieldGet/with_stored_receiver.
 Whole final incoming remains mandatory; explicit other-callee-error test pins scope.
 
-CurrentOwnerStatic original route/result retention CLOSED5cd70af994 (pushed):
-exact contracts/evidence at commit and workdisk hako-current-owner-static-source-final-evidence.json.
-Qualified claims unchanged; no execution grant; claims7/input4/candidate4/check/guards PASS.
+CurrentOwnerStatic retention CLOSED5cd70af994: exact contracts/evidence at
+commit/README and hako-current-owner-static-source-final-evidence.json.
 
 Decision (read-only review_cleanup_path): one common Static incoming carrier,
 private original Qualified/CurrentOwner route. SAME index/loan issuer checks
@@ -955,33 +917,25 @@ consume it; no duplicate scan, solver, Qualified disguise or second authority.
 Replace Qualified-only source observation/forward matching, keeping exact Rc.
 Required seed/executable selectors/publication/packet operations remain Qualified;
 CurrentOwner observation never activates transport/entry/Completion/Normal.
-Common Static incoming/source graph CLOSED075d1bc2b4 (pushed): SAME source/
-argument graph, full original catalog token/route/identity and Qualified-only
-activation. Exact corrected build/test/red classifications are at commit and
-/mnt/workdisk/hako-current-owner-incoming-cohort-final-evidence.json.
-Claims7/input4/domain1/candidate4/packet7 and285+corrected-retention6 PASS.
-No execution grant/new guard; protected7 unchanged; prior cancel/zero-match not PASS.
+Common Static incoming/source graph CLOSED075d1bc2b4; exact contract/evidence:
+commit/README and hako-current-owner-incoming-cohort-final-evidence.json.
 Noninitializer and USIZE laws/all caller vetoes stay unchanged. Acceptance:
 existing static input/retention/source graph/capability families plus original
 mimalloc source census; foreign cohort/owner/site/ordinal and reissued Rc refuse.
-C Return emission split CLOSED (this slice): exact original Return body moved
-once to return_emit helper; emitter793->757, child45. No role/identity/lease/output
-or ferror-order change. Existing composed16/72, owned16/112 and Static+14 refusals
-PASS; original Map-call2 modes return30 with exact storage counts.
-Broad synthetic Map suite ABI-layout refusal reproduces at075d baseline: known
-fixture debt, not PASS/waived. Initial wrong entry archive and isolated-copy header
-setup failures are corrected orchestration errors. Exact retention/build/source/
-runtime/baseline evidence: /mnt/workdisk/hako-c-return-emission-split-evidence.json.
-Next: checked Integer Return full source/result/finished-coordinate/C mapping.
+C Return emission split CLOSED ef01d2ac6d (pushed): exact contract/evidence at
+commit/README and /mnt/workdisk/hako-c-return-emission-split-evidence.json.
+Composed16/72, owned16/112, Static+14 and Map2 modes PASS; broad synthetic Map
+ABI-layout baseline debt remains unwaived. Corrected setup errors are not baseline.
+WIP: checked Integer Return full source/result/finished-coordinate/C mapping.
 Static borrowed params use existing ordinary_i64+receiver/null+receiver_object/null
 geometry; do not simply remove receiver guard or admit receiver-free Handle lanes.
 Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes remain.
 CurrentOwner *_usize terminal wrappers/conditions/loop calls must all remain;
 noninitializer veto and ExactTrivial(USIZE) vs I64 seed law remain separate gaps;
 no omitted callers or blanket Integer grant.
-Next Return Decision (read-only review_cleanup_path): keep the SAME Compare Rc
-in IntegerReturn(exit,guard) and exact original value/binding/formal row.
-Pending result uses the raw draft; source loan uses definitions.or(source_only).
+Return Decision (read-only review_cleanup_path): keep the SAME Compare Rc
+in IntegerReturn(exit,guard) and exact original value/binding/formal row (WIP).
+Guard/use check PASS29.05s; raw draft/Integer result join check PASS30.27s (WIP).
 Neither requires executable entry nor promotes SourceOnly. Final lender uses
 original root-exit binding + FinishedBindings; missing/removed/unrecorded refuses.
 Both physical scans require exact Return coverage and THAT Compare dominance;
@@ -996,5 +950,42 @@ constructor, then whole incoming/Page/Heap Completion/Normal/cleanup/packet chec
 No early owner filter, manual phase promotion, removed Page caller or .hako workaround.
 Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, old-edge retirement,
 nondelegating selfcompile/final acceptance remain mandatory and incomplete.
-Space: root/tmp7.9GB, workdisk1.3TB; build/probe stay on workdisk.
+Space: root/tmp8.6GB, workdisk1.3TB; build/probe stay on workdisk.
 Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.
+
+## Checked Integer Return closeout (2026-10-09)
+
+Decision (read-only review_cleanup_path): original IntegerReturn selects verified
+Completion (no plain seed); ALL SAME I64Scalar siblings retained, per-use exact.
+Source Jump3->Return6(value2) becomes Branch2->Return6(value2) under SimplifyCFG.
+SAME PhysicalBoundary certifies original empty Jump(None) forwarding only from
+original validated Branch arms to the exact PHI-free validated successor.
+Exact selected arm args omission is shared by instruction/edge equality;
+complete sequences/Return equality remain. No final Return search or new issuer.
+Nonempty/Phi/value args/unvalidated/ambiguous originals refuse; no generic view escape.
+Acceptance: quick lib no-run70951 PASS8m33s; focused7 (8 original source cases,
+formal/alias/typed sibling, optimizefalse/true), boundary matrix1, regressions
+12+22+9+28+4+362+44+2 PASS. SAME immutable binary and SHA:
+/mnt/workdisk/hako-checked-integer-return-threading-regression-evidence.json.
+C execution PASS8 original source-issued EXEs +12 external Bool/null/zero probes:
+/mnt/workdisk/hako-checked-integer-return-full-runtime.log.
+Existing C22/composed16+72Fault/owned16+112Fault remain PASS without code drift.
+Scope/pointer/diff/selected source caps/protected7 PASS; new format edits only.
+Whole-rustfmt diagnostics include existing baseline debt; scoped formatting audit
+/mnt/workdisk/hako-checked-integer-return-format-audit.json distinguishes unchanged
+baseline hunks; final edit is formatting only, no semantic acceptance change.
+Prior failed type imports/finishing cases and partial C run are superseded by
+these complete source/runtime results, not waived. No this-change red remains.
+Production use chain now joins exact source guard/Return, result and terminal
+contracts, SAME finished coordinates, both physical scans and C tag1 projection.
+Copy remains tagged; runtime wrong kind refuses before payload. No broad opaque grant.
+
+Next selected source prerequisite: direct ExactTrivial(USIZE) parameter evidence
+through existing declared_integer_seed and SAME incoming solver; preserve all
+ordinal/owner/rebind/capture/duplicate checks. Existing ABI Integer lane is source
+representation evidence only; no I64 Return equivalence, range or execution grant.
+Reuse existing declared-parameter/incoming tests; then rebuild original allocator
+facts without changing any .hako/caller, retaining all three *_usize wrappers.
+CurrentOwner noninitializer/terminal/condition/loop contexts, bin_size Mul/call,
+Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, selected old-edge
+retirement and nondelegating selfcompile/final acceptance remain mandatory/open.

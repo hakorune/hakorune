@@ -19,7 +19,15 @@ static void lv4_emit_return(FILE* f, const hako_lv4_input* in,
         b, value, b, b, b, b, b, b, value, b, b, b, b, b);
   }
   else if (ordinary) {
-    fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", lv4_u(term, "value"));
+    uint32_t value = lv4_u(term, "value");
+    if (lv4_is(fn, "role", "ordinary_i64") &&
+        lv4_input_type(in, fn, value) == LV4_TAGGED) {
+      fprintf(f,
+          "  %%return_int%u = icmp eq i32 %%k%u, 1\n"
+          "  br i1 %%return_int%u, label %%return_payload%u, label %%fault\nreturn_payload%u:\n",
+          b, value, b, b, b);
+    }
+    fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", value);
   }
   else if (lv4_is(fn, "role", "root_unit")) {
     fprintf(f,

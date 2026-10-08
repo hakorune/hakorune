@@ -54,6 +54,49 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
+    /// Exact Return source rows, tied to the SAME original Compare receipt.
+    /// This lends source correspondence only; final dominance is checked independently.
+    pub(crate) fn integer_return_uses(
+        &self,
+    ) -> Result<
+        Vec<(
+            BindingRefV1,
+            BindingRefV1,
+            crate::mir::resolved_semantics::SourceStmtSiteV1,
+            OwnedExprSiteV1,
+            OwnedExprSiteV1,
+        )>,
+        String,
+    > {
+        use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
+        let draft = &self.source.definitions[&self.owner];
+        let mut returns = Vec::new();
+        for row in &draft.uses {
+            let Use::IntegerReturn { exit, guard } = &row.kind else {
+                continue;
+            };
+            if draft.origins.get(&row.binding) != Some(&row.formal)
+                || !draft.uses.iter().any(|compare| match &compare.kind {
+                    Use::CompareOperand { binary, source } => {
+                        compare.formal == row.formal
+                            && guard.matches_compare(row.formal, binary, source)
+                    }
+                    _ => false,
+                })
+            {
+                return Err("ordinary-new/borrowed-return/compare-source-identity".into());
+            }
+            returns.push((
+                row.binding,
+                row.formal,
+                exit.clone(),
+                row.site.clone(),
+                guard.binary().clone(),
+            ));
+        }
+        Ok(returns)
+    }
+
     /// Dominated `+` operand admissions this owner's draft proved under the
     /// operation owner's `Add(NormalInteger, NormalInteger)` envelope:
     /// `(binding, formal, binary site)` rows guarded by an admitted compare.
@@ -165,9 +208,8 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 {
                     return Err(freeze("borrowed-entry/incoming-source-identity"));
                 }
-                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
-                    original,
-                ) = &row.source
+                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                    &row.source
                 {
                     original.require_qualified()?;
                     let retained = self

@@ -300,6 +300,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
+                let has_integer_return = borrowed_formal_source.as_ref().is_ok_and(|rows| rows.integer_return_target(owner));
                 let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
                 });
@@ -359,6 +360,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     && !has_me_object_field_read
                     && !has_stored_terminal
                     && !has_static_source_local
+                    && !has_integer_return
                     && !has_formal_field_read
                     && !child_new_ready
                     && !child_result_ready
@@ -390,6 +392,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     || has_nullable_receiver_call
                     || has_me_object_field_read
                     || has_static_source_local
+                    || has_integer_return
                     || has_formal_field_read
                     || has_stored_terminal
                     || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
@@ -609,7 +612,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 site, actuals, &callable_result_classes, &receiver_call_observations,
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
-                            &borrowed_formal_source,
+                            &borrowed_formal_source, input,
                         ), &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
                             completion,
@@ -676,7 +679,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 )?;
                                 let relation = terminal_relation
                                     .into_iter()
-                                    .filter(|(_, row)| retain_child_terminal_relation(row, has_map))
+                                    .filter(|(_, row)| retain_child_terminal_relation(row, has_map)
+                                        || (has_integer_return && matches!(row, TerminalRelationV1::I64Scalar(_))))
                                     .collect();
                                 seeds.push_completion_with_top_level_input(
                                     declaration, selected, Rc::new(completion), relation, top_level_input.take(),

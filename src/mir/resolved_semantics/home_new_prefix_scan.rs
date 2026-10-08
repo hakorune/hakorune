@@ -121,7 +121,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     // sealed borrowed-formal draft admits an `ArrayElementValue`,
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -180,6 +180,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 argument_i64_field,
                 local_lexical_i64_call,
                 borrowed_actuals,
+                view_use,
                 object_return,
                 local_calls,
             )?;

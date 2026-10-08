@@ -93,7 +93,7 @@ pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
     )
 }
 
-fn verify(state: &mut FunctionUses, function: &MirFunction) -> Result<(), String> {
+pub(super) fn verify(state: &mut FunctionUses, function: &MirFunction) -> Result<(), String> {
     // The call's expected coordinate follows the terminator, which shifts
     // when tests append instructions before it.
     let index = function.blocks[&BasicBlockId(0)].instructions.len();

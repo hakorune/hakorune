@@ -7,9 +7,9 @@
 
 use super::{
     scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
-    CallerNewHomePrefixV1, HomePrefixUnavailableV1, LocalFieldReadRequestV1,
-    LocalFieldReadResultV1, ObjectReturnCallQualificationV1, ResultNewHomePrefixV1,
-    SelectedNewArgumentObservationV1,
+    BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
+    LocalFieldReadRequestV1, LocalFieldReadResultV1, ObjectReturnCallQualificationV1,
+    ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -80,7 +80,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_, _| Ok(None),
         // The dominated-view consult stays unavailable on this lane for
         // the same reason — a `Handle` leaf is truthfully uncovered here.
-        &mut |_| Ok(false),
+        &mut |_, _| Ok(false),
         &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {});
@@ -189,7 +189,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     // verified lane sees: an admitted `ArrayElementValue`/`AddOperand`/
     // `NewArgument` leaf keeps this walk covered exactly as the verified
     // lane admits it — the draft stays the sole admission authority.
-    view_use: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,

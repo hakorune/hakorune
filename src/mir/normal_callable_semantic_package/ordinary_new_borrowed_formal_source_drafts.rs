@@ -92,6 +92,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         BorrowedFormalUseDraftKindV1::ArrayElementValue { .. }
                             | BorrowedFormalUseDraftKindV1::AddOperand { .. }
                             | BorrowedFormalUseDraftKindV1::NewArgument { .. }
+                            | BorrowedFormalUseDraftKindV1::IntegerReturn { .. }
                     ) {
                         dominated_view_sites.insert(row.site.clone());
                     }

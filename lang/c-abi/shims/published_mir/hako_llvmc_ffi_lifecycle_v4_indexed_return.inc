@@ -43,7 +43,11 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   for (size_t i = 0; i < count; i++) if (state[i]) return 0;
   if (lv4_is(term, "op", "return_fault")) return faulted;
   hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
-  return !faulted && result &&
+  /* Only the ordinary I64 result may read a borrowed tagged formal/Copy.
+     Runtime tag1 is checked by the Return emitter before any payload store. */
+  int tagged_i64 = lv4_is(fn->function, "role", "ordinary_i64") &&
+      lv4_borrowed_tagged_formal(fn, result);
+  return !faulted && result && (tagged_i64 ||
       result->kind == (birth ? LV4_UNIT : ordinary_map ? LV4_MAP :
-          (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64);
+          (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64));
 }

@@ -356,9 +356,9 @@ mod field_batch_tests;
 
 /// `Handle`-leaf consult shared by the verified walk and the source
 /// probe: true only when the sealed borrowed-formal draft admits a
-/// dominated-view value use — `ArrayElementValue`, `AddOperand`, or
-/// `NewArgument` — at this exact leaf site. This is a coverage consult
-/// only: the lent view is read-only here, the draft stays the sole
+/// operand use at this exact leaf, or an IntegerReturn with its exact
+/// exit/binding request. These are distinct typed source consults:
+/// the lent view is read-only here, the draft stays the sole
 /// admission authority, and the physical `borrowed_call_uses` whitelist
 /// still proves each routed operand.
 pub(super) fn dominated_view_use_consult_v1<'a>(
@@ -366,12 +366,22 @@ pub(super) fn dominated_view_use_consult_v1<'a>(
         super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
         String,
     >,
-) -> impl FnMut(&OwnedExprSiteV1) -> Result<bool, OrdinaryNewCoSealIssueV1> + 'a {
-    move |site: &OwnedExprSiteV1| {
-        Ok(borrowed_formal_source
-            .as_ref()
-            .ok()
-            .is_some_and(|source| source.dominated_view_use_at(site.owner(), site)))
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+) -> impl FnMut(
+    &OwnedExprSiteV1,
+    crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1<'_>,
+) -> Result<bool, OrdinaryNewCoSealIssueV1>
+       + 'a {
+    move |site: &OwnedExprSiteV1, request| {
+        let Ok(source) = borrowed_formal_source else {
+            return Ok(false);
+        };
+        source
+            .consult_view_use_v1(input, site, request)
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })
     }
 }
 
@@ -636,7 +646,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                 receiver_rows,
             )
         },
-        &mut dominated_view_use_consult_v1(borrowed_formal_source),
+        &mut dominated_view_use_consult_v1(borrowed_formal_source, input),
         &mut |site| Ok(callable_result_classes.object_return_qualification(site)),
     )
 }

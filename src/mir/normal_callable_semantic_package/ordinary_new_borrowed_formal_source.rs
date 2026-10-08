@@ -8,6 +8,9 @@ use crate::mir::callable_parameter_contract::{
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "ordinary_new_borrowed_integer_return_source.rs"]
+mod integer_return_source;
+
 #[path = "ordinary_new_borrowed_formal_source_drafts.rs"]
 mod source_drafts;
 
