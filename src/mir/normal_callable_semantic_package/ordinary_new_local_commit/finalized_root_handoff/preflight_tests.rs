@@ -120,6 +120,22 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                     "Object Value ABI remains pending"
                 );
                 let retained = handoff.root_source().unwrap();
+                let descriptor = ledger
+                    .checked_root_object_result_v1()
+                    .unwrap_or_else(|error| panic!("{label}: {error}"))
+                    .unwrap();
+                assert_eq!(descriptor.owner, ledger.root_owner().unwrap());
+                assert_eq!(descriptor.class, "Token");
+                assert_eq!(
+                    descriptor.kind,
+                    if nullable {
+                        crate::mir::instruction::InvokeCallResultKind::NullableHandle
+                    } else {
+                        crate::mir::instruction::InvokeCallResultKind::Handle
+                    }
+                );
+                assert_eq!(descriptor.terminals.len(), 1);
+
                 assert_eq!(retained.owner(), ledger.root_owner().unwrap());
                 let root_key = ledger.app_main_catalog_key.as_ref().unwrap();
                 let root_outcomes = ledger.callable_result_classes.outcomes(root_key).unwrap();

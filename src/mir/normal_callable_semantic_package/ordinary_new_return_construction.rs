@@ -27,17 +27,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if completion.owner() != owner {
             return Err(freeze("completion-owner"));
         }
-        if self
-            .normal_return_dispositions
-            .as_ref()
-            .is_some_and(|rows| {
-                rows.keys().any(|(actual, exit)| {
-                    *actual == owner && !completion.explicit_sites().contains(exit)
-                })
-            })
-        {
-            return Err(freeze("disposition-exit"));
-        }
+        self.validate_object_return_disposition_exits_v1(owner, completion.explicit_sites())?;
         let Some(terminals) = self.terminal_relation_index.get(&owner) else {
             return Ok(false);
         };

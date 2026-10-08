@@ -26,6 +26,28 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) enum N
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Shared exact exit-domain law for retained Normal dispositions.
+    pub(in crate::mir::normal_callable_semantic_package) fn validate_object_return_disposition_exits_v1(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        exits: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
+    ) -> Result<(), String> {
+        if self
+            .normal_return_dispositions
+            .as_ref()
+            .is_some_and(|rows| {
+                rows.keys()
+                    .any(|(actual, exit)| *actual == owner && !exits.contains(exit))
+            })
+        {
+            return Err(
+                "[freeze:contract][ordinary-new/object-return/construction-disposition-exit]"
+                    .into(),
+            );
+        }
+        Ok(())
+    }
+
     /// All metadata is borrowed from this signature-ready issuance. No partial install.
     pub(in crate::mir::normal_callable_semantic_package) fn seal_object_return_dispositions_v1(
         &mut self,

@@ -155,6 +155,20 @@ fn root_completion_index_direct_received_matrix_lends_same_original_source() {
                         .is_some());
                 }
                 assert!(ledger.object_return_construction_ready_v1(owner).unwrap());
+                let descriptor = ledger.checked_root_object_result_v1().unwrap().unwrap();
+                assert_eq!(descriptor.owner, owner);
+                assert_eq!(descriptor.class, "Token");
+                assert_eq!(
+                    descriptor.kind,
+                    if nullable {
+                        crate::mir::instruction::InvokeCallResultKind::NullableHandle
+                    } else {
+                        crate::mir::instruction::InvokeCallResultKind::Handle
+                    }
+                );
+                assert_eq!(descriptor.terminals.len(), 1);
+                assert!(std::ptr::eq(descriptor.terminals[0], terminal));
+
                 assert!(ledger
                     .validate_no_pending_object_returns_v1()
                     .unwrap_err()
@@ -168,6 +182,72 @@ fn root_completion_index_direct_received_matrix_lends_same_original_source() {
 #[test]
 fn root_completion_index_collision_and_late_identity_drift_are_atomic() {
     let foreign = package(false, false, false, false);
+    for corruption in 0..6 {
+        let mut package = package(false, false, false, false);
+        let (owner, _) = identity(&package);
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        assert!(ledger.checked_root_object_result_v1().unwrap().is_some());
+        match corruption {
+            0 => {
+                ledger.completion_index.remove(&owner);
+            }
+            1 => {
+                ledger.normal_return_dispositions = None;
+            }
+            2 => {
+                ledger
+                    .terminal_relation_index
+                    .insert(owner, Rc::new((*ledger.terminal_relation).clone()));
+            }
+            3 => {
+                // Same contents do not replace the original successful Completion.
+                let other = ledger
+                    .completion_index
+                    .iter()
+                    .find(|(actual, _)| **actual != owner)
+                    .unwrap()
+                    .1
+                    .clone();
+                ledger.completion_index.insert(owner, other);
+            }
+            4 | 5 => {
+                let extra = SourceStmtSiteV1::from_node(
+                    crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![
+                        crate::mir::resolved_semantics::SourcePathSegmentV1::Body(99),
+                    ]),
+                );
+                let rows = ledger.normal_return_dispositions.as_mut().unwrap();
+                let proof = rows
+                    .values()
+                    .find_map(|row| match row {
+                        NormalReturnDispositionV1::Verified { proof } => Some(Rc::clone(proof)),
+                        _ => None,
+                    })
+                    .unwrap();
+                rows.insert(
+                    (owner, extra),
+                    NormalReturnDispositionV1::Verified { proof },
+                );
+                if corruption == 5 {
+                    ledger.completion_index.remove(&owner);
+                }
+            }
+            _ => unreachable!(),
+        }
+        let result = ledger.checked_root_object_result_v1();
+        if corruption < 2 {
+            assert!(result.unwrap().is_none());
+        } else {
+            assert!(result.err().unwrap().contains(if corruption == 2 {
+                "terminal-table-identity"
+            } else if corruption == 3 {
+                "completion-identity"
+            } else {
+                "disposition-exit"
+            }));
+        }
+    }
+
     for corruption in 0..4 {
         let mut package = package(false, false, false, false);
         let (owner, exit) = identity(&package);

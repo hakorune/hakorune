@@ -91,3 +91,6 @@ mod terminal_call_source;
 
 #[path = "ordinary_new_return_construction.rs"]
 mod return_construction;
+
+#[path = "ordinary_new_root_object_result.rs"]
+mod root_object_result;

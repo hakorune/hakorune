@@ -977,22 +977,24 @@ it from argument count. Duplicate stores/wrong commit kind are corruption.
 OwnedCall keeps its existing sealed Leaf DAG; no second receipt registry/solver.
 Required next evidence includes real consumed-claim Fresh, missing/foreign commit,
 arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
-Root-key transport closed at 6c7d192311: existing579 and production check PASS;
-/tmp/hako-object-root-key-* receipts retain exact evidence. No new test/guard,
-Object ABI or full S0 completion; exact-site Fresh view is next.
-
-Fresh source-view closed at 05cacecf80: sole local_commit lends exact pending
-claim or moved Result commit fields. Original arity survives affine take; duplicate,
-wrong-kind/site/class/prefix drift refuses. Take cannot overwrite held commits or
-consume Birth inputs on refusal. Source success grants no physical permission.
-Existing579 and production check PASS; /tmp/hako-result-source-view-* hold exact
-names/hashes/results. No new tests/guards/issuer/registry or pending/ABI switch.
-
-Result-owner preparation closed at 66574888d1: exact getter/enum moved to private
-finalized_root_result with same public paths and family pin. Lib+test check1m06s
-and scope/pointer/COPY/fmt/caps/diff/protected7 PASS; /tmp/hako-result-owner-move-*
-hold exact bodies/evidence. No runtime/permission expansion claim.
-Compiled-result preparation closed: unchanged I64/Unit enum/category moved from
-772-line parent to private root_result child (parent758); public paths unchanged.
-Exact bodies, lib+test check1m05s, scope/pointer/fmt/diff/protected7 PASS;
-/tmp/hako-compiled-root-result-owner-move-* retain evidence. No runtime expansion.
+Closed prerequisites: Root key6c7d192311, affine Fresh view05cacecf80 and
+unchanged result-owner splits66574888d1/7114201848. Exact-body/check/runtime/
+scope/pointer/protected evidence remains in /tmp/hako-object-root-key-*,
+/tmp/hako-result-source-view-* and /tmp/hako-*-owner-move-*; no ABI grant.
+Root descriptor construction Decision: private Completion-index child borrows
+SAME Root key Facts, indexed Completion/table and all original exit terminals.
+OwnedCall borrows sealed Normal proof and exact qualification witnesses; primitive
+Fresh/null uses the existing exact leaf checker after affine take. All siblings
+are visited; foreign identity is Err, genuinely unavailable is None. Source
+success grants no physical result or Object process-entry ABI permission.
+Existing Root matrix/atomicity and real finished Main/child families extended;
+No new test/guard. Initial lib+tests check29.54s and runtime Root5/finished1 PASS
+(build6m48s); receipts /tmp/hako-root-object-descriptor-*. Shared original Normal
+exit-domain law now rejects orphan proof before missing index, with existing
+negative family pin. Final build live50369; final-focused.log is not PASS.
+Scope/pointer/fmt/diff/protected7 PASS. Full source coverage and physical boundary
+integration remain required before replacing Value None or closing descriptor.
+Physical integration review: Direct/Fresh reuse exact existing producer/Return
+checks. Received must match original installed local destination to projected
+exit Return. Null needs SAME emit_null append retained at source site; no final
+CFG Const scan as authority. Joint recorded+actual Return drift must refuse.

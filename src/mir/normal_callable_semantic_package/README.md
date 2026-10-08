@@ -1775,3 +1775,8 @@ including unmerged blocks. Original entry/approach and every recorded arm remain
 required; proof definitions may disappear only when absent and unused in all
 blocks. Final Bool/target values never issue authority. General Phi substitution
 remains outside this bounded certificate.
+
+Root Object result inspection belongs to the original Completion-index owner.
+Its borrowed descriptor checks the SAME Root Facts key, Completion/table identity,
+all exact exits and existing leaf/Normal proofs. Source inspection does not grant
+finished Return publication, process-entry ABI or anchored-result permission.
