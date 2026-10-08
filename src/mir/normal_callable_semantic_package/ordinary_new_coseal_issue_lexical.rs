@@ -9,6 +9,9 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 use crate::mir::resolved_semantics::BindingKindV1;
 
+#[path = "ordinary_new_received_handle_arguments.rs"]
+mod received_handle;
+
 /// The shared claim-local receiver proof for a `recv.m(...)` local call:
 /// the method-call inventory row at `site` carries a `Lexical(Local)`
 /// receiver binding owned by this function, never rebound, initialized
@@ -342,6 +345,24 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if let BorrowedCallActualRequestV1::ReceivedHandleArguments(destination) = request {
+        return received_handle::received_handle_arguments_v1(
+            targets,
+            candidates,
+            classes,
+            site,
+            destination,
+            &mut |target, loan| {
+                super::super::lexical_instance_call::project_pending_object_arguments_v1(
+                    source, pending, target, loan,
+                )
+            },
+        )
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue,
+        });
+    }
     if let BorrowedCallActualRequestV1::ObjectArguments(loan, destination) = request {
         let demand = || -> Result<Option<BorrowedCallArgumentsV1>, String> {
             if site != loan.call()
@@ -469,6 +490,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
         BorrowedCallActualRequestV1::Observe(_)
+        | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")
         }

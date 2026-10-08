@@ -264,9 +264,9 @@ pub(crate) fn issue_qualified_static_local_call<E>(
             }
             arguments.into_vec()
         }
-        Some(BorrowedCallArgumentsV1::Scalar(_)) | Some(BorrowedCallArgumentsV1::Object { .. }) => {
-            return Ok(None)
-        }
+        Some(BorrowedCallArgumentsV1::Scalar(_))
+        | Some(BorrowedCallArgumentsV1::HandleSource(_))
+        | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
         None => {
             let mut arguments = Vec::with_capacity(call.arguments().len());
             for argument in call.arguments() {

@@ -462,6 +462,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     &homes,
                     local_call_flow::LocalCallResultClassV1::Handle,
                     &mut *local_handle_call,
+                    borrowed_actuals,
                 )?,
             };
             if let Some(local_call) = local_call {

@@ -116,11 +116,24 @@ impl OrdinaryNewResultClassClaimsV1 {
         call: &OwnedExprSiteV1,
         key: &CanonicalSameModuleCallableKeyV1,
     ) -> Box<[ObjectReturnCallQualificationV1]> {
+        self.qualifications_at_call(call)
+            .into_vec()
+            .into_iter()
+            .filter(|loan| loan.key() == key)
+            .collect()
+    }
+
+    /// Original immutable loans select a demand even when its target is missing.
+    /// This projection neither solves a result nor issues source authority.
+    pub(in crate::mir::normal_callable_semantic_package) fn qualifications_at_call(
+        &self,
+        call: &OwnedExprSiteV1,
+    ) -> Box<[ObjectReturnCallQualificationV1]> {
         let mut loans: Vec<_> = self
             .source_rows()
             .flat_map(|(_, exits)| exits.iter())
             .filter_map(|exit| self.object_return_qualification(exit.site()))
-            .filter(|loan| loan.call() == call && loan.key() == key)
+            .filter(|loan| loan.call() == call)
             .collect();
         loans.sort_by(|a, b| a.value().cmp(b.value()));
         loans.into_boxed_slice()

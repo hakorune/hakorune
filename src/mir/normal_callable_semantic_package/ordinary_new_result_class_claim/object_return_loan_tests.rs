@@ -161,9 +161,23 @@ fn object_call_qualification_projection_retains_all_received_values_and_exact_ca
     let first = facts.object_return_qualification(exits[0].site()).unwrap();
     let loans = facts.qualifications_for_call(first.call(), first.key());
     assert_eq!(loans.len(), 2);
+    let at_call = facts.qualifications_at_call(first.call());
+    assert_eq!(at_call, loans);
+    assert!(at_call
+        .windows(2)
+        .all(|pair| pair[0].value() < pair[1].value()));
     for exit in exits {
         let original = facts.object_return_qualification(exit.site()).unwrap();
         assert_eq!(loans.iter().filter(|loan| **loan == original).count(), 1);
+        let projected = at_call
+            .iter()
+            .find(|loan| loan.value() == exit.site())
+            .unwrap();
+        assert!(projected
+            .witnesses()
+            .iter()
+            .zip(original.witnesses())
+            .all(|(actual, original)| Rc::ptr_eq(actual, original)));
     }
     assert!(facts
         .qualifications_for_call(first.call(), &key("relay", 1))
@@ -174,4 +188,5 @@ fn object_call_qualification_projection_retains_all_received_values_and_exact_ca
     assert!(foreign
         .qualifications_for_call(first.call(), first.key())
         .is_empty());
+    assert!(foreign.qualifications_at_call(first.call()).is_empty());
 }

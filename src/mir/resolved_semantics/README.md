@@ -48,6 +48,10 @@ and its refusal propagates without strict retry. The entry-receiver flow's empty
 argument row never proves arity or executable values.
 The bounded lexical local-call observer lives in `home_local_lexical_call.rs`;
 `home_local_call_flow.rs` reexports its original signature for the sole scanner.
+For a ClaimLocal received Handle, it first corroborates the original initializer
+and asks the existing borrowed port for the package's complete qualified source
+arguments. Selected refusal cannot retry the literal lane. Source-only arguments
+record the observation and grant no executable result or entry permission.
 
 ## Received-call source retention
 

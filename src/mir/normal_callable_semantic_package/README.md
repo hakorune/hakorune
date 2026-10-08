@@ -47,6 +47,11 @@ products, absent callee membership, borrowed/mixed alternatives, wrong owner
 and inconsistent outer-class dependencies. Its lookup and dependency view do
 not observe a second AST, acquire a Home, seal NormalReturn, emit an Invoke,
 or authorize cleanup/publication. Execution requires the existing later owners.
+Its call-site-only plural projection selects qualified Received Handle demand
+before missing target evidence can hide it. The co-seal lexical child borrows
+the canonical ClaimLocal target/candidate and checks every original loan's phase
+and ordered arguments. SourceOnly remains passive; selected refusal never
+retries the old literal observer. Input finish and the Ready packet own execution.
 
 ## Lexical call source requirement loans
 
