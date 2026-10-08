@@ -1785,3 +1785,7 @@ Null return producers borrow the exact indexed terminal source only after the
 existing exit owner is Prepared. The same canonical Const append is retained in
 RootHomeCleanupOrder and checked against that exit's Return; missing producer
 observations grant no finalized Object result permission.
+
+Received returns join the original verified destination to the existing installed
+CallReceived producer and shared binding-group packet. Final cleanup corroborates
+that exact producer in FinishedBindings and actual MIR before accepting Return.

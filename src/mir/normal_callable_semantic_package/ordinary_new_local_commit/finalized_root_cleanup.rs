@@ -34,7 +34,15 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
-                                function, projection, order, entry, bindings, None,
+                                &self.ledger,
+                                *owner,
+                                exit,
+                                function,
+                                projection,
+                                order,
+                                entry,
+                                bindings,
+                                None,
                             )
                         })?;
                 }
@@ -55,6 +63,9 @@ impl FinalizedRootSourceHandoffV1 {
                                 .filter(|f| f.signature.name == symbol)
                                 .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
                             validate_finished_cleanup_entry(
+                                &self.ledger,
+                                *owner,
+                                exit,
                                 function,
                                 projection,
                                 order,
@@ -76,6 +87,9 @@ impl FinalizedRootSourceHandoffV1 {
 /// exit. `finishing` maps original storage; finalized Call storage is already
 /// rebound by its existing owner and supplies `None`.
 pub(super) fn validate_finished_cleanup_entry(
+    ledger: &OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    exit: &SourceStmtSiteV1,
     function: &MirFunction,
     projection: &physical_boundary::FinishedBindings,
     order: &super::root_home::RootHomeCleanupOrderV1,
@@ -92,6 +106,16 @@ pub(super) fn validate_finished_cleanup_entry(
             .binding(original.0, &original.1)?
             .ok_or_else(|| freeze("terminal-null/producer-removed"))?;
         mandatory.push(finished);
+    }
+    if let Some(producer) = ledger.validate_received_return_producer_v1(
+        owner,
+        exit,
+        entry,
+        bindings,
+        Some(projection),
+        finishing,
+    )? {
+        mandatory.push(producer);
     }
     match (finishing, entry) {
         (

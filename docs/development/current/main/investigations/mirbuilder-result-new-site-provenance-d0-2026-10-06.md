@@ -962,14 +962,10 @@ whole selected proof+independent physical attachment. Both315/318, full anchored
 lifetime/cleanup, unchanged mimalloc EXE, Gates2-4, migration/retirement/selfcompile
 and final acceptance remain mandatory. Collector closeout is not S0/goal completion.
 
-Object descriptor construction refinement (read-only review_cleanup_path): retain
-SAME AppMainCatalogCoSeal catalog key with parser identity in the existing ledger,
-and demand it before the collector's first move. Callee qualification keys cannot
-select Root Facts. Existing real Main/child matrix pins Root outcome owner and
-callee-key distinction; existing late-identity family adds missing-key atomicity.
-The checked descriptor will distinguish unavailable (None) from corruption (Err),
-using Result<Option<_>, String>; no error-erasing adapter. This transport is a
-prerequisite, not an Object ABI, pending-gate or anchored-result completion grant.
+Root key contract (landed6c7d192311): SAME AppMain catalog key/parser identity
+before first collector move; callee keys never select Root Facts. Checked descriptor
+uses Result<Option<_>,String>, retaining errors and existing identity/atomicity pins.
+Source transport grants no Object ABI/pending-gate/anchored result permission.
 Finalized Fresh follow-up: the pre-emission leaf checker cannot read a consumed
 claim. Reuse SAME NewResultCommit retained source fields via one exact-site
 borrowed local_commit view; retain original claim arity there rather than infer
@@ -985,16 +981,20 @@ NullLiteral/explicit exit/Prepared state issue the loan. None/Unprepared/Unavail
 stays unselected; consumed reentry Err. Const joins existing FinishedBindings.
 Const projection and rebound Return use separate mapping; missing receipt refuses
 before affine record. No new registry/issuer; lib+tests PASS42.23s. No whole Object ABI/S0 completion claim.
-Physical integration review: Direct/Fresh reuse exact existing producer/Return
-checks. Received must match original installed local destination to projected
-exit Return. Null needs SAME emit_null append retained at source site; no final
-CFG Const scan as authority. Joint recorded+actual Return drift must refuse.
-Null receipt acceptance PASS: joint physical+recorded Return drift and missing
-finished Const binding refuse before affine move; owner identity/kind/duplicate/
-unselected states and real Main/child matrix pass. Same-binary regression581 PASS
-(1.30s), required quick build4m59s, production lib check23.57s. Evidence:
-/tmp/hako-terminal-null-append-{joint-mapped.log,regression.json,production-check.log}.
-Fixture privacy/premature API/unmapped block THISCHANGE errors fixed; no remaining
-required red. Scope/pointer/diff/caps/protected7 PASS; test line-wrap only after build.
-Existing preflight family extended plus one independent owner test; no new guard.
-Received exact producer attachment and checked whole Object ABI remain next.
+Physical integration review: Direct retains exact order/Call result; Null retains
+source Const; Received joins original installed destination and projected Return.
+Fresh exact-site-to-exit correspondence is still owed: function-wide Return count
+alone cannot reject a joint swap of two Fresh exits. Close before Object ABI mint.
+Null producer closed81163fc815 (pushed): original Const/Return, joint drift,
+missing finishing binding and Main/child boundaries PASS; no whole ABI grant.
+Evidence /tmp/hako-terminal-null-append-* (regression581, build4m59s, lib23.57s,
+guards/protected PASS; fixture THISCHANGE reds fixed). No new guard.
+Received producer Decision (read-only review_cleanup_path): SAME verified Normal
+obligation's call site/local destination selects existing CallReceived commit.
+Corroborate owner/binding/declaration, installed local, original binding group and
+shared packet; map that exact producer separately from Return storage.
+Record before affine move; independent final membership/actual MIR check remains.
+Reuse cleanup omission/Fault law; unavailable/wrong/foreign/removed/drift refuses.
+Extend existing Main/child matrix and joint-fault preflight negatives, no new guard.
+Target record_root_home_exit, validate_root_home_exit and finished cleanup owner;
+Received producer closed: preflight6/6 and remaining regression575/575 PASS; lib17.20s. THISCHANGE early membership and ClaimLocal packet refusals fixed; missing Self packet still rejects. Evidence /tmp/hako-received-return-producer-{preflight-protocol-fixed.log,regression.json,production-check.log}; binary SHA256 2ae7f28f457ed5485e7cfa3a9e5ec9cd9f276ae31348a5bcc6bfc7ca78213700. Scope/pointer/fmt/protected PASS; no whole ABI grant.

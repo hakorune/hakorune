@@ -1,5 +1,7 @@
 //! Whole real module finishing and failure atomicity at the original collector seam.
 use super::*;
+#[path = "return_producer_tests.rs"]
+mod return_producers;
 use crate::mir::builder::{
     CompletedNormalDefaultRootCatalogLifecycleV1, SelectedNormalCallableKeyV1,
 };
@@ -337,7 +339,8 @@ fn received_source_missing_and_unregistered_exit_fail_before_move() {
 
 #[test]
 fn joint_mir_and_recorded_fault_omission_is_rejected_before_take() {
-    null_return_joint_drift_and_missing_finished_binding();
+    return_producers::null_return_joint_drift_and_missing_finished_binding();
+    return_producers::received_return_joint_drift_and_missing_producer();
     let (key, mut module, ledger, keys, cohort) = fixture(false);
     let owner = ledger.root_owner().unwrap();
     let exit = ledger.completion_for_owner(owner).unwrap().explicit_sites()[0].clone();
@@ -528,109 +531,5 @@ fn checked_finished_leaf_source_failures() {
             None => assert!(result.unwrap().is_none(), "failure {failure}"),
         }
         assert_eq!(snapshot(&ledger), before);
-    }
-}
-
-fn null_return_joint_drift_and_missing_finished_binding() {
-    for missing_binding in [false, true] {
-        let (key, mut module, ledger, keys, cohort) = completed(&source(false, false, true, false))
-            .document_preflight_parts_for_test(true)
-            .unwrap();
-        let (owner, exit) = ledger
-            .terminal_relation_index
-            .iter()
-            .find_map(|(owner, rows)| {
-                rows.iter().find_map(|(exit, row)| match row {
-                    TerminalRelationV1::Value(value)
-                        if matches!(value.returned(), TerminalReturnedSourceV1::NullLiteral) =>
-                    {
-                        Some((*owner, exit.clone()))
-                    }
-                    _ => None,
-                })
-            })
-            .unwrap();
-        let (symbol, original) = {
-            let exits = ledger.root_exits.borrow();
-            let RootHomeExitProgress::Emitted { order, .. } = &exits[&(owner, exit.clone())] else {
-                panic!("original Null exit")
-            };
-            let original = order.null_return_binding().unwrap().clone();
-            // The collector has not finalized Root yet; inspect the same held
-            // child projection, without using the post-finalization API.
-            let children = ledger.child_physical_validation.borrow();
-            let ChildPhysicalValidation::FinishingChecked { symbol, projection } =
-                &children[&owner]
-            else {
-                panic!("finished original Null child")
-            };
-            (
-                symbol.clone(),
-                projection
-                    .binding(original.0, &original.1)
-                    .unwrap()
-                    .unwrap(),
-            )
-        };
-        if missing_binding {
-            let mut states = ledger.child_physical_validation.borrow_mut();
-            let ChildPhysicalValidation::FinishingChecked { projection, .. } =
-                states.get_mut(&owner).unwrap()
-            else {
-                panic!("finished original Null child")
-            };
-            assert!(projection.recorded().contains(&original));
-            projection.remove_recorded_binding_for_test(&original);
-        } else {
-            let changed = ValueId::new(9999);
-            let (block, old) = {
-                let mut exits = ledger.root_exits.borrow_mut();
-                let RootHomeExitProgress::Emitted { bindings, .. } =
-                    exits.get_mut(&(owner, exit)).unwrap()
-                else {
-                    panic!("Null Emitted")
-                };
-                let (block, instruction) = bindings
-                    .iter_mut()
-                    .find(|(_, instruction)| matches!(instruction, MirInstruction::Return { .. }))
-                    .unwrap();
-                let old = instruction.clone();
-                *instruction = MirInstruction::Return {
-                    value: Some(changed),
-                };
-                (*block, old)
-            };
-            let (block, old) = {
-                let children = ledger.child_physical_validation.borrow();
-                let ChildPhysicalValidation::FinishingChecked { projection, .. } =
-                    &children[&owner]
-                else {
-                    panic!("finished original Null child")
-                };
-                projection.binding(block, &old).unwrap().unwrap()
-            };
-            let function = module.functions.get_mut(&symbol).unwrap();
-            let physical = function.blocks.get_mut(&block).unwrap();
-            assert_eq!(physical.terminator, Some(old));
-            physical.instructions.push(MirInstruction::Const {
-                dst: changed,
-                value: crate::mir::ConstValue::Null,
-            });
-            physical.terminator = Some(MirInstruction::Return {
-                value: Some(changed),
-            });
-        }
-        let before = snapshot(&ledger);
-        assert!(
-            ledger
-                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
-                .is_err(),
-            "missing_binding={missing_binding}"
-        );
-        assert_eq!(
-            snapshot(&ledger),
-            before,
-            "Null corruption must precede affine move"
-        );
     }
 }

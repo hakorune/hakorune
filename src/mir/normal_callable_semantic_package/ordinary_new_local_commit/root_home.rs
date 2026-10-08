@@ -11,6 +11,8 @@ pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::RootHome
 #[path = "root_home_null_return.rs"]
 mod null_return;
 pub(crate) use null_return::TerminalNullReturnSourceLoanV1;
+#[path = "root_home_received_return.rs"]
+mod received_return;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
@@ -452,6 +454,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("terminal-null/producer-missing"));
         }
         order.validate_null_return(&entry, &bindings, None, None)?;
+        self.validate_received_return_producer_v1(owner, site, &entry, &bindings, None, None)?;
         let RootHomeExitProgress::Emitting(order) =
             std::mem::replace(progress, RootHomeExitProgress::Unprepared)
         else {
@@ -652,6 +655,26 @@ impl OrdinaryNewClaimLedgerV1 {
                     }
                     order.validate_direct_entry(entry, bindings, projection)?;
                     order.validate_null_return(entry, bindings, projection, projection)?;
+                    if let Some(producer) = self.validate_received_return_producer_v1(
+                        owner,
+                        expected_exit,
+                        entry,
+                        bindings,
+                        projection,
+                        projection,
+                    )? {
+                        // Projection precedes validate_complete's registration.
+                        // Final collector checks mandatory membership after that
+                        // existing owner has installed the recorded bindings.
+                        if !super::physical_boundary::check_binding(
+                            function,
+                            None,
+                            producer.0,
+                            &producer.1,
+                        )? {
+                            return Err(freeze("received-return/producer-actual-drift"));
+                        }
+                    }
                     super::root_cleanup_graph::ordered_paths::validate(
                         function, bindings, entry, order, projection,
                     )?;
