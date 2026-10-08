@@ -122,7 +122,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     local_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
         E,
     >,
     field_is_integer: &mut impl FnMut(

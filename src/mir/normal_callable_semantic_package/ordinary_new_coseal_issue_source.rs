@@ -446,7 +446,7 @@ pub(super) fn probe_source_home_prefixes_v1(
     local_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
         OrdinaryNewCoSealIssueV1,
     >,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,

@@ -12,9 +12,23 @@ pub(super) fn observe_scalar_expression<E>(
         &[LocalFieldReadRequestV1],
         bool,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
-) -> Result<Option<SourceScalarKind>, E> {
+    statement: &SourceStmtSiteV1,
+    homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
     let mut requests = Vec::new();
-    let Some(kind) = preflight(input, site, locals, &mut requests) else {
+    let mut calls = Vec::new();
+    let Some(kind) = preflight(
+        input,
+        site,
+        locals,
+        &mut requests,
+        &mut calls,
+        statement,
+        homes,
+        static_call,
+    )?
+    else {
         return Ok(None);
     };
     if required.is_some_and(|expected| expected != kind) {
@@ -32,39 +46,48 @@ pub(super) fn observe_scalar_expression<E>(
             return Ok(None);
         }
     }
-    Ok(Some(kind))
+    // Publish only after the whole original expression is proved. A rejected
+    // right sibling or field batch never leaves a partial call observation.
+    Ok(Some((kind, calls)))
 }
 
-fn preflight(
+fn preflight<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     requests: &mut Vec<LocalFieldReadRequestV1>,
-) -> Option<SourceScalarKind> {
+    calls: &mut Vec<LocalCallObservationV1>,
+    statement: &SourceStmtSiteV1,
+    homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+) -> Result<Option<SourceScalarKind>, E> {
     match locals.observe(site) {
-        Some(OrdinaryObservation::Integer(_)) => return Some(SourceScalarKind::Integer),
-        Some(OrdinaryObservation::Bool(_)) => return Some(SourceScalarKind::Bool),
-        Some(OrdinaryObservation::TrivialLocal(_, Some(kind))) => return Some(kind),
+        Some(OrdinaryObservation::Integer(_)) => return Ok(Some(SourceScalarKind::Integer)),
+        Some(OrdinaryObservation::Bool(_)) => return Ok(Some(SourceScalarKind::Bool)),
+        Some(OrdinaryObservation::TrivialLocal(_, Some(kind))) => return Ok(Some(kind)),
         _ => {}
+    }
+    if let Some(call) =
+        local_call_flow::issue_static_i64_value_call(input, statement, site, homes, static_call)?
+    {
+        calls.push(call);
+        return Ok(Some(SourceScalarKind::Integer));
     }
     if let Some(request) = field_read::field_read_request(input, site, locals) {
         requests.push(request);
-        return Some(SourceScalarKind::Integer);
+        return Ok(Some(SourceScalarKind::Integer));
     }
-    let row = input.function().expression_source().binary(site)?;
+    let Some(row) = input.function().expression_source().binary(site) else {
+        return Ok(None);
+    };
     if !binary_sites_match(site, row) {
-        return None;
+        return Ok(None);
     }
     use ResolvedBinaryOperatorV1 as Op;
     use SourceScalarKind as Kind;
     if matches!(row.operator(), Op::Equal | Op::NotEqual) {
-        // A proven field-read alias is a borrowed handle: its only
-        // admitted scalar equality is against the `null` literal. The
-        // alias binding carries the sealed declared class; the read
-        // result itself stays borrowed — no request, no release.
         let alias_null = |value: &SourceExprSiteV1, null: &SourceExprSiteV1| {
-            let Some(ResolvedLexicalRefV1::Local(binding)) =
-                input.function().variable_ref(value)
+            let Some(ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(value)
             else {
                 return false;
             };
@@ -74,7 +97,7 @@ fn preflight(
             ) && matches!(locals.observe(null), Some(OrdinaryObservation::Null))
         };
         if alias_null(row.lhs(), row.rhs()) || alias_null(row.rhs(), row.lhs()) {
-            return Some(Kind::Bool);
+            return Ok(Some(Kind::Bool));
         }
     }
     let (operand, result) = match row.operator() {
@@ -82,55 +105,85 @@ fn preflight(
         Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {
             (Kind::Integer, Kind::Bool)
         }
+        // Calls beneath short-circuit operators need path-specific Homes.
+        // Keep this pure profile closed until that observation is established.
         Op::And | Op::Or => (Kind::Bool, Kind::Bool),
-        _ => return None,
+        _ => return Ok(None),
     };
     let mark = requests.len();
-    let lhs = preflight(input, row.lhs(), locals, requests)?;
-    let rhs = preflight(input, row.rhs(), locals, requests)?;
+    let call_mark = calls.len();
+    let Some(lhs) = preflight(
+        input,
+        row.lhs(),
+        locals,
+        requests,
+        calls,
+        statement,
+        homes,
+        static_call,
+    )?
+    else {
+        return Ok(None);
+    };
+    let Some(rhs) = preflight(
+        input,
+        row.rhs(),
+        locals,
+        requests,
+        calls,
+        statement,
+        homes,
+        static_call,
+    )?
+    else {
+        return Ok(None);
+    };
+    if matches!(row.operator(), Op::And | Op::Or) && calls.len() != call_mark {
+        return Ok(None);
+    }
     if matches!(
         row.operator(),
         Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
     ) {
-        // Order-compare operands admit the receivers the compare lane has:
-        // a guarded formal via its sealed object view, or the `me` entry
-        // receiver. Any other provenance declines the whole root.
         for request in &requests[mark..] {
             let me_receiver = input
                 .body_shape()
                 .and_then(|shape| shape.expression_shape(&request.receiver_site))
                 .is_some_and(|shape| {
-                    matches!(shape, crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { .. })
+                    matches!(
+                        shape,
+                        crate::mir::resolved_semantics::BodyExpressionShapeV1::Me { .. }
+                    )
                 });
             if !request.formal && !me_receiver {
-                return None;
+                return Ok(None);
             }
         }
     }
-    (lhs == operand && rhs == operand).then_some(result)
+    Ok((lhs == operand && rhs == operand).then_some(result))
 }
 
 /// Select only the new field-expression condition responsibility. Existing
 /// conditions with no eligible field receiver keep their original admission.
-pub(super) fn contains_field_request(
+pub(super) fn contains_source_request<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-) -> bool {
-    profile_scope(input, root, locals, false).unwrap_or(false)
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+) -> Result<bool, E> {
+    Ok(profile_scope(input, root, locals, false, static_call)?.unwrap_or(false))
 }
 
-/// Morphology-only scope: declaration, scalar class and liveness stay with
-/// the subsequent proof. An excluded subtree never selects the new profile.
-/// Order compares select the scalar lane only for a guarded formal field
-/// read — owned receiver operands keep the existing compare lane, so a
-/// `me.`/`new`-local order condition never silently changes lanes.
-fn profile_scope(
+/// Field morphology selects its existing profile; an additional static call
+/// selects only through the SAME exact CurrentOwner I64 source proof. Bool,
+/// Text and unknown call siblings keep their original unselected scope.
+fn profile_scope<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     order_compare: bool,
-) -> Option<bool> {
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+) -> Result<Option<bool>, E> {
     if let Some(row) = input.function().expression_source().binary(site) {
         use ResolvedBinaryOperatorV1 as Op;
         if !matches!(
@@ -146,15 +199,32 @@ fn profile_scope(
                 | Op::And
                 | Op::Or
         ) {
-            return None;
+            return Ok(None);
         }
         let operand_order = matches!(
             row.operator(),
             Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual
         );
-        let left = profile_scope(input, row.lhs(), locals, operand_order)?;
-        let right = profile_scope(input, row.rhs(), locals, operand_order)?;
-        return Some(left || right);
+        let Some(left) = profile_scope(input, row.lhs(), locals, operand_order, static_call)?
+        else {
+            return Ok(None);
+        };
+        let Some(right) = profile_scope(input, row.rhs(), locals, operand_order, static_call)?
+        else {
+            return Ok(None);
+        };
+        return Ok(Some(left || right));
+    }
+    if input
+        .function()
+        .method_calls()
+        .any(|(observed, _)| observed == site)
+    {
+        return Ok(
+            static_call(&OwnedExprSiteV1::new(input.owner(), site.clone()))?
+                .filter(|claim| claim.is_current_owner_zeroarg())
+                .map(|_| true),
+        );
     }
     if matches!(
         input.function().expression_source().literal(site),
@@ -166,13 +236,15 @@ fn profile_scope(
         input.function().variable_ref(site),
         Some(ResolvedLexicalRefV1::Local(_))
     ) {
-        return Some(false);
+        return Ok(Some(false));
     }
-    let shape = input.body_shape()?;
-    let crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. } =
-        shape.expression_shape(site)?
+    let Some(shape) = input.body_shape() else {
+        return Ok(None);
+    };
+    let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) =
+        shape.expression_shape(site)
     else {
-        return None;
+        return Ok(None);
     };
     let via_me = matches!(
         shape.expression_shape(object),
@@ -185,23 +257,19 @@ fn profile_scope(
                 receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding),
                 ..
             }) => *binding,
-            _ => return None,
+            _ => return Ok(None),
         },
     };
     if order_compare {
-        // Only a guarded formal selects this lane for an order compare;
-        // `me.` operands stay admissible inside a selected root, and any
-        // other receiver provenance falls the whole root back to the
-        // existing compare lane unchanged.
         if matches!(
             locals.field_read_receiver(binding),
             Some(local_flow::FieldReadReceiverV1::GuardedFormal)
         ) {
-            return Some(true);
+            return Ok(Some(true));
         }
-        return via_me.then_some(false);
+        return Ok(via_me.then_some(false));
     }
-    Some(locals.is_field_read_candidate(binding))
+    Ok(Some(locals.is_field_read_candidate(binding)))
 }
 
 fn binary_sites_match(

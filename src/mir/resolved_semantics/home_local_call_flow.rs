@@ -125,6 +125,8 @@ pub(crate) enum LocalCallDestinationV1 {
         binding: BindingRefV1,
     },
     Discard,
+    /// A value at its exact expression site; no receiving local or Home.
+    ExpressionValue,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -182,7 +184,7 @@ impl LocalCallObservationV1 {
                 declaration,
                 binding,
             } => Some((declaration, *binding)),
-            LocalCallDestinationV1::Discard => None,
+            LocalCallDestinationV1::Discard | LocalCallDestinationV1::ExpressionValue => None,
         }
     }
 
@@ -203,15 +205,15 @@ impl LocalCallObservationV1 {
 mod lexical_local_call;
 pub(crate) use lexical_local_call::{issue_lexical_local_call, issue_received_producer_local_call};
 
-/// Issue one `local x = Alias.m(..)` qualified static-box call continuation.
+/// Issue a source-proved static I64 continuation, preserving its original route.
 ///
 /// The package-injected predicate is the sole membership authority — it
-/// returns the sealed claim only for a `QualifiedUnbound` receiver whose
-/// target is a `StaticBoxMethod` with an `ExactI64` result disposition.  The
+/// returns a sealed Qualified claim or the bounded zeroarg CurrentOwner claim.
+/// Both require the original `StaticBoxMethod` target and `ExactI64` disposition.  The
 /// inventory row only corroborates the source receiver shape; every argument
 /// must seal to an Integer/Bool literal or a scalar local/parameter binding,
 /// and callee-required i64 ordinals must carry i64-class evidence.
-pub(crate) fn issue_qualified_static_local_call<E>(
+pub(crate) fn issue_static_i64_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
@@ -221,7 +223,7 @@ pub(crate) fn issue_qualified_static_local_call<E>(
     locals: &PrefixLocalFlow<'_>,
     qualified_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
-    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    ) -> Result<Option<super::StaticI64CallClaimV1>, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -237,60 +239,72 @@ pub(crate) fn issue_qualified_static_local_call<E>(
     else {
         return Ok(None);
     };
-    if observed_site != site.site()
-        || call.receiver() != ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+    if input.owner() != site.owner()
+        || call.owner() != input.owner()
+        || observed_site != site.site()
+        || !claim.corroborates_source(site, call.receiver(), call.arity())
     {
         return Ok(None);
     }
-    let arguments = match borrowed_arguments(
-        site,
-        BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(&claim),
-    )? {
-        Some(BorrowedCallArgumentsV1::StaticSource(arguments)) => {
-            if arguments.len() != call.arguments().len()
-                || arguments
-                    .iter()
-                    .zip(call.arguments())
-                    .any(|(argument, original)| match argument {
-                        LocalCallArgumentV1::BorrowedActual { ordinal, site } => {
-                            *ordinal != original.ordinal() || site != original.site()
-                        }
-                        LocalCallArgumentV1::Integer(_) => false,
-                        LocalCallArgumentV1::Scalar(binding) => binding.owner() != input.owner(),
-                        _ => true,
-                    })
-            {
-                return Ok(None);
-            }
-            arguments.into_vec()
-        }
-        Some(BorrowedCallArgumentsV1::Scalar(_))
-        | Some(BorrowedCallArgumentsV1::HandleSource(_))
-        | Some(BorrowedCallArgumentsV1::SourceObject { .. })
-        | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
-        None => {
-            let mut arguments = Vec::with_capacity(call.arguments().len());
-            for argument in call.arguments() {
-                let (row, i64_evidence) = match locals.observe(argument.site()) {
-                    Some(OrdinaryObservation::Integer(value)) => {
-                        (LocalCallArgumentV1::Integer(value), true)
-                    }
-                    Some(OrdinaryObservation::Bool(value)) => {
-                        (LocalCallArgumentV1::Bool(value), false)
-                    }
-                    Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => (
-                        LocalCallArgumentV1::Scalar(binding),
-                        kind == SourceScalarKind::Integer,
-                    ),
-                    _ => return Ok(None),
-                };
-                if claim.required_i64_arguments().contains(&argument.ordinal()) && !i64_evidence {
+    let arguments = if let Some(claim) = claim.qualified_claim() {
+        match borrowed_arguments(
+            site,
+            BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
+        )? {
+            Some(BorrowedCallArgumentsV1::StaticSource(arguments)) => {
+                if arguments.len() != call.arguments().len()
+                    || arguments
+                        .iter()
+                        .zip(call.arguments())
+                        .any(|(argument, original)| match argument {
+                            LocalCallArgumentV1::BorrowedActual { ordinal, site } => {
+                                *ordinal != original.ordinal() || site != original.site()
+                            }
+                            LocalCallArgumentV1::Integer(_) => false,
+                            LocalCallArgumentV1::Scalar(binding) => {
+                                binding.owner() != input.owner()
+                            }
+                            _ => true,
+                        })
+                {
                     return Ok(None);
                 }
-                arguments.push(row);
+                arguments.into_vec()
             }
-            arguments
+            Some(BorrowedCallArgumentsV1::Scalar(_))
+            | Some(BorrowedCallArgumentsV1::HandleSource(_))
+            | Some(BorrowedCallArgumentsV1::SourceObject { .. })
+            | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
+            None => {
+                let mut arguments = Vec::with_capacity(call.arguments().len());
+                for argument in call.arguments() {
+                    let (row, i64_evidence) = match locals.observe(argument.site()) {
+                        Some(OrdinaryObservation::Integer(value)) => {
+                            (LocalCallArgumentV1::Integer(value), true)
+                        }
+                        Some(OrdinaryObservation::Bool(value)) => {
+                            (LocalCallArgumentV1::Bool(value), false)
+                        }
+                        Some(OrdinaryObservation::TrivialLocal(binding, Some(kind))) => (
+                            LocalCallArgumentV1::Scalar(binding),
+                            kind == SourceScalarKind::Integer,
+                        ),
+                        _ => return Ok(None),
+                    };
+                    if claim.required_i64_arguments().contains(&argument.ordinal()) && !i64_evidence
+                    {
+                        return Ok(None);
+                    }
+                    arguments.push(row);
+                }
+                arguments
+            }
         }
+    } else {
+        if !call.arguments().is_empty() {
+            return Ok(None);
+        }
+        Vec::new()
     };
     Ok(Some(LocalCallObservationV1::issue(
         input.owner(),
@@ -302,6 +316,54 @@ pub(crate) fn issue_qualified_static_local_call<E>(
         arguments.into_boxed_slice(),
         LocalCallResultClassV1::I64,
     )))
+}
+
+/// Source-only value observation from the original zeroarg CurrentOwner loan.
+/// This shares the statement's live Homes and never invents a local destination.
+pub(super) fn issue_static_i64_value_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &SourceExprSiteV1,
+    prior_homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::StaticI64CallClaimV1>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !site
+        .node()
+        .segments()
+        .starts_with(statement.node().segments())
+    {
+        return Ok(None);
+    }
+    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let Some(claim) = static_call(&owned)? else {
+        return Ok(None);
+    };
+    // Qualified expression contexts retain their existing admission boundary.
+    if !claim.is_current_owner_zeroarg() {
+        return Ok(None);
+    }
+    let Some((_, call)) = input
+        .function()
+        .method_calls()
+        .find(|(observed, _)| *observed == site)
+    else {
+        return Ok(None);
+    };
+    if call.owner() != input.owner()
+        || !call.arguments().is_empty()
+        || !claim.corroborates_source(&owned, call.receiver(), call.arity())
+    {
+        return Ok(None);
+    }
+    Ok(Some(LocalCallObservationV1 {
+        owner: input.owner(),
+        statement: statement.clone(),
+        site: owned,
+        destination: LocalCallDestinationV1::ExpressionValue,
+        prior_homes: prior_homes.iter().copied().collect(),
+        arguments: Box::new([]),
+        result: LocalCallResultClassV1::I64,
+    }))
 }
 
 /// Issue an exact lexical instance-call local continuation. The package
@@ -635,7 +697,7 @@ pub(crate) fn issue_static_source_local_for_test(
     ) -> Result<Option<BorrowedCallArgumentsV1>, String>,
 ) -> Result<Option<LocalCallObservationV1>, String> {
     let (declaration, destination) = original.local_binding().unwrap();
-    issue_qualified_static_local_call(
+    issue_static_i64_local_call(
         input,
         original.statement(),
         original.site(),
@@ -643,7 +705,7 @@ pub(crate) fn issue_static_source_local_for_test(
         destination,
         original.prior_homes(),
         &PrefixLocalFlow::new(input),
-        &mut |_| Ok(Some(claim.clone())),
+        &mut |_| Ok(Some(super::StaticI64CallClaimV1::qualified(claim.clone()))),
         callback,
     )
 }

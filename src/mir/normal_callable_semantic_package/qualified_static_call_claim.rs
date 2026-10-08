@@ -9,9 +9,10 @@
 //! already-sealed products into one membership row per call site and stays
 //! silent (absent row) for every non-claim.
 //!
-//! `me.m(..)` routes (`CurrentOwnerStatic`), non-static targets, and
-//! non-`ExactI64` dispositions keep no row here — callers see `None` and the
-//! prefix scan records its ordinary named unavailability.
+//! Qualified rows remain distinct from original `CurrentOwnerStatic` rows.
+//! The homes predicate composes a bounded zeroarg CurrentOwner ExactI64 source
+//! claim from the original typed incoming loan. It issues no executable entry.
+//! Other current-owner inputs and non-I64 results retain no homes claim.
 
 use std::collections::BTreeMap;
 
@@ -23,7 +24,9 @@ use crate::mir::callable_result_representation::{
     CallableResultCatalogErrorV1, VerifiedCallableResultDispositionV1,
     VerifiedSameModuleCallableResultCatalogV1,
 };
-use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    QualifiedStaticCallClaimV1, StaticI64CallClaimV1,
+};
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::{
     StaticImportAliasViewErrorV1, VerifiedSourceStaticCallTargetV1,
@@ -148,6 +151,19 @@ impl QualifiedStaticCallClaimIndexV1 {
 
     /// Borrow only the original CurrentOwnerStatic route for this caller/site.
     /// Missing is not a qualified claim, and a non-I64 result stays non-I64.
+    fn current_owner_zeroarg_i64_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&CurrentOwnerStaticCallSourceV1> {
+        self.current_owner_source(caller, site).filter(|row| {
+            row.route().target().arity() == 0
+                && matches!(row.result(),
+                VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments }
+                    if required_i64_arguments.is_empty())
+        })
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn current_owner_source(
         &self,
         caller: &CanonicalSameModuleCallableKeyV1,
@@ -216,25 +232,85 @@ pub(in crate::mir::normal_callable_semantic_package) fn caller_key_for_function(
     is_app_main: bool,
     app_main_claim_key: Option<&CanonicalSameModuleCallableKeyV1>,
 ) -> Option<CanonicalSameModuleCallableKeyV1> {
-    caller_key_for_batch_slot(selected, batch_slot).or_else(|| {
-        is_app_main.then(|| app_main_claim_key.cloned()).flatten()
-    })
+    caller_key_for_batch_slot(selected, batch_slot)
+        .or_else(|| is_app_main.then(|| app_main_claim_key.cloned()).flatten())
 }
 
 /// The homes-aware membership predicate for one caller — the probe and the
 /// verified walk share this closure so readiness never diverges.
-pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predicate<'index, E>(
+pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predicate<'index>(
     claims: &'index QualifiedStaticCallClaimIndexV1,
     caller_key: Option<CanonicalSameModuleCallableKeyV1>,
-) -> impl FnMut(
-    &crate::mir::resolved_semantics::OwnedExprSiteV1,
-) -> Result<Option<QualifiedStaticCallClaimV1>, E>
-+ 'index {
-    move |site| {
-        Ok(caller_key
-            .as_ref()
-            .and_then(|key| claims.claim(key, site.site())))
-    }
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'index>,
+    selected: &'index super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    contracts: &'index [super::model::OwnedCallableParameterContractDeclarationV1],
+    app_main: Option<&'index super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
+) -> (
+    impl FnMut(
+            &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ) -> Result<
+            Option<StaticI64CallClaimV1>,
+            super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
+        > + 'index,
+    bool,
+) {
+    let has_current_owner_i64_source = caller_key.as_ref().is_some_and(|key| {
+        claims.current_owner_rows.keys().any(|(caller, site)| {
+            caller == key
+                && claims
+                    .current_owner_zeroarg_i64_source(caller, site)
+                    .is_some()
+        })
+    });
+    (
+        move |site| {
+            let Some(key) = caller_key.as_ref() else {
+                return Ok(None);
+            };
+            if let Some(claim) = claims.claim(key, site.site()) {
+                return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
+            }
+            if claims
+                .current_owner_zeroarg_i64_source(key, site.site())
+                .is_none()
+            {
+                return Ok(None);
+            }
+            let reject =
+                || super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::SourceNavigation {
+                    site: site.clone(),
+                };
+            if site.owner() != input.owner() {
+                return Err(reject());
+            }
+            let mut calls = input
+                .function()
+                .method_calls()
+                .filter(|(observed, _)| *observed == site.site());
+            let Some((_, call)) = calls.next() else {
+                return Err(reject());
+            };
+            if calls.next().is_some() {
+                return Err(reject());
+            }
+            let loan = claims
+                .incoming_source(key, site, call, selected, contracts, app_main)
+                .map_err(|issue| {
+                    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: site.clone(),
+                        issue,
+                    }
+                })?
+                .ok_or_else(reject)?;
+            if !loan.contract().parameters.is_empty() {
+                return Err(reject());
+            }
+            Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
+                site.clone(),
+            )))
+        },
+        has_current_owner_i64_source,
+    )
 }
 
 /// Translate the caller for `batch_slot` into the canonical same-module
@@ -250,10 +326,10 @@ fn caller_key_for_batch_slot(
         .key_for_batch_slot(batch_slot)
         .and_then(|key| match key {
             SelectedNormalCallableKeyV1::Cataloged(key) => Some(key.clone()),
-            SelectedNormalCallableKeyV1::TopLevel(top) => u32::try_from(top.declared_arity())
-                .ok()
-                .map(|arity| {
+            SelectedNormalCallableKeyV1::TopLevel(top) => {
+                u32::try_from(top.declared_arity()).ok().map(|arity| {
                     CanonicalSameModuleCallableKeyV1::free_function(top.declared_name(), arity)
-                }),
+                })
+            }
         })
 }

@@ -480,6 +480,20 @@ from `StaticCurrentOwner`. A selected static-Box method may therefore retain
 its exact `me.method()` source shape without fabricating a receiver
 `BindingRefV1`; Query/body-conformance consumers remain instance-only and
 match only the lexical arm.
+The homes-aware static I64 observer keeps the two source routes distinct.
+Qualified calls retain their required-argument/borrowed-first law; zeroarg
+CurrentOwner calls require the original index's typed incoming loan, matching
+catalog/caller/target/contract and ExactI64 with empty required ordinals.
+`ExpressionValue` records a real value site without inventing a receiving local
+or Home. The same scalar preflight retains ordered call observations and the
+statement's original priorHomes, publishing only after the whole expression
+and field batch are proved. Conditions select this extension only through the
+same bounded claim; Bool/Text/unknown calls retain their original profile.
+Direct ReturnValue keeps the terminal Call relation; binary returns keep their
+exact scalar relation. Nested arguments, loops and short-circuit call paths are
+not granted by this source connection. Executable input, affine handoff/Invoke,
+FinishedBindings and original call-child/Mul runtime closure remain separate
+requirements; a source observation cannot issue a Ready packet.
 The four axis receipts remain private or borrowed views; the only new public
 semantic owner is the body-root-scoped execution-evidence aggregate. Coverage
 borrows existing body-owner/carrier/shape/forest identity, `Await` belongs to

@@ -122,7 +122,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     local_static_call: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
     ) -> Result<
-        Option<crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
         E,
     >,
     result_sites: &std::collections::BTreeSet<crate::mir::resolved_semantics::OwnedExprSiteV1>,

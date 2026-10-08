@@ -12,8 +12,7 @@
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use crate::mir::builder::NormalRootExecutionConsumerV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
-    HomePrefixUnavailableV1, LocalCallArgumentV1, LocalCallObservationV1,
-    LocalCallResultClassV1,
+    LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
 };
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourceBindingSiteV1};
 use crate::parser::{NyashParser, ParserBuildConfig};
@@ -36,8 +35,7 @@ fn issue_with_import_rows(
         crate::r#macro::transform_normal_callable_program_v1(parsed)
             .expect("exact callable transform")
     });
-    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-    else {
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
         panic!("fixture must remain source-backed")
     };
     let catalog =
@@ -79,9 +77,7 @@ fn local_calls(
 
 /// The `new Page()` claim's prefix record — `Err(PrefixNotCovered(_))`
 /// is the named unavailability an unclaimed call leaves behind.
-fn new_claim_prefix_covered(
-    package: &super::VerifiedNormalCallableSemanticPackageV1,
-) -> bool {
+fn new_claim_prefix_covered(package: &super::VerifiedNormalCallableSemanticPackageV1) -> bool {
     package
         .ordinary_new_claim_ledger
         .pending_claims_for_test()
@@ -134,7 +130,10 @@ fn qualified_static_call_claims_scalar_parameter_argument() {
     };
     assert_eq!(call.result(), LocalCallResultClassV1::I64);
     let [LocalCallArgumentV1::Scalar(binding)] = call.arguments() else {
-        panic!("parameter argument must seal as Scalar, got {:?}", call.arguments())
+        panic!(
+            "parameter argument must seal as Scalar, got {:?}",
+            call.arguments()
+        )
     };
     let declaration = package
         .batch()
@@ -202,8 +201,7 @@ fn qualified_static_call_claim_stays_fail_closed() {
                 return 0
             }} }}"
         );
-        let package = issue(&source)
-            .unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
+        let package = issue(&source).unwrap_or_else(|issue| panic!("{label} package: {issue:?}"));
         assert!(
             local_calls(&package).is_empty(),
             "{label}: unclaimed call issues no local-call row"
@@ -234,34 +232,142 @@ fn qualified_static_call_claim_rejects_non_i64_evidence_at_required_ordinal() {
 }
 
 #[test]
-fn qualified_static_call_claim_covers_me_receiver_out_of_scope() {
-    // `me.m(..)` inside a static box is `CurrentOwnerStatic`, not the
-    // `QualifiedUnbound` lane — S0 keeps no claim for it.
-    let package = issue(
-        "box Page { birth() { } }
-        static box LayoutBox {
-            class_id(size: i64): i64 { return size }
-            wrap(size: i64): i64 {
-                local inner = me.class_id(size)
-                local page = new Page()
-                return inner
-            }
+fn static_i64_call_claim_preserves_current_owner_boundary() {
+    for (label, callee, expression, accepted) in [
+        ("zeroarg-i64", "word() { return 7 }", "me.word()", true),
+        (
+            "nonzeroarg-i64",
+            "word(size: i64): i64 { return size }",
+            "me.word(7)",
+            false,
+        ),
+        ("zeroarg-bool", "word() { return true }", "me.word()", false),
+        (
+            "zeroarg-text",
+            "word() { return \"text\" }",
+            "me.word()",
+            false,
+        ),
+    ] {
+        let package = issue(&format!(
+            "box Page {{ birth() {{ }} }}
+            static box LayoutBox {{
+                {callee}
+                wrap(): i64 {{
+                    local inner = {expression}
+                    local page = new Page()
+                    return 0
+                }}
+            }}
+            static box Main {{ main() {{ return LayoutBox.wrap() }} }}"
+        ))
+        .unwrap_or_else(|issue| panic!("{label}: {issue:?}"));
+        let calls = local_calls(&package);
+        assert_eq!(
+            calls.len(),
+            usize::from(accepted),
+            "{label}: original route membership"
+        );
+        if accepted {
+            assert_eq!(calls[0].result(), LocalCallResultClassV1::I64);
+            assert!(calls[0].arguments().is_empty());
+            assert!(calls[0].local_binding().is_some());
         }
-        static box Main { main() { return LayoutBox.wrap(7) } }",
-    )
-    .expect("me-receiver package");
-    assert!(local_calls(&package).is_empty());
-    assert!(
-        package
+        assert_eq!(
+            new_claim_prefix_covered(&package),
+            accepted,
+            "{label}: exact prefix coverage"
+        );
+    }
+    // Reuse the same source owner for each value context, including a live
+    // Home at the call. No artificial local/discard destination is issued.
+    for (body, count, binding, homes) in [
+        ("local inner = me.word() return inner", 1, true, 0),
+        ("local inner = 1 + me.word() return inner", 1, false, 0),
+        (
+            "local inner = me.word() + me.word() return inner",
+            2,
+            false,
+            0,
+        ),
+        ("if me.word() > 0 { return 1 } return 0", 1, false, 0),
+        ("return me.word()", 1, false, 0),
+        ("return me.word() + 1", 1, false, 0),
+        (
+            "local page = new Page() local inner = me.word() + 1 return inner",
+            1,
+            false,
+            1,
+        ),
+        (
+            "local marker = me.word() if me.flag() { return 1 } return 0",
+            1,
+            true,
+            0,
+        ),
+    ] {
+        let package = issue(&format!(
+            "box Page {{ birth() {{ }} }} static box LayoutBox {{
+            word() {{ return 7 }} flag() {{ return true }} wrap(): i64 {{ {body} }}
+            }} static box Main {{ main() {{ return LayoutBox.wrap() }} }}"
+        ))
+        .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
+        let calls = local_calls(&package);
+        assert_eq!(calls.len(), count, "original value sites: {body}");
+        for call in &calls {
+            assert_eq!(
+                call.local_binding().is_some(),
+                binding,
+                "real destination: {body}"
+            );
+            assert_eq!(
+                call.prior_homes().len(),
+                homes,
+                "original Home snapshot: {body}"
+            );
+            assert!(call.arguments().is_empty());
+        }
+        let wrap = package.batch().declarations().find(|declaration|
+            package.selected.key_for_batch_slot(declaration.batch_slot())
+                .is_some_and(|key| matches!(key, crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) if key.name() == "wrap"))
+        ).expect("original wrap declaration");
+        let completion = package
             .ordinary_new_claim_ledger
-            .pending_claims_for_test()
-            .values()
-            .any(|claim| matches!(
-                claim.home_prefix(),
-                Err(HomePrefixUnavailableV1::PrefixNotCovered(_))
-            )),
-        "the `new` past an out-of-scope `me` call keeps PrefixNotCovered"
-    );
+            .completion_for_owner(wrap.owner())
+            .expect("original completed owner");
+        let flow = completion
+            .cleanup()
+            .root_flow()
+            .expect("original homes-aware flow");
+        for exit in completion.explicit_sites() {
+            assert!(
+                flow.exit_row(exit).is_some_and(|row| row.is_ok()),
+                "whole exit coverage: {body}"
+            );
+        }
+        assert!(new_claim_prefix_covered(&package), "covered prefix: {body}");
+    }
+    for body in [
+        "local inner = me.word() + true local later = new Page() return 0",
+        "local inner = me.word() + me.flag() local later = new Page() return 0",
+        "if (me.word() > 0) && true { return 1 } local later = new Page() return 0",
+        "local inner = LayoutBox.echo(me.word()) local later = new Page() return 0",
+    ] {
+        let package = issue(&format!(
+            "box Page {{ birth() {{ }} }} static box LayoutBox {{ word() {{ return 7 }}
+            flag() {{ return true }} echo(x: i64): i64 {{ return x }} wrap(): i64 {{ {body} }}
+            }} static box Main {{ main() {{ return LayoutBox.wrap() }} }}"
+        ))
+        .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
+        assert!(
+            local_calls(&package).is_empty(),
+            "no partial observation: {body}"
+        );
+        assert!(
+            !new_claim_prefix_covered(&package),
+            "unavailable responsibility retained: {body}"
+        );
+    }
 }
 
 #[test]

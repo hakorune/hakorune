@@ -55,9 +55,7 @@ fn walk_branch<'a, E>(
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -272,9 +270,7 @@ pub(super) fn observe_if_statement<'a, E>(
     local_lexical_i64_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_lexical_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_nullable_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
-    local_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -407,32 +403,37 @@ pub(super) fn observe_if_statement<'a, E>(
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(false);
     };
-    if scalar_expression::contains_field_request(input, condition.site(), locals)
-        && scalar_expression::observe_scalar_expression(
+    if scalar_expression::contains_source_request(
+        input,
+        condition.site(),
+        locals,
+        local_static_call,
+    )? {
+        if let Some((_, calls)) = scalar_expression::observe_scalar_expression(
             input,
             condition.site(),
             locals,
             Some(SourceScalarKind::Bool),
             local_field_read,
-        )?
-        .is_none()
-    {
-        // The condition's field request stays unprovable — record the
-        // uncovered prefix, then stage the branch interiors' call edges:
-        // incoming coverage can still name them, and a named edge
-        // without staged actuals freezes `selected-incoming-unobserved`.
-        // Facts only — no claims, terminal relations or Home joins.
-        unavailable.get_or_insert_with(|| {
-            HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
-        });
-        stage_unobserved_statement_actuals(
-            input,
-            statement,
-            locals,
-            prefix_known,
-            borrowed_actuals,
-        )?;
-        return Ok(false);
+            statement.site(),
+            homes,
+            local_static_call,
+        )? {
+            path_calls.extend(calls.iter().map(|call| call.site().clone()));
+            local_calls.extend(calls);
+        } else {
+            unavailable.get_or_insert_with(|| {
+                HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone())
+            });
+            stage_unobserved_statement_actuals(
+                input,
+                statement,
+                locals,
+                prefix_known,
+                borrowed_actuals,
+            )?;
+            return Ok(false);
+        }
     }
     let then_body = then_body.unwrap();
 

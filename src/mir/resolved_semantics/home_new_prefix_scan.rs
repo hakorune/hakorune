@@ -54,9 +54,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     // The issuer's qualified static-box call membership — `local x =
     // Alias.m(..)` sites sealed `ExactI64` join the I64 lane as ordinary
     // non-lifecycle local-call claims.
-    local_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     // The issuer's argument-position i64-field proof: the scanner supplies
     // the exact read site, receiver site, receiver binding, and observed
     // handle root; the predicate alone decides the field class.
@@ -183,6 +181,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 view_use,
                 object_return,
                 local_calls,
+                local_static_call,
             )?;
             return Ok(true);
         }
@@ -363,7 +362,7 @@ pub(super) fn scan_statement_flow<'a, E>(
             // Qualified `Alias.m(..)` static calls live in the method-call
             // inventory — the package membership index admits only sealed
             // `ExactI64` targets and the flow seals each argument's class.
-            if let Some(local_call) = local_call_flow::issue_qualified_static_local_call(
+            if let Some(local_call) = local_call_flow::issue_static_i64_local_call(
                 input,
                 statement.site(),
                 &owned,
@@ -757,13 +756,18 @@ pub(super) fn scan_statement_flow<'a, E>(
                     }
                 }
                 continue;
-            } else if let Some(kind) = scalar_expression::observe_scalar_expression(
+            } else if let Some((kind, calls)) = scalar_expression::observe_scalar_expression(
                 input,
                 site,
                 locals,
                 None,
                 local_field_read,
+                statement.site(),
+                homes,
+                local_static_call,
             )? {
+                path_calls.extend(calls.iter().map(|call| call.site().clone()));
+                local_calls.extend(calls);
                 locals.install_scalar_call_result(binding, kind);
                 continue;
             } else {

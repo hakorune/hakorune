@@ -10,7 +10,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     result_sites: &BTreeSet<OwnedExprSiteV1>,
     results: &mut BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     exit_homes: &mut BTreeMap<SourceStmtSiteV1, Result<RootHomeExitV1, HomePrefixUnavailableV1>>,
-    path_calls: &BTreeSet<OwnedExprSiteV1>,
+    path_calls: &mut BTreeSet<OwnedExprSiteV1>,
     maps: &mut Vec<MapHomeObservation>,
     terminal_relations: &mut BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
     argument_observations: &mut BTreeMap<OwnedExprSiteV1, SelectedNewArgumentObservationV1>,
@@ -49,7 +49,8 @@ pub(super) fn observe_terminal_statement<'a, E>(
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
-    local_calls: &[crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1],
+    local_calls: &mut Vec<LocalCallObservationV1>,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
 ) -> Result<(), E> {
     let mut relation: Option<TerminalRelationV1> = None;
     // Qualified object returns are exclusive, including unavailable support.
@@ -80,7 +81,48 @@ pub(super) fn observe_terminal_statement<'a, E>(
     } else {
         None
     };
-    let borrowed_terminal = if object_terminal.is_none() {
+    let mut static_terminal = None;
+    if object_terminal.is_none() {
+        if let Ok(value) = input
+            .source()
+            .child_expr_from_stmt(statement, ExprChildRoleV1::ReturnValue)
+        {
+            // The same scalar preflight observes the original call children.
+            // Field returns keep their existing field issuer and relations.
+            if let Some((_, calls)) = scalar_expression::observe_scalar_expression(
+                input,
+                value.site(),
+                locals,
+                Some(SourceScalarKind::Integer),
+                &mut |_, _| Ok(None),
+                statement.site(),
+                homes,
+                static_call,
+            )? {
+                if !calls.is_empty() {
+                    static_terminal = Some(
+                        if calls.len() == 1 && calls[0].site().site() == value.site() {
+                            TerminalRelationV1::Call(TerminalI64CallReturnV1::issue(
+                                input.owner(),
+                                statement.site().clone(),
+                                value.site().clone(),
+                                Box::new([]),
+                            ))
+                        } else {
+                            TerminalRelationV1::I64Scalar(TerminalI64ScalarReturnV1::issue(
+                                input.owner(),
+                                statement.site().clone(),
+                                value.site().clone(),
+                            ))
+                        },
+                    );
+                    path_calls.extend(calls.iter().map(|call| call.site().clone()));
+                    local_calls.extend(calls);
+                }
+            }
+        }
+    }
+    let borrowed_terminal = if object_terminal.is_none() && static_terminal.is_none() {
         local_call_flow::issue_borrowed_i64_terminal_call(
             input,
             statement,
@@ -103,6 +145,9 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 false
             }
         }
+    } else if let Some(terminal) = static_terminal {
+        relation = Some(terminal);
+        true
     } else if let Some(terminal) = borrowed_terminal {
         relation = Some(TerminalRelationV1::Call(terminal));
         true

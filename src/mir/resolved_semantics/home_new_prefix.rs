@@ -120,6 +120,9 @@ pub(crate) use local_call_flow::{
     BorrowedCallActualValueV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
     QualifiedStaticCallClaimV1,
 };
+#[path = "home_static_i64_call_claim.rs"]
+mod static_i64_call_claim;
+pub(crate) use static_i64_call_claim::StaticI64CallClaimV1;
 #[path = "home_map_descendant_flow.rs"]
 mod map_descendant_flow;
 #[path = "home_map_flow.rs"]
@@ -246,9 +249,7 @@ pub(crate) fn scan_new_home_flow<E>(
     // The issuer's qualified static-box call membership: `local x =
     // Alias.m(..)` sites whose sealed target is a `StaticBoxMethod` with an
     // `ExactI64` result disposition carry the callee-required i64 ordinals.
-    local_static_call: &mut impl FnMut(
-        &OwnedExprSiteV1,
-    ) -> Result<Option<QualifiedStaticCallClaimV1>, E>,
+    local_static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,

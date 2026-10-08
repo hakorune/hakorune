@@ -290,12 +290,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // The caller's canonical key drives the qualified static-call
                 // claim index — the probe and the verified walk share this
                 // predicate so readiness never diverges from the real lane.
-                let mut local_static_call =
+                let (mut local_static_call, has_current_owner_i64_source) =
                     super::super::qualified_static_call_claim::local_static_call_predicate(
                         static_call_claims,
                         super::super::qualified_static_call_claim::caller_key_for_function(
                             selected, batch_slot, is_app_main, app_main_source.map(|main| main.catalog_key()),
                         ),
+                        input, selected, parameter_contracts, app_main.as_ref(),
                     );
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
@@ -351,7 +352,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     batch.ordinary_box_coverage(), receiver_proof,
                 )?;
                 let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
-                let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites);
+                let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source;
                 let seed_completion = (seed_eligible
                     || (top_level_input.is_some() && new_sites.is_empty() && result_sites.is_empty()))
                     && !has_map

@@ -135,7 +135,7 @@ pub(super) fn issue_provider_rhs_v1(
                     // actual must seal to an Integer/Bool literal
                     // with i64 evidence at the callee's
                     // required-i64 ordinals — the same discipline
-                    // `issue_qualified_static_local_call` owns.
+                    // `issue_static_i64_local_call` owns.
                     let Some((caller_key, claims)) = provider_static_claims else {
                         return Err(U::FieldContractUnsupported);
                     };
