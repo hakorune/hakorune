@@ -960,39 +960,39 @@ Stored receiver binding outside terminal remains refusal; no Lexical/Self disgui
 Stored source evidence CLOSED b39432b001: SAME imported Page3/Heap3/BOTH loans/Rc;
 existing candidate4/callee6 PASS, evidence at commit and
 /mnt/workdisk/hako-stored-object-facts-evidence.json; no execution grant.
-Stored Object source Decision (read-only review_cleanup_path): SAME need gains
-existing result_requirement, SAME attachment serves Lexical and Stored. Before
-receiver issue, recheck unique selected contract/key/slot/owner/ordered actuals,
-original Facts whole exits/alternatives, plural qualification Rc and every callee
-root in exact order/count; producer dependencies equal original accessor rows.
-Reuse observed-forward subset: None never means empty; missing/Unknown/Formal/
-cycle stays unavailable, drift refuses without I64 retry. Old I64 eligibility
-unchanged; its terminal gate only handles ExistingBorrowedResult Stored rows.
-Reuse source-check responsibility from return_callee without requiring Completion;
-Completion/Normal/teardown/Ready remain subsequent executable obligations.
-Selected source connection scope: profile, PreparedSourceCallNeed, incoming
-pattern and legacy terminal gate; SAME Facts source-root check shared with
-return_callee. Replace Stored's fixed ExistingBorrowedResult assignment; no
-receiver issuer, scanner, Completion, transport, Ready or cleanup replacement.
-Acceptance: original imported BOTH Stored Page rows, existing Stored I64/drift,
-object source/callee families and missing/reordered/repeated root refusals;
-existing source guard/pointer and quick production check. No new guard.
-Build interruption143/formatter cancellation are NOT PASS; incremental link101
-hidden-symbol failure corrected by fresh non-incremental build8m34s (no cache deletion).
-Intermediate lexical268/269 sole THISCHANGE entry-source corrected by phase selection;
-final lexical270/270 + loans7/callee6 PASS, including BOTH original Stored Page rows.
-Phase Decision (read-only review_cleanup_path): before strict construction,
-original Instance Object requirement + exact retained SelfRooted forward + no
-final caller definition selects SAME SourceObject actual producer. Unique raw/final
-source/callee/tuple rechecked; no false receiver/declared-formal match or retry.
-Add actual-phase owner and one independent existing-family test: old Executable
-control, SourceOnly/opaque-empty/execution refusal, wrong root/site/ordinal.
-Stored Object source connection closeout: final fresh quick build8m42s and
-production check18.38s PASS; scope/COPY/pointer/diff/protected7/caps PASS.
-One unchanged inherited from_target fmt hunk retained; no new guard, one new
-independent phase test. Fixed Stored result erasure and unconditional Object I64
-gate replaced; old I64 eligibility/scanner/receiver owners unchanged.
+Stored Object source/actual phase CLOSED2e56def75f (pushed); exact Decision,
+contracts and corrected attempts at commit/owner README. SAME result_requirement,
+original plural qualifications and every callee root retained; missing stays
+unavailable, drift refuses, no I64 retry. Exact SelfRooted Object forward without
+final caller definition selects SourceObject before strict construction; final
+caller definition retains Executable. No receiver/Completion/Normal/Ready grant.
+Final lexical270/270 + loans7/callee6, production check18.38s and scope/COPY/pointer
+PASS; one independent phase test, no new guard. Inherited formatter hunk retained.
 /mnt/workdisk/hako-stored-object-source-final-evidence.json retains exact tests,
 source/binary hashes, build logs and corrected-attempt classification.
-Heap final entry still absent; next SAME dedicated Stored receiver observer,
-full incoming/Completion/Normal/cleanup and packet closure. No EXE or goal completion.
+
+Fresh unchanged-app evidence at2e56def75f (2026-10-08): latest quick CLI build
+terminal0,3m16s; source33d3e8b9 unchanged, binary4136af29. Probe terminal1/noEXE,
+ordinary-new/borrowed-entry/source-only-object-actuals; b115 Pending diagnostic
+is now historical, not the latest execution frontier. Exact args/hashes/log at
+/mnt/workdisk/hako-stored-object-current-mimalloc-probe/{evidence.json,probe.log}.
+This is an incomplete execution acceptance, not a completed source/packet slice.
+Existing checked_borrowed_entry_incoming checks the whole final incoming graph;
+entry_value_recording_cannot_bypass_another_callee_actual_failure pins that scope.
+Do not move its callee filter earlier to hide unrelated pending/error rows.
+Existing Stored terminal physical owner already performs original parent read,
+ObjectFieldGet, with_stored_receiver and original argument/materialize ownership.
+Decision (read-only review_cleanup_path): preserve whole-incoming failure scope.
+Next task: use original raw drafts/static forward graph to identify the first
+destination/use dropping Heap final definition. Audit Layout.class_id ->
+SizeClass.good_size -> size_to_bin -> normalize_size; terminal-formal numeric
+return is a candidate gap, not a confirmed first cut. Close the selected law
+through existing input/result owners, then reconstruct actuals with the original
+constructor; never change the phase flag manually or remove Page caller rows.
+Typed-only input finishing cannot promote opaque source evidence. Then recheck
+whole incoming, Page/Heap Completion/Normal/cleanup and packet closure.
+No new receiver issuer, Facts-only Ready, SourceOnly transport or .hako workaround.
+Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, old-edge retirement,
+nondelegating selfcompile/final acceptance remain mandatory and incomplete.
+Space: root/tmp7.6GB and workdisk1.3TB free; build/probe stay on workdisk,
+no deletion of protected work or shared active caches.
