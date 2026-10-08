@@ -108,11 +108,14 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 };
                 // The callee's published role names the one result contract
                 // its call sites may carry — scalar transport or the
-                // checked-release nullable transport. `Handle`/`Map` roles
-                // stay unadmitted on the borrowed lane.
+                // checked-release object transport. `Map` roles remain
+                // unadmitted on the borrowed lane.
                 let expected = match callee.role() {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
                         InvokeCallResultKind::I64
+                    }
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. } => {
+                        InvokeCallResultKind::Handle
                     }
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. } => {
                         InvokeCallResultKind::NullableHandle

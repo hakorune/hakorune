@@ -1826,3 +1826,10 @@ alongside original Completion. Completed-context and FreeFunction owner lookup
 consume that source input; missing/foreign input refuses. Box parameter catalogs
 remain unchanged; untyped/non-scalar formals issue no scalar seed, and New/Map
 Home-walk eligibility is preserved. Collector coverage is still mandatory.
+
+Artifact Object-return admission is owned by the existing whole-module exit preflight
+before the Root/child handoff moves affine fields or publishes the callback.
+Local finishing retains its construction, coverage and exact physical checks;
+it does not reject an already verified owned call merely because the source
+relation contains OwnedCall. The old no-pending helper is test-only source
+readiness diagnosis, with no artifact authority. Repeating finishing still refuses.

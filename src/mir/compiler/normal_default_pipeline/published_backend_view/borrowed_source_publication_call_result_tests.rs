@@ -311,3 +311,75 @@ fn borrowed_static_guard_original_cohort_publishes_all_calls_with_prior_home_cle
         }
     });
 }
+
+#[test]
+fn owned_call_results_publish_original_child_handle_contracts() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for typed in [true, false] {
+            let formal = if typed { "size: i64" } else { "size" };
+            for received in [false, true] {
+                for nullable in [false, true] {
+                    let make = if nullable {
+                        "if size > 0 { return new Token() } return null"
+                    } else {
+                        "return new Token()"
+                    };
+                    let relay = if received {
+                        "local item = me.make(7) return item"
+                    } else {
+                        "return me.make(7)"
+                    };
+                    let text = format!(
+                        "box Token {{}} box Spare {{}}
+                    box Maker {{ make({formal}) {{ {make} }}
+                        relay() {{ local spare = new Spare() {relay} }} }}
+                    static box Main {{ main() {{ local maker = new Maker()
+                        local item = maker.relay() return 0 }} }}"
+                    );
+                    for optimize in [false, true] {
+                        MirCompiler::with_options(optimize).compile_normal_with_published(
+                        request(&text), |view, verification| -> Result<(), String> {
+                            classify_pretransform_report(verification);
+                            let input = view.issue_lifecycle_physical_abi_input()?;
+                            let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                            let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                            let role = if nullable { "ordinary_nullable_handle" } else { "ordinary_handle" };
+                            for name in ["Maker.make/1", "Maker.relay/0"] {
+                                let function = json["functions"].as_array().unwrap().iter()
+                                    .find(|function| function["name"] == name).unwrap();
+                                assert_eq!(function["role"], role);
+                            }
+                            assert_eq!(input.entry().root_result(), super::super::super::CompiledEntryRootResultV1::I64);
+                            if !typed {
+                                let mut changed = view.issue_lifecycle_physical_program()?;
+                                let make = changed.functions.iter_mut()
+                                    .find(|function| function.name() == "Maker.make/1").unwrap();
+                                assert!(make.param_carriers().unwrap().contains(
+                                    &crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue
+                                ), "opaque actual must select the original borrowed checker");
+                                make.role = match make.role.clone() {
+                                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, receiver_object } =>
+                                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { key, receiver_object },
+                                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { key, receiver_object } =>
+                                        PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, receiver_object },
+                                    _ => panic!("make keeps its original object role"),
+                                };
+                                assert!(super::super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+                                    &changed, view.module()
+                                ).unwrap_err().contains("borrowed-incoming/result-mismatch"),
+                                    "Handle/Nullable role drift must reject the unchanged call");
+                            }
+                            let suffix = if typed { "" } else { "-opaque" };
+                            std::fs::write(std::env::temp_dir().join(format!(
+                                "hako-issued-owned-call-result-received{received}-nullable{nullable}-opt{optimize}{suffix}.json"
+                            )), wire).unwrap();
+                            Ok(())
+                        },
+                    ).unwrap_or_else(|error| panic!("typed{typed}/received{received}/nullable{nullable}/opt{optimize}: {error}"));
+                    }
+                }
+            }
+        }
+    });
+}

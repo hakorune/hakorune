@@ -473,6 +473,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 if matches!(row.returned(), crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1::OwnedCall(_)))
         })
     }
+    /// Source readiness diagnostic only; module-aware exit preflight owns artifact admission.
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn validate_no_pending_object_returns_v1(
         &self,
     ) -> Result<(), String> {

@@ -945,7 +945,7 @@ observer uses SAME prepared dependency/Facts/ClaimLocal and original incoming lo
 Observed/SourceOnly never grants execution, selected errors retain SourceMismatch.
 Evidence /mnt/workdisk/hako-{object-target-lender-refactor,received-producer-source}-*.
 
-Ready acquisition Decision (read-only review_cleanup_path), validated pending commit:
+Ready acquisition CLOSED488f1283b3 (read-only review_cleanup_path):
 SAME full callee exit checker returns kind plus availability using checked Fresh/Null
 and SAME verified OwnedCall Normal proof through existing return_teardown::reduce.
 Missing sibling yields None; partial Unavailable never becomes Verified. Ready seal
@@ -956,7 +956,7 @@ Kind/nullable drift, duplicate begin and unsupported nullable-owned refuse befor
 commit. Nullable-owned result Home stays uninstalled, affine exit not prepared.
 Existing result/packet/matrix/preflight tests reused, no new test/guard.
 
-Compiled admission Decision (read-only review_cleanup_path), validated pending commit:
+Compiled admission CLOSED in this commit (read-only review_cleanup_path):
 Whole-module collector is sole artifact admission; two pending-only production
 finishing stops retire. Construction/coverage/physical and duplicate-finishing checks
 remain. Existing Handle role issuer is reused by membership, physical Call census,

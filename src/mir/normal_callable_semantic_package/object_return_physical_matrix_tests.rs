@@ -295,7 +295,13 @@ fn original_main_object_return_matrix_preserves_source_cleanup_and_finished_refu
                 ledger
                     .validate_after_compiler_finishing(function)
                     .unwrap_or_else(|issue| panic!("{label}: {issue}"));
-                assert_eq!(ledger.validate_artifact_after_compiler_finishing(function).unwrap_err(), "[freeze:contract][ordinary-new/local-commit/object-return-handoff-unavailable]", "{label}: retained artifact gate");
+                assert_eq!(
+                    ledger
+                        .validate_artifact_after_compiler_finishing(function)
+                        .unwrap_err(),
+                    "[freeze:contract][ordinary-new/local-commit/artifact-root-not-checked]",
+                    "{label}: diagnostic finishing cannot be replayed as artifact admission"
+                );
             }
         }
     }
@@ -508,8 +514,8 @@ fn object_return_actual_instance_matrix_preserves_normal_fault_and_finished_bind
                     .unwrap_or_else(|e| panic!("{label}: {e}"));
                 assert_eq!(
                     ledger.validate_finalized_child_functions(&module, true).unwrap_err(),
-                    "[freeze:contract][ordinary-new/local-commit/object-return-handoff-unavailable]",
-                    "{label}: artifact guard"
+                    "[freeze:contract][ordinary-new/local-commit/duplicate-child-finishing-validation]",
+                    "{label}: finishing cannot be replayed"
                 );
             }
         }

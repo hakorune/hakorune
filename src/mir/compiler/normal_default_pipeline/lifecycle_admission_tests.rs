@@ -260,10 +260,15 @@ fn lifecycle_admission_collects_call_edges_module_wide() {
                     );
 
                     // A nested edge inside a non-root caller carries the same
-                    // membership authority as a root edge, for either result
-                    // kind. `inner` gains an Invoke row so it must itself be
+                    // membership authority as a root edge, for every selected
+                    // result kind. `inner` gains an Invoke row so it must itself be
                     // an admitted call target rather than a stray function.
-                    for result in [InvokeCallResultKind::I64, InvokeCallResultKind::Map] {
+                    for result in [
+                        InvokeCallResultKind::I64,
+                        InvokeCallResultKind::Map,
+                        InvokeCallResultKind::Handle,
+                        InvokeCallResultKind::NullableHandle,
+                    ] {
                         let mut nested = view.module().clone();
                         let nested_call = |target: &str, arity: u32| MirInstruction::Invoke {
                             operation: InvokeOperation::Call {

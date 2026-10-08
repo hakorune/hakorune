@@ -320,6 +320,7 @@ fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite
                         result:
                             result @ (InvokeCallResultKind::I64
                             | InvokeCallResultKind::Map
+                            | InvokeCallResultKind::Handle
                             | InvokeCallResultKind::NullableHandle),
                     },
                 ..
@@ -457,6 +458,7 @@ fn issue_function_with_module<'module>(
                         result:
                             result @ (InvokeCallResultKind::I64
                             | InvokeCallResultKind::Map
+                            | InvokeCallResultKind::Handle
                             | InvokeCallResultKind::NullableHandle),
                     },
                 ..
@@ -545,6 +547,7 @@ fn validate_instruction_with_context(
                 result:
                     result @ (InvokeCallResultKind::I64
                     | InvokeCallResultKind::Map
+                    | InvokeCallResultKind::Handle
                     | InvokeCallResultKind::NullableHandle),
             },
             ..
@@ -553,8 +556,7 @@ fn validate_instruction_with_context(
             .any(|expected| expected.call == *call && expected.result == *result)
     );
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
-    let field_set =
-        matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
+    let field_set = matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
     let supported = ordinary
         || field_get
         || field_set

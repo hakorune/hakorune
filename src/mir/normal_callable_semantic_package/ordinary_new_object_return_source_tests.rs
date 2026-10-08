@@ -155,10 +155,11 @@ fn root_only_pending_object_return_survives_same_owner_empty_index_and_artifact_
         .prepare_root_home_exit(value.owner(), value.return_site().node())
         .unwrap());
     let module = crate::mir::MirModule::new("pending-source-only".into());
+    // Finishing an empty child set grants no whole-module artifact authority.
     assert!(ledger
         .validate_finalized_child_functions(&module, true)
-        .unwrap_err()
-        .contains("object-return-handoff-unavailable"));
+        .unwrap()
+        .is_empty());
     let function = crate::mir::MirFunction::new(
         crate::mir::FunctionSignature {
             name: "pending-source-only".into(),
@@ -171,7 +172,18 @@ fn root_only_pending_object_return_survives_same_owner_empty_index_and_artifact_
     assert!(ledger
         .validate_artifact_after_compiler_finishing(&function)
         .unwrap_err()
-        .contains("object-return-handoff-unavailable"));
+        .contains("artifact-root-not-checked"));
+    let issue = package
+        .ordinary_new_claim_ledger
+        .seal_finalized_root_birth_handoff(
+            "pending-source-only".into(),
+            &module,
+            &std::collections::BTreeSet::new(),
+            None,
+        )
+        .err()
+        .expect("unfinalized source cannot bypass whole-module handoff");
+    assert!(issue.contains("artifact-root-not-finished"));
 }
 
 #[test]

@@ -29,7 +29,9 @@ and named rows before affine moves; both wrappers switched, old setter retired.
 Original Root Object source descriptor and Null/Received/Fresh exact producers are checked.
 Checked whole Root Object ABI and error-preserving consumers are closed; process Object refuses.
 Original TopLevel scalar input/Completion retained in SAME result row; production free-function passes.
-Next: compiled Handle admission through existing whole-module collector; retire pending-only gates.
+Ready acquisition and compiled Handle admission closed through existing whole-module collector.
+Pending-only production finishing stops retired; typed8/opaque8 original production pass.
+Next: neutral C flow split, then owned ordinary_handle result identity and lease admission.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"

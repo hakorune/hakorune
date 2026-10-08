@@ -316,6 +316,7 @@ impl<'module> PublishedMirBackendView<'module> {
                                 result:
                                     result @ (InvokeCallResultKind::I64
                                     | InvokeCallResultKind::Map
+                                    | InvokeCallResultKind::Handle
                                     | InvokeCallResultKind::NullableHandle),
                             },
                         ..
@@ -433,6 +434,9 @@ impl<'module> PublishedMirBackendView<'module> {
                         ) | (
                             InvokeCallResultKind::Map,
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
+                        ) | (
+                            InvokeCallResultKind::Handle,
+                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
                         ) | (
                             InvokeCallResultKind::NullableHandle,
                             PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {

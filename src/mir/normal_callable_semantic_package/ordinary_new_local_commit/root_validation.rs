@@ -51,9 +51,6 @@ impl OrdinaryNewClaimLedgerV1 {
         module: &crate::mir::MirModule,
         artifact: bool,
     ) -> Result<BTreeSet<String>, String> {
-        if artifact {
-            self.validate_no_pending_object_returns_v1()?;
-        }
         let owners: Vec<_> = self
             .child_physical_validation
             .borrow()
@@ -187,9 +184,6 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     fn validate_finished_root(&self, function: &MirFunction, artifact: bool) -> Result<(), String> {
-        if artifact {
-            self.validate_no_pending_object_returns_v1()?;
-        }
         let mut state = self.root_validation.borrow_mut();
         if artifact && !matches!(*state, RootNewValidation::Checked(..)) {
             return Err(freeze("artifact-root-not-checked"));

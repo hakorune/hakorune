@@ -53,7 +53,7 @@ pub(super) fn admit_lifecycle<'module>(
 }
 
 /// Ordinary membership is every sealed `Call` edge target in the module, not
-/// just the retained root's direct calls. A `Map` or `NullableHandle` result
+/// just the retained root's direct calls. A `Map`, `Handle` or `NullableHandle` result
 /// edge carries the same membership authority as `I64`; artifact issuance
 /// keeps deciding which callers actually serialize rows.
 fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
@@ -71,6 +71,7 @@ fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
                         result:
                             crate::mir::instruction::InvokeCallResultKind::I64
                             | crate::mir::instruction::InvokeCallResultKind::Map
+                            | crate::mir::instruction::InvokeCallResultKind::Handle
                             | crate::mir::instruction::InvokeCallResultKind::NullableHandle,
                     },
                 ..

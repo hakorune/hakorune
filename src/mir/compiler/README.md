@@ -1261,3 +1261,12 @@ The retained Root result getter preserves `Result<Option<_>, String>` from the
 same source/finished-MIR owner. Process-entry selection explicitly rejects Object
 results; it never treats Handle/NullableHandle as an i64 exit. Birth caller matching
 borrows the retained source owner, without issuing or rechecking a result ABI.
+
+The lifecycle compiled contract matches a Handle call to the existing OrdinaryHandle
+physical role using the same exact target key, arity and receiver checks as the
+other ordinary result categories. Whole-module source/exit/cleanup preflight remains
+mandatory before publication. This does not admit Object at process entry.
+The finalization membership and physical call census include the same sealed
+Handle Call edges across root and ordinary callers. Borrowed incoming transport
+matches OrdinaryHandle only to Handle; NullableHandle remains a separate contract.
+No edge, mismatched result or missing original source still grants no admission.
