@@ -103,6 +103,17 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                 );
                 let retained = handoff.root_source().unwrap();
                 assert_eq!(retained.owner(), ledger.root_owner().unwrap());
+                let root_key = ledger.app_main_catalog_key.as_ref().unwrap();
+                let root_outcomes = ledger.callable_result_classes.outcomes(root_key).unwrap();
+                assert!(root_outcomes
+                    .iter()
+                    .all(|row| row.site().owner() == retained.owner()));
+                assert!(root_outcomes.iter().all(|row| {
+                    ledger
+                        .callable_result_classes
+                        .object_return_qualification(row.site())
+                        .is_some_and(|loan| loan.key() != root_key)
+                }));
                 assert_eq!(
                     handoff
                         .callables()
@@ -216,7 +227,7 @@ fn late_child_entry_or_projection_failure_leaves_root_calls_and_local_pool_uncon
 
 #[test]
 fn late_birth_and_identity_failures_precede_root_batch_take() {
-    for identity in [false, true] {
+    for failure in 0..3 {
         let birth_source = source(false, false, false, false).replace(
             "box Spare {}",
             "box Spare { tag: i64 birth() { me.tag = 0 } }",
@@ -224,20 +235,24 @@ fn late_birth_and_identity_failures_precede_root_batch_take() {
         let (key, module, mut ledger, mut keys, cohort) = completed(&birth_source)
             .document_preflight_parts_for_test(true)
             .expect("real Birth document finishing");
-        if identity {
-            Rc::get_mut(&mut ledger).unwrap().app_main_identity = None;
-        } else {
-            assert!(keys.pop_last().is_some());
+        match failure {
+            0 => {
+                assert!(keys.pop_last().is_some());
+            }
+            1 => Rc::get_mut(&mut ledger).unwrap().app_main_identity = None,
+            2 => Rc::get_mut(&mut ledger).unwrap().app_main_catalog_key = None,
+            _ => unreachable!(),
         }
         let before = snapshot(&ledger);
         let error = ledger
             .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
             .unwrap_err();
         assert!(
-            error.contains(if identity {
-                "artifact-root-identity-unavailable"
-            } else {
-                "artifact-birth-construction-missing"
+            error.contains(match failure {
+                0 => "artifact-birth-construction-missing",
+                1 => "artifact-root-identity-unavailable",
+                2 => "artifact-root-catalog-key-unavailable",
+                _ => unreachable!(),
             }),
             "{error}"
         );

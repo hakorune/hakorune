@@ -279,6 +279,9 @@ impl OrdinaryNewClaimLedgerV1 {
         // map is legitimate transport data.
         let needs_source =
             !self.terminal_relation.is_empty() || !actuals.is_empty() || has_lexical_local_calls;
+        if needs_source && self.app_main_catalog_key.is_none() {
+            return Err(freeze("artifact-root-catalog-key-unavailable"));
+        }
         let identity = if needs_source {
             Some(
                 self.app_main_identity

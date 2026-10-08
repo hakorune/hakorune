@@ -392,6 +392,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // source loan. It is comparison-only and never substitutes a key, name,
     // ABI, or physical root selection.
     app_main_identity: Option<crate::parser::CallableDeclarationIdentityV1>,
+    app_main_catalog_key: Option<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
 }
 #[path = "ordinary_new_ledger.rs"]
 mod ledger;

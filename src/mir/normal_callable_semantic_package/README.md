@@ -1349,6 +1349,9 @@ foreign/site/explicit-exit drift and live-root repeat reject before installation
 Missing exits and unavailable root Completion remain unavailable. Root accessors
 keep the same rows; finalized handoff retains its existing owned snapshot.
 Index retention grants no collector, result ABI or artifact admission.
+The ledger retains the same AppMain co-seal catalog key together with its parser
+identity. Source-bearing collector handoff requires both before affine moves;
+Root result Facts use that key, never an OwnedCall qualification's callee key.
 Semantic index membership and physical scalar storage have separate roles:
 the original Root keeps its site-only value books; indexed child values use
 owner + exit keys. Both owners still owe their own values and physical checks,

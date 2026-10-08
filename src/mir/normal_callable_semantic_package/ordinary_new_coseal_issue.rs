@@ -793,6 +793,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.birth_abi_handoffs = std::cell::RefCell::new(birth_abi_handoffs);
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
-    ledger.app_main_identity = app_main_source.map(|main| main.parser_identity().clone());
+    ledger.retain_app_main_source_v1(app_main_source);
     Ok((ledger, seeds.finish()))
 }

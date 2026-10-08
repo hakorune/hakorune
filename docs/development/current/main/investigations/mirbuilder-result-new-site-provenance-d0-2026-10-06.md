@@ -974,3 +974,24 @@ consumer; child Handle/Nullable physical roles and pending gate switch only afte
 whole selected proof+independent physical attachment. Both315/318, full anchored
 lifetime/cleanup, unchanged mimalloc EXE, Gates2-4, migration/retirement/selfcompile
 and final acceptance remain mandatory. Collector closeout is not S0/goal completion.
+
+Object descriptor construction refinement (read-only review_cleanup_path): retain
+SAME AppMainCatalogCoSeal catalog key with parser identity in the existing ledger,
+and demand it before the collector's first move. Callee qualification keys cannot
+select Root Facts. Existing real Main/child matrix pins Root outcome owner and
+callee-key distinction; existing late-identity family adds missing-key atomicity.
+The checked descriptor will distinguish unavailable (None) from corruption (Err),
+using Result<Option<_>, String>; no error-erasing adapter. This transport is a
+prerequisite, not an Object ABI, pending-gate or anchored-result completion grant.
+Finalized Fresh follow-up: the pre-emission leaf checker cannot read a consumed
+claim. Reuse SAME NewResultCommit retained source fields via one exact-site
+borrowed local_commit view; retain original claim arity there rather than infer
+it from argument count. Duplicate stores/wrong commit kind are corruption.
+OwnedCall keeps its existing sealed Leaf DAG; no second receipt registry/solver.
+Required next evidence includes real consumed-claim Fresh, missing/foreign commit,
+arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
+Root-key prerequisite verified: existing focused6 + same-binary regression573
+PASS (579 distinct), build5m45s, test .05s/.43s, production check25.03s PASS.
+/tmp/hako-object-root-key-{focused,regression,production-check}.log and regression.json
+retain evidence. Scope/COPY/pointer/fmt/diff/caps/protected7 PASS; no current red.
+No new test/guard, Object ABI or full S0 completion; exact-site Fresh view is next.

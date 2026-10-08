@@ -158,6 +158,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_completion: None,
             completion_index: BTreeMap::new(),
             app_main_identity: None,
+            app_main_catalog_key: None,
         }
     }
 
@@ -421,6 +422,16 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err("[freeze:contract][ordinary-new/unit-return-source-drift]".to_owned());
         }
         Ok(true)
+    }
+
+    /// Retain the same co-sealed Main key alongside its declaration identity.
+    /// Result Facts must not be selected by a callee key or by a class scan.
+    pub(in crate::mir::normal_callable_semantic_package) fn retain_app_main_source_v1(
+        &mut self,
+        source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
+    ) {
+        self.app_main_identity = source.map(|main| main.parser_identity().clone());
+        self.app_main_catalog_key = source.map(|main| main.catalog_key().clone());
     }
 
     pub(crate) fn register_app_main_root(
