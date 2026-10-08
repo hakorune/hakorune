@@ -433,12 +433,9 @@ Scope: immutable existing ResultOriginWitness membership and exact call/value/ke
 
 ## Passive lexical source requirement dependency closure
 
-Closed at `989ca86f58`; Git owns the detailed receipt and corrected test-path E0425.
-Original target/Facts qualification and forward loan remain source-only authority;
-existing lexical/stored defaults remain ExistingBorrowedResult, with no final-slot,
-Normal/Home, production-route or physical permission change. Focused11/11,
-non-test30.10s, scope/COPY/pointer/diff/caps passed. Exact Rc/forward coordinates,
-missing/duplicate/foreign refusal and real issuer tests are retained in that commit.
+CLOSED989ca86f58: Git retains exact target/Facts/forward source-only qualification,
+ExistingBorrowedResult defaults, Rc/coordinate/foreign/missing/duplicate/issuer tests.
+Focused11/11/non-test30.10s/guards/caps PASS; no Normal/Home/route/physical grant.
 
 ## Original qualified Static input-source dependency
 
@@ -977,24 +974,25 @@ Input CLOSED e3fb0c71e1: original contracts/corrected PASS at Git/README and
 
 ## Static zero packet part VERIFIED (2026-10-09)
 
-Read-only review_static_zero_packet: original Currentzero seed selects ALL same
-owner/fulltarget/slot zeroStatic siblings independent of Completion/Ready.
-SAME Rc/routes/mask/packet; full raw/veto/retained-observation coverage, original
-signature/callee Completion, per-site I64/priorHomes and affine handoff required.
-Pending/refused is unmarked but selected emission Err precedes taking; no retry.
-New/old dispatch is exclusive by cohort; ready preflight precedes marks.
-Current hook and Main recipe issuer/consumer share the existing ordinary Static
-Invoke/NormalResult/FinishedBindings owner; no nonzero/Math widening or fake entry.
-Local Current/Qualified verified; original Mul in-branch context still requires
-joined closure above. THISCHANGE fixture/competing Main header resolved.
-Obsolete build interrupted (NOT PASS); final no-run PASS8m46/check PASS42.38s.
-6+3+1+11+26+16+10+22+31+362+13 PASS; publication8 PASS/1 baseline red.
-Chain root-exit-source-missing reproduces SAME diagnostic at saved e3fb input
-binary (9038 tests), unwaived. Source JSON opt false/true + private C compile/
-link/EXE2 PASS(rc0/noFault); guard/pointer/format/caps/protected7 PASS.
-Evidence: /mnt/workdisk/hako-static-zero-packet-evidence.json (links runtime evidence).
-No new guard; three independent tests, existing families reused. Shared generic
-bridge retained for unselected consumers; selected old-edge retirement still owed.
-Next Mul: explicit envelope, SAME guard Normal branch-region/ordered source and
-call-child loan/sole append/FinishedBindings/both scanners/C acceptance.
-Both315/318, cleanup, unchanged mimalloc EXE, Gates2-4/selfcompile remain OPEN.
+CLOSED6d7ac8f04e: original Rc/cohort/Completion/affine shared Static Invoke contracts: Git.
+Evidence: /mnt/workdisk/hako-static-zero-packet-evidence.json (runtime links).
+No-run PASS8m46/check PASS42.38s; focused family counts/runtime PASS: linked evidence.
+Publication8 PASS/1 baseline root-exit-source-missing, SAME e3fb diagnostic, unwaived.
+Guard/pointer/format/caps/protected7 PASS; cancelled build NOT PASS.
+Generic bridge remains for unselected consumers; all full-goal obligations above remain open.
+
+## Guarded Mul Normal branch lender construction (2026-10-09)
+
+Decision integrated from read-only review_static_zero_packet: SAME checked guard
+lends an exact operand binding/site and resolver-sealed If branch scope/region,
+whose owner-region and parent-control match the original condition bundle.
+Both Bool outcomes refine Integer; condition/other arms/nested scopes refuse.
+FollowingStatement uses existing exact same-sequence law.
+Add/Return/outgoing actuals unchanged; original origin/rebind closure remains mandatory.
+Construction: SAME guard Rc/exact source/branch witness; fixture covers call-shaped sibling/orders/alias/refusals.
+Source reach only; Mul draft/materialization/FinishedBindings/scanners/C remain
+unimplemented: no entry/physical permission or full Mul completion claim.
+Next: explicit Mul source/call-child, sole append and independent final/physical checks.
+Feed original Compare/Mul child Rc into existing Static inventory canonical-loan reuse, no new map.
+Private lender VERIFIED: final build8m40; focused3+31+10 PASS, guards/format/protected7 PASS.
+THISCHANGE fixture TargetMissing fixed; receipts: /mnt/workdisk/hako-guarded-mul-normal-reach-evidence.json.

@@ -6,8 +6,8 @@ use std::rc::Rc;
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, OwnedExprSiteV1, RegionId, ResolvedLexicalRefV1, ScopeId, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1,
+    BindingRefV1, OwnedExprSiteV1, RegionId, ResolvedLexicalRefV1, ResolvedScopeRegionPairV1,
+    ScopeId, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1,
 };
 
 use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1};
@@ -34,7 +34,102 @@ impl PartialEq for CheckedIntegerGuardV1 {
 }
 impl Eq for CheckedIntegerGuardV1 {}
 
+/// Source reach only. A physical consumer still owes the original comparison,
+/// ordered operand correspondence and independent CFG dominance validation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) enum CheckedIntegerNormalPathV1 {
+    FollowingStatement,
+    IfBranch {
+        control: RegionId,
+        pair: ResolvedScopeRegionPairV1,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct CheckedIntegerOperandReachV1 {
+    guard: Rc<CheckedIntegerGuardV1>,
+    formal: BindingRefV1,
+    binding: BindingRefV1,
+    site: OwnedExprSiteV1,
+    path: CheckedIntegerNormalPathV1,
+}
+
+impl CheckedIntegerOperandReachV1 {
+    pub(super) fn guard(&self) -> &Rc<CheckedIntegerGuardV1> {
+        &self.guard
+    }
+
+    pub(super) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+        self.site.owner() == input.owner()
+            && self
+                .guard
+                .normal_operand_path(input, self.formal, self.binding, self.site.site())
+                == Some(self.path.clone())
+    }
+}
+
 impl CheckedIntegerGuardV1 {
+    /// Lend the SAME checked comparison for an exact stable source operand.
+    /// The caller's origin/rebind closure remains mandatory. This does not
+    /// broaden the existing Return or outgoing-argument reach rules.
+    pub(super) fn normal_path_for_operand(
+        self: &Rc<Self>,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        formal: BindingRefV1,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<CheckedIntegerOperandReachV1> {
+        let path = self.normal_operand_path(input, formal, binding, site)?;
+        Some(CheckedIntegerOperandReachV1 {
+            guard: Rc::clone(self),
+            formal,
+            binding,
+            site: OwnedExprSiteV1::new(input.owner(), site.clone()),
+            path,
+        })
+    }
+
+    fn normal_operand_path(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        formal: BindingRefV1,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<CheckedIntegerNormalPathV1> {
+        let function = input.function();
+        if self.formal != formal
+            || binding.owner() != input.owner()
+            || function.variable_ref(site) != Some(ResolvedLexicalRefV1::Local(binding))
+            || !self.corroborates(input)
+        {
+            return None;
+        }
+        if self.precedes(input, site) {
+            return Some(CheckedIntegerNormalPathV1::FollowingStatement);
+        }
+        function
+            .with_if_region_for_condition(self.binary.site(), |row| {
+                let bundle = row.bundle();
+                let scope = function.exact_scope_containing(site.node())?;
+                [Some(bundle.then_pair()), bundle.else_pair()]
+                    .into_iter()
+                    .flatten()
+                    .find(|pair| {
+                        pair.scope() == scope
+                            && function.scope(scope).map(|row| row.owner_region())
+                                == Some(pair.region())
+                            && function.region(pair.region()).and_then(|row| row.parent())
+                                == Some(bundle.control())
+                    })
+                    .map(|pair| CheckedIntegerNormalPathV1::IfBranch {
+                        control: bundle.control(),
+                        pair,
+                    })
+            })
+            .ok()
+            .flatten()
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn binary(&self) -> &OwnedExprSiteV1 {
         &self.binary
     }

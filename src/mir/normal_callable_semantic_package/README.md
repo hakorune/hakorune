@@ -1538,6 +1538,16 @@ Existing Normal-dominated Add/set/new consumers accept this same Integer proof;
 null comparison supplies no such permission. This does not close incoming
 actual source receipts, static argument projection, or executable transport.
 
+The checked guard can also lend a source-only operand reach witness for its
+exact resolver-sealed then/else scope and region. The witness retains the SAME
+guard Rc, original formal/binding/site, branch pair and parent control; another
+If's arm, a nested scope and the comparison condition itself are not admitted.
+The existing same-sequence following-statement path stays a separate arm.
+Origin/alias/rebind closure remains the classifier's responsibility. This lender
+does not change Add, Return or outgoing-argument rules and does not by itself
+admit Mul: its original call-child, ordered materialization, FinishedBindings
+and both independent physical scans still need the complete Mul consumer.
+
 The same source-use owner admits an exact scalar Return after a checked Compare
 in one source sequence. IntegerReturn retains that Compare Rc plus its exact
 Return exit, value site, binding and formal. The typed source-only consult does

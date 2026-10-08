@@ -23,7 +23,8 @@ pub(super) fn with_source_product<R>(
 ) -> R {
     let source = format!(
         "box BorrowUse {{ birth() {{ }} probe(p): i64 {{ {body} }} \
-         sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ return 0 }} }}"
+         sink(q): i64 {{ return 0 }} word_size(): i64 {{ return 8 }} }} \
+         static box Main {{ main() {{ return 0 }} }}"
     );
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::
         issue_with_brand_catalog(&source).expect("source-backed package");

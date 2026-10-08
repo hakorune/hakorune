@@ -4,6 +4,122 @@ use super::super::{BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
 use super::*;
 
 #[test]
+fn checked_operand_reach_lends_exact_normal_branch_and_retains_original_guard() {
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
+
+    for (body, admitted, branch) in [
+        (
+            "if p <= 8 { return p * me.word_size() } local out = me.sink(p) return 0",
+            true,
+            true,
+        ),
+        (
+            "if p <= 8 { return 2 * p } local out = me.sink(p) return 0",
+            true,
+            true,
+        ),
+        (
+            "if p <= 8 { } else { return p * 2 } local out = me.sink(p) return 0",
+            true,
+            true,
+        ),
+        (
+            "local a = p if a <= 8 { return a * 2 } local out = me.sink(p) return 0",
+            true,
+            true,
+        ),
+        (
+            "if p <= 8 { } local value = p * 2 local out = me.sink(p) return 0",
+            true,
+            false,
+        ),
+        (
+            "local value = p * 2 if p <= 8 { } local out = me.sink(p) return 0",
+            false,
+            false,
+        ),
+        (
+            "if true { local value = p * 2 } if p <= 8 { } local out = me.sink(p) return 0",
+            false,
+            false,
+        ),
+        (
+            "if p <= 8 { if true { return p * 2 } } local out = me.sink(p) return 0",
+            false,
+            false,
+        ),
+        (
+            "if p <= 8 { } if true { return p * 2 } local out = me.sink(p) return 0",
+            false,
+            false,
+        ),
+    ] {
+        with_source_product(
+            body,
+            |_| {},
+            |input, product| {
+                let product = product.expect(body);
+                // A reach loan is not a Mul contract or permission to bypass its
+                // still-unimplemented source/materialization/finishing consumer.
+                assert!(matches!(
+                    product.draft,
+                    Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
+                ));
+                let actual = product.guarded_actuals.values().next().expect(body);
+                let guard = &actual.guard;
+                let multiply = input
+                    .function()
+                    .expression_source()
+                    .binaries()
+                    .find(|row| row.operator() == ResolvedBinaryOperatorV1::Multiply)
+                    .expect(body);
+                let (site, binding) = [multiply.lhs(), multiply.rhs()]
+                    .into_iter()
+                    .find_map(|site| match input.function().variable_ref(site) {
+                        Some(ResolvedLexicalRefV1::Local(binding)) => Some((site, binding)),
+                        _ => None,
+                    })
+                    .expect(body);
+                let reach = guard.normal_path_for_operand(input, guard.formal, binding, site);
+                assert_eq!(reach.is_some(), admitted, "{body}");
+                if let Some(mut reach) = reach {
+                    assert!(Rc::ptr_eq(reach.guard(), guard), "{body}");
+                    assert!(reach.corroborates(input), "{body}");
+                    assert_eq!(
+                        matches!(reach.path, CheckedIntegerNormalPathV1::IfBranch { .. }),
+                        branch,
+                        "{body}"
+                    );
+                    assert!(
+                        !guard.precedes(input, site) || !branch,
+                        "old reach must stay unchanged: {body}"
+                    );
+                    if branch {
+                        reach.path = CheckedIntegerNormalPathV1::FollowingStatement;
+                        assert!(!reach.corroborates(input), "wrong retained path: {body}");
+                    }
+                }
+                let comparison = input
+                    .function()
+                    .expression_source()
+                    .binary(guard.binary.site())
+                    .unwrap();
+                let condition_site = [comparison.lhs(), comparison.rhs()]
+                    .into_iter()
+                    .find(|site| input.function().variable_ref(site).is_some())
+                    .unwrap();
+                assert!(
+                    guard
+                        .normal_path_for_operand(input, guard.formal, binding, condition_site)
+                        .is_none(),
+                    "the condition has not completed normally: {body}"
+                );
+            },
+        );
+    }
+}
+
+#[test]
 fn checked_actual_requires_same_sequence_normal_reach_and_unpoisoned_binding() {
     for (body, count, unsupported) in [
         (
