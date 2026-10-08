@@ -91,19 +91,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             let Ok(Some(need)) = row else {
                 continue;
             };
-            let PreparedSourceCallNeedV1::Lexical(target) = need else {
-                continue;
-            };
+            let reference = need.reference();
             let qualifications = callable_result_classes
-                .qualifications_for_call(target.call_site(), target.target());
+                .qualifications_for_call(&reference.call_site, &reference.target);
             if qualifications.is_empty() {
                 if let Some(dependencies) = callable_result_classes
-                    .object_return_dependencies(target.target(), target.callee_owner())
+                    .object_return_dependencies(&reference.target, reference.callee_owner)
                 {
-                    target.result_requirement =
+                    need.set_result_requirement(
                         LexicalCallSourceResultRequirementV1::ObjectProducerDependency(
                             dependencies,
-                        );
+                        ),
+                    );
                 }
                 continue;
             }
@@ -113,13 +112,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 &definitions,
             )
             .map(Vec::into_boxed_slice);
-            let PreparedSourceCallNeedV1::Lexical(target) = need else {
-                unreachable!()
-            };
-            target.result_requirement = LexicalCallSourceResultRequirementV1::ObjectReturnSource {
+            need.set_result_requirement(LexicalCallSourceResultRequirementV1::ObjectReturnSource {
                 qualifications,
                 forwards,
-            };
+            });
         }
     }
     // Retain exact dispatch membership before later ingress failures. This is
@@ -166,23 +162,43 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                     Err(issue) => Err(issue.clone()),
                     Ok(None) => Ok(None),
                     Ok(Some(need)) => {
-                        if need.stored().is_some()
-                            && !stored_eligible_v1(
-                                &need,
-                                &pending,
-                                &grounded,
-                                &definitions,
-                                contracts,
-                            )
-                        {
-                            targets.push(Ok(None));
-                            continue;
+                        if need.stored().is_some() {
+                            let eligible = match need.result_requirement() {
+                                LexicalCallSourceResultRequirementV1::ExistingBorrowedResult => {
+                                    stored_eligible_v1(
+                                        need,
+                                        &pending,
+                                        &grounded,
+                                        &definitions,
+                                        contracts,
+                                    )
+                                }
+                                _ => stored_object_source_eligible_v1(
+                                    need,
+                                    batch,
+                                    selected,
+                                    contracts,
+                                    &definitions,
+                                    callable_result_classes,
+                                )
+                                .map_err(|issue| {
+                                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                        site: need.reference().call_site,
+                                        issue,
+                                    }
+                                })?,
+                            };
+                            if !eligible {
+                                targets.push(Ok(None));
+                                continue;
+                            }
                         }
                         match need {
                             PreparedSourceCallNeedV1::Lexical(target) => Ok(Some(target.clone())),
                             PreparedSourceCallNeedV1::Stored {
                                 reference,
                                 receiver,
+                                result_requirement,
                             } => {
                                 let receiver = issue_eligible_receiver_v1(
                                     &reference.call_site,
@@ -197,8 +213,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     target_batch_slot: reference.target_batch_slot,
                                     callee_owner: reference.callee_owner,
                                     argument_sites: reference.argument_sites.clone(),
-                                    result_requirement:
-                                        LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
+                                    result_requirement: result_requirement.clone(),
                                 }))
                             }
                         }
@@ -274,4 +289,126 @@ fn issue_eligible_receiver_v1(
             site: site.clone(),
             issue,
         })
+}
+
+/// Source-only eligibility. The same receiver issuer and whole incoming scan
+/// still own receiver residence and execution; no old-result retry is permitted.
+fn stored_object_source_eligible_v1(
+    need: &PreparedSourceCallNeedV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    drafts: &BTreeMap<FunctionOwnerIdV1, super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
+    facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<bool, String> {
+    use super::super::result_class_claim::{OrdinaryNewResultClassV1, ResultValueOriginV1};
+    let reference = need.reference();
+    let mut matching = contracts
+        .iter()
+        .filter(|row| row.owner == reference.callee_owner);
+    let Some(contract) = matching.next() else {
+        return Ok(false);
+    };
+    if matching.next().is_some()
+        || contract.batch_slot != reference.target_batch_slot
+        || selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(
+            reference.target.clone(),
+        )) != Some(reference.target_batch_slot)
+        || !batch.declarations().any(|row| {
+            row.batch_slot() == reference.target_batch_slot && row.owner() == reference.callee_owner
+        })
+        || contract.parameters.len() != reference.argument_sites.len()
+        || reference.argument_sites.len() != reference.target.arity() as usize
+        || contract.parameters.iter().enumerate().any(|(i, formal)| {
+            formal.ordinal as usize != i || formal.binding.owner() != reference.callee_owner
+        })
+    {
+        return Err(freeze("stored-child/object-source-target-identity"));
+    }
+    let Some(caller_slot) = batch
+        .declarations()
+        .find(|row| row.owner() == reference.call_site.owner())
+        .map(|row| row.batch_slot())
+    else {
+        return Ok(false);
+    };
+    let exact_call = batch.with_lowering_input(caller_slot, |input| {
+        input
+            .function()
+            .method_call(reference.call_site.site())
+            .is_some_and(|call| {
+                call.receiver_site() == &reference.receiver_site
+                    && call.selector() == reference.target.name()
+                    && call.arity() == reference.target.arity()
+                    && call
+                        .arguments()
+                        .iter()
+                        .map(|arg| arg.site())
+                        .eq(reference.argument_sites.iter())
+            })
+    });
+    if !matches!(exact_call, Ok(true)) {
+        return Err(freeze("stored-child/object-source-call-identity"));
+    }
+    let Some(class) = facts.get(&reference.target) else {
+        return Ok(false);
+    };
+    if !matches!(
+        class,
+        OrdinaryNewResultClassV1::Object(_) | OrdinaryNewResultClassV1::NullableObject(_)
+    ) {
+        return Ok(false);
+    }
+    let roots = facts
+        .checked_original_source_roots_v1(&reference.target, reference.callee_owner)
+        .map_err(freeze)?;
+    if roots.is_empty()
+        || roots.iter().any(|row| match row.origin() {
+            ResultValueOriginV1::Null => false,
+            ResultValueOriginV1::Fresh(name) => Some(name.as_ref()) != class.class(),
+            ResultValueOriginV1::ForwardFormal { .. } => true,
+        })
+    {
+        return Ok(false);
+    }
+    let Some(forwards) = super::borrowed_formal_result::collect_observed_forward_identities_v1(
+        need, contracts, drafts,
+    ) else {
+        return Ok(false);
+    };
+    match need.result_requirement() {
+        LexicalCallSourceResultRequirementV1::ObjectReturnSource {
+            qualifications,
+            forwards: retained,
+        } => {
+            if qualifications.is_empty()
+                || facts
+                    .qualifications_for_call(&reference.call_site, &reference.target)
+                    .as_ref()
+                    != qualifications.as_ref()
+                || retained.as_deref() != Some(forwards.as_slice())
+            {
+                return Err(freeze("stored-child/object-source-qualification-identity"));
+            }
+            for loan in qualifications {
+                facts
+                    .check_original_call_root_coverage_v1(loan, &roots)
+                    .map_err(freeze)?;
+            }
+        }
+        LexicalCallSourceResultRequirementV1::ObjectProducerDependency(dependencies) => {
+            if dependencies.is_empty()
+                || facts
+                    .object_return_dependencies(&reference.target, reference.callee_owner)
+                    .as_deref()
+                    != Some(dependencies.as_ref())
+            {
+                return Err(freeze("stored-child/object-source-dependency-identity"));
+            }
+        }
+        LexicalCallSourceResultRequirementV1::ExistingBorrowedResult => {
+            return Err(freeze("stored-child/object-source-requirement"))
+        }
+    }
+    Ok(true)
 }

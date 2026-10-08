@@ -53,6 +53,32 @@ fn object_return_loan_rejects_foreign_fact_product_and_missing_callee_membership
     let other = super::super::super::source_result_facts_for_test(SOURCE);
     let row = &facts.outcomes(&key("direct", 1)).unwrap()[0];
     assert!(other.object_return_qualification(row.site()).is_none());
+    let loan = facts.object_return_qualification(row.site()).unwrap();
+    let owner = facts.outcomes(loan.key()).unwrap()[0].site().owner();
+    let roots = facts
+        .checked_original_source_roots_v1(loan.key(), owner)
+        .unwrap();
+    facts
+        .check_original_call_root_coverage_v1(&loan, &roots)
+        .unwrap();
+    for change in 0..3 {
+        let mut changed = loan.clone();
+        let mut witnesses = changed.witnesses.to_vec();
+        match change {
+            0 => {
+                witnesses.pop();
+            }
+            1 => witnesses.reverse(),
+            _ => witnesses[1] = Rc::clone(&witnesses[0]),
+        }
+        changed.witnesses = witnesses.into_boxed_slice();
+        assert!(
+            facts
+                .check_original_call_root_coverage_v1(&changed, &roots)
+                .is_err(),
+            "missing, reversed or repeated root change={change}"
+        );
+    }
     let mut incomplete = OrdinaryNewResultClassClaimsV1::new();
     incomplete.insert(
         key("direct", 1),

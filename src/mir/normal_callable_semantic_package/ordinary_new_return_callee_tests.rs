@@ -1,3 +1,4 @@
+use super::result_class_claim::ResultWitnessStepV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
     brand_catalog_tests::issue_with_brand_catalog, VerifiedNormalCallableSemanticPackageV1,

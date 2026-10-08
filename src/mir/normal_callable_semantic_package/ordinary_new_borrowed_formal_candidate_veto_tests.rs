@@ -151,6 +151,17 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                     assert!(page_witnesses.iter().any(|original| std::rc::Rc::ptr_eq(original, callee)), "same leaf witness, no reissue");
                 }
             }
+            let source = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap()
+                .as_ref().expect("retained original source incoming");
+            let stored: Vec<_> = source.source_incoming.exact_rows().filter_map(|row| row.source.instance())
+                .filter(|row| row.call_site().owner() == heap_exits[0].site().owner()
+                    && row.target() == &page_key && row.stored_receiver().is_some()).collect();
+            assert_eq!(stored.len(), 2, "BOTH original Stored Page source rows");
+            for target in stored {
+                assert!(target.has_object_source_requirement());
+                assert_eq!(target.object_return_sources().unwrap().len(), 1);
+                assert!(target.receiver_binding().is_err(), "Stored remains outside lexical receiver binding");
+            }
             let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(heap_key.clone())).unwrap();
             let contract = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap();
             assert_eq!(contract.parameters[0].kind, crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle);
@@ -337,6 +348,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
                     Ok(Some(PreparedSourceCallNeedV1::Stored {
                         reference,
                         receiver,
+                        result_requirement: super::super::LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                     }))
                 })
                 .collect())

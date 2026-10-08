@@ -252,3 +252,98 @@ fn failed_object_source_walk_revokes_unobserved_raw_call_without_execution_grant
         ));
     }
 }
+
+#[test]
+fn object_forward_source_keeps_final_callee_without_fabricating_caller_definition() {
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Token {} box Maker { make(size) { if size > 0 { return new Token() } return new Token() } relay(size) { return me.make(size) } } static box Main { main() { local maker = new Maker() local out = maker.relay(7) return 0 } }"
+    ).unwrap();
+    let (loan, target, row) = original(&package);
+    let forward = target.object_source_forwards().unwrap()[0].clone();
+    let actual = BorrowedCallActualCandidateV1 {
+        ordinal: forward.ordinal(),
+        site: forward.site().site().clone(),
+        value: BorrowedCallActualValueV1::SelfRooted {
+            binding: forward.binding(),
+            root: forward.source_formal(),
+        },
+    };
+    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let source = ledger.borrowed_formal_source.as_mut().unwrap();
+    assert!(source
+        .as_ref()
+        .unwrap()
+        .definitions
+        .contains_key(&loan.call().owner()));
+    let executable = prepare_borrowed_call_actuals_v1(
+        source,
+        &package.parameter_contracts,
+        loan.call(),
+        &[actual.clone()],
+        &[],
+        None,
+        &mut |_| None,
+    )
+    .unwrap()
+    .unwrap();
+    executable.require_executable_v1().unwrap();
+    source
+        .as_mut()
+        .unwrap()
+        .definitions
+        .remove(&loan.call().owner());
+    assert!(source
+        .as_ref()
+        .unwrap()
+        .incoming
+        .iter()
+        .any(|original| original.call == row.call));
+    let pending = prepare_borrowed_call_actuals_v1(
+        source,
+        &package.parameter_contracts,
+        loan.call(),
+        &[actual.clone()],
+        &[],
+        None,
+        &mut |_| None,
+    )
+    .unwrap()
+    .unwrap();
+    assert!(pending.opaque_actuals.is_empty());
+    assert!(pending
+        .require_executable_v1()
+        .unwrap_err()
+        .contains("source-only-object-actuals"));
+    let mut staged = PendingBorrowedFormalActualsV1::new();
+    staged.insert(loan.call().clone(), Ok(pending));
+    assert!(matches!(
+        project_pending_object_arguments_v1(source, &staged, &target, &loan).unwrap(),
+        crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1::SourceOnly(_)
+    ));
+    for change in 0..3 {
+        let mut changed = actual.clone();
+        match change {
+            0 => changed.ordinal += 1,
+            1 => changed.site = loan.call().site().clone(),
+            _ => {
+                changed.value = BorrowedCallActualValueV1::SelfRooted {
+                    binding: forward.binding(),
+                    root: target.receiver_binding().unwrap(),
+                }
+            }
+        }
+        assert!(
+            prepare_borrowed_call_actuals_v1(
+                source,
+                &package.parameter_contracts,
+                loan.call(),
+                &[changed],
+                &[],
+                None,
+                &mut |_| None
+            )
+            .is_err(),
+            "change={change}"
+        );
+    }
+}

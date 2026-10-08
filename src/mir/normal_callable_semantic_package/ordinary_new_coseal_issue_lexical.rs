@@ -693,7 +693,7 @@ pub(super) fn prepare_source_preflight_v1(
     ))
 }
 
-/// An admitted stored row demands sealed I64; errors cannot return to the seed path.
+/// An admitted legacy stored row demands sealed I64; Object uses its original terminal walk.
 pub(super) fn has_stored_terminal_v1(
     rows: &PreparedLexicalInstanceCallSourceTargetsV1,
     results: &BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
@@ -702,7 +702,11 @@ pub(super) fn has_stored_terminal_v1(
     let Some(row) = rows.as_ref().ok().and_then(|rows| {
         rows.iter()
             .filter_map(|row| row.as_ref().ok()?.as_ref())
-            .find(|row| row.call_site().owner() == owner && row.stored_receiver().is_some())
+            .find(|row| {
+                row.call_site().owner() == owner
+                    && row.stored_receiver().is_some()
+                    && !row.has_object_source_requirement()
+            })
     }) else {
         return Ok(false);
     };

@@ -39,7 +39,11 @@ impl CallTargetReferenceV1 {
 #[derive(Debug)]
 pub(super) enum PreparedSourceCallNeedV1 {
     Lexical(LexicalInstanceCallSourceTargetV1),
-    Stored { reference: CallTargetReferenceV1, receiver: StoredReceiverSourceV1 },
+    Stored {
+        reference: CallTargetReferenceV1,
+        receiver: StoredReceiverSourceV1,
+        result_requirement: LexicalCallSourceResultRequirementV1,
+    },
 }
 
 impl PreparedSourceCallNeedV1 {
@@ -49,8 +53,30 @@ impl PreparedSourceCallNeedV1 {
             Self::Stored { reference, .. } => reference.clone(),
         }
     }
+    pub(super) fn result_requirement(&self) -> &LexicalCallSourceResultRequirementV1 {
+        match self {
+            Self::Lexical(row) => &row.result_requirement,
+            Self::Stored {
+                result_requirement, ..
+            } => result_requirement,
+        }
+    }
+    pub(super) fn set_result_requirement(
+        &mut self,
+        requirement: LexicalCallSourceResultRequirementV1,
+    ) {
+        match self {
+            Self::Lexical(row) => row.result_requirement = requirement,
+            Self::Stored {
+                result_requirement, ..
+            } => *result_requirement = requirement,
+        }
+    }
     pub(super) fn stored(&self) -> Option<&StoredReceiverSourceV1> {
-        match self { Self::Stored { receiver, .. } => Some(receiver), _ => None }
+        match self {
+            Self::Stored { receiver, .. } => Some(receiver),
+            _ => None,
+        }
     }
 }
 
@@ -73,10 +99,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
         u32,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
-    ) -> Result<
-        Option<StoredReceiverSourceV1>,
-        String,
-    >,
+    ) -> Result<Option<StoredReceiverSourceV1>, String>,
 ) -> PreparedSourceNeedsV1 {
     let source = provenance::LexicalReceiverClassSourceV1::prepared(
         new_classes,
@@ -108,18 +131,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                                 .find(|row| row.batch_slot() == target_batch_slot)?
                                 .owner();
                             Some(PreparedSourceCallNeedV1::Stored {
-                              reference: CallTargetReferenceV1 {
-                                call_site: OwnedExprSiteV1::new(owner, site.clone()),
-                                receiver_site: call.receiver_site().clone(),
-                                target,
-                                target_batch_slot,
-                                callee_owner,
-                                argument_sites: call
-                                    .arguments()
-                                    .iter()
-                                    .map(|argument| argument.site().clone())
-                                    .collect(),
-                              }, receiver,
+                                reference: CallTargetReferenceV1 {
+                                    call_site: OwnedExprSiteV1::new(owner, site.clone()),
+                                    receiver_site: call.receiver_site().clone(),
+                                    target,
+                                    target_batch_slot,
+                                    callee_owner,
+                                    argument_sites: call
+                                        .arguments()
+                                        .iter()
+                                        .map(|argument| argument.site().clone())
+                                        .collect(),
+                                },
+                                receiver,
+                                result_requirement:
+                                    LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                             })
                         });
                         needs.push(SourceReceiverNeedV1::Stored(row));
@@ -236,16 +262,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                 } else {
                     LexicalInstanceCallReceiverV1::Lexical(need.receiver_binding)
                 };
-                Ok(Some(PreparedSourceCallNeedV1::Lexical(LexicalInstanceCallSourceTargetV1 {
-                    call_site,
-                    receiver_site: need.receiver_site,
-                    receiver,
-                    target,
-                    target_batch_slot,
-                    callee_owner,
-                    argument_sites: need.argument_sites,
-                    result_requirement: LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
-                })))
+                Ok(Some(PreparedSourceCallNeedV1::Lexical(
+                    LexicalInstanceCallSourceTargetV1 {
+                        call_site,
+                        receiver_site: need.receiver_site,
+                        receiver,
+                        target,
+                        target_batch_slot,
+                        callee_owner,
+                        argument_sites: need.argument_sites,
+                        result_requirement:
+                            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
+                    },
+                )))
             })()
         })
         .collect())

@@ -36,7 +36,9 @@ C owned Handle identity/LIVE admission closed; original16 Normal/Fault EXEs pass
 Last unchanged-app probe (b115) identified allocateResult local -> Heap.allocate Pending.
 Passive Stored dispatch now removes only exact different-callee false vetoes.
 Checked Normal Integer actual facts close all15 Heap candidate inputs; final entry still absent.
-Next: SAME original Stored Object protocol for BOTH Page calls plus null; no Facts-only Ready.
+Stored Object source protocol now retains BOTH original Page calls plus null and exact forwards.
+SourceOnly selection precedes strict construction; no Facts-only Ready or caller entry.
+Next: SAME dedicated Stored observer and full entry/Completion/input/Normal/cleanup closure.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"

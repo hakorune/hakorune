@@ -167,6 +167,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
     }
+    if needs_original_object_forward_source_v1(prepared, incoming_row, call, actuals)? {
+        return object_source::prepare_object_source_actuals_v1(prepared, contracts, call, actuals);
+    }
     construct_borrowed_call_actuals_v1(
         prepared,
         incoming_row,
@@ -177,6 +180,74 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         receiver,
         nullable_class,
     )
+}
+
+/// Select before execution construction when an exact source forward has no
+/// final caller definition. Entry receivers and declared objects keep their law.
+fn needs_original_object_forward_source_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    incoming: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    call: &OwnedExprSiteV1,
+    actuals: &[BorrowedCallActualCandidateV1],
+) -> Result<bool, String> {
+    let Some(target) = incoming.source.instance() else {
+        return Ok(false);
+    };
+    if !target.has_object_source_requirement() || prepared.definitions.contains_key(&call.owner()) {
+        return Ok(false);
+    }
+    let Some(forwards) = target.object_source_forwards() else {
+        return Ok(false);
+    };
+    let mut source_only = false;
+    for actual in actuals {
+        let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
+            continue;
+        };
+        let matching: Vec<_> = forwards
+            .iter()
+            .filter(|row| row.ordinal() == actual.ordinal)
+            .collect();
+        let [forward] = matching.as_slice() else {
+            if matching.is_empty() {
+                continue;
+            }
+            return Err(freeze("borrowed-object/forward-source-identity"));
+        };
+        if forward.call() != call
+            || forward.target() != target.target()
+            || forward.site().site() != &actual.site
+            || forward.binding() != binding
+            || forward.source_formal() != root
+            || !incoming.arguments.iter().any(|(ordinal, site, formal)| {
+                *ordinal == actual.ordinal
+                    && *site == actual.site
+                    && *formal == forward.callee_formal()
+            })
+        {
+            return Err(freeze("borrowed-object/forward-source-identity"));
+        }
+        source_only = true;
+    }
+    if source_only {
+        let mut originals = prepared
+            .source_incoming
+            .exact_rows()
+            .filter(|row| &row.call == call);
+        let original = originals
+            .next()
+            .ok_or_else(|| freeze("borrowed-object/source-row-missing"))?;
+        if originals.next().is_some()
+            || original.source.require_instance()? != target
+            || original.callee != incoming.callee
+            || original.arguments != incoming.arguments
+            || incoming.call != *call
+            || target.call_site() != call
+        {
+            return Err(freeze("borrowed-object/source-actual-identity"));
+        }
+    }
+    Ok(source_only)
 }
 
 /// Construct from an original incoming row after the caller has selected it.

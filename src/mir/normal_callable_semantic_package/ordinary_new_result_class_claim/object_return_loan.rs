@@ -46,6 +46,70 @@ impl PartialEq for ObjectReturnCallQualificationV1 {
 impl Eq for ObjectReturnCallQualificationV1 {}
 
 impl OrdinaryNewResultClassClaimsV1 {
+    /// Shared source identity check, independent of Completion and execution.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_original_source_roots_v1(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    ) -> Result<Vec<&Rc<ResultOriginWitnessV1>>, &'static str> {
+        let outcomes = self.outcomes(key).ok_or("callee-facts-missing")?;
+        let mut sites = BTreeSet::new();
+        for row in outcomes {
+            if row.site().owner() != owner
+                || !sites.insert(row.site().clone())
+                || row.witnesses().is_empty()
+                || row
+                    .witnesses()
+                    .iter()
+                    .any(|witness| witness.site() != row.site())
+            {
+                return Err("callee-facts-identity");
+            }
+            let origins: BTreeSet<_> = row
+                .witnesses()
+                .iter()
+                .map(|witness| witness.origin().clone())
+                .collect();
+            if &origins != row.alternatives() {
+                return Err("callee-facts-alternatives");
+            }
+        }
+        Ok(outcomes.iter().flat_map(|row| row.witnesses()).collect())
+    }
+
+    /// Membership alone is insufficient: every original root is covered once,
+    /// in source order, by the same caller-to-callee edge.
+    pub(in crate::mir::normal_callable_semantic_package) fn check_original_call_root_coverage_v1(
+        &self,
+        loan: &ObjectReturnCallQualificationV1,
+        roots: &[&Rc<ResultOriginWitnessV1>],
+    ) -> Result<(), &'static str> {
+        if loan.witnesses().len() != roots.len() {
+            return Err("callee-witness-coverage");
+        }
+        for (caller, callee) in loan.witnesses().iter().zip(roots) {
+            let ResultWitnessStepV1::Call {
+                site,
+                key,
+                callee: child,
+                substitution,
+            } = caller.step()
+            else {
+                return Err("callee-witness-role");
+            };
+            if caller.site() != loan.value()
+                || site != loan.call()
+                || key != loan.key()
+                || substitution.is_some()
+                || !Rc::ptr_eq(child, callee)
+                || caller.origin() != callee.origin()
+            {
+                return Err("callee-witness-identity");
+            }
+        }
+        Ok(())
+    }
+
     /// A retained source obligation selects the existing verified terminal walk.
     pub(in crate::mir::normal_callable_semantic_package) fn has_object_call_return(
         &self,

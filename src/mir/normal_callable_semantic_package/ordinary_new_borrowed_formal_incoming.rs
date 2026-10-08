@@ -182,6 +182,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             if let Some(super::super::source::PreparedSourceCallNeedV1::Stored {
                 reference,
                 receiver,
+                ..
             }) = need
             {
                 if stored

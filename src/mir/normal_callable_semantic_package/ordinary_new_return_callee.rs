@@ -4,9 +4,7 @@ use super::super::lexical_instance_call::LexicalInstanceCallSourceTargetV1;
 use super::super::{result_class_claim, OrdinaryNewClaimLedgerV1};
 use crate::mir::resolved_semantics::home_new_prefix::{TerminalRelationV1, TerminalValueReturnV1};
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
-use result_class_claim::{
-    ObjectReturnCallQualificationV1, ResultOriginWitnessV1, ResultWitnessStepV1,
-};
+use result_class_claim::{ObjectReturnCallQualificationV1, ResultOriginWitnessV1};
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
@@ -60,56 +58,15 @@ impl OrdinaryNewClaimLedgerV1 {
         if !completion.returns_value() || completion.implicit_body_end().is_some() {
             return Ok(None);
         }
-        let outcomes = self
+        let roots = self
             .callable_result_classes
-            .outcomes(target.target())
-            .ok_or_else(|| freeze("callee-facts-missing"))?;
-        let mut fact_sites = BTreeSet::new();
-        for row in outcomes {
-            if row.site().owner() != target.callee_owner()
-                || !fact_sites.insert(row.site().clone())
-                || row.witnesses().is_empty()
-                || row
-                    .witnesses()
-                    .iter()
-                    .any(|witness| witness.site() != row.site())
-            {
-                return Err(freeze("callee-facts-identity"));
-            }
-            let origins: BTreeSet<_> = row
-                .witnesses()
-                .iter()
-                .map(|witness| witness.origin().clone())
-                .collect();
-            if &origins != row.alternatives() {
-                return Err(freeze("callee-facts-alternatives"));
-            }
-        }
-        let roots: Vec<_> = outcomes.iter().flat_map(|row| row.witnesses()).collect();
+            .checked_original_source_roots_v1(target.target(), target.callee_owner())
+            .map_err(freeze)?;
+        let fact_sites: BTreeSet<_> = roots.iter().map(|row| row.site().clone()).collect();
         if let Some(loan) = loan {
-            if loan.witnesses().len() != roots.len() {
-                return Err(freeze("callee-witness-coverage"));
-            }
-            for (caller, callee) in loan.witnesses().iter().zip(&roots) {
-                let ResultWitnessStepV1::Call {
-                    site,
-                    key,
-                    callee: child,
-                    substitution,
-                } = caller.step()
-                else {
-                    return Err(freeze("callee-witness-role"));
-                };
-                if caller.site() != loan.value()
-                    || site != loan.call()
-                    || key != loan.key()
-                    || substitution.is_some()
-                    || !Rc::ptr_eq(child, callee)
-                    || caller.origin() != callee.origin()
-                {
-                    return Err(freeze("callee-witness-identity"));
-                }
-            }
+            self.callable_result_classes
+                .check_original_call_root_coverage_v1(loan, &roots)
+                .map_err(freeze)?;
         }
         let mut mapped = BTreeSet::new();
         let mut exits = BTreeSet::new();

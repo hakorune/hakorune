@@ -1853,3 +1853,27 @@ Local finishing retains its construction, coverage and exact physical checks;
 it does not reject an already verified owned call merely because the source
 relation contains OwnedCall. The old no-pending helper is test-only source
 readiness diagnosis, with no artifact authority. Repeating finishing still refuses.
+
+Stored Object result source preparation uses the same `PreparedSourceCallNeedV1`
+result requirement and qualification attachment as lexical calls. Before the
+existing owned-field receiver issuer runs, the source profile checks the exact
+selected contract, target, owner and ordered argument sites, the original
+callee Facts exits and alternatives, all plural call loans with original Rc
+identity, and every callee root in order and count. The immutable source-root
+checks are shared with completed-callee validation; they require no Completion
+and grant no Home, Normal outcome, Ready packet or result execution.
+
+Object producer dependencies retain the original Facts dependency rows. Missing
+source/forward identities remain unavailable, never an empty proof or an I64
+retry. Stored targets preserve this requirement instead of replacing it with
+`ExistingBorrowedResult`. The original stored I64 eligibility law remains
+unchanged, and only its rows demand the stored I64 terminal gate. Stored receiver
+binding outside the dedicated terminal receiver path still refuses. Full incoming,
+Completion, teardown, outcome and final artifact verification remain mandatory.
+
+If an original Instance Object call still has final callee incoming but forwards
+an exact retained source formal from a caller without a final definition, actual
+preparation selects `SourceObject` before execution construction. It checks the
+same raw/final target, callee and argument tuple. EntryReceiver and DeclaredFormal
+actuals do not satisfy this forward condition. SourceObject retains no opaque
+execution proofs; entry/packet consumers still require the Executable phase.
