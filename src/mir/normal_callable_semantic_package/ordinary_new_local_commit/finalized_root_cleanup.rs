@@ -117,6 +117,17 @@ pub(super) fn validate_finished_cleanup_entry(
     )? {
         mandatory.push(producer);
     }
+    if let Some(producer) = ledger.validate_fresh_return_producer_v1(
+        owner,
+        exit,
+        entry,
+        bindings,
+        Some(projection),
+        finishing,
+        Some(function),
+    )? {
+        mandatory.extend(producer);
+    }
     match (finishing, entry) {
         (
             finishing,

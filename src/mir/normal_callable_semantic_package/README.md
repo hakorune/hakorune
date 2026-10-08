@@ -1789,3 +1789,7 @@ observations grant no finalized Object result permission.
 Received returns join the original verified destination to the existing installed
 CallReceived producer and shared binding-group packet. Final cleanup corroborates
 that exact producer in FinishedBindings and actual MIR before accepting Return.
+
+Fresh returns join their exact Construction site to the retained Result commit
+and NewBox allocation/normal projection, then to that same exit Return. A function-wide
+Return count does not replace this correspondence; retained diagnostics grant no ABI.

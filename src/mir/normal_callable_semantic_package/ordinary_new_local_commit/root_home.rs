@@ -11,6 +11,8 @@ pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::RootHome
 #[path = "root_home_null_return.rs"]
 mod null_return;
 pub(crate) use null_return::TerminalNullReturnSourceLoanV1;
+#[path = "root_home_fresh_return.rs"]
+mod fresh_return;
 #[path = "root_home_received_return.rs"]
 mod received_return;
 
@@ -455,6 +457,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         order.validate_null_return(&entry, &bindings, None, None)?;
         self.validate_received_return_producer_v1(owner, site, &entry, &bindings, None, None)?;
+        self.validate_fresh_return_producer_v1(owner, site, &entry, &bindings, None, None, None)?;
         let RootHomeExitProgress::Emitting(order) =
             std::mem::replace(progress, RootHomeExitProgress::Unprepared)
         else {
@@ -675,6 +678,15 @@ impl OrdinaryNewClaimLedgerV1 {
                             return Err(freeze("received-return/producer-actual-drift"));
                         }
                     }
+                    self.validate_fresh_return_producer_v1(
+                        owner,
+                        expected_exit,
+                        entry,
+                        bindings,
+                        projection,
+                        projection,
+                        Some(function),
+                    )?;
                     super::root_cleanup_graph::ordered_paths::validate(
                         function, bindings, entry, order, projection,
                     )?;

@@ -975,12 +975,9 @@ Required next evidence includes real consumed-claim Fresh, missing/foreign commi
 arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
 Closed prerequisites: key6c7d192311, Fresh05cacecf80, splits66574888d1/7114201848, Root source4b9ff8f7bd/a6201577b4 (joins/orphan law); no ABI grant.
 Evidence: /tmp/hako-object-root-key-*, /tmp/hako-result-source-view-*, /tmp/hako-*-owner-move-*, /tmp/hako-root-object-descriptor-*; required runtime/production PASS.
-Null append Decision (read-only review_cleanup_path): SAME emit_null_recorded
-through source-scoped loan into RootHomeCleanupOrder auxiliary receipt. Indexed
-NullLiteral/explicit exit/Prepared state issue the loan. None/Unprepared/Unavailable
-stays unselected; consumed reentry Err. Const joins existing FinishedBindings.
-Const projection and rebound Return use separate mapping; missing receipt refuses
-before affine record. No new registry/issuer; lib+tests PASS42.23s. No whole Object ABI/S0 completion claim.
+Null append closed81163fc815: exact source-scoped Const/Return receipt,
+independent finishing producer membership; unselected states retain diagnostics.
+Contract and full evidence recover at that commit; no second registry/ABI grant.
 Physical integration review: Direct retains exact order/Call result; Null retains
 source Const; Received joins original installed destination and projected Return.
 Fresh exact-site-to-exit correspondence is still owed: function-wide Return count
@@ -989,12 +986,15 @@ Null producer closed81163fc815 (pushed): original Const/Return, joint drift,
 missing finishing binding and Main/child boundaries PASS; no whole ABI grant.
 Evidence /tmp/hako-terminal-null-append-* (regression581, build4m59s, lib23.57s,
 guards/protected PASS; fixture THISCHANGE reds fixed). No new guard.
-Received producer Decision (read-only review_cleanup_path): SAME verified Normal
-obligation's call site/local destination selects existing CallReceived commit.
-Corroborate owner/binding/declaration, installed local, original binding group and
-shared packet; map that exact producer separately from Return storage.
-Record before affine move; independent final membership/actual MIR check remains.
-Reuse cleanup omission/Fault law; unavailable/wrong/foreign/removed/drift refuses.
-Extend existing Main/child matrix and joint-fault preflight negatives, no new guard.
-Target record_root_home_exit, validate_root_home_exit and finished cleanup owner;
-Received producer closed: preflight6/6 and remaining regression575/575 PASS; lib17.20s. THISCHANGE early membership and ClaimLocal packet refusals fixed; missing Self packet still rejects. Evidence /tmp/hako-received-return-producer-{preflight-protocol-fixed.log,regression.json,production-check.log}; binary SHA256 2ae7f28f457ed5485e7cfa3a9e5ec9cd9f276ae31348a5bcc6bfc7ca78213700. Scope/pointer/fmt/protected PASS; no whole ABI grant.
+Received producer closed e4c7a9a59c (pushed): exact installed producer/Return;
+preflight6+regression575 PASS, lib17.20s, scope/pointer/fmt/protected PASS.
+Evidence /tmp/hako-received-return-producer-*; THISCHANGE timing/protocol reds fixed.
+Fresh Decision (read-only review_cleanup_path): SAME indexed Construction site ->
+existing Result commit -> unique NewBox allocation/projection -> exact exit Return.
+Record accepts ExpressionCompleted; finishing requires Checked. Early actual check
+precedes membership; post-complete collector retains mandatory producer. Diagnostic
+RetainedUnavailable stays None without ABI permission. Missing/wrong commit, phase,
+producer or Return rejects. Extend joint preflight family with two dynamic Fresh
+exits swapped in recorded+actual MIR, proving count=1 insufficient and atomicity.
+Allocation/projection both require final membership/actual equality; late allocation drift rejects. No new issuer/registry/guard; whole ABI/S0/goal incomplete.
+Fresh WIP: initial preflight6/6 PASS5m34s; source identity and allocation pair subsequently strengthened. Exact final runtime + same-binary regression owed (/tmp/hako-fresh-return-producer-preflight-final.log). Guards/fmt/protected PASS; not committed.

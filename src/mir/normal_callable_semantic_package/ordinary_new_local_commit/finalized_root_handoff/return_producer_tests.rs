@@ -350,3 +350,232 @@ pub(super) fn null_return_joint_drift_and_missing_finished_binding() {
         );
     }
 }
+
+pub(super) fn fresh_return_exact_exit_and_finished_producer() {
+    for failure in 0..3 {
+        let text = source(false, false, false, false).replacen(
+            "return new Token()",
+            "if size > 0 { return new Token() } return new Token()",
+            1,
+        );
+        let (key, mut module, ledger, keys, cohort) = completed(&text)
+            .document_preflight_parts_for_test(true)
+            .unwrap();
+        let (owner, exits) = ledger
+            .terminal_relation_index
+            .iter()
+            .find_map(|(owner, rows)| {
+                let exits: Vec<_> = rows
+                    .iter()
+                    .filter_map(|(exit, row)| {
+                        let TerminalRelationV1::Value(value) = row else {
+                            return None;
+                        };
+                        let TerminalReturnedSourceV1::Construction(site) = value.returned() else {
+                            return None;
+                        };
+                        Some((exit.clone(), site.clone()))
+                    })
+                    .collect();
+                (exits.len() == 2).then_some((*owner, exits))
+            })
+            .expect("dynamic factory has two original Fresh exits");
+        let before = snapshot(&ledger);
+        let mut originals = Vec::new();
+        let mut results = Vec::new();
+        for (exit, site) in &exits {
+            let rows = ledger.local_commits.borrow();
+            let LocalCommitV1::Result(row) = &rows[site] else {
+                panic!("Fresh Result commit");
+            };
+            let NewEmissionProgress::Emitted { result, .. } = row.emission else {
+                panic!("Fresh producer");
+            };
+            results.push(result);
+            let stored = ledger.root_exits.borrow();
+            let RootHomeExitProgress::Emitted {
+                entry, bindings, ..
+            } = &stored[&(owner, exit.clone())]
+            else {
+                panic!("Fresh exit");
+            };
+            assert!(ledger
+                .validate_fresh_return_producer_v1(owner, exit, entry, bindings, None, None, None)
+                .unwrap()
+                .is_some());
+            originals.push(
+                bindings
+                    .iter()
+                    .find(|(_, instruction)| matches!(instruction, MirInstruction::Return { .. }))
+                    .unwrap()
+                    .clone(),
+            );
+        }
+        assert_ne!(results[0], results[1]);
+        if failure == 1 {
+            let producer = {
+                let stored = ledger.root_exits.borrow();
+                let RootHomeExitProgress::Emitted {
+                    entry, bindings, ..
+                } = &stored[&(owner, exits[0].0.clone())]
+                else {
+                    unreachable!()
+                };
+                ledger
+                    .validate_fresh_return_producer_v1(
+                        owner,
+                        &exits[0].0,
+                        entry,
+                        bindings,
+                        None,
+                        None,
+                        None,
+                    )
+                    .unwrap()
+                    .unwrap()
+            };
+            let (_, producer) = finished_binding(&ledger, owner, &producer[0]);
+            let mut children = ledger.child_physical_validation.borrow_mut();
+            let ChildPhysicalValidation::FinishingChecked { projection, .. } =
+                children.get_mut(&owner).unwrap()
+            else {
+                panic!("Fresh finishing");
+            };
+            assert!(projection.recorded().contains(&producer));
+            projection.remove_recorded_binding_for_test(&producer);
+        } else if failure == 2 {
+            let original = {
+                let rows = ledger.local_commits.borrow();
+                let LocalCommitV1::Result(row) = &rows[&exits[0].1] else {
+                    unreachable!()
+                };
+                let NewEmissionProgress::Emitted { bindings, .. } = &row.emission else {
+                    unreachable!()
+                };
+                bindings
+                    .iter()
+                    .find(|(_, instruction)| {
+                        matches!(
+                            instruction,
+                            MirInstruction::Invoke {
+                                operation: InvokeOperation::NewBox { .. },
+                                ..
+                            }
+                        )
+                    })
+                    .unwrap()
+                    .clone()
+            };
+            let (symbol, allocation) = finished_binding(&ledger, owner, &original);
+            let block = module
+                .functions
+                .get_mut(&symbol)
+                .unwrap()
+                .blocks
+                .get_mut(&allocation.0)
+                .unwrap();
+            let actual = block.terminator.as_mut().unwrap();
+            assert_eq!(*actual, allocation.1);
+            let MirInstruction::Invoke {
+                normal_landing,
+                fault_landing,
+                ..
+            } = actual
+            else {
+                unreachable!()
+            };
+            assert_ne!(normal_landing, fault_landing);
+            *normal_landing = *fault_landing;
+            // The producer and Return are unchanged; the allocation itself drifts.
+            let stored = ledger.root_exits.borrow();
+            let RootHomeExitProgress::Emitted {
+                entry, bindings, ..
+            } = &stored[&(owner, exits[0].0.clone())]
+            else {
+                unreachable!()
+            };
+            let children = ledger.child_physical_validation.borrow();
+            let ChildPhysicalValidation::FinishingChecked { projection, .. } = &children[&owner]
+            else {
+                unreachable!()
+            };
+            assert!(ledger
+                .validate_fresh_return_producer_v1(
+                    owner,
+                    &exits[0].0,
+                    entry,
+                    bindings,
+                    Some(projection),
+                    Some(projection),
+                    Some(&module.functions[&symbol])
+                )
+                .unwrap_err()
+                .contains("fresh-return/producer-actual-drift"));
+        } else {
+            for i in 0..2 {
+                let (symbol, physical) = finished_binding(&ledger, owner, &originals[i]);
+                let old = &originals[i].1;
+                let replacement = MirInstruction::Return {
+                    value: Some(results[1 - i]),
+                };
+                let mut stored = ledger.root_exits.borrow_mut();
+                let RootHomeExitProgress::Emitted { bindings, .. } =
+                    stored.get_mut(&(owner, exits[i].0.clone())).unwrap()
+                else {
+                    unreachable!()
+                };
+                let binding = bindings
+                    .iter_mut()
+                    .find(|(_, instruction)| instruction == old)
+                    .unwrap();
+                binding.1 = replacement.clone();
+                let block = module
+                    .functions
+                    .get_mut(&symbol)
+                    .unwrap()
+                    .blocks
+                    .get_mut(&physical.0)
+                    .unwrap();
+                assert_eq!(block.terminator.as_ref(), Some(&physical.1));
+                block.terminator = Some(replacement);
+            }
+            // The old whole-function check still sees exactly one Return per result.
+            let (symbol, _) = finished_binding(&ledger, owner, &originals[0]);
+            for result in &results {
+                assert_eq!(module.functions[&symbol].blocks.values().flat_map(|block| block.all_instructions())
+                    .filter(|instruction| matches!(instruction, MirInstruction::Return { value: Some(value) } if value == result)).count(), 1);
+            }
+            let stored = ledger.root_exits.borrow();
+            let RootHomeExitProgress::Emitted {
+                entry, bindings, ..
+            } = &stored[&(owner, exits[0].0.clone())]
+            else {
+                unreachable!()
+            };
+            assert!(ledger
+                .validate_fresh_return_producer_v1(
+                    owner,
+                    &exits[0].0,
+                    entry,
+                    bindings,
+                    None,
+                    None,
+                    None
+                )
+                .unwrap_err()
+                .contains("fresh-return/return-value"));
+        }
+        let corrupted = snapshot(&ledger);
+        assert!(ledger
+            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+            .is_err());
+        assert_eq!(
+            snapshot(&ledger),
+            corrupted,
+            "Fresh corruption precedes affine move"
+        );
+        if failure == 1 {
+            assert_eq!(corrupted, before);
+        }
+    }
+}

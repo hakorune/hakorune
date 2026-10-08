@@ -341,6 +341,7 @@ fn received_source_missing_and_unregistered_exit_fail_before_move() {
 fn joint_mir_and_recorded_fault_omission_is_rejected_before_take() {
     return_producers::null_return_joint_drift_and_missing_finished_binding();
     return_producers::received_return_joint_drift_and_missing_producer();
+    return_producers::fresh_return_exact_exit_and_finished_producer();
     let (key, mut module, ledger, keys, cohort) = fixture(false);
     let owner = ledger.root_owner().unwrap();
     let exit = ledger.completion_for_owner(owner).unwrap().explicit_sites()[0].clone();
