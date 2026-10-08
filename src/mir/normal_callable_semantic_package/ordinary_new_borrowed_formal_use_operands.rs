@@ -86,7 +86,7 @@ pub(super) fn compare_operand_kind(
         .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
     Ok(Some(BorrowedFormalUseDraftKindV1::CompareOperand {
         binary: OwnedExprSiteV1::new(input.owner(), binary.site().clone()),
-        source: BorrowedCompareSourceV1 {
+        source: std::rc::Rc::new(BorrowedCompareSourceV1 {
             envelope,
             operator: binary.operator(),
             left: OwnedExprSiteV1::new(input.owner(), binary.lhs().clone()),
@@ -97,7 +97,7 @@ pub(super) fn compare_operand_kind(
                 }
                 _ => None,
             },
-        },
+        }),
     }))
 }
 

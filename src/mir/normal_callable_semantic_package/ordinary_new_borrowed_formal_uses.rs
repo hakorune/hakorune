@@ -5,6 +5,7 @@
 //! verifies all incoming edges and live actuals. No carrier is installed here.
 
 use std::collections::BTreeMap;
+use std::rc::Rc;
 
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -26,6 +27,10 @@ mod new_argument;
 
 #[path = "ordinary_new_borrowed_formal_use_operands.rs"]
 mod operands;
+
+#[path = "ordinary_new_borrowed_guarded_actual.rs"]
+mod guarded_actual;
+pub(super) use guarded_actual::BorrowedGuardedActualV1;
 
 use operands::{
     add_operand_kind, compare_operand_kind, is_call_argument, normal_integer_operand,
@@ -90,7 +95,7 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// to this binding/ValueId only.
     CompareOperand {
         binary: OwnedExprSiteV1,
-        source: BorrowedCompareSourceV1,
+        source: Rc<BorrowedCompareSourceV1>,
     },
     /// An ordered `+` operand use dominated by an admitted checked compare
     /// of the same formal, under the operation owner's
@@ -284,12 +289,29 @@ pub(super) fn join_borrowed_forward_uses_v1(
     Ok(rows.into_boxed_slice())
 }
 
+#[derive(Debug)]
+pub(super) struct BorrowedFormalSourceProductV1 {
+    pub(super) draft: Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1>,
+    pub(super) guarded_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+}
+
+/// Direct adapters borrow the same source product, never a second use scan.
+#[cfg(test)]
 pub(super) fn draft_borrowed_formal_uses_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
 ) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+    draft_borrowed_formal_source_product_v1(input, contract, constructors, receiver)?.draft
+}
+
+pub(super) fn draft_borrowed_formal_source_product_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    contract: &OwnedCallableParameterContractDeclarationV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
     if input.owner() != contract.owner
         || function.owner() != contract.owner
@@ -417,6 +439,9 @@ pub(super) fn draft_borrowed_formal_uses_v1(
     // live borrowed object.
     let mut compare_guards: BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>> = BTreeMap::new();
     let mut null_guards: BTreeMap<BindingRefV1, Vec<SourceNodeSiteV1>> = BTreeMap::new();
+    let mut checked_compares = BTreeMap::new();
+    let mut integer_guards: BTreeMap<BindingRefV1, Vec<Rc<guarded_actual::CheckedIntegerGuardV1>>> =
+        BTreeMap::new();
     for (site, reference) in function.variable_refs() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
             continue;
@@ -427,13 +452,25 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         if copies.contains_key(site) || is_call_argument(input, site)? {
             continue;
         }
-        if let Some(BorrowedFormalUseDraftKindV1::CompareOperand { binary, .. }) =
+        if let Some(kind @ BorrowedFormalUseDraftKindV1::CompareOperand { .. }) =
             compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?
         {
+            let BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } = &kind else {
+                unreachable!()
+            };
+            integer_guards.entry(formal).or_default().push(Rc::new(
+                guarded_actual::CheckedIntegerGuardV1::from_compare(
+                    input,
+                    formal,
+                    binary,
+                    source.clone(),
+                )?,
+            ));
             let guard = function
                 .with_if_region_for_condition(binary.site(), |row| row.site().node().clone())
                 .map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
             compare_guards.entry(formal).or_default().push(guard);
+            checked_compares.insert(site.clone(), kind);
         }
         if let Some(BorrowedFormalUseDraftKindV1::NullCompareOperand { binary }) =
             null_compare_operand_kind(input, site)?
@@ -446,6 +483,8 @@ pub(super) fn draft_borrowed_formal_uses_v1(
     }
 
     let mut uses = Vec::new();
+    let mut unsupported = None;
+    let mut guarded_actuals = BTreeMap::new();
     for (site, reference) in function.variable_refs() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
             continue;
@@ -473,6 +512,25 @@ pub(super) fn draft_borrowed_formal_uses_v1(
                 if kind.is_some() {
                     return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(owned));
                 }
+                if let Some(fact) = integer_guards.get(&formal).and_then(|guards| {
+                    guards.iter().find_map(|guard| {
+                        BorrowedGuardedActualV1::from_call(
+                            input,
+                            guard.clone(),
+                            call_site,
+                            argument.ordinal(),
+                            *binding,
+                            site,
+                        )
+                    })
+                }) {
+                    if guarded_actuals
+                        .insert((fact.call().clone(), argument.ordinal()), fact)
+                        .is_some()
+                    {
+                        return Err(BorrowedFormalUseDraftErrorV1::AmbiguousUse(owned));
+                    }
+                }
                 kind = if argument.ordinal() == 1 && numeric_origins.contains_key(binding) {
                     array_element::array_element_value_kind(
                         input,
@@ -499,7 +557,7 @@ pub(super) fn draft_borrowed_formal_uses_v1(
             kind = new_argument::new_argument_kind(input, formal, &compare_guards, site)?;
         }
         if kind.is_none() && numeric_origins.contains_key(binding) {
-            kind = compare_operand_kind(input, &numeric_origins, constructors, receiver, site)?;
+            kind = checked_compares.remove(site);
         }
         if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = add_operand_kind(
@@ -518,16 +576,27 @@ pub(super) fn draft_borrowed_formal_uses_v1(
         if kind.is_none() {
             kind = field_read::field_read_operand_kind(input, formal, &null_guards, site)?;
         }
+        let Some(kind) = kind else {
+            unsupported.get_or_insert(BorrowedFormalUseDraftErrorV1::UnsupportedUse(owned));
+            continue;
+        };
         uses.push(BorrowedFormalUseDraftRowV1 {
-            site: owned.clone(),
+            site: owned,
             binding: *binding,
             formal,
-            kind: kind.ok_or(BorrowedFormalUseDraftErrorV1::UnsupportedUse(owned))?,
+            kind,
         });
     }
-    Ok(BorrowedFormalUsesDraftV1 {
-        origins,
-        uses: uses.into_boxed_slice(),
+    let draft = match unsupported {
+        Some(error) => Err(error),
+        None => Ok(BorrowedFormalUsesDraftV1 {
+            origins,
+            uses: uses.into_boxed_slice(),
+        }),
+    };
+    Ok(BorrowedFormalSourceProductV1 {
+        draft,
+        guarded_actuals,
     })
 }
 

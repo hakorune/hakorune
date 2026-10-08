@@ -15,6 +15,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         BTreeSet<FunctionOwnerIdV1>,
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         BTreeSet<OwnedExprSiteV1>,
+        BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     ),
     String,
 > {
@@ -29,6 +30,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         .collect();
     let mut definitions = BTreeMap::new();
     let mut dominated_view_sites = BTreeSet::new();
+    let mut guarded_actuals = BTreeMap::new();
     let mut seen = BTreeSet::new();
     for contract in contracts {
         if !seen.insert(contract.owner) {
@@ -63,9 +65,25 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         };
         let draft = batch
             .with_lowering_input(contract.batch_slot, |input| {
-                draft_borrowed_formal_uses_v1(input, contract, instance_constructors, receiver)
+                draft_borrowed_formal_source_product_v1(
+                    input,
+                    contract,
+                    instance_constructors,
+                    receiver,
+                )
             })
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
+        let draft = match draft {
+            Ok(product) => {
+                for (key, fact) in product.guarded_actuals {
+                    if guarded_actuals.insert(key, fact).is_some() {
+                        return Err(freeze("borrowed-formal/duplicate-guarded-actual"));
+                    }
+                }
+                product.draft
+            }
+            Err(error) => Err(error),
+        };
         match draft {
             Ok(draft) => {
                 for row in draft.uses.iter() {
@@ -94,7 +112,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             }
         }
     }
-    Ok((ordinary_callers, definitions, dominated_view_sites))
+    Ok((
+        ordinary_callers,
+        definitions,
+        dominated_view_sites,
+        guarded_actuals,
+    ))
 }
 
 /// Borrow the original qualified incoming certification, then close ALL callers

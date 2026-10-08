@@ -79,6 +79,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) object_views: BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
     /// Complete original incoming agreement; never execution or payload permission.
     pub(super) integer_agreements: BTreeSet<BindingRefV1>,
+    /// Exact original checked Normal comparison facts; no transport permission.
+    pub(super) guarded_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
 }
 
 /// One incoming argument's contribution to a callee formal's class view.
@@ -181,6 +183,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         BTreeSet<FunctionOwnerIdV1>,
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         BTreeSet<OwnedExprSiteV1>,
+        BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
     ),
     static_arguments: BTreeMap<
         (OwnedExprSiteV1, u32),
@@ -188,7 +191,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     >,
     stored_dispatch: Option<&super::source::PreparedSourceNeedsV1>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
-    let (ordinary_callers, definitions, dominated_view_sites) = drafts;
+    let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
         .iter()
         .filter(|row| {
@@ -293,6 +296,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
             &definitions,
             &transport_owners,
             &inventory,
+            &guarded_actuals,
         )?;
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
@@ -320,6 +324,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         object_views,
         integer_agreements,
         static_arguments,
+        guarded_actuals,
     })
 }
 
@@ -355,6 +360,7 @@ pub(super) fn classify_actual_seed(
         contracts,
         site,
         None,
+        None,
     )
 }
 
@@ -371,7 +377,15 @@ fn classify_actual_seed_in_scope(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &SourceExprSiteV1,
     transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
+    guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
 ) -> FormalActualSeedV1 {
+    if let Some((fact, call, ordinal)) = guarded {
+        return if fact.corroborates(input, call, ordinal, site) {
+            FormalActualSeedV1::Integer
+        } else {
+            FormalActualSeedV1::Conflict
+        };
+    }
     let function = input.function();
     match function.expression_source().literal(site) {
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null) => {

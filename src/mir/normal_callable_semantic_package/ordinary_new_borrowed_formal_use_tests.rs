@@ -10,6 +10,17 @@ fn draft_with_contract(
     body: &str,
     change: impl FnOnce(&mut OwnedCallableParameterContractDeclarationV1),
 ) -> Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1> {
+    with_source_product(body, change, |_, product| product.and_then(|row| row.draft))
+}
+
+pub(super) fn with_source_product<R>(
+    body: &str,
+    change: impl FnOnce(&mut OwnedCallableParameterContractDeclarationV1),
+    check: impl FnOnce(
+        ResolvedFunctionLoweringInputV1<'_>,
+        Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1>,
+    ) -> R,
+) -> R {
     let source = format!(
         "box BorrowUse {{ birth() {{ }} probe(p): i64 {{ {body} }} \
          sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ return 0 }} }}"
@@ -49,7 +60,15 @@ fn draft_with_contract(
     package
         .batch()
         .with_lowering_input(contract.batch_slot, |input| {
-            draft_borrowed_formal_uses_v1(input, &contract, package.instance_constructors(), None)
+            check(
+                input,
+                draft_borrowed_formal_source_product_v1(
+                    input,
+                    &contract,
+                    package.instance_constructors(),
+                    None,
+                ),
+            )
         })
         .expect("exact source loan")
 }

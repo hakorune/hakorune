@@ -73,6 +73,7 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
         &definitions,
         &BTreeSet::new(),
         &inventory,
+        &BTreeMap::new(),
     )
     .unwrap();
     assert!(objects.is_empty());
@@ -163,9 +164,10 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert_eq!(rows.len(), 15, "all original Heap callers remain mandatory");
                 assert!(rows.iter().all(|row| row.callee == input.owner() && row.source.target() == &heap_key));
                 // Exact different Page dispatch removes a false veto, not missing
-                // outgoing transport or guard-qualified actual authority.
-                assert!(!ingress.candidate_integer_agreement(contract.parameters[0].binding));
+                // outgoing transport; exact guard facts qualify original incoming actuals.
+                assert!(ingress.candidate_integer_agreement(contract.parameters[0].binding));
                 assert!(!ingress.formal_integer_agreement(contract.parameters[0].binding));
+                assert!(!ingress.guarded_actuals.is_empty(), "original checked guards retained before transport pruning");
             }).unwrap();
         });
     }).unwrap().join().expect("real imported observation");

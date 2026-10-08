@@ -957,31 +957,9 @@ local handle=me.allocate(size). /mnt/workdisk/hako-pending-call-diagnostic-*
 retains names/hash/build/probe receipts. Setup49873 cancelled101 was not PASS.
 Earlier artifact frontier is historical. Mixed/Forward/anchored obligations remain.
 
-Stored dispatch source Decision (read-only review_cleanup_path): SAME original
-PreparedSourceCallNeed::Stored reference/passive receiver survives eligibility
-until the sole incoming scanner. Validate source owner/receiver/field/binding,
-selected target/slot/contract and ordered actual sites. Only exact DIFFERENT
-callee excludes a same-selector veto. SAME callee without executable source,
-missing/duplicate/drift proof retains refusal; no filtered caller subset.
-Production profile lends original needs; canonical incoming body is sole scan.
-Old no-stored entry becomes test-only adapter to that body (no production caller).
-Physical stored_eligible/receiver issuance/call_sources/forward closure unchanged.
-Reuse imported Heap15 census and existing unresolved-veto family; independent
-missing/same-target/identity/duplicate refusals use one existing family test.
-This source prerequisite cannot claim pending closure: checked guard-to-actual
-and Heap-to-Page executable outgoing protocol remain required next.
-Scope: profile/source/incoming/uses owners, candidate-veto/source-graph families, README,
-active card/pointer only; no additional semantic issuer, new guard or app rewrite.
-Stored completeness joins the existing orphan check after global BatchLoan;
-existing partial-scan pin covers both static and Stored orphan precedence.
-Stored dispatch prerequisite CLOSED (selected paths; commit reference in Git).
-Final test build27396 terminal0/5m10s; lexical family267/267 PASS (0.17s),
-including source-graph BatchLoan precedence and unchanged imported Heap15/no-veto.
-Final production check67132 terminal0; scope/COPY/pointer/fmt/caps/diff PASS.
-Inherited uses-format baseline retained; protected7 unchanged. Exact test names,
-binary SHA and logs: /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
-Old scanner has no production caller; cfg(test) delegates to the SAME sole scan.
-Candidate Integer/final transport still absent; no pending or full-goal closure.
+Stored dispatch prerequisite CLOSEDf34af66d4a (pushed); exact contract/evidence
+at commit/README and /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
+All15 retained; exact different-callee exclusion only, SAME unknown stays veto.
 
 Next checked-actual Decision (read-only review_cleanup_path): retain original
 compare source once in existing use prepass and reuse it in the same use loop.
@@ -994,3 +972,26 @@ Existing source collector and SAME incoming seed borrow exact facts; no second
 classifier, scan or ingress issuer. Public classifier passes no fact. Reuse import
 Heap15 pin and existing positive/negative families; source758 cap limits wiring.
 Heap-to-Page executable outgoing protocol remains a separate subsequent slice.
+Checked-actual selected scope: uses/operands + private guarded-actual child,
+source-drafts/source-seeds/source/profile wiring; existing use-test fixture and
+imported candidate pin + independent guarded-actual family; README/card/pointer.
+Source772 retains only wiring; private child owns exact dominance/corroboration.
+Acceptance: all15 original/no-veto/candidate Integer; final Heap entry still absent;
+Normal reach and same-arm aliases pass, nested/before/loop escape/poison/drift refuse.
+Checked-actual source prerequisite CLOSED (selected paths; commit in Git).
+269/269 + compiled borrowed-use22/22 + compare15/15 PASS; final test37857
+terminal0/4m35s, final production check23906 terminal0/15.29s; guards/caps/diff PASS.
+Compare issuer and C kind==1/Fault law corroborate conditional Normal Integer.
+Source772 keeps wiring; private child owns corroboration; inherited uses fmt kept.
+Earlier64810 missing test arg and one invalid NonTerminalReturn fixture are fixed.
+Publication42/45: same3 fail names/errors reproduce in saved pre-change93ac binary
+(41/44); known baseline debts remain unwaived, beside existing S6C3. Exact names,
+binary hashes and logs: /mnt/workdisk/hako-guarded-actual-final-evidence.json.
+Next Stored Object Decision (read-only review_cleanup_path): first confirm
+original Page Fresh/null witnesses and Heap BOTH Page calls+null in SAME Facts.
+Lend plural qualifications/dependencies and canonical forwarding subset to SAME
+Stored need; existing residence issuer only, no receiver/Ready from Facts alone.
+Keep old I64 law; choose original Object requirement's verified terminal walk,
+not unconditional stored I64 gate or Lexical/Self receiver disguise. Receiver
+binding-outside-terminal stays refusal. Full entry/Completion/input/cleanup,
+Normal/Fault and FinishedBindings remain required for subsequent executable closure.

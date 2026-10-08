@@ -1569,8 +1569,18 @@ namespace excludes a false same-selector veto. Missing or malformed proof refuse
 a same-target Stored call without its executable receiver remains unresolved.
 This borrowed source correspondence issues no receiver inventory, actual, input
 domain, forward protocol or execution permission. Existing stored eligibility and
-physical receiver issuance remain unchanged; opaque outgoing closure and checked
-guard-to-actual proof still precede transport activation.
+physical receiver issuance remain unchanged; opaque outgoing closure still
+precedes transport activation.
+
+The original borrowed-use pass retains the SAME checked comparison source for
+its use rows and later exact call arguments. Successful Normal completion proves
+Integer kind only. The sealed If parent region/scope and exact subsequent sibling
+Body/IfThen/IfElse statement sequence must agree; nested bypass, loop escape,
+wrong call/ordinal/site or changed operands refuse. Source facts survive an
+UnsupportedUse draft, but rebinding/capture/annotated alias poisons the product.
+The SAME complete incoming seed producer lends these facts per original argument;
+all callers and the existing fixed point remain mandatory. This evidence issues
+no positivity, Object class, entry, borrowed transport or executable result grant.
 
 The existing pending actual producer delegates construction to the private
 construct_borrowed_call_actuals_v1 after selecting its original incoming row.

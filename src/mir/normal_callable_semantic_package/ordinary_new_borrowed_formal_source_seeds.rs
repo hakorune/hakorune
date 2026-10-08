@@ -26,6 +26,7 @@ pub(super) fn prepare_borrowed_formal_views_v1(
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     transport_owners: &BTreeSet<FunctionOwnerIdV1>,
     inventory: &BorrowedIncomingInventoryV1,
+    guarded_actuals: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
 ) -> Result<
     (
         BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
@@ -79,7 +80,7 @@ pub(super) fn prepare_borrowed_formal_views_v1(
         let arguments: Vec<_> = call.arguments.to_vec();
         batch
             .with_lowering_input(*caller_slot, |input| {
-                for (_, site, formal) in &arguments {
+                for (ordinal, site, formal) in &arguments {
                     seeds
                         .entry(*formal)
                         .or_default()
@@ -95,6 +96,9 @@ pub(super) fn prepare_borrowed_formal_views_v1(
                             contracts,
                             site,
                             Some(transport_owners),
+                            guarded_actuals
+                                .get(&(call.call.clone(), *ordinal))
+                                .map(|fact| (fact, &call.call, *ordinal)),
                         ));
                 }
             })

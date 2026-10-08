@@ -73,7 +73,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         entry_home_loans,
         constructors,
     );
-    let (ordinary_callers, definitions, dominated_view_sites) = match drafts {
+    let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = match drafts {
         Ok(rows) => rows,
         Err(error) => {
             return Ok((
@@ -229,7 +229,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             calls,
             Some(static_call_claims),
             app_main,
-            (ordinary_callers, definitions, dominated_view_sites),
+            (
+                ordinary_callers,
+                definitions,
+                dominated_view_sites,
+                guarded_actuals,
+            ),
             static_arguments,
             Some(&needs),
         )
