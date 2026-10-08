@@ -109,6 +109,10 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                     .object_packet_arguments_v1(ready)
                     .unwrap_err()
                     .contains("disposition-not-owned-and-taken"));
+                assert!(ledger
+                    .object_packet_teardown_v1(ready)
+                    .unwrap_err()
+                    .contains("disposition-not-owned-and-taken"));
                 drop(slots);
                 let row = ledger
                     .take_lexical_instance_call(owner, site.site())
@@ -120,6 +124,11 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                 let (checked_actuals, checked_arguments) =
                     row.checked_object_packet_inputs_v1(ledger).unwrap();
                 let emitted_arguments = ledger.object_packet_arguments_v1(&row).unwrap();
+                assert!(ledger
+                    .object_packet_teardown_v1(&row)
+                    .unwrap()
+                    .owned_children()
+                    .is_none());
                 assert_eq!(actuals.as_ptr(), original.opaque_actuals.as_ptr());
                 assert_eq!(checked_actuals.as_ptr(), original.opaque_actuals.as_ptr());
                 assert_eq!(
@@ -214,6 +223,33 @@ fn object_packet_taken_lends_same_typed_opaque_zero_direct_received_storage() {
                     .take_lexical_instance_call(row.call_site().owner(), row.call_site().site())
                     .unwrap_err()
                     .contains("already-taken"));
+                if received {
+                    let mut row = row;
+                    let descriptor = ledger.object_packet_teardown_v1(&row).unwrap().clone();
+                    row.object_packet.as_mut().unwrap().teardown =
+                        ObjectReturnTeardownAvailabilityV1::Verified {
+                            descriptor: descriptor.clone(),
+                            nullable: !nullable,
+                        };
+                    let before = format!("{:?}", ledger.local_commits.borrow());
+                    assert!(ledger
+                        .begin_object_packet_call_emission(&row)
+                        .unwrap_err()
+                        .contains("teardown-kind-drift"));
+                    assert_eq!(format!("{:?}", ledger.local_commits.borrow()), before);
+                    row.object_packet.as_mut().unwrap().teardown =
+                        ObjectReturnTeardownAvailabilityV1::Verified {
+                            descriptor,
+                            nullable,
+                        };
+                    ledger.begin_object_packet_call_emission(&row).unwrap();
+                    let before = format!("{:?}", ledger.local_commits.borrow());
+                    assert!(ledger
+                        .begin_object_packet_call_emission(&row)
+                        .unwrap_err()
+                        .contains("duplicate-emission"));
+                    assert_eq!(format!("{:?}", ledger.local_commits.borrow()), before);
+                }
                 assert!(ledger.validate_no_pending_object_returns_v1().is_err());
             }
         }
@@ -244,6 +280,19 @@ fn object_packet_wrong_result_and_foreign_completion_refuse() {
             .unwrap_err()
             .contains("result-source-drift"));
     }
+    let package = issue_with_brand_catalog("box Token { items: ArrayBox = new ArrayBox() birth() {} } box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { local item = me.make(7) return item } } static box Main { main() { return 0 } }").unwrap();
+    let row = take(&package);
+    let ledger = &package.ordinary_new_claim_ledger;
+    let before = format!("{:?}", ledger.local_commits.borrow());
+    assert!(ledger
+        .object_packet_teardown_v1(&row)
+        .unwrap_err()
+        .contains("teardown-unavailable"));
+    assert!(ledger
+        .begin_object_packet_call_emission(&row)
+        .unwrap_err()
+        .contains("teardown-unavailable"));
+    assert_eq!(format!("{:?}", ledger.local_commits.borrow()), before);
 }
 
 #[test]

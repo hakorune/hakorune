@@ -533,15 +533,15 @@ fn object_return_actual_instance_nullable_owned_fields_keep_the_physical_stop() 
             if received {
                 assert_eq!(
                     lower_relay(&package).unwrap_err(),
-                    "[freeze:contract][ordinary-new/local-commit/handle-release-unproven]",
-                    "{label}: nullable owned-field physical refusal"
+                    "lexical scope body failed: [freeze:contract][ordinary-new/object-packet/teardown-unavailable]",
+                    "{label}: nullable owned-field acquisition refuses before emission"
                 );
                 assert_eq!(
                     ledger
                         .prepare_root_home_exit(owner, exit.node())
                         .unwrap_err(),
-                    "[freeze:contract][ordinary-new/local-commit/duplicate-root-exit-prepare]",
-                    "{label}: refused lowering already attempted this affine exit prepare"
+                    "[freeze:contract][ordinary-new/local-commit/root-home-not-installed]",
+                    "{label}: rejected acquisition leaves no installed result Home"
                 );
             } else {
                 let source = ledger

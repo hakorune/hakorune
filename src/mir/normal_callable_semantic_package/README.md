@@ -1748,6 +1748,16 @@ descriptors once per DAG node; Direct source view lends that retained result.
 Object/destruction/children must agree exactly. Null contributes nullable ancestry
 without a descriptor. Unavailable nodes retain descriptor/null ancestry for
 parent consistency checks; only Verified lends a teardown descriptor.
+The same full-callee result checker retains these checked alternatives and
+reduces them once alongside the result kind; missing siblings issue no descriptor.
+Ready Object packets keep that availability with their original Completion,
+terminals and whole input snapshot. A Taken packet lends only its Verified
+teardown after input/source revalidation. The selected local acquisition uses
+that object's identity and original children Option for CallReceived; Plain stays
+None and proved owned fields stay Some. Unavailable partial descriptors, kind
+or nullable drift and duplicate begin refuse before changing the commit map.
+ExistingBorrowedResult acquisition retains its prior protocol.
+
 NoFresh null-only ancestry may join a sibling Fresh; unsupported child teardown
 propagates refusal. Nullable owned-field teardown remains unavailable until its
 physical envelope is accepted. This reduction does not open artifact/Home gates.

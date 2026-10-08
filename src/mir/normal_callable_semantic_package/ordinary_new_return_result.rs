@@ -4,6 +4,10 @@ use super::super::{
     result_class_claim::ResultWitnessStepV1, OrdinaryNewClaimLedgerV1, OrdinaryNewResultClassV1,
 };
 use super::normal_return::NormalReturnDispositionV1;
+use super::return_handoff::{
+    reduce_object_return_teardown_v1, ObjectReturnTeardownAvailabilityV1,
+    VerifiedObjectReturnAlternativeV1,
+};
 use super::return_leaf::VerifiedObjectReturnLeafV1;
 use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
@@ -17,6 +21,16 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &LexicalInstanceCallSourceTargetV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<Option<InvokeCallResultKind>, String> {
+        self.checked_object_callee_result_with_teardown_v1(source, results)
+            .map(|checked| checked.map(|(kind, _)| kind))
+    }
+
+    /// The same full-exit proof retains the exact checked teardown alternatives.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn checked_object_callee_result_with_teardown_v1(
+        &self,
+        source: &LexicalInstanceCallSourceTargetV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<Option<(InvokeCallResultKind, ObjectReturnTeardownAvailabilityV1)>, String> {
         let row = results.row(source.target_batch_slot());
         if row.is_some_and(|row| row.owner() != source.callee_owner()) {
             return Err(freeze("cohort-owner"));
@@ -90,6 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(exits) = self.checked_completed_object_callee_target_exits_v1(source)? else {
             return Ok(None);
         };
+        let mut alternatives = Vec::new();
         for (witness, value) in exits.iter() {
             match witness.step() {
                 ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::NullLiteral => {
@@ -100,7 +115,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         {
                             return Err(freeze("null-result-kind"))
                         }
-                        Some(_) => {}
+                        Some(leaf) => {
+                            alternatives.push(VerifiedObjectReturnAlternativeV1::Leaf(leaf))
+                        }
                     }
                 }
                 ResultWitnessStepV1::Call { .. } => {
@@ -121,7 +138,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         .and_then(|map| map.get(&(value.owner(), value.return_site().clone())))
                     {
                         Some(NormalReturnDispositionV1::Verified { proof })
-                            if proof.acquisition().original() == original.as_ref() => {}
+                            if proof.acquisition().original() == original.as_ref() =>
+                        {
+                            alternatives
+                                .push(VerifiedObjectReturnAlternativeV1::Call(Rc::clone(proof)));
+                        }
                         Some(NormalReturnDispositionV1::Verified { .. }) => {
                             return Err(freeze("call-disposition-identity"))
                         }
@@ -134,7 +155,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .normal_exit_projection_v1(value.owner(), value.return_site())?
                 .is_none();
         }
-        Ok((!missing).then_some(kind))
+        if missing {
+            return Ok(None);
+        }
+        let teardown = reduce_object_return_teardown_v1(&alternatives)?;
+        Ok(Some((kind, teardown)))
     }
 }
 fn freeze(reason: &str) -> String {

@@ -229,6 +229,57 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// The same completed Object packet supplies the acquired Home's teardown.
+    /// No class lookup or partially unavailable child plan is an authority here.
+    pub(crate) fn begin_object_packet_call_emission(
+        &self,
+        row: &super::super::lexical_instance_call::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<(), String> {
+        let site = row.call_site();
+        let (call, release) = match row.result() {
+            Some(InvokeCallResultKind::Handle) => {
+                (self.handle_call_source(site), CallReceivedReleaseV1::Handle)
+            }
+            Some(InvokeCallResultKind::NullableHandle) => (
+                self.nullable_call_source(site),
+                CallReceivedReleaseV1::Nullable,
+            ),
+            _ => return Err(freeze("object-packet/result-mismatch")),
+        };
+        let call = call.ok_or_else(|| freeze("object-packet/local-source-missing"))?;
+        let (declaration, binding) = call
+            .local_binding()
+            .ok_or_else(|| freeze("object-packet/destination-drift"))?;
+        if call.owner() != site.owner()
+            || binding.owner() != site.owner()
+            || !matches!(declaration, SourceBindingSiteV1::Local { .. })
+        {
+            return Err(freeze("object-packet/declaration-drift"));
+        }
+        let descriptor = self.object_packet_teardown_v1(row)?;
+        let object = descriptor.object();
+        let end_children = descriptor
+            .owned_children()
+            .map(|children| Some(children.into()));
+        let mut rows = self.local_commits.borrow_mut();
+        if rows.contains_key(site) {
+            return Err(freeze("handle-duplicate-emission"));
+        }
+        rows.insert(
+            site.clone(),
+            LocalCommitV1::CallReceived(CallReceivedCommitV1 {
+                owner: site.owner(),
+                binding,
+                declaration: declaration.clone(),
+                object,
+                release,
+                end_children,
+                progress: CallReceivedProgress::Emitting,
+            }),
+        );
+        Ok(())
+    }
+
     /// The canonical object the callee's result claim/commit minted for a
     /// `return new` site — the identity a caller-side received handle keeps.
     pub(crate) fn result_object(&self, site: &OwnedExprSiteV1) -> Option<CanonicalObjectIdV1> {

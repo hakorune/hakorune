@@ -1,4 +1,5 @@
 //! Source-pending lexical Object slots close atomically over original evidence.
+use super::super::completion_index::ObjectReturnTeardownAvailabilityV1;
 use super::*;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
@@ -42,10 +43,10 @@ impl OrdinaryNewClaimLedgerV1 {
             if site != source.call_site() {
                 return Err(freeze("lexical-object/slot-source"));
             }
-            if let Some((kind, route)) = self
+            if let Some((kind, route, teardown)) = self
                 .checked_object_lexical_slot_v1(source, selected, contracts, signatures, results)?
             {
-                let packet = ObjectPacketSealV1::retain(self, source, kind)?;
+                let packet = ObjectPacketSealV1::retain(self, source, kind, teardown)?;
                 upgrades.push((site.clone(), source.clone(), kind, route, packet));
             }
         }
@@ -85,7 +86,14 @@ impl OrdinaryNewClaimLedgerV1 {
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
         results: &VerifiedCallableResultContractCohortV1,
-    ) -> Result<Option<(InvokeCallResultKind, bool)>, String> {
+    ) -> Result<
+        Option<(
+            InvokeCallResultKind,
+            bool,
+            ObjectReturnTeardownAvailabilityV1,
+        )>,
+        String,
+    > {
         if let Some(qualifications) = source.object_return_sources() {
             let original = self
                 .callable_result_classes
@@ -198,9 +206,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(None);
             }
         }
-        let result = self.checked_object_callee_result_v1(source, results)?;
+        let result = self.checked_object_callee_result_with_teardown_v1(source, results)?;
         missing |= result.is_none();
-        let observation = self.checked_object_slot_observation_v1(source, result)?;
+        let observation = self
+            .checked_object_slot_observation_v1(source, result.as_ref().map(|(kind, _)| *kind))?;
         missing |= observation.is_none();
         if let Some(qualifications) = source.object_return_sources() {
             for loan in qualifications {
@@ -249,7 +258,9 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(if missing {
             None
         } else {
-            result.zip(observation)
+            result
+                .zip(observation)
+                .map(|((kind, teardown), route)| (kind, route, teardown))
         })
     }
 }

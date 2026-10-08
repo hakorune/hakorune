@@ -29,7 +29,7 @@ impl ObjectReturnTeardownAvailabilityV1 {
     }
 }
 
-pub(super) fn reduce(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::completion_index) fn reduce(
     alternatives: &[VerifiedObjectReturnAlternativeV1],
 ) -> Result<ObjectReturnTeardownAvailabilityV1, String> {
     let mut descriptor = None;

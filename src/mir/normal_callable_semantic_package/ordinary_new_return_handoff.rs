@@ -29,7 +29,8 @@ pub(super) enum VerifiedObjectReturnAlternativeV1 {
 }
 #[path = "ordinary_new_return_teardown.rs"]
 mod teardown;
-pub(super) use teardown::ObjectReturnTeardownAvailabilityV1;
+pub(super) use teardown::reduce as reduce_object_return_teardown_v1;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use teardown::ObjectReturnTeardownAvailabilityV1;
 
 impl VerifiedObjectReturnHandoffV1 {
     pub(super) fn teardown(&self) -> &ObjectReturnTeardownAvailabilityV1 {

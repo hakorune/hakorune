@@ -150,11 +150,15 @@ fn emit_object(
     // The `CallReceived` commit for this exact site mints the canonical
     // object the live arm carries and selects the checked release — the
     // `Void` arm keeps no residence.
-    match result_kind {
-        InvokeCallResultKind::Handle => {
-            ledger.begin_handle_call_emission(&owned_site, row.callee_owner())?
+    if row.source_target().has_object_source_requirement() {
+        ledger.begin_object_packet_call_emission(&row)?;
+    } else {
+        match result_kind {
+            InvokeCallResultKind::Handle => {
+                ledger.begin_handle_call_emission(&owned_site, row.callee_owner())?
+            }
+            _ => ledger.begin_nullable_call_emission(&owned_site, row.target())?,
         }
-        _ => ledger.begin_nullable_call_emission(&owned_site, row.target())?,
     }
     let frame = state.borrow_fault_frame(builder)?;
     let normal_landing = builder.next_block_id();

@@ -68,6 +68,18 @@ fn completed_object_result_joins_original_typed_opaque_direct_received_cohort() 
                         .unwrap(),
                     Some(expected)
                 );
+                let (kind, teardown) = package
+                    .ordinary_new_claim_ledger
+                    .checked_object_callee_result_with_teardown_v1(
+                        &target,
+                        &package.result_contracts,
+                    )
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(kind, expected);
+                let (descriptor, observed_null) = teardown.descriptor().unwrap();
+                assert_eq!(observed_null, nullable);
+                assert!(descriptor.owned_children().is_none(), "Plain remains None");
                 assert!(package
                     .ordinary_new_claim_ledger
                     .validate_no_pending_object_returns_v1()

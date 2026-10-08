@@ -23,9 +23,18 @@ pub(in crate::mir::normal_callable_semantic_package) struct ObjectReturnTeardown
     children: Option<Box<[OwnedFieldChildV1]>>,
 }
 impl ObjectReturnTeardownDescriptorV1 {
-    pub(super) fn object(&self) -> CanonicalObjectIdV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn object(
+        &self,
+    ) -> CanonicalObjectIdV1 {
         self.object
     }
+    /// Preserve the original Plain/owned-field distinction at local acquisition.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn owned_children(
+        &self,
+    ) -> Option<&[OwnedFieldChildV1]> {
+        self.children.as_deref()
+    }
+
     pub(super) fn children(&self) -> &[OwnedFieldChildV1] {
         self.children.as_deref().unwrap_or(&[])
     }

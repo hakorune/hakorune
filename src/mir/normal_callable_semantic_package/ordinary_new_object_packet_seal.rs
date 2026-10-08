@@ -1,5 +1,8 @@
 //! The same affine Object row retains its checked input/result join.
 //! Snapshots detect drift; only the existing full-slot finish issues this seal.
+use super::super::super::completion_index::{
+    ObjectReturnTeardownAvailabilityV1, ObjectReturnTeardownDescriptorV1,
+};
 use super::super::borrowed_formal_actuals::{
     PreparedBorrowedCallActualsV1, PreparedBorrowedFormalActualV1,
 };
@@ -14,6 +17,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 struct ObjectPacketSealV1
 {
     result: InvokeCallResultKind,
+    teardown: ObjectReturnTeardownAvailabilityV1,
     completion: Rc<VerifiedFunctionCompletionV1>,
     terminals: Rc<BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, TerminalRelationV1>>,
     opaque: bool,
@@ -25,6 +29,7 @@ impl ObjectPacketSealV1 {
         ledger: &OrdinaryNewClaimLedgerV1,
         target: &LexicalInstanceCallSourceTargetV1,
         result: InvokeCallResultKind,
+        teardown: ObjectReturnTeardownAvailabilityV1,
     ) -> Result<Self, String> {
         let ingress = ledger
             .borrowed_formal_source
@@ -69,6 +74,7 @@ impl ObjectPacketSealV1 {
             .ok_or_else(|| freeze("object-packet/terminals-missing"))?;
         Ok(Self {
             result,
+            teardown,
             completion: Rc::clone(completion),
             terminals: Rc::clone(terminals),
             opaque,
@@ -223,6 +229,29 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         row.checked_object_packet_inputs_v1(self)
             .map(|inputs| inputs.1)
+    }
+
+    /// Borrow the same Taken packet's Verified descriptor after all input and
+    /// original Completion/terminal identity checks. Partial descriptors refuse.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn object_packet_teardown_v1<
+        'a,
+    >(
+        &self,
+        row: &'a LexicalInstanceCallDispositionRowV1,
+    ) -> Result<&'a ObjectReturnTeardownDescriptorV1, String> {
+        self.object_packet_arguments_v1(row)?;
+        let seal = row
+            .object_packet
+            .as_ref()
+            .ok_or_else(|| freeze("object-packet/seal-missing"))?;
+        let (descriptor, nullable) = seal
+            .teardown
+            .descriptor()
+            .ok_or_else(|| freeze("object-packet/teardown-unavailable"))?;
+        if nullable != (row.result() == Some(InvokeCallResultKind::NullableHandle)) {
+            return Err(freeze("object-packet/teardown-kind-drift"));
+        }
+        Ok(descriptor)
     }
 
     /// Entry-receiver flow rows intentionally carry no argument authority.

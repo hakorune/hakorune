@@ -62,6 +62,7 @@ mod tests;
 
 #[path = "ordinary_new_return_leaf.rs"]
 mod return_leaf;
+pub(super) use return_leaf::ObjectReturnTeardownDescriptorV1;
 
 #[path = "ordinary_new_return_callee.rs"]
 mod return_callee;
@@ -71,6 +72,7 @@ mod return_acquisition;
 
 #[path = "ordinary_new_return_handoff.rs"]
 mod return_handoff;
+pub(super) use return_handoff::ObjectReturnTeardownAvailabilityV1;
 
 #[path = "ordinary_new_normal_return.rs"]
 mod normal_return;
