@@ -962,17 +962,11 @@ whole selected proof+independent physical attachment. Both315/318, full anchored
 lifetime/cleanup, unchanged mimalloc EXE, Gates2-4, migration/retirement/selfcompile
 and final acceptance remain mandatory. Collector closeout is not S0/goal completion.
 
-Root key contract (landed6c7d192311): SAME AppMain catalog key/parser identity
-before first collector move; callee keys never select Root Facts. Checked descriptor
-uses Result<Option<_>,String>, retaining errors and existing identity/atomicity pins.
-Source transport grants no Object ABI/pending-gate/anchored result permission.
-Finalized Fresh follow-up: the pre-emission leaf checker cannot read a consumed
-claim. Reuse SAME NewResultCommit retained source fields via one exact-site
-borrowed local_commit view; retain original claim arity there rather than infer
-it from argument count. Duplicate stores/wrong commit kind are corruption.
-OwnedCall keeps its existing sealed Leaf DAG; no second receipt registry/solver.
-Required next evidence includes real consumed-claim Fresh, missing/foreign commit,
-arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
+Root source prerequisites: SAME AppMain key/parser identity (6c7d192311),
+not callee keys, selects Root Facts; Result<Option<_>,String> preserves errors.
+Consumed Fresh source/arity loans reuse SAME Result commit (05cacecf80),
+wrong kind/duplicate store rejects; OwnedCall retains its sealed Leaf DAG.
+No second registry/solver, pending publication or anchored ABI permission.
 Closed prerequisites: key6c7d192311, Fresh05cacecf80, splits66574888d1/7114201848, Root source4b9ff8f7bd/a6201577b4 (joins/orphan law); no ABI grant.
 Evidence: /tmp/hako-object-root-key-*, /tmp/hako-result-source-view-*, /tmp/hako-*-owner-move-*, /tmp/hako-root-object-descriptor-*; required runtime/production PASS.
 Null append closed81163fc815: exact source-scoped Const/Return receipt,
@@ -982,10 +976,8 @@ Physical integration review: Direct retains exact order/Call result; Null retain
 source Const; Received joins original installed destination and projected Return.
 Fresh exact-site-to-exit correspondence is still owed: function-wide Return count
 alone cannot reject a joint swap of two Fresh exits. Close before Object ABI mint.
-Null producer closed81163fc815 (pushed): original Const/Return, joint drift,
-missing finishing binding and Main/child boundaries PASS; no whole ABI grant.
-Evidence /tmp/hako-terminal-null-append-* (regression581, build4m59s, lib23.57s,
-guards/protected PASS; fixture THISCHANGE reds fixed). No new guard.
+Null producer closed81163fc815: original Const/Return and finishing binding,
+regression581/lib23.57s/guards/protected PASS; /tmp/hako-terminal-null-append-*.
 Received producer closed e4c7a9a59c (pushed): exact installed producer/Return;
 preflight6+regression575 PASS, lib17.20s, scope/pointer/fmt/protected PASS.
 Evidence /tmp/hako-received-return-producer-*; THISCHANGE timing/protocol reds fixed.
@@ -997,4 +989,12 @@ RetainedUnavailable stays None without ABI permission. Missing/wrong commit, pha
 producer or Return rejects. Extend joint preflight family with two dynamic Fresh
 exits swapped in recorded+actual MIR, proving count=1 insufficient and atomicity.
 Allocation/projection both require final membership/actual equality; late allocation drift rejects. No new issuer/registry/guard; whole ABI/S0/goal incomplete.
-Fresh WIP: initial preflight6/6 PASS5m34s; source identity and allocation pair subsequently strengthened. Exact final runtime + same-binary regression owed (/tmp/hako-fresh-return-producer-preflight-final.log). Guards/fmt/protected PASS; not committed.
+Fresh producer closed87a0d0c398 (pushed): final preflight6+regression575 PASS, build5m15s/lib16.70s, fmt/scope/pointer/protected PASS; /tmp/hako-fresh-return-producer-* holds exact evidence. No ABI grant.
+Root ABI Decision (read-only review_cleanup_path): original descriptor + SAME
+finished producer/cleanup/actual MIR -> result_abi(module): Result<Option<_>,String>.
+Every Fresh requires Some allocation/projection; unavailable diagnostics grant no ABI.
+ObjectReturn carries owner/kind, no second class issuer. Wrappers preserve Result;
+process-entry Object explicitly refuses until its selected consumer is closed.
+Birth caller ownership borrows retained Root source.owner, not repeated ABI checking.
+Acceptance: whole Main matrix, Fresh/null orders and late producer drift; existing
+families/guards only. Both315/318, anchored lifetime and full production goals remain.

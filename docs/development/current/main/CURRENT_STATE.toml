@@ -26,7 +26,8 @@ Main Direct/Received typed/opaque/zero packet, cleanup and finishing pass;
 selected Received Handle uses the existing shared Object producer owner.
 Original Root/child collector now preflights all sources/cleanup/Birth/identity
 and named rows before affine moves; both wrappers switched, old setter retired.
-Next: checked original Object result descriptor, then compiled Handle/ABI closure.
+Original Root Object source descriptor and Null/Received/Fresh exact producers are checked.
+Next: checked whole Root Object ABI and its consumers, then compiled Handle closure.
 Both315/318, anchored lifetime/cleanup, Root ABI and production EXE remain incomplete.
 """
 next_design_card = "none"
