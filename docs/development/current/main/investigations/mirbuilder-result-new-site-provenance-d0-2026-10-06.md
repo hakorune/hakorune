@@ -977,24 +977,24 @@ it from argument count. Duplicate stores/wrong commit kind are corruption.
 OwnedCall keeps its existing sealed Leaf DAG; no second receipt registry/solver.
 Required next evidence includes real consumed-claim Fresh, missing/foreign commit,
 arity/construction/prefix drift and nullable Fresh/null orders plus physical refusal.
-Closed prerequisites: Root key6c7d192311, affine Fresh view05cacecf80 and
-unchanged result-owner splits66574888d1/7114201848. Exact-body/check/runtime/
-scope/pointer/protected evidence remains in /tmp/hako-object-root-key-*,
-/tmp/hako-result-source-view-* and /tmp/hako-*-owner-move-*; no ABI grant.
-Root descriptor construction Decision: private Completion-index child borrows
-SAME Root key Facts, indexed Completion/table and all original exit terminals.
-OwnedCall borrows sealed Normal proof and exact qualification witnesses; primitive
-Fresh/null uses the existing exact leaf checker after affine take. All siblings
-are visited; foreign identity is Err, genuinely unavailable is None. Source
-success grants no physical result or Object process-entry ABI permission.
-Existing Root matrix/atomicity and real finished Main/child families extended;
-Source inspection prerequisite closed4b9ff8f7bd: Root5/finished1/regression574 and
-production check PASS (build5m21s/check36.88s). Shared Normal exit-domain law
-rejects orphan proof before missing index; no new test/guard. Scope/pointer/fmt/
-diff/protected7 PASS; /tmp/hako-root-object-descriptor-* hold exact hashes/names.
-Wrong guard filename invocation was informational; corrected scope guard PASS.
-Source success grants no physical ABI; full descriptor/integration still owed.
+Closed prerequisites: key6c7d192311, Fresh05cacecf80, splits66574888d1/7114201848, Root source4b9ff8f7bd/a6201577b4 (joins/orphan law); no ABI grant.
+Evidence: /tmp/hako-object-root-key-*, /tmp/hako-result-source-view-*, /tmp/hako-*-owner-move-*, /tmp/hako-root-object-descriptor-*; required runtime/production PASS.
+Null append Decision (read-only review_cleanup_path): SAME emit_null_recorded
+through source-scoped loan into RootHomeCleanupOrder auxiliary receipt. Indexed
+NullLiteral/explicit exit/Prepared state issue the loan. None/Unprepared/Unavailable
+stays unselected; consumed reentry Err. Const joins existing FinishedBindings.
+Const projection and rebound Return use separate mapping; missing receipt refuses
+before affine record. No new registry/issuer; lib+tests PASS42.23s. No whole Object ABI/S0 completion claim.
 Physical integration review: Direct/Fresh reuse exact existing producer/Return
 checks. Received must match original installed local destination to projected
 exit Return. Null needs SAME emit_null append retained at source site; no final
 CFG Const scan as authority. Joint recorded+actual Return drift must refuse.
+Null receipt acceptance PASS: joint physical+recorded Return drift and missing
+finished Const binding refuse before affine move; owner identity/kind/duplicate/
+unselected states and real Main/child matrix pass. Same-binary regression581 PASS
+(1.30s), required quick build4m59s, production lib check23.57s. Evidence:
+/tmp/hako-terminal-null-append-{joint-mapped.log,regression.json,production-check.log}.
+Fixture privacy/premature API/unmapped block THISCHANGE errors fixed; no remaining
+required red. Scope/pointer/diff/caps/protected7 PASS; test line-wrap only after build.
+Existing preflight family extended plus one independent owner test; no new guard.
+Received exact producer attachment and checked whole Object ABI remain next.

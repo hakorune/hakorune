@@ -87,6 +87,12 @@ pub(super) fn validate_finished_cleanup_entry(
         Some(finishing) => finishing.bindings(bindings)?,
         None => bindings.to_vec(),
     };
+    if let Some(original) = order.null_return_binding() {
+        let finished = projection
+            .binding(original.0, &original.1)?
+            .ok_or_else(|| freeze("terminal-null/producer-removed"))?;
+        mandatory.push(finished);
+    }
     match (finishing, entry) {
         (
             finishing,
@@ -126,6 +132,7 @@ pub(super) fn validate_finished_cleanup_entry(
         }
     }
     order.validate_direct_entry(entry, bindings, finishing)?;
+    order.validate_null_return(entry, bindings, Some(projection), finishing)?;
     root_cleanup_graph::ordered_paths::validate(function, bindings, entry, order, finishing)?;
     match finishing {
         Some(finishing) => root_cleanup_graph::ordered_structure::validate_projected(

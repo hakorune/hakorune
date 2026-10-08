@@ -475,11 +475,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             if let RootHomeExitProgress::Emitted {
-                bindings, entry, ..
+                bindings, entry, order, ..
             } = progress
             {
                 result.extend_from_slice(bindings);
                 entry.append_bindings(&mut result);
+                if let Some(original) = order.null_return_binding() {
+                    result.push(original.clone());
+                }
                 for dependency in entry.copy_dependencies(self)? {
                     if !result.contains(&dependency) {
                         result.push(dependency);

@@ -130,6 +130,11 @@ pub fn emit_string<S: Into<String>>(b: &mut MirBuilder, s: S) -> Result<ValueId,
     Ok(dst)
 }
 
+/// Observe the same canonical Null append; source permission remains with the port.
+pub(in crate::mir) fn emit_null_recorded(b: &mut MirBuilder) -> Result<CompletedConstV1, String> {
+    emit_exact_const_at_recorded(b, None, ConstValue::Null)
+}
+
 #[inline]
 pub fn emit_null(b: &mut MirBuilder) -> Result<ValueId, String> {
     // Null is syntactic sugar for the exact Void representation.

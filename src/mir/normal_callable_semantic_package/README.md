@@ -1780,3 +1780,8 @@ Root Object result inspection belongs to the original Completion-index owner.
 Its borrowed descriptor checks the SAME Root Facts key, Completion/table identity,
 all exact exits and existing leaf/Normal proofs. Source inspection does not grant
 finished Return publication, process-entry ABI or anchored-result permission.
+
+Null return producers borrow the exact indexed terminal source only after the
+existing exit owner is Prepared. The same canonical Const append is retained in
+RootHomeCleanupOrder and checked against that exit's Return; missing producer
+observations grant no finalized Object result permission.

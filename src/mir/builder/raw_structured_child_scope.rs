@@ -204,6 +204,23 @@ where
             .complete_borrowed_compare_source_v1(loan, children, completed)
     }
 
+    fn prepare_terminal_null_literal_v1(
+        &mut self,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1>,
+        String,
+    > {
+        self.child.prepare_terminal_null_literal_v1()
+    }
+    fn complete_terminal_null_literal_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1,
+        completed: &super::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        self.child
+            .complete_terminal_null_literal_v1(loan, completed)
+    }
+
     fn prepare_compare_integer_literal_v1(
         &mut self,
         value: i64,

@@ -28,6 +28,14 @@ impl MirBuilder {
                 }
                 Ok(completed.value())
             }
+            LiteralValue::Null => {
+                let loan = port.prepare_terminal_null_literal_v1()?;
+                let completed = super::emission::constant::emit_null_recorded(self)?;
+                if let Some(loan) = loan {
+                    port.complete_terminal_null_literal_v1(loan, &completed)?;
+                }
+                Ok(completed.value())
+            }
             other => self.build_literal(other),
         }
     }

@@ -83,6 +83,52 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         ledger.record_borrowed_compare_v1(loan, children, completed)
     }
 
+    fn prepare_terminal_null_literal_v1(
+        &mut self,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1>,
+        String,
+    > {
+        let (Some(ledger), Some(owner)) =
+            (&self.ordinary_new_claim_ledger, self.callable_owner_v1())
+        else {
+            return Ok(None);
+        };
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][terminal-null/source-site-missing]".to_owned())?;
+        ledger.prepare_terminal_null_literal_v1(
+            crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                owner,
+                crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
+            ),
+        )
+    }
+    fn complete_terminal_null_literal_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1,
+        completed: &crate::mir::builder::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][terminal-null/ledger-missing]".to_owned())?;
+        let owner = self
+            .callable_owner_v1()
+            .ok_or_else(|| "[freeze:contract][terminal-null/owner-missing]".to_owned())?;
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][terminal-null/source-site-missing]".to_owned())?;
+        ledger.complete_terminal_null_literal_v1(
+            loan,
+            crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+                owner,
+                crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
+            ),
+            completed,
+        )
+    }
+
     fn prepare_compare_integer_literal_v1(
         &mut self,
         value: i64,

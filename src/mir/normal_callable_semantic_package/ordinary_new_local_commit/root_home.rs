@@ -8,6 +8,9 @@ use super::*;
 #[path = "root_home_cleanup_order.rs"]
 mod cleanup_order;
 pub(in crate::mir::normal_callable_semantic_package) use cleanup_order::RootHomeCleanupOrderV1;
+#[path = "root_home_null_return.rs"]
+mod null_return;
+pub(crate) use null_return::TerminalNullReturnSourceLoanV1;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) enum RootHomeExitProgress {
@@ -443,6 +446,12 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("root-exit-origin-order"));
         }
         order.validate_direct_entry(&entry, &bindings, None)?;
+        if self.terminal_relation_index.get(&owner).and_then(|rows| rows.get(site)).is_some_and(|row| {
+            matches!(row, TerminalRelationV1::Value(value) if matches!(value.returned(), TerminalReturnedSourceV1::NullLiteral))
+        }) && order.null_return_binding().is_none() {
+            return Err(freeze("terminal-null/producer-missing"));
+        }
+        order.validate_null_return(&entry, &bindings, None, None)?;
         let RootHomeExitProgress::Emitting(order) =
             std::mem::replace(progress, RootHomeExitProgress::Unprepared)
         else {
@@ -642,6 +651,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         }
                     }
                     order.validate_direct_entry(entry, bindings, projection)?;
+                    order.validate_null_return(entry, bindings, projection, projection)?;
                     super::root_cleanup_graph::ordered_paths::validate(
                         function, bindings, entry, order, projection,
                     )?;

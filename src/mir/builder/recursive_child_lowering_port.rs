@@ -148,6 +148,23 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Err("[freeze:contract][borrowed-literal/consumer-unavailable]".into())
     }
 
+    /// Only the original prepared Null return obtains a source loan.
+    fn prepare_terminal_null_literal_v1(
+        &mut self,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1>,
+        String,
+    > {
+        Ok(None)
+    }
+    fn complete_terminal_null_literal_v1(
+        &mut self,
+        _loan: crate::mir::normal_callable_semantic_package::TerminalNullReturnSourceLoanV1,
+        _completed: &super::emission::constant::CompletedConstV1,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][terminal-null/consumer-unavailable]".into())
+    }
+
     fn take_construction_store_v1(&mut self) -> Result<Option<TakenConstructionStore>, String> {
         Ok(None)
     }

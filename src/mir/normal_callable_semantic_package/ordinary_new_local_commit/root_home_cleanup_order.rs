@@ -4,6 +4,7 @@ use super::{freeze, RootHomeReleaseOriginV1};
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrderV1 {
+    pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
         Option<crate::mir::ValueId>,
@@ -110,6 +111,7 @@ impl RootHomeCleanupOrderV1 {
         let acquisition_fault = indices(acquisition_fault)?;
         Ok(Self {
             direct: None,
+            null_return: None,
             full: full.into_boxed_slice(),
             normal,
             acquisition_fault,
@@ -135,6 +137,7 @@ impl RootHomeCleanupOrderV1 {
         acquisition_fault.extend(self.acquisition_fault());
         let mut next = Self::from_sequences(full, &normal, &acquisition_fault)?;
         next.direct = self.direct.take();
+        next.null_return = self.null_return.take();
         *self = next;
         Ok(())
     }

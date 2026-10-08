@@ -114,6 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
 
 pub(crate) use local_commit::{
     FinalizedBirthActualsV1, FinalizedRootResultAbiV1, FinalizedRootSourceHandoffV1,
+    TerminalNullReturnSourceLoanV1,
 };
 pub(crate) use root_instance_call::RootInstanceCallDispositionRowV1;
 

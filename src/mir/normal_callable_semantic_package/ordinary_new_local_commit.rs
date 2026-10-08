@@ -27,6 +27,7 @@ use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
 use self::root_home::RootHomeExitEntry;
+pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
 
 #[derive(Debug)]
 pub(super) enum RootNewValidation {

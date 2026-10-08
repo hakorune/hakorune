@@ -751,3 +751,7 @@ fn used_values(function: &MirFunction) -> BTreeSet<ValueId> {
 #[cfg(test)]
 #[path = "physical_boundary_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "physical_boundary_test_api.rs"]
+mod test_api;

@@ -150,7 +150,7 @@ pub(crate) use ordinary_new_coseal::{
     PreparedTerminalMapGetReturnV1, QualifiedStaticCallArgumentKindV1,
     ReceiverCallClassObservationV1, ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1,
     ResultWitnessStepV1, RootCallDispositionV1, RootInstanceCallDispositionRowV1,
-    VerifiedOrdinaryNewBirthRecipeV1,
+    TerminalNullReturnSourceLoanV1, VerifiedOrdinaryNewBirthRecipeV1,
 };
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
