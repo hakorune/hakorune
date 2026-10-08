@@ -123,4 +123,111 @@ fn received_handle_observer_rejects_initializer_argument_and_response_drift_with
             _ => assert!(result.unwrap().is_none()),
         }
     }
+    // Producer source keeps Nullable/Handle distinct and never retries a
+    // selected response, including Unavailable and wrong argument identity.
+    for kind in [
+        LocalCallResultClassV1::Nullable,
+        LocalCallResultClassV1::Handle,
+    ] {
+        for mutation in 0..10 {
+            let mut demands = 0;
+            let result = issue_received_producer_local_call(
+                input,
+                statement,
+                &site,
+                if mutation == 7 {
+                    rows[0].declaration_site().clone()
+                } else {
+                    declaration.clone()
+                },
+                row.binding(),
+                &[receiver],
+                &mut |owned, request| {
+                    demands += 1;
+                    assert_eq!(owned, &site);
+                    let BorrowedCallActualRequestV1::ReceivedObjectArguments(
+                        destination,
+                        requested,
+                    ) = request
+                    else {
+                        panic!("producer request only")
+                    };
+                    assert_eq!(destination, row.binding());
+                    if mutation == 9 || requested != kind {
+                        return Ok(None);
+                    }
+                    if mutation == 6 {
+                        return Err("producer-original-error".to_string());
+                    }
+                    if mutation == 4 {
+                        return Ok(Some(BorrowedCallArgumentsV1::Scalar(Box::new([]))));
+                    }
+                    let args = vec![match mutation {
+                        5 => LocalCallArgumentV1::BorrowedActual {
+                            ordinal: 1,
+                            site: argument.clone(),
+                        },
+                        8 => LocalCallArgumentV1::Integer(8),
+                        _ => LocalCallArgumentV1::BorrowedActual {
+                            ordinal: 0,
+                            site: argument.clone(),
+                        },
+                    }]
+                    .into_boxed_slice();
+                    Ok(Some(BorrowedCallArgumentsV1::SourceObject {
+                        result: if mutation == 2 {
+                            LocalCallResultClassV1::I64
+                        } else {
+                            kind
+                        },
+                        arguments: match mutation {
+                            1 => ObjectCallSourceSupportV1::Observed(args),
+                            3 => ObjectCallSourceSupportV1::Unavailable,
+                            _ => ObjectCallSourceSupportV1::SourceOnly(args),
+                        },
+                    }))
+                },
+            );
+            assert_eq!(
+                demands,
+                if mutation == 7 {
+                    0
+                } else if mutation == 9 || kind == LocalCallResultClassV1::Handle {
+                    2
+                } else {
+                    1
+                }
+            );
+            match mutation {
+                0 | 1 => {
+                    let observation = result.unwrap().unwrap().unwrap();
+                    assert_eq!(observation.result(), kind);
+                    assert_eq!(
+                        observation.local_binding(),
+                        Some((declaration, row.binding()))
+                    );
+                    assert_eq!(observation.prior_homes(), [receiver]);
+                }
+                6 => assert_eq!(result.unwrap_err(), "producer-original-error"),
+                9 => assert!(result.unwrap().is_none()),
+                _ => assert_eq!(
+                    result.unwrap().unwrap().unwrap_err(),
+                    HomePrefixUnavailableV1::SourceMismatch
+                ),
+            }
+        }
+    }
+    assert!(issue_received_producer_local_call(
+        input,
+        statement,
+        &site,
+        declaration.clone(),
+        row.binding(),
+        &[],
+        &mut |_, _| -> Result<Option<BorrowedCallArgumentsV1>, String> {
+            panic!("non-Home local never demands a sibling ingress error")
+        },
+    )
+    .unwrap()
+    .is_none());
 }

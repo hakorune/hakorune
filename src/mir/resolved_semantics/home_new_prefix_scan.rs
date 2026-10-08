@@ -378,6 +378,36 @@ pub(super) fn scan_statement_flow<'a, E>(
                 locals.install_i64_call_result(binding);
                 continue;
             }
+            if let Some(selected) = local_call_flow::issue_received_producer_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                borrowed_actuals,
+            )? {
+                match selected {
+                    Ok(local_call) => {
+                        match local_call.result() {
+                            local_call_flow::LocalCallResultClassV1::Handle => {
+                                locals.install_received_handle(binding, &owned)
+                            }
+                            local_call_flow::LocalCallResultClassV1::Nullable => {
+                                locals.install_received_nullable(binding, &owned)
+                            }
+                            _ => unreachable!("producer result corroborated before observation"),
+                        }
+                        path_calls.insert(local_call.site().clone());
+                        local_calls.push(local_call);
+                        homes.push(binding);
+                    }
+                    Err(issue) => {
+                        unavailable.get_or_insert(issue);
+                    }
+                }
+                continue;
+            }
             // Lexical-receiver `recv.m(..)` calls whose selected callee
             // carries the sealed `NullableObject` claim join the
             // checked-release lane before the i64 lane — the same sealed

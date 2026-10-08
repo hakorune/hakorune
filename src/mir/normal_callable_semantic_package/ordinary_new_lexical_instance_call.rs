@@ -323,8 +323,8 @@ pub(super) use borrowed_formal_actuals::{
     corroborate_received_object_receiver_v1, prepare_borrowed_call_actuals_v1,
     project_pending_borrowed_i64_arguments_v1, project_pending_i64_result_arguments_v1,
     project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
-    reject_borrowed_actuals_for_owner_v1, stage_borrowed_call_actuals_v1,
-    PendingBorrowedFormalActualsV1,
+    received_producer_arguments_v1, reject_borrowed_actuals_for_owner_v1,
+    stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
 };
 pub(in crate::mir) use borrowed_formal_actuals::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,

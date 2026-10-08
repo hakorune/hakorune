@@ -641,3 +641,7 @@ mod object_source;
 
 #[path = "ordinary_new_borrowed_object_input_finish.rs"]
 mod object_input_finish;
+
+#[path = "ordinary_new_received_producer_arguments.rs"]
+mod received_producer;
+pub(in crate::mir::normal_callable_semantic_package) use received_producer::received_producer_arguments_v1;

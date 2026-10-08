@@ -345,6 +345,22 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
 ) -> Result<Option<BorrowedCallArgumentsV1>, OrdinaryNewCoSealIssueV1> {
+    if let BorrowedCallActualRequestV1::ReceivedObjectArguments(destination, result) = request {
+        return super::super::lexical_instance_call::received_producer_arguments_v1(
+            source,
+            pending,
+            targets,
+            candidates,
+            classes,
+            site,
+            destination,
+            result,
+        )
+        .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+            site: site.clone(),
+            issue,
+        });
+    }
     if let BorrowedCallActualRequestV1::ReceivedHandleArguments(destination) = request {
         return received_handle::received_handle_arguments_v1(
             targets,
@@ -490,6 +506,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|row| row.map(BorrowedCallArgumentsV1::Scalar))
         }
         BorrowedCallActualRequestV1::Observe(_)
+        | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)
         | BorrowedCallActualRequestV1::ObjectArguments(..) => {
             unreachable!("observation handled before demand")

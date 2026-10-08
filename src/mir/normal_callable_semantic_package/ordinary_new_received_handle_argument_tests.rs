@@ -255,3 +255,144 @@ fn received_handle_selected_target_errors_never_change_pending_or_retry_old_lane
     .unwrap()
     .is_none());
 }
+
+#[test]
+fn received_producer_source_preserves_original_phase_kind_and_selected_refusal() {
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::received_producer_arguments_v1;
+    use crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1;
+    for nullable in [false, true] {
+        let body = if nullable {
+            "if size > 0 { return new Token() } return null"
+        } else {
+            "return new Token()"
+        };
+        let package = issue(&format!("box Spare {{}} box Token {{}} box Maker {{ make(size: i64) {{ {body} }} relay() {{ local spare = new Spare() return me.make(7) }} }} static box Main {{ main() {{ local maker = new Maker() local item = maker.relay() return 0 }} }}")).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let (target, candidates, destination) = original(&package);
+        assert!(target.object_producer_dependencies().is_some());
+        assert!(
+            ledger
+                .callable_result_classes
+                .qualifications_at_call(target.call_site())
+                .is_empty(),
+            "Main return 0 never manufactures a caller qualification"
+        );
+        let source = ledger.borrowed_formal_source.as_ref().unwrap();
+        // Final package finishing may consume executable actuals. Re-observe
+        // the SAME original zero-argument source through its canonical issuer.
+        let mut pending_rows = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::PendingBorrowedFormalActualsV1::new();
+        let prepared = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::prepare_borrowed_call_actuals_v1(
+            source, &package.parameter_contracts, target.call_site(), &[], &candidates,
+            None, &mut |_| None,
+        );
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::stage_borrowed_call_actuals_v1(
+            &mut pending_rows, target.call_site(), prepared,
+        );
+        let pending = &pending_rows;
+        let kind = if nullable {
+            LocalCallResultClassV1::Nullable
+        } else {
+            LocalCallResultClassV1::Handle
+        };
+        let targets = Ok(vec![Ok(Some(target.clone()))]);
+        let result = received_producer_arguments_v1(
+            source,
+            pending,
+            &targets,
+            &candidates,
+            &ledger.callable_result_classes,
+            target.call_site(),
+            destination,
+            kind,
+        )
+        .unwrap()
+        .unwrap();
+        assert!(
+            matches!(result, BorrowedCallArgumentsV1::SourceObject { result,
+            arguments: ObjectCallSourceSupportV1::SourceOnly(_) | ObjectCallSourceSupportV1::Observed(_)
+        } if result == kind)
+        );
+        let other = if nullable {
+            LocalCallResultClassV1::Handle
+        } else {
+            LocalCallResultClassV1::Nullable
+        };
+        assert!(received_producer_arguments_v1(
+            source,
+            pending,
+            &targets,
+            &candidates,
+            &ledger.callable_result_classes,
+            target.call_site(),
+            destination,
+            other
+        )
+        .unwrap()
+        .is_none());
+        for broken in [
+            Ok(Vec::new()),
+            Ok(vec![Ok(Some(target.clone())), Ok(Some(target.clone()))]),
+            Err("producer-target-error".into()),
+            Ok(vec![
+                Ok(Some(target.clone())),
+                Err("late-target-error".into()),
+            ]),
+        ] {
+            assert!(received_producer_arguments_v1(
+                source,
+                pending,
+                &broken,
+                &candidates,
+                &ledger.callable_result_classes,
+                target.call_site(),
+                destination,
+                kind
+            )
+            .is_err());
+        }
+        assert!(received_producer_arguments_v1(
+            source,
+            pending,
+            &targets,
+            &[],
+            &ledger.callable_result_classes,
+            target.call_site(),
+            destination,
+            kind
+        )
+        .unwrap_err()
+        .contains("claim-local-missing"));
+        let empty = result_class_claim::OrdinaryNewResultClassClaimsV1::new();
+        assert!(received_producer_arguments_v1(
+            source,
+            pending,
+            &targets,
+            &candidates,
+            &empty,
+            target.call_site(),
+            destination,
+            kind
+        )
+        .unwrap_err()
+        .contains("producer-dependency-missing"));
+        let mut poisoned = pending.clone();
+        poisoned.insert(
+            target.call_site().clone(),
+            Err("original-actual-error".into()),
+        );
+        assert_eq!(
+            received_producer_arguments_v1(
+                source,
+                &poisoned,
+                &targets,
+                &candidates,
+                &ledger.callable_result_classes,
+                target.call_site(),
+                destination,
+                kind
+            )
+            .unwrap_err(),
+            "original-actual-error"
+        );
+    }
+}

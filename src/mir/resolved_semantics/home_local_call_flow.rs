@@ -201,7 +201,7 @@ impl LocalCallObservationV1 {
 
 #[path = "home_local_lexical_call.rs"]
 mod lexical_local_call;
-pub(crate) use lexical_local_call::issue_lexical_local_call;
+pub(crate) use lexical_local_call::{issue_lexical_local_call, issue_received_producer_local_call};
 
 /// Issue one `local x = Alias.m(..)` qualified static-box call continuation.
 ///
@@ -266,6 +266,7 @@ pub(crate) fn issue_qualified_static_local_call<E>(
         }
         Some(BorrowedCallArgumentsV1::Scalar(_))
         | Some(BorrowedCallArgumentsV1::HandleSource(_))
+        | Some(BorrowedCallArgumentsV1::SourceObject { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
         None => {
             let mut arguments = Vec::with_capacity(call.arguments().len());

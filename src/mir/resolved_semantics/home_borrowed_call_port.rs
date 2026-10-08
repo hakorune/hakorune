@@ -5,6 +5,10 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     Observe(&'a [BorrowedCallActualCandidateV1]),
     ScalarArguments,
     I64ResultArguments,
+    ReceivedObjectArguments(
+        crate::mir::resolved_semantics::BindingRefV1,
+        super::LocalCallResultClassV1,
+    ),
     ReceivedHandleArguments(crate::mir::resolved_semantics::BindingRefV1),
     ObjectArguments(
         &'a crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,
@@ -18,6 +22,11 @@ pub(crate) enum BorrowedCallArgumentsV1 {
     StaticSource(Box<[LocalCallArgumentV1]>),
     /// Source observation only; no result, entry or executable permission.
     HandleSource(Box<[LocalCallArgumentV1]>),
+    /// Exact producer result class; input support retains its original phase.
+    SourceObject {
+        result: super::LocalCallResultClassV1,
+        arguments: ObjectCallSourceSupportV1,
+    },
     Object {
         qualification:
             crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,

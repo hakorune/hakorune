@@ -53,6 +53,16 @@ the canonical ClaimLocal target/candidate and checks every original loan's phase
 and ordered arguments. SourceOnly remains passive; selected refusal never
 retries the old literal observer. Input finish and the Ready packet own execution.
 
+A ClaimLocal initializer whose callee forwards an owned result instead borrows
+that target's original `ObjectProducerDependency` from the same incoming inventory.
+The whole dependency set must equal the original Facts, including witness identity;
+Object selects Handle and NullableObject selects Nullable. `ReceivedObjectArguments`
+retains Observed/SourceOnly input support without creating a caller return loan.
+Missing or contradictory selected evidence refuses; only proven unselected source
+rows retain the prior protocol. Exact initializer and ordered argument corroboration
+precede source observation. The same scan records SourceMismatch and does not retry.
+Ready packet input/result and acquisition owners still owe executable permission.
+
 ## Lexical call source requirement loans
 
 `LexicalInstanceCallSourceTargetV1` retains a passive result requirement.

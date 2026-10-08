@@ -1,5 +1,8 @@
 //! Source observation of the existing bounded lexical local call.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::{
+    HomePrefixUnavailableV1, ObjectCallSourceSupportV1,
+};
 
 /// Record the original qualified Handle source row, or the existing positively
 /// unselected literal lane. The package owns target/result/argument proof.
@@ -122,6 +125,79 @@ pub(crate) fn issue_lexical_local_call<E>(
         arguments.into_boxed_slice(),
         result,
     )))
+}
+
+/// A selected producer failure is retained by scan and cannot retry old lanes.
+/// Nullable and Handle use the same source witness and independent refusal type.
+pub(crate) fn issue_received_producer_local_call<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<Result<LocalCallObservationV1, HomePrefixUnavailableV1>>, E> {
+    let claim_local = input.function().method_call(site.site()).is_some_and(|call| {
+        matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+            if prior_homes.contains(&binding)
+            && input.function().binding(binding).is_some_and(|row|
+                matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Local { .. })))
+    });
+    if !claim_local {
+        return Ok(None);
+    }
+    if !corroborate_received_initializer_v1(
+        input,
+        statement,
+        site,
+        &declaration,
+        destination,
+        prior_homes,
+    ) {
+        return Ok(Some(Err(HomePrefixUnavailableV1::SourceMismatch)));
+    }
+    for requested in [
+        LocalCallResultClassV1::Nullable,
+        LocalCallResultClassV1::Handle,
+    ] {
+        let Some(response) = borrowed_arguments(
+            site,
+            BorrowedCallActualRequestV1::ReceivedObjectArguments(destination, requested),
+        )?
+        else {
+            continue;
+        };
+        let refusal = || Some(Err(HomePrefixUnavailableV1::SourceMismatch));
+        let BorrowedCallArgumentsV1::SourceObject { result, arguments } = response else {
+            return Ok(refusal());
+        };
+        if result != requested {
+            return Ok(refusal());
+        }
+        let arguments = match arguments {
+            ObjectCallSourceSupportV1::Observed(arguments)
+            | ObjectCallSourceSupportV1::SourceOnly(arguments) => arguments,
+            ObjectCallSourceSupportV1::Unavailable => return Ok(refusal()),
+        };
+        if !corroborate_received_arguments_v1(input, site, &arguments) {
+            return Ok(refusal());
+        }
+        return Ok(Some(Ok(LocalCallObservationV1::issue(
+            input.owner(),
+            statement.clone(),
+            site.clone(),
+            declaration,
+            destination,
+            prior_homes.iter().copied().collect(),
+            arguments,
+            result,
+        ))));
+    }
+    Ok(None)
 }
 
 #[cfg(test)]
