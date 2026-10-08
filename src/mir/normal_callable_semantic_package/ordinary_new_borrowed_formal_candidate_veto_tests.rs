@@ -125,7 +125,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             let claims = &package.source_static_claims_for_test;
             // Inspect the original excluded draft before attributing the
             // executable SourceOnly stop to a receiver or packet consumer.
-            for (class, method, rejected_return) in [
+            for (class, method, checked_return) in [
                 ("LayoutBox", "class_id", false),
                 ("SizeClassBox", "good_size", false),
                 ("SizeClassBox", "size_to_bin", false),
@@ -154,16 +154,20 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                         assert!(claims.claim_target(caller, site).is_none());
                     }
                 }
-                if rejected_return {
-                    let Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(site)) = original else {
-                        panic!("{key:?}: expected original terminal-formal exclusion, got {original:?}")
-                    };
-                    assert_eq!(site.owner(), contract.owner);
-                    assert_eq!(site.site().node().segments(), &[
+                let original = original.expect("original source draft");
+                if checked_return {
+                    let row = original.uses.iter().find(|row| matches!(row.kind,
+                        BorrowedFormalUseDraftKindV1::IntegerReturn { .. })).expect("original checked Return");
+                    assert_eq!(row.site.owner(), contract.owner);
+                    assert_eq!(row.site.site().node().segments(), &[
                         SourcePathSegmentV1::Body(1), SourcePathSegmentV1::Value,
                     ]);
-                } else {
-                    assert!(original.is_ok(), "{key:?}: original outgoing draft {original:?}");
+                    let BorrowedFormalUseDraftKindV1::IntegerReturn { guard, .. } = &row.kind else { unreachable!() };
+                    assert!(original.uses.iter().any(|compare| match &compare.kind {
+                        BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } =>
+                            guard.matches_compare(compare.formal, binary, source),
+                        _ => false,
+                    }), "SAME original guard, not merely a Return admission");
                 }
             }
             let facts = &package.ordinary_new_claim_ledger.callable_result_classes;

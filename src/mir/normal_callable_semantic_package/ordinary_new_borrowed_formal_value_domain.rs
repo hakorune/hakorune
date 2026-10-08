@@ -1,7 +1,6 @@
 //! One incoming/Forward fixed point, projected to object and integer agreements.
 //! Integer agreement is source evidence, never a physical payload projection.
 use super::*;
-use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_semantics::{
     ResolvedAssignmentTargetV1, ResolvedLexicalRefV1, SourceBindingSiteV1,
 };
@@ -96,7 +95,8 @@ pub(super) fn resolve_formal_domains_v1(
     (objects, integers)
 }
 
-/// Direct declared parameter evidence only; no scalar-local alias inference.
+/// Direct declared Integer-lane parameter evidence only, including exact usize.
+/// This is not an i64 Return/range grant; no scalar-local alias inference.
 pub(super) fn declared_integer_seed_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -117,7 +117,7 @@ pub(super) fn declared_integer_seed_v1(
     if owners.next().is_some() || formals.next().is_some()
         || function.owner() != input.owner() || binding.owner() != input.owner()
         || contract.parameters.get(formal.ordinal as usize).is_none_or(|row| row.binding != binding)
-        || formal.kind != CallableParameterContractKindV1::ExactTrivial(ExactTrivialParameterAbiV1::I64)
+        || !matches!(&formal.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.mir_type() == crate::mir::MirType::Integer)
         || function.declaration_binding(&SourceBindingSiteV1::Parameter { index: formal.ordinal }) != Some(binding)
         || function.assignment_targets().any(|(_, target)| matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding))
     { return false }
@@ -322,27 +322,28 @@ mod tests {
 
     #[test]
     fn declared_integer_seed_requires_stable_direct_parameter_and_original_ordinal() {
-        for (body, expected) in [
-            ("return 0", true),
-            ("p = true return 0", false),
-            ("local closure = fn() { return p } return 0", false),
-            ("local closure = fn() { p = true return 0 } return 0", false),
-        ] {
-            let package = issue_with_brand_catalog(&format!(
-                "static box Main {{ helper(p: i64) {{ {body} }} main() {{ return 0 }} }}"
-            ))
-            .unwrap();
-            let key = SelectedNormalCallableKeyV1::Cataloged(
-                CanonicalSameModuleCallableKeyV1::static_box_method("Main", "helper", 1),
-            );
-            let slot = package.selected.batch_slot(&key).unwrap();
-            let contract = package
-                .parameter_contracts
-                .iter()
-                .find(|row| row.batch_slot == slot)
+        for scalar in ["i64", "usize"] {
+            for (body, expected) in [
+                ("return 0", true),
+                ("p = true return 0", false),
+                ("local closure = fn() { return p } return 0", false),
+                ("local closure = fn() { p = true return 0 } return 0", false),
+            ] {
+                let package = issue_with_brand_catalog(&format!(
+                    "static box Main {{ helper(p: {scalar}) {{ {body} }} main() {{ return 0 }} }}"
+                ))
                 .unwrap();
-            let binding = contract.parameters[0].binding;
-            package.batch().with_lowering_input(slot, |input| {
+                let key = SelectedNormalCallableKeyV1::Cataloged(
+                    CanonicalSameModuleCallableKeyV1::static_box_method("Main", "helper", 1),
+                );
+                let slot = package.selected.batch_slot(&key).unwrap();
+                let contract = package
+                    .parameter_contracts
+                    .iter()
+                    .find(|row| row.batch_slot == slot)
+                    .unwrap();
+                let binding = contract.parameters[0].binding;
+                package.batch().with_lowering_input(slot, |input| {
                 assert_eq!(declared_integer_seed_v1(input, &package.parameter_contracts, binding), expected, "{body}");
                 let bad = OwnedCallableParameterContractDeclarationV1 {
                     owner: contract.owner, batch_slot: contract.batch_slot, mode: contract.mode,
@@ -352,83 +353,120 @@ mod tests {
                 };
                 assert!(!declared_integer_seed_v1(input, &[bad], binding));
             }).unwrap();
+            }
         }
     }
 
     #[test]
     fn shared_incoming_domain_uses_direct_declared_integer_from_outside_borrowed_profile() {
-        let package = issue_with_brand_catalog(
-            "box Transport { probe(p) { return 0 } } static box Main { send(size: i64) { local recv = new Transport() local out = recv.probe(size) return 0 } main() { return Main.send(7) } }",
-        ).unwrap();
-        let binding = formal(&package, "probe");
-        let ingress = package
-            .ordinary_new_claim_ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        assert!(ingress.formal_integer_agreement(binding));
-        assert!(ingress.formal_object_view(binding).is_none());
-        assert_eq!(ingress.incoming.len(), 1);
-        assert!(
-            !ingress.contains_definition_for_test(ingress.incoming[0].call.owner()),
-            "direct declared scalar evidence is distinct from an opaque caller profile"
-        );
+        for scalar in ["i64", "usize"] {
+            let package = issue_with_brand_catalog(&format!(
+            "box Transport {{ probe(p) {{ return 0 }} }} static box Main {{ send(size: {scalar}) {{ local recv = new Transport() local out = recv.probe(size) return 0 }} main() {{ return Main.send(7) }} }}",
+        )).unwrap();
+            let binding = formal(&package, "probe");
+            let ingress = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            assert!(ingress.formal_integer_agreement(binding));
+            assert!(ingress.formal_object_view(binding).is_none());
+            assert_eq!(ingress.incoming.len(), 1);
+            let original_call = &ingress.incoming[0];
+            let actuals = package
+                .ordinary_new_claim_ledger
+                .borrowed_formal_actuals
+                .get(&original_call.call)
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            assert!(actuals.require_executable_v1().is_ok());
+            let [actual] = actuals.opaque_actuals.as_ref() else {
+                panic!("one original actual")
+            };
+            assert_eq!(actual.formal, binding);
+            assert_eq!(actual.ordinal, 0);
+            assert_eq!(&actual.site, &original_call.source.argument_sites()[0]);
+            let super::super::BorrowedFormalActualSourceV1::Scalar {
+                binding: source,
+                kind,
+            } = &actual.source
+            else {
+                panic!("original declared Integer scalar: {scalar}")
+            };
+            assert_eq!(
+                *kind,
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer
+            );
+            let caller_contract = package
+                .parameter_contracts
+                .iter()
+                .find(|row| row.owner == original_call.call.owner())
+                .unwrap();
+            assert_eq!(*source, caller_contract.parameters[0].binding);
+            assert!(
+                !ingress.contains_definition_for_test(ingress.incoming[0].call.owner()),
+                "direct declared scalar evidence is distinct from an opaque caller profile"
+            );
+        }
     }
 
     #[test]
     fn declared_integer_scalar_alias_never_inherits_unproven_parameter_agreement() {
-        for alias_body in ["local alias = p", "local alias = p alias = true"] {
-            let package = issue_with_brand_catalog(&format!(
-                "static box Main {{ helper(p: i64) {{ {alias_body} local observed = alias return 0 }} main() {{ return 0 }} }}"
+        for scalar in ["i64", "usize"] {
+            for alias_body in ["local alias = p", "local alias = p alias = true"] {
+                let package = issue_with_brand_catalog(&format!(
+                "static box Main {{ helper(p: {scalar}) {{ {alias_body} local observed = alias return 0 }} main() {{ return 0 }} }}"
             )).unwrap();
-            let key = SelectedNormalCallableKeyV1::Cataloged(
-                CanonicalSameModuleCallableKeyV1::static_box_method("Main", "helper", 1),
-            );
-            let slot = package.selected.batch_slot(&key).unwrap();
-            package
-                .batch()
-                .with_lowering_input(slot, |input| {
-                    let initializer = input
-                        .function()
-                        .expression_source()
-                        .initializers()
-                        .next()
-                        .unwrap();
-                    assert!(!declared_integer_seed_v1(
-                        input,
-                        &package.parameter_contracts,
-                        initializer.binding()
-                    ));
-                    let observed = input
-                        .function()
-                        .expression_source()
-                        .initializers()
-                        .last()
-                        .unwrap();
-                    let site = observed.initializer_site().unwrap();
-                    assert_eq!(
-                        super::super::arg_site_binding(input, site),
-                        Some(initializer.binding())
-                    );
-                    let source = classify_actual_seed(
-                        input,
-                        package.batch(),
-                        &package.selected,
-                        &package.ordinary_new_claim_ledger.callable_result_classes,
-                        input.owner(),
-                        &[],
-                        None,
-                        &BTreeMap::new(),
-                        &package.parameter_contracts,
-                        site,
-                    );
-                    // Read the original alias-use site, including the rebound case.
-                    // No declared scalar fact is inherited through this alias.
-                    assert!(matches!(source, FormalActualSeedV1::Conflict));
-                })
-                .unwrap();
+                let key = SelectedNormalCallableKeyV1::Cataloged(
+                    CanonicalSameModuleCallableKeyV1::static_box_method("Main", "helper", 1),
+                );
+                let slot = package.selected.batch_slot(&key).unwrap();
+                package
+                    .batch()
+                    .with_lowering_input(slot, |input| {
+                        let initializer = input
+                            .function()
+                            .expression_source()
+                            .initializers()
+                            .next()
+                            .unwrap();
+                        assert!(!declared_integer_seed_v1(
+                            input,
+                            &package.parameter_contracts,
+                            initializer.binding()
+                        ));
+                        let observed = input
+                            .function()
+                            .expression_source()
+                            .initializers()
+                            .last()
+                            .unwrap();
+                        let site = observed.initializer_site().unwrap();
+                        assert_eq!(
+                            super::super::arg_site_binding(input, site),
+                            Some(initializer.binding())
+                        );
+                        let source = classify_actual_seed(
+                            input,
+                            package.batch(),
+                            &package.selected,
+                            &package.ordinary_new_claim_ledger.callable_result_classes,
+                            input.owner(),
+                            &[],
+                            None,
+                            &BTreeMap::new(),
+                            &package.parameter_contracts,
+                            site,
+                        );
+                        // Read the original alias-use site, including the rebound case.
+                        // No declared scalar fact is inherited through this alias.
+                        assert!(matches!(source, FormalActualSeedV1::Conflict));
+                    })
+                    .unwrap();
+            }
         }
     }
 }

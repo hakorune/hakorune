@@ -933,23 +933,11 @@ Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes 
 CurrentOwner *_usize terminal wrappers/conditions/loop calls must all remain;
 noninitializer veto and ExactTrivial(USIZE) vs I64 seed law remain separate gaps;
 no omitted callers or blanket Integer grant.
-Return Decision (read-only review_cleanup_path): keep the SAME Compare Rc
-in IntegerReturn(exit,guard) and exact original value/binding/formal row (WIP).
-Guard/use check PASS29.05s; raw draft/Integer result join check PASS30.27s (WIP).
-Neither requires executable entry nor promotes SourceOnly. Final lender uses
-original root-exit binding + FinishedBindings; missing/removed/unrecorded refuses.
-Both physical scans require exact Return coverage and THAT Compare dominance;
-C ordinary_i64 checks exact borrowed param/Copy root and runtime tag1 before payload.
-Reuse source/guarded-actual/result-pending/physical/C runtime families; pin alias,
-bypass/wrong-formal, Return co-mutation, missing binding, Bool/null Fault.
-Then connect exact checked Integer terminal Return across original use/result/
-TerminalI64ScalarReturn, finished-coordinate/Compare dominance and C kind==1
-payload projection. Copy stays TAGGED; normalize_size return size and bin_size
-Mul/call sibling remain distinct gaps. Rebuild original actuals through existing
-constructor, then whole incoming/Page/Heap Completion/Normal/cleanup/packet checks.
-No early owner filter, manual phase promotion, removed Page caller or .hako workaround.
-Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, old-edge retirement,
-nondelegating selfcompile/final acceptance remain mandatory and incomplete.
+Checked Integer Return closed at7f6a6efa83; Git owns source/guarded-actual/
+result/terminal, finished lender, both physical scans and C tag1 contracts plus
+corrected attempt receipts. Exact original guard/Return identity and original
+source-only partition remain; no source-only promotion or caller omission.
+Full closure evidence and next source prerequisite appear below.
 Space: root/tmp8.6GB, workdisk1.3TB; build/probe stay on workdisk.
 Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.
 
@@ -980,12 +968,30 @@ Production use chain now joins exact source guard/Return, result and terminal
 contracts, SAME finished coordinates, both physical scans and C tag1 projection.
 Copy remains tagged; runtime wrong kind refuses before payload. No broad opaque grant.
 
-Next selected source prerequisite: direct ExactTrivial(USIZE) parameter evidence
-through existing declared_integer_seed and SAME incoming solver; preserve all
-ordinal/owner/rebind/capture/duplicate checks. Existing ABI Integer lane is source
-representation evidence only; no I64 Return equivalence, range or execution grant.
-Reuse existing declared-parameter/incoming tests; then rebuild original allocator
-facts without changing any .hako/caller, retaining all three *_usize wrappers.
-CurrentOwner noninitializer/terminal/condition/loop contexts, bin_size Mul/call,
-Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4, selected old-edge
-retirement and nondelegating selfcompile/final acceptance remain mandatory/open.
+## Exact declared Integer parameter source closeout (2026-10-09)
+
+Decision (read-only review_cleanup_path): SAME canonical exact parameter ABI
+Integer lane supplies both declared seed and original PrefixLocalFlow install.
+Owner/ordinal/declaration/duplicate/rebind/capture/full-count checks remain;
+scalar aliases are not declared parameter evidence. No I64 Return alias/range/
+literal/profile permission or SourceOnly promotion; original fixtures retained.
+Check36246 PASS1m16s; no-run48893 PASS8m39s; same fresh binary9+4+8+10+2+26+362+7
+PASS, scalar Return ABI2 PASS. Exact original Scalar Integer actual/call/formal
+is pinned. Production pin preserves all15 Heap inputs and BOTH Page calls.
+Inherited7f6a6e stale normalize_size refusal (prior immutable binary reproduced)
+now pins SAME guard/Return. Seed-only usize Unsupported red fully corrected.
+Evidence: /mnt/workdisk/hako-usize-declared-integer-source-composite-evidence.json.
+Existing scope/pointer/format/source caps/protected7/diff PASS; no new test/guard.
+This closes original source/actual registration, not whole allocator execution.
+
+Next Decision (read-only review_cleanup_path, refined against source): exact
+CurrentOwner zero-argument I64 call source from SAME incoming_source index loan
+feeds the existing Compare sibling consumer (original bin>me.max_regular_bin()).
+Retain brand/caller/site/target/slot/contract and SAME source; required ordinals
+must be empty until original argument proof exists. Normal only; Fault skips compare.
+Mul is absent in existing operation/scalar issuers: subsequent distinct slice
+must close sole dynamic operator law/source/physical checks, never disguise Add.
+Then full-context CurrentOwner entry/packet; terminal *_usize, condition/loop and
+qualified terminal callers remain mandatory. Neither first slice proves bin_size
+complete/Ready. Both315/318, anchored cleanup, unchanged-app EXE, Gates2-4,
+selected old-edge retirement and nondelegating final selfcompile remain open.

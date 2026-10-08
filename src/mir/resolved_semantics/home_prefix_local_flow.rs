@@ -283,10 +283,9 @@ impl<'source> PrefixLocalFlow<'source> {
                 return false;
             }
             use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
-            use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
             let value = match kind {
                 CallableParameterContractKindV1::ExactTrivial(abi)
-                    if abi == ExactTrivialParameterAbiV1::I64 =>
+                    if abi.mir_type() == crate::mir::MirType::Integer =>
                 {
                     StoredLocal::Trivial(Some(SourceScalarKind::Integer))
                 }

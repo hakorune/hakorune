@@ -1924,3 +1924,10 @@ preparation selects `SourceObject` before execution construction. It checks the
 same raw/final target, callee and argument tuple. EntryReceiver and DeclaredFormal
 actuals do not satisfy this forward condition. SourceObject retains no opaque
 execution proofs; entry/packet consumers still require the Executable phase.
+
+Declared Integer incoming seed uses the original direct parameter contract and
+its exact ABI Integer lane, including parameter-only `usize`; the same parameter
+install supplies its original Integer scalar candidate. Original ordinal,
+owner, declaration, duplicate, rebind and capture checks remain; scalar aliases
+are not declaration evidence. This source agreement does not alias `usize` to
+`i64` for Return, grant a range check, or promote SourceOnly to execution.
