@@ -211,16 +211,10 @@ impl OrdinaryNewClaimLedgerV1 {
         // The finishing projection may rewrite block identities. Rebind each
         // already-issued Call payload at its own exit before the handoff
         // moves it affinely.
-        let call_sites: Vec<SourceStmtSiteV1> = self
-            .terminal_relation
-            .values()
-            .filter_map(|relation| match relation {
-                TerminalRelationV1::Call(call) => Some(call.return_site().clone()),
-                _ => None,
-            })
-            .collect();
-        for site in call_sites {
-            self.rebind_root_call_entry(owner, &site, &projection)?;
+        for site in self.terminal_relation.keys() {
+            if self.verified_terminal_call_source_v1(owner, site)?.is_some() {
+                self.rebind_root_call_entry(owner, site, &projection)?;
+            }
         }
         if artifact
             && !matches!(

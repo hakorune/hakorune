@@ -463,6 +463,10 @@ impl VerifiedCallableResultContractCohortV1 {
         Ok(self)
     }
 
+    pub(crate) fn named_array_emissions(&self) -> &[super::EmittedNamedArrayRequirementV1] {
+        &self.named_array_emissions
+    }
+
     pub(crate) fn take_named_array_emissions(
         &mut self,
     ) -> Box<[super::EmittedNamedArrayRequirementV1]> {

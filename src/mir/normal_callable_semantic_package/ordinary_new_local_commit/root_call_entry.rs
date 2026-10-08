@@ -363,6 +363,52 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(())
     }
 
+    /// Check the whole selected set under one borrow before moving any entry.
+    /// Semantic and finished-binding preflight stays with the collector.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn take_finalized_root_calls(
+        &self,
+        owner: FunctionOwnerIdV1,
+        sites: &std::collections::BTreeSet<SourceStmtSiteV1>,
+    ) -> Result<
+        std::collections::BTreeMap<
+            SourceStmtSiteV1,
+            (RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>),
+        >,
+        String,
+    > {
+        let mut exits = self.root_exits.borrow_mut();
+        for site in sites {
+            match exits.get(&(owner, site.clone())) {
+                Some(RootHomeExitProgress::Emitted {
+                    entry: RootHomeExitEntry::Call { .. },
+                    ..
+                }) => {}
+                Some(RootHomeExitProgress::Finalized(_)) => {
+                    return Err(freeze("root-call-already-finalized"));
+                }
+                _ => return Err(freeze("artifact-call-physical-missing")),
+            }
+        }
+        let mut taken = std::collections::BTreeMap::new();
+        for site in sites {
+            let progress = exits
+                .get_mut(&(owner, site.clone()))
+                .expect("whole batch checked under the same borrow");
+            let RootHomeExitProgress::Emitted {
+                order,
+                bindings,
+                entry,
+                ..
+            } = std::mem::replace(progress, RootHomeExitProgress::Unprepared)
+            else {
+                unreachable!("whole batch checked under the same borrow");
+            };
+            *progress = RootHomeExitProgress::Finalized(order);
+            taken.insert(site.clone(), (entry, bindings));
+        }
+        Ok(taken)
+    }
+
     pub(crate) fn take_finalized_root_call(
         &self,
         owner: FunctionOwnerIdV1,

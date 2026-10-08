@@ -112,11 +112,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         >,
     ) {
         let validate = move |module: &MirModule| {
-            let mut callables = self.callables;
-            let named_arrays = match callables.as_mut() {
-                Some(cohort) => cohort.take_named_array_emissions(),
-                None => Box::new([]),
-            };
+            let callables = self.callables;
             let mut covered = BTreeSet::new();
             let mut root_validation = self.root_validation;
             let retained_root = match &root_validation {
@@ -188,47 +184,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            let handoff = match root_validation {
-                RootValidation::OrdinaryNew { key, ledger } => ledger
-                    .seal_finalized_root_birth_handoff(key, &birth_keys, callables)
-                    .map(Some),
-                RootValidation::Script { key, entry, source } => {
-                    use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
-                    Ok(match source.into_array_artifact(entry)? {
-                        Some(array) => Some(FinalizedRootHandoffV1::ScriptArray {
-                            named_arrays: Box::new([]),
-                            root_key: key,
-                            array,
-                            callables,
-                        }),
-                        None => callables.map(|callables| FinalizedRootHandoffV1::Module {
-                            callables: Some(callables),
-                            named_arrays: Box::new([]),
-                        }),
-                    })
-                }
-                RootValidation::Absent => Ok(callables.map(|callables| {
-                    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::Module {
-                        callables: Some(callables),
-                        named_arrays: Box::new([]),
-                    }
-                })),
-            }?;
-            match handoff {
-                Some(handoff) => {
-                    let handoff = handoff.with_named_arrays(named_arrays)?;
-                    handoff.validate_named_arrays(module)?;
-                    Ok(Some(handoff))
-                }
-                None if named_arrays.is_empty() => {
-                    crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
-                        module,
-                        &[],
-                    )?;
-                    Ok(None)
-                }
-                None => Err(crate::mir::named_array_obligation::fault("handoff-missing")),
-            }
+            seal_root_handoff(root_validation, module, &birth_keys, callables)
         };
         (self.session, self.module, validate)
     }
@@ -253,73 +209,123 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
         >,
     ) {
         let validate = move |module: &MirModule| {
-            let mut callables = self.callables;
-            let named_arrays = match callables.as_mut() {
-                Some(cohort) => cohort.take_named_array_emissions(),
-                None => Box::new([]),
-            };
+            let callables = self.callables;
             let mut root_validation = self.root_validation;
-            root_validation.validate(module, false)?;
-            let mut birth_keys = BTreeSet::new();
-            for (key, validation) in self.construction {
-                if key.namespace()
-                    != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
-                    || !birth_keys.insert(key.clone())
-                {
-                    return Err(fault("foreign-or-duplicate-birth-key"));
-                }
-                let definition = module
-                    .canonical_callable_definition_symbol(&key)
-                    .and_then(|symbol| module.functions.get(symbol))
-                    .ok_or_else(|| {
-                        "[freeze:contract][construction/finished-definition-missing]".to_owned()
-                    })?;
-                validation.validate_after_compiler_finishing(definition)?;
-            }
-            let handoff = match root_validation {
-                RootValidation::OrdinaryNew { key, ledger } => ledger
-                    .seal_finalized_root_birth_handoff(key, &birth_keys, callables)
-                    .map(Some),
-                RootValidation::Script { key, entry, source } => {
-                    use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
-                    Ok(match source.into_array_artifact(entry)? {
-                        Some(array) => Some(FinalizedRootHandoffV1::ScriptArray {
-                            named_arrays: Box::new([]),
-                            root_key: key,
-                            array,
-                            callables,
-                        }),
-                        None => callables.map(|callables| FinalizedRootHandoffV1::Module {
-                            callables: Some(callables),
-                            named_arrays: Box::new([]),
-                        }),
-                    })
-                }
-                RootValidation::Absent => Ok(callables.map(|callables| {
-                    crate::mir::finalized_root_handoff::FinalizedRootHandoffV1::Module {
-                        callables: Some(callables),
-                        named_arrays: Box::new([]),
-                    }
-                })),
-            }?;
-            match handoff {
-                Some(handoff) => {
-                    let handoff = handoff.with_named_arrays(named_arrays)?;
-                    handoff.validate_named_arrays(module)?;
-                    Ok(Some(handoff))
-                }
-                None if named_arrays.is_empty() => {
-                    crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
-                        module,
-                        &[],
-                    )?;
-                    Ok(None)
-                }
-                None => Err(crate::mir::named_array_obligation::fault("handoff-missing")),
-            }
+            let birth_keys =
+                finish_document_inputs(&mut root_validation, module, self.construction)?;
+            seal_root_handoff(root_validation, module, &birth_keys, callables)
         };
         (self.session, self.module, validate)
     }
+}
+
+/// The document route and its test checkpoint use the same finishing consumers.
+fn finish_document_inputs(
+    root: &mut RootValidation,
+    module: &crate::mir::MirModule,
+    construction: RetainedConstructionDrafts,
+) -> Result<BTreeSet<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>, String> {
+    root.validate(module, false)?;
+    let mut keys = BTreeSet::new();
+    for (key, validation) in construction {
+        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
+            || !keys.insert(key.clone())
+        {
+            return Err(fault("foreign-or-duplicate-birth-key"));
+        }
+        let definition = module
+            .canonical_callable_definition_symbol(&key)
+            .and_then(|symbol| module.functions.get(symbol))
+            .ok_or_else(|| {
+                "[freeze:contract][construction/finished-definition-missing]".to_owned()
+            })?;
+        validation.validate_after_compiler_finishing(definition)?;
+    }
+    Ok(keys)
+}
+
+#[cfg(test)]
+impl CompletedNormalDefaultRootCatalogLifecycleV1 {
+    /// Retain the actual cohort and ledger at the original pre-seal checkpoint.
+    pub(in crate::mir) fn document_preflight_parts_for_test(
+        mut self,
+        simplify: bool,
+    ) -> Result<(
+        String,
+        crate::mir::MirModule,
+        Rc<OrdinaryNewClaimLedgerV1>,
+        BTreeSet<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
+        Option<
+            crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+        >,
+    ), String>{
+        if simplify {
+            crate::mir::passes::simplify_cfg::simplify(&mut self.module);
+        }
+        let keys =
+            finish_document_inputs(&mut self.root_validation, &self.module, self.construction)?;
+        let RootValidation::OrdinaryNew { key, ledger } = self.root_validation else {
+            panic!("ordinary document fixture");
+        };
+        Ok((key, self.module, ledger, keys, self.callables))
+    }
+}
+
+/// Finish each existing root family with all named-array input checks before take.
+fn seal_root_handoff(
+    root: RootValidation,
+    module: &crate::mir::MirModule,
+    birth_keys: &BTreeSet<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>,
+    mut callables: Option<
+        crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+    >,
+) -> Result<Option<crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>, String> {
+    use crate::mir::finalized_root_handoff::{
+        validate_named_array_handoff_inputs, FinalizedRootHandoffV1,
+    };
+    let (key, array) = match root {
+        RootValidation::OrdinaryNew { key, ledger } => {
+            return ledger
+                .seal_finalized_root_birth_handoff(key, module, birth_keys, callables)
+                .map(Some);
+        }
+        RootValidation::Script { key, entry, source } => {
+            validate_named_array_handoff_inputs(
+                module,
+                callables.as_ref(),
+                callables
+                    .as_ref()
+                    .map_or(&[][..], |cohort| cohort.named_array_emissions()),
+            )?;
+            (Some(key), source.into_array_artifact(entry)?)
+        }
+        RootValidation::Absent => {
+            validate_named_array_handoff_inputs(
+                module,
+                callables.as_ref(),
+                callables
+                    .as_ref()
+                    .map_or(&[][..], |cohort| cohort.named_array_emissions()),
+            )?;
+            (None, None)
+        }
+    };
+    let named_arrays = callables.as_mut().map_or_else(
+        || Box::new([]) as Box<[_]>,
+        |cohort| cohort.take_named_array_emissions(),
+    );
+    Ok(match array {
+        Some(array) => Some(FinalizedRootHandoffV1::ScriptArray {
+            root_key: key.expect("Script source owns the Array root"),
+            named_arrays,
+            callables,
+            array,
+        }),
+        None => callables.map(|callables| FinalizedRootHandoffV1::Module {
+            callables: Some(callables),
+            named_arrays,
+        }),
+    })
 }
 
 fn has_lifecycle(function: &crate::mir::MirFunction) -> bool {

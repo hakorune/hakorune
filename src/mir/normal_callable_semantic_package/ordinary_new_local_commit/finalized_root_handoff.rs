@@ -2,19 +2,29 @@
 use super::*;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "finalized_root_handoff/preflight.rs"]
+mod preflight;
+
+#[cfg(test)]
+#[path = "finalized_root_handoff/preflight_tests.rs"]
+mod preflight_tests;
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn seal_finalized_root_birth_handoff(
         self: &Rc<Self>,
         root_key: String,
+        module: &crate::mir::MirModule,
         construction_keys: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
-        callables: Option<
+        mut callables: Option<
             crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
         >,
     ) -> Result<FinalizedRootHandoffV1, String> {
         let (validated_owner, symbol, projection) = match &*self.root_validation.borrow() {
-            RootNewValidation::FinishingChecked { owner, symbol, projection } => {
-                (*owner, symbol.clone(), Rc::clone(projection))
-            }
+            RootNewValidation::FinishingChecked {
+                owner,
+                symbol,
+                projection,
+            } => (*owner, symbol.clone(), Rc::clone(projection)),
             RootNewValidation::ArtifactFinalized { .. } => {
                 return Err(freeze("artifact-root-already-finalized"));
             }
@@ -113,39 +123,8 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("artifact-root-field-unavailable"));
         }
-        let mut call_entries = std::collections::BTreeMap::new();
-        for (site, terminal) in self.terminal_relation.iter() {
-            if !matches!(terminal, TerminalRelationV1::Call(_)) {
-                continue;
-            }
-            let (entry, cleanup) = self
-                .take_finalized_root_call(owner, site)?
-                .ok_or_else(|| freeze("artifact-call-physical-missing"))?;
-            call_entries.insert(site.clone(), (entry, cleanup));
-        }
-        // A Call payload emitted at an exit whose relation is not a Call is
-        // drift: the physical entry must never exist without its source row.
-        {
-            let exits = self.root_exits.borrow();
-            for ((row_owner, site), progress) in exits.iter() {
-                if *row_owner != owner {
-                    continue;
-                }
-                if matches!(
-                    progress,
-                    RootHomeExitProgress::Emitted {
-                        entry: RootHomeExitEntry::Call { .. },
-                        ..
-                    }
-                ) && !call_entries.contains_key(site)
-                {
-                    return Err(freeze("artifact-call-terminal-drift"));
-                }
-            }
-        }
-        if self.terminal_relation.is_empty() && !call_entries.is_empty() {
-            return Err(freeze("artifact-call-root-source-missing"));
-        }
+        let call_sites =
+            self.preflight_finalized_root_exits(module, owner, &symbol, &projection)?;
         let mut keys = BTreeSet::new();
         let mut births = Vec::new();
         let mut actuals = Vec::new();
@@ -298,32 +277,41 @@ impl OrdinaryNewClaimLedgerV1 {
         // real source evidence, so presence derives from their union,
         // never from the terminal map alone. An actually-empty terminal
         // map is legitimate transport data.
-        let root_source = (!self.terminal_relation.is_empty()
-            || !actuals.is_empty()
-            || has_lexical_local_calls)
-            .then(|| {
-                Ok::<_, String>(FinalizedRootSourceHandoffV1 {
-                    ledger: Rc::clone(self),
-                    app_main_identity: self
-                        .app_main_identity
-                        .as_ref()
-                        .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
-                        .clone(),
-                    owner,
-                    terminals: self.terminal_relation.as_ref().clone(),
-                    call_entries,
-                    local_calls: std::mem::take(
-                        &mut *self.root_local_call_bindings.borrow_mut(),
-                    ),
-                })
-            })
-            .transpose()?;
-        if root_source.is_none() && !actuals.is_empty() {
-            return Err(freeze("artifact-actual-root-source-missing"));
-        }
-        if root_source.is_none() && has_lexical_local_calls {
-            return Err(freeze("artifact-local-call-root-source-missing"));
-        }
+        let needs_source =
+            !self.terminal_relation.is_empty() || !actuals.is_empty() || has_lexical_local_calls;
+        let identity = if needs_source {
+            Some(
+                self.app_main_identity
+                    .as_ref()
+                    .ok_or_else(|| freeze("artifact-root-identity-unavailable"))?
+                    .clone(),
+            )
+        } else {
+            None
+        };
+        let named_rows = callables
+            .as_ref()
+            .map_or(&[][..], |cohort| cohort.named_array_emissions());
+        crate::mir::finalized_root_handoff::validate_named_array_handoff_inputs(
+            module,
+            callables.as_ref(),
+            named_rows,
+        )?;
+        // All semantic, source, Birth, identity and coverage checks precede this batch.
+        // No fallible input check or external callback occurs after its first move.
+        let call_entries = self.take_finalized_root_calls(owner, &call_sites)?;
+        let named_arrays = callables.as_mut().map_or_else(
+            || Box::new([]) as Box<[_]>,
+            |cohort| cohort.take_named_array_emissions(),
+        );
+        let root_source = identity.map(|app_main_identity| FinalizedRootSourceHandoffV1 {
+            ledger: Rc::clone(self),
+            app_main_identity,
+            owner,
+            terminals: self.terminal_relation.as_ref().clone(),
+            call_entries,
+            local_calls: std::mem::take(&mut *self.root_local_call_bindings.borrow_mut()),
+        });
         let birth_actuals = actuals.into_boxed_slice();
         *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {
             owner,
@@ -332,7 +320,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         Ok(if births.is_empty() {
             FinalizedRootHandoffV1::NoBirth {
-                named_arrays: Box::new([]),
+                named_arrays,
                 callables,
                 root_key,
                 root_source,
@@ -340,7 +328,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         } else {
             FinalizedRootHandoffV1::Births {
-                named_arrays: Box::new([]),
+                named_arrays,
                 callables,
                 root_key,
                 root_source,
@@ -355,10 +343,7 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 impl FinalizedBirthActualsV1 {
     /// Corrupt only caller identity on an original zero-argument provider receipt.
-    pub(crate) fn with_foreign_provider_owner_for_test(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Self {
+    pub(crate) fn with_foreign_provider_owner_for_test(&self, owner: FunctionOwnerIdV1) -> Self {
         assert!(self.destination.is_none() && self.arguments.is_empty());
         assert_ne!(self.site.owner(), owner);
         let mut actual = self.clone();

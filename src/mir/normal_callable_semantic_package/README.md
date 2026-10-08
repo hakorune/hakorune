@@ -1363,11 +1363,17 @@ calls. The local flow must agree. Its original emitted packet and binding group
 carry producer verification; the received Home owns exit cleanup. Missing groups
 remain rejected by the unchanged whole-exit selection.
 
-Final cleanup validation keeps its mandatory finished bindings and independent
-source order/path/structure checks in one private borrowed function. Finalized
-Call entries use their existing rebound storage; emitted entries use the same
-finishing projection for original bindings. The existing finalized visitor remains
-the consumer; this extraction grants no collector or artifact permission.
+Final cleanup validation keeps mandatory finished bindings and independent
+source order/path/structure checks in one private borrowed function, shared by
+the finalized visitor and existing Root collector. The collector enumerates original
+Completion exits for Root and FinishingChecked children before moving any entry;
+selected missing source/Normal proof/entry and unregistered emitted owners refuse.
+Root Call storage is rebound once through the original finishing map; its immutable
+packet uses that SAME map for correspondence. Received Plain and child storage
+keep original coordinates. Birth/provider/Main identity and original cohort
+named-array owner/coverage checks precede the whole-set Call take and pool moves.
+Document/artifact wrappers retain the same seal; the public finished-projection
+gate and pending Object Value ABI/artifact refusal remain unchanged.
 
 The private `call_witness` owner corroborates the exact source-call edges once,
 then composes existing immutable callee witnesses. The evaluator keeps source

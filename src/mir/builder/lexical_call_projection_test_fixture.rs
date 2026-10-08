@@ -375,7 +375,12 @@ fn artifact_fixture_checked(
             1
         );
         let second = ledger
-            .seal_finalized_root_birth_handoff(root_key, &std::collections::BTreeSet::new(), None)
+            .seal_finalized_root_birth_handoff(
+                root_key,
+                &module,
+                &std::collections::BTreeSet::new(),
+                None,
+            )
             .unwrap_err();
         assert!(
             second.contains("artifact-root-already-finalized"),
@@ -540,4 +545,43 @@ pub(in crate::mir) fn forwarded_fixture(
         "alias Copy is a dependency, not a call argument producer"
     );
     (prepared, row, source, ledger, exit, vec![copy])
+}
+
+/// Whole production completion, retaining the original Main ledger for collector tests.
+pub(in crate::mir) fn document_completion_fixture(
+    text: &str,
+) -> (
+    super::CompletedNormalDefaultRootCatalogLifecycleV1,
+    Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+) {
+    use crate::mir::builder::{
+        BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1,
+        ModuleBuilderInvocationSessionV1, NormalRuntimeInputSnapshotV1,
+        PreparedNormalDefaultProgramRootV1,
+    };
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        text,
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .unwrap();
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("source-backed fixture");
+    };
+    let builder = crate::mir::MirBuilder::new();
+    let completed = ModuleBuilderInvocationSessionV1::open(
+        &builder,
+        BuilderInvocationConfigV1::snapshot_for_raw(&builder, None),
+    )
+    .complete_normal_default_program_root_catalog_lifecycle(
+        PreparedNormalDefaultProgramRootV1::from_callable_source(source),
+        CallableMainMaterializationPolicyV1::Omitted,
+        NormalRuntimeInputSnapshotV1::empty(),
+    )
+    .unwrap();
+    let (_, ledger) = completed.ordinary_root_ledger_for_test();
+    (completed, ledger)
 }

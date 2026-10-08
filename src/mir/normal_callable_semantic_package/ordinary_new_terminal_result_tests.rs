@@ -248,9 +248,14 @@ fn unreleasable_root_call_receiver_passes_finishing_but_not_the_seal() {
     ledger
         .validate_after_compiler_finishing(&function)
         .unwrap_or_else(|e| panic!("Unavailable exit must pass non-artifact finishing: {e}"));
+    let mut module = crate::mir::MirModule::new("unavailable-root-call".into());
+    module
+        .functions
+        .insert(function.signature.name.clone(), function);
     let error = ledger
         .seal_finalized_root_birth_handoff(
             "Main.main/0".into(),
+            &module,
             &std::collections::BTreeSet::new(),
             None,
         )
@@ -756,7 +761,11 @@ fn owned_field_receiver_home_seals_call_entry_and_residence_release() {
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Holder", 0),
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor("Page", 0),
     ]);
+    let mut module = crate::mir::MirModule::new("owned-field-root-call".into());
+    module
+        .functions
+        .insert(function.signature.name.clone(), function);
     ledger
-        .seal_finalized_root_birth_handoff("Main.main/1".into(), &birth_keys, None)
+        .seal_finalized_root_birth_handoff("Main.main/1".into(), &module, &birth_keys, None)
         .unwrap_or_else(|e| panic!("seal must accept the owned-field Call entry: {e}"));
 }

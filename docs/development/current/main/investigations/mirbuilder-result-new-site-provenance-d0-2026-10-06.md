@@ -1,6 +1,6 @@
 # Result-new source-site provenance D0
 
-Status: Root indexed Object-call prerequisite closed; callee return outcome S0 selected
+Status: Root/child collector preflight closed; Object result descriptor next; S0 incomplete
 Date: 2026-10-06
 Scope: MIRBUILDER-GATE1-MIXED-RESULT-ORIGIN-D0; prior provenance/trace receipts
 Related: CURRENT_STATE.toml; RULES.md;
@@ -914,10 +914,9 @@ series acceptance579 distinct PASS (9 focused +570 regression); quick testbuild
 5m13s, final production+test type-check1m33s PASS. Logs/evidence in
 /tmp/hako-collector-preflight-carrier-final-* and final-evidence.json retain exact
 source/binary hashes and execution names. No general Phi substitution, source
-solver, new guard, result ABI or unchanged app EXE grant. Collector cutover and
-self-receiver terminal locator remain separately owned prerequisites/construction.
+solver, new guard, result ABI or unchanged app EXE grant. Primitive prerequisite52ca2a28e5 owns this contract; collector cutover follows.
 
-Self-receiver terminal locator prerequisite closed: the ordinary return shortcut
+Self-receiver terminal locator prerequisite f96eaa9b59 closed: the ordinary return shortcut
 consumes the SAME original declared-instance locator at the source row call
 expression before the existing once-only receiver read. Owner/call/receiver
 site+binding/canonical target corroborate; missing/drift/duplicate refuses.
@@ -925,3 +924,53 @@ Lexical/stored receivers retain their existing authority. Existing direct physic
 test now confirms complete locator consumption; the bounded series579 distinct
 PASS and final production/test type-check PASS include this exact implementation.
 No new locator issuer, receiver replay, guard or selected-C capability grant.
+
+Collector semantic cutover closed (same selected CALLEE-RETURN-OUTCOME-S0).
+Original Root/FinishingChecked child Completion inventories and strict selected
+Object/Normal readiness precede whole-set take. Missing sibling/source/entry,
+foreign projection and unregistered emitted owners cannot become source skips.
+Root Direct/legacy Call storage rebinds once; immutable packet corroborates through
+SAME map. Received Plain and child storage retain original bindings through the
+shared final cleanup core. Every Birth/provider/construction/Main identity and
+original cohort named-array owner/coverage check precedes Call/local/named moves.
+Both production document/artifact wrappers use this module-aware seal. Batch
+checks all keys/states under one borrow, then moves without another fallible input
+check. Retained original cohort/completion Rc and packet/cleanup order survive.
+Required original Main matrix typed/opaque/zero x Direct/Received x Handle/Nullable
+with real make/direct/received children passes canonical CFG finishing. Late
+child/Birth/identity/source/foreign-map, MIR+recorded Fault omission and real
+named-array owner/coverage negatives leave original entries/pools/rows untouched.
+Repeat seal refuses. Full artifact Object pending stop remains verified.
+Both wrapper callers switched; caller-zero with_named_arrays setter physically
+retired (19lines only). Shared handoff enum/coverage owner and singular unselected
+Call take remain. Execution579 distinct PASS (focused9/.06s+regression570/.28s),
+quick build5m13s; final production+test check1m33s PASS after mechanical deletion.
+Only post-execution source delta is that unused setter deletion; final check
+verifies both production and cfg-test typing. Binary873e87a0b60b965a3fdeefce710442f15d093e0a62725a7351ec2cc03a56048c,
+/tmp/hako-collector-preflight-final-evidence.json and carrier-final logs retain
+source/binary fingerprints and exact executed names. Scope/COPY/pointer/fmt/caps/
+diff and protected7 PASS. Previous locator, Birth fixture and finishing failures
+were THISCHANGE and are now resolved; no current/unclassified red. Historical
+S0 debt remains recorded above, not waived. Six independent preflight tests share
+one family child; one uncovered control lemma uses the existing boundary owner;
+no new guard. No production .hako/C rewrite or Value/compiled Handle/EXE grant.
+
+Next Decision (read-only review_cleanup_path; mandatory source-to-ABI sequence):
+derive checked Object result from original finalized source owner, not class/tag.
+Authority: immutable result Facts witness DAG, indexed Completion, SAME verified
+Normal disposition and exact Fresh/null/forward Home/lifetime proof. Issuer stays
+existing completed-index co-seal; no source reanalysis or second result solver.
+Replace finalized source result_abi Value blanket None with a private borrowed
+projection for proof-complete owned Handle/Nullable exits, preserving every exit's
+class/kind/acquisition and exact source/finished attachment. Missing proof remains
+unavailable; foreign/drift/late-sibling corruption refuses before descriptor.
+Physical coordinates borrow SAME collector/FinishedBindings. Scope: existing
+ordinary_new_local_commit result owner/private child, shared finalized getter,
+required enum consumer plumbing and existing test owners. Whole actual Main/child
+matrix plus Fresh/null order/nested forward and witness/class/kind/Return/Fault
+cleanup negatives are required. Anchored support is never replaced by owned proof.
+Compiled process entry remains I64/Unit until separately closed Object ABI/cleanup
+consumer; child Handle/Nullable physical roles and pending gate switch only after
+whole selected proof+independent physical attachment. Both315/318, full anchored
+lifetime/cleanup, unchanged mimalloc EXE, Gates2-4, migration/retirement/selfcompile
+and final acceptance remain mandatory. Collector closeout is not S0/goal completion.

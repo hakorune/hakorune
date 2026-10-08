@@ -235,7 +235,11 @@ impl OrdinaryNewClaimLedgerV1 {
                         if !super::physical_boundary::check_binding(
                             function, projection, *block, expected,
                         )? {
-                            return Err(freeze("emission-binding-drift"));
+                            return Err(format!(
+                                "{} function={} source={site:?} block={block:?} binding={expected:?}",
+                                freeze("emission-binding-drift"),
+                                function.signature.name,
+                            ));
                         }
                     }
                 }
@@ -367,7 +371,11 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         for (block, expected) in bindings {
             if !super::physical_boundary::check_binding(function, projection, *block, expected)? {
-                return Err(freeze("emission-binding-drift"));
+                return Err(format!(
+                    "{} function={} source={site:?} block={block:?} binding={expected:?}",
+                    freeze("emission-binding-drift"),
+                    function.signature.name,
+                ));
             }
         }
         // An owned object whose residences were never proven has no

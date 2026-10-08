@@ -24,7 +24,9 @@ AppMain passive source and shared Root table preparation are closed.
 Original successful Root Completion and SAME terminal table join atomically.
 Main Direct/Received typed/opaque/zero packet, cleanup and finishing pass;
 selected Received Handle uses the existing shared Object producer owner.
-Next: original Root/child collector preflight before all affine takes/pool moves.
+Original Root/child collector now preflights all sources/cleanup/Birth/identity
+and named rows before affine moves; both wrappers switched, old setter retired.
+Next: checked original Object result descriptor, then compiled Handle/ABI closure.
 Both315/318, anchored lifetime/cleanup, Root ABI and production EXE remain incomplete.
 """
 next_design_card = "none"

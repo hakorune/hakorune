@@ -45,24 +45,7 @@ impl FinalizedRootHandoffV1 {
         &self,
         module: &crate::mir::MirModule,
     ) -> Result<(), String> {
-        for row in self.named_arrays() {
-            let key =
-                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
-            if self
-                .callables()
-                .and_then(|cohort| cohort.completed_result(&key))
-                .map(|result| result.owner())
-                != Some(row.owner())
-            {
-                return Err(crate::mir::named_array_obligation::fault(
-                    "handoff-source-owner-mismatch",
-                ));
-            }
-        }
-        crate::mir::normal_callable_semantic_package::validate_named_array_coverage(
-            module,
-            self.named_arrays(),
-        )
+        validate_named_array_handoff_inputs(module, self.callables(), self.named_arrays())
     }
 
     pub(crate) fn named_arrays(&self) -> &[EmittedNamedArrayRequirementV1] {
@@ -72,25 +55,6 @@ impl FinalizedRootHandoffV1 {
             | Self::NoBirth { named_arrays, .. }
             | Self::Births { named_arrays, .. } => named_arrays,
         }
-    }
-
-    pub(crate) fn with_named_arrays(
-        mut self,
-        rows: Box<[EmittedNamedArrayRequirementV1]>,
-    ) -> Result<Self, String> {
-        let destination = match &mut self {
-            Self::Module { named_arrays, .. }
-            | Self::ScriptArray { named_arrays, .. }
-            | Self::NoBirth { named_arrays, .. }
-            | Self::Births { named_arrays, .. } => named_arrays,
-        };
-        if !destination.is_empty() {
-            return Err(crate::mir::named_array_obligation::fault(
-                "duplicate-handoff",
-            ));
-        }
-        *destination = rows;
-        Ok(self)
     }
 
     pub(crate) fn callables(&self) -> Option<&VerifiedCallableResultContractCohortV1> {
@@ -160,4 +124,26 @@ impl FinalizedRootHandoffV1 {
             Self::Births { keys, .. } => Some(keys),
         }
     }
+}
+
+/// The original cohort lends its rows before an affine handoff consumes them.
+/// Finalized consumers use the same source-owner and physical coverage checks.
+pub(crate) fn validate_named_array_handoff_inputs(
+    module: &crate::mir::MirModule,
+    callables: Option<&VerifiedCallableResultContractCohortV1>,
+    rows: &[EmittedNamedArrayRequirementV1],
+) -> Result<(), String> {
+    for row in rows {
+        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
+        if callables
+            .and_then(|cohort| cohort.completed_result(&key))
+            .map(|result| result.owner())
+            != Some(row.owner())
+        {
+            return Err(crate::mir::named_array_obligation::fault(
+                "handoff-source-owner-mismatch",
+            ));
+        }
+    }
+    crate::mir::normal_callable_semantic_package::validate_named_array_coverage(module, rows)
 }

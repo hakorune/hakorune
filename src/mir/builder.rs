@@ -667,6 +667,8 @@ pub(in crate::mir) use normal_callable_semantic_lowering_state::{ExactLexicalRea
 #[cfg(test)]
 mod lexical_call_projection_test_fixture;
 #[cfg(test)]
+pub(in crate::mir) use lexical_call_projection_test_fixture::document_completion_fixture as lexical_call_projection_document_completion_fixture;
+#[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::fixture as lexical_call_projection_test_fixture;
 
 #[cfg(test)]

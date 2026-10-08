@@ -14,6 +14,40 @@ impl OrdinaryNewClaimLedgerV1 {
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
+        self.validate_call_entry_storage(owner, exit, function, finishing, None, entry, cleanup)
+    }
+
+    /// Root Call storage has already been rebound; its packet keeps original coordinates.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_rebound_call_entry(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
+        original_projection: &super::super::super::physical_boundary::FinishedBindings,
+        entry: &RootHomeExitEntry,
+        cleanup: &[(BasicBlockId, MirInstruction)],
+    ) -> Result<(), String> {
+        self.validate_call_entry_storage(
+            owner,
+            exit,
+            function,
+            None,
+            Some(original_projection),
+            entry,
+            cleanup,
+        )
+    }
+
+    fn validate_call_entry_storage(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
+        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        packet_finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        entry: &RootHomeExitEntry,
+        cleanup: &[(BasicBlockId, MirInstruction)],
+    ) -> Result<(), String> {
         let Some(source) = self.verified_terminal_call_source_v1(owner, exit)? else {
             use crate::mir::resolved_semantics::home_new_prefix::{
                 ObjectReturnAcquisitionV1, TerminalRelationV1, TerminalReturnedSourceV1,
@@ -92,9 +126,15 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_lexical_terminal_packet(owner, exit, packet)?;
             let mut recorded = arguments.clone();
             recorded.extend([invoke.clone(), projection.clone()]);
-            packet.validate_recorded(&recorded)?;
+            packet.validate_recorded_projected(&recorded, packet_finishing)?;
             let (original_invoke, original_projection) = packet.outer_bindings();
-            if original_invoke != invoke || original_projection != projection {
+            let mapped = |original: &(BasicBlockId, MirInstruction)| match packet_finishing {
+                Some(finishing) => finishing
+                    .binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("lexical-terminal/original-outer-drift")),
+                None => Ok(original.clone()),
+            };
+            if mapped(original_invoke)? != *invoke || mapped(original_projection)? != *projection {
                 return Err(freeze("lexical-terminal/original-outer-drift"));
             }
             let arguments = source

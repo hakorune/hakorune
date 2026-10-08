@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 type Binding = (BasicBlockId, MirInstruction);
+use super::super::physical_boundary::FinishedBindings;
 
 #[path = "call_packet_source.rs"]
 mod call_packet_source;
@@ -60,22 +61,31 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
 }
 
 impl PreparedLexicalCallProjectionV1 {
+    #[cfg(test)]
     fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
+        self.validate_recorded_projected(bindings, None)
+    }
+
+    fn validate_recorded_projected(
+        &self,
+        bindings: &[Binding],
+        finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
         if let LexicalReceiverProjectionV1::StoredChild { read, .. } = &self.receiver {
-            require_recorded(bindings, read)?;
+            require_recorded(bindings, read, finishing)?;
         }
         for argument in &self.arguments {
             match argument {
                 LexicalCallArgumentProjectionV1::Integer(binding) => {
-                    require_recorded(bindings, binding)?;
+                    require_recorded(bindings, binding, finishing)?;
                 }
                 LexicalCallArgumentProjectionV1::BorrowedLiteral { binding, .. } => {
-                    require_recorded(bindings, binding)?;
+                    require_recorded(bindings, binding, finishing)?;
                 }
                 LexicalCallArgumentProjectionV1::BorrowedRead { .. } => {}
                 LexicalCallArgumentProjectionV1::Scalar(_) => {}
                 LexicalCallArgumentProjectionV1::CallResult(inner) => {
-                    inner.validate_recorded(bindings)?;
+                    inner.validate_recorded_projected(bindings, finishing)?;
                 }
             }
         }
@@ -382,9 +392,18 @@ impl EmittedLexicalCallProjectionV1 {
     }
 
     pub(in crate::mir) fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
-        require_recorded(bindings, &self.invoke)?;
-        require_recorded(bindings, &self.projection)?;
-        self.prepared.validate_recorded(bindings)
+        self.validate_recorded_projected(bindings, None)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded_projected(
+        &self,
+        bindings: &[Binding],
+        finishing: Option<&FinishedBindings>,
+    ) -> Result<(), String> {
+        require_recorded(bindings, &self.invoke, finishing)?;
+        require_recorded(bindings, &self.projection, finishing)?;
+        self.prepared
+            .validate_recorded_projected(bindings, finishing)
     }
 
     pub(in crate::mir) fn new(
@@ -495,7 +514,19 @@ impl EmittedLexicalCallProjectionV1 {
     }
 }
 
-fn require_recorded(bindings: &[Binding], expected: &Binding) -> Result<(), String> {
+fn require_recorded(
+    bindings: &[Binding],
+    original: &Binding,
+    finishing: Option<&FinishedBindings>,
+) -> Result<(), String> {
+    let mapped = finishing
+        .map(|projection| {
+            projection
+                .binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("lexical-i64/producer-record-drift"))
+        })
+        .transpose()?;
+    let expected = mapped.as_ref().unwrap_or(original);
     if bindings
         .iter()
         .filter(|binding| *binding == expected)
