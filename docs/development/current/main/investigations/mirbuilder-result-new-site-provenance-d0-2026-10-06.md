@@ -958,43 +958,43 @@ Fresh source/arity loan05cacecf80 uses SAME Result, wrong/duplicate rejects.
 OwnedCall retains sealed Leaf DAG; no new solver, pending or anchored permission.
 Closed prerequisites: key6c7d192311, Fresh05cacecf80, splits66574888d1/7114201848, Root source4b9ff8f7bd/a6201577b4 (joins/orphan law); no ABI grant.
 Evidence: /tmp/hako-object-root-key-*, /tmp/hako-result-source-view-*, /tmp/hako-*-owner-move-*, /tmp/hako-root-object-descriptor-*; required runtime/production PASS.
-Exact producers closed: Null81163fc815, Receivede4c7a9a59c, Fresh87a0d0c398.
-SAME source/producer/Return plus independent finished correspondence; Direct packet/order
-and Received destination remain independent. Contracts/runtime/regression/lib evidence
-recover at these commits and /tmp/hako-*-producer-*; unavailable never grants ABI.
-Root ABI Decision (read-only review_cleanup_path): original descriptor + SAME
-finished producer/cleanup/actual MIR -> result_abi(module): Result<Option<_>,String>.
-Every Fresh requires Some allocation/projection; unavailable diagnostics grant no ABI.
-ObjectReturn carries owner/kind, no second class issuer. Wrappers preserve Result;
-process-entry Object explicitly refuses until its selected consumer is closed.
-Birth caller ownership borrows retained Root source.owner, not repeated ABI checking.
-Acceptance: whole Main matrix, Fresh/null orders and late producer drift; existing
-families/guards only. Both315/318, anchored lifetime and full production goals remain.
-Root ABI CLOSED93ac35e5df (pushed): original descriptor/snapshot + exact finished
-producer/cleanup/actual; wrappers preserve Result, Birth source owner, Object entry refuses.
-Focused7 PASS, regression586/587 PASS; clean229ddf39f2 confirms TopLevel BASELINE.
-Full evidence /tmp/hako-root-object-result-abi-* and commit; lib16.80s PASS.
-Next Decision (read-only review_cleanup_path): retain TopLevel scalar input proof in SAME row.
-SAME lowering-input header/selected occurrence/owner/origin/formal bindings return
-Option<nonClone verified input>, not a bool. No Generic G0 header reissuance.
-Move that input through original Completion seed into existing result row.
-Completed context keeps Cataloged Box-formal join; TopLevel requires SAME retained
-input/selected identity/key/owner. Missing/foreign/duplicate refuses; no blanket skip.
-FreeFunction caller attribution uses the row's original TopLevel identity, not fake Cataloged.
-No new class solver/map or collector skip. Plain seed only; New/Map/Home gates unchanged.
-Acceptance: existing free-function production/source/completed-context families.
-Compiled Handle and anchored/production obligations above remain owed.
-TopLevel CLOSED: original header/formals retained with SAME Completion and row;
-completed-context/FreeFunction owner use SAME nonClone input; missing/foreign/duplicate refuse.
-Box parameter join/New/Map gates unchanged; existing pointer/opaque/untyped/local-New/mixed-context pins.
-Focused21 PASS (build5m52s); regression667/670 PASS (1.24s); production check20.74s PASS.
-Three S6C ObjectDefinitionsNotConsumed reds reproduce on saved93ac35e5df binary;
-baseline debt, not waived final acceptance. Earlier THISCHANGE join failure resolved.
-Evidence: /mnt/workdisk/hako-top-level-input-row-{focused,regression,s6c-baseline,production-check}.*.
-Scope/COPY/pointer/fmt/caps/diff/protected7 PASS; no new test names or guards.
+Exact producers closed: Null81163fc815, Receivede4c7a9a59c, Fresh87a0d0c398;
+SAME source/producer/Return and independent finished correspondence; Direct packet/order
+and Received destination independent. Evidence at commits and /tmp/hako-*-producer-*; no unavailable ABI.
+Root ABI Decision recoverable at93ac35e5df: SAME descriptor/finished bindings/actual
+producer/cleanup issue error-preserving result_abi; unavailable grants none.
+Object process entry refuses; Both315/318, anchor lifetime and full production remain owed.
+Root ABI CLOSED93ac35e5df: SAME snapshot/producer/cleanup, errors preserved, Object entry refuses;
+contract/evidence at commit and /tmp/hako-root-object-result-abi-* (7/586-of-587/lib16.80s).
+TopLevel CLOSED6ed65aae53 (pushed): original nonClone source input/SAME Completion row;
+exact header/formals/identity/owner; Box join/New/Map gates unchanged; foreign/missing refuses.
+Full Decision/contract and 21/667-of-670/lib20.74s evidence at commit and
+/mnt/workdisk/hako-top-level-input-row-*. Three S6C reds reproduce on saved93ac35e5df
+binary; baseline debt not waived final acceptance. Compiled/anchored/full goals remain owed.
 Next compiled Handle Decision (read-only review_cleanup_path): existing module-aware
 collector is sole admission owner. Retire two source-only pending-result production
 checks in local_commit/root_validation; retain construction/coverage/finishing.
 All Root/child source/producer/packet/Fault checks precede affine moves and callback.
 Existing child Handle/Nullable positives and missing/drift/cleanup negatives required;
 Root process Object refuses. Anchored315/318 and full production remain owed.
+Compiled consumer: exact Handle -> existing OrdinaryHandle, SAME key/arity/receiver; no widening.
+Compiled Handle WIP: two finishing stops removed; old source helper cfg(test);
+exact Handle/OrdinaryHandle consumer added. Replay/state negatives preserved.
+Check29.06s PASS; focused47366 terminal101 (build5m24s): six preflight PASS,
+new production fixture fails Main local item=maker.relay() at TerminalHomesUnavailable.
+Regression670:666 PASS; three known S6C baseline, one old-stop expectation THISCHANGE.
+Old-stop test now checks collector refusal; maintenance check26.67s PASS, runtime unverified.
+No commit/closeout: production positive remains THISCHANGE incomplete, not baseline-waived.
+Evidence: /mnt/workdisk/hako-compiled-handle-admission-{check,focused,regression-attempt1}.log.
+Next prerequisite Decision (read-only review_cleanup_path): neutral target-only
+project_pending_object_target_arguments_v1 shares old qualified lender, identity-first;
+source observer checks original ObjectProducerDependency/Facts/ClaimLocal, no caller qualification.
+Completed typed/opaque target lenders stay later-phase. SAME callee full-exit checker
+borrows Fresh/OwnedCall Normal teardown, uses existing return_teardown::reduce and
+retains descriptor in SAME Ready ObjectPacketSeal; selected receive replaces Fresh-only loop.
+Preserve unavailable/source-only/Executable/missing/foreign/wrong kind/unsupported teardown refusal.
+Keep exact production fixture unchanged; integrate this source/acquisition dependency first.
+C ordinary_handle consumer still missing; do not claim C/EXE from Rust input/JSON.
+BoxShape prerequisite CLOSED: neutral input lender in borrowed_object_arguments, qualified identity-first/phase/order unchanged.
+Focused13 PASS (build5m08s), packet+maintenance12 PASS, lib17.03s PASS; fmt/scope/COPY/diff/protected7 PASS.
+Evidence /mnt/workdisk/hako-object-target-lender-refactor-*; compiled Handle WIP/failure remain separate, not staged here.

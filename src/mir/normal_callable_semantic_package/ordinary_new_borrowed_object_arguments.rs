@@ -28,16 +28,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
     {
         return Err(freeze("borrowed-call/object-source-identity"));
     }
+    project_pending_object_target_arguments_v1(source, actuals, target)
+}
+
+/// Borrows the exact original target's input phase; grants no result membership.
+/// Qualified callers validate their original qualification before this lender.
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_target_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &PendingBorrowedFormalActualsV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<ObjectCallSourceSupportV1, String> {
+    let site = target.call_site();
     let ingress = source.as_ref().map_err(Clone::clone)?;
-    if let Some(Err(issue)) = actuals.get(loan.call()) {
+    if let Some(Err(issue)) = actuals.get(site) {
         return Err(issue.clone());
     }
-    if let Some(Ok(rows)) = actuals.get(loan.call()) {
+    if let Some(Ok(rows)) = actuals.get(site) {
         if let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &rows.phase {
             let mut original = ingress
                 .source_incoming
                 .exact_rows()
-                .filter(|row| &row.call == loan.call());
+                .filter(|row| &row.call == site);
             let call = original
                 .next()
                 .ok_or_else(|| freeze("borrowed-object/source-row-missing"))?;
@@ -56,10 +67,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
             ));
         }
     }
-    let mut incoming = ingress
-        .incoming
-        .iter()
-        .filter(|row| &row.call == loan.call());
+    let mut incoming = ingress.incoming.iter().filter(|row| &row.call == site);
     let Some(call) = incoming.next() else {
         return Ok(ObjectCallSourceSupportV1::Unavailable);
     };
@@ -69,11 +77,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
     {
         return Err(freeze("borrowed-call/object-source-identity"));
     }
-    if !ingress.definitions.contains_key(&call.callee) || !actuals.contains_key(loan.call()) {
+    if !ingress.definitions.contains_key(&call.callee) || !actuals.contains_key(site) {
         return Ok(ObjectCallSourceSupportV1::Unavailable);
     }
-    let Some((original, arguments)) =
-        lend_pending_borrowed_arguments_v1(source, actuals, loan.call())?
+    let Some((original, arguments)) = lend_pending_borrowed_arguments_v1(source, actuals, site)?
     else {
         return Err(freeze("borrowed-call/object-source-identity"));
     };
