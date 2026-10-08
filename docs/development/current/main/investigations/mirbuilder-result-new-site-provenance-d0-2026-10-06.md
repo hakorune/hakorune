@@ -916,3 +916,12 @@ series acceptance579 distinct PASS (9 focused +570 regression); quick testbuild
 source/binary hashes and execution names. No general Phi substitution, source
 solver, new guard, result ABI or unchanged app EXE grant. Collector cutover and
 self-receiver terminal locator remain separately owned prerequisites/construction.
+
+Self-receiver terminal locator prerequisite closed: the ordinary return shortcut
+consumes the SAME original declared-instance locator at the source row call
+expression before the existing once-only receiver read. Owner/call/receiver
+site+binding/canonical target corroborate; missing/drift/duplicate refuses.
+Lexical/stored receivers retain their existing authority. Existing direct physical
+test now confirms complete locator consumption; the bounded series579 distinct
+PASS and final production/test type-check PASS include this exact implementation.
+No new locator issuer, receiver replay, guard or selected-C capability grant.

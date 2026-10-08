@@ -17,6 +17,32 @@ pub(super) fn emit_terminal_i64_call_exit(
         .ok_or("[freeze:contract][terminal-call/site-missing]")?;
     let stmt_site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone());
     if let Some(row) = ledger.take_borrowed_lexical_call_for_return_v1(owner, &stmt_site)? {
+        if row.source_target().is_self_receiver() {
+            // This terminal shortcut bypasses ordinary method descent. Consume
+            // the original locator at the row's expression site, corroborating
+            // its existing authority without reading the receiver twice.
+            let locator = port
+                .declared_instance_locator
+                .as_ref()
+                .ok_or("[freeze:contract][terminal-call/receiver-locator-missing]")?;
+            locator
+                .take_exact_relation(row.call_site(), |relation| {
+                    if relation.caller_owner() != owner
+                        || relation.call_site() != row.call_site().site()
+                        || relation.receiver_site() != row.receiver_site()
+                        || relation.receiver_binding() != row.receiver_binding()?
+                        || relation.target_key() != row.target()
+                    {
+                        return Err(
+                            "[freeze:contract][terminal-call/receiver-locator-drift]".into()
+                        );
+                    }
+                    Ok(())
+                })
+                .map_err(|error| {
+                    format!("[freeze:contract][terminal-call/receiver-locator/{error:?}]")
+                })?;
+        }
         let state = port
             .callable_ledger
             .as_ref()

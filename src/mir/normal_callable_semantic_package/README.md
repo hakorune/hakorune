@@ -361,6 +361,10 @@ the port lends `DeclaredInstanceCallLocatorViewV1` only within a callback, never
 a clone carried into later lowering. Receiver materialization, target/effect
 reclassification and publication stay downstream. Selected-C remains NoSafeSlice
 until a source-backed capability covers the full relation and lane contract.
+The ordinary terminal-return shortcut also consumes the same original locator
+for a self-receiver, corroborating the exact call/receiver site, binding and
+target before its existing emitter reads the receiver. It issues no new target
+and does not repeat receiver consumption.
 
 A selected top-level `SelectedTopLevelFunctionKeyV1` crosswalks once in the same
 source catalog to the existing FreeFunction key. Normal draft admission and the

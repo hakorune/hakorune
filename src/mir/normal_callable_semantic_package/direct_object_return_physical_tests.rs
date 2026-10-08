@@ -46,6 +46,11 @@ fn direct_object_return_actual_instance_draft_keeps_normal_result_and_prior_home
         })
         .unwrap()
         .expect("same-source Instance relay reaches sole physical owner");
+    assert_eq!(
+        consumed.borrow().len(),
+        locator.row_count(),
+        "terminal shortcut consumes the original declared-instance locator"
+    );
     let results: Vec<_> = function
         .blocks
         .values()
