@@ -727,6 +727,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         &batch,
         &selected,
         &parameter_contracts,
+        &result_contracts,
         &mut ordinary_new_claim_ledger,
     )?;
     let app_main_batch_slot = app_main_identity.as_ref().and_then(|identity| {

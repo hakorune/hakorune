@@ -187,6 +187,22 @@ impl QualifiedStaticCallClaimIndexV1 {
             .map(|((caller, site), row)| (caller, site, row))
     }
 
+    /// Bounded raw-census membership; this does not seed a borrowed definition.
+    pub(super) fn contains_zeroarg_i64_input_target(
+        &self,
+        target: &CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
+        target.arity() == 0
+            && (self.rows.values().any(|(claim, original)| {
+                original == target && claim.required_i64_arguments().is_empty()
+            }) || self.current_owner_rows.values().any(|row| {
+                row.route().target() == target
+                    && matches!(row.result(),
+                        VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments }
+                            if required_i64_arguments.is_empty())
+            }))
+    }
+
     /// Original sealed ExactI64 target membership only; no transport permission.
     pub(super) fn contains_exact_i64_target(
         &self,

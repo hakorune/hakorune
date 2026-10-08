@@ -299,6 +299,37 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
         definitions.insert(contract.owner, (contract, key));
     }
+    // Zero-input Static owners have no borrowed draft. Register only an
+    // original ExactI64 target in this SAME raw census, not transport owners
+    // or Prepared definitions. Every matching caller/error stays below.
+    if let Some(context) = static_context {
+        for contract in contracts.iter().filter(|contract| {
+            contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod
+                && contract.parameters.is_empty()
+        }) {
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+                selected.key_for_batch_slot(contract.batch_slot)
+            else {
+                continue;
+            };
+            if !context.claims.contains_zeroarg_i64_input_target(key) {
+                continue;
+            }
+            if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                || key.arity() != 0
+                || contracts
+                    .iter()
+                    .filter(|row| row.owner == contract.owner)
+                    .count()
+                    != 1
+                || definitions
+                    .insert(contract.owner, (contract, key))
+                    .is_some()
+            {
+                return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+            }
+        }
+    }
     let mut static_observations = BTreeMap::new();
     let mut static_seen = std::collections::BTreeSet::new();
     let mut observations = Vec::new();

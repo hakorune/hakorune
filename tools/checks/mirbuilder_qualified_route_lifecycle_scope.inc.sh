@@ -185,7 +185,10 @@ rg -q 'nullable_field_read_stays_fail_closed' "$BORROWED_SOURCE_PUBLICATION_NEW_
 # and other domains stay rejected.
 BORROWED_SOURCE_PUBLICATION_I64_RESULT_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/borrowed_source_publication_i64_result_tests.rs"
 BORROWED_SOURCE_PUBLICATION_PARAM_FIELD_TESTS="$ROOT_DIR/src/mir/compiler/normal_default_pipeline/published_backend_view/borrowed_source_publication_param_field_tests.rs"
-rg -q 'DeclaredFunctionResultContractV1::Unannotated' "$BORROWED_FORMAL_RESULT_SRC"
+RESULT_DECLARATION_SRC="$ROOT_DIR/src/mir/normal_callable_semantic_package/result_contract.rs"
+rg -q 'DeclaredFunctionResultContractV1::Unannotated' "$RESULT_DECLARATION_SRC"
+rg -q 'fn declared_result_agrees_with_i64_source' "$RESULT_DECLARATION_SRC"
+rg -q 'borrowed.declared_result_agrees_with_i64_source' "$BORROWED_FORMAL_RESULT_SRC"
 rg -q 'proof.contract_corroborated' "$BORROWED_FORMAL_RESULT_SRC"
 rg -q 'borrowed_call_result_accepts_unannotated_complete_i64_source' "$BORROWED_FORMAL_RESULT_TESTS"
 rg -q 'borrowed_call_result_keeps_unannotated_i64_bounded' "$BORROWED_FORMAL_RESULT_TESTS"

@@ -66,6 +66,7 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum BorrowedCallActualEvidencePhaseV1 {
     Executable,
+    ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
 }
@@ -92,7 +93,8 @@ impl PreparedBorrowedCallActualsV1 {
 
     pub(super) fn require_executable_v1(&self) -> Result<(), String> {
         match self.phase {
-            BorrowedCallActualEvidencePhaseV1::Executable => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::Executable
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::SourceObject(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-object-actuals",
             )),
@@ -179,6 +181,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         candidates,
         receiver,
         nullable_class,
+        None,
     )
 }
 
@@ -262,6 +265,7 @@ fn construct_borrowed_call_actuals_v1(
     candidates: &[super::super::candidate::OrdinaryNewCandidate],
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
+    static_zero: Option<static_input_finish::StaticZeroInputFinishV1>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let mut callee_contracts = contracts
         .iter()
@@ -285,7 +289,13 @@ fn construct_borrowed_call_actuals_v1(
     if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
         &incoming_row.source
     {
-        original.require_qualified()?;
+        if let Some(finish) = &static_zero {
+            if !finish.corroborates_source_v1(original) {
+                return Err(freeze("static-zero/input-finish-source-drift"));
+            }
+        } else {
+            original.require_qualified()?;
+        }
         let retained = prepared
             .source_incoming
             .static_observations()
@@ -523,7 +533,10 @@ fn construct_borrowed_call_actuals_v1(
         })
         .collect::<Result<Vec<_>, String>>()?;
     Ok(Some(PreparedBorrowedCallActualsV1 {
-        phase: BorrowedCallActualEvidencePhaseV1::Executable,
+        phase: match static_zero {
+            Some(finish) => BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(finish),
+            None => BorrowedCallActualEvidencePhaseV1::Executable,
+        },
         opaque_actuals: rows.into_boxed_slice(),
         ordered_arguments: ordered_arguments.into_boxed_slice(),
     }))
@@ -710,6 +723,15 @@ pub(in crate::mir::normal_callable_semantic_package) use object_arguments::{
 
 #[path = "ordinary_new_borrowed_object_source_actuals.rs"]
 mod object_source;
+
+enum TypedInputClosureV1 {
+    Pending,
+    Refused(String),
+    Ready(Vec<(OwnedExprSiteV1, PreparedBorrowedCallActualsV1)>),
+}
+
+#[path = "ordinary_new_borrowed_static_input_finish.rs"]
+mod static_input_finish;
 
 #[path = "ordinary_new_borrowed_object_input_finish.rs"]
 mod object_input_finish;

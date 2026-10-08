@@ -122,15 +122,7 @@ impl OrdinaryNewClaimLedgerV1 {
             // permission. The nullable lane keeps its unannotated declaration
             // plus the sealed `NullableObject` claim.
             let result_agrees = match class {
-                BorrowedResultClassV1::I64 => {
-                    row.result()
-                        == Some(crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64)
-                        || (row.result().is_none()
-                            && matches!(
-                                completion.function_exit_contract().declared_result(),
-                                crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1::Unannotated
-                            ))
-                }
+                BorrowedResultClassV1::I64 => borrowed.declared_result_agrees_with_i64_source(),
                 BorrowedResultClassV1::Nullable => {
                     row.result().is_none()
                         && matches!(

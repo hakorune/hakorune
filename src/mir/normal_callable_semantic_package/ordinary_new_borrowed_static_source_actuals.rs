@@ -7,9 +7,9 @@ use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
-    source: Rc<StaticIncomingSourceV1>,
-    candidates: Box<[BorrowedCallActualCandidateV1]>,
-    integer_evidence: Box<[bool]>,
+    pub(super) source: Rc<StaticIncomingSourceV1>,
+    pub(super) candidates: Box<[BorrowedCallActualCandidateV1]>,
+    pub(super) integer_evidence: Box<[bool]>,
 }
 
 impl PartialEq for StaticSourceActualIdentityV1 {
@@ -27,13 +27,19 @@ pub(super) fn prepare_static_source_actuals_v1(
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
-    // This source-only protocol uses original opaque-argument facts. Final
-    // incoming sites use the executable actual constructor before this branch.
-    if !prepared
+    // A zero-input CurrentOwner call retains the SAME original source without
+    // inventing an opaque-argument fact. It is still SourceStatic, not Ready.
+    let opaque_source = prepared
         .static_arguments
         .keys()
-        .any(|(site, _)| site == call)
-    {
+        .any(|(site, _)| site == call);
+    let zero_source = prepared
+        .source_incoming
+        .static_observations()
+        .get(call)
+        .and_then(|row| row.as_ref().ok())
+        .is_some_and(|source| source.is_zeroarg_i64_v1());
+    if !opaque_source && !zero_source {
         return Ok(None);
     }
     let source = prepared

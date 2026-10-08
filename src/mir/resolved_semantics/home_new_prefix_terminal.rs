@@ -98,6 +98,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 statement.site(),
                 homes,
                 static_call,
+                borrowed_actuals,
             )? {
                 if !calls.is_empty() {
                     static_terminal = Some(

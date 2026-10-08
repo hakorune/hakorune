@@ -15,6 +15,10 @@ pub(super) fn observe_scalar_expression<E>(
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
     let mut requests = Vec::new();
     let mut calls = Vec::new();
@@ -48,6 +52,9 @@ pub(super) fn observe_scalar_expression<E>(
     }
     // Publish only after the whole original expression is proved. A rejected
     // right sibling or field batch never leaves a partial call observation.
+    for call in &calls {
+        borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+    }
     Ok(Some((kind, calls)))
 }
 

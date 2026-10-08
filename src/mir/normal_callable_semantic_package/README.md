@@ -134,10 +134,28 @@ and every loan checks it before lookup, including calls with no retained argumen
 fact. CurrentOwner additionally corroborates CanonicalMe and
 the original same static owner/result row. Every context remains in the census.
 Opaque argument facts and source graph loans keep the same original `Rc`.
-CurrentOwner is source-only: a callee with any CurrentOwner incoming cannot be
-seeded by a Qualified sibling. Executable actuals, publication handoff, selected
-sites and physical packets require the original Qualified route; noninitializer
-and USIZE exclusions remain unchanged. No source row grants an entry or ABI.
+CurrentOwner borrowed/nonzero-input entry is source-only: a Qualified sibling
+cannot seed it. Publication handoff, selected sites and physical packets still
+require the original Qualified route. Noninitializer/USIZE exclusions in that
+borrowed entry remain unchanged. No source observation grants an entry or ABI.
+
+The bounded zero-input ExactI64 law stages `SourceStatic` from the same original
+inventory Rc, even with no opaque-argument fact. After original signature issue,
+the existing actuals owner closes ALL raw callee rows and vetoes against selected
+identity, Static receiver/formal/callable lane counts0, original source-I64 result
+and SAME result/indexed callee Completion Rc with complete value-return exits.
+The original result row stays Unannotated or exact `: i64`; the shared declaration
+agreement excludes Void and does not infer I64 from `None`. It regenerates actuals through the common
+constructor only with a private completed-input loan. `ExecutableStaticZero`
+retains original source and Completion in the existing actual row. Missing rows
+keep the whole cohort pending; original errors and duplicate/identity drift
+refuse before any replacement. This creates no empty borrowed entry or parallel
+permission table. The demand-time lender rechecks every raw sibling and original
+Rc/Completion/phase/ordered snapshot; source-only, missing or replaced siblings
+cannot lend executable inputs. Caller observations are issued atomically after
+whole scalar-tree preflight, including original call children in conditions and
+returns. Input finishing alone grants no publication, Invoke or ABI permission;
+CurrentOwner packet cutover and original guarded Mul acceptance remain required.
 
 
 The same index issuer retains original `CurrentOwnerStatic` routes separately
@@ -166,7 +184,9 @@ Unavailable proof retains the caller veto, and conflicting proofs reject.
 
 Final Static actuals require the same inventory Rc, full contract and ordered
 argument coordinates. Their explicit Executable projector uses the existing
-actual proof; SourceStatic is never promoted. Required-I64 ordinals still demand
+actual proof; opaque SourceStatic agreement alone never promotes it. The bounded
+zero-input regeneration above requires its separate full input closure.
+Required-I64 ordinals still demand
 Integer agreement independently of Bool/null transport. On successful final
 closure only, exact Static incoming sites extend the same dispatch set to Main
 literals and the canonical verified walk retains real Completion. Entry loans

@@ -53,6 +53,21 @@ impl StaticIncomingSourceV1 {
     pub(in crate::mir) fn is_qualified(&self) -> bool {
         matches!(self.route, StaticIncomingRouteV1::Qualified(_))
     }
+    /// Exact source-only zero-input I64 law; no entry or packet permission.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_zeroarg_i64_v1(&self) -> bool {
+        self.target.arity() == 0
+            && self.argument_sites.is_empty()
+            && self.parameters.is_empty()
+            && match &self.route {
+                StaticIncomingRouteV1::Qualified(claim) => {
+                    claim.required_i64_arguments().is_empty()
+                }
+                StaticIncomingRouteV1::CurrentOwner(row) => matches!(row.result(),
+                    VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments }
+                        if required_i64_arguments.is_empty()),
+            }
+    }
+
     pub(in crate::mir) fn require_qualified(&self) -> Result<(), String> {
         if self.is_qualified() {
             Ok(())

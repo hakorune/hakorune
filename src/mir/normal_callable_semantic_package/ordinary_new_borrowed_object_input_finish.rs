@@ -9,12 +9,6 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use std::collections::BTreeSet;
 
-enum TypedInputClosureV1 {
-    Pending,
-    Refused(String),
-    Ready(Vec<(OwnedExprSiteV1, PreparedBorrowedCallActualsV1)>),
-}
-
 #[cfg(test)]
 #[path = "ordinary_new_borrowed_object_input_finish_tests.rs"]
 mod tests;
@@ -309,6 +303,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         &[],
                         None,
                         &mut |_| None,
+                        None,
                     )?
                     .ok_or_else(|| freeze("object-input/constructor-unavailable"))?;
                     if regenerated.ordered_arguments != actuals.ordered_arguments {

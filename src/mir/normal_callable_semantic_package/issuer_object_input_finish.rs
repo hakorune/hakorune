@@ -9,6 +9,7 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
+    results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ledger: &mut OrdinaryNewClaimLedgerV1,
 ) -> Result<VerifiedCallablePhysicalSignatureCohortV1, NormalCallableSemanticPackageIssueV1> {
     let signature = issue_callable_physical_signature_v1(brand, batch, selected, contracts)
@@ -17,6 +18,11 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         )?;
     ledger
         .finish_typed_object_input_actuals_v1(selected, contracts, &signature)
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
+    ledger
+        .finish_static_zero_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;

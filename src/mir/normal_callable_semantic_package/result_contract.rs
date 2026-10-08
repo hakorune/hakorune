@@ -173,6 +173,23 @@ impl<'a> CallableResultContractRefV1<'a> {
         self.result
     }
 
+    /// Corroborate a source-proven I64 class without manufacturing an annotation.
+    /// This is declaration agreement only; the caller must retain its original
+    /// complete source/result proof. None alone never proves I64 or excludes Unit.
+    pub(super) fn declared_result_agrees_with_i64_source(&self) -> bool {
+        match (
+            self.result,
+            self.completion.function_exit_contract().declared_result(),
+        ) {
+            (
+                Some(ExactTrivialScalarAbiV1::I64),
+                DeclaredFunctionResultContractV1::Annotated(name),
+            ) => ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
+            (None, DeclaredFunctionResultContractV1::Unannotated) => true,
+            _ => false,
+        }
+    }
+
     #[cfg(test)]
     pub(crate) fn declared_result(&self) -> &DeclaredFunctionResultContractV1 {
         self.completion.function_exit_contract().declared_result()

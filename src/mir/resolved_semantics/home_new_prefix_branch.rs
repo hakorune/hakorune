@@ -418,6 +418,7 @@ pub(super) fn observe_if_statement<'a, E>(
             statement.site(),
             homes,
             local_static_call,
+            borrowed_actuals,
         )? {
             path_calls.extend(calls.iter().map(|call| call.site().clone()));
             local_calls.extend(calls);
