@@ -1,6 +1,6 @@
 ---
-Status: Active for unmigrated docs-lifecycle clauses; work-mode and entry rules superseded
-Date: 2026-09-01
+Status: Active for unmigrated docs-lifecycle clauses; execution/test/proof rules superseded
+Date: 2026-10-08
 Scope: current docs update policy for restart/current-lane pointers.
 Related:
   - docs/development/RULES.md
@@ -21,7 +21,7 @@ Related:
 
 > [!IMPORTANT]
 > **規則移行（2026-09-23）**: lane選択・作業モード・スライス運用・建設と退役の証明条件は [`docs/development/RULES.md`](../../../RULES.md) が正本。
-> この文書は具体的な文書lifecycle・registry・specialized validation clausesだけを個別移行まで所有する。旧lane taxonomyやper-turn sequenceは選択規則として使わず、RULESと競合する箇所ではRULESを優先する。
+> この文書は具体的な文書lifecycle・registry・specialized validation clausesだけを個別移行まで所有する。テスト再利用・guard増設・一時proof退役の運用もRULES第6節へ移行済み（2026-10-08）。旧lane taxonomyやper-turn sequenceは選択規則として使わず、RULESと競合する箇所ではRULESを優先する。
 
 ## Current Capsule
 
@@ -68,63 +68,18 @@ them without updating this policy and `CURRENT_STATE.toml`.
 
 ### Operational mode rule
 
-To keep the rules usable, every active turn is classified as exactly one of
-three modes:
-
-```text
-Fast path    = closed mapping; reuse one owner; edit/test/close
-Design stop  = open mapping or authority; brief only; no code/fixture/fallback
-Closeout     = classify evidence; update owner docs; commit/push or retain blocker
-```
-
-The mode is selected before editing by the explicit
-`CURRENT_STATE.toml.work_mode` scalar (`fast`, `design_stop`, or `closeout`).
-`current_blocker_token` and `current_design_stop` are explanatory pointers,
-not classifiers. A worker review, local test, or legacy parity result is
-evidence for the mode decision, not permission to cross it. This prevents a
-small green probe from silently becoming a production claim.
+Superseded by [RULES §2–3](../../../RULES.md#2-作業の入口と単位).
+CURRENT_STATE selects the mode; this document does not issue execution permission.
 
 ### Implementation entry and retirement conditions
 
-One responsibility has one authority/owner and a finite set of named real
-callers. Several callers may share that owner and contract; neither caller
-count nor a shared file implies competing authority. Inventory the affected
-callers and keep their input, failure and ownership contracts explicit.
-
-| Action | Required before implementation | Required before closeout/deletion |
-| --- | --- | --- |
-| Promote | source authority/issuer, settled result/effect/ABI mapping, named consumer to implement or connect, affected callers, rejection boundary, planned old-edge deletion and acceptance | production switch, positive/negative evidence, selected old-edge retirement |
-| Stop | existing boundary owner and callers, justified reject/isolation contract, planned retry/dispatch deletion and acceptance | rejection before effect/artifact, no retry, selected old edge removed; no new source issuer or backend parity required |
-| Delete | selected old asset has zero callers, or callers are switched/stopped earlier in this same bounded series | zero callers at physical removal; shared assets remain until their other callers are resolved |
-
-The new implementation, its after-change tests, and resulting caller-zero are
-outputs of migration, not prerequisites for beginning it. A planned delete-set
-names the exact old responsibility/edge; it need not cover the entire shared
-file or schema. Do not delete supported callers merely to manufacture zero.
-Keep selected old-edge retirement in the same bounded series.
+Superseded by [RULES §4](../../../RULES.md#4-建設と旧経路退役の証明タイミング).
+Construction requirements and later cutover/deletion evidence have one owner.
 
 ### Asymmetric construction and retirement rigor
 
-Apply the proof at the phase where it is needed; do not make implementation
-wait for evidence that only the implementation can produce.
-
-- **Construction / Promote:** once the entry row fixes the source authority and
-  issuer, result/control/effect/ABI mapping, named consumer and affected
-  callers, fail-fast boundary, intended old edge, and acceptance, implement
-  within the selected `fast` slice. Focused positive and negative tests are
-  produced with the implementation and may guide corrections inside that
-  bounded mapping. Do not require physical completion, post-change test
-  results, production caller-zero, or retirement evidence before starting.
-- **Cutover / retirement:** keep the stronger proof at the irreversible edge.
-  Before physically deleting an old branch, show that its callers have switched
-  or stopped in this same bounded series and that the selected edge has zero
-  remaining callers. Preserve shared code still used by other callers; run the
-  selected acceptance and guard before closeout.
-- A green focused test proves only its covered behavior. It does not by itself
-  prove production selection, caller cutover, retirement, or overall
-  completion. This rule changes proof timing, not semantic authority: it does
-  not permit guessed source meaning, a new unconsumed receipt, weaker
-  fail-fast behavior, or skipping source-to-Recipe co-sealing.
+Superseded by [RULES §4–5](../../../RULES.md#4-建設と旧経路退役の証明タイミング).
+The complete former execution procedure remains in Git history.
 
 Public API retention and caller-local migration are separate decisions. `pub`,
 a public re-export, and exported C symbols establish reachability; absent
@@ -135,31 +90,6 @@ observed callers, promised compatibility, and unknown readers separately;
 unknown readers constrain whole-API deletion, not unrelated internal migration.
 A planned delete-set may be the shared owner's old implementation edge after
 all affected callers switch together; it need not be private to one caller.
-
-`design_stop` pauses code/fixture/production changes while the missing design
-is resolved. First select a real caller and old responsibility as the bounded
-design target; that selection does not require an already-complete successor
-and does not grant implementation permission. Then close its specific missing
-contract in the existing owner card, using an independent worker for difficult
-design. Record the accepted target and next unresolved contract so a restart
-does not repeat target selection. Settled source/control/result/effect/ABI and
-a planned consumer, deletion and acceptance permit implementation; actual
-physical completion, after-change test results and caller-zero are later
-outputs. Missing internal implementation is not an external dependency. If a
-parked row requires its own outputs to reopen, correct that premise rather
-than repeat its census.
-External wait requires a concrete dependency outside the authorized work,
-the decision or resource needed from its owner, and why no authorized internal
-step can resolve it. Apply the [family scheduler](agent-current-entry-contract-ssot.md#family-local-action-scheduler)
-before escalating; an unimplemented design or hypothetical external user is
-not sufficient evidence of such a dependency.
-
-Once the design is accepted, select the bounded implementation in
-`CURRENT_STATE.toml` when implementation is within the user's requested scope;
-do not request the same approval again. Honor an explicit design-only stop.
-Goal status follows the session's goal-tool contract: design_stop alone proves
-neither completion nor blocked status; the full objective and repeated-blocker
-conditions still apply.
 
 ### Source-backed semantic receipt gate
 
@@ -260,8 +190,9 @@ Rules:
   - docs-sh hygiene: docs/index/current-state guard
 - add a new shell guard only when it will be reused or when it validates real
   code/perf behavior that cannot be covered by an existing lane guard;
-- historical row guards remain callable for traceability, but new current work
-  should not keep extending the per-row guard list;
+- historical traceability is not a permanent executable caller. Apply RULES
+  §4/§6 to selected guard retirement; retain required compatibility navigation
+  under the existing tombstone policy;
 - `docs/tools/check-scripts-index.md` should document stable public entries,
   not every one-off diagnostic probe;
 - no fast path lane opens unless current mimalloc perf evidence names a
@@ -521,58 +452,17 @@ A one-line accessor can therefore be T2 when its constructor or foreign-ID
 surface is unclassified, while an `I0`-named private move can be T0. Do not
 infer ceremony from `R0`/`S0`/`I0` spelling.
 
-When the same owner-chain pattern appears in two routes, the next repeated
-route is a **batch-proof trigger**. Before adding a third hand-expanded cell,
-define one generic proof parameterized by a route specification. Preserve
-route-specific semantic witnesses; genericize transport and lifecycle only.
-Do not use a generic wrapper to hide a real policy difference.
+### Test reuse and temporary proof retirement
 
-Every disconnected proof, parity fixture, compatibility adapter, or temporary
-guard must carry a sunset record with all four fields:
-
-```text
-sunset_id
-owner of the retirement decision
-retirement condition (normally production caller count = 0)
-target row/card and evidence required for deletion
-```
-
-“Delete later” without these fields is not a retirement plan. A proof-only
-addition may be accepted before its deletion row lands when production safety
-requires the scaffold, but the active card must reserve that deletion row and
-state the zero-consumer evidence. Repeated net additions with no retired
-scaffold are a cleanup/design-review trigger, not a reason to relax the
-contract.
-
-A durable T0 refactor that adds no disconnected or temporary proof records
-uses `sunset = n/a` and `net_proof_delta = 0`; it does not invent placeholder
-retirement metadata. The full sunset record above is mandatory only when a
-temporary/disconnected proof, adapter, fixture, or guard is added or retained.
-
-When a row changes temporary proof scaffolding, record these fields in the
-existing reusable proof inventory or guard metadata:
-
-```text
-ceremony_tier
-sunset_id
-proof_inventory_before
-new_proofs
-retired_or_merged_proofs
-net_proof_delta
-sunset_budget
-sunset_row
-retire_when
-budget_repayment_evidence
-```
-
-The execution brief names only the `sunset_id` and material retirement
-condition; it does not duplicate the inventory. The default target is
-`net_proof_delta <= 0`. A positive delta is allowed only
-for a T2 safety/ABI boundary and must name the sunset budget, repayment row,
-retirement condition, and evidence that will repay it. Mechanical cells may
-use the batch template and skip consultation, but they still need a focused
-fixture, an existing batch/lane guard assertion, and sunset metadata. A
-fast-path ceremony compresses repeated proof; it never waives proof.
+Execution policy is owned by [RULES §6](../../../RULES.md#6-テストと計算資源).
+Use existing tests/fixtures/family guards first; preserve independent obligations
+and necessary case selection. Temporary assets use their existing card/metadata
+for owner, canonical replacement, retire_when and deletion evidence.
+The former ten-field proof ledger and default net_proof_delta procedure are
+superseded; existing artifact/schema inventories keep their own typed contracts.
+Durable meaning/safety tests remain evidence rather than temporary scaffolding.
+Selected exclusive assets retire through RULES §4; no new proof ledger or guard
+is required to validate this operational policy.
 
 ## Active Docs Size Policy
 
@@ -589,10 +479,9 @@ named retention owner and is never an active restart entrypoint.
 `mirbuilder-rust-to-hako-converter-task-order-ssot.md` retains its tighter
 400-line / 500-character-per-line guard.
 
-For source code, use the earlier design trigger owned by
-`agent-current-entry-contract-ssot.md`: 760 lines requires a responsibility
-split plan before semantic growth, while 800 lines remains the hard boundary.
-Formatting compression is never an acceptable line-count fix.
+Source size and responsibility splitting are owned by
+[RULES §8](../../../RULES.md#8-コードの衛生); this policy does not issue a second
+source-size rule.
 
 ## Active SSOT Header Policy
 
