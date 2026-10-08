@@ -5,6 +5,7 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   size_t count = fn->block_count;
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary_map = lv4_is(fn->function, "role", "ordinary_map");
+  int ordinary_handle = lv4_is(fn->function, "role", "ordinary_handle");
   int ordinary_nullable = lv4_is(fn->function, "role", "ordinary_nullable_handle");
   if (ordinary_map && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -15,6 +16,16 @@ static int lv4_indexed_return(const hako_lv4_input* in,
     state[result->origin] = 0;
     for (size_t i = 0; i < count; i++)
       if (state[i] == result->origin + LV4_TRANSFER_BASE) state[i] = 0;
+  }
+  if (ordinary_handle && lv4_is(term, "op", "return")) {
+    hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
+    /* Identity is independently checked; only an owned LIVE lease transfers.
+     * Null and borrowed handles never satisfy this nonnullable result role. */
+    if (faulted || !result || result->kind != LV4_HANDLE || !result->object_id_set ||
+        fn->return_object_state != 2 || result->object_id != fn->return_object ||
+        result->origin < 0 || (size_t)result->origin >= count ||
+        state[result->origin] != LV4_LIVE) return 0;
+    state[result->origin] = 0;
   }
   if (ordinary_nullable && lv4_is(term, "op", "return")) {
     hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
@@ -34,5 +45,5 @@ static int lv4_indexed_return(const hako_lv4_input* in,
   hako_lv4_value* result = lv4_index_value(fn, lv4_u(term, "value"));
   return !faulted && result &&
       result->kind == (birth ? LV4_UNIT : ordinary_map ? LV4_MAP :
-          ordinary_nullable ? LV4_HANDLE : LV4_I64);
+          (ordinary_handle || ordinary_nullable) ? LV4_HANDLE : LV4_I64);
 }

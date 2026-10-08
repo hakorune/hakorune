@@ -120,6 +120,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   int birth = lv4_is(fn, "role", "birth_unit");
   int ordinary_map = lv4_is(fn, "role", "ordinary_map");
   int ordinary = lv4_is(fn, "role", "ordinary_i64") || ordinary_map ||
+      lv4_is(fn, "role", "ordinary_handle") ||
       lv4_is(fn, "role", "ordinary_nullable_handle");
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);

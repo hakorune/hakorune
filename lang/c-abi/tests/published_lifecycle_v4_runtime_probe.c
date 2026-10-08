@@ -4,12 +4,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../../include/nyrt_fault_v1.h"
+#ifdef HAKO_TEST_OWNED_CALL_RESULT
+#include <assert.h>
+static unsigned new_attempts, acquired, freed;
+static int64_t handles[256], types[256];
+static unsigned char live[256];
+#endif
 
 static unsigned init, stores, home, reclaim, report, dispose;
 static const char* mode;
 static void counts(void) {
   printf("COUNTS %u %u %u %u %u %u\n", init, stores, home, reclaim, report, dispose);
+#ifdef HAKO_TEST_OWNED_CALL_RESULT
+  assert(acquired == freed);
+  printf("OWNED %u %u %u\n", new_attempts, acquired, freed);
+#endif
 }
+#ifdef HAKO_TEST_OWNED_CALL_RESULT
+uint32_t real_new(void*,uint32_t,uint64_t,int64_t,const uint32_t*,size_t,int64_t*)
+    __asm__("__real_nyash.object.checked_new_v1");
+uint32_t wrap_new(void*,uint32_t,uint64_t,int64_t,const uint32_t*,size_t,int64_t*)
+    __asm__("__wrap_nyash.object.checked_new_v1");
+uint32_t wrap_new(void* f,uint32_t p,uint64_t s,int64_t t,const uint32_t* l,size_t n,int64_t* out) {
+  ++new_attempts;
+  const char* fault = getenv("V4_PROBE_NEW_FAULT_AT");
+  if (fault && new_attempts == strtoul(fault, NULL, 10))
+    return nyrt_fault_record_static_v1(f, 101, s, t, 0);
+  uint32_t rc = real_new(f,p,s,t,l,n,out);
+  assert(!rc && acquired < 256);
+  handles[acquired] = *out; types[acquired] = t; live[acquired++] = 1;
+  return rc;
+}
+#endif
 uint32_t real_init(void*) __asm__("__real_nyash.fault.frame_init_v1");
 uint32_t wrap_init(void*) __asm__("__wrap_nyash.fault.frame_init_v1");
 uint32_t wrap_init(void* frame) {
@@ -37,7 +63,22 @@ uint32_t real_home(void*,uint32_t,uint64_t,int64_t,int64_t)
 uint32_t wrap_home(void*,uint32_t,uint64_t,int64_t,int64_t)
     __asm__("__wrap_nyash.object.home_release_plain_i64_v1");
 uint32_t wrap_home(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t) {
-  home++; return real_home(f,p,s,h,t);
+  home++;
+#ifdef HAKO_TEST_OWNED_CALL_RESULT
+  unsigned i = acquired;
+  while (i && (!live[i-1] || handles[i-1] != h)) --i;
+  assert(i && types[i-1] == t);
+  uint32_t rc = real_home(f,p,s,h,t);
+  assert(!rc);
+  live[i-1] = 0; ++freed;
+  /* This cleanup operation consumes the lease on both status edges. */
+  const char* fault = getenv("V4_PROBE_HOME_FAULT_AT");
+  if (fault && home == strtoul(fault, NULL, 10))
+    return nyrt_fault_record_static_v1(f, 102, s, h, 0);
+  return rc;
+#else
+  return real_home(f,p,s,h,t);
+#endif
 }
 uint32_t real_reclaim(void*,uint32_t,uint64_t,int64_t,int64_t)
     __asm__("__real_nyash.object.reclaim_unpublished_v1");

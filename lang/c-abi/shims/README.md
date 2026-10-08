@@ -627,5 +627,16 @@ Rules:
   values are exactly `1`, `on`, `true`, and `yes`; other values are false.
 
 Indexed lifecycle Return/Fault completion lives in the private `indexed_return`
-child of `indexed_flow`. The flow owner lends its checked lease state; role
-selection, return transfer and failure order are unchanged by this split.
+child of `indexed_flow`. The flow owner lends its checked lease state.
+For `ordinary_handle`, the independent C input index checks the exact original
+New/Copy/Call Normal-result definition and every callee Normal Return after all
+function indexes are complete. The private `indexed_object_result` child rejects
+cycles, missing/foreign landings, null or borrowed returns, and object disagreement.
+A separate known bit distinguishes legitimate object ID zero from an unknown ID;
+release rows never supply identity, and Birth receivers require a known identity.
+The summary grants correspondence only: existing flow must independently prove
+an owned LIVE lease. Return transfers it on Normal; Fault preserves caller unwind.
+Handle PHI and nullable result identity inference remain outside this admission.
+The existing call-result execution family accepts `owned` mode for the original
+sixteen typed/opaque JSON variants, exact-role/identity/landing/Return refusals,
+and allocation/cleanup Fault injection against the actual lifecycle archive.

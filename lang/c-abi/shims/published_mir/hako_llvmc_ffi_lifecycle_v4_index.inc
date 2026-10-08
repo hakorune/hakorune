@@ -2,7 +2,8 @@
 typedef struct {
   uint32_t id, object_id;
   yyjson_val* instruction;
-  int kind, origin;
+  yyjson_val* definition_block;
+  int kind, origin, object_id_set;
   size_t kind_parent;
 } hako_lv4_value;
 
@@ -20,6 +21,8 @@ typedef struct hako_lv4_function_index {
   size_t block_count;
   uint32_t receiver_object;
   int receiver_object_set;
+  uint32_t return_object;
+  int return_object_state;
 } hako_lv4_function_index;
 
 typedef struct hako_lv4_layout_index {
@@ -77,7 +80,8 @@ static int lv4_operation_result(yyjson_val* op) {
        live object or the Void sentinel and owns the caller one checked
        release. */
     return lv4_is(op, "result", "map") ? LV4_MAP
-        : lv4_is(op, "result", "nullable_handle") ? LV4_HANDLE : LV4_I64;
+        : (lv4_is(op, "result", "handle") || lv4_is(op, "result", "nullable_handle"))
+            ? LV4_HANDLE : LV4_I64;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
@@ -130,6 +134,7 @@ static int lv4_index_seed(const hako_lv4_input* in,
     if (!sealed) return 0;
     if (sealed > 0) {
       value->kind = LV4_HANDLE; value->origin = -2; value->object_id = child;
+      value->object_id_set = 1;
     } else value->kind = LV4_I64;
   }
   else if (lv4_is(ins, "op", "const_bool") || lv4_is(ins, "op", "compare") ||
@@ -148,7 +153,9 @@ static int lv4_index_seed(const hako_lv4_input* in,
     if (!block || !op) return 0;
     value->kind = lv4_operation_result(op);
     value->origin = (int)block->ordinal;
-    if (lv4_is(op, "kind", "new_box")) value->object_id = lv4_u(op, "object_id");
+    if (lv4_is(op, "kind", "new_box")) {
+      value->object_id = lv4_u(op, "object_id"); value->object_id_set = 1;
+    }
   }
   return value->kind != LV4_BAD || lv4_is(ins, "op", "copy") || lv4_is(ins, "op", "phi");
 }
@@ -216,6 +223,7 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     }
     value->origin = source->origin;
     value->object_id = source->object_id;
+    value->object_id_set = source->object_id_set;
   }
   return 1;
 }
@@ -228,6 +236,8 @@ static void lv4_index_close(hako_lv4_input* in) {
   free(in->index); in->index = NULL; in->index_count = 0;
   free(in->layouts); in->layouts = NULL; in->layout_count = 0;
 }
+
+#include "hako_llvmc_ffi_lifecycle_v4_indexed_object_result.inc"
 
 static int lv4_index_open(hako_lv4_input* in) {
   size_t functions = yyjson_arr_size(in->functions);
@@ -258,6 +268,7 @@ static int lv4_index_open(hako_lv4_input* in) {
     int birth = lv4_is(body, "role", "birth_unit");
     int ordinary = lv4_is(body, "role", "ordinary_i64") ||
         lv4_is(body, "role", "ordinary_map") ||
+        lv4_is(body, "role", "ordinary_handle") ||
         lv4_is(body, "role", "ordinary_nullable_handle");
     int ordinary_receiver = ordinary && yyjson_is_uint(yyjson_obj_get(body, "receiver"));
     yyjson_val* blocks = hako_physical_blocks(body);
@@ -276,7 +287,7 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (ordinary_receiver) {
         if (!yyjson_is_uint(yyjson_obj_get(body, "receiver_object")) ||
             !lv4_layout(in, lv4_u(body, "receiver_object"))) return 0;
-        receiver->object_id = lv4_u(body, "receiver_object");
+        receiver->object_id = lv4_u(body, "receiver_object"); receiver->object_id_set = 1;
         fn->receiver_object = receiver->object_id;
         fn->receiver_object_set = 1;
       }
@@ -309,7 +320,8 @@ static int lv4_index_open(hako_lv4_input* in) {
         if (!dst) continue;
         if (fn->value_count == capacity) return 0;
         hako_lv4_value* value = &fn->values[fn->value_count++];
-        value->id = (uint32_t)yyjson_get_uint(dst); value->instruction = ins; value->origin = -1;
+        value->id = (uint32_t)yyjson_get_uint(dst); value->instruction = ins;
+        value->definition_block = block; value->origin = -1;
       }
     }
     if (in->measurement) in->measurement->v4_index_values += fn->value_count;
@@ -321,7 +333,7 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
     if (!lv4_index_kinds(in, fn)) return 0;
   }
-  return 1;
+  return lv4_index_owned_results(in);
 }
 
 static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value) {

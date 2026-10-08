@@ -5,7 +5,7 @@ enum { LV4_FLOW_RECEIVER_MISMATCH = -2 };
 static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
     const uint16_t* state, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
-  if (!value || value->kind != kind || (check_object && value->object_id != object)) return 0;
+  if (!value || value->kind != kind || (check_object && (!value->object_id_set || value->object_id != object))) return 0;
   /* Borrowed operand (-2): a receiver handle lives for the whole call. */
   if (value->origin == -2) return kind == LV4_HANDLE;
   return value->origin >= 0 && state[value->origin] == LV4_LIVE;
@@ -56,6 +56,7 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
      transport is identical; only the result lane differs. */
   if (!value || value->kind != LV4_TAGGED || !fn->receiver_object_set ||
       (!lv4_is(fn->function, "role", "ordinary_i64") &&
+       !lv4_is(fn->function, "role", "ordinary_handle") &&
        !lv4_is(fn->function, "role", "ordinary_nullable_handle"))) return 0;
   hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
@@ -290,6 +291,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   int birth = lv4_is(fn->function, "role", "birth_unit");
   int ordinary = lv4_is(fn->function, "role", "ordinary_i64") ||
       lv4_is(fn->function, "role", "ordinary_map") ||
+      lv4_is(fn->function, "role", "ordinary_handle") ||
       lv4_is(fn->function, "role", "ordinary_nullable_handle");
   if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault"))
@@ -307,6 +309,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       yyjson_val* receiver = yyjson_obj_get(call, "receiver");
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
       int want_map = lv4_is(op, "result", "map");
+      int want_handle = lv4_is(op, "result", "handle");
       int want_nullable = lv4_is(op, "result", "nullable_handle");
       /* A birth caller joins this lane only for a qualified-static provider
          argument: its sealed claims are ExactI64, so the i64 spelling is the
@@ -314,7 +317,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       int birth_i64 = birth && lv4_is(op, "result", "i64");
       if ((fi && !ordinary && !birth_i64) || faulted || state[bi] || !target || target >= in->index_count ||
           !lv4_is(callee, "role", want_map ? "ordinary_map" :
-              want_nullable ? "ordinary_nullable_handle" : "ordinary_i64") ||
+              want_handle ? "ordinary_handle" : want_nullable ? "ordinary_nullable_handle" : "ordinary_i64") ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
       if (callee_has_receiver) {
@@ -658,6 +661,7 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
     hako_lv4_function_index* caller = &in->index[fi];
     int ordinary = lv4_is(caller->function, "role", "ordinary_i64") ||
         lv4_is(caller->function, "role", "ordinary_map") ||
+        lv4_is(caller->function, "role", "ordinary_handle") ||
         lv4_is(caller->function, "role", "ordinary_nullable_handle");
     yyjson_val* blocks = hako_physical_blocks(caller->function);
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
@@ -670,7 +674,8 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
       hako_lv4_value* receiver = lv4_index_value(caller, lv4_u(call, "receiver"));
       if (!target || target >= in->index_count ||
           !lv4_is(in->index[target].function, "role", "birth_unit") ||
-          !receiver || receiver->kind != LV4_HANDLE || receiver->origin < 0) return 0;
+          !receiver || receiver->kind != LV4_HANDLE || !receiver->object_id_set ||
+          receiver->origin < 0) return 0;
       hako_lv4_function_index* birth = &in->index[target];
       /* One birth unit may serve several provider sites (two fields can
          construct the same class): a repeat binding is admitted only when
@@ -681,7 +686,10 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
       }
       birth->receiver_object = receiver->object_id; birth->receiver_object_set = 1;
       for (size_t vi = 0; vi < birth->value_count; vi++)
-        if (birth->values[vi].origin == -2) birth->values[vi].object_id = receiver->object_id;
+        if (birth->values[vi].origin == -2) {
+          birth->values[vi].object_id = receiver->object_id;
+          birth->values[vi].object_id_set = receiver->object_id_set;
+        }
     }
   }
   for (size_t fi = 0; fi < in->index_count; fi++) {

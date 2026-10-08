@@ -39,6 +39,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
     if (!hako_physical_u32(yyjson_obj_get(param, "value"), NULL)) return 0;
     if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_map") ||
+        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) {
       /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
@@ -47,6 +48,7 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
            I64 has no receiver; nullable-handle keeps its instance boundary.
            The ordinary prologue revalidates the exact pair either way. */
         if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) ||
             (!yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
              !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&

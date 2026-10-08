@@ -929,21 +929,11 @@ missing/unavailable grants none, drift refuses; SAME collector/FinishedBindings.
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, retirement,
 nondelegating selfcompile and final acceptance remain mandatory/incomplete.
 
-Root source/producer/ABI CLOSED93ac35e5df and referenced prerequisites:
-key6c7d192311, Fresh source05cacecf80, splits66574888d1/7114201848,
-Root4b9ff8f7bd/a6201577b4, Null81163fc815/Receivede4c7a9a59c/Fresh87a0d0c398.
-SAME source/Completion/producer/cleanup and independent finished attachments;
-missing/foreign/duplicate/error refuse, Object process entry remains unavailable.
-Contracts/evidence at these commits and /tmp/hako-root-object-result-abi-*.
-TopLevel CLOSED6ed65aae53 (pushed): original nonClone input/SAME Completion;
-exact owner/formals, Box join/New/Map unchanged; 21/667-of-670/lib20.74s PASS.
-Evidence /mnt/workdisk/hako-top-level-input-row-*; three S6C reds reproduce on
-saved93ac35e5df binary, not waived final acceptance. Full goals remain owed.
-Source prerequisites CLOSEDb2fa3b9eaa/df3bf5227f (pushed); contracts at commits.
-Neutral original target lender preserves qualified identity/order. Received producer
-observer uses SAME prepared dependency/Facts/ClaimLocal and original incoming loan;
-Observed/SourceOnly never grants execution, selected errors retain SourceMismatch.
-Evidence /mnt/workdisk/hako-{object-target-lender-refactor,received-producer-source}-*.
+Root source/producer/ABI and source prerequisites CLOSED93ac35e5df,
+6ed65aae53,b2fa3b9eaa,df3bf5227f (pushed); exact contracts/evidence at commits.
+SAME original source/input/Completion, exact producers, whole Root ABI and
+neutral lender remain required. Object process entry refuses; SourceOnly grants
+no execution. Three saved93ac S6C reds remain unwaived final acceptance.
 
 Ready acquisition CLOSED488f1283b3 and compiled admission CLOSED21e66c5e55
 (pushed). Exact Decision/contracts at commits: SAME checked return availability,
@@ -951,16 +941,10 @@ Ready/Taken original packet, existing CallReceived ownership; whole-module sole
 artifact preflight replaces pending-only stops. Original typed8 plus opaque8 and
 wrong-role refusal pass, construction/coverage/finishing checks remain. No new guard.
 
-Required evidence for this bounded series:
-Cargo45871 terminal0/no-run5m26s; source/lib Cargo46083 terminal0/check19.09s.
-Exact focused31PASS (.24s), original typed8+opaque8 production and role negatives;
-remaining650:647PASS/3known S6C ObjectDefinitionsNotConsumed (.46s). No new red.
-/mnt/workdisk/hako-compiled-handle-membership-{focused-final,regression-final}.{log,json}
-retains exact names/binary SHA; build/check logs alongside. Earlier visibility/setup/
-refusal expectation reds resolved. Scope/COPY/pointer/diff/caps PASS. Selected fmt
-PASS except inherited root_validation baseline (HEAD reproduction in
-/mnt/workdisk/hako-root-validation-fmt-baseline.log); only selected stops removed.
-Protected seven ownership/doc paths unchanged; index scope must stay selected.
+Closed Rust series evidence at488f1283b3/21e66c5e55: focused31PASS,
+remaining650=647PASS/3known S6C, source/lib check PASS; exact names/binary/logs
+/mnt/workdisk/hako-compiled-handle-membership-*; inherited fmt baseline documented
+at commits, protected seven unchanged. Full acceptance does not waive S6C debt.
 
 C actual frontier: typed Handle4 rejects parser/function-body; Nullable4 object files
 and actual Rust-runtime-linked EXEs exit0, COUNTS 1 0 3 0 0 1 (size7 nonnull arm).
@@ -978,13 +962,38 @@ stay separate. Reuse existing C execution family and original JSON; no new guard
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected retirement,
 nondelegating selfcompile and final acceptance remain mandatory/incomplete.
 
-C Return split CLOSED in this commit (BoxShape prerequisite, read-only review):
-Exact original Return/Fault body moved to indexed_return; indexed_flow stays sole
-state/worklist owner (759->730). No identity, role, transfer or failure-order change.
-Source .so build14244 terminal0; existing composed execution18084 terminal0,
-16 cases/72 Normal+Fault runtime runs PASS. Original owned typed8 frontier unchanged:
-Handle4 parser refusal; Nullable4 linked EXEs exit0/same counters. Scope/pointer/
-diff/caps/protected7 and exact old-body retention PASS; no test/guard/Rust rebuild.
-Evidence /mnt/workdisk/hako-c-flow-return-split-{build,execution}.log and frontier.json.
-Next concrete action: known object identity child after all indexes, then owned
-Handle C role/lease integration using existing execution family and original JSON.
+C Return split CLOSED88eeede57f (pushed), exact contract/evidence at commit.
+Existing composed16/72 Normal+Fault runs and original nullable4 linked EXEs pass;
+Handle4 still refuses. indexed_flow stays sole state/worklist owner, flow730.
+
+C Handle implementation Decision (read-only review_cleanup_path):
+C physical input parser and existing V4 index/flow are sole independent consumers.
+Retain original definition block beside each value, known bit distinct from ID0,
+and per-function owned Return summary after all indexes are built. Exact Copy
+chain/New/Call Normal landing, Handle role/result pair and all Return identity
+must match; unknown/cycle/null/borrowed/disagreeing objects refuse. Copy traversal
+is bounded iterative; summary traversal visits each function, no kind-union identity.
+Summary proves identity only: LIVE lease and Normal-only transfer stay in existing
+Return flow; Fault retains caller unwind. Never infer identity from release rows.
+Scope: existing parser/formal transport/index/flow/Return/emit + private identity
+child, existing execution script/runtime probe, owner README/card. Same sixteen
+original source JSON variants, exact-role/identity/landing/cycle/null/borrowed
+negatives and allocation/cleanup Fault injection; existing C family reused.
+Nullable handling/Handle PHI/unsupported owned envelope stay unextended. No new
+source issuer, guard, test-only matcher or changed .hako; all full goals stay owed.
+
+C owned Handle admission CLOSED (selected paths; commit reference in Git).
+Parser/formal transport/index/flow/Return/emitter consume original handle Call
+through the sole V4 path. Known ID0 is valid; unknown Birth receiver refuses.
+Independent identity summary never replaces LIVE lease proof. Final C build PASS.
+Existing composed16/72 and owned-slot2/32 Normal/Fault runs PASS. Original
+source typed8/opaque8 executes112 Normal/allocation/cleanup Fault runs PASS;
+Copy/reversed callees add14, nullable null physical arm adds5. Actual runtime
+ledger checks one release per acquired handle/type; cleanup Fault is after release.
+Ten role/object/borrowed/null/cycle/landing/spent/all-Return refusals PASS.
+Logs /mnt/workdisk/hako-c-{owned,composed,owned-slot}-final.log and
+hako-c-owned-result-build-final.log. Mutations are independent C input probes,
+not altered source cutover. No new guard or Cargo build for this C slice.
+Next: unchanged mimalloc probe for remaining mixed-result/anchored frontier.
+Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, selected
+retirement, nondelegating selfcompile and final acceptance still owed.

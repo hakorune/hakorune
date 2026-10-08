@@ -32,7 +32,8 @@ Original TopLevel scalar input/Completion retained in SAME result row; productio
 Ready acquisition and compiled Handle admission closed through existing whole-module collector.
 Pending-only production finishing stops retired; typed8/opaque8 original production pass.
 Neutral C Return flow split closed; existing Normal/Fault execution preserved.
-Next: owned ordinary_handle result identity and lease admission.
+C owned Handle identity/LIVE admission closed; original16 Normal/Fault EXEs pass.
+Next: unchanged mimalloc probe for mixed-result/anchored frontier.
 Both315/318, anchored lifetime/cleanup and production EXE remain incomplete.
 """
 next_design_card = "none"
