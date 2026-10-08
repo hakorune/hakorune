@@ -204,7 +204,7 @@ FINALIZED_ROOT_HANDOFF="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordin
 TERMINAL_RESULT_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_terminal_result_tests.rs"
 rg -q 'TerminalI64ScalarReturnV1' "$TERMINAL_RELATION"
 rg -q 'TerminalI64ScalarReturnV1::issue' "$NEW_PREFIX_TERMINAL"
-rg -q 'FinalizedRootResultAbiV1::I64ScalarReturn' "$LOCAL_COMMIT"
+rg -q 'FinalizedRootResultAbiV1::I64ScalarReturn' "$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_local_commit/finalized_root_result.rs"
 rg -q 'has_lexical_local_calls' "$FINALIZED_ROOT_HANDOFF"
 rg -q 'bound_i64_scalar_issues_exact_terminal_relation' "$TERMINAL_RESULT_TESTS"
 rg -q 'empty_terminal_root_source_keeps_verified_owner_without_abi' "$FINISHED_COPY_TESTS"

@@ -981,19 +981,17 @@ Root-key transport closed at 6c7d192311: existing579 and production check PASS;
 /tmp/hako-object-root-key-* receipts retain exact evidence. No new test/guard,
 Object ABI or full S0 completion; exact-site Fresh view is next.
 
-Selected Fresh source-view construction: sole local_commit lends mutually exclusive
-exact-site claim or moved Result commit fields to the existing leaf corroborator.
-Retain original arity at affine take; duplicate/wrong-kind/site/class drift refuses,
-missing source remains unavailable. Source success grants no emitted/finished
-Return or teardown permission. Scope: ledger take, local_commit private source-view
-child, existing leaf checker/tests and collector test family, owner README/card.
-Existing real lowering matrix adds consumed Fresh/null checks; original leaf
-negative owners cover missing/foreign/prefix/arity and unavailable physical paths.
-Canonical take also rejects site/class drift and an already-present commit
-before Birth handoff removal or claim consumption. No new issuer/receipt registry,
-solver/test names/guard or pending/ABI switch.
-Fresh source-view prerequisite verified: existing focused16 + same-binary563
-(579 distinct) PASS; build5m43s, tests .05s/.43s, production check17.47s PASS.
-/tmp/hako-result-source-view-* retain hashes/names; only post-check source delta
-is one corrected doc comment. Scope/COPY/pointer/fmt/caps/protected7 PASS; no red.
-Next: checked Object descriptor/physical attachment; pending/ABI/anchored stays owed.
+Fresh source-view closed at 05cacecf80: sole local_commit lends exact pending
+claim or moved Result commit fields. Original arity survives affine take; duplicate,
+wrong-kind/site/class/prefix drift refuses. Take cannot overwrite held commits or
+consume Birth inputs on refusal. Source success grants no physical permission.
+Existing579 and production check PASS; /tmp/hako-result-source-view-* hold exact
+names/hashes/results. No new tests/guards/issuer/registry or pending/ABI switch.
+
+Result-owner preparation closed: unchanged getter/enum moved to private
+finalized_root_result child with original public paths; existing family pin follows
+sole owner. Exact committed bodies (trailing blank-line formatting only) corroborate.
+Lib+test type-check1m06s, scope/pointer/COPY/fmt/caps/diff/protected7 PASS.
+/tmp/hako-result-owner-move-{proof.json,check.log,scope.log} retain evidence.
+No new-revision runtime claim or authority/acceptance/permission expansion.
+Checked Object construction follows separately in the same result owner.
