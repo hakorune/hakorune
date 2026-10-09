@@ -933,3 +933,17 @@ Home/physical-shape negatives; no duplicate guard is needed.
 Detached projection S0: quick-profile `static_loop` 5/5 pass. The original
 selected test reaches the unchanged packet-missing stop and verifies parent
 restoration; source/Home mutation and wrong landing/result still reject.
+
+Decision (2026-10-10, selected detached body actual): the existing
+SourceStatic candidate proves `bin` is Scalar Integer, but its generic
+`opaque_actuals` deliberately stays empty. After the same body prepacket
+passes DraftSeal's verified detached image, the Static physical owner lends
+one unique Invoke coordinate; only then derive ordinal-zero Scalar Integer
+actual from the retained original Rc/candidate and canonical read. Wrong
+source/read/Invoke, duplicate coordinate or noninteger candidate rejects.
+No Home local observation, generic SourceStatic activation, collector row,
+tagged ABI or publication follows from the detached packet alone.
+Detached body actual S0: quick-profile `static_loop` 5/5 pass, including the
+new duplicate-Invoke coordinate negative and existing source/Home and
+landing/result negatives. The unchanged selected caller still restores the
+parent and stops at `executable-packet-missing`.

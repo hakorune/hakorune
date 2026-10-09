@@ -90,7 +90,8 @@ mod static_loop_result;
 mod static_loop_packet_source;
 pub(in crate::mir) use loop_static_source_loan::{LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1};
 pub(in crate::mir) use loop_static_body_actual::{
-    VerifiedLoopStaticBodyPrepacketV1, VerifiedLoopStaticBodyScalarSourceV1,
+    PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
+    VerifiedLoopStaticBodyScalarSourceV1,
 };
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;

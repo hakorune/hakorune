@@ -1,5 +1,6 @@
 //! Selected loop-body scalar source joined to the existing physical signature.
-//! This is source/shape evidence only; no ValueId or executable ABI is issued.
+//! The detached packet retains the canonical read and selected scalar actual;
+//! publication and executable ABI remain separate boundaries.
 
 use std::rc::Rc;
 
@@ -13,14 +14,20 @@ use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
 use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
+use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
 use crate::mir::resolved_semantics::{
     BindingRefV1, OwnedExprSiteV1, ResolvedLoopPlacementV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 
 use super::super::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-use super::lexical_instance_call::project_current_owner_loop_scalar_source_v1;
+use super::lexical_instance_call::{
+    project_current_owner_loop_scalar_source_v1, BorrowedFormalActualSourceV1,
+    PreparedBorrowedFormalActualV1,
+};
 use super::loop_static_source_loan::LoopStaticSourceCallLoanV1;
-use super::static_loop_packet_source::corroborate_unpublished_physical_shape;
+use super::static_loop_packet_source::{
+    corroborate_unpublished_physical_shape, unique_unpublished_invoke_coordinate,
+};
 use super::OrdinaryNewClaimLedgerV1;
 
 #[derive(Debug)]
@@ -40,6 +47,35 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyPrepacketV1 {
     entry: crate::mir::BasicBlockId,
     normal: crate::mir::BasicBlockId,
     result: crate::mir::ValueId,
+}
+
+/// One selected body call on DraftSeal's verified detached function. It is
+/// not a collector row or a published executable carrier.
+pub(in crate::mir) struct PreparedLoopStaticBodyDetachedPacketV1 {
+    prepacket: VerifiedLoopStaticBodyPrepacketV1,
+    actual: PreparedBorrowedFormalActualV1,
+    coordinate: (crate::mir::BasicBlockId, usize),
+}
+
+impl PreparedLoopStaticBodyDetachedPacketV1 {
+    pub(in crate::mir) fn corroborates_selected_source(
+        &self,
+        site: &OwnedExprSiteV1,
+        binding: BindingRefV1,
+    ) -> bool {
+        let source = &self.prepacket.source;
+        source.original.call_site() == site
+            && self.coordinate.0 == self.prepacket.entry
+            && self.actual.ordinal == 0
+            && self.actual.site == source.site
+            && self.actual.formal == source.formal
+            && self.prepacket.read.binding() == binding
+            && matches!(&self.actual.source,
+                BorrowedFormalActualSourceV1::Scalar {
+                    binding: actual_binding,
+                    kind: SourceScalarKind::Integer,
+                } if *actual_binding == binding)
+    }
 }
 
 impl VerifiedLoopStaticBodyPrepacketV1 {
@@ -65,6 +101,28 @@ impl VerifiedLoopStaticBodyPrepacketV1 {
             self.normal,
             self.result,
         )
+    }
+
+    pub(in crate::mir) fn prepare_detached_packet(
+        self,
+        function: &MirFunction,
+    ) -> Result<PreparedLoopStaticBodyDetachedPacketV1, String> {
+        self.corroborate_unpublished_function(function)?;
+        let coordinate = unique_unpublished_invoke_coordinate(function, self.entry)?;
+        let actual = PreparedBorrowedFormalActualV1 {
+            ordinal: 0,
+            site: self.source.site.clone(),
+            formal: self.source.formal,
+            source: BorrowedFormalActualSourceV1::Scalar {
+                binding: self.source.binding,
+                kind: SourceScalarKind::Integer,
+            },
+        };
+        Ok(PreparedLoopStaticBodyDetachedPacketV1 {
+            coordinate,
+            prepacket: self,
+            actual,
+        })
     }
 }
 

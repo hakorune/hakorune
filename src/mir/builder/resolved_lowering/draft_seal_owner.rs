@@ -548,10 +548,10 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 impl<'builder> PreparedFunctionDraftSealV1<'builder> {
     /// Run one read-only corroboration after detached verification and before
     /// the ownership-only commit terminal.
-    pub(in crate::mir::builder::resolved_lowering) fn corroborate_detached_function(
+    pub(in crate::mir::builder::resolved_lowering) fn corroborate_detached_function<T>(
         &self,
-        check: impl FnOnce(&MirFunction) -> Result<(), String>,
-    ) -> Result<(), String> {
+        check: impl FnOnce(&MirFunction) -> Result<T, String>,
+    ) -> Result<T, String> {
         check(self.plan.projected_function())
     }
 

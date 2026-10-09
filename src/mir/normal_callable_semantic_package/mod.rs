@@ -141,7 +141,8 @@ pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareIntegerLiteralMateria
 pub(in crate::mir) use ordinary_new_coseal::BorrowedCompareMaterializationV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopStaticSourceCallLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::{
-    VerifiedLoopStaticBodyPrepacketV1, VerifiedLoopStaticBodyScalarSourceV1,
+    PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
+    VerifiedLoopStaticBodyScalarSourceV1,
 };
 pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;

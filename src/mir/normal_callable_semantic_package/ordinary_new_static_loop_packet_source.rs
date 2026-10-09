@@ -240,6 +240,29 @@ pub(in crate::mir::normal_callable_semantic_package) fn corroborate_unpublished_
     Ok(())
 }
 
+/// The selected body packet may use this coordinate only on a verified
+/// detached function. An identical Invoke elsewhere cannot name this site.
+pub(in crate::mir::normal_callable_semantic_package) fn unique_unpublished_invoke_coordinate(
+    function: &MirFunction,
+    entry: BasicBlockId,
+) -> Result<(BasicBlockId, usize), String> {
+    let reject = || "[freeze:contract][callable-loop/static-physical-coordinate-drift]".to_owned();
+    let block = function.blocks.get(&entry).ok_or_else(reject)?;
+    let invoke = block.terminator.as_ref().ok_or_else(reject)?;
+    if !matches!(invoke, MirInstruction::Invoke { .. })
+        || function
+            .blocks
+            .values()
+            .flat_map(|row| row.all_instructions())
+            .filter(|row| *row == invoke)
+            .count()
+            != 1
+    {
+        return Err(reject());
+    }
+    Ok((entry, block.instructions.len()))
+}
+
 fn issue_packet_source(
     entry: &LoopEntryStaticI64SourceLoanV1,
     tagged: &VerifiedStaticLoopTaggedEntrySourceV1,
@@ -485,6 +508,19 @@ mod physical_shape_tests {
             &call, actual, &function, entry, normal, result
         )
         .is_ok());
+        assert_eq!(
+            unique_unpublished_invoke_coordinate(&function, entry).unwrap(),
+            (entry, 0)
+        );
+        let duplicate = BasicBlockId(3);
+        let mut duplicate_block = BasicBlock::new(duplicate);
+        duplicate_block
+            .add_instruction(function.blocks[&entry].terminator.as_ref().unwrap().clone());
+        function.blocks.insert(duplicate, duplicate_block);
+        assert!(unique_unpublished_invoke_coordinate(&function, entry)
+            .unwrap_err()
+            .contains("static-physical-coordinate-drift"));
+        function.blocks.remove(&duplicate);
         {
             let source = function.blocks.get_mut(&entry).unwrap();
             let Some(MirInstruction::Invoke {

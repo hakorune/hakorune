@@ -14,7 +14,8 @@ use crate::mir::loop_recipe_contract::{
     LoopJoinEdgeRoleV1, LoopOperationV2, LoopRecipeItemV2,
 };
 use crate::mir::normal_callable_semantic_package::{
-    VerifiedLoopStaticBodyPrepacketV1, VerifiedLoopStaticBodyScalarSourceV1,
+    PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
+    VerifiedLoopStaticBodyScalarSourceV1,
 };
 use crate::mir::resolved_semantics::{
     ResolvedLoopPlacementV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
@@ -34,6 +35,13 @@ impl StaticLoopBodyContinuationV1 {
     ) -> Result<(), String> {
         self.physical_call
             .corroborate_unpublished_function(function)
+    }
+
+    pub(super) fn prepare_detached_packet(
+        self,
+        function: &crate::mir::function::MirFunction,
+    ) -> Result<PreparedLoopStaticBodyDetachedPacketV1, String> {
+        self.physical_call.prepare_detached_packet(function)
     }
 }
 

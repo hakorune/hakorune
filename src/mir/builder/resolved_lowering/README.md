@@ -1316,5 +1316,8 @@ function, generic Static packet route, or plain scalar interpretation of `%0`.
 The selected body call's retained source/read prepacket is also checked
 against DraftSeal's verified detached function before its disposable commit
 is aborted and the parent restored. This proves the projected Invoke and
-NormalResult still match; it issues no final published coordinate, tagged
-actual or collector permission.
+NormalResult still match; it issues no published coordinate, runtime tagged
+carrier or collector permission.
+The selected body packet then joins that detached Invoke coordinate to the
+source-checked integer actual; the disposable path still restores the parent
+and stops before collector publication.

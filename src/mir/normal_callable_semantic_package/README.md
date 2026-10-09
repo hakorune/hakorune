@@ -2174,6 +2174,11 @@ The selected body source now moves into an unpublished prepacket with the
 canonical read receipt and actual Invoke/NormalResult coordinates. Whole-
 function close rechecks the same original source and physical call; this
 nested predicate call has no Home local-call observation or binding group.
+On DraftSeal's verified detached image, the physical packet owner lends a
+unique Invoke coordinate. Only this selected prepacket derives the existing
+`Scalar(Integer)` actual row from the sealed source candidate and canonical
+read. The generic SourceStatic pending row remains source-only and empty;
+publication and executable ABI still require the collector and final checks.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
