@@ -89,18 +89,42 @@ pub(super) fn observe_terminal_statement<'a, E>(
         {
             // The same scalar preflight observes the original call children.
             // Field returns keep their existing field issuer and relations.
-            if let Some((_, calls)) = scalar_expression::observe_scalar_expression(
+            let mul = scalar_expression::observe_guarded_mul_return(
                 input,
                 value.site(),
-                locals,
-                Some(SourceScalarKind::Integer),
-                &mut |_, _| Ok(None),
                 statement.site(),
                 homes,
+                view_use,
                 static_call,
                 borrowed_actuals,
-            )? {
-                if !calls.is_empty() {
+            )?;
+            use scalar_expression::GuardedMulReturnV1;
+            let selected_mul = !matches!(mul, GuardedMulReturnV1::Unselected);
+            let scalar = match mul {
+                GuardedMulReturnV1::Observed(calls) => Some((SourceScalarKind::Integer, calls)),
+                GuardedMulReturnV1::Unavailable => {
+                    let issue = unavailable
+                        .get_or_insert(HomePrefixUnavailableV1::ReturnValueNotCovered(
+                            statement.site().clone(),
+                        ))
+                        .clone();
+                    exit_homes.insert(statement.site().clone(), Err(issue));
+                    return Ok(());
+                }
+                GuardedMulReturnV1::Unselected => scalar_expression::observe_scalar_expression(
+                    input,
+                    value.site(),
+                    locals,
+                    Some(SourceScalarKind::Integer),
+                    &mut |_, _| Ok(None),
+                    statement.site(),
+                    homes,
+                    static_call,
+                    borrowed_actuals,
+                )?,
+            };
+            if let Some((_, calls)) = scalar {
+                if selected_mul || !calls.is_empty() {
                     static_terminal = Some(
                         if calls.len() == 1 && calls[0].site().site() == value.site() {
                             TerminalRelationV1::Call(TerminalI64CallReturnV1::issue(

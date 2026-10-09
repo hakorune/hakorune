@@ -69,6 +69,7 @@ enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
+    SourceInstance(instance_source::InstanceSourceActualIdentityV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -95,6 +96,9 @@ impl PreparedBorrowedCallActualsV1 {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_) => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
+                "ordinary-new/borrowed-entry/source-only-instance-actuals",
+            )),
             BorrowedCallActualEvidencePhaseV1::SourceObject(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-object-actuals",
             )),
@@ -157,6 +161,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
+    if let Some(rows) =
+        instance_source::prepare_instance_source_actuals_v1(prepared, contracts, call, actuals)?
+    {
+        return Ok(Some(rows));
+    }
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
         if let Some(actuals) =
@@ -679,7 +688,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn reject_borrowed_actuals_
         }
     }
     for (site, row) in staged.iter_mut().filter(|(site, _)| site.owner() == owner) {
-        if matches!(row, Ok(actuals) if matches!(actuals.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_) | BorrowedCallActualEvidencePhaseV1::SourceObject(_)))
+        if matches!(row, Ok(actuals) if matches!(actuals.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(_) | BorrowedCallActualEvidencePhaseV1::SourceObject(_) | BorrowedCallActualEvidencePhaseV1::SourceInstance(_)))
         {
             *row = Err(format!("{issue} call={site:?}"));
         }
@@ -739,3 +748,7 @@ mod object_input_finish;
 #[path = "ordinary_new_received_producer_arguments.rs"]
 mod received_producer;
 pub(in crate::mir::normal_callable_semantic_package) use received_producer::received_producer_arguments_v1;
+
+#[path = "ordinary_new_borrowed_instance_source_actuals.rs"]
+mod instance_source;
+pub(in crate::mir::normal_callable_semantic_package) use instance_source::project_pending_instance_source_arguments_v1;

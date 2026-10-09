@@ -396,39 +396,74 @@ impl super::PreparedBorrowedFormalIngressV1 {
 
 #[test]
 fn checked_integer_return_walk_trigger_keeps_source_only_membership_passive() {
-    let mut product = package(
+    use crate::mir::resolved_semantics::home_new_prefix::{
+        BorrowedViewUseRequestV1, TerminalRelationV1,
+    };
+    use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+    for body in [
         "if p <= 0 { return 0 } return p",
-        "return 0",
-        "local recv = new Transport() local out = recv.probe(15) return 0",
-    );
-    let ledger = std::rc::Rc::get_mut(&mut product.ordinary_new_claim_ledger).unwrap();
-    let owner = ledger
-        .borrowed_formal_source
-        .as_ref()
-        .unwrap()
-        .as_ref()
-        .unwrap()
-        .incoming[0]
-        .callee;
-    let exits = ledger.completion_index[&owner]
-        .as_ref()
-        .unwrap()
-        .explicit_sites();
-    for exit in exits {
-        assert!(ledger
-            .normal_exit_projection_v1(owner, exit)
+        "if p <= 8 { return p * 2 } return 0",
+        "if p <= 8 { return -2 * p } return 0",
+    ] {
+        let mut product = package(
+            body,
+            "return 0",
+            "local recv = new Transport() local out = recv.probe(15) return 0",
+        );
+        let owner = product
+            .ordinary_new_claim_ledger
+            .borrowed_formal_source
+            .as_ref()
             .unwrap()
-            .is_some());
+            .as_ref()
+            .unwrap()
+            .incoming[0]
+            .callee;
+        let slot = product
+            .parameter_contracts
+            .iter()
+            .find(|row| row.owner == owner)
+            .unwrap()
+            .batch_slot;
+        let inspect = |product: &crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1| {
+            let ledger = &product.ordinary_new_claim_ledger;
+            let exits = ledger.completion_index[&owner].as_ref().unwrap().explicit_sites();
+            for exit in exits {
+                assert!(ledger.normal_exit_projection_v1(owner, exit).unwrap().is_some(), "{body}");
+            }
+            product.batch().with_lowering_input(slot, |input| {
+                let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+                assert!(source.integer_return_target(owner) || source.integer_mul_return_target(input));
+                for exit in exits {
+                    let site = OwnedExprSiteV1::new(owner, SourcePathV1::from_node(exit.node())
+                        .child(SourcePathSegmentV1::Value).expr());
+                    if input.function().expression_source().binary(site.site())
+                        .is_some_and(|row| row.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Multiply) {
+                        assert!(source.consult_view_use_v1(input, &site,
+                            BorrowedViewUseRequestV1::IntegerMulReturn { exit }).unwrap());
+                        assert!(matches!(ledger.terminal_relation_for_owner_at(owner, exit),
+                            Some(TerminalRelationV1::I64Scalar(_))), "{body}");
+                        let wrong = exits.iter().find(|other| *other != exit).unwrap();
+                        assert!(source.consult_view_use_v1(input, &site,
+                            BorrowedViewUseRequestV1::IntegerMulReturn { exit: wrong })
+                            .unwrap_err().contains("exit-value-identity"));
+                    }
+                }
+            }).unwrap();
+        };
+        inspect(&product);
+        {
+            let ledger = std::rc::Rc::get_mut(&mut product.ordinary_new_claim_ledger).unwrap();
+            let source = ledger
+                .borrowed_formal_source
+                .as_mut()
+                .unwrap()
+                .as_mut()
+                .unwrap();
+            source.retain_only_source_definition_for_test(owner);
+            assert!(!source.definitions.contains_key(&owner));
+            assert!(source.source_only_definitions.contains_key(&owner));
+        }
+        inspect(&product);
     }
-    let source = ledger
-        .borrowed_formal_source
-        .as_mut()
-        .unwrap()
-        .as_mut()
-        .unwrap();
-    assert!(source.integer_return_target(owner));
-    source.retain_only_source_definition_for_test(owner);
-    assert!(source.integer_return_target(owner));
-    assert!(!source.definitions.contains_key(&owner));
-    assert!(source.source_only_definitions.contains_key(&owner));
 }

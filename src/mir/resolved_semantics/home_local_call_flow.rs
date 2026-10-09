@@ -271,7 +271,8 @@ pub(crate) fn issue_static_i64_local_call<E>(
                 }
                 arguments.into_vec()
             }
-            Some(BorrowedCallArgumentsV1::Scalar(_))
+            Some(BorrowedCallArgumentsV1::SourceInstance(_))
+            | Some(BorrowedCallArgumentsV1::Scalar(_))
             | Some(BorrowedCallArgumentsV1::HandleSource(_))
             | Some(BorrowedCallArgumentsV1::SourceObject { .. })
             | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),

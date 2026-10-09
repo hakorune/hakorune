@@ -373,8 +373,15 @@ pub(super) fn dominated_view_use_consult_v1<'a>(
 ) -> Result<bool, OrdinaryNewCoSealIssueV1>
        + 'a {
     move |site: &OwnedExprSiteV1, request| {
-        let Ok(source) = borrowed_formal_source else {
-            return Ok(false);
+        let source = match borrowed_formal_source {
+            Ok(source) => source,
+            Err(issue) if matches!(request,
+                crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1::IntegerMulReturn { .. }) => {
+                return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: site.clone(), issue: issue.clone(),
+                });
+            }
+            Err(_) => return Ok(false),
         };
         source
             .consult_view_use_v1(input, site, request)

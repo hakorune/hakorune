@@ -26,6 +26,9 @@ pub(crate) enum BorrowedViewUseRequestV1<'a> {
         exit: &'a SourceStmtSiteV1,
         binding: BindingRefV1,
     },
+    IntegerMulReturn {
+        exit: &'a SourceStmtSiteV1,
+    },
 }
 
 #[path = "selected_new_arguments.rs"]

@@ -53,7 +53,8 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         return Ok(borrowed_arguments(site, request)?
             .and_then(|row| match row {
                 BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
-                BorrowedCallArgumentsV1::StaticSource(_)
+                BorrowedCallArgumentsV1::SourceInstance(_)
+                | BorrowedCallArgumentsV1::StaticSource(_)
                 | BorrowedCallArgumentsV1::HandleSource(_)
                 | BorrowedCallArgumentsV1::SourceObject { .. }
                 | BorrowedCallArgumentsV1::Object { .. } => None,
@@ -96,7 +97,8 @@ fn seal_i64_call_arguments<E>(
     let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
     match borrowed_arguments(&owned, request)? {
         Some(BorrowedCallArgumentsV1::Scalar(arguments)) => return Ok(Some(arguments.into_vec())),
-        Some(BorrowedCallArgumentsV1::StaticSource(_))
+        Some(BorrowedCallArgumentsV1::SourceInstance(_))
+        | Some(BorrowedCallArgumentsV1::StaticSource(_))
         | Some(BorrowedCallArgumentsV1::HandleSource(_))
         | Some(BorrowedCallArgumentsV1::SourceObject { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),

@@ -494,6 +494,19 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             })
         }
         BorrowedCallActualRequestV1::I64ResultArguments => {
+            if let Some(arguments) =
+                super::super::lexical_instance_call::project_pending_instance_source_arguments_v1(
+                    source, pending, contracts, site,
+                )
+                .map_err(|issue| {
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: site.clone(),
+                        issue,
+                    }
+                })?
+            {
+                return Ok(Some(BorrowedCallArgumentsV1::SourceInstance(arguments)));
+            }
             super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
                 source, pending, results, site,
             )

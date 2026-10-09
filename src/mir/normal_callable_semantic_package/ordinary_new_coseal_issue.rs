@@ -301,7 +301,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
-                let has_integer_return = borrowed_formal_source.as_ref().is_ok_and(|rows| rows.integer_return_target(owner));
+                let has_integer_return = borrowed_formal_source.as_ref().is_ok_and(|rows|
+                    rows.integer_return_target(owner) || rows.integer_mul_return_target(input));
                 let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
                 });

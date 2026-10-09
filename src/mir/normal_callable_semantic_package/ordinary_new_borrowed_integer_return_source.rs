@@ -18,6 +18,28 @@ impl PreparedBorrowedFormalIngressV1 {
         })
     }
 
+    /// Coordinates select the existing walk; the actual consult validates the
+    /// original product. A malformed selected row must not disappear as false.
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_mul_return_target(
+        &self,
+        input: ResolvedFunctionLoweringInputV1<'_>,
+    ) -> bool {
+        let Some(sites) = input
+            .body_shape()
+            .and_then(|shape| super::super::super::verified_value_return_sites(input, shape))
+        else {
+            return false;
+        };
+        self.source_definition_for(input.owner())
+            .is_some_and(|draft| {
+                draft.uses.iter().any(|row| {
+                    matches!(&row.kind,
+                BorrowedFormalUseDraftKindV1::MulOperand { binary, .. }
+                if binary.owner() == input.owner() && sites.contains(binary.site()))
+                })
+            })
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn consult_view_use_v1(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
@@ -50,6 +72,26 @@ impl PreparedBorrowedFormalIngressV1 {
                                 | BorrowedFormalUseDraftKindV1::NewArgument { .. }
                         )
                 })),
+            BorrowedViewUseRequestV1::IntegerMulReturn { exit } => {
+                use crate::mir::resolved_semantics::{SourcePathSegmentV1, SourcePathV1};
+                let value = SourcePathV1::from_node(exit.node())
+                    .child(SourcePathSegmentV1::Value)
+                    .expr();
+                if &value != site.site()
+                    || !input
+                        .body_shape()
+                        .and_then(|shape| {
+                            super::super::super::verified_value_return_sites(input, shape)
+                        })
+                        .is_some_and(|sites| sites.contains(site.site()))
+                {
+                    return Err(freeze("borrowed-mul-return/exit-value-identity"));
+                }
+                draft
+                    .mul_source_at(input, site)
+                    .map(|source| source.is_some())
+                    .map_err(|_| freeze("borrowed-mul-return/source-identity"))
+            }
             BorrowedViewUseRequestV1::IntegerReturn { exit, binding } => {
                 let Some(row) = draft
                     .integer_return_at(input, site)

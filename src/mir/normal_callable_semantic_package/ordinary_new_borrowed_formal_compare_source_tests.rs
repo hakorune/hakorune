@@ -310,6 +310,26 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
                 _ => None,
             }).unwrap();
             assert!(std::rc::Rc::ptr_eq(retained, observed));
+            for binary in input.function().expression_source().binaries()
+                .filter(|row| row.operator() == crate::mir::resolved_semantics::ResolvedBinaryOperatorV1::Multiply) {
+                let ledger = &package.ordinary_new_claim_ledger;
+                let completion = ledger.completion_for_owner(input.owner()).expect("original Mul Home completion");
+                let exit = completion.explicit_sites().iter().find(|exit| {
+                    crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
+                        .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr() == *binary.site()
+                }).expect("original returned Mul exit");
+                assert!(ledger.normal_exit_projection_v1(input.owner(), exit).unwrap().is_some());
+                assert!(matches!(ledger.terminal_relation_for_owner_at(input.owner(), exit),
+                    Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::I64Scalar(_))));
+                let calls: Vec<_> = completion.cleanup().root_flow().unwrap().local_calls().iter()
+                    .filter(|call| call.site() == &owned).collect();
+                assert_eq!(calls.len(), 1, "original call child occurs once");
+                assert_eq!(calls[0].statement(), exit);
+                assert!(calls[0].local_binding().is_none());
+                assert!(calls[0].arguments().is_empty());
+                assert!(calls[0].prior_homes().is_empty());
+                assert_eq!(calls[0].result(), crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64);
+            }
             assert!(draft_borrowed_formal_source_product_v1(
                 input, contract, &package.instance_constructors, None, None,
             ).unwrap().draft.is_err(), "no index source, no call operand proof");

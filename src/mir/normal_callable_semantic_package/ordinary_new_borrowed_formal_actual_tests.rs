@@ -745,3 +745,6 @@ fn assert_local_projection(
         );
     }
 }
+
+#[path = "ordinary_new_borrowed_instance_source_actual_tests.rs"]
+mod instance_source_tests;

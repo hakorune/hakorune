@@ -903,70 +903,17 @@ Next Decision (read-only worker): typed Compare/Mul dispatch in SAME binary driv
 Mul retains SAME RootLocalCallBindingGroup lexical packet Rc/NormalResult + sole append.
 Finish/project exact guards/ordered operands/packet with both scans and JSON/C; no Add counts.
 All full-goal obligations above remain unwaived; no app source rewrite.
-## Mul original append retention VERIFIED part (2026-10-09)
+## Mul original append/result part CLOSED430198d21a (2026-10-09)
 
-Decision integrated from read-only review_static_zero_packet: private Reach stays
-inside source owner; package-only ordered sites/view/guard/literal/SAME Static Rc
-lenders feed the validated physical loan. SAME selected entry owns Mul records,
-separate from Bool Compare records; no second emission driver or new source map.
-This part preserves original source Rc, raw child observations and actual sole
-BinOp::Mul append. Source-only owners, missing entry, wrong operation, erased
-coverage and substitute records refuse. No raw-child/final-operand equivalence.
-Full series still owes typed binary driver/carrier and original producer chains,
-Static lexical packet/NormalResult, mandatory bindings/finishing/both scans/JSON/C.
-Acceptance reuses source/Compare families plus two Mul record tests;
-full Mul/unchanged-app/goal closure remains unverified.
-Worker review found duplicate source-site appends; SAME source site now refuses
-another destination and coverage checks map/set cardinality. Existing two tests
-also cover replacement Rc, source-only entry, physical opcode drift and erasure.
-Initial build101 was THISCHANGE wrong type import (BinaryOp corrected); no tests ran.
-Corrected build89876 passed; both append tests failed at source-not-i64.
-This is selected missing returned-Mul source coverage, not a passing slice.
-Log: /mnt/workdisk/hako-guarded-mul-append-corrected-build-tests.log.
+Original source/entry/ordered child/actual append/Rc/coverage and returned-Mul
+I64 proof contracts, corrected failures, guarded refusal and unannotated cases
+are retained in Git/owner README and
+/mnt/workdisk/hako-guarded-mul-append-final-evidence.json (64 scoped executions;
+final build8m43; normal push PASS). Full Mul execution remains open. Source-only
+rows gain no entry; carrier/Copy/Static packet/guard Normal dominance and both
+finished scans/JSON/C still owe full closure. Negative immediates retain their
+actual Const(-n). Final call membership must use finalized groups after pool move.
 
-Static operand Decision (read-only review_static_zero_packet): existing
-root_call_entry lends a validated clone of the unique original binding group.
-Require SAME Static source Rc, zeroarg ExactI64, existing source/recorded/NormalResult
-validation and exact observed child; retain the shared packet, not affine copies.
-Final handoff drains pending groups into FinalizedRootSourceHandoff.local_calls;
-final verification must find the unique original site and SAME packet pointer
-there. Neither drained-pool lookup nor trusting the retained clone alone suffices.
-Reuse local_binding_group/finished_projection test matrices for raw-result/Rc/
-missing/duplicate group and post-move membership; no new issuer or source map.
-
-Negative immediates reuse Unary minus's actual folded Const(-n) through the
-literal owner; no invented replacement producer or AST rewrite.
-
-Returned-Mul Decision: retain the SAME original Mul Rc in existing I64 result
-proofs at exact Return value sites. Seal full operation/return coverage against
-strict ingress and original raw Static incoming observations; transport-pruned
-incoming is not authority. Normal guard class does not impose unconditional
-Integer input agreement. Keep original return p*q fixtures unchanged.
-Revalidate complete retained coverage at result corroboration, including erased
-sets; use canonical callee owner, never indexing a possibly empty return list.
-Append/source-result edits remain unverified; no production/goal closure claim.
-
-Build3029 ended101: THISCHANGE verifier visibility too narrow, corrected;
-no tests ran. Read-only review found erased-product plus missing/failed ingress
-could bypass checks; successful ingress and canonical executable owner draft
-are now mandatory independent of retained set. Existing result refusal test
-covers erased products alone and absent/failed ingress or missing draft.
-Build83908 PASS8m40; append2 + result42 + source1 + Compare6 + carrier4 +
-source-graph8 PASS (63 scoped executions). Source/record retention verified;
-Static returned-Mul strict entry/runtime remains owed with full CurrentOwner.
-Unannotated returned-Mul/negative-immediate acceptance pin PASS1 (build8m43).
-Production/other tests unchanged; earlier63 scoped executions remain applicable.
-
-Next typed seam Decision (read-only worker): Compare|Mul stays in the existing
-ordered driver/recursive ports and sole append. Reuse carrier/alias/Copy owners;
-include Mul in consumer coverage without Bool installation. Home scalar/terminal
-must borrow the whole original returned Mul product and Static child observation,
-not whitelist Multiply. Guard Normal dominance and finalized SAME call-group
-membership remain separate mandatory evidence. Existing descent/carrier/result
-families cover refusal/order; full original in-branch call-child acceptance owed.
-
-Final evidence: /mnt/workdisk/hako-guarded-mul-append-final-evidence.json.
-Append/result part is verified; full Mul execution and full goal remain open.
 Next bounded Home Decision (read-only worker): existing IntegerMulReturn typed
 consult validates exact exit/Value plus SAME whole Mul product. A sibling
 integer_mul_return_target(input) matches original Return coordinates only to
@@ -975,3 +922,72 @@ hidden with is_ok(). Bounded scalar helper retains original Static observations
 and issues existing I64Scalar; generic Multiply grammar stays closed. Original
 source failures are preserved. Entry/context, packet and physical guard dominance
 remain owed. Reuse source/Mul/scalar-publication tests; no new framework.
+
+Home construction IN PROGRESS: exact IntegerMulReturn consult/coordinate-only
+selector, bounded child observation and existing I64Scalar relation implemented.
+A selected unavailable Mul records an uncovered exit without old scalar retry;
+source errors are preserved and child observations are staged atomically.
+Existing source-only walk test covers guarded orders, exact exit refusal and
+unchanged passive partition; scalar/source/result regressions selected.
+Terminal765 soft-limit responsibility reviewed: scalar observation stays in its
+existing child; further terminal growth requires separate responsibility split.
+Co-seal795 only adds selected predicate; no further expansion before split.
+Home verification: quick build8m37 PASS; expanded source-only walk test PASS.
+Scalar11/source10/result42/Mul2/source1/graph8/Static1/coordinate1 PASS.
+Additional guarded-actual family2 PASS/1 THISCHANGE regression: exact reach
+fixture now demands entry-source at later Body(1) Initializer(0); immutable430
+binary passes the identical test. Log/selected hashes/protected7 retained in
+/mnt/workdisk/hako-guarded-mul-home-progress.json. Pointer/scope/diff guards PASS.
+No closeout/commit: resolve source-only Home walk vs later actual-entry demand
+without fabricating entry or hiding errors, then pin original Static child Home
+and unavailable/failed child no-journal in existing families. Full Mul/goal OPEN.
+
+Home regression Decision (read-only review_static_zero_packet): original
+SourceOnly Probe is now walked; its later Instance sink incoming selects the
+executable actual constructor, which has no executable caller origin and
+mistakes p for the receiver. I64ResultArguments then demands entry-source Err.
+Do not broaden the executable constructor to raw source drafts, suppress Err,
+or return None into strict argument fallback. Next bounded contract: SAME
+pending-actual owner selects validated source-only Instance evidence before
+executable construction, analogous to SourceStatic/SourceObject. Retain exact
+original target, ordered actuals, caller draft and guard/forward receipts;
+source Home reads that projection, require_executable refuses until original
+caller entry/forward closure. No new map/issuer or fabricated ready evidence.
+Full original Static Home/no-journal coverage and current regression must pass
+before this Home slice can close. No Cargo or commit is currently running.
+
+SourceInstance bounded Decision confirmed by the read-only worker: source-only
+opaque forwarding needs original draft origin/unique UnresolvedArgument and
+raw target/ordered ordinal correspondence, not a new Normal Integer proof.
+Implement SAME pending phase with empty opaque_actuals; Home I64ResultArguments
+receives explicit SourceInstance and refuses executable call sealing, with no
+strict fallback. Executable lenders stay strict; Object source retains priority.
+Selected added paths: pending actual owner/new child, existing callback/export,
+Home argument port/matches, existing Static-child source test, and phase test
+child under the existing actual family (747-line owner cannot absorb 59 lines).
+Acceptance: unchanged guarded-reach regression, source phase drift/entry refusal,
+original Static Mul Home/child rows and missing/error child no-Observe; regressions.
+All source-only/guard/packet/production/final-goal obligations remain unwaived.
+
+USER STOP/RESUME (2026-10-09): discussion pause honored; selected WIP kept.
+SourceInstance/Home changes remain selected; protected7 unchanged.
+Build78425 and corrected34800 were deliberately terminated143 after review;
+Cargo/rustc termination confirmed before edits. Neither run is PASS.
+Review corrections implemented: retained Static metadata keeps its source owner;
+selected source-only Instance staged errors, missing observations and wrong
+phase remain errors even without final incoming. Quick/jobs4 guarded-reach
+PASS1/1 on latest pre-fix source; source/actuals64 PASS, uses58 PASS/1
+THISCHANGE red: unrelated declared-Object Static row had no original incoming.
+SourceInstance now declines that absent raw row; selected phase drift remains
+fail-closed. Corrected quick build8m44 + phase test1/1 PASS on latest source;
+log /mnt/workdisk/hako-guarded-mul-sourceinstance-red-fix.log. No Cargo live.
+Resumed SAME binary: prior Static-domain red PASS; actual64/use59/Home29,
+source10/Static10/compare8/result22+42/scalar2+Home14/Object5 PASS.
+Original Static Mul Home/child and missing/error child no-Observe exact tests
+both PASS. Logs: /mnt/workdisk/hako-guarded-mul-sourceinstance-{red-fix-regression,affected-families,final-families}.log.
+Scope/pointer/diff/rustfmt PASS; no current or unclassified red.
+Next: selected-only commit/push after final staged diff check; then typed Mul
+driver/packet/finished scans/JSON/C remain the next active dependency.
+Snapshot/logs: /mnt/workdisk/hako-guarded-mul-home-instance-progress.json.
+Full goal remains incomplete; selected typed Mul driver/packet/scans/JSON/C
+and all production/final acceptance obligations remain unchanged.

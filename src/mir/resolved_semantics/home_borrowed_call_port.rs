@@ -20,6 +20,8 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 pub(crate) enum BorrowedCallArgumentsV1 {
     Scalar(Box<[LocalCallArgumentV1]>),
     StaticSource(Box<[LocalCallArgumentV1]>),
+    /// Original Instance arguments only; cannot seal an executable call.
+    SourceInstance(Box<[LocalCallArgumentV1]>),
     /// Source observation only; no result, entry or executable permission.
     HandleSource(Box<[LocalCallArgumentV1]>),
     /// Exact producer result class; input support retains its original phase.

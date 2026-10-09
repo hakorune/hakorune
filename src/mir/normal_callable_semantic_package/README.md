@@ -1570,6 +1570,13 @@ returned Mul sites. Source sealing checks complete return/operation coverage,
 strict ingress and original Static incoming identity before result corroboration.
 The class is conditional on the original guard's successful Normal edge; it
 creates no unconditional Integer input agreement or executable publication.
+Home Return analysis consults the same whole operation through
+`IntegerMulReturn`, with exact original exit/Value membership. Original Return
+coordinates select the existing verified walk across both draft partitions;
+selection does not validate away malformed evidence. The bounded scalar helper
+stages original Static children, then journals only a wholly admitted expression
+and issues the existing I64Scalar relation. Missing proof/child remains an
+explicit uncovered exit; generic Multiply and executable entry stay ungranted.
 
 
 The same source-use owner admits an exact scalar Return after a checked Compare
@@ -2012,3 +2019,11 @@ Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical
 call-child loans and all incoming/entry/Completion gates still decide execution.
+
+Source-only Instance forwarding stays on the existing pending-actual row as
+`SourceInstance`: exact raw target, complete ordered candidates and unique
+original source-only draft origin/argument membership are rechecked at demand.
+The phase owns no opaque proofs and grants no Integer class or executable entry.
+Object input source retains its existing owner. Home receives an explicit
+SourceInstance response, leaving the call unavailable without strict fallback;
+existing executable result/input lenders reject it. No implicit promotion exists.
