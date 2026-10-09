@@ -847,15 +847,9 @@ Following slices connect the verified V2 program to the sole physical
 session/Binding SSA and then switch the selected production route; S1 closes
 only when the original `bin` actual uses the canonical header/backedge value.
 
-S1 prerequisite (BoxShape): Home's exact Static site claim issuer is now a
-reusable source port; the existing predicate delegates to it without changing
-admission. Qualified claim9/9 and unchanged mimalloc source census1/1 PASS
-on quick profile. Loop-site actual proof, V2 Recipe/Home and physical SSA
-remain unissued; source Rc retention alone does not close them.
-Real-source loop site check1/1 PASS: header/body claims and original Rc match.
-Diagnostic projection of body `bin_size(bin)` refuses
-`borrowed-static/source-actual-unavailable`; the following incoming-domain
-census rules out candidate Integer agreement as this prerequisite.
+S1 Static claim prerequisite closed at `deb7eba579`/`e54660e07f`:
+shared exact-site issuer and original header/body Rc; claim9/9 and real
+source1/1 PASS. Body actual remained `source-actual-unavailable`.
 Original incoming-domain census (unchanged mimalloc): `size_to_bin` has 3
 callers (`size_to_bin_usize`, `good_size`, `SizeClassBox.accepts`), `good_size`
 has 2, `normalize_size` has 2, and `LayoutBox.class_id` has 2; all four
@@ -911,15 +905,9 @@ acceptance. This S0 grants neither loop Home/V2/SSA nor whole
 Static entry/packet or production EXE. Source-only and executable phases
 remain separate; executable use requires the later finished packet check.
 
-S0 source-only closure verified (2026-10-09): one least-fixed-point issuer
-over the original Static draft/source facts admits the unchanged
-`normalize_size` -> `size_to_bin` -> `good_size`/`accepts` tagged forward
-chain without asserting Integer agreement. The original `good_size` call
-projects ordered source actuals while selected executable Static remains
-absent. Original mimalloc test1/1, Static domain10/10 and Static actual13/13
-PASS on the quick test binary; no new dedicated guard. The current code
-still owes n/bin Home and V2 loop, full executable packet, kind-Fault
-acceptance, original EXE and old-edge retirement.
+S0 source-only forwarding closed at `02d6ee4044`: original
+`normalize_size` -> `size_to_bin` -> `good_size`/`accepts` tagged chain;
+source1/1, domain10/10 and actual13/13 PASS. No executable grant.
 
 S1 loop-node census (2026-10-09): `route_entry/router.rs` calls
 `issue_loop_node_winner_recipe_v1` in its production route; its old caller-zero
@@ -991,3 +979,16 @@ semantic issue at `static-i64-v2/physical-unavailable`; no live actual/Home/SSA
 or EXE permission. Whole-app probe stops earlier at `borrowed-entry/source-only-object-actuals`.
 Next D0: identify a genuine Loop Home owner; selected-New `PrefixLocalFlow`
 and Query-only neutral Home evidence are not whole-function Loop authorities.
+
+S1 HOME-D0 Decision (read-only audit integrated, 2026-10-09): canonical
+Binding SSA/CFG/PHI lives in `CanonicalSsaFunctionSessionV2`; it does not
+issue Home meaning. `home_relation` is passive, selected-New `PrefixLocalFlow`
+is cohort-limited, and Query neutral evidence covers only `return me`.
+The bounded candidate is a source-issued local-Home-neutral receipt for the
+whole original `size_to_bin`: verify the borrowed formal, trivial `n`/`bin`,
+all Static call input/output Home relations, both returns and the backedge.
+Issue it beside existing package claims, then consume it with this V2 product;
+do not infer neutrality from an I64 result claim or from absent New syntax.
+Unknown transfer, owned local, divergent surviving Home or unproved Fault
+cleanup refuses. Next: census exact Home contract issuer for all four calls;
+if no such issuer exists, design that narrow contract before physical SSA.
