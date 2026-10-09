@@ -1263,3 +1263,15 @@ demand -> session emit -> `ReadyFunctionDraftSealV1` -> committed
 `MirFunction` with loop PHI backedge and value-bearing Return). Caller-zero:
 no production caller invokes the lowerer yet; the canonical-root handoff,
 collector-drain admission, and finished-root disposition remain open.
+
+## Selected Static I64 Loop unpublished Invoke (2026-10-09)
+
+The selected `size_to_bin` entry borrows its one-take original CurrentOwner
+packet source and exact tagged `%0` formal. The canonical session claims the
+original pre-loop argument site, reads `%0` through its identity/SSA owner,
+and emits one I64 `Invoke` with separate Normal and Fault landings. The
+package projects the cataloged target from the retained source key; the
+canonical CFG owner places both edges and the Fault terminal. The Normal
+landing first projects `InvokeNormalResult`. The whole draft is discarded at
+missing executable actual/source coverage. This step grants no production
+function, generic Static packet route, or plain scalar interpretation of `%0`.

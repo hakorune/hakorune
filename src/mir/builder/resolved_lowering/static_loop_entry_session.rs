@@ -2,6 +2,7 @@
 //! Source/result receipts choose the ABI; no executable packet is admitted here.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
 use crate::mir::builder::raw_loop_child_entry::{
     StaticI64LoopFunctionEntryV2, StaticI64LoopTaggedPhysicalFormalV2,
@@ -17,7 +18,7 @@ use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfCon
 use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, VerifiedResolvedBlockExpressionExpectationV1,
 };
-use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, ValueId};
+use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId};
 
 pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     builder: &mut MirBuilder,
@@ -64,10 +65,89 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             formal.lane_index(),
         )?;
         verify_entry(draft, product.semantic(), formal, result_source, value)?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]".to_owned())
+        emit_unpublished_static_invoke(draft, &mut canonical, packet_source, formal, value)?;
+        Err("[freeze:contract][callable-loop/static-i64-v2/actual-coverage-missing]".to_owned())
     })();
     outer.discard_unpublished();
     admitted
+}
+
+fn emit_unpublished_static_invoke(
+    draft: &mut MirBuilder,
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    packet: &VerifiedStaticLoopPacketSourceV1,
+    formal: &StaticI64LoopTaggedPhysicalFormalV2,
+    entry_value: ValueId,
+) -> Result<(), String> {
+    let entry = draft
+        .function_state
+        .current_block
+        .ok_or_else(|| "[freeze:contract][callable-loop/static-invoke-entry-missing]".to_owned())?;
+    canonical
+        .identity
+        .claim_variable_use_binding(packet.argument_site(), formal.formal())?;
+    let actual = canonical.identity.read_entry_receipt(
+        draft,
+        &mut canonical.phis,
+        entry,
+        formal.formal(),
+    )?;
+    if actual.physical_block() != entry || actual.physical_value() != entry_value {
+        return Err("[freeze:contract][callable-loop/static-invoke-actual-drift]".into());
+    }
+    let call = packet.materialize_unpublished_call(formal.formal(), actual.physical_value())?;
+    let mut frame_owner = FunctionFaultFrameV1::borrowed();
+    let frame = frame_owner.materialize(draft)?;
+    let normal = draft.next_block_id();
+    let fault = draft.next_block_id();
+    let result = draft.next_value_id();
+    {
+        let function = draft
+            .function_state
+            .current_function
+            .as_mut()
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/static-invoke-function-missing]".to_owned()
+            })?;
+        canonical
+            .cfg
+            .create_block(function, normal)
+            .map_err(|error| error.to_string())?;
+        canonical
+            .cfg
+            .create_block(function, fault)
+            .map_err(|error| error.to_string())?;
+        canonical
+            .cfg
+            .emit_i64_invoke(function, entry, call, frame, normal, fault)
+            .map_err(|error| error.to_string())?;
+        canonical
+            .cfg
+            .emit_invoke_fault(function, fault, frame)
+            .map_err(|error| error.to_string())?;
+    }
+    canonical
+        .cfg
+        .select_block(draft, normal)
+        .map_err(|error| error.to_string())?;
+    draft.emit_instruction(MirInstruction::InvokeNormalResult {
+        invoke_block: entry,
+        dst: result,
+    })?;
+    draft
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(result, MirType::Integer);
+    let function = draft
+        .function_state
+        .current_function
+        .as_ref()
+        .ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-invoke-function-missing]".to_owned()
+        })?;
+    frame_owner.validate(function)?;
+    Ok(())
 }
 
 fn prepare_shell(

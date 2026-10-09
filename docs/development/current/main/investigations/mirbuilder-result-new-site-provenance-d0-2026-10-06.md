@@ -972,3 +972,22 @@ Static packet family 6/6 and quick library check PASS. The endpoint still
 discards at `executable-packet-missing`; no physical Invoke or production MIR.
 Next: sole physical owner maps this source packet to tagged `%0`, Invoke,
 Fault/Normal and I64 NormalResult with no fallback.
+
+Selected Static Invoke Decision (read-only worker integrated): the package
+projects the original catalog key to the Global call and lends its one
+argument site. The canonical identity owner claims that exact site and reads
+tagged `%0`; the canonical CFG owner places one I64 Invoke, separate Fault
+and Normal landings, and ReturnFault. Normal projects the I64 result first.
+The draft must still discard: `SourceStatic` does not yet issue executable
+BorrowedActual coverage, and final source-aware verification requires the
+original call coordinate and actual slot. This slice neither promotes the
+generic Static path nor publishes MIR. Next: bind the pre-loop `n` result,
+then issue the bounded actual/packet and close final source coverage before
+production publication. The declared-`: i64` direct Call remains inapplicable.
+
+Unpublished Invoke I0: unchanged mimalloc-lite selected entry reaches the
+post-Invoke `actual-coverage-missing` stop and leaves no Builder/header state.
+Focused 1/1, candidate veto 6/6, Static packet 6/6, independent Invoke Call
+verifier 12/12, quick library check and pointer guard PASS. The first wrong
+Invoke verifier filter selected 0 tests; the corrected family above is the
+recorded result. Production MIR/EXE and executable actual remain open.

@@ -14,6 +14,9 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
+#[path = "session/invoke.rs"]
+mod invoke;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) struct VerifiedPredecessorsV1 {
     block: BasicBlockId,

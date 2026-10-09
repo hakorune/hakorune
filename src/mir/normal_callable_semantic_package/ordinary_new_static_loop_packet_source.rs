@@ -23,6 +23,8 @@ use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::loop_static_source_loan::LoopEntryStaticI64SourceLoanV1;
 use super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 use super::{OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};
+use crate::mir::definitions::MirCall;
+use crate::mir::ValueId;
 
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
@@ -34,6 +36,28 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
+    pub(in crate::mir) fn argument_site(&self) -> &SourceExprSiteV1 {
+        &self.argument
+    }
+
+    pub(in crate::mir) fn materialize_unpublished_call(
+        &self,
+        formal: BindingRefV1,
+        actual: ValueId,
+    ) -> Result<MirCall, String> {
+        if formal != self.caller_formal {
+            return Err("[freeze:contract][callable-loop/static-packet-formal-drift]".into());
+        }
+        let target = self
+            .original
+            .target()
+            .canonical_global_target_v1()
+            .map_err(|error| {
+                format!("[freeze:contract][callable-loop/static-packet-target] {error}")
+            })?;
+        Ok(MirCall::global(None, target, vec![actual]))
+    }
+
     pub(in crate::mir) fn corroborates(
         &self,
         entry: &LoopEntryStaticI64SourceLoanV1,
