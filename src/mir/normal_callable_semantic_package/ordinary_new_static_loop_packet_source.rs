@@ -20,6 +20,10 @@ use super::super::qualified_static_call_claim::{
 };
 use super::super::result_contract::VerifiedCallableResultContractCohortV1;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
+use super::lexical_instance_call::{
+    issue_selected_current_owner_forwarded_actual_v1, PendingBorrowedFormalActualsV1,
+    VerifiedCurrentOwnerForwardedActualV1,
+};
 use super::loop_static_source_loan::LoopEntryStaticI64SourceLoanV1;
 use super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 use super::{OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};
@@ -34,6 +38,7 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
     caller_formal: BindingRefV1,
     argument: SourceExprSiteV1,
     complete_incoming: Box<[Rc<StaticIncomingSourceV1>]>,
+    forwarded_actual: VerifiedCurrentOwnerForwardedActualV1,
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
@@ -69,6 +74,7 @@ impl VerifiedStaticLoopPacketSourceV1 {
             && Rc::ptr_eq(&self.original, entry.original())
             && self.caller_formal == formal
             && entry.original().argument_sites().get(0) == Some(&self.argument)
+            && self.forwarded_actual.corroborates(&self.original, formal)
             && self
                 .complete_incoming
                 .iter()
@@ -82,6 +88,7 @@ fn issue_packet_source(
     entry: &LoopEntryStaticI64SourceLoanV1,
     tagged: &VerifiedStaticLoopTaggedEntrySourceV1,
     incoming: &super::lexical_instance_call::PreparedBorrowedFormalIngressV1,
+    pending: &PendingBorrowedFormalActualsV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &VerifiedCallableResultContractCohortV1,
@@ -137,6 +144,12 @@ fn issue_packet_source(
         return Err(reject());
     }
     let complete_incoming = incoming.static_incoming_cohort_v1(original)?;
+    let forwarded_actual = issue_selected_current_owner_forwarded_actual_v1(
+        incoming,
+        pending,
+        original,
+        tagged.formal(),
+    )?;
     Ok(VerifiedStaticLoopPacketSourceV1 {
         loop_site: entry.loop_site().clone(),
         declaration: entry.declaration().clone(),
@@ -144,6 +157,7 @@ fn issue_packet_source(
         caller_formal: tagged.formal(),
         argument: argument.clone(),
         complete_incoming,
+        forwarded_actual,
     })
 }
 
@@ -164,7 +178,14 @@ impl OrdinaryNewClaimLedgerV1 {
         for (key, tagged_row) in tagged.iter() {
             let row = match (entries.get(key), tagged_row) {
                 (Some(Ok(entry)), Ok(tagged)) => issue_packet_source(
-                    entry, tagged, incoming, selected, contracts, results, claims,
+                    entry,
+                    tagged,
+                    incoming,
+                    &self.borrowed_formal_actuals,
+                    selected,
+                    contracts,
+                    results,
+                    claims,
                 ),
                 (Some(Err(error)), _) | (_, Err(error)) => Err(error.clone()),
                 (None, _) => {

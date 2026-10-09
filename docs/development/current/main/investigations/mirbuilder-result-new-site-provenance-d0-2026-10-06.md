@@ -665,3 +665,20 @@ Quick library check and current-state pointer guard passed. A separate
 `borrowed_formal_incoming` filter selected 0 tests and is not acceptance.
 Next: issue the selected CurrentOwner executable actual while preserving
 the complete incoming cohort for final source-aware verification.
+
+Selected forwarded-actual Decision: the existing pending `SourceStatic` row
+and `StaticArgumentSourceV1` fact share the original incoming Rc. For this
+packet's single CurrentOwner, ordinal-zero Opaque forward, corroborate the
+staged candidate, source-only draft origin, caller/target checked-input
+receipts and the canonical entry formal. The selected packet carries the
+resulting source actual witness into its disposable tagged `%0` Invoke. Do
+not promote the generic `SourceStatic` phase or infer Integer from `%0`.
+An absent/mutated candidate, wrong site/formal or unchecked forward rejects
+before Builder effects. All other incoming edges, executable packet
+coordinates, body, root-source publication and production EXE remain open.
+Selected actual witness focused positive/mutated-candidate negative 1/1,
+unchanged mimalloc entry 1/1, candidate veto 6/6, Static packet 6/6 and
+existing forward-identity negative 1/1 passed in the same quick-profile test
+binary. Quick library check, pointer guard and diff check passed. The
+post-Invoke `actual-coverage-missing` stop remains intentional because the
+other incoming edges and finished coordinates are not yet proved.

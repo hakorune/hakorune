@@ -409,5 +409,9 @@ fn project_pending_static_source_arguments_for_route_v1(
 mod tests;
 
 #[cfg(test)]
+#[path = "ordinary_new_borrowed_static_selected_actual_tests.rs"]
+mod selected_actual_tests;
+
+#[cfg(test)]
 #[path = "ordinary_new_borrowed_static_local_issuer_tests.rs"]
 mod local_issuer_tests;

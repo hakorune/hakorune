@@ -38,8 +38,10 @@ identity binds the projected result to original local n; the same semantic
 product supplies bin's checked literal, emitted on Normal and bound to its
 original declaration. The draft discards at missing executable actual/source
 coverage. The packet now retains a complete original Static incoming source
-cohort for its callee; it grants no executable actual. Next: close the
-selected CurrentOwner actual and all caller edges through the existing
+cohort for its callee; that cohort alone grants no executable actual. The
+selected CurrentOwner actual now corroborates the same staged source candidate,
+draft origin and checked-input formals in the packet. General SourceStatic
+remains source-only. Next: close all caller edges through the existing
 packet/finished-coordinate path for final source coverage.
 The original unannotated callees
 cannot use the declared-i64 direct-call shortcut.
