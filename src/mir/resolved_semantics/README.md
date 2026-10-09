@@ -505,6 +505,12 @@ An `Add` local initializer can likewise borrow only the prepared, dominated
 still pass scalar preflight before its binding receives Integer class; an
 unproved sibling or other operator keeps the Home prefix uncovered. This
 does not reclassify the opaque formal or admit Divide, Multiply or Loop joins.
+Only a local initializer may additionally prove signed Integer Divide when
+its original right child is a positive integer literal and its left child is
+already Integer-class. This excludes a zero/variable divisor and signed
+minimum divided by -1; a failed child installs no result local. Conditions
+and returns retain their previous scalar profile. This Home class proof is
+not an executable Divide Recipe or a physical Fault check.
 Direct ReturnValue keeps the terminal Call relation; binary returns keep their
 exact scalar relation. Nested arguments, loops and short-circuit call paths are
 not granted by this source connection. Executable input, affine handoff/Invoke,

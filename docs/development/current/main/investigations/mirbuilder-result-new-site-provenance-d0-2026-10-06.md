@@ -960,3 +960,19 @@ Selected checked-Add local Home S0 landed at `e76b7a3b66`: exact dominated
 `AddOperand` proves `bin + 3`, advancing the Home uncovered prefix from Body3
 to Body4. Wrong binary identity rejects; Divide and the later chain remain
 open. Focused positive/negative and required guards passed at that commit.
+
+Decision (2026-10-10, positive-literal Divide Home): the original resolved
+binary source owns operator and ordered child sites. The preceding checked
+Add Home row proves `x` Integer; the original RHS `4` is a positive Integer
+literal. Home may install `bit_group` Integer only after the complete local
+initializer proves those facts. Zero/variable divisors, unproved lhs, wrong
+operator/site, conditions and returns remain closed. Positive divisor also
+avoids signed minimum/-1 overflow; no generic dynamic Divide envelope exists.
+The smallest slice advances original `bin_size` Body4 to the next nested Mul
+at Body5. This does not issue an executable Divide Recipe, physical call,
+production EXE or old-edge retirement.
+Validation: original source advances Body4 to Body5; zero/variable RHS and
+Multiply replacement remain at Body4 (one focused test, four cases). The prior
+Add test now asserts progress past Body3 without pinning the next frontier.
+Add, If and scalar-expression family regressions passed (1/1, 1/1, 11/11),
+as did the scope/pointer guards, rustfmt and diff check.

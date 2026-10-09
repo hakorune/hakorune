@@ -25,6 +25,7 @@ pub(super) fn observe_local_initializer<E>(
         site,
         locals,
         None,
+        true,
         local_field_read,
         statement,
         homes,
@@ -44,6 +45,7 @@ pub(super) fn observe_scalar_expression<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     required: Option<SourceScalarKind>,
+    allow_positive_literal_divide: bool,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         bool,
@@ -87,6 +89,7 @@ pub(super) fn observe_scalar_expression<E>(
         homes,
         static_call,
         None,
+        allow_positive_literal_divide,
         checked_compare_operand,
     )?
     else {
@@ -182,6 +185,7 @@ fn preflight<E>(
     homes: &[BindingRefV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_binary: Option<&SourceExprSiteV1>,
+    allow_positive_literal_divide: bool,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<SourceScalarKind>, E> {
     match locals.observe(site) {
@@ -232,6 +236,13 @@ fn preflight<E>(
     }
     let (operand, result) = match row.operator() {
         Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
+        Op::Divide
+            if allow_positive_literal_divide
+                && matches!(input.function().expression_source().literal(row.rhs()),
+                    Some(ResolvedLiteralSourceV1::Integer(divisor)) if *divisor > 0) =>
+        {
+            (Kind::Integer, Kind::Integer)
+        }
         Op::Equal | Op::NotEqual | Op::Less | Op::Greater | Op::LessEqual | Op::GreaterEqual => {
             (Kind::Integer, Kind::Bool)
         }
@@ -254,6 +265,7 @@ fn preflight<E>(
         homes,
         static_call,
         checked_children,
+        allow_positive_literal_divide,
         checked_compare_operand,
     )?
     else {
@@ -269,6 +281,7 @@ fn preflight<E>(
         homes,
         static_call,
         checked_children,
+        allow_positive_literal_divide,
         checked_compare_operand,
     )?
     else {

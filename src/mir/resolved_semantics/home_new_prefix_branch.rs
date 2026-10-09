@@ -414,6 +414,7 @@ pub(super) fn observe_if_statement<'a, E>(
             condition.site(),
             locals,
             Some(SourceScalarKind::Bool),
+            false,
             local_field_read,
             statement.site(),
             homes,

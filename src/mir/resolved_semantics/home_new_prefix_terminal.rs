@@ -116,6 +116,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     value.site(),
                     locals,
                     Some(SourceScalarKind::Integer),
+                    false,
                     &mut |_, _| Ok(None),
                     statement.site(),
                     homes,
