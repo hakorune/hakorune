@@ -946,3 +946,18 @@ its unpublished session restores empty function/block/header state. Focused
 original foreign signature and source/result refusal pins remain green.
 Next: original Static executable pre-loop `normalize_size(size)` actual and
 packet, followed by canonical `n`/`bin` inputs. No production MIR or EXE.
+
+Executable Static packet Decision (read-only worker integrated): the selected
+pre-loop loan already keeps the original CurrentOwner `Rc`, exact call site,
+ordered argument and I64 target claim. The tagged-entry proof binds that
+argument to the checked caller formal. The existing `SourceStatic` actual
+phase refuses executable admission, and the general Static packet path admits
+qualified or zero-input CurrentOwner calls only. Extend neither globally.
+First source slice: in the same package, retain one-take selected-Loop packet
+authority from that original Rc, checked caller input, target formal contract,
+target Completion and same catalog's ExactI64 result row; preserve scoped
+errors and issue no ValueId. Then the sole canonical physical owner may use
+that packet to emit Invoke with Fault/Normal and I64 NormalResult. The declared
+`: i64` direct-call emitter is unavailable for the unchanged source. Fault
+cleanup, result binding and packet consumption must be verified before any
+publication; no generic retry or whole-caller Integer assumption.
