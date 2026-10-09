@@ -889,13 +889,9 @@ atomic batch take after collector admission. No generic Call is emitted.
 Quick-profile selected caller and owner missing/duplicate tests pass; Static
 Loop 6/6, owner 11/11, PhysicalBoundary 7/7 (`47df4b14d9`).
 
-Selected finished-child projection S0: the retained original LoopBody Invoke
-uses the existing child's `FinishingChecked` binding map before root publication.
-The real `SizeClassBox.size_to_bin` collector draft resolves one finished
-coordinate; removing or duplicating that Invoke rejects. Quick-profile selected
-test 1/1, Static Loop 6/6 and finished lexical projection 4/4 pass. The wider
-borrowed publication family is 44 pass/3 known baseline reds (same diagnoses
-in the pre-change binary). This proves child finishing, not a published call.
+Selected finished-child projection S0 landed at `0aa3e8aec4`: the original
+LoopBody Invoke resolves one checked finished coordinate. The 44 pass/3 known
+baseline reds are recorded there. Publication remains open.
 
 Next Decision — LoopBody publication: preserve the lexical visitor and add a
 sibling read-only LoopBody visitor. Lend retained source Rc, Scalar(Integer)
@@ -934,24 +930,11 @@ and missing Home row must reject. The later return, Loop and `accepts`
 contexts are separate bounded followups. This Decision grants no executable
 packet, tagged entry, production EXE or old-edge retirement.
 
-Selected If-condition Home source S0: the exact original `bin_size` Body2
-If-condition has a sealed region and a prepared checked `CompareOperand`, but
-its unannotated `bin` formal enters Home as `OpaqueHandle`; ordinary scalar
-preflight therefore withheld the condition's `ExpressionValue` call row. A
-diagnostic control changing only that declaration to `i64` produced the row
-with the same If-region, confirming the missing checked-operand handoff; the
-production source was not changed. The Home If-condition preflight now borrows
-the existing formal-use `CompareOperand` only at its matching operand/binary
-sites, then requires the complete Bool expression before publishing the
-original zero-input call with prior Homes. The original source now passes its
-selected Static packet source gate; changing `>` to unsupported `>=` keeps
-the Home row and packet gate closed. Quick-profile focused real-source test
-1/1, Static packet family 7/7, Compare source 8/8, scalar rejection 1/1 and
-real mimalloc Static Loop source 1/1 passed. The rebuilt CLI on the unchanged
-SizeClassBox import still refuses `borrowed-static/local-source-missing` with
-no EXE: the remaining return/Loop/accepts nonlocal sites retain separate
-Home contexts. This is source/packet admission for one If site, not final
-Invoke, all-incoming publication or production cutover.
+Selected If-condition Home source S0 landed at `1fc58fc9e6`: original `bin_size`
+Body2 now borrows exact checked `CompareOperand` for its full Bool condition,
+then retains the zero-input call Home row; unsupported `>=` stays closed. The
+unchanged SizeClassBox import still stops at `borrowed-static/local-source-missing`.
+No final Invoke, all-incoming publication, EXE or production cutover follows.
 
 Decision (2026-10-10, return `word_size` prerequisite): read-only scalar-chain
 audit confirms that `bin_size` Body11/Value/Rhs cannot receive a Home call row
@@ -973,15 +956,7 @@ separate bounded slices before the non-view returned Multiply and exact
 `word_size` Home row. Do not synthesize Integer `words`, permit generic
 Multiply/Loop, or claim an executable packet or production EXE here.
 
-Selected checked-Add local Home S0: the prepared dominated `AddOperand` is
-lent to the Home scalar initializer only at the original operand and Add
-binary sites. The whole `bin + 3` expression must prove Integer before `x`
-receives that class. The unchanged `bin_size` source now advances its Home
-uncovered prefix from `x` (Body3) to the next Divide initializer `bit_group`
-(Body4); wrong binary identity refuses the loan. The formal remains opaque,
-and Divide, nested Multiply, Loop assignment/join, returned non-view Mul and
-the `word_size` call Home row remain open. This is source/Home progress only;
-no Static execution, production EXE or old-edge retirement is claimed.
-Validation: quick-profile real-source positive/wrong-binary negative 1/1,
-checked If 1/1, guarded Add positive 1/1 and rejection 1/1 passed. Qualified
-route scope guard, current pointer guard, rustfmt and diff check passed.
+Selected checked-Add local Home S0 landed at `e76b7a3b66`: exact dominated
+`AddOperand` proves `bin + 3`, advancing the Home uncovered prefix from Body3
+to Body4. Wrong binary identity rejects; Divide and the later chain remain
+open. Focused positive/negative and required guards passed at that commit.
