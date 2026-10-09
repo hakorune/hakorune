@@ -964,3 +964,12 @@ entry or final all-incoming permission is issued.
 Body physical call S0: quick-profile original cataloged entry 1/1 and
 static-loop family 5/5 pass, including source/Home mutation and wrong
 physical landing/result negatives. The source-only packet stop is retained.
+
+Decision (2026-10-10, selected `bin_size` caller census): the current
+`mimalloc-lite` import closure contains three CurrentOwner `bin_size` calls
+in `size_class_box.hako` and two qualified integer-literal calls in
+`layout_box.hako`. Four `bin_size(max_regular_bin())` sites found by a
+repository-wide census belong to separate huge apps and are absent from this
+batch. The read-only review confirmed the five-site selected inventory; no
+nested-actual source expansion is justified by this active cohort. Continue
+the selected packet/finished-coordinate work for these five original sites.
