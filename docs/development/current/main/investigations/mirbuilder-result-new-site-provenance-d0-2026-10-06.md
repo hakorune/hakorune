@@ -925,9 +925,9 @@ production caller is `SizeClassBox.size_to_bin` at the original Loop-body
 `loop_body_contains_site`, `resolved_loop_placement=Body`, the exact `If`
 bundle, and resolved assignment binding are source authority. The Static
 index and original Static Rc precede the Home walk; the loop-site
-`CurrentOwnerSource` claim and ordered actual proof do not. Issue them from
-the same site claim and source-actual authorities used by the Home walk;
-absence refuses. Recipe/JoinSig own the logical header/backedge join;
+`CurrentOwnerSource` claim is obtainable from the shared issuer, but Home does
+not consume it there. The pre-loop staging attempts the body actual and
+retains `source-actual-unavailable`, not ordered proof. Recipe/JoinSig own the logical header/backedge join;
 Binding SSA alone owns the current `bin` ValueId/PHI. The Home scanner's
 unconditional Loop/assignment `PrefixNotCovered` and facts-only staging are
 the selected old responsibility, not an executable substitute.
@@ -964,9 +964,13 @@ arity-one `bin_size(bin)` in the body `If`. The canonical producer issues
 Recipe keys and exact source relations; JoinSig proves the return arm and
 Integer `bin` backedge, while Home joins only surviving paths. The existing
 Static index, original Rc, and their canonically issued ordered actuals remain
-the call authority. First share the site claim issuer between the Home walk
-and this source producer, then prove loop-site actual order from the original
-Rc before V2 Recipe issue. Positive evidence
+the call authority. The shared site claim issuer is extracted. Rc corroborates
+site/order before V2; source-level `n`/`bin` prefix must first close using
+the existing closed-domain candidate Integer proof, never S2 executable
+entry. Verified V2 Recipe/JoinSig then proves the iterative Integer `bin`;
+only afterward may the selected route co-seal body actual through the existing
+source-actual owner and join Home. Do not overwrite the failed pre-loop row.
+Positive evidence
 is the unchanged source with exact call sites, ordinal 0, source-bound V2
 rows, logical updated-`bin` join, and real Home/Return rows. Wrong site/Rc/
 ordinal, absent call target or backedge, Bool/unknown rebind, missing return
@@ -981,3 +985,7 @@ reusable source port; the existing predicate delegates to it without changing
 admission. Qualified claim9/9 and unchanged mimalloc source census1/1 PASS
 on quick profile. Loop-site actual proof, V2 Recipe/Home and physical SSA
 remain unissued; source Rc retention alone does not close them.
+Real-source loop site check1/1 PASS: header/body claims and original Rc match.
+Diagnostic projection of body `bin_size(bin)` refuses
+`borrowed-static/source-actual-unavailable`; first Home prefix and candidate
+Integer agreement for `size_to_bin.size`/`normalize_size.size` are next census.

@@ -236,6 +236,26 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             let bin_target = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
             let bin_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(bin_target.clone())).unwrap();
             let bin_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == bin_slot).unwrap();
+            package.batch().with_lowering_input(bin_slot, |input| {
+                for (selector, arity) in [("max_regular_bin", 0), ("bin_size", 1)] {
+                    let (site, call) = input.function().method_calls()
+                        .find(|(_, call)| call.selector() == selector)
+                        .expect("original size_to_bin loop call");
+                    let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
+                    let original = source.source_incoming.static_observations()[&owned]
+                        .as_ref().expect("original loop Static Rc");
+                    let claim = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::claim_for_source_site_v1(
+                        claims, Some(&bin_target), &input, &owned, &package.selected,
+                        &package.parameter_contracts, None,
+                    ).unwrap().expect("same issuer accepts original loop call");
+                    assert_eq!(call.arity(), arity);
+                    assert!(claim.corroborates_source(&owned,
+                        crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner,
+                        arity));
+                    assert_eq!(original.call_site(), &owned);
+                    assert_eq!(original.argument_sites().len(), arity as usize);
+                }
+            }).unwrap();
             package.batch().with_lowering_input(good_slot, |input| {
                 let mut calls = input.function().method_calls().filter(|(_, call)| call.selector() == "size_to_bin");
                 let (site, call) = calls.next().expect("original good_size CurrentOwner call");
