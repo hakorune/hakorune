@@ -925,3 +925,15 @@ One initial compile red from this slice (moved source site) was corrected.
 Next: complete the Return and step/backedge arms from the retained Recipe,
 JoinSig and exact source sites, then close the selected call ABI and packet
 terminal before collector admission.
+
+Selected Static I64 Loop body-exit S0: the original Then `return bin` and
+Else `bin = bin + 1` now consume the retained Recipe items7–12 and exact
+source use/assignment sites. Canonical SSA supplies both reads, Completion
+claims the explicit Return, and canonical identity records the same source
+exit and carrier assignment. The step edge returns to the physical header;
+only then does the canonical CFG/SSA owner seal its PHI. The draft discards at
+`after-coverage-missing`, so the post-loop `return me.huge_bin()`, final
+argument ABI, full packet/group publication and EXE remain open. Focused
+unchanged mimalloc entry1/1 and related Static Loop family5/5 pass in the
+quick-profile binary. The next bounded edge is the original post-loop tail,
+then selected ABI/packet terminal verification before publication.

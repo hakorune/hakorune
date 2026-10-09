@@ -17,13 +17,18 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{BasicBlockId, CompareOp, MirInstruction, MirType, ValueId};
 
+pub(super) struct StaticLoopBodyContinuationV1 {
+    pub then_block: BasicBlockId,
+    pub step_block: BasicBlockId,
+}
+
 pub(super) fn emit_unpublished_body_predicate_v1(
     draft: &mut MirBuilder,
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     frame_owner: &mut FunctionFaultFrameV1,
-) -> Result<(), String> {
+) -> Result<StaticLoopBodyContinuationV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-body-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
     let roles = semantic.roles();
@@ -235,10 +240,13 @@ pub(super) fn emit_unpublished_body_predicate_v1(
             return Err("[freeze:contract][callable-loop/static-body-branch-drift]".into());
         }
     }
-    Ok(())
+    Ok(StaticLoopBodyContinuationV1 {
+        then_block,
+        step_block,
+    })
 }
 
-fn read_i64(
+pub(super) fn read_i64(
     draft: &mut MirBuilder,
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     block: BasicBlockId,

@@ -13,9 +13,11 @@ The header's actual body target enters the next unpublished body predicate.
 The already verified `n` and `bin` source sites and Recipe items 3–6 select
 the original one-argument `me.bin_size(bin)` call. The body `If` is checked
 against the JoinSig Return/fallthrough row before canonical SSA/CFG emits its
-Invoke/NormalResult, `<=` and Then/step branch. The draft is discarded at
-`body-exit-coverage-missing`, before Return, carrier update, header PHI seal,
-packet group, result handoff, collector admission or function publication.
+Invoke/NormalResult, `<=` and Then/step branch. The same draft claims the
+source `return bin` in Completion and defines `bin + 1` on the step edge.
+Canonical CFG/SSA seals the header PHI only after that backedge exists.
+The draft is discarded at `after-coverage-missing`, before the post-loop
+return, packet group, result handoff, collector admission or publication.
 The source-only body call loan does not authorize its final physical argument
 ABI. The original mimalloc source and related Static Loop tests pass.
 

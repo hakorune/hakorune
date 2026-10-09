@@ -55,6 +55,7 @@ mod selected_dynamic_physical_emitter;
 mod semantic_stack;
 mod static_loop_entry_session;
 mod static_loop_body;
+mod static_loop_body_exit;
 mod static_loop_header;
 mod trivial_ssa;
 

@@ -412,6 +412,10 @@ impl<'source> CanonicalSsaFunctionSessionV2<'source> {
         self.owner
     }
 
+    pub(in crate::mir::builder::resolved_lowering) const fn target_function(&self) -> RegionId {
+        self.target_function
+    }
+
     /// Allocate one unpublished physical block through the canonical CFG
     /// owner.  Profile emitters may borrow the returned id only while their
     /// opaque target is alive; they must not call `ensure_block_exists` or
