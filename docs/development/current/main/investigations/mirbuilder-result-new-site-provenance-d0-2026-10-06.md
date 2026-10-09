@@ -942,3 +942,31 @@ for this `If`-return plus assignment shape; G0 is caller-zero and cannot be
 assumed to supply it. Next action is an exact producer/physical-SSA census
 against this source, then define the bounded bridge in the existing winner
 spine and common Recipe/JoinSig/Binding SSA owners before Home admission.
+
+S1 producer Decision (2026-10-09, read-only V2 review integrated): do not
+extend the production V1 operation enum or present a G0/S6C/Dynamic receipt
+as this callable's authority. V1 has no Call operation
+(`loop_recipe_contract/schema.rs`); common V2 already has `CallSlot`, `If`,
+`Return`, and binding writes (`schema_v2.rs`). The current production
+`loop_node_winner_spine` issues bounded V1 families, and its physical
+admission explicitly rejects G0. Existing S6C and Dynamic V2 producers
+co-seal different, fixed source shapes; their products cannot be rebranded as
+the original `SizeClassBox.size_to_bin` source. A V1 call arm or V2-to-V1
+coercion would violate the Loop SSOT's one semantic algebra/physicalizer law.
+
+Smallest selected construction is the source-bound V2 semantic/JoinSig plus
+Home slice for this exact callable, not a source-only observation presented as
+execution permission. Resolver Loop/If/assignment and original Completion
+must cover both Static calls: zeroarg `max_regular_bin()` in the header and
+arity-one `bin_size(bin)` in the body `If`. The canonical producer issues
+Recipe keys and exact source relations; JoinSig proves the return arm and
+Integer `bin` backedge, while Home joins only surviving paths. The existing
+Static source Rc/ordered actuals remain the call authority. Positive evidence
+is the unchanged source with exact call sites, ordinal 0, source-bound V2
+rows, logical updated-`bin` join, and real Home/Return rows. Wrong site/Rc/
+ordinal, absent call target or backedge, Bool/unknown rebind, missing return
+coverage, and divergent Homes reject. This does not close S1 physical SSA,
+whole-callee entry/packet, selector cutover, EXE, or old-edge retirement.
+Following slices connect the verified V2 program to the sole physical
+session/Binding SSA and then switch the selected production route; S1 closes
+only when the original `bin` actual uses the canonical header/backedge value.
