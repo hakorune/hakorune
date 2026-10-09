@@ -818,3 +818,19 @@ accept one real collected caller packet and reject late admission without
 group/take. Both-caller completion, final entry coverage, full body and EXE
 remain open. No general `SourceStatic` activation or publication by the
 disposable probe is permitted.
+
+Local packet-group staging BoxShape S0: the existing root-call ledger now
+preflights source order, original packet membership and the preceding site
+prefix without inserting a row. Its prepared group commits only after
+rechecking the route and prefix; a dropped or stale candidate leaves the
+shared ledger unchanged. Existing lexical emission calls this preparation and
+commits immediately, preserving its behavior. The selected caller may retain
+the same prepared packet until collector admission, but no selected packet or
+handoff is committed by this slice. Final quick-profile preflight test 1/1,
+root call entry family 32/32 and unchanged mimalloc Static entry 1/1 passed.
+An initial build against an uncached target was stopped; a cached build passed
+before the final empty-entry fix, then the final source rebuilt and passed.
+Next: selected original packet arm and source-ordered lifecycle route, followed
+by the function-local pending group and collector terminal integration. The
+qualified Return caller, final entry coverage, full loop body and EXE remain
+open.

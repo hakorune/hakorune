@@ -88,3 +88,48 @@ fn local_binding_groups_reject_incomplete_sequence_before_transfer() {
         .validate_local_call_binding_groups(owner, &exit, &groups)
         .is_err());
 }
+
+#[test]
+fn local_binding_group_preflight_does_not_publish_before_commit() {
+    let package = package();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let owner = ledger.root_owner().expect("root owner");
+    let sites: Vec<_> = ledger
+        .completion_for_owner(owner)
+        .expect("root completion")
+        .cleanup()
+        .root_flow()
+        .expect("root flow")
+        .local_calls()
+        .iter()
+        .map(|call| call.site().clone())
+        .collect();
+    let prepared = ledger
+        .prepare_local_call_binding_group(
+            owner,
+            RootLocalCallBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
+        )
+        .expect("preflight first group");
+    ledger.with_local_call_binding_groups_for_test(owner, |groups| assert!(groups.is_empty()));
+    drop(prepared);
+    ledger.with_local_call_binding_groups_for_test(owner, |groups| assert!(groups.is_empty()));
+
+    let prepared = ledger
+        .prepare_local_call_binding_group(
+            owner,
+            RootLocalCallBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
+        )
+        .expect("preflight again");
+    prepared.commit().expect("commit first group");
+    let stale = ledger
+        .prepare_local_call_binding_group(
+            owner,
+            RootLocalCallBindingGroupV1::new(sites[1].clone(), fake_binding(), None).unwrap(),
+        )
+        .expect("preflight second group");
+    ledger
+        .record_root_local_call_bindings(owner, sites[1].clone(), fake_binding())
+        .expect("competing second group");
+    assert!(stale.commit().is_err());
+    ledger.with_local_call_binding_groups_for_test(owner, |groups| assert_eq!(groups.len(), 2));
+}

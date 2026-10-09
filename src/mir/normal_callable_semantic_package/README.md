@@ -1273,6 +1273,11 @@ Record checks the exact terminal source and producer membership; exit views rebi
 only flat coordinates. Final root/child lending uses the original packet, the same
 owner FinishedBindings and exactly one instruction in the actual function. Foreign
 exits, lenders, original producer drift and already-mapped coordinates reject.
+The local binding-group owner can preflight source order and packet membership
+without mutating the shared ledger. Dropping that pending group leaves no row;
+commit rechecks the expected site and retained prefix before insertion. Existing
+emission commits immediately, while a selected function can hold its checked
+packet through fallible draft admission and commit before infallible collection.
 Focused contraction tests cover this physical boundary; they do not prove an
 actual tagged source Return execution. The same packet now lends original
 Forwarded Copy dependencies after source/entry corroboration. Dependencies enter

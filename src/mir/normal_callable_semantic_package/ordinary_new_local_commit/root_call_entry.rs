@@ -3,6 +3,54 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 
+/// A source-ordered group checked without changing the shared ledger.
+/// A selected caller may hold this through fallible draft admission; existing
+/// callers commit it immediately.
+pub(crate) struct PreparedRootLocalCallBindingGroupV1<'ledger> {
+    ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    group: RootLocalCallBindingGroupV1,
+    preceding_sites: Vec<OwnedExprSiteV1>,
+}
+
+/// Keep the original emitted packet and its pending group in one owner.
+/// The packet becomes visible to the final visitor only after `commit`.
+pub(crate) struct PreparedRootLexicalCallBindingGroupV1<'ledger> {
+    group: PreparedRootLocalCallBindingGroupV1<'ledger>,
+    packet: std::rc::Rc<EmittedLexicalCallProjectionV1>,
+}
+
+impl PreparedRootLexicalCallBindingGroupV1<'_> {
+    pub(crate) fn commit(self) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
+        self.group.commit()?;
+        Ok(self.packet)
+    }
+}
+
+impl PreparedRootLocalCallBindingGroupV1<'_> {
+    pub(crate) fn commit(self) -> Result<(), String> {
+        let expected = self.ledger.expected_local_call_binding_sites(self.owner)?;
+        if expected.get(self.preceding_sites.len()) != Some(self.group.site()) {
+            return Err(freeze("local-call-binding-preflight-stale"));
+        }
+        let mut rows = self.ledger.root_local_call_bindings.borrow_mut();
+        let groups = rows.get(&self.owner).map(Vec::as_slice).unwrap_or(&[]);
+        if groups.len() != self.preceding_sites.len()
+            || groups
+                .iter()
+                .map(|recorded| recorded.site())
+                .ne(self.preceding_sites.iter())
+            || groups
+                .iter()
+                .any(|recorded| recorded.site() == self.group.site())
+        {
+            return Err(freeze("local-call-binding-preflight-stale"));
+        }
+        rows.entry(self.owner).or_default().push(self.group);
+        Ok(())
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn with_local_call_binding_groups_for_test<
@@ -72,12 +120,23 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings: Vec<(BasicBlockId, MirInstruction)>,
         packet: EmittedLexicalCallProjectionV1,
     ) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
+        self.prepare_root_lexical_call_bindings(owner, site, bindings, packet)?
+            .commit()
+    }
+
+    pub(crate) fn prepare_root_lexical_call_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        site: OwnedExprSiteV1,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+        packet: EmittedLexicalCallProjectionV1,
+    ) -> Result<PreparedRootLexicalCallBindingGroupV1<'_>, String> {
         let packet = std::rc::Rc::new(packet);
-        self.record_local_call_binding_group(
+        let group = self.prepare_local_call_binding_group(
             owner,
             RootLocalCallBindingGroupV1::new(site, bindings, Some(std::rc::Rc::clone(&packet)))?,
         )?;
-        Ok(packet)
+        Ok(PreparedRootLexicalCallBindingGroupV1 { group, packet })
     }
 
     fn record_local_call_binding_group(
@@ -85,13 +144,22 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         group: RootLocalCallBindingGroupV1,
     ) -> Result<(), String> {
+        self.prepare_local_call_binding_group(owner, group)?
+            .commit()
+    }
+
+    fn prepare_local_call_binding_group(
+        &self,
+        owner: FunctionOwnerIdV1,
+        group: RootLocalCallBindingGroupV1,
+    ) -> Result<PreparedRootLocalCallBindingGroupV1<'_>, String> {
         let site = group.site().clone();
         if site.owner() != owner {
             return Err(freeze("local-call-binding-owner-drift"));
         }
         let expected = self.expected_local_call_binding_sites(owner)?;
-        let mut rows = self.root_local_call_bindings.borrow_mut();
-        let groups = rows.entry(owner).or_default();
+        let rows = self.root_local_call_bindings.borrow();
+        let groups = rows.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
         if groups.iter().any(|recorded| recorded.site() == &site) {
             return Err(freeze("duplicate-local-call-bindings"));
         }
@@ -101,8 +169,15 @@ impl OrdinaryNewClaimLedgerV1 {
         if expected.get(groups.len()) != Some(&site) {
             return Err(freeze("local-call-binding-site-order"));
         }
-        groups.push(group);
-        Ok(())
+        Ok(PreparedRootLocalCallBindingGroupV1 {
+            ledger: self,
+            owner,
+            group,
+            preceding_sites: groups
+                .iter()
+                .map(|recorded| recorded.site().clone())
+                .collect(),
+        })
     }
 
     /// `co_seal_lifecycle` is the routing authority: it marks exactly the
