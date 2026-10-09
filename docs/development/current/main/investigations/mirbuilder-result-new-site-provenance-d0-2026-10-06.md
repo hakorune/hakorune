@@ -197,26 +197,9 @@ physical outcome transport/publication; unchanged production EXE and full goal
 acceptance. These are prerequisites of the existing Gate1 task, not new optional
 audits. Stored-child sibling and Gates2-4 stay parked.
 
-Validation for this decision-only slice: source owner/path audit and read-only
-worker agree; pointer/scope guards and diff whitespace checks required. Rust/C/
-.hako unchanged, no Cargo rerun or reuse of prior green as new semantic acceptance.
-Previous compile-time inquiry inspected build receipts/settings only; it did not
-advance Gate1. This turn resolves a field-contract ambiguity and changes the
-selected proof task based on the direct/local returned-call gap, rather than
-repeating the existing frontier census. Goal remains active.
-
-Decision validation: first pointer guard rejected the edited workstream row at
-550 characters (this-change document formatting). Shortened only row H while
-retaining its current task and required frontier. Second pointer guard required
-the full selected task ID in the card; corrected the heading. Final pointer/
-scope/diff checks PASS; no unclassified red or new runtime acceptance claim.
-
-## Closed terminal-value owner relocation
-
-CLOSED41f07cfa90: original body/visibility/reexports and focused33/source check
-receipts remain in Git. No acquisition/publication grant; original app/Both315/318
-and lifetime/EXE obligations remain. The accepted immutable handoff mapping below
-supersedes the historical design-stop/interface brief; current mode is CURRENT_STATE.
+Historical decision validation and terminal-value owner relocation are at
+41f07cfa90; they granted no acquisition, publication, or EXE. The accepted
+handoff below supersedes the historical interface brief.
 ## MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0 accepted mapping
 
 Decision: choose the immutable gate reviewed against current issuer/rootcleanup
@@ -359,34 +342,10 @@ Checkpoint1a6d03fdf18a75da6dca17d28e99ba4184d182a1 semantic Static fullincoming 
 Next accepted Decision (read-only review_cleanup_path): connect original Static local calls through SAME owned call packet and existing sole lexical_i64 emitter. Packet source is Instance original affine disposition row OR QualifiedStatic SAME inventory Rc + canonical LocalCallObservation + moved original publication handoff. Common immutable loan drives existing ordered argument loop, priorHome Fault cleanup, call group, finalvisitor and FinishedBindings; Static receiver is explicitly absent and exact canonical Global target, result remains original ExactI64. Reuse existing affine publication take, not a second Static disposition registry. Corroborate catalog brand/caller/site/target/required ordinals, allincoming Executable actuals, same checked entry and local observation. Late co-seal preflights ALL selected original Static local sites then marks existing lifecycle_local_call_sites before install; emitter never marks its own group. Same loan reaches both independent incoming verifiers, which admit Global only against exact canonical module declaration with receiver offset0, not blanket Global acceptance. Preserve lexical-return/direct-return require_instance boundary until separately mapped. Manifest: root_call_entry source packet/lexical projection and exports; narrow Static entry packet lender/entry common incoming loan; terminal lexical_i64 core and recursive port/disposition/member selected branch; existing source publication take; issuer late co-seal + Main routed-site query; rootcall finalvisit/group; both physical incoming verifiers. Exclude ObjectArguments/normal_return/source_finish/guard products and unrelated semantic changes. Acceptance: unchanged original Layout.pick guard + Heap forwarding + Main literal source emits all3 original call sites, no receiver for Static tagged entry, original I64 projection, priorHomes0/1 Fault cleanup, both independent verifiers and FinishedBindings; SAME JSON committed C shim compile/link/run exit0. Negative receiver/ordinal/site/symbol/Rc/brand/Taken/missing publication/group/FinishedBindings/Fault cleanup/extra unobserved Global/incoming veto refuse without generic retry. Actual mimalloc unresolved/guarded source frontier and315/318/field lifetime/full acceptance remain owed; no app rewrite or claimed whole production success. Next physical implementation not started.
 
 Static physical shared-packet/emitter closure verified on independent1a6 candidate.
-Selected original Static local calls now move the existing affine publication
-into the SAME owned packet; SAME ordered emitter, Fault chain, root binding
-and FinishedBindings owners handle Instance and Static. Static receiver absent;
-both independent verifiers use original namespace-backed offset/canonical Global
-and exact incoming coordinates. Callee successful Completion and SAME Executable
-full ordered args are mandatory. Retained original dispatch projection moves once
-into ledger: unrelated sites do not demand ingress Err; failed source marks no
-route, selected demand retains original failure. Whole final route preflight
-precedes any marks. Mixed opaque + declared I64 uses existing scalar owner.
-Final regression262/262 PASS(.57s), /tmp/hako-static-packet-candidate-final-regression.log;
-non-test library21.52s PASS, final-check.log; scope/COPY-UNKNOWN/pointer/diff PASS.
-Twelve unchanged original JSON artifacts (Integer/signed/Bool/null, guarded
-Integer and mixed literal/local I64; optimize false/true) compile/link/run exit0
-with fresh private current-source C shim, c-originals.log. Dedicated C ABI test
-positive+14 drift negatives PASS, c-boundary.log. Logs share /tmp/hako-static-packet-candidate- prefix.
-Packet negatives cover foreign publication brand/affine double take/raw opaque
-payload/literal/ordinal/receiver/result/landing drift. Lender pins missing/Err
-Completion, scalar actual drift, per-site error scope and all-or-none route marks.
-Initial21 cascading production compile errors from misplaced export,2 test loan
-API errors,1 private test-field error and issuer800 guard failure were THISCHANGE
-and corrected; issuer795, all selected source files<800. Existing warning debt
-is not a new red. No unclassified/THISCHANGE red remains in selected evidence.
-Excluded source_finish/ObjectArguments/normal-return and unrelated full WIP remain
-protected; this does not certify that larger WIP. Actual mimalloc SHA33d3e8b9
-unchanged; no fresh full-app EXE/frontier or full S0/goal completion claim.
-Next: build candidate CLI and probe unchanged mimalloc actual source; use exact
-retained source/domain/Completion boundary for next owned mapping. Both315/318,
-field lifetime/cleanup and full mandatory production acceptance still owed.
+Checkpoint0d2ca0eecb and /tmp/hako-static-packet-candidate-* retain exact
+packet/emitter contract, 262/262 focused, non-test library, 12 original JSON
+C executions and 14 ABI negatives. No original mimalloc EXE was claimed;
+Both315/318, field lifetime/cleanup and final acceptance remained open.
 Checkpoint0d2ca0eecbdd6591ccd407ab36e26bbfb1b9c548 Static physical shared-packet/emitter closure verified and pushed: final262/262 regression, non-test21.52s, scope/COPY/pointer/diff PASS;12 unchanged source JSON C compile/link/run exit0 and14 ABI negatives PASS. Original larger WIP working bytes preserved through publication; index empty; candidate code/index synchronized. Actual mimalloc source SHA33d3e8b9 unchanged; fresh candidate CLI/probe is next, not yet acceptance. Both315/318/field lifetime/full goal remain owed.
 Fresh unchanged mimalloc candidate probe after0d2ca0eecb: current CLI build PASS1m25; binary SHA7552a2940eac44f660be8181f91aab7c23c951d792e82c369fd39cd33dfc2b0a, source SHA33d3e8b9 unchanged. Initial rc2 was deprecated nyash basename guard (harness invocation, not source frontier); same binary copied as hakorune gives rc1/noEXE at ordinary-new/local-commit/artifact-unowned-lifecycle-site, HakoAllocHeap.reallocResult/2 block368 index4 plain BirthConstructor HakoAllocHandleResult.birth/3 receiver51 args48,49,50. /tmp/hako-static-packet-candidate-mimalloc-probe.{log,json} records exact run/source/binary/commit. This candidate boundary is distinct from protected full-WIP Page.allocate observation; neither certifies the other. Next read-only mapping is original result-New/Birth claim and final artifact ownership, not C emitter retry or app rewriting; next Decision pending worker review, goal active.
 
@@ -997,3 +956,18 @@ share the original Rc; pre-loop call impersonation rejects. Quick original
 source 1/1, claim 9/9, actual 13/13, domain 10/10 PASS. This does not issue
 live actuals, Home join, V2 Recipe/JoinSig, physical packet or EXE. Next:
 source-bound V2 producer for the complete selected callable Loop.
+
+S1 V2 Decision (read-only worker, 2026-10-09): issue a source-bound V2
+semantic product at `raw_loop_child_entry`, before its V1 Facts issuer.
+Authority is the resolver Loop/If/assignment/return topology, original
+Completion, and both one-take Static loans (header zeroarg, body arity one).
+The V2 producer owns keys; common verifier and JoinSig own structural and
+logical joins. Each CallSlot must co-seal its original Rc/site/target/args.
+The selected old responsibility is the V1 `SourceItemsMissing` stop for this
+source; other callable families and non-callable routing stay untouched.
+Reject missing/foreign/duplicate loans, changed statement order, wrong
+ordinal/class, absent return or `bin` backedge before any MIR effect.
+Acceptance is unchanged source with both calls, inner return and one I64
+backedge; negatives cover missing/swapped loan, missing return and Bool update.
+The post-loop `return me.huge_bin()` is a separate continuation obligation.
+Semantic V2 grants no actual value, Home, physical SSA/packet or EXE.
