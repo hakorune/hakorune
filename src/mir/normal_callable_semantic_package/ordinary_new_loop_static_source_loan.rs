@@ -57,6 +57,9 @@ impl LoopEntryStaticI64SourceLoanV1 {
     pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
         &self.claim
     }
+    pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
+        self.original.call_site()
+    }
 }
 
 struct StaticSourceSealV1 {
@@ -79,6 +82,14 @@ impl LoopStaticSourceCallLoanV1 {
 
     pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
         &self.claim
+    }
+    pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
+        self.original.call_site()
+    }
+    pub(in crate::mir) fn argument_sites(
+        &self,
+    ) -> &[crate::mir::resolved_semantics::SourceExprSiteV1] {
+        self.original.argument_sites()
     }
 }
 
@@ -317,6 +328,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         }
+        self.loop_static_source_loop_sites = rows.keys()
+            .map(|(loop_site, call)| (call.owner(), loop_site.clone())).collect();
         *self.loop_static_source_loans.get_mut() = rows;
         *self.loop_entry_static_i64_source_loans.get_mut() = entry_rows;
         Ok(())
@@ -331,6 +344,16 @@ impl OrdinaryNewClaimLedgerV1 {
         self.loop_static_source_loans
             .borrow_mut()
             .remove(&(loop_site.clone(), site.clone()))
+    }
+
+    /// Stable issued-site census, retained after an affine loan is taken.
+    /// Re-entering a selected Loop cannot fall through to the V1 route.
+    pub(in crate::mir) fn expects_loop_static_source_loan_v1(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        loop_site: &SourceStmtSiteV1,
+    ) -> bool {
+        self.loop_static_source_loop_sites.contains(&(owner, loop_site.clone()))
     }
 
     /// One source-only I64 result initializer before the selected Loop.

@@ -949,13 +949,9 @@ to canonical CFG/Binding SSA, Home, then switch the selected raw Loop caller.
 The V1 physicalizer has no V2 entry; no V1 coercion or S6C receipt reuse.
 Executable entry, original EXE and old-edge retirement remain open.
 
-S1 source-only loan closed (2026-10-09): package issuance now retains the
-original Static Rc, existing I64 claim, exact callable Loop placement and
-ordered call sites in a one-take row. Unchanged mimalloc header/body calls
-share the original Rc; pre-loop call impersonation rejects. Quick original
-source 1/1, claim 9/9, actual 13/13, domain 10/10 PASS. This does not issue
-live actuals, Home join, V2 Recipe/JoinSig, physical packet or EXE. Next:
-source-bound V2 producer for the complete selected callable Loop.
+S1 source-only loan closed at `264791096c`: original Static Rc/I64 claim,
+Loop placement and ordered sites in one-take rows; pre-loop impersonation
+rejects. Quick source 1/1, claim 9/9, actual 13/13, domain 10/10 PASS.
 
 S1 V2 Decision (read-only worker, 2026-10-09): issue a source-bound V2
 semantic product at `raw_loop_child_entry`, before its V1 Facts issuer.
@@ -978,9 +974,20 @@ I64 class of `n`. The same Static claim issuer must co-seal the pre-loop
 original Rc. The checked-input condition remains conditional; wrong tags
 Fault before that result. No raw tagged formal is treated as I64.
 
-S1 pre-loop source loan verified (2026-10-09): original `normalize_size`
-call and `local n` initializer co-seal through the existing Static claim,
-ordered original Rc, and a one-take package row. Unchanged mimalloc 1/1,
-Static claim 9/9, actual 13/13 and domain 10/10 PASS on quick binary.
-This is source-only; V2 Recipe/JoinSig, live entry `n`, Home/SSA and EXE
-remain open. No production Loop caller switched.
+S1 pre-loop loan closed at `0fc9cdaf03`: original `normalize_size` Rc and
+`local n` initializer co-seal ExactI64 in one-take row; source 1/1, claim
+9/9, actual 13/13, domain 10/10 PASS. No live entry `n` or production switch.
+
+S1 source-bound V2 semantic verified (2026-10-09): original resolver
+Loop/If/return/rebind, three Static loans and Completion issue one common
+V2 Recipe/JoinSig. The product retains checked `n`/`bin` bindings, declaration
+order, source sites and Recipe roles for the physical consumer. Swapped loans
+reject; missing inner return stops in V2 source, Bool update stops earlier at
+package `source-actual-unavailable`. Focused original producer 1/1, selected
+direct route 1/1, source negatives 1/1 (two arms), raw-entry 11/11 and V2
+schema 23/23 PASS; quick library check and CLI build PASS. Same-site reentry
+rejects; original `bin_size` Loop stays unselected. The route stops after
+semantic issue at `static-i64-v2/physical-unavailable`; no live actual/Home/SSA
+or EXE permission. Whole-app probe stops earlier at `borrowed-entry/source-only-object-actuals`.
+Next D0: identify a genuine Loop Home owner; selected-New `PrefixLocalFlow`
+and Query-only neutral Home evidence are not whole-function Loop authorities.

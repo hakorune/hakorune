@@ -252,6 +252,8 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             let bin_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == bin_slot).unwrap();
             package.batch().with_lowering_input(bin_slot, |input| {
                 let loop_site = input.function().loop_sites().next().expect("original size_to_bin loop");
+                let mut header_loan = None;
+                let mut body_loan = None;
                 for (selector, arity) in [("max_regular_bin", 0), ("bin_size", 1)] {
                     let (site, call) = input.function().method_calls()
                         .find(|(_, call)| call.selector() == selector)
@@ -288,6 +290,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                     assert!(std::rc::Rc::ptr_eq(moved.original(), original));
                     assert!(package.ordinary_new_claim_ledger
                         .take_loop_static_source_call_loan_v1(loop_site, &owned).is_none());
+                    if arity == 0 { header_loan = Some(moved); } else { body_loan = Some(moved); }
                 }
                 let outside = input.function().method_calls()
                     .find(|(_, call)| call.selector() == "normalize_size").unwrap().0;
@@ -310,6 +313,37 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert!(std::rc::Rc::ptr_eq(entry.original(), moved.original()));
                 assert!(package.ordinary_new_claim_ledger
                     .take_loop_entry_static_i64_source_loan_v1(loop_site, initializer.declaration_site()).is_none());
+                let completion = package.ordinary_new_claim_ledger
+                    .completion_for_owner(input.owner()).expect("original full source Completion");
+                let site_for = |selector| {
+                    let site = input.function().method_calls()
+                        .find(|(_, call)| call.selector() == selector).unwrap().0;
+                    crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone())
+                };
+                let wrong_header = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site, &site_for("bin_size"),
+                ).unwrap().unwrap();
+                let wrong_body = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site, &site_for("max_regular_bin"),
+                ).unwrap().unwrap();
+                let negative_entry = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_entry_static_i64_source_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site, initializer.declaration_site(),
+                ).unwrap().unwrap();
+                assert!(crate::mir::builder::produce_static_i64_loop_semantic_v2(
+                    input, loop_site, completion, negative_entry, wrong_header, wrong_body,
+                ).is_err(), "swapped original CallSlot proofs must fail before MIR");
+                let product = crate::mir::builder::produce_static_i64_loop_semantic_v2(
+                    input, loop_site, completion, moved,
+                    header_loan.expect("header source"), body_loan.expect("body source"),
+                ).expect("original source-bound V2 Recipe and JoinSig");
+                assert_eq!(product.recipe().as_recipe().items.len(), 13);
+                assert_eq!(product.join().after_binding().raw(), 0);
+                assert_ne!(product.roles().n_binding, product.roles().bin_binding);
+                assert_eq!((product.roles().header_call.raw(), product.roles().body_call.raw(), product.roles().backedge_write.raw()), (1, 4, 12));
+                assert_eq!(product.source_calls().1.placement(), &crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition);
                 assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
                     claims, source, &package.selected, &package.parameter_contracts,
                     &bin_target, input, loop_site, &outside,
@@ -417,6 +451,125 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             }).unwrap();
         });
     }).unwrap().join().expect("real imported observation");
+}
+
+#[test]
+fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
+    std::thread::Builder::new().name("mimalloc-static-loop-route".into())
+        .stack_size(32 * 1024 * 1024).spawn(|| {
+        let env_updates: Vec<_> = crate::test_support::JOINIR_DEFAULT_MODE.into_iter().chain([
+            ("NYASH_ALLOW_USING_FILE", Some("1")), ("NYASH_ENABLE_USING", Some("1")),
+            ("NYASH_OPERATOR_BOX_ALL", Some("0")), ("NYASH_MACRO_DISABLE", Some("1")),
+        ]).collect();
+        crate::test_support::with_env_vars(&env_updates, || {
+            use crate::mir::builder::{NormalRootExecutionConsumerV1, SelectedNormalCallableKeyV1};
+            use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+            use crate::runner::modes::common_util::normal_callable::{
+                materialize_normal_callable_program_with_identity_and_lineage_v1,
+                NormalCallableMaterializationOutcomeV1,
+            };
+            let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("apps/mimalloc-lite/main.hako");
+            let code = std::fs::read_to_string(&filename).unwrap();
+            let runner = crate::runner::NyashRunner::new(Default::default());
+            let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
+                &runner, filename.to_str().unwrap(), &code,
+            ).unwrap();
+            let imports: Vec<_> = prepared.imports.into_iter().collect();
+            let transformed = materialize_normal_callable_program_with_identity_and_lineage_v1(
+                prepared.code, runner.parser_build_config(), filename.to_string_lossy().into_owned(), prepared.lineage,
+            ).unwrap();
+            let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else { panic!("source-backed") };
+            let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
+            let consumed = NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
+            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+                &mut FunctionSemanticResolverSessionV1::new(94).unwrap(), consumed, Some(&catalog),
+                crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
+            ).unwrap();
+            let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
+            let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+            package.batch().with_lowering_input(slot, |input| {
+                let loop_site = input.function().loop_sites().next().unwrap();
+                let claims = &package.ordinary_new_claim_ledger;
+                assert!(claims.expects_loop_static_source_loan_v1(input.owner(), loop_site));
+                let first = crate::mir::builder::stop_after_selected_semantic_product(input, claims, loop_site).unwrap_err();
+                assert!(first.contains("static-i64-v2/physical-unavailable"), "{first}");
+                let second = crate::mir::builder::stop_after_selected_semantic_product(input, claims, loop_site).unwrap_err();
+                assert!(second.contains("static-i64-v2/source-unavailable"), "{second}");
+            }).unwrap();
+            let other = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size", 1);
+            let other_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(other)).unwrap();
+            package.batch().with_lowering_input(other_slot, |input| {
+                let loop_site = input.function().loop_sites().next().unwrap();
+                assert!(!package.ordinary_new_claim_ledger.expects_loop_static_source_loan_v1(input.owner(), loop_site));
+                assert!(crate::mir::builder::stop_after_selected_semantic_product(
+                    input, &package.ordinary_new_claim_ledger, loop_site,
+                ).is_ok(), "unselected Loop keeps its existing route");
+            }).unwrap();
+        });
+    }).unwrap().join().expect("original selected Loop route");
+}
+
+#[test]
+fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
+    std::thread::Builder::new().name("mimalloc-static-loop-negatives".into())
+        .stack_size(32 * 1024 * 1024).spawn(|| {
+        let env_updates: Vec<_> = crate::test_support::JOINIR_DEFAULT_MODE.into_iter().chain([
+            ("NYASH_ALLOW_USING_FILE", Some("1")), ("NYASH_ENABLE_USING", Some("1")),
+            ("NYASH_OPERATOR_BOX_ALL", Some("0")), ("NYASH_MACRO_DISABLE", Some("1")),
+        ]).collect();
+        crate::test_support::with_env_vars(&env_updates, || {
+            use crate::mir::builder::{NormalRootExecutionConsumerV1, SelectedNormalCallableKeyV1};
+            use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+            use crate::runner::modes::common_util::normal_callable::{
+                materialize_normal_callable_program_with_identity_and_lineage_v1,
+                NormalCallableMaterializationOutcomeV1,
+            };
+            let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("apps/mimalloc-lite/main.hako");
+            let code = std::fs::read_to_string(&filename).unwrap();
+            for (case, (before, after)) in [
+                ("return bin\n      }\n      bin = bin + 1", "local skipped = bin\n      }\n      bin = bin + 1"),
+                ("bin = bin + 1\n    }\n    return me.huge_bin()", "bin = true\n    }\n    return me.huge_bin()"),
+            ].into_iter().enumerate() {
+                let runner = crate::runner::NyashRunner::new(Default::default());
+                let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
+                    &runner, filename.to_str().unwrap(), &code,
+                ).unwrap();
+                assert_eq!(prepared.code.matches(before).count(), 1, "one original Loop source");
+                let imports: Vec<_> = prepared.imports.into_iter().collect();
+                let changed = prepared.code.replacen(before, after, 1);
+                let transformed = materialize_normal_callable_program_with_identity_and_lineage_v1(
+                    changed, runner.parser_build_config(), filename.to_string_lossy().into_owned(), prepared.lineage,
+                ).unwrap();
+                let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else { panic!("source-backed") };
+                let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
+                let consumed = NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
+                let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+                    &mut FunctionSemanticResolverSessionV1::new(95).unwrap(), consumed, Some(&catalog),
+                    crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
+                );
+                if case == 1 {
+                    let error = match package {
+                        Ok(_) => panic!("Bool update must stop in package"),
+                        Err(error) => error,
+                    };
+                    assert!(format!("{error:?}").contains("source-actual-unavailable"), "{error:?}");
+                    continue;
+                }
+                let package = package.expect("missing inner return reaches V2 source producer");
+                let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
+                let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+                package.batch().with_lowering_input(slot, |input| {
+                    let loop_site = input.function().loop_sites().next().unwrap();
+                    let error = crate::mir::builder::stop_after_selected_semantic_product(
+                        input, &package.ordinary_new_claim_ledger, loop_site,
+                    ).unwrap_err();
+                    assert!(error.contains("static-i64-v2/source]"), "{before}: {error}");
+                }).unwrap();
+            }
+        });
+    }).unwrap().join().expect("changed original Loop rejects");
 }
 
 #[test]

@@ -6,7 +6,7 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(in crate::mir::normal_callable_semantic_package) fn completion_for_owner(
+    pub(in crate::mir) fn completion_for_owner(
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Option<&VerifiedFunctionCompletionV1> {

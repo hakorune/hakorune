@@ -47,6 +47,7 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
+pub(in crate::mir) use normal_callable_loop_source_facts::produce_static_i64_loop_semantic_v2;
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
@@ -397,6 +398,8 @@ mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+#[cfg(test)]
+pub(in crate::mir) use raw_loop_child_entry::stop_after_selected_semantic_product;
 mod raw_loop_child_port; // single located-source Loop child-entry boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness

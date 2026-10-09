@@ -293,6 +293,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     loop_static_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>>>,
+    loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
     loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
     // The existing source dispatch projection retains per-site error scope.
     borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,

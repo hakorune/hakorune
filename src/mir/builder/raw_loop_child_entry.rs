@@ -40,6 +40,10 @@ mod variable_accum;
 
 #[path = "raw_loop_child_entry/ledger_bridge.rs"]
 mod ledger_bridge;
+#[path = "raw_loop_child_entry/static_i64_v2.rs"]
+mod static_i64_v2;
+#[cfg(test)]
+pub(in crate::mir) use static_i64_v2::stop_after_selected_semantic_product;
 
 /// Exact child-entry result for one raw Loop syntax surface.
 ///
@@ -285,6 +289,17 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             None => return lower_non_callable_loop_route_v1(builder, condition, body),
         };
         let owner = binding_product.owner();
+        if let (Some(input), Some(ledger), Some(loop_site)) =
+            (source_input, callable_ledger, parent_source.site())
+        {
+            if let Some(claims) = ledger.borrow().ordinary_new_claim_ledger() {
+                static_i64_v2::stop_after_selected_semantic_product(
+                    input,
+                    claims,
+                    &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(loop_site.clone()),
+                )?;
+            }
+        }
         let variable_accum_recurrence = match source_input {
             Some(input) => issue_callable_variable_accum_recurrence(input, owner, parent_source)
                 .map_err(|error| {
