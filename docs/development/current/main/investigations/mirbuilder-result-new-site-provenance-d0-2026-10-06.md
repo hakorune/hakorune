@@ -685,215 +685,34 @@ shape helper extraction; that extraction did not change their path. Quick
 library check, pointer guard and diff check passed. The draft still stops at
 `actual-coverage-missing`; no finished call coordinate or production switch.
 
-Selected forwarded-actual loan Decision (read-only worker integrated): the
-existing `SourceStatic` candidate issuer already proves the original Rc,
-ordinal/site, candidate binding, caller root/formal, target formal and source
-draft origin for both original `normalize_size/1` callers. Retain that checked
-binding in a derived immutable `Forwarded` actual row, then lend exactly one
-row per original caller from the selected complete cohort. The canonical
-CurrentOwner read must use this row's binding, not infer the value from its
-formal or manufacture `ExactLexicalReadV1`. Wrong Rc/site/formal/candidate
-refuses. This is source loan only: generic `SourceStatic` admission stays
-closed, and no ledger binding group or affine handoff is taken. The eventual
-final verifier needs a bounded selected entry bridge because its generic
-`source.incoming`/qualified path omits this CurrentOwner source-only caller;
-both callers' finished coordinates and callee entry remain required.
+Completed Static caller/packet history (details and focused checks in commits):
+- `e6319b1a26`, `455123f3dc`, `ae7d7fdd68`: selected CurrentOwner
+  forwarding actual and unpublished prepacket; generic SourceStatic remains
+  source-only, and the shared lexical group is not mutated before commit.
+- `d7692b5599`, `8c58c7e3d9`, `13d8b5f404`, `0fe5c082d7`: source-bound
+  Static Loop Recipe/JoinSig and unpublished canonical CFG/SSA.
+- `5c236fdfd8`, `cc1697fc29`, `49646f8bdb`, `635f834fe9`,
+  `8cf6fadebf`, `731b05b824`, `61933a40fd`, `d307d68744`: original
+  LoopBody source, Scalar(Integer) actual, canonical read/Invoke and
+  detached projection; no fabricated Home local-call row.
+- `498e036e20`, `2602442eec`, `47df4b14d9`, `0aa3e8aec4`: exact
+  entry/body physical boundary, atomic collector retention and one finished
+  LoopBody coordinate. Publication remains open.
+- `1fc58fc9e6`: first `bin_size` If-condition retains its exact checked
+  compare operand and zero-input call Home row; the remaining contexts
+  are separate followups.
 
-Selected forwarded-actual loan S0: the witness now retains one derived
-`PreparedBorrowedFormalActualV1::Forwarded` row from the already-checked
-source candidate, and the selected complete-cohort packet lends it by exact
-caller/site. The disposable CurrentOwner canonical read takes the row's
-binding; its existing original MIR call still stops at
-`actual-coverage-missing`. Both original callers' witness rows and the staged
-candidate mutation passed 1/1. Unchanged mimalloc entry 1/1, handoff negative
-1/1, physical-shape negative 1/1, candidate veto 6/6 and generic Static packet
-3/3 passed in the same quick-profile binary. Quick library check, pointer
-guard and diff check passed. Source-only phase, shared ledger, affine handoff,
-finished coordinates and production path remain untouched.
-
-Selected packet publication Decision (read-only review integrated): the
-original `StaticIncomingSourceV1` and checked forwarded actual remain source
-authority; `VerifiedStaticLoopPacketSourceV1` is their selected cohort loan.
-The existing lexical binding group and invocation collector are the physical
-packet and publication owners. Generic `CallPacketSourceV1::static_i64` must
-keep its qualified/zero-input and executable-actual law: the CurrentOwner
-source-only caller cannot enter through it. A selected packet arm must bind
-the original Rc, local-call observation, canonical read and actual Invoke/
-NormalResult without constructing an `ExactLexicalReadV1` from a `ValueId`.
-Its site must be selected in source order by the same lifecycle group owner.
-`record_root_lexical_call_bindings` currently mutates the shared ledger
-immediately, while draft discard restores only MirBuilder. Therefore hold the
-selected packet/group in function-local pending state, preflight its group
-order and physical shape, and commit it with the affine handoff only at the
-successful existing collector admission terminal. A late draft/admission
-failure must leave both ledger and handoff untouched. Finished visitor and
-callee entry must consume that real packet; scanning final MIR for source
-identity would create a second authority. The qualified Return sibling uses
-its separate terminal finished producer. Next bounded implementation is the
-CurrentOwner caller's selected packet plus transactional group publication;
-accept one real collected caller packet and reject late admission without
-group/take. Both-caller completion, final entry coverage, full body and EXE
-remain open. No general `SourceStatic` activation or publication by the
-disposable probe is permitted.
-
-Completed selected packet prerequisites (commit evidence):
-- `e6319b1a26`: root lexical group preparation preflights source order and
-  packet prefix before shared-ledger mutation; ordinary callers commit at
-  their existing terminal.
-- `455123f3dc`: the selected CurrentOwner route uses the original I64 local
-  observation and ordinal-zero BorrowedActual; generic qualified/zero-input
-  Static packet admission remains closed.
-- `ae7d7fdd68`: the lexical packet owner validates original Rc, checked
-  forwarding actual, canonical read and Invoke/NormalResult in an unpublished
-  selected prepacket. It cannot enter a group or take the affine handoff.
-Focused positive/negative evidence and late-failure checks are in those
-commits. The current obligation remains to preflight finished packet/group
-and collector admission, then consume the handoff and commit the group only
-at a terminal with no remaining fallible step. Draft discard alone does not
-restore the shared ledger or affine handoff. The qualified Return caller,
-final independent incoming/entry coverage and EXE remain open.
-
-Static Loop physical history: `d7692b5599`, `8c58c7e3d9`, `13d8b5f404`,
-`0fe5c082d7` own the source-bound Recipe/JoinSig and unpublished CFG/SSA;
-production publication and EXE remain open. Body actual history:
-`5c236fdfd8`, `cc1697fc29`, `49646f8bdb`, `635f834fe9`, `8cf6fadebf`,
-`731b05b824`, `61933a40fd` own original source, scalar actual, canonical
-read/Invoke and detached projection evidence. ValueId comes from SSA after
-the backedge; generic SourceStatic remains source-only.
-
-Decision (2026-10-10, selected `bin_size` caller census): the current
-`mimalloc-lite` import closure contains three CurrentOwner `bin_size` calls
-in `size_class_box.hako` and two qualified integer-literal calls in
-`layout_box.hako`. Four `bin_size(max_regular_bin())` sites found by a
-repository-wide census belong to separate huge apps and are absent from this
-batch. The read-only review confirmed the five-site selected inventory; no
-nested-actual source expansion is justified by this active cohort. Continue
-the selected packet/finished-coordinate work for these five original sites.
-
-Decision (2026-10-10, selected body prepacket): `me.bin_size(bin)` is a
-nested Loop predicate call and has no Home `LocalCallObservation`; do not
-fabricate one or route it through the entry-only lexical packet arm. Move
-the existing body scalar source receipt into an unpublished prepacket with
-the canonical SSA read receipt and exact Invoke/NormalResult coordinates.
-Recheck it after whole-function close. This preserves source-to-physical
-identity while final visitor, executable tagged actual, callee entry and
-collector publication remain separate obligations.
-Body prepacket S0: quick-profile `static_loop` 5/5 pass, including original
-source/Home mutation and physical landing/result negatives; the executable
-packet stop remains. Pointer guard and diff check pass.
-
-Decision (2026-10-10, next body coordinate): the final lexical visitor only
-enumerates local and return packets. The body predicate has neither Home local
-observation nor finished caller while DraftSeal still aborts at packet-missing.
-Next prove a read-only detached finished projection for this retained body
-prepacket, then carry it through selected publication and add an explicit
-LoopBody visitor context. Do not fabricate a local row. Scalar tagged actual
-and all-incoming acceptance remain separate. Reject wrong source/read/Invoke,
-missing or duplicate finished producer and coordinate.
-
-Decision (2026-10-10, detached body projection): lend the verified DraftSeal
-image read-only after `prepare_exact_two`, then recheck the retained body
-source/read/Invoke/NormalResult prepacket. The selected disposable path must
-still abort and restore before reporting either shape rejection or the
-existing packet-missing stop. No finalized coordinate, tagged actual, group
-or collector admission is issued. Reuse the static-loop positive and source/
-Home/physical-shape negatives; no duplicate guard is needed.
-Detached projection S0: quick-profile `static_loop` 5/5 pass. The original
-selected test reaches the unchanged packet-missing stop and verifies parent
-restoration; source/Home mutation and wrong landing/result still reject.
-
-Detached body actual `d307d68744`: the original Rc/candidate and canonical
-read issue one Scalar(Integer) ordinal-zero actual at the unique DraftSeal
-Invoke coordinate. Generic SourceStatic stays source-only and no Home local
-row is fabricated. Quick-profile Static Loop 5/5 covered source, shape and
-duplicate-coordinate negatives; later collector work is recorded below.
-
-Decision (2026-10-10, selected body packet publication seam): the original
-source Rc, scalar receipt and DraftSeal-checked detached Invoke are the
-packet authority; canonical finished-child validation owns the completed
-physical coordinate. Retain this selected LoopBody packet in the existing
-`OrdinaryNewClaimLedgerV1`, keyed by owner and source site, separately from
-Home local-call groups. Finished-child validation must first lend the exact
-unpublished body binding to its existing `PhysicalBoundary`; the current
-`lifecycle_bindings` omits that block, so a later finished lookup would fail
-as `unrecorded-binding`. This loan is read-only and cannot publish the packet.
-After successful exact collector collection, commit the preflighted packet
-infallibly to the existing
-owner ledger, then move it with the finalized source handoff and project its
-original Invoke onto the finished function. Extend the existing final lexical
-visitor with an explicit LoopBody context; its consumer must match the
-finished coordinate and Scalar Integer actual against the physical Invoke.
-Do not install shared retention before a failed collector collection or add
-a fallible check after collection. Do not infer a packet from final MIR or
-open generic SourceStatic transport. Wrong owner/site/read/Invoke, missing
-or duplicate finished producer, and absent collector row reject. First
-bounded construction slice: finished-child validation of the selected packet.
-At `498e036e20`, transactional retention, visitor/consumer and full incoming
-coverage remained separate responsibilities; the selected path still stopped
-at `executable-packet-missing`. See the newer collector row below.
-
-Selected child boundary `498e036e20`: detached entry/body Invoke bindings
-pass PhysicalBoundary; the single-predecessor PHI exception is body-only.
-Selected collector/retention `2602442eec`: exact entry/body packets preflight
-before collection and commit only on success. Quick-profile Static Loop 6/6,
-PhysicalBoundary 7/7, finished copy 5/5, terminal visitor 6/6; duplicate
-collector and missing route leave both packets absent. This is a collector row,
-not a finished program or production EXE.
-
-Selected result-publication S0: entry, loop header, loop body and tail share
-one source cohort and one branded publication owner. The four handoffs first
-match source/target/I64/required arguments; detached header/tail zero-arg
-Invoke+NormalResult and existing entry/body physical proofs precede one
-atomic batch take after collector admission. No generic Call is emitted.
-Quick-profile selected caller and owner missing/duplicate tests pass; Static
-Loop 6/6, owner 11/11, PhysicalBoundary 7/7 (`47df4b14d9`).
-
-Selected finished-child projection S0 landed at `0aa3e8aec4`: the original
-LoopBody Invoke resolves one checked finished coordinate. The 44 pass/3 known
-baseline reds are recorded there. Publication remains open.
-
-Next Decision — LoopBody publication: preserve the lexical visitor and add a
-sibling read-only LoopBody visitor. Lend retained source Rc, Scalar(Integer)
-actual and finished coordinate to both existing final verifiers; match exact
-physical Invoke and reject cross-vocabulary duplicate site/coordinate. No
-Home local-call row, generic packet or second authority. Production mimalloc
-still stops earlier at `borrowed-entry/source-only-object-actuals`; a minimal
-real SizeClassBox import stops at `borrowed-static/local-source-missing`.
-Full consumer acceptance, EXE and retirement remain open.
-
-Decision (2026-10-10, real zero-input source-context census): the unchanged
-`SizeClassBox` source has four CurrentOwner zero-arg Static sites selected by
-the source inventory but absent from Completion Home `local_calls()`:
-`bin_size` Body2/IfCondition/Rhs `max_regular_bin`, `bin_size`
-Body11/Value/Rhs `word_size`, `size_to_bin` Body2/LoopCondition/Rhs
-`max_regular_bin`, and `accepts` Body0/IfCondition/Rhs `huge_bin`.
-An existing-owner one-shot exact-source census produced these four rows;
-its deliberate failing assertion was removed after observation. This is
-diagnostic evidence, not a passing acceptance or a new persistent test.
-
-Source authority + canonical issuer: the retained `StaticIncomingSourceV1`
-and exact CurrentOwner claim own call identity; for the first `bin_size`
-IfCondition site, the existing verified If-region/scalar-expression/Home
-issuer owns `ExpressionValue` with prior Homes. The zero-input closure owns
-callee signature, Completion and result. Non-authority: the mere source
-inventory, empty argument list, sibling call's Home row and final MIR alone.
-Fail-fast boundary: keep `borrowed-static/local-source-missing` until the
-same exact site has its own verified Home row; never fabricate a local row
-or route the nonlocal site through a lexical local packet.
-Smallest next slice: inspect this If-region bundle, `contains_source_request`,
-scalar preflight (including formal `bin` kind), and Completion root flow to
-find why the existing issuer did not retain the first row. Then admit only
-the proved condition context and check source Rc/site/target, zero args and
-Home statement/region. Wrong site/owner/target, unproved operand or region,
-and missing Home row must reject. The later return, Loop and `accepts`
-contexts are separate bounded followups. This Decision grants no executable
-packet, tagged entry, production EXE or old-edge retirement.
-
-Selected If-condition Home source S0 landed at `1fc58fc9e6`: original `bin_size`
-Body2 now borrows exact checked `CompareOperand` for its full Bool condition,
-then retains the zero-input call Home row; unsupported `>=` stays closed. The
-unchanged SizeClassBox import still stops at `borrowed-static/local-source-missing`.
-No final Invoke, all-incoming publication, EXE or production cutover follows.
+Current selected Static caller contract: the source cohort contains three
+CurrentOwner `bin_size` calls in `size_class_box.hako` and two qualified
+integer-literal calls in `layout_box.hako`. The existing final visitor must
+consume the retained LoopBody source Rc, Scalar(Integer) actual and finished
+coordinate, cross-check the physical Invoke and reject duplicate site or
+coordinate. Generic SourceStatic stays source-only. Four CurrentOwner
+zero-input sites (`bin_size` Body2/Body11, `size_to_bin` Loop condition,
+`accepts` Body0) require their own exact Home row; the first Body2 row is
+proved at `1fc58fc9e6`. A source inventory, empty arguments, sibling Home
+row, and final MIR alone are not authority. Finished incoming/entry coverage,
+EXE and selected old-edge retirement remain open.
 
 Return `word_size` prerequisite audit (`938f1f4466`): an exact Static source
 call is insufficient until its parent expression has Integer Home. Checked
@@ -993,3 +812,21 @@ module; scanner order, argument moves and Normal/Fault Home accounting are
 unchanged (scanner 653 lines). Quick selected-new 12/12 and Home completion
 1/1 passed. Initial module-name filter selected 0 and is not counted.
 No Loop acceptance follows from this responsibility split.
+
+Variable-bound Mul Loop source prerequisite (in progress): the original
+resolver Loop membership and exact child sites are observed once in the
+compiler source layer. The bounded shape is `induction < bound` with three
+distinct lexical bindings and exactly two ordered body assignments,
+`scale = scale * 2` then `induction = induction + 1`. Wrong operator,
+constant, body order, owner or source site rejects. This source observation
+does not claim pre-loop Integer class, Facts, Recipe, JoinSig or After; the
+Home scanner remains the only authority for those input classes. The next
+slice must combine this observation with its typed Home request in the
+package issuer before the scanner can cross Body9. The observer belongs to
+that same selected handoff series and is retired if the package adopts a
+different canonical source projection.
+Focused quick-profile evidence: the original `bin_size` source plus six
+shape negatives passed in one test; `real_bin_size_` 5/5 passed, and the
+existing `variable_recurrence_` family passed 11/11 (one pre-existing
+LLVM-dependent test ignored). Rustfmt check, pointer guard and diff check
+passed. No Home Body9 advance or production caller switch is claimed.

@@ -1,6 +1,86 @@
 use super::*;
 
 #[test]
+fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
+    use crate::mir::compiler::variable_bound_mul_recurrence_source::{
+        observe_variable_bound_mul_source_v1, VariableBoundMulSourceRejectV1,
+    };
+    use crate::mir::resolved_semantics::{
+        SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
+    };
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let cases = [
+        (original.to_string(), None),
+        (
+            original.replacen("loop(i < shift_count)", "loop(i <= shift_count)", 1),
+            Some(VariableBoundMulSourceRejectV1::Condition),
+        ),
+        (
+            original.replacen("loop(i < shift_count)", "loop(i < 4)", 1),
+            Some(VariableBoundMulSourceRejectV1::Condition),
+        ),
+        (
+            original.replacen("scale = scale * 2", "scale = scale + 2", 1),
+            Some(VariableBoundMulSourceRejectV1::Update),
+        ),
+        (
+            original.replacen("i = i + 1", "i = i + 2", 1),
+            Some(VariableBoundMulSourceRejectV1::Step),
+        ),
+        (
+            original.replacen("i = i + 1", "i = i + 1\n      scale = scale * 2", 1),
+            Some(VariableBoundMulSourceRejectV1::Body),
+        ),
+        (
+            original.replacen(
+                "scale = scale * 2\n      i = i + 1",
+                "i = i + 1\n      scale = scale * 2",
+                1,
+            ),
+            Some(VariableBoundMulSourceRejectV1::Update),
+        ),
+    ];
+    for (source, expected_error) in cases {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .expect("selected real source package");
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "bin_size",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .expect("selected bin_size");
+        package
+            .batch()
+            .with_lowering_input(slot, |input| {
+                let ledger = input
+                    .forest()
+                    .callable_source_ledger(input.owner())
+                    .expect("source ledger");
+                let site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                    Segment::Body(9),
+                ]));
+                let membership = ledger.resolved_loop_source(&site).expect("exact loop");
+                let result = observe_variable_bound_mul_source_v1(input, &ledger, membership);
+                if let Some(expected) = expected_error {
+                    assert_eq!(result.err(), Some(expected), "{source}");
+                } else {
+                    let shape = result.expect("unchanged real loop shape");
+                    assert_eq!(shape.loop_source().site(), &site);
+                    assert_eq!(shape.owner(), input.owner());
+                    let [scale, induction, bound] = shape.bindings();
+                    assert_ne!(scale, induction);
+                    assert_ne!(scale, bound);
+                    assert_ne!(induction, bound);
+                }
+            })
+            .expect("selected lowering input");
+    }
+}
+
+#[test]
 fn real_bin_size_checked_add_initializer_advances_home_prefix() {
     use crate::mir::resolved_semantics::{
         home_new_prefix::{BorrowedViewUseRequestV1, HomePrefixUnavailableV1},

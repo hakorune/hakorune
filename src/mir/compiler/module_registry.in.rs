@@ -221,6 +221,10 @@ pub(in crate::mir) mod nested_predicate_source_handoff;
 pub(in crate::mir) mod nested_predicate_topology;
 #[allow(dead_code)]
 pub(in crate::mir) mod variable_accum_recurrence_projection;
+// Owner: selected package Loop handoff. Remove this temporary allowance when
+// the typed Home/Recipe consumer lands; review by 2026-10-17.
+#[allow(dead_code)]
+pub(in crate::mir) mod variable_bound_mul_recurrence_source;
 #[cfg(test)]
 mod variable_accum_recurrence_projection_tests;
 #[cfg(test)]

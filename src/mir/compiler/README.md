@@ -1278,3 +1278,9 @@ The finalization membership and physical call census include the same sealed
 Handle Call edges across root and ordinary callers. Borrowed incoming transport
 matches OrdinaryHandle only to Handle; NullableHandle remains a separate contract.
 No edge, mismatched result or missing original source still grants no admission.
+
+The selected variable-bound multiply Loop source observer consumes resolver
+membership and checks the complete ordered condition/update/step source shape.
+It retains owner, frame, region, lexical bindings and exact sites, but issues
+no scalar-class proof. The package Home walk must supply pre-loop Integer
+classes before this observation can become Facts, Recipe or Loop After.
