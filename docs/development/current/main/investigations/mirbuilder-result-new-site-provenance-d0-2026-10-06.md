@@ -652,3 +652,16 @@ Wrong site, ordinal, callee, or unproved forwarding stays fail-closed.
 Bin-input focused 1/1, candidate veto family 6/6 including original
 `bin=1 -> 2` mutation, quick library check and pointer guard PASS. The
 unpublished draft still leaves no function/header; production remains open.
+
+Complete Static incoming source S0: the existing inventory's whole-callee
+projection now supplies the selected packet with every original Static Rc.
+The packet checks exact callee/target/batch, unique sites and inclusion of
+its own original Rc. An inventory veto, foreign target or missing selected
+source refuses before Builder effects. This is source census only: none of
+those callers gains executable actual, call coordinate or publication.
+The unchanged original mimalloc focused case passed 1/1; existing candidate
+veto 6/6 and Static packet 6/6 passed against the same quick-profile build.
+Quick library check and current-state pointer guard passed. A separate
+`borrowed_formal_incoming` filter selected 0 tests and is not acceptance.
+Next: issue the selected CurrentOwner executable actual while preserving
+the complete incoming cohort for final source-aware verification.

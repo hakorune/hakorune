@@ -22,6 +22,8 @@ mod checked_input;
 mod observation;
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
+#[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
+mod static_cohort;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]
 mod value_domain;
 use source_seeds::prepare_borrowed_formal_views_v1;
@@ -74,10 +76,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) forwards: Box<[BorrowedForwardUseDraftRowV1]>,
     pub(super) incoming: Box<[BorrowedIncomingCallDraftV1]>,
     /// Raw source facts survive transport pruning; these grant no execution.
-    pub(in crate::mir::normal_callable_semantic_package) static_arguments: BTreeMap<
-        (OwnedExprSiteV1, u32),
-        super::borrowed_static_argument::StaticArgumentSourceV1,
-    >,
+    pub(in crate::mir::normal_callable_semantic_package) static_arguments:
+        BTreeMap<(OwnedExprSiteV1, u32), super::borrowed_static_argument::StaticArgumentSourceV1>,
     pub(in crate::mir::normal_callable_semantic_package) source_incoming:
         BorrowedIncomingInventoryV1,
     /// `formal -> sealed class view`, complete across the co-sealed

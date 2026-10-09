@@ -2091,6 +2091,13 @@ input, callee Completion, and the existing ExactI64 result row. This selected
 arity-one proof does not change the general `SourceStatic` phase or the
 qualified/zero-input Static packet law. It has no ValueId, physical Invoke,
 Fault landing, NormalResult, or publication permission.
+The same packet source now retains the complete original Static incoming Rc
+cohort for its callee from the sole source inventory. A foreign target,
+duplicate site, missing selected Rc or unresolved inventory veto rejects the
+cohort; this source census still grants no executable actual. The selected
+physical owner may build a disposable Invoke, but final publication still
+requires every original incoming edge to close through the existing packet
+and finished-coordinate path.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

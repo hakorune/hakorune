@@ -33,6 +33,7 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
     original: Rc<StaticIncomingSourceV1>,
     caller_formal: BindingRefV1,
     argument: SourceExprSiteV1,
+    complete_incoming: Box<[Rc<StaticIncomingSourceV1>]>,
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
@@ -68,6 +69,12 @@ impl VerifiedStaticLoopPacketSourceV1 {
             && Rc::ptr_eq(&self.original, entry.original())
             && self.caller_formal == formal
             && entry.original().argument_sites().get(0) == Some(&self.argument)
+            && self
+                .complete_incoming
+                .iter()
+                .filter(|row| Rc::ptr_eq(row, &self.original))
+                .count()
+                == 1
     }
 }
 
@@ -129,12 +136,14 @@ fn issue_packet_source(
     {
         return Err(reject());
     }
+    let complete_incoming = incoming.static_incoming_cohort_v1(original)?;
     Ok(VerifiedStaticLoopPacketSourceV1 {
         loop_site: entry.loop_site().clone(),
         declaration: entry.declaration().clone(),
         original: Rc::clone(original),
         caller_formal: tagged.formal(),
         argument: argument.clone(),
+        complete_incoming,
     })
 }
 
