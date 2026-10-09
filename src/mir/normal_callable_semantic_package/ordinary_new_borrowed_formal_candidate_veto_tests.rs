@@ -562,6 +562,7 @@ fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
                 ("return me.huge_bin()\n  }", "return 73\n  }"),
                 ("return words * me.word_size()", "print(0)\n    return words * me.word_size()"),
                 ("local n = me.normalize_size(size)", "local n = me.normalize_size(1)"),
+                ("local bin = 1", "local bin = 2"),
             ].into_iter().enumerate() {
                 let runner = crate::runner::NyashRunner::new(Default::default());
                 let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(

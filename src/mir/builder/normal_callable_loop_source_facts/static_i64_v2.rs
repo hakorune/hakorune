@@ -55,6 +55,7 @@ pub(in crate::mir) struct VerifiedStaticI64LoopSemanticV2 {
     header: LoopStaticSourceCallLoanV1,
     body: LoopStaticSourceCallLoanV1,
     tail: LoopTailStaticI64SourceLoanV1,
+    bin_initial_i64: i64,
 }
 
 impl VerifiedStaticI64LoopSemanticV2 {
@@ -78,6 +79,9 @@ impl VerifiedStaticI64LoopSemanticV2 {
     }
     pub(in crate::mir) fn tail_call(&self) -> &LoopTailStaticI64SourceLoanV1 {
         &self.tail
+    }
+    pub(in crate::mir) const fn bin_initial_i64(&self) -> i64 {
+        self.bin_initial_i64
     }
 }
 
@@ -304,22 +308,21 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
         return Err(reject());
     }
     let bin_initial_site = bin_initializer.initializer_site().ok_or_else(reject)?;
-    if !matches!(
-        input
-            .source()
-            .expr_at(&OwnedExprSiteV1::new(
-                input.owner(),
-                bin_initial_site.clone()
-            ))
-            .map_err(|_| reject())?
-            .node(),
+    let bin_initial_i64 = match input
+        .source()
+        .expr_at(&OwnedExprSiteV1::new(
+            input.owner(),
+            bin_initial_site.clone(),
+        ))
+        .map_err(|_| reject())?
+        .node()
+    {
         ASTNode::Literal {
-            value: LiteralValue::Integer(1),
+            value: LiteralValue::Integer(value),
             ..
-        }
-    ) {
-        return Err(reject());
-    }
+        } if *value == 1 => *value,
+        _ => return Err(reject()),
+    };
     if header.call_site().site() != &head_call_site
         || body_call.call_site().site() != &body_call_site
         || !header.argument_sites().is_empty()
@@ -397,6 +400,7 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
         header,
         body: body_call,
         tail,
+        bin_initial_i64,
     })
 }
 

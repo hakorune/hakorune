@@ -120,7 +120,7 @@ mod tests {
                             builder, admission, Vec::new(), Vec::new(), None,
                             Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
                         ).unwrap_err();
-                        assert!(error.contains("static-i64-v2/bin-input-missing"), "{error}");
+                        assert!(error.contains("static-i64-v2/actual-coverage-missing"), "{error}");
                         drop(adapter);
                         module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), 0));
                     });

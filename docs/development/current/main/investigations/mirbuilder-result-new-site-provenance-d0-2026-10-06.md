@@ -628,3 +628,27 @@ literal-only initialized-input materializer cannot own this mixed pair because
 `n` is a call result. Changed/missing/reordered bin source rejects upstream;
 foreign binding, input-key or carrier drift rejects before physical effects.
 Keep the draft unpublished pending full actual/source coverage and body.
+
+Bin-input S0: the Static V2 semantic retains its already-checked source
+Integer(1). The same unpublished Normal block emits that value via the
+existing Const owner, then canonical identity publishes the exact original
+`bin` declaration/binding and reads the same SSA value. Fault has no bin
+value. The post-input stop is executable actual/source coverage; Recipe
+segment allocation, body, publication and EXE remain open.
+
+Executable actual Decision (read-only worker integrated): retain the same
+original `StaticIncomingSourceV1` Rc. The selected CurrentOwner arity-one,
+ordinal-zero forwarded Opaque site may enter the existing executable ingress
+only after the same source inventory closes every incoming caller of that
+callee. `SourceStatic` and `source_only_definitions` currently refuse that
+handoff; simply promoting one actual would fail final `incoming == original`
+coverage. Reuse the existing CallPacketSource, lexical projection and finished
+coordinate owner; do not create a second call-position ledger. Canonical `%0`
+corroborates the physical actual but does not classify its meaning. The next
+bounded series must prove exact Rc/site/formal/target, all incoming coverage,
+and existing packet/result projection before body and root-source publication.
+Wrong site, ordinal, callee, or unproved forwarding stays fail-closed.
+
+Bin-input focused 1/1, candidate veto family 6/6 including original
+`bin=1 -> 2` mutation, quick library check and pointer guard PASS. The
+unpublished draft still leaves no function/header; production remains open.

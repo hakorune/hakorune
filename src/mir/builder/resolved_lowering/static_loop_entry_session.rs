@@ -2,6 +2,7 @@
 //! Source/result receipts choose the ABI; no executable packet is admitted here.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::emission::constant;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
 use crate::mir::builder::raw_loop_child_entry::{
@@ -73,7 +74,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             formal,
             value,
         )?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/bin-input-missing]".to_owned())
+        Err("[freeze:contract][callable-loop/static-i64-v2/actual-coverage-missing]".to_owned())
     })();
     outer.discard_unpublished();
     admitted
@@ -158,6 +159,20 @@ fn emit_unpublished_static_invoke(
         .read_entry_receipt(draft, &mut canonical.phis, normal, n)?;
     if observed.physical_value() != result || observed.physical_block() != normal {
         return Err("[freeze:contract][callable-loop/static-invoke-n-result-drift]".into());
+    }
+    let bin_value = constant::emit_integer(draft, semantic.bin_initial_i64())?;
+    let bin = canonical.identity.publish_declaration_exact(
+        &semantic.roles().bin_declaration,
+        semantic.roles().bin_binding,
+        normal,
+        bin_value,
+    )?;
+    let bin_read =
+        canonical
+            .identity
+            .read_entry_receipt(draft, &mut canonical.phis, normal, bin)?;
+    if bin_read.physical_value() != bin_value || bin_read.physical_block() != normal {
+        return Err("[freeze:contract][callable-loop/static-invoke-bin-input-drift]".into());
     }
     let function = draft
         .function_state

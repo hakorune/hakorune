@@ -1273,6 +1273,8 @@ and emits one I64 `Invoke` with separate Normal and Fault landings. The
 package projects the cataloged target from the retained source key; the
 canonical CFG owner places both edges and the Fault terminal. The Normal
 landing first projects `InvokeNormalResult`, which canonical identity publishes
-at the original `local n` declaration. The whole draft is discarded at the
-still-missing `bin` input and executable actual/source coverage. This grants no production
+at the original `local n` declaration. The same semantic product supplies the
+checked literal for `bin`; the existing Const emitter writes it on Normal and
+canonical identity publishes its exact declaration. The draft is discarded
+at missing executable actual/source coverage. This grants no production
 function, generic Static packet route, or plain scalar interpretation of `%0`.
