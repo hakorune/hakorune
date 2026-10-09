@@ -292,6 +292,24 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 let outside = input.function().method_calls()
                     .find(|(_, call)| call.selector() == "normalize_size").unwrap().0;
                 let outside = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), outside.clone());
+                let initializer = input.function().expression_source().initializers()
+                    .find(|row| row.initializer_site() == Some(outside.site()))
+                    .expect("original n initializer");
+                let entry = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_entry_static_i64_source_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site, initializer.declaration_site(),
+                ).unwrap().expect("original pre-loop I64 result source");
+                assert_eq!(entry.loop_site(), loop_site);
+                assert_eq!(entry.declaration(), initializer.declaration_site());
+                assert_eq!(entry.original().call_site(), &outside);
+                assert!(entry.claim().corroborates_source(
+                    &outside, crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner, 1));
+                let moved = package.ordinary_new_claim_ledger
+                    .take_loop_entry_static_i64_source_loan_v1(loop_site, initializer.declaration_site())
+                    .unwrap().unwrap();
+                assert!(std::rc::Rc::ptr_eq(entry.original(), moved.original()));
+                assert!(package.ordinary_new_claim_ledger
+                    .take_loop_entry_static_i64_source_loan_v1(loop_site, initializer.declaration_site()).is_none());
                 assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
                     claims, source, &package.selected, &package.parameter_contracts,
                     &bin_target, input, loop_site, &outside,

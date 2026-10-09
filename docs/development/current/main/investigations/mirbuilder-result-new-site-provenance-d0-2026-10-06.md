@@ -971,3 +971,16 @@ Acceptance is unchanged source with both calls, inner return and one I64
 backedge; negatives cover missing/swapped loan, missing return and Bool update.
 The post-loop `return me.huge_bin()` is a separate continuation obligation.
 Semantic V2 grants no actual value, Home, physical SSA/packet or EXE.
+
+S1 producer prerequisite correction: the two in-Loop loans do not prove the
+I64 class of `n`. The same Static claim issuer must co-seal the pre-loop
+`local n = me.normalize_size(size)` initializer, ExactI64 Normal result and
+original Rc. The checked-input condition remains conditional; wrong tags
+Fault before that result. No raw tagged formal is treated as I64.
+
+S1 pre-loop source loan verified (2026-10-09): original `normalize_size`
+call and `local n` initializer co-seal through the existing Static claim,
+ordered original Rc, and a one-take package row. Unchanged mimalloc 1/1,
+Static claim 9/9, actual 13/13 and domain 10/10 PASS on quick binary.
+This is source-only; V2 Recipe/JoinSig, live entry `n`, Home/SSA and EXE
+remain open. No production Loop caller switched.

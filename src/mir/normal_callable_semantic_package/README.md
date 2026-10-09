@@ -2046,6 +2046,10 @@ exact target, arity and ordered argument sites; one take removes its row.
 It carries no live argument value, Home, executable entry or physical packet.
 The source-bound V2 producer must cover the complete selected Loop and join
 updated bindings before it may consume this source evidence for execution.
+The same issuer also retains an exact pre-loop `local` initializer whose
+original CurrentOwner Static call has an I64 result claim. Its one-take loan
+connects the local declaration, call site, and original Rc; it does not turn
+the tagged input into an Integer or grant a live loop-entry ValueId.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
