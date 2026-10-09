@@ -972,3 +972,15 @@ existing wrong-site exact-two negative 1/1 and detached two-return projection
 positive 1/1 pass with the quick-profile binary. No packet/group/handoff or
 collector publication occurred. Next: close the callee's finished tagged
 entry and body-call packet/coordinate with the existing final verifiers.
+
+Decision (2026-10-10, selected body source cohort): `bin_size/1` has mixed
+CurrentOwner and qualified Static callers. Its source draft is valid but the
+generic Static transport seed intentionally excludes the whole callee. The
+existing incoming inventory's whole-callee projection is the sole source
+authority. Retain that original cohort with the selected body scalar receipt
+before physical ABI work; do not widen generic transport selection. This
+replaces a site-only scalar source with a complete source cohort, while the
+callee tagged entry, actual carriers and finished packets remain separate
+required slices. The existing mimalloc and static-cohort veto tests pin it.
+Source cohort S0 passed original mimalloc 1/1, selected cohort drift 1/1,
+cataloged entry 1/1 and static-loop family 5/5 (quick profile).

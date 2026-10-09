@@ -25,6 +25,12 @@ backend permission. Historical implementation steps belong to Git history.
 
 ## Source-only Static local observations
 
+The selected `size_to_bin` body scalar source now retains the complete
+original `bin_size` Static incoming cohort through the existing ingress
+inventory. Its CurrentOwner call remains source-only; the qualified siblings
+remain in the same cohort. The receipt corroborates the original loop call
+without selecting transport, a callee entry carrier, or executable packets.
+
 The original Static fact collector runs once during profile preparation. Its
 exact call-site membership survives later ingress failure as a dispatch
 projection; unavailable source selection remains an error. Original facts move

@@ -21,6 +21,7 @@ use super::OrdinaryNewClaimLedgerV1;
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedLoopStaticBodyScalarSourceV1 {
     original: Rc<StaticIncomingSourceV1>,
+    complete_incoming: Box<[Rc<StaticIncomingSourceV1>]>,
     binding: BindingRefV1,
     site: SourceExprSiteV1,
     formal: BindingRefV1,
@@ -34,6 +35,12 @@ impl VerifiedLoopStaticBodyScalarSourceV1 {
         site: &SourceExprSiteV1,
     ) -> bool {
         Rc::ptr_eq(&self.original, loan.original())
+            && self
+                .complete_incoming
+                .iter()
+                .filter(|row| Rc::ptr_eq(row, &self.original))
+                .count()
+                == 1
             && self.binding == binding
             && &self.site == site
             && self.original.argument_sites() == [site.clone()]
@@ -87,8 +94,9 @@ fn issue_scalar_source(
 ) -> Result<VerifiedLoopStaticBodyScalarSourceV1, String> {
     let reject = || "[freeze:contract][callable-loop/body-scalar-source-unavailable]".to_owned();
     let original = loan.original();
+    let incoming = ledger.borrowed_formal_source.as_ref().ok_or_else(reject)?;
     let Some((candidate_source, binding, site)) = project_current_owner_loop_scalar_source_v1(
-        ledger.borrowed_formal_source.as_ref().ok_or_else(reject)?,
+        incoming,
         &ledger.borrowed_formal_actuals,
         loan.call_site(),
         loan.claim(),
@@ -122,8 +130,15 @@ fn issue_scalar_source(
     {
         return Err(reject());
     }
+    // This is the source cohort, not executable transport. A mixed
+    // CurrentOwner/qualified callee must keep every original incoming row.
+    let complete_incoming = incoming
+        .as_ref()
+        .map_err(Clone::clone)?
+        .static_incoming_cohort_v1(original)?;
     Ok(VerifiedLoopStaticBodyScalarSourceV1 {
         original: Rc::clone(original),
+        complete_incoming,
         binding,
         site,
         formal: formal.binding,
