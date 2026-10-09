@@ -41,8 +41,9 @@ pub(super) struct OpenFunctionDraftSealV1<'builder> {
     ready: Option<ReadyFunctionDraftSealV1>,
 }
 
-/// All fallible work is completed before this owner is issued.  Its commit is
-/// therefore an ownership-only terminal.
+/// All fallible DraftSeal work is completed before this owner is issued.
+/// External read-only corroboration may still reject a disposable caller;
+/// commit itself remains an ownership-only terminal.
 pub(super) struct PreparedFunctionDraftSealV1<'builder> {
     completion: ReadyFunctionCompletionV1,
     plan: PreparedFunctionDraftSealPlanV1,
@@ -545,6 +546,15 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
 }
 
 impl<'builder> PreparedFunctionDraftSealV1<'builder> {
+    /// Run one read-only corroboration after detached verification and before
+    /// the ownership-only commit terminal.
+    pub(in crate::mir::builder::resolved_lowering) fn corroborate_detached_function(
+        &self,
+        check: impl FnOnce(&MirFunction) -> Result<(), String>,
+    ) -> Result<(), String> {
+        check(self.plan.projected_function())
+    }
+
     pub(super) fn commit(self) -> CompletedFunctionDraftV1 {
         let Self {
             completion,

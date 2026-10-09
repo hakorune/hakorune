@@ -512,6 +512,11 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    /// Lend the verified detached image without exposing its commit payload.
+    pub(super) fn projected_function(&self) -> &MirFunction {
+        &self.metadata.projection.function
+    }
+
     /// Install the source-bound pinned-Text carrier only after the detached
     /// candidate has passed DraftSeal verification. The live function never
     /// receives this transport metadata, and duplicate installation rejects

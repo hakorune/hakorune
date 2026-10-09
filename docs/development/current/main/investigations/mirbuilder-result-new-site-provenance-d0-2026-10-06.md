@@ -922,3 +922,14 @@ prepacket, then carry it through selected publication and add an explicit
 LoopBody visitor context. Do not fabricate a local row. Scalar tagged actual
 and all-incoming acceptance remain separate. Reject wrong source/read/Invoke,
 missing or duplicate finished producer and coordinate.
+
+Decision (2026-10-10, detached body projection): lend the verified DraftSeal
+image read-only after `prepare_exact_two`, then recheck the retained body
+source/read/Invoke/NormalResult prepacket. The selected disposable path must
+still abort and restore before reporting either shape rejection or the
+existing packet-missing stop. No finalized coordinate, tagged actual, group
+or collector admission is issued. Reuse the static-loop positive and source/
+Home/physical-shape negatives; no duplicate guard is needed.
+Detached projection S0: quick-profile `static_loop` 5/5 pass. The original
+selected test reaches the unchanged packet-missing stop and verifies parent
+restoration; source/Home mutation and wrong landing/result still reject.

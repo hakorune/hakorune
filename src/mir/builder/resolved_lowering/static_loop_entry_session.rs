@@ -136,7 +136,11 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             Ok(prepared) => prepared,
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
+        let projected_body = prepared.corroborate_detached_function(|function| {
+            body.corroborate_unpublished_function(function)
+        });
         prepared.commit_pending().abort_and_restore();
+        projected_body?;
         Err("[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]".to_owned())
     })();
     if let Some(outer) = outer {

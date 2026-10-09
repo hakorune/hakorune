@@ -1310,5 +1310,11 @@ landing first projects `InvokeNormalResult`, which canonical identity publishes
 at the original `local n` declaration. The same semantic product supplies the
 checked literal for `bin`; the existing Const emitter writes it on Normal and
 canonical identity publishes its exact declaration. The draft is discarded
-at missing executable actual/source coverage. This grants no production
+at `executable-packet-missing`. This grants no production
 function, generic Static packet route, or plain scalar interpretation of `%0`.
+
+The selected body call's retained source/read prepacket is also checked
+against DraftSeal's verified detached function before its disposable commit
+is aborted and the parent restored. This proves the projected Invoke and
+NormalResult still match; it issues no final published coordinate, tagged
+actual or collector permission.
