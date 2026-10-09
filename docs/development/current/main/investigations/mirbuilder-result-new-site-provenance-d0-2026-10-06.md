@@ -969,25 +969,24 @@ Acceptance: unchanged guarded-reach regression, source phase drift/entry refusal
 original Static Mul Home/child rows and missing/error child no-Observe; regressions.
 All source-only/guard/packet/production/final-goal obligations remain unwaived.
 
-USER STOP/RESUME (2026-10-09): discussion pause honored; selected WIP kept.
-SourceInstance/Home changes remain selected; protected7 unchanged.
-Build78425 and corrected34800 were deliberately terminated143 after review;
-Cargo/rustc termination confirmed before edits. Neither run is PASS.
-Review corrections implemented: retained Static metadata keeps its source owner;
-selected source-only Instance staged errors, missing observations and wrong
-phase remain errors even without final incoming. Quick/jobs4 guarded-reach
-PASS1/1 on latest pre-fix source; source/actuals64 PASS, uses58 PASS/1
-THISCHANGE red: unrelated declared-Object Static row had no original incoming.
-SourceInstance now declines that absent raw row; selected phase drift remains
-fail-closed. Corrected quick build8m44 + phase test1/1 PASS on latest source;
-log /mnt/workdisk/hako-guarded-mul-sourceinstance-red-fix.log. No Cargo live.
-Resumed SAME binary: prior Static-domain red PASS; actual64/use59/Home29,
-source10/Static10/compare8/result22+42/scalar2+Home14/Object5 PASS.
-Original Static Mul Home/child and missing/error child no-Observe exact tests
-both PASS. Logs: /mnt/workdisk/hako-guarded-mul-sourceinstance-{red-fix-regression,affected-families,final-families}.log.
-Scope/pointer/diff/rustfmt PASS; no current or unclassified red.
-Next: selected-only commit/push after final staged diff check; then typed Mul
-driver/packet/finished scans/JSON/C remain the next active dependency.
-Snapshot/logs: /mnt/workdisk/hako-guarded-mul-home-instance-progress.json.
-Full goal remains incomplete; selected typed Mul driver/packet/scans/JSON/C
-and all production/final acceptance obligations remain unchanged.
+Home/SourceInstance CLOSED5351063d91 (2026-10-09): pause/resume preserved
+protected7; corrected absent-raw-row selection and phase-drift refusal.
+Quick8m44 phase PASS; prior Static-domain red now PASS; affected actual/use/
+Home/source/Static/compare/result/scalar/Object families and original Static
+Mul Home/child + missing/error no-Observe exact tests PASS. Scope/pointer/
+diff/rustfmt PASS; no current red. Logs under /mnt/workdisk/hako-guarded-mul-
+sourceinstance-*; canceled builds78425/34800 remain non-PASS.
+
+Next Decision (read-only review, 2026-10-09): original `SizeClassBox.bin_size`
+`bin * me.word_size()` source is retained by existing Mul Rc/ledger. The sole
+production `drive_ordinary_binary_expression_v1` currently selects Compare
+only; `record_borrowed_mul_v1` has test callers only. First bounded slice
+reuses that driver and issuer for typed Compare/Mul selection, records SAME
+Mul append in function-owned state with call transaction/reset discipline,
+and uses existing `verify_borrowed_mul_reuse_v1` at final construction stores.
+Positive: original guarded source/ordered child/finished group; negative:
+source-only, missing/changed Rc/append/operand and no cross-function reuse;
+existing Compare and unselected binary paths remain unchanged. Physical JSON/C,
+both independent scans, kind-1 Fault and EXE are a following slice, not claimed.
+Fresh unchanged-app probe at HEAD is still owed. Both315/318, cleanup, Gates2-4,
+old-edge retirement, selfcompile and full goal remain incomplete.
