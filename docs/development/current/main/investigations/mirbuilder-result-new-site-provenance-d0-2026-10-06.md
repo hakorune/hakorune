@@ -949,3 +949,34 @@ The body call's tagged/Integer actual carrier, final SSA/DraftSeal, selected
 packet/group terminal, qualified Return sibling, final incoming/entry
 verification and EXE remain required. Existing real-source negative already
 rejects a changed tail expression; no duplicate source parser is added.
+
+Decision (2026-10-10, selected Loop body actual): the package's original
+CurrentOwner `StaticIncomingSourceV1` Rc, pending SourceStatic candidate and
+issued `VerifiedCallablePhysicalSignatureCohortV1` row are the only source
+and signature authorities for `me.bin_size(bin)`. The package may lend one
+bounded witness that ordinal 0 is the same Integer-class `bin` binding at
+the original argument site and that the callee signature has exactly one
+OrdinaryScalar lane bound to the original Opaque formal. The source candidate
+does not fix a payload: each iteration's ValueId comes from canonical SSA
+after the backedge. The physical carrier remains unproved until the callee's
+finished entry and lexical packet corroborate it. Never turn generic
+SourceStatic into Ready or infer ABI from a raw Integer ValueId.
+
+Next slice: join source candidate/Rc/claim to the signature in the package,
+then compare its binding/site with the canonical body read receipt before
+the disposable Invoke. Wrong Rc, target slot, formal, ordinal, site, class or
+signature lane stops before any publication. Reuse unchanged mimalloc entry
+positive and source/actual mutation negatives. The disposable draft still
+stops before whole-function DraftSeal, packet/group terminal and collector.
+
+Selected body scalar source S0: the package now joins the original body Rc,
+pending Integer scalar candidate and issued callee signature by loop/call
+site. The disposable body checks the one-take witness against its original
+loan and canonical SSA read binding/site before Invoke. It still stops at
+`physical-abi-coverage-missing`: tagged carrier, complete DraftSeal and final
+packet/group remain open. Normal quick build, original entry 1/1, real-source
+mutation 1/1, staged candidate drift 1/1 and static-loop family 5/5 passed;
+pointer and diff guards passed. The `--no-default-features` trial had an
+unrelated plugin-stub compile failure and is not acceptance evidence. Next:
+prove the callee's finished tagged entry and selected packet/actual physical
+carrier, then seal the complete function before publication.

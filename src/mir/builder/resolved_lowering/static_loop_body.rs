@@ -12,6 +12,7 @@ use crate::mir::loop_recipe_contract::{
     LoopCompareI64OpV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitTargetV2,
     LoopJoinEdgeRoleV1, LoopOperationV2, LoopRecipeItemV2,
 };
+use crate::mir::normal_callable_semantic_package::VerifiedLoopStaticBodyScalarSourceV1;
 use crate::mir::resolved_semantics::{
     ResolvedLoopPlacementV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
@@ -28,6 +29,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     frame_owner: &mut FunctionFaultFrameV1,
+    scalar_source: &VerifiedLoopStaticBodyScalarSourceV1,
 ) -> Result<StaticLoopBodyContinuationV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-body-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
@@ -149,6 +151,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         || source.call_site().owner() != canonical.owner()
         || *source.call_site().site() != roles.body_call_site
         || original.target().arity() != 1
+        || !scalar_source.corroborates(source, roles.bin_binding, &roles.body_actual_site)
     {
         return Err(reject());
     }

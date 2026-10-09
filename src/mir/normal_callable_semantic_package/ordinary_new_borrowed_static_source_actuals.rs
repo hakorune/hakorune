@@ -217,6 +217,47 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_current_
     project_pending_static_source_arguments_for_route_v1(source, pending, site, required, true)
 }
 
+/// The original source candidate for one selected loop-body scalar actual.
+/// This only proves binding/class/site, never the per-iteration payload or ABI.
+pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_loop_scalar_source_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1,
+    claim: &StaticI64CallClaimV1,
+) -> Result<Option<(Rc<StaticIncomingSourceV1>, BindingRefV1, SourceExprSiteV1)>, String> {
+    let reject = || freeze("borrowed-static/loop-scalar-source-drift");
+    let Some(arguments) = project_pending_current_owner_static_source_arguments_v1(
+        source, pending, site, claim,
+    )? else {
+        return Ok(None);
+    };
+    let [LocalCallArgumentV1::BorrowedActual { ordinal: 0, site: argument_site }] =
+        arguments.as_ref()
+    else {
+        return Err(reject());
+    };
+    let row = pending.get(site).ok_or_else(reject)?.as_ref().map_err(Clone::clone)?;
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &row.phase else {
+        return Err(reject());
+    };
+    let [candidate] = identity.candidates.as_ref() else {
+        return Err(reject());
+    };
+    let BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer) = &candidate.value
+    else {
+        return Err(reject());
+    };
+    if candidate.ordinal != 0
+        || &candidate.site != argument_site
+        || identity.integer_evidence.as_ref() != [true]
+        || identity.source.call_site() != site
+        || identity.source.argument_sites() != [candidate.site.clone()]
+    {
+        return Err(reject());
+    }
+    Ok(Some((Rc::clone(&identity.source), *binding, candidate.site.clone())))
+}
+
 fn project_pending_static_source_arguments_for_route_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     pending: &PendingBorrowedFormalActualsV1,

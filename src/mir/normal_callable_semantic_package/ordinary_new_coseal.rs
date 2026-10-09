@@ -78,6 +78,8 @@ mod candidate;
 mod lexical_instance_call;
 #[path = "ordinary_new_loop_static_source_loan.rs"]
 mod loop_static_source_loan;
+#[path = "ordinary_new_loop_static_body_actual.rs"]
+mod loop_static_body_actual;
 #[path = "ordinary_new_static_home_effect.rs"]
 mod static_home_effect;
 #[path = "ordinary_new_static_loop_tagged_entry.rs"]
@@ -87,6 +89,7 @@ mod static_loop_result;
 #[path = "ordinary_new_static_loop_packet_source.rs"]
 mod static_loop_packet_source;
 pub(in crate::mir) use loop_static_source_loan::{LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1};
+pub(in crate::mir) use loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1;
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
@@ -305,6 +308,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     loop_static_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>>>,
+    loop_static_body_scalar_sources: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>>>,
     loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
     loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
     loop_tail_static_i64_source_loans: RefCell<BTreeMap<SourceStmtSiteV1, Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>>>,

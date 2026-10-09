@@ -323,6 +323,7 @@ pub(super) use borrowed_formal_actuals::{
     corroborate_received_object_receiver_v1, issue_original_static_forwarded_actual_v1,
     prepare_borrowed_call_actuals_v1, project_pending_borrowed_i64_arguments_v1,
     project_pending_current_owner_static_source_arguments_v1,
+    project_current_owner_loop_scalar_source_v1,
     project_pending_i64_result_arguments_v1, project_pending_instance_source_arguments_v1,
     project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
     received_producer_arguments_v1, reject_borrowed_actuals_for_owner_v1,

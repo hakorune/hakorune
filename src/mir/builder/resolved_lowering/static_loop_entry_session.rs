@@ -93,6 +93,12 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             product.semantic(),
             &header,
             &mut frame_owner,
+            &claims
+                .take_loop_static_body_scalar_source_v1(
+                    &product.semantic().roles().loop_site,
+                    product.semantic().source_calls().2.call_site(),
+                )
+                .ok_or_else(|| "[freeze:contract][callable-loop/body-scalar-source-missing]".to_owned())??,
         )?;
         super::static_loop_body_exit::emit_unpublished_body_exit_v1(
             draft,

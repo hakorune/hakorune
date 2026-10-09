@@ -2145,6 +2145,14 @@ qualified/zero-input law unchanged. The prepared packet cannot enter the root
 binding group: it has no publication handoff, finished coordinate or
 whole-caller admission yet. The disposable function currently validates and
 drops it at the later body-coverage stop.
+For the selected Loop-body `me.bin_size(bin)` edge, the same ledger joins its
+original CurrentOwner Rc and pending Integer-class scalar candidate to the
+callee's issued physical signature row. The retained row proves the exact
+binding, argument site, Opaque formal and sole ordinal-zero OrdinaryScalar
+lane; canonical SSA still supplies each iteration's ValueId after the
+backedge. This source/shape loan grants neither a tagged carrier nor an
+executable SourceStatic packet. An absent or mismatched row stops before
+publication.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

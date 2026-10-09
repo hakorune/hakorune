@@ -725,6 +725,7 @@ mod discard_tests;
 #[path = "ordinary_new_borrowed_static_source_actuals.rs"]
 mod static_source;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
+pub(in crate::mir::normal_callable_semantic_package) use static_source::project_current_owner_loop_scalar_source_v1;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_v1;
 
 #[cfg(test)]

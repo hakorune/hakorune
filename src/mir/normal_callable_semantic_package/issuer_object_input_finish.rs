@@ -21,6 +21,11 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
             |error| NormalCallableSemanticPackageIssueV1::PhysicalSignature { _error: error },
         )?;
     ledger
+        .retain_loop_static_body_scalar_sources_v1(&signature)
+        .map_err(|_| NormalCallableSemanticPackageIssueV1::OrdinaryNew {
+            _error: OrdinaryNewCoSealIssueV1::BatchLoan,
+        })?;
+    ledger
         .finish_typed_object_input_actuals_v1(selected, contracts, &signature)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
