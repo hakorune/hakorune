@@ -986,3 +986,9 @@ same-owner tagged formal entry and literal `bin` input in one unpublished
 canonical session; a late stop discards that draft. Then promote the original
 `normalize_size` actual/packet, publish `n`, and only later use canonical
 `bin` SSA for the body packet. No call emission or EXE from entry admission.
+The first issuer is still missing: the package must lend one bounded checked
+tagged-formal binding from its original parameter contract and
+`PreparedBorrowedFormalIngressV1::checked_static_input`. The Home receipt
+proves effects, not the physical carrier. Function entry then joins that
+binding to the package signature lane before opening the canonical session;
+unknown or duplicate mapping rejects before Builder effects.
