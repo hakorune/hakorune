@@ -3,6 +3,42 @@
 use super::*;
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1, SourcePathV1};
 
+pub(super) fn observe_local_initializer<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    local_field_read: &mut impl FnMut(
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    statement: &SourceStmtSiteV1,
+    homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+    observe_scalar_expression(
+        input,
+        site,
+        locals,
+        None,
+        local_field_read,
+        statement,
+        homes,
+        static_call,
+        &mut |operand, binary| {
+            view_use(
+                operand,
+                BorrowedViewUseRequestV1::CheckedAddOperand { binary },
+            )
+        },
+        borrowed_actuals,
+    )
+}
+
 pub(super) fn observe_scalar_expression<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
@@ -207,7 +243,7 @@ fn preflight<E>(
     let mark = requests.len();
     let call_mark = calls.len();
     let checked_children =
-        matches!(row.operator(), Op::Greater | Op::LessEqual).then_some(row.site());
+        matches!(row.operator(), Op::Add | Op::Greater | Op::LessEqual).then_some(row.site());
     let Some(lhs) = preflight(
         input,
         row.lhs(),

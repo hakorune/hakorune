@@ -500,6 +500,11 @@ that condition, so the existing `ExpressionValue` issuer can retain its
 zero-input CurrentOwner call and prior Homes after the whole Bool expression
 passes. It does not change the unannotated formal's stored Home class or
 admit other operators, return expressions, or Loop conditions.
+An `Add` local initializer can likewise borrow only the prepared, dominated
+`AddOperand` at its exact operand and binary sites. The whole initializer must
+still pass scalar preflight before its binding receives Integer class; an
+unproved sibling or other operator keeps the Home prefix uncovered. This
+does not reclassify the opaque formal or admit Divide, Multiply or Loop joins.
 Direct ReturnValue keeps the terminal Call relation; binary returns keep their
 exact scalar relation. Nested arguments, loops and short-circuit call paths are
 not granted by this source connection. Executable input, affine handoff/Invoke,

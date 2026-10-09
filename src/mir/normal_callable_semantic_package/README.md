@@ -2056,6 +2056,11 @@ operand query by original owner, use site and binary site. This is a source
 loan only; the Home scanner still proves the complete Bool expression before
 issuing an `ExpressionValue` call observation. It does not grant a global
 Integer class to an opaque formal or an executable Static packet.
+The same prepared dominated `AddOperand` now answers the Home local-initializer
+query only when the original operand and `Add` binary sites match. The draft
+remains the source authority; Home proves the complete expression before
+installing the local Integer class. This grants no generic arithmetic,
+post-Loop class, or executable Static packet.
 
 An arity-bearing CurrentOwner ExactI64 source can now stage nonopaque ordered
 actuals as `SourceStatic` from the original incoming Rc. The full formal tuple,

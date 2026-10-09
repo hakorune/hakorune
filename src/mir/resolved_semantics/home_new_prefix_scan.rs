@@ -756,16 +756,15 @@ pub(super) fn scan_statement_flow<'a, E>(
                     }
                 }
                 continue;
-            } else if let Some((kind, calls)) = scalar_expression::observe_scalar_expression(
+            } else if let Some((kind, calls)) = scalar_expression::observe_local_initializer(
                 input,
                 site,
                 locals,
-                None,
                 local_field_read,
                 statement.site(),
                 homes,
                 local_static_call,
-                &mut |_, _| Ok(false),
+                view_use,
                 borrowed_actuals,
             )? {
                 path_calls.extend(calls.iter().map(|call| call.site().clone()));

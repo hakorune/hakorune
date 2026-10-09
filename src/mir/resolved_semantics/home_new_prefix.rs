@@ -25,6 +25,9 @@ pub(crate) enum BorrowedViewUseRequestV1<'a> {
     CheckedCompareOperand {
         binary: &'a OwnedExprSiteV1,
     },
+    CheckedAddOperand {
+        binary: &'a OwnedExprSiteV1,
+    },
     IntegerReturn {
         exit: &'a SourceStmtSiteV1,
         binding: BindingRefV1,

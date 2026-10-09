@@ -972,3 +972,16 @@ site. Then establish Divide/nested Multiply and Loop assignment/join in
 separate bounded slices before the non-view returned Multiply and exact
 `word_size` Home row. Do not synthesize Integer `words`, permit generic
 Multiply/Loop, or claim an executable packet or production EXE here.
+
+Selected checked-Add local Home S0: the prepared dominated `AddOperand` is
+lent to the Home scalar initializer only at the original operand and Add
+binary sites. The whole `bin + 3` expression must prove Integer before `x`
+receives that class. The unchanged `bin_size` source now advances its Home
+uncovered prefix from `x` (Body3) to the next Divide initializer `bit_group`
+(Body4); wrong binary identity refuses the loan. The formal remains opaque,
+and Divide, nested Multiply, Loop assignment/join, returned non-view Mul and
+the `word_size` call Home row remain open. This is source/Home progress only;
+no Static execution, production EXE or old-edge retirement is claimed.
+Validation: quick-profile real-source positive/wrong-binary negative 1/1,
+checked If 1/1, guarded Add positive 1/1 and rejection 1/1 passed. Qualified
+route scope guard, current pointer guard, rustfmt and diff check passed.

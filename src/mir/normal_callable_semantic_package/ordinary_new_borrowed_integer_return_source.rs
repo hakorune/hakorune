@@ -53,6 +53,14 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(false);
         };
         match request {
+            BorrowedViewUseRequestV1::CheckedAddOperand { binary } => Ok(self
+                .dominated_view_use_at(input.owner(), site)
+                && draft.uses.iter().any(|row| {
+                    &row.site == site
+                        && matches!(&row.kind,
+                                BorrowedFormalUseDraftKindV1::AddOperand { binary: retained }
+                                if retained == binary)
+                })),
             BorrowedViewUseRequestV1::CheckedCompareOperand { binary } => {
                 Ok(draft.uses.iter().any(|row| {
                     &row.site == site

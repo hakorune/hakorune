@@ -1,5 +1,46 @@
 use super::*;
 
+#[test]
+fn real_bin_size_checked_add_initializer_advances_home_prefix() {
+    use crate::mir::resolved_semantics::{
+        home_new_prefix::{BorrowedViewUseRequestV1, HomePrefixUnavailableV1},
+        OwnedExprSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1 as Segment,
+        SourceStmtSiteV1,
+    };
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+    let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "SizeClassBox",
+        "bin_size",
+        1,
+    );
+    let slot = package
+        .selected
+        .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+        .unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let prepared = ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    package.batch().with_lowering_input(slot, |input| {
+        let draft = prepared.source_definition_for(input.owner()).unwrap();
+        let (site, binary) = draft.uses.iter().find_map(|row| match &row.kind {
+            BorrowedFormalUseDraftKindV1::AddOperand { binary } => Some((&row.site, binary)),
+            _ => None,
+        }).unwrap();
+        assert!(prepared.consult_view_use_v1(input, site, BorrowedViewUseRequestV1::CheckedAddOperand { binary }).unwrap());
+        let wrong = OwnedExprSiteV1::new(input.owner(), SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(0)])));
+        assert!(!prepared.consult_view_use_v1(input, site, BorrowedViewUseRequestV1::CheckedAddOperand { binary: &wrong }).unwrap());
+        let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
+        let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
+        assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
+            if first.node().segments() == [Segment::Body(4)]));
+    }).unwrap();
+}
+
 fn package(
     body: &str,
     sink: &str,
