@@ -819,77 +819,22 @@ group/take. Both-caller completion, final entry coverage, full body and EXE
 remain open. No general `SourceStatic` activation or publication by the
 disposable probe is permitted.
 
-Local packet-group staging BoxShape S0: the existing root-call ledger now
-preflights source order, original packet membership and the preceding site
-prefix without inserting a row. Its prepared group commits only after
-rechecking the route and prefix; a dropped or stale candidate leaves the
-shared ledger unchanged. Existing lexical emission calls this preparation and
-commits immediately, preserving its behavior. The selected caller may retain
-the same prepared packet until collector admission, but no selected packet or
-handoff is committed by this slice. Final quick-profile preflight test 1/1,
-root call entry family 32/32 and unchanged mimalloc Static entry 1/1 passed.
-An initial build against an uncached target was stopped; a cached build passed
-before the final empty-entry fix, then the final source rebuilt and passed.
-Next: selected original packet arm and source-ordered lifecycle route, followed
-by the function-local pending group and collector terminal integration. The
-qualified Return caller, final entry coverage, full loop body and EXE remain
-open.
-
-Selected CurrentOwner lifecycle route S0: the already-issued selected packet
-now corroborates its original local-call observation's site, I64 result,
-receiving declaration and ordinal-zero BorrowedActual before any route is
-marked. Only an Ok packet adds its original site to the existing source-order
-lifecycle set. The selected builder entry requires that exact route before
-peeking the publication handoff or emitting; generic qualified/zero-input
-Static admission is unchanged. The unchanged mimalloc entry test covers both
-the usual post-Invoke unpublished stop and a removed-route rejection in the
-same original source, 1/1. Generic Static packet family 9/9 and real source/
-Home mutation negative 1/1 passed with the final quick-profile binary.
-One initial test build failed because its fixture accessed a private package
-field; it was corrected to the existing installed-package accessor, and no
-current red remains. This routes source but does not record a physical group,
-take the affine handoff or publish a function. Next: selected lexical packet
-arm plus finished-coordinate and transactional collector integration.
-
-Selected packet transaction refinement (read-only review): this row is
-`fast`, not blocked. The apparent stop is the missing *executable* packet,
-not missing source authority: the current disposable canonical session already
-emits the original CurrentOwner Invoke and checks its forwarded actual, but
-`CallPacketSourceV1::static_i64` deliberately requires the qualified/zero-input
-law and cannot admit this source-only caller. `BorrowedRead` also requires an
-`ExactLexicalReadV1`; a canonical binding receipt is not that authority.
-Build a selected arm in the existing lexical packet owner, using the original
-`Rc`, checked forwarding row, canonical read, Invoke/NormalResult and the
-unconsumed ExactI64 result handoff. Preserve generic `SourceStatic` rejection.
-The arm must remain function-local until the whole caller is finished.
-
-Publication ordering is the hard edge: `prepare_root_lexical_call_bindings`
-does not mutate the shared ledger, but `take_for_source` removes the handoff
-irreversibly, while `discard_unpublished` rolls back only MirBuilder state.
-Preflight the full body, finished packet/group and collector draft admission;
-then take the handoff, commit the group and collect in a terminal sequence
-with no remaining fallible step, or provide an explicit rollback for the
-handoff. A late failure must leave both handoff and group pending. The next
-acceptance is one original CurrentOwner packet with exact source/actual and
-physical coordinates, plus late-failure rejection before either shared
-mutation. The qualified Return caller and final independent incoming/entry
-verification remain separate required edges before production publication.
-
-Selected lexical prepacket S0: the existing lexical packet owner now has a
-bounded `SelectedStaticLoop` source arm and an unpublished prepared wrapper.
-It checks the original local-call observation, checked forwarded actual,
-canonical identity/SSA read receipt, exact entry ValueId/block, and the
-emitted Invoke/NormalResult through the same lexical materialization path.
-The generic Static packet law remains closed, and the generic lexical emitter
-rejects the selected arm. The wrapper cannot enter a root binding group or
-consume the affine result handoff; the disposable caller drops it at the
-later `actual-coverage-missing` stop. Focused unchanged mimalloc entry 1/1,
-generic Static packet 3/3, physical shape negative 1/1, staged candidate
-drift 1/1, original source/Home mutation 1/1 and foreign result catalog
-take 1/1 passed with the quick-profile binary. No production caller switch,
-finished coordinate or collector admission is claimed. Next: retain this
-prepared packet through a complete caller body, then preflight the whole
-function and publish it with the handoff at the collector terminal.
+Completed selected packet prerequisites (commit evidence):
+- `e6319b1a26`: root lexical group preparation preflights source order and
+  packet prefix before shared-ledger mutation; ordinary callers commit at
+  their existing terminal.
+- `455123f3dc`: the selected CurrentOwner route uses the original I64 local
+  observation and ordinal-zero BorrowedActual; generic qualified/zero-input
+  Static packet admission remains closed.
+- `ae7d7fdd68`: the lexical packet owner validates original Rc, checked
+  forwarding actual, canonical read and Invoke/NormalResult in an unpublished
+  selected prepacket. It cannot enter a group or take the affine handoff.
+Focused positive/negative evidence and late-failure checks are in those
+commits. The current obligation remains to preflight finished packet/group
+and collector admission, then consume the handoff and commit the group only
+at a terminal with no remaining fallible step. Draft discard alone does not
+restore the shared ledger or affine handoff. The qualified Return caller,
+final independent incoming/entry coverage and EXE remain open.
 
 Selected Static I64 Loop physical history: header `d7692b5599`, body
 predicate `8c58c7e3d9`, Return/backedge `13d8b5f404`, and post-loop tail
