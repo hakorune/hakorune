@@ -793,3 +793,28 @@ candidate mutation passed 1/1. Unchanged mimalloc entry 1/1, handoff negative
 3/3 passed in the same quick-profile binary. Quick library check, pointer
 guard and diff check passed. Source-only phase, shared ledger, affine handoff,
 finished coordinates and production path remain untouched.
+
+Selected packet publication Decision (read-only review integrated): the
+original `StaticIncomingSourceV1` and checked forwarded actual remain source
+authority; `VerifiedStaticLoopPacketSourceV1` is their selected cohort loan.
+The existing lexical binding group and invocation collector are the physical
+packet and publication owners. Generic `CallPacketSourceV1::static_i64` must
+keep its qualified/zero-input and executable-actual law: the CurrentOwner
+source-only caller cannot enter through it. A selected packet arm must bind
+the original Rc, local-call observation, canonical read and actual Invoke/
+NormalResult without constructing an `ExactLexicalReadV1` from a `ValueId`.
+Its site must be selected in source order by the same lifecycle group owner.
+`record_root_lexical_call_bindings` currently mutates the shared ledger
+immediately, while draft discard restores only MirBuilder. Therefore hold the
+selected packet/group in function-local pending state, preflight its group
+order and physical shape, and commit it with the affine handoff only at the
+successful existing collector admission terminal. A late draft/admission
+failure must leave both ledger and handoff untouched. Finished visitor and
+callee entry must consume that real packet; scanning final MIR for source
+identity would create a second authority. The qualified Return sibling uses
+its separate terminal finished producer. Next bounded implementation is the
+CurrentOwner caller's selected packet plus transactional group publication;
+accept one real collected caller packet and reject late admission without
+group/take. Both-caller completion, final entry coverage, full body and EXE
+remain open. No general `SourceStatic` activation or publication by the
+disposable probe is permitted.
