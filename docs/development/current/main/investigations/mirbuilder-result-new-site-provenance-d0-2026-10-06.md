@@ -943,35 +943,13 @@ Mul finished-binding Decision and focused evidence are retained at
 mandatory FinishedBindings root/child mapping, no Copy permission. The
 follow-on exact Copy/guard/source checks landed at 31c2caf637 below.
 
-Decision (2026-10-09, read-only worker): selected borrowed Mul still runs
-`LocalSSA::arg` through its legacy recovery facade; its actual operand Copies
-are absent from the Mul ledger. Use the SAME arithmetic append issuer with
-checked LocalSSA only when the original Mul loan is selected. Retain each
-actual raw-child-to-operand Copy tuple on the function-owned Mul consumer and
-handoff to the existing ledger. `FinishedBindings` projects mandatory originals;
-the existing `BorrowedCallUses` runs source-specific exact Mul side/formal/
-guard/Copy-coordinate closure in module and independently in published rows.
-Final MIR scanning verifies physical lineage but cannot mint source membership.
-Wrong side, unrelated dominated Mul, Copy drift, missing guard, source-only
-entry and nonselected arithmetic stay fail-closed. Positive: guarded original
-source must pass both final scans; end-to-end EXE remains required for the
-full guarded series. Negative: targeted final-scan mutations, source-only
-refusal and existing Compare/Add regression.
-
-Checked-view Mul Copy sub-slice verified (2026-10-09): selected Mul alone uses
-checked LocalSSA; SAME append/operand Copy originals stay on the ledger and
-FinishedBindings. Module/published scans demand exact side/formal/guard/Copy
-coordinates. Both checked-view sides are required; literal/Static-call sides
-remain fail-closed pending their producer proof. Quick test4/4, borrowed-use
-22/22, Compare15/15, physical-boundary13/13, binary-descent9/9 and transaction
-3/3 PASS. Original `p * q` and shared `p * p` pass both final scans, then stop
-at `type/lifecycle_parameter_entry_capability_missing` / `ordinary-parameter-count`
-for unannotated formals. Literal `p * 2` refuses `borrowed-mul/operand-copy-missing`;
-source-only Static Mul still refuses `borrowed-mul/source-only-entry`. Quick CLI
-build PASS. Logs: `/mnt/workdisk/hako-mul-copy-*`. Full EXE, Static call packet,
-unchanged app, Both315/318, cleanup, Gates2-4, old-edge retirement and
-selfcompile remain open. Next: exact non-view producer or unannotated entry
-contract as required by the original Static path, with no .hako workaround.
+Checked-view Mul Copy decision, implementation and focused evidence are at
+31c2caf637 and `/mnt/workdisk/hako-mul-copy-*`: SAME append/Copy issuer,
+mandatory FinishedBindings mapping, exact source side/formal/guard/Copy checks
+in both independent scans. Original `p*q` and `p*p` passed both scans; literal
+and source-only Static uses retained their named refusals. Non-view producer,
+Static entry/packet, app, Both315/318, cleanup, Gates2-4, old-edge retirement
+and selfcompile remained open. The tagged entry prerequisite followed below.
 
 Decision (2026-10-09, read-only review): the next bounded prerequisite is the
 lifecycle backend entry for selected unannotated `BorrowedTaggedValue` formals.
@@ -996,3 +974,25 @@ borrowed-entry24, borrowed-carrier-JSON2, numeric-contract4 PASS; quick CLI
 build, rustfmt, pointer guard and diff check PASS. Logs:
 `/mnt/workdisk/hako-tagged-entry-*`. Generic backend gate unchanged. Original
 Static `bin_size` still source-only; no app/Both315/318 or goal completion claim.
+
+Decision (2026-10-09, read-only Static audit, corrected after full source
+census): `bin_size(bin)` has CurrentOwner calls in initializer, loop compare
+condition and direct return. The SAME inventory marks loop/return contexts
+unsupported for the whole callee; widening transport seeding first cannot
+advance the original source. S0: exact arity-bearing CurrentOwner local and
+direct-return observation with ordered actuals, original Static Rc and real
+Completion. S1: loop-condition call plus updated `bin` local value through
+canonical loop state/SSA and Home join; source-facts-only loop staging grants
+no permission. S2: SAME complete inventory/claim/index/Completion/full formal
+tuple closes transport/actual/entry. S3: SAME Rc through packet/publication
+and both final scans. Then prove `me.word_size()` non-view Mul producer. No
+public i64 contract comes from caller inference. Until all incoming contexts
+are covered, whole-callee source-only refusal stays. Reuse unchanged mimalloc
+census and nonlocal-context veto tests; reject wrong site/Rc/ordinal, missing
+caller and forged Completion. Premature ingress edits were reverted.
+Current evidence: unchanged mimalloc-lite still stops at
+`borrowed-entry/source-only-object-actuals`; size-class policy proof stops at
+`borrowed-static/local-source-missing`. Existing real mimalloc census1/1 and
+Static context/spelling negatives2/2 PASS. `home_new_prefix_scan` leaves Loop
+at source-facts-only staging; `StaticI64CallClaimV1` and value observer admit
+CurrentOwner only at arity0. No entry/packet implementation was retained.
