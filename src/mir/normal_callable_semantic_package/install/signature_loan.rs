@@ -30,6 +30,12 @@ impl<'loan> ResolvedCallablePhysicalSignatureLoanV1<'loan> {
         self.row.owner()
     }
 
+    pub(crate) const fn mode(
+        &self,
+    ) -> crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1 {
+        self.row.mode()
+    }
+
     pub(crate) fn identity(&self) -> &crate::parser::CallableDeclarationIdentityV1 {
         self.row.identity()
     }

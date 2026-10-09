@@ -3,16 +3,19 @@
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
 
 pub(super) fn stop_if_selected(
     input: ResolvedFunctionLoweringInputV1<'_>,
     claims: &OrdinaryNewClaimLedgerV1,
+    signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
 ) -> Result<(), String> {
-    let Some(_product) =
+    let Some(product) =
         super::super::raw_loop_child_entry::take_at_function_entry_v2(input, claims)?
     else {
         return Ok(());
     };
+    let _formal = product.join_physical_signature_v2(signature)?;
     Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
 }
 

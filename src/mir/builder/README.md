@@ -1760,3 +1760,9 @@ existing route. Physical input/packet and canonical SSA admission are still
 closed; the current selected terminal is `static-i64-v2/physical-unavailable`.
 The raw Loop stop remains fail-closed if reached without the function-entry
 handoff, and cannot retry another route after source evidence is consumed.
+The same entry now joins the package's checked OpaqueHandle source receipt to
+its scoped physical signature loan: one Static formal, no receiver, lane 0,
+`OrdinaryScalar`, ordinal 0, and the exact resolver binding must agree.
+`OrdinaryScalar` alone is not tagged-carrier authority. This join selects
+`BorrowedTaggedValue` for the later canonical entry, but installs no ValueId,
+actual, packet, or unpublished function session yet.

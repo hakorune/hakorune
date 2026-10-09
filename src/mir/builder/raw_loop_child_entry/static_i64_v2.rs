@@ -4,6 +4,8 @@
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1;
+use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
 use crate::mir::normal_callable_semantic_package::VerifiedStaticLoopTaggedEntrySourceV1;
 use crate::mir::resolved_semantics::{
     OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
@@ -26,6 +28,62 @@ impl StaticI64LoopFunctionEntryV2 {
 
     pub(in crate::mir) fn tagged_formal(&self) -> crate::mir::resolved_semantics::BindingRefV1 {
         self.tagged.formal()
+    }
+
+    /// Join the package's source proof to its one physical formal lane. The
+    /// OrdinaryScalar role alone does not authorize a tagged carrier.
+    pub(in crate::mir) fn join_physical_signature_v2(
+        &self,
+        signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+    ) -> Result<StaticI64LoopTaggedPhysicalFormalV2, String> {
+        use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
+        let reject =
+            || "[freeze:contract][callable-loop/static-tagged-signature-mismatch]".to_owned();
+        let formal = self.tagged.formal();
+        let [lane] = signature.lanes() else {
+            return Err(reject());
+        };
+        if signature.owner() != formal.owner()
+            || signature.mode() != CallableParameterDeclarationModeV1::StaticBoxMethod
+            || signature.source_logical_arity() != 1
+            || signature.receiver_lane_count() != 0
+            || signature.physical_formal_lane_count() != 1
+            || signature.physical_callable_lane_count() != 1
+            || lane.index() != 0
+            || lane.logical_ordinal() != Some(0)
+            || lane.role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
+            || lane.binding() != formal
+        {
+            return Err(reject());
+        }
+        Ok(StaticI64LoopTaggedPhysicalFormalV2 {
+            formal,
+            lane_index: lane.index(),
+        })
+    }
+}
+
+/// One joined source/signature representation request; no ValueId or packet.
+#[derive(Debug)]
+pub(in crate::mir) struct StaticI64LoopTaggedPhysicalFormalV2 {
+    formal: crate::mir::resolved_semantics::BindingRefV1,
+    lane_index: u32,
+}
+
+impl StaticI64LoopTaggedPhysicalFormalV2 {
+    pub(in crate::mir) const fn formal(&self) -> crate::mir::resolved_semantics::BindingRefV1 {
+        self.formal
+    }
+
+    pub(in crate::mir) const fn lane_index(&self) -> u32 {
+        self.lane_index
+    }
+
+    pub(in crate::mir) const fn carrier(
+        &self,
+    ) -> crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1
+    {
+        crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue
     }
 }
 

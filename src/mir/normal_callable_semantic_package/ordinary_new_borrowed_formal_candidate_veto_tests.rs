@@ -511,6 +511,15 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
                 assert_eq!(&product.semantic().roles().loop_site, loop_site);
                 let actual = &product.semantic().source_calls().0.original().argument_sites()[0];
                 assert_eq!(input.function().variable_ref(actual), Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(product.tagged_formal())));
+                let row = package.physical_signature().row(slot).unwrap();
+                let signature = crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(row);
+                let joined = product.join_physical_signature_v2(&signature).unwrap();
+                assert_eq!(joined.formal(), product.tagged_formal());
+                assert_eq!(joined.lane_index(), 0);
+                assert_eq!(joined.carrier(), crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);
+                let foreign = package.physical_signature().rows().find(|row| row.owner() != input.owner()).unwrap();
+                let foreign = crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(foreign);
+                assert!(product.join_physical_signature_v2(&foreign).unwrap_err().contains("static-tagged-signature-mismatch"));
                 let second = crate::mir::builder::take_at_function_entry_v2(input, claims).unwrap_err();
                 assert!(second.contains("static-i64-v2/source-unavailable"), "{second}");
             }).unwrap();

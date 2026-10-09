@@ -957,3 +957,23 @@ carrier, ValueId, executable actual, or packet. Quick lib check and final
 focused test 2/2, candidate 6/6, raw Loop 16/16 PASS. Next: join this exact
 formal to the package physical signature's sole lane, then admit the tagged
 carrier in one unpublished canonical function session.
+
+Physical-signature join Decision (read-only worker integrated): use the same
+selected package signature loan already checked for owner and declaration
+identity at cataloged function entry. Join its sole Static `OrdinaryScalar`
+lane (index/ordinal 0, no receiver) to the source receipt's exact formal
+binding. The package contract and original checked-input source, not the
+coarse lane role alone, justify the future `BorrowedTaggedValue` carrier.
+Foreign or mismatched signatures reject before Builder effects. The selected
+terminal remains `physical-unavailable`; no draft session, executable
+actual/packet, or production MIR is issued. The next physical responsibility
+is canonical entry adoption in one unpublished session, with rollback on the
+late packet stop.
+
+Physical-signature join verification: original mimalloc selected entry joins
+lane 0 to its checked formal; a foreign package row rejects with
+`static-tagged-signature-mismatch`. Focused 2/2, candidate 6/6, entry 1/1,
+signature family 4/4, quick lib check PASS. The terminal remains before
+Builder effects. Next session admission must also obtain the unannotated
+I64 result ABI from its package claim before creating a function skeleton;
+the source AST's absent return annotation is not a Void result proof.
