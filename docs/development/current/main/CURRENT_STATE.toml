@@ -39,10 +39,11 @@ product supplies bin's checked literal, emitted on Normal and bound to its
 original declaration. The draft discards at missing executable actual/source
 coverage. The packet now retains a complete original Static incoming source
 cohort for its callee; that cohort alone grants no executable actual. The
-selected CurrentOwner actual now corroborates the same staged source candidate,
-draft origin and checked-input formals in the packet. General SourceStatic
-remains source-only. Next: close all caller edges through the existing
-packet/finished-coordinate path for final source coverage.
+selected packet now corroborates staged source candidates, draft origins and
+checked-input formals for every original incoming caller (CurrentOwner and
+qualified Return). General SourceStatic remains source-only. Next: close
+both caller edges through the existing packet/finished-coordinate path and
+final entry coverage.
 The original unannotated callees
 cannot use the declared-i64 direct-call shortcut.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.

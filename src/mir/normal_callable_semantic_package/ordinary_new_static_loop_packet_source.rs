@@ -21,8 +21,8 @@ use super::super::qualified_static_call_claim::{
 use super::super::result_contract::VerifiedCallableResultContractCohortV1;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::lexical_instance_call::{
-    issue_selected_current_owner_forwarded_actual_v1, PendingBorrowedFormalActualsV1,
-    VerifiedCurrentOwnerForwardedActualV1,
+    issue_original_static_forwarded_actual_v1, PendingBorrowedFormalActualsV1,
+    VerifiedStaticForwardedActualV1,
 };
 use super::loop_static_source_loan::LoopEntryStaticI64SourceLoanV1;
 use super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
@@ -38,7 +38,7 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
     caller_formal: BindingRefV1,
     argument: SourceExprSiteV1,
     complete_incoming: Box<[Rc<StaticIncomingSourceV1>]>,
-    forwarded_actual: VerifiedCurrentOwnerForwardedActualV1,
+    forwarded_actuals: Box<[VerifiedStaticForwardedActualV1]>,
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
@@ -74,7 +74,19 @@ impl VerifiedStaticLoopPacketSourceV1 {
             && Rc::ptr_eq(&self.original, entry.original())
             && self.caller_formal == formal
             && entry.original().argument_sites().get(0) == Some(&self.argument)
-            && self.forwarded_actual.corroborates(&self.original, formal)
+            && self.forwarded_actuals.len() == self.complete_incoming.len()
+            && self
+                .forwarded_actuals
+                .iter()
+                .zip(self.complete_incoming.iter())
+                .all(|(actual, source)| {
+                    let caller_formal = if Rc::ptr_eq(source, &self.original) {
+                        formal
+                    } else {
+                        actual.caller_formal()
+                    };
+                    actual.corroborates(source, caller_formal)
+                })
             && self
                 .complete_incoming
                 .iter()
@@ -144,12 +156,20 @@ fn issue_packet_source(
         return Err(reject());
     }
     let complete_incoming = incoming.static_incoming_cohort_v1(original)?;
-    let forwarded_actual = issue_selected_current_owner_forwarded_actual_v1(
-        incoming,
-        pending,
-        original,
-        tagged.formal(),
-    )?;
+    let forwarded_actuals = complete_incoming
+        .iter()
+        .map(|source| {
+            let caller_formal = incoming
+                .static_arguments
+                .get(&(source.call_site().clone(), 0))
+                .ok_or_else(reject)?
+                .formal();
+            if Rc::ptr_eq(source, original) && caller_formal != tagged.formal() {
+                return Err(reject());
+            }
+            issue_original_static_forwarded_actual_v1(incoming, pending, source, caller_formal)
+        })
+        .collect::<Result<Vec<_>, String>>()?;
     Ok(VerifiedStaticLoopPacketSourceV1 {
         loop_site: entry.loop_site().clone(),
         declaration: entry.declaration().clone(),
@@ -157,7 +177,7 @@ fn issue_packet_source(
         caller_formal: tagged.formal(),
         argument: argument.clone(),
         complete_incoming,
-        forwarded_actual,
+        forwarded_actuals: forwarded_actuals.into_boxed_slice(),
     })
 }
 

@@ -682,3 +682,34 @@ existing forward-identity negative 1/1 passed in the same quick-profile test
 binary. Quick library check, pointer guard and diff check passed. The
 post-Invoke `actual-coverage-missing` stop remains intentional because the
 other incoming edges and finished coordinates are not yet proved.
+
+Full incoming execution Decision (read-only worker integrated): original
+`SizeClassBox.normalize_size/1` has two source callers: CurrentOwner
+`size_to_bin` and qualified Return `LayoutBox.normalize_size`. The source
+cohort already retains both original Rcs, but the generic `SourceStatic`
+phase, final borrowed entry and physical packet still reject the mixed
+cohort. First extend the selected packet's source-actual witness over every
+original incoming Rc using the same pending SourceStatic candidate,
+`StaticArgumentSourceV1`, caller/target checked inputs and Opaque formal;
+keep the draft's post-Invoke stop. Next, separately close the selected
+CurrentOwner packet/coordinate, the qualified Return packet/coordinate,
+and final entry/source-aware verification before publication. The Return
+caller must use the existing Return-context finished producer, not a local
+binding substitute. A source census alone, `%0` or a single finished call
+cannot stand for all incoming coverage. `SourceStatic` remains generally
+non-executable and the original result/publication handoff remains a
+separate gate.
+
+Full original Static source-actual cohort S0: the selected packet now issues
+the same forwarded-actual witness for every retained incoming Rc. The real
+`normalize_size/1` source has both CurrentOwner and qualified Return rows;
+the bounded test proves both, then mutates only the qualified staged candidate
+and observes fail-closed rejection. Original mimalloc entry 1/1, bounded
+positive/negative 1/1, candidate veto 6/6, Static packet 6/6 and forward
+identity 1/1 passed with the same quick-profile binary; quick library check,
+pointer guard and diff check passed. No generic `SourceStatic` activation or
+physical packet/finished-coordinate claim was added. The draft still discards
+at `actual-coverage-missing`. Next: exact CurrentOwner publication handoff
+and packet/coordinate, then qualified Return packet/coordinate and final
+entry/source-aware verification. Neither one-row publication nor source
+cohort alone completes the callee.

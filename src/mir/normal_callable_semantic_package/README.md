@@ -2098,12 +2098,13 @@ cohort; this source census still grants no executable actual. The selected
 physical owner may build a disposable Invoke, but final publication still
 requires every original incoming edge to close through the existing packet
 and finished-coordinate path.
-The selected packet also checks the staged `SourceStatic` actual against the
-same original Rc, ordinal-zero argument site, source draft origin, caller
-formal, target formal and both checked-input receipts. Only this selected
-CurrentOwner forwarded source may corroborate the disposable tagged `%0`
-Invoke actual. The general `SourceStatic` phase remains non-executable; this
-receipt neither fills the other incoming edges nor licenses publication.
+The selected packet checks each original incoming caller's staged
+`SourceStatic` actual against the same Rc, ordinal-zero argument site, source
+draft origin, caller formal, target formal and both checked-input receipts.
+The selected CurrentOwner row additionally corroborates the disposable tagged
+`%0` Invoke actual. This is complete source-actual evidence for the selected
+cohort only; the general `SourceStatic` phase remains non-executable. Physical
+packet/finished-coordinate and final entry coverage still gate publication.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

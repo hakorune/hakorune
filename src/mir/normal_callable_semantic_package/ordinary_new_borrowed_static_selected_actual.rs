@@ -1,4 +1,4 @@
-//! Exact forwarded actual for the selected CurrentOwner Static loop call.
+//! Exact forwarded actuals for one selected Static loop's original callers.
 //! The source-only phase stays closed for every other Static route.
 
 use super::*;
@@ -6,14 +6,18 @@ use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::i
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct VerifiedCurrentOwnerForwardedActualV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct VerifiedStaticForwardedActualV1 {
     original: Rc<StaticIncomingSourceV1>,
     caller_formal: BindingRefV1,
     target_formal: BindingRefV1,
     site: SourceExprSiteV1,
 }
 
-impl VerifiedCurrentOwnerForwardedActualV1 {
+impl VerifiedStaticForwardedActualV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn caller_formal(&self) -> BindingRefV1 {
+        self.caller_formal
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates(
         &self,
         original: &Rc<StaticIncomingSourceV1>,
@@ -27,12 +31,12 @@ impl VerifiedCurrentOwnerForwardedActualV1 {
     }
 }
 
-pub(in crate::mir::normal_callable_semantic_package) fn issue_selected_current_owner_forwarded_actual_v1(
+pub(in crate::mir::normal_callable_semantic_package) fn issue_original_static_forwarded_actual_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
     original: &Rc<StaticIncomingSourceV1>,
     caller_formal: BindingRefV1,
-) -> Result<VerifiedCurrentOwnerForwardedActualV1, String> {
+) -> Result<VerifiedStaticForwardedActualV1, String> {
     let reject = || freeze("borrowed-static/selected-forwarded-actual-unavailable");
     let [site] = original.argument_sites() else {
         return Err(reject());
@@ -61,8 +65,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_selected_current_o
     let BorrowedCallActualValueV1::SelfRooted { binding, root } = candidate.value else {
         return Err(reject());
     };
-    if !original.is_current_owner_i64_source_v1()
-        || original.is_qualified()
+    if !(original.is_current_owner_i64_source_v1() || original.is_qualified())
         || formal.ordinal != 0
         || !formal.kind.is_ordinary_borrowed_handle()
         || !Rc::ptr_eq(&identity.source, original)
@@ -90,7 +93,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_selected_current_o
     {
         return Err(reject());
     }
-    Ok(VerifiedCurrentOwnerForwardedActualV1 {
+    Ok(VerifiedStaticForwardedActualV1 {
         original: Rc::clone(original),
         caller_formal,
         target_formal: formal.binding,

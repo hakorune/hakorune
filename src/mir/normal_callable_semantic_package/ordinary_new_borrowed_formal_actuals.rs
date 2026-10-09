@@ -75,7 +75,7 @@ enum BorrowedCallActualEvidencePhaseV1 {
 #[path = "ordinary_new_borrowed_static_selected_actual.rs"]
 mod static_selected_actual;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::{
-    issue_selected_current_owner_forwarded_actual_v1, VerifiedCurrentOwnerForwardedActualV1,
+    issue_original_static_forwarded_actual_v1, VerifiedStaticForwardedActualV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
