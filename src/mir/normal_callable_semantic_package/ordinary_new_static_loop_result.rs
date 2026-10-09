@@ -27,6 +27,23 @@ pub(in crate::mir) struct VerifiedStaticLoopI64ResultSourceV1 {
 }
 
 impl VerifiedStaticLoopI64ResultSourceV1 {
+    pub(in crate::mir) const fn physical_return_type(&self) -> crate::mir::MirType {
+        crate::mir::MirType::Integer
+    }
+
+    pub(in crate::mir) fn matches_completion(
+        &self,
+        completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    ) -> bool {
+        completion.owner() == self.owner
+            && matches!(
+                completion.function_exit_contract().declared_result(),
+                DeclaredFunctionResultContractV1::Unannotated
+            )
+            && completion.returns_value()
+            && completion.explicit_sites() == self.returns.as_ref()
+    }
+
     pub(in crate::mir) fn corroborates(
         &self,
         product: &crate::mir::builder::VerifiedStaticI64LoopSemanticV2,

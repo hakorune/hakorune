@@ -1,21 +1,25 @@
 //! The selected Static I64 Loop is taken at the cataloged function boundary.
-//! No physical session is opened until executable input and packet proofs exist.
+//! Its physical entry is disposable until the executable packet is proved.
 
-use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::builder::MirBuilder;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
+use crate::mir::normal_callable_semantic_package::SelectedCallableLoweringInputRefV1;
 
 pub(super) fn stop_if_selected(
-    input: ResolvedFunctionLoweringInputV1<'_>,
+    builder: &mut MirBuilder,
+    selected: &SelectedCallableLoweringInputRefV1<'_>,
+    physical_symbol: &str,
     claims: &OrdinaryNewClaimLedgerV1,
     signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
 ) -> Result<(), String> {
+    let input = selected.source();
     let Some(product) =
         super::super::raw_loop_child_entry::take_at_function_entry_v2(input, claims)?
     else {
         return Ok(());
     };
-    let _formal = product.join_physical_signature_v2(signature)?;
+    let formal = product.join_physical_signature_v2(signature)?;
     let result = claims
         .take_static_loop_i64_result_v1(&product.semantic().roles().loop_site)
         .ok_or_else(|| {
@@ -24,7 +28,16 @@ pub(super) fn stop_if_selected(
     if !result.corroborates(product.semantic()) {
         return Err("[freeze:contract][callable-loop/static-result-source-mismatch]".to_owned());
     }
-    Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
+    crate::mir::builder::resolved_lowering::stop_after_unpublished_static_loop_entry_v1(
+        builder,
+        input,
+        selected.block_expr_expectation(),
+        physical_symbol,
+        &product,
+        &formal,
+        &result,
+        claims,
+    )
 }
 
 #[cfg(test)]
@@ -98,7 +111,7 @@ mod tests {
                             builder, admission, Vec::new(), Vec::new(), None,
                             Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
                         ).unwrap_err();
-                        assert!(error.contains("static-i64-v2/physical-unavailable"), "{error}");
+                        assert!(error.contains("static-i64-v2/executable-packet-missing"), "{error}");
                         drop(adapter);
                         module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), 0));
                     });

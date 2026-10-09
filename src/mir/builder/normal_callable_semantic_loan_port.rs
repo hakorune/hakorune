@@ -666,7 +666,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 static_i64_entry::stop_if_selected(
-                    selected.source(),
+                    builder,
+                    &selected,
+                    admission.physical_symbol(),
                     &ordinary_new_claim_ledger,
                     &signature,
                 )?;

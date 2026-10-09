@@ -1756,13 +1756,18 @@ For the selected Static I64 Loop V2, the cataloged function entry consumes
 the package's one-take source/Home product before route classification or
 function draft effects. The exact resolver Loop site, original Static loans
 and common Recipe/JoinSig remain its authority. Other methods retain their
-existing route. Physical input/packet and canonical SSA admission are still
-closed; the current selected terminal is `static-i64-v2/physical-unavailable`.
+existing route. The selected terminal is now
+`static-i64-v2/executable-packet-missing`.
 The raw Loop stop remains fail-closed if reached without the function-entry
 handoff, and cannot retry another route after source evidence is consumed.
 The same entry now joins the package's checked OpaqueHandle source receipt to
 its scoped physical signature loan: one Static formal, no receiver, lane 0,
 `OrdinaryScalar`, ordinal 0, and the exact resolver binding must agree.
-`OrdinaryScalar` alone is not tagged-carrier authority. This join selects
-`BorrowedTaggedValue` for the later canonical entry, but installs no ValueId,
-actual, packet, or unpublished function session yet.
+`OrdinaryScalar` alone is not tagged-carrier authority. The same package's
+result-catalog I64 row and complete unannotated value-return set authorize
+the physical result. The canonical owner installs a disposable shell with
+one `BorrowedTaggedValue` `%0` and I64 result, preserving the original
+source declaration and absent result annotation in metadata. It adopts the
+exact formal binding and discards the unpublished session at missing packet;
+no executable actual, call packet, or production MIR is issued. Its effect
+mask is a conservative unpublished upper bound until packet/effect proof.

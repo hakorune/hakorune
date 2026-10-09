@@ -53,6 +53,7 @@ mod selected_dynamic_physical_abi;
 mod selected_dynamic_physical_capability;
 mod selected_dynamic_physical_emitter;
 mod semantic_stack;
+mod static_loop_entry_session;
 mod trivial_ssa;
 
 pub(in crate::mir) use callable_module_transaction::{
@@ -100,6 +101,7 @@ pub(in crate::mir) use selected_dynamic_physical_capability::{
     DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };
 pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
+pub(in crate::mir::builder) use static_loop_entry_session::stop_after_unpublished_static_loop_entry_v1;
 
 /// Consume one already-admitted trivial Binding-SSA plan on an existing
 /// function skeleton.  The caller owns the package recipe port; this helper

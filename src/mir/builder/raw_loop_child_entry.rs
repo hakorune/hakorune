@@ -42,7 +42,10 @@ mod variable_accum;
 mod ledger_bridge;
 #[path = "raw_loop_child_entry/static_i64_v2.rs"]
 mod static_i64_v2;
-pub(in crate::mir) use static_i64_v2::take_at_function_entry_v2;
+pub(in crate::mir) use static_i64_v2::{
+    take_at_function_entry_v2, StaticI64LoopFunctionEntryV2,
+    StaticI64LoopTaggedPhysicalFormalV2,
+};
 
 /// Exact child-entry result for one raw Loop syntax surface.
 ///

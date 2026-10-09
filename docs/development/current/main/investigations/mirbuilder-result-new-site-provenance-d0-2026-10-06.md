@@ -959,3 +959,28 @@ rows remain non-I64; unannotated generic physical headers remain absent.
 No Builder session or production MIR was published. Next: one unpublished
 canonical session installs the tagged formal and physical I64 result, then
 discards on the still-missing executable Static packet.
+
+Static canonical-entry Decision (read-only worker integrated): the exact
+checked tagged-formal/source-signature join and retained I64-result receipt
+are the only representation authority. Borrow the package's existing
+Completion by owner and selected BlockExpr expectation; the existing
+owned-Loop If partition closes outer If control. The sole physical owner
+installs one detached shell with `BorrowedTaggedValue` at `%0` and I64 result,
+preserving the original parameter declaration and absent result annotation
+in metadata. Do not use the declared-signature setter: it rewrites an opaque
+source annotation into a physical Box lane. `EffectMask::ALL` is a
+conservative unpublished-shell upper bound only; executable effect/packet
+proof is required before publication. A late packet absence discards the
+canonical session, leaving no function/header or retry. Positive acceptance
+is the unchanged selected method reaching that late stop after entry
+adoption; negative acceptance retains foreign/missing/cohort refusals before
+Builder effects and empty Builder state after discard. This is an entry
+responsibility, not executable actual/packet or production MIR.
+
+Static canonical-entry I0: original selected mimalloc method reaches the
+late `executable-packet-missing` stop after tagged `%0`/I64 entry adoption;
+its unpublished session restores empty function/block/header state. Focused
+1/1, original V2 2/2 and candidate veto 6/6, quick lib check PASS. The
+original foreign signature and source/result refusal pins remain green.
+Next: original Static executable pre-loop `normalize_size(size)` actual and
+packet, followed by canonical `n`/`bin` inputs. No production MIR or EXE.
