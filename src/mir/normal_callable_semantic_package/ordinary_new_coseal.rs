@@ -84,10 +84,13 @@ mod static_home_effect;
 mod static_loop_tagged_entry;
 #[path = "ordinary_new_static_loop_result.rs"]
 mod static_loop_result;
+#[path = "ordinary_new_static_loop_packet_source.rs"]
+mod static_loop_packet_source;
 pub(in crate::mir) use loop_static_source_loan::{LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1};
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
+pub(in crate::mir) use static_loop_packet_source::VerifiedStaticLoopPacketSourceV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
@@ -308,6 +311,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     loop_static_home_neutral: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>>>,
     loop_static_tagged_entry: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>>>,
     loop_static_i64_results: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_loop_result::VerifiedStaticLoopI64ResultSourceV1, String>>>,
+    loop_static_packet_sources: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<static_loop_packet_source::VerifiedStaticLoopPacketSourceV1, String>>>,
     // The existing source dispatch projection retains per-site error scope.
     borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,

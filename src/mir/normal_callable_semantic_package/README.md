@@ -2084,6 +2084,14 @@ sites. An absent/non-I64 row, Void result, foreign owner or extra exit stays
 fail-closed; this does not synthesize a source `: i64` annotation or publish
 a physical return.
 
+For the selected pre-loop CurrentOwner call, the same package now retains a
+one-take packet source from its original incoming Rc. It joins the exact
+caller formal/argument site to the callee's OpaqueHandle contract and checked
+input, callee Completion, and the existing ExactI64 result row. This selected
+arity-one proof does not change the general `SourceStatic` phase or the
+qualified/zero-input Static packet law. It has no ValueId, physical Invoke,
+Fault landing, NormalResult, or publication permission.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

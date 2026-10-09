@@ -26,6 +26,9 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;
     ledger
+        .retain_static_loop_packet_sources_v1(selected, contracts, results, static_claims)
+        .map_err(|_error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error })?;
+    ledger
         .finish_static_zero_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },

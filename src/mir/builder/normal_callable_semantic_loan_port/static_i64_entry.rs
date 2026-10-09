@@ -28,6 +28,14 @@ pub(super) fn stop_if_selected(
     if !result.corroborates(product.semantic()) {
         return Err("[freeze:contract][callable-loop/static-result-source-mismatch]".to_owned());
     }
+    let packet = claims
+        .take_static_loop_packet_source_v1(
+            &product.semantic().roles().loop_site,
+            product.semantic().source_calls().0.declaration(),
+        )
+        .ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-packet-source-missing]".to_owned()
+        })??;
     crate::mir::builder::resolved_lowering::stop_after_unpublished_static_loop_entry_v1(
         builder,
         input,
@@ -36,6 +44,7 @@ pub(super) fn stop_if_selected(
         &product,
         &formal,
         &result,
+        &packet,
         claims,
     )
 }

@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-loop-executable-packet-i0"
+current_blocker_token = "selfhost-resume/static-loop-physical-invoke-i0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -30,8 +30,10 @@ the sole package physical signature lane. The existing Static result-catalog
 I64 proof is retained for the unannotated selected entry and corroborates
 its two Completion exits. The selected entry now adopts tagged `%0` and a
 physical I64 result in one unpublished canonical SSA session, then discards
-at missing executable packet. Next: issue executable Static actual/packet
-and n/bin inputs. The original unannotated callees
+at missing physical packet. Its original pre-loop CurrentOwner call now has
+a one-take source packet proof from the checked caller/callee contracts and
+ExactI64 target result. Next: emit the canonical Invoke Normal/Fault and
+then bind n/bin inputs. The original unannotated callees
 cannot use the declared-i64 direct-call shortcut.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.
 """

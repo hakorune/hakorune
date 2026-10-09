@@ -11,7 +11,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
-    OrdinaryNewClaimLedgerV1, VerifiedStaticLoopI64ResultSourceV1,
+    OrdinaryNewClaimLedgerV1, VerifiedStaticLoopI64ResultSourceV1, VerifiedStaticLoopPacketSourceV1,
 };
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
@@ -27,6 +27,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     product: &StaticI64LoopFunctionEntryV2,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     result_source: &VerifiedStaticLoopI64ResultSourceV1,
+    packet_source: &VerifiedStaticLoopPacketSourceV1,
     claims: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(), String> {
     let completion = claims.completion_for_owner(input.owner()).ok_or_else(|| {
@@ -34,6 +35,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     })?;
     if !result_source.corroborates(product.semantic())
         || !result_source.matches_completion(completion)
+        || !packet_source.corroborates(product.semantic().source_calls().0, formal.formal())
         || formal.formal() != product.tagged_formal()
         || formal.lane_index() != 0
     {

@@ -961,3 +961,14 @@ that packet to emit Invoke with Fault/Normal and I64 NormalResult. The declared
 `: i64` direct-call emitter is unavailable for the unchanged source. Fault
 cleanup, result binding and packet consumption must be verified before any
 publication; no generic retry or whole-caller Integer assumption.
+
+Static packet-source S0: the original selected `normalize_size(size)` Rc now
+retains a one-take package packet source, corroborated at the disposable
+canonical entry. It reuses the callee's checked OpaqueHandle formal,
+Completion and ExactI64 result. Initial focused red was a THISCHANGE
+`bin_declaration`/entry declaration key mix-up, fixed by taking the original
+pre-loop entry declaration. Final focused 1/1, candidate veto 6/6, existing
+Static packet family 6/6 and quick library check PASS. The endpoint still
+discards at `executable-packet-missing`; no physical Invoke or production MIR.
+Next: sole physical owner maps this source packet to tagged `%0`, Invoke,
+Fault/Normal and I64 NormalResult with no fallback.
