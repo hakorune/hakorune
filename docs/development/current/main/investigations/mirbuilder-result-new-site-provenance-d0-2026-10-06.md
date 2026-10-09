@@ -952,3 +952,23 @@ SizeClassBox import still refuses `borrowed-static/local-source-missing` with
 no EXE: the remaining return/Loop/accepts nonlocal sites retain separate
 Home contexts. This is source/packet admission for one If site, not final
 Invoke, all-incoming publication or production cutover.
+
+Decision (2026-10-10, return `word_size` prerequisite): read-only scalar-chain
+audit confirms that `bin_size` Body11/Value/Rhs cannot receive a Home call row
+merely because `me.word_size()` is a source-proved zero-input I64 call. Its
+parent is `words * me.word_size()`, and `words` has no Integer-class Home:
+unannotated `bin` enters as Handle, `x = bin + 3` does not consult the existing
+checked `AddOperand` at local initialization, generic scalar preflight rejects
+the Divide in `bit_group`, nested Multiply in `top`, and Multiply in `words`,
+and the Loop that updates `scale` remains uncovered. Home neutrality proves
+ownership effects, not scalar class or Loop assignment/merge. Existing
+`IntegerMulReturn` requires a checked formal-view operand, which `words` is
+not. Source authority remains the original scalar expression sites and the
+existing checked formal-use/Recipe evidence; Home may only borrow their
+proved class and path, never infer it from an inventory or Static call.
+Smallest next slice: admit the exact checked `bin + 3` local initializer via
+the existing `AddOperand` proof, with a negative for missing/wrong operand
+site. Then establish Divide/nested Multiply and Loop assignment/join in
+separate bounded slices before the non-view returned Multiply and exact
+`word_size` Home row. Do not synthesize Integer `words`, permit generic
+Multiply/Loop, or claim an executable packet or production EXE here.
