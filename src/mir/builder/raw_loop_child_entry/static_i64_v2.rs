@@ -4,6 +4,7 @@
 
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::VerifiedStaticLoopTaggedEntrySourceV1;
 use crate::mir::resolved_semantics::{
     OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
     SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
@@ -12,10 +13,26 @@ use crate::mir::resolved_semantics::{
 use super::super::normal_callable_loop_source_facts::produce_static_i64_loop_semantic_v2;
 use super::super::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
 
+#[derive(Debug)]
+pub(in crate::mir) struct StaticI64LoopFunctionEntryV2 {
+    semantic: VerifiedStaticI64LoopSemanticV2,
+    tagged: VerifiedStaticLoopTaggedEntrySourceV1,
+}
+
+impl StaticI64LoopFunctionEntryV2 {
+    pub(in crate::mir) fn semantic(&self) -> &VerifiedStaticI64LoopSemanticV2 {
+        &self.semantic
+    }
+
+    pub(in crate::mir) fn tagged_formal(&self) -> crate::mir::resolved_semantics::BindingRefV1 {
+        self.tagged.formal()
+    }
+}
+
 pub(in crate::mir) fn take_at_function_entry_v2(
     input: ResolvedFunctionLoweringInputV1<'_>,
     claims: &OrdinaryNewClaimLedgerV1,
-) -> Result<Option<VerifiedStaticI64LoopSemanticV2>, String> {
+) -> Result<Option<StaticI64LoopFunctionEntryV2>, String> {
     let mut selected = input
         .function()
         .loop_sites()
@@ -52,7 +69,7 @@ fn take_selected_semantic_product(
     input: ResolvedFunctionLoweringInputV1<'_>,
     claims: &OrdinaryNewClaimLedgerV1,
     loop_site: &SourceStmtSiteV1,
-) -> Result<Option<VerifiedStaticI64LoopSemanticV2>, String> {
+) -> Result<Option<StaticI64LoopFunctionEntryV2>, String> {
     let reject = || "[freeze:contract][callable-loop/static-i64-v2/source-unavailable]".to_owned();
     let site = |relative: &[Segment]| {
         let mut path = loop_site.node().segments().to_vec();
@@ -126,5 +143,14 @@ fn take_selected_semantic_product(
     if !home.corroborates(&product) {
         return Err("[freeze:contract][callable-loop/static-home-effect-mismatch]".to_owned());
     }
-    Ok(Some(product))
+    let tagged = claims
+        .take_loop_static_tagged_entry_v1(loop_site, product.source_calls().0.declaration())
+        .ok_or_else(reject)??;
+    if !tagged.corroborates(product.source_calls().0) {
+        return Err("[freeze:contract][callable-loop/static-tagged-entry-mismatch]".to_owned());
+    }
+    Ok(Some(StaticI64LoopFunctionEntryV2 {
+        semantic: product,
+        tagged,
+    }))
 }

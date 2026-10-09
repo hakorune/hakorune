@@ -895,56 +895,13 @@ raw-entry 11/11, schema 23/23, quick check and CLI build PASS. The route
 stops at `static-i64-v2/physical-unavailable`; whole-app probe still stops
 earlier at `borrowed-entry/source-only-object-actuals`. No live Home/SSA/EXE.
 
-S1 HOME-D0 Decision (read-only audit integrated, 2026-10-09): canonical
-Binding SSA/CFG/PHI is `CanonicalSsaFunctionSessionV2`, not Home Flow.
-Selected-New `PrefixLocalFlow` and Query neutral evidence are cohort-limited.
-The package `StaticIncomingSourceV1` already retains original branded
-call/target/ordered formal contracts, and result catalog proves ExactI64.
-Neither product is a Home ABI: an annotated ExactI64 result skips body proof,
-and unannotated result proof permits unused call statements. Thus even
-transitive ExactI64 is no evidence that Home state is unchanged.
-
-Source authority + canonical issuer: the existing semantic package must
-co-seal a bounded ClosedCallable Home boundary from its resolved declaration,
-whole-source target inventory, formal contracts and a whole-body/transitive
-effect check. Do not re-resolve targets or mint Home from the V2 Recipe.
-For this caller, prove the borrowed input, trivial `n`/`bin`, all four Static
-call boundaries, both returns, backedge and Fault before Normal publication.
-The `bin_size` transitive callees also need the same check.
-Non-authority: ExactI64, absent `new`, source comments and physical SSA.
-Fail-fast: unsupported effect, unknown/recursive target, Home transfer or
-escape, owned surviving local, or unproved Fault cleanup refuses the receipt.
-Smallest next slice: retain the original post-loop `return me.huge_bin()`
-Static source loan beside the three existing loans, then issue the bounded
-Home boundary from the same package and consume it in selected V2 routing.
-Acceptance: original four-call source succeeds; foreign/missing tail source
-and an ExactI64 callee with a side-effecting statement reject before MIR.
-Non-claims: no generic Home Flow, executable actuals, physical SSA or EXE.
-
-S1 tail source slice (2026-10-09): the package lends the exact final
-`return me.m()` source call after a top-level Loop through a one-take loan.
-The selected V2 product joins its return site to Completion and checks
-original call site, CurrentOwner I64 claim and same catalog/caller as the
-entry/header/body loans. Missing or changed tail refuses before MIR; the
-`physical-unavailable` stop remains. Owner contract is in the package README.
-The next unissued dependency is the ClosedCallable Home effect check above,
-not a physical call packet or whole-app EXE permission.
-
-S1 Home source decision: issue one bounded ClosedCallable receipt in the
-semantic package from the original resolver body, branded Static call/actual
-loans, declared formals and checked-input closure. Walk the complete caller
-and transitive target bodies; reject unsupported effects, incomplete call
-inventory and recursion. The selected V2 route consumes it once and matches
-all four source loans before its existing physical stop. This is source Home
-neutrality only; live SSA/PHI, executable actuals, Fault/Normal packets and
-whole-app EXE remain next. Focused positive and side-effect negative must
-pass before this slice can close. Evidence: original/negative 2/2,
-candidate 6/6, claim 9/9, raw Loop 16/16, pointer guard PASS; quick test
-profile, jobs=4. The physical stop remains selected and deliberate.
-Next physical I0 requires an issuer census: the raw Loop port is entered
-after earlier lowering and owns no canonical function session. Reuse the
-enclosing session or move the selected route before effects; never create a
-second SSA/Builder owner. First target is source-bound `n`/`bin` inputs.
+S1 Static source/Home history (closed): the source-bound V2 Recipe/JoinSig
+landed at `7b9f345d7f`; exact post-Loop Static return source continuity at
+`a78e9637b6`; ClosedCallable Home-neutral source proof at `b69906ee8a`.
+The original same-module target/actual inventory and full transitive body
+check own the effect boundary. Annotated ExactI64 and absent `new` are not
+Home evidence. These source products issue no executable actual, ValueId,
+Fault/Normal packet or EXE; Git owns their focused tests and decisions.
 
 Issuer census I0 (read-only): `physical_entry_session.rs` requires an empty
 Builder and opens the sole unpublished function transaction. The selected
@@ -986,9 +943,17 @@ same-owner tagged formal entry and literal `bin` input in one unpublished
 canonical session; a late stop discards that draft. Then promote the original
 `normalize_size` actual/packet, publish `n`, and only later use canonical
 `bin` SSA for the body packet. No call emission or EXE from entry admission.
-The first issuer is still missing: the package must lend one bounded checked
-tagged-formal binding from its original parameter contract and
+The source prerequisite binds the original parameter contract and
 `PreparedBorrowedFormalIngressV1::checked_static_input`. The Home receipt
-proves effects, not the physical carrier. Function entry then joins that
-binding to the package signature lane before opening the canonical session;
-unknown or duplicate mapping rejects before Builder effects.
+proves effects, not the physical carrier. The next function-entry slice must
+join that binding to the package signature lane before opening the canonical
+session; unknown or duplicate mapping rejects before Builder effects.
+
+Tagged-entry source prerequisite closed: the package now issues a one-take
+source receipt for the original pre-loop `normalize_size(size)` formal. It
+corroborates the selected original Rc and Loop site at cataloged function
+entry; a literal substituted for `size` rejects. This grants no physical
+carrier, ValueId, executable actual, or packet. Quick lib check and final
+focused test 2/2, candidate 6/6, raw Loop 16/16 PASS. Next: join this exact
+formal to the package physical signature's sole lane, then admit the tagged
+carrier in one unpublished canonical function session.

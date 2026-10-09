@@ -508,7 +508,9 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
                 assert!(claims.expects_loop_static_source_loan_v1(input.owner(), loop_site));
                 let first = crate::mir::builder::take_at_function_entry_v2(input, claims).unwrap();
                 let product = first.expect("selected cataloged function takes one V2 product before lowering");
-                assert_eq!(&product.roles().loop_site, loop_site);
+                assert_eq!(&product.semantic().roles().loop_site, loop_site);
+                let actual = &product.semantic().source_calls().0.original().argument_sites()[0];
+                assert_eq!(input.function().variable_ref(actual), Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(product.tagged_formal())));
                 let second = crate::mir::builder::take_at_function_entry_v2(input, claims).unwrap_err();
                 assert!(second.contains("static-i64-v2/source-unavailable"), "{second}");
             }).unwrap();
@@ -548,6 +550,7 @@ fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
                 ("bin = bin + 1\n    }\n    return me.huge_bin()", "bin = true\n    }\n    return me.huge_bin()"),
                 ("return me.huge_bin()\n  }", "return 73\n  }"),
                 ("return words * me.word_size()", "print(0)\n    return words * me.word_size()"),
+                ("local n = me.normalize_size(size)", "local n = me.normalize_size(1)"),
             ].into_iter().enumerate() {
                 let runner = crate::runner::NyashRunner::new(Default::default());
                 let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
@@ -585,6 +588,14 @@ fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
                             .expect("selected Loop has Home proof attempt")
                             .unwrap_err();
                         assert!(home.contains("static-home-effect-unavailable"), "{home}");
+                        return;
+                    }
+                    if case == 4 {
+                        let declaration = input.function().expression_source().initializers().next().unwrap().declaration_site();
+                        let tagged = package.ordinary_new_claim_ledger
+                            .take_loop_static_tagged_entry_v1(loop_site, declaration)
+                            .expect("selected source has tagged entry attempt").unwrap_err();
+                        assert!(tagged.contains("tagged-entry-source-unavailable"), "{tagged}");
                         return;
                     }
                     let error = crate::mir::builder::take_at_function_entry_v2(

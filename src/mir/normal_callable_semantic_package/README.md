@@ -2067,6 +2067,14 @@ route corroborates its four source loans with this one-take receipt before
 physical lowering; this proves no owned Home transition in the closed source
 graph, not live SSA values, executable actuals, call packets or EXE admission.
 
+The selected Static Loop also takes one checked tagged-formal source receipt
+from this package. The issuer joins its original pre-loop Static call loan,
+source argument's resolver binding, declared OpaqueHandle formal, and the
+existing checked-input closure. The function-entry V2 handoff corroborates
+the same Rc and Loop/declaration site. This receipt identifies the borrowed
+formal for later physical-signature admission; it does not classify its
+payload as I64 or install a carrier, ValueId, executable actual or packet.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

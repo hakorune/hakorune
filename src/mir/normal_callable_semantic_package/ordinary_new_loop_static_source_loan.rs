@@ -382,6 +382,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut entry_rows = std::collections::BTreeMap::new();
         let mut tail_rows = std::collections::BTreeMap::new();
         let mut home_rows = std::collections::BTreeMap::new();
+        let mut tagged_rows = std::collections::BTreeMap::new();
         for declaration in batch.declarations() {
             let slot = declaration.batch_slot();
             let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) =
@@ -395,7 +396,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         let tail = issue_loop_tail_static_i64_source_loan_v1(
                             claims, incoming, selected, contracts, &caller, input, loop_site,
                         );
-                        if matches!(&tail, Ok(Some(_))) {
+                        let selected_tail = matches!(&tail, Ok(Some(_)));
+                        if selected_tail {
                             home_rows.insert(loop_site.clone(),
                                 super::static_home_effect::issue_closed_static_loop_home_neutral_v1(
                                     batch, selected, contracts, claims, incoming, &caller, loop_site,
@@ -418,6 +420,18 @@ impl OrdinaryNewClaimLedgerV1 {
                                 claims, incoming, selected, contracts, &caller,
                                 input, loop_site, relation.declaration_site(),
                             );
+                            if selected_tail {
+                                if let Ok(Some(ref entry)) = loan {
+                                    let key = (loop_site.clone(), relation.declaration_site().clone());
+                                    if tagged_rows.insert(key,
+                                        super::static_loop_tagged_entry::issue_static_loop_tagged_entry_source_v1(
+                                            input, &caller, contracts, incoming, entry,
+                                        ),
+                                    ).is_some() {
+                                        return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+                                    }
+                                }
+                            }
                             if !matches!(&loan, Ok(None)) && entry_rows.insert(
                                 (loop_site.clone(), relation.declaration_site().clone()),
                                 loan.and_then(|row| row.ok_or_else(||
@@ -464,6 +478,7 @@ impl OrdinaryNewClaimLedgerV1 {
         *self.loop_entry_static_i64_source_loans.get_mut() = entry_rows;
         *self.loop_tail_static_i64_source_loans.get_mut() = tail_rows;
         *self.loop_static_home_neutral.get_mut() = home_rows;
+        *self.loop_static_tagged_entry.get_mut() = tagged_rows;
         Ok(())
     }
 
@@ -514,5 +529,15 @@ impl OrdinaryNewClaimLedgerV1 {
         loop_site: &SourceStmtSiteV1,
     ) -> Option<Result<super::static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>> {
         self.loop_static_home_neutral.borrow_mut().remove(loop_site)
+    }
+
+    pub(in crate::mir) fn take_loop_static_tagged_entry_v1(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        declaration: &SourceBindingSiteV1,
+    ) -> Option<Result<super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>> {
+        self.loop_static_tagged_entry
+            .borrow_mut()
+            .remove(&(loop_site.clone(), declaration.clone()))
     }
 }
