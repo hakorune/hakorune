@@ -38,6 +38,9 @@ draft's formal origin, checked-input closure, result Completion and I64 result
 contract against the retained signature. This establishes source eligibility
 for a later selected entry; it does not install a tagged carrier or admit a
 physical caller packet.
+The body call now reuses the packet owner's unpublished Invoke shape check
+against that exact source target and the canonical actual, landing and result.
+The check does not retain a finished packet coordinate.
 
 The original Static fact collector runs once during profile preparation. Its
 exact call-site membership survives later ingress failure as a dispatch

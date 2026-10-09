@@ -211,6 +211,21 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         dst: result,
     })?;
     canonical.publish_physical_value_type(draft, result, MirType::Integer)?;
+    scalar_source.corroborate_unpublished_physical_call(
+        roles.bin_binding,
+        &roles.body_actual_site,
+        actual,
+        draft
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/static-body-function-missing]".to_owned()
+            })?,
+        header.body,
+        normal,
+        result,
+    )?;
     let predicate = canonical.issue_physical_value_id(draft)?;
     loop_operation::emit_compare_i64_at_with_dst(
         draft,

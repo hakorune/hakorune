@@ -953,3 +953,14 @@ Source-only callee join S0: original cataloged entry 1/1, source/Home mutation
 negative 1/1, static-loop family 5/5 and cohort drift negative 1/1 pass on
 the final quick-profile build. The disposable caller still stops at
 `executable-packet-missing`; no callee entry or caller packet was published.
+
+Decision (2026-10-10, body physical call): reuse the existing Static packet
+owner's unpublished Invoke/NormalResult shape verifier after canonical SSA
+emits the `me.bin_size(bin)` call. The same source receipt lends the expected
+target; canonical SSA owns the per-iteration actual and block IDs. Wrong
+target/actual/landing/result must reject before the predicate. This checks
+one selected physical site only; no finished coordinate, group, tagged callee
+entry or final all-incoming permission is issued.
+Body physical call S0: quick-profile original cataloged entry 1/1 and
+static-loop family 5/5 pass, including source/Home mutation and wrong
+physical landing/result negatives. The source-only packet stop is retained.

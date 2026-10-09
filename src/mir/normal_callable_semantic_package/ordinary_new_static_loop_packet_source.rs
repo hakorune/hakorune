@@ -192,7 +192,7 @@ impl VerifiedStaticLoopPacketSourceV1 {
     }
 }
 
-fn corroborate_unpublished_physical_shape(
+pub(in crate::mir::normal_callable_semantic_package) fn corroborate_unpublished_physical_shape(
     expected: &MirCall,
     actual: ValueId,
     function: &MirFunction,

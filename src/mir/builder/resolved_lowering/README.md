@@ -27,6 +27,9 @@ ABI. The original mimalloc source and related Static Loop tests pass.
 The body Invoke now receives its target from the selected package-issued
 source receipt after binding/site corroboration; canonical SSA still owns the
 per-iteration actual and CFG emission. This remains an unpublished draft.
+After the body NormalResult, the package's existing packet-shape verifier
+corroborates that Invoke with the same source target and SSA actual before
+the predicate is emitted. Finished packet coordinates remain owed.
 
 This directory owns the first production consumer of a sealed semantic owner.
 

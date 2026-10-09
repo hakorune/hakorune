@@ -7,6 +7,7 @@ use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
 use crate::mir::definitions::MirCall;
+use crate::mir::function::MirFunction;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
@@ -18,6 +19,7 @@ use crate::mir::resolved_semantics::{
 use super::super::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use super::lexical_instance_call::project_current_owner_loop_scalar_source_v1;
 use super::loop_static_source_loan::LoopStaticSourceCallLoanV1;
+use super::static_loop_packet_source::corroborate_unpublished_physical_shape;
 use super::OrdinaryNewClaimLedgerV1;
 
 #[derive(Debug)]
@@ -56,6 +58,20 @@ impl VerifiedLoopStaticBodyScalarSourceV1 {
             .canonical_global_target_v1()
             .map_err(|_| reject())?;
         Ok(MirCall::global(None, target, vec![actual]))
+    }
+
+    pub(in crate::mir) fn corroborate_unpublished_physical_call(
+        &self,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+        actual: crate::mir::ValueId,
+        function: &MirFunction,
+        entry: crate::mir::BasicBlockId,
+        normal: crate::mir::BasicBlockId,
+        result: crate::mir::ValueId,
+    ) -> Result<(), String> {
+        let expected = self.materialize_unpublished_call(binding, site, actual)?;
+        corroborate_unpublished_physical_shape(&expected, actual, function, entry, normal, result)
     }
 
     pub(in crate::mir) fn corroborates(
