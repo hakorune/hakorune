@@ -1,6 +1,10 @@
 //! Pure scalar expression preflight. Source rows define operators and paths;
 //! field declarations remain obligations until the whole batch is proved.
 use super::*;
+use crate::mir::dynamic_operator_contract::{
+    issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1, DynamicOperatorFamilyV1,
+    DynamicOperatorValueClassV1,
+};
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1, SourcePathV1};
 
 pub(super) fn observe_local_initializer<E>(
@@ -45,7 +49,7 @@ pub(super) fn observe_scalar_expression<E>(
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     required: Option<SourceScalarKind>,
-    allow_positive_literal_divide: bool,
+    local_initializer_profile: bool,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
         bool,
@@ -89,7 +93,9 @@ pub(super) fn observe_scalar_expression<E>(
         homes,
         static_call,
         None,
-        allow_positive_literal_divide,
+        local_initializer_profile,
+        true,
+        false,
         checked_compare_operand,
     )?
     else {
@@ -185,7 +191,9 @@ fn preflight<E>(
     homes: &[BindingRefV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_binary: Option<&SourceExprSiteV1>,
-    allow_positive_literal_divide: bool,
+    local_initializer_profile: bool,
+    is_root: bool,
+    allow_mul_here: bool,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<SourceScalarKind>, E> {
     match locals.observe(site) {
@@ -236,8 +244,28 @@ fn preflight<E>(
     }
     let (operand, result) = match row.operator() {
         Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
+        Op::Multiply
+            if allow_mul_here
+                && matches!(
+                    locals.observe(row.lhs()),
+                    Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
+                )
+                && matches!(
+                    input.function().expression_source().literal(row.rhs()),
+                    Some(ResolvedLiteralSourceV1::Integer(_))
+                )
+                && issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+                    DynamicOperatorFamilyV1::Mul,
+                    DynamicOperatorValueClassV1::NormalInteger,
+                    DynamicOperatorValueClassV1::NormalInteger,
+                ))
+                .is_ok() =>
+        {
+            (Kind::Integer, Kind::Integer)
+        }
         Op::Divide
-            if allow_positive_literal_divide
+            if local_initializer_profile
+                && is_root
                 && matches!(input.function().expression_source().literal(row.rhs()),
                     Some(ResolvedLiteralSourceV1::Integer(divisor)) if *divisor > 0) =>
         {
@@ -265,7 +293,9 @@ fn preflight<E>(
         homes,
         static_call,
         checked_children,
-        allow_positive_literal_divide,
+        local_initializer_profile,
+        false,
+        false,
         checked_compare_operand,
     )?
     else {
@@ -281,7 +311,9 @@ fn preflight<E>(
         homes,
         static_call,
         checked_children,
-        allow_positive_literal_divide,
+        local_initializer_profile,
+        false,
+        is_root && local_initializer_profile && row.operator() == Op::Subtract,
         checked_compare_operand,
     )?
     else {

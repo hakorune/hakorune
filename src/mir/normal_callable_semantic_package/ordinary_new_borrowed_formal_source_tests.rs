@@ -78,6 +78,56 @@ fn real_bin_size_positive_literal_divide_advances_only_local_home() {
         package.batch().with_lowering_input(slot, |input| {
             let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
             let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
+            let expected_frontier = |index| if first_uncovered == 4 { index == 4 } else { index >= 5 };
+            assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
+                if matches!(first.node().segments(), [Segment::Body(index)]
+                    if expected_frontier(*index))), "{source}");
+        }).unwrap();
+    }
+}
+
+#[test]
+fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
+    use crate::mir::resolved_semantics::{
+        home_new_prefix::HomePrefixUnavailableV1, SourceNodeSiteV1, SourcePathSegmentV1 as Segment,
+        SourceStmtSiteV1,
+    };
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let root = "local top = x - (bit_group * 4)";
+    let variants = [
+        (original.to_string(), 9),
+        (
+            original.replacen(root, "local top = x * (bit_group * 4)", 1),
+            5,
+        ),
+        (
+            original.replacen(root, "local top = x - (bit_group * x)", 1),
+            5,
+        ),
+        (
+            original.replacen(root, "local top = x - (bit_group / 4)", 1),
+            5,
+        ),
+        (
+            original.replacen(root, "local top = x - (bit_group * true)", 1),
+            5,
+        ),
+    ];
+    for (source, first_uncovered) in variants {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "bin_size",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        package.batch().with_lowering_input(slot, |input| {
+            let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
+            let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
             assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
                 if first.node().segments() == [Segment::Body(first_uncovered)]), "{source}");
         }).unwrap();

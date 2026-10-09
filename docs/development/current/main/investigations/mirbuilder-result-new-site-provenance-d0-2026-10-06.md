@@ -976,3 +976,17 @@ Multiply replacement remain at Body4 (one focused test, four cases). The prior
 Add test now asserts progress past Body3 without pinning the next frontier.
 Add, If and scalar-expression family regressions passed (1/1, 1/1, 11/11),
 as did the scope/pointer guards, rustfmt and diff check.
+
+Decision (2026-10-10, nested Mul local Home): Body5 `top = x -
+(bit_group * 4)` has original ordered binary source, and prior Home rows prove
+`x` and `bit_group` Integer. The sealed NormalInteger Mul envelope supplies
+the nested operation class; the local initializer preflight may borrow it
+only for a root Subtract's exact right Multiply child with a proven Integer
+local left and original Integer literal right. Root Mul, variable/Bool/call
+child, nested Divide and return/condition contexts stay closed.
+Whole-expression admission installs `top` after both children prove. This
+source/Home slice cannot publish Sub/Div/Mul physical execution or an EXE.
+Validation: original source advances Body5 to the Loop at Body9; root Mul,
+variable RHS, nested Divide and Bool RHS retain Body5 (one focused test, five
+cases). The prior Divide test now asserts progress past Body4; Add, If and
+scalar-expression family regressions passed (1/1, 1/1, 11/11).

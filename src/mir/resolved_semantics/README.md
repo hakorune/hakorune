@@ -511,6 +511,12 @@ already Integer-class. This excludes a zero/variable divisor and signed
 minimum divided by -1; a failed child installs no result local. Conditions
 and returns retain their previous scalar profile. This Home class proof is
 not an executable Divide Recipe or a physical Fault check.
+For a local initializer rooted in Subtract, scalar preflight may also admit
+its exact right child when it is Multiply of a previously proven Integer local
+and an original Integer literal. It consults the existing NormalInteger Mul
+envelope before granting the nested result; a root Mul, call child, variable
+right child or other expression context stays closed. This does not create a
+non-borrowed executable Mul Recipe or publish the surrounding Subtract.
 Direct ReturnValue keeps the terminal Call relation; binary returns keep their
 exact scalar relation. Nested arguments, loops and short-circuit call paths are
 not granted by this source connection. Executable input, affine handoff/Invoke,
