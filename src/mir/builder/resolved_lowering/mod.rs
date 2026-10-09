@@ -56,6 +56,7 @@ mod semantic_stack;
 mod static_loop_entry_session;
 mod static_loop_body;
 mod static_loop_body_exit;
+mod static_loop_draft_finish;
 mod static_loop_header;
 mod static_loop_tail;
 mod trivial_ssa;

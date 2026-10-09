@@ -8,7 +8,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::definitions::MirCall;
 use crate::mir::loop_recipe_contract::LoopValueClassV2;
 use crate::mir::resolved_semantics::{ResolvedExitSiteV1, ResolvedMethodCallReceiverSourceV1};
-use crate::mir::{MirInstruction, MirType};
+use crate::mir::{BasicBlockId, MirInstruction, MirType};
 
 pub(super) fn emit_unpublished_tail_v1(
     draft: &mut MirBuilder,
@@ -16,7 +16,7 @@ pub(super) fn emit_unpublished_tail_v1(
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     frame_owner: &mut FunctionFaultFrameV1,
-) -> Result<(), String> {
+) -> Result<BasicBlockId, String> {
     let reject = || "[freeze:contract][callable-loop/static-tail-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
     let transfer = semantic
@@ -121,5 +121,5 @@ pub(super) fn emit_unpublished_tail_v1(
             "[freeze:contract][callable-loop/static-tail-function-missing]".to_owned()
         })?;
     frame_owner.validate(function)?;
-    Ok(())
+    Ok(normal)
 }

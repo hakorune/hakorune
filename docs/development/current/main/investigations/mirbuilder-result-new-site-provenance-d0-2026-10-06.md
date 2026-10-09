@@ -891,64 +891,14 @@ finished coordinate or collector admission is claimed. Next: retain this
 prepared packet through a complete caller body, then preflight the whole
 function and publish it with the handoff at the collector terminal.
 
-Selected Static I64 Loop header S0: the disposable canonical V2 draft now
-retains the prepared entry packet and the same function Fault frame through
-the header of original `SizeClassBox.size_to_bin`. The verified source-bound
-Recipe/roles and original header call loan select one `bin` read, zero-argument
-`max_regular_bin` Invoke/NormalResult, I64 `<=` Compare, and canonical branch.
-The canonical SSA session issues the deferred header read and physical types;
-CFG owns the header/body/after/normal/fault blocks. The draft still discards
-at `body-coverage-missing`, with no group commit, result-handoff take,
-collector admission or production function. The original mimalloc entry test
-passes 1/1, and the related Static Loop family passes 5/5 in the same
-quick-profile binary; `git diff --check` is green. Three initial focused reds
-from this slice (private source accessor, missing deferred-read type, and
-duplicate Fault-frame definition) were corrected before the green result.
-Next bounded edge is body `me.bin_size(bin)` and carrier update under this
-same canonical session; full return, packet/group terminal publication,
-qualified Return sibling and EXE remain open.
-
-Selected Static I64 Loop body-predicate S0: the same disposable canonical
-draft now carries the header's actual Body/After targets into the original
-`me.bin_size(bin)` predicate. Its verified producer retains exact `n` and
-`bin` use sites; Recipe items3–6 and the sole JoinSig branch row agree on
-Then=Return and Else=step continuation. Canonical SSA reads both bindings,
-and CFG emits the original arity-one call with Normal/Fault, projects I64,
-compares `n <= result` and branches. The same function Fault frame is reused.
-The draft discards at `body-exit-coverage-missing`: Then Return, carrier
-assignment/backedge, header PHI seal, post-loop tail and publication are open.
-In particular, the source-only body call loan and Integer storage do not yet
-prove the callee's physical argument carrier; selected ABI/actual verification
-is required before any executable publication. Focused original mimalloc
-entry 1/1 and related Static Loop family 5/5 pass in one quick-profile binary.
-One initial compile red from this slice (moved source site) was corrected.
-Next: complete the Return and step/backedge arms from the retained Recipe,
-JoinSig and exact source sites, then close the selected call ABI and packet
-terminal before collector admission.
-
-Selected Static I64 Loop body-exit S0: the original Then `return bin` and
-Else `bin = bin + 1` now consume the retained Recipe items7–12 and exact
-source use/assignment sites. Canonical SSA supplies both reads, Completion
-claims the explicit Return, and canonical identity records the same source
-exit and carrier assignment. The step edge returns to the physical header;
-only then does the canonical CFG/SSA owner seal its PHI. The draft discards at
-`after-coverage-missing`, so the post-loop `return me.huge_bin()`, final
-argument ABI, full packet/group publication and EXE remain open. Focused
-unchanged mimalloc entry1/1 and related Static Loop family5/5 pass in the
-quick-profile binary. The next bounded edge is the original post-loop tail,
-then selected ABI/packet terminal verification before publication.
-
-Selected Static I64 Loop tail S0: the original post-loop
-`return me.huge_bin()` now consumes the existing tail source loan and JoinSig
-After in the same unpublished function. Canonical CFG emits its zero-arg I64
-Invoke with Normal/Fault and verifies that After's sole predecessor is the
-header's physical false branch. NormalResult is claimed by the same
-Completion and canonical identity; the function Fault frame is reused.
-The deliberate stop is `physical-abi-coverage-missing` before publication.
-The body call's tagged/Integer actual carrier, final SSA/DraftSeal, selected
-packet/group terminal, qualified Return sibling, final incoming/entry
-verification and EXE remain required. Existing real-source negative already
-rejects a changed tail expression; no duplicate source parser is added.
+Selected Static I64 Loop physical history: header `d7692b5599`, body
+predicate `8c58c7e3d9`, Return/backedge `13d8b5f404`, and post-loop tail
+`0fe5c082d7` advanced the same unpublished canonical session. The source-
+bound Recipe/JoinSig, original Static loans, canonical CFG/SSA, two Completion
+claims and one Fault frame remain current. These commits contain focused
+positive/negative evidence. The exact `me.bin_size(bin)` carrier, finished
+packets/coordinates, group/handoff terminal, qualified Return sibling, final
+entry verifier, collector and EXE remain open. No production MIR was published.
 
 Decision (2026-10-10, selected Loop body actual): the package's original
 CurrentOwner `StaticIncomingSourceV1` Rc, pending SourceStatic candidate and
@@ -980,3 +930,26 @@ pointer and diff guards passed. The `--no-default-features` trial had an
 unrelated plugin-stub compile failure and is not acceptance evidence. Next:
 prove the callee's finished tagged entry and selected packet/actual physical
 carrier, then seal the complete function before publication.
+
+Decision (2026-10-10, read-only worker reviewed canonical close): the selected
+production caller is `static_i64_entry::stop_if_selected`; its disposable
+`size_to_bin` draft already owns the original source/Recipe/JoinSig and both
+return sites. Canonical CFG/SSA/Completion are the sole function-close
+authorities. Seal only this selected physical function after all edges exist,
+then run `finish_for_draft_seal` and discard the ready projection. The selected
+14-block shape and tail NormalResult/terminal are physical profile checks,
+not source or ABI authority. A missing seal, PHI, source use or return claim
+rejects and restores the parent. This slice replaces the earlier pre-finish
+stop with a post-finish stop; it does not open DraftSeal, activate SourceStatic,
+prove `bin_size`'s tagged entry, or publish any packet/function.
+
+Selected canonical close S0: the same unpublished 14-block caller now seals
+all remaining canonical CFG/SSA blocks after the tail, checks the terminal
+NormalResult, and completes whole-function CFG, semantic stack, identity,
+PHI, resolved binding and both source-keyed Completion claims. It discards
+the ready DraftSeal input at `draft-seal-projection-missing`; no detached
+projection or publication is claimed. Original mimalloc entry 1/1, static
+loop family 5/5, canonical unsealed-block negative 1/1 and multi-site
+Completion negative 1/1 passed on the quick-profile build. Pointer and diff
+guards pass. Next: detached exact-two DraftSeal preparation, then separately
+the callee tagged carrier and finished body packet/coordinate coverage.

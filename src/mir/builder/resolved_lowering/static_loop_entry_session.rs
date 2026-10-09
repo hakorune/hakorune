@@ -107,15 +107,21 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             &header,
             &body,
         )?;
-        super::static_loop_tail::emit_unpublished_tail_v1(
+        let terminal = super::static_loop_tail::emit_unpublished_tail_v1(
             draft,
             &mut canonical,
             product.semantic(),
             &header,
             &mut frame_owner,
         )?;
+        let _ready = super::static_loop_draft_finish::finish_unpublished_static_loop_v1(
+            draft,
+            canonical,
+            product.semantic(),
+            terminal,
+        )?;
         Err(
-            "[freeze:contract][callable-loop/static-i64-v2/physical-abi-coverage-missing]"
+            "[freeze:contract][callable-loop/static-i64-v2/draft-seal-projection-missing]"
                 .to_owned(),
         )
     })();
