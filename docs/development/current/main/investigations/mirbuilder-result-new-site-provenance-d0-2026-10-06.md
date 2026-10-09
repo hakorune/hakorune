@@ -767,32 +767,12 @@ co-seal different, fixed source shapes; their products cannot be rebranded as
 the original `SizeClassBox.size_to_bin` source. A V1 call arm or V2-to-V1
 coercion would violate the Loop SSOT's one semantic algebra/physicalizer law.
 
-After the source-only Static loop-call loan described below, issue a
-source-bound V2 semantic/JoinSig slice for this exact callable. Home and
-physical SSA are subsequent slices;
-the semantic product alone is not execution permission. Resolver Loop/If/
-assignment and original Completion
-must cover both Static calls: zeroarg `max_regular_bin()` in the header and
-arity-one `bin_size(bin)` in the body `If`. The canonical producer issues
-Recipe keys and exact source relations; JoinSig proves the return arm and
-Integer `bin` backedge, while Home joins only surviving paths. The existing
-Static index, original Rc, and their canonically issued ordered actuals remain
-the call authority. The shared site claim issuer is extracted. Rc corroborates
-site/order before V2; source-level `n`/`bin` prefix needs the checked-input
-requirement described below because whole-caller candidate Integer agreement
-is false. It never grants S2 executable entry. Verified V2 Recipe/JoinSig
-then proves the iterative Integer `bin`;
-only afterward may the selected route co-seal body actual through the existing
-source-actual owner and join Home. Do not overwrite the failed pre-loop row.
-Positive evidence
-is the unchanged source with exact call sites, ordinal 0, source-bound V2
-rows, logical updated-`bin` join, and real Home/Return rows. Wrong site/Rc/
-ordinal, absent call target or backedge, Bool/unknown rebind, missing return
-coverage, and divergent Homes reject. This does not close S1 physical SSA,
-whole-callee entry/packet, selector cutover, EXE, or old-edge retirement.
-Following slices connect the verified V2 program to the sole physical
-session/Binding SSA and then switch the selected production route; S1 closes
-only when the original `bin` actual uses the canonical header/backedge value.
+Closed Static Loop source design: resolver Loop/If/assignment, original
+Completion, all four original Static calls, checked tagged input, V2
+Recipe/JoinSig and Home-neutrality are co-sealed. The completed source
+commits below own the detailed proof and negatives. Physical SSA,
+executable actual/packet, production cutover and old-edge retirement remain
+open; `bin_size(bin)` must eventually consume canonical header/backedge SSA.
 
 S1 Static claim prerequisite closed at `deb7eba579`/`e54660e07f`:
 shared exact-site issuer and original header/body Rc; claim9/9 and real
@@ -977,3 +957,18 @@ signature family 4/4, quick lib check PASS. The terminal remains before
 Builder effects. Next session admission must also obtain the unannotated
 I64 result ABI from its package claim before creating a function skeleton;
 the source AST's absent return annotation is not a Void result proof.
+
+Canonical-entry result Decision (read-only worker integrated): unannotated
+`size_to_bin` has `result_contract.result=None` and no generic physical
+header. The instance-only `BorrowedI64ResultSourceV1` is not its authority.
+The existing same-module Static result solver issues exact-key `ExactI64`,
+but the qualified-claim index currently drops the function rows after
+building call-site claims. Preserve that issued row in the same package and
+lend only the selected key/owner result to the Static V2 entry; corroborate
+the retained Completion's complete value-return set against the V2 inner and
+tail return sites. An absent, foreign or non-I64 row, Void declaration or
+extra return rejects before Builder effects. Do not manufacture `: i64` or
+reuse the absent physical header. Then one unpublished canonical session may
+install physical I64 result and the joined tagged formal, discarding its
+draft at the missing executable packet. Packet proof gates publication, not
+opening a disposable draft. No new result solver or fallback is authorized.
