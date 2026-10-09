@@ -923,9 +923,11 @@ production caller is `SizeClassBox.size_to_bin` at the original Loop-body
 `If n <= me.bin_size(bin)`; the Loop header instead calls zeroarg
 `me.max_regular_bin()`. Resolver `loop_region_bundle`,
 `loop_body_contains_site`, `resolved_loop_placement=Body`, the exact `If`
-bundle, and resolved assignment binding are source authority. The existing
-`CurrentOwnerSource` claim and retained Static Rc/ordered actuals issue the
-call observation. Recipe/JoinSig own the logical header/backedge join;
+bundle, and resolved assignment binding are source authority. The Static
+index and original Static Rc precede the Home walk; the loop-site
+`CurrentOwnerSource` claim and ordered actual proof do not. Issue them from
+the same site claim and source-actual authorities used by the Home walk;
+absence refuses. Recipe/JoinSig own the logical header/backedge join;
 Binding SSA alone owns the current `bin` ValueId/PHI. The Home scanner's
 unconditional Loop/assignment `PrefixNotCovered` and facts-only staging are
 the selected old responsibility, not an executable substitute.
@@ -961,7 +963,10 @@ must cover both Static calls: zeroarg `max_regular_bin()` in the header and
 arity-one `bin_size(bin)` in the body `If`. The canonical producer issues
 Recipe keys and exact source relations; JoinSig proves the return arm and
 Integer `bin` backedge, while Home joins only surviving paths. The existing
-Static source Rc/ordered actuals remain the call authority. Positive evidence
+Static index, original Rc, and their canonically issued ordered actuals remain
+the call authority. First share the site claim issuer between the Home walk
+and this source producer, then prove loop-site actual order from the original
+Rc before V2 Recipe issue. Positive evidence
 is the unchanged source with exact call sites, ordinal 0, source-bound V2
 rows, logical updated-`bin` join, and real Home/Return rows. Wrong site/Rc/
 ordinal, absent call target or backedge, Bool/unknown rebind, missing return
