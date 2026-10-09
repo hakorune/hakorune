@@ -34,19 +34,28 @@ fn selected_static_cohort_forwarded_actuals_reject_staged_candidate_drift() {
     )
     .unwrap();
     assert!(receipt.corroborates(original, fact.formal()));
+    assert!(matches!(&receipt.actual().source,
+        BorrowedFormalActualSourceV1::Forwarded { binding, formal }
+            if *binding == fact.binding() && *formal == fact.formal()));
     for source in &cohort {
         let fact = ingress
             .static_arguments
             .get(&(source.call_site().clone(), 0))
             .unwrap();
-        assert!(issue_original_static_forwarded_actual_v1(
+        let witness = issue_original_static_forwarded_actual_v1(
             ingress,
             &ledger.borrowed_formal_actuals,
             source,
             fact.formal(),
         )
-        .unwrap()
-        .corroborates(source, fact.formal()));
+        .unwrap();
+        assert!(witness.corroborates(source, fact.formal()));
+        assert_eq!(witness.actual().ordinal, 0);
+        assert_eq!(witness.actual().site, source.argument_sites()[0]);
+        assert_eq!(witness.actual().formal, source.parameters()[0].binding);
+        assert!(matches!(&witness.actual().source,
+            BorrowedFormalActualSourceV1::Forwarded { binding, formal }
+                if *binding == fact.binding() && *formal == fact.formal()));
     }
 
     let mut changed = ledger.borrowed_formal_actuals.clone();

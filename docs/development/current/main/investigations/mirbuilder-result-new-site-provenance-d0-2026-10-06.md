@@ -767,3 +767,29 @@ Candidate veto 6/6 and generic Static packet 3/3 passed before the final
 shape helper extraction; that extraction did not change their path. Quick
 library check, pointer guard and diff check passed. The draft still stops at
 `actual-coverage-missing`; no finished call coordinate or production switch.
+
+Selected forwarded-actual loan Decision (read-only worker integrated): the
+existing `SourceStatic` candidate issuer already proves the original Rc,
+ordinal/site, candidate binding, caller root/formal, target formal and source
+draft origin for both original `normalize_size/1` callers. Retain that checked
+binding in a derived immutable `Forwarded` actual row, then lend exactly one
+row per original caller from the selected complete cohort. The canonical
+CurrentOwner read must use this row's binding, not infer the value from its
+formal or manufacture `ExactLexicalReadV1`. Wrong Rc/site/formal/candidate
+refuses. This is source loan only: generic `SourceStatic` admission stays
+closed, and no ledger binding group or affine handoff is taken. The eventual
+final verifier needs a bounded selected entry bridge because its generic
+`source.incoming`/qualified path omits this CurrentOwner source-only caller;
+both callers' finished coordinates and callee entry remain required.
+
+Selected forwarded-actual loan S0: the witness now retains one derived
+`PreparedBorrowedFormalActualV1::Forwarded` row from the already-checked
+source candidate, and the selected complete-cohort packet lends it by exact
+caller/site. The disposable CurrentOwner canonical read takes the row's
+binding; its existing original MIR call still stops at
+`actual-coverage-missing`. Both original callers' witness rows and the staged
+candidate mutation passed 1/1. Unchanged mimalloc entry 1/1, handoff negative
+1/1, physical-shape negative 1/1, candidate veto 6/6 and generic Static packet
+3/3 passed in the same quick-profile binary. Quick library check, pointer
+guard and diff check passed. Source-only phase, shared ledger, affine handoff,
+finished coordinates and production path remain untouched.

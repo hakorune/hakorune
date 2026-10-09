@@ -23,7 +23,7 @@ use super::super::result_contract::VerifiedCallableResultContractCohortV1;
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::lexical_instance_call::{
     issue_original_static_forwarded_actual_v1, PendingBorrowedFormalActualsV1,
-    VerifiedStaticForwardedActualV1,
+    PreparedBorrowedFormalActualV1, VerifiedStaticForwardedActualV1,
 };
 use super::loop_static_source_loan::LoopEntryStaticI64SourceLoanV1;
 use super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
@@ -72,6 +72,32 @@ impl VerifiedStaticLoopPacketSourceV1 {
 
     pub(in crate::mir) fn argument_site(&self) -> &SourceExprSiteV1 {
         &self.argument
+    }
+
+    /// Lend one already-checked original source actual. This does not make
+    /// the pending SourceStatic phase generally executable.
+    pub(in crate::mir) fn selected_forwarded_actual_for_call(
+        &self,
+        caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<&PreparedBorrowedFormalActualV1, String> {
+        let reject = || "[freeze:contract][callable-loop/static-forwarded-actual-loan]".to_owned();
+        if self.complete_incoming.len() != self.forwarded_actuals.len() {
+            return Err(reject());
+        }
+        let mut matching = self
+            .complete_incoming
+            .iter()
+            .zip(self.forwarded_actuals.iter())
+            .filter(|(source, _)| source.caller() == caller && source.call_site().site() == site);
+        let (source, witness) = matching.next().ok_or_else(reject)?;
+        if matching.next().is_some()
+            || source.target() != self.original.target()
+            || !witness.corroborates(source, witness.caller_formal())
+        {
+            return Err(reject());
+        }
+        Ok(witness.actual())
     }
 
     pub(in crate::mir) fn materialize_unpublished_call(

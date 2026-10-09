@@ -11,11 +11,18 @@ pub(in crate::mir::normal_callable_semantic_package) struct VerifiedStaticForwar
     caller_formal: BindingRefV1,
     target_formal: BindingRefV1,
     site: SourceExprSiteV1,
+    actual: PreparedBorrowedFormalActualV1,
 }
 
 impl VerifiedStaticForwardedActualV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn caller_formal(&self) -> BindingRefV1 {
         self.caller_formal
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn actual(
+        &self,
+    ) -> &PreparedBorrowedFormalActualV1 {
+        &self.actual
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates(
@@ -28,6 +35,12 @@ impl VerifiedStaticForwardedActualV1 {
             && original.argument_sites() == [self.site.clone()]
             && original.parameters().len() == 1
             && original.parameters()[0].binding == self.target_formal
+            && self.actual.ordinal == 0
+            && self.actual.site == self.site
+            && self.actual.formal == self.target_formal
+            && matches!(&self.actual.source,
+                BorrowedFormalActualSourceV1::Forwarded { binding, formal }
+                    if *formal == self.caller_formal && binding.owner() == self.caller_formal.owner())
     }
 }
 
@@ -98,5 +111,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_original_static_fo
         caller_formal,
         target_formal: formal.binding,
         site: site.clone(),
+        actual: PreparedBorrowedFormalActualV1 {
+            ordinal: 0,
+            site: site.clone(),
+            formal: formal.binding,
+            source: BorrowedFormalActualSourceV1::Forwarded {
+                binding,
+                formal: caller_formal,
+            },
+        },
     })
 }

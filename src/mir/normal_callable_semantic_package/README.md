@@ -2117,6 +2117,13 @@ NormalResult producer. This is an unpublished physical observation, not a
 finished coordinate or executable `SourceStatic` packet. The claim ledger's
 binding groups and collector's affine handoff stay untouched until a later
 whole-function publication boundary can commit them together.
+The selected source-actual witness retains the original checked forwarding
+candidate's binding as a derived `Forwarded` actual row. The complete cohort
+lends that immutable row by exact caller and call site for CurrentOwner and
+qualified Return. The canonical CurrentOwner entry reads the row's binding;
+neither a caller-formal guess nor a fabricated lexical read can supply the
+actual. This loan grants no generic `SourceStatic` executable phase or final
+packet coordinate.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

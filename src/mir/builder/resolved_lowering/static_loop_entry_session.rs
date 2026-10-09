@@ -14,7 +14,8 @@ use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicat
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
-    OrdinaryNewClaimLedgerV1, VerifiedStaticLoopI64ResultSourceV1, VerifiedStaticLoopPacketSourceV1,
+    BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1, VerifiedStaticLoopI64ResultSourceV1,
+    VerifiedStaticLoopPacketSourceV1,
 };
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
@@ -96,15 +97,25 @@ fn emit_unpublished_static_invoke(
         .function_state
         .current_block
         .ok_or_else(|| "[freeze:contract][callable-loop/static-invoke-entry-missing]".to_owned())?;
+    let (caller, site) = packet.publication_source();
+    let forwarded = packet.selected_forwarded_actual_for_call(caller, site)?;
+    let BorrowedFormalActualSourceV1::Forwarded {
+        binding,
+        formal: source_formal,
+    } = &forwarded.source
+    else {
+        return Err("[freeze:contract][callable-loop/static-forwarded-kind-drift]".into());
+    };
+    if forwarded.site != *packet.argument_site() || *source_formal != formal.formal() {
+        return Err("[freeze:contract][callable-loop/static-forwarded-source-drift]".into());
+    }
     canonical
         .identity
-        .claim_variable_use_binding(packet.argument_site(), formal.formal())?;
-    let actual = canonical.identity.read_entry_receipt(
-        draft,
-        &mut canonical.phis,
-        entry,
-        formal.formal(),
-    )?;
+        .claim_variable_use_binding(packet.argument_site(), *binding)?;
+    let actual =
+        canonical
+            .identity
+            .read_entry_receipt(draft, &mut canonical.phis, entry, *binding)?;
     if actual.physical_block() != entry || actual.physical_value() != entry_value {
         return Err("[freeze:contract][callable-loop/static-invoke-actual-drift]".into());
     }
@@ -187,7 +198,7 @@ fn emit_unpublished_static_invoke(
         })?;
     packet.corroborate_unpublished_physical_call(
         handoff,
-        actual.binding(),
+        formal.formal(),
         actual.physical_value(),
         function,
         entry,
