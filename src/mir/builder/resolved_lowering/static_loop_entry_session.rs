@@ -53,9 +53,12 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     )?;
     let shell = prepare_shell(input, physical_symbol, formal, result_source)?;
 
-    let mut outer = builder.open_resolved_function_draft_seal_session_v1(physical_symbol);
+    let mut outer = Some(builder.open_resolved_function_draft_seal_session_v1(physical_symbol));
     let admitted = (|| {
-        let draft = outer.builder_view_mut_for_lowering();
+        let draft = outer
+            .as_mut()
+            .expect("selected Static draft remains owned until DraftSeal")
+            .builder_view_mut_for_lowering();
         draft
             .function_state
             .resolved_binding_state
@@ -114,18 +117,30 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             &header,
             &mut frame_owner,
         )?;
-        let _ready = super::static_loop_draft_finish::finish_unpublished_static_loop_v1(
+        let ready = super::static_loop_draft_finish::finish_unpublished_static_loop_v1(
             draft,
             canonical,
             product.semantic(),
             terminal,
         )?;
+        let open = ready.open(
+            outer
+                .take()
+                .expect("selected Static draft moves into DraftSeal once"),
+        );
+        let prepared = match open.prepare_exact_two(product.semantic().tail_call().return_site()) {
+            Ok(prepared) => prepared,
+            Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
+        };
+        prepared.commit_pending().abort_and_restore();
         Err(
-            "[freeze:contract][callable-loop/static-i64-v2/draft-seal-projection-missing]"
+            "[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]"
                 .to_owned(),
         )
     })();
-    outer.discard_unpublished();
+    if let Some(outer) = outer {
+        outer.discard_unpublished();
+    }
     admitted
 }
 

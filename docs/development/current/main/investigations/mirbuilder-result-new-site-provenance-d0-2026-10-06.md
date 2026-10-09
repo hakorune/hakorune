@@ -953,3 +953,22 @@ loop family 5/5, canonical unsealed-block negative 1/1 and multi-site
 Completion negative 1/1 passed on the quick-profile build. Pointer and diff
 guards pass. Next: detached exact-two DraftSeal preparation, then separately
 the callee tagged carrier and finished body packet/coordinate coverage.
+
+Decision (2026-10-10, read-only DraftSeal review): consume the selected
+canonical Ready once with `prepare_exact_two` keyed by the original tail
+return site, because that site owns the current terminal block. DraftSeal's
+detached exit/PHI/type/metadata/verifier projection is the sole owner; source
+and ABI are not reclassified here. On rejection, discard its live session and
+report the actual stage; on success, abort the pending committed projection
+and restore the parent. This replaces only the disposable pre-projection stop.
+The inner return site is a focused wrong-site negative. A successful detached
+projection grants no final `bin_size` carrier, packet or publication.
+
+Selected exact-two DraftSeal S0: the ready canonical close now prepares the
+detached projection with the original post-loop tail return site, then
+explicitly aborts the pending function and restores the parent. The original
+mimalloc entry reaches `executable-packet-missing`; static-loop family 5/5,
+existing wrong-site exact-two negative 1/1 and detached two-return projection
+positive 1/1 pass with the quick-profile binary. No packet/group/handoff or
+collector publication occurred. Next: close the callee's finished tagged
+entry and body-call packet/coordinate with the existing final verifiers.

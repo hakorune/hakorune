@@ -1757,7 +1757,7 @@ the package's one-take source/Home product before route classification or
 function draft effects. The exact resolver Loop site, original Static loans
 and common Recipe/JoinSig remain its authority. Other methods retain their
 existing route. The selected unpublished terminal is now
-`static-i64-v2/draft-seal-projection-missing` after canonical function close.
+`static-i64-v2/executable-packet-missing` after detached DraftSeal projection.
 The raw Loop stop remains fail-closed if reached without the function-entry
 handoff, and cannot retry another route after source evidence is consumed.
 The same entry now joins the package's checked OpaqueHandle source receipt to
@@ -1769,7 +1769,8 @@ the physical result. The canonical owner installs a disposable shell with
 one `BorrowedTaggedValue` `%0` and I64 result, preserving the original
 source declaration and absent result annotation in metadata. The same draft
 materializes the original header, body, backedge and tail, seals each canonical
-CFG/SSA block, and verifies both Completion exits before discarding the ready
-DraftSeal input. This still grants no final body-call carrier, finished packet,
-collector admission or production MIR. Its effect mask remains a conservative
+CFG/SSA block, verifies both Completion exits, and prepares the exact-two
+detached DraftSeal projection before explicitly aborting its pending draft
+and restoring the parent. This still grants no final body-call carrier,
+finished packet, collector admission or production MIR. Its effect mask remains a conservative
 unpublished upper bound until packet/effect proof.
