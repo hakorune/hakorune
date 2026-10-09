@@ -15,7 +15,7 @@ use crate::mir::loop_recipe_contract::{
     LoopValueKeyV1, VerifiedLoopJoinClosureV2, VerifiedLoopRecipeV2,
 };
 use crate::mir::normal_callable_semantic_package::{
-    LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1,
+    LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{
@@ -54,6 +54,7 @@ pub(in crate::mir) struct VerifiedStaticI64LoopSemanticV2 {
     entry: LoopEntryStaticI64SourceLoanV1,
     header: LoopStaticSourceCallLoanV1,
     body: LoopStaticSourceCallLoanV1,
+    tail: LoopTailStaticI64SourceLoanV1,
 }
 
 impl VerifiedStaticI64LoopSemanticV2 {
@@ -75,6 +76,9 @@ impl VerifiedStaticI64LoopSemanticV2 {
     ) {
         (&self.entry, &self.header, &self.body)
     }
+    pub(in crate::mir) fn tail_call(&self) -> &LoopTailStaticI64SourceLoanV1 {
+        &self.tail
+    }
 }
 
 /// The selected source shape is general in binding and selector names: only
@@ -87,6 +91,7 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
     entry: LoopEntryStaticI64SourceLoanV1,
     header: LoopStaticSourceCallLoanV1,
     body_call: LoopStaticSourceCallLoanV1,
+    tail: LoopTailStaticI64SourceLoanV1,
 ) -> Result<VerifiedStaticI64LoopSemanticV2, String> {
     let reject = || "[freeze:contract][callable-loop/static-i64-v2/source]".to_owned();
     if completion.owner() != input.owner()
@@ -95,6 +100,11 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
         || body_call.loop_site() != loop_site
         || header.placement() != &ResolvedLoopPlacementV1::Condition
         || body_call.placement() != &ResolvedLoopPlacementV1::Body
+        || tail.loop_site() != loop_site
+        || !completion.explicit_sites().contains(tail.return_site())
+        || !tail.original().same_catalog_as(entry.original())
+        || !tail.original().same_catalog_as(header.original())
+        || !tail.original().same_catalog_as(body_call.original())
     {
         return Err(reject());
     }
@@ -326,6 +336,34 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
     {
         return Err(reject());
     }
+    let tail_statement = input
+        .source()
+        .exact_stmt(tail.return_site())
+        .map_err(|_| reject())?;
+    let ASTNode::Return {
+        value: Some(value), ..
+    } = tail_statement.node()
+    else {
+        return Err(reject());
+    };
+    let ASTNode::MethodCall {
+        object, arguments, ..
+    } = value.as_ref()
+    else {
+        return Err(reject());
+    };
+    if !matches!(object.as_ref(), ASTNode::Me { .. })
+        || !arguments.is_empty()
+        || tail.call_site().site().node().segments()
+            != [tail.return_site().node().segments(), &[Segment::Value]].concat()
+        || !tail.claim().corroborates_source(
+            tail.call_site(),
+            crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner,
+            0,
+        )
+    {
+        return Err(reject());
+    }
 
     let recipe = LoopRecipeVerifierV2::verify(build_recipe(bin_name)).map_err(|error| {
         format!("[freeze:contract][callable-loop/static-i64-v2/recipe] {error:?}")
@@ -358,6 +396,7 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
         entry,
         header,
         body: body_call,
+        tail,
     })
 }
 

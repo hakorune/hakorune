@@ -2050,6 +2050,12 @@ The same issuer also retains an exact pre-loop `local` initializer whose
 original CurrentOwner Static call has an I64 result claim. Its one-take loan
 connects the local declaration, call site, and original Rc; it does not turn
 the tagged input into an Integer or grant a live loop-entry ValueId.
+The same issuer retains the final top-level `return me.m()` immediately after
+that Loop when its original CurrentOwner target has an ExactI64 result claim.
+The affine tail loan keeps the return statement and original call Rc together;
+the V2 source product checks Completion and consumes it. A missing or changed
+tail refuses the selected route before MIR. This is source continuity only:
+Home, executable call and physical return remain separate obligations.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

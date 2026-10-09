@@ -50,6 +50,10 @@ pub(in crate::mir) struct StaticIncomingSourceV1 {
 }
 
 impl StaticIncomingSourceV1 {
+    pub(in crate::mir) fn same_catalog_as(&self, other: &Self) -> bool {
+        self.catalog_brand.is_same(&other.catalog_brand) && self.caller == other.caller
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn catalog_brand(
         &self,
     ) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {

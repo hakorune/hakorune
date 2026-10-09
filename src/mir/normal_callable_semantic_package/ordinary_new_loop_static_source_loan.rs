@@ -5,6 +5,7 @@
 
 use std::rc::Rc;
 
+use crate::ast::ASTNode;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
@@ -12,7 +13,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
 use crate::mir::resolved_semantics::{
     OwnedExprSiteV1, ResolvedLoopPlacementV1, ResolvedMethodCallReceiverSourceV1,
-    SourceBindingSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 use super::super::model::OwnedCallableParameterContractDeclarationV1;
@@ -42,6 +43,34 @@ pub(in crate::mir) struct LoopEntryStaticI64SourceLoanV1 {
     declaration: SourceBindingSiteV1,
     original: Rc<StaticIncomingSourceV1>,
     claim: StaticI64CallClaimV1,
+}
+
+/// Original post-Loop return call. Its I64 result is source-only; no live
+/// return value, Home relation or executable call is issued here.
+#[derive(Debug)]
+pub(in crate::mir) struct LoopTailStaticI64SourceLoanV1 {
+    loop_site: SourceStmtSiteV1,
+    return_site: SourceStmtSiteV1,
+    original: Rc<StaticIncomingSourceV1>,
+    claim: StaticI64CallClaimV1,
+}
+
+impl LoopTailStaticI64SourceLoanV1 {
+    pub(in crate::mir) fn loop_site(&self) -> &SourceStmtSiteV1 {
+        &self.loop_site
+    }
+    pub(in crate::mir) fn return_site(&self) -> &SourceStmtSiteV1 {
+        &self.return_site
+    }
+    pub(in crate::mir) fn original(&self) -> &Rc<StaticIncomingSourceV1> {
+        &self.original
+    }
+    pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
+        self.original.call_site()
+    }
+    pub(in crate::mir) fn claim(&self) -> &StaticI64CallClaimV1 {
+        &self.claim
+    }
 }
 
 impl LoopEntryStaticI64SourceLoanV1 {
@@ -255,6 +284,81 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_loop_entry_static_
     }))
 }
 
+/// Seal the exact final `return me.m()` after a top-level Loop. The name of
+/// `m` is never a selector: the existing target/claim issuer owns that join.
+#[allow(clippy::too_many_arguments)]
+pub(in crate::mir::normal_callable_semantic_package) fn issue_loop_tail_static_i64_source_loan_v1(
+    claims: &QualifiedStaticCallClaimIndexV1,
+    incoming: &PreparedBorrowedFormalIngressV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    caller: &CanonicalSameModuleCallableKeyV1,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    loop_site: &SourceStmtSiteV1,
+) -> Result<Option<LoopTailStaticI64SourceLoanV1>, String> {
+    let reject = || "[freeze:contract][borrowed-static/loop-tail-source-identity]".to_owned();
+    let Some((SourcePathSegmentV1::Body(loop_index), parent)) =
+        loop_site.node().segments().split_last()
+    else {
+        return Ok(None);
+    };
+    if !parent.is_empty() {
+        return Ok(None);
+    }
+    let body = input.source().root_body().map_err(|_| reject())?;
+    let tail_index = (*loop_index as usize).checked_add(1).ok_or_else(reject)?;
+    if tail_index.checked_add(1) != Some(body.statements().len()) {
+        return Ok(None);
+    }
+    let tail = input
+        .source()
+        .body_stmt(&body, tail_index)
+        .map_err(|_| reject())?;
+    let ASTNode::Return {
+        value: Some(value), ..
+    } = tail.node()
+    else {
+        return Ok(None);
+    };
+    let ASTNode::MethodCall {
+        object, arguments, ..
+    } = value.as_ref()
+    else {
+        return Ok(None);
+    };
+    if !matches!(object.as_ref(), ASTNode::Me { .. }) || !arguments.is_empty() {
+        return Ok(None);
+    }
+    let mut path = tail.site().node().segments().to_vec();
+    path.push(SourcePathSegmentV1::Value);
+    let site = OwnedExprSiteV1::new(
+        input.owner(),
+        SourceExprSiteV1::from_node(
+            crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(path),
+        ),
+    );
+    let Some(seal) =
+        issue_static_source_seal_v1(claims, incoming, selected, contracts, caller, input, &site)?
+    else {
+        return Ok(None);
+    };
+    if !seal.original.argument_sites().is_empty()
+        || !seal.claim.corroborates_source(
+            &site,
+            ResolvedMethodCallReceiverSourceV1::CurrentOwner,
+            0,
+        )
+    {
+        return Err(reject());
+    }
+    Ok(Some(LoopTailStaticI64SourceLoanV1 {
+        loop_site: loop_site.clone(),
+        return_site: tail.site().clone(),
+        original: seal.original,
+        claim: seal.claim,
+    }))
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Retain only source evidence in the same package issuance that still
     /// holds the claim index. Selected physical callers take rows later.
@@ -270,6 +374,7 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mut rows = std::collections::BTreeMap::new();
         let mut entry_rows = std::collections::BTreeMap::new();
+        let mut tail_rows = std::collections::BTreeMap::new();
         for declaration in batch.declarations() {
             let slot = declaration.batch_slot();
             let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) =
@@ -280,6 +385,16 @@ impl OrdinaryNewClaimLedgerV1 {
             batch
                 .with_lowering_input(slot, |input| {
                     for loop_site in input.function().loop_sites() {
+                        let tail = issue_loop_tail_static_i64_source_loan_v1(
+                            claims, incoming, selected, contracts, &caller, input, loop_site,
+                        );
+                        if !matches!(&tail, Ok(None)) && tail_rows.insert(
+                            loop_site.clone(), tail.and_then(|row| row.ok_or_else(||
+                                "[freeze:contract][borrowed-static/loop-tail-claim-missing]".to_owned()
+                            )),
+                        ).is_some() {
+                            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+                        }
                         for relation in input.function().expression_source().initializers() {
                             let Some(initializer) = relation.initializer_site() else { continue; };
                             if !input.function().method_calls().any(|(site, call)|
@@ -328,10 +443,13 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
         }
-        self.loop_static_source_loop_sites = rows.keys()
-            .map(|(loop_site, call)| (call.owner(), loop_site.clone())).collect();
+        self.loop_static_source_loop_sites = rows
+            .keys()
+            .map(|(loop_site, call)| (call.owner(), loop_site.clone()))
+            .collect();
         *self.loop_static_source_loans.get_mut() = rows;
         *self.loop_entry_static_i64_source_loans.get_mut() = entry_rows;
+        *self.loop_tail_static_i64_source_loans.get_mut() = tail_rows;
         Ok(())
     }
 
@@ -353,7 +471,8 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         loop_site: &SourceStmtSiteV1,
     ) -> bool {
-        self.loop_static_source_loop_sites.contains(&(owner, loop_site.clone()))
+        self.loop_static_source_loop_sites
+            .contains(&(owner, loop_site.clone()))
     }
 
     /// One source-only I64 result initializer before the selected Loop.
@@ -365,5 +484,14 @@ impl OrdinaryNewClaimLedgerV1 {
         self.loop_entry_static_i64_source_loans
             .borrow_mut()
             .remove(&(loop_site.clone(), declaration.clone()))
+    }
+
+    pub(in crate::mir) fn take_loop_tail_static_i64_source_loan_v1(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+    ) -> Option<Result<LoopTailStaticI64SourceLoanV1, String>> {
+        self.loop_tail_static_i64_source_loans
+            .borrow_mut()
+            .remove(loop_site)
     }
 }

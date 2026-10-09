@@ -73,10 +73,14 @@ pub(in crate::mir) fn stop_after_selected_semantic_product(
     let entry = claims
         .take_loop_entry_static_i64_source_loan_v1(loop_site, n_declaration)
         .ok_or_else(reject)??;
+    let tail = claims
+        .take_loop_tail_static_i64_source_loan_v1(loop_site)
+        .ok_or_else(reject)??;
     let completion = claims
         .completion_for_owner(input.owner())
         .ok_or_else(reject)?;
-    let _product =
-        produce_static_i64_loop_semantic_v2(input, loop_site, completion, entry, header, body)?;
+    let _product = produce_static_i64_loop_semantic_v2(
+        input, loop_site, completion, entry, header, body, tail,
+    )?;
     Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
 }

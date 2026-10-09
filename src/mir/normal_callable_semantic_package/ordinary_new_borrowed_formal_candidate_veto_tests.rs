@@ -332,18 +332,32 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                     claims, source, &package.selected, &package.parameter_contracts,
                     &bin_target, input, loop_site, initializer.declaration_site(),
                 ).unwrap().unwrap();
+                let negative_tail = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_tail_static_i64_source_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site,
+                ).unwrap().unwrap();
                 assert!(crate::mir::builder::produce_static_i64_loop_semantic_v2(
-                    input, loop_site, completion, negative_entry, wrong_header, wrong_body,
+                    input, loop_site, completion, negative_entry, wrong_header, wrong_body, negative_tail,
                 ).is_err(), "swapped original CallSlot proofs must fail before MIR");
+                let tail = package.ordinary_new_claim_ledger
+                    .take_loop_tail_static_i64_source_loan_v1(loop_site)
+                    .unwrap().unwrap();
+                assert_eq!(tail.loop_site(), loop_site);
+                assert!(tail.original().call_site().site() == site_for("huge_bin").site());
+                assert!(package.ordinary_new_claim_ledger
+                    .take_loop_tail_static_i64_source_loan_v1(loop_site).is_none());
                 let product = crate::mir::builder::produce_static_i64_loop_semantic_v2(
                     input, loop_site, completion, moved,
                     header_loan.expect("header source"), body_loan.expect("body source"),
+                    tail,
                 ).expect("original source-bound V2 Recipe and JoinSig");
                 assert_eq!(product.recipe().as_recipe().items.len(), 13);
                 assert_eq!(product.join().after_binding().raw(), 0);
                 assert_ne!(product.roles().n_binding, product.roles().bin_binding);
                 assert_eq!((product.roles().header_call.raw(), product.roles().body_call.raw(), product.roles().backedge_write.raw()), (1, 4, 12));
                 assert_eq!(product.source_calls().1.placement(), &crate::mir::resolved_semantics::ResolvedLoopPlacementV1::Condition);
+                assert_eq!(product.tail_call().return_site(), package.ordinary_new_claim_ledger
+                    .completion_for_owner(input.owner()).unwrap().explicit_sites().last().unwrap());
                 assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
                     claims, source, &package.selected, &package.parameter_contracts,
                     &bin_target, input, loop_site, &outside,
@@ -531,6 +545,7 @@ fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
             for (case, (before, after)) in [
                 ("return bin\n      }\n      bin = bin + 1", "local skipped = bin\n      }\n      bin = bin + 1"),
                 ("bin = bin + 1\n    }\n    return me.huge_bin()", "bin = true\n    }\n    return me.huge_bin()"),
+                ("return me.huge_bin()\n  }", "return 73\n  }"),
             ].into_iter().enumerate() {
                 let runner = crate::runner::NyashRunner::new(Default::default());
                 let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
@@ -565,7 +580,8 @@ fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
                     let error = crate::mir::builder::stop_after_selected_semantic_product(
                         input, &package.ordinary_new_claim_ledger, loop_site,
                     ).unwrap_err();
-                    assert!(error.contains("static-i64-v2/source]"), "{before}: {error}");
+                    let expected = if case == 2 { "static-i64-v2/source-unavailable" } else { "static-i64-v2/source]" };
+                    assert!(error.contains(expected), "{before}: {error}");
                 }).unwrap();
             }
         });

@@ -973,3 +973,12 @@ Home boundary from the same package and consume it in selected V2 routing.
 Acceptance: original four-call source succeeds; foreign/missing tail source
 and an ExactI64 callee with a side-effecting statement reject before MIR.
 Non-claims: no generic Home Flow, executable actuals, physical SSA or EXE.
+
+S1 tail source slice (2026-10-09): the package lends the exact final
+`return me.m()` source call after a top-level Loop through a one-take loan.
+The selected V2 product joins its return site to Completion and checks
+original call site, CurrentOwner I64 claim and same catalog/caller as the
+entry/header/body loans. Missing or changed tail refuses before MIR; the
+`physical-unavailable` stop remains. Owner contract is in the package README.
+The next unissued dependency is the ClosedCallable Home effect check above,
+not a physical call packet or whole-app EXE permission.
