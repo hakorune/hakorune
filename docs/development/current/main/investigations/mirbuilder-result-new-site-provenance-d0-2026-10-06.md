@@ -792,106 +792,15 @@ signature lane stops before any publication. Reuse unchanged mimalloc entry
 positive and source/actual mutation negatives. The disposable draft still
 stops before whole-function DraftSeal, packet/group terminal and collector.
 
-Selected body scalar source S0: the package now joins the original body Rc,
-pending Integer scalar candidate and issued callee signature by loop/call
-site. The disposable body checks the one-take witness against its original
-loan and canonical SSA read binding/site before Invoke. It still stops at
-`physical-abi-coverage-missing`: tagged carrier, complete DraftSeal and final
-packet/group remain open. Normal quick build, original entry 1/1, real-source
-mutation 1/1, staged candidate drift 1/1 and static-loop family 5/5 passed;
-pointer and diff guards passed. The `--no-default-features` trial had an
-unrelated plugin-stub compile failure and is not acceptance evidence. Next:
-prove the callee's finished tagged entry and selected packet/actual physical
-carrier, then seal the complete function before publication.
-
-Decision (2026-10-10, read-only worker reviewed canonical close): the selected
-production caller is `static_i64_entry::stop_if_selected`; its disposable
-`size_to_bin` draft already owns the original source/Recipe/JoinSig and both
-return sites. Canonical CFG/SSA/Completion are the sole function-close
-authorities. Seal only this selected physical function after all edges exist,
-then run `finish_for_draft_seal` and discard the ready projection. The selected
-14-block shape and tail NormalResult/terminal are physical profile checks,
-not source or ABI authority. A missing seal, PHI, source use or return claim
-rejects and restores the parent. This slice replaces the earlier pre-finish
-stop with a post-finish stop; it does not open DraftSeal, activate SourceStatic,
-prove `bin_size`'s tagged entry, or publish any packet/function.
-
-Selected canonical close S0: the same unpublished 14-block caller now seals
-all remaining canonical CFG/SSA blocks after the tail, checks the terminal
-NormalResult, and completes whole-function CFG, semantic stack, identity,
-PHI, resolved binding and both source-keyed Completion claims. It discards
-the ready DraftSeal input at `draft-seal-projection-missing`; no detached
-projection or publication is claimed. Original mimalloc entry 1/1, static
-loop family 5/5, canonical unsealed-block negative 1/1 and multi-site
-Completion negative 1/1 passed on the quick-profile build. Pointer and diff
-guards pass. Next: detached exact-two DraftSeal preparation, then separately
-the callee tagged carrier and finished body packet/coordinate coverage.
-
-Decision (2026-10-10, read-only DraftSeal review): consume the selected
-canonical Ready once with `prepare_exact_two` keyed by the original tail
-return site, because that site owns the current terminal block. DraftSeal's
-detached exit/PHI/type/metadata/verifier projection is the sole owner; source
-and ABI are not reclassified here. On rejection, discard its live session and
-report the actual stage; on success, abort the pending committed projection
-and restore the parent. This replaces only the disposable pre-projection stop.
-The inner return site is a focused wrong-site negative. A successful detached
-projection grants no final `bin_size` carrier, packet or publication.
-
-Selected exact-two DraftSeal S0: the ready canonical close now prepares the
-detached projection with the original post-loop tail return site, then
-explicitly aborts the pending function and restores the parent. The original
-mimalloc entry reaches `executable-packet-missing`; static-loop family 5/5,
-existing wrong-site exact-two negative 1/1 and detached two-return projection
-positive 1/1 pass with the quick-profile binary. No packet/group/handoff or
-collector publication occurred. Next: close the callee's finished tagged
-entry and body-call packet/coordinate with the existing final verifiers.
-
-Decision (2026-10-10, selected body source cohort): `bin_size/1` has mixed
-CurrentOwner and qualified Static callers. Its source draft is valid but the
-generic Static transport seed intentionally excludes the whole callee. The
-existing incoming inventory's whole-callee projection is the sole source
-authority. Retain that original cohort with the selected body scalar receipt
-before physical ABI work; do not widen generic transport selection. This
-replaces a site-only scalar source with a complete source cohort, while the
-callee tagged entry, actual carriers and finished packets remain separate
-required slices. The existing mimalloc and static-cohort veto tests pin it.
-Source cohort S0 passed original mimalloc 1/1, selected cohort drift 1/1,
-cataloged entry 1/1 and static-loop family 5/5 (quick profile).
-
-Decision (2026-10-10, selected body call target): use the same retained
-source scalar receipt as the only `me.bin_size(bin)` target issuer. It checks
-the original binding/site and cohort before lending a `MirCall`; canonical
-SSA supplies the per-iteration actual and CFG emits the Invoke. This removes
-the Builder-side target construction. Reuse original mimalloc/static-loop
-positive and source/Home mutation negative; keep final packet, callee entry
-and publication unavailable until their separate proofs are complete.
-Target-issuer S0: source/Home mutation negative 1/1 and static-loop family
-5/5 pass on the quick-profile build; draft still stops at packet-missing.
-
-Decision (2026-10-10, selected `bin_size` source-only entry): extend the
-same package-issued body receipt, using its original callee and complete
-incoming cohort. Require the source-only draft's formal origin, checked
-Static input, exact Completion and I64 result contract beside the existing
-physical signature. A mixed CurrentOwner/qualified cohort stays outside the
-generic transport profile. The forwarded-actual issuer is SelfRooted-only;
-the body has a Scalar Integer actual, so it cannot prove this entry. Physical
-tagged entry, each caller's packet coordinate and final all-incoming check
-remain owed; no backend or generic Static permission follows from this join.
-Source-only callee join S0: original cataloged entry 1/1, source/Home mutation
-negative 1/1, static-loop family 5/5 and cohort drift negative 1/1 pass on
-the final quick-profile build. The disposable caller still stops at
-`executable-packet-missing`; no callee entry or caller packet was published.
-
-Decision (2026-10-10, body physical call): reuse the existing Static packet
-owner's unpublished Invoke/NormalResult shape verifier after canonical SSA
-emits the `me.bin_size(bin)` call. The same source receipt lends the expected
-target; canonical SSA owns the per-iteration actual and block IDs. Wrong
-target/actual/landing/result must reject before the predicate. This checks
-one selected physical site only; no finished coordinate, group, tagged callee
-entry or final all-incoming permission is issued.
-Body physical call S0: quick-profile original cataloged entry 1/1 and
-static-loop family 5/5 pass, including source/Home mutation and wrong
-physical landing/result negatives. The source-only packet stop is retained.
+Selected body construction history (2026-10-10): `5c236fdfd8`,
+`cc1697fc29`, `49646f8bdb`, `635f834fe9`, `8cf6fadebf`,
+`731b05b824` and `61933a40fd` retain the original `me.bin_size(bin)`
+source Rc, complete mixed CurrentOwner/qualified incoming cohort, canonical
+SSA actual, exact Invoke/NormalResult and detached `prepare_exact_two` check.
+The selected `static_i64_entry::stop_if_selected` path restores its parent
+after checking; it grants no generic SourceStatic transport, tagged callee
+entry, final packet or publication. Focused positive/negative evidence and
+the source/physical contracts remain in those commits and owner README.
 
 Decision (2026-10-10, selected `bin_size` caller census): the current
 `mimalloc-lite` import closure contains three CurrentOwner `bin_size` calls
@@ -996,3 +905,31 @@ Home local-call row, generic packet or second authority. Production mimalloc
 still stops earlier at `borrowed-entry/source-only-object-actuals`; a minimal
 real SizeClassBox import stops at `borrowed-static/local-source-missing`.
 Full consumer acceptance, EXE and retirement remain open.
+
+Decision (2026-10-10, real zero-input source-context census): the unchanged
+`SizeClassBox` source has four CurrentOwner zero-arg Static sites selected by
+the source inventory but absent from Completion Home `local_calls()`:
+`bin_size` Body2/IfCondition/Rhs `max_regular_bin`, `bin_size`
+Body11/Value/Rhs `word_size`, `size_to_bin` Body2/LoopCondition/Rhs
+`max_regular_bin`, and `accepts` Body0/IfCondition/Rhs `huge_bin`.
+An existing-owner one-shot exact-source census produced these four rows;
+its deliberate failing assertion was removed after observation. This is
+diagnostic evidence, not a passing acceptance or a new persistent test.
+
+Source authority + canonical issuer: the retained `StaticIncomingSourceV1`
+and exact CurrentOwner claim own call identity; for the first `bin_size`
+IfCondition site, the existing verified If-region/scalar-expression/Home
+issuer owns `ExpressionValue` with prior Homes. The zero-input closure owns
+callee signature, Completion and result. Non-authority: the mere source
+inventory, empty argument list, sibling call's Home row and final MIR alone.
+Fail-fast boundary: keep `borrowed-static/local-source-missing` until the
+same exact site has its own verified Home row; never fabricate a local row
+or route the nonlocal site through a lexical local packet.
+Smallest next slice: inspect this If-region bundle, `contains_source_request`,
+scalar preflight (including formal `bin` kind), and Completion root flow to
+find why the existing issuer did not retain the first row. Then admit only
+the proved condition context and check source Rc/site/target, zero args and
+Home statement/region. Wrong site/owner/target, unproved operand or region,
+and missing Home row must reject. The later return, Loop and `accepts`
+contexts are separate bounded followups. This Decision grants no executable
+packet, tagged entry, production EXE or old-edge retirement.
