@@ -55,9 +55,20 @@ pub(in crate::mir) struct PreparedLoopStaticBodyDetachedPacketV1 {
     prepacket: VerifiedLoopStaticBodyPrepacketV1,
     actual: PreparedBorrowedFormalActualV1,
     coordinate: (crate::mir::BasicBlockId, usize),
+    original_invoke: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
 }
 
 impl PreparedLoopStaticBodyDetachedPacketV1 {
+    pub(in crate::mir) fn source_site(&self) -> &OwnedExprSiteV1 {
+        self.prepacket.source.original.call_site()
+    }
+
+    pub(in crate::mir) fn original_invoke_binding(
+        &self,
+    ) -> &(crate::mir::BasicBlockId, crate::mir::MirInstruction) {
+        &self.original_invoke
+    }
+
     pub(in crate::mir) fn corroborates_selected_source(
         &self,
         site: &OwnedExprSiteV1,
@@ -109,6 +120,12 @@ impl VerifiedLoopStaticBodyPrepacketV1 {
     ) -> Result<PreparedLoopStaticBodyDetachedPacketV1, String> {
         self.corroborate_unpublished_function(function)?;
         let coordinate = unique_unpublished_invoke_coordinate(function, self.entry)?;
+        let invoke = function
+            .blocks
+            .get(&self.entry)
+            .and_then(|block| block.terminator.as_ref())
+            .expect("unique Invoke coordinate has its original terminator")
+            .clone();
         let actual = PreparedBorrowedFormalActualV1 {
             ordinal: 0,
             site: self.source.site.clone(),
@@ -122,6 +139,7 @@ impl VerifiedLoopStaticBodyPrepacketV1 {
             coordinate,
             prepacket: self,
             actual,
+            original_invoke: (coordinate.0, invoke),
         })
     }
 }

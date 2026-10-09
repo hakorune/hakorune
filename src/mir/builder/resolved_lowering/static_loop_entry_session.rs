@@ -136,16 +136,24 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             Ok(prepared) => prepared,
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
-        let projected_body = prepared
-            .corroborate_detached_function(|function| body.prepare_detached_packet(function));
+        let projected_body = prepared.corroborate_detached_function(|function| {
+            let packet = body.prepare_detached_packet(function)?;
+            if !packet.corroborates_selected_source(
+                product.semantic().source_calls().2.call_site(),
+                product.semantic().roles().bin_binding,
+            ) {
+                return Err("[freeze:contract][callable-loop/body-detached-source-drift]".into());
+            }
+            claims.validate_selected_static_loop_child_emissions(
+                input.owner(),
+                function,
+                &entry_packet,
+                &packet,
+            )?;
+            Ok(packet)
+        });
         prepared.commit_pending().abort_and_restore();
-        let projected_body = projected_body?;
-        if !projected_body.corroborates_selected_source(
-            product.semantic().source_calls().2.call_site(),
-            product.semantic().roles().bin_binding,
-        ) {
-            return Err("[freeze:contract][callable-loop/body-detached-source-drift]".into());
-        }
+        let _projected_body = projected_body?;
         Err("[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]".to_owned())
     })();
     if let Some(outer) = outer {

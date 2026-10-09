@@ -967,7 +967,15 @@ Do not install shared retention before a failed collector collection or add
 a fallible check after collection. Do not infer a packet from final MIR or
 open generic SourceStatic transport. Wrong owner/site/read/Invoke, missing
 or duplicate finished producer, and absent collector row reject. First
-bounded construction slice: finished-child validation plus transactional
-retention of the selected packet; visitor/consumer and full incoming
-coverage follow as separate responsibilities. Until then the selected path
+bounded construction slice: finished-child validation of the selected packet.
+Transactional retention, visitor/consumer and full incoming coverage follow
+as separate responsibilities. Until then the selected path
 continues to restore its parent and stop at `executable-packet-missing`.
+
+Selected child-boundary S0: the verified detached projection now lends the
+entry and body original Invoke bindings to the existing child PhysicalBoundary.
+Only the exact body block admits its leading single-predecessor PHI. Static
+Loop 6/6 and physical-boundary 7/7 pass on the quick-profile binary, including
+the original mimalloc entry, source/Home and physical-shape negatives, and the
+normal PHI rejection. The caller still aborts/restores at packet-missing;
+collector retention, finished projection and ABI coverage remain owed.

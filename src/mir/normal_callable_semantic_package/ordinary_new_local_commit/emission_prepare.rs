@@ -322,6 +322,43 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
+        self.validate_child_emissions_with_selected_bindings(owner, function, &[], None)
+    }
+
+    /// Lend only the two source-checked Static Loop calls to the existing
+    /// finished-child boundary. No lexical Home row or publication is issued.
+    pub(in crate::mir) fn validate_selected_static_loop_child_emissions(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        entry: &super::super::PreparedSelectedStaticLoopCallProjectionV1,
+        body: &super::super::PreparedLoopStaticBodyDetachedPacketV1,
+    ) -> Result<(), String> {
+        if entry.source_site().owner() != owner
+            || body.source_site().owner() != owner
+            || entry.source_site() == body.source_site()
+        {
+            return Err(freeze("selected-static-loop-child-source-drift"));
+        }
+        let bindings = [
+            entry.original_invoke_binding().clone(),
+            body.original_invoke_binding().clone(),
+        ];
+        self.validate_child_emissions_with_selected_bindings(
+            owner,
+            function,
+            &bindings,
+            Some(body.original_invoke_binding().0),
+        )
+    }
+
+    fn validate_child_emissions_with_selected_bindings(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        selected: &[(BasicBlockId, MirInstruction)],
+        selected_body_block: Option<BasicBlockId>,
+    ) -> Result<(), String> {
         if self.child_physical_validation.borrow().contains_key(&owner) {
             return Err(freeze("duplicate-child-physical-validation"));
         }
@@ -331,12 +368,19 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_terminal_i64_field_return_projected(owner, function, None)?;
         self.validate_root_home_exit(owner, function, None)?;
         self.validate_root_cleanup_shape(owner, function)?;
-        let bindings = self.lifecycle_bindings(owner)?;
+        let mut bindings = self.lifecycle_bindings(owner)?;
+        bindings.extend_from_slice(selected);
         let copies = self.source_local_copies(owner)?;
         let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
-        let boundary = physical_boundary::PhysicalBoundary::capture_with_source_copies(
-            function, &bindings, &copies, &aliases,
-        )?;
+        let boundary = if let Some(body_block) = selected_body_block {
+            physical_boundary::PhysicalBoundary::capture_selected_static_loop_with_source_copies(
+                function, &bindings, &copies, &aliases, body_block,
+            )?
+        } else {
+            physical_boundary::PhysicalBoundary::capture_with_source_copies(
+                function, &bindings, &copies, &aliases,
+            )?
+        };
         self.child_physical_validation.borrow_mut().insert(
             owner,
             ChildPhysicalValidation::Checked {

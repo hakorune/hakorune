@@ -13,6 +13,8 @@ use literal_controls::LiteralControls;
 #[path = "physical_boundary_branch_threading.rs"]
 mod branch_threading;
 use branch_threading::ThreadedBranches;
+#[path = "physical_boundary_selected_loop.rs"]
+mod selected_loop;
 
 type Bindings = [(BasicBlockId, MirInstruction)];
 type Incoming = BTreeMap<
@@ -79,6 +81,16 @@ impl PhysicalBoundary {
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
     ) -> Result<Self, String> {
+        Self::capture_with_phi_policy(function, bindings, copies, borrowed_copies, None)
+    }
+
+    fn capture_with_phi_policy(
+        function: &MirFunction,
+        bindings: &Bindings,
+        copies: &[(ValueId, ValueId)],
+        borrowed_copies: &Bindings,
+        single_predecessor_phi_body: Option<BasicBlockId>,
+    ) -> Result<Self, String> {
         let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
         let used = used_values(function);
         let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
@@ -129,7 +141,9 @@ impl PhysicalBoundary {
                     .flat_map(|other| other.out_edges())
                     .filter(|edge| edge.target == *id)
                     .count();
-                if predecessors < 2 {
+                if predecessors == 0
+                    || (predecessors < 2 && single_predecessor_phi_body != Some(*id))
+                {
                     return Err(fault("phi-in-recorded-block"));
                 }
             }

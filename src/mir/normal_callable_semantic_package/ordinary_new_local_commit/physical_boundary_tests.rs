@@ -518,6 +518,29 @@ fn phi_in_a_sole_predecessor_recorded_block_still_rejects() {
 }
 
 #[test]
+fn selected_static_loop_body_phi_is_scoped_to_its_exact_block() {
+    let (function, bindings) = join_fixture(1, true, false);
+    let boundary = PhysicalBoundary::capture_selected_static_loop_with_source_copies(
+        &function,
+        &bindings,
+        &[],
+        &[],
+        BasicBlockId(3),
+    )
+    .expect("the verified loop body can retain its leading PHI");
+    assert!(validate(&boundary, &function, &bindings));
+    let error = PhysicalBoundary::capture_selected_static_loop_with_source_copies(
+        &function,
+        &bindings,
+        &[],
+        &[],
+        BasicBlockId(0),
+    )
+    .unwrap_err();
+    assert!(error.contains("phi-in-recorded-block"), "{error}");
+}
+
+#[test]
 fn non_leading_phi_in_a_join_recorded_block_still_rejects() {
     let (function, bindings) = join_fixture(2, true, true);
     let error = PhysicalBoundary::capture(&function, &bindings).unwrap_err();

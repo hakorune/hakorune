@@ -1774,3 +1774,8 @@ detached DraftSeal projection before explicitly aborting its pending draft
 and restoring the parent. This still grants no final body-call carrier,
 finished packet, collector admission or production MIR. Its effect mask remains a conservative
 unpublished upper bound until packet/effect proof.
+The selected detached projection now lends the original entry and body Invoke
+bindings to the existing child `PhysicalBoundary`. Only the exact body block
+may carry a leading single-predecessor PHI; normal child capture still rejects
+that shape. This records a checked unpublished correspondence, not a finished
+coordinate or a published packet.

@@ -77,6 +77,10 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
         self.packet.call_site()
     }
 
+    pub(in crate::mir) fn original_invoke_binding(&self) -> &(BasicBlockId, MirInstruction) {
+        &self.packet.invoke
+    }
+
     pub(in crate::mir) fn new(
         packet: crate::mir::normal_callable_semantic_package::VerifiedStaticLoopPacketSourceV1,
         read: CanonicalBindingReadReceiptV1,
