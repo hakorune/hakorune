@@ -7,7 +7,6 @@ use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64Loo
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::definitions::MirCall;
 use crate::mir::loop_recipe_contract::{
     LoopCompareI64OpV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitTargetV2,
     LoopJoinEdgeRoleV1, LoopOperationV2, LoopRecipeItemV2,
@@ -175,16 +174,16 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         &roles.body_actual_site,
         roles.bin_binding,
     )?;
+    let call = scalar_source.materialize_unpublished_call(
+        roles.bin_binding,
+        &roles.body_actual_site,
+        actual,
+    )?;
     let normal = canonical.create_unpublished_block(draft)?;
     let fault = canonical.create_unpublished_block(draft)?;
     let then_block = canonical.create_unpublished_block(draft)?;
     let step_block = canonical.create_unpublished_block(draft)?;
-    let target = original
-        .target()
-        .canonical_global_target_v1()
-        .map_err(|_| "[freeze:contract][callable-loop/static-body-target-missing]".to_owned())?;
     let frame = frame_owner.materialize(draft)?;
-    let call = MirCall::global(None, target, vec![actual]);
     {
         let function = draft
             .function_state

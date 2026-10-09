@@ -6,6 +6,7 @@ use std::rc::Rc;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
+use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
@@ -28,6 +29,34 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyScalarSourceV1 {
 }
 
 impl VerifiedLoopStaticBodyScalarSourceV1 {
+    /// Only the original selected call may lend a target to the unpublished
+    /// canonical body. The per-iteration ValueId remains the SSA owner's.
+    pub(in crate::mir) fn materialize_unpublished_call(
+        &self,
+        binding: BindingRefV1,
+        site: &SourceExprSiteV1,
+        actual: crate::mir::ValueId,
+    ) -> Result<MirCall, String> {
+        let reject = || "[freeze:contract][callable-loop/body-scalar-call-drift]".to_owned();
+        if self.binding != binding
+            || &self.site != site
+            || self
+                .complete_incoming
+                .iter()
+                .filter(|row| Rc::ptr_eq(row, &self.original))
+                .count()
+                != 1
+        {
+            return Err(reject());
+        }
+        let target = self
+            .original
+            .target()
+            .canonical_global_target_v1()
+            .map_err(|_| reject())?;
+        Ok(MirCall::global(None, target, vec![actual]))
+    }
+
     pub(in crate::mir) fn corroborates(
         &self,
         loan: &LoopStaticSourceCallLoanV1,

@@ -19,10 +19,14 @@ Canonical CFG/SSA seals the header PHI only after that backedge exists.
 The original post-loop `return me.huge_bin()` uses the selected tail loan and
 JoinSig After. Its physical After predecessor is the header's false branch;
 the same Fault frame and Completion own the terminal call/result. The draft
-is discarded at `physical-abi-coverage-missing`, before the selected body
-argument ABI, packet group, result handoff, collector admission or publication.
+reaches detached exact-two DraftSeal preparation and is discarded at
+`executable-packet-missing`, before the selected body argument ABI, packet
+group, result handoff, collector admission or publication.
 The source-only body call loan does not authorize its final physical argument
 ABI. The original mimalloc source and related Static Loop tests pass.
+The body Invoke now receives its target from the selected package-issued
+source receipt after binding/site corroboration; canonical SSA still owns the
+per-iteration actual and CFG emission. This remains an unpublished draft.
 
 This directory owns the first production consumer of a sealed semantic owner.
 

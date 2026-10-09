@@ -30,6 +30,9 @@ original `bin_size` Static incoming cohort through the existing ingress
 inventory. Its CurrentOwner call remains source-only; the qualified siblings
 remain in the same cohort. The receipt corroborates the original loop call
 without selecting transport, a callee entry carrier, or executable packets.
+For that selected body call, the same source receipt now lends the original
+callee target after exact binding/site corroboration. Canonical SSA supplies
+the iteration's physical actual; the receipt never invents a ValueId.
 
 The original Static fact collector runs once during profile preparation. Its
 exact call-site membership survives later ingress failure as a dispatch

@@ -984,3 +984,13 @@ callee tagged entry, actual carriers and finished packets remain separate
 required slices. The existing mimalloc and static-cohort veto tests pin it.
 Source cohort S0 passed original mimalloc 1/1, selected cohort drift 1/1,
 cataloged entry 1/1 and static-loop family 5/5 (quick profile).
+
+Decision (2026-10-10, selected body call target): use the same retained
+source scalar receipt as the only `me.bin_size(bin)` target issuer. It checks
+the original binding/site and cohort before lending a `MirCall`; canonical
+SSA supplies the per-iteration actual and CFG emits the Invoke. This removes
+the Builder-side target construction. Reuse original mimalloc/static-loop
+positive and source/Home mutation negative; keep final packet, callee entry
+and publication unavailable until their separate proofs are complete.
+Target-issuer S0: source/Home mutation negative 1/1 and static-loop family
+5/5 pass on the quick-profile build; draft still stops at packet-missing.
