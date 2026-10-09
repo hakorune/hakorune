@@ -1,6 +1,6 @@
 # Resolved lowering boundary
 
-## Selected Static I64 Loop header (2026-10-10)
+## Selected Static I64 Loop unpublished header and body predicate (2026-10-10)
 
 The selected `SizeClassBox.size_to_bin` entry keeps its prepared lexical
 prepacket and one function-owned Fault frame while the canonical V2 session
@@ -9,9 +9,15 @@ the `bin` read, zero-argument `max_regular_bin` call and `<=` predicate order.
 Canonical SSA/CFG owns the physical blocks, deferred read, Invoke/NormalResult,
 Compare and branch. The original loop call loan corroborates the source site
 and target; no Builder-side source parser or second call authority is added.
-The outer draft is discarded at `body-coverage-missing`, before packet group,
-result handoff, collector admission or function publication. The original
-mimalloc source and related Static Loop positive/negative tests pass.
+The header's actual body target enters the next unpublished body predicate.
+The already verified `n` and `bin` source sites and Recipe items 3–6 select
+the original one-argument `me.bin_size(bin)` call. The body `If` is checked
+against the JoinSig Return/fallthrough row before canonical SSA/CFG emits its
+Invoke/NormalResult, `<=` and Then/step branch. The draft is discarded at
+`body-exit-coverage-missing`, before Return, carrier update, header PHI seal,
+packet group, result handoff, collector admission or function publication.
+The source-only body call loan does not authorize its final physical argument
+ABI. The original mimalloc source and related Static Loop tests pass.
 
 This directory owns the first production consumer of a sealed semantic owner.
 

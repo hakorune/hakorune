@@ -907,3 +907,21 @@ duplicate Fault-frame definition) were corrected before the green result.
 Next bounded edge is body `me.bin_size(bin)` and carrier update under this
 same canonical session; full return, packet/group terminal publication,
 qualified Return sibling and EXE remain open.
+
+Selected Static I64 Loop body-predicate S0: the same disposable canonical
+draft now carries the header's actual Body/After targets into the original
+`me.bin_size(bin)` predicate. Its verified producer retains exact `n` and
+`bin` use sites; Recipe items3–6 and the sole JoinSig branch row agree on
+Then=Return and Else=step continuation. Canonical SSA reads both bindings,
+and CFG emits the original arity-one call with Normal/Fault, projects I64,
+compares `n <= result` and branches. The same function Fault frame is reused.
+The draft discards at `body-exit-coverage-missing`: Then Return, carrier
+assignment/backedge, header PHI seal, post-loop tail and publication are open.
+In particular, the source-only body call loan and Integer storage do not yet
+prove the callee's physical argument carrier; selected ABI/actual verification
+is required before any executable publication. Focused original mimalloc
+entry 1/1 and related Static Loop family 5/5 pass in one quick-profile binary.
+One initial compile red from this slice (moved source site) was corrected.
+Next: complete the Return and step/backedge arms from the retained Recipe,
+JoinSig and exact source sites, then close the selected call ABI and packet
+terminal before collector admission.

@@ -12,7 +12,14 @@ use crate::mir::loop_recipe_contract::{
 };
 use crate::mir::normal_callable_semantic_package::PreparedSelectedStaticLoopCallProjectionV1;
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
-use crate::mir::{CompareOp, MirInstruction, MirType};
+use crate::mir::{BasicBlockId, CompareOp, MirInstruction, MirType};
+
+pub(super) struct StaticLoopHeaderContinuationV1 {
+    pub preheader: BasicBlockId,
+    pub header: BasicBlockId,
+    pub body: BasicBlockId,
+    pub after: BasicBlockId,
+}
 
 pub(super) fn emit_unpublished_header_v1(
     draft: &mut MirBuilder,
@@ -20,7 +27,7 @@ pub(super) fn emit_unpublished_header_v1(
     semantic: &VerifiedStaticI64LoopSemanticV2,
     entry_packet: &PreparedSelectedStaticLoopCallProjectionV1,
     frame_owner: &mut FunctionFaultFrameV1,
-) -> Result<(), String> {
+) -> Result<StaticLoopHeaderContinuationV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-header-source-drift]".to_owned();
     let roles = semantic.roles();
     let recipe = semantic.recipe().as_recipe();
@@ -222,6 +229,18 @@ pub(super) fn emit_unpublished_header_v1(
             .map_err(|error| error.to_string())?
             .commit(function);
         frame_owner.validate(function)?;
+        if !matches!(
+            function.blocks.get(&normal).and_then(|block| block.terminator.as_ref()),
+            Some(MirInstruction::Branch { then_bb, else_bb, .. })
+                if *then_bb == body && *else_bb == after
+        ) {
+            return Err("[freeze:contract][callable-loop/static-header-branch-drift]".into());
+        }
     }
-    Ok(())
+    Ok(StaticLoopHeaderContinuationV1 {
+        preheader,
+        header,
+        body,
+        after,
+    })
 }

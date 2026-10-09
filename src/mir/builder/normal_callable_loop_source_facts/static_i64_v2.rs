@@ -42,7 +42,12 @@ pub(in crate::mir) struct StaticI64LoopRolesV2 {
     pub header_call_site: SourceExprSiteV1,
     pub header_compare: LoopItemKeyV1,
     pub body_actual_read: LoopItemKeyV1,
+    pub body_n_read_site: SourceExprSiteV1,
+    pub body_actual_site: SourceExprSiteV1,
     pub body_call: LoopItemKeyV1,
+    pub body_call_site: SourceExprSiteV1,
+    pub body_compare: LoopItemKeyV1,
+    pub body_if: LoopItemKeyV1,
     pub return_bin_read: LoopItemKeyV1,
     pub return_exit: LoopItemKeyV1,
     pub backedge_bin_read: LoopItemKeyV1,
@@ -329,7 +334,7 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
     if header.call_site().site() != &head_call_site
         || body_call.call_site().site() != &body_call_site
         || !header.argument_sites().is_empty()
-        || body_call.argument_sites() != [body_arg_site]
+        || body_call.argument_sites() != [body_arg_site.clone()]
         || source
             .method_calls()
             .find(|(site, _)| *site == &head_call_site)
@@ -396,7 +401,12 @@ pub(in crate::mir) fn produce_static_i64_loop_semantic_v2(
             header_call_site: head_call_site,
             header_compare: LoopItemKeyV1::new(2),
             body_actual_read: LoopItemKeyV1::new(3),
+            body_n_read_site: if_left_site,
+            body_actual_site: body_arg_site,
             body_call: LoopItemKeyV1::new(4),
+            body_call_site,
+            body_compare: LoopItemKeyV1::new(5),
+            body_if: LoopItemKeyV1::new(6),
             return_bin_read: LoopItemKeyV1::new(7),
             return_exit: LoopItemKeyV1::new(8),
             backedge_bin_read: LoopItemKeyV1::new(9),

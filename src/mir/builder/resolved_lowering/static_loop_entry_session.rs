@@ -80,14 +80,21 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             value,
             claims,
         )?;
-        super::static_loop_header::emit_unpublished_header_v1(
+        let header = super::static_loop_header::emit_unpublished_header_v1(
             draft,
             &mut canonical,
             product.semantic(),
             &entry_packet,
             &mut frame_owner,
         )?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/body-coverage-missing]".to_owned())
+        super::static_loop_body::emit_unpublished_body_predicate_v1(
+            draft,
+            &mut canonical,
+            product.semantic(),
+            &header,
+            &mut frame_owner,
+        )?;
+        Err("[freeze:contract][callable-loop/static-i64-v2/body-exit-coverage-missing]".to_owned())
     })();
     outer.discard_unpublished();
     admitted
