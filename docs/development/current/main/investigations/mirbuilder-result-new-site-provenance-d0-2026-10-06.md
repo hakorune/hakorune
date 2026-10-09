@@ -947,3 +947,27 @@ Detached body actual S0: quick-profile `static_loop` 5/5 pass, including the
 new duplicate-Invoke coordinate negative and existing source/Home and
 landing/result negatives. The unchanged selected caller still restores the
 parent and stops at `executable-packet-missing`.
+
+Decision (2026-10-10, selected body packet publication seam): the original
+source Rc, scalar receipt and DraftSeal-checked detached Invoke are the
+packet authority; canonical finished-child validation owns the completed
+physical coordinate. Retain this selected LoopBody packet in the existing
+`OrdinaryNewClaimLedgerV1`, keyed by owner and source site, separately from
+Home local-call groups. Finished-child validation must first lend the exact
+unpublished body binding to its existing `PhysicalBoundary`; the current
+`lifecycle_bindings` omits that block, so a later finished lookup would fail
+as `unrecorded-binding`. This loan is read-only and cannot publish the packet.
+After successful exact collector collection, commit the preflighted packet
+infallibly to the existing
+owner ledger, then move it with the finalized source handoff and project its
+original Invoke onto the finished function. Extend the existing final lexical
+visitor with an explicit LoopBody context; its consumer must match the
+finished coordinate and Scalar Integer actual against the physical Invoke.
+Do not install shared retention before a failed collector collection or add
+a fallible check after collection. Do not infer a packet from final MIR or
+open generic SourceStatic transport. Wrong owner/site/read/Invoke, missing
+or duplicate finished producer, and absent collector row reject. First
+bounded construction slice: finished-child validation plus transactional
+retention of the selected packet; visitor/consumer and full incoming
+coverage follow as separate responsibilities. Until then the selected path
+continues to restore its parent and stop at `executable-packet-missing`.
