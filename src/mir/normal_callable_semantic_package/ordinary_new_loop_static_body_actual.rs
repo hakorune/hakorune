@@ -10,6 +10,7 @@ use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::physical_signature::{
     PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1,
 };
+use crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, OwnedExprSiteV1, ResolvedLoopPlacementV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
@@ -82,6 +83,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn retain_loop_static_body_scalar_sources_v1(
         &mut self,
         signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+        results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<(), String> {
         let mut rows = std::collections::BTreeMap::new();
         for ((loop_site, site), loan) in self.loop_static_source_loans.borrow().iter() {
@@ -94,7 +96,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if rows
                 .insert(
                     (loop_site.clone(), site.clone()),
-                    issue_scalar_source(self, signatures, loan),
+                    issue_scalar_source(self, signatures, results, loan),
                 )
                 .is_some()
             {
@@ -119,6 +121,7 @@ impl OrdinaryNewClaimLedgerV1 {
 fn issue_scalar_source(
     ledger: &OrdinaryNewClaimLedgerV1,
     signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+    results: &VerifiedCallableResultContractCohortV1,
     loan: &LoopStaticSourceCallLoanV1,
 ) -> Result<VerifiedLoopStaticBodyScalarSourceV1, String> {
     let reject = || "[freeze:contract][callable-loop/body-scalar-source-unavailable]".to_owned();
@@ -136,6 +139,14 @@ fn issue_scalar_source(
     let signature = signatures
         .row(original.target_batch_slot())
         .ok_or_else(reject)?;
+    let source = incoming.as_ref().map_err(Clone::clone)?;
+    let completion = ledger
+        .completion_for_owner(original.callee_owner())
+        .ok_or_else(reject)?;
+    let result = results
+        .row(original.target_batch_slot())
+        .ok_or_else(reject)?;
+    let result_ref = result.borrow();
     let [formal] = original.parameters() else {
         return Err(reject());
     };
@@ -156,15 +167,19 @@ fn issue_scalar_source(
         || lane.binding() != formal.binding
         || formal.ordinal != 0
         || formal.kind != CallableParameterContractKindV1::OpaqueHandle
+        || !source.source_only_formal_origin(formal.binding)
+        || !source.checked_static_input(formal.binding)
+        || completion.owner() != original.callee_owner()
+        || !completion.returns_value()
+        || result.owner() != original.callee_owner()
+        || !std::ptr::eq(completion, result_ref.completion())
+        || !result_ref.declared_result_agrees_with_i64_source()
     {
         return Err(reject());
     }
     // This is the source cohort, not executable transport. A mixed
     // CurrentOwner/qualified callee must keep every original incoming row.
-    let complete_incoming = incoming
-        .as_ref()
-        .map_err(Clone::clone)?
-        .static_incoming_cohort_v1(original)?;
+    let complete_incoming = source.static_incoming_cohort_v1(original)?;
     Ok(VerifiedLoopStaticBodyScalarSourceV1 {
         original: Rc::clone(original),
         complete_incoming,

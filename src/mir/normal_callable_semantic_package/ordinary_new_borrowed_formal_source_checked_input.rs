@@ -4,6 +4,18 @@ use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
 use super::*;
 
 impl PreparedBorrowedFormalIngressV1 {
+    /// Source-only formal origin for a selected entry request. This never
+    /// promotes the owner into the executable borrowed transport profile.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_only_formal_origin(
+        &self,
+        formal: BindingRefV1,
+    ) -> bool {
+        self.source_only_definitions
+            .get(&formal.owner())
+            .and_then(|draft| draft.origins.get(&formal))
+            == Some(&formal)
+    }
+
     /// Conditional Normal-use requirement, not an Integer classification or
     /// entry/transport grant for any incoming actual.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_static_input(

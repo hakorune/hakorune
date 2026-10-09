@@ -33,6 +33,11 @@ without selecting transport, a callee entry carrier, or executable packets.
 For that selected body call, the same source receipt now lends the original
 callee target after exact binding/site corroboration. Canonical SSA supplies
 the iteration's physical actual; the receipt never invents a ValueId.
+Before issuing this receipt, the package also checks the source-only callee
+draft's formal origin, checked-input closure, result Completion and I64 result
+contract against the retained signature. This establishes source eligibility
+for a later selected entry; it does not install a tagged carrier or admit a
+physical caller packet.
 
 The original Static fact collector runs once during profile preparation. Its
 exact call-site membership survives later ingress failure as a dispatch

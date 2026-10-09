@@ -939,3 +939,17 @@ positive and source/Home mutation negative; keep final packet, callee entry
 and publication unavailable until their separate proofs are complete.
 Target-issuer S0: source/Home mutation negative 1/1 and static-loop family
 5/5 pass on the quick-profile build; draft still stops at packet-missing.
+
+Decision (2026-10-10, selected `bin_size` source-only entry): extend the
+same package-issued body receipt, using its original callee and complete
+incoming cohort. Require the source-only draft's formal origin, checked
+Static input, exact Completion and I64 result contract beside the existing
+physical signature. A mixed CurrentOwner/qualified cohort stays outside the
+generic transport profile. The forwarded-actual issuer is SelfRooted-only;
+the body has a Scalar Integer actual, so it cannot prove this entry. Physical
+tagged entry, each caller's packet coordinate and final all-incoming check
+remain owed; no backend or generic Static permission follows from this join.
+Source-only callee join S0: original cataloged entry 1/1, source/Home mutation
+negative 1/1, static-loop family 5/5 and cohort drift negative 1/1 pass on
+the final quick-profile build. The disposable caller still stops at
+`executable-packet-missing`; no callee entry or caller packet was published.
