@@ -70,69 +70,16 @@ source witness DAG in the SAME result Facts draft/fixpoint/product. Multiple
 same-origin source paths and formal-derived null provenance must survive.
 Non-claims: no input move, field store/cleanup expansion, runtime discriminator,
 anchored residence receipt or production EXE from this observation-only slice.
-### RESULT-ORIGIN-WITNESS-S0 execution contract
+## Closed result-child source prerequisites (historical)
 
-Closed at de7f6fbfb4; Git owns exact32/check/CLI receipts and corrected THISCHANGE.
-SAME immutable result Facts retain branded Null/Fresh/Formal leaves, exact call/
-actual/ordinal ancestry, Formal-derived null support and shared callee witnesses.
-No scanner/fixpoint, Home, acquired field, lifetime or physical grant was added.
-
-Required follow-on sequence remains: constructor child relation -> Home-prefix/
-completion lifetime and cleanup -> sole physical owner -> unchanged production
-publication. Both315/318, facade scalar effects, ignored results, anchor escape/
-release, dying local, forged acquisition and constructor/relay Fault remain owed.
-## RESULT-ORIGIN-WITNESS-S0 implementation verification
-
-Closed source witness receipts: de7f6fbfb4, baseline Array call-count3a5a96b299.
-No Home or physical grant; later facade/anchor lifetime/cleanup/EXE remain owed.
-### Next child-relation source design brief (read-only, not execution admission)
-
-Decision: join exact returned-construction child source relations using existing
-constructor stores and finished result witness Facts. Preserve fail-closed
-execution until later acquired-Home/anchored lifetime and cleanup verification.
-Source authority + canonical issuer: existing prepare_source_claims after
-result_class_draft.finish, before prefix verification; exact FreshConstruction
-leaf site joined to instance constructor construction_for/birth_for, canonical
-store field/RHS Parameter binding/provided child and Birth formal ordinal.
-Resolve the exact caller actual with branded expr_at and child_expr_from_expr
-CallArgument(ordinal); existing sole initializer/no-rebind and call witness
-composition provide forwarded provenance, without another scanner/fixpoint.
-Non-authority: class-only Fresh, ordinary local assignment, pointer identity,
-OwnedFieldChildKind::Object metadata or candidate availability.
-Fail-fast boundary: malformed field/constructor/formal/actual identity, ordinal,
-owner/path/class, rebound locals or missing callable provenance cannot issue a
-candidate. Source Fresh is not available Home; formal source is not acquired
-child. Owning-only field schema cannot authorize anchored residence.
-Smallest next slice: first separate behavior-preserving extraction of existing
-prepare_source_claims from793-line issue_source into a private preparation
-module; preserve sole caller, source order/tuple and failure boundary. Then
-semantic candidate join there and a shared private call-witness composer.
-Non-claims: no Home transfer, input consume, borrowed field store, cleanup,
-physical discriminator, publication or EXE from the source candidate.
-
-Required candidate acceptance: exact315 null-child,318 replacement initializer
-mixed provenance and existing allocateResult fresh-child reference; canonical
-field and Birth formal/actual ordinal identity plus corruption/rebind/missing
-facts negatives. Candidate availability must coexist with PrefixNotCovered and
-preparefalse. Later lifetime/cleanup and sole physical/publication slices remain
-required. Gate1 is incomplete; stored-child sibling and Gates2-4 stay parked.
-
-Closed source/prepare history: de7f6fbfb4/0383a32420 own exact32/check/CLI/
-guards and historical both315/318/Result artifact probe. Sole source witness
-solver/body and observation/finish/provider/error order retained, old body removed.
-No physical retirement; anchor lifetime/cleanup and actual EXE remain owed.
-## Closed child-source prerequisites (historical)
-
-`COMPOSITION-BOXSHAPE-S0` closed at b6657f6f87: the sole private call-witness
-verifier/composer replaced inline identity/substitution loops without changing
-Dead-before-Waiting, pending policy, coverage or source authority.
-`CHILD-SOURCE-RELATION-S0` closed at b8cda4e125: SAME finished result Facts
-retain exact constructor/field/formal/actual identity and all compatible
-Null/Fresh/Forward witnesses. Git at those commits owns tests and closeout.
-The original8 candidate sites remained6covered/2uncovered at this point;
-source candidates alone granted no Home, anchored lifetime, field install,
-cleanup, physical publication or production EXE. Later outcome/physical
-sections below own the current contract and unresolved acceptance.
+`RESULT-ORIGIN-WITNESS-S0` closed at de7f6fbfb4: the SAME result Facts
+retain branded Null/Fresh/Formal leaves and exact call ancestry.
+`COMPOSITION-BOXSHAPE-S0` closed at b6657f6f87; `CHILD-SOURCE-RELATION-S0`
+closed at b8cda4e125; source preparation closed at 0383a32420.
+Those commits own exact tests and original decisions. The source relation
+alone granted no Home, anchored lifetime, cleanup or EXE. The current
+315/318 and facade obligations are stated above and in the outcome sections
+below; stored-child sibling and Gates2–4 remain parked.
 
 ## OUTCOME-SUPPORT-D0 decision / MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0 selected
 
@@ -998,3 +945,11 @@ Next physical I0 requires an issuer census: the raw Loop port is entered
 after earlier lowering and owns no canonical function session. Reuse the
 enclosing session or move the selected route before effects; never create a
 second SSA/Builder owner. First target is source-bound `n`/`bin` inputs.
+
+Issuer census I0 (read-only): `physical_entry_session.rs` requires an empty
+Builder and opens the sole unpublished function transaction. The selected
+raw Loop port already runs inside earlier lowering and has no canonical
+session parameter; `callable_canary.rs` demonstrates the direct Static
+prelude only inside an existing session. Select a function-level handoff
+before physical effects, or prove a same-session loan from the enclosing
+owner. Until that seam is fixed, `n`/`bin` ValueIds remain unavailable.
