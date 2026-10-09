@@ -994,3 +994,7 @@ whole-app EXE remain next. Focused positive and side-effect negative must
 pass before this slice can close. Evidence: original/negative 2/2,
 candidate 6/6, claim 9/9, raw Loop 16/16, pointer guard PASS; quick test
 profile, jobs=4. The physical stop remains selected and deliberate.
+Next physical I0 requires an issuer census: the raw Loop port is entered
+after earlier lowering and owns no canonical function session. Reuse the
+enclosing session or move the selected route before effects; never create a
+second SSA/Builder owner. First target is source-bound `n`/`bin` inputs.
