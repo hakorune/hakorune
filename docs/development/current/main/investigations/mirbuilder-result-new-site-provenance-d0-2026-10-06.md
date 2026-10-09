@@ -817,77 +817,18 @@ Next Decision (read-only worker): typed Compare/Mul dispatch in SAME binary driv
 Mul retains SAME RootLocalCallBindingGroup lexical packet Rc/NormalResult + sole append.
 Finish/project exact guards/ordered operands/packet with both scans and JSON/C; no Add counts.
 All full-goal obligations above remain unwaived; no app source rewrite.
-## Mul original append/result part CLOSED430198d21a (2026-10-09)
+## Completed Mul and tagged-entry prerequisites (2026-10-09)
 
-Original source/entry/ordered child/actual append/Rc/coverage and returned-Mul
-I64 proof contracts, corrected failures, guarded refusal and unannotated cases
-are retained in Git/owner README and
-/mnt/workdisk/hako-guarded-mul-append-final-evidence.json (64 scoped executions;
-final build8m43; normal push PASS). Full Mul execution remains open. Source-only
-rows gain no entry; carrier/Copy/Static packet/guard Normal dominance and both
-finished scans/JSON/C still owe full closure. Negative immediates retain their
-actual Const(-n). Final call membership must use finalized groups after pool move.
-
-Completed Home/SourceInstance contract, positive/negative evidence and
-source-only refusal are retained at 5351063d91 and the workdisk
-`hako-guarded-mul-sourceinstance-*` receipts. The Mul driver slice is retained
-at 999b3ffc17: SAME source loan and append, function-owned Rc, coverage,
-transaction/reset, focused tests and guarded/source-only probes. These commits
-do not establish final Copy lineage, Static packet, or full goal completion.
-Physical Mul operation CLOSED (2026-10-09): source authority remains the Mul
-ledger and checked builder finish; final ordinary-MIR program/JSON and C v2/v4
-admission/index/flow/emit spell one `mul` with exact available operands. C
-parser normal/malformed 3 PASS; C root 3*4 exit12, borrowed tagged Integer
-continues, Bool/Object Fault exit70 before result. Quick CLI build PASS; real
-guarded Mul passes physical-program admission and now stops at
-`published-lifecycle/borrowed-use/unproved-copy`; unchanged full app still
-stops earlier at source-only Object actuals. Rust physical JSON family 32 PASS,
-1 known baseline red: owned-array birth-fault release order, documented in
-gate1 card at 265e67753a; physical program tests2 PASS. Rustfmt JSON file has
-the same two preexisting HEAD diffs, unrelated to Mul. Evidence under
-`/mnt/workdisk/hako-guarded-mul-ffi` and `hako-guarded-mul-physical-*` logs.
-No script/native expansion or claim of source-to-C completion. Next Decision:
-retain SAME original borrowed operand Copy/guard/packet evidence in both
-independent final scans; `unproved-copy` must refuse until that authority is
-closed. Full Static packet/return, unchanged app, Both315/318, cleanup,
-Gates2-4, old-edge retirement and selfcompile remain open.
-
-Mul finished-binding Decision and focused evidence are retained at
-57da98d9c0 and `/mnt/workdisk/hako-mul-binding-*`: SAME source/append issuer,
-mandatory FinishedBindings root/child mapping, no Copy permission. The
-follow-on exact Copy/guard/source checks landed at 31c2caf637 below.
-
-Checked-view Mul Copy decision, implementation and focused evidence are at
-31c2caf637 and `/mnt/workdisk/hako-mul-copy-*`: SAME append/Copy issuer,
-mandatory FinishedBindings mapping, exact source side/formal/guard/Copy checks
-in both independent scans. Original `p*q` and `p*p` passed both scans; literal
-and source-only Static uses retained their named refusals. Non-view producer,
-Static entry/packet, app, Both315/318, cleanup, Gates2-4, old-edge retirement
-and selfcompile remained open. The tagged entry prerequisite followed below.
-
-Decision (2026-10-09, read-only review): the next bounded prerequisite is the
-lifecycle backend entry for selected unannotated `BorrowedTaggedValue` formals.
-`CompiledEntry` already joins original entry values, exact source actuals and
-finished calls. The backend gate must check its selected tagged slots and
-actual ordinals beside, not as, declared `ExactNumeric` and checked Map rows.
-The entry promises tagged transport; NormalInteger is checked at guarded use.
-Bool/Null/Object therefore remain valid inputs that Fault at that use. Do not
-fabricate an `i64` declaration or derive a public API contract from all
-callers. The generic backend gate remains unchanged. Positive acceptance:
-original guarded `p*q` source through EXE. Negatives: missing/duplicate or
-wrong-slot source actual, forged carrier, declaration collision, typed-gate
-regression. Original `SizeClassBox.bin_size` separately needs CurrentOwner
-Static executable entry, then `me.word_size()` non-view producer proof.
-
-Tagged entry slice verified (2026-10-09): lifecycle gate counts selected
-source-backed tagged slots separately from declared numeric/Map, checks every
-compiled-entry actual ordinal, and accepts unannotated `Unknown|Integer` MIR
-storage. Original guarded `Transport.probe(p,q)` now emits EXE and runs rc0;
-before this slice it stopped at ordinary-parameter-count. Existing backend2,
-borrowed-entry24, borrowed-carrier-JSON2, numeric-contract4 PASS; quick CLI
-build, rustfmt, pointer guard and diff check PASS. Logs:
-`/mnt/workdisk/hako-tagged-entry-*`. Generic backend gate unchanged. Original
-Static `bin_size` still source-only; no app/Both315/318 or goal completion claim.
+The source/append, SourceInstance, driver, physical Mul, finished-binding,
+checked Copy, and tagged-entry slices are retained at 430198d21a,
+5351063d91, 999b3ffc17, 40a73b0ee1, 57da98d9c0, 31c2caf637,
+and 3607535f38;
+the tagged-entry evidence is in `/mnt/workdisk/hako-tagged-entry-*` and
+its owner README. These preserve the original source/Copy/FinishedBindings,
+Normal/Fault and source-only refusal boundaries. No public `i64` input
+contract is inferred from all callers. `me.word_size()` non-view proof,
+whole Static entry/packet, unchanged app, Both315/318, cleanup, Gates2-4,
+old-edge retirement and selfcompile remain open.
 
 Decision (2026-10-09, read-only Static audit, corrected after full source
 census): `bin_size(bin)` has CurrentOwner calls in initializer, a Loop-body
@@ -965,9 +906,10 @@ Recipe keys and exact source relations; JoinSig proves the return arm and
 Integer `bin` backedge, while Home joins only surviving paths. The existing
 Static index, original Rc, and their canonically issued ordered actuals remain
 the call authority. The shared site claim issuer is extracted. Rc corroborates
-site/order before V2; source-level `n`/`bin` prefix must first close using
-the existing closed-domain candidate Integer proof, never S2 executable
-entry. Verified V2 Recipe/JoinSig then proves the iterative Integer `bin`;
+site/order before V2; source-level `n`/`bin` prefix needs the checked-input
+requirement described below because whole-caller candidate Integer agreement
+is false. It never grants S2 executable entry. Verified V2 Recipe/JoinSig
+then proves the iterative Integer `bin`;
 only afterward may the selected route co-seal body actual through the existing
 source-actual owner and join Home. Do not overwrite the failed pre-loop row.
 Positive evidence
@@ -987,5 +929,29 @@ on quick profile. Loop-site actual proof, V2 Recipe/Home and physical SSA
 remain unissued; source Rc retention alone does not close them.
 Real-source loop site check1/1 PASS: header/body claims and original Rc match.
 Diagnostic projection of body `bin_size(bin)` refuses
-`borrowed-static/source-actual-unavailable`; first Home prefix and candidate
-Integer agreement for `size_to_bin.size`/`normalize_size.size` are next census.
+`borrowed-static/source-actual-unavailable`; the following incoming-domain
+census rules out candidate Integer agreement as this prerequisite.
+Original incoming-domain census (unchanged mimalloc): `size_to_bin` has 3
+callers (`size_to_bin_usize`, `good_size`, `SizeClassBox.accepts`), `good_size`
+has 2, `normalize_size` has 2, and `LayoutBox.class_id` has 2; all four
+candidate Integer agreements are false with no owner veto. In contrast,
+`Heap.allocate` is true (15 callers) and `Page.allocate` true (2 callers).
+The earlier Heap/allocateResult culprit hypothesis is rejected. The named
+uncalled/unannotated `LayoutBox.accepts` and `LayoutBox.normalize_size`
+forwards still need exact seed/body-use analysis; do not prune them or mint a
+public `i64` contract from all callers. Diagnostic panic/asserts were removed.
+
+S1 checked-input prerequisite Decision (read-only review integrated):
+Source authority is the original `UnresolvedArgument`/checked `CompareOperand`
+body-use graph, ExactI64 conditional required ordinals, and retained Static Rc;
+the existing tagged entry and checked numeric operation own Normal/Fault.
+All-caller candidate disagreement is not proof of a different class, and body
+use is a conditional requirement, never unconditional Integer agreement.
+`ExactBool` has no result-owned required-ordinal slot, so a general input
+condition cannot live only in result disposition. D0 must choose one canonical
+input-requirement issuer and checked-use handoff for I64/Bool wrappers, with
+wrong-tag Fault before numeric use and no silent retry. No uncalled method may
+be excluded without sealed non-public reachability. Smallest next work: audit
+that issuer/physical handoff and fix the exact source-only requirement contract;
+then close `n`/`bin` Home, V2 loop, SSA, and S2 packet in that order. The
+diagnostic failures are observed frontier, not accepted test regressions.
