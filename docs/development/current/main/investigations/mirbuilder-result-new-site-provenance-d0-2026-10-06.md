@@ -693,57 +693,21 @@ missing/unavailable grants none, drift refuses; SAME collector/FinishedBindings.
 Both315/318, anchored cleanup, unchanged mimalloc EXE, Gates2-4, retirement,
 nondelegating selfcompile and final acceptance remain mandatory/incomplete.
 
-Root source/producer/ABI and source prerequisites CLOSED93ac35e5df,
-6ed65aae53,b2fa3b9eaa,df3bf5227f (pushed); exact contracts/evidence at commits.
-SAME original source/input/Completion, exact producers, whole Root ABI and
-neutral lender remain required. Object process entry refuses; SourceOnly grants
-no execution. Three saved93ac S6C reds remain unwaived final acceptance.
-
-Ready acquisition/compiled Handle and C owned Return CLOSED488f1283b3,
-21e66c5e55/88eeede57f/2b1a32dd5b; contracts/evidence at Git/README/hako-c-*.
-Typed8/opaque8 + original16 Normal/Fault EXEs PASS; exact whole preflight,
-Normal LIVE/Fault unwind/receiver once-only and Phi refusals remain.
-S6C3 unwaived; latest unchanged-app frontier is3388a8937c below.
-
-Stored dispatch prerequisite CLOSEDf34af66d4a (pushed); exact contract/evidence
-at commit/README and /mnt/workdisk/hako-stored-dispatch-final-evidence.json.
-All15 retained; exact different-callee exclusion only, SAME unknown stays veto.
-
-Checked-actual prerequisite CLOSEDa0080da903 (pushed); exact contract/Decision
-at commit/README. SAME Compare source/Normal kind law and exact later argument;
-all15/no-veto/candidate Integer, final Heap entry still absent; no execution grant.
-269+37 PASS/check/guards; /mnt/workdisk/hako-guarded-actual-final-evidence.json.
-Publication3 reproduce at saved93ac baseline; they and S6C3 remain unwaived.
-Stored receiver binding outside terminal remains refusal; no Lexical/Self disguise.
-Stored source CLOSED b39432b001: SAME Page3/Heap3/BOTH loans/Rc; candidate4/
-callee6 PASS, no execution grant; commit and workdisk stored-object-facts receipt.
-Stored Object source/actual phase CLOSED2e56def75f: contract/Decision at commit
-and hako-stored-object-source-final-evidence.json. Source absence unavailable,
-drift refuses; no receiver/Completion/Normal/Ready. All270+7+6/guards PASS.
-
-Fresh unchanged-app evidence at2e56def75f, recorded3388a8937c: CLI3m16s PASS,
-source33d3e8b9/binary4136af29; probe rc1/noEXE at
-ordinary-new/borrowed-entry/source-only-object-actuals. Exact args/hashes/log:
-/mnt/workdisk/hako-stored-object-current-mimalloc-probe/{evidence.json,probe.log}.
-Stored physical owner already performs parent/ObjectFieldGet/with_stored_receiver.
-Whole final incoming remains mandatory; explicit other-callee-error test pins scope.
-
-CurrentOwner source retention CLOSED5cd70af994; original Static graph
-CLOSED075d1bc2b4; neutral C Return split CLOSED ef01d2ac6d. Git/owner README
-retain original brand/caller/site/route/full contract/Rc and verified runtime
-contracts. Evidence on /mnt/workdisk: hako-current-owner-static-source-final-evidence.json
-and hako-c-return-emission-split-evidence.json. No source-only transport grant;
-broad synthetic Map ABI debt remains unwaived.
-Static borrowed params use existing ordinary_i64+receiver/null+receiver_object/null
-geometry; do not simply remove receiver guard or admit receiver-free Handle lanes.
-Foreign brand/caller/owner/receiver/slot/site/ordinal drift refuses; all vetoes remain.
-CurrentOwner *_usize terminal/condition/loop and noninitializer veto obligations
-remain; closed declared Integer source grants no blanket Integer/caller omission.
-Checked Integer Return CLOSED7f6a6efa83; exact source/guard/finished/C contracts
-and corrected receipts are retained by Git and the prerequisite section below.
-Original source-only partition and complete caller obligations remain.
-Space: root/tmp8.6GB, workdisk1.3TB; build/probe stay on workdisk.
-Inactive CLI preservation/350MB receipt: /mnt/workdisk/preserved-inactive-cli-versions-20261008/relocation-manifest.json.
+Completed Root source/ABI, Ready acquisition, owned Return, Stored dispatch,
+checked actual, Stored Object source/actual, CurrentOwner source, Static graph,
+neutral C Return, and checked Integer Return are retained at 93ac35e5df,
+6ed65aae53, b2fa3b9eaa, df3bf5227f, 488f1283b3, 21e66c5e55,
+88eeede57f, 2b1a32dd5b, f34af66d4a, a0080da903, b39432b001,
+2e56def75f, 5cd70af994, 075d1bc2b4, ef01d2ac6d, 7f6a6efa83;
+exact evidence remains in Git, owner README and the referenced workdisk
+receipts. Original full preflight, source/input/Completion/Normal/Fault,
+receiver-once, Home/Phi, and final incoming remain mandatory. SourceOnly grants
+no execution; absent source and foreign identity refuse. Stored dispatch
+excludes only exact different callees, while unknown still vetoes. Static
+borrowed parameters retain existing ordinary_i64/receiver geometry; no
+receiver-free Handle admission. The saved S6C3 and Publication3 baseline reds
+remain unwaived. Unchanged app at 3388a8937c stopped on
+`borrowed-entry/source-only-object-actuals` (source 33d3e8b9, rc1/no EXE).
 ## Verified source prerequisites (2026-10-09)
 
 CLOSED7f6a6efa83/a26502ff22/9bad8736b8: checked Return/exact Integer/Compare child;
@@ -995,3 +959,12 @@ absent. Original mimalloc test1/1, Static domain10/10 and Static actual13/13
 PASS on the quick test binary; no new dedicated guard. The current code
 still owes n/bin Home and V2 loop, full executable packet, kind-Fault
 acceptance, original EXE and old-edge retirement.
+
+S1 production-path census (2026-10-09): `route_entry/router.rs` calls
+`issue_loop_node_winner_recipe_v1` in production; its old caller-zero comment
+was stale and is corrected. The issued product is still one of five V1
+families; `loop_node_physical_admission` rejects GenericG0 at this node edge.
+Common V2 has `CallSlot` and If/Return/binding operations, but `CallSlot`
+does not itself identify the Static target. S1 must co-seal the original
+Static Rc/site/target/ordered args beside the V2 operation before a physical
+issuer may emit it; a V1 family receipt cannot stand in for that product.

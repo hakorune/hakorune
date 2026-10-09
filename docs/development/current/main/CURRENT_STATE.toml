@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/loop-home-v2-s1"
+current_blocker_token = "selfhost-resume/loop-v2-producer-s1"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -22,7 +22,8 @@ unchanged mimalloc loop, but body actual proof refuses source-actual-unavailable
 Whole-caller Integer agreement is false for size_to_bin and its forwarding
 chain. The borrowed-formal source package now seals exact source-only tagged
 forwarding through checked numeric uses; executable entry remains closed.
-Next: n/bin Home and V2 loop Recipe, then SSA and whole Static entry/packet.
+Next: source-bound V2 loop Recipe/Static call co-seal, then n/bin Home,
+SSA and whole Static entry/packet.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.
 """
 next_design_card = "none"

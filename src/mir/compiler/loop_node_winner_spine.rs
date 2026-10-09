@@ -5,7 +5,7 @@
 //! rows -> admission window -> whole-unit coverage -> canonical selector ->
 //! family Recipe demand -> family producer -> unified recipe product.
 //!
-//! This module has no production caller, mutates no Builder state, and
+//! The production loop router calls this spine; it mutates no Builder state and
 //! contains no fallback, retry, `Option`-skip, or re-decision edge. Every
 //! non-issued outcome is a typed terminal: `Declined` for the selector's
 //! `NoCandidate` arm, `Unresolved` for missing source/lease/window evidence,

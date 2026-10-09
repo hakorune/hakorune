@@ -24,7 +24,7 @@ use std::rc::Rc;
 use crate::mir::loop_route_detection::LoopRouteKind;
 
 // M10b-I0-R0: the frozen entry consumes only resolver products and the
-// caller-zero spine/admission/physicalizer edges landed under P1/P2.
+// source-bound spine/admission/physicalizer edges landed under P1/P2.
 use crate::mir::builder::control_flow::lower::Freeze;
 use crate::mir::builder::emission::constant::emit_void;
 use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::lower_loop_node_physical_admission_v1;
