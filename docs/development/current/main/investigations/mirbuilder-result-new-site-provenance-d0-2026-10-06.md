@@ -985,3 +985,12 @@ collector publication remain separate obligations.
 Body prepacket S0: quick-profile `static_loop` 5/5 pass, including original
 source/Home mutation and physical landing/result negatives; the executable
 packet stop remains. Pointer guard and diff check pass.
+
+Decision (2026-10-10, next body coordinate): the final lexical visitor only
+enumerates local and return packets. The body predicate has neither Home local
+observation nor finished caller while DraftSeal still aborts at packet-missing.
+Next prove a read-only detached finished projection for this retained body
+prepacket, then carry it through selected publication and add an explicit
+LoopBody visitor context. Do not fabricate a local row. Scalar tagged actual
+and all-incoming acceptance remain separate. Reject wrong source/read/Invoke,
+missing or duplicate finished producer and coordinate.
