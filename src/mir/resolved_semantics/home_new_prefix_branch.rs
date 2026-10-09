@@ -418,6 +418,12 @@ pub(super) fn observe_if_statement<'a, E>(
             statement.site(),
             homes,
             local_static_call,
+            &mut |operand, binary| {
+                view_use(
+                    operand,
+                    BorrowedViewUseRequestV1::CheckedCompareOperand { binary },
+                )
+            },
             borrowed_actuals,
         )? {
             path_calls.extend(calls.iter().map(|call| call.site().clone()));

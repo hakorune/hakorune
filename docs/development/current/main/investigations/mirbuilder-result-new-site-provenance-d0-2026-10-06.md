@@ -933,3 +933,22 @@ Home statement/region. Wrong site/owner/target, unproved operand or region,
 and missing Home row must reject. The later return, Loop and `accepts`
 contexts are separate bounded followups. This Decision grants no executable
 packet, tagged entry, production EXE or old-edge retirement.
+
+Selected If-condition Home source S0: the exact original `bin_size` Body2
+If-condition has a sealed region and a prepared checked `CompareOperand`, but
+its unannotated `bin` formal enters Home as `OpaqueHandle`; ordinary scalar
+preflight therefore withheld the condition's `ExpressionValue` call row. A
+diagnostic control changing only that declaration to `i64` produced the row
+with the same If-region, confirming the missing checked-operand handoff; the
+production source was not changed. The Home If-condition preflight now borrows
+the existing formal-use `CompareOperand` only at its matching operand/binary
+sites, then requires the complete Bool expression before publishing the
+original zero-input call with prior Homes. The original source now passes its
+selected Static packet source gate; changing `>` to unsupported `>=` keeps
+the Home row and packet gate closed. Quick-profile focused real-source test
+1/1, Static packet family 7/7, Compare source 8/8, scalar rejection 1/1 and
+real mimalloc Static Loop source 1/1 passed. The rebuilt CLI on the unchanged
+SizeClassBox import still refuses `borrowed-static/local-source-missing` with
+no EXE: the remaining return/Loop/accepts nonlocal sites retain separate
+Home contexts. This is source/packet admission for one If site, not final
+Invoke, all-incoming publication or production cutover.

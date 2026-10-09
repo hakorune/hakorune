@@ -2051,6 +2051,11 @@ product owns its retained source Rc. This observes the child's Normal Integer
 result, not a physical value or new entry permission; Fault/Normal lowering and
 whole CurrentOwner input/packet remain independently required. Mul and calls
 with input arguments remain outside this comparison child slice.
+The same prepared checked-compare use now answers an exact Home If-condition
+operand query by original owner, use site and binary site. This is a source
+loan only; the Home scanner still proves the complete Bool expression before
+issuing an `ExpressionValue` call observation. It does not grant a global
+Integer class to an opaque formal or an executable Static packet.
 
 An arity-bearing CurrentOwner ExactI64 source can now stage nonopaque ordered
 actuals as `SourceStatic` from the original incoming Rc. The full formal tuple,

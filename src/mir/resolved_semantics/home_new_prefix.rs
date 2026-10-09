@@ -22,6 +22,9 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedViewUseRequestV1<'a> {
     Operand,
+    CheckedCompareOperand {
+        binary: &'a OwnedExprSiteV1,
+    },
     IntegerReturn {
         exit: &'a SourceStmtSiteV1,
         binding: BindingRefV1,

@@ -493,6 +493,13 @@ or Home. The same scalar preflight retains ordered call observations and the
 statement's original priorHomes, publishing only after the whole expression
 and field batch are proved. Conditions select this extension only through the
 same bounded claim; Bool/Text/unknown calls retain their original profile.
+For an If condition that is an exact checked `Greater` or `LessEqual`, the
+scalar preflight may borrow the prepared formal-use `CompareOperand` at its
+original operand and binary sites. This proves an Integer operand only for
+that condition, so the existing `ExpressionValue` issuer can retain its
+zero-input CurrentOwner call and prior Homes after the whole Bool expression
+passes. It does not change the unannotated formal's stored Home class or
+admit other operators, return expressions, or Loop conditions.
 Direct ReturnValue keeps the terminal Call relation; binary returns keep their
 exact scalar relation. Nested arguments, loops and short-circuit call paths are
 not granted by this source connection. Executable input, affine handoff/Invoke,

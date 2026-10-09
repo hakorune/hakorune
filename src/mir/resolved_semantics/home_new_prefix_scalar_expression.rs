@@ -15,6 +15,7 @@ pub(super) fn observe_scalar_expression<E>(
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -49,6 +50,8 @@ pub(super) fn observe_scalar_expression<E>(
         statement,
         homes,
         static_call,
+        None,
+        checked_compare_operand,
     )?
     else {
         return Ok(None);
@@ -142,12 +145,21 @@ fn preflight<E>(
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    checked_binary: Option<&SourceExprSiteV1>,
+    checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
 ) -> Result<Option<SourceScalarKind>, E> {
     match locals.observe(site) {
         Some(OrdinaryObservation::Integer(_)) => return Ok(Some(SourceScalarKind::Integer)),
         Some(OrdinaryObservation::Bool(_)) => return Ok(Some(SourceScalarKind::Bool)),
         Some(OrdinaryObservation::TrivialLocal(_, Some(kind))) => return Ok(Some(kind)),
         _ => {}
+    }
+    if let Some(binary) = checked_binary {
+        let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+        let binary = OwnedExprSiteV1::new(input.owner(), binary.clone());
+        if checked_compare_operand(&owned, &binary)? {
+            return Ok(Some(SourceScalarKind::Integer));
+        }
     }
     if let Some(call) =
         local_call_flow::issue_static_i64_value_call(input, statement, site, homes, static_call)?
@@ -194,6 +206,8 @@ fn preflight<E>(
     };
     let mark = requests.len();
     let call_mark = calls.len();
+    let checked_children =
+        matches!(row.operator(), Op::Greater | Op::LessEqual).then_some(row.site());
     let Some(lhs) = preflight(
         input,
         row.lhs(),
@@ -203,6 +217,8 @@ fn preflight<E>(
         statement,
         homes,
         static_call,
+        checked_children,
+        checked_compare_operand,
     )?
     else {
         return Ok(None);
@@ -216,6 +232,8 @@ fn preflight<E>(
         statement,
         homes,
         static_call,
+        checked_children,
+        checked_compare_operand,
     )?
     else {
         return Ok(None);

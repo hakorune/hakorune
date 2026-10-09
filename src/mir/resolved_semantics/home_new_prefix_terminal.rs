@@ -120,6 +120,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     statement.site(),
                     homes,
                     static_call,
+                    &mut |_, _| Ok(false),
                     borrowed_actuals,
                 )?,
             };

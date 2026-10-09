@@ -8,6 +8,85 @@ fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCall
     )
     .unwrap()
 }
+
+#[test]
+fn real_bin_size_if_condition_uses_checked_formal_source_for_home() {
+    use crate::mir::resolved_semantics::SourcePathSegmentV1 as Segment;
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let unsupported = original.replacen(
+        "if bin > me.max_regular_bin()",
+        "if bin >= me.max_regular_bin()",
+        1,
+    );
+    assert_ne!(original, unsupported);
+    let mut outcomes = Vec::new();
+    for (name, source) in [
+        ("original", original),
+        ("unsupported-compare", unsupported.as_str()),
+    ] {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
+            .unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let incoming = ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let row = incoming
+            .source_incoming
+            .exact_rows()
+            .find_map(|row| {
+                let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+                    call,
+                ) = &row.source
+                else {
+                    return None;
+                };
+                (call.caller().name() == "bin_size"
+                    && call.target().name() == "max_regular_bin"
+                    && call.call_site().site().node().segments()
+                        == [Segment::Body(2), Segment::IfCondition, Segment::Rhs])
+                .then_some(call)
+            })
+            .unwrap();
+        let home = ledger
+            .local_call_for_owner(row.call_site().owner(), row.call_site().site())
+            .is_some();
+        let selected = ledger
+            .selected_static_local_source_v1(row.call_site())
+            .is_ok_and(|source| source.is_some());
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "bin_size",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .unwrap();
+        let bundle = package
+            .batch()
+            .with_lowering_input(slot, |input| {
+                let site = crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(
+                    crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![
+                        Segment::Body(2),
+                    ]),
+                );
+                input.function().if_region_bundle(&site).is_ok()
+            })
+            .unwrap();
+        outcomes.push((name, home, selected, bundle));
+    }
+    assert_eq!(
+        outcomes,
+        [
+            ("original", true, true, true),
+            ("unsupported-compare", false, false, true),
+        ]
+    );
+}
+
 #[test]
 fn static_packet_selection_retains_exact_final_source_and_sealed_routes() {
     let package = package();

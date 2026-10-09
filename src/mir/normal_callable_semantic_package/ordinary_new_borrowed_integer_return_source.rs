@@ -53,6 +53,19 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(false);
         };
         match request {
+            BorrowedViewUseRequestV1::CheckedCompareOperand { binary } => {
+                Ok(draft.uses.iter().any(|row| {
+                    &row.site == site
+                        && matches!(&row.kind,
+                        BorrowedFormalUseDraftKindV1::CompareOperand {
+                            binary: retained,
+                            source,
+                        } if retained == binary && {
+                            let (_, left, right, _) = source.comparison_parts();
+                            left == site || right == site
+                        })
+                }))
+            }
             BorrowedViewUseRequestV1::Operand
                 if draft
                     .mul_operand_at(input, site)

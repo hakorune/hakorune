@@ -765,6 +765,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 statement.site(),
                 homes,
                 local_static_call,
+                &mut |_, _| Ok(false),
                 borrowed_actuals,
             )? {
                 path_calls.extend(calls.iter().map(|call| call.site().clone()));
