@@ -89,6 +89,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 Ok(mapped)
             })?;
+            self.verify_finished_borrowed_muls_v1(owner, function, |original| {
+                let mapped = projection
+                    .binding(original.0, &original.1)?
+                    .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
+                if !projection.recorded().contains(&mapped) {
+                    return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
+                }
+                Ok(mapped)
+            })?;
                 self.verify_finished_borrowed_compares_v1(owner, function, |original| {
                 let mapped = projection.binding(original.0, &original.1)?
                     .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
@@ -201,6 +210,15 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        self.verify_finished_borrowed_muls_v1(owner, function, |original| {
+            let mapped = projection
+                .binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("borrowed-mul/mandatory-binding-removed"))?;
+            if !projection.recorded().contains(&mapped) {
+                return Err(freeze("borrowed-mul/mandatory-binding-unrecorded"));
+            }
+            Ok(mapped)
+        })?;
         self.validate_forwarded_copies(owner, function, &projection)?;
         // The finishing projection may rewrite block identities. Rebind each
         // already-issued Call payload at its own exit before the handoff
@@ -490,6 +508,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         }
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
+        result.extend(self.borrowed_mul_bindings_v1(owner)?);
         Ok(result)
     }
 }

@@ -914,64 +914,12 @@ rows gain no entry; carrier/Copy/Static packet/guard Normal dominance and both
 finished scans/JSON/C still owe full closure. Negative immediates retain their
 actual Const(-n). Final call membership must use finalized groups after pool move.
 
-Home selection contract and tests are retained at 5351063d91: existing
-IntegerMulReturn consult selects the exact original Return/Mul product,
-preserves source errors, and does not open generic Multiply grammar.
-
-Home build/regression history is retained at 5351063d91 and the workdisk
-`hako-guarded-mul-home-progress.json` receipt. The selected source-only
-Instance phase preserves the original pending-actual authority; executable
-entry still requires caller entry/forward closure, with no fallback.
-
-SourceInstance bounded Decision confirmed by the read-only worker: source-only
-opaque forwarding needs original draft origin/unique UnresolvedArgument and
-raw target/ordered ordinal correspondence, not a new Normal Integer proof.
-Implement SAME pending phase with empty opaque_actuals; Home I64ResultArguments
-receives explicit SourceInstance and refuses executable call sealing, with no
-strict fallback. Executable lenders stay strict; Object source retains priority.
-Selected added paths: pending actual owner/new child, existing callback/export,
-Home argument port/matches, existing Static-child source test, and phase test
-child under the existing actual family (747-line owner cannot absorb 59 lines).
-Acceptance: unchanged guarded-reach regression, source phase drift/entry refusal,
-original Static Mul Home/child rows and missing/error child no-Observe; regressions.
-All source-only/guard/packet/production/final-goal obligations remain unwaived.
-
-Home/SourceInstance CLOSED5351063d91 (2026-10-09): pause/resume preserved
-protected7; corrected absent-raw-row selection and phase-drift refusal.
-Quick8m44 phase PASS; prior Static-domain red now PASS; affected actual/use/
-Home/source/Static/compare/result/scalar/Object families and original Static
-Mul Home/child + missing/error no-Observe exact tests PASS. Scope/pointer/
-diff/rustfmt PASS; no current red. Logs under /mnt/workdisk/hako-guarded-mul-
-sourceinstance-*; canceled builds78425/34800 remain non-PASS.
-
-Next Decision (read-only review, 2026-10-09): original `SizeClassBox.bin_size`
-`bin * me.word_size()` source is retained by existing Mul Rc/ledger. The sole
-production `drive_ordinary_binary_expression_v1` currently selects Compare
-only; `record_borrowed_mul_v1` has test callers only. First bounded slice
-reuses that driver and issuer for typed Compare/Mul selection, records SAME
-Mul append in function-owned state with call transaction/reset discipline,
-and uses existing `verify_borrowed_mul_reuse_v1` at final construction stores.
-Positive: original guarded source/ordered child/finished group; negative:
-source-only, missing/changed Rc/append/operand and no cross-function reuse;
-existing Compare and unselected binary paths remain unchanged. Physical JSON/C,
-both independent scans, kind-1 Fault and EXE are a following slice, not claimed.
-Fresh unchanged-app probe at this head is recorded below. Both315/318, cleanup, Gates2-4,
-old-edge retirement, selfcompile and full goal remain incomplete.
-
-Mul driver bounded slice CLOSED (2026-10-09): typed Compare/Mul
-selection now feeds SAME canonical append and borrowed ledger record. Function
-state captures/restores/clears installed Mul Rc; final construction-store check
-requires existing exact source/record coverage. Quick lib build8m35 passed;
-initial filter matched zero and is not evidence. Direct binary tests: borrowed
-Mul2/2, binary descent9/9, transaction3/3. Rustfmt, diff, current pointer,
-qualified route scope guards PASS. Fresh quick CLI build4m00 passed. Minimal guarded
-Mul with executable `Transport.probe` advances to physical
-`published-lifecycle-program/instruction-unsupported`; identical Add control
-stops earlier at `artifact-source-unavailable`. Minimal Static `bin_size` Mul
-refuses `borrowed-mul/source-only-entry`; unchanged mimalloc still refuses
-`source-only-object-actuals` before Mul. These are bounded source/driver and
-fail-closed observations, not physical admission. Logs:
-`/mnt/workdisk/hako-guarded-{mul-entry-probe,add-control,mul-min-probe,mul-probe}.log`.
+Completed Home/SourceInstance contract, positive/negative evidence and
+source-only refusal are retained at 5351063d91 and the workdisk
+`hako-guarded-mul-sourceinstance-*` receipts. The Mul driver slice is retained
+at 999b3ffc17: SAME source loan and append, function-owned Rc, coverage,
+transaction/reset, focused tests and guarded/source-only probes. These commits
+do not establish final Copy lineage, Static packet, or full goal completion.
 Physical Mul operation CLOSED (2026-10-09): source authority remains the Mul
 ledger and checked builder finish; final ordinary-MIR program/JSON and C v2/v4
 admission/index/flow/emit spell one `mul` with exact available operands. C
@@ -989,3 +937,25 @@ retain SAME original borrowed operand Copy/guard/packet evidence in both
 independent final scans; `unproved-copy` must refuse until that authority is
 closed. Full Static packet/return, unchanged app, Both315/318, cleanup,
 Gates2-4, old-edge retirement and selfcompile remain open.
+
+Decision (2026-10-09, read-only worker review): `unproved-copy` is a missing
+source-to-finished Mul handoff, not permission to widen Add admission. First
+bounded slice registers the SAME issued Mul append in `lifecycle_bindings`
+before `PhysicalBoundary` capture, then requires its unique recorded finished
+binding for root and child. Canonical issuer is `BorrowedMulSourceV1` plus
+`record_borrowed_mul_v1`; `FinishedBindings` is the sole coordinate mapper.
+This slice grants no operand Copy permission. Next slice must carry original
+side/formal/Copy, guard and packet evidence into both independent final scans;
+an unrelated dominated Mul, swapped side, missing Copy, sibling-arm use, or
+source-only entry must still fail closed. Positive acceptance is the original
+guarded Mul advancing past binding projection; negative acceptance preserves
+the source-only refusal and prior `unproved-copy` until Copy proof is complete.
+
+Mul finished-binding slice verified (2026-10-09): original ledger append is
+mandatory in `PhysicalBoundary`; root and child finishing require its unique
+recorded mapping. Quick lib test build PASS (8m41); borrowed Mul2/2, existing
+Compare15/15 and physical boundary13/13 PASS. Quick CLI build PASS; guarded
+`Transport.probe` reaches the expected final `borrowed-use/unproved-copy`,
+while source-only Static Mul remains `borrowed-mul/source-only-entry`.
+Pointer/diff checks PASS. Logs: `/mnt/workdisk/hako-mul-binding-*`.
+No Copy/guard/packet admission, EXE, or full-goal completion is claimed.

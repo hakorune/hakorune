@@ -59,6 +59,55 @@ impl BorrowedMulMaterializationV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Preserve each issued Mul append across the physical finishing boundary.
+    /// Operand Copies are not admitted by this binding alone.
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_mul_bindings_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let entries = self.borrowed_entry_values.borrow();
+        self.verify_borrowed_mul_reuse_v1(
+            owner,
+            entries
+                .get(&owner)
+                .into_iter()
+                .flat_map(|entry| entry.multiplications.values()),
+        )?;
+        Ok(entries
+            .get(&owner)
+            .into_iter()
+            .flat_map(|entry| entry.multiplications.values())
+            .map(|record| record.original().clone())
+            .collect())
+    }
+
+    /// Match the SAME original append to a mandatory finished instruction.
+    /// Final operand lineage and guard dominance remain separate obligations.
+    pub(in crate::mir::normal_callable_semantic_package) fn verify_finished_borrowed_muls_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &crate::mir::MirFunction,
+        mut project: impl FnMut(
+            &(BasicBlockId, MirInstruction),
+        ) -> Result<(BasicBlockId, MirInstruction), String>,
+    ) -> Result<(), String> {
+        for original in self.borrowed_mul_bindings_v1(owner)? {
+            let finished = project(&original)?;
+            if !matches!(&finished.1, MirInstruction::BinOp { op: BinOp::Mul, .. })
+                || function.blocks.get(&finished.0).is_none_or(|block| {
+                    block
+                        .all_instructions()
+                        .filter(|row| *row == &finished.1)
+                        .count()
+                        != 1
+                })
+            {
+                return Err(freeze("borrowed-mul/finished-binding"));
+            }
+        }
+        Ok(())
+    }
+
     /// Both executable and source-only Mul inventory select the raw site;
     /// preparation alone decides whether execution is permitted.
     pub(crate) fn has_borrowed_mul_source_v1(&self, owner: FunctionOwnerIdV1) -> bool {
