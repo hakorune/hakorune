@@ -1,5 +1,18 @@
 # Resolved lowering boundary
 
+## Selected Static I64 Loop header (2026-10-10)
+
+The selected `SizeClassBox.size_to_bin` entry keeps its prepared lexical
+prepacket and one function-owned Fault frame while the canonical V2 session
+emits the unpublished loop header. The verified source-bound Recipe supplies
+the `bin` read, zero-argument `max_regular_bin` call and `<=` predicate order.
+Canonical SSA/CFG owns the physical blocks, deferred read, Invoke/NormalResult,
+Compare and branch. The original loop call loan corroborates the source site
+and target; no Builder-side source parser or second call authority is added.
+The outer draft is discarded at `body-coverage-missing`, before packet group,
+result handoff, collector admission or function publication. The original
+mimalloc source and related Static Loop positive/negative tests pass.
+
 This directory owns the first production consumer of a sealed semantic owner.
 
 Allowed inputs are only `CanonicalFirstFamilyPlanV1` values produced by the

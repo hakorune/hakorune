@@ -890,3 +890,20 @@ take 1/1 passed with the quick-profile binary. No production caller switch,
 finished coordinate or collector admission is claimed. Next: retain this
 prepared packet through a complete caller body, then preflight the whole
 function and publish it with the handoff at the collector terminal.
+
+Selected Static I64 Loop header S0: the disposable canonical V2 draft now
+retains the prepared entry packet and the same function Fault frame through
+the header of original `SizeClassBox.size_to_bin`. The verified source-bound
+Recipe/roles and original header call loan select one `bin` read, zero-argument
+`max_regular_bin` Invoke/NormalResult, I64 `<=` Compare, and canonical branch.
+The canonical SSA session issues the deferred header read and physical types;
+CFG owns the header/body/after/normal/fault blocks. The draft still discards
+at `body-coverage-missing`, with no group commit, result-handoff take,
+collector admission or production function. The original mimalloc entry test
+passes 1/1, and the related Static Loop family passes 5/5 in the same
+quick-profile binary; `git diff --check` is green. Three initial focused reds
+from this slice (private source accessor, missing deferred-read type, and
+duplicate Fault-frame definition) were corrected before the green result.
+Next bounded edge is body `me.bin_size(bin)` and carrier update under this
+same canonical session; full return, packet/group terminal publication,
+qualified Return sibling and EXE remain open.

@@ -70,7 +70,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             formal.lane_index(),
         )?;
         verify_entry(draft, product.semantic(), formal, result_source, value)?;
-        emit_unpublished_static_invoke(
+        let (entry_packet, mut frame_owner) = emit_unpublished_static_invoke(
             draft,
             &mut canonical,
             product.semantic(),
@@ -80,7 +80,14 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             value,
             claims,
         )?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/actual-coverage-missing]".to_owned())
+        super::static_loop_header::emit_unpublished_header_v1(
+            draft,
+            &mut canonical,
+            product.semantic(),
+            &entry_packet,
+            &mut frame_owner,
+        )?;
+        Err("[freeze:contract][callable-loop/static-i64-v2/body-coverage-missing]".to_owned())
     })();
     outer.discard_unpublished();
     admitted
@@ -95,7 +102,13 @@ fn emit_unpublished_static_invoke(
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     entry_value: ValueId,
     claims: &OrdinaryNewClaimLedgerV1,
-) -> Result<(), String> {
+) -> Result<
+    (
+        PreparedSelectedStaticLoopCallProjectionV1,
+        FunctionFaultFrameV1,
+    ),
+    String,
+> {
     let entry = draft
         .function_state
         .current_block
@@ -233,7 +246,7 @@ fn emit_unpublished_static_invoke(
     if prepared.source_site() != &source_site {
         return Err("[freeze:contract][callable-loop/static-packet-site-drift]".into());
     }
-    Ok(())
+    Ok((prepared, frame_owner))
 }
 
 fn prepare_shell(
