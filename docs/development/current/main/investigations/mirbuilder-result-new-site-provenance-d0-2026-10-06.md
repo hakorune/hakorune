@@ -824,7 +824,7 @@ updated `bin` via canonical loop state/SSA plus Home join. Whole-callee
 entry/packet/publication and production EXE remain closed.
 
 S1 source/producer Decision (2026-10-09, read-only worker integrated): the
-production caller is `SizeClassBox.size_to_bin` at the original Loop-body
+selected source is `SizeClassBox.size_to_bin` at the original Loop-body
 `If n <= me.bin_size(bin)`; the Loop header instead calls zeroarg
 `me.max_regular_bin()`. Resolver `loop_region_bundle`,
 `loop_body_contains_site`, `resolved_loop_placement=Body`, the exact `If`
@@ -854,15 +854,16 @@ S1 producer Decision (2026-10-09, read-only V2 review integrated): do not
 extend the production V1 operation enum or present a G0/S6C/Dynamic receipt
 as this callable's authority. V1 has no Call operation
 (`loop_recipe_contract/schema.rs`); common V2 already has `CallSlot`, `If`,
-`Return`, and binding writes (`schema_v2.rs`). The current production
-`loop_node_winner_spine` issues bounded V1 families, and its physical
+`Return`, and binding writes (`schema_v2.rs`). The standalone
+`loop_node_winner_spine` route issues bounded V1 families, and its physical
 admission explicitly rejects G0. Existing S6C and Dynamic V2 producers
 co-seal different, fixed source shapes; their products cannot be rebranded as
 the original `SizeClassBox.size_to_bin` source. A V1 call arm or V2-to-V1
 coercion would violate the Loop SSOT's one semantic algebra/physicalizer law.
 
-The selected construction starts with a source-bound V2 semantic/JoinSig
-slice for this exact callable. Home and physical SSA are subsequent slices;
+After the source-only Static loop-call loan described below, issue a
+source-bound V2 semantic/JoinSig slice for this exact callable. Home and
+physical SSA are subsequent slices;
 the semantic product alone is not execution permission. Resolver Loop/If/
 assignment and original Completion
 must cover both Static calls: zeroarg `max_regular_bin()` in the header and
@@ -961,28 +962,30 @@ PASS on the quick test binary; no new dedicated guard. The current code
 still owes n/bin Home and V2 loop, full executable packet, kind-Fault
 acceptance, original EXE and old-edge retirement.
 
-S1 production-path census (2026-10-09): `route_entry/router.rs` calls
-`issue_loop_node_winner_recipe_v1` in production; its old caller-zero comment
-was stale and is corrected. The issued product is still one of five V1
+S1 loop-node census (2026-10-09): `route_entry/router.rs` calls
+`issue_loop_node_winner_recipe_v1` in its production route; its old caller-zero
+comment was stale and is corrected. The issued product is still one of five V1
 families; `loop_node_physical_admission` rejects GenericG0 at this node edge.
 Common V2 has `CallSlot` and If/Return/binding operations, but `CallSlot`
 does not itself identify the Static target. S1 must co-seal the original
 Static Rc/site/target/ordered args beside the V2 operation before a physical
 issuer may emit it; a V1 family receipt cannot stand in for that product.
 
-S1 bounded Decision (2026-10-09, V2 producer audit): `size_to_bin` has the
-zeroarg header call, one-argument body call, returning `If`, and `bin` backedge
-shown in the unchanged source. The first construction slice issues a
-source-bound V2 Recipe/JoinSig for that exact shape and co-seals each CallSlot
-with the original Static Rc, site, target, arity and ordered actuals. The
-existing package-owned `claim_for_source_site_v1` is private to the normal
-callable package; give the producer a narrow loan from that package, not a
-second claim issuer. V2 already has `LessEqual` and `Return` operations.
-Reject missing or mismatched site/Rc/target/ordinal, missing return/backedge,
-and unknown or Bool `bin` updates. The source-only product leaves executable
-entry and physical publication closed. The following slice connects this
-verified product to the existing canonical CFG session and Binding SSA/PHI;
-only then switch the selected production router caller. The current V1
-physicalizer has no V2 entry, so extending a V1 arm or relabeling an S6C
-product is not an admissible bridge. Home must consume the same current
-`bin` binding after the join; pre-loop body-actual staging remains a refusal.
+S1 corrected production Decision (2026-10-09, callable-path audit): the
+selected callable Loop enters `raw_loop_child_port` and
+`PreparedLocatedRawLoopChildEntryV1`, not the standalone `route_entry/router`
+path above. `size_to_bin` has a zeroarg header call, one-argument body call,
+returning `If`, and `bin` backedge. The first bounded slice is a package-owned
+source-only loan: while `issuer.rs` holds both `static_claim_index` and the
+original Static Rc in `ordinary_new_claim_ledger`, use the existing
+`claim_for_source_site_v1` to co-seal exact loop site, target, arity and
+argument sites. Retain and lend that move-only product through the selected
+callable source scope; do not reconstruct the index downstream. The index is
+currently retained only under `cfg(test)`, and `module_port` target/publication
+is neither original Rc nor ordered actual proof. Missing or mismatched claim,
+Rc, site, target or ordinal must refuse. Pre-loop `bin` remains unavailable.
+Next, issue the source-bound V2 Recipe/JoinSig using that loan; V2 already has
+`LessEqual`/`Return`, but CallSlot has no target. Connect its verified program
+to canonical CFG/Binding SSA, Home, then switch the selected raw Loop caller.
+The V1 physicalizer has no V2 entry; no V1 coercion or S6C receipt reuse.
+Executable entry, original EXE and old-edge retirement remain open.
