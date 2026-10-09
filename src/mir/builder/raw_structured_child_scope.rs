@@ -204,6 +204,27 @@ where
             .complete_borrowed_compare_source_v1(loan, children, completed)
     }
 
+    fn prepare_borrowed_mul_source_v1(
+        &mut self,
+        operator: &crate::ast::BinaryOperator,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1>, String>
+    {
+        self.child.prepare_borrowed_mul_source_v1(operator)
+    }
+
+    fn complete_borrowed_mul_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedMulMaterializationV1>,
+        String,
+    > {
+        self.child
+            .complete_borrowed_mul_source_v1(loan, children, completed)
+    }
+
     fn prepare_terminal_null_literal_v1(
         &mut self,
     ) -> Result<

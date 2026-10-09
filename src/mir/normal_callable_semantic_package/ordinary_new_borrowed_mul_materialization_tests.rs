@@ -220,6 +220,7 @@ fn borrowed_mul_rejects_source_entry_operator_and_append_drift() {
         .unwrap();
     let definition = source.definitions.remove(&owner).unwrap();
     source.source_only_definitions.insert(owner, definition);
+    assert!(ledger.has_borrowed_mul_source_v1(owner));
     assert!(ledger
         .prepare_borrowed_mul_source_v1(owner, &site, Some(BinOp::Mul))
         .unwrap_err()

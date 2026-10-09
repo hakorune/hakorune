@@ -194,6 +194,7 @@ pub(super) struct FunctionLoweringStateV1 {
     pub(super) pending_phis: Vec<(BasicBlockId, ValueId, String)>,
     pub(super) local_ssa_map: HashMap<(BasicBlockId, ValueId, u8), ValueId>,
     pub(super) checked_compare_reuse: super::ssa::local::checked_compare::CheckedCompareReuseV1,
+    pub(super) checked_mul_reuse: super::ssa::local::checked_mul::CheckedMulReuseV1,
     pub(super) schedule_mat_map: HashMap<(BasicBlockId, ValueId), ValueId>,
     pub(super) pin_slot_names: HashMap<ValueId, String>,
     pub(super) frag_emit_session: FragEmitSession,
@@ -249,6 +250,7 @@ impl FunctionLoweringStateV1 {
             && self.pending_phis.is_empty()
             && self.local_ssa_map.is_empty()
             && self.checked_compare_reuse.is_empty()
+            && self.checked_mul_reuse.is_empty()
             && self.schedule_mat_map.is_empty()
             && self.pin_slot_names.is_empty()
             && self.frag_emit_session.is_empty_for_commit()

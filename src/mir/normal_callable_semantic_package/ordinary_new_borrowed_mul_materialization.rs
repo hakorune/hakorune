@@ -59,6 +59,27 @@ impl BorrowedMulMaterializationV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Both executable and source-only Mul inventory select the raw site;
+    /// preparation alone decides whether execution is permitted.
+    pub(crate) fn has_borrowed_mul_source_v1(&self, owner: FunctionOwnerIdV1) -> bool {
+        self.borrowed_formal_source
+            .as_ref()
+            .and_then(|source| source.as_ref().ok())
+            .is_some_and(|source| {
+                source
+                    .definitions
+                    .get(&owner)
+                    .into_iter()
+                    .chain(source.source_only_definitions.get(&owner))
+                    .any(|definition| {
+                        definition
+                            .uses
+                            .iter()
+                            .any(|row| matches!(&row.kind, Use::MulOperand { .. }))
+                    })
+            })
+    }
+
     /// Only executable selected definitions may acquire this entry loan.
     pub(in crate::mir) fn prepare_borrowed_mul_source_v1(
         &self,

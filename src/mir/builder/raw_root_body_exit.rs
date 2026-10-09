@@ -405,6 +405,7 @@ fn close_raw_root_function_state_v1(builder: &mut MirBuilder) {
     builder.function_state.pending_phis.clear();
     builder.function_state.local_ssa_map.clear();
     builder.function_state.checked_compare_reuse.clear();
+    builder.function_state.checked_mul_reuse.clear();
     builder.function_state.schedule_mat_map.clear();
     builder.function_state.pin_slot_names.clear();
     builder.function_state.frag_emit_session.reset();

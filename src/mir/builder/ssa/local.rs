@@ -2,6 +2,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::ValueId;
 
 pub(in crate::mir::builder) mod checked_compare;
+pub(in crate::mir::builder) mod checked_mul;
 mod copy_type;
 mod error;
 mod finalize;

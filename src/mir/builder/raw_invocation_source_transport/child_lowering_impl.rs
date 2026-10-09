@@ -83,6 +83,60 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         ledger.record_borrowed_compare_v1(loan, children, completed)
     }
 
+    fn prepare_borrowed_mul_source_v1(
+        &mut self,
+        operator: &crate::ast::BinaryOperator,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1>, String>
+    {
+        let (Some(ledger), Some(owner)) =
+            (&self.ordinary_new_claim_ledger, self.callable_owner_v1())
+        else {
+            return Ok(None);
+        };
+        if !ledger.has_borrowed_mul_source_v1(owner) {
+            return Ok(None);
+        }
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-mul/source-site-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node),
+        );
+        let operator =
+            match super::super::ops::converters::convert_binary_operator(operator.clone())? {
+                super::super::ops::converters::BinaryOpType::Arithmetic(operator) => Some(operator),
+                super::super::ops::converters::BinaryOpType::Comparison(_) => None,
+            };
+        ledger.prepare_borrowed_mul_source_v1(owner, &site, operator)
+    }
+
+    fn complete_borrowed_mul_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedMulMaterializationV1>,
+        String,
+    > {
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][borrowed-mul/ledger-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(loan.owner()) {
+            return Err("[freeze:contract][borrowed-mul/owner-drift]".into());
+        }
+        let node = self
+            .current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][borrowed-mul/source-site-missing]".to_owned())?;
+        if loan.site().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node)
+        {
+            return Err("[freeze:contract][borrowed-mul/source-site-drift]".into());
+        }
+        ledger.record_borrowed_mul_v1(loan, children, completed)
+    }
+
     fn prepare_terminal_null_literal_v1(
         &mut self,
     ) -> Result<
@@ -144,10 +198,12 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         if !ledger.has_borrowed_compare_integer_literal_source_v1(owner) {
             return Ok(None);
         }
-        let site = self.current_source_site_v1()
+        let site = self
+            .current_source_site_v1()
             .ok_or_else(|| "[freeze:contract][borrowed-literal/source-site-missing]".to_owned())?;
         let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
-            owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
+            owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site),
         );
         ledger.prepare_borrowed_compare_integer_literal_v1(owner, &site, value)
     }
@@ -156,15 +212,19 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         &mut self,
         loan: crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralLoanV1,
         completed: &crate::mir::builder::emission::constant::CompletedConstV1,
-    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String> {
-        let ledger = self.ordinary_new_claim_ledger.as_ref()
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedCompareIntegerLiteralMaterializationV1>, String>{
+        let ledger = self
+            .ordinary_new_claim_ledger
+            .as_ref()
             .ok_or_else(|| "[freeze:contract][borrowed-literal/ledger-missing]".to_owned())?;
         if self.callable_owner_v1() != Some(loan.owner()) {
             return Err("[freeze:contract][borrowed-literal/owner-drift]".into());
         }
-        let node = self.current_source_site_v1()
+        let node = self
+            .current_source_site_v1()
             .ok_or_else(|| "[freeze:contract][borrowed-literal/source-site-missing]".to_owned())?;
-        if loan.site().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node) {
+        if loan.site().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node)
+        {
             return Err("[freeze:contract][borrowed-literal/source-site-drift]".into());
         }
         ledger.record_borrowed_compare_integer_literal_v1(loan, completed)
@@ -265,6 +325,9 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
 
     fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {
         let Some(ledger) = self.callable_ledger.as_ref() else {
+            if !builder.function_state.checked_mul_reuse.is_empty() {
+                return Err("[freeze:contract][borrowed-mul/entry-missing]".into());
+            }
             return Ok(());
         };
         let function = builder
@@ -272,14 +335,25 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
             .current_function
             .as_ref()
             .ok_or("[freeze:contract][construction-store/no-function]")?;
-        builder.function_state.checked_compare_reuse.require_same_entry(ledger)?;
-        builder.function_state.checked_compare_reuse.verify(builder)?;
+        builder
+            .function_state
+            .checked_compare_reuse
+            .require_same_entry(ledger)?;
+        builder
+            .function_state
+            .checked_compare_reuse
+            .verify(builder)?;
+        builder.function_state.checked_mul_reuse.verify(builder)?;
         let mut state = ledger.borrow_mut();
         state.complete_construction_stores(function)?;
         if let Some(news) = &self.ordinary_new_claim_ledger {
             news.verify_borrowed_compare_reuse_v1(
                 state.owner(),
                 builder.function_state.checked_compare_reuse.records(),
+            )?;
+            news.verify_borrowed_mul_reuse_v1(
+                state.owner(),
+                builder.function_state.checked_mul_reuse.records(),
             )?;
             news.record_borrowed_compare_carrier_consumers_v1(
                 state.owner(),

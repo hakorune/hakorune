@@ -95,6 +95,26 @@ pub(in crate::mir::builder) trait BinaryExpressionDescentPortV1:
         Err("[freeze:contract][borrowed-compare/consumer-unavailable]".into())
     }
 
+    fn prepare_binary_mul_source_v1(
+        &mut self,
+        _operator: &BinaryOperator,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1>, String>
+    {
+        Ok(None)
+    }
+
+    fn complete_binary_mul_source_v1(
+        &mut self,
+        _loan: crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1,
+        _children: (ValueId, ValueId),
+        _completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedMulMaterializationV1>,
+        String,
+    > {
+        Err("[freeze:contract][borrowed-mul/consumer-unavailable]".into())
+    }
+
     /// Observation of the same finalized append; the default issues no source
     /// proof. Source-scoped consumers must corroborate their retained loan.
     fn complete_binary_expression_v1(
@@ -142,6 +162,26 @@ where
         self.complete_borrowed_compare_source_v1(loan, children, completed)
     }
 
+    fn prepare_binary_mul_source_v1(
+        &mut self,
+        operator: &BinaryOperator,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1>, String>
+    {
+        self.prepare_borrowed_mul_source_v1(operator)
+    }
+
+    fn complete_binary_mul_source_v1(
+        &mut self,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1,
+        children: (ValueId, ValueId),
+        completed: &super::CompletedOrdinaryBinaryV1,
+    ) -> Result<
+        std::rc::Rc<crate::mir::normal_callable_semantic_package::BorrowedMulMaterializationV1>,
+        String,
+    > {
+        self.complete_borrowed_mul_source_v1(loan, children, completed)
+    }
+
     fn complete_binary_expression_v1(
         &mut self,
         completed: &super::CompletedOrdinaryBinaryV1,
@@ -171,6 +211,11 @@ where
     }
 }
 
+enum SelectedBinarySourceV1 {
+    Compare(crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1),
+    Mul(crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1),
+}
+
 pub(in crate::mir::builder) fn drive_ordinary_binary_expression_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
@@ -186,19 +231,38 @@ where
         ));
     }
 
-    let source = port.prepare_binary_source_v1(&operator)?;
+    let source = match (
+        port.prepare_binary_source_v1(&operator)?,
+        port.prepare_binary_mul_source_v1(&operator)?,
+    ) {
+        (Some(compare), None) => Some(SelectedBinarySourceV1::Compare(compare)),
+        (None, Some(mul)) => Some(SelectedBinarySourceV1::Mul(mul)),
+        (None, None) => None,
+        (Some(_), Some(_)) => {
+            return Err("[freeze:contract][borrowed-binary/source-overlap]".into())
+        }
+    };
     let left_input = port.binary_left_input(input)?;
     let left = drive_legacy_expression_v1(builder, port, left_input)?;
     let right_input = port.binary_right_input(input)?;
     let right = drive_legacy_expression_v1(builder, port, right_input)?;
 
-    if let Some(source) = &source {
+    if let Some(SelectedBinarySourceV1::Compare(source)) = &source {
         port.prepare_binary_operands_v1(builder, source, (left, right))?;
     }
     let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
     if let Some(source) = source {
-        let record = port.complete_binary_source_v1(source, (left, right), &completed)?;
-        super::super::ssa::local::checked_compare::install(builder, record)?;
+        match source {
+            SelectedBinarySourceV1::Compare(source) => {
+                let record = port.complete_binary_source_v1(source, (left, right), &completed)?;
+                super::super::ssa::local::checked_compare::install(builder, record)?;
+            }
+            SelectedBinarySourceV1::Mul(source) => {
+                let record =
+                    port.complete_binary_mul_source_v1(source, (left, right), &completed)?;
+                super::super::ssa::local::checked_mul::install(builder, record)?;
+            }
+        }
     }
     port.complete_binary_expression_v1(&completed)?;
     Ok(completed.value())

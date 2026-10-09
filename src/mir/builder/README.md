@@ -1698,6 +1698,14 @@ must be restored at completion. Unselected ports remain unarmed. This original
 observation is a prerequisite for checked Bool reuse; it does not authorize
 replaying an opaque comparison or prove final SSA operand correspondence.
 
+The same driver also selects an executable borrowed Mul loan before either
+child, retaining the original ordered source and canonical Mul append in the
+ordinary-new ledger. Function-owned checked Mul state keeps that same record
+through nested call transactions and root close. Final construction-store
+verification requires exact original Mul identity and complete ledger reuse;
+source-only Mul refuses entry. Physical Mul JSON/C admission, operand lineage,
+and runtime kind checks remain separate obligations.
+
 Selected borrowed Compare completion installs the SAME immutable ledger record
 into `ssa/local/checked_compare.rs`. The successful raw callable entry lends a
 weak reference to its existing semantic ledger; this does not install legacy

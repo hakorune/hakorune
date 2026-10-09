@@ -923,38 +923,10 @@ and issues existing I64Scalar; generic Multiply grammar stays closed. Original
 source failures are preserved. Entry/context, packet and physical guard dominance
 remain owed. Reuse source/Mul/scalar-publication tests; no new framework.
 
-Home construction IN PROGRESS: exact IntegerMulReturn consult/coordinate-only
-selector, bounded child observation and existing I64Scalar relation implemented.
-A selected unavailable Mul records an uncovered exit without old scalar retry;
-source errors are preserved and child observations are staged atomically.
-Existing source-only walk test covers guarded orders, exact exit refusal and
-unchanged passive partition; scalar/source/result regressions selected.
-Terminal765 soft-limit responsibility reviewed: scalar observation stays in its
-existing child; further terminal growth requires separate responsibility split.
-Co-seal795 only adds selected predicate; no further expansion before split.
-Home verification: quick build8m37 PASS; expanded source-only walk test PASS.
-Scalar11/source10/result42/Mul2/source1/graph8/Static1/coordinate1 PASS.
-Additional guarded-actual family2 PASS/1 THISCHANGE regression: exact reach
-fixture now demands entry-source at later Body(1) Initializer(0); immutable430
-binary passes the identical test. Log/selected hashes/protected7 retained in
-/mnt/workdisk/hako-guarded-mul-home-progress.json. Pointer/scope/diff guards PASS.
-No closeout/commit: resolve source-only Home walk vs later actual-entry demand
-without fabricating entry or hiding errors, then pin original Static child Home
-and unavailable/failed child no-journal in existing families. Full Mul/goal OPEN.
-
-Home regression Decision (read-only review_static_zero_packet): original
-SourceOnly Probe is now walked; its later Instance sink incoming selects the
-executable actual constructor, which has no executable caller origin and
-mistakes p for the receiver. I64ResultArguments then demands entry-source Err.
-Do not broaden the executable constructor to raw source drafts, suppress Err,
-or return None into strict argument fallback. Next bounded contract: SAME
-pending-actual owner selects validated source-only Instance evidence before
-executable construction, analogous to SourceStatic/SourceObject. Retain exact
-original target, ordered actuals, caller draft and guard/forward receipts;
-source Home reads that projection, require_executable refuses until original
-caller entry/forward closure. No new map/issuer or fabricated ready evidence.
-Full original Static Home/no-journal coverage and current regression must pass
-before this Home slice can close. No Cargo or commit is currently running.
+Home build/regression history is retained at 5351063d91 and the workdisk
+`hako-guarded-mul-home-progress.json` receipt. The selected source-only
+Instance phase preserves the original pending-actual authority; executable
+entry still requires caller entry/forward closure, with no fallback.
 
 SourceInstance bounded Decision confirmed by the read-only worker: source-only
 opaque forwarding needs original draft origin/unique UnresolvedArgument and
@@ -988,5 +960,26 @@ Positive: original guarded source/ordered child/finished group; negative:
 source-only, missing/changed Rc/append/operand and no cross-function reuse;
 existing Compare and unselected binary paths remain unchanged. Physical JSON/C,
 both independent scans, kind-1 Fault and EXE are a following slice, not claimed.
-Fresh unchanged-app probe at HEAD is still owed. Both315/318, cleanup, Gates2-4,
+Fresh unchanged-app probe at this head is recorded below. Both315/318, cleanup, Gates2-4,
 old-edge retirement, selfcompile and full goal remain incomplete.
+
+Mul driver bounded slice CLOSED (2026-10-09): typed Compare/Mul
+selection now feeds SAME canonical append and borrowed ledger record. Function
+state captures/restores/clears installed Mul Rc; final construction-store check
+requires existing exact source/record coverage. Quick lib build8m35 passed;
+initial filter matched zero and is not evidence. Direct binary tests: borrowed
+Mul2/2, binary descent9/9, transaction3/3. Rustfmt, diff, current pointer,
+qualified route scope guards PASS. Fresh quick CLI build4m00 passed. Minimal guarded
+Mul with executable `Transport.probe` advances to physical
+`published-lifecycle-program/instruction-unsupported`; identical Add control
+stops earlier at `artifact-source-unavailable`. Minimal Static `bin_size` Mul
+refuses `borrowed-mul/source-only-entry`; unchanged mimalloc still refuses
+`source-only-object-actuals` before Mul. These are bounded source/driver and
+fail-closed observations, not physical admission. Logs:
+`/mnt/workdisk/hako-guarded-{mul-entry-probe,add-control,mul-min-probe,mul-probe}.log`.
+Next Decision: the existing published physical JSON serializer accepts Add but
+not Mul (`physical_program_json.rs` BinOp arm). The original selected Mul must
+gain exactly one checked physical spelling and C admission, with operands tied
+to the SAME source/append/packet product and wrong kind faulting before result.
+The two independent final scans, full Static packet/return proof and unchanged
+application acceptance remain separate slices. Full goal remains incomplete.
