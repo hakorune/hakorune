@@ -753,23 +753,13 @@ at a terminal with no remaining fallible step. Draft discard alone does not
 restore the shared ledger or affine handoff. The qualified Return caller,
 final independent incoming/entry coverage and EXE remain open.
 
-Selected Static I64 Loop physical history: header `d7692b5599`, body
-predicate `8c58c7e3d9`, Return/backedge `13d8b5f404`, and post-loop tail
-`0fe5c082d7` advanced the same unpublished canonical session. The source-
-bound Recipe/JoinSig, original Static loans, canonical CFG/SSA, two Completion
-claims and one Fault frame remain current. These commits contain focused
-positive/negative evidence. The exact `me.bin_size(bin)` carrier, finished
-packets/coordinates, group/handoff terminal, qualified Return sibling, final
-entry verifier, collector and EXE remain open. No production MIR was published.
-
-Selected Loop body actual and construction history: `5c236fdfd8`,
-`cc1697fc29`, `49646f8bdb`, `635f834fe9`, `8cf6fadebf`,
-`731b05b824`, `61933a40fd`. These commits own exact source Rc,
-signature/Integer ordinal-zero correspondence, canonical SSA read,
-Invoke/NormalResult, detached `prepare_exact_two` and positive/negative
-evidence. The ValueId still comes from SSA after the backedge; source-only
-Static is never independently executable. Later packet and publication
-obligations are stated below.
+Static Loop physical history: `d7692b5599`, `8c58c7e3d9`, `13d8b5f404`,
+`0fe5c082d7` own the source-bound Recipe/JoinSig and unpublished CFG/SSA;
+production publication and EXE remain open. Body actual history:
+`5c236fdfd8`, `cc1697fc29`, `49646f8bdb`, `635f834fe9`, `8cf6fadebf`,
+`731b05b824`, `61933a40fd` own original source, scalar actual, canonical
+read/Invoke and detached projection evidence. ValueId comes from SSA after
+the backedge; generic SourceStatic remains source-only.
 
 Decision (2026-10-10, selected `bin_size` caller census): the current
 `mimalloc-lite` import closure contains three CurrentOwner `bin_size` calls
@@ -997,3 +987,9 @@ Loop entry consumes the retained product without reprojecting source syntax.
 Probe and verified walks use the same consult or remain uncovered. Reject
 foreign site/owner, non-I64 input, altered order/operation, extra effect and
 missing/duplicate After. Physical Mul and EXE remain later slices.
+
+BoxShape prerequisite: selected local `new` observation now owns its own
+module; scanner order, argument moves and Normal/Fault Home accounting are
+unchanged (scanner 653 lines). Quick selected-new 12/12 and Home completion
+1/1 passed. Initial module-name filter selected 0 and is not counted.
+No Loop acceptance follows from this responsibility split.

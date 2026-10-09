@@ -214,6 +214,8 @@ mod field_write;
 mod object_return;
 pub(crate) use object_return::{ObjectReturnAcquisitionV1, TerminalObjectReturnObligationV1};
 
+#[path = "home_new_prefix_new_local.rs"]
+mod new_local;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
 #[path = "home_new_prefix_terminal.rs"]
