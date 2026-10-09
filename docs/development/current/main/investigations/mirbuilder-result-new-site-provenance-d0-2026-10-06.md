@@ -713,3 +713,30 @@ at `actual-coverage-missing`. Next: exact CurrentOwner publication handoff
 and packet/coordinate, then qualified Return packet/coordinate and final
 entry/source-aware verification. Neither one-row publication nor source
 cohort alone completes the callee.
+
+CurrentOwner result handoff Decision (read-only worker integrated): the
+existing `VerifiedStaticCallResultPublicationOwnerV1` already issues an
+ExactI64 handoff for arity-one CurrentOwner source targets. It is the sole
+result-publication authority. The general original-source corroboration and
+Static packet admission intentionally cover qualified or zero-input callers
+only. Add a selected Loop-packet corroboration for the same original Rc and
+ExactI64 handoff identity; leave the general rule unchanged. The disposable
+canonical entry borrows the collector's exact caller/site handoff without
+consuming it. A handoff take or new result issuer before publication would
+lose affine authority. Positive acceptance is the unchanged mimalloc entry
+reaching its existing post-Invoke stop after the peek; negative acceptance
+is foreign catalog/identity refusal and continued general CurrentOwner
+rejection. Physical packet/finished-coordinate and both callers' entry
+coverage remain later work.
+
+CurrentOwner handoff peek S0: the disposable selected entry checks the
+existing publication owner's exact caller/site handoff against its original
+source Rc and forwarded-actual proof without consuming the handoff. The
+unchanged mimalloc entry and bounded same/foreign-catalog test passed 1/1
+each; full source cohort 1/1, candidate veto 6/6 and Static packet 6/6
+also passed in the same quick-profile build. Quick library check passed.
+The first focused red was a test-fixture omission: the fixture had not
+installed the publication owner that production installs. The corrected
+fixture passed; no implementation red remains. The draft still discards at
+`actual-coverage-missing`. Physical packets and finished coordinates for
+both incoming callers, final entry coverage and production EXE remain open.

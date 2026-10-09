@@ -541,8 +541,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
             .map_err(|error| error.to_string())?;
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
-        let named_array_field_providers =
-            self.package.take_named_array_field_providers(&source_id);
+        let named_array_field_providers = self.package.take_named_array_field_providers(&source_id);
         self.package.with_instance_constructor_lowering_input(
             &source_id,
             |input, kind, construction| {
@@ -667,6 +666,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 static_i64_entry::stop_if_selected(
                     builder,
+                    inner.module_port,
                     &selected,
                     admission.physical_symbol(),
                     &ordinary_new_claim_ledger,

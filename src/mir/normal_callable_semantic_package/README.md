@@ -2105,6 +2105,11 @@ The selected CurrentOwner row additionally corroborates the disposable tagged
 `%0` Invoke actual. This is complete source-actual evidence for the selected
 cohort only; the general `SourceStatic` phase remains non-executable. Physical
 packet/finished-coordinate and final entry coverage still gate publication.
+The same selected Loop packet now corroborates the existing result-publication
+owner's CurrentOwner arity-one I64 handoff by original catalog brand, caller,
+site, target and required ordinals. The generic qualified/zero-argument
+handoff law is unchanged. The unpublished function entry only peeks this
+handoff; it remains available for the eventual sole physical consumer.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

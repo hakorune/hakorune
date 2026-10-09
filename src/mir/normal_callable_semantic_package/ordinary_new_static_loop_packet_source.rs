@@ -9,6 +9,7 @@ use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
 use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
     SourceStmtSiteV1,
@@ -42,6 +43,31 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
+    pub(in crate::mir) fn publication_source(
+        &self,
+    ) -> (
+        &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        &SourceExprSiteV1,
+    ) {
+        (self.original.caller(), self.original.call_site().site())
+    }
+
+    pub(in crate::mir) fn corroborates_publication_handoff(
+        &self,
+        handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> bool {
+        self.original
+            .corroborates_selected_loop_publication_handoff(handoff)
+            && self
+                .forwarded_actuals
+                .iter()
+                .zip(self.complete_incoming.iter())
+                .filter(|(_, source)| Rc::ptr_eq(source, &self.original))
+                .filter(|(actual, source)| actual.corroborates(source, self.caller_formal))
+                .count()
+                == 1
+    }
+
     pub(in crate::mir) fn argument_site(&self) -> &SourceExprSiteV1 {
         &self.argument
     }

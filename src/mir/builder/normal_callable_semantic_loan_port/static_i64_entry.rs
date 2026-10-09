@@ -1,6 +1,7 @@
 //! The selected Static I64 Loop is taken at the cataloged function boundary.
 //! Its physical entry is disposable until the executable packet is proved.
 
+use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
@@ -8,6 +9,7 @@ use crate::mir::normal_callable_semantic_package::SelectedCallableLoweringInputR
 
 pub(super) fn stop_if_selected(
     builder: &mut MirBuilder,
+    module_port: &ModuleLoweringPortV1<'_>,
     selected: &SelectedCallableLoweringInputRefV1<'_>,
     physical_symbol: &str,
     claims: &OrdinaryNewClaimLedgerV1,
@@ -36,6 +38,15 @@ pub(super) fn stop_if_selected(
         .ok_or_else(|| {
             "[freeze:contract][callable-loop/static-packet-source-missing]".to_owned()
         })??;
+    let (caller, site) = packet.publication_source();
+    let handoff = module_port
+        .selected_static_result_handoff_for_source(caller, site)
+        .ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-publication-handoff-missing]".to_owned()
+        })?;
+    if !packet.corroborates_publication_handoff(handoff) {
+        return Err("[freeze:contract][callable-loop/static-publication-handoff-drift]".to_owned());
+    }
     crate::mir::builder::resolved_lowering::stop_after_unpublished_static_loop_entry_v1(
         builder,
         input,
@@ -99,13 +110,27 @@ mod tests {
                         Some(&catalog), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(),
                         &imports,
                     ).unwrap();
+                    let declarations = package.declaration_catalog();
+                    let aliases = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+                        declarations, imports.clone(),
+                    ).unwrap();
+                    let targets = crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
+                        declarations, &aliases,
+                    ).unwrap().into_targets();
+                    let results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(
+                        declarations, &targets,
+                    ).unwrap();
+                    let publication = crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1::issue(
+                        declarations, &targets, &results,
+                    ).unwrap();
                     let mut context = CompilationContext::new();
                     let installed = package.prepare_install(&mut context).unwrap().commit();
                     let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
                     let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(key).unwrap();
                     let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
                     let mut builder = MirBuilder::new();
-                    let collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+                    let mut collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+                    collector.install_static_result_publication_owner(publication).unwrap();
                     let mut invocation = crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
                         &mut builder, collector,
                     );

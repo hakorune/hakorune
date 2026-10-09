@@ -27,10 +27,7 @@ fn issue(text: &str) -> Package {
     .expect("original source-issued package")
 }
 
-fn input_source(
-    package: &Package,
-    allow_main: bool,
-) -> Result<Rc<StaticIncomingSourceV1>, String> {
+fn input_source(package: &Package, allow_main: bool) -> Result<Rc<StaticIncomingSourceV1>, String> {
     let main = borrow_app_main_source_v1(
         package.batch(),
         package.catalog.catalog().source_backed_app_main(),
@@ -203,6 +200,62 @@ fn qualified_static_input_source_matches_real_publication_after_catalog_move() {
         panic!("foreign selected");
     };
     assert!(!source.corroborates_publication_handoff(&handoff));
+}
+
+#[test]
+fn current_owner_loop_handoff_matches_only_its_original_catalog() {
+    let text = "static box Size { norm(size) { if size <= 0 { return 1 } return size } run(size) { local n = me.norm(size) return 0 } } static box Main { main() { return 0 } }";
+    let package = issue(text);
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .source_incoming
+        .static_observations()
+        .values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.target().name() == "norm" && row.current_owner_source().is_some())
+        .unwrap();
+    let declarations = package.declaration_catalog();
+    let aliases = VerifiedStaticImportAliasViewV1::seal(declarations, []).unwrap();
+    let targets = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &aliases)
+        .unwrap()
+        .into_targets();
+    let results =
+        VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets).unwrap();
+    let owner = VerifiedStaticCallResultPublicationOwnerV1::issue(declarations, &targets, &results)
+        .unwrap();
+    let handoff = owner
+        .selected_handoff_for_source(source.caller(), source.call_site().site())
+        .unwrap();
+    assert!(!source.corroborates_publication_handoff(handoff));
+    assert!(source.corroborates_selected_loop_publication_handoff(handoff));
+
+    let foreign = issue(text);
+    let foreign_declarations = foreign.declaration_catalog();
+    let foreign_aliases = VerifiedStaticImportAliasViewV1::seal(foreign_declarations, []).unwrap();
+    let foreign_targets = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
+        foreign_declarations,
+        &foreign_aliases,
+    )
+    .unwrap()
+    .into_targets();
+    let foreign_results =
+        VerifiedSameModuleCallableResultCatalogV1::verify(foreign_declarations, &foreign_targets)
+            .unwrap();
+    let foreign_owner = VerifiedStaticCallResultPublicationOwnerV1::issue(
+        foreign_declarations,
+        &foreign_targets,
+        &foreign_results,
+    )
+    .unwrap();
+    let foreign_handoff = foreign_owner
+        .selected_handoff_for_source(source.caller(), source.call_site().site())
+        .unwrap();
+    assert!(!source.corroborates_selected_loop_publication_handoff(foreign_handoff));
 }
 
 #[test]
