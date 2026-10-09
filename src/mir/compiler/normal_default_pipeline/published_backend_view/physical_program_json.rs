@@ -242,6 +242,12 @@ fn encode_instruction(
             lhs,
             rhs,
         } => json!({ "op": "add", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Mul,
+            lhs,
+            rhs,
+        } => json!({ "op": "mul", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
         MirInstruction::Compare { dst, op, lhs, rhs } => {
             let predicate = match op {
                 crate::mir::CompareOp::Eq => "eq",

@@ -133,7 +133,8 @@ static yyjson_val* hako_physical_instruction_dst(yyjson_val* instruction) {
   if (strcmp(op, "const_i64") == 0 || strcmp(op, "const_f64_bits") == 0 ||
       strcmp(op, "const_bool") == 0 || strcmp(op, "const_string") == 0 ||
       strcmp(op, "const_unit") == 0 || strcmp(op, "const_null") == 0 ||
-      strcmp(op, "add") == 0 || strcmp(op, "compare") == 0 ||
+      strcmp(op, "add") == 0 || strcmp(op, "mul") == 0 ||
+      strcmp(op, "compare") == 0 ||
       strcmp(op, "borrowed_null_compare") == 0 ||
       strcmp(op, "copy") == 0 || strcmp(op, "phi") == 0 ||
       strcmp(op, "object_field_get") == 0 || strcmp(op, "invoke_normal_result") == 0 ||
@@ -556,7 +557,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   /* The nullable-result null sentinel: an i64 slot carrying Void(0), emitted
      only inside `ordinary_nullable_handle` callees by the flow admission. */
   if (!strcmp(op, "const_null")) return hako_physical_exact_keys(instruction, const_unit, 2) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a);
-  if (!strcmp(op, "add")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
+  if (!strcmp(op, "add") || !strcmp(op, "mul")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
   if (!strcmp(op, "compare")) {
     const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
     return p && (!strcmp(p, "eq") || !strcmp(p, "ne") || !strcmp(p, "slt") ||

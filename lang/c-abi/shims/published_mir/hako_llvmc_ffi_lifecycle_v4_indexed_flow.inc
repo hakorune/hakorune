@@ -152,10 +152,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
           source->kind != LV4_HANDLE && source->kind != LV4_TAGGED)) return 0;
       if (source->kind == LV4_HANDLE && !lv4_indexed_live(fn, source->id,
           LV4_HANDLE, state, 0, 0)) return 0;
-    } else if (lv4_is(ins, "op", "add")) {
+    } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      /* The borrowed kind/payload lane may serve a dominated `+` operand
+      /* The borrowed kind/payload lane may serve a dominated arithmetic operand
          only; the emitted kind==1 branch proves the i64 read at the use
          site, uniform with the checked compare. */
       if (!lhs || !rhs ||

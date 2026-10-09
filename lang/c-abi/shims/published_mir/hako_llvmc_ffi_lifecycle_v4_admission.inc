@@ -48,6 +48,7 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
   def = lv4_def(fn, value);
   if (!def) return LV4_BAD;
   if (lv4_is(def, "op", "const_i64") || lv4_is(def, "op", "add") ||
+      lv4_is(def, "op", "mul") ||
       lv4_is(def, "op", "array_get") ||
       lv4_is(def, "op", "object_field_get")) return LV4_I64;
   if (lv4_is(def, "op", "const_bool")) return LV4_BOOL;

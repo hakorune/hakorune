@@ -126,6 +126,7 @@ static int lv4_index_seed(const hako_lv4_input* in,
   yyjson_val* ins = value->instruction;
   if (value->kind != LV4_BAD) return 1;
   if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
+      lv4_is(ins, "op", "mul") ||
       lv4_is(ins, "op", "array_get"))
     value->kind = LV4_I64;
   else if (lv4_is(ins, "op", "object_field_get")) {

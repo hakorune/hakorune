@@ -570,7 +570,7 @@ fn validate_instruction_with_context(
                     | ConstValue::Void,
                 ..
             } | MirInstruction::BinOp {
-                op: BinaryOp::Add,
+                op: BinaryOp::Add | BinaryOp::Mul,
                 ..
             } | MirInstruction::Compare { .. }
                 | MirInstruction::Copy { .. }

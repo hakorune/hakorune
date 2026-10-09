@@ -301,9 +301,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else fprintf(f, "  %%v%u = add i64 0, %%v%u\n", dst, src);
         if (kind == LV4_TAGGED)
           fprintf(f, "  %%k%u = add i32 0, %%k%u\n", dst, src);
-      } else if (lv4_is(ins, "op", "add")) {
+      } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
         uint32_t alhs = lv4_u(ins, "lhs"), arhs = lv4_u(ins, "rhs");
-        /* A dominated `+` operand may read the same lent Integer view;
+        /* A dominated arithmetic operand may read the same lent Integer view;
            the kind==1 branch proves the i64 read at the use site and any
            other kind is a semantic Fault, uniform with the compare. */
         if (lv4_input_type(in, fn, alhs) == LV4_TAGGED)
@@ -314,7 +314,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%aok%u_%u_%zu = icmp eq i32 %%k%u, 1\n"
               "  br i1 %%aok%u_%u_%zu, label %%as%u_%u_%zu, label %%fault\nas%u_%u_%zu:\n",
               arhs, b, ri, arhs, arhs, b, ri, arhs, b, ri, arhs, b, ri);
-        fprintf(f, "  %%v%u = add i64 %%v%u, %%v%u\n", dst, alhs, arhs);
+        fprintf(f, "  %%v%u = %s i64 %%v%u, %%v%u\n", dst,
+            lv4_is(ins, "op", "mul") ? "mul" : "add", alhs, arhs);
       } else if (lv4_is(ins, "op", "compare")) {
         uint32_t clhs = lv4_u(ins, "lhs"), crhs = lv4_u(ins, "rhs");
         /* A borrowed tagged operand may lend the checked-compare Integer

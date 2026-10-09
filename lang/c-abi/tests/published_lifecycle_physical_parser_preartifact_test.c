@@ -74,6 +74,18 @@ int main(void) {
       "{\"name\":\"Pair.birth\",\"role\":\"birth_unit\",\"receiver\":0,\"receiver_object\":null,\"params\":[{\"value\":1,\"representation\":\"kind_payload_v1\"},{\"value\":2,\"representation\":\"kind_payload_v1\"}],\"entry\":0,\"blocks\":[{\"id\":0,\"instructions\":[{\"index\":0,\"instruction\":{\"op\":\"fault_frame_enter\",\"dst\":3,\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_string\",\"dst\":4,\"value\":\"pair\"}},{\"index\":2,\"instruction\":{\"op\":\"const_unit\",\"dst\":5}},{\"index\":3,\"instruction\":{\"op\":\"birth_call\",\"call\":{\"target\":1,\"receiver\":0,\"args\":[{\"kind\":1,\"value\":1},{\"kind\":1,\"value\":2}],\"dst\":null}}}],\"terminator\":{\"index\":4,\"instruction\":{\"op\":\"return\",\"value\":5}},\"edges\":[]}] }],"
       "\"layouts\":[{\"object_id\":7,\"runtime_type_id\":9,\"field_count\":1,\"fields\":[{\"declaration_ordinal\":0,\"runtime_slot\":0,\"storage_kind\":1}],\"owned_residences\":[]}]}";
   accepts(valid);
+  /* Mul uses the same exact binary row and operand-availability contract. */
+  char* mul_valid = malloc(strlen(valid) + 1);
+  assert(mul_valid);
+  strcpy(mul_valid, valid);
+  char* mul_op = strstr(mul_valid, "\"op\":\"add\",\"dst\":7");
+  assert(mul_op);
+  memcpy(mul_op + strlen("\"op\":\""), "mul", 3);
+  accepts(mul_valid);
+  rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":99", "function-body");
+  rejects_replace(mul_valid, "\"op\":\"mul\",\"dst\":7",
+      "\"op\":\"mul\",\"dst\":7,\"extra\":0", "function-body");
+  free(mul_valid);
   rejects_replace(valid, "\"process_result_site\":2,", "", "schema");
   rejects_replace(valid, "\"process_result_site\":2", "\"process_result_site\":0", "diagnostic-sites");
   rejects_replace(valid, "\"process_result_site\":2", "\"process_result_site\":-1", "diagnostic-sites");

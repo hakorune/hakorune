@@ -1257,6 +1257,14 @@ The private physical JSON test module includes composite-result and
 owned-residence fragments. Shared request helpers and test-module identity
 remain in the parent; the split changes no source or wire acceptance.
 
+The selected lifecycle physical program accepts ordinary final-MIR `Mul` as
+an i64 operation beside `Add`; JSON emits the exact `mul` destination and
+operands, and C v4 checks both operands before emitting `mul i64`. A tagged
+operand must carry Integer kind 1 or Fault before the result is defined.
+Script/native admission is unchanged. Source selection and borrowed Copy,
+guard, packet, and finished-binding proofs remain with their upstream owners;
+the physical writer does not issue a second source fact.
+
 The retained Root result getter preserves `Result<Option<_>, String>` from the
 same source/finished-MIR owner. Process-entry selection explicitly rejects Object
 results; it never treats Handle/NullableHandle as an i64 exit. Birth caller matching

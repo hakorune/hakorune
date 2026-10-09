@@ -914,14 +914,9 @@ rows gain no entry; carrier/Copy/Static packet/guard Normal dominance and both
 finished scans/JSON/C still owe full closure. Negative immediates retain their
 actual Const(-n). Final call membership must use finalized groups after pool move.
 
-Next bounded Home Decision (read-only worker): existing IntegerMulReturn typed
-consult validates exact exit/Value plus SAME whole Mul product. A sibling
-integer_mul_return_target(input) matches original Return coordinates only to
-select existing walk; malformed selected evidence must reach error, not be
-hidden with is_ok(). Bounded scalar helper retains original Static observations
-and issues existing I64Scalar; generic Multiply grammar stays closed. Original
-source failures are preserved. Entry/context, packet and physical guard dominance
-remain owed. Reuse source/Mul/scalar-publication tests; no new framework.
+Home selection contract and tests are retained at 5351063d91: existing
+IntegerMulReturn consult selects the exact original Return/Mul product,
+preserves source errors, and does not open generic Multiply grammar.
 
 Home build/regression history is retained at 5351063d91 and the workdisk
 `hako-guarded-mul-home-progress.json` receipt. The selected source-only
@@ -977,9 +972,20 @@ refuses `borrowed-mul/source-only-entry`; unchanged mimalloc still refuses
 `source-only-object-actuals` before Mul. These are bounded source/driver and
 fail-closed observations, not physical admission. Logs:
 `/mnt/workdisk/hako-guarded-{mul-entry-probe,add-control,mul-min-probe,mul-probe}.log`.
-Next Decision: the existing published physical JSON serializer accepts Add but
-not Mul (`physical_program_json.rs` BinOp arm). The original selected Mul must
-gain exactly one checked physical spelling and C admission, with operands tied
-to the SAME source/append/packet product and wrong kind faulting before result.
-The two independent final scans, full Static packet/return proof and unchanged
-application acceptance remain separate slices. Full goal remains incomplete.
+Physical Mul operation CLOSED (2026-10-09): source authority remains the Mul
+ledger and checked builder finish; final ordinary-MIR program/JSON and C v2/v4
+admission/index/flow/emit spell one `mul` with exact available operands. C
+parser normal/malformed 3 PASS; C root 3*4 exit12, borrowed tagged Integer
+continues, Bool/Object Fault exit70 before result. Quick CLI build PASS; real
+guarded Mul passes physical-program admission and now stops at
+`published-lifecycle/borrowed-use/unproved-copy`; unchanged full app still
+stops earlier at source-only Object actuals. Rust physical JSON family 32 PASS,
+1 known baseline red: owned-array birth-fault release order, documented in
+gate1 card at 265e67753a; physical program tests2 PASS. Rustfmt JSON file has
+the same two preexisting HEAD diffs, unrelated to Mul. Evidence under
+`/mnt/workdisk/hako-guarded-mul-ffi` and `hako-guarded-mul-physical-*` logs.
+No script/native expansion or claim of source-to-C completion. Next Decision:
+retain SAME original borrowed operand Copy/guard/packet evidence in both
+independent final scans; `unproved-copy` must refuse until that authority is
+closed. Full Static packet/return, unchanged app, Both315/318, cleanup,
+Gates2-4, old-edge retirement and selfcompile remain open.
