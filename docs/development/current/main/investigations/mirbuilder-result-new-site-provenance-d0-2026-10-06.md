@@ -861,9 +861,10 @@ co-seal different, fixed source shapes; their products cannot be rebranded as
 the original `SizeClassBox.size_to_bin` source. A V1 call arm or V2-to-V1
 coercion would violate the Loop SSOT's one semantic algebra/physicalizer law.
 
-Smallest selected construction is the source-bound V2 semantic/JoinSig plus
-Home slice for this exact callable, not a source-only observation presented as
-execution permission. Resolver Loop/If/assignment and original Completion
+The selected construction starts with a source-bound V2 semantic/JoinSig
+slice for this exact callable. Home and physical SSA are subsequent slices;
+the semantic product alone is not execution permission. Resolver Loop/If/
+assignment and original Completion
 must cover both Static calls: zeroarg `max_regular_bin()` in the header and
 arity-one `bin_size(bin)` in the body `If`. The canonical producer issues
 Recipe keys and exact source relations; JoinSig proves the return arm and
@@ -968,3 +969,20 @@ Common V2 has `CallSlot` and If/Return/binding operations, but `CallSlot`
 does not itself identify the Static target. S1 must co-seal the original
 Static Rc/site/target/ordered args beside the V2 operation before a physical
 issuer may emit it; a V1 family receipt cannot stand in for that product.
+
+S1 bounded Decision (2026-10-09, V2 producer audit): `size_to_bin` has the
+zeroarg header call, one-argument body call, returning `If`, and `bin` backedge
+shown in the unchanged source. The first construction slice issues a
+source-bound V2 Recipe/JoinSig for that exact shape and co-seals each CallSlot
+with the original Static Rc, site, target, arity and ordered actuals. The
+existing package-owned `claim_for_source_site_v1` is private to the normal
+callable package; give the producer a narrow loan from that package, not a
+second claim issuer. V2 already has `LessEqual` and `Return` operations.
+Reject missing or mismatched site/Rc/target/ordinal, missing return/backedge,
+and unknown or Bool `bin` updates. The source-only product leaves executable
+entry and physical publication closed. The following slice connects this
+verified product to the existing canonical CFG session and Binding SSA/PHI;
+only then switch the selected production router caller. The current V1
+physicalizer has no V2 entry, so extending a V1 arm or relabeling an S6C
+product is not an admissible bridge. Home must consume the same current
+`bin` binding after the join; pre-loop body-actual staging remains a refusal.

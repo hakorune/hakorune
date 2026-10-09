@@ -1,4 +1,4 @@
-//! Caller-zero loop-node physical admission issuer (M10b-I0-P2-E).
+//! Production loop-node physical admission issuer (M10b-I0-P2-E).
 //!
 //! One `IssuedLoopNodeWinnerV1` (recipe + resolver context) is co-sealed
 //! Builder-free into the sole physical input set the canonical segment
