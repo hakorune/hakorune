@@ -256,6 +256,21 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert!(source.incoming.iter().all(|row| row.call != owned));
                 assert!(package.ordinary_new_claim_ledger.selected_static_local_source_v1(&owned).unwrap().is_none());
             }).unwrap();
+            let usize_key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size_usize", 1);
+            let usize_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(usize_key)).unwrap();
+            package.batch().with_lowering_input(usize_slot, |input| {
+                let (site, call) = input.function().method_calls()
+                    .find(|(_, call)| call.selector() == "bin_size").expect("original direct CurrentOwner return");
+                let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
+                let original = source.source_incoming.static_observations()[&owned].as_ref().unwrap();
+                assert_eq!(original.argument_sites(), &[call.arguments()[0].site().clone()]);
+                let observed = package.ordinary_new_claim_ledger
+                    .local_call_for_owner(input.owner(), site)
+                    .expect("original direct return retains ordered Static actual");
+                assert_eq!(observed.arguments().len(), 1);
+                assert!(observed.local_binding().is_none());
+                assert!(package.ordinary_new_claim_ledger.completion_for_owner(input.owner()).is_some());
+            }).unwrap();
             let stored: Vec<_> = source.source_incoming.exact_rows().filter_map(|row| row.source.instance())
                 .filter(|row| row.call_site().owner() == heap_exits[0].site().owner()
                     && row.target() == &page_key && row.stored_receiver().is_some()).collect();

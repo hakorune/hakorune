@@ -1,5 +1,8 @@
 //! Requests through the same source-flow argument callback, with explicit roles.
-use super::{BorrowedCallActualCandidateV1, LocalCallArgumentV1, QualifiedStaticCallClaimV1};
+use super::{
+    BorrowedCallActualCandidateV1, LocalCallArgumentV1, QualifiedStaticCallClaimV1,
+    StaticI64CallClaimV1,
+};
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
     Observe(&'a [BorrowedCallActualCandidateV1]),
@@ -15,6 +18,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         Option<crate::mir::resolved_semantics::BindingRefV1>,
     ),
     QualifiedStaticSourceArguments(&'a QualifiedStaticCallClaimV1),
+    CurrentOwnerStaticSourceArguments(&'a StaticI64CallClaimV1),
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {

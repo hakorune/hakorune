@@ -20,6 +20,24 @@ pub(super) fn observe_scalar_expression<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+    // An exact direct CurrentOwner value has no sibling expression to reject.
+    // Its original ordered actuals can be staged and projected before the
+    // generic scalar preflight, which still owns composed expressions.
+    if required.is_none_or(|kind| kind == SourceScalarKind::Integer)
+        && input.function().method_call(site).is_some()
+    {
+        if let Some(call) = local_call_flow::issue_current_owner_i64_direct_value_call(
+            input,
+            statement,
+            site,
+            homes,
+            locals,
+            static_call,
+            borrowed_actuals,
+        )? {
+            return Ok(Some((SourceScalarKind::Integer, vec![call])));
+        }
+    }
     let mut requests = Vec::new();
     let mut calls = Vec::new();
     let Some(kind) = preflight(

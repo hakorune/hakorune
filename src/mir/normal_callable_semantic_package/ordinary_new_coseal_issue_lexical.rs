@@ -475,6 +475,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             && !matches!(
                 request,
                 BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(_)
+                    | BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(_)
             )
         {
             return Ok(None);
@@ -492,6 +493,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                         "[freeze:contract][borrowed-static/source-selection-identity]".to_owned()
                     })
             })
+        }
+        BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(claim) => {
+            super::super::lexical_instance_call::project_pending_current_owner_static_source_arguments_v1(
+                source, pending, site, claim,
+            )
+            .map(|row| row.map(BorrowedCallArgumentsV1::StaticSource))
         }
         BorrowedCallActualRequestV1::I64ResultArguments => {
             if let Some(arguments) =

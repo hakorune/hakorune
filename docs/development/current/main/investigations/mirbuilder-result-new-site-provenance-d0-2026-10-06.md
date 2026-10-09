@@ -906,8 +906,12 @@ census and nonlocal-context veto tests; reject wrong site/Rc/ordinal, missing
 caller and forged Completion. Premature ingress edits were reverted.
 Current evidence: unchanged mimalloc-lite stops at
 `borrowed-entry/source-only-object-actuals`; size-class policy stops at
-`borrowed-static/local-source-missing`. S0 source-only actual preparation now
-retains original arity-bearing CurrentOwner ExactI64 Rc/full tuple, never Ready.
-Focused source family12/12, real mimalloc census1/1, nonlocal veto1/1 PASS.
-Next: exact-site claim and source projection into local/direct-return flow;
-Loop remains source-facts-only, entry/packet/publication remain closed.
+`borrowed-static/local-source-missing`. S0 local/direct-return source flow now
+projects the SAME arity-bearing CurrentOwner ExactI64 Rc/ordered actuals into
+real Completion. Original `SizeClassBox.bin_size_usize` direct return passes
+source site, argument and Completion checks. Unproved actuals stay passive;
+known Bool actuals reject, source identity drift remains a hard error.
+Focused CurrentOwner31/31, Static source13/13, real mimalloc census1/1 and
+nonlocal veto1/1 PASS on quick test build. Next S1: loop-condition call and
+updated `bin` via canonical loop state/SSA plus Home join. Whole-callee
+entry/packet/publication and production EXE remain closed.

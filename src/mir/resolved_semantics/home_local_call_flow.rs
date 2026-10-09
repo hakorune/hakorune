@@ -208,11 +208,10 @@ pub(crate) use lexical_local_call::{issue_lexical_local_call, issue_received_pro
 /// Issue a source-proved static I64 continuation, preserving its original route.
 ///
 /// The package-injected predicate is the sole membership authority — it
-/// returns a sealed Qualified claim or the bounded zeroarg CurrentOwner claim.
-/// Both require the original `StaticBoxMethod` target and `ExactI64` disposition.  The
-/// inventory row only corroborates the source receiver shape; every argument
-/// must seal to an Integer/Bool literal or a scalar local/parameter binding,
-/// and callee-required i64 ordinals must carry i64-class evidence.
+/// returns a sealed Qualified or bounded CurrentOwner claim. Both require the
+/// original `StaticBoxMethod` target and `ExactI64` disposition. Arity-bearing
+/// CurrentOwner arguments must project from the same original Static source;
+/// qualified scalar fallback keeps its existing separate boundary.
 pub(crate) fn issue_static_i64_local_call<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
@@ -246,11 +245,16 @@ pub(crate) fn issue_static_i64_local_call<E>(
     {
         return Ok(None);
     }
-    let arguments = if let Some(claim) = claim.qualified_claim() {
-        match borrowed_arguments(
-            site,
-            BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
-        )? {
+    let qualified_claim = claim.qualified_claim();
+    let source_request = qualified_claim
+        .map(BorrowedCallActualRequestV1::QualifiedStaticSourceArguments)
+        .or_else(|| {
+            claim
+                .current_owner_source_required_i64_arguments()
+                .map(|_| BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(&claim))
+        });
+    let arguments = if let Some(request) = source_request {
+        match borrowed_arguments(site, request)? {
             Some(BorrowedCallArgumentsV1::StaticSource(arguments)) => {
                 if arguments.len() != call.arguments().len()
                     || arguments
@@ -277,6 +281,11 @@ pub(crate) fn issue_static_i64_local_call<E>(
             | Some(BorrowedCallArgumentsV1::SourceObject { .. })
             | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
             None => {
+                let Some(claim) = qualified_claim else {
+                    // CurrentOwner input never borrows a fallback local seal:
+                    // the projected original Static Rc is mandatory.
+                    return Ok(None);
+                };
                 let mut arguments = Vec::with_capacity(call.arguments().len());
                 for argument in call.arguments() {
                     let (row, i64_evidence) = match locals.observe(argument.site()) {
@@ -319,53 +328,11 @@ pub(crate) fn issue_static_i64_local_call<E>(
     )))
 }
 
-/// Source-only value observation from the original zeroarg CurrentOwner loan.
-/// This shares the statement's live Homes and never invents a local destination.
-pub(super) fn issue_static_i64_value_call<E>(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    statement: &SourceStmtSiteV1,
-    site: &SourceExprSiteV1,
-    prior_homes: &[BindingRefV1],
-    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::StaticI64CallClaimV1>, E>,
-) -> Result<Option<LocalCallObservationV1>, E> {
-    if !site
-        .node()
-        .segments()
-        .starts_with(statement.node().segments())
-    {
-        return Ok(None);
-    }
-    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
-    let Some(claim) = static_call(&owned)? else {
-        return Ok(None);
-    };
-    // Qualified expression contexts retain their existing admission boundary.
-    if !claim.is_current_owner_zeroarg() {
-        return Ok(None);
-    }
-    let Some((_, call)) = input
-        .function()
-        .method_calls()
-        .find(|(observed, _)| *observed == site)
-    else {
-        return Ok(None);
-    };
-    if call.owner() != input.owner()
-        || !call.arguments().is_empty()
-        || !claim.corroborates_source(&owned, call.receiver(), call.arity())
-    {
-        return Ok(None);
-    }
-    Ok(Some(LocalCallObservationV1 {
-        owner: input.owner(),
-        statement: statement.clone(),
-        site: owned,
-        destination: LocalCallDestinationV1::ExpressionValue,
-        prior_homes: prior_homes.iter().copied().collect(),
-        arguments: Box::new([]),
-        result: LocalCallResultClassV1::I64,
-    }))
-}
+#[path = "home_static_value_call.rs"]
+mod static_value_call;
+pub(super) use static_value_call::{
+    issue_current_owner_i64_direct_value_call, issue_static_i64_value_call,
+};
 
 /// Issue an exact lexical instance-call local continuation. The package
 /// callback lends a selected borrowed call's original ordered arguments;

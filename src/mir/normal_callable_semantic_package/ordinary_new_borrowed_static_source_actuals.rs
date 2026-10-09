@@ -3,6 +3,8 @@
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::resolved_semantics::home_new_prefix::QualifiedStaticCallClaimV1;
+use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
+use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 use std::rc::Rc;
 
 #[derive(Debug, Clone)]
@@ -139,6 +141,18 @@ pub(super) fn prepare_static_source_actuals_v1(
                     {
                         LocalCallArgumentV1::Scalar(binding)
                     }
+                    _ if source.is_current_owner_i64_source_v1()
+                        && !matches!(
+                            &actual.value,
+                            BorrowedCallActualValueV1::Bool(_)
+                                | BorrowedCallActualValueV1::Null
+                                | BorrowedCallActualValueV1::Scalar(_, SourceScalarKind::Bool)
+                        ) =>
+                    {
+                        // No I64 source proof yet. Keep the original incoming
+                        // inventory passive without staging a selected call.
+                        return Ok(None);
+                    }
                     _ => return Err(freeze("borrowed-static/nonopaque-integer-unproved")),
                 }
             }
@@ -164,6 +178,52 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
     site: &OwnedExprSiteV1,
     claim: &QualifiedStaticCallClaimV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    project_pending_static_source_arguments_for_route_v1(
+        source,
+        pending,
+        site,
+        claim.required_i64_arguments(),
+        false,
+    )
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_current_owner_static_source_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1,
+    claim: &StaticI64CallClaimV1,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
+    let required = claim
+        .current_owner_source_required_i64_arguments()
+        .ok_or_else(|| freeze("borrowed-static/current-owner-claim-required"))?;
+    let prepared = source.as_ref().map_err(Clone::clone)?;
+    let original = prepared
+        .source_incoming
+        .static_observations()
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if !claim.corroborates_source(
+        site,
+        ResolvedMethodCallReceiverSourceV1::CurrentOwner,
+        original.argument_sites().len() as u32,
+    ) {
+        return Err(freeze("borrowed-static/current-owner-claim-identity"));
+    }
+    if !pending.contains_key(site) {
+        return Ok(None);
+    }
+    project_pending_static_source_arguments_for_route_v1(source, pending, site, required, true)
+}
+
+fn project_pending_static_source_arguments_for_route_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1,
+    required_i64_arguments: &[u32],
+    current_owner: bool,
+) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     let prepared = source.as_ref().map_err(Clone::clone)?;
     let has_source_fact = prepared
         .static_arguments
@@ -176,8 +236,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
                 super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
             )
     });
-    if !has_source_fact && !has_final_static {
+    let retained = prepared
+        .source_incoming
+        .static_observations()
+        .get(site)
+        .and_then(|row| row.as_ref().ok());
+    let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
+    if !has_source_fact && !has_final_static && !(current_owner && has_current_owner_source) {
         return Ok(None);
+    }
+    if retained.is_none_or(|row| {
+        if current_owner {
+            !row.is_current_owner_i64_source_v1()
+        } else {
+            !row.is_qualified()
+        }
+    }) {
+        return Err(freeze("borrowed-static/source-route-identity"));
     }
     let rows = pending
         .get(site)
@@ -185,6 +260,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         .as_ref()
         .map_err(Clone::clone)?;
     if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::Executable) {
+        if current_owner {
+            return Err(freeze(
+                "borrowed-static/current-owner-source-phase-required",
+            ));
+        }
         let mut incoming = prepared.incoming.iter().filter(|row| &row.call == site);
         let call = incoming
             .next()
@@ -205,12 +285,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         if incoming.next().is_some()
             || !Rc::ptr_eq(original, retained)
             || original.call_site() != site
-            || claim.required_i64_arguments() != original.required_i64_arguments()
+            || required_i64_arguments != original.required_i64_arguments()
         {
             return Err(freeze("borrowed-static/executable-source-identity"));
         }
         let arguments = rows.ordered_arguments_for_v1(call)?;
-        for ordinal in claim.required_i64_arguments() {
+        for ordinal in required_i64_arguments {
             let integer = match arguments.get(*ordinal as usize) {
                 Some(LocalCallArgumentV1::Integer(_) | LocalCallArgumentV1::Scalar(_)) => true,
                 Some(LocalCallArgumentV1::BorrowedActual { ordinal, .. }) => rows
@@ -236,7 +316,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         }
         return Ok(Some(arguments.into()));
     }
-    if !has_source_fact {
+    if !has_source_fact && !current_owner {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
@@ -251,7 +331,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
         .map_err(Clone::clone)?;
     if !Rc::ptr_eq(retained, &identity.source)
         || identity.source.call_site() != site
-        || claim.required_i64_arguments() != identity.source.required_i64_arguments()
+        || required_i64_arguments != identity.source.required_i64_arguments()
         || rows.ordered_arguments.len() != identity.source.argument_sites().len()
         || identity.candidates.len() != rows.ordered_arguments.len()
         || identity.integer_evidence.len() != rows.ordered_arguments.len()
@@ -296,11 +376,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
             return Err(freeze("borrowed-static/source-projection-identity"));
         }
     }
-    if claim
-        .required_i64_arguments()
+    if required_i64_arguments
         .iter()
         .any(|ordinal| identity.integer_evidence.get(*ordinal as usize) != Some(&true))
     {
+        if current_owner {
+            return Ok(None);
+        }
         return Err(freeze("borrowed-static/required-integer-source-unproved"));
     }
     Ok(Some(rows.ordered_arguments.clone()))

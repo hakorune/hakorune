@@ -2021,8 +2021,11 @@ with input arguments remain outside this comparison child slice.
 An arity-bearing CurrentOwner ExactI64 source can now stage nonopaque ordered
 actuals as `SourceStatic` from the original incoming Rc. The full formal tuple,
 source sites and Integer evidence are checked; this phase grants no entry,
-packet, publication or executable call. Local/return observation still needs
-its own exact-site claim and projection.
+packet, publication or executable call. The same exact-site result/target loan
+projects these actuals into local initialization and direct value return with
+the caller's real Completion. Unproved actuals leave the call unobserved;
+known wrong kinds and source identity drift reject. Loop conditions and their
+updated locals still need their own Home join before whole-callee admission.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

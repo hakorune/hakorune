@@ -484,6 +484,10 @@ The homes-aware static I64 observer keeps the two source routes distinct.
 Qualified calls retain their required-argument/borrowed-first law; zeroarg
 CurrentOwner calls require the original index's typed incoming loan, matching
 catalog/caller/target/contract and ExactI64 with empty required ordinals.
+Arity-bearing CurrentOwner ExactI64 local/direct-return sites use that same
+incoming loan and the package's original `SourceStatic` ordered actuals. A
+missing Integer proof declines the observation; the original source inventory
+remains passive. No new executable entry or physical call is issued here.
 `ExpressionValue` records a real value site without inventing a receiving local
 or Home. The same scalar preflight retains ordered call observations and the
 statement's original priorHomes, publishing only after the whole expression

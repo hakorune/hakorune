@@ -239,7 +239,7 @@ fn static_i64_call_claim_preserves_current_owner_boundary() {
             "nonzeroarg-i64",
             "word(size: i64): i64 { return size }",
             "me.word(7)",
-            false,
+            true,
         ),
         ("zeroarg-bool", "word() { return true }", "me.word()", false),
         (
@@ -270,7 +270,14 @@ fn static_i64_call_claim_preserves_current_owner_boundary() {
         );
         if accepted {
             assert_eq!(calls[0].result(), LocalCallResultClassV1::I64);
-            assert!(calls[0].arguments().is_empty());
+            if label == "nonzeroarg-i64" {
+                assert!(matches!(
+                    calls[0].arguments(),
+                    [LocalCallArgumentV1::Integer(7)]
+                ));
+            } else {
+                assert!(calls[0].arguments().is_empty());
+            }
             assert!(calls[0].local_binding().is_some());
         }
         assert_eq!(
@@ -380,7 +387,7 @@ fn current_owner_source_retains_original_route_and_result_without_qualified_clai
         "static box Layout {
         need(p) { return p }
         text(p) { return \"text\" }
-        relay(p) { local a = me.need(p) local b = me.text(p) return 0 }
+        relay(p: i64) { local a = me.need(p) local b = me.text(p) return 0 }
     } static box Main { main() { return 0 } }",
     )
     .unwrap();
@@ -419,4 +426,29 @@ fn current_owner_source_retains_original_route_and_result_without_qualified_clai
         }
     }).unwrap();
     assert_eq!(checked, 2);
+}
+
+#[test]
+fn current_owner_required_integer_without_actual_proof_has_no_call_observation() {
+    let package = issue(
+        "static box Layout {
+            need(p) { return p }
+            relay(p) { local a = me.need(p) return 0 }
+        } static box Main { main() { return 0 } }",
+    )
+    .expect("unproved source remains passive");
+    assert!(local_calls(&package).is_empty());
+}
+
+#[test]
+fn current_owner_known_bool_actual_rejects_i64_formal() {
+    let Err(issue) = issue(
+        "static box Layout {
+            need(p: i64): i64 { return p }
+            relay() { local a = me.need(true) return 0 }
+        } static box Main { main() { return 0 } }",
+    ) else {
+        panic!("known Bool cannot satisfy the I64 source contract");
+    };
+    assert!(format!("{issue:?}").contains("nonopaque-integer-unproved"));
 }

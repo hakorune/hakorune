@@ -10,9 +10,10 @@
 //! silent (absent row) for every non-claim.
 //!
 //! Qualified rows remain distinct from original `CurrentOwnerStatic` rows.
-//! The homes predicate composes a bounded zeroarg CurrentOwner ExactI64 source
-//! claim from the original typed incoming loan. It issues no executable entry.
-//! Other current-owner inputs and non-I64 results retain no homes claim.
+//! The homes predicate composes bounded CurrentOwner ExactI64 source claims
+//! from the original typed incoming loan. Arity-bearing sites still require
+//! the same original SourceStatic actuals; no claim issues executable entry.
+//! Non-I64 results retain no homes claim.
 
 use std::collections::BTreeMap;
 
@@ -149,18 +150,16 @@ impl QualifiedStaticCallClaimIndexV1 {
         })
     }
 
-    /// Borrow only the original CurrentOwnerStatic route for this caller/site.
-    /// Missing is not a qualified claim, and a non-I64 result stays non-I64.
-    fn current_owner_zeroarg_i64_source(
+    fn current_owner_i64_source(
         &self,
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
     ) -> Option<&CurrentOwnerStaticCallSourceV1> {
         self.current_owner_source(caller, site).filter(|row| {
-            row.route().target().arity() == 0
-                && matches!(row.result(),
-                VerifiedCallableResultDispositionV1::ExactI64 { required_i64_arguments }
-                    if required_i64_arguments.is_empty())
+            matches!(
+                row.result(),
+                VerifiedCallableResultDispositionV1::ExactI64 { .. }
+            )
         })
     }
 
@@ -272,10 +271,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
 ) {
     let has_current_owner_i64_source = caller_key.as_ref().is_some_and(|key| {
         claims.current_owner_rows.keys().any(|(caller, site)| {
-            caller == key
-                && claims
-                    .current_owner_zeroarg_i64_source(caller, site)
-                    .is_some()
+            caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
     (
@@ -286,12 +282,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
             if let Some(claim) = claims.claim(key, site.site()) {
                 return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
             }
-            if claims
-                .current_owner_zeroarg_i64_source(key, site.site())
-                .is_none()
-            {
+            let Some(source_row) = claims.current_owner_i64_source(key, site.site()) else {
                 return Ok(None);
-            }
+            };
             let reject =
                 || super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::SourceNavigation {
                     site: site.clone(),
@@ -318,11 +311,33 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
                     }
                 })?
                 .ok_or_else(reject)?;
-            if !loan.contract().parameters.is_empty() {
+            if loan.contract().parameters.len() != call.arguments().len() {
                 return Err(reject());
             }
-            Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
+            let VerifiedCallableResultDispositionV1::ExactI64 {
+                required_i64_arguments,
+            } = source_row.result()
+            else {
+                return Err(reject());
+            };
+            if call.arguments().is_empty() {
+                if !required_i64_arguments.is_empty() {
+                    return Err(reject());
+                }
+                return Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
+                    site.clone(),
+                )));
+            }
+            if required_i64_arguments
+                .iter()
+                .any(|ordinal| *ordinal as usize >= call.arguments().len())
+            {
+                return Err(reject());
+            }
+            Ok(Some(StaticI64CallClaimV1::current_owner_source(
                 site.clone(),
+                call.arity(),
+                required_i64_arguments.clone(),
             )))
         },
         has_current_owner_i64_source,

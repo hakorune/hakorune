@@ -1,5 +1,5 @@
 //! Original static route membership for the homes-aware I64 observer.
-//! Qualified argument laws and the bounded CurrentOwner zeroarg law stay distinct.
+//! Qualified and bounded CurrentOwner source laws stay distinct.
 use super::{OwnedExprSiteV1, QualifiedStaticCallClaimV1};
 use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 
@@ -7,6 +7,11 @@ use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 enum StaticI64CallSourceV1 {
     Qualified(QualifiedStaticCallClaimV1),
     CurrentOwnerZeroArg(OwnedExprSiteV1),
+    CurrentOwnerSource {
+        site: OwnedExprSiteV1,
+        arity: u32,
+        required_i64_arguments: Box<[u32]>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -33,10 +38,36 @@ impl StaticI64CallClaimV1 {
         matches!(self.source, StaticI64CallSourceV1::CurrentOwnerZeroArg(_))
     }
 
+    /// The original target/result index issues this source-only input law.
+    pub(crate) fn current_owner_source(
+        site: OwnedExprSiteV1,
+        arity: u32,
+        required_i64_arguments: Box<[u32]>,
+    ) -> Self {
+        Self {
+            source: StaticI64CallSourceV1::CurrentOwnerSource {
+                site,
+                arity,
+                required_i64_arguments,
+            },
+        }
+    }
+
+    pub(crate) fn current_owner_source_required_i64_arguments(&self) -> Option<&[u32]> {
+        match &self.source {
+            StaticI64CallSourceV1::CurrentOwnerSource {
+                required_i64_arguments,
+                ..
+            } => Some(required_i64_arguments),
+            _ => None,
+        }
+    }
+
     pub(crate) fn qualified_claim(&self) -> Option<&QualifiedStaticCallClaimV1> {
         match &self.source {
             StaticI64CallSourceV1::Qualified(claim) => Some(claim),
             StaticI64CallSourceV1::CurrentOwnerZeroArg(_) => None,
+            StaticI64CallSourceV1::CurrentOwnerSource { .. } => None,
         }
     }
 
@@ -54,6 +85,15 @@ impl StaticI64CallClaimV1 {
                 original == site
                     && receiver == ResolvedMethodCallReceiverSourceV1::CurrentOwner
                     && arity == 0
+            }
+            StaticI64CallSourceV1::CurrentOwnerSource {
+                site: original,
+                arity: original_arity,
+                ..
+            } => {
+                original == site
+                    && receiver == ResolvedMethodCallReceiverSourceV1::CurrentOwner
+                    && arity == *original_arity
             }
         }
     }

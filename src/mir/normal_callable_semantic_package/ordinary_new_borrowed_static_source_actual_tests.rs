@@ -50,6 +50,18 @@ fn current_owner_nonopaque_actual_retains_original_source_without_entry() {
         rows.ordered_arguments.as_ref(),
         [LocalCallArgumentV1::Integer(8)]
     ));
+    let observed = package
+        .ordinary_new_claim_ledger
+        .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+        .expect("local initializer uses the same source-only arguments");
+    assert!(matches!(
+        observed.arguments(),
+        [LocalCallArgumentV1::Integer(8)]
+    ));
+    assert!(package
+        .ordinary_new_claim_ledger
+        .completion_for_owner(original.call_site().owner())
+        .is_some());
     let wrong = BorrowedCallActualCandidateV1 {
         value: BorrowedCallActualValueV1::Bool(true),
         ..actual
@@ -62,6 +74,45 @@ fn current_owner_nonopaque_actual_retains_original_source_without_entry() {
     )
     .unwrap_err()
     .contains("nonopaque-integer-unproved"));
+}
+
+#[test]
+fn current_owner_input_direct_return_uses_original_source_arguments() {
+    let package = package("static box Layout { pick(p: i64): i64 { return p + 1 } run(): i64 { return me.pick(8) } } static box Main { main() { return 0 } }");
+    let ingress = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let original = ingress
+        .source_incoming
+        .static_observations()
+        .values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.target().name() == "pick" && row.current_owner_source().is_some())
+        .expect("original direct-return CurrentOwner source");
+    let observed = package
+        .ordinary_new_claim_ledger
+        .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+        .expect("direct return observes the original Static source");
+    assert!(observed.local_binding().is_none());
+    assert!(matches!(
+        observed.arguments(),
+        [LocalCallArgumentV1::Integer(8)]
+    ));
+    assert!(package
+        .ordinary_new_claim_ledger
+        .completion_for_owner(original.call_site().owner())
+        .is_some());
+    let staged = package.ordinary_new_claim_ledger.borrowed_formal_actuals[original.call_site()]
+        .as_ref()
+        .unwrap();
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &staged.phase else {
+        panic!("direct return remains source-only");
+    };
+    assert!(Rc::ptr_eq(&identity.source, original));
 }
 
 #[test]
