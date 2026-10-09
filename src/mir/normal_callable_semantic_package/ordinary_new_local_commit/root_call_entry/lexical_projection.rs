@@ -81,6 +81,18 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
         &self.packet.invoke
     }
 
+    pub(in crate::mir) fn into_local_group_parts(
+        self,
+    ) -> (
+        crate::mir::resolved_semantics::OwnedExprSiteV1,
+        Vec<(BasicBlockId, MirInstruction)>,
+        EmittedLexicalCallProjectionV1,
+    ) {
+        let site = self.packet.call_site().clone();
+        let bindings = vec![self.packet.invoke.clone(), self.packet.projection.clone()];
+        (site, bindings, self.packet)
+    }
+
     pub(in crate::mir) fn new(
         packet: crate::mir::normal_callable_semantic_package::VerifiedStaticLoopPacketSourceV1,
         read: CanonicalBindingReadReceiptV1,

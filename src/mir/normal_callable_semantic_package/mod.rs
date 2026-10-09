@@ -144,6 +144,9 @@ pub(in crate::mir) use ordinary_new_coseal::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
     VerifiedLoopStaticBodyScalarSourceV1,
 };
+pub(crate) use ordinary_new_coseal::{
+    PreparedLoopStaticBodyRetentionV1, PreparedRootLexicalCallBindingGroupV1,
+};
 pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::VerifiedStaticLoopTaggedEntrySourceV1;

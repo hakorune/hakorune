@@ -271,6 +271,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .values()
             .flatten()
             .any(|group| group.lexical().is_some());
+        let has_selected_loop_body_calls = !self.selected_loop_body_packets.borrow().is_empty();
         // The source loan follows verified main identity plus retained
         // source evidence — a terminal relation is only one inventory.
         // Checked birth actuals and lexical local-call rows are equally
@@ -278,7 +279,10 @@ impl OrdinaryNewClaimLedgerV1 {
         // never from the terminal map alone. An actually-empty terminal
         // map is legitimate transport data.
         let needs_source =
-            !self.terminal_relation.is_empty() || !actuals.is_empty() || has_lexical_local_calls;
+            !self.terminal_relation.is_empty()
+                || !actuals.is_empty()
+                || has_lexical_local_calls
+                || has_selected_loop_body_calls;
         if needs_source && self.app_main_catalog_key.is_none() {
             return Err(freeze("artifact-root-catalog-key-unavailable"));
         }
@@ -314,6 +318,7 @@ impl OrdinaryNewClaimLedgerV1 {
             terminals: self.terminal_relation.as_ref().clone(),
             call_entries,
             local_calls: std::mem::take(&mut *self.root_local_call_bindings.borrow_mut()),
+            loop_body_calls: std::mem::take(&mut *self.selected_loop_body_packets.borrow_mut()),
         });
         let birth_actuals = actuals.into_boxed_slice();
         *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {

@@ -25,6 +25,12 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
         self.group.commit()?;
         Ok(self.packet)
     }
+
+    /// The selected collector has already committed after this group's
+    /// source-order preflight; no fallible check may follow that terminal.
+    pub(crate) fn commit_after_collected(self) {
+        self.group.commit_after_collected();
+    }
 }
 
 impl PreparedRootLocalCallBindingGroupV1<'_> {
@@ -49,9 +55,28 @@ impl PreparedRootLocalCallBindingGroupV1<'_> {
         rows.entry(self.owner).or_default().push(self.group);
         Ok(())
     }
+
+    fn commit_after_collected(self) {
+        self.ledger
+            .root_local_call_bindings
+            .borrow_mut()
+            .entry(self.owner)
+            .or_default()
+            .push(self.group);
+    }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn selected_static_entry_group_count_for_test(&self) -> usize {
+        self.root_local_call_bindings
+            .borrow()
+            .values()
+            .flatten()
+            .filter(|group| group.lexical().is_some())
+            .count()
+    }
+
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn with_local_call_binding_groups_for_test<
         R,

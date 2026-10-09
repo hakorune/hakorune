@@ -41,6 +41,7 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyScalarSourceV1 {
 
 /// Unpublished body packet: one original source cohort and one canonical
 /// physical read/Invoke. No Home local call, finished coordinate or ABI grant.
+#[derive(Debug)]
 pub(in crate::mir) struct VerifiedLoopStaticBodyPrepacketV1 {
     source: VerifiedLoopStaticBodyScalarSourceV1,
     read: CanonicalBindingReadReceiptV1,
@@ -51,11 +52,51 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyPrepacketV1 {
 
 /// One selected body call on DraftSeal's verified detached function. It is
 /// not a collector row or a published executable carrier.
+#[derive(Debug)]
 pub(in crate::mir) struct PreparedLoopStaticBodyDetachedPacketV1 {
     prepacket: VerifiedLoopStaticBodyPrepacketV1,
     actual: PreparedBorrowedFormalActualV1,
     coordinate: (crate::mir::BasicBlockId, usize),
     original_invoke: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+}
+
+/// A preflighted owner/site slot held across the collector's fallible checks.
+pub(crate) struct PreparedLoopStaticBodyRetentionV1<'ledger> {
+    ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    site: OwnedExprSiteV1,
+    packet: PreparedLoopStaticBodyDetachedPacketV1,
+}
+
+impl PreparedLoopStaticBodyRetentionV1<'_> {
+    pub(crate) fn commit_after_collected(self) {
+        self.ledger
+            .selected_loop_body_packets
+            .borrow_mut()
+            .insert(self.site, self.packet);
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn selected_loop_body_packet_count_for_test(&self) -> usize {
+        self.selected_loop_body_packets.borrow().len()
+    }
+
+    pub(crate) fn prepare_selected_loop_body_retention(
+        &self,
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        packet: PreparedLoopStaticBodyDetachedPacketV1,
+    ) -> Result<PreparedLoopStaticBodyRetentionV1<'_>, String> {
+        let site = packet.source_site().clone();
+        if site.owner() != owner || self.selected_loop_body_packets.borrow().contains_key(&site) {
+            return Err("[freeze:contract][callable-loop/body-retention-site-drift]".into());
+        }
+        Ok(PreparedLoopStaticBodyRetentionV1 {
+            ledger: self,
+            site,
+            packet,
+        })
+    }
 }
 
 impl PreparedLoopStaticBodyDetachedPacketV1 {

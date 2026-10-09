@@ -979,3 +979,13 @@ Loop 6/6 and physical-boundary 7/7 pass on the quick-profile binary, including
 the original mimalloc entry, source/Home and physical-shape negatives, and the
 normal PHI rejection. The caller still aborts/restores at packet-missing;
 collector retention, finished projection and ABI coverage remain owed.
+
+Selected collector/retention S0: the selected function entry preflights its
+exact entry group and body packet before canonical collector admission. A
+successful collection commits both to the existing ledger before parent
+restore; failed admission leaves both absent. Quick-profile focused tests:
+packet preflight/admission 1/1 (normal, missing route and duplicate collector
+variants), Static Loop 6/6, PhysicalBoundary 7/7, finished copy 5/5 and
+terminal visitor 6/6. The selected result handoff is still peeked rather than
+taken; final LoopBody visitor, incoming coverage, production EXE and old-edge
+retirement remain owed. Do not describe this collector row as full publication.

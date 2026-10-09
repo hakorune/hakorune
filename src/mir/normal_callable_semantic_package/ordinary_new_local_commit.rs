@@ -28,6 +28,7 @@ use std::rc::Rc;
 
 use self::root_home::RootHomeExitEntry;
 pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
+pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;
 
 #[derive(Debug)]
 pub(super) enum RootNewValidation {
@@ -216,6 +217,8 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     // Original local prefix groups from every selected owner. The same
     // packet can be shared with sibling exit entries; its Taken rows are not copied.
     local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLocalCallBindingGroupV1>>,
+    // The selected LoopBody source packet has no Home local-call observation.
+    loop_body_calls: std::collections::BTreeMap<OwnedExprSiteV1, super::PreparedLoopStaticBodyDetachedPacketV1>,
 }
 
 #[path = "ordinary_new_local_commit/finalized_source_projection.rs"]

@@ -320,6 +320,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         terminals: ledger.terminal_relation.as_ref().clone(),
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
+        loop_body_calls: Default::default(),
     };
     let mut module = crate::mir::MirModule::new("final-root-cleanup".into());
     module
@@ -444,6 +445,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         terminals: ledger.terminal_relation.as_ref().clone(),
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
+        loop_body_calls: Default::default(),
     };
     let mut module = crate::mir::MirModule::new("return-loan".into());
     module

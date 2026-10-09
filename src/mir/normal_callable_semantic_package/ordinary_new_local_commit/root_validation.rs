@@ -509,6 +509,13 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
+        result.extend(
+            self.selected_loop_body_packets
+                .borrow()
+                .values()
+                .filter(|packet| packet.source_site().owner() == owner)
+                .map(|packet| packet.original_invoke_binding().clone()),
+        );
         Ok(result)
     }
 }

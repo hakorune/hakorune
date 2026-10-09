@@ -1756,8 +1756,9 @@ For the selected Static I64 Loop V2, the cataloged function entry consumes
 the package's one-take source/Home product before route classification or
 function draft effects. The exact resolver Loop site, original Static loans
 and common Recipe/JoinSig remain its authority. Other methods retain their
-existing route. The selected unpublished terminal is now
-`static-i64-v2/executable-packet-missing` after detached DraftSeal projection.
+existing route. The selected entry prepares detached DraftSeal projection and
+preflights the exact entry-call group and body-call packet before collector
+admission.
 The raw Loop stop remains fail-closed if reached without the function-entry
 handoff, and cannot retry another route after source evidence is consumed.
 The same entry now joins the package's checked OpaqueHandle source receipt to
@@ -1765,17 +1766,18 @@ its scoped physical signature loan: one Static formal, no receiver, lane 0,
 `OrdinaryScalar`, ordinal 0, and the exact resolver binding must agree.
 `OrdinaryScalar` alone is not tagged-carrier authority. The same package's
 result-catalog I64 row and complete unannotated value-return set authorize
-the physical result. The canonical owner installs a disposable shell with
+the physical result. The canonical owner installs a selected shell with
 one `BorrowedTaggedValue` `%0` and I64 result, preserving the original
 source declaration and absent result annotation in metadata. The same draft
 materializes the original header, body, backedge and tail, seals each canonical
 CFG/SSA block, verifies both Completion exits, and prepares the exact-two
-detached DraftSeal projection before explicitly aborting its pending draft
-and restoring the parent. This still grants no final body-call carrier,
-finished packet, collector admission or production MIR. Its effect mask remains a conservative
-unpublished upper bound until packet/effect proof.
+detached DraftSeal projection. Collector success commits the preflighted entry
+group and body packet to the existing ledger, then restores the parent;
+collector failure restores the parent without packet retention. This grants
+no finished body-call carrier, final incoming coverage or production EXE.
+Its effect mask remains a conservative upper bound until packet/effect proof.
 The selected detached projection now lends the original entry and body Invoke
 bindings to the existing child `PhysicalBoundary`. Only the exact body block
 may carry a leading single-predecessor PHI; normal child capture still rejects
-that shape. This records a checked unpublished correspondence, not a finished
-coordinate or a published packet.
+that shape. This records a checked correspondence for the selected collector
+row, not a finished body-call coordinate or final published program.

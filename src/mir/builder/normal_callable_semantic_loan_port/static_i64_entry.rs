@@ -1,25 +1,25 @@
 //! The selected Static I64 Loop is taken at the cataloged function boundary.
-//! Its physical entry is disposable until the executable packet is proved.
+//! Its checked draft is collected only after exact packet retention preflight.
 
 use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1};
 use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1;
 use crate::mir::normal_callable_semantic_package::SelectedCallableLoweringInputRefV1;
 
-pub(super) fn stop_if_selected(
+pub(super) fn collect_if_selected(
     builder: &mut MirBuilder,
-    module_port: &ModuleLoweringPortV1<'_>,
+    module_port: &mut ModuleLoweringPortV1<'_>,
     selected: &SelectedCallableLoweringInputRefV1<'_>,
-    physical_symbol: &str,
+    admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
     claims: &OrdinaryNewClaimLedgerV1,
     signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
-) -> Result<(), String> {
+) -> Result<bool, String> {
     let input = selected.source();
     let Some(product) =
         super::super::raw_loop_child_entry::take_at_function_entry_v2(input, claims)?
     else {
-        return Ok(());
+        return Ok(false);
     };
     let formal = product.join_physical_signature_v2(signature)?;
     let result = claims
@@ -40,43 +40,53 @@ pub(super) fn stop_if_selected(
         })??;
     claims.require_static_loop_local_route_v1(&packet)?;
     let (caller, site) = packet.publication_source();
-    let handoff = module_port
-        .selected_static_result_handoff_for_source(caller, site)
-        .ok_or_else(|| {
-            "[freeze:contract][callable-loop/static-publication-handoff-missing]".to_owned()
-        })?;
-    if !packet.corroborates_publication_handoff(handoff) {
-        return Err("[freeze:contract][callable-loop/static-publication-handoff-drift]".to_owned());
-    }
-    crate::mir::builder::resolved_lowering::stop_after_unpublished_static_loop_entry_v1(
-        builder,
-        input,
-        selected.block_expr_expectation(),
-        physical_symbol,
-        &product,
-        &formal,
-        &result,
-        packet,
-        handoff,
-        claims,
-    )
+    let prepared = {
+        let handoff = module_port
+            .selected_static_result_handoff_for_source(caller, site)
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/static-publication-handoff-missing]".to_owned()
+            })?;
+        if !packet.corroborates_publication_handoff(handoff) {
+            return Err(
+                "[freeze:contract][callable-loop/static-publication-handoff-drift]".to_owned(),
+            );
+        }
+        crate::mir::builder::resolved_lowering::prepare_selected_static_loop_entry_v1(
+            builder,
+            input,
+            selected.block_expr_expectation(),
+            admission,
+            &product,
+            &formal,
+            &result,
+            packet,
+            handoff,
+            claims,
+        )?
+    };
+    prepared.collect(module_port, admission)?;
+    Ok(true)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::module_draft_collector::{
+        DraftPublicationPolicyV1, FunctionDraftKeyV1,
+    };
     use crate::mir::builder::{
         CanonicalSameModuleCallableKeyV1, CompilationContext, MirBuilder,
         NormalCatalogedBoxMethodDraftAdmissionV1,
     };
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
     use crate::runner::modes::common_util::normal_callable::{
         materialize_normal_callable_program_with_identity_and_lineage_v1,
         NormalCallableMaterializationOutcomeV1,
     };
 
     #[test]
-    fn original_static_loop_stops_at_cataloged_entry_before_builder_effects() {
+    fn original_static_loop_collects_only_after_packet_preflight() {
         std::thread::Builder::new()
             .name("static-loop-function-entry".into())
             .stack_size(32 * 1024 * 1024)
@@ -91,7 +101,9 @@ mod tests {
                     ])
                     .collect();
                 crate::test_support::with_env_vars(&env_updates, || {
-                    for missing_route in [false, true] {
+                    for (missing_route, duplicate_collector) in
+                        [(false, false), (true, false), (false, true)]
+                    {
                         let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                             .join("apps/mimalloc-lite/main.hako");
                         let code = std::fs::read_to_string(&filename).unwrap();
@@ -137,6 +149,24 @@ mod tests {
                         let mut builder = MirBuilder::new();
                         let mut collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
                         collector.install_static_result_publication_owner(publication).unwrap();
+                        if duplicate_collector {
+                            let symbol = admission.physical_symbol().to_owned();
+                            let draft = MirFunction::new(
+                                FunctionSignature {
+                                    name: symbol.clone(),
+                                    params: vec![MirType::Integer],
+                                    return_type: MirType::Integer,
+                                    effects: EffectMask::PURE,
+                                },
+                                BasicBlockId(0),
+                            );
+                            collector.prepare_admission(
+                                FunctionDraftKeyV1::CatalogedBoxMethod(admission.source_key().clone()),
+                                symbol,
+                                admission.physical_arity(),
+                                DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                            ).unwrap().seal(draft).unwrap().collect();
+                        }
                         let mut invocation = crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
                             &mut builder, collector,
                         );
@@ -147,18 +177,24 @@ mod tests {
                                 &mut raw_port, package_port, None, None,
                             ).unwrap();
                             use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
-                            let error = adapter.lower_cataloged_static_box_method(
+                            let outcome = adapter.lower_cataloged_static_box_method(
                                 builder, admission, Vec::new(), Vec::new(), None,
                                 Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
-                            ).unwrap_err();
-                            let expected = if missing_route {
-                                "static-packet-route-missing"
+                            );
+                            if missing_route {
+                                let error = outcome.unwrap_err();
+                                assert!(error.contains("static-packet-route-missing"), "{error}");
+                            } else if duplicate_collector {
+                                let error = outcome.unwrap_err();
+                                assert!(error.contains("DuplicateKey"), "{error}");
                             } else {
-                                "static-i64-v2/executable-packet-missing"
-                            };
-                            assert!(error.contains(expected), "{error}");
+                                assert!(outcome.is_ok(), "{outcome:?}");
+                            }
                             drop(adapter);
-                            module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), 0));
+                            let expected = usize::from(!missing_route && !duplicate_collector);
+                            module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), usize::from(!missing_route)));
+                            assert_eq!(installed.ordinary_new_claim_ledger().selected_loop_body_packet_count_for_test(), expected);
+                            assert_eq!(installed.ordinary_new_claim_ledger().selected_static_entry_group_count_for_test(), expected);
                         });
                         assert!(builder.function_state.current_function.is_none());
                         assert!(builder.function_state.current_block.is_none());

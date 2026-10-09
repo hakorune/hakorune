@@ -93,6 +93,8 @@ pub(in crate::mir) use loop_static_body_actual::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
     VerifiedLoopStaticBodyScalarSourceV1,
 };
+pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
+pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
@@ -312,6 +314,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     loop_static_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>>>,
     loop_static_body_scalar_sources: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>>>,
+    // The selected body call has no Home local-call observation. Its own
+    // source/physical packet enters only after successful collector admission.
+    selected_loop_body_packets: RefCell<BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>>,
     loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
     loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
     loop_tail_static_i64_source_loans: RefCell<BTreeMap<SourceStmtSiteV1, Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>>>,

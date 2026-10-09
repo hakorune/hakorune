@@ -754,3 +754,4 @@ pub(in crate::mir) use call_entry::{
 };
 
 pub(crate) use call_entry::RootLocalCallBindingGroupV1;
+pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;

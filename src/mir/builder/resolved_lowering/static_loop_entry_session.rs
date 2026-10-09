@@ -1,22 +1,25 @@
-//! Disposable canonical entry for the selected Static I64 Loop.
-//! Source/result receipts choose the ABI; no executable packet is admitted here.
+//! Canonical entry for the selected Static I64 Loop collector row.
+//! Source/result receipts choose the ABI; final incoming coverage remains owed.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::calls::PendingFunctionSessionCloseV1;
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
+use crate::mir::builder::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
+use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
 use crate::mir::builder::raw_loop_child_entry::{
     StaticI64LoopFunctionEntryV2, StaticI64LoopTaggedPhysicalFormalV2,
 };
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
-use crate::mir::builder::MirBuilder;
+use crate::mir::builder::{MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
-    BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1,
-    PreparedSelectedStaticLoopCallProjectionV1, VerifiedStaticLoopI64ResultSourceV1,
-    VerifiedStaticLoopPacketSourceV1,
+    BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1, PreparedLoopStaticBodyRetentionV1,
+    PreparedRootLexicalCallBindingGroupV1, PreparedSelectedStaticLoopCallProjectionV1,
+    VerifiedStaticLoopI64ResultSourceV1, VerifiedStaticLoopPacketSourceV1,
 };
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
@@ -24,18 +27,55 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId};
 
-pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
-    builder: &mut MirBuilder,
+pub(in crate::mir::builder) struct PreparedSelectedStaticLoopEntryV1<'builder, 'ledger> {
+    pending: PendingFunctionSessionCloseV1<'builder>,
+    entry_group: PreparedRootLexicalCallBindingGroupV1<'ledger>,
+    body_retention: PreparedLoopStaticBodyRetentionV1<'ledger>,
+}
+
+impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
+    pub(in crate::mir::builder) fn collect(
+        self,
+        module_port: &mut ModuleLoweringPortV1<'_>,
+        admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
+    ) -> Result<(), String> {
+        let Self {
+            pending,
+            entry_group,
+            body_retention,
+        } = self;
+        pending.complete_before_restore(|draft| {
+            let prepared = module_port
+                .prepare_draft_admission(
+                    FunctionDraftKeyV1::CatalogedBoxMethod(admission.source_key().clone()),
+                    admission.physical_symbol().to_owned(),
+                    admission.physical_arity(),
+                    DraftPublicationPolicyV1::CanonicalRejectDuplicate,
+                )
+                .map_err(|error| error.to_string())?;
+            prepared
+                .seal(draft)
+                .map_err(|error| error.to_string())?
+                .collect();
+            entry_group.commit_after_collected();
+            body_retention.commit_after_collected();
+            Ok(())
+        })
+    }
+}
+
+pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, 'ledger>(
+    builder: &'builder mut MirBuilder,
     input: ResolvedFunctionLoweringInputV1<'_>,
     expectation: &VerifiedResolvedBlockExpressionExpectationV1,
-    physical_symbol: &str,
+    admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
     product: &StaticI64LoopFunctionEntryV2,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     result_source: &VerifiedStaticLoopI64ResultSourceV1,
     packet_source: VerifiedStaticLoopPacketSourceV1,
     handoff: &VerifiedStaticCallResultPublicationHandoffV1,
-    claims: &OrdinaryNewClaimLedgerV1,
-) -> Result<(), String> {
+    claims: &'ledger OrdinaryNewClaimLedgerV1,
+) -> Result<PreparedSelectedStaticLoopEntryV1<'builder, 'ledger>, String> {
     let completion = claims.completion_for_owner(input.owner()).ok_or_else(|| {
         "[freeze:contract][callable-loop/static-entry-completion-missing]".to_owned()
     })?;
@@ -51,6 +91,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
         input,
         product.semantic().roles().loop_site.node(),
     )?;
+    let physical_symbol = admission.physical_symbol();
     let shell = prepare_shell(input, physical_symbol, formal, result_source)?;
 
     let mut outer = Some(builder.open_resolved_function_draft_seal_session_v1(physical_symbol));
@@ -152,9 +193,27 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             )?;
             Ok(packet)
         });
-        prepared.commit_pending().abort_and_restore();
-        let _projected_body = projected_body?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]".to_owned())
+        let retention = (|| {
+            let body_packet = projected_body?;
+            let body_retention =
+                claims.prepare_selected_loop_body_retention(input.owner(), body_packet)?;
+            let (site, bindings, packet) = entry_packet.into_local_group_parts();
+            let entry_group =
+                claims.prepare_root_lexical_call_bindings(input.owner(), site, bindings, packet)?;
+            Ok::<_, String>((entry_group, body_retention))
+        })();
+        let (entry_group, body_retention) = match retention {
+            Ok(value) => value,
+            Err(error) => {
+                prepared.commit_pending().abort_and_restore();
+                return Err(error);
+            }
+        };
+        Ok(PreparedSelectedStaticLoopEntryV1 {
+            pending: prepared.commit_pending(),
+            entry_group,
+            body_retention,
+        })
     })();
     if let Some(outer) = outer {
         outer.discard_unpublished();
