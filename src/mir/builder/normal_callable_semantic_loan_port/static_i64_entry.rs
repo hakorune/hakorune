@@ -16,6 +16,14 @@ pub(super) fn stop_if_selected(
         return Ok(());
     };
     let _formal = product.join_physical_signature_v2(signature)?;
+    let result = claims
+        .take_static_loop_i64_result_v1(&product.semantic().roles().loop_site)
+        .ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-result-source-missing]".to_owned()
+        })??;
+    if !result.corroborates(product.semantic()) {
+        return Err("[freeze:contract][callable-loop/static-result-source-mismatch]".to_owned());
+    }
     Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
 }
 

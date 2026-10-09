@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-loop-result-abi-source-i0"
+current_blocker_token = "selfhost-resume/static-loop-canonical-entry-i0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -26,10 +26,10 @@ The source-bound Static Loop V2 Recipe/JoinSig is closed at 7b9f345d7f;
 the ClosedCallable Home-neutral receipt is closed at b69906ee8a, and the
 cataloged function-entry handoff at 2069578825. The package now lends the
 original checked tagged-formal source receipt at function entry, joined to
-the sole package physical signature lane. Next: retain the existing Static
-result-catalog I64 proof for the unannotated selected entry, then preserve
-its tagged carrier and physical I64 result in one canonical SSA session.
-After that, issue executable
+the sole package physical signature lane. The existing Static result-catalog
+I64 proof is now retained for the unannotated selected entry and corroborates
+its two Completion exits. Next: preserve its tagged carrier and physical I64
+result in one unpublished canonical SSA session. After that, issue executable
 Static actual/packet and n/bin inputs. The original unannotated callees
 cannot use the declared-i64 direct-call shortcut.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.

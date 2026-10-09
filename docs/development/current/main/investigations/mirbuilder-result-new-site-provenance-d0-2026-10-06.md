@@ -802,39 +802,15 @@ that issuer/physical handoff and fix the exact source-only requirement contract;
 then close `n`/`bin` Home, V2 loop, SSA, and S2 packet in that order. The
 diagnostic failures are observed frontier, not accepted test regressions.
 
-Checked-input D0 Decision (2026-10-09): The canonical issuer is the existing
-borrowed-formal source package after it joins the original use draft,
-Static target/formal and complete source incoming graph. The issued condition
-is per callee formal and exact use/forward site: a tagged input may reach a
-checked numeric use, whose non-Integer tag Faults before payload consumption.
-`normalize_size(size)` supplies the concrete base case: `size <= 0` checks
-the tag, then both Normal return paths are I64; `size_to_bin(size)` only
-forwards the tagged input to that checked callee. The result catalog's
-`ExactI64.required_i64_arguments` corroborates a conditional result; it
-does not issue the input condition. `ExactBool` cannot carry that condition.
-All-caller Integer agreement and a source-only call row are non-authorities.
-
-The handoff retains the SAME original Static Rc, target/formal, argument
-ordinal and source use through the existing borrowed entry/finished-call
-packet. The final module scan and physical publisher independently verify
-the selected tagged carrier and exact checked-use coordinates. The C owner
-already checks kind 1 before numeric compare/arithmetic and Faults other
-kinds; forwarding does not convert the carrier or inspect its payload.
-S0 replaces only the source-only `candidate_integer_agreement` demand for
-an exact forwarded tagged formal when the callee's checked-use condition is
-sealed. Literal/declared I64 evidence stays on its existing arm. Missing
-callee condition, wrong site/Rc/ordinal, unproved return path, and a use
-before its check remain fail-closed. The positive is unchanged mimalloc
-`normalize_size` -> `size_to_bin`, including the Bool-returning `accepts`
-forward; S0 negatives cover missing/forged source correspondence and an
-unchecked target. Wrong-tag execution Fault belongs to later executable
-acceptance. This S0 grants neither loop Home/V2/SSA nor whole
-Static entry/packet or production EXE. Source-only and executable phases
-remain separate; executable use requires the later finished packet check.
-
-S0 source-only forwarding closed at `02d6ee4044`: original
-`normalize_size` -> `size_to_bin` -> `good_size`/`accepts` tagged chain;
-source1/1, domain10/10 and actual13/13 PASS. No executable grant.
+Checked-input source design closed at `02d6ee4044`: the borrowed-formal
+package joins original use/forward sites, Static target/formal and complete
+incoming source. A tagged input may reach a checked numeric use; wrong tags
+Fault before payload use. The result catalog corroborates conditional I64
+Normal output, not input classification. Whole-caller Integer agreement and
+source-only calls remain non-authorities. The original `normalize_size` ->
+`size_to_bin` -> `good_size`/`accepts` chain passed source 1/1, domain 10/10
+and actual 13/13; the commit owns detailed decisions and negatives. This
+source proof grants no executable packet or EXE.
 
 S1 callable-path correction and source-only loan landed at `264791096c`:
 the selected Loop enters `raw_loop_child_port`, not standalone `route_entry`;
@@ -972,3 +948,14 @@ reuse the absent physical header. Then one unpublished canonical session may
 install physical I64 result and the joined tagged formal, discarding its
 draft at the missing executable packet. Packet proof gates publication, not
 opening a disposable draft. No new result solver or fallback is authorized.
+
+Static result-source handoff closed: the original solver's function rows now
+survive call-site claim construction in the same package. The selected Loop
+takes one exact-key I64 row joined to its unannotated Completion; V2 checks
+that its inner and tail returns exhaust the retained exit set. Original
+mimalloc focused 2/2 and cataloged entry 1/1, candidate 6/6, Static claim
+family 9/9, physical header family 5/5, quick lib check PASS. Non-I64 Static
+rows remain non-I64; unannotated generic physical headers remain absent.
+No Builder session or production MIR was published. Next: one unpublished
+canonical session installs the tagged formal and physical I64 result, then
+discards on the still-missing executable Static packet.

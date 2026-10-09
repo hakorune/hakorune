@@ -2075,6 +2075,15 @@ the same Rc and Loop/declaration site. This receipt identifies the borrowed
 formal for later physical-signature admission; it does not classify its
 payload as I64 or install a carrier, ValueId, executable actual or packet.
 
+The selected unannotated Static Loop borrows its I64 result class from the
+same-module Static result solver's existing exact-key function row. Package
+issuance retains that row after call-site claim construction and joins it to
+the selected declaration identity and retained Completion value exits. The
+function-entry V2 product corroborates exactly its inner and tail return
+sites. An absent/non-I64 row, Void result, foreign owner or extra exit stays
+fail-closed; this does not synthesize a source `: i64` annotation or publish
+a physical return.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

@@ -517,6 +517,8 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
                 assert_eq!(joined.formal(), product.tagged_formal());
                 assert_eq!(joined.lane_index(), 0);
                 assert_eq!(joined.carrier(), crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue);
+                let result = claims.take_static_loop_i64_result_v1(loop_site).unwrap().unwrap();
+                assert!(result.corroborates(product.semantic()));
                 let foreign = package.physical_signature().rows().find(|row| row.owner() != input.owner()).unwrap();
                 let foreign = crate::mir::normal_callable_semantic_package::ResolvedCallablePhysicalSignatureLoanV1::from_s6c_row(foreign);
                 assert!(product.join_physical_signature_v2(&foreign).unwrap_err().contains("static-tagged-signature-mismatch"));

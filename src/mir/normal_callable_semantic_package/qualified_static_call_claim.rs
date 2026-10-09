@@ -51,6 +51,9 @@ pub(in crate::mir::normal_callable_semantic_package) enum QualifiedStaticCallCla
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallClaimIndexV1 {
     catalog_brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
+    // These are the SAME solver-issued function rows used for call-site
+    // claims. Selected unannotated Static entries may borrow one exact row.
+    result_rows: BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
     // The original current-owner route stays disjoint from qualified claims.
     // Retaining its result disposition grants no incoming or executable ABI.
     current_owner_rows: BTreeMap<
@@ -149,11 +152,20 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
+        let result_rows = results.into_dispositions();
         Ok(Self {
             catalog_brand: declarations.brand().clone(),
+            result_rows,
             rows,
             current_owner_rows,
         })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn result_for_key(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> Option<&VerifiedCallableResultDispositionV1> {
+        self.result_rows.get(key)
     }
 
     fn current_owner_i64_source(

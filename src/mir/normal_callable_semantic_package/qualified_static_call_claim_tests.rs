@@ -397,6 +397,10 @@ fn current_owner_source_retains_original_route_and_result_without_qualified_clai
         .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(caller.clone()))
         .unwrap();
     let claims = &package.source_static_claims_for_test;
+    let need = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "need", 1);
+    let text = CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "text", 1);
+    assert!(matches!(claims.result_for_key(&need), Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })));
+    assert_eq!(claims.result_for_key(&text), Some(&VerifiedCallableResultDispositionV1::ExactString));
     let mut checked = 0;
     package.batch().with_lowering_input(slot, |input| {
         for (site, call) in input.function().method_calls() {
