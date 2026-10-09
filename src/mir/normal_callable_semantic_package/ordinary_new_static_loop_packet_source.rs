@@ -50,7 +50,14 @@ impl VerifiedStaticLoopPacketSourceV1 {
         self.original.call_site()
     }
 
-    fn corroborates_local_call(&self, observation: &LocalCallObservationV1) -> bool {
+    pub(in crate::mir) fn original_source(&self) -> &Rc<StaticIncomingSourceV1> {
+        &self.original
+    }
+
+    pub(in crate::mir) fn corroborates_local_call(
+        &self,
+        observation: &LocalCallObservationV1,
+    ) -> bool {
         observation.site() == self.original.call_site()
             && observation.result() == LocalCallResultClassV1::I64
             && matches!(observation.local_binding(), Some((declaration, _))

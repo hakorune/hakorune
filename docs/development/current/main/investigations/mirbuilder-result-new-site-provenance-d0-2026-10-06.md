@@ -874,3 +874,19 @@ acceptance is one original CurrentOwner packet with exact source/actual and
 physical coordinates, plus late-failure rejection before either shared
 mutation. The qualified Return caller and final independent incoming/entry
 verification remain separate required edges before production publication.
+
+Selected lexical prepacket S0: the existing lexical packet owner now has a
+bounded `SelectedStaticLoop` source arm and an unpublished prepared wrapper.
+It checks the original local-call observation, checked forwarded actual,
+canonical identity/SSA read receipt, exact entry ValueId/block, and the
+emitted Invoke/NormalResult through the same lexical materialization path.
+The generic Static packet law remains closed, and the generic lexical emitter
+rejects the selected arm. The wrapper cannot enter a root binding group or
+consume the affine result handoff; the disposable caller drops it at the
+later `actual-coverage-missing` stop. Focused unchanged mimalloc entry 1/1,
+generic Static packet 3/3, physical shape negative 1/1, staged candidate
+drift 1/1, original source/Home mutation 1/1 and foreign result catalog
+take 1/1 passed with the quick-profile binary. No production caller switch,
+finished coordinate or collector admission is claimed. Next: retain this
+prepared packet through a complete caller body, then preflight the whole
+function and publish it with the handoff at the collector terminal.

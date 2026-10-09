@@ -1,5 +1,6 @@
 //! Physical corroboration of the original ordered lexical call tree.
 //! This root Call entry owner never classifies source or issues affine rows.
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::builder::ExactLexicalReadV1;
 use crate::mir::definitions::MirCall;
 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
@@ -34,6 +35,11 @@ pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
         read: ExactLexicalReadV1,
         entry: Option<(u32, crate::mir::resolved_semantics::BindingRefV1, ValueId)>,
     },
+    SelectedCanonicalRead {
+        ordinal: u32,
+        site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        read: CanonicalBindingReadReceiptV1,
+    },
 }
 
 #[derive(Debug)]
@@ -60,6 +66,54 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
     projection: Binding,
 }
 
+/// A checked physical packet held inside the unfinished caller. Only the
+/// later publication terminal may exchange it for an emitted lexical packet.
+pub(in crate::mir) struct PreparedSelectedStaticLoopCallProjectionV1 {
+    packet: EmittedLexicalCallProjectionV1,
+}
+
+impl PreparedSelectedStaticLoopCallProjectionV1 {
+    pub(in crate::mir) fn source_site(&self) -> &crate::mir::resolved_semantics::OwnedExprSiteV1 {
+        self.packet.call_site()
+    }
+
+    pub(in crate::mir) fn new(
+        packet: crate::mir::normal_callable_semantic_package::VerifiedStaticLoopPacketSourceV1,
+        read: CanonicalBindingReadReceiptV1,
+        entry_value: ValueId,
+        invoke: Binding,
+        projection: Binding,
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    ) -> Result<Self, String> {
+        let row = CallPacketSourceV1::selected_static_loop(packet, ledger)?;
+        let CallPacketSourceLoanV1::SelectedStaticLoop { observation, .. } = row.loan() else {
+            unreachable!("selected static source constructor");
+        };
+        let source = observation.arguments().to_vec();
+        let [LocalCallArgumentV1::BorrowedActual { ordinal, site }] = source.as_slice() else {
+            return Err(freeze("selected-static-packet/argument-shape"));
+        };
+        if read.physical_block() != invoke.0 || read.physical_value() != entry_value {
+            return Err(freeze("selected-static-packet/read-entry-drift"));
+        }
+        let packet = EmittedLexicalCallProjectionV1 {
+            row,
+            prepared: PreparedLexicalCallProjectionV1 {
+                receiver: LexicalReceiverProjectionV1::AbsentStatic,
+                arguments: vec![LexicalCallArgumentProjectionV1::SelectedCanonicalRead {
+                    ordinal: *ordinal,
+                    site: site.clone(),
+                    read,
+                }],
+            },
+            invoke,
+            projection,
+        };
+        packet.value_with_ledger(read.owner(), &source, ledger)?;
+        Ok(Self { packet })
+    }
+}
+
 impl PreparedLexicalCallProjectionV1 {
     #[cfg(test)]
     fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
@@ -83,6 +137,7 @@ impl PreparedLexicalCallProjectionV1 {
                     require_recorded(bindings, binding, finishing)?;
                 }
                 LexicalCallArgumentProjectionV1::BorrowedRead { .. } => {}
+                LexicalCallArgumentProjectionV1::SelectedCanonicalRead { .. } => {}
                 LexicalCallArgumentProjectionV1::Scalar(_) => {}
                 LexicalCallArgumentProjectionV1::CallResult(inner) => {
                     inner.validate_recorded_projected(bindings, finishing)?;
@@ -101,9 +156,11 @@ impl PreparedLexicalCallProjectionV1 {
             (CallPacketSourceLoanV1::Instance(_), Some(read)) => {
                 LexicalReceiverProjectionV1::Lexical(read)
             }
-            (CallPacketSourceLoanV1::Static { .. }, None) => {
-                LexicalReceiverProjectionV1::AbsentStatic
-            }
+            (
+                CallPacketSourceLoanV1::Static { .. }
+                | CallPacketSourceLoanV1::SelectedStaticLoop { .. },
+                None,
+            ) => LexicalReceiverProjectionV1::AbsentStatic,
             _ => return Err(freeze("lexical-i64/source-receiver-drift")),
         };
         Ok(Self {
@@ -180,6 +237,26 @@ impl PreparedLexicalCallProjectionV1 {
                     row.target()
                         .canonical_global_target_v1()
                         .map_err(|_| freeze("static-packet/global-target"))?,
+                )
+            }
+            CallPacketSourceLoanV1::SelectedStaticLoop {
+                packet,
+                observation,
+            } => {
+                if !matches!(self.receiver, LexicalReceiverProjectionV1::AbsentStatic)
+                    || source != observation.arguments()
+                    || !packet.corroborates_local_call(observation)
+                    || ledger
+                        .ok_or_else(|| freeze("selected-static-packet/ledger-missing"))?
+                        .local_call_for_owner(owner, observation.site().site())
+                        != Some(observation)
+                {
+                    return Err(freeze("selected-static-packet/source-drift"));
+                }
+                crate::mir::definitions::Callee::Global(
+                    row.target()
+                        .canonical_global_target_v1()
+                        .map_err(|_| freeze("selected-static-packet/global-target"))?,
                 )
             }
             CallPacketSourceLoanV1::Instance(instance) => {

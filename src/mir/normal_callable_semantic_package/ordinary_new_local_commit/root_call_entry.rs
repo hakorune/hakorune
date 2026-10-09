@@ -728,6 +728,7 @@ mod lexical_projection;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 #[path = "root_call_entry/local_binding_group.rs"]

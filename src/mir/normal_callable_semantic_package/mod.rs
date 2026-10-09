@@ -198,6 +198,7 @@ pub(in crate::mir) use ordinary_new_coseal::{
     BorrowedFormalActualSourceV1, CallPacketSourceLoanV1, CallPacketSourceV1,
     EmittedLexicalCallProjectionV1, LexicalCallArgumentProjectionV1,
     PreparedBorrowedFormalActualV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 pub(in crate::mir) use ordinary_new_coseal::FinalizedLexicalCallContextV1;

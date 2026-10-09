@@ -2136,6 +2136,15 @@ qualified Return. The canonical CurrentOwner entry reads the row's binding;
 neither a caller-formal guess nor a fabricated lexical read can supply the
 actual. This loan grants no generic `SourceStatic` executable phase or final
 packet coordinate.
+The lexical packet owner now accepts that one selected CurrentOwner source
+through a private prepared arm. It pairs the original source Rc and local
+observation with the canonical identity/SSA read receipt, the checked
+forwarded actual, and the physical Invoke/NormalResult pair. It refuses a
+different entry ValueId or block and leaves the ordinary Static packet's
+qualified/zero-input law unchanged. The prepared packet cannot enter the root
+binding group: it has no publication handoff, finished coordinate or
+whole-caller admission yet. The disposable function currently validates and
+drops it at the later body-coverage stop.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

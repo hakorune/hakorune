@@ -677,6 +677,7 @@ mod physical_boundary;
 pub(in crate::mir) use root_home::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 pub(crate) use root_home::RootLocalCallBindingGroupV1;

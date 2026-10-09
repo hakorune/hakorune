@@ -14,7 +14,8 @@ use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicat
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
-    BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1, VerifiedStaticLoopI64ResultSourceV1,
+    BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1,
+    PreparedSelectedStaticLoopCallProjectionV1, VerifiedStaticLoopI64ResultSourceV1,
     VerifiedStaticLoopPacketSourceV1,
 };
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
@@ -31,7 +32,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     product: &StaticI64LoopFunctionEntryV2,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     result_source: &VerifiedStaticLoopI64ResultSourceV1,
-    packet_source: &VerifiedStaticLoopPacketSourceV1,
+    packet_source: VerifiedStaticLoopPacketSourceV1,
     handoff: &VerifiedStaticCallResultPublicationHandoffV1,
     claims: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(), String> {
@@ -77,6 +78,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             handoff,
             formal,
             value,
+            claims,
         )?;
         Err("[freeze:contract][callable-loop/static-i64-v2/actual-coverage-missing]".to_owned())
     })();
@@ -88,10 +90,11 @@ fn emit_unpublished_static_invoke(
     draft: &mut MirBuilder,
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     semantic: &VerifiedStaticI64LoopSemanticV2,
-    packet: &VerifiedStaticLoopPacketSourceV1,
+    packet: VerifiedStaticLoopPacketSourceV1,
     handoff: &VerifiedStaticCallResultPublicationHandoffV1,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     entry_value: ValueId,
+    claims: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(), String> {
     let entry = draft
         .function_state
@@ -206,6 +209,30 @@ fn emit_unpublished_static_invoke(
         result,
     )?;
     frame_owner.validate(function)?;
+    let invoke = function
+        .blocks
+        .get(&entry)
+        .and_then(|block| block.terminator.as_ref())
+        .ok_or_else(|| "[freeze:contract][callable-loop/static-invoke-binding-missing]".to_owned())?
+        .clone();
+    let projection = function
+        .blocks
+        .get(&normal)
+        .and_then(|block| block.instructions.first())
+        .ok_or_else(|| "[freeze:contract][callable-loop/static-result-binding-missing]".to_owned())?
+        .clone();
+    let source_site = packet.local_call_site().clone();
+    let prepared = PreparedSelectedStaticLoopCallProjectionV1::new(
+        packet,
+        actual,
+        entry_value,
+        (entry, invoke),
+        (normal, projection),
+        claims,
+    )?;
+    if prepared.source_site() != &source_site {
+        return Err("[freeze:contract][callable-loop/static-packet-site-drift]".into());
+    }
     Ok(())
 }
 

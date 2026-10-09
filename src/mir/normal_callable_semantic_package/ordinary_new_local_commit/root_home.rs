@@ -750,6 +750,7 @@ mod map_get_entry;
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
+    PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 pub(crate) use call_entry::RootLocalCallBindingGroupV1;

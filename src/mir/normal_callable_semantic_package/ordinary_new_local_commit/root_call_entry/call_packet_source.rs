@@ -3,7 +3,9 @@
 use super::*;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::{
+    OrdinaryNewClaimLedgerV1, VerifiedStaticLoopPacketSourceV1,
+};
 use crate::mir::resolved_semantics::home_new_prefix::LocalCallObservationV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
 use std::rc::Rc;
@@ -15,6 +17,10 @@ enum CallPacketSourceKindV1 {
         original: Rc<StaticIncomingSourceV1>,
         observation: LocalCallObservationV1,
         publication: VerifiedStaticCallResultPublicationHandoffV1,
+    },
+    SelectedStaticLoop {
+        packet: VerifiedStaticLoopPacketSourceV1,
+        observation: LocalCallObservationV1,
     },
 }
 
@@ -30,6 +36,10 @@ pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
         original: &'a Rc<StaticIncomingSourceV1>,
         observation: &'a LocalCallObservationV1,
         publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
+    },
+    SelectedStaticLoop {
+        packet: &'a VerifiedStaticLoopPacketSourceV1,
+        observation: &'a LocalCallObservationV1,
     },
 }
 
@@ -50,6 +60,13 @@ impl CallPacketSourceV1 {
                 original,
                 observation,
                 publication,
+            },
+            CallPacketSourceKindV1::SelectedStaticLoop {
+                packet,
+                observation,
+            } => CallPacketSourceLoanV1::SelectedStaticLoop {
+                packet,
+                observation,
             },
         }
     }
@@ -73,6 +90,26 @@ impl CallPacketSourceV1 {
         source.loan().validate_static(ledger)?;
         Ok(source)
     }
+
+    pub(super) fn selected_static_loop(
+        packet: VerifiedStaticLoopPacketSourceV1,
+        ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<Self, String> {
+        let site = packet.local_call_site();
+        let observation = ledger
+            .local_call_for_owner(site.owner(), site.site())
+            .ok_or_else(|| freeze("selected-static-packet/local-source-missing"))?
+            .clone();
+        if !packet.corroborates_local_call(&observation) {
+            return Err(freeze("selected-static-packet/local-source-drift"));
+        }
+        Ok(Self {
+            kind: CallPacketSourceKindV1::SelectedStaticLoop {
+                packet,
+                observation,
+            },
+        })
+    }
 }
 
 impl<'a> CallPacketSourceLoanV1<'a> {
@@ -81,7 +118,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
     ) -> Result<&'a LexicalInstanceCallDispositionRowV1, String> {
         match self {
             Self::Instance(row) => Ok(row),
-            Self::Static { .. } => Err(freeze("static-packet/instance-source-required")),
+            Self::Static { .. } | Self::SelectedStaticLoop { .. } => {
+                Err(freeze("static-packet/instance-source-required"))
+            }
         }
     }
 
@@ -89,6 +128,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         match self {
             Self::Instance(row) => row.call_site(),
             Self::Static { original, .. } => original.call_site(),
+            Self::SelectedStaticLoop { packet, .. } => packet.local_call_site(),
         }
     }
 
@@ -96,6 +136,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         match self {
             Self::Instance(row) => row.target(),
             Self::Static { original, .. } => original.target(),
+            Self::SelectedStaticLoop { packet, .. } => packet.original_source().target(),
         }
     }
 
@@ -103,6 +144,7 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         match self {
             Self::Instance(row) => row.callee_owner(),
             Self::Static { original, .. } => original.callee_owner(),
+            Self::SelectedStaticLoop { packet, .. } => packet.original_source().callee_owner(),
         }
     }
 
@@ -110,13 +152,16 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         match self {
             Self::Instance(row) => row.argument_sites(),
             Self::Static { original, .. } => original.argument_sites(),
+            Self::SelectedStaticLoop { packet, .. } => packet.original_source().argument_sites(),
         }
     }
 
     pub(in crate::mir) fn result(self) -> Option<InvokeCallResultKind> {
         match self {
             Self::Instance(row) => row.result(),
-            Self::Static { .. } => Some(InvokeCallResultKind::I64),
+            Self::Static { .. } | Self::SelectedStaticLoop { .. } => {
+                Some(InvokeCallResultKind::I64)
+            }
         }
     }
 
@@ -124,6 +169,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         self,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<(), String> {
+        if matches!(self, Self::SelectedStaticLoop { .. }) {
+            return Err(freeze("selected-static-packet/canonical-entry-required"));
+        }
         let Self::Static {
             original,
             observation,
@@ -188,6 +236,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             Self::Static { original, .. } => {
                 self.validate_static(ledger)?;
                 ledger.borrowed_static_packet_actuals_v1(original)
+            }
+            Self::SelectedStaticLoop { .. } => {
+                Err(freeze("selected-static-packet/canonical-entry-required"))
             }
         }
     }
