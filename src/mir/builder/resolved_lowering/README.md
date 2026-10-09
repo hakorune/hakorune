@@ -30,6 +30,9 @@ per-iteration actual and CFG emission. This remains an unpublished draft.
 After the body NormalResult, the package's existing packet-shape verifier
 corroborates that Invoke with the same source target and SSA actual before
 the predicate is emitted. Finished packet coordinates remain owed.
+The exact SSA read receipt and source cohort travel together in the body
+prepacket, which is checked again at whole-function close and then discarded
+with the unpublished draft. No Home local-call row is synthesized.
 
 This directory owns the first production consumer of a sealed semantic owner.
 

@@ -2170,6 +2170,10 @@ lane; canonical SSA still supplies each iteration's ValueId after the
 backedge. This source/shape loan grants neither a tagged carrier nor an
 executable SourceStatic packet. An absent or mismatched row stops before
 publication.
+The selected body source now moves into an unpublished prepacket with the
+canonical read receipt and actual Invoke/NormalResult coordinates. Whole-
+function close rechecks the same original source and physical call; this
+nested predicate call has no Home local-call observation or binding group.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.

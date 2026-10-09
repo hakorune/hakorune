@@ -90,18 +90,21 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             &entry_packet,
             &mut frame_owner,
         )?;
+        let body_source = claims
+            .take_loop_static_body_scalar_source_v1(
+                &product.semantic().roles().loop_site,
+                product.semantic().source_calls().2.call_site(),
+            )
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/body-scalar-source-missing]".to_owned()
+            })??;
         let body = super::static_loop_body::emit_unpublished_body_predicate_v1(
             draft,
             &mut canonical,
             product.semantic(),
             &header,
             &mut frame_owner,
-            &claims
-                .take_loop_static_body_scalar_source_v1(
-                    &product.semantic().roles().loop_site,
-                    product.semantic().source_calls().2.call_site(),
-                )
-                .ok_or_else(|| "[freeze:contract][callable-loop/body-scalar-source-missing]".to_owned())??,
+            body_source,
         )?;
         super::static_loop_body_exit::emit_unpublished_body_exit_v1(
             draft,
@@ -122,6 +125,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             canonical,
             product.semantic(),
             terminal,
+            &body,
         )?;
         let open = ready.open(
             outer
@@ -133,10 +137,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
         prepared.commit_pending().abort_and_restore();
-        Err(
-            "[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]"
-                .to_owned(),
-        )
+        Err("[freeze:contract][callable-loop/static-i64-v2/executable-packet-missing]".to_owned())
     })();
     if let Some(outer) = outer {
         outer.discard_unpublished();

@@ -3,6 +3,7 @@
 
 use std::rc::Rc;
 
+use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
 };
@@ -29,6 +30,42 @@ pub(in crate::mir) struct VerifiedLoopStaticBodyScalarSourceV1 {
     binding: BindingRefV1,
     site: SourceExprSiteV1,
     formal: BindingRefV1,
+}
+
+/// Unpublished body packet: one original source cohort and one canonical
+/// physical read/Invoke. No Home local call, finished coordinate or ABI grant.
+pub(in crate::mir) struct VerifiedLoopStaticBodyPrepacketV1 {
+    source: VerifiedLoopStaticBodyScalarSourceV1,
+    read: CanonicalBindingReadReceiptV1,
+    entry: crate::mir::BasicBlockId,
+    normal: crate::mir::BasicBlockId,
+    result: crate::mir::ValueId,
+}
+
+impl VerifiedLoopStaticBodyPrepacketV1 {
+    pub(in crate::mir) fn corroborate_unpublished_function(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(), String> {
+        let expected = self.source.materialize_unpublished_call(
+            self.read.binding(),
+            &self.source.site,
+            self.read.physical_value(),
+        )?;
+        if self.read.owner() != self.source.original.call_site().owner()
+            || self.read.physical_block() != self.entry
+        {
+            return Err("[freeze:contract][callable-loop/body-prepacket-read-drift]".into());
+        }
+        corroborate_unpublished_physical_shape(
+            &expected,
+            self.read.physical_value(),
+            function,
+            self.entry,
+            self.normal,
+            self.result,
+        )
+    }
 }
 
 impl VerifiedLoopStaticBodyScalarSourceV1 {
@@ -60,18 +97,23 @@ impl VerifiedLoopStaticBodyScalarSourceV1 {
         Ok(MirCall::global(None, target, vec![actual]))
     }
 
-    pub(in crate::mir) fn corroborate_unpublished_physical_call(
-        &self,
-        binding: BindingRefV1,
-        site: &SourceExprSiteV1,
-        actual: crate::mir::ValueId,
+    pub(in crate::mir) fn prepare_unpublished_physical_packet(
+        self,
+        read: CanonicalBindingReadReceiptV1,
         function: &MirFunction,
         entry: crate::mir::BasicBlockId,
         normal: crate::mir::BasicBlockId,
         result: crate::mir::ValueId,
-    ) -> Result<(), String> {
-        let expected = self.materialize_unpublished_call(binding, site, actual)?;
-        corroborate_unpublished_physical_shape(&expected, actual, function, entry, normal, result)
+    ) -> Result<VerifiedLoopStaticBodyPrepacketV1, String> {
+        let packet = VerifiedLoopStaticBodyPrepacketV1 {
+            source: self,
+            read,
+            entry,
+            normal,
+            result,
+        };
+        packet.corroborate_unpublished_function(function)?;
+        Ok(packet)
     }
 
     pub(in crate::mir) fn corroborates(

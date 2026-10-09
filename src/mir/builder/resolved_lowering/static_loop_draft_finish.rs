@@ -6,6 +6,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::{
     finish_profile_close, CanonicalSsaFunctionSessionV2,
 };
 use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
+use crate::mir::builder::resolved_lowering::static_loop_body::StaticLoopBodyContinuationV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction};
 
@@ -14,6 +15,7 @@ pub(super) fn finish_unpublished_static_loop_v1(
     mut canonical: CanonicalSsaFunctionSessionV2<'_>,
     semantic: &VerifiedStaticI64LoopSemanticV2,
     terminal: BasicBlockId,
+    body: &StaticLoopBodyContinuationV1,
 ) -> Result<ReadyFunctionDraftSealV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-finish-shape-drift]".to_owned();
     let function = draft
@@ -21,6 +23,7 @@ pub(super) fn finish_unpublished_static_loop_v1(
         .current_function
         .as_ref()
         .ok_or_else(reject)?;
+    body.corroborate_unpublished_function(function)?;
     let ids = function.block_ids();
     let tail = semantic.tail_call();
     let landing = function.blocks.get(&terminal).ok_or_else(reject)?;

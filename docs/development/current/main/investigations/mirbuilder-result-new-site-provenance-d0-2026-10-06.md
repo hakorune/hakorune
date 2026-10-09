@@ -973,3 +973,15 @@ repository-wide census belong to separate huge apps and are absent from this
 batch. The read-only review confirmed the five-site selected inventory; no
 nested-actual source expansion is justified by this active cohort. Continue
 the selected packet/finished-coordinate work for these five original sites.
+
+Decision (2026-10-10, selected body prepacket): `me.bin_size(bin)` is a
+nested Loop predicate call and has no Home `LocalCallObservation`; do not
+fabricate one or route it through the entry-only lexical packet arm. Move
+the existing body scalar source receipt into an unpublished prepacket with
+the canonical SSA read receipt and exact Invoke/NormalResult coordinates.
+Recheck it after whole-function close. This preserves source-to-physical
+identity while final visitor, executable tagged actual, callee entry and
+collector publication remain separate obligations.
+Body prepacket S0: quick-profile `static_loop` 5/5 pass, including original
+source/Home mutation and physical landing/result negatives; the executable
+packet stop remains. Pointer guard and diff check pass.

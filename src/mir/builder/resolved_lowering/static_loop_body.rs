@@ -4,14 +4,18 @@
 use crate::mir::builder::emission::loop_operation;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
+};
 use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::{
     LoopCompareI64OpV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitTargetV2,
     LoopJoinEdgeRoleV1, LoopOperationV2, LoopRecipeItemV2,
 };
-use crate::mir::normal_callable_semantic_package::VerifiedLoopStaticBodyScalarSourceV1;
+use crate::mir::normal_callable_semantic_package::{
+    VerifiedLoopStaticBodyPrepacketV1, VerifiedLoopStaticBodyScalarSourceV1,
+};
 use crate::mir::resolved_semantics::{
     ResolvedLoopPlacementV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
 };
@@ -20,6 +24,17 @@ use crate::mir::{BasicBlockId, CompareOp, MirInstruction, MirType, ValueId};
 pub(super) struct StaticLoopBodyContinuationV1 {
     pub then_block: BasicBlockId,
     pub step_block: BasicBlockId,
+    physical_call: VerifiedLoopStaticBodyPrepacketV1,
+}
+
+impl StaticLoopBodyContinuationV1 {
+    pub(super) fn corroborate_unpublished_function(
+        &self,
+        function: &crate::mir::function::MirFunction,
+    ) -> Result<(), String> {
+        self.physical_call
+            .corroborate_unpublished_function(function)
+    }
 }
 
 pub(super) fn emit_unpublished_body_predicate_v1(
@@ -28,7 +43,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     frame_owner: &mut FunctionFaultFrameV1,
-    scalar_source: &VerifiedLoopStaticBodyScalarSourceV1,
+    scalar_source: VerifiedLoopStaticBodyScalarSourceV1,
 ) -> Result<StaticLoopBodyContinuationV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-body-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
@@ -166,7 +181,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         &roles.body_n_read_site,
         roles.n_binding,
     )?;
-    let actual = read_i64(
+    let actual_read = read_i64_receipt(
         draft,
         canonical,
         header.body,
@@ -174,6 +189,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         &roles.body_actual_site,
         roles.bin_binding,
     )?;
+    let actual = actual_read.physical_value();
     let call = scalar_source.materialize_unpublished_call(
         roles.bin_binding,
         &roles.body_actual_site,
@@ -211,10 +227,8 @@ pub(super) fn emit_unpublished_body_predicate_v1(
         dst: result,
     })?;
     canonical.publish_physical_value_type(draft, result, MirType::Integer)?;
-    scalar_source.corroborate_unpublished_physical_call(
-        roles.bin_binding,
-        &roles.body_actual_site,
-        actual,
+    let physical_call = scalar_source.prepare_unpublished_physical_packet(
+        actual_read,
         draft
             .function_state
             .current_function
@@ -260,6 +274,7 @@ pub(super) fn emit_unpublished_body_predicate_v1(
     Ok(StaticLoopBodyContinuationV1 {
         then_block,
         step_block,
+        physical_call,
     })
 }
 
@@ -271,6 +286,18 @@ pub(super) fn read_i64(
     site: &SourceExprSiteV1,
     binding: crate::mir::resolved_semantics::BindingRefV1,
 ) -> Result<ValueId, String> {
+    read_i64_receipt(draft, canonical, block, deferred_entry, site, binding)
+        .map(CanonicalBindingReadReceiptV1::physical_value)
+}
+
+fn read_i64_receipt(
+    draft: &mut MirBuilder,
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    block: BasicBlockId,
+    deferred_entry: BasicBlockId,
+    site: &SourceExprSiteV1,
+    binding: crate::mir::resolved_semantics::BindingRefV1,
+) -> Result<CanonicalBindingReadReceiptV1, String> {
     canonical
         .identity
         .claim_variable_use_binding(site, binding)?;
@@ -288,5 +315,5 @@ pub(super) fn read_i64(
         return Err("[freeze:contract][callable-loop/static-body-read-drift]".into());
     }
     canonical.publish_physical_value_type(draft, read.physical_value(), MirType::Integer)?;
-    Ok(read.physical_value())
+    Ok(read)
 }
