@@ -773,34 +773,14 @@ positive/negative evidence. The exact `me.bin_size(bin)` carrier, finished
 packets/coordinates, group/handoff terminal, qualified Return sibling, final
 entry verifier, collector and EXE remain open. No production MIR was published.
 
-Decision (2026-10-10, selected Loop body actual): the package's original
-CurrentOwner `StaticIncomingSourceV1` Rc, pending SourceStatic candidate and
-issued `VerifiedCallablePhysicalSignatureCohortV1` row are the only source
-and signature authorities for `me.bin_size(bin)`. The package may lend one
-bounded witness that ordinal 0 is the same Integer-class `bin` binding at
-the original argument site and that the callee signature has exactly one
-OrdinaryScalar lane bound to the original Opaque formal. The source candidate
-does not fix a payload: each iteration's ValueId comes from canonical SSA
-after the backedge. The physical carrier remains unproved until the callee's
-finished entry and lexical packet corroborate it. Never turn generic
-SourceStatic into Ready or infer ABI from a raw Integer ValueId.
-
-Next slice: join source candidate/Rc/claim to the signature in the package,
-then compare its binding/site with the canonical body read receipt before
-the disposable Invoke. Wrong Rc, target slot, formal, ordinal, site, class or
-signature lane stops before any publication. Reuse unchanged mimalloc entry
-positive and source/actual mutation negatives. The disposable draft still
-stops before whole-function DraftSeal, packet/group terminal and collector.
-
-Selected body construction history (2026-10-10): `5c236fdfd8`,
+Selected Loop body actual and construction history: `5c236fdfd8`,
 `cc1697fc29`, `49646f8bdb`, `635f834fe9`, `8cf6fadebf`,
-`731b05b824` and `61933a40fd` retain the original `me.bin_size(bin)`
-source Rc, complete mixed CurrentOwner/qualified incoming cohort, canonical
-SSA actual, exact Invoke/NormalResult and detached `prepare_exact_two` check.
-The selected `static_i64_entry::stop_if_selected` path restores its parent
-after checking; it grants no generic SourceStatic transport, tagged callee
-entry, final packet or publication. Focused positive/negative evidence and
-the source/physical contracts remain in those commits and owner README.
+`731b05b824`, `61933a40fd`. These commits own exact source Rc,
+signature/Integer ordinal-zero correspondence, canonical SSA read,
+Invoke/NormalResult, detached `prepare_exact_two` and positive/negative
+evidence. The ValueId still comes from SSA after the backedge; source-only
+Static is never independently executable. Later packet and publication
+obligations are stated below.
 
 Decision (2026-10-10, selected `bin_size` caller census): the current
 `mimalloc-lite` import closure contains three CurrentOwner `bin_size` calls
@@ -995,3 +975,18 @@ advance. Reject wrong owner/site/region/class, incomplete or reordered body,
 changed update, nested call/control, or missing/duplicate After. V1/V2
 LoopBinaryI64Op and physicalizer lack Mul; separate physical slice is owed.
 No EXE or old-edge retirement is claimed.
+
+Decision (2026-10-10, Loop proof handoff order): the selected package runs
+`scan_new_home_flow` while co-sealing Completion, before `raw_loop_child_entry`
+can issue its Recipe. The scanner stores pre-loop scalar classes only in
+`PrefixLocalFlow` and currently marks Loop `PrefixNotCovered`; its returned
+`RootHomeFlow` has exits/maps/local calls, no Loop After loan. Therefore a
+builder-only Facts product cannot unblock the selected Home walk. The first
+construction series must seal one source/membership/binding-based Loop
+product with pre-loop Integer input proofs, lend its verified After classes
+to this Home scanner, then carry the same source identity into the existing
+raw Loop Recipe/JoinSig path. A second independent Home loop solver or
+reclassifying the Loop from its syntax is rejected. Acceptance must show the
+unchanged `bin_size` prefix advances past Body9 and wrong bound class,
+owner/site, update order or missing After keeps Body9 closed. Physical Mul,
+the later return expression and EXE remain separate obligations.
