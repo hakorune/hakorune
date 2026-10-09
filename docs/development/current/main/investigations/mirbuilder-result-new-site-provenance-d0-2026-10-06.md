@@ -885,54 +885,16 @@ candidate 6/6, raw Loop 16/16, Static claim 9/9, quick check and pointer
 guard PASS. The executable Static actual/packet and n/bin session input are
 still unissued; no production MIR or EXE was published.
 
-Next Static-entry D0 (read-only worker integrated): the package physical
-signature owns the sole `OrdinaryScalar` formal lane, and the existing
-checked-input source owns the conditional numeric-use requirement. Join them
-to the original V2 pre-loop `normalize_size(size)` Rc/ordinal before opening
-the function session; preserve its `BorrowedTaggedValue` carrier at canonical
-entry publication. `callable_canary` rejects unannotated formals, and the
-S6C entry-input issuer defaults this lane to `ExistingCallableI64`; neither
-can silently classify the source formal as I64. `SourceStatic` arity-bearing
-actuals remain source-only, while the existing direct-call emitter requires
-declared `: i64` results absent from the unchanged app. First physical slice:
-same-owner tagged formal entry and literal `bin` input in one unpublished
-canonical session; a late stop discards that draft. Then promote the original
-`normalize_size` actual/packet, publish `n`, and only later use canonical
-`bin` SSA for the body packet. No call emission or EXE from entry admission.
-The source prerequisite binds the original parameter contract and
-`PreparedBorrowedFormalIngressV1::checked_static_input`. The Home receipt
-proves effects, not the physical carrier. The next function-entry slice must
-join that binding to the package signature lane before opening the canonical
-session; unknown or duplicate mapping rejects before Builder effects.
-
-Tagged-entry source prerequisite closed: the package now issues a one-take
-source receipt for the original pre-loop `normalize_size(size)` formal. It
-corroborates the selected original Rc and Loop site at cataloged function
-entry; a literal substituted for `size` rejects. This grants no physical
-carrier, ValueId, executable actual, or packet. Quick lib check and final
-focused test 2/2, candidate 6/6, raw Loop 16/16 PASS. Next: join this exact
-formal to the package physical signature's sole lane, then admit the tagged
-carrier in one unpublished canonical function session.
-
-Physical-signature join Decision (read-only worker integrated): use the same
-selected package signature loan already checked for owner and declaration
-identity at cataloged function entry. Join its sole Static `OrdinaryScalar`
-lane (index/ordinal 0, no receiver) to the source receipt's exact formal
-binding. The package contract and original checked-input source, not the
-coarse lane role alone, justify the future `BorrowedTaggedValue` carrier.
-Foreign or mismatched signatures reject before Builder effects. The selected
-terminal remains `physical-unavailable`; no draft session, executable
-actual/packet, or production MIR is issued. The next physical responsibility
-is canonical entry adoption in one unpublished session, with rollback on the
-late packet stop.
-
-Physical-signature join verification: original mimalloc selected entry joins
-lane 0 to its checked formal; a foreign package row rejects with
-`static-tagged-signature-mismatch`. Focused 2/2, candidate 6/6, entry 1/1,
-signature family 4/4, quick lib check PASS. The terminal remains before
-Builder effects. Next session admission must also obtain the unannotated
-I64 result ABI from its package claim before creating a function skeleton;
-the source AST's absent return annotation is not a Void result proof.
+Tagged-entry source and physical-signature prerequisites were closed at
+`fc69461bfd` and `90e7dafaf9` (focused tests, candidate veto, signature
+family and quick library check PASS there). The source receipt binds the
+original pre-loop `normalize_size(size)` Rc to checked formal ordinal 0;
+the package signature joins one Static `OrdinaryScalar` lane, no receiver,
+to that exact binding. The joined carrier is `BorrowedTaggedValue`; the
+coarse lane role alone never proves it. The original unannotated result
+requires a separate I64 result proof. Current entry/session behavior is
+defined below and at `2dd41b595f`; these earlier checkpoints granted no
+executable actual, packet, or production MIR.
 
 Canonical-entry result Decision (read-only worker integrated): unannotated
 `size_to_bin` has `result_contract.result=None` and no generic physical
