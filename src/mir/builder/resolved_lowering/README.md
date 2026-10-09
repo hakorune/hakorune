@@ -16,8 +16,11 @@ against the JoinSig Return/fallthrough row before canonical SSA/CFG emits its
 Invoke/NormalResult, `<=` and Then/step branch. The same draft claims the
 source `return bin` in Completion and defines `bin + 1` on the step edge.
 Canonical CFG/SSA seals the header PHI only after that backedge exists.
-The draft is discarded at `after-coverage-missing`, before the post-loop
-return, packet group, result handoff, collector admission or publication.
+The original post-loop `return me.huge_bin()` uses the selected tail loan and
+JoinSig After. Its physical After predecessor is the header's false branch;
+the same Fault frame and Completion own the terminal call/result. The draft
+is discarded at `physical-abi-coverage-missing`, before the selected body
+argument ABI, packet group, result handoff, collector admission or publication.
 The source-only body call loan does not authorize its final physical argument
 ABI. The original mimalloc source and related Static Loop tests pass.
 

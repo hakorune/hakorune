@@ -57,6 +57,7 @@ mod static_loop_entry_session;
 mod static_loop_body;
 mod static_loop_body_exit;
 mod static_loop_header;
+mod static_loop_tail;
 mod trivial_ssa;
 
 pub(in crate::mir) use callable_module_transaction::{

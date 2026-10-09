@@ -937,3 +937,15 @@ argument ABI, full packet/group publication and EXE remain open. Focused
 unchanged mimalloc entry1/1 and related Static Loop family5/5 pass in the
 quick-profile binary. The next bounded edge is the original post-loop tail,
 then selected ABI/packet terminal verification before publication.
+
+Selected Static I64 Loop tail S0: the original post-loop
+`return me.huge_bin()` now consumes the existing tail source loan and JoinSig
+After in the same unpublished function. Canonical CFG emits its zero-arg I64
+Invoke with Normal/Fault and verifies that After's sole predecessor is the
+header's physical false branch. NormalResult is claimed by the same
+Completion and canonical identity; the function Fault frame is reused.
+The deliberate stop is `physical-abi-coverage-missing` before publication.
+The body call's tagged/Integer actual carrier, final SSA/DraftSeal, selected
+packet/group terminal, qualified Return sibling, final incoming/entry
+verification and EXE remain required. Existing real-source negative already
+rejects a changed tail expression; no duplicate source parser is added.

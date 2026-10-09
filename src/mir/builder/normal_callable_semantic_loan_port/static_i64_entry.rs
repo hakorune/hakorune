@@ -154,7 +154,7 @@ mod tests {
                             let expected = if missing_route {
                                 "static-packet-route-missing"
                             } else {
-                                "static-i64-v2/after-coverage-missing"
+                                "static-i64-v2/physical-abi-coverage-missing"
                             };
                             assert!(error.contains(expected), "{error}");
                             drop(adapter);

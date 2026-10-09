@@ -101,7 +101,17 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             &header,
             &body,
         )?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/after-coverage-missing]".to_owned())
+        super::static_loop_tail::emit_unpublished_tail_v1(
+            draft,
+            &mut canonical,
+            product.semantic(),
+            &header,
+            &mut frame_owner,
+        )?;
+        Err(
+            "[freeze:contract][callable-loop/static-i64-v2/physical-abi-coverage-missing]"
+                .to_owned(),
+        )
     })();
     outer.discard_unpublished();
     admitted

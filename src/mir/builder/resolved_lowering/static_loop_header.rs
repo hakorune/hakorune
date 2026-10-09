@@ -17,6 +17,7 @@ use crate::mir::{BasicBlockId, CompareOp, MirInstruction, MirType};
 pub(super) struct StaticLoopHeaderContinuationV1 {
     pub preheader: BasicBlockId,
     pub header: BasicBlockId,
+    pub normal: BasicBlockId,
     pub body: BasicBlockId,
     pub after: BasicBlockId,
 }
@@ -240,6 +241,7 @@ pub(super) fn emit_unpublished_header_v1(
     Ok(StaticLoopHeaderContinuationV1 {
         preheader,
         header,
+        normal,
         body,
         after,
     })
