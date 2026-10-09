@@ -2096,6 +2096,13 @@ input, callee Completion, and the existing ExactI64 result row. This selected
 arity-one proof does not change the general `SourceStatic` phase or the
 qualified/zero-input Static packet law. It has no ValueId, physical Invoke,
 Fault landing, NormalResult, or publication permission.
+The selected packet now also corroborates its original local-call observation:
+exact call site, I64 result, receiving declaration and ordinal-zero borrowed
+argument. Only a successful packet source adds that site to the existing
+source-ordered lifecycle route; an unavailable packet adds no route. The
+selected function entry requires this sealed site before physical emission.
+This route selection does not make general `SourceStatic` executable or insert
+a physical binding group.
 The same packet source now retains the complete original Static incoming Rc
 cohort for its callee from the sole source inventory. A foreign target,
 duplicate site, missing selected Rc or unresolved inventory veto rejects the

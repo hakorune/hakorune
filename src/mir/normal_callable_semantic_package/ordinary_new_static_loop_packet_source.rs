@@ -11,8 +11,9 @@ use crate::mir::callable_parameter_contract::{
 use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceStmtSiteV1,
+    home_new_prefix::{LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1},
+    BindingRefV1, OwnedExprSiteV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 
 use super::super::model::OwnedCallableParameterContractDeclarationV1;
@@ -45,6 +46,20 @@ pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
 }
 
 impl VerifiedStaticLoopPacketSourceV1 {
+    pub(in crate::mir) fn local_call_site(&self) -> &OwnedExprSiteV1 {
+        self.original.call_site()
+    }
+
+    fn corroborates_local_call(&self, observation: &LocalCallObservationV1) -> bool {
+        observation.site() == self.original.call_site()
+            && observation.result() == LocalCallResultClassV1::I64
+            && matches!(observation.local_binding(), Some((declaration, _))
+                if declaration == &self.declaration)
+            && matches!(observation.arguments(),
+                [LocalCallArgumentV1::BorrowedActual { ordinal: 0, site }]
+                    if site == &self.argument)
+    }
+
     pub(in crate::mir) fn publication_source(
         &self,
     ) -> (
@@ -328,7 +343,23 @@ impl OrdinaryNewClaimLedgerV1 {
                     contracts,
                     results,
                     claims,
-                ),
+                )
+                .and_then(|packet| {
+                    let site = packet.local_call_site();
+                    let observation = self
+                        .local_call_for_owner(site.owner(), site.site())
+                        .ok_or_else(|| {
+                            "[freeze:contract][callable-loop/static-packet-local-source-missing]"
+                                .to_owned()
+                        })?;
+                    if !packet.corroborates_local_call(observation) {
+                        return Err(
+                            "[freeze:contract][callable-loop/static-packet-local-source-drift]"
+                                .to_owned(),
+                        );
+                    }
+                    Ok(packet)
+                }),
                 (Some(Err(error)), _) | (_, Err(error)) => Err(error.clone()),
                 (None, _) => {
                     Err("[freeze:contract][callable-loop/static-packet-entry-missing]".to_owned())
@@ -350,6 +381,42 @@ impl OrdinaryNewClaimLedgerV1 {
         self.loop_static_packet_sources
             .borrow_mut()
             .remove(&(loop_site.clone(), declaration.clone()))
+    }
+
+    pub(in crate::mir) fn require_static_loop_local_route_v1(
+        &self,
+        packet: &VerifiedStaticLoopPacketSourceV1,
+    ) -> Result<(), String> {
+        let site = packet.local_call_site();
+        if !self
+            .lifecycle_local_call_sites
+            .borrow()
+            .get(&site.owner())
+            .is_some_and(|sites| sites.contains(site))
+        {
+            return Err("[freeze:contract][callable-loop/static-packet-route-missing]".into());
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn remove_static_loop_local_route_for_test(
+        &self,
+        caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) {
+        let sources = self.loop_static_packet_sources.borrow();
+        let site = sources
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+            .find(|row| row.publication_source().0 == caller)
+            .expect("selected packet")
+            .local_call_site()
+            .clone();
+        self.lifecycle_local_call_sites
+            .borrow_mut()
+            .get_mut(&site.owner())
+            .expect("selected route")
+            .retain(|row| row != &site);
     }
 }
 

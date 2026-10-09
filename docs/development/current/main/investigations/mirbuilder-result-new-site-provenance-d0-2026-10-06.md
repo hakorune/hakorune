@@ -834,3 +834,19 @@ Next: selected original packet arm and source-ordered lifecycle route, followed
 by the function-local pending group and collector terminal integration. The
 qualified Return caller, final entry coverage, full loop body and EXE remain
 open.
+
+Selected CurrentOwner lifecycle route S0: the already-issued selected packet
+now corroborates its original local-call observation's site, I64 result,
+receiving declaration and ordinal-zero BorrowedActual before any route is
+marked. Only an Ok packet adds its original site to the existing source-order
+lifecycle set. The selected builder entry requires that exact route before
+peeking the publication handoff or emitting; generic qualified/zero-input
+Static admission is unchanged. The unchanged mimalloc entry test covers both
+the usual post-Invoke unpublished stop and a removed-route rejection in the
+same original source, 1/1. Generic Static packet family 9/9 and real source/
+Home mutation negative 1/1 passed with the final quick-profile binary.
+One initial test build failed because its fixture accessed a private package
+field; it was corrected to the existing installed-package accessor, and no
+current red remains. This routes source but does not record a physical group,
+take the affine handoff or publish a function. Next: selected lexical packet
+arm plus finished-coordinate and transactional collector integration.

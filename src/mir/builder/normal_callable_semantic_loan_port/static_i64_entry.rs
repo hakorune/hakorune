@@ -38,6 +38,7 @@ pub(super) fn stop_if_selected(
         .ok_or_else(|| {
             "[freeze:contract][callable-loop/static-packet-source-missing]".to_owned()
         })??;
+    claims.require_static_loop_local_route_v1(&packet)?;
     let (caller, site) = packet.publication_source();
     let handoff = module_port
         .selected_static_result_handoff_for_source(caller, site)
@@ -90,68 +91,78 @@ mod tests {
                     ])
                     .collect();
                 crate::test_support::with_env_vars(&env_updates, || {
-                    let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                        .join("apps/mimalloc-lite/main.hako");
-                    let code = std::fs::read_to_string(&filename).unwrap();
-                    let runner = crate::runner::NyashRunner::new(Default::default());
-                    let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
-                        &runner, filename.to_str().unwrap(), &code,
-                    ).unwrap();
-                    let imports: Vec<_> = prepared.imports.into_iter().collect();
-                    let transformed = materialize_normal_callable_program_with_identity_and_lineage_v1(
-                        prepared.code, runner.parser_build_config(), filename.to_string_lossy().into_owned(), prepared.lineage,
-                    ).unwrap();
-                    let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else {
-                        panic!("source-backed")
-                    };
-                    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
-                    let consumed = crate::mir::builder::NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
-                    let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
-                        &mut FunctionSemanticResolverSessionV1::new(196).unwrap(), consumed,
-                        Some(&catalog), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(),
-                        &imports,
-                    ).unwrap();
-                    let declarations = package.declaration_catalog();
-                    let aliases = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
-                        declarations, imports.clone(),
-                    ).unwrap();
-                    let targets = crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
-                        declarations, &aliases,
-                    ).unwrap().into_targets();
-                    let results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(
-                        declarations, &targets,
-                    ).unwrap();
-                    let publication = crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1::issue(
-                        declarations, &targets, &results,
-                    ).unwrap();
-                    let mut context = CompilationContext::new();
-                    let installed = package.prepare_install(&mut context).unwrap().commit();
-                    let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
-                    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(key).unwrap();
-                    let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
-                    let mut builder = MirBuilder::new();
-                    let mut collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
-                    collector.install_static_result_publication_owner(publication).unwrap();
-                    let mut invocation = crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
-                        &mut builder, collector,
-                    );
-                    invocation.with_module_port(|builder, module_port| {
-                        let mut raw_port = crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(module_port);
-                        let package_port = installed.begin_lowering(&context).unwrap();
-                        let mut adapter = super::super::NormalCallableSemanticPackagePortAdapterV1::new(
-                            &mut raw_port, package_port, None, None,
+                    for missing_route in [false, true] {
+                        let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                            .join("apps/mimalloc-lite/main.hako");
+                        let code = std::fs::read_to_string(&filename).unwrap();
+                        let runner = crate::runner::NyashRunner::new(Default::default());
+                        let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
+                            &runner, filename.to_str().unwrap(), &code,
                         ).unwrap();
-                        use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
-                        let error = adapter.lower_cataloged_static_box_method(
-                            builder, admission, Vec::new(), Vec::new(), None,
-                            Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
-                        ).unwrap_err();
-                        assert!(error.contains("static-i64-v2/actual-coverage-missing"), "{error}");
-                        drop(adapter);
-                        module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), 0));
-                    });
-                    assert!(builder.function_state.current_function.is_none());
-                    assert!(builder.function_state.current_block.is_none());
+                        let imports: Vec<_> = prepared.imports.into_iter().collect();
+                        let transformed = materialize_normal_callable_program_with_identity_and_lineage_v1(
+                            prepared.code, runner.parser_build_config(), filename.to_string_lossy().into_owned(), prepared.lineage,
+                        ).unwrap();
+                        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = transformed else {
+                            panic!("source-backed")
+                        };
+                        let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
+                        let consumed = crate::mir::builder::NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
+                        let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+                            &mut FunctionSemanticResolverSessionV1::new(196).unwrap(), consumed,
+                            Some(&catalog), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(),
+                            &imports,
+                        ).unwrap();
+                        let declarations = package.declaration_catalog();
+                        let aliases = crate::mir::source_call_target::VerifiedStaticImportAliasViewV1::seal(
+                            declarations, imports.clone(),
+                        ).unwrap();
+                        let targets = crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
+                            declarations, &aliases,
+                        ).unwrap().into_targets();
+                        let results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(
+                            declarations, &targets,
+                        ).unwrap();
+                        let publication = crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1::issue(
+                            declarations, &targets, &results,
+                        ).unwrap();
+                        let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
+                        let mut context = CompilationContext::new();
+                        let installed = package.prepare_install(&mut context).unwrap().commit();
+                        if missing_route {
+                            installed.ordinary_new_claim_ledger().remove_static_loop_local_route_for_test(&key);
+                        }
+                        let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(key).unwrap();
+                        let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+                        let mut builder = MirBuilder::new();
+                        let mut collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+                        collector.install_static_result_publication_owner(publication).unwrap();
+                        let mut invocation = crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
+                            &mut builder, collector,
+                        );
+                        invocation.with_module_port(|builder, module_port| {
+                            let mut raw_port = crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(module_port);
+                            let package_port = installed.begin_lowering(&context).unwrap();
+                            let mut adapter = super::super::NormalCallableSemanticPackagePortAdapterV1::new(
+                                &mut raw_port, package_port, None, None,
+                            ).unwrap();
+                            use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
+                            let error = adapter.lower_cataloged_static_box_method(
+                                builder, admission, Vec::new(), Vec::new(), None,
+                                Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
+                            ).unwrap_err();
+                            let expected = if missing_route {
+                                "static-packet-route-missing"
+                            } else {
+                                "static-i64-v2/actual-coverage-missing"
+                            };
+                            assert!(error.contains(expected), "{error}");
+                            drop(adapter);
+                            module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), 0));
+                        });
+                        assert!(builder.function_state.current_function.is_none());
+                        assert!(builder.function_state.current_block.is_none());
+                    }
                 });
             })
             .unwrap()

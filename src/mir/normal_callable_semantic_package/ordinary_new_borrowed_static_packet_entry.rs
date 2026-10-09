@@ -137,6 +137,15 @@ impl OrdinaryNewClaimLedgerV1 {
                 routed.push(row.call.clone());
             }
         }
+        // The selected arity-one CurrentOwner loop owns a separate checked
+        // packet source. Only its successfully co-sealed original call joins
+        // the same source-ordered lifecycle group; general SourceStatic stays
+        // closed for opaque actuals.
+        for packet in self.loop_static_packet_sources.borrow().values() {
+            if let Ok(packet) = packet {
+                routed.push(packet.local_call_site().clone());
+            }
+        }
         for site in routed {
             self.record_lifecycle_local_call_site(site.owner(), site);
         }
