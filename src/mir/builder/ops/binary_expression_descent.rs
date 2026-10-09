@@ -250,7 +250,14 @@ where
     if let Some(SelectedBinarySourceV1::Compare(source)) = &source {
         port.prepare_binary_operands_v1(builder, source, (left, right))?;
     }
-    let completed = builder.build_binary_op_from_values_recorded(operator, left, right)?;
+    let completed = if matches!(&source, Some(SelectedBinarySourceV1::Mul(_))) {
+        if operator != BinaryOperator::Multiply {
+            return Err("[freeze:contract][borrowed-mul/operator-drift]".into());
+        }
+        builder.build_borrowed_mul_from_values_recorded(left, right)?
+    } else {
+        builder.build_binary_op_from_values_recorded(operator, left, right)?
+    };
     if let Some(source) = source {
         match source {
             SelectedBinarySourceV1::Compare(source) => {

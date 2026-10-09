@@ -281,6 +281,42 @@ impl FinalizedRootSourceHandoffV1 {
             })
     }
 
+    /// Project the SAME issued Mul and its selected LocalSSA operand Copies.
+    /// Source side/guard remains on the loan; final MIR grants no source row.
+    pub(in crate::mir) fn with_borrowed_ordinary_muls_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        mut visit: impl FnMut(
+            &crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1,
+            &(BasicBlockId, MirInstruction),
+            &[Option<(BasicBlockId, MirInstruction)>; 2],
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if function.signature.name != symbol {
+                return Err(freeze("borrowed-mul/finished-function"));
+            }
+            self.ledger.verify_finished_borrowed_muls_v1(owner, function, |original| {
+                project_recorded(symbol, projection, original).map(|(_, binding)| binding)
+            })
+        })?;
+        self.ledger.with_borrowed_ordinary_muls_v1(owner, |record, copies| {
+            let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, record.original())?;
+            find_finished_producer(&symbol, &finished, function)?;
+            let mut mapped = [None, None];
+            for side in 0..2 {
+                if let Some(original) = &copies[side] {
+                    let (copy_symbol, copy) = self.ledger.finished_binding_for_owner(owner, original)?;
+                    find_finished_producer(&copy_symbol, &copy, function)?;
+                    mapped[side] = Some(copy);
+                }
+            }
+            visit(record.source(), &finished, &mapped)
+        })
+    }
+
     /// Same original literal observations, not final operand correspondence.
     pub(in crate::mir) fn with_borrowed_ordinary_compare_integer_literals_v1(
         &self,

@@ -175,6 +175,19 @@ impl super::MirBuilder {
                 .map(CompletedOrdinaryBinaryV1::Comparison),
         }
     }
+
+    /// SAME arithmetic issuer with checked LocalSSA for a selected borrowed
+    /// Mul. The caller retains the original source loan and append record.
+    pub(in crate::mir::builder) fn build_borrowed_mul_from_values_recorded(
+        &mut self,
+        lhs_raw: ValueId,
+        rhs_raw: ValueId,
+    ) -> Result<CompletedOrdinaryBinaryV1, String> {
+        let lhs = crate::mir::builder::ssa::local::checked_mul_arg(self, lhs_raw)?;
+        let rhs = crate::mir::builder::ssa::local::checked_mul_arg(self, rhs_raw)?;
+        arithmetic::build_arithmetic_op_recorded(self, crate::mir::BinaryOp::Mul, lhs, rhs)
+            .map(CompletedOrdinaryBinaryV1::Arithmetic)
+    }
 }
 
 /// Ordered Binary completion retains each operation's own append observation.

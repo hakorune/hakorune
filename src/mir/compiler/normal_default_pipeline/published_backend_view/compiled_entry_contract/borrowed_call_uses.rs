@@ -6,6 +6,8 @@ mod integer_return;
 mod null_compare;
 #[path = "borrowed_call_uses_object_field.rs"]
 mod object_field;
+#[path = "borrowed_call_uses_mul.rs"]
+mod mul;
 #[path = "borrowed_call_uses_closure.rs"]
 mod closure;
 use object_field::path_dominates;
@@ -33,6 +35,7 @@ struct FunctionUses {
     compare_admissions: BTreeMap<BindingRefV1, usize>,
     /// Expected occurrences lent by the independently checked original Compare.
     compare_coordinates: Option<BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>>,
+    mul_expected: BTreeMap<(Coordinate, usize), mul::MulOperandUse>,
     /// Dominated `+` operand admissions per formal under the same source
     /// draft; each admits exactly one distinct operand value per scan.
     add_admissions: BTreeMap<BindingRefV1, usize>,
@@ -61,6 +64,7 @@ struct Scan {
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
     /// Exact operand occurrences, including both sides of shared carriers.
     compare_uses: BTreeMap<BindingRefV1, BTreeSet<(Coordinate, usize)>>,
+    mul_uses: BTreeSet<(Coordinate, usize)>,
     /// Distinct operand values serving each formal's dominated `+` view.
     add_uses: BTreeMap<BindingRefV1, BTreeSet<ValueId>>,
     /// Distinct element values serving each formal's dominated `.set` view.
@@ -81,6 +85,7 @@ struct Scan {
 #[derive(Default)]
 struct ViewScan {
     views: BTreeMap<ValueId, BindingRefV1>,
+    copy_coordinates: BTreeMap<ValueId, Coordinate>,
     compares: BTreeMap<BindingRefV1, Vec<Coordinate>>,
     /// Values whose single definition is the exact `ConstValue::Null`
     /// producer; only a `borrowed_null_compare` sibling may reference them.
@@ -137,6 +142,7 @@ impl BorrowedCallUses {
             *state.compare_admissions.entry(*formal).or_default() += 1;
         }
         let mut expected = BTreeMap::<_, BTreeSet<_>>::new();
+        let mut compare_sites = BTreeMap::new();
         source.with_borrowed_ordinary_compares_v1(owner, function, |loan, _, binding| {
             let block = function.blocks.get(&binding.0)
                 .ok_or_else(|| fault("borrowed-use/compare-block"))?;
@@ -144,6 +150,9 @@ impl BorrowedCallUses {
                 .filter(|(_, row)| **row == binding.1);
             let (index, _) = rows.next().ok_or_else(|| fault("borrowed-use/compare-missing"))?;
             if rows.next().is_some() { return Err(fault("borrowed-use/compare-duplicate")); }
+            if compare_sites.insert(loan.site().clone(), (binding.0, index)).is_some() {
+                return Err(fault("borrowed-use/compare-source-duplicate"));
+            }
             for (formal, side) in loan.operand_formals() {
                 if !expected.entry(formal).or_default().insert(((binding.0, index), side)) {
                     return Err(fault("borrowed-use/compare-source-duplicate"));
@@ -152,6 +161,7 @@ impl BorrowedCallUses {
             Ok(())
         })?;
         state.compare_coordinates = Some(expected);
+        mul::entry(state, source, owner, function, &compare_sites)?;
         integer_return::entry(state, source, owner, function)?;
         for (_, formal, _) in source
             .borrowed_ordinary_add_uses_v1(owner, function)?
@@ -267,16 +277,17 @@ impl FunctionUses {
         indexed: &[(Coordinate, &MirInstruction)],
     ) -> Result<ViewScan, String> {
         integer_return::guards(self, indexed)?;
-        let mut defs: BTreeMap<ValueId, &MirInstruction> = BTreeMap::new();
-        for (_, instruction) in indexed {
+        let mut defs: BTreeMap<ValueId, (Coordinate, &MirInstruction)> = BTreeMap::new();
+        for (coordinate, instruction) in indexed {
             if let Some(dst) = instruction.dst_value() {
-                if defs.insert(dst, instruction).is_some() {
+                if defs.insert(dst, (*coordinate, instruction)).is_some() {
                     return Err(fault("borrowed-use/view-definition-duplicate"));
                 }
             }
         }
         let mut views = BTreeMap::new();
-        for (_, instruction) in indexed {
+        let mut copy_coordinates = BTreeMap::new();
+        for (coordinate, instruction) in indexed {
             let operands: Vec<ValueId> = match instruction {
                 MirInstruction::Compare { lhs, rhs, .. } => vec![*lhs, *rhs],
                 MirInstruction::BinOp {
@@ -285,6 +296,13 @@ impl FunctionUses {
                     rhs,
                     ..
                 } => vec![*lhs, *rhs],
+                MirInstruction::BinOp {
+                    op: crate::mir::BinaryOp::Mul,
+                    lhs,
+                    rhs,
+                    ..
+                } if self.mul_expected.contains_key(&(*coordinate, 0))
+                    || self.mul_expected.contains_key(&(*coordinate, 1)) => vec![*lhs, *rhs],
                 MirInstruction::ArrayElementWrite {
                     kind: crate::mir::ArrayElementWriteKind::Set,
                     value,
@@ -305,7 +323,7 @@ impl FunctionUses {
                 if tracked.contains_key(&operand) {
                     continue;
                 }
-                let Some(MirInstruction::Copy { src, .. }) = defs.get(&operand) else {
+                let Some((copy_coordinate, MirInstruction::Copy { src, .. })) = defs.get(&operand) else {
                     continue;
                 };
                 let Some(formal) = tracked.get(src) else {
@@ -316,6 +334,7 @@ impl FunctionUses {
                         return Err(fault("borrowed-use/view-conflict"));
                     }
                 }
+                copy_coordinates.insert(operand, *copy_coordinate);
             }
         }
         let mut compares: BTreeMap<BindingRefV1, Vec<Coordinate>> = BTreeMap::new();
@@ -345,6 +364,7 @@ impl FunctionUses {
             object_field::collect_nonnull_successors(tracked, &views, &null_consts, indexed);
         Ok(ViewScan {
             views,
+            copy_coordinates,
             compares,
             null_consts,
             nonnull_successors,
@@ -576,6 +596,15 @@ impl FunctionUses {
                     }
                 }
             }
+            MirInstruction::BinOp {
+                op: crate::mir::BinaryOp::Mul,
+                lhs,
+                rhs,
+                ..
+            } if self.mul_expected.contains_key(&(coordinate, 0))
+                || self.mul_expected.contains_key(&(coordinate, 1)) => {
+                mul::observe(self, tracked, views, coordinate, [*lhs, *rhs], definitions, dominates)?;
+            }
             MirInstruction::ArrayElementWrite {
                 kind: crate::mir::ArrayElementWriteKind::Set,
                 receiver,
@@ -646,6 +675,7 @@ impl FunctionUses {
         {
             return Err(fault("borrowed-use/compare-coverage"));
         }
+        mul::coverage(self, definitions)?;
         let add_uses: BTreeMap<_, _> = definitions
             .add_uses
             .iter()
@@ -693,6 +723,10 @@ impl FunctionUses {
 #[cfg(test)]
 #[path = "borrowed_call_uses_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "borrowed_call_uses_mul_tests.rs"]
+mod mul_tests;
 
 // Lend the original-source proof only through the production projection checker.
 // Tests cannot substitute the expected name or tracked bindings.

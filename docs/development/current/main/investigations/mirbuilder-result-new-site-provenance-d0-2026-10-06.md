@@ -951,11 +951,35 @@ source-only entry must still fail closed. Positive acceptance is the original
 guarded Mul advancing past binding projection; negative acceptance preserves
 the source-only refusal and prior `unproved-copy` until Copy proof is complete.
 
-Mul finished-binding slice verified (2026-10-09): original ledger append is
-mandatory in `PhysicalBoundary`; root and child finishing require its unique
-recorded mapping. Quick lib test build PASS (8m41); borrowed Mul2/2, existing
-Compare15/15 and physical boundary13/13 PASS. Quick CLI build PASS; guarded
-`Transport.probe` reaches the expected final `borrowed-use/unproved-copy`,
-while source-only Static Mul remains `borrowed-mul/source-only-entry`.
-Pointer/diff checks PASS. Logs: `/mnt/workdisk/hako-mul-binding-*`.
-No Copy/guard/packet admission, EXE, or full-goal completion is claimed.
+Mul finished-binding slice and its focused evidence are retained at
+57da98d9c0 and `/mnt/workdisk/hako-mul-binding-*`. It granted no Copy use.
+
+Decision (2026-10-09, read-only worker): selected borrowed Mul still runs
+`LocalSSA::arg` through its legacy recovery facade; its actual operand Copies
+are absent from the Mul ledger. Use the SAME arithmetic append issuer with
+checked LocalSSA only when the original Mul loan is selected. Retain each
+actual raw-child-to-operand Copy tuple on the function-owned Mul consumer and
+handoff to the existing ledger. `FinishedBindings` projects mandatory originals;
+the existing `BorrowedCallUses` runs source-specific exact Mul side/formal/
+guard/Copy-coordinate closure in module and independently in published rows.
+Final MIR scanning verifies physical lineage but cannot mint source membership.
+Wrong side, unrelated dominated Mul, Copy drift, missing guard, source-only
+entry and nonselected arithmetic stay fail-closed. Positive: guarded original
+source must pass both final scans; end-to-end EXE remains required for the
+full guarded series. Negative: targeted final-scan mutations, source-only
+refusal and existing Compare/Add regression.
+
+Checked-view Mul Copy sub-slice verified (2026-10-09): selected Mul alone uses
+checked LocalSSA; SAME append/operand Copy originals stay on the ledger and
+FinishedBindings. Module/published scans demand exact side/formal/guard/Copy
+coordinates. Both checked-view sides are required; literal/Static-call sides
+remain fail-closed pending their producer proof. Quick test4/4, borrowed-use
+22/22, Compare15/15, physical-boundary13/13, binary-descent9/9 and transaction
+3/3 PASS. Original `p * q` and shared `p * p` pass both final scans, then stop
+at `type/lifecycle_parameter_entry_capability_missing` / `ordinary-parameter-count`
+for unannotated formals. Literal `p * 2` refuses `borrowed-mul/operand-copy-missing`;
+source-only Static Mul still refuses `borrowed-mul/source-only-entry`. Quick CLI
+build PASS. Logs: `/mnt/workdisk/hako-mul-copy-*`. Full EXE, Static call packet,
+unchanged app, Both315/318, cleanup, Gates2-4, old-edge retirement and
+selfcompile remain open. Next: exact non-view producer or unannotated entry
+contract as required by the original Static path, with no .hako workaround.

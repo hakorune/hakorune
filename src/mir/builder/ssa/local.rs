@@ -96,7 +96,17 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
-    let checked = builder.function_state.checked_compare_reuse.contains(v)
+    ensure_inner_with_policy(builder, v, kind, forbid_non_pure, false)
+}
+
+fn ensure_inner_with_policy(
+    builder: &mut MirBuilder,
+    v: ValueId,
+    kind: LocalKind,
+    forbid_non_pure: bool,
+    require_checked: bool,
+) -> Result<ValueId, String> {
+    let checked = require_checked || builder.function_state.checked_compare_reuse.contains(v)
         || (kind == LocalKind::CompareOperand
             && builder
                 .function_state
@@ -165,6 +175,15 @@ pub fn recv(builder: &mut MirBuilder, v: ValueId) -> ValueId {
 #[inline]
 pub fn arg(builder: &mut MirBuilder, v: ValueId) -> ValueId {
     ensure(builder, v, LocalKind::Arg)
+}
+
+/// The selected Mul source cannot inherit the legacy facade's recovery to
+/// the raw operand when LocalSSA fails to emit its required Copy.
+pub(in crate::mir::builder) fn checked_mul_arg(
+    builder: &mut MirBuilder,
+    value: ValueId,
+) -> Result<ValueId, String> {
+    ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true)
 }
 
 /// Selected checked Bool failures always propagate; unselected conditions keep

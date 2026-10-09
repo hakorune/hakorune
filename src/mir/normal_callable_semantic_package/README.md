@@ -1551,20 +1551,23 @@ zero-I64 Static children are separate operand producers. Exact side/site and
 complete shared source/Compare coverage are revalidated before source consult.
 The existing Static inventory borrows original Compare/Mul child Rc through its
 canonical incoming-loan corroboration seam; conflicting retained candidates refuse.
-No new source map or Add count proof is used. Ordered materialization,
-FinishedBindings and both independent physical scans still owe full Mul closure.
+No new source map or Add count proof is used. Checked-view Copy closure now
+uses the original Mul record, FinishedBindings and both independent physical
+scans; literal and call operands still owe their own producer correspondence.
 The SAME selected entry also owns original Mul append observations. A private
 loan retains the exact source Rc and both ordered sites; source owner lends
 view/guard/literal/Static child identities without exposing resolved reach
 constructors. Acquisition rechecks full retained operand and Compare membership
 and the executable entry. Recording requires the actual arithmetic append with
 BinOp::Mul and its destination, and never installs a Bool Compare record.
-Raw child outcomes remain distinct from final SSA operands; producer, mandatory
-Copy, call packet and finishing correspondence are still required. Original
+Raw child outcomes remain distinct from final SSA operands. Selected Mul
+LocalSSA records actual argument Copies, and finishing requires those original
+rows at the exact side and source guard. Static call packet correspondence is
+still required. Original
 source coverage and SAME record identity survive missing/erased observations.
-These observations alone grant no executable Mul publication or tagged payload
-projection; typed descent, shared carrier consumers and backend closure remain
-required before the operation is available end to end.
+These observations alone grant no end-to-end Mul publication. Physical Mul
+JSON/C and tagged kind checks exist, but unannotated parameter entry and
+non-view operand producer proof remain open.
 The existing I64 result source proof retains the same operation Rc for exact
 returned Mul sites. Source sealing checks complete return/operation coverage,
 strict ingress and original Static incoming identity before result corroboration.

@@ -355,6 +355,10 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 state.owner(),
                 builder.function_state.checked_mul_reuse.records(),
             )?;
+            news.record_borrowed_mul_consumers_v1(
+                state.owner(),
+                builder.function_state.checked_mul_reuse.observations(),
+            )?;
             news.record_borrowed_compare_carrier_consumers_v1(
                 state.owner(),
                 function,

@@ -18,6 +18,15 @@ pub(super) struct BorrowedAliasMaterializationV1 {
     proof: LocalProvenanceV1,
 }
 
+impl BorrowedAliasMaterializationV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn formal(&self) -> BindingRefV1 {
+        self.formal
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn value(&self) -> ValueId {
+        self.value
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// The lowering state lends the original initializer and immutable proof.
     /// Non-alias locals do not acquire borrowed authority through this entry.

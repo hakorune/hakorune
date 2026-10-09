@@ -1703,8 +1703,13 @@ child, retaining the original ordered source and canonical Mul append in the
 ordinary-new ledger. Function-owned checked Mul state keeps that same record
 through nested call transactions and root close. Final construction-store
 verification requires exact original Mul identity and complete ledger reuse;
-source-only Mul refuses entry. Physical Mul JSON/C admission, operand lineage,
-and runtime kind checks remain separate obligations.
+source-only Mul refuses entry. The selected Mul path now uses checked LocalSSA
+for its two arguments and retains each actual raw-child-to-operand Copy on the
+same ledger record. FinishedBindings maps those original rows; the module and
+published scans require the exact Mul side, formal, guard and Copy coordinate.
+This closure currently admits two checked borrowed views. Literal and call
+operands still need their own source-to-physical producer proof, and the
+unannotated parameter entry remains a separate backend contract.
 
 Selected borrowed Compare completion installs the SAME immutable ledger record
 into `ssa/local/checked_compare.rs`. The successful raw callable entry lends a

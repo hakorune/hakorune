@@ -14,6 +14,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntr
         BTreeMap<ValueId, std::rc::Rc<compare_materialization::BorrowedCompareMaterializationV1>>,
     multiplications:
         BTreeMap<ValueId, std::rc::Rc<mul_materialization::BorrowedMulMaterializationV1>>,
+    multiplication_consumers: Option<
+        BTreeMap<ValueId, [Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>; 2]>,
+    >,
     carrier_consumers: Option<
         BTreeMap<
             (OwnedExprSiteV1, OwnedExprSiteV1),
@@ -111,6 +114,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 aliases: BTreeMap::new(),
                 comparisons: BTreeMap::new(),
                 multiplications: BTreeMap::new(),
+                multiplication_consumers: None,
                 carrier_consumers: None,
                 comparison_consumers: None,
                 literal_consumers: None,

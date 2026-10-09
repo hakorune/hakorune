@@ -31,6 +31,21 @@ impl BorrowedMulSourceLoanV1 {
     ) -> Option<(BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
         self.original.view_binding(side)
     }
+
+    pub(in crate::mir) fn checked_views(&self) -> Vec<(usize, BindingRefV1, OwnedExprSiteV1)> {
+        [BorrowedMulSideV1::Left, BorrowedMulSideV1::Right]
+            .into_iter()
+            .filter_map(|side| {
+                let (_, formal, _) = self.original.view_binding(side)?;
+                let guard = self.original.guard_binary(side)?;
+                let index = match side {
+                    BorrowedMulSideV1::Left => 0,
+                    BorrowedMulSideV1::Right => 1,
+                };
+                Some((index, formal, guard.clone()))
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug)]
@@ -41,10 +56,10 @@ pub(in crate::mir) struct BorrowedMulMaterializationV1 {
 }
 
 impl BorrowedMulMaterializationV1 {
-    pub(super) fn source(&self) -> &BorrowedMulSourceLoanV1 {
+    pub(in crate::mir) fn source(&self) -> &BorrowedMulSourceLoanV1 {
         &self.source
     }
-    pub(super) fn children(&self) -> (ValueId, ValueId) {
+    pub(in crate::mir) fn children(&self) -> (ValueId, ValueId) {
         self.children
     }
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
@@ -59,6 +74,97 @@ impl BorrowedMulMaterializationV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn with_borrowed_ordinary_muls_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        mut visit: impl FnMut(
+            &Rc<BorrowedMulMaterializationV1>,
+            &[Option<(BasicBlockId, MirInstruction)>; 2],
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.borrowed_mul_bindings_v1(owner)?;
+        let entries = self.borrowed_entry_values.borrow();
+        let Some(entry) = entries.get(&owner) else {
+            return Ok(());
+        };
+        let Some(consumers) = &entry.multiplication_consumers else {
+            return Ok(());
+        };
+        for (value, record) in &entry.multiplications {
+            self.check_borrowed_mul_source_loan_v1(record.source())?;
+            visit(record, &consumers[value])?;
+        }
+        Ok(())
+    }
+
+    /// Original LocalSSA operand observations for the SAME issued Mul records.
+    /// A finished scan may borrow these rows but may not mint replacements.
+    pub(in crate::mir) fn record_borrowed_mul_consumers_v1<'a>(
+        &self,
+        owner: FunctionOwnerIdV1,
+        observations: impl Iterator<
+            Item = (
+                &'a Rc<BorrowedMulMaterializationV1>,
+                &'a [Option<(BasicBlockId, MirInstruction)>; 2],
+            ),
+        >,
+    ) -> Result<(), String> {
+        let observations: Vec<_> = observations.collect();
+        self.verify_borrowed_mul_reuse_v1(owner, observations.iter().map(|(record, _)| *record))?;
+        if observations.is_empty() {
+            return Ok(());
+        }
+        let mut entries = self.borrowed_entry_values.borrow_mut();
+        let entry = entries
+            .get_mut(&owner)
+            .ok_or_else(|| freeze("borrowed-mul/entry-missing"))?;
+        if entry.multiplication_consumers.is_some() {
+            return Err(freeze("borrowed-mul/duplicate-consumer-handoff"));
+        }
+        let mut consumers = std::collections::BTreeMap::new();
+        for (record, copies) in observations {
+            let children = [record.children().0, record.children().1];
+            for (side, child) in [BorrowedMulSideV1::Left, BorrowedMulSideV1::Right]
+                .into_iter()
+                .zip(children)
+            {
+                let Some((binding, formal, _)) = record.source().view_binding(side) else {
+                    continue;
+                };
+                let expected = if binding == formal {
+                    entry
+                        .values
+                        .as_ref()
+                        .map_err(Clone::clone)?
+                        .iter()
+                        .find(|(_, source, _)| *source == formal)
+                        .map(|(_, _, value)| *value)
+                        .ok_or_else(|| freeze("borrowed-mul/formal-value-missing"))?
+                } else {
+                    let alias = entry
+                        .aliases
+                        .get(&binding)
+                        .ok_or_else(|| freeze("borrowed-mul/alias-missing"))?;
+                    if alias.formal() != formal {
+                        return Err(freeze("borrowed-mul/alias-formal"));
+                    }
+                    alias.value()
+                };
+                if child != expected {
+                    return Err(freeze("borrowed-mul/raw-child-drift"));
+                }
+            }
+            if consumers.insert(record.value(), copies.clone()).is_some() {
+                return Err(freeze("borrowed-mul/duplicate-consumer"));
+            }
+        }
+        if !consumers.keys().eq(entry.multiplications.keys()) {
+            return Err(freeze("borrowed-mul/consumer-coverage"));
+        }
+        entry.multiplication_consumers = Some(consumers);
+        Ok(())
+    }
+
     /// Preserve each issued Mul append across the physical finishing boundary.
     /// Operand Copies are not admitted by this binding alone.
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_mul_bindings_v1(
@@ -73,12 +179,25 @@ impl OrdinaryNewClaimLedgerV1 {
                 .into_iter()
                 .flat_map(|entry| entry.multiplications.values()),
         )?;
-        Ok(entries
-            .get(&owner)
-            .into_iter()
-            .flat_map(|entry| entry.multiplications.values())
-            .map(|record| record.original().clone())
-            .collect())
+        let Some(entry) = entries.get(&owner) else {
+            return Ok(Vec::new());
+        };
+        if entry.multiplications.is_empty() {
+            return Ok(Vec::new());
+        }
+        let consumers = entry
+            .multiplication_consumers
+            .as_ref()
+            .ok_or_else(|| freeze("borrowed-mul/consumer-handoff-missing"))?;
+        if !consumers.keys().eq(entry.multiplications.keys()) {
+            return Err(freeze("borrowed-mul/consumer-coverage"));
+        }
+        let mut result = Vec::new();
+        for (value, record) in &entry.multiplications {
+            result.push(record.original().clone());
+            result.extend(consumers[value].iter().flatten().cloned());
+        }
+        Ok(result)
     }
 
     /// Match the SAME original append to a mandatory finished instruction.
@@ -91,19 +210,21 @@ impl OrdinaryNewClaimLedgerV1 {
             &(BasicBlockId, MirInstruction),
         ) -> Result<(BasicBlockId, MirInstruction), String>,
     ) -> Result<(), String> {
-        for original in self.borrowed_mul_bindings_v1(owner)? {
-            let finished = project(&original)?;
-            if !matches!(&finished.1, MirInstruction::BinOp { op: BinOp::Mul, .. })
-                || function.blocks.get(&finished.0).is_none_or(|block| {
-                    block
-                        .all_instructions()
-                        .filter(|row| *row == &finished.1)
-                        .count()
-                        != 1
-                })
-            {
-                return Err(freeze("borrowed-mul/finished-binding"));
-            }
+        self.borrowed_mul_bindings_v1(owner)?;
+        let entries = self.borrowed_entry_values.borrow();
+        let Some(entry) = entries.get(&owner) else {
+            return Ok(());
+        };
+        let Some(consumers) = &entry.multiplication_consumers else {
+            return Ok(());
+        };
+        for (value, record) in &entry.multiplications {
+            let finished = project(record.original())?;
+            let copies = consumers[value]
+                .iter()
+                .map(|original| original.as_ref().map(&mut project).transpose())
+                .collect::<Result<Vec<_>, _>>()?;
+            check_finished_mul_group(function, record, &finished, &copies)?;
         }
         Ok(())
     }
@@ -314,6 +435,66 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(())
     }
+}
+
+fn check_finished_mul_group(
+    function: &crate::mir::MirFunction,
+    record: &BorrowedMulMaterializationV1,
+    finished: &(BasicBlockId, MirInstruction),
+    copies: &[Option<(BasicBlockId, MirInstruction)>],
+) -> Result<(), String> {
+    let MirInstruction::BinOp {
+        dst,
+        lhs,
+        rhs,
+        op: BinOp::Mul,
+    } = &finished.1
+    else {
+        return Err(freeze("borrowed-mul/finished-binding"));
+    };
+    if *dst != record.value() || copies.len() != 2 {
+        return Err(freeze("borrowed-mul/finished-identity"));
+    }
+    let block = function
+        .blocks
+        .get(&finished.0)
+        .ok_or_else(|| freeze("borrowed-mul/finished-block"))?;
+    let rows: Vec<_> = block.all_instructions().collect();
+    let mut positions = rows
+        .iter()
+        .enumerate()
+        .filter(|(_, row)| **row == &finished.1);
+    let (mul_position, _) = positions
+        .next()
+        .ok_or_else(|| freeze("borrowed-mul/finished-missing"))?;
+    if positions.next().is_some() {
+        return Err(freeze("borrowed-mul/finished-duplicate"));
+    }
+    let operands = [*lhs, *rhs];
+    let children = [record.children().0, record.children().1];
+    for side in 0..2 {
+        match &copies[side] {
+            None if operands[side] == children[side] => {}
+            Some((copy_block, MirInstruction::Copy { dst, src }))
+                if *copy_block == finished.0
+                    && *dst == operands[side]
+                    && *src == children[side]
+                    && rows[..mul_position]
+                        .iter()
+                        .filter(|row| **row == &copies[side].as_ref().unwrap().1)
+                        .count()
+                        == 1
+                    && function
+                        .blocks
+                        .values()
+                        .flat_map(|block| block.all_instructions())
+                        .filter(|row| row.dst_value() == Some(*dst))
+                        .count()
+                        == 1 => {}
+            _ => return Err(freeze("borrowed-mul/finished-operand-copy")),
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
