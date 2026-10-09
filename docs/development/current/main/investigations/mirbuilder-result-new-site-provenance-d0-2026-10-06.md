@@ -936,25 +936,13 @@ then retains the zero-input call Home row; unsupported `>=` stays closed. The
 unchanged SizeClassBox import still stops at `borrowed-static/local-source-missing`.
 No final Invoke, all-incoming publication, EXE or production cutover follows.
 
-Decision (2026-10-10, return `word_size` prerequisite): read-only scalar-chain
-audit confirms that `bin_size` Body11/Value/Rhs cannot receive a Home call row
-merely because `me.word_size()` is a source-proved zero-input I64 call. Its
-parent is `words * me.word_size()`, and `words` has no Integer-class Home:
-unannotated `bin` enters as Handle, `x = bin + 3` does not consult the existing
-checked `AddOperand` at local initialization, generic scalar preflight rejects
-the Divide in `bit_group`, nested Multiply in `top`, and Multiply in `words`,
-and the Loop that updates `scale` remains uncovered. Home neutrality proves
-ownership effects, not scalar class or Loop assignment/merge. Existing
-`IntegerMulReturn` requires a checked formal-view operand, which `words` is
-not. Source authority remains the original scalar expression sites and the
-existing checked formal-use/Recipe evidence; Home may only borrow their
-proved class and path, never infer it from an inventory or Static call.
-Smallest next slice: admit the exact checked `bin + 3` local initializer via
-the existing `AddOperand` proof, with a negative for missing/wrong operand
-site. Then establish Divide/nested Multiply and Loop assignment/join in
-separate bounded slices before the non-view returned Multiply and exact
-`word_size` Home row. Do not synthesize Integer `words`, permit generic
-Multiply/Loop, or claim an executable packet or production EXE here.
+Return `word_size` prerequisite audit (`938f1f4466`): an exact Static source
+call is insufficient until its parent expression has Integer Home. Checked
+Add, positive-literal Divide and nested Mul local proofs landed at
+`e76b7a3b66`, `017de06ed0`, `2d7fa3ceb5`; Loop After, `words`, non-view
+returned Mul and the exact `word_size` Home row remain open. Home neutrality
+proves ownership effects, not scalar class or Loop assignment/merge. The
+borrowed-formal `IntegerMulReturn` cannot prove ordinary local `words`.
 
 Selected checked-Add local Home S0 landed at `e76b7a3b66`: exact dominated
 `AddOperand` proves `bin + 3`, advancing the Home uncovered prefix from Body3
@@ -990,3 +978,17 @@ Validation: original source advances Body5 to the Loop at Body9; root Mul,
 variable RHS, nested Divide and Bool RHS retain Body5 (one focused test, five
 cases). The prior Divide test now asserts progress past Body4; Add, If and
 scalar-expression family regressions passed (1/1, 1/1, 11/11).
+
+Decision (2026-10-10, `bin_size` Loop carrier prerequisite): resolved Loop
+region seals source placement, not post-loop scalar values. Current Home
+rejects Loop/assignment; GenericG0 needs two nested loops, while the
+variable-accumulator Recipe admits Add with a literal bound only. V1/V2
+LoopBinaryI64Op and its physicalizer lack Mul. Build one bounded canonical
+single-loop Facts→Recipe→JoinSig/After for I64 `scale` and `i`, variable I64
+bound `shift_count`, condition `i < shift_count`, and ordered updates
+`scale * 2`, `i + 1` with no other body effects. Home must borrow verified
+After classes, never independently solve the loop. Wrong owner/region,
+non-I64 bound, missing/extra/swapped update, changed operator/constant,
+nested call/control, or absent/duplicate After reject. Separate source/Recipe
+authority, Home consumption and physical Mul lowering into bounded slices.
+No EXE or old-edge retirement is claimed.
