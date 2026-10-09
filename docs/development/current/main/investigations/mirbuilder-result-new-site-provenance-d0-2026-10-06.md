@@ -971,3 +971,18 @@ and second take reject, unselected Loop returns no product. Focused 4/4,
 candidate 6/6, raw Loop 16/16, Static claim 9/9, quick check and pointer
 guard PASS. The executable Static actual/packet and n/bin session input are
 still unissued; no production MIR or EXE was published.
+
+Next Static-entry D0 (read-only worker integrated): the package physical
+signature owns the sole `OrdinaryScalar` formal lane, and the existing
+checked-input source owns the conditional numeric-use requirement. Join them
+to the original V2 pre-loop `normalize_size(size)` Rc/ordinal before opening
+the function session; preserve its `BorrowedTaggedValue` carrier at canonical
+entry publication. `callable_canary` rejects unannotated formals, and the
+S6C entry-input issuer defaults this lane to `ExistingCallableI64`; neither
+can silently classify the source formal as I64. `SourceStatic` arity-bearing
+actuals remain source-only, while the existing direct-call emitter requires
+declared `: i64` results absent from the unchanged app. First physical slice:
+same-owner tagged formal entry and literal `bin` input in one unpublished
+canonical session; a late stop discards that draft. Then promote the original
+`normalize_size` actual/packet, publish `n`, and only later use canonical
+`bin` SSA for the body packet. No call emission or EXE from entry admission.

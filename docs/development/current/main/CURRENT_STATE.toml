@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/loop-physical-issuer-census-i0"
+current_blocker_token = "selfhost-resume/static-loop-tagged-entry-i0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -23,10 +23,11 @@ Whole-caller Integer agreement is false for size_to_bin and its forwarding
 chain. The borrowed-formal source package now seals exact source-only tagged
 forwarding through checked numeric uses; executable entry remains closed.
 The source-bound Static Loop V2 Recipe/JoinSig is closed at 7b9f345d7f;
-the ClosedCallable Home-neutral receipt is closed at b69906ee8a. Next:
-census the enclosing canonical SSA/entry issuer, then materialize n/bin
-inputs without creating a second function session. Whole Static entry/packet
-remains later.
+the ClosedCallable Home-neutral receipt is closed at b69906ee8a, and the
+cataloged function-entry handoff at 2069578825. Next: preserve the checked
+borrowed tagged formal in one canonical SSA session, then issue executable
+Static actual/packet and n/bin inputs. The original unannotated callees
+cannot use the declared-i64 direct-call shortcut.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.
 """
 next_design_card = "none"
