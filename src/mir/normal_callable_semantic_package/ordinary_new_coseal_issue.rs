@@ -23,7 +23,6 @@ use super::{
     OrdinaryNewCoSealIssueV1, OrdinaryNewResultClaimV1, OwnedFieldChildKindV1, OwnedFieldChildV1,
     VerifiedOrdinaryNewBirthRecipeV1,
 };
-use crate::ast::ASTNode;
 use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::function::ObjectDestructionDispositionV1;
@@ -33,7 +32,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 };
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, SourceBindingSiteV1, SourceExprSiteV1,
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    SourceStmtSiteV1, VerifiedResolvedFunctionV1,
 };
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
@@ -56,6 +55,9 @@ mod walk_triggers;
 #[path = "ordinary_new_coseal_issue_source.rs"]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) mod source_claims;
 use source_claims::collect_birth_site_index_v1;
+
+#[path = "ordinary_new_coseal_issue_result_membership.rs"]
+mod result_membership;
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -198,7 +200,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         input,
                     )
                     .map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
-                let function = input.function();
                 let owner_loan = direct_call_loans.and_then(|loans| loans.get(owner));
                 let entry_home = entry_home_loans.for_batch_slot(batch_slot);
                 let batch_contract_rows: Vec<_> = parameter_contracts
@@ -209,55 +210,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     || batch_contract_rows.iter().flat_map(|row| row.parameters.iter());
                 let candidates = local_candidates.remove(&batch_slot)
                     .ok_or(OrdinaryNewCoSealIssueV1::BatchLoan)??;
-                // Return-position `new` membership: the construction is the
-                // exact `ReturnValue` child of an inventoried `Return`
-                // statement. Position is checked against the source
-                // statement, never inferred from lowered MIR. Builtin or
-                // uncovered classes stay outside this family and keep their
-                // existing terminal; argument/field positions stay rejected.
-                let mut result_resolutions = Vec::new();
-                let mut result_sites = BTreeSet::new();
-                for construction in function.expression_source().constructions() {
-                    let segments = construction.site().node().segments();
-                    let Some((SourcePathSegmentV1::Value, parent)) = segments.split_last() else {
-                        continue;
-                    };
-                    let site = OwnedExprSiteV1::new(owner, construction.site().clone());
-                    if candidates.iter().any(|row| row.site == site) || !result_sites.insert(site.clone()) {
-                        if candidates.iter().any(|row| row.site == site) {
-                            continue;
-                        }
-                        return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site });
-                    }
-                    let parent_site = SourceStmtSiteV1::from_node(
-                        SourceNodeSiteV1::from_segments(parent.to_vec()),
-                    );
-                    // A `Value` child of a non-statement parent (for example a
-                    // nested construction inside a field initializer) is not
-                    // return-position membership — leave the site out.
-                    let Ok(statement) = input.source().exact_stmt(&parent_site) else {
-                        result_sites.remove(&site);
-                        continue;
-                    };
-                    if !matches!(statement.node(), ASTNode::Return { value: Some(_), .. }) {
-                        result_sites.remove(&site);
-                        continue;
-                    }
-                    if let Some(resolution) = OrdinaryNewCandidate::resolve_site(
+                let (result_resolutions, result_sites) =
+                    result_membership::issue_return_new_membership_v1(
+                        input,
+                        &candidates,
                         batch,
                         instance_constructors,
-                        site.clone(),
-                        construction.class().into(),
-                        construction.arguments().len(),
-                        !construction.field_initializers().is_empty(),
-                    )? {
-                        result_resolutions.push(resolution);
-                    } else {
-                        // Uncovered (builtin) classes keep their existing
-                        // raw-lane terminal outside this family.
-                        result_sites.remove(&site);
-                    }
-                }
+                    )?;
                 let has_map = walk_triggers::has_map_v1(input, || batch_params().any(|row| {
                     row.kind
                         == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::Map

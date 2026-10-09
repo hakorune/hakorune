@@ -990,3 +990,10 @@ reclassifying the Loop from its syntax is rejected. Acceptance must show the
 unchanged `bin_size` prefix advances past Body9 and wrong bound class,
 owner/site, update order or missing After keeps Body9 closed. Physical Mul,
 the later return expression and EXE remain separate obligations.
+
+BoxShape prerequisite: return-position `new` membership moved from the near-cap
+package issuer into its own source-membership module, retaining exact site,
+candidate exclusion and builtin refusal. This changes no Loop admission.
+The issuer now has room for the Loop consult; Body9 remains closed.
+Validation: quick `return_position_new` 5/5, pointer/diff PASS; new module
+rustfmt PASS (parent's unrelated existing tail layout differs from rustfmt).

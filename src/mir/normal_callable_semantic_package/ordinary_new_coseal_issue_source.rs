@@ -3,6 +3,7 @@
 use super::super::coseal_helpers::is_direct_local_initializer;
 use super::super::BirthAbiHandoffV1;
 use super::*;
+use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
