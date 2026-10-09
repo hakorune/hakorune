@@ -850,3 +850,27 @@ field; it was corrected to the existing installed-package accessor, and no
 current red remains. This routes source but does not record a physical group,
 take the affine handoff or publish a function. Next: selected lexical packet
 arm plus finished-coordinate and transactional collector integration.
+
+Selected packet transaction refinement (read-only review): this row is
+`fast`, not blocked. The apparent stop is the missing *executable* packet,
+not missing source authority: the current disposable canonical session already
+emits the original CurrentOwner Invoke and checks its forwarded actual, but
+`CallPacketSourceV1::static_i64` deliberately requires the qualified/zero-input
+law and cannot admit this source-only caller. `BorrowedRead` also requires an
+`ExactLexicalReadV1`; a canonical binding receipt is not that authority.
+Build a selected arm in the existing lexical packet owner, using the original
+`Rc`, checked forwarding row, canonical read, Invoke/NormalResult and the
+unconsumed ExactI64 result handoff. Preserve generic `SourceStatic` rejection.
+The arm must remain function-local until the whole caller is finished.
+
+Publication ordering is the hard edge: `prepare_root_lexical_call_bindings`
+does not mutate the shared ledger, but `take_for_source` removes the handoff
+irreversibly, while `discard_unpublished` rolls back only MirBuilder state.
+Preflight the full body, finished packet/group and collector draft admission;
+then take the handoff, commit the group and collect in a terminal sequence
+with no remaining fallible step, or provide an explicit rollback for the
+handoff. A late failure must leave both handoff and group pending. The next
+acceptance is one original CurrentOwner packet with exact source/actual and
+physical coordinates, plus late-failure rejection before either shared
+mutation. The qualified Return caller and final independent incoming/entry
+verification remain separate required edges before production publication.
