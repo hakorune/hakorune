@@ -316,92 +316,20 @@ contract is inferred from all callers. `me.word_size()` non-view proof,
 whole Static entry/packet, unchanged app, Both315/318, cleanup, Gates2-4,
 old-edge retirement and selfcompile remain open.
 
-Decision (2026-10-09, read-only Static audit, corrected after full source
-census): `bin_size(bin)` has CurrentOwner calls in initializer, a Loop-body
-`If` comparison condition and direct return. The Loop's own condition is
-`bin <= me.max_regular_bin()`; `bin = bin + 1` is its backedge update.
-The SAME inventory does not grant whole-callee execution for these
-contexts; widening transport seeding first cannot
-advance the original source. S0: exact arity-bearing CurrentOwner local and
-direct-return observation with ordered actuals, original Static Rc and real
-Completion. S1: Loop-body `If`-condition call plus updated `bin` local value through
-canonical loop state/SSA and Home join; source-facts-only loop staging grants
-no permission. S2: SAME complete inventory/claim/index/Completion/full formal
-tuple closes transport/actual/entry. S3: SAME Rc through packet/publication
-and both final scans. Then prove `me.word_size()` non-view Mul producer. No
-public i64 contract comes from caller inference. Until all incoming contexts
-are covered, whole-callee source-only refusal stays. Reuse unchanged mimalloc
-census and nonlocal-context veto tests; reject wrong site/Rc/ordinal, missing
-caller and forged Completion. Premature ingress edits were reverted.
-Current evidence: unchanged mimalloc-lite stops at
-`borrowed-entry/source-only-object-actuals`; size-class policy stops at
-`borrowed-static/local-source-missing`. S0 local/direct-return source flow now
-projects the SAME arity-bearing CurrentOwner ExactI64 Rc/ordered actuals into
-real Completion. Original `SizeClassBox.bin_size_usize` direct return passes
-source site, argument and Completion checks. Unproved actuals stay passive;
-known Bool actuals reject, source identity drift remains a hard error.
-Focused CurrentOwner31/31, Static source13/13, real mimalloc census1/1 and
-nonlocal veto1/1 PASS on quick test build. Next S1: Loop-body `If`-condition call and
-updated `bin` via canonical loop state/SSA plus Home join. Whole-callee
-entry/packet/publication and production EXE remain closed.
-
-S1 source/producer Decision (2026-10-09, read-only worker integrated): the
-selected source is `SizeClassBox.size_to_bin` at the original Loop-body
-`If n <= me.bin_size(bin)`; the Loop header instead calls zeroarg
-`me.max_regular_bin()`. Resolver `loop_region_bundle`,
-`loop_body_contains_site`, `resolved_loop_placement=Body`, the exact `If`
-bundle, and resolved assignment binding are source authority. The Static
-index and original Static Rc precede the Home walk; the loop-site
-`CurrentOwnerSource` claim is obtainable from the shared issuer, but Home does
-not consume it there. The pre-loop staging attempts the body actual and
-retains `source-actual-unavailable`, not ordered proof. Recipe/JoinSig own the logical header/backedge join;
-Binding SSA alone owns the current `bin` ValueId/PHI. The Home scanner's
-unconditional Loop/assignment `PrefixNotCovered` and facts-only staging are
-the selected old responsibility, not an executable substitute.
-
-This exact source has a returning `If` arm and an Integer `bin = bin + 1`
-fallthrough/backedge. S1 must prove both paths, preserve the same binding's
-Integer class on initial and repeated evaluation, join surviving Homes, and
-link the original call actual to the current SSA value. Wrong site/Rc/ordinal,
-missing call actual, Bool/unknown update, unrelated or absent backedge/PHI,
-and divergent Homes refuse. Its positive acceptance is the unchanged source
-with the real Completion; whole-callee entry/packet remains S2/S3.
-The current five-family winner spine has no demonstrated production Recipe
-for this `If`-return plus assignment shape; G0 is caller-zero and cannot be
-assumed to supply it. Next action is an exact producer/physical-SSA census
-against this source, then define the bounded bridge in the existing winner
-spine and common Recipe/JoinSig/Binding SSA owners before Home admission.
-
-S1 producer Decision (2026-10-09, read-only V2 review integrated): do not
-extend the production V1 operation enum or present a G0/S6C/Dynamic receipt
-as this callable's authority. V1 has no Call operation
-(`loop_recipe_contract/schema.rs`); common V2 already has `CallSlot`, `If`,
-`Return`, and binding writes (`schema_v2.rs`). The standalone
-`loop_node_winner_spine` route issues bounded V1 families, and its physical
-admission explicitly rejects G0. Existing S6C and Dynamic V2 producers
-co-seal different, fixed source shapes; their products cannot be rebranded as
-the original `SizeClassBox.size_to_bin` source. A V1 call arm or V2-to-V1
-coercion would violate the Loop SSOT's one semantic algebra/physicalizer law.
-
-Closed Static Loop source design: resolver Loop/If/assignment, original
-Completion, all four original Static calls, checked tagged input, V2
-Recipe/JoinSig and Home-neutrality are co-sealed. The completed source
-commits below own the detailed proof and negatives. Physical SSA,
-executable actual/packet, production cutover and old-edge retirement remain
-open; `bin_size(bin)` must eventually consume canonical header/backedge SSA.
-
-S1 Static claim prerequisite closed at `deb7eba579`/`e54660e07f`:
-shared exact-site issuer and original header/body Rc; claim9/9 and real
-source1/1 PASS. Body actual remained `source-actual-unavailable`.
-Original incoming-domain census (unchanged mimalloc): `size_to_bin` has 3
-callers (`size_to_bin_usize`, `good_size`, `SizeClassBox.accepts`), `good_size`
-has 2, `normalize_size` has 2, and `LayoutBox.class_id` has 2; all four
-candidate Integer agreements are false with no owner veto. In contrast,
-`Heap.allocate` is true (15 callers) and `Page.allocate` true (2 callers).
-The earlier Heap/allocateResult culprit hypothesis is rejected. The named
-uncalled/unannotated `LayoutBox.accepts` and `LayoutBox.normalize_size`
-forwards still need exact seed/body-use analysis; do not prune them or mint a
-public `i64` contract from all callers. Diagnostic panic/asserts were removed.
+Closed Static Loop source census (2026-10-09; historical): the original
+`SizeClassBox.size_to_bin` Loop body contains `If n <= me.bin_size(bin)`, while
+the header calls `me.max_regular_bin()` and the backedge writes `bin + 1`.
+The arity-bearing CurrentOwner local/direct-return source and original
+Completion were proved at `10bd3ff07d`; shared exact Static site claims and
+source negatives are at `deb7eba579`/`e54660e07f`. The source-bound V2
+Recipe/JoinSig, Home-neutral receipt and cataloged entry followed at
+`7b9f345d7f`, `b69906ee8a` and `2069578825`. The full historical decision
+and counterexamples remain in those commits. No V1 Call operation, G0/S6C/
+Dynamic rebranding, generic Static transport expansion or public i64 contract
+was granted. Whole-caller Integer agreement is false for `size_to_bin` and
+its forwarding chain; uncalled `LayoutBox` forwards cannot be pruned. The
+current selected `bin_size` caller census and executable obligations are
+recorded below; source-only evidence never grants production publication.
 
 S1 checked-input prerequisite Decision (read-only review integrated):
 Source authority is the original `UnresolvedArgument`/checked `CompareOperand`
