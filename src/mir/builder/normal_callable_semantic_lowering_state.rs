@@ -162,6 +162,20 @@ impl CallableSemanticLoweringState {
         self.ordinary_new_claim_ledger.as_ref()
     }
 
+    /// Affine source-only Static call loan for the selected callable Loop.
+    /// The package issued it before lowering; this state only re-lends it.
+    pub(super) fn take_loop_static_source_call_loan_v1(
+        &self,
+        loop_site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    ) -> Option<
+        Result<crate::mir::normal_callable_semantic_package::LoopStaticSourceCallLoanV1, String>,
+    > {
+        self.ordinary_new_claim_ledger
+            .as_ref()?
+            .take_loop_static_source_call_loan_v1(loop_site, site)
+    }
+
     pub(super) fn loop_binding_source_projection(
         &self,
     ) -> super::normal_callable_loop_handoff::CallableLoopSourceProjectionV1<'_> {

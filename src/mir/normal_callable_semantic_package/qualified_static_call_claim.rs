@@ -89,6 +89,12 @@ impl CurrentOwnerStaticCallSourceV1 {
 pub(super) mod incoming_source;
 
 impl QualifiedStaticCallClaimIndexV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn catalog_brand(
+        &self,
+    ) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {
+        &self.catalog_brand
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         import_rows: impl IntoIterator<Item = (String, String)>,

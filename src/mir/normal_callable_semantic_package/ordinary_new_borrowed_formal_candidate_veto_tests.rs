@@ -251,6 +251,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             let bin_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(bin_target.clone())).unwrap();
             let bin_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == bin_slot).unwrap();
             package.batch().with_lowering_input(bin_slot, |input| {
+                let loop_site = input.function().loop_sites().next().expect("original size_to_bin loop");
                 for (selector, arity) in [("max_regular_bin", 0), ("bin_size", 1)] {
                     let (site, call) = input.function().method_calls()
                         .find(|(_, call)| call.selector() == selector)
@@ -268,7 +269,33 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                         arity));
                     assert_eq!(original.call_site(), &owned);
                     assert_eq!(original.argument_sites().len(), arity as usize);
+                    let loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
+                        claims, source, &package.selected, &package.parameter_contracts,
+                        &bin_target, input, loop_site, &owned,
+                    ).unwrap().expect("original Loop Static source loan");
+                    assert_eq!(loan.loop_site(), loop_site);
+                    assert!(std::rc::Rc::ptr_eq(loan.original(), original));
+                    assert!(loan.claim().corroborates_source(&owned, call.receiver(), arity));
+                    assert_eq!(loan.placement(), &input.function().resolved_loop_placement(loop_site, site).unwrap().unwrap());
+                    {
+                        let retained = package.ordinary_new_claim_ledger.loop_static_source_loans.borrow();
+                        let retained = retained.get(&(loop_site.clone(), owned.clone())).unwrap().as_ref().unwrap();
+                        assert!(std::rc::Rc::ptr_eq(retained.original(), original));
+                    }
+                    let moved = package.ordinary_new_claim_ledger
+                        .take_loop_static_source_call_loan_v1(loop_site, &owned)
+                        .unwrap().unwrap();
+                    assert!(std::rc::Rc::ptr_eq(moved.original(), original));
+                    assert!(package.ordinary_new_claim_ledger
+                        .take_loop_static_source_call_loan_v1(loop_site, &owned).is_none());
                 }
+                let outside = input.function().method_calls()
+                    .find(|(_, call)| call.selector() == "normalize_size").unwrap().0;
+                let outside = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), outside.clone());
+                assert!(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::loop_static_source_loan::issue_loop_static_source_call_loan_v1(
+                    claims, source, &package.selected, &package.parameter_contracts,
+                    &bin_target, input, loop_site, &outside,
+                ).is_err(), "pre-loop call cannot impersonate a Loop CallSlot");
             }).unwrap();
             package.batch().with_lowering_input(good_slot, |input| {
                 let mut calls = input.function().method_calls().filter(|(_, call)| call.selector() == "size_to_bin");

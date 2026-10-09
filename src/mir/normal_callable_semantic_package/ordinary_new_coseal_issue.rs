@@ -791,5 +791,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
     ledger.retain_app_main_source_v1(app_main_source);
+    ledger.retain_loop_static_source_loans_v1(
+        batch, selected, parameter_contracts, static_call_claims,
+    )?;
     Ok((ledger, seeds.finish()))
 }

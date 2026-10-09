@@ -18,6 +18,8 @@ pub(super) use source_drafts::collect_borrowed_source_drafts_v1;
 
 #[path = "ordinary_new_borrowed_formal_source_checked_input.rs"]
 mod checked_input;
+#[path = "ordinary_new_borrowed_formal_source_observation.rs"]
+mod observation;
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]

@@ -2039,6 +2039,14 @@ the caller's real Completion. Unproved actuals leave the call unobserved;
 known wrong kinds and source identity drift reject. Loop conditions and their
 updated locals still need their own Home join before whole-callee admission.
 
+For selected callable Loops, the package now co-seals each CurrentOwner I64
+site against that same claim index and original incoming Rc while both are
+available. The retained move-only loan records the resolver Loop placement,
+exact target, arity and ordered argument sites; one take removes its row.
+It carries no live argument value, Home, executable entry or physical packet.
+The source-bound V2 producer must cover the complete selected Loop and join
+updated bindings before it may consume this source evidence for execution.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

@@ -989,3 +989,11 @@ Next, issue the source-bound V2 Recipe/JoinSig using that loan; V2 already has
 to canonical CFG/Binding SSA, Home, then switch the selected raw Loop caller.
 The V1 physicalizer has no V2 entry; no V1 coercion or S6C receipt reuse.
 Executable entry, original EXE and old-edge retirement remain open.
+
+S1 source-only loan closed (2026-10-09): package issuance now retains the
+original Static Rc, existing I64 claim, exact callable Loop placement and
+ordered call sites in a one-take row. Unchanged mimalloc header/body calls
+share the original Rc; pre-loop call impersonation rejects. Quick original
+source 1/1, claim 9/9, actual 13/13, domain 10/10 PASS. This does not issue
+live actuals, Home join, V2 Recipe/JoinSig, physical packet or EXE. Next:
+source-bound V2 producer for the complete selected callable Loop.

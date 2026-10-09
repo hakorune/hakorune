@@ -50,6 +50,12 @@ pub(in crate::mir) struct StaticIncomingSourceV1 {
 }
 
 impl StaticIncomingSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn catalog_brand(
+        &self,
+    ) -> &crate::mir::builder::SameModuleCallableCatalogBrandV1 {
+        &self.catalog_brand
+    }
+
     pub(in crate::mir) fn is_qualified(&self) -> bool {
         matches!(self.route, StaticIncomingRouteV1::Qualified(_))
     }
