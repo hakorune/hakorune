@@ -6,8 +6,8 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1};
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;
 
@@ -82,6 +82,14 @@ pub(crate) enum StaticCallResultPublicationOwnerTakeErrorV1 {
         site: SourceExprSiteV1,
         target: CanonicalSameModuleCallableKeyV1,
     },
+    SelectedBatchDuplicateSite {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
+    SelectedBatchMissingOrDrifted {
+        caller: CanonicalSameModuleCallableKeyV1,
+        site: SourceExprSiteV1,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -134,6 +142,62 @@ pub(crate) struct VerifiedStaticCallResultPublicationOwnerV1 {
 }
 
 impl VerifiedStaticCallResultPublicationOwnerV1 {
+    /// Validate the whole selected source cohort before moving any row.
+    /// The brand is lent from the same sealed source catalog; this does not
+    /// issue a second result or physical-call authority.
+    pub(crate) fn take_selected_batch_for_source(
+        &mut self,
+        brand: &SameModuleCallableCatalogBrandV1,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        sites_and_targets: &[(SourceExprSiteV1, CanonicalSameModuleCallableKeyV1)],
+    ) -> Result<
+        Vec<VerifiedStaticCallResultPublicationHandoffV1>,
+        StaticCallResultPublicationOwnerTakeErrorV1,
+    > {
+        if self.catalog_identity != brand.identity() {
+            return Err(StaticCallResultPublicationOwnerTakeErrorV1::CatalogBrandMismatch);
+        }
+        let mut seen = BTreeSet::new();
+        for (site, target) in sites_and_targets {
+            let key = (caller.clone(), site.clone());
+            if !seen.insert(key.clone()) {
+                return Err(
+                    StaticCallResultPublicationOwnerTakeErrorV1::SelectedBatchDuplicateSite {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                    },
+                );
+            }
+            let matched = self.exact_targets.get(&key) == Some(target)
+                && !self.consumed_sites.contains(&key)
+                && self.rows.get(&key).is_some_and(|row| {
+                    row.catalog_identity() == brand.identity()
+                        && row.caller() == caller
+                        && row.site() == site
+                        && row.target() == target
+                        && row.representation()
+                            == &super::VerifiedCallableResultRepresentationV1::ExactI64
+                });
+            if !matched {
+                return Err(
+                    StaticCallResultPublicationOwnerTakeErrorV1::SelectedBatchMissingOrDrifted {
+                        caller: caller.clone(),
+                        site: site.clone(),
+                    },
+                );
+            }
+        }
+        Ok(sites_and_targets
+            .iter()
+            .map(|(site, _)| {
+                let key = (caller.clone(), site.clone());
+                self.consumed_sites.insert(key.clone());
+                self.rows
+                    .remove(&key)
+                    .expect("preflighted selected publication row")
+            })
+            .collect())
+    }
     pub(crate) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,

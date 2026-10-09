@@ -24,9 +24,9 @@ retains the original source packet and physical Invoke. The nested body
 `me.bin_size(bin)` retains its source cohort and canonical read, and now has
 a selected Scalar Integer actual with a unique coordinate on the verified
 detached projection. General SourceStatic remains source-only. The selected
-caller now collects the checked function and commits its preflighted entry
-and body packets only after collector success. Final result-handoff consumption,
-finished body-call carrier and incoming coverage remain open: no production
+caller now collects the checked function, consumes the four source-corroborated
+Static result rows as one batch, and commits entry/body packets only after
+collector success. Finished body-call carrier and incoming coverage remain open: no production
 EXE or old-edge retirement follows.
 The active card owns the remaining caller/entry coverage and acceptance.
 """

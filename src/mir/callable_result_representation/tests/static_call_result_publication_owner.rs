@@ -479,6 +479,55 @@ fn issuer_finish_empty_rejects_unconsumed_selected_and_accepts_after_take() {
 }
 
 #[test]
+fn selected_batch_missing_or_duplicate_site_preserves_every_row() {
+    let declarations = declarations(SOURCE);
+    let targets = qualified_targets(&declarations, &[], &[]);
+    let targets = extend_current_owner_targets(
+        targets,
+        &declarations,
+        &[CallSiteSpecV1 {
+            caller_owner: "StringHelpers",
+            caller_name: "int_to_str",
+            caller_arity: 1,
+            site: call_site(),
+        }],
+    );
+    let results = seal_with_targets(&declarations, &targets);
+    let mut owner =
+        VerifiedStaticCallResultPublicationOwnerV1::issue(&declarations, &targets, &results)
+            .expect("source-bound selected row");
+    let caller = key(&declarations, "StringHelpers", "int_to_str", 1);
+    let target = key(&declarations, "StringHelpers", "to_i64", 1);
+    let valid = (call_site(), target.clone());
+    let missing = (digit_call_site(), target);
+    assert!(matches!(
+        owner.take_selected_batch_for_source(
+            declarations.brand(),
+            &caller,
+            &[valid.clone(), missing]
+        ),
+        Err(StaticCallResultPublicationOwnerTakeErrorV1::SelectedBatchMissingOrDrifted { .. })
+    ));
+    assert!(matches!(
+        owner.take_selected_batch_for_source(
+            declarations.brand(),
+            &caller,
+            &[valid.clone(), valid.clone()]
+        ),
+        Err(StaticCallResultPublicationOwnerTakeErrorV1::SelectedBatchDuplicateSite { .. })
+    ));
+    assert_eq!(owner.pending_selected_len(), 1);
+    assert_eq!(
+        owner
+            .take_selected_batch_for_source(declarations.brand(), &caller, &[valid])
+            .expect("rejected batches must not consume the valid row")
+            .len(),
+        1
+    );
+    assert!(owner.finish_empty().is_ok());
+}
+
+#[test]
 fn issuer_finish_empty_rejects_mixed_selected_and_target_only_rows() {
     let source = r#"
         static box StringHelpers {

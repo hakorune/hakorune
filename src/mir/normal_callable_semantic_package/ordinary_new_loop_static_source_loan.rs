@@ -8,6 +8,7 @@ use std::rc::Rc;
 use crate::ast::ASTNode;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1;
@@ -56,6 +57,12 @@ pub(in crate::mir) struct LoopTailStaticI64SourceLoanV1 {
 }
 
 impl LoopTailStaticI64SourceLoanV1 {
+    pub(in crate::mir) fn corroborates_publication_handoff(
+        &self,
+        handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> bool {
+        self.original.corroborates_publication_handoff(handoff)
+    }
     pub(in crate::mir) fn loop_site(&self) -> &SourceStmtSiteV1 {
         &self.loop_site
     }
@@ -74,6 +81,11 @@ impl LoopTailStaticI64SourceLoanV1 {
 }
 
 impl LoopEntryStaticI64SourceLoanV1 {
+    pub(in crate::mir) fn publication_brand(
+        &self,
+    ) -> crate::mir::builder::SameModuleCallableCatalogBrandV1 {
+        self.original.catalog_brand().clone()
+    }
     pub(in crate::mir) fn declaration(&self) -> &SourceBindingSiteV1 {
         &self.declaration
     }
@@ -103,6 +115,17 @@ impl StaticSourceSealV1 {
 }
 
 impl LoopStaticSourceCallLoanV1 {
+    pub(in crate::mir) fn corroborates_publication_handoff(
+        &self,
+        handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> bool {
+        if self.argument_sites().is_empty() {
+            self.original.corroborates_publication_handoff(handoff)
+        } else {
+            self.original
+                .corroborates_selected_loop_publication_handoff(handoff)
+        }
+    }
     pub(in crate::mir) fn loop_site(&self) -> &SourceStmtSiteV1 {
         &self.loop_site
     }
@@ -527,7 +550,8 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn take_loop_static_home_neutral_v1(
         &self,
         loop_site: &SourceStmtSiteV1,
-    ) -> Option<Result<super::static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>> {
+    ) -> Option<Result<super::static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>>
+    {
         self.loop_static_home_neutral.borrow_mut().remove(loop_site)
     }
 
@@ -535,7 +559,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         loop_site: &SourceStmtSiteV1,
         declaration: &SourceBindingSiteV1,
-    ) -> Option<Result<super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>> {
+    ) -> Option<
+        Result<super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>,
+    > {
         self.loop_static_tagged_entry
             .borrow_mut()
             .remove(&(loop_site.clone(), declaration.clone()))

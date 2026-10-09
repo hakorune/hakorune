@@ -980,12 +980,12 @@ PhysicalBoundary 7/7, finished copy 5/5, terminal visitor 6/6; duplicate
 collector and missing route leave both packets absent. This is a collector row,
 not a finished program or production EXE.
 
-Next Decision — selected result publication: this caller has four exact
-CurrentOwner static sites: entry, loop header, loop body, tail. Its current
-handoff peek leaves all four rows unconsumed at collector drain. Reuse the
-one publication owner; first corroborate source/target/I64/required arguments
-and exact detached Invokes for all four sites (header/tail need packet proof).
-Then consume all four with one brand-checked batch before collector commit;
-never add generic Call emission or a fallible check after collection. Keep
-LoopBody final visitor/incoming coverage a separate subsequent slice. Test
-four-site success and missing/drift rejection; production EXE remains open.
+Selected result-publication S0: entry, loop header, loop body and tail share
+one source cohort and one branded publication owner. The four handoffs first
+match source/target/I64/required arguments; detached header/tail zero-arg
+Invoke+NormalResult and existing entry/body physical proofs precede one
+atomic batch take after collector admission. No generic Call is emitted.
+Quick-profile selected caller and owner missing/duplicate tests pass; Static
+Loop 6/6, owner 11/11, PhysicalBoundary 7/7. Next: finish the retained
+LoopBody packet with an explicit final visitor context and Scalar(Integer)
+incoming coverage. Production EXE and old-edge retirement remain open.

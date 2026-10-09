@@ -1776,6 +1776,11 @@ group and body packet to the existing ledger, then restores the parent;
 collector failure restores the parent without packet retention. This grants
 no finished body-call carrier, final incoming coverage or production EXE.
 Its effect mask remains a conservative upper bound until packet/effect proof.
+Before collection, the selected source cohort corroborates result-publication
+handoffs for its four original Static call sites (entry, header, body, tail).
+The detached header and tail must retain their exact zero-argument I64 Invoke
+and NormalResult. One catalog-branded batch take consumes all four rows only
+after collector admission and signature checks succeed.
 The selected detached projection now lends the original entry and body Invoke
 bindings to the existing child `PhysicalBoundary`. Only the exact body block
 may carry a leading single-predecessor PHI; normal child capture still rejects

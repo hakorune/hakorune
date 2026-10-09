@@ -39,6 +39,10 @@ pub(super) fn collect_if_selected(
             "[freeze:contract][callable-loop/static-packet-source-missing]".to_owned()
         })??;
     claims.require_static_loop_local_route_v1(&packet)?;
+    let publication =
+        crate::mir::builder::resolved_lowering::SelectedStaticLoopPublicationBatchV1::preflight_source(
+            product.semantic(), &packet, module_port,
+        )?;
     let (caller, site) = packet.publication_source();
     let prepared = {
         let handoff = module_port
@@ -61,6 +65,7 @@ pub(super) fn collect_if_selected(
             &result,
             packet,
             handoff,
+            publication,
             claims,
         )?
     };

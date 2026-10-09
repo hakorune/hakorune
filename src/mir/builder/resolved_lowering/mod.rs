@@ -58,6 +58,7 @@ mod static_loop_body;
 mod static_loop_body_exit;
 mod static_loop_draft_finish;
 mod static_loop_header;
+mod static_loop_publication;
 mod static_loop_tail;
 mod trivial_ssa;
 
@@ -107,6 +108,7 @@ pub(in crate::mir) use selected_dynamic_physical_capability::{
 };
 pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
 pub(in crate::mir::builder) use static_loop_entry_session::prepare_selected_static_loop_entry_v1;
+pub(in crate::mir::builder) use static_loop_publication::SelectedStaticLoopPublicationBatchV1;
 
 /// Consume one already-admitted trivial Binding-SSA plan on an existing
 /// function skeleton.  The caller owns the package recipe port; this helper

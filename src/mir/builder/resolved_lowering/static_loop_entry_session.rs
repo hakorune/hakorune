@@ -12,6 +12,7 @@ use crate::mir::builder::raw_loop_child_entry::{
     StaticI64LoopFunctionEntryV2, StaticI64LoopTaggedPhysicalFormalV2,
 };
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::static_loop_publication::SelectedStaticLoopPublicationBatchV1;
 use crate::mir::builder::{MirBuilder, NormalCatalogedBoxMethodDraftAdmissionV1};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -31,6 +32,7 @@ pub(in crate::mir::builder) struct PreparedSelectedStaticLoopEntryV1<'builder, '
     pending: PendingFunctionSessionCloseV1<'builder>,
     entry_group: PreparedRootLexicalCallBindingGroupV1<'ledger>,
     body_retention: PreparedLoopStaticBodyRetentionV1<'ledger>,
+    publication: SelectedStaticLoopPublicationBatchV1,
 }
 
 impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
@@ -43,7 +45,9 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
             pending,
             entry_group,
             body_retention,
+            publication,
         } = self;
+        let (brand, caller, sites_and_targets) = publication.into_parts();
         pending.complete_before_restore(|draft| {
             let prepared = module_port
                 .prepare_draft_admission(
@@ -56,6 +60,10 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
             prepared
                 .seal(draft)
                 .map_err(|error| error.to_string())?
+                .consume_selected_static_result_batch(&brand, &caller, &sites_and_targets)
+                .map_err(|error| {
+                    format!("[freeze:contract][callable-loop/publication-batch/{error:?}]")
+                })?
                 .collect();
             entry_group.commit_after_collected();
             body_retention.commit_after_collected();
@@ -74,6 +82,7 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
     result_source: &VerifiedStaticLoopI64ResultSourceV1,
     packet_source: VerifiedStaticLoopPacketSourceV1,
     handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+    publication: SelectedStaticLoopPublicationBatchV1,
     claims: &'ledger OrdinaryNewClaimLedgerV1,
 ) -> Result<PreparedSelectedStaticLoopEntryV1<'builder, 'ledger>, String> {
     let completion = claims.completion_for_owner(input.owner()).ok_or_else(|| {
@@ -178,6 +187,13 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
         let projected_body = prepared.corroborate_detached_function(|function| {
+            publication.corroborate_detached_zeroarg_invokes(
+                function,
+                header.header,
+                header.normal,
+                header.after,
+                terminal,
+            )?;
             let packet = body.prepare_detached_packet(function)?;
             if !packet.corroborates_selected_source(
                 product.semantic().source_calls().2.call_site(),
@@ -213,6 +229,7 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             pending: prepared.commit_pending(),
             entry_group,
             body_retention,
+            publication,
         })
     })();
     if let Some(outer) = outer {
