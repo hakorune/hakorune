@@ -1,3 +1,4 @@
+use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts;
 use crate::mir::{MirModule, MirType};
 use std::collections::BTreeSet;
@@ -118,26 +119,29 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
         }
         validate_parameter_entry_contracts(target)?;
         let receiver_offset = usize::from(has_receiver);
-        // The numeric contract rows cover i64 formals only; a `MapBox`
-        // formal is admitted by its own corroborated triple — declared
-        // name, signature type, and physical carrier — so the per-formal
-        // coverage is `numeric rows + map carriers == explicit params`.
-        let map_formals = target
+        // Declared numeric, checked Map and source-backed tagged formals are
+        // disjoint entry contracts. The compiled entry already checked the
+        // tagged carrier against original source and finished call packets.
+        let carriers = target
             .metadata
             .physical_param_carriers
             .as_deref()
-            .unwrap_or_default()
+            .unwrap_or_default();
+        let map_formals = carriers
             .iter()
             .skip(receiver_offset)
-            .filter(|carrier| {
-                matches!(
-                    carrier,
-                    crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage
-                )
-            })
+            .filter(|carrier| **carrier == Carrier::CheckedMapStorage)
             .count();
+        let tagged_slots: BTreeSet<_> = carriers
+            .iter()
+            .enumerate()
+            .skip(receiver_offset)
+            .filter_map(|(slot, carrier)| {
+                (*carrier == Carrier::BorrowedTaggedValue).then_some(slot)
+            })
+            .collect();
         if target.metadata.declared_param_decls.len() != target.params.len()
-            || target.metadata.parameter_entry_contracts.len() + map_formals
+            || target.metadata.parameter_entry_contracts.len() + map_formals + tagged_slots.len()
                 != target.params.len().saturating_sub(receiver_offset)
             || target.signature.params.len() != target.params.len()
         {
@@ -145,6 +149,31 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 "{} reason=ordinary-parameter-count function={symbol}",
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             ));
+        }
+        if !tagged_slots.is_empty() {
+            for selected_call in input
+                .entry()
+                .ordinary_calls()
+                .iter()
+                .filter(|row| row.function_index() == ordinary.function_index())
+            {
+                let actuals = selected_call.borrowed_actuals().ok_or_else(|| {
+                    format!(
+                        "{} reason=ordinary-tagged-source-missing function={symbol}",
+                        LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+                    )
+                })?;
+                let actual_slots: BTreeSet<_> = actuals
+                    .iter()
+                    .map(|actual| actual.ordinal as usize + receiver_offset)
+                    .collect();
+                if actual_slots != tagged_slots || actual_slots.len() != actuals.len() {
+                    return Err(format!(
+                        "{} reason=ordinary-tagged-actual-drift function={symbol}",
+                        LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+                    ));
+                }
+            }
         }
         if has_receiver
             && (target
@@ -169,17 +198,20 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
             .enumerate()
         {
             let formal_index = explicit_index + receiver_offset;
-            let map_carrier = matches!(
-                target
-                    .metadata
-                    .physical_param_carriers
-                    .as_deref()
-                    .and_then(|carriers| carriers.get(formal_index)),
-                Some(
-                    crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::CheckedMapStorage,
-                )
-            );
-            if map_carrier {
+            if tagged_slots.contains(&formal_index) {
+                if declaration.implicit_receiver
+                    || declaration.declared_type_name.is_some()
+                    || !matches!(ty, MirType::Unknown | MirType::Integer)
+                    || carriers.len() != target.params.len()
+                {
+                    return Err(format!(
+                        "{} reason=ordinary-parameter-contract function={symbol} index={formal_index}",
+                        LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
+                    ));
+                }
+                continue;
+            }
+            if carriers.get(formal_index) == Some(&Carrier::CheckedMapStorage) {
                 if declaration.implicit_receiver
                     || declaration.declared_type_name.as_deref() != Some("MapBox")
                     || *ty != MirType::Box("MapBox".into())

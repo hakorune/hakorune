@@ -938,21 +938,10 @@ independent final scans; `unproved-copy` must refuse until that authority is
 closed. Full Static packet/return, unchanged app, Both315/318, cleanup,
 Gates2-4, old-edge retirement and selfcompile remain open.
 
-Decision (2026-10-09, read-only worker review): `unproved-copy` is a missing
-source-to-finished Mul handoff, not permission to widen Add admission. First
-bounded slice registers the SAME issued Mul append in `lifecycle_bindings`
-before `PhysicalBoundary` capture, then requires its unique recorded finished
-binding for root and child. Canonical issuer is `BorrowedMulSourceV1` plus
-`record_borrowed_mul_v1`; `FinishedBindings` is the sole coordinate mapper.
-This slice grants no operand Copy permission. Next slice must carry original
-side/formal/Copy, guard and packet evidence into both independent final scans;
-an unrelated dominated Mul, swapped side, missing Copy, sibling-arm use, or
-source-only entry must still fail closed. Positive acceptance is the original
-guarded Mul advancing past binding projection; negative acceptance preserves
-the source-only refusal and prior `unproved-copy` until Copy proof is complete.
-
-Mul finished-binding slice and its focused evidence are retained at
-57da98d9c0 and `/mnt/workdisk/hako-mul-binding-*`. It granted no Copy use.
+Mul finished-binding Decision and focused evidence are retained at
+57da98d9c0 and `/mnt/workdisk/hako-mul-binding-*`: SAME source/append issuer,
+mandatory FinishedBindings root/child mapping, no Copy permission. The
+follow-on exact Copy/guard/source checks landed at 31c2caf637 below.
 
 Decision (2026-10-09, read-only worker): selected borrowed Mul still runs
 `LocalSSA::arg` through its legacy recovery facade; its actual operand Copies
@@ -983,3 +972,27 @@ build PASS. Logs: `/mnt/workdisk/hako-mul-copy-*`. Full EXE, Static call packet,
 unchanged app, Both315/318, cleanup, Gates2-4, old-edge retirement and
 selfcompile remain open. Next: exact non-view producer or unannotated entry
 contract as required by the original Static path, with no .hako workaround.
+
+Decision (2026-10-09, read-only review): the next bounded prerequisite is the
+lifecycle backend entry for selected unannotated `BorrowedTaggedValue` formals.
+`CompiledEntry` already joins original entry values, exact source actuals and
+finished calls. The backend gate must check its selected tagged slots and
+actual ordinals beside, not as, declared `ExactNumeric` and checked Map rows.
+The entry promises tagged transport; NormalInteger is checked at guarded use.
+Bool/Null/Object therefore remain valid inputs that Fault at that use. Do not
+fabricate an `i64` declaration or derive a public API contract from all
+callers. The generic backend gate remains unchanged. Positive acceptance:
+original guarded `p*q` source through EXE. Negatives: missing/duplicate or
+wrong-slot source actual, forged carrier, declaration collision, typed-gate
+regression. Original `SizeClassBox.bin_size` separately needs CurrentOwner
+Static executable entry, then `me.word_size()` non-view producer proof.
+
+Tagged entry slice verified (2026-10-09): lifecycle gate counts selected
+source-backed tagged slots separately from declared numeric/Map, checks every
+compiled-entry actual ordinal, and accepts unannotated `Unknown|Integer` MIR
+storage. Original guarded `Transport.probe(p,q)` now emits EXE and runs rc0;
+before this slice it stopped at ordinary-parameter-count. Existing backend2,
+borrowed-entry24, borrowed-carrier-JSON2, numeric-contract4 PASS; quick CLI
+build, rustfmt, pointer guard and diff check PASS. Logs:
+`/mnt/workdisk/hako-tagged-entry-*`. Generic backend gate unchanged. Original
+Static `bin_size` still source-only; no app/Both315/318 or goal completion claim.
