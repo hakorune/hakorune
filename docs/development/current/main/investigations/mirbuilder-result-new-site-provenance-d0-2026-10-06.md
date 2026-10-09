@@ -934,19 +934,11 @@ Detached projection S0: quick-profile `static_loop` 5/5 pass. The original
 selected test reaches the unchanged packet-missing stop and verifies parent
 restoration; source/Home mutation and wrong landing/result still reject.
 
-Decision (2026-10-10, selected detached body actual): the existing
-SourceStatic candidate proves `bin` is Scalar Integer, but its generic
-`opaque_actuals` deliberately stays empty. After the same body prepacket
-passes DraftSeal's verified detached image, the Static physical owner lends
-one unique Invoke coordinate; only then derive ordinal-zero Scalar Integer
-actual from the retained original Rc/candidate and canonical read. Wrong
-source/read/Invoke, duplicate coordinate or noninteger candidate rejects.
-No Home local observation, generic SourceStatic activation, collector row,
-tagged ABI or publication follows from the detached packet alone.
-Detached body actual S0: quick-profile `static_loop` 5/5 pass, including the
-new duplicate-Invoke coordinate negative and existing source/Home and
-landing/result negatives. The unchanged selected caller still restores the
-parent and stops at `executable-packet-missing`.
+Detached body actual `d307d68744`: the original Rc/candidate and canonical
+read issue one Scalar(Integer) ordinal-zero actual at the unique DraftSeal
+Invoke coordinate. Generic SourceStatic stays source-only and no Home local
+row is fabricated. Quick-profile Static Loop 5/5 covered source, shape and
+duplicate-coordinate negatives; later collector work is recorded below.
 
 Decision (2026-10-10, selected body packet publication seam): the original
 source Rc, scalar receipt and DraftSeal-checked detached Invoke are the
@@ -986,6 +978,14 @@ match source/target/I64/required arguments; detached header/tail zero-arg
 Invoke+NormalResult and existing entry/body physical proofs precede one
 atomic batch take after collector admission. No generic Call is emitted.
 Quick-profile selected caller and owner missing/duplicate tests pass; Static
-Loop 6/6, owner 11/11, PhysicalBoundary 7/7. Next: finish the retained
-LoopBody packet with an explicit final visitor context and Scalar(Integer)
-incoming coverage. Production EXE and old-edge retirement remain open.
+Loop 6/6, owner 11/11, PhysicalBoundary 7/7 (`47df4b14d9`).
+
+Next Decision — LoopBody finish: the retained packet has no Home local-call
+row, so preserve the lexical visitor and add a sibling read-only LoopBody
+visitor. Its sole coordinate source is existing `finished_binding_for_owner`
+and `find_finished_producer` over the retained original Invoke. Lend source
+Rc, Scalar(Integer) actual and finished coordinate to both the published
+`borrowed_call_incoming` and independent `invoke_borrowed_calls` verifiers;
+merge into their existing source/coordinate/incoming sets. Reject missing or
+duplicate finished producer and cross-vocabulary duplicate site/coordinate.
+No generic packet or new source authority; production EXE and retirement open.
