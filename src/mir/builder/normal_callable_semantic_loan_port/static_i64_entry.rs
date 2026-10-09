@@ -84,7 +84,7 @@ mod tests {
         NormalCatalogedBoxMethodDraftAdmissionV1,
     };
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirType};
+    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule, MirType};
     use crate::runner::modes::common_util::normal_callable::{
         materialize_normal_callable_program_with_identity_and_lineage_v1,
         NormalCallableMaterializationOutcomeV1,
@@ -201,6 +201,37 @@ mod tests {
                             assert_eq!(installed.ordinary_new_claim_ledger().selected_loop_body_packet_count_for_test(), expected);
                             assert_eq!(installed.ordinary_new_claim_ledger().selected_static_entry_group_count_for_test(), expected);
                         });
+                        if !missing_route && !duplicate_collector {
+                            let (_, collector, _) = invocation.into_state().into_parts();
+                            let function = collector
+                                .into_single_observation_draft("SizeClassBox.size_to_bin/1")
+                                .unwrap();
+                            let mut module = MirModule::new("selected-static-loop-finish".into());
+                            module.functions.insert(function.signature.name.clone(), function);
+                            let ledger = installed.ordinary_new_claim_ledger();
+                            ledger.validate_finalized_child_functions(&module, false).unwrap();
+                            ledger.with_selected_loop_body_packet_for_test(|site, packet| {
+                                let (finished, coordinate) = ledger
+                                    .finished_loop_body_call_producer_v1(site, packet, &module)
+                                    .unwrap();
+                                let invoke = finished.blocks[&coordinate.0]
+                                    .all_instructions()
+                                    .nth(coordinate.1)
+                                    .unwrap()
+                                    .clone();
+                                assert!(matches!(invoke, MirInstruction::Invoke { .. }));
+                                let mut missing = module.clone();
+                                missing.functions.get_mut(&finished.signature.name).unwrap()
+                                    .blocks.get_mut(&coordinate.0).unwrap().terminator = None;
+                                assert!(ledger.finished_loop_body_call_producer_v1(site, packet, &missing)
+                                    .unwrap_err().contains("producer-missing"));
+                                let mut duplicate = module.clone();
+                                duplicate.functions.get_mut(&finished.signature.name).unwrap()
+                                    .blocks.get_mut(&coordinate.0).unwrap().instructions.push(invoke);
+                                assert!(ledger.finished_loop_body_call_producer_v1(site, packet, &duplicate)
+                                    .unwrap_err().contains("producer-duplicate"));
+                            });
+                        }
                         assert!(builder.function_state.current_function.is_none());
                         assert!(builder.function_state.current_block.is_none());
                     }

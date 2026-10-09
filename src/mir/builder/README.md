@@ -1784,5 +1784,6 @@ after collector admission and signature checks succeed.
 The selected detached projection now lends the original entry and body Invoke
 bindings to the existing child `PhysicalBoundary`. Only the exact body block
 may carry a leading single-predecessor PHI; normal child capture still rejects
-that shape. This records a checked correspondence for the selected collector
-row, not a finished body-call coordinate or final published program.
+that shape. The retained body Invoke now projects through the child's
+`FinishingChecked` bindings to one finished coordinate; a missing or duplicate
+producer rejects. Root publication and final incoming coverage remain open.

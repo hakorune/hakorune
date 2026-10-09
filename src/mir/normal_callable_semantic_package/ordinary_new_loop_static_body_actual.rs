@@ -82,6 +82,17 @@ impl OrdinaryNewClaimLedgerV1 {
         self.selected_loop_body_packets.borrow().len()
     }
 
+    #[cfg(test)]
+    pub(in crate::mir) fn with_selected_loop_body_packet_for_test<R>(
+        &self,
+        visit: impl FnOnce(&OwnedExprSiteV1, &PreparedLoopStaticBodyDetachedPacketV1) -> R,
+    ) -> R {
+        let packets = self.selected_loop_body_packets.borrow();
+        assert_eq!(packets.len(), 1, "one selected LoopBody packet");
+        let (site, packet) = packets.iter().next().unwrap();
+        visit(site, packet)
+    }
+
     pub(crate) fn prepare_selected_loop_body_retention(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
@@ -100,6 +111,10 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl PreparedLoopStaticBodyDetachedPacketV1 {
+    pub(in crate::mir) fn corroborates_retained_scalar(&self) -> bool {
+        self.corroborates_selected_source(self.source_site(), self.prepacket.read.binding())
+    }
+
     pub(in crate::mir) fn source_site(&self) -> &OwnedExprSiteV1 {
         self.prepacket.source.original.call_site()
     }

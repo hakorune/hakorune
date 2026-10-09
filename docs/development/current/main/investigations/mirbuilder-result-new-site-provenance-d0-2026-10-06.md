@@ -980,12 +980,19 @@ atomic batch take after collector admission. No generic Call is emitted.
 Quick-profile selected caller and owner missing/duplicate tests pass; Static
 Loop 6/6, owner 11/11, PhysicalBoundary 7/7 (`47df4b14d9`).
 
-Next Decision — LoopBody finish: the retained packet has no Home local-call
-row, so preserve the lexical visitor and add a sibling read-only LoopBody
-visitor. Its sole coordinate source is existing `finished_binding_for_owner`
-and `find_finished_producer` over the retained original Invoke. Lend source
-Rc, Scalar(Integer) actual and finished coordinate to both the published
-`borrowed_call_incoming` and independent `invoke_borrowed_calls` verifiers;
-merge into their existing source/coordinate/incoming sets. Reject missing or
-duplicate finished producer and cross-vocabulary duplicate site/coordinate.
-No generic packet or new source authority; production EXE and retirement open.
+Selected finished-child projection S0: the retained original LoopBody Invoke
+uses the existing child's `FinishingChecked` binding map before root publication.
+The real `SizeClassBox.size_to_bin` collector draft resolves one finished
+coordinate; removing or duplicating that Invoke rejects. Quick-profile selected
+test 1/1, Static Loop 6/6 and finished lexical projection 4/4 pass. The wider
+borrowed publication family is 44 pass/3 known baseline reds (same diagnoses
+in the pre-change binary). This proves child finishing, not a published call.
+
+Next Decision — LoopBody publication: preserve the lexical visitor and add a
+sibling read-only LoopBody visitor. Lend retained source Rc, Scalar(Integer)
+actual and finished coordinate to both existing final verifiers; match exact
+physical Invoke and reject cross-vocabulary duplicate site/coordinate. No
+Home local-call row, generic packet or second authority. Production mimalloc
+still stops earlier at `borrowed-entry/source-only-object-actuals`; a minimal
+real SizeClassBox import stops at `borrowed-static/local-source-missing`.
+Full consumer acceptance, EXE and retirement remain open.
