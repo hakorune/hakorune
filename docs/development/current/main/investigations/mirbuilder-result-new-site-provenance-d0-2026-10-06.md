@@ -740,3 +740,30 @@ installed the publication owner that production installs. The corrected
 fixture passed; no implementation red remains. The draft still discards at
 `actual-coverage-missing`. Physical packets and finished coordinates for
 both incoming callers, final entry coverage and production EXE remain open.
+
+Selected physical-packet Decision (read-only worker integrated): the existing
+lexical packet/finalized visitor is the physical owner, but its generic Static
+admission deliberately rejects arity-one CurrentOwner `SourceStatic`. Keep that
+law. The first bounded step observes the selected original Rc, checked
+forwarded actual, unconsumed ExactI64 handoff, canonical SSA read, and the
+actual disposable Invoke/NormalResult in one function; wrong source, actual,
+result kind, landing or target refuses. This observation neither promotes
+`SourceStatic` globally nor records a root binding group. `discard_unpublished`
+rolls back MirBuilder state only: it does not roll back the shared claim ledger
+or collector publication owner. Therefore take the affine handoff and record
+source-ordered bindings only at the later whole-function commit boundary,
+after both incoming callers and final entry coverage can publish. The
+qualified Return caller keeps its distinct terminal finished producer. No
+single CurrentOwner packet claims whole-cohort or production completion.
+
+Selected unpublished physical observation S0: the packet now compares its
+original Global target and canonical actual against the actual draft Invoke,
+I64 result kind, separate landings and unique NormalResult producer. It
+borrows the existing ExactI64 handoff and mutates neither shared ledger nor
+collector. Unchanged mimalloc focused entry 1/1, physical shape positive and
+wrong-result/wrong-landing negative 1/1, staged actual negative 1/1 and
+handoff catalog negative 1/1 passed in the same quick-profile test binary.
+Candidate veto 6/6 and generic Static packet 3/3 passed before the final
+shape helper extraction; that extraction did not change their path. Quick
+library check, pointer guard and diff check passed. The draft still stops at
+`actual-coverage-missing`; no finished call coordinate or production switch.

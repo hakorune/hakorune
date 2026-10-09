@@ -10,6 +10,7 @@ use crate::mir::builder::raw_loop_child_entry::{
 };
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::MirBuilder;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
@@ -30,6 +31,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     result_source: &VerifiedStaticLoopI64ResultSourceV1,
     packet_source: &VerifiedStaticLoopPacketSourceV1,
+    handoff: &VerifiedStaticCallResultPublicationHandoffV1,
     claims: &OrdinaryNewClaimLedgerV1,
 ) -> Result<(), String> {
     let completion = claims.completion_for_owner(input.owner()).ok_or_else(|| {
@@ -71,6 +73,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             &mut canonical,
             product.semantic(),
             packet_source,
+            handoff,
             formal,
             value,
         )?;
@@ -85,6 +88,7 @@ fn emit_unpublished_static_invoke(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     semantic: &VerifiedStaticI64LoopSemanticV2,
     packet: &VerifiedStaticLoopPacketSourceV1,
+    handoff: &VerifiedStaticCallResultPublicationHandoffV1,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     entry_value: ValueId,
 ) -> Result<(), String> {
@@ -181,6 +185,15 @@ fn emit_unpublished_static_invoke(
         .ok_or_else(|| {
             "[freeze:contract][callable-loop/static-invoke-function-missing]".to_owned()
         })?;
+    packet.corroborate_unpublished_physical_call(
+        handoff,
+        actual.binding(),
+        actual.physical_value(),
+        function,
+        entry,
+        normal,
+        result,
+    )?;
     frame_owner.validate(function)?;
     Ok(())
 }

@@ -56,6 +56,7 @@ pub(super) fn stop_if_selected(
         &formal,
         &result,
         &packet,
+        handoff,
         claims,
     )
 }

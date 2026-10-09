@@ -29,7 +29,9 @@ use super::loop_static_source_loan::LoopEntryStaticI64SourceLoanV1;
 use super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 use super::{OrdinaryNewClaimLedgerV1, OrdinaryNewCoSealIssueV1};
 use crate::mir::definitions::MirCall;
-use crate::mir::ValueId;
+use crate::mir::function::MirFunction;
+use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
+use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
 #[derive(Debug)]
 pub(in crate::mir) struct VerifiedStaticLoopPacketSourceV1 {
@@ -90,6 +92,26 @@ impl VerifiedStaticLoopPacketSourceV1 {
         Ok(MirCall::global(None, target, vec![actual]))
     }
 
+    /// Observe the disposable canonical Invoke without publishing an affine
+    /// packet or mutating the shared ledger. Final coordinates remain owed.
+    pub(in crate::mir) fn corroborate_unpublished_physical_call(
+        &self,
+        handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+        formal: BindingRefV1,
+        actual: ValueId,
+        function: &MirFunction,
+        entry: BasicBlockId,
+        normal: BasicBlockId,
+        result: ValueId,
+    ) -> Result<(), String> {
+        let reject = || "[freeze:contract][callable-loop/static-physical-packet-drift]".to_owned();
+        if !self.corroborates_publication_handoff(handoff) || formal != self.caller_formal {
+            return Err(reject());
+        }
+        let expected = self.materialize_unpublished_call(formal, actual)?;
+        corroborate_unpublished_physical_shape(&expected, actual, function, entry, normal, result)
+    }
+
     pub(in crate::mir) fn corroborates(
         &self,
         entry: &LoopEntryStaticI64SourceLoanV1,
@@ -120,6 +142,54 @@ impl VerifiedStaticLoopPacketSourceV1 {
                 .count()
                 == 1
     }
+}
+
+fn corroborate_unpublished_physical_shape(
+    expected: &MirCall,
+    actual: ValueId,
+    function: &MirFunction,
+    entry: BasicBlockId,
+    normal: BasicBlockId,
+    result: ValueId,
+) -> Result<(), String> {
+    let reject = || "[freeze:contract][callable-loop/static-physical-packet-drift]".to_owned();
+    if entry == normal || actual == result {
+        return Err(reject());
+    }
+    let source = function.blocks.get(&entry).ok_or_else(reject)?;
+    let Some(MirInstruction::Invoke {
+        operation: InvokeOperation::Call { call, result: kind },
+        normal_landing,
+        fault_landing,
+        ..
+    }) = source.terminator.as_ref()
+    else {
+        return Err(reject());
+    };
+    let landing = function.blocks.get(&normal).ok_or_else(reject)?;
+    let fault = function.blocks.get(fault_landing).ok_or_else(reject)?;
+    if call != expected
+        || *kind != InvokeCallResultKind::I64
+        || *normal_landing != normal
+        || *fault_landing == entry
+        || *fault_landing == normal
+        || !landing.predecessors.contains(&entry)
+        || !fault.predecessors.contains(&entry)
+        || !matches!(landing.instructions.first(), Some(MirInstruction::InvokeNormalResult {
+                invoke_block,
+                dst,
+            }) if *invoke_block == entry && *dst == result)
+        || function
+            .blocks
+            .values()
+            .flat_map(|block| block.all_instructions())
+            .filter(|instruction| instruction.dst_value() == Some(result))
+            .count()
+            != 1
+    {
+        return Err(reject());
+    }
+    Ok(())
 }
 
 fn issue_packet_source(
@@ -254,5 +324,100 @@ impl OrdinaryNewClaimLedgerV1 {
         self.loop_static_packet_sources
             .borrow_mut()
             .remove(&(loop_site.clone(), declaration.clone()))
+    }
+}
+
+#[cfg(test)]
+mod physical_shape_tests {
+    use super::*;
+    use crate::mir::{BasicBlock, EffectMask, FunctionSignature, MirType};
+
+    #[test]
+    fn selected_static_observation_refuses_wrong_result_and_landing() {
+        let entry = BasicBlockId(0);
+        let normal = BasicBlockId(1);
+        let fault = BasicBlockId(2);
+        let actual = ValueId(0);
+        let result = ValueId(4);
+        let call = MirCall::global(
+            None,
+            hakorune_mir_defs::CanonicalGlobalTargetV1::new_static_box_method(
+                "SizeClassBox".into(),
+                "normalize_size".into(),
+                1,
+            )
+            .unwrap(),
+            vec![actual],
+        );
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "selected".into(),
+                params: vec![MirType::Integer],
+                return_type: MirType::Integer,
+                effects: EffectMask::ALL,
+            },
+            entry,
+        );
+        function
+            .blocks
+            .get_mut(&entry)
+            .unwrap()
+            .add_instruction(MirInstruction::Invoke {
+                operation: InvokeOperation::Call {
+                    call: call.clone(),
+                    result: InvokeCallResultKind::I64,
+                },
+                fault_frame: ValueId(3),
+                normal_landing: normal,
+                fault_landing: fault,
+            });
+        let mut normal_block = BasicBlock::new(normal);
+        normal_block.predecessors.insert(entry);
+        normal_block.add_instruction(MirInstruction::InvokeNormalResult {
+            invoke_block: entry,
+            dst: result,
+        });
+        function.blocks.insert(normal, normal_block);
+        let mut fault_block = BasicBlock::new(fault);
+        fault_block.predecessors.insert(entry);
+        function.blocks.insert(fault, fault_block);
+        assert!(corroborate_unpublished_physical_shape(
+            &call, actual, &function, entry, normal, result
+        )
+        .is_ok());
+        {
+            let source = function.blocks.get_mut(&entry).unwrap();
+            let Some(MirInstruction::Invoke {
+                operation: InvokeOperation::Call { result: kind, .. },
+                ..
+            }) = source.terminator.as_mut()
+            else {
+                panic!("Invoke");
+            };
+            *kind = InvokeCallResultKind::Unit;
+        }
+        assert!(corroborate_unpublished_physical_shape(
+            &call, actual, &function, entry, normal, result
+        )
+        .unwrap_err()
+        .contains("static-physical-packet-drift"));
+        {
+            let source = function.blocks.get_mut(&entry).unwrap();
+            let Some(MirInstruction::Invoke {
+                operation: InvokeOperation::Call { result: kind, .. },
+                normal_landing,
+                ..
+            }) = source.terminator.as_mut()
+            else {
+                panic!("Invoke");
+            };
+            *kind = InvokeCallResultKind::I64;
+            *normal_landing = fault;
+        }
+        assert!(corroborate_unpublished_physical_shape(
+            &call, actual, &function, entry, normal, result
+        )
+        .unwrap_err()
+        .contains("static-physical-packet-drift"));
     }
 }

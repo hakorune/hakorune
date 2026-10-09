@@ -2110,6 +2110,13 @@ owner's CurrentOwner arity-one I64 handoff by original catalog brand, caller,
 site, target and required ordinals. The generic qualified/zero-argument
 handoff law is unchanged. The unpublished function entry only peeks this
 handoff; it remains available for the eventual sole physical consumer.
+Before any shared state is changed, the selected packet also checks the
+disposable canonical Invoke against that same unconsumed handoff, checked
+formal/actual, I64 result kind, separate Normal/Fault landings and the single
+NormalResult producer. This is an unpublished physical observation, not a
+finished coordinate or executable `SourceStatic` packet. The claim ledger's
+binding groups and collector's affine handoff stay untouched until a later
+whole-function publication boundary can commit them together.
 
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
