@@ -968,24 +968,24 @@ a fallible check after collection. Do not infer a packet from final MIR or
 open generic SourceStatic transport. Wrong owner/site/read/Invoke, missing
 or duplicate finished producer, and absent collector row reject. First
 bounded construction slice: finished-child validation of the selected packet.
-Transactional retention, visitor/consumer and full incoming coverage follow
-as separate responsibilities. Until then the selected path
-continues to restore its parent and stop at `executable-packet-missing`.
+At `498e036e20`, transactional retention, visitor/consumer and full incoming
+coverage remained separate responsibilities; the selected path still stopped
+at `executable-packet-missing`. See the newer collector row below.
 
-Selected child-boundary S0: the verified detached projection now lends the
-entry and body original Invoke bindings to the existing child PhysicalBoundary.
-Only the exact body block admits its leading single-predecessor PHI. Static
-Loop 6/6 and physical-boundary 7/7 pass on the quick-profile binary, including
-the original mimalloc entry, source/Home and physical-shape negatives, and the
-normal PHI rejection. The caller still aborts/restores at packet-missing;
-collector retention, finished projection and ABI coverage remain owed.
+Selected child boundary `498e036e20`: detached entry/body Invoke bindings
+pass PhysicalBoundary; the single-predecessor PHI exception is body-only.
+Selected collector/retention `2602442eec`: exact entry/body packets preflight
+before collection and commit only on success. Quick-profile Static Loop 6/6,
+PhysicalBoundary 7/7, finished copy 5/5, terminal visitor 6/6; duplicate
+collector and missing route leave both packets absent. This is a collector row,
+not a finished program or production EXE.
 
-Selected collector/retention S0: the selected function entry preflights its
-exact entry group and body packet before canonical collector admission. A
-successful collection commits both to the existing ledger before parent
-restore; failed admission leaves both absent. Quick-profile focused tests:
-packet preflight/admission 1/1 (normal, missing route and duplicate collector
-variants), Static Loop 6/6, PhysicalBoundary 7/7, finished copy 5/5 and
-terminal visitor 6/6. The selected result handoff is still peeked rather than
-taken; final LoopBody visitor, incoming coverage, production EXE and old-edge
-retirement remain owed. Do not describe this collector row as full publication.
+Next Decision — selected result publication: this caller has four exact
+CurrentOwner static sites: entry, loop header, loop body, tail. Its current
+handoff peek leaves all four rows unconsumed at collector drain. Reuse the
+one publication owner; first corroborate source/target/I64/required arguments
+and exact detached Invokes for all four sites (header/tail need packet proof).
+Then consume all four with one brand-checked batch before collector commit;
+never add generic Call emission or a fallible check after collection. Keep
+LoopBody final visitor/incoming coverage a separate subsequent slice. Test
+four-site success and missing/drift rejection; production EXE remains open.
