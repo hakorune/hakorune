@@ -121,104 +121,18 @@ Closed source/prepare history: de7f6fbfb4/0383a32420 own exact32/check/CLI/
 guards and historical both315/318/Result artifact probe. Sole source witness
 solver/body and observation/finish/provider/error order retained, old body removed.
 No physical retirement; anchor lifetime/cleanup and actual EXE remain owed.
-## CHILD-RELATION-D0 accepted Decision / COMPOSITION-BOXSHAPE-S0
+## Closed child-source prerequisites (historical)
 
-Read-only review corroborates exact current APIs and prelookup failure order.
-Decision: one private borrowed CallWitnessSourceV1 view verifies output/call owner,
-arity and each actual owner/Argument(index) identity; sole verify constructor
-returns Option<Self>. Its compose(self,callee_rows,parameter_contracts,batch_slot)
-returns Option<Vec<Rc<ResultOriginWitnessV1>>> with existing formal substitutions.
-No new public/semantic receipt: ephemeral view groups current checks only.
-Original evaluator keeps verify-before-lookup, missing/pending handling and legacy
-eligibility, then composition and unchanged alternatives/coverage/class fold.
-Reject an all-in-one Waiting/Ready helper: finished candidate joins should not
-invent pending policy. Reject duplicated verification or fake return exits.
-Malformed pending source must stay Dead; valid unresolved source stays Waiting.
-
-Source child relation mapping accepted: private candidate map in SAME finished
-result Facts, keyed branded outer construction site+canonical field. Private
-all-origin direct FreshConstruction enumeration avoids projection-only iter/keys
-and skips facade Call wrappers; original owning callable supplies lowering input.
-Join sealed constructor store/formal/actual identities and existing sole local
-initializer+call source witnesses. Missing/unsupported field relations expose no
-candidate, never default Null/Fresh or all-fields completion. Partial passive
-relations cannot authorize a completed construction. Fresh/forward witnesses
-are not acquired Home/anchor lifetime. Actual field admission stays unchanged.
-
-Select MIRBUILDER-GATE1-CALL-WITNESS-COMPOSITION-BOXSHAPE-S0, fast, first.
-Source authority + canonical issuer: current evaluate_row Fwd arm and exact
-existing PendingExit source rows; private call_witness child owns sole verify
-and compose implementation, called only by the existing result fold for now.
-Replacement: inline identity and callee-witness composition loops; switch the
-one existing evaluator caller and remove those inline bodies in this slice.
-Non-authority: ephemeral grouping, candidate/class/source origins, pointer tags.
-Fail-fast boundary: preserve ALL current identity/arity/formal-kind/substitution
-checks and prelookup Dead versus Waiting order. No pending/legacy/coverage policy
-inside composer, no second scan or fixed point, no execution admission.
-Acceptance: test-inclusive quick check and existing focused32; extend existing
-corruption test with missing-pending callee cases proving malformed call/actual
-owner/path stays Dead and structurally valid missing formal binding stays Waiting
-until callee resolution. Existing multi-hop/formal-null/same-origin sharing and
-full facade source pins retain composition behavior. Scope/pointer/diff/rustfmt
-and source caps; no full CLI rebuild for shape-only change absent behavior drift.
-Paths: result-class registration/evaluate/new call_witness, existing witness test,
-package README, active card and changed current pointers; guard only if moved pin
-requires it. No candidate map, field contract, Home, app or C edit in this slice.
-After this separately verified extraction, source child candidate semantic slice
-uses the SAME helper and product. Lifetime/cleanup/physical/publication and
-unchanged production EXE remain incomplete, Gates2-4/stored-child remain parked.
-
-COMPOSITION-BOXSHAPE-S0 closed at b6657f6f87. Git owns focused32/final27.54s
-check, source comparison, corrected formatting diagnostics and guard receipts.
-Sole private verifier/composer replaces original inline bodies; original Dead/
-Waiting/error/substitution ordering retained. No field/Home/physical permission.
-## Closed child-source relation receipts
-
-CHILD-SOURCE-RELATION-S0 is closed; Git at b8cda4e125 and its ancestry retains
-its original execution contract, complete closeout and corrected attempt logs.
-The SAME finished Facts retain exact constructor/field/formal/actual identities
-and all compatible Null/Fresh/Forward witnesses; no compatible subset is promoted.
-Original8 candidate sites remain paired with6covered/2uncovered construction.
-Class/source candidate presence never grants Home, anchoring, acquisition or field
-installation. Both315/318, lifetime/cleanup/physical publication and EXE remain owed.
-
-Select MIRBUILDER-GATE1-OUTCOME-SUPPORT-D0, design_stop, next execution none.
-Read-only review identifies exact remaining proof owners:
-- home_new_prefix_scan installs ReceivedHandle/ReceivedNullable from call
-  eligibility, records local_call/priorHomes and local cleanup obligations.
-- PrefixLocalFlow direct_available_home/home_acquisition expose ONLY direct New;
-  they cannot prove replacement's call-return acquisition.
-- ReceiverCallClassObservation is claim-faithful eligibility, not Home transfer.
-  LocalCallObservation records exact destination/call/resultclass; co-sealed
-  callee return/completion disposition must provide acquisition authority.
-- allocate's true fresh leaves end at page allocate New(HakoAllocHandle);
-  resizeInPlace returns original formal0/Null, realloc substitutes Heapformal0.
-  Mixed get(None) stays None. Null narrowing cannot distinguish owned vs borrowed.
-- issue_construction_plan Parameter{provided}/HomeDemand::Handle and current
-  owned_field_children_of Provided inventory are owning-only. Explicit canonical
-  field residence contract admitting anchored mode is required; no reinterpretation
-  of these existing inventories or classname-specific exception.
-
-Decision space to resolve next: exact callee return/completion acquisition receipt,
-live original-formal support and field-mode contract issuer in the existing source
-Home-prefix/terminal verifier. One outcome-qualified local relation must preserve
-Null(nochild), verified returned Home(Fresh), original live anchor(Forward), true
-exit witness and Normal/Fault installation/cleanup. Candidate, class and pointer
-identity cannot supply missing proof. Source borrowed support creates no Home/End;
-Fresh transfer removes its frame obligation exactly once after field Normal commit.
-If any outcome or destination lacks proof, execution remains unavailable.
-
-Required counterexamples: anchor consumed/dies/rebound or result outlives it;
-class-only/fakeFresh; duplicate field ownership; borrowing-only actual needing no
-owning Home; Fault releases only acquired child/unpublished outer and preserves
-original formal aliases; ignored result cleanup;315 null-refinement and318 sum
-retain exact source exit; ordinary unannotated facade scalar read/effects/relay
-must preserve declaration-only borrowed input. Field capability and true runtime
-owned/borrowed cleanup/publication are separate required consumers, not satisfied
-by provenance. No AST/app workaround, fallback, implicit consume or take/share.
-This is internal contract work toward Gate1; goal remains active, not paused or
-blocked. Stored-child sibling and Gates2-4 remain parked. No physical implementation
-before exact source contract/issuer/failure boundary and acceptance are selected.
+`COMPOSITION-BOXSHAPE-S0` closed at b6657f6f87: the sole private call-witness
+verifier/composer replaced inline identity/substitution loops without changing
+Dead-before-Waiting, pending policy, coverage or source authority.
+`CHILD-SOURCE-RELATION-S0` closed at b8cda4e125: SAME finished result Facts
+retain exact constructor/field/formal/actual identity and all compatible
+Null/Fresh/Forward witnesses. Git at those commits owns tests and closeout.
+The original8 candidate sites remained6covered/2uncovered at this point;
+source candidates alone granted no Home, anchored lifetime, field install,
+cleanup, physical publication or production EXE. Later outcome/physical
+sections below own the current contract and unresolved acceptance.
 
 ## OUTCOME-SUPPORT-D0 decision / MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-D0 selected
 
