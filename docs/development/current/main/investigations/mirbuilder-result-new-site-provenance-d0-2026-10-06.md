@@ -909,37 +909,11 @@ S0 source-only forwarding closed at `02d6ee4044`: original
 `normalize_size` -> `size_to_bin` -> `good_size`/`accepts` tagged chain;
 source1/1, domain10/10 and actual13/13 PASS. No executable grant.
 
-S1 loop-node census (2026-10-09): `route_entry/router.rs` calls
-`issue_loop_node_winner_recipe_v1` in its production route; its old caller-zero
-comment was stale and is corrected. The issued product is still one of five V1
-families; `loop_node_physical_admission` rejects GenericG0 at this node edge.
-Common V2 has `CallSlot` and If/Return/binding operations, but `CallSlot`
-does not itself identify the Static target. S1 must co-seal the original
-Static Rc/site/target/ordered args beside the V2 operation before a physical
-issuer may emit it; a V1 family receipt cannot stand in for that product.
-
-S1 corrected production Decision (2026-10-09, callable-path audit): the
-selected callable Loop enters `raw_loop_child_port` and
-`PreparedLocatedRawLoopChildEntryV1`, not the standalone `route_entry/router`
-path above. `size_to_bin` has a zeroarg header call, one-argument body call,
-returning `If`, and `bin` backedge. The first bounded slice is a package-owned
-source-only loan: while `issuer.rs` holds both `static_claim_index` and the
-original Static Rc in `ordinary_new_claim_ledger`, use the existing
-`claim_for_source_site_v1` to co-seal exact loop site, target, arity and
-argument sites. Retain and lend that move-only product through the selected
-callable source scope; do not reconstruct the index downstream. The index is
-currently retained only under `cfg(test)`, and `module_port` target/publication
-is neither original Rc nor ordered actual proof. Missing or mismatched claim,
-Rc, site, target or ordinal must refuse. Pre-loop `bin` remains unavailable.
-Next, issue the source-bound V2 Recipe/JoinSig using that loan; V2 already has
-`LessEqual`/`Return`, but CallSlot has no target. Connect its verified program
-to canonical CFG/Binding SSA, Home, then switch the selected raw Loop caller.
-The V1 physicalizer has no V2 entry; no V1 coercion or S6C receipt reuse.
-Executable entry, original EXE and old-edge retirement remain open.
-
-S1 source-only loan closed at `264791096c`: original Static Rc/I64 claim,
-Loop placement and ordered sites in one-take rows; pre-loop impersonation
-rejects. Quick source 1/1, claim 9/9, actual 13/13, domain 10/10 PASS.
+S1 callable-path correction and source-only loan landed at `264791096c`:
+the selected Loop enters `raw_loop_child_port`, not standalone `route_entry`;
+package one-take rows join original Static Rc/site/target/ordered args with
+the result claim. Pre-loop impersonation rejects. Focused evidence is in that
+commit; no executable actual, Home or V2 physical permission was granted.
 
 S1 V2 Decision (read-only worker, 2026-10-09): issue a source-bound V2
 semantic product at `raw_loop_child_entry`, before its V1 Facts issuer.
@@ -966,29 +940,36 @@ S1 pre-loop loan closed at `0fc9cdaf03`: original `normalize_size` Rc and
 `local n` initializer co-seal ExactI64 in one-take row; source 1/1, claim
 9/9, actual 13/13, domain 10/10 PASS. No live entry `n` or production switch.
 
-S1 source-bound V2 semantic verified (2026-10-09): original resolver
-Loop/If/return/rebind, three Static loans and Completion issue one common
-V2 Recipe/JoinSig. The product retains checked `n`/`bin` bindings, declaration
-order, source sites and Recipe roles for the physical consumer. Swapped loans
-reject; missing inner return stops in V2 source, Bool update stops earlier at
-package `source-actual-unavailable`. Focused original producer 1/1, selected
-direct route 1/1, source negatives 1/1 (two arms), raw-entry 11/11 and V2
-schema 23/23 PASS; quick library check and CLI build PASS. Same-site reentry
-rejects; original `bin_size` Loop stays unselected. The route stops after
-semantic issue at `static-i64-v2/physical-unavailable`; no live actual/Home/SSA
-or EXE permission. Whole-app probe stops earlier at `borrowed-entry/source-only-object-actuals`.
-Next D0: identify a genuine Loop Home owner; selected-New `PrefixLocalFlow`
-and Query-only neutral Home evidence are not whole-function Loop authorities.
+S1 source-bound V2 semantic landed at `7b9f345d7f`: original resolver
+Loop/If/return/rebind, three Static loans and Completion issue common V2
+Recipe/JoinSig with checked source-to-key roles. Swapped loans, missing inner
+return, Bool backedge and same-site reentry reject. Focused source/route,
+raw-entry 11/11, schema 23/23, quick check and CLI build PASS. The route
+stops at `static-i64-v2/physical-unavailable`; whole-app probe still stops
+earlier at `borrowed-entry/source-only-object-actuals`. No live Home/SSA/EXE.
 
 S1 HOME-D0 Decision (read-only audit integrated, 2026-10-09): canonical
-Binding SSA/CFG/PHI lives in `CanonicalSsaFunctionSessionV2`; it does not
-issue Home meaning. `home_relation` is passive, selected-New `PrefixLocalFlow`
-is cohort-limited, and Query neutral evidence covers only `return me`.
-The bounded candidate is a source-issued local-Home-neutral receipt for the
-whole original `size_to_bin`: verify the borrowed formal, trivial `n`/`bin`,
-all Static call input/output Home relations, both returns and the backedge.
-Issue it beside existing package claims, then consume it with this V2 product;
-do not infer neutrality from an I64 result claim or from absent New syntax.
-Unknown transfer, owned local, divergent surviving Home or unproved Fault
-cleanup refuses. Next: census exact Home contract issuer for all four calls;
-if no such issuer exists, design that narrow contract before physical SSA.
+Binding SSA/CFG/PHI is `CanonicalSsaFunctionSessionV2`, not Home Flow.
+Selected-New `PrefixLocalFlow` and Query neutral evidence are cohort-limited.
+The package `StaticIncomingSourceV1` already retains original branded
+call/target/ordered formal contracts, and result catalog proves ExactI64.
+Neither product is a Home ABI: an annotated ExactI64 result skips body proof,
+and unannotated result proof permits unused call statements. Thus even
+transitive ExactI64 is no evidence that Home state is unchanged.
+
+Source authority + canonical issuer: the existing semantic package must
+co-seal a bounded ClosedCallable Home boundary from its resolved declaration,
+whole-source target inventory, formal contracts and a whole-body/transitive
+effect check. Do not re-resolve targets or mint Home from the V2 Recipe.
+For this caller, prove the borrowed input, trivial `n`/`bin`, all four Static
+call boundaries, both returns, backedge and Fault before Normal publication.
+The `bin_size` transitive callees also need the same check.
+Non-authority: ExactI64, absent `new`, source comments and physical SSA.
+Fail-fast: unsupported effect, unknown/recursive target, Home transfer or
+escape, owned surviving local, or unproved Fault cleanup refuses the receipt.
+Smallest next slice: retain the original post-loop `return me.huge_bin()`
+Static source loan beside the three existing loans, then issue the bounded
+Home boundary from the same package and consume it in selected V2 routing.
+Acceptance: original four-call source succeeds; foreign/missing tail source
+and an ExactI64 callee with a side-effecting statement reject before MIR.
+Non-claims: no generic Home Flow, executable actuals, physical SSA or EXE.
