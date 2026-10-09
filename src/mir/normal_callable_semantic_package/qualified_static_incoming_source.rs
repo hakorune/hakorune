@@ -68,6 +68,17 @@ impl StaticIncomingSourceV1 {
             }
     }
 
+    /// Original CurrentOwner result and full input tuple, for source-only
+    /// actual observation. This grants neither executable entry nor ABI.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_current_owner_i64_source_v1(
+        &self,
+    ) -> bool {
+        matches!(
+            self.current_owner_source().map(|row| row.result()),
+            Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })
+        ) && self.argument_sites.len() == self.parameters.len()
+    }
+
     pub(in crate::mir) fn require_qualified(&self) -> Result<(), String> {
         if self.is_qualified() {
             Ok(())

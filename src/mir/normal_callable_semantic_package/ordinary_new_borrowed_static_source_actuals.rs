@@ -33,13 +33,15 @@ pub(super) fn prepare_static_source_actuals_v1(
         .static_arguments
         .keys()
         .any(|(site, _)| site == call);
-    let zero_source = prepared
+    let original_source = prepared
         .source_incoming
         .static_observations()
         .get(call)
         .and_then(|row| row.as_ref().ok())
-        .is_some_and(|source| source.is_zeroarg_i64_v1());
-    if !opaque_source && !zero_source {
+        .is_some_and(|source| {
+            source.is_zeroarg_i64_v1() || source.is_current_owner_i64_source_v1()
+        });
+    if !opaque_source && !original_source {
         return Ok(None);
     }
     let source = prepared

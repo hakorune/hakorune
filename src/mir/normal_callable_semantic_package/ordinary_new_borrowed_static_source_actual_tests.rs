@@ -12,6 +12,59 @@ use super::*;
 const TEXT: &str = "static box Layout { pick(p) { local alias: i64 = p if p <= 0 { return 0 } return 1 } } box Heap { lookup(size) { local k = Layout.pick(size) return 0 } } static box Main { main() { local heap = new Heap() local k = heap.lookup(7) local a = Layout.pick(8) return 0 } }";
 
 #[test]
+fn current_owner_nonopaque_actual_retains_original_source_without_entry() {
+    let package = package("static box Layout { pick(p: i64): i64 { return p + 1 } run(): i64 { local k = me.pick(8) return k } } static box Main { main() { return 0 } }");
+    let ingress = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let original = ingress
+        .source_incoming
+        .static_observations()
+        .values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.target().name() == "pick" && row.current_owner_source().is_some())
+        .expect("original CurrentOwner inventory source");
+    let actual = BorrowedCallActualCandidateV1 {
+        ordinal: 0,
+        site: original.argument_sites()[0].clone(),
+        value: BorrowedCallActualValueV1::Integer(8),
+    };
+    let rows = prepare_static_source_actuals_v1(
+        ingress,
+        &package.parameter_contracts,
+        original.call_site(),
+        &[actual.clone()],
+    )
+    .unwrap()
+    .expect("source-only CurrentOwner actuals");
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
+        panic!("no executable phase");
+    };
+    assert!(Rc::ptr_eq(&identity.source, original));
+    assert!(rows.require_executable_v1().is_err());
+    assert!(matches!(
+        rows.ordered_arguments.as_ref(),
+        [LocalCallArgumentV1::Integer(8)]
+    ));
+    let wrong = BorrowedCallActualCandidateV1 {
+        value: BorrowedCallActualValueV1::Bool(true),
+        ..actual
+    };
+    assert!(prepare_static_source_actuals_v1(
+        ingress,
+        &package.parameter_contracts,
+        original.call_site(),
+        &[wrong],
+    )
+    .unwrap_err()
+    .contains("nonopaque-integer-unproved"));
+}
+
+#[test]
 fn static_source_port_retains_original_forward_and_denies_executable() {
     let package = package(TEXT);
     let claims = &package.source_static_claims_for_test;

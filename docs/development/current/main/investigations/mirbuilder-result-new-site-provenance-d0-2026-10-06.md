@@ -990,9 +990,10 @@ public i64 contract comes from caller inference. Until all incoming contexts
 are covered, whole-callee source-only refusal stays. Reuse unchanged mimalloc
 census and nonlocal-context veto tests; reject wrong site/Rc/ordinal, missing
 caller and forged Completion. Premature ingress edits were reverted.
-Current evidence: unchanged mimalloc-lite still stops at
-`borrowed-entry/source-only-object-actuals`; size-class policy proof stops at
-`borrowed-static/local-source-missing`. Existing real mimalloc census1/1 and
-Static context/spelling negatives2/2 PASS. `home_new_prefix_scan` leaves Loop
-at source-facts-only staging; `StaticI64CallClaimV1` and value observer admit
-CurrentOwner only at arity0. No entry/packet implementation was retained.
+Current evidence: unchanged mimalloc-lite stops at
+`borrowed-entry/source-only-object-actuals`; size-class policy stops at
+`borrowed-static/local-source-missing`. S0 source-only actual preparation now
+retains original arity-bearing CurrentOwner ExactI64 Rc/full tuple, never Ready.
+Focused source family12/12, real mimalloc census1/1, nonlocal veto1/1 PASS.
+Next: exact-site claim and source projection into local/direct-return flow;
+Loop remains source-facts-only, entry/packet/publication remain closed.

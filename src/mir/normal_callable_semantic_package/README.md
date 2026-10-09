@@ -2018,6 +2018,12 @@ result, not a physical value or new entry permission; Fault/Normal lowering and
 whole CurrentOwner input/packet remain independently required. Mul and calls
 with input arguments remain outside this comparison child slice.
 
+An arity-bearing CurrentOwner ExactI64 source can now stage nonopaque ordered
+actuals as `SourceStatic` from the original incoming Rc. The full formal tuple,
+source sites and Integer evidence are checked; this phase grants no entry,
+packet, publication or executable call. Local/return observation still needs
+its own exact-site claim and projection.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical
