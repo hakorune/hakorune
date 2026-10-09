@@ -980,15 +980,18 @@ cases). The prior Divide test now asserts progress past Body4; Add, If and
 scalar-expression family regressions passed (1/1, 1/1, 11/11).
 
 Decision (2026-10-10, `bin_size` Loop carrier prerequisite): resolved Loop
-region seals source placement, not post-loop scalar values. Current Home
-rejects Loop/assignment; GenericG0 needs two nested loops, while the
-variable-accumulator Recipe admits Add with a literal bound only. V1/V2
-LoopBinaryI64Op and its physicalizer lack Mul. Build one bounded canonical
-single-loop Facts→Recipe→JoinSig/After for I64 `scale` and `i`, variable I64
-bound `shift_count`, condition `i < shift_count`, and ordered updates
-`scale * 2`, `i + 1` with no other body effects. Home must borrow verified
-After classes, never independently solve the loop. Wrong owner/region,
-non-I64 bound, missing/extra/swapped update, changed operator/constant,
-nested call/control, or absent/duplicate After reject. Separate source/Recipe
-authority, Home consumption and physical Mul lowering into bounded slices.
+region seals placement, not post-loop scalar values. The production seam is
+`raw_loop_child_entry` → `issue_callable_variable_accum_recurrence` → compiler
+projection → AST-free Facts → Recipe. Its projector fixes a five-statement
+root, literal bound and Add recurrence; GenericG0 is nested-loop/caller-zero.
+Reuse resolver Loop membership/source identity, lexical `BindingRef` and
+pre-loop Home Integer classes as authority; do not infer class from spelling.
+The selected Home scanner currently rejects Loop/assignment. Build a bounded
+single-loop Facts→Recipe→JoinSig/After for distinct I64 `scale`, `i`, and
+variable I64 `shift_count`, condition `i < shift_count`, ordered `scale * 2`
+and `i + 1`, with complete coverage and no other effects. Home borrows
+verified After only; Facts alone are an interim prerequisite, not production
+advance. Reject wrong owner/site/region/class, incomplete or reordered body,
+changed update, nested call/control, or missing/duplicate After. V1/V2
+LoopBinaryI64Op and physicalizer lack Mul; separate physical slice is owed.
 No EXE or old-edge retirement is claimed.
