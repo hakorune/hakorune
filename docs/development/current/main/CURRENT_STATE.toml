@@ -1,10 +1,10 @@
 date = "2026-10-09"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/checked-input-requirement-d0"
-current_design_stop = "MIRBUILDER-GATE1-CHECKED-INPUT-REQUIREMENT-D0"
+current_blocker_token = "selfhost-resume/checked-input-requirement-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -20,14 +20,15 @@ latest_card_summary = """
 CurrentOwner Static source-site claims and original Rc are verified for the
 unchanged mimalloc loop, but body actual proof refuses source-actual-unavailable.
 Whole-caller Integer agreement is false for size_to_bin and its forwarding
-chain. The checked-input requirement issuer and Normal/Fault handoff must be
-fixed before n/bin Home, V2 loop Recipe, SSA, and whole Static entry/packet.
+chain. D0 selects the borrowed-formal source package as the checked-input
+issuer; next S0 seals exact tagged forwarding and checked Normal/Fault use.
+n/bin Home, V2 loop Recipe, SSA, and whole Static entry/packet follow.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.
 """
-next_design_card = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

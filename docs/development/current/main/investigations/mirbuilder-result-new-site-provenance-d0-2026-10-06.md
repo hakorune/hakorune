@@ -955,3 +955,32 @@ be excluded without sealed non-public reachability. Smallest next work: audit
 that issuer/physical handoff and fix the exact source-only requirement contract;
 then close `n`/`bin` Home, V2 loop, SSA, and S2 packet in that order. The
 diagnostic failures are observed frontier, not accepted test regressions.
+
+Checked-input D0 Decision (2026-10-09): The canonical issuer is the existing
+borrowed-formal source package after it joins the original use draft,
+Static target/formal and complete source incoming graph. The issued condition
+is per callee formal and exact use/forward site: a tagged input may reach a
+checked numeric use, whose non-Integer tag Faults before payload consumption.
+`normalize_size(size)` supplies the concrete base case: `size <= 0` checks
+the tag, then both Normal return paths are I64; `size_to_bin(size)` only
+forwards the tagged input to that checked callee. The result catalog's
+`ExactI64.required_i64_arguments` corroborates a conditional result; it
+does not issue the input condition. `ExactBool` cannot carry that condition.
+All-caller Integer agreement and a source-only call row are non-authorities.
+
+The handoff retains the SAME original Static Rc, target/formal, argument
+ordinal and source use through the existing borrowed entry/finished-call
+packet. The final module scan and physical publisher independently verify
+the selected tagged carrier and exact checked-use coordinates. The C owner
+already checks kind 1 before numeric compare/arithmetic and Faults other
+kinds; forwarding does not convert the carrier or inspect its payload.
+S0 replaces only the source-only `candidate_integer_agreement` demand for
+an exact forwarded tagged formal when the callee's checked-use condition is
+sealed. Literal/declared I64 evidence stays on its existing arm. Missing
+callee condition, wrong site/Rc/ordinal, unproved return path, and a use
+before its check remain fail-closed. The positive is unchanged mimalloc
+`normalize_size` -> `size_to_bin`, including the Bool-returning `accepts`
+forward; negatives include wrong-tag execution Fault and forged/missing
+source correspondence. This S0 grants neither loop Home/V2/SSA nor whole
+Static entry/packet or production EXE. Source-only and executable phases
+remain separate; executable use requires the later finished packet check.
