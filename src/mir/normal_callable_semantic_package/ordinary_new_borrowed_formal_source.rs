@@ -16,6 +16,8 @@ mod source_drafts;
 
 pub(super) use source_drafts::collect_borrowed_source_drafts_v1;
 
+#[path = "ordinary_new_borrowed_formal_source_checked_input.rs"]
+mod checked_input;
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]
@@ -82,6 +84,9 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) object_views: BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
     /// Complete original incoming agreement; never execution or payload permission.
     pub(super) integer_agreements: BTreeSet<BindingRefV1>,
+    /// Source-only, least-fixed-point proof that the tagged formal is checked
+    /// before numeric payload use, including exact Static forward chains.
+    pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,
     /// Exact original checked Normal comparison facts; no transport permission.
     pub(super) guarded_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
 }
@@ -301,6 +306,8 @@ pub(super) fn finish_ingress_from_drafts_v1(
             &inventory,
             &guarded_actuals,
         )?;
+    let checked_static_inputs =
+        checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
         .partition(|(owner, _)| transport_owners.contains(owner));
@@ -326,6 +333,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
         source_incoming: inventory,
         object_views,
         integer_agreements,
+        checked_static_inputs,
         static_arguments,
         guarded_actuals,
     })

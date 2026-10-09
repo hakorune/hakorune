@@ -139,6 +139,18 @@ cannot seed it. Nonzero-input publication handoff, selected sites and physical
 packets still require the original Qualified route. Noninitializer/USIZE exclusions in that
 borrowed entry remain unchanged. No source observation grants an entry or ABI.
 
+The checked-input source closure is separate from all-caller Integer agreement.
+The borrowed-formal issuer examines each original Static formal-use draft and
+its exact `UnresolvedArgument` Static source facts. A formal with a checked
+numeric Compare may forward a tagged carrier only through targets whose own
+checked-input condition is sealed; the least fixed point leaves forward-only
+cycles unissued. An original checked Return must retain that same Compare.
+`SourceStatic` may project such a CurrentOwner forwarding argument despite
+false Integer agreement, but it records `integer_evidence=false` and grants
+neither executable Call nor ABI. Missing source identity or unchecked target
+remains fail-closed. The physical kind check and final source/operand scans
+still own execution permission and Normal/Fault correctness.
+
 The bounded zero-input ExactI64 law stages `SourceStatic` from the same original
 inventory Rc, even with no opaque-argument fact. After original signature issue,
 the existing actuals owner closes ALL raw callee rows and vetoes against selected

@@ -43,6 +43,7 @@ fn static_source_domain_keeps_full_original_incoming_and_same_rc_with_closed_tra
     let source = ingress(&package);
     let p = formal(&package, "Layout", "pick");
     assert!(source.candidate_integer_agreement(p));
+    assert!(!source.checked_static_input(p), "unused formal has no checked numeric use");
     assert!(source.formal_integer_agreement(p));
     assert!(source.contains_definition_for_test(p.owner()));
     assert_eq!(
@@ -76,6 +77,11 @@ fn static_source_domain_keeps_full_original_incoming_and_same_rc_with_closed_tra
     assert_eq!(source.incoming.len(), 3);
     assert_eq!(source.forwards.len(), 1);
     assert!(source.object_views.is_empty());
+
+    let unchecked = self::package("static box Chain { pass(p) { return 0 } caller(q) { local n = me.pass(q) return 0 } } static box Main { main() { local n = Chain.caller(7) return 0 } }");
+    let unchecked_source = ingress(&unchecked);
+    assert!(!unchecked_source.checked_static_input(formal(&unchecked, "Chain", "pass")));
+    assert!(!unchecked_source.checked_static_input(formal(&unchecked, "Chain", "caller")));
 }
 
 #[test]
@@ -111,6 +117,7 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         let source = ingress(&package);
         let p = formal(&package, "Layout", "pick");
         assert!(!source.candidate_integer_agreement(p), "{body}");
+        assert!(!source.checked_static_input(p), "{body}");
         assert_eq!(
             source.candidate_input_inventory_for_test(p.owner()),
             (0, passive_source)

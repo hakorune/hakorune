@@ -230,6 +230,20 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             }
             let source = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap()
                 .as_ref().expect("retained original source incoming");
+            for (class, method) in [
+                ("SizeClassBox", "normalize_size"),
+                ("SizeClassBox", "size_to_bin"),
+                ("SizeClassBox", "good_size"),
+                ("SizeClassBox", "accepts"),
+            ] {
+                let key = CanonicalSameModuleCallableKeyV1::static_box_method(class, method, 1);
+                let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+                let formal = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().parameters[0].binding;
+                if method != "accepts" {
+                    assert!(!source.candidate_integer_agreement(formal));
+                }
+                assert!(source.checked_static_input(formal), "original checked/forward chain {class}.{method}");
+            }
             let good_size = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "good_size", 1);
             let good_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(good_size.clone())).unwrap();
             let good_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == good_slot).unwrap();
@@ -275,6 +289,17 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert!(observed.require_qualified().is_err());
                 assert!(source.incoming.iter().all(|row| row.call != owned));
                 assert!(package.ordinary_new_claim_ledger.selected_static_local_source_v1(&owned).unwrap().is_none());
+                let claim = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::claim_for_source_site_v1(
+                    claims, Some(&good_size), &input, &owned, &package.selected,
+                    &package.parameter_contracts, None,
+                ).unwrap().unwrap();
+                let projected = super::super::borrowed_formal_actuals::project_pending_current_owner_static_source_arguments_v1(
+                    package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap(),
+                    &package.ordinary_new_claim_ledger.borrowed_formal_actuals,
+                    &owned,
+                    &claim,
+                ).unwrap();
+                assert!(projected.is_some(), "checked forwarding is source-only");
             }).unwrap();
             let usize_key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size_usize", 1);
             let usize_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(usize_key)).unwrap();

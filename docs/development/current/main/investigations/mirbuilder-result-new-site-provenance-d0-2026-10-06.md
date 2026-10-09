@@ -980,7 +980,18 @@ sealed. Literal/declared I64 evidence stays on its existing arm. Missing
 callee condition, wrong site/Rc/ordinal, unproved return path, and a use
 before its check remain fail-closed. The positive is unchanged mimalloc
 `normalize_size` -> `size_to_bin`, including the Bool-returning `accepts`
-forward; negatives include wrong-tag execution Fault and forged/missing
-source correspondence. This S0 grants neither loop Home/V2/SSA nor whole
+forward; S0 negatives cover missing/forged source correspondence and an
+unchecked target. Wrong-tag execution Fault belongs to later executable
+acceptance. This S0 grants neither loop Home/V2/SSA nor whole
 Static entry/packet or production EXE. Source-only and executable phases
 remain separate; executable use requires the later finished packet check.
+
+S0 source-only closure verified (2026-10-09): one least-fixed-point issuer
+over the original Static draft/source facts admits the unchanged
+`normalize_size` -> `size_to_bin` -> `good_size`/`accepts` tagged forward
+chain without asserting Integer agreement. The original `good_size` call
+projects ordered source actuals while selected executable Static remains
+absent. Original mimalloc test1/1, Static domain10/10 and Static actual13/13
+PASS on the quick test binary; no new dedicated guard. The current code
+still owes n/bin Home and V2 loop, full executable packet, kind-Fault
+acceptance, original EXE and old-edge retirement.

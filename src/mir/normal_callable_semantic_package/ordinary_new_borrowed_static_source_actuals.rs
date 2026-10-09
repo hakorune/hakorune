@@ -376,10 +376,26 @@ fn project_pending_static_source_arguments_for_route_v1(
             return Err(freeze("borrowed-static/source-projection-identity"));
         }
     }
-    if required_i64_arguments
-        .iter()
-        .any(|ordinal| identity.integer_evidence.get(*ordinal as usize) != Some(&true))
-    {
+    if required_i64_arguments.iter().any(|ordinal| {
+        if identity.integer_evidence.get(*ordinal as usize) == Some(&true) {
+            return false;
+        }
+        let index = *ordinal as usize;
+        let checked_forward = current_owner
+            && matches!(
+                identity.candidates.get(index).map(|row| &row.value),
+                Some(BorrowedCallActualValueV1::SelfRooted { .. })
+            )
+            && identity
+                .source
+                .parameters()
+                .get(index)
+                .is_some_and(|formal| {
+                    formal.kind.is_ordinary_borrowed_handle()
+                        && prepared.checked_static_input(formal.binding)
+                });
+        !checked_forward
+    }) {
         if current_owner {
             return Ok(None);
         }
