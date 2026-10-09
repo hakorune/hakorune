@@ -276,72 +276,94 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     });
     (
         move |site| {
-            let Some(key) = caller_key.as_ref() else {
-                return Ok(None);
-            };
-            if let Some(claim) = claims.claim(key, site.site()) {
-                return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
-            }
-            let Some(source_row) = claims.current_owner_i64_source(key, site.site()) else {
-                return Ok(None);
-            };
-            let reject =
-                || super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::SourceNavigation {
-                    site: site.clone(),
-                };
-            if site.owner() != input.owner() {
-                return Err(reject());
-            }
-            let mut calls = input
-                .function()
-                .method_calls()
-                .filter(|(observed, _)| *observed == site.site());
-            let Some((_, call)) = calls.next() else {
-                return Err(reject());
-            };
-            if calls.next().is_some() {
-                return Err(reject());
-            }
-            let loan = claims
-                .incoming_source(key, site, call, selected, contracts, app_main)
-                .map_err(|issue| {
-                    super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: site.clone(),
-                        issue,
-                    }
-                })?
-                .ok_or_else(reject)?;
-            if loan.contract().parameters.len() != call.arguments().len() {
-                return Err(reject());
-            }
-            let VerifiedCallableResultDispositionV1::ExactI64 {
-                required_i64_arguments,
-            } = source_row.result()
-            else {
-                return Err(reject());
-            };
-            if call.arguments().is_empty() {
-                if !required_i64_arguments.is_empty() {
-                    return Err(reject());
-                }
-                return Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
-                    site.clone(),
-                )));
-            }
-            if required_i64_arguments
-                .iter()
-                .any(|ordinal| *ordinal as usize >= call.arguments().len())
-            {
-                return Err(reject());
-            }
-            Ok(Some(StaticI64CallClaimV1::current_owner_source(
-                site.clone(),
-                call.arity(),
-                required_i64_arguments.clone(),
-            )))
+            claim_for_source_site_v1(
+                claims,
+                caller_key.as_ref(),
+                &input,
+                site,
+                selected,
+                contracts,
+                app_main,
+            )
         },
         has_current_owner_i64_source,
     )
+}
+
+/// Issue the Home walk's exact site claim through a reusable source port.
+/// A source-bound loop producer can use this same issuer; ordered actuals and
+/// executable entry still need separate proof from the original Static Rc.
+pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1(
+    claims: &QualifiedStaticCallClaimIndexV1,
+    caller_key: Option<&CanonicalSameModuleCallableKeyV1>,
+    input: &crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+    selected: &super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    contracts: &[super::model::OwnedCallableParameterContractDeclarationV1],
+    app_main: Option<&super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
+) -> Result<Option<StaticI64CallClaimV1>, super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
+    let Some(key) = caller_key else {
+        return Ok(None);
+    };
+    if let Some(claim) = claims.claim(key, site.site()) {
+        return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
+    }
+    let Some(source_row) = claims.current_owner_i64_source(key, site.site()) else {
+        return Ok(None);
+    };
+    let reject = || super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::SourceNavigation {
+        site: site.clone(),
+    };
+    if site.owner() != input.owner() {
+        return Err(reject());
+    }
+    let mut calls = input
+        .function()
+        .method_calls()
+        .filter(|(observed, _)| *observed == site.site());
+    let Some((_, call)) = calls.next() else {
+        return Err(reject());
+    };
+    if calls.next().is_some() {
+        return Err(reject());
+    }
+    let loan = claims
+        .incoming_source(key, site, call, selected, contracts, app_main)
+        .map_err(|issue| {
+            super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            }
+        })?
+        .ok_or_else(reject)?;
+    if loan.contract().parameters.len() != call.arguments().len() {
+        return Err(reject());
+    }
+    let VerifiedCallableResultDispositionV1::ExactI64 {
+        required_i64_arguments,
+    } = source_row.result()
+    else {
+        return Err(reject());
+    };
+    if call.arguments().is_empty() {
+        if !required_i64_arguments.is_empty() {
+            return Err(reject());
+        }
+        return Ok(Some(StaticI64CallClaimV1::current_owner_zeroarg(
+            site.clone(),
+        )));
+    }
+    if required_i64_arguments
+        .iter()
+        .any(|ordinal| *ordinal as usize >= call.arguments().len())
+    {
+        return Err(reject());
+    }
+    Ok(Some(StaticI64CallClaimV1::current_owner_source(
+        site.clone(),
+        call.arity(),
+        required_i64_arguments.clone(),
+    )))
 }
 
 /// Translate the caller for `batch_slot` into the canonical same-module

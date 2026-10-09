@@ -975,3 +975,9 @@ whole-callee entry/packet, selector cutover, EXE, or old-edge retirement.
 Following slices connect the verified V2 program to the sole physical
 session/Binding SSA and then switch the selected production route; S1 closes
 only when the original `bin` actual uses the canonical header/backedge value.
+
+S1 prerequisite (BoxShape): Home's exact Static site claim issuer is now a
+reusable source port; the existing predicate delegates to it without changing
+admission. Qualified claim9/9 and unchanged mimalloc source census1/1 PASS
+on quick profile. Loop-site actual proof, V2 Recipe/Home and physical SSA
+remain unissued; source Rc retention alone does not close them.
