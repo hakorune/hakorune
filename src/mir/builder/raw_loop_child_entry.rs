@@ -42,8 +42,7 @@ mod variable_accum;
 mod ledger_bridge;
 #[path = "raw_loop_child_entry/static_i64_v2.rs"]
 mod static_i64_v2;
-#[cfg(test)]
-pub(in crate::mir) use static_i64_v2::stop_after_selected_semantic_product;
+pub(in crate::mir) use static_i64_v2::take_at_function_entry_v2;
 
 /// Exact child-entry result for one raw Loop syntax surface.
 ///

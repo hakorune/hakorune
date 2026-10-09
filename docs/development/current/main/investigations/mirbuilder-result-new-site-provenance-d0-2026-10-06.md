@@ -953,3 +953,21 @@ session parameter; `callable_canary.rs` demonstrates the direct Static
 prelude only inside an existing session. Select a function-level handoff
 before physical effects, or prove a same-session loan from the enclosing
 owner. Until that seam is fixed, `n`/`bin` ValueIds remain unavailable.
+
+Function-entry handoff Decision: the selected cataloged Static method is
+currently `CanonicalCallableRouteV1::Outside` and reaches the raw Loop child.
+Move only its one-take V2 source/Home product consumption to the cataloged
+function entry, before legacy draft or Builder effects. The package ledger
+and original resolver Loop site remain authority; the Recipe issuer stays
+unique. Missing/duplicate/foreign receipts reject there with no raw retry.
+Keep the physical-unavailable stop until exact executable input/packet and
+canonical session admission are issued; this slice grants no ValueId.
+Acceptance: original four-call source selects once at function entry; a
+second take and changed source reject, while unrelated methods keep routes.
+
+Function-entry I0 verification: original selected cataloged method reaches
+the V2 physical stop before Builder function/block effects; source mutation
+and second take reject, unselected Loop returns no product. Focused 4/4,
+candidate 6/6, raw Loop 16/16, Static claim 9/9, quick check and pointer
+guard PASS. The executable Static actual/packet and n/bin session input are
+still unissued; no production MIR or EXE was published.

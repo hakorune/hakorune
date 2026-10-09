@@ -10,11 +10,49 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::super::normal_callable_loop_source_facts::produce_static_i64_loop_semantic_v2;
+use super::super::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
+
+pub(in crate::mir) fn take_at_function_entry_v2(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    claims: &OrdinaryNewClaimLedgerV1,
+) -> Result<Option<VerifiedStaticI64LoopSemanticV2>, String> {
+    let mut selected = input
+        .function()
+        .loop_sites()
+        .filter(|site| claims.expects_loop_static_source_loan_v1(input.owner(), site));
+    let Some(loop_site) = selected.next() else {
+        return Ok(None);
+    };
+    if selected.next().is_some() {
+        return Err(
+            "[freeze:contract][callable-loop/static-i64-v2/duplicate-selected-loop]".to_owned(),
+        );
+    }
+    take_selected_semantic_product(input, claims, loop_site)?
+        .ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-i64-v2/source-unavailable]".to_owned()
+        })
+        .map(Some)
+}
+
 pub(in crate::mir) fn stop_after_selected_semantic_product(
     input: ResolvedFunctionLoweringInputV1<'_>,
     claims: &OrdinaryNewClaimLedgerV1,
     loop_site: &SourceStmtSiteV1,
 ) -> Result<(), String> {
+    if take_selected_semantic_product(input, claims, loop_site)?.is_some() {
+        return Err(
+            "[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned(),
+        );
+    }
+    Ok(())
+}
+
+fn take_selected_semantic_product(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    claims: &OrdinaryNewClaimLedgerV1,
+    loop_site: &SourceStmtSiteV1,
+) -> Result<Option<VerifiedStaticI64LoopSemanticV2>, String> {
     let reject = || "[freeze:contract][callable-loop/static-i64-v2/source-unavailable]".to_owned();
     let site = |relative: &[Segment]| {
         let mut path = loop_site.node().segments().to_vec();
@@ -37,7 +75,7 @@ pub(in crate::mir) fn stop_after_selected_semantic_product(
         return if claims.expects_loop_static_source_loan_v1(input.owner(), loop_site) {
             Err(reject())
         } else {
-            Ok(())
+            Ok(None)
         };
     }
     let header = claims
@@ -48,7 +86,7 @@ pub(in crate::mir) fn stop_after_selected_semantic_product(
         .transpose()?;
     let (header, body) = match (header, body) {
         (None, None) if !claims.expects_loop_static_source_loan_v1(input.owner(), loop_site) => {
-            return Ok(())
+            return Ok(None)
         }
         (Some(header), Some(body)) => (header, body),
         _ => return Err(reject()),
@@ -88,5 +126,5 @@ pub(in crate::mir) fn stop_after_selected_semantic_product(
     if !home.corroborates(&product) {
         return Err("[freeze:contract][callable-loop/static-home-effect-mismatch]".to_owned());
     }
-    Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
+    Ok(Some(product))
 }

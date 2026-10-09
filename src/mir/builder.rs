@@ -401,7 +401,7 @@ mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 #[cfg(test)]
-pub(in crate::mir) use raw_loop_child_entry::stop_after_selected_semantic_product;
+pub(in crate::mir) use raw_loop_child_entry::take_at_function_entry_v2;
 mod raw_loop_child_port; // single located-source Loop child-entry boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness

@@ -506,9 +506,10 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
                 let loop_site = input.function().loop_sites().next().unwrap();
                 let claims = &package.ordinary_new_claim_ledger;
                 assert!(claims.expects_loop_static_source_loan_v1(input.owner(), loop_site));
-                let first = crate::mir::builder::stop_after_selected_semantic_product(input, claims, loop_site).unwrap_err();
-                assert!(first.contains("static-i64-v2/physical-unavailable"), "{first}");
-                let second = crate::mir::builder::stop_after_selected_semantic_product(input, claims, loop_site).unwrap_err();
+                let first = crate::mir::builder::take_at_function_entry_v2(input, claims).unwrap();
+                let product = first.expect("selected cataloged function takes one V2 product before lowering");
+                assert_eq!(&product.roles().loop_site, loop_site);
+                let second = crate::mir::builder::take_at_function_entry_v2(input, claims).unwrap_err();
                 assert!(second.contains("static-i64-v2/source-unavailable"), "{second}");
             }).unwrap();
             let other = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size", 1);
@@ -516,9 +517,9 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
             package.batch().with_lowering_input(other_slot, |input| {
                 let loop_site = input.function().loop_sites().next().unwrap();
                 assert!(!package.ordinary_new_claim_ledger.expects_loop_static_source_loan_v1(input.owner(), loop_site));
-                assert!(crate::mir::builder::stop_after_selected_semantic_product(
-                    input, &package.ordinary_new_claim_ledger, loop_site,
-                ).is_ok(), "unselected Loop keeps its existing route");
+                assert!(crate::mir::builder::take_at_function_entry_v2(
+                    input, &package.ordinary_new_claim_ledger,
+                ).unwrap().is_none(), "unselected Loop keeps its existing route");
             }).unwrap();
         });
     }).unwrap().join().expect("original selected Loop route");
@@ -586,8 +587,8 @@ fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
                         assert!(home.contains("static-home-effect-unavailable"), "{home}");
                         return;
                     }
-                    let error = crate::mir::builder::stop_after_selected_semantic_product(
-                        input, &package.ordinary_new_claim_ledger, loop_site,
+                    let error = crate::mir::builder::take_at_function_entry_v2(
+                        input, &package.ordinary_new_claim_ledger,
                     ).unwrap_err();
                     let expected = match case {
                         2 => "static-i64-v2/source-unavailable",

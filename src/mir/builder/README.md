@@ -1751,3 +1751,12 @@ observation; no source consumer may manufacture an original BinOp from that
 result ID. This preparation issues no source, guard, entry or physical ABI
 permission. Guarded Mul requires its original source/ordered-child/guard proof
 and complete independent physical closure before accepted draft activation.
+
+For the selected Static I64 Loop V2, the cataloged function entry consumes
+the package's one-take source/Home product before route classification or
+function draft effects. The exact resolver Loop site, original Static loans
+and common Recipe/JoinSig remain its authority. Other methods retain their
+existing route. Physical input/packet and canonical SSA admission are still
+closed; the current selected terminal is `static-i64-v2/physical-unavailable`.
+The raw Loop stop remains fail-closed if reached without the function-entry
+handoff, and cannot retry another route after source evidence is consumed.
