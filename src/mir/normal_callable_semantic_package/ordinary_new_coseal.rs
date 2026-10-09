@@ -78,7 +78,10 @@ mod candidate;
 mod lexical_instance_call;
 #[path = "ordinary_new_loop_static_source_loan.rs"]
 mod loop_static_source_loan;
+#[path = "ordinary_new_static_home_effect.rs"]
+mod static_home_effect;
 pub(in crate::mir) use loop_static_source_loan::{LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1};
+pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
@@ -296,6 +299,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
     loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
     loop_tail_static_i64_source_loans: RefCell<BTreeMap<SourceStmtSiteV1, Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>>>,
+    loop_static_home_neutral: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>>>,
     // The existing source dispatch projection retains per-site error scope.
     borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,

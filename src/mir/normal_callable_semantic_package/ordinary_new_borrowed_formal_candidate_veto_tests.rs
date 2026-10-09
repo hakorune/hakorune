@@ -525,7 +525,7 @@ fn real_mimalloc_static_loop_route_uses_one_source_bound_v2_product() {
 }
 
 #[test]
-fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
+fn real_mimalloc_static_loop_v2_rejects_source_and_home_mutations() {
     std::thread::Builder::new().name("mimalloc-static-loop-negatives".into())
         .stack_size(32 * 1024 * 1024).spawn(|| {
         let env_updates: Vec<_> = crate::test_support::JOINIR_DEFAULT_MODE.into_iter().chain([
@@ -546,6 +546,7 @@ fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
                 ("return bin\n      }\n      bin = bin + 1", "local skipped = bin\n      }\n      bin = bin + 1"),
                 ("bin = bin + 1\n    }\n    return me.huge_bin()", "bin = true\n    }\n    return me.huge_bin()"),
                 ("return me.huge_bin()\n  }", "return 73\n  }"),
+                ("return words * me.word_size()", "print(0)\n    return words * me.word_size()"),
             ].into_iter().enumerate() {
                 let runner = crate::runner::NyashRunner::new(Default::default());
                 let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
@@ -577,10 +578,21 @@ fn real_mimalloc_static_loop_v2_rejects_changed_return_and_backedge() {
                 let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
                 package.batch().with_lowering_input(slot, |input| {
                     let loop_site = input.function().loop_sites().next().unwrap();
+                    if case == 3 {
+                        let home = package.ordinary_new_claim_ledger
+                            .take_loop_static_home_neutral_v1(loop_site)
+                            .expect("selected Loop has Home proof attempt")
+                            .unwrap_err();
+                        assert!(home.contains("static-home-effect-unavailable"), "{home}");
+                        return;
+                    }
                     let error = crate::mir::builder::stop_after_selected_semantic_product(
                         input, &package.ordinary_new_claim_ledger, loop_site,
                     ).unwrap_err();
-                    let expected = if case == 2 { "static-i64-v2/source-unavailable" } else { "static-i64-v2/source]" };
+                    let expected = match case {
+                        2 => "static-i64-v2/source-unavailable",
+                        _ => "static-i64-v2/source]",
+                    };
                     assert!(error.contains(expected), "{before}: {error}");
                 }).unwrap();
             }

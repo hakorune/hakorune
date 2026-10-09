@@ -47,7 +47,9 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedCallableLoopBreakCompositeSourceFactsV1, VerifiedCallableLoopBreakSourceCandidateV1,
     VerifiedCallableLoopBreakSourceFactsV1,
 };
-pub(in crate::mir) use normal_callable_loop_source_facts::produce_static_i64_loop_semantic_v2;
+pub(in crate::mir) use normal_callable_loop_source_facts::{
+    produce_static_i64_loop_semantic_v2, VerifiedStaticI64LoopSemanticV2,
+};
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary

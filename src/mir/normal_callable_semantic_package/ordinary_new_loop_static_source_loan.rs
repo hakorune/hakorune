@@ -91,9 +91,15 @@ impl LoopEntryStaticI64SourceLoanV1 {
     }
 }
 
-struct StaticSourceSealV1 {
+pub(super) struct StaticSourceSealV1 {
     original: Rc<StaticIncomingSourceV1>,
     claim: StaticI64CallClaimV1,
+}
+
+impl StaticSourceSealV1 {
+    pub(super) fn original(&self) -> &Rc<StaticIncomingSourceV1> {
+        &self.original
+    }
 }
 
 impl LoopStaticSourceCallLoanV1 {
@@ -155,7 +161,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_loop_static_source
     }))
 }
 
-fn issue_static_source_seal_v1(
+pub(super) fn issue_static_source_seal_v1(
     claims: &QualifiedStaticCallClaimIndexV1,
     incoming: &PreparedBorrowedFormalIngressV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
@@ -375,6 +381,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut rows = std::collections::BTreeMap::new();
         let mut entry_rows = std::collections::BTreeMap::new();
         let mut tail_rows = std::collections::BTreeMap::new();
+        let mut home_rows = std::collections::BTreeMap::new();
         for declaration in batch.declarations() {
             let slot = declaration.batch_slot();
             let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) =
@@ -388,6 +395,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         let tail = issue_loop_tail_static_i64_source_loan_v1(
                             claims, incoming, selected, contracts, &caller, input, loop_site,
                         );
+                        if matches!(&tail, Ok(Some(_))) {
+                            home_rows.insert(loop_site.clone(),
+                                super::static_home_effect::issue_closed_static_loop_home_neutral_v1(
+                                    batch, selected, contracts, claims, incoming, &caller, loop_site,
+                                ));
+                        }
                         if !matches!(&tail, Ok(None)) && tail_rows.insert(
                             loop_site.clone(), tail.and_then(|row| row.ok_or_else(||
                                 "[freeze:contract][borrowed-static/loop-tail-claim-missing]".to_owned()
@@ -450,6 +463,7 @@ impl OrdinaryNewClaimLedgerV1 {
         *self.loop_static_source_loans.get_mut() = rows;
         *self.loop_entry_static_i64_source_loans.get_mut() = entry_rows;
         *self.loop_tail_static_i64_source_loans.get_mut() = tail_rows;
+        *self.loop_static_home_neutral.get_mut() = home_rows;
         Ok(())
     }
 
@@ -493,5 +507,12 @@ impl OrdinaryNewClaimLedgerV1 {
         self.loop_tail_static_i64_source_loans
             .borrow_mut()
             .remove(loop_site)
+    }
+
+    pub(in crate::mir) fn take_loop_static_home_neutral_v1(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+    ) -> Option<Result<super::static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>> {
+        self.loop_static_home_neutral.borrow_mut().remove(loop_site)
     }
 }

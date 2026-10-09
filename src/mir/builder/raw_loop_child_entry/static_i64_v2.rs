@@ -79,8 +79,14 @@ pub(in crate::mir) fn stop_after_selected_semantic_product(
     let completion = claims
         .completion_for_owner(input.owner())
         .ok_or_else(reject)?;
-    let _product = produce_static_i64_loop_semantic_v2(
+    let product = produce_static_i64_loop_semantic_v2(
         input, loop_site, completion, entry, header, body, tail,
     )?;
+    let home = claims
+        .take_loop_static_home_neutral_v1(loop_site)
+        .ok_or_else(reject)??;
+    if !home.corroborates(&product) {
+        return Err("[freeze:contract][callable-loop/static-home-effect-mismatch]".to_owned());
+    }
     Err("[freeze:contract][callable-loop/static-i64-v2/physical-unavailable]".to_owned())
 }

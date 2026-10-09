@@ -982,3 +982,15 @@ entry/header/body loans. Missing or changed tail refuses before MIR; the
 `physical-unavailable` stop remains. Owner contract is in the package README.
 The next unissued dependency is the ClosedCallable Home effect check above,
 not a physical call packet or whole-app EXE permission.
+
+S1 Home source decision: issue one bounded ClosedCallable receipt in the
+semantic package from the original resolver body, branded Static call/actual
+loans, declared formals and checked-input closure. Walk the complete caller
+and transitive target bodies; reject unsupported effects, incomplete call
+inventory and recursion. The selected V2 route consumes it once and matches
+all four source loans before its existing physical stop. This is source Home
+neutrality only; live SSA/PHI, executable actuals, Fault/Normal packets and
+whole-app EXE remain next. Focused positive and side-effect negative must
+pass before this slice can close. Evidence: original/negative 2/2,
+candidate 6/6, claim 9/9, raw Loop 16/16, pointer guard PASS; quick test
+profile, jobs=4. The physical stop remains selected and deliberate.

@@ -2057,6 +2057,16 @@ the V2 source product checks Completion and consumes it. A missing or changed
 tail refuses the selected route before MIR. This is source continuity only:
 Home, executable call and physical return remain separate obligations.
 
+The selected Static I64 Loop also retains a source-only ClosedCallable Home
+effect receipt in this package. It checks the whole original caller body and
+every transitively reached Static target against a finite Home-neutral syntax,
+using the original branded target/actual loans. Borrowed formal inputs must
+already have checked-input closure. Unsupported statements, missing/recursive
+targets and incomplete call inventory refuse the receipt. The selected V2
+route corroborates its four source loans with this one-take receipt before
+physical lowering; this proves no owned Home transition in the closed source
+graph, not live SSA values, executable actuals, call packets or EXE admission.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical
