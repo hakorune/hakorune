@@ -65,8 +65,15 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
             formal.lane_index(),
         )?;
         verify_entry(draft, product.semantic(), formal, result_source, value)?;
-        emit_unpublished_static_invoke(draft, &mut canonical, packet_source, formal, value)?;
-        Err("[freeze:contract][callable-loop/static-i64-v2/actual-coverage-missing]".to_owned())
+        emit_unpublished_static_invoke(
+            draft,
+            &mut canonical,
+            product.semantic(),
+            packet_source,
+            formal,
+            value,
+        )?;
+        Err("[freeze:contract][callable-loop/static-i64-v2/bin-input-missing]".to_owned())
     })();
     outer.discard_unpublished();
     admitted
@@ -75,6 +82,7 @@ pub(in crate::mir::builder) fn stop_after_unpublished_static_loop_entry_v1(
 fn emit_unpublished_static_invoke(
     draft: &mut MirBuilder,
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    semantic: &VerifiedStaticI64LoopSemanticV2,
     packet: &VerifiedStaticLoopPacketSourceV1,
     formal: &StaticI64LoopTaggedPhysicalFormalV2,
     entry_value: ValueId,
@@ -139,6 +147,18 @@ fn emit_unpublished_static_invoke(
         .type_ctx
         .value_types
         .insert(result, MirType::Integer);
+    let n = canonical.identity.publish_declaration_exact(
+        semantic.source_calls().0.declaration(),
+        semantic.roles().n_binding,
+        normal,
+        result,
+    )?;
+    let observed = canonical
+        .identity
+        .read_entry_receipt(draft, &mut canonical.phis, normal, n)?;
+    if observed.physical_value() != result || observed.physical_block() != normal {
+        return Err("[freeze:contract][callable-loop/static-invoke-n-result-drift]".into());
+    }
     let function = draft
         .function_state
         .current_function

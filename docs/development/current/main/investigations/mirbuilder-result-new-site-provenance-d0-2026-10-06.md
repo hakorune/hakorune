@@ -607,3 +607,24 @@ Focused 1/1, candidate veto 6/6, Static packet 6/6, independent Invoke Call
 verifier 12/12, quick library check and pointer guard PASS. The first wrong
 Invoke verifier filter selected 0 tests; the corrected family above is the
 recorded result. Production MIR/EXE and executable actual remain open.
+
+Pre-loop `n` result S0: the same canonical identity owner publishes the
+Normal-only I64 projection at the resolver's original entry declaration and
+exact `n_binding`, then reads it in the Normal block to corroborate SSA.
+The draft still discards before `bin` input and executable actual coverage;
+this adds no second result authority or production publication.
+
+`n` result focused 1/1 and existing candidate veto 6/6 PASS; quick library
+check, pointer guard and diff check PASS. Builder/header remains empty after
+the new post-`n` stop; no production MIR or EXE was published.
+
+Bin-input Decision (read-only worker integrated): the existing Static V2
+semantic producer already proves the unique original `bin` initializer,
+literal Integer(1), declaration/binding and Recipe input/carrier relation.
+Retain that checked literal in the same product. After the `n` Invoke Normal
+projection, the sole canonical session emits its constant and publishes the
+exact original `bin` declaration through canonical identity. The shared
+literal-only initialized-input materializer cannot own this mixed pair because
+`n` is a call result. Changed/missing/reordered bin source rejects upstream;
+foreign binding, input-key or carrier drift rejects before physical effects.
+Keep the draft unpublished pending full actual/source coverage and body.

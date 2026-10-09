@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-loop-prelude-result-i0"
+current_blocker_token = "selfhost-resume/static-loop-bin-input-i0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -33,9 +33,10 @@ physical I64 result in one unpublished canonical SSA session, then discards
 at missing physical packet. Its original pre-loop CurrentOwner call now has
 a one-take source packet proof from the checked caller/callee contracts and
 ExactI64 target result. The unpublished canonical session now materializes
-its original pre-loop call as one I64 Invoke with Normal/Fault and a projected
-result, then discards at missing executable actual coverage. Next: bind n/bin
-inputs, prove the bounded executable actual/packet and final source coverage.
+its original pre-loop call as one I64 Invoke with Normal/Fault. Canonical
+identity binds the projected result to the original local n declaration;
+the draft discards at missing bin input. Next: bind bin input, prove the
+bounded executable actual/packet and final source coverage.
 The original unannotated callees
 cannot use the declared-i64 direct-call shortcut.
 Production EXE, Both315/318, old-edge retirement and selfcompile remain open.

@@ -1272,6 +1272,7 @@ original pre-loop argument site, reads `%0` through its identity/SSA owner,
 and emits one I64 `Invoke` with separate Normal and Fault landings. The
 package projects the cataloged target from the retained source key; the
 canonical CFG owner places both edges and the Fault terminal. The Normal
-landing first projects `InvokeNormalResult`. The whole draft is discarded at
-missing executable actual/source coverage. This step grants no production
+landing first projects `InvokeNormalResult`, which canonical identity publishes
+at the original `local n` declaration. The whole draft is discarded at the
+still-missing `bin` input and executable actual/source coverage. This grants no production
 function, generic Static packet route, or plain scalar interpretation of `%0`.
