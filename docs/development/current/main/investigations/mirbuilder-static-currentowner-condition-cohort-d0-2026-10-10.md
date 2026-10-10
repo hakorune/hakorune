@@ -1,6 +1,6 @@
 # Static CurrentOwner condition cohort D0
 
-Status: selected design stop
+Status: Home S0 decision accepted; execution cohort remains design stop
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0
 Related:
@@ -44,37 +44,56 @@ that composed path, so widening it to any CurrentOwner call would lose the
 Eq sibling and its failure ordering. The static home-neutral syntax scan is
 not itself a Home or packet issuer.
 
-## Decision to close before construction
+The physical `dynamic_operator_contract` currently issues no
+`Equal(NormalInteger, NormalInteger)` envelope. Generic Home scalar preflight
+can type an integer Eq, but that does not authorize physical comparison.
+Also, `size_to_bin` contains loop/header/body calls beyond this condition.
+Neither gap is a reason to enlarge the Home source slice.
+
+## Integrated Decision and slice order
 
 Source authority + canonical issuer: use the original CurrentOwner source
-`Rc` and selected two-row incoming cohort. Decide which existing Home
-expression owner can issue a checked Eq-child `LocalCallObservationV1` for
-the exact one-input call without deriving a second call claim. Then decide
-how the post-signature finisher closes **both** rows against one selected
-callee signature, result Completion, original ordered actuals, and physical
-packet identity.
+`Rc` and selected two-row incoming cohort. The existing
+`observe_scalar_expression` composed-expression owner is the sole Home
+issuer. Select a bounded source-only Home S0 for an exact If Eq whose Lhs is
+a one-input CurrentOwner Static I64 call and whose RHS is a zero-input
+CurrentOwner Static I64 call. Require the resolved If-region and exact binary
+child sites, both original Static call claims, and the already staged
+original actual. Check the whole eager Eq shape and both child claims before
+projecting the Lhs `CurrentOwnerStaticSourceArguments`; return two
+`LocalCallObservationV1` rows in Lhs/Rhs source order only after both are
+available. The projection reads the existing pending-source port. The
+branch's prior `Observe` remains source staging, not Home publication.
 
-Non-authority: the existing source-only actual, an Eq AST shape, the
-`good_size` Home observation alone, and a selected-site mask cannot grant
-the condition call executable entry. The one-caller S0 token is not proof
-for the two-caller cohort.
+Non-authority: an Eq AST shape, `SourceStatic` actual, selected-site mask,
+`good_size` Home alone, and the one-caller S0 token grant no executable
+entry. Do not infer target/class from a method name or one caller.
 
-Fail-fast boundary: keep both rows source-only until the condition Home and
-whole-cohort proof agree. Wrong site/operand side, non-I64 tag, duplicate or
-missing caller, incomplete result/Completion, and a condition whose sibling
-call changes effects must reject without a fallback or partial packet.
+Fail-fast boundary: wrong child site or operand side, a missing RHS claim,
+nested-call argument, foreign receiver, short-circuit expression, and
+source-argument mismatch yield no partial Home observation. No fallback.
+Home S0 does not grant a physical Static packet or integer Eq execution.
 
-Smallest next design cell: freeze the composed Eq Home issuer, both ordered
-call observations, each child's Fault edge, and the full two-row completion
-rule in this card. Only then select an implementation S0. Keep
-`bin_size` condition calls and Heap-to-Page outgoing transport separate.
+Smallest next slice: Home S0 changes only composed Eq source observation.
+The selected caller is the unchanged `accepts` condition. Its old source-only
+Home responsibility is replaced by the two ordered observations; other
+CurrentOwner condition forms keep their current boundary. Extend the
+existing Home scalar owner, splitting its 716-line source by responsibility
+before it reaches 800 lines.
 
-Acceptance to define for S0: unchanged source must retain both original
-rows; the Eq Lhs must receive a Home observation while an unsupported
-condition context stays source-only; both calls must pass the same selected
-callee contract before tagged entry and the sole Static packet; wrong
-identity and non-I64 inputs reject; physical JSON/ABI, Normal/Fault, and
-the unchanged app first stop are recorded honestly.
+Home S0 acceptance: the unchanged `accepts` source yields exactly the Lhs
+one-input and RHS zero-input Home observations in source order, with original
+argument identity and both Static claim sites. Changing either child site,
+removing RHS source, or replacing Eq with a short-circuit expression yields
+no partial Home observation. Existing zero-input and `>= 0` condition
+families remain green. No physical JSON, EXE, or app first-stop advance is
+claimed for this source-only S0.
 
-Non-claims: this D0 does not authorize an Eq condition implementation,
+After Home S0, decide separately: (1) physical integer Eq and each child's
+Normal/Fault order under the sole operator/packet owners; (2) whole two-caller
+`size_to_bin` signature/result/Completion closure, including internal loop
+call obligations. `good_size` cannot be promoted on its own. `bin_size`
+condition calls and Heap-to-Page outgoing transport remain separate.
+
+Non-claims: this D0 does not authorize physical Eq, two-caller execution,
 caller omission, generic reachability pruning, or whole-app completion.
