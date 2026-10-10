@@ -111,28 +111,41 @@ identity is missing. Do not filter out `LayoutBox.accepts` or relax either
 static seed predicate independently. Every qualified and CurrentOwner caller
 must have an executable handoff before `class_id` joins transport owners.
 
-Smallest next bounded series: first issue the missing canonical
-`GreaterEqual(NormalInteger, NormalInteger)` semantic envelope in the existing
-operator owner. Raw `CompareOp::Ge`, JSON `sge`, and C V4 `icmp sge` already
-exist; physical spelling is not semantic permission. Keep the existing
-opaque-formal `>=` source rejection during this prerequisite. Then establish
-the canonical physical issuer for an
-exact CurrentOwner static call used as the left operand of this original
-condition, reusing the retained Static incoming source, checked input,
-physical signature, result contract and existing call transport. The first
-S0 must prove one complete call/condition handoff rather than minting a
-source-only receipt. It must reject missing/mismatched sibling callers,
-Bool/null actuals, target/slot/site drift and unproved condition context.
-Then the existing static seed may accept `class_id` only when every original
-incoming edge has that executable proof. Probe unchanged mimalloc-lite
-afterward; the Page edges and result contract remain separate.
+Smallest next bounded series: the canonical `GreaterEqual` envelope landed at
+`c480ae8c70`. Next, admit only the original
+`if me.class_id(size) >= 0` Home condition observation in the existing
+resolved-source walk. The exact binary root, `GreaterEqual`, left CurrentOwner
+ExactI64 call, and right integer-zero literal must be checked before asking
+the existing direct-value issuer for its source arguments. This first Home S0
+issues one `ExpressionValue` observation with original site, ordered actuals,
+and prior Homes. It does not make the Static source executable or weaken either
+transport seed veto. A following physical packet S0 must connect the same
+original incoming `Rc` and complete callee cohort to a selected condition
+child-call lowering path, tagged formal actual, result Completion and
+Normal/Fault. General `located_if` binary lowering currently has no MethodCall
+child arm; the Loop-only packet and nonzero-arity qualified packet cannot be
+reused as permission. Static transport admission follows only after all
+original incoming edges have executable handoff, then unchanged mimalloc-lite
+is probed for its actual next first-stop. The Page edges and result contract
+remain separate.
+
+The Home focused test also proves the source-only distinction: an opaque Bool
+actual can retain the original call while its candidate Integer evidence is
+false. The physical packet must inspect the tagged kind and take Fault before
+an Integer payload read. Rejecting Bool at Home would silently change the
+OpaqueHandle contract and is not this series' design.
 
 The missing operator contract landed in
 `MIRBUILDER-GE-NORMAL-INTEGER-CONTRACT-S0`; its focused 8/8 contract family,
 1/1 opaque-formal source rejection, and 1/1 `Ge -> sge` serializer test pass.
-The condition-call issuer and its
-exact consumer remain a following design dependency. This D0 selects the
-prerequisite; it grants no transport or production switch.
+The condition-call source owner is selected as
+`MIRBUILDER-CURRENTOWNER-IF-CALL-HOME-S0` and its focused original-source and
+negative tests passed. Its physical consumer remains a
+following design dependency. No `LayoutBox.accepts` caller appears in the
+selected source corpus, so its formal's executable Integer view cannot be
+inferred from callers. The eventual physical packet must use an explicit
+declaration/entry contract or remain fail-closed. This D0 grants no transport
+or production switch.
 
 Non-claims: this D0 grants no executable actual, physical payload, result
 contract, EXE, Loop Mul, old-edge retirement or full MirBuilder completion.

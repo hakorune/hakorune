@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "identify canonical CurrentOwner static condition-call source and packet issuer for LayoutBox.accepts"
+current_design_stop = "identify selected CurrentOwner If condition-call physical packet and explicit formal entry authority"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -28,7 +28,9 @@ Heap caller and a CurrentOwner condition caller in LayoutBox.accepts; both
 static seed vetoes are deliberate. The original condition uses `>=`;
 its bounded canonical NormalInteger envelope is now issued in
 MIRBUILDER-GE-NORMAL-INTEGER-CONTRACT-S0, while opaque-formal source rejection
-remains. Next design the executable CurrentOwner condition call.
+remains. The bounded Home source observation for the original CurrentOwner
+`>= 0` condition is now issued, while the static-context transport veto is
+unchanged. Next design its executable physical packet and formal entry law.
 The Page
 edges and CALLEE-RETURN-OUTCOME-S0 remain unfinished;
 the finite goal and production EXE remain open.

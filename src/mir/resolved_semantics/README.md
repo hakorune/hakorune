@@ -501,8 +501,10 @@ CurrentOwner calls require the original index's typed incoming loan, matching
 catalog/caller/target/contract and ExactI64 with empty required ordinals.
 Arity-bearing CurrentOwner ExactI64 local/direct-return sites use that same
 incoming loan and the package's original `SourceStatic` ordered actuals. A
-missing Integer proof declines the observation; the original source inventory
-remains passive. No new executable entry or physical call is issued here.
+missing required Integer proof declines the observation; an opaque source
+actual can be retained without proving its payload Integer. The original
+source inventory remains passive. No new executable entry or physical call is
+issued here.
 `ExpressionValue` records a real value site without inventing a receiving local
 or Home. The same scalar preflight retains ordered call observations and the
 statement's original priorHomes, publishing only after the whole expression
@@ -515,6 +517,14 @@ that condition, so the existing `ExpressionValue` issuer can retain its
 zero-input CurrentOwner call and prior Homes after the whole Bool expression
 passes. It does not change the unannotated formal's stored Home class or
 admit other operators, return expressions, or Loop conditions.
+An exact resolver-sealed If condition `CurrentOwner.ExactI64(one actual) >= 0`
+may also use the original `GreaterEqual(NormalInteger, NormalInteger)` envelope
+and the same direct-value source issuer. The whole binary site, operand order,
+right integer-zero literal and original call must match before source
+arguments are requested. It records one `ExpressionValue` call with original
+ordered arguments and prior Homes. This is Home source coverage only: it
+does not grant an Integer entry class to an uncalled formal, a physical
+condition-call packet or Static transport admission.
 An `Add` local initializer can likewise borrow only the prepared, dominated
 `AddOperand` at its exact operand and binary sites. The whole initializer must
 still pass scalar preflight before its binding receives Integer class; an

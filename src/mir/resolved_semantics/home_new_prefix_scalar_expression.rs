@@ -63,6 +63,25 @@ pub(super) fn observe_scalar_expression<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+    if required == Some(SourceScalarKind::Bool) && !local_initializer_profile {
+        if let Some((if_site, call_site)) = if_current_owner_ge_zero_call(input, site) {
+            if if_site == *statement {
+                let Some(call) = local_call_flow::issue_current_owner_i64_direct_value_call(
+                    input,
+                    statement,
+                    &call_site,
+                    homes,
+                    locals,
+                    static_call,
+                    borrowed_actuals,
+                )?
+                else {
+                    return Ok(None);
+                };
+                return Ok(Some((SourceScalarKind::Bool, vec![call])));
+            }
+        }
+    }
     // An exact direct CurrentOwner value has no sibling expression to reject.
     // Its original ordered actuals can be staged and projected before the
     // generic scalar preflight, which still owns composed expressions.
@@ -432,7 +451,53 @@ pub(super) fn contains_source_request<E>(
     locals: &PrefixLocalFlow<'_>,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
 ) -> Result<bool, E> {
+    if let Some((_, call)) = if_current_owner_ge_zero_call(input, root) {
+        let owned = OwnedExprSiteV1::new(input.owner(), call);
+        return Ok(static_call(&owned)?.is_some_and(|claim| {
+            claim
+                .current_owner_source_required_i64_arguments()
+                .is_some()
+                && claim.corroborates_source(
+                    &owned,
+                    ResolvedMethodCallReceiverSourceV1::CurrentOwner,
+                    1,
+                )
+        }));
+    }
     Ok(profile_scope(input, root, locals, false, static_call)?.unwrap_or(false))
+}
+
+/// One resolver-sealed If condition: exact `CurrentOwner.i64(arg) >= 0`.
+/// Verify the complete binary and sibling before the selected actual port
+/// observes anything. The physical packet remains a separate obligation.
+fn if_current_owner_ge_zero_call(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    root: &SourceExprSiteV1,
+) -> Option<(SourceStmtSiteV1, SourceExprSiteV1)> {
+    let if_site = input
+        .function()
+        .with_if_region_for_condition(root, |row| row.site().clone())
+        .ok()?;
+    let binary = input.function().expression_source().binary(root)?;
+    if binary.operator() != ResolvedBinaryOperatorV1::GreaterEqual
+        || !binary_sites_match(root, binary)
+        || !matches!(
+            input.function().expression_source().literal(binary.rhs()),
+            Some(ResolvedLiteralSourceV1::Integer(0))
+        )
+        || issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::GreaterEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ))
+        .is_err()
+    {
+        return None;
+    }
+    let call = input.function().method_call(binary.lhs())?;
+    (call.receiver() == ResolvedMethodCallReceiverSourceV1::CurrentOwner
+        && call.arguments().len() == 1)
+        .then(|| (if_site, binary.lhs().clone()))
 }
 
 /// Field morphology selects its existing profile; an additional static call

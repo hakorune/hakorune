@@ -188,6 +188,10 @@ impl LocalCallObservationV1 {
         }
     }
 
+    pub(crate) fn is_expression_value(&self) -> bool {
+        matches!(self.destination, LocalCallDestinationV1::ExpressionValue)
+    }
+
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
         &self.prior_homes
     }
