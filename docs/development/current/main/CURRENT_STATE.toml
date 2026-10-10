@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-mixed-cohort-root-entry-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/bool-currentowner-entry-source-fixpoint-d0"
+current_design_stop = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,28 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
-latest_card = "mirbuilder-static-mixed-cohort-root-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
+latest_card = "mirbuilder-bool-currentowner-entry-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
 latest_card_summary = """
-The exact-USIZE scalar-formal S0 selects the original good_size cohort,
-issues the existing Static packet, and validates an I64 Invoke/normal result
-for good_size_usize/1. Focused positive, wrong-ABI negative and the
-11-test static-packet-entry family pass. With protected Eq WIP copied into
-a disposable checkout, the unchanged SizeClassBox published-view probe
-moves from good_size_usize/1 to size_to_bin_usize/1 call-entry-missing; it
-remains red. The selected mixed-cohort D0 confirmed exactly three original
-size_to_bin incoming rows: one SourceStatic Scalar(Integer) from declared
-USIZE and two SourceStatic SelfRooted forwards from opaque formals, with
-one target formal and checked input. S0 must join the whole cohort through
-existing issuers and recheck packet lending. No Plain promotion or source
-rewrite. The whole-app EXE first stop remains Heap-to-Page
-source-only-object-actuals.
+Mixed Static cohort package proof is checkpointed at 024af5d8aa and its
+pointer at f974f16d82. The package positive, missing-sibling route/lending
+negative, and 12 Static packet family tests pass, but physical acceptance
+remains open. The unchanged SizeClassBox published-view probe moves to
+accepts/1 borrowed-entry/entry-values-missing before the physical ABI
+callback. BOOL-CURRENTOWNER-ENTRY-D0 now audits the original ExactBool
+CurrentOwner source and transport-owner fixpoint: seeding accepts alone may
+still fail because its forwarded size_to_bin destination is source-only.
+No Bool ABI, whole-source publication or mimalloc-lite EXE PASS is claimed.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
+next_design_card = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
