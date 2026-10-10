@@ -221,3 +221,66 @@ selected-case task if an actual reachable caller requires it.
 
 Non-claims: this D0 grants no executable actual, physical payload, result
 contract, EXE, Loop Mul, old-edge retirement or full MirBuilder completion.
+
+### Integrated Decision: closed-world physical selection boundary
+
+Source authority + canonical issuer: the existing
+`VerifiedWholeSourceStaticCallTargetInventoryV1` is the only original-source
+MethodCall inventory. Its declaration-catalog brand, all observed calls,
+exact Static targets, and first observation gap must travel together to the
+EXE physical-selection issuer. The present `QualifiedStaticCallClaimIndexV1`
+calls `into_targets()` before selected mapping, losing the complete-inventory
+evidence; the first bounded change must preserve a loan or projection of that
+same inventory rather than rescan source. Keep the complete declaration and
+result catalogs unchanged. Physical selection is a separate, same-brand
+projection of selected identities, selected source inventory, selected batch
+map, work plan, and package coverage obligations.
+
+Selection rule: a method may be omitted from a *closed-world App EXE* only
+when it is not the entry point or a required public/exported callable, every
+declaration's MethodCall observation completed, and no exact or plausible
+unresolved/ambiguous incoming call can target that method. A missing exact
+target row alone does not prove zero callers: `seal_static_targets` can leave
+reserved, rejected, or noncandidate MethodCalls in the full inventory. If
+the issuer cannot prove the possible-target exclusion, keep the method and
+its obligations. Script/library/public modes retain existing selection. This
+is artifact-local omission, not retirement of `LayoutBox.accepts` as an API.
+
+Non-authority: a post-lowering root/birth MIR walk may corroborate the result
+but cannot decide pre-lowering selection. Filtering only final JSON or only
+the root work plan is invalid: `NormalCallableSemanticPackagePortV1::complete`
+requires all selected keys consumed and the ordinary-new claim ledger empty.
+Unselected declaration source rows remain evidence, but must not veto a
+selected callee's executable incoming cohort. That cohort reconciliation is
+the *following* slice; it cannot be hidden inside physical omission.
+
+Fail-fast boundary and acceptance: require the same catalog brand and
+consistent selected membership through work-plan lowering, package
+`complete()`, and final physical-program membership. The unchanged
+mimalloc-lite corpus must retain all 15 Heap source callers and the original
+`accepts -> class_id` source row, physically omit only source-proved uncalled
+`LayoutBox.accepts`, and still select `Heap -> class_id`. Adding an incoming
+`LayoutBox.accepts` call, an observation gap, or a plausible ambiguous target
+must retain the method or fail closed. Public/library mode must not omit it.
+The selected-caller cohort must later stop treating the omitted caller as a
+physical transport obligation without deleting its source evidence.
+
+Smallest next slice: bind the existing complete inventory to an EXE-only
+physical-selection issuer and co-project selected identities, work-plan
+sources, map, and coverage ledger. Do not issue a new condition packet or
+relax Static seed vetoes in this slice. Confirm the exact public/export and
+possible-target classifiers before changing code; if either is unavailable,
+remain in `design_stop` and specify that missing authority rather than
+guessing from names.
+
+Read-only owner check: `source_backed.rs` records App Main and every other
+callable identity; `selected_mapping.rs` maps every recorded identity;
+`program_root_work_plan_production.rs` currently defers every static method.
+The AST retains declaration runes including `Public`, `Internal`, `FfiSafe`,
+and `Symbol`, but this catalog has no sealed public/export-required selection
+classifier. The source inventory also lacks a possible-target disposition for
+non-exact MethodCalls. These are the two concrete missing authorities before
+the physical-selection issuer can omit a method safely. The next D0 step is
+to locate or define their single source-backed classifiers, then freeze the
+projection and rejection cases above; a missing exact target remains only a
+diagnostic, not omission permission.
