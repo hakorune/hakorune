@@ -8,7 +8,7 @@ use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyChildRoleV1, CallableSemanticSourceLedgerView, ExprChildRoleV1,
     FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedAssignmentTargetV1, ResolvedLexicalRefV1,
-    ResolvedScopeRegionPairV1, SourceExprSiteV1, SourceStmtSiteV1,
+    ResolvedScopeRegionPairV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
     VerifiedCallableLoopMembershipV1, VerifiedResolvedLoopSourceV1,
 };
 
@@ -27,6 +27,7 @@ pub(crate) enum VariableBoundMulSourceRejectV1 {
     Update,
     Step,
     BindingConflict,
+    InputSource,
 }
 
 /// A non-Clone membership and its complete ordered source sites. This cannot
@@ -38,13 +39,16 @@ pub(crate) struct ObservedVariableBoundMulSourceV1 {
     frame: LoopExecutionFrameKeyV1,
     scope_region: ResolvedScopeRegionPairV1,
     condition: SourceExprSiteV1,
+    condition_operands: [SourceExprSiteV1; 2],
     update: SourceStmtSiteV1,
     update_value: SourceExprSiteV1,
     step: SourceStmtSiteV1,
     step_value: SourceExprSiteV1,
+    operation_operands: [[SourceExprSiteV1; 3]; 2],
     scale: BindingRefV1,
     induction: BindingRefV1,
     bound: BindingRefV1,
+    inputs: [(SourceBindingSiteV1, SourceExprSiteV1); 3],
 }
 
 impl ObservedVariableBoundMulSourceV1 {
@@ -56,8 +60,11 @@ impl ObservedVariableBoundMulSourceV1 {
         LoopExecutionFrameKeyV1,
         ResolvedScopeRegionPairV1,
         SourceExprSiteV1,
+        [SourceExprSiteV1; 2],
         [(SourceStmtSiteV1, SourceExprSiteV1); 2],
+        [[SourceExprSiteV1; 3]; 2],
         [BindingRefV1; 3],
+        [(SourceBindingSiteV1, SourceExprSiteV1); 3],
     ) {
         (
             self.owner,
@@ -65,11 +72,14 @@ impl ObservedVariableBoundMulSourceV1 {
             self.frame,
             self.scope_region,
             self.condition,
+            self.condition_operands,
             [
                 (self.update, self.update_value),
                 (self.step, self.step_value),
             ],
+            self.operation_operands,
             [self.scale, self.induction, self.bound],
+            self.inputs,
         )
     }
 
@@ -179,6 +189,11 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
     if scale == induction || scale == bound || induction == bound {
         return Err(Reject::BindingConflict);
     }
+    let inputs = [
+        input_source(input, scale)?,
+        input_source(input, induction)?,
+        input_source(input, bound)?,
+    ];
     let (loop_source, frame, scope_region) = membership.into_parts();
     Ok(ObservedVariableBoundMulSourceV1 {
         owner: input.owner(),
@@ -186,14 +201,48 @@ pub(crate) fn observe_variable_bound_mul_source_v1(
         frame,
         scope_region,
         condition: condition.site().clone(),
+        condition_operands: [lhs.site().clone(), rhs.site().clone()],
         update: update.site().clone(),
         update_value: update_value.site().clone(),
         step: step.site().clone(),
         step_value: step_value.site().clone(),
+        operation_operands: [
+            [
+                update_target.site().clone(),
+                update_lhs.site().clone(),
+                update_rhs.site().clone(),
+            ],
+            [
+                step_target.site().clone(),
+                step_lhs.site().clone(),
+                step_rhs.site().clone(),
+            ],
+        ],
         scale,
         induction,
         bound,
+        inputs,
     })
+}
+
+fn input_source(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    binding: BindingRefV1,
+) -> Result<(SourceBindingSiteV1, SourceExprSiteV1), VariableBoundMulSourceRejectV1> {
+    let function = input.function();
+    let mut declarations = function
+        .declaration_sites()
+        .filter(|site| function.declaration_binding(site) == Some(binding));
+    let declaration = match (declarations.next(), declarations.next()) {
+        (Some(site @ SourceBindingSiteV1::Local { .. }), None) => site.clone(),
+        _ => return Err(VariableBoundMulSourceRejectV1::InputSource),
+    };
+    let initializer = function
+        .expression_source()
+        .initializer(&declaration)
+        .and_then(|relation| relation.initializer_site().cloned())
+        .ok_or(VariableBoundMulSourceRejectV1::InputSource)?;
+    Ok((declaration, initializer))
 }
 
 fn assignment_parts<'a>(

@@ -43,16 +43,29 @@ pub(super) fn retain_selected_loop_facts_v1(
             .map_err(|_| LoopFactsUnavailableV1::SourceMembership)?;
         let observed = observe_variable_bound_mul_source_v1(input, &ledger, membership)
             .map_err(|_| LoopFactsUnavailableV1::SourceShape)?;
-        let (owner, source, frame, scope_region, condition, operations, bindings) =
-            observed.into_parts();
+        let (
+            owner,
+            source,
+            frame,
+            scope_region,
+            condition,
+            condition_operands,
+            operations,
+            operation_operands,
+            bindings,
+            inputs,
+        ) = observed.into_parts();
         issue_variable_bound_mul_facts_v1(
             owner,
             source,
             frame,
             scope_region,
             condition,
+            condition_operands,
             operations,
+            operation_operands,
             bindings,
+            inputs,
             prestate,
         )
         .map_err(|error| match error {

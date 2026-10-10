@@ -129,6 +129,28 @@ fn real_bin_size_loop_facts_require_current_home_integer_classes() {
                     assert_eq!(facts.owner(), input.owner());
                     assert_eq!(facts.source().site(), &site);
                     assert_eq!(facts.bindings().len(), 3);
+                    assert_eq!(facts.condition_operands().len(), 2);
+                    assert_eq!(facts.operation_operands().len(), 2);
+                    for ((declaration, initializer), binding) in
+                        facts.inputs().iter().zip(facts.bindings())
+                    {
+                        assert!(matches!(
+                            declaration,
+                            crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. }
+                        ));
+                        assert_eq!(
+                            input.function().declaration_binding(declaration),
+                            Some(binding)
+                        );
+                        assert_eq!(
+                            input
+                                .function()
+                                .expression_source()
+                                .initializer(declaration)
+                                .and_then(|relation| relation.initializer_site()),
+                            Some(initializer)
+                        );
+                    }
                 }
             })
             .expect("selected lowering input");

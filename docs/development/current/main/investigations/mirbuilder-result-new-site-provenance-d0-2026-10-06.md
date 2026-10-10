@@ -863,3 +863,21 @@ operation/order/literal or extra effect refuse at Body9. The later raw entry
 must consume this retained product once instead of reprojecting the source.
 The next bounded acceptance is unchanged `bin_size` crossing Body9 and these
 refusals; `words`, the return, physical Mul and EXE remain separate.
+
+Source-relation enrichment (`b518e2c858` follow-up): the existing selected observer and
+Facts now carry exact condition operands, ordered assignment target/operands,
+and resolver declaration/initializer sites for the three prestate bindings.
+The `bin_size` Facts test checks each input relation against the resolver's
+declaration and initializer authority. This is the Recipe prerequisite only;
+no Loop After, Home Body9 advance or executable Mul is issued here.
+Validation: focused quick `real_bin_size_loop_facts_require_current_home_integer_classes`
+passed 1/1 after the final exact-one-declaration lookup; the related
+`real_bin_size_` family passed 6/6, including source-shape negatives. Pointer,
+diff and selected rustfmt checks passed. Next is the read-only input relation
+and V1 Recipe/JoinSig/After issuer on these retained sites.
+Recipe seam audit: `LoopInitializedLocalInputSourceSetV1` currently requires
+every Recipe input to be a carrier. The read-only `shift_count` input must
+therefore receive its own exact source-bound input relation; inventing a
+third carrier would add a false After obligation. This relation is a
+prerequisite to the selected V1 Recipe/JoinSig issuer, not a fallback or
+permission to inspect AST there.

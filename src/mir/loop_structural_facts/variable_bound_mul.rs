@@ -6,8 +6,8 @@
 
 use crate::mir::resolved_semantics::{
     home_new_prefix::LoopI64PreStateRequestV1, BindingRefV1, FunctionOwnerIdV1,
-    LoopExecutionFrameKeyV1, ResolvedScopeRegionPairV1, SourceExprSiteV1, SourceStmtSiteV1,
-    VerifiedResolvedLoopSourceV1,
+    LoopExecutionFrameKeyV1, ResolvedScopeRegionPairV1, SourceBindingSiteV1, SourceExprSiteV1,
+    SourceStmtSiteV1, VerifiedResolvedLoopSourceV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,8 +27,11 @@ pub(crate) struct VerifiedVariableBoundMulFactsV1 {
     frame: LoopExecutionFrameKeyV1,
     scope_region: ResolvedScopeRegionPairV1,
     condition: SourceExprSiteV1,
+    condition_operands: [SourceExprSiteV1; 2],
     operations: [(SourceStmtSiteV1, SourceExprSiteV1); 2],
+    operation_operands: [[SourceExprSiteV1; 3]; 2],
     bindings: [BindingRefV1; 3],
+    inputs: [(SourceBindingSiteV1, SourceExprSiteV1); 3],
     _seal: VariableBoundMulFactsSealV1,
 }
 
@@ -54,6 +57,15 @@ impl VerifiedVariableBoundMulFactsV1 {
     pub(crate) fn operations(&self) -> &[(SourceStmtSiteV1, SourceExprSiteV1); 2] {
         &self.operations
     }
+    pub(crate) fn condition_operands(&self) -> &[SourceExprSiteV1; 2] {
+        &self.condition_operands
+    }
+    pub(crate) fn operation_operands(&self) -> &[[SourceExprSiteV1; 3]; 2] {
+        &self.operation_operands
+    }
+    pub(crate) fn inputs(&self) -> &[(SourceBindingSiteV1, SourceExprSiteV1); 3] {
+        &self.inputs
+    }
     pub(crate) const fn bindings(&self) -> [BindingRefV1; 3] {
         self.bindings
     }
@@ -66,8 +78,11 @@ impl VerifiedVariableBoundMulFactsV1 {
         LoopExecutionFrameKeyV1,
         ResolvedScopeRegionPairV1,
         SourceExprSiteV1,
+        [SourceExprSiteV1; 2],
         [(SourceStmtSiteV1, SourceExprSiteV1); 2],
+        [[SourceExprSiteV1; 3]; 2],
         [BindingRefV1; 3],
+        [(SourceBindingSiteV1, SourceExprSiteV1); 3],
     ) {
         (
             self.owner,
@@ -75,8 +90,11 @@ impl VerifiedVariableBoundMulFactsV1 {
             self.frame,
             self.scope_region,
             self.condition,
+            self.condition_operands,
             self.operations,
+            self.operation_operands,
             self.bindings,
+            self.inputs,
         )
     }
 }
@@ -87,8 +105,11 @@ pub(crate) fn issue_variable_bound_mul_facts_v1(
     frame: LoopExecutionFrameKeyV1,
     scope_region: ResolvedScopeRegionPairV1,
     condition: SourceExprSiteV1,
+    condition_operands: [SourceExprSiteV1; 2],
     operations: [(SourceStmtSiteV1, SourceExprSiteV1); 2],
+    operation_operands: [[SourceExprSiteV1; 3]; 2],
     bindings: [BindingRefV1; 3],
+    inputs: [(SourceBindingSiteV1, SourceExprSiteV1); 3],
     prestate: LoopI64PreStateRequestV1,
 ) -> Result<VerifiedVariableBoundMulFactsV1, VariableBoundMulFactsIssueV1> {
     use VariableBoundMulFactsIssueV1 as Issue;
@@ -123,8 +144,11 @@ pub(crate) fn issue_variable_bound_mul_facts_v1(
         frame,
         scope_region,
         condition,
+        condition_operands,
         operations,
+        operation_operands,
         bindings,
+        inputs,
         _seal: VariableBoundMulFactsSealV1,
     })
 }

@@ -1284,3 +1284,9 @@ membership and checks the complete ordered condition/update/step source shape.
 It retains owner, frame, region, lexical bindings and exact sites, but issues
 no scalar-class proof. The package Home walk must supply pre-loop Integer
 classes before this observation can become Facts, Recipe or Loop After.
+The same observation now retains both condition operand sites, each ordered
+assignment's target/operand/literal sites, and the resolver's exact local
+declaration/initializer relation for `scale`, `i` and `shift_count`. The
+declaration lookup requires exactly one local declaration for each binding.
+Recipe producer must consume these retained relations; it may not rewalk AST
+or infer class from an initializer spelling.
