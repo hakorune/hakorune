@@ -437,20 +437,25 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     // receiver names through one shared authority, never a second list.
     import_rows: &[(String, String)],
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
-    let catalog =
+    let mut catalog =
         issue_source_backed_same_module_callable_catalog_v1(&source).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error }
         })?;
     // Qualified static-box call claims ride the same sealed authorities the
     // publication owner later consumes — minted ahead of the construction
     // issuer so it can admit `Alias.m(..)` provider arguments.
-    let static_claim_index =
+    let (static_claim_index, closed_app_zero_incoming) =
         super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
             catalog.catalog(),
             import_rows.iter().cloned(),
         )
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim { _error: error },
+        )?;
+    catalog
+        .exclude_closed_app_static_keys(&closed_app_zero_incoming)
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error },
         )?;
     let instance_constructors = issue_instance_constructor_semantic_batch_v1(
         resolver,

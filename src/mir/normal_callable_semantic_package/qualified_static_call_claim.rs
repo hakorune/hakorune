@@ -15,7 +15,7 @@
 //! the same original SourceStatic actuals; no claim issues executable entry.
 //! Non-I64 results retain no homes claim.
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1,
@@ -101,12 +101,19 @@ impl QualifiedStaticCallClaimIndexV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         import_rows: impl IntoIterator<Item = (String, String)>,
-    ) -> Result<Self, QualifiedStaticCallClaimIndexIssueV1> {
+    ) -> Result<
+        (Self, BTreeSet<CanonicalSameModuleCallableKeyV1>),
+        QualifiedStaticCallClaimIndexIssueV1,
+    > {
         let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ImportAlias)?;
         let inventory =
             VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
                 .map_err(QualifiedStaticCallClaimIndexIssueV1::TargetInventory)?;
+        let closed_app_zero_incoming = declarations
+            .source_backed_app_main()
+            .map(|main| inventory.closed_app_zero_incoming_static_keys(main))
+            .unwrap_or_default();
         let targets = inventory.into_targets();
         let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
             .map_err(QualifiedStaticCallClaimIndexIssueV1::ResultCatalog)?;
@@ -153,12 +160,15 @@ impl QualifiedStaticCallClaimIndexV1 {
             );
         }
         let result_rows = results.into_dispositions();
-        Ok(Self {
-            catalog_brand: declarations.brand().clone(),
-            result_rows,
-            rows,
-            current_owner_rows,
-        })
+        Ok((
+            Self {
+                catalog_brand: declarations.brand().clone(),
+                result_rows,
+                rows,
+                current_owner_rows,
+            },
+            closed_app_zero_incoming,
+        ))
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn result_for_key(

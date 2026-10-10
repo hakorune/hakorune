@@ -494,6 +494,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         self.catalog.catalog().selected_source_inventory()
     }
 
+    pub(crate) fn omitted_closed_app_static_key(
+        &self,
+        key: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
+        self.catalog.omitted_closed_app_static_key(key)
+    }
+
     #[cfg(test)]
     pub(crate) fn parameter_declaration_count(&self) -> usize {
         self.parameter_contracts.len()

@@ -1,6 +1,9 @@
-use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::builder::{
+    CanonicalSameModuleCallableKeyV1, NormalRootExecutionConsumerV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1,
+};
 use crate::mir::resolved_semantics::{ShadowMethodCallReceiverV0, SourceExprSiteV1};
-use crate::parser::NyashParser;
+use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{
     CurrentOwnerStaticCallTargetErrorV1, StaticImportAliasViewErrorV1,
@@ -74,6 +77,91 @@ fn catalog(source: &str) -> VerifiedSameModuleCallableDeclarationCatalogV1 {
     let ast = NyashParser::parse_from_string(source).expect("whole-source inventory fixture");
     VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&ast)
         .expect("whole-source declaration catalog")
+}
+
+fn app_catalog(source: &str) -> VerifiedSameModuleCallableDeclarationCatalogV1 {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        source,
+        ParserBuildConfig::default(),
+    )
+    .expect("closed App source");
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed)
+            .expect("exact App callable transform")
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("closed App must remain source-backed")
+    };
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("App root execution")
+        .into_consumed_source();
+    crate::mir::builder::issue_source_backed_same_module_callable_catalog_v1(&source)
+        .expect("source-backed App catalog")
+        .into_catalog()
+}
+
+fn app_omissions(source: &str) -> std::collections::BTreeSet<CanonicalSameModuleCallableKeyV1> {
+    let declarations = app_catalog(source);
+    let imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        std::iter::empty::<(String, String)>(),
+    )
+    .expect("closed App import view");
+    let inventory = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &imports)
+        .expect("closed App MethodCall inventory");
+    inventory.closed_app_zero_incoming_static_keys(
+        declarations
+            .source_backed_app_main()
+            .expect("App Main co-seal"),
+    )
+}
+
+#[test]
+fn closed_app_static_omission_distinguishes_exact_other_from_uncertain_incoming() {
+    let target = CanonicalSameModuleCallableKeyV1::static_box_method("LayoutBox", "accepts", 1);
+    let exact_other = "static box LayoutBox { accepts(size) { return 1 } }
+        static box Other { accepts(size) { return 1 } use(size) { return me.accepts(size) } }
+        static box Main { main() { return 0 } }";
+    assert!(app_omissions(exact_other).contains(&target));
+
+    let exact_incoming = "static box LayoutBox { accepts(size) { return 1 } }
+        static box Main { main() { local x = LayoutBox.accepts(1) return 0 } }";
+    assert!(!app_omissions(exact_incoming).contains(&target));
+
+    let uncertain = "static box LayoutBox { accepts(size) { return 1 } }
+        box Caller { use(x) { return x.accepts(1) } }
+        static box Main { main() { return 0 } }";
+    assert!(!app_omissions(uncertain).contains(&target));
+
+    let observation_gap = "static box LayoutBox { accepts(size) { return 1 } }
+        static box AUnsupported { bad() { return me } }
+        static box Main { main() { return 0 } }";
+    assert!(app_omissions(observation_gap).is_empty());
+
+    let public_method = "static box LayoutBox {
+            @rune Public
+            accepts(size) { return 1 }
+        }
+        static box Main { main() { return 0 } }";
+    assert!(!app_omissions(public_method).contains(&target));
+}
+
+#[test]
+fn closed_app_static_omission_rejects_foreign_app_brand() {
+    let source = "static box LayoutBox { accepts(size) { return 1 } }
+        static box Main { main() { return 0 } }";
+    let declarations = app_catalog(source);
+    let foreign = app_catalog(source);
+    let imports = VerifiedStaticImportAliasViewV1::seal(
+        &declarations,
+        std::iter::empty::<(String, String)>(),
+    )
+    .unwrap();
+    let inventory =
+        VerifiedWholeSourceStaticCallTargetInventoryV1::verify(&declarations, &imports).unwrap();
+    assert!(inventory
+        .closed_app_zero_incoming_static_keys(foreign.source_backed_app_main().unwrap())
+        .is_empty());
 }
 
 fn inventory_counts(source: &str, aliases: &[(&str, &str)]) -> (usize, usize, usize, usize) {

@@ -123,6 +123,20 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
             ).expect("one original factory");
             let claims = &package.source_static_claims_for_test;
+            let uncalled_accepts = CanonicalSameModuleCallableKeyV1::static_box_method(
+                "LayoutBox", "accepts", 1,
+            );
+            assert!(package.declaration_catalog().declaration(&uncalled_accepts).is_some());
+            assert!(package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(
+                uncalled_accepts.clone(),
+            )).is_none(), "closed App EXE omits only physical selected membership");
+            assert!(claims.current_owner_sources_for_test().any(|(caller, _, row)| {
+                caller == &uncalled_accepts
+                    && row.route().target()
+                        == &CanonicalSameModuleCallableKeyV1::static_box_method(
+                            "LayoutBox", "class_id", 1,
+                        )
+            }), "original unselected accepts -> class_id source row remains");
             // Inspect the original excluded draft before attributing the
             // executable SourceOnly stop to a receiver or packet consumer.
             for (class, method, checked_return) in [
@@ -395,20 +409,11 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert!(projected.is_some(), "checked forwarding is source-only");
             }).unwrap();
             let usize_key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "bin_size_usize", 1);
-            let usize_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(usize_key)).unwrap();
-            package.batch().with_lowering_input(usize_slot, |input| {
-                let (site, call) = input.function().method_calls()
-                    .find(|(_, call)| call.selector() == "bin_size").expect("original direct CurrentOwner return");
-                let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone());
-                let original = source.source_incoming.static_observations()[&owned].as_ref().unwrap();
-                assert_eq!(original.argument_sites(), &[call.arguments()[0].site().clone()]);
-                let observed = package.ordinary_new_claim_ledger
-                    .local_call_for_owner(input.owner(), site)
-                    .expect("original direct return retains ordered Static actual");
-                assert_eq!(observed.arguments().len(), 1);
-                assert!(observed.local_binding().is_none());
-                assert!(package.ordinary_new_claim_ledger.completion_for_owner(input.owner()).is_some());
-            }).unwrap();
+            assert!(package.declaration_catalog().declaration(&usize_key).is_some());
+            assert!(package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(usize_key.clone())).is_none());
+            assert!(claims.current_owner_sources_for_test().any(|(caller, _, row)| {
+                caller == &usize_key && row.route().target() == &bin_key
+            }), "uncalled usize wrapper keeps original source route without a physical claim");
             let stored: Vec<_> = source.source_incoming.exact_rows().filter_map(|row| row.source.instance())
                 .filter(|row| row.call_site().owner() == heap_exits[0].site().owner()
                     && row.target() == &page_key && row.stored_receiver().is_some()).collect();

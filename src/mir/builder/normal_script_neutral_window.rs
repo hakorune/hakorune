@@ -4,12 +4,15 @@
 //! ProgramBody demand window with the parser composite and instance-transfer
 //! evidence. It does not resolve names, issue target inventory, create Recipe
 //! keys, or touch physical Builder state.
+//! For a closed App, static source coverage composes selected rows with the
+//! package's explicit same-brand omitted cohort; Script keeps total selected
+//! coverage. Constructor source remains issued from the same window.
 
 use std::collections::BTreeSet;
 
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
     VerifiedSelectedNormalCallableSourceInventoryV1,
 };
@@ -148,6 +151,7 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
                 &instance_box_transfers,
                 declaration_catalog,
                 selected_callable_sources,
+                package,
             )?;
             residuals.record(
                 position,
@@ -231,6 +235,7 @@ impl NeutralScriptRootDecisionV1 {
         instance_box_transfers: &VerifiedScriptInstanceBoxTransferCohortV1,
         declaration_catalog: &VerifiedSameModuleCallableDeclarationCatalogV1,
         selected_callable_sources: &VerifiedSelectedNormalCallableSourceInventoryV1,
+        package: &VerifiedNormalCallableSemanticPackageV1,
     ) -> Result<Self, CanonicalScriptNeutralProgramWindowIssueV1> {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
@@ -247,6 +252,7 @@ impl NeutralScriptRootDecisionV1 {
             validate_cataloged_static_box_source(
                 declaration_catalog,
                 selected_callable_sources,
+                |key| package.omitted_closed_app_static_key(key),
                 statement_index,
                 statement,
             )?;
@@ -403,6 +409,7 @@ impl NeutralScriptRootDecisionV1 {
 fn validate_cataloged_static_box_source(
     declaration_catalog: &VerifiedSameModuleCallableDeclarationCatalogV1,
     selected_callable_sources: &VerifiedSelectedNormalCallableSourceInventoryV1,
+    is_omitted: impl Fn(&CanonicalSameModuleCallableKeyV1) -> bool,
     statement_index: usize,
     statement: &ASTNode,
 ) -> Result<(), CanonicalScriptNeutralProgramWindowIssueV1> {
@@ -464,12 +471,20 @@ fn validate_cataloged_static_box_source(
             )
         })
         .count();
-    if selected_count != expected.len() {
+    let omitted_count = declaration_catalog
+        .declarations()
+        .filter(|(key, _)| {
+            key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+                && key.owner() == name
+                && is_omitted(key)
+        })
+        .count();
+    if selected_count + omitted_count != expected.len() {
         return Err(
             CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
                 _detail: format!(
                     "cataloged source inventory cardinality mismatch for {name}: expected={} actual={selected_count}",
-                    expected.len()
+                    expected.len().saturating_sub(omitted_count)
                 )
                 .into(),
             },
@@ -480,6 +495,21 @@ fn validate_cataloged_static_box_source(
         key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod && key.owner() == name
     }) {
         let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
+        if is_omitted(key) {
+            if selected_callable_sources.site(&selected_key).is_some() {
+                return Err(
+                    CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                        _detail: format!(
+                            "omitted static source remains selected: {}.{}",
+                            key.owner(),
+                            key.name()
+                        )
+                        .into(),
+                    },
+                );
+            }
+            continue;
+        }
         let Some(SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
             statement_index: selected_statement_index,
             method_key,

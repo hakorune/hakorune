@@ -4,6 +4,8 @@
 //! owners, MIR symbols, or lowering policy. Program work planning borrows it
 //! instead of independently issuing top-level declaration identities.
 
+use std::collections::BTreeSet;
+
 use super::{CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1};
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -75,6 +77,20 @@ pub(crate) struct VerifiedSelectedNormalCallableSourceInventoryV1 {
 }
 
 impl VerifiedSelectedNormalCallableSourceInventoryV1 {
+    pub(super) fn exclude_closed_app_static_keys(
+        &mut self,
+        omitted: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
+    ) {
+        let rows = std::mem::take(&mut self.rows).into_vec();
+        self.rows = rows
+            .into_iter()
+            .filter(|row| match &row.key {
+                SelectedNormalCallableKeyV1::Cataloged(key) => !omitted.contains(key),
+                SelectedNormalCallableKeyV1::TopLevel(_) => true,
+            })
+            .collect();
+    }
+
     pub(super) fn seal(
         brand: SameModuleCallableCatalogBrandV1,
         rows: Vec<(
@@ -169,7 +185,9 @@ mod tests {
 
         assert_eq!(catalog.len(), 3);
         assert!(catalog
-            .declaration(&CanonicalSameModuleCallableKeyV1::free_function("helper", 1))
+            .declaration(&CanonicalSameModuleCallableKeyV1::free_function(
+                "helper", 1
+            ))
             .is_some());
         assert_eq!(inventory.len(), 3);
         let top_level = inventory.top_level_function(0).expect("top-level row");

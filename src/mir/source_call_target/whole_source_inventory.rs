@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
+    AppMainCatalogCoSealV1, CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
     VerifiedSameModuleCallableDeclarationCatalogV1,
 };
 use crate::mir::resolved_semantics::{
@@ -158,6 +158,63 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         &self,
     ) -> Option<&WholeSourceMethodObservationUnavailableV1> {
         self.first_method_observation_unavailable.as_ref()
+    }
+
+    /// Source-complete, conservative zero-incoming static projection for one
+    /// closed App executable. An exact call to a different canonical method
+    /// does not keep this candidate; an unresolved same-selector call does.
+    pub(crate) fn closed_app_zero_incoming_static_keys(
+        &self,
+        app_main: &AppMainCatalogCoSealV1,
+    ) -> BTreeSet<CanonicalSameModuleCallableKeyV1> {
+        let app_key = app_main.catalog_key();
+        if self.first_method_observation_unavailable.is_some()
+            || app_key.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+            || !app_main.catalog_brand().is_same(self.declarations.brand())
+            || self
+                .declarations
+                .source_backed_app_main()
+                .is_none_or(|main| {
+                    !main.catalog_brand().is_same(self.declarations.brand())
+                        || main.catalog_key() != app_key
+                })
+        {
+            return BTreeSet::new();
+        }
+        self.declarations
+            .static_declarations()
+            .filter_map(|(key, declaration)| {
+                // Main and its static children remain physical roots. Explicit
+                // visibility/ABI metadata is conservatively retained too.
+                if key.owner() == app_key.owner()
+                    || declaration.attrs().runes.iter().any(|rune| {
+                        matches!(
+                            rune.name.as_str(),
+                            "Public"
+                                | "Internal"
+                                | "FfiSafe"
+                                | "Symbol"
+                                | "CallConv"
+                                | "ReturnsOwned"
+                                | "FreeWith"
+                        )
+                    })
+                {
+                    return None;
+                }
+                self.calls()
+                    .filter(|row| {
+                        let call = row.call();
+                        call.method() == key.name() && call.arity() == key.arity()
+                    })
+                    .all(|row| {
+                        let call = row.call();
+                        self.target(call.caller(), call.site())
+                            .is_some_and(|target| target.target() != key)
+                    })
+                    .then(|| key.clone())
+            })
+            .collect()
     }
 }
 

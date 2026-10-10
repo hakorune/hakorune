@@ -284,3 +284,33 @@ the physical-selection issuer can omit a method safely. The next D0 step is
 to locate or define their single source-backed classifiers, then freeze the
 projection and rejection cases above; a missing exact target remains only a
 diagnostic, not omission permission.
+
+Resolution for S0 selection: the App lifecycle publishes a closed EXE rooted
+at Main/births and transitive ordinary calls; it has no separate callable
+export manifest. `Public` is declaration visibility metadata, not evidence of
+an EXE symbol export. Conservatively preserve any explicitly visibility/ABI
+annotated method while the physical export story remains unsealed. The
+parser-backed App relation protects Main. For a remaining static method,
+the existing complete inventory itself can prove exclusion: compare every
+observed call with the same method and arity. An exact *other* canonical
+target is harmless; an exact target to the candidate, or any non-exact row,
+retains the candidate. Any observation gap retains all candidates. This
+distinguishes `SizeClassBox.accepts/1` from `LayoutBox.accepts/1` without a
+name-only rule. The source-backed catalog and inventory are the issuer;
+physical selection consumes their same-brand projection. S0 is closed in the
+linked card. The source cohort veto remains unchanged until a later slice.
+
+### After closed-App selection S0
+
+The physical selection S0 is closed in
+`mirbuilder-closed-app-static-selection-s0-2026-10-10.md`. The unchanged
+mimalloc-lite probe still stops at `source-only-object-actuals`; the original
+`accepts -> class_id` source row remains even though `LayoutBox.accepts` is
+not a selected physical callable. The next design decision must define the
+single selected-caller cohort consumed by Static transport: its source is the
+same complete inventory plus the same-brand physical selected membership.
+It must retain every original row for diagnostics, include all selected
+reachable callers, and exclude an omitted caller only from executable
+transport obligations. Freeze the exact issuer/consumer and failure boundary
+before changing either Static seed veto. Page edges and return outcome are
+separate.

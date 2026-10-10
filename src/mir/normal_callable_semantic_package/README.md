@@ -259,6 +259,12 @@ StaticBoxMethod rows. A valid unselected row remains in the complete batch,
 cannot steal selection, and is neither issuer failure nor fallback. Selected
 Dynamic input and its required contract must match the same private batch slot.
 
+For closed App static methods, the source-backed catalog retains an explicit
+omitted-identity cohort from the original complete MethodCall inventory. The
+co-seal validates that each such row remains a declaration and is absent from
+the selected batch map. It does not discard source calls or relax a selected
+callee's incoming transport veto.
+
 Parser identity is cloneable for comparison only: no serialization, pointer or
 numeric conversion, key use, or resolver-owner issuance. Catalog and batch are
 siblings, not reconstructions of one another. Missing, duplicate, foreign,

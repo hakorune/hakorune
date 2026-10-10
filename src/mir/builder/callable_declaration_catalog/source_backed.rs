@@ -36,6 +36,7 @@ pub(crate) enum SourceBackedCallableCatalogIssueV1 {
     AppMainMissing,
     AppMainDuplicate,
     AppMainNonStatic,
+    SelectionProjectionMismatch,
 }
 
 /// Private source/catalog identity co-seal for the App `Main.main` row.
@@ -88,11 +89,76 @@ struct SourceBackedSelectedIdentityV1 {
 pub(crate) struct VerifiedSourceBackedSameModuleCallableCatalogV1 {
     catalog: VerifiedSameModuleCallableDeclarationCatalogV1,
     selected: Box<[SourceBackedSelectedIdentityV1]>,
+    omitted_closed_app_static: Box<[SourceBackedSelectedIdentityV1]>,
 }
 
 impl VerifiedSourceBackedSameModuleCallableCatalogV1 {
+    pub(crate) fn exclude_closed_app_static_keys(
+        &mut self,
+        omitted: &BTreeSet<CanonicalSameModuleCallableKeyV1>,
+    ) -> Result<(), SourceBackedCallableCatalogIssueV1> {
+        if omitted.is_empty() {
+            return Ok(());
+        }
+        let selected_keys = self
+            .selected
+            .iter()
+            .filter_map(|row| match &row.key {
+                SelectedNormalCallableKeyV1::Cataloged(key) => Some(key.clone()),
+                SelectedNormalCallableKeyV1::TopLevel(_) => None,
+            })
+            .collect::<BTreeSet<_>>();
+        if self.catalog.source_backed_app_main().is_none()
+            || !omitted.iter().all(|key| {
+                key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+                    && selected_keys.contains(key)
+                    && self.catalog.declaration(key).is_some()
+            })
+        {
+            return Err(SourceBackedCallableCatalogIssueV1::SelectionProjectionMismatch);
+        }
+        let selected = std::mem::take(&mut self.selected).into_vec();
+        let (omitted_rows, retained): (Vec<_>, Vec<_>) =
+            selected.into_iter().partition(|row| match &row.key {
+                SelectedNormalCallableKeyV1::Cataloged(key) => omitted.contains(key),
+                SelectedNormalCallableKeyV1::TopLevel(_) => false,
+            });
+        self.selected = retained.into_boxed_slice();
+        self.omitted_closed_app_static = omitted_rows.into_boxed_slice();
+        self.catalog
+            .selected_source_inventory
+            .exclude_closed_app_static_keys(omitted);
+        Ok(())
+    }
+
     pub(crate) fn catalog(&self) -> &VerifiedSameModuleCallableDeclarationCatalogV1 {
         &self.catalog
+    }
+
+    pub(crate) fn omitted_closed_app_static_for_identity(
+        &self,
+        identity: &CallableDeclarationIdentityV1,
+    ) -> Option<&CanonicalSameModuleCallableKeyV1> {
+        self.omitted_closed_app_static.iter().find_map(|row| {
+            row.identity
+                .same_as(identity)
+                .then_some(&row.key)
+                .and_then(|key| {
+                    let SelectedNormalCallableKeyV1::Cataloged(key) = key else {
+                        return None;
+                    };
+                    Some(key)
+                })
+        })
+    }
+
+    pub(crate) fn omitted_closed_app_static_key(
+        &self,
+        key: &CanonicalSameModuleCallableKeyV1,
+    ) -> bool {
+        self.omitted_closed_app_static.iter().any(
+            |row| matches!(&row.key, SelectedNormalCallableKeyV1::Cataloged(found) if found == key),
+        )
     }
 
     pub(crate) fn selected_identities(
@@ -384,6 +450,7 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                     source_backed_app_main: app_main_co_seal,
                 },
                 selected: selected_identities.into_boxed_slice(),
+                omitted_closed_app_static: Box::new([]),
             })
         })
         .map_err(|_error| SourceBackedCallableCatalogIssueV1::ParserSyntax { _error })?

@@ -49,6 +49,13 @@ navigate inside the same final-source loan, but cannot repair a missing or
 mismatched opaque identity. The legacy AST-only seal remains a compatibility
 origin and cannot enter the source-backed semantic package.
 
+In a closed App EXE, the package may project physical identities and source
+inventory with the source inventory's same-brand zero-incoming static proof.
+Complete declarations remain in the catalog; omitted identities retain their
+original parser pairing so co-seal validation distinguishes physical omission
+from a lost selected row. The selected static child port consumes only the
+projected membership. Script and raw compatibility selection are unchanged.
+
 CUT0 installs the catalog exactly once per legacy Builder root before the
 remaining declaration-index effects. Query-before-install and duplicate
 install are typed session failures. The old lowering-order static index and

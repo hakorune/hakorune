@@ -400,10 +400,7 @@ fn source_backed_app_main_direct_call_consumes_affine_loan() {
             crate::mir::MirInstruction::Call(call) => Some(call.callee.clone()),
             crate::mir::MirInstruction::LegacyCallV0 { callee, .. } => callee.clone(),
             crate::mir::MirInstruction::Invoke {
-                operation:
-                    crate::mir::instruction::InvokeOperation::Call {
-                        call, ..
-                    },
+                operation: crate::mir::instruction::InvokeOperation::Call { call, .. },
                 ..
             } => Some(call.callee.clone()),
             _ => None,
@@ -475,6 +472,29 @@ fn source_backed_app_main_qualified_static_call_uses_canonical_owner() {
         )
     );
     assert_eq!(module.canonical_callable_definition_count(), 1);
+}
+
+#[test]
+fn closed_app_omits_uncalled_static_method_before_physical_publication() {
+    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
+    let source = callable_source(
+        "static box Helpers {
+            live(value: i64): i64 { return value }
+            dead(value: i64): i64 { return value }
+        }
+        static box Main { main() { return Helpers.live(2) } }",
+        ParserBuildConfig::default(),
+    );
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("closed App selection and package complete must agree");
+    let (_, module, _) = completed.into_parts();
+    assert!(module.functions.contains_key("Helpers.live/1"));
+    assert!(!module.functions.contains_key("Helpers.dead/1"));
 }
 
 #[test]

@@ -108,6 +108,14 @@ unavailable caller/cause, and the one target catalog, all branded by the same
 declaration catalog. It owns no Stage-B nested-result policy, candidate
 cardinality, Builder, MIR, runtime, or production route.
 
+For a parser-sealed closed App, the same inventory can project static methods
+with no possible incoming call. It requires complete MethodCall observation
+and an exact App catalog brand. Every call with the candidate's method and
+arity must have an exact *different* canonical target; a non-exact row keeps
+the candidate. Main and explicitly annotated visibility/ABI methods remain
+selected. This is physical-selection evidence, not declaration removal or a
+transport proof.
+
 ## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
 
 `VerifiedRawCallableSourceViewV1` is the Raw route's thin, catalog-branded

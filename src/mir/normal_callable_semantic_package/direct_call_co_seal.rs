@@ -43,6 +43,17 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
             continue;
         }
         let slot = declaration.batch_slot();
+        if let Some(omitted) =
+            catalog.omitted_closed_app_static_for_identity(declaration.identity())
+        {
+            if omitted.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+                || declaration_catalog.declaration(omitted).is_none()
+                || selected.key_for_batch_slot(slot).is_some()
+            {
+                return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
+            }
+            continue;
+        }
         let Some(key) = selected.key_for_batch_slot(slot) else {
             return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
         };

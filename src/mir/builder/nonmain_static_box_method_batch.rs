@@ -14,7 +14,7 @@ use super::raw_compatibility_child_terminal::{
 };
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::recursive_child_lowering::RawInvocationChildPortV1;
-use super::{MirBuilder, SameModuleCallableNamespaceV1};
+use super::{MirBuilder, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1};
 
 pub(super) struct PreparedNonMainStaticBoxMethodBatchV1 {
     owner: String,
@@ -159,6 +159,18 @@ impl PreparedNonMainStaticBoxMethodBatchV1 {
                 })?
                 .key()
                 .clone();
+            if builder
+                .comp_ctx
+                .callable_declaration_catalog()
+                .map_err(|error| error.to_string())?
+                .selected_source_inventory()
+                .site(&SelectedNormalCallableKeyV1::Cataloged(
+                    canonical_key.clone(),
+                ))
+                .is_none()
+            {
+                continue;
+            }
             let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(canonical_key)
                 .map_err(|error| error.to_string())?;
             port.lower_cataloged_static_box_method(
