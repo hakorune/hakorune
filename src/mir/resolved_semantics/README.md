@@ -161,6 +161,14 @@ classes and NormalInteger Mul envelope must all agree before the local gains
 an Integer class. This is Home scalar coverage only; the Loop physical Mul
 emitter remains a separate authority and still rejects execution.
 
+At a returned root Mul, the Home terminal first consults the existing
+borrowed-formal use authority. A distinct local-scalar path may then prove an
+I64 local on the left and one exact zero-argument CurrentOwner static I64 call
+on the right, with the same ordered resolver binary and Mul envelope. It
+publishes the child call observation only after the whole expression passes,
+then issues the existing I64Scalar terminal relation. Neither path grants
+physical Loop Mul or a result contract by itself.
+
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
 resolved source loan and exact selected initializer bindings. It walks source
 statement order, keeps aliases separate from new Homes, and records prior

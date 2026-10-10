@@ -89,7 +89,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
         {
             // The same scalar preflight observes the original call children.
             // Field returns keep their existing field issuer and relations.
-            let mul = scalar_expression::observe_guarded_mul_return(
+            let borrowed_mul = scalar_expression::observe_guarded_mul_return(
                 input,
                 value.site(),
                 statement.site(),
@@ -99,6 +99,23 @@ pub(super) fn observe_terminal_statement<'a, E>(
                 borrowed_actuals,
             )?;
             use scalar_expression::GuardedMulReturnV1;
+            let mul = match borrowed_mul {
+                GuardedMulReturnV1::Unavailable => {
+                    match scalar_expression::observe_local_mul_return(
+                        input,
+                        value.site(),
+                        statement.site(),
+                        locals,
+                        homes,
+                        static_call,
+                        borrowed_actuals,
+                    )? {
+                        GuardedMulReturnV1::Unselected => GuardedMulReturnV1::Unavailable,
+                        local => local,
+                    }
+                }
+                other => other,
+            };
             let selected_mul = !matches!(mul, GuardedMulReturnV1::Unselected);
             let scalar = match mul {
                 GuardedMulReturnV1::Observed(calls) => Some((SourceScalarKind::Integer, calls)),

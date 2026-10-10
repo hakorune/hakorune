@@ -130,6 +130,55 @@ pub(super) enum GuardedMulReturnV1 {
     Observed(Vec<LocalCallObservationV1>),
 }
 
+/// A returned I64 local multiplied by an exact zero-argument CurrentOwner
+/// static I64 call. This is disjoint from the borrowed-formal Mul authority;
+/// no call observation is published until the complete expression is proved.
+pub(super) fn observe_local_mul_return<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    statement: &SourceStmtSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<GuardedMulReturnV1, E> {
+    let Some(binary) = input
+        .function()
+        .expression_source()
+        .binary(site)
+        .filter(|row| row.operator() == ResolvedBinaryOperatorV1::Multiply)
+    else {
+        return Ok(GuardedMulReturnV1::Unselected);
+    };
+    if !binary_sites_match(site, binary)
+        || !normal_integer_mul_available()
+        || !matches!(
+            locals.observe(binary.lhs()),
+            Some(OrdinaryObservation::TrivialLocal(
+                _,
+                Some(SourceScalarKind::Integer)
+            ))
+        )
+    {
+        return Ok(GuardedMulReturnV1::Unavailable);
+    }
+    let Some(call) = local_call_flow::issue_static_i64_value_call(
+        input,
+        statement,
+        binary.rhs(),
+        homes,
+        static_call,
+    )?
+    else {
+        return Ok(GuardedMulReturnV1::Unavailable);
+    };
+    borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
+    Ok(GuardedMulReturnV1::Observed(vec![call]))
+}
+
 /// Only an exact returned operation product lends this Normal scalar class.
 /// Generic scalar expressions still exclude Multiply. Child observations are
 /// staged until every original call child is available.

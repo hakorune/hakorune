@@ -224,8 +224,7 @@ fn real_bin_size_checked_add_initializer_advances_home_prefix() {
         assert!(!prepared.consult_view_use_v1(input, site, BorrowedViewUseRequestV1::CheckedAddOperand { binary: &wrong }).unwrap());
         let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
         let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
-        assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site)))
-            if site == &exit));
+        assert!(matches!(flow.exit_row(&exit), Some(Ok(_))));
     }).unwrap();
 }
 
@@ -267,7 +266,7 @@ fn real_bin_size_positive_literal_divide_advances_only_local_home() {
             let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
             let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
             let reached_return = first_uncovered == 11
-                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site))) if site == &exit);
+                && matches!(flow.exit_row(&exit), Some(Ok(_)));
             let stopped_in_prefix = first_uncovered == 4
                 && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
                     if first.node().segments() == [Segment::Body(4)]);
@@ -319,7 +318,7 @@ fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
             let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
             let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
             let reached_return = first_uncovered == 11
-                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site))) if site == &exit);
+                && matches!(flow.exit_row(&exit), Some(Ok(_)));
             let stopped_in_prefix = first_uncovered == 5
                 && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
                     if first.node().segments() == [Segment::Body(5)]);
