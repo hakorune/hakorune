@@ -69,6 +69,7 @@ enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
     ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
+    ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
     SourceInstance(instance_source::InstanceSourceActualIdentityV1),
@@ -78,6 +79,8 @@ enum BorrowedCallActualEvidencePhaseV1 {
 mod static_selected_actual;
 #[path = "ordinary_new_borrowed_static_scalar_input_finish.rs"]
 mod static_scalar_input_finish;
+#[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
+mod static_mixed_input_finish;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::{
     issue_original_static_forwarded_actual_v1, VerifiedStaticForwardedActualV1,
 };
@@ -106,7 +109,8 @@ impl PreparedBorrowedCallActualsV1 {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_)
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_) => Ok(()),
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-instance-actuals",

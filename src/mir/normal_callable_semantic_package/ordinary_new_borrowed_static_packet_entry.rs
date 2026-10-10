@@ -158,6 +158,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 self.verify_original_static_packet_source_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
+            if self.checked_static_mixed_packet_actuals_v1(original)?.is_some() {
+                self.verify_original_static_packet_source_v1(original)?;
+                return Ok(Some(Rc::clone(original)));
+            }
             if self.is_static_zero_packet_cohort_v1(original) {
                 self.verify_original_static_packet_source_v1(original)?;
                 self.borrowed_static_packet_actuals_v1(original)?
@@ -238,8 +242,9 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
-            let scalar = self.checked_static_scalar_packet_actuals_v1(original)?.is_some();
-            let selected = if scalar {
+            let completed = self.checked_static_scalar_packet_actuals_v1(original)?.is_some()
+                || self.checked_static_mixed_packet_actuals_v1(original)?.is_some();
+            let selected = if completed {
                 self.selected_static_local_source_v1(&row.call)?.is_some()
             } else if self.is_static_zero_packet_cohort_v1(original) {
                 // Zero-input source-only rows may be unready; their original
@@ -340,6 +345,9 @@ impl OrdinaryNewClaimLedgerV1 {
             if (self.is_static_zero_packet_cohort_v1(original)
                 || self
                     .checked_static_scalar_packet_actuals_v1(original)?
+                    .is_some()
+                || self
+                    .checked_static_mixed_packet_actuals_v1(original)?
                     .is_some())
                 && routed
                     .get(&owner)
@@ -383,6 +391,7 @@ impl OrdinaryNewClaimLedgerV1 {
             && self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_none()
+            && self.checked_static_mixed_packet_actuals_v1(original)?.is_none()
         {
             self.checked_completed_static_one_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
@@ -412,6 +421,9 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
             if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
+                return Ok(Some(rows));
+            }
+            if let Some(rows) = self.checked_static_mixed_packet_actuals_v1(original)? {
                 return Ok(Some(rows));
             }
             let row = self

@@ -440,6 +440,18 @@ fn project_pending_static_source_arguments_for_route_v1(
         if matching.next().is_some() { return Err(freeze("borrowed-static/scalar-incoming-duplicate")); }
         return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
     }
+    if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_)) {
+        if !current_owner || !required_i64_arguments.is_empty() {
+            return Err(freeze("borrowed-static/mixed-route-identity"));
+        }
+        let original = retained.ok_or_else(|| freeze("borrowed-static/mixed-source-missing"))?;
+        let cohort = super::static_mixed_input_finish::checked_mixed_rows_v1(
+            prepared, pending, original,
+        )?.ok_or_else(|| freeze("borrowed-static/mixed-cohort-unfinished"))?;
+        let call = cohort.iter().find(|row| row.call == *site)
+            .ok_or_else(|| freeze("borrowed-static/mixed-incoming-missing"))?;
+        return rows.ordered_arguments_for_v1(call).map(|args| Some(args.into()));
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };

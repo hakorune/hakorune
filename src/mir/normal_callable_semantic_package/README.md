@@ -2245,6 +2245,16 @@ mandatory. This path permits an empty required-I64-result-argument list
 because the callee may compute its result through later calls; the Mul path
 still requires ordinal zero. Unfinished forwarding sources remain passive.
 
+A source-only Static target may also finish one complete three-call incoming
+cohort with one exact-`USIZE` scalar formal and two borrowed-formal forwards.
+The original `source_incoming` inventory determines membership; the scalar
+caller reuses the exact-formal check, and each forwarded caller uses the
+checked original Static forward issuer. All three must share the target
+contract, physical signature, Completion, I64 result, and ordered Home
+arguments. The same whole cohort is rechecked when the Static packet lends
+an actual or the target entry is borrowed. A partial or drifted cohort
+remains unavailable; no caller grants the target an entry by itself.
+
 A child's direct Static i64 Call terminal survives coseal only when its exact
 call site matches the original caller-keyed CurrentOwner source row with an
 ExactI64 result. The Home walker still issues the terminal relation; coseal

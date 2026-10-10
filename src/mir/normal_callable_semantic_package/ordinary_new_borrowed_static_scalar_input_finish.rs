@@ -49,6 +49,39 @@ impl StaticScalarInputFinishV1 {
     }
 }
 
+pub(super) fn check_exact_usize_scalar_caller_v1(
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    signatures: &VerifiedCallablePhysicalSignatureCohortV1,
+    original: &Rc<StaticIncomingSourceV1>,
+    binding: BindingRefV1,
+) -> Result<(), String> {
+    let mut callers = contracts.iter().filter(|row| row.owner == original.call_site().owner());
+    let caller = callers.next()
+        .ok_or_else(|| freeze("static-scalar/caller-contract-missing"))?;
+    let caller_signature = signatures.row(caller.batch_slot)
+        .ok_or_else(|| freeze("static-scalar/caller-signature-missing"))?;
+    if callers.next().is_some()
+        || caller.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+        || caller.parameters.len() != 1
+        || caller.parameters[0].ordinal != 0
+        || caller.parameters[0].binding != binding
+        || caller.parameters[0].kind != CallableParameterContractKindV1::ExactTrivial(
+            ExactTrivialParameterAbiV1::USIZE)
+        || !matches!(selected.key_for_batch_slot(caller.batch_slot),
+            Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.caller())
+        || caller_signature.owner() != caller.owner
+        || caller_signature.mode() != caller.mode
+        || caller_signature.source_logical_arity() != 1
+        || caller_signature.lanes().len() != 1
+        || caller_signature.lanes()[0].role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
+        || caller_signature.lanes()[0].binding() != binding
+    {
+        return Err(freeze("static-scalar/caller-formal-drift"));
+    }
+    Ok(())
+}
+
 fn scalar_source_only_use_v1(
     draft: &super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
 ) -> bool {
@@ -375,29 +408,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     break;
                 };
                 if scalar_formal_forward {
-                    let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
-                    let caller = callers.next()
-                        .ok_or_else(|| freeze("static-scalar/caller-contract-missing"))?;
-                    let caller_signature = signatures.row(caller.batch_slot)
-                        .ok_or_else(|| freeze("static-scalar/caller-signature-missing"))?;
-                    if callers.next().is_some()
-                        || caller.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
-                        || caller.parameters.len() != 1
-                        || caller.parameters[0].ordinal != 0
-                        || caller.parameters[0].binding != binding
-                        || caller.parameters[0].kind != CallableParameterContractKindV1::ExactTrivial(
-                            ExactTrivialParameterAbiV1::USIZE)
-                        || !matches!(selected.key_for_batch_slot(caller.batch_slot),
-                            Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.caller())
-                        || caller_signature.owner() != caller.owner
-                        || caller_signature.mode() != caller.mode
-                        || caller_signature.source_logical_arity() != 1
-                        || caller_signature.lanes().len() != 1
-                        || caller_signature.lanes()[0].role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
-                        || caller_signature.lanes()[0].binding() != binding
-                    {
-                        return Err(freeze("static-scalar/caller-formal-drift"));
-                    }
+                    check_exact_usize_scalar_caller_v1(
+                        selected, contracts, signatures, original, binding,
+                    )?;
                 }
                 if !Rc::ptr_eq(&source_actual.source, original)
                     || source_actual.integer_evidence.as_ref() != [true]

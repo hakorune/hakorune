@@ -258,6 +258,48 @@ fn scalar_formal_forward_refuses_a_different_declared_abi() {
 }
 
 #[test]
+fn original_size_to_bin_mixed_cohort_finishes_atomically() {
+    use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
+        .expect("original size-class source issues");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let wrapper = ingress.source_incoming.static_observations().values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.caller().name() == "size_to_bin_usize"
+            && row.target().name() == "size_to_bin")
+        .expect("original wrapper source");
+    let cohort = ingress.static_incoming_cohort_v1(wrapper).unwrap();
+    assert_eq!(cohort.len(), 3);
+    let mut scalar = 0;
+    let mut forwarded = 0;
+    for original in &cohort {
+        assert!(ledger.selected_static_local_source_v1(original.call_site()).unwrap().is_some());
+        let [actual] = ledger.borrowed_static_packet_actuals_v1(original).unwrap().unwrap() else {
+            panic!("one original packet actual")
+        };
+        match &actual.source {
+            BorrowedFormalActualSourceV1::Scalar { kind: SourceScalarKind::Integer, .. } => scalar += 1,
+            BorrowedFormalActualSourceV1::Forwarded { .. } => forwarded += 1,
+            other => panic!("unexpected mixed actual: {other:?}"),
+        }
+    }
+    assert_eq!((scalar, forwarded), (1, 2));
+
+    let missing = cohort.iter().find(|row| row.caller().name() == "good_size").unwrap();
+    let missing_site = missing.call_site().clone();
+    let wrapper = Rc::clone(wrapper);
+    Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap()
+        .borrowed_formal_actuals.remove(&missing_site);
+    assert!(Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap()
+        .select_static_mixed_local_routes_v1().is_err(),
+        "route selection must recheck the whole mixed cohort");
+    assert!(package.ordinary_new_claim_ledger.borrowed_static_packet_actuals_v1(&wrapper).is_err(),
+        "a selected packet cannot lend after any sibling disappears");
+}
+
+#[test]
 fn current_owner_one_input_packet_can_follow_executable_caller_entry() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return 0 } }",

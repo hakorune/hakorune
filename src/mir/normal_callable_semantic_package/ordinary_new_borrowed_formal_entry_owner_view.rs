@@ -50,6 +50,15 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(incoming) = self.checked_completed_static_scalar_cohort_v1(source, owner)? {
                 return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
             }
+            if let Ok(rows) = source.source_incoming.project(&std::collections::BTreeSet::from([owner])) {
+                if let Some(first) = rows.first() {
+                    if let BorrowedIncomingSourceV1::Static(original) = &first.source {
+                        if let Some(incoming) = self.checked_completed_static_mixed_cohort_v1(source, original)? {
+                            return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+                        }
+                    }
+                }
+            }
         }
         let Some(definition) = source.definitions.get(&owner) else {
             return Ok(None);
