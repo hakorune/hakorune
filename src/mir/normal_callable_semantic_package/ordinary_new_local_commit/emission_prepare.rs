@@ -372,15 +372,16 @@ impl OrdinaryNewClaimLedgerV1 {
         bindings.extend_from_slice(selected);
         let copies = self.source_local_copies(owner)?;
         let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
-        let boundary = if let Some(body_block) = selected_body_block {
-            physical_boundary::PhysicalBoundary::capture_selected_static_loop_with_source_copies(
-                function, &bindings, &copies, &aliases, body_block,
-            )?
-        } else {
-            physical_boundary::PhysicalBoundary::capture_with_source_copies(
-                function, &bindings, &copies, &aliases,
-            )?
-        };
+        let loop_after_blocks =
+            self.recorded_loop_cond_after_blocks(owner, function, &bindings)?;
+        let boundary = physical_boundary::PhysicalBoundary::capture_with_loop_after_roles(
+            function,
+            &bindings,
+            &copies,
+            &aliases,
+            &loop_after_blocks,
+            selected_body_block,
+        )?;
         self.child_physical_validation.borrow_mut().insert(
             owner,
             ChildPhysicalValidation::Checked {

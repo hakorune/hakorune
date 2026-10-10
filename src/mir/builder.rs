@@ -448,6 +448,7 @@ mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
+pub(in crate::mir) use control_flow::plan::lowerer::VerifiedLoopCondAfterPhysicalRoleV1;
 #[cfg(test)]
 pub(crate) fn reset_loop_physical_effect_probe() {
     control_flow::reset_loop_physical_effect_probe();

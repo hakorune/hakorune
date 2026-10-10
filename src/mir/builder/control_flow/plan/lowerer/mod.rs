@@ -48,6 +48,7 @@ mod effect_emission;
 pub(in crate::mir::builder) mod emission_port;
 mod exit_lowering;
 mod loop_completion;
+mod loop_cond_after_role;
 mod loop_lowering;
 mod loop_preparation;
 mod loop_validation;
@@ -63,6 +64,7 @@ pub(super) use core::LoopFrame;
 /// All implementation is delegated to specialized modules.
 /// See module documentation for orchestrator architecture.
 pub(in crate::mir::builder) struct PlanLowerer;
+pub(in crate::mir) use loop_cond_after_role::VerifiedLoopCondAfterPhysicalRoleV1;
 
 #[cfg(test)]
 mod tests {

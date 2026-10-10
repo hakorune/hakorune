@@ -13,6 +13,8 @@ use literal_controls::LiteralControls;
 #[path = "physical_boundary_branch_threading.rs"]
 mod branch_threading;
 use branch_threading::ThreadedBranches;
+#[path = "physical_boundary_phi_policy.rs"]
+mod phi_policy;
 #[path = "physical_boundary_selected_loop.rs"]
 mod selected_loop;
 
@@ -81,7 +83,14 @@ impl PhysicalBoundary {
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
     ) -> Result<Self, String> {
-        Self::capture_with_phi_policy(function, bindings, copies, borrowed_copies, None)
+        Self::capture_with_phi_policy(
+            function,
+            bindings,
+            copies,
+            borrowed_copies,
+            &BTreeMap::new(),
+            None,
+        )
     }
 
     fn capture_with_phi_policy(
@@ -89,6 +98,7 @@ impl PhysicalBoundary {
         bindings: &Bindings,
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
+        loop_after_blocks: &BTreeMap<BasicBlockId, Box<[MirInstruction]>>,
         single_predecessor_phi_body: Option<BasicBlockId>,
     ) -> Result<Self, String> {
         let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
@@ -123,30 +133,13 @@ impl PhysicalBoundary {
             // A phi anywhere else (mid-block, or in a sole-predecessor
             // block that contraction could still reach) keeps the
             // fail-closed rejection.
-            let mut saw_non_phi = false;
-            let mut has_phi = false;
-            for instruction in &block.instructions {
-                match instruction {
-                    MirInstruction::Phi { .. } if !saw_non_phi => has_phi = true,
-                    MirInstruction::Phi { .. } => {
-                        return Err(fault("phi-in-recorded-block"));
-                    }
-                    _ => saw_non_phi = true,
-                }
-            }
-            if has_phi {
-                let predecessors = function
-                    .blocks
-                    .values()
-                    .flat_map(|other| other.out_edges())
-                    .filter(|edge| edge.target == *id)
-                    .count();
-                if predecessors == 0
-                    || (predecessors < 2 && single_predecessor_phi_body != Some(*id))
-                {
-                    return Err(fault("phi-in-recorded-block"));
-                }
-            }
+            phi_policy::validate_recorded_phi(
+                function,
+                *id,
+                block,
+                loop_after_blocks,
+                single_predecessor_phi_body,
+            )?;
             for instruction in &block.instructions {
                 let candidate = match instruction {
                     MirInstruction::Const { dst, .. } | MirInstruction::Copy { dst, .. } => {

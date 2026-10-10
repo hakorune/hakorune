@@ -676,6 +676,8 @@ mod finalized_root_handoff;
 
 #[path = "ordinary_new_local_commit/physical_boundary.rs"]
 mod physical_boundary;
+#[path = "ordinary_new_local_commit/loop_cond_after_role.rs"]
+mod loop_cond_after_role;
 
 pub(in crate::mir) use root_home::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,

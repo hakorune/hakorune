@@ -540,14 +540,21 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                         debug,
                         in_static_box,
                     );
-                crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_with_source_publication(
+                let (result, after_role) = crate::mir::builder::control_flow::plan::lowerer::PlanLowerer::lower_loop_cond_with_source_publication(
                     builder,
                     plan,
                     &context,
                     std::rc::Rc::clone(source_ledger),
+                    &physical_input,
                 )
-                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?
-                .ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())
+                .map_err(|error| format!("[freeze:contract][callable-loop/lower] {error}"))?;
+                let result = result.ok_or_else(|| "[freeze:contract][callable-loop/lower-no-value]".to_owned())?;
+                if let Some(role) = after_role {
+                    if let Some(claims) = source_ledger.borrow().ordinary_new_claim_ledger() {
+                        claims.record_loop_cond_after_role(role)?;
+                    }
+                }
+                Ok(result)
             }
             CallableGenericLoopSourceFactsDispositionV1::LoopTrueReady(source_facts) => {
                 let source_ledger = callable_ledger.ok_or_else(|| {

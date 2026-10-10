@@ -16,6 +16,7 @@ impl PhysicalBoundary {
             bindings,
             copies,
             borrowed_copies,
+            &BTreeMap::new(),
             Some(body_block),
         )
     }

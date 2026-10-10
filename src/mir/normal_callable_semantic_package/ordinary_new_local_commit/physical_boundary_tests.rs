@@ -540,6 +540,9 @@ fn selected_static_loop_body_phi_is_scoped_to_its_exact_block() {
     assert!(error.contains("phi-in-recorded-block"), "{error}");
 }
 
+#[path = "physical_boundary_loop_after_tests.rs"]
+mod loop_after_tests;
+
 #[test]
 fn non_leading_phi_in_a_join_recorded_block_still_rejects() {
     let (function, bindings) = join_fixture(2, true, true);

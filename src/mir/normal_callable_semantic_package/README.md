@@ -1032,6 +1032,13 @@ projection now carries the exact ordinary I64 Call and its existing cleanup
 coordinates; ordinary Map installation and C ABI emission remain explicit
 Stops.
 
+For a selected LoopCond child, successful PlanLowerer source publication may
+lend one sealed after-block PHI role to this same ledger. The role binds the
+source owner/site, selected plan after block, and canonical physical PHI
+prefix. PhysicalBoundary accepts a single-predecessor PHI there only when
+the recorded block and every PHI destination/input match that role; raw
+one-predecessor blocks and other loop routes retain the normal refusal.
+
 Ordinary-New local installation emits a source-issued `result -> local` Copy
 outside the lifecycle binding list. Finalized root and selected-child capture
 therefore retain each emitted local/result pair with its source block in the

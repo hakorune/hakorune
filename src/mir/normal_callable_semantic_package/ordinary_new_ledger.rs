@@ -125,6 +125,7 @@ impl OrdinaryNewClaimLedgerV1 {
             child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
+            loop_cond_after_roles: RefCell::new(BTreeMap::new()),
             lifecycle_local_call_sites: RefCell::new(BTreeMap::new()),
             map_read_bindings: RefCell::new(BTreeMap::new()),
             root_instance_calls: RefCell::new(BTreeMap::new()),
