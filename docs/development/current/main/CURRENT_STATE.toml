@@ -1,9 +1,9 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
+current_execution_row = "MIRBUILDER-GATE1-BIN-SIZE-LOOP-RECIPE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-loop-executable-actual-i0"
+current_blocker_token = "selfhost-resume/bin-size-loop-recipe-s0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,27 +13,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
-latest_card = "mirbuilder-result-new-site-provenance-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-bin-size-loop-recipe-s0-2026-10-10.md"
+latest_card = "mirbuilder-gate1-bin-size-loop-recipe-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-bin-size-loop-recipe-s0-2026-10-10.md"
 latest_card_summary = """
-The unchanged mimalloc-lite Static Loop has source-bound V2 Recipe/JoinSig,
-Home neutrality, checked tagged formal source, I64 result and one unpublished
-canonical CFG/SSA function through DraftSeal. Its pre-loop CurrentOwner call
-retains the original source packet and physical Invoke. The nested body
-`me.bin_size(bin)` retains its source cohort and canonical read, and now has
-a selected Scalar Integer actual with a unique coordinate on the verified
-detached projection. General SourceStatic remains source-only. The selected
-caller now collects the checked function, consumes the four source-corroborated
-Static result rows as one batch, and commits entry/body packets only after
-collector success. Finished body-call carrier and incoming coverage remain open: no production
-EXE or old-edge retirement follows.
-The active card owns the remaining caller/entry coverage and acceptance.
+The selected unchanged SizeClassBox.bin_size Body9 Loop has typed Facts,
+V1 read-only input and Mul vocabulary, and a complete JoinSig root After
+closure. The selected slice issues one source-bound Recipe/JoinSig/Core/
+input/effect product from those Facts. Home Body9 advance, physical Mul,
+EXE and old-edge retirement remain open. CALLEE-RETURN-OUTCOME-S0 remains
+unfinished in its prior card; this row change grants no completion claim.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-GATE1-CALLEE-RETURN-OUTCOME-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md"
+next_execution_card = "MIRBUILDER-GATE1-BIN-SIZE-LOOP-RECIPE-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-bin-size-loop-recipe-s0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
