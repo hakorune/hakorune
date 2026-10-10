@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-call-root-entry-d0"
-current_design_stop = "call-entry-missing: exact root Call entry issuer and owner/exit pending"
+current_blocker_token = "selfhost-resume/static-call-root-entry-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -27,15 +27,16 @@ bin_size_usize/1 Body(0) now retains the Home-issued direct Static Call
 terminal from the exact original caller key/site and ExactI64 result. The
 unchanged SizeClassBox probe, still red, moved past root-exit-source-missing
 to ordinary-new/local-commit/call-entry-missing. The selected D0 must find
-the exact executable root Call entry authority without inferring it from
-the terminal spelling.
+the root Static Call packet and entry from original source, completed
+inputs, publication and exact terminal site. D0 selected that join with
+Static-specific ordered BorrowedActual validation; no Plain promotion.
 Bool physical result and call transport remain downstream. The whole-app EXE
 first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
