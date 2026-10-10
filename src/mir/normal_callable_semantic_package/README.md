@@ -2226,6 +2226,13 @@ transport owner set or creating a second caller map. This finish has no
 per-iteration ValueId: the detached loop packet's canonical read and final
 publication checks remain independent obligations.
 
+A child's direct Static i64 Call terminal survives coseal only when its exact
+call site matches the original caller-keyed CurrentOwner source row with an
+ExactI64 result. The Home walker still issues the terminal relation; coseal
+only retains it. Lexical Call and Map retention keep their existing rules, and
+an unqualified child Call remains unavailable. The retained source relation
+does not authorize a physical return or canonical actual read.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

@@ -256,12 +256,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // The caller's canonical key drives the qualified static-call
                 // claim index — the probe and the verified walk share this
                 // predicate so readiness never diverges from the real lane.
+                let static_caller_key =
+                    super::super::qualified_static_call_claim::caller_key_for_function(
+                        selected, batch_slot, is_app_main, app_main_source.map(|main| main.catalog_key()),
+                    );
                 let (mut local_static_call, has_current_owner_i64_source) =
                     super::super::qualified_static_call_claim::local_static_call_predicate(
                         static_call_claims,
-                        super::super::qualified_static_call_claim::caller_key_for_function(
-                            selected, batch_slot, is_app_main, app_main_source.map(|main| main.catalog_key()),
-                        ),
+                        static_caller_key.clone(),
                         input, selected, parameter_contracts, app_main.as_ref(),
                     );
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
@@ -652,6 +654,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                 let relation = terminal_relation
                                     .into_iter()
                                     .filter(|(_, row)| retain_child_terminal_relation(row, has_map)
+                                        || matches!(row, TerminalRelationV1::Call(call)
+                                            if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
+                                                static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
                                         || (has_integer_return && matches!(row, TerminalRelationV1::I64Scalar(_))))
                                     .collect();
                                 seeds.push_completion_with_top_level_input(

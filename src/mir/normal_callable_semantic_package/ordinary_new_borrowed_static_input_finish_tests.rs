@@ -286,3 +286,24 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
         .unwrap_err()
         .contains("incoming-coverage"));
 }
+
+#[test]
+fn current_owner_static_scalar_return_retains_its_exact_child_terminal() {
+    let ready = package("static box Layout { word(bin) { return 8 } relay(bin: usize) { return me.word(bin) } } static box Main { main() { return 0 } }");
+    let ledger = &ready.ordinary_new_claim_ledger;
+    let incoming = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let call = incoming.source_incoming.exact_rows()
+        .find(|row| matches!(&row.source,
+            super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source)
+                if source.target().name() == "word"))
+        .unwrap();
+    let owner = call.call.owner();
+    let completion = ledger.completion_for_owner(owner).unwrap();
+    let [exit] = completion.explicit_sites() else { panic!("one exact relay exit required") };
+    let (_, terminal) = ledger.call_source_completion_for_owner_at(owner, exit)
+        .expect("original Static scalar return must survive child coseal");
+    assert_eq!(terminal.owner(), owner);
+    assert_eq!(terminal.return_site(), exit);
+    assert_eq!(terminal.call_site(), call.call.site());
+    assert!(ledger.normal_exit_projection_v1(owner, exit).unwrap().is_some());
+}

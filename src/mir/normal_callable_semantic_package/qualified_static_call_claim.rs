@@ -178,7 +178,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         self.result_rows.get(key)
     }
 
-    fn current_owner_i64_source(
+    pub(in crate::mir::normal_callable_semantic_package) fn current_owner_i64_source(
         &self,
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,

@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ROOT-EXIT-SOURCE-MISSING-D0"
+current_execution_row = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/root-exit-source-missing-d0"
-current_design_stop = "root-exit-source-missing: exact owner/exit and missing Normal projection authority not yet identified"
+current_blocker_token = "selfhost-resume/static-call-root-entry-d0"
+current_design_stop = "call-entry-missing: exact root Call entry issuer and owner/exit pending"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,22 +13,27 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
-latest_card = "mirbuilder-root-exit-source-missing-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
+latest_card = "mirbuilder-static-call-root-entry-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
 latest_card_summary = """
 The borrowed-Mul static Scalar actual S0 finished the full original incoming
 cohort in the same ledger and lent the checked callee entry. The unchanged
 SizeClassBox published-view probe, with protected Eq WIP in a detached
 checkout, moved past borrowed-mul/source-only-entry to
 ordinary-new/local-commit/root-exit-source-missing. Focused tests are green;
-the published view remains red. The selected D0 must identify the exact
-owner/exit and missing Normal return projection authority before construction.
+the published view remains red. A detached diagnostic identified
+bin_size_usize/1 Body(0) now retains the Home-issued direct Static Call
+terminal from the exact original caller key/site and ExactI64 result. The
+unchanged SizeClassBox probe, still red, moved past root-exit-source-missing
+to ordinary-new/local-commit/call-entry-missing. The selected D0 must find
+the exact executable root Call entry authority without inferring it from
+the terminal spelling.
 Bool physical result and call transport remain downstream. The whole-app EXE
 first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-ROOT-EXIT-SOURCE-MISSING-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
+next_design_card = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
@@ -45,8 +50,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-10: MIRBUILDER-STATIC-CALL-TERMINAL-RETENTION-S0 — exact original caller-keyed CurrentOwner Static I64 Call terminal survives child coseal; unqualified Call refusal remains. Unchanged SizeClassBox published-view probe moves from root-exit-source-missing to call-entry-missing; still red. Next: root Call entry D0.",
   "2026-10-10: MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0 — full original CurrentOwner Scalar Integer cohort finishes atomically in the existing ledger; checked entry now feeds alias/Mul and unchanged SizeClassBox probe moves to root-exit-source-missing. Focused positive/negative and related families green; published view remains red. Next: root-exit-source-missing D0.",
   "2026-10-10: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1 landed at 4a5592426d — unchanged good_size/accepts size_to_bin callers share one target-scoped completed actual/packet/entry cohort; missing sibling actual rejects both, Heap/Page source-only route remains. Next: integer Eq physical-owner D0; app first stop remains Heap-to-Page.",
-  "2026-10-06: MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0 landed (S1 complete) — object_formal gate admits `Kind::Handle`; `object_birth_actuals` keys (site,ordinal) -> transport emits kind 3; C `call_transport` nullable rep admits 0/3; `indexed_flow` birth_call arm requires owned live handle (`origin >= 0`, LV4_LIVE) and consumes the lease on the Normal edge only (Fault keeps it for caller unwind). `nullable_birth_handle_actual_min_exe` PASS: v4-measure ok, EXE Result 0. Double-move -> `argument-source-unavailable`; pins 3/3 nullable. Baseline reds unchanged (4, parent-verified). Next: `selfhost-resume/nested-object-field-teardown` (D0).",
   ]
 
