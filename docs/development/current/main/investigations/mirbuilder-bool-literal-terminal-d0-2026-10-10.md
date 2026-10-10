@@ -1,6 +1,6 @@
 # Bool literal terminal result D0
 
-Status: decision accepted; BOOL-LITERAL-TERMINAL-S0 selected
+Status: BOOL-LITERAL-TERMINAL-S0 source complete at 597d844b31; next frontier observed
 Date: 2026-10-10
 Scope: MIRBUILDER-BOOL-LITERAL-TERMINAL-D0 decision and selected MIRBUILDER-BOOL-LITERAL-TERMINAL-S0
 Related:
@@ -103,3 +103,15 @@ errors; none remains in the final run. Unchanged-source Eq-integrated probe
 is still pending because its three Eq files are protected uncommitted work
 in the previous checkout. Until that probe identifies the next exact stop,
 S0 does not claim original-source physical progress.
+
+The unchanged-source cross-probe then ran in detached worktree
+`/mnt/workdisk/hako-bool-eq-integration-probe-20261010` at `597d844b31`
+with the three protected Eq WIP files copied from the previous checkout
+(none changed there). The same focused test
+`imported_size_class_accepts_publishes_ordered_static_integer_eq` changed its
+first stop from `ordinary-new/local-commit/root-exit-source-missing` to
+`ordinary-new/borrowed-mul/source-only-entry`. This is a **red** integration
+observation, not a passing published-view test or Bool physical acceptance.
+The selected S0 source relation is complete; the new stop requires its own
+source/issuer audit before choosing a different owner. The Bool physical
+result and `accepts_usize` Bool call remain open as described above.
