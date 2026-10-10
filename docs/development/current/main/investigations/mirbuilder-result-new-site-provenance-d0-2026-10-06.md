@@ -830,3 +830,21 @@ shape negatives passed in one test; `real_bin_size_` 5/5 passed, and the
 existing `variable_recurrence_` family passed 11/11 (one pre-existing
 LLVM-dependent test ignored). Rustfmt check, pointer guard and diff check
 passed. No Home Body9 advance or production caller switch is claimed.
+
+Loop Facts handoff prerequisite: at the exact Loop site, the selected Home
+walk lends its current Integer-class bindings to the package issuer. The
+issuer joins that typed prestate with the original resolver Loop membership
+and the bounded source observation, then retains one AST-free Facts result or
+an explicit refusal at the owner/site key. Duplicate consults refuse; a
+missing class or changed source shape cannot produce Facts. The Home scanner
+still marks the Loop uncovered: no verified After, Recipe, JoinSig, physical
+Mul or production EXE is claimed. Next, seal the same product through
+Recipe/JoinSig and a verified After loan before allowing Home past Body9.
+Focused quick-profile validation: the unchanged `bin_size` source produces
+Facts with three current Integer-class bindings; replacing `shift_count`
+with Bool refuses as `InputClass`, and replacing `scale * 2` with Add refuses
+as `SourceShape`. The selected test passed 1/1 after the final disposition
+mapping edit; the `real_bin_size_` family passed 6/6 before that edit. Pointer,
+diff and selected rustfmt checks passed. This closes only the Facts
+prerequisite. Body9 remains uncovered until verified After, Recipe and
+JoinSig are issued and consumed.

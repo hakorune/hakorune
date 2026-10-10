@@ -120,7 +120,7 @@ impl ResultNewHomePrefixV1 {
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
-pub(crate) use local_flow::SourceScalarKind;
+pub(crate) use local_flow::{LoopI64PreStateRequestV1, SourceScalarKind};
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
@@ -188,6 +188,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         // leaf stays truthfully uncovered on this lane — the verified
         // completion lane owns the issuer predicate.
         &mut |_, _| Ok(false),
+        &mut |_| Ok(()),
         &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
@@ -328,6 +329,7 @@ pub(crate) fn scan_new_home_flow<E>(
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
@@ -446,6 +448,7 @@ pub(crate) fn scan_new_home_flow<E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        loop_prestate,
         object_return,
     )?;
     // Statements after the terminal are never walked; their sealed map

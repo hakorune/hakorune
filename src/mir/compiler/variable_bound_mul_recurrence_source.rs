@@ -48,6 +48,31 @@ pub(crate) struct ObservedVariableBoundMulSourceV1 {
 }
 
 impl ObservedVariableBoundMulSourceV1 {
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        FunctionOwnerIdV1,
+        VerifiedResolvedLoopSourceV1,
+        LoopExecutionFrameKeyV1,
+        ResolvedScopeRegionPairV1,
+        SourceExprSiteV1,
+        [(SourceStmtSiteV1, SourceExprSiteV1); 2],
+        [BindingRefV1; 3],
+    ) {
+        (
+            self.owner,
+            self.loop_source,
+            self.frame,
+            self.scope_region,
+            self.condition,
+            [
+                (self.update, self.update_value),
+                (self.step, self.step_value),
+            ],
+            [self.scale, self.induction, self.bound],
+        )
+    }
+
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }

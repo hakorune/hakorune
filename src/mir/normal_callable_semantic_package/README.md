@@ -2202,3 +2202,12 @@ The phase owns no opaque proofs and grants no Integer class or executable entry.
 Object input source retains its existing owner. Home receives an explicit
 SourceInstance response, leaving the call unavailable without strict fallback;
 existing executable result/input lenders reject it. No implicit promotion exists.
+
+For the selected variable-bound Mul Loop, the package issuer retains the
+resolver's exact Loop membership and the source-layer observation together
+with the Home walk's current Integer-class prestate. The owner/site keyed
+ledger stores an AST-free Facts result or an explicit refusal; a duplicate
+request cannot silently replace a prior result. This prerequisite does not
+lend post-loop Home classes or admit a builder Loop. Recipe, JoinSig and a
+verified After loan must consume this same source identity before Body9 can
+advance.

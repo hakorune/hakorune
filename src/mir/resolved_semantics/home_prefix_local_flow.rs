@@ -6,11 +6,32 @@
 use super::SelectedNewArgumentKindV1;
 use super::{
     BindingRefV1, ExprChildRoleV1, OwnedExprSiteV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    SourceExprSiteV1,
+    SourceExprSiteV1, SourceStmtSiteV1,
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
+
+/// Exact pre-Loop scalar-class snapshot minted by the running Home walk.
+/// Source shape and post-Loop values are deliberately outside this loan.
+#[derive(Debug)]
+pub(crate) struct LoopI64PreStateRequestV1 {
+    owner: super::FunctionOwnerIdV1,
+    site: SourceStmtSiteV1,
+    integer_bindings: BTreeSet<BindingRefV1>,
+}
+
+impl LoopI64PreStateRequestV1 {
+    pub(crate) const fn owner(&self) -> super::FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+    pub(crate) fn proves_integer(&self, binding: BindingRefV1) -> bool {
+        binding.owner() == self.owner && self.integer_bindings.contains(&binding)
+    }
+}
 
 /// Source scalar class retained from an exact literal or declaration contract.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -160,6 +181,29 @@ pub(super) struct PrefixLocalFlow<'source> {
 }
 
 impl<'source> PrefixLocalFlow<'source> {
+    /// Only a resolver-owned Loop at the current walk point can borrow these
+    /// classes. Rebinding/branch joins already update `locals` before this
+    /// snapshot; an untyped or invalidated binding is absent.
+    pub(super) fn loop_i64_prestate(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Option<LoopI64PreStateRequestV1> {
+        self.input.function().loop_region_bundle(site).ok()?;
+        let integer_bindings = self
+            .locals
+            .iter()
+            .filter_map(|(binding, value)| {
+                matches!(value, StoredLocal::Trivial(Some(SourceScalarKind::Integer)))
+                    .then_some(*binding)
+            })
+            .collect();
+        Some(LoopI64PreStateRequestV1 {
+            owner: self.input.owner(),
+            site: site.clone(),
+            integer_bindings,
+        })
+    }
+
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         Self {
             input,

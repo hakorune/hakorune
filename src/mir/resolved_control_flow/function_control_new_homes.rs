@@ -60,6 +60,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(false),
+        &mut |_| Ok(()),
         &mut |_| Ok(None),
     )?;
     Ok(
@@ -186,6 +187,9 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         BorrowedViewUseRequestV1<'_>,
     ) -> Result<bool, E>,
+    loop_prestate: &mut impl FnMut(
+        crate::mir::resolved_semantics::home_new_prefix::LoopI64PreStateRequestV1,
+    ) -> Result<(), E>,
 
     object_return: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -254,6 +258,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             local_field_read,
             borrowed_actuals,
             view_use,
+            loop_prestate,
             object_return,
         )?;
     match &mut completion {

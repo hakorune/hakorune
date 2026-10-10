@@ -1436,3 +1436,10 @@ terminal order
 have one owner in Completion. The unconnected consumer is stopped at package
 install; fresh children, uninitialized locals and other candidate families
 are not admitted by this direct-Home relation.
+
+The selected Loop Home scan can lend a typed prestate request at an exact
+resolver Loop site. It snapshots the already established Integer classes of
+current lexical bindings; it does not infer classes from Loop syntax. The
+package issuer uses this loan for the bounded variable-bound Mul Facts join.
+Until a verified After loan returns, the scanner keeps the Loop uncovered and
+does not install any post-loop class.

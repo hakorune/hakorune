@@ -130,6 +130,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,
             borrowed_formal_source: None,
+            variable_bound_mul_facts: BTreeMap::new(),
             loop_static_source_loans: RefCell::new(BTreeMap::new()),
             loop_static_body_scalar_sources: RefCell::new(BTreeMap::new()),
             selected_loop_body_packets: RefCell::new(BTreeMap::new()),

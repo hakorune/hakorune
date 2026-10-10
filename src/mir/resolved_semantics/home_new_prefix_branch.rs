@@ -100,6 +100,7 @@ fn walk_branch<'a, E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -141,6 +142,7 @@ fn walk_branch<'a, E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        loop_prestate,
         object_return,
     )?;
     Ok(path)
@@ -315,6 +317,7 @@ pub(super) fn observe_if_statement<'a, E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -502,6 +505,7 @@ pub(super) fn observe_if_statement<'a, E>(
         local_field_read,
         borrowed_actuals,
         view_use,
+        loop_prestate,
         object_return,
     )?;
     let else_path = match else_body {
@@ -543,6 +547,7 @@ pub(super) fn observe_if_statement<'a, E>(
             local_field_read,
             borrowed_actuals,
             view_use,
+            loop_prestate,
             object_return,
         )?,
         // A missing `else` joins the entry snapshot unchanged.

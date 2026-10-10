@@ -120,6 +120,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -222,6 +223,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 local_field_read,
                 borrowed_actuals,
                 view_use,
+                loop_prestate,
                 object_return,
             )?;
             if terminated {
@@ -277,6 +279,15 @@ pub(super) fn scan_statement_flow<'a, E>(
                 view_use,
             )? {
                 continue;
+            }
+            // The current Home prefix lends proven scalar classes at the
+            // exact Loop point. This observation alone cannot cover the Loop
+            // or install its After state; the normal uncovered boundary below
+            // remains until the package returns a verified After loan.
+            if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
+                if let Some(request) = locals.loop_i64_prestate(statement.site()) {
+                    loop_prestate(request)?;
+                }
             }
             // Statement kinds this lane does not admit (loop, assignment,
             // match, ...) still contain real call edges — stage their

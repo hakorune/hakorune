@@ -81,6 +81,61 @@ fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
 }
 
 #[test]
+fn real_bin_size_loop_facts_require_current_home_integer_classes() {
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::LoopFactsUnavailableV1;
+    use crate::mir::resolved_semantics::{
+        SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
+    };
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    for (source, expected_error) in [
+        (original.to_string(), None),
+        (
+            original.replacen(
+                "local shift_count = bit_group - 2",
+                "local shift_count = true",
+                1,
+            ),
+            Some(LoopFactsUnavailableV1::InputClass),
+        ),
+        (
+            original.replacen("scale = scale * 2", "scale = scale + 2", 1),
+            Some(LoopFactsUnavailableV1::SourceShape),
+        ),
+    ] {
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .expect("selected real source package");
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "bin_size",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .expect("selected bin_size");
+        package
+            .batch()
+            .with_lowering_input(slot, |input| {
+                let site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                    Segment::Body(9),
+                ]));
+                let row = package
+                    .ordinary_new_claim_ledger
+                    .variable_bound_mul_facts
+                    .get(&(input.owner(), site.clone()));
+                let row = row.expect("Loop request must retain an exact disposition");
+                assert_eq!(row.as_ref().err().copied(), expected_error, "{source}");
+                if let Ok(facts) = row {
+                    assert_eq!(facts.owner(), input.owner());
+                    assert_eq!(facts.source().site(), &site);
+                    assert_eq!(facts.bindings().len(), 3);
+                }
+            })
+            .expect("selected lowering input");
+    }
+}
+
+#[test]
 fn real_bin_size_checked_add_initializer_advances_home_prefix() {
     use crate::mir::resolved_semantics::{
         home_new_prefix::{BorrowedViewUseRequestV1, HomePrefixUnavailableV1},
