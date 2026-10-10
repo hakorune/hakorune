@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0
 
-Status: D0 accepted; selected MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0
+Status: superseded by scalar-formal D0 after original-source counterexample
 Date: 2026-10-10
 Scope: unchanged `SizeClassBox.good_size_usize/1` direct Static Return
 Related:
@@ -104,3 +104,18 @@ No source rewrite or general SourceStatic promotion is authorized. The
 package-ledger census and unchanged-source first-stop are S0 verification,
 not D0 prerequisites. The source authority and bounded failure conditions
 are now fixed, so construction may start.
+
+## Counterexample and handoff
+
+The focused original-source package test built the unchanged SizeClassBox
+plus four literal calls to `good_size_usize`. Asking the borrowed
+`source_incoming` inventory to project the wrapper formal owner returned
+`SourceIdentity` before any implementation. The wrapper formal is declared
+`usize`; callable parameter issuance classifies declared exact trivials
+separately from `OpaqueHandle`. The borrowed inventory registers owners
+with borrowed formal drafts. Consequently the four literal calls cannot be
+used as the forwarded-handle cohort proposed above. The previous Decision
+is withdrawn; no executable code was changed under it. The remaining
+source-only outgoing edge may use an exact scalar formal actual, which needs
+its own source and packet audit in the successor D0 card. This failed
+diagnostic is an expected design counterexample, not a green S0 test.

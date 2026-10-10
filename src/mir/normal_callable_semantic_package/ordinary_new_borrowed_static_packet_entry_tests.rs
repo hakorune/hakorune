@@ -192,6 +192,72 @@ fn current_owner_one_input_packet_requires_original_completed_cohort() {
 }
 
 #[test]
+fn original_good_size_usize_uses_scalar_formal_source_not_borrowed_incoming() {
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let source_text = format!(
+        "{original}\nstatic box Main {{ main() {{ local a = SizeClassBox.good_size_usize(0) local b = SizeClassBox.good_size_usize(33) local c = SizeClassBox.good_size_usize(524289) local d = SizeClassBox.good_size_usize(4194305) return 0 }} }}"
+    );
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source_text)
+        .expect("original policy and four literal callers");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let wrapper = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "SizeClassBox", "good_size_usize", 1,
+    );
+    let wrapper_slot = package.selected.batch_slot(
+        &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(wrapper)
+    ).unwrap();
+    let formal = package.parameter_contracts.iter()
+        .find(|row| row.batch_slot == wrapper_slot).unwrap().parameters[0].binding;
+    let contract = package.parameter_contracts.iter()
+        .find(|row| row.batch_slot == wrapper_slot).unwrap();
+    assert!(matches!(contract.parameters[0].kind,
+        crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
+            if abi == crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::USIZE));
+    assert_eq!(ingress.source_incoming.exact_rows()
+        .filter(|row| row.callee == formal.owner()).count(), 0);
+    assert!(ingress.source_incoming.project(&std::collections::BTreeSet::from([formal.owner()])).is_err(),
+        "usize wrapper is not a borrowed incoming owner");
+    let outgoing = ingress.source_incoming.static_observations().values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.caller().name() == "good_size_usize" && row.target().name() == "good_size")
+        .expect("original CurrentOwner forward");
+    assert!(ingress.source_only_definitions.contains_key(&outgoing.callee_owner()));
+    let cohort = ingress.static_incoming_cohort_v1(outgoing).unwrap();
+    assert_eq!(cohort.len(), 1);
+    let staged = ledger.borrowed_formal_actuals.get(outgoing.call_site()).unwrap().as_ref().unwrap();
+    staged.require_executable_v1().expect("exact usize formal completes scalar actual");
+    let selected = ledger.selected_static_local_source_v1(outgoing.call_site()).unwrap()
+        .expect("original scalar source selects the existing Static packet");
+    assert!(Rc::ptr_eq(&selected, outgoing));
+    assert_eq!(ledger.borrowed_static_packet_actuals_v1(outgoing).unwrap().unwrap().len(), 1);
+}
+
+#[test]
+fn scalar_formal_forward_refuses_a_different_declared_abi() {
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let changed = original.replacen(
+        "good_size_usize(size: usize)",
+        "good_size_usize(size: i64)",
+        1,
+    );
+    assert_ne!(changed, original);
+    let source = format!(
+        "{changed}\nstatic box Main {{ main() {{ local a = SizeClassBox.good_size_usize(0) return 0 }} }}"
+    );
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
+        .expect("wrong declared ABI remains a source-backed package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let outgoing = ingress.source_incoming.static_observations().values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.caller().name() == "good_size_usize" && row.target().name() == "good_size")
+        .expect("original outgoing call remains observable");
+    assert!(ledger.selected_static_local_source_v1(outgoing.call_site()).unwrap().is_none());
+    assert!(ledger.borrowed_static_packet_actuals_v1(outgoing).is_err());
+}
+
+#[test]
 fn current_owner_one_input_packet_can_follow_executable_caller_entry() {
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
         "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return 0 } }",

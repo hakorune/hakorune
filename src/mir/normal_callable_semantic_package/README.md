@@ -2235,6 +2235,16 @@ transport owner set or creating a second caller map. This finish has no
 per-iteration ValueId: the detached loop packet's canonical read and final
 publication checks remain independent obligations.
 
+The same scalar finisher accepts a source-only opaque callee with exactly one
+checked ordinal-zero Static forwarding use when its complete incoming cohort
+consists of `Scalar(Integer)` actuals rooted in the callers' declared
+`ExactTrivial(USIZE)` formals. Each caller's selected key and OrdinaryScalar
+physical lane must agree with that formal; the callee's original result,
+Completion, target signature, ordered Home argument and whole cohort remain
+mandatory. This path permits an empty required-I64-result-argument list
+because the callee may compute its result through later calls; the Mul path
+still requires ordinal zero. Unfinished forwarding sources remain passive.
+
 A child's direct Static i64 Call terminal survives coseal only when its exact
 call site matches the original caller-keyed CurrentOwner source row with an
 ExactI64 result. The Home walker still issues the terminal relation; coseal

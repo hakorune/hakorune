@@ -2,6 +2,8 @@
 //! The later physical caller read remains an independent publication obligation.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
+use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::normal_callable_semantic_package::{
     physical_signature::{PhysicalCallableLaneRoleV1, VerifiedCallablePhysicalSignatureCohortV1},
     qualified_static_call_claim::incoming_source::StaticIncomingSourceV1,
@@ -38,7 +40,8 @@ impl StaticScalarInputFinishV1 {
         Rc::ptr_eq(&self.source, original)
             && Rc::ptr_eq(&self.completion, completion)
             && original.is_current_owner_i64_source_v1()
-            && original.required_i64_arguments() == [0]
+            && (original.required_i64_arguments() == [0]
+                || original.required_i64_arguments().is_empty())
             && original.parameters().len() == 1
             && original.argument_sites().len() == 1
             && self.binding.owner() == original.call_site().owner()
@@ -46,7 +49,67 @@ impl StaticScalarInputFinishV1 {
     }
 }
 
+fn scalar_source_only_use_v1(
+    draft: &super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
+) -> bool {
+    use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
+    let mul = draft.uses.iter().any(|row| matches!(row.kind, Use::MulOperand { .. }));
+    let forwards = draft.uses.iter().filter(|row| matches!(row.kind,
+        Use::UnresolvedArgument { ordinal: 0, .. })).count();
+    mul || (forwards == 1 && draft.uses.iter().all(|row|
+        matches!(row.kind, Use::Copy { .. } | Use::UnresolvedArgument { ordinal: 0, .. })))
+}
+
 impl OrdinaryNewClaimLedgerV1 {
+    fn source_only_usize_scalar_cohort_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+    ) -> bool {
+        let Ok(rows) = source.source_incoming.project(&BTreeSet::from([owner])) else {
+            return false;
+        };
+        !rows.is_empty() && rows.iter().all(|row| {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source else { return false };
+            let Some(caller) = contracts.iter().find(|contract| contract.owner == row.call.owner()) else {
+                return false;
+            };
+            let Some(Ok(staged)) = self.borrowed_formal_actuals.get(&row.call) else {
+                return false;
+            };
+            let BorrowedCallActualEvidencePhaseV1::SourceStatic(actual) = &staged.phase else {
+                return false;
+            };
+            if original.call_site() != &row.call
+                || original.callee_owner() != owner
+                || original.argument_sites().len() != 1
+                || original.parameters().len() != 1
+                || row.arguments.as_ref() != [(
+                    0,
+                    original.argument_sites()[0].clone(),
+                    original.parameters()[0].binding,
+                )]
+                || !Rc::ptr_eq(&actual.source, original)
+            {
+                return false;
+            }
+            matches!((&caller.parameters[..], &actual.candidates[..]),
+                ([formal], [BorrowedCallActualCandidateV1 {
+                    value: BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer),
+                    ..
+                }]) if formal.ordinal == 0
+                    && formal.binding == *binding
+                    && formal.kind == CallableParameterContractKindV1::ExactTrivial(
+                        ExactTrivialParameterAbiV1::USIZE))
+                && original.is_current_owner_i64_source_v1()
+                && original.required_i64_arguments().is_empty()
+                && original.parameters().len() == 1
+                && original.parameters()[0].kind.is_ordinary_borrowed_handle()
+        })
+    }
+
     /// Borrow only an entirely finished original scalar cohort; never infer
     /// entry permission from one successful caller or from a SourceStatic row.
     pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_scalar_cohort_v1<
@@ -62,14 +125,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if !source
             .source_only_definitions
             .get(&owner)
-            .is_some_and(|draft| {
-                draft.uses.iter().any(|row| {
-                    matches!(
-                row.kind,
-                super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
-            )
-                })
-            })
+            .is_some_and(scalar_source_only_use_v1)
             || source.definitions.contains_key(&owner)
             || source.target_static.contains_key(&owner)
         {
@@ -79,6 +135,20 @@ impl OrdinaryNewClaimLedgerV1 {
             .source_incoming
             .project(&BTreeSet::from([owner]))
             .map_err(|error| format!("{}: {error:?}", freeze("static-scalar/incoming-veto")))?;
+        // A forwarding-only source does not become an entry route merely
+        // because another scalar cohort was completed in this package.
+        if !source.source_only_definitions[&owner].uses.iter().any(|row| matches!(
+            row.kind,
+            super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
+        )) && !rows.iter().all(|row| matches!(
+            self.borrowed_formal_actuals.get(&row.call),
+            Some(Ok(actual)) if matches!(
+                actual.phase,
+                BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_)
+            )
+        )) {
+            return Ok(None);
+        }
         let Some(first) = rows.first() else {
             return Ok(None);
         };
@@ -111,7 +181,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source)
                         if Rc::ptr_eq(source, original))
                 || !original.is_current_owner_i64_source_v1()
-                || original.required_i64_arguments() != [0]
+                || !(original.required_i64_arguments() == [0]
+                    || original.required_i64_arguments().is_empty())
                 || original.parameters().len() != 1
                 || !original.parameters()[0].kind.is_ordinary_borrowed_handle()
                 || call.arguments.as_ref()
@@ -164,8 +235,10 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let owners: Vec<_> = source.source_only_definitions.iter()
             .filter(|(owner, draft)| !source.target_static.contains_key(owner)
-                && draft.uses.iter().any(|row| matches!(row.kind,
-                    super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. })))
+                && scalar_source_only_use_v1(draft)
+                && (draft.uses.iter().any(|row| matches!(row.kind,
+                    super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }))
+                    || self.source_only_usize_scalar_cohort_v1(source, **owner, contracts)))
             .map(|(owner, _)| *owner).collect();
         for owner in owners {
             let projected = match source.source_incoming.project(&BTreeSet::from([owner])) {
@@ -181,9 +254,17 @@ impl OrdinaryNewClaimLedgerV1 {
                 Ok(rows) if rows.len() == projected.len() => rows,
                 _ => continue,
             };
+            let forward_only = !source.source_only_definitions[&owner].uses.iter().any(|row| matches!(
+                row.kind,
+                super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
+            ));
             if cohort.iter().any(|original| {
                 !original.is_current_owner_i64_source_v1()
-                    || original.required_i64_arguments() != [0]
+                    || (if forward_only {
+                        !original.required_i64_arguments().is_empty()
+                    } else {
+                        original.required_i64_arguments() != [0]
+                    })
                     || original.parameters().len() != 1
                     || !original.parameters()[0].kind.is_ordinary_borrowed_handle()
             }) {
@@ -204,6 +285,32 @@ impl OrdinaryNewClaimLedgerV1 {
                     Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == first.target())
             {
                 return Err(freeze("static-scalar/contract-identity"));
+            }
+            let draft = &source.source_only_definitions[&owner];
+            let scalar_formal_forward = !draft.uses.iter().any(|row| matches!(
+                row.kind,
+                super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::MulOperand { .. }
+            ));
+            if scalar_formal_forward {
+                let mut uses = draft.uses.iter().filter_map(|row| match &row.kind {
+                    super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::UnresolvedArgument {
+                        call, ordinal: 0,
+                    } => Some((row, call)),
+                    _ => None,
+                });
+                let (use_row, call) = uses.next().ok_or_else(|| freeze("static-scalar/forward-use-missing"))?;
+                let fact = source.static_arguments.get(&(call.clone(), 0))
+                    .ok_or_else(|| freeze("static-scalar/forward-fact-missing"))?;
+                if uses.next().is_some()
+                    || !source.checked_static_input(contract.parameters[0].binding)
+                    || fact.call() != call
+                    || fact.ordinal() != 0
+                    || fact.use_site() != &use_row.site
+                    || fact.formal() != contract.parameters[0].binding
+                    || draft.origins.get(&fact.binding()) != Some(&contract.parameters[0].binding)
+                {
+                    return Err(freeze("static-scalar/forward-chain-drift"));
+                }
             }
             let identity = selected
                 .identity_for_batch_slot(contract.batch_slot)
@@ -267,6 +374,31 @@ impl OrdinaryNewClaimLedgerV1 {
                     replacements.clear();
                     break;
                 };
+                if scalar_formal_forward {
+                    let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
+                    let caller = callers.next()
+                        .ok_or_else(|| freeze("static-scalar/caller-contract-missing"))?;
+                    let caller_signature = signatures.row(caller.batch_slot)
+                        .ok_or_else(|| freeze("static-scalar/caller-signature-missing"))?;
+                    if callers.next().is_some()
+                        || caller.mode != CallableParameterDeclarationModeV1::StaticBoxMethod
+                        || caller.parameters.len() != 1
+                        || caller.parameters[0].ordinal != 0
+                        || caller.parameters[0].binding != binding
+                        || caller.parameters[0].kind != CallableParameterContractKindV1::ExactTrivial(
+                            ExactTrivialParameterAbiV1::USIZE)
+                        || !matches!(selected.key_for_batch_slot(caller.batch_slot),
+                            Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key == original.caller())
+                        || caller_signature.owner() != caller.owner
+                        || caller_signature.mode() != caller.mode
+                        || caller_signature.source_logical_arity() != 1
+                        || caller_signature.lanes().len() != 1
+                        || caller_signature.lanes()[0].role() != PhysicalCallableLaneRoleV1::OrdinaryScalar
+                        || caller_signature.lanes()[0].binding() != binding
+                    {
+                        return Err(freeze("static-scalar/caller-formal-drift"));
+                    }
+                }
                 if !Rc::ptr_eq(&source_actual.source, original)
                     || source_actual.integer_evidence.as_ref() != [true]
                     || candidate.ordinal != 0

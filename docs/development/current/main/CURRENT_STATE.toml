@@ -1,10 +1,10 @@
-date = "2026-10-10"
+date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-forwarded-root-entry-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/static-mixed-cohort-root-entry-d0"
+current_design_stop = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,27 +13,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
-latest_card = "mirbuilder-static-forwarded-root-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
+latest_card = "mirbuilder-static-mixed-cohort-root-entry-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
 latest_card_summary = """
-Root Static Call S0 landed at dd1ab9c2cb. Its packet and final MIR tests are
-green. The unchanged SizeClassBox diagnostic, with protected Eq WIP in a
-separate checkout, remains red but moved from bin_size_usize/1 Body(0) to
-good_size_usize/1 Body(0), both at call-entry-missing. The wrapper forwards
-its formal through a source-only CurrentOwner Static call. The existing
-one-input executable finisher does not select that edge. The selected D0
-selected D0 now fixes a bounded forwarded finisher/route using the original
-incoming inventory, candidate_integer_agreement, checked_static_input,
-Completion and result publication into the existing packet/root entry.
-The exact package cohort/phase and first-stop are S0 acceptance, not
-construction preconditions. No Plain promotion or source rewrite. The
-whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
+The exact-USIZE scalar-formal S0 selects the original good_size cohort,
+issues the existing Static packet, and validates an I64 Invoke/normal result
+for good_size_usize/1. Focused positive, wrong-ABI negative and the
+11-test static-packet-entry family pass. With protected Eq WIP copied into
+a disposable checkout, the unchanged SizeClassBox published-view probe
+moves from good_size_usize/1 to size_to_bin_usize/1 call-entry-missing; it
+remains red. The next D0 must census size_to_bin's apparent mixed three-row
+incoming cohort before choosing a common completion route. No Plain
+promotion or source rewrite. The whole-app EXE first stop remains
+Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
+next_design_card = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -48,8 +46,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-11: MIRBUILDER-STATIC-SCALAR-FORMAL-ROOT-ENTRY-S0 — exact USIZE scalar formal forwarding completes the original good_size cohort through the existing Static packet. Package positive, wrong-ABI negative and 11 static-packet-entry family tests pass. Unchanged SizeClassBox physical probe validates good_size_usize/1 Invoke/NormalResult and next stops at size_to_bin_usize/1; still red. Next: mixed-cohort D0 census.",
   "2026-10-10: MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0 landed at dd1ab9c2cb — original Static source, completion, ordered actuals and result publication issue one root packet; final MIR positive and focused negatives green. Unchanged SizeClassBox first stop moves from bin_size_usize/1 to good_size_usize/1; still red. Next: source-only forwarded wrapper D0.",
   "2026-10-10: MIRBUILDER-STATIC-CALL-TERMINAL-RETENTION-S0 — exact original caller-keyed CurrentOwner Static I64 Call terminal survives child coseal; unqualified Call refusal remains. Unchanged SizeClassBox published-view probe moves from root-exit-source-missing to call-entry-missing; still red. Next: root Call entry D0.",
-  "2026-10-10: MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0 — full original CurrentOwner Scalar Integer cohort finishes atomically in the existing ledger; checked entry now feeds alias/Mul and unchanged SizeClassBox probe moves to root-exit-source-missing. Focused positive/negative and related families green; published view remains red. Next: root-exit-source-missing D0.",
   ]
 
