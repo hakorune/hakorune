@@ -245,6 +245,33 @@ fn preflight<E>(
     let (operand, result) = match row.operator() {
         Op::Add | Op::Subtract => (Kind::Integer, Kind::Integer),
         Op::Multiply
+            if local_initializer_profile
+                && is_root
+                && input
+                    .function()
+                    .expression_source()
+                    .binary(row.lhs())
+                    .is_some_and(|add| {
+                        add.operator() == Op::Add
+                            && binary_sites_match(row.lhs(), add)
+                            && matches!(
+                                input.function().expression_source().literal(add.lhs()),
+                                Some(ResolvedLiteralSourceV1::Integer(_))
+                            )
+                            && matches!(
+                                locals.observe(add.rhs()),
+                                Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
+                            )
+                    })
+                && matches!(
+                    locals.observe(row.rhs()),
+                    Some(OrdinaryObservation::TrivialLocal(_, Some(Kind::Integer)))
+                )
+                && normal_integer_mul_available() =>
+        {
+            (Kind::Integer, Kind::Integer)
+        }
+        Op::Multiply
             if allow_mul_here
                 && matches!(
                     locals.observe(row.lhs()),
@@ -254,12 +281,7 @@ fn preflight<E>(
                     input.function().expression_source().literal(row.rhs()),
                     Some(ResolvedLiteralSourceV1::Integer(_))
                 )
-                && issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
-                    DynamicOperatorFamilyV1::Mul,
-                    DynamicOperatorValueClassV1::NormalInteger,
-                    DynamicOperatorValueClassV1::NormalInteger,
-                ))
-                .is_ok() =>
+                && normal_integer_mul_available() =>
         {
             (Kind::Integer, Kind::Integer)
         }
@@ -342,6 +364,15 @@ fn preflight<E>(
         }
     }
     Ok((lhs == operand && rhs == operand).then_some(result))
+}
+
+fn normal_integer_mul_available() -> bool {
+    issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
+        DynamicOperatorFamilyV1::Mul,
+        DynamicOperatorValueClassV1::NormalInteger,
+        DynamicOperatorValueClassV1::NormalInteger,
+    ))
+    .is_ok()
 }
 
 /// Select only the new field-expression condition responsibility. Existing

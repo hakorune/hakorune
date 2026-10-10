@@ -224,8 +224,8 @@ fn real_bin_size_checked_add_initializer_advances_home_prefix() {
         assert!(!prepared.consult_view_use_v1(input, site, BorrowedViewUseRequestV1::CheckedAddOperand { binary: &wrong }).unwrap());
         let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
         let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
-        assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
-            if matches!(first.node().segments(), [Segment::Body(index)] if *index >= 4)));
+        assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site)))
+            if site == &exit));
     }).unwrap();
 }
 
@@ -237,7 +237,7 @@ fn real_bin_size_positive_literal_divide_advances_only_local_home() {
     };
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let variants = [
-        (original.to_string(), 5),
+        (original.to_string(), 11),
         (
             original.replacen("local bit_group = x / 4", "local bit_group = x / 0", 1),
             4,
@@ -266,10 +266,12 @@ fn real_bin_size_positive_literal_divide_advances_only_local_home() {
         package.batch().with_lowering_input(slot, |input| {
             let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
             let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
-            let expected_frontier = |index| if first_uncovered == 4 { index == 4 } else { index >= 5 };
-            assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
-                if matches!(first.node().segments(), [Segment::Body(index)]
-                    if expected_frontier(*index))), "{source}");
+            let reached_return = first_uncovered == 11
+                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site))) if site == &exit);
+            let stopped_in_prefix = first_uncovered == 4
+                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
+                    if first.node().segments() == [Segment::Body(4)]);
+            assert!(reached_return || stopped_in_prefix, "{source}");
         }).unwrap();
     }
 }
@@ -283,7 +285,7 @@ fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let root = "local top = x - (bit_group * 4)";
     let variants = [
-        (original.to_string(), 10),
+        (original.to_string(), 11),
         (
             original.replacen(root, "local top = x * (bit_group * 4)", 1),
             5,
@@ -316,8 +318,12 @@ fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
         package.batch().with_lowering_input(slot, |input| {
             let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Segment::Body(11)]));
             let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
-            assert!(matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
-                if first.node().segments() == [Segment::Body(first_uncovered)]), "{source}");
+            let reached_return = first_uncovered == 11
+                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site))) if site == &exit);
+            let stopped_in_prefix = first_uncovered == 5
+                && matches!(flow.exit_row(&exit), Some(Err(HomePrefixUnavailableV1::PrefixNotCovered(first)))
+                    if first.node().segments() == [Segment::Body(5)]);
+            assert!(reached_return || stopped_in_prefix, "{source}");
         }).unwrap();
     }
 }

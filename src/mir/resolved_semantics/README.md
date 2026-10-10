@@ -154,6 +154,13 @@ field chains; transferred roots reject further selected reads. Rejected roots
 leave no rows; opaque/call/String roots stay outside this profile. Physical reads use the same once-only exact ObjectFieldGet port,
 with short-circuit RHS evaluation deferred by the existing operator consumer.
 
+The selected pure-I64 local initializer profile also admits a root Mul whose
+left child is an ordered integer-literal-plus-I64-local Add and whose right
+child is an I64 local. The resolver's exact binary child sites, current Home
+classes and NormalInteger Mul envelope must all agree before the local gains
+an Integer class. This is Home scalar coverage only; the Loop physical Mul
+emitter remains a separate authority and still rejects execution.
+
 `home_new_prefix` owns the bounded ordinary-New caller-prefix facts, from one
 resolved source loan and exact selected initializer bindings. It walks source
 statement order, keeps aliases separate from new Homes, and records prior

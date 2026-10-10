@@ -76,6 +76,8 @@ impl BuilderInstallTokenV1 {
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]
+mod ordinary_new_bin_size_words_tests;
+#[cfg(test)]
 mod declared_instance_locator_tests;
 #[cfg(test)]
 mod instance_entry_home_tests;
