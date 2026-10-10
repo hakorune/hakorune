@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-currentowner-i64-eq-physical-owner"
-current_design_stop = "MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-D0"
+current_blocker_token = "selfhost-resume/static-currentowner-i64-eq-execution-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,23 +13,23 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-d0-2026-10-10.md"
-latest_card = "mirbuilder-static-currentowner-i64-eq-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-s0-2026-10-10.md"
+latest_card = "mirbuilder-static-currentowner-i64-eq-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-s0-2026-10-10.md"
 latest_card_summary = """
 The original one-caller size_to_bin -> normalize_size Static transport S0
 closed at 184422090e. Home S0 landed at 2ba998a6b3. The two original
 good_size and accepts size_to_bin actuals now share one target-scoped
 source/packet/entry cohort, landed at 4a5592426d without activating the
-unrelated Heap/Page source-only route. The selected design stop is the
-integer Eq semantic envelope and exact ordered physical condition owner.
+unrelated Heap/Page source-only route. D0 fixed the integer Eq semantic
+issuer and ordered physical condition owners; execution S0 is selected.
 The recorded unchanged mimalloc-lite EXE first stop remains Heap-to-Page
 source-only-object-actuals. The finite goal is open.
 """
-next_design_card = "MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-s0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

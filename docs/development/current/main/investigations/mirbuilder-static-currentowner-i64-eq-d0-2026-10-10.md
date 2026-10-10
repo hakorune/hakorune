@@ -1,6 +1,6 @@
 # Static CurrentOwner integer Eq D0
 
-Status: selected design stop; physical source/CFG correspondence unresolved
+Status: Decision closed; selected Eq execution S0 follows
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-I64-EQ-D0
 Related:
@@ -35,16 +35,24 @@ Null)` envelope is non-suspending and cannot stand in for integer Eq.
 `physical_program_json.rs` already spells `CompareOp::Eq` as `compare/eq`,
 which is JSON syntax, not source or execution authorization.
 
-Decision to complete before construction: identify the exact selected
-condition lowering owner and its source-to-MIR correspondence. Determine
-whether one bounded Eq slice can issue the semantic envelope and consume the
-two ordered Static packet results in that owner, or whether envelope issuance
-must be a prerequisite contract slice. The source result class, call-site
-identity, completion, branch destination and Fault edges must all be checked
-without using the formal-origin Instance borrowed-compare path as a proxy.
-The generic `located_if.rs` lowers a condition before opening branch CFG;
-that alone does not authorize this Static Eq. Reuse the existing call packet
-issuer and final MIR verifier, with no new parallel route or fallback.
+Decision: one bounded Static Eq execution slice may add the complete
+`Equal(NormalInteger, NormalInteger)` semantic envelope and a caller-local
+source-to-MIR correspondence. The raw/default selected path is
+`raw_expression_dispatch/statement_surface.rs` -> `control_flow/mod.rs`
+condition descent -> `ops/binary_expression_descent.rs` ordered children ->
+`ops/comparison.rs` shared append -> `if_form.rs` branch. Each child takes
+its original source through `recursive_child_lowering/direct_call_disposition_port.rs`,
+the sole `CallPacketSourceV1::static_i64` issuer, and
+`ordinary_new_admission/selected/terminal_call/lexical_i64.rs` Invoke/
+NormalResult/Fault emission. Keep those physical owners. Add only the missing
+proof that the exact Home Eq pair, two source call sites and completed packets
+correspond to the emitted child results, `CompareOp::Eq` original append,
+and If condition destination. The formal-origin Instance borrowed-compare
+loan is not this proof. The generic `located_if.rs` is a different limited
+grammar and does not authorize this Static Eq. A real-source test must confirm
+that unchanged `accepts` selects the identified raw/default path; if an
+earlier gate intercepts it, resolve that in S0 without widening the source
+shape or falling back.
 
 Fail-fast boundary: missing/reordered RHS claim or site, wrong I64 result,
 actual, Completion or packet, changed `==` to `!=` or `&&`, or swapped call
@@ -62,3 +70,5 @@ the unchanged imported source is measured again.
 
 Read-only worker audited the semantic/physical owner split and requested
 ordered Fault acceptance. No shared checkout edits or Cargo were delegated.
+The follow-up read-only audit identified the exact raw/default lowering
+path and found no need for a separate issuer-only prerequisite slice.
