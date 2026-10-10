@@ -1,9 +1,9 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0"
+current_execution_row = "MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/borrowed-mul-all-incoming-static-entry-s0"
+current_blocker_token = "selfhost-resume/borrowed-mul-static-actual-entry-s0"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -21,14 +21,17 @@ Bool literal Home terminal source S0 landed at 597d844b31. The unchanged
 SizeClassBox published-view probe, with protected Eq WIP copied into a
 detached checkout, moved from root-exit-source-missing to
 borrowed-mul/source-only-entry. D0 diagnosed bin_size's guarded Mul and
-three CurrentOwner Scalar Integer incoming sites; S0 now owns the complete
-inventory-derived cohort, actual and entry closure without global seeding.
+three CurrentOwner Scalar Integer incoming sites. The existing
+static_incoming_cohort_v1 already projects the complete original set, so a
+proposed source-only cache was discarded before commit. D0 selected an
+inventory-derived, same-ledger atomic Scalar actual finish and checked callee
+entry before the later independent loop physical packet check.
 Bool physical result and call transport remain downstream. The unchanged
 whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0"
+next_execution_card = "MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"

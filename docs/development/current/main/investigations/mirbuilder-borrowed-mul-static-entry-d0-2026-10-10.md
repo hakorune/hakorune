@@ -1,6 +1,6 @@
 # MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-D0
 
-Status: D0 accepted; selected MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0
+Status: D0 accepted; selected MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0
 Date: 2026-10-10
 Scope: exact source and incoming authority for `borrowed-mul/source-only-entry`
 Related:
@@ -55,36 +55,57 @@ callee. The existing target-scoped two-caller source cohort is for
 currently admit only one or that exact two-caller cohort; the finisher also
 requires a `Forwarded` opaque actual. The three `bin_size` actual sources
 must be joined at their existing provenance owners before entry is issued.
+The selected loop-body caller's detached physical packet is built after the
+static actual finisher. A finisher cannot require that later packet as its
+own entry prerequisite. This order makes source-cohort admission and
+executable actual/entry finishing separate slices; final publication still
+requires the packet's independent canonical physical proof.
+An attempted source-only scalar cache passed a focused positive/mixed-route
+test and 12 static-source family cases after its initializer-only flag was
+separated; the existing two-caller tests also passed. It was **discarded
+before commit** because `static_incoming_cohort_v1` already projects the
+complete original caller set, including vetoes. Retaining a second map would
+duplicate a source proof without moving the real first stop. The final code
+diff contains no scalar-cache implementation or extra test.
 The detached Eq WIP is not part of this D0 and must remain protected.
 
 ## Decision
 
 ```text
-Decision: extend the existing target-scoped Static cohort/actual/entry owner
-  from the fixed two-caller source profile to one complete selected incoming
-  set. Its cardinality is inventory-derived, not a new three-caller grammar.
-  Each admitted Scalar Integer caller must finish its own actual against the
-  same formal, result, signature and Completion before the callee entry can
-  borrow the original Mul source. The existing two-caller forward cohort
-  retains its own stricter path; no global transport-owner promotion occurs.
+Decision: the complete source cohort is already available through
+  `static_incoming_cohort_v1`; do not retain another map. Finish the
+  inventory-derived CurrentOwner Scalar Integer actual cohort atomically in
+  the existing borrowed-formal ledger, after source candidate, Completion,
+  result contract and physical signature are available. Lend the callee entry
+  only from that completed cohort. The Mul source-only gate accepts only
+  this checked entry for its exact owner/site; it does not promote the global
+  transport set. The loop's later physical packet remains a separate final
+  publication obligation.
 Source authority + canonical issuer: the original `StaticIncomingSourceV1`
-  rows and `BorrowedIncomingInventoryV1::project` own the all-caller set;
-  `BorrowedCallActualCandidateV1` and retained `SourceStatic` identity own
-  each scalar's source class/site; the existing static one-input finisher
-  joins those with the physical signature, result and Completion; the
-  existing borrowed-entry owner view issues the sole executable entry.
-  `BorrowedMulSourceV1` and its checked Normal guard remain the operand owner.
+  rows and `BorrowedIncomingInventoryV1::project`/`static_incoming_cohort_v1`
+  own the all-caller set. `BorrowedCallActualCandidateV1`/`SourceStatic` own
+  exact scalar source/site. `StaticOneInputFinishV1` currently owns finished
+  input evidence but only supports one or a special two-caller forwarding
+  cohort; preserve that path. A sibling same-ledger scalar finisher issues
+  completed scalar actuals from the original inventory. `borrowed-entry`
+  checks the full completed cohort before entry loan. `BorrowedMulSourceV1`
+  remains the guarded operand owner. The detached loop packet and canonical
+  binding read stay with the later physical owner.
 Non-authority: the freeze string, caller/variable names, hardcoded cohort
   size, the `size_to_bin` two-caller cohort, SourceStatic candidates alone,
   and a scalar's runtime payload without its exact source/physical read.
 Fail-fast boundary: unsupported/vetoed incoming caller, wrong target/formal,
-  duplicate or missing sibling, Bool/Unknown/noninteger candidate, or absent
-  Completion/signature leaves the entry source-only. A failed canonical
-  physical read rejects later publication independently.
-Smallest next slice: MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0, using the one
-  inventory-derived cohort and same finisher/entry owners to complete the
-  three original Scalar Integer incoming sites. Preserve the prior two-caller
-  forward tests. Do not change the `.hako` source or issue a parallel carrier.
+  duplicate or missing sibling, or mixed Forwarded/Scalar route mints no
+  scalar cohort. Wrong source site/binding/ordinal, Bool/Unknown/noninteger
+  candidate, or absent/mismatched Completion, result or signature leaves the
+  later entry source-only. A failed canonical physical read rejects final
+  publication independently.
+Smallest next slice: `MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0` joins
+  the existing full source projection with each exact Scalar Integer
+  candidate and Completion/signature/result, atomically finishes all actuals,
+  lends only the checked entry and moves the unchanged probe past
+  `borrowed-mul/source-only-entry`. Keep the existing one/two-caller
+  Forwarded path green and the later physical packet check independent.
 Non-claims: no Bool physical result, Eq physical completion, executable
   bin_size entry before S0 tests, whole SizeClassBox publication, or
   mimalloc-lite EXE PASS.
@@ -92,14 +113,16 @@ Non-claims: no Bool physical result, Eq physical completion, executable
 
 The read-only worker independently confirmed the source-only materialization
 gate and corrected an initially tempting but false analogy: the existing
-two-caller cohort belongs to `size_to_bin`, not `bin_size`. Do not broaden
-the global transport seed or accept source-only definitions unconditionally.
+two-caller cohort belongs to `size_to_bin`, not `bin_size`. The worker also
+confirmed that source scalar preparation precedes actual finishing, while the
+loop's detached physical packet and canonical read are checked later. Use
+`source_incoming.project` to check the complete veto-aware set; if the entry
+view needs borrowed rows, derive their references from that same inventory's
+`exact_rows` after projection rather than retaining a second cohort map.
+Do not broaden the global transport seed or accept source-only definitions
+unconditionally.
 
-S0 positive acceptance is the unchanged `size_class_box.hako` focused
-published-view probe moving past `borrowed-mul/source-only-entry`, with the
-three exact original call sites and one completed callee entry. Its negative
-acceptance changes one caller candidate to Bool/Unknown, removes one sibling
-actual, or drifts source target/site: none may leave a partly executable
-cohort. Reuse the existing static source/finish/packet tests and the focused
-probe; add only an unrepresented scalar all-caller case. The independent
-physical ValueId/final MIR checks remain mandatory downstream.
+The next accepted slice must retest the unchanged published-view probe and
+move past `borrowed-mul/source-only-entry`, while retaining a negative
+missing or noninteger sibling. Existing two-caller forward tests must stay
+green. Physical ValueId/final MIR checks remain independent.
