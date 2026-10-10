@@ -68,6 +68,197 @@ fn bin_size_words_root_mul_requires_ordered_integer_add_and_local() {
 }
 
 #[test]
+fn size_to_bin_search_loop_keeps_distinct_early_and_tail_home_calls() {
+    use crate::mir::resolved_semantics::OwnedExprSiteV1;
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let package = brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
+    let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "SizeClassBox",
+        "size_to_bin",
+        1,
+    );
+    let slot = package
+        .selected
+        .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+        .unwrap();
+    package
+        .batch()
+        .with_lowering_input(slot, |input| {
+            let ledger = &package.ordinary_new_claim_ledger;
+            let other = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+                "SizeClassBox",
+                "bin_size",
+                1,
+            );
+            let other_slot = package
+                .selected
+                .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(other))
+                .unwrap();
+            package
+                .batch()
+                .with_lowering_input(other_slot, |other_input| {
+                    assert!(
+                        crate::mir::builder::take_at_function_entry_v2(other_input, ledger)
+                            .unwrap()
+                            .is_none()
+                    );
+                })
+                .unwrap();
+            let completion = ledger.completion_for_owner(input.owner()).unwrap();
+            let flow = completion.cleanup().root_flow().unwrap();
+            assert!(flow.all_exits_ready(), "{flow:?}");
+            assert_eq!(completion.explicit_sites().len(), 2);
+            let product = ledger
+                .take_preissued_static_i64_product_v2(input.owner())
+                .unwrap()
+                .unwrap();
+            let semantic = product.semantic();
+            let entry_loan = semantic.source_calls().0;
+            let packet = ledger
+                .take_static_loop_packet_source_v1(entry_loan.loop_site(), entry_loan.declaration())
+                .expect("selected packet source")
+                .expect("selected packet proof");
+            assert!(std::rc::Rc::ptr_eq(
+                packet.original_source(),
+                entry_loan.original()
+            ));
+            let body_loan = semantic.source_calls().2;
+            assert!(ledger
+                .take_loop_static_body_scalar_source_v1(
+                    body_loan.loop_site(),
+                    body_loan.call_site(),
+                )
+                .expect("selected body scalar source")
+                .is_ok());
+            let entry = semantic.source_calls().0.call_site().clone();
+            let header =
+                OwnedExprSiteV1::new(input.owner(), semantic.roles().header_call_site.clone());
+            let body = OwnedExprSiteV1::new(input.owner(), semantic.roles().body_call_site.clone());
+            let tail = semantic.tail_call().call_site().clone();
+            let early = flow
+                .exit_row(&semantic.roles().return_site)
+                .unwrap()
+                .unwrap();
+            let tail_exit = flow
+                .exit_row(semantic.tail_call().return_site())
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                early
+                    .covered_calls()
+                    .iter()
+                    .cloned()
+                    .collect::<std::collections::BTreeSet<_>>(),
+                [entry.clone(), header.clone(), body.clone()]
+                    .into_iter()
+                    .collect()
+            );
+            assert_eq!(
+                tail_exit
+                    .covered_calls()
+                    .iter()
+                    .cloned()
+                    .collect::<std::collections::BTreeSet<_>>(),
+                [entry, header, body, tail].into_iter().collect()
+            );
+        })
+        .unwrap();
+}
+
+#[test]
+fn size_to_bin_search_loop_rejects_changed_source_and_control() {
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    for (before, after) in [
+        (
+            "loop(bin <= me.max_regular_bin())",
+            "loop(bin < me.max_regular_bin())",
+        ),
+        ("bin = bin + 1", "bin = bin + 2"),
+        ("if n <= me.bin_size(bin)", "if bin <= me.bin_size(bin)"),
+        (
+            "bin = bin + 1",
+            "if bin == 2 { return bin }\n      bin = bin + 1",
+        ),
+        ("bin = bin + 1", "break"),
+        ("bin = bin + 1", "continue"),
+        ("if n <= me.bin_size(bin)", "if n <= me.bin_size(true)"),
+        ("if n <= me.bin_size(bin)", "if n <= bin"),
+    ] {
+        assert_eq!(original.matches(before).count(), 1);
+        let source = original.replacen(before, after, 1);
+        let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "size_to_bin",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .unwrap();
+        package
+            .batch()
+            .with_lowering_input(slot, |input| {
+                let ledger = &package.ordinary_new_claim_ledger;
+                let product = ledger
+                    .take_preissued_static_i64_product_v2(input.owner())
+                    .expect("selected source retains a refusal");
+                assert!(
+                    product.is_err(),
+                    "{before}: altered source must not get a V2 product"
+                );
+                let flow = ledger
+                    .completion_for_owner(input.owner())
+                    .unwrap()
+                    .cleanup()
+                    .root_flow()
+                    .unwrap();
+                assert!(
+                    !flow.all_exits_ready(),
+                    "{before}: altered Loop admitted Home"
+                );
+            })
+            .unwrap();
+    }
+
+    let before = "bin_size(bin) {\n    if bin <= 0";
+    assert_eq!(original.matches(before).count(), 1);
+    let source = original.replacen(
+        before,
+        "bin_size(bin) {\n    local scratch = []\n    if bin <= 0",
+        1,
+    );
+    let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+    let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+        "SizeClassBox",
+        "size_to_bin",
+        1,
+    );
+    let slot = package
+        .selected
+        .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+        .unwrap();
+    package
+        .batch()
+        .with_lowering_input(slot, |input| {
+            let ledger = &package.ordinary_new_claim_ledger;
+            let error = ledger
+                .take_preissued_static_i64_product_v2(input.owner())
+                .expect("selected source retains a refusal")
+                .unwrap_err();
+            assert!(error.contains("static-home-effect-unavailable"), "{error}");
+            let flow = ledger
+                .completion_for_owner(input.owner())
+                .unwrap()
+                .cleanup()
+                .root_flow()
+                .unwrap();
+            assert!(!flow.all_exits_ready());
+        })
+        .unwrap();
+}
+
+#[test]
 fn bin_size_return_mul_requires_i64_local_and_exact_static_call() {
     use crate::mir::resolved_semantics::{
         home_new_prefix::{HomePrefixUnavailableV1, TerminalRelationV1},

@@ -2138,6 +2138,17 @@ route corroborates its four source loans with this one-take receipt before
 physical lowering; this proves no owned Home transition in the closed source
 graph, not live SSA values, executable actuals, call packets or EXE admission.
 
+For the selected two-exit search Loop, lexical preflight issues those four
+affine source loans before per-declaration Home. The existing V2 producer
+consumes them once with the base Completion and requires exactly the early
+and tail return, no implicit exit. Home receives only a source-site view of
+that product; function-entry lowering later takes the same product. The
+Home-neutral and tagged-entry corroborations remain part of that one issue,
+and unselected Loops keep their existing route.
+The existing packet and body-scalar issuers borrow the selected product's
+original entry/tagged and body loans after preissue. Their corroboration and
+physical gates remain unchanged; duplicate source keys are rejected.
+
 The selected Static Loop also takes one checked tagged-formal source receipt
 from this package. The issuer joins its original pre-loop Static call loan,
 source argument's resolver binding, declared OpaqueHandle formal, and the

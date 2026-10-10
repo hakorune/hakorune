@@ -1,7 +1,7 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
 use super::*;
-use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
+use super::SelectedLoopHomeLoanV1;
 
 /// Returns `true` when this path terminated at an explicit exit site —
 /// statements past it are unreachable on this path and are never walked.
@@ -123,7 +123,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
+    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -288,15 +288,35 @@ pub(super) fn scan_statement_flow<'a, E>(
             // advance this walk; a typed refusal keeps the old first-stop.
             if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
                 if let Some(request) = locals.loop_i64_prestate(statement.site()) {
-                    if let Some(loan) = loop_prestate(request)? {
-                        // Re-observe at this same point: the callback does not
-                        // mutate Home state, and the loan must match the
-                        // current prestate before installing either carrier.
-                        if let Some(current) = locals.loop_i64_prestate(statement.site()) {
-                            if locals.install_loop_i64_after(current, loan) {
-                                continue;
+                    match loop_prestate(request)? {
+                        Some(SelectedLoopHomeLoanV1::VariableAccumAfter(loan)) => {
+                            // Re-observe at this same point: the callback does
+                            // not mutate Home state before installing carriers.
+                            if let Some(current) = locals.loop_i64_prestate(statement.site()) {
+                                if locals.install_loop_i64_after(current, loan) { continue; }
                             }
                         }
+                        Some(SelectedLoopHomeLoanV1::StaticI64Search(source)) => {
+                            if let Some(current) = locals.loop_i64_prestate(statement.site()) {
+                                if current.proves_integer(source.bin_binding())
+                                    && current.proves_integer(source.n_binding())
+                                    && super::search_loop::observe_static_i64_search_loop(
+                                        input, &statement, &source, exit_sites, selected,
+                                        result_sites, results, exit_homes, maps, local_calls,
+                                        path_calls, terminal_relations, argument_observations,
+                                        result_prefixes, locals, homes, covered_statements,
+                                        selected_seen, unavailable, field_is_integer,
+                                        map_compatible, terminal_call, local_map_call,
+                                        local_handle_call, local_lexical_i64_call,
+                                        local_lexical_nullable_call, local_nullable_call,
+                                        local_static_call, argument_i64_field, scalar_field,
+                                        container_field, array_i64_field, formal_i64_field,
+                                        local_field_read, borrowed_actuals, view_use,
+                                        loop_prestate, object_return,
+                                    )? { continue; }
+                            }
+                        }
+                        None => {}
                     }
                 }
             }

@@ -157,6 +157,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         &array_i64_field_sets,
         &mut owned_field_children,
     )?;
+    let mut loop_static_source_loans = super::loop_static_source_loan::issue_loop_static_source_loans_v1(
+        batch,
+        selected,
+        parameter_contracts,
+        static_call_claims,
+        borrowed_formal_source.as_ref().ok(),
+    )?;
+    let mut preissued_static_i64_products = BTreeMap::new();
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
@@ -463,8 +471,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
                             .map(Some)
                     };
+                    let base_completion = crate::mir::resolved_control_flow::verify_function_completion_v1(input);
+                    if let Ok(ref completion) = base_completion {
+                        if loop_static_source_loans.selected_sites.iter().any(|(owner, _)| *owner == input.owner()) {
+                            let product = super::loop_static_preissue::issue_selected_product_v2(
+                                input, completion, &mut loop_static_source_loans,
+                            ).and_then(|row| row.ok_or_else(|| "[freeze:contract][callable-loop/static-i64-v2/source-unavailable]".to_owned()));
+                            if preissued_static_i64_products.insert(input.owner(), product).is_some() {
+                                return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+                            }
+                        }
+                    }
                     match crate::mir::resolved_control_flow::verify_function_completion_with_new_homes_and_argument_observations_v1(
-                        input, &new_sites,
+                        input, Some(base_completion), &new_sites,
                         batch_params()
                             .map(|row| (row.ordinal, row.binding, row.kind.clone())),
                         entry_home,
@@ -584,8 +603,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source, input,
                         ), &mut |prestate| {
-                            Ok(loop_issue::retain_selected_loop_product_v1(
-                                input, prestate, &mut variable_bound_mul_product,
+                            Ok(loop_issue::issue_selected_home_loop_loan_v1(
+                                input, prestate, &loop_static_source_loans.selected_sites,
+                                &preissued_static_i64_products, &mut variable_bound_mul_product,
                             ))
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
@@ -767,8 +787,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ledger.owned_field_children = owned_field_children;
     ledger.terminal_relation = std::rc::Rc::new(root_terminal_relation);
     ledger.retain_app_main_source_v1(app_main_source);
-    ledger.retain_loop_static_source_loans_v1(
-        batch, selected, parameter_contracts, static_call_claims,
-    )?;
+    ledger.install_loop_static_source_loans_v1(loop_static_source_loans);
+    *ledger.preissued_static_i64_products.get_mut() = preissued_static_i64_products;
     Ok((ledger, seeds.finish()))
 }

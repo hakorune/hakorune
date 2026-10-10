@@ -388,32 +388,59 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_loop_tail_static_i
     }))
 }
 
-impl OrdinaryNewClaimLedgerV1 {
-    /// Retain only source evidence in the same package issuance that still
-    /// holds the claim index. Selected physical callers take rows later.
-    pub(in crate::mir::normal_callable_semantic_package) fn retain_loop_static_source_loans_v1(
-        &mut self,
-        batch: &VerifiedResolvedCallableSemanticBatchV1,
-        selected: &VerifiedSelectedCallableBatchMapV1,
-        contracts: &[OwnedCallableParameterContractDeclarationV1],
-        claims: &QualifiedStaticCallClaimIndexV1,
-    ) -> Result<(), OrdinaryNewCoSealIssueV1> {
-        let Some(Ok(incoming)) = self.borrowed_formal_source.as_ref() else {
-            return Ok(());
+/// Issued before the Home walk and moved into the final ledger. The same
+/// affine loans feed source Home corroboration and later Static V2 lowering.
+#[derive(Default)]
+pub(super) struct IssuedLoopStaticSourceLoansV1 {
+    pub(super) selected_sites: std::collections::BTreeSet<(
+        crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        SourceStmtSiteV1,
+    )>,
+    pub(super) rows: std::collections::BTreeMap<
+        (SourceStmtSiteV1, OwnedExprSiteV1),
+        Result<LoopStaticSourceCallLoanV1, String>,
+    >,
+    pub(super) entry_rows: std::collections::BTreeMap<
+        (SourceStmtSiteV1, SourceBindingSiteV1),
+        Result<LoopEntryStaticI64SourceLoanV1, String>,
+    >,
+    pub(super) tail_rows:
+        std::collections::BTreeMap<SourceStmtSiteV1, Result<LoopTailStaticI64SourceLoanV1, String>>,
+    pub(super) home_rows: std::collections::BTreeMap<
+        SourceStmtSiteV1,
+        Result<super::static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>,
+    >,
+    pub(super) tagged_rows: std::collections::BTreeMap<
+        (SourceStmtSiteV1, SourceBindingSiteV1),
+        Result<super::static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>,
+    >,
+}
+
+/// Issue only source evidence while the claim index and incoming original
+/// source authority are still available, before Completion scans Home.
+pub(super) fn issue_loop_static_source_loans_v1(
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    claims: &QualifiedStaticCallClaimIndexV1,
+    incoming: Option<&PreparedBorrowedFormalIngressV1>,
+) -> Result<IssuedLoopStaticSourceLoansV1, OrdinaryNewCoSealIssueV1> {
+    let Some(incoming) = incoming else {
+        return Ok(IssuedLoopStaticSourceLoansV1::default());
+    };
+    let mut rows = std::collections::BTreeMap::new();
+    let mut entry_rows = std::collections::BTreeMap::new();
+    let mut tail_rows = std::collections::BTreeMap::new();
+    let mut home_rows = std::collections::BTreeMap::new();
+    let mut tagged_rows = std::collections::BTreeMap::new();
+    for declaration in batch.declarations() {
+        let slot = declaration.batch_slot();
+        let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) =
+            selected.key_for_batch_slot(slot)
+        else {
+            continue;
         };
-        let mut rows = std::collections::BTreeMap::new();
-        let mut entry_rows = std::collections::BTreeMap::new();
-        let mut tail_rows = std::collections::BTreeMap::new();
-        let mut home_rows = std::collections::BTreeMap::new();
-        let mut tagged_rows = std::collections::BTreeMap::new();
-        for declaration in batch.declarations() {
-            let slot = declaration.batch_slot();
-            let Some(SelectedNormalCallableKeyV1::Cataloged(caller)) =
-                selected.key_for_batch_slot(slot)
-            else {
-                continue;
-            };
-            batch
+        batch
                 .with_lowering_input(slot, |input| {
                     for loop_site in input.function().loop_sites() {
                         let tail = issue_loop_tail_static_i64_source_loan_v1(
@@ -492,17 +519,32 @@ impl OrdinaryNewClaimLedgerV1 {
                     Ok(())
                 })
                 .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
-        }
-        self.loop_static_source_loop_sites = rows
-            .keys()
-            .map(|(loop_site, call)| (call.owner(), loop_site.clone()))
-            .collect();
-        *self.loop_static_source_loans.get_mut() = rows;
-        *self.loop_entry_static_i64_source_loans.get_mut() = entry_rows;
-        *self.loop_tail_static_i64_source_loans.get_mut() = tail_rows;
-        *self.loop_static_home_neutral.get_mut() = home_rows;
-        *self.loop_static_tagged_entry.get_mut() = tagged_rows;
-        Ok(())
+    }
+    let selected_sites = rows
+        .keys()
+        .map(|(loop_site, call)| (call.owner(), loop_site.clone()))
+        .collect();
+    Ok(IssuedLoopStaticSourceLoansV1 {
+        selected_sites,
+        rows,
+        entry_rows,
+        tail_rows,
+        home_rows,
+        tagged_rows,
+    })
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn install_loop_static_source_loans_v1(
+        &mut self,
+        issued: IssuedLoopStaticSourceLoansV1,
+    ) {
+        self.loop_static_source_loop_sites = issued.selected_sites;
+        *self.loop_static_source_loans.get_mut() = issued.rows;
+        *self.loop_entry_static_i64_source_loans.get_mut() = issued.entry_rows;
+        *self.loop_tail_static_i64_source_loans.get_mut() = issued.tail_rows;
+        *self.loop_static_home_neutral.get_mut() = issued.home_rows;
+        *self.loop_static_tagged_entry.get_mut() = issued.tagged_rows;
     }
 
     /// An affine source-only row. No executable actuals or packet are inside.

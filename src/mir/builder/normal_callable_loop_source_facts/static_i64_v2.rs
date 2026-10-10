@@ -70,7 +70,44 @@ pub(in crate::mir) struct VerifiedStaticI64LoopSemanticV2 {
     bin_initial_i64: i64,
 }
 
+/// Source-only view lent to Home from the sole verified V2 product. No
+/// Recipe key, physical ID, or executable call permission crosses this API.
+#[derive(Debug)]
+pub(in crate::mir) struct VerifiedStaticI64LoopHomeSourceV2 {
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    loop_site: SourceStmtSiteV1,
+    bin_binding: BindingRefV1,
+    n_binding: BindingRefV1,
+    header_call_site: SourceExprSiteV1,
+    body_call_site: SourceExprSiteV1,
+    early_return_site: SourceStmtSiteV1,
+    tail_return_site: SourceStmtSiteV1,
+}
+
+impl VerifiedStaticI64LoopHomeSourceV2 {
+    pub(in crate::mir) fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 { self.owner }
+    pub(in crate::mir) fn loop_site(&self) -> &SourceStmtSiteV1 { &self.loop_site }
+    pub(in crate::mir) fn bin_binding(&self) -> BindingRefV1 { self.bin_binding }
+    pub(in crate::mir) fn n_binding(&self) -> BindingRefV1 { self.n_binding }
+    pub(in crate::mir) fn header_call_site(&self) -> &SourceExprSiteV1 { &self.header_call_site }
+    pub(in crate::mir) fn body_call_site(&self) -> &SourceExprSiteV1 { &self.body_call_site }
+    pub(in crate::mir) fn early_return_site(&self) -> &SourceStmtSiteV1 { &self.early_return_site }
+    pub(in crate::mir) fn tail_return_site(&self) -> &SourceStmtSiteV1 { &self.tail_return_site }
+}
+
 impl VerifiedStaticI64LoopSemanticV2 {
+    pub(in crate::mir) fn home_source(&self) -> VerifiedStaticI64LoopHomeSourceV2 {
+        VerifiedStaticI64LoopHomeSourceV2 {
+            owner: self.entry.call_site().owner(),
+            loop_site: self.roles.loop_site.clone(),
+            bin_binding: self.roles.bin_binding,
+            n_binding: self.roles.n_binding,
+            header_call_site: self.roles.header_call_site.clone(),
+            body_call_site: self.roles.body_call_site.clone(),
+            early_return_site: self.roles.return_site.clone(),
+            tail_return_site: self.tail.return_site().clone(),
+        }
+    }
     pub(in crate::mir) fn recipe(&self) -> &VerifiedLoopRecipeV2 {
         &self.recipe
     }

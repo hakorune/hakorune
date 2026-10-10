@@ -362,40 +362,57 @@ impl OrdinaryNewClaimLedgerV1 {
         let entries = self.loop_entry_static_i64_source_loans.borrow();
         let tagged = self.loop_static_tagged_entry.borrow();
         let mut rows = BTreeMap::new();
+        let issue = |entry, tagged| {
+            issue_packet_source(
+                entry,
+                tagged,
+                incoming,
+                &self.borrowed_formal_actuals,
+                selected,
+                contracts,
+                results,
+                claims,
+            )
+            .and_then(|packet| {
+                let site = packet.local_call_site();
+                let observation = self
+                    .local_call_for_owner(site.owner(), site.site())
+                    .ok_or_else(|| {
+                        "[freeze:contract][callable-loop/static-packet-local-source-missing]"
+                            .to_owned()
+                    })?;
+                if !packet.corroborates_local_call(observation) {
+                    return Err(
+                        "[freeze:contract][callable-loop/static-packet-local-source-drift]"
+                            .to_owned(),
+                    );
+                }
+                Ok(packet)
+            })
+        };
         for (key, tagged_row) in tagged.iter() {
             let row = match (entries.get(key), tagged_row) {
-                (Some(Ok(entry)), Ok(tagged)) => issue_packet_source(
-                    entry,
-                    tagged,
-                    incoming,
-                    &self.borrowed_formal_actuals,
-                    selected,
-                    contracts,
-                    results,
-                    claims,
-                )
-                .and_then(|packet| {
-                    let site = packet.local_call_site();
-                    let observation = self
-                        .local_call_for_owner(site.owner(), site.site())
-                        .ok_or_else(|| {
-                            "[freeze:contract][callable-loop/static-packet-local-source-missing]"
-                                .to_owned()
-                        })?;
-                    if !packet.corroborates_local_call(observation) {
-                        return Err(
-                            "[freeze:contract][callable-loop/static-packet-local-source-drift]"
-                                .to_owned(),
-                        );
-                    }
-                    Ok(packet)
-                }),
+                (Some(Ok(entry)), Ok(tagged)) => issue(entry, tagged),
                 (Some(Err(error)), _) | (_, Err(error)) => Err(error.clone()),
                 (None, _) => {
                     Err("[freeze:contract][callable-loop/static-packet-entry-missing]".to_owned())
                 }
             };
             if rows.insert(key.clone(), row).is_some() {
+                return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+            }
+        }
+        for (owner, product) in self.preissued_static_i64_products.borrow().iter() {
+            let Ok(product) = product else { continue };
+            let (entry, tagged) = product.packet_source_inputs();
+            let key = (entry.loop_site().clone(), entry.declaration().clone());
+            if entry.call_site().owner() != *owner
+                || product.semantic().roles().loop_site != *entry.loop_site()
+                || !tagged.corroborates(entry)
+            {
+                return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+            }
+            if rows.insert(key, issue(entry, tagged)).is_some() {
                 return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
             }
         }

@@ -293,6 +293,27 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err("[freeze:contract][callable-loop/body-scalar-duplicate]".into());
             }
         }
+        for (owner, product) in self.preissued_static_i64_products.borrow().iter() {
+            let Ok(product) = product else { continue };
+            let semantic = product.semantic();
+            let body = semantic.source_calls().2;
+            let key = (body.loop_site().clone(), body.call_site().clone());
+            if body.call_site().owner() != *owner
+                || semantic.roles().loop_site != *body.loop_site()
+                || body.placement() != &ResolvedLoopPlacementV1::Body
+                || body.argument_sites().len() != 1
+            {
+                return Err(
+                    "[freeze:contract][callable-loop/body-scalar-source-unavailable]".into(),
+                );
+            }
+            if rows
+                .insert(key, issue_scalar_source(self, signatures, results, body))
+                .is_some()
+            {
+                return Err("[freeze:contract][callable-loop/body-scalar-duplicate]".into());
+            }
+        }
         *self.loop_static_body_scalar_sources.get_mut() = rows;
         Ok(())
     }

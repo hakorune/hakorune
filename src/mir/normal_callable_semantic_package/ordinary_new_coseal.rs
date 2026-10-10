@@ -78,6 +78,8 @@ mod candidate;
 mod lexical_instance_call;
 #[path = "ordinary_new_loop_static_source_loan.rs"]
 mod loop_static_source_loan;
+#[path = "ordinary_new_loop_static_preissue.rs"]
+mod loop_static_preissue;
 #[path = "ordinary_new_loop_static_body_actual.rs"]
 mod loop_static_body_actual;
 #[path = "ordinary_new_static_home_effect.rs"]
@@ -329,6 +331,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // source/physical packet enters only after successful collector admission.
     selected_loop_body_packets: RefCell<BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>>,
     loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
+    preissued_static_i64_products: RefCell<BTreeMap<FunctionOwnerIdV1, Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>>>,
     loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
     loop_tail_static_i64_source_loans: RefCell<BTreeMap<SourceStmtSiteV1, Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>>>,
     loop_static_home_neutral: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>>>,

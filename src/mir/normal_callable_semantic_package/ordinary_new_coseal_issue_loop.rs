@@ -95,3 +95,30 @@ pub(super) fn retain_selected_loop_product_v1(
         }
     }
 }
+
+pub(super) fn issue_selected_home_loop_loan_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    prestate: LoopI64PreStateRequestV1,
+    static_sites: &std::collections::BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
+    static_products: &BTreeMap<
+        FunctionOwnerIdV1,
+        Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
+    >,
+    variable_rows: &mut SelectedLoopProductV1,
+) -> Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1> {
+    use crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1;
+    if static_sites.contains(&(prestate.owner(), prestate.site().clone())) {
+        let product = static_products.get(&prestate.owner())?.as_ref().ok()?;
+        let source = product.home_source();
+        if source.owner() != prestate.owner()
+            || source.loop_site() != prestate.site()
+            || !prestate.proves_integer(source.bin_binding())
+            || !prestate.proves_integer(source.n_binding())
+        {
+            return None;
+        }
+        return Some(SelectedLoopHomeLoanV1::StaticI64Search(source));
+    }
+    retain_selected_loop_product_v1(input, prestate, variable_rows)
+        .map(SelectedLoopHomeLoanV1::VariableAccumAfter)
+}

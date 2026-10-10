@@ -1485,3 +1485,12 @@ both I64 carrier classes and cross the selected Loop. A missing or mismatched
 loan keeps the Loop uncovered with no partial Home mutation. The scanner has
 no independent Loop source or Recipe authority, and unselected probes return
 no loan.
+
+The selected Static I64 search Loop uses the same prestate request, but Home
+borrows only source identity from the one verified V2 product issued before
+the Home walk. The bounded scanner observes the header call, the body If's
+direct-value call, its early return, and the proven I64 step; the ordinary
+root scanner then observes the tail return. Call coverage is recorded for
+each exit separately. Any missing product, mismatched owner/site or I64
+prestate, unsupported body, or unobserved call leaves the Loop uncovered.
+Home never issues a second Recipe or physical permission.

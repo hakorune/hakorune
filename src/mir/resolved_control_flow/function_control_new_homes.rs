@@ -37,6 +37,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
 > {
     let result = verify_function_completion_with_new_homes_and_argument_observations_v1(
         input,
+        None,
         selected,
         std::iter::empty(),
         None,
@@ -83,6 +84,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
 
 pub(crate) fn verify_function_completion_with_new_homes_and_argument_observations_v1<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
+    base_completion: Option<Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1>>,
     selected: &std::collections::BTreeMap<
         crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
@@ -190,7 +192,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     loop_prestate: &mut impl FnMut(
         crate::mir::resolved_semantics::home_new_prefix::LoopI64PreStateRequestV1,
     ) -> Result<
-        Option<crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1>,
+        Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1>,
         E,
     >,
 
@@ -231,10 +233,13 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     >,
     E,
 > {
-    let mut completion = match verify_function_completion_v1(input) {
+    let mut completion = match base_completion.unwrap_or_else(|| verify_function_completion_v1(input)) {
         Ok(completion) => completion,
         Err(error) => return Ok(Err(error)),
     };
+    if completion.owner() != input.owner() {
+        return Ok(Err(FunctionCompletionVerificationErrorV1::OwnerClosureMismatch));
+    }
     let (prefixes, homes, terminal_relations, argument_observations, result_prefixes) =
         crate::mir::resolved_semantics::home_new_prefix::scan_new_home_flow(
             input,

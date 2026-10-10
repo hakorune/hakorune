@@ -33,14 +33,17 @@ the physical PHI permission.
 Source authority + canonical issuer: the resolver's exact loop, branch,
 binding, call and exit sites; existing Static I64 source loans for the entry,
 header/body and tail calls in `ordinary_new_loop_static_source_loan.rs`; and
-the transitive `VerifiedClosedStaticLoopHomeNeutralV1` proof. Factor the
-exact search-loop source checks already owned by
-`builder/normal_callable_loop_source_facts/static_i64_v2.rs` into one
-pre-Home source-role issuer. Home borrows that role; the later Static V2
-producer must consume or compare the same role identity. Static source loans
-are currently retained only after Home scanning in `ordinary_new_coseal_issue.rs`,
-so issuance and read-only retention must move before that scan. This is an
-ordering repair, not a second interpretation of the AST.
+the transitive `VerifiedClosedStaticLoopHomeNeutralV1` proof. Issue the
+existing `produce_static_i64_loop_semantic_v2` product once before Home scan,
+using the same base `VerifiedFunctionCompletionV1` that Home then consumes.
+That producer already owns the only Recipe keys, verifier and Join closure;
+it reads no Home or physical MIR. Home borrows only source site/binding/call
+identity from the verified product. The later Static V2 caller consumes the
+same product, retaining the neutral and tagged-entry corroborations. Static
+source loans must be issued before Home and moved into this product once,
+instead of re-issued or taken again after scanning. The previous proposal
+to split its topology checks into a second source-role issuer is superseded:
+it would divide one existing authority and require a new identity join.
 
 Non-authority: raw CFG, LoopCond physical publication, aggregate coverage,
 the variable-bound multiplication Loop role, method names, and a generic
@@ -48,14 +51,15 @@ single-predecessor PHI rule. None may issue the Home source role.
 
 Fail-fast boundary: require the exact root search loop, one early `return bin`
 branch and I64 `bin + 1` step, the entry/header/body/tail Static source claims
-with their selected targets and sites, both resolver exits, and the closed
+with their selected targets and sites, **exactly** the early and tail resolver
+exits with no implicit exit, and the closed
 transitive Home-neutral proof. Extra exits, break/continue, changed binding,
 missing or non-I64 claims, or ownership-changing callees remain unready.
 The existing `TerminalNotCovered`/`PrefixNotCovered` result remains the stop;
 do not weaken `is_empty()` or synthesize a return.
 
-Smallest next slice: issue and transport that one source role before Home
-scan. Give the Home Loop arm a selected walker: observe the header condition
+Smallest next slice: issue and transport the one verified Static I64 product
+before Home scan. Give the Home Loop arm a selected walker: observe the header condition
 and early-return branch with existing scalar/If walkers, prove the I64 step
 preserves Home, then continue after the loop to the existing tail terminal
 walker. Each exit keeps its own `RootHomeExitV1` and covered call sites.
@@ -72,3 +76,15 @@ The existing all-exit and unrelated loop refusal checks remain green.
 
 Non-claims: no whole SizeClassBox or mimalloc-lite EXE success; Static V2
 physical publication remains a separate possible frontier.
+
+## S0 transport clarification (2026-10-11)
+
+The selected product owns the entry, body and tagged source loans after
+preissue. Existing packet and body-scalar issuers run after that move and
+formerly enumerated the depleted loan maps. They must also borrow the
+selected product's original loans and run their existing issuance checks.
+The product remains the sole source owner; packet and body-scalar proofs
+remain separate canonical issuers. Reject duplicate owner/site keys or a
+product whose owner, loop site or tagged source disagrees. This repairs the
+S0 transport regression before treating any later physical stop as a new
+frontier.

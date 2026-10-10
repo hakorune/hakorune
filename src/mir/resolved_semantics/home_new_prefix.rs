@@ -13,6 +13,13 @@ use super::{
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
+
+/// Source walk permission from one selected verifier. The search role is a
+/// source-only view of the same Static V2 product consumed after Home.
+pub(crate) enum SelectedLoopHomeLoanV1 {
+    VariableAccumAfter(VerifiedLoopHomeAfterLoanV1),
+    StaticI64Search(crate::mir::builder::VerifiedStaticI64LoopHomeSourceV2),
+}
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
     issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, NewFaultContinuationV1,
@@ -222,6 +229,8 @@ pub(crate) use object_return::{ObjectReturnAcquisitionV1, TerminalObjectReturnOb
 mod new_local;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
+#[path = "home_new_prefix_search_loop.rs"]
+mod search_loop;
 #[path = "home_new_prefix_terminal.rs"]
 mod terminal;
 #[path = "home_terminal_literal.rs"]
@@ -336,7 +345,7 @@ pub(crate) fn scan_new_home_flow<E>(
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         LoopI64PreStateRequestV1,
-    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
+    ) -> Result<Option<SelectedLoopHomeLoanV1>, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,
