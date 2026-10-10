@@ -147,5 +147,29 @@ inferred from callers. The eventual physical packet must use an explicit
 declaration/entry contract or remain fail-closed. This D0 grants no transport
 or production switch.
 
+### Physical entry audit (2026-10-10)
+
+`CallableParameterContractKindV1::OpaqueHandle` is the declaration-backed
+source contract for both `LayoutBox.accepts(size)` and
+`LayoutBox.class_id(size)`. The physical signature gives each an
+`OrdinaryScalar` lane; that lane alone does not classify the tagged payload as
+Integer. `checked_static_input` proves a checked Normal-use dependency, not
+an Integer payload or executable entry. `accepts` has no incoming caller in
+the selected mimalloc-lite corpus, so an empty caller set cannot supply its
+entry proof. Its body must receive the declared opaque carrier and check its
+kind before any Integer payload read, with a non-Integer kind taking Fault.
+
+The existing `static_incoming_cohort_v1` can retain both original
+`class_id` callers as one identity cohort, but `borrowed_static_packet_actuals_v1`
+requires a qualified nonzero-arity call. The selected Loop packet proves a
+different local-initializer site and cannot authorize this If condition. The
+physical condition-call slice therefore needs its own bounded packet loan
+from the original `StaticIncomingSourceV1` and Home `ExpressionValue` row,
+with source-order actual, result Completion, and Normal/Fault coordinates
+checked at the selected If child. Generic `located_if` currently recurses
+through `lower_expr`, whose expression grammar has no MethodCall child arm.
+No generic Static veto changes before that packet and the declaration-backed
+tagged entry are executable for the complete cohort.
+
 Non-claims: this D0 grants no executable actual, physical payload, result
 contract, EXE, Loop Mul, old-edge retirement or full MirBuilder completion.
