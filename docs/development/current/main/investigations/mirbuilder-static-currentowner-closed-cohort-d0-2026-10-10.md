@@ -80,6 +80,24 @@ Home observation and needs a separate selected condition-call design (or a
 separately proved closed-App omission of that caller). `bin_size` condition
 calls and the later Heap-to-Page object outgoing actual remain separate.
 
+The selected mapping must preserve `SourceStatic` staging until the physical
+signature and callee Completion are available. Adding CurrentOwner directly
+to `prepared.incoming` would make `prepare_borrowed_call_actuals_v1` call the
+generic constructor too early; that constructor requires Qualified source.
+The post-signature finisher may turn only the original, one-caller
+`normalize_size` row into an executable checked actual. It must corroborate
+the original `Rc`, Home observation and ordered argument, target/site/ordinal,
+formal contract and checked I64 input, exact-I64 result, physical signature,
+and Completion before joining the existing borrowed entry. The resulting
+packet must use the existing `CallPacketSourceV1::Static` and its original
+publication handoff, with tagged entry validation before numeric payload use
+and the existing Normal/Fault result edges. This is a narrow completed-row
+exception at the generic actual constructor, borrowed-entry target loan, and
+Static packet validation; merely widening `require_qualified()` or the
+publication predicate would admit an unproved CurrentOwner call. The
+zero-input Static finisher is an identity-checking precedent, not an argument
+or carrier proof for this one-input row.
+
 Acceptance for the first S0: the unchanged imported source retains the exact
 one-caller `normalize_size` cohort and original source facts; a selected
 CurrentOwner local initializer gets a checked tagged actual and sole packet;
