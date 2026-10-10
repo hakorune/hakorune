@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/borrowed-mul-source-only-entry"
-current_design_stop = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-D0"
+current_blocker_token = "selfhost-resume/borrowed-mul-all-incoming-static-entry-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -20,15 +20,16 @@ latest_card_summary = """
 Bool literal Home terminal source S0 landed at 597d844b31. The unchanged
 SizeClassBox published-view probe, with protected Eq WIP copied into a
 detached checkout, moved from root-exit-source-missing to
-borrowed-mul/source-only-entry. Audit the exact selected site and the complete
-incoming caller/actual closure for bin_size before granting executable entry.
+borrowed-mul/source-only-entry. D0 diagnosed bin_size's guarded Mul and
+three CurrentOwner Scalar Integer incoming sites; S0 now owns the complete
+inventory-derived cohort, actual and entry closure without global seeding.
 Bool physical result and call transport remain downstream. The unchanged
 whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-BORROWED-MUL-STATIC-ENTRY-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
