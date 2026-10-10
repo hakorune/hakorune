@@ -677,7 +677,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
-                                        || (has_integer_return && matches!(row, TerminalRelationV1::I64Scalar(_))))
+                                        || (has_integer_return && matches!(row, TerminalRelationV1::I64Scalar(_)))
+                                        || loop_issue::retain_static_i64_search_early_return_v1(
+                                            input, static_caller_key.as_ref(), static_call_claims,
+                                            &preissued_static_i64_products, row))
                                     .collect();
                                 seeds.push_completion_with_top_level_input(
                                     declaration, selected, Rc::new(completion), relation, top_level_input.take(),

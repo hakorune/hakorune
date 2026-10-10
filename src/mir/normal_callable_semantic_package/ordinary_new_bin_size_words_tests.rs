@@ -69,7 +69,7 @@ fn bin_size_words_root_mul_requires_ordered_integer_add_and_local() {
 
 #[test]
 fn size_to_bin_search_loop_keeps_distinct_early_and_tail_home_calls() {
-    use crate::mir::resolved_semantics::OwnedExprSiteV1;
+    use crate::mir::resolved_semantics::{home_new_prefix::TerminalRelationV1, OwnedExprSiteV1};
     let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let package = brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
     let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
@@ -143,6 +143,29 @@ fn size_to_bin_search_loop_keeps_distinct_early_and_tail_home_calls() {
                 .exit_row(semantic.tail_call().return_site())
                 .unwrap()
                 .unwrap();
+            assert!(matches!(
+                ledger.terminal_relation_for_owner_at(input.owner(), &semantic.roles().return_site),
+                Some(TerminalRelationV1::I64Scalar(row))
+                    if row.value_site() == &crate::mir::resolved_semantics::SourcePathV1::from_node(
+                        semantic.roles().return_site.node()
+                    ).child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr()
+            ));
+            assert!(matches!(
+                ledger.terminal_relation_for_owner_at(
+                    input.owner(),
+                    semantic.tail_call().return_site()
+                ),
+                Some(TerminalRelationV1::Call(_))
+            ));
+            for site in [
+                &semantic.roles().return_site,
+                semantic.tail_call().return_site(),
+            ] {
+                assert!(ledger
+                    .normal_exit_projection_v1(input.owner(), site)
+                    .unwrap()
+                    .is_some());
+            }
             assert_eq!(
                 early
                     .covered_calls()
@@ -183,10 +206,19 @@ fn size_to_bin_search_loop_rejects_changed_source_and_control() {
         ("bin = bin + 1", "continue"),
         ("if n <= me.bin_size(bin)", "if n <= me.bin_size(true)"),
         ("if n <= me.bin_size(bin)", "if n <= bin"),
+        ("return bin\n", "return n\n"),
+        ("return bin\n", "return true\n"),
     ] {
         assert_eq!(original.matches(before).count(), 1);
         let source = original.replacen(before, after, 1);
-        let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let package = match brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Ok(package) => package,
+            Err(error) if after == "return true\n" => {
+                assert!(format!("{error:?}").contains("freeze:contract"));
+                continue;
+            }
+            Err(error) => panic!("unexpected source refusal: {error:?}"),
+        };
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
             "SizeClassBox",
             "size_to_bin",

@@ -2148,6 +2148,10 @@ and unselected Loops keep their existing route.
 The existing packet and body-scalar issuers borrow the selected product's
 original entry/tagged and body loans after preissue. Their corroboration and
 physical gates remain unchanged; duplicate source keys are rejected.
+The child Completion retains Home's early local-I64 terminal relation only
+when its exact return/value site and `bin` binding match this product and the
+same canonical caller has an `ExactI64` result claim. Other child scalar
+relations keep their existing admission; the tail `Call` stays independent.
 
 The selected Static Loop also takes one checked tagged-formal source receipt
 from this package. The issuer joins its original pre-loop Static call loan,

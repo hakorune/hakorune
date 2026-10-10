@@ -1,6 +1,6 @@
 # MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-S0
 
-Status: selected bounded execution slice
+Status: closed bounded execution slice
 Date: 2026-10-11
 Scope: retain the original `SizeClassBox.size_to_bin` early I64 terminal source
 Related: `mirbuilder-search-loop-exit-relation-d0-2026-10-11.md`
@@ -29,3 +29,22 @@ Acceptance:
 
 Non-claims: no generic I64 return promotion, Home change, whole SizeClassBox
 or mimalloc-lite EXE pass.
+
+## Closeout evidence
+
+The original source's selected early exit now retains the Home-issued
+`I64Scalar` and has a Normal projection; the tail retains its independent
+`Call` and Normal projection. The existing positive/negative family passed
+2/2, including wrong local and Bool return refusals
+(`/tmp/hako-search-loop-exit-s0-final-focused-20261011.log`). Sibling
+`bin_size` relation tests and existing unsupported-loop/all-exit tests each
+passed 1/1 on the same test binary. `cargo check --profile quick -p
+nyash-rust --lib`, `git diff --check` and focused rustfmt passed.
+
+The unchanged source physical probe moved from
+`ordinary-new/local-commit/root-exit-source-missing` to
+`ordinary-new/local-commit/root-exit-unconsumed`
+(`/tmp/hako-search-loop-exit-s0-physical-20261011.log`). Its disposable test
+was removed. The latter is a new physical consumption frontier, not a
+whole-source pass. `ordinary_new_coseal_issue.rs` remains below the 800-line
+hard stop (796 lines).
