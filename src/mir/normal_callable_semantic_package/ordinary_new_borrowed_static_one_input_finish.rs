@@ -49,7 +49,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(Clone::clone)?;
         let cohort = source.static_incoming_cohort_v1(original)?;
-        if cohort.len() != 1 || !Rc::ptr_eq(&cohort[0], original) {
+        let target = source.target_static.get(&original.callee_owner());
+        if !matches!(cohort.len(), 1 | 2)
+            || !cohort.iter().any(|row| Rc::ptr_eq(row, original))
+            || (cohort.len() == 2 && target.is_none())
+            || (cohort.len() == 1 && target.is_some())
+        {
             return Err(freeze("static-one/whole-cohort"));
         }
         let retained = source
@@ -78,10 +83,27 @@ impl OrdinaryNewClaimLedgerV1 {
         if !finish.corroborates_source_v1(original) || !Rc::ptr_eq(&finish.completion, completion) {
             return Err(freeze("static-one/completion-drift"));
         }
-        let mut incoming = source
-            .incoming
-            .iter()
-            .filter(|call| &call.call == original.call_site());
+        if cohort.len() == 2 {
+            for sibling in &cohort {
+                let ready = self
+                    .borrowed_formal_actuals
+                    .get(sibling.call_site())
+                    .ok_or_else(|| freeze("static-one/cohort-actuals-missing"))?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(proof) = &ready.phase
+                else {
+                    return Err(freeze("static-one/cohort-unfinished"));
+                };
+                if !proof.corroborates_source_v1(sibling)
+                    || !Rc::ptr_eq(&proof.completion, completion)
+                {
+                    return Err(freeze("static-one/cohort-completion-drift"));
+                }
+            }
+        }
+        let incoming_rows = target.map_or(source.incoming.as_ref(), |row| row.incoming.as_ref());
+        let mut incoming = incoming_rows.iter().filter(|call| &call.call == original.call_site());
         let call = incoming
             .next()
             .ok_or_else(|| freeze("static-one/incoming-missing"))?;
@@ -123,7 +145,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
             return Ok(());
         };
-        let originals: Vec<_> = source
+        let mut originals: Vec<_> = source
             .incoming
             .iter()
             .filter_map(|call| match &call.source {
@@ -136,10 +158,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 _ => None,
             })
             .collect();
+        originals.extend(source.target_static.values().flat_map(|cohort| {
+            cohort.incoming.iter().filter_map(|call| match &call.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if original.is_current_owner_i64_source_v1() => Some(Rc::clone(original)),
+                _ => None,
+            })
+        }));
         let mut replacements = Vec::new();
         for original in originals {
             let cohort = source.static_incoming_cohort_v1(&original)?;
-            if cohort.len() != 1 || !Rc::ptr_eq(&cohort[0], &original) {
+            let target = source.target_static.get(&original.callee_owner());
+            if !matches!(cohort.len(), 1 | 2)
+                || !cohort.iter().any(|row| Rc::ptr_eq(row, &original))
+                || (cohort.len() == 2 && target.is_none())
+                || (cohort.len() == 1 && target.is_some())
+            {
                 return Err(freeze("static-one/whole-cohort"));
             }
             let owner = original.callee_owner();
@@ -155,7 +189,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 || contract.parameters[0].binding != original.parameters()[0].binding
                 || contract.parameters[0].kind != original.parameters()[0].kind
                 || !contract.parameters[0].kind.is_ordinary_borrowed_handle()
-                || !source.definitions.contains_key(&owner)
+                || !(source.definitions.contains_key(&owner)
+                    || source.target_static.contains_key(&owner))
             {
                 return Err(freeze("static-one/contract-identity"));
             }
@@ -204,7 +239,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("static-one/result-completion-identity"));
             }
             let site = original.call_site();
-            let mut incoming = source.incoming.iter().filter(|row| &row.call == site);
+            let incoming_rows = target.map_or(source.incoming.as_ref(), |row| row.incoming.as_ref());
+            let mut incoming = incoming_rows.iter().filter(|row| &row.call == site);
             let call = incoming
                 .next()
                 .ok_or_else(|| freeze("static-one/incoming-missing"))?;

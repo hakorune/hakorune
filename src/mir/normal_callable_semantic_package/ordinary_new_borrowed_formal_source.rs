@@ -24,6 +24,8 @@ mod observation;
 mod source_seeds;
 #[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
 mod static_cohort;
+#[path = "ordinary_new_borrowed_formal_source_target_static.rs"]
+mod target_static;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]
 mod value_domain;
 use source_seeds::prepare_borrowed_formal_views_v1;
@@ -64,6 +66,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     // Disjoint excluded owners from the same original draft issuance.
     pub(super) source_only_definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    pub(super) target_static: BTreeMap<FunctionOwnerIdV1, target_static::TargetStaticSourceCohortV1>,
     /// Dominated-view value-use sites across every classified owner —
     /// `ArrayElementValue`, `AddOperand`, `MulOperand`, or `NewArgument` rows recorded
     /// at draft classification time, before borrowed-transport selection.
@@ -231,6 +234,16 @@ pub(super) fn finish_ingress_from_drafts_v1(
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let checked_static_inputs =
         checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;
+    let mut target_static = target_static::issue_target_static_source_cohorts_v1(
+        batch,
+        selected,
+        contracts,
+        &definitions,
+        &inventory,
+        &static_arguments,
+        &checked_static_inputs,
+        static_claims,
+    )?;
     source_drafts::seed_static_transport_owners_v1(
         selected,
         contracts,
@@ -318,6 +331,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
         .partition(|(owner, _)| transport_owners.contains(owner));
+    target_static.retain(|owner, _| source_only_definitions.contains_key(owner));
     let forwards = join_borrowed_forward_uses_v1(&definitions, contracts, &call_sources)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/forward-coverage")))?;
     // Project the SAME immutable inventory; retain it for candidate activation.
@@ -334,6 +348,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     Ok(PreparedBorrowedFormalIngressV1 {
         definitions,
         source_only_definitions,
+        target_static,
         dominated_view_sites,
         forwards,
         incoming,
@@ -559,78 +574,6 @@ fn object_view_for(
 }
 
 impl PreparedBorrowedFormalIngressV1 {
-    /// Source lookup borrows the one original draft map's disjoint partition.
-    /// This does not make an excluded owner eligible for executable transport.
-    pub(super) fn source_definition_for(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> Option<&BorrowedFormalUsesDraftV1> {
-        self.definitions
-            .get(&owner)
-            .or_else(|| self.source_only_definitions.get(&owner))
-    }
-
-    /// Borrow one original raw Instance target after affine preparation is consumed.
-    /// This lookup grants no incoming/domain or executable permission.
-    pub(in crate::mir::normal_callable_semantic_package) fn object_source_target_at_v1(
-        &self,
-        site: &OwnedExprSiteV1,
-    ) -> Result<Option<&LexicalInstanceCallSourceTargetV1>, String> {
-        let mut rows = self
-            .source_incoming
-            .exact_rows()
-            .filter(|row| &row.call == site);
-        let Some(row) = rows.next() else {
-            return Ok(None);
-        };
-        let target = row.source.require_instance()?;
-        if rows.next().is_some()
-            || target.call_site() != site
-            || target.callee_owner() != row.callee
-        {
-            return Err(freeze("object-source/target-identity"));
-        }
-        Ok(Some(target))
-    }
-
-    /// Source agreement only; an explicit physical projection is still required.
-    pub(in crate::mir::normal_callable_semantic_package) fn formal_integer_agreement(
-        &self,
-        formal: BindingRefV1,
-    ) -> bool {
-        self.definitions.contains_key(&formal.owner()) && self.integer_agreements.contains(&formal)
-    }
-
-    /// Complete input agreement independent of outgoing profile/transport permission.
-    pub(in crate::mir::normal_callable_semantic_package) fn candidate_integer_agreement(
-        &self,
-        formal: BindingRefV1,
-    ) -> bool {
-        self.integer_agreements.contains(&formal)
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::normal_callable_semantic_package) fn contains_definition_for_test(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
-        self.definitions.contains_key(&owner)
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::normal_callable_semantic_package) fn candidate_input_inventory_for_test(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> (usize, bool) {
-        (
-            self.source_incoming
-                .exact_rows()
-                .filter(|row| row.callee == owner)
-                .count(),
-            self.source_incoming.vetoed_owners().contains(&owner),
-        )
-    }
-
     /// The co-sealed object view for one callee formal: `Some` only when
     /// every incoming actual agreed on one ordinary class.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_object_view(

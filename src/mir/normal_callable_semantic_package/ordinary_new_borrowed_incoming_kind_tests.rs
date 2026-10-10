@@ -33,6 +33,8 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
         owner,
         formals: Box::new([]),
         source,
+        definition: source.source_definition_for(owner).unwrap(),
+        incoming_rows: source.incoming.iter().collect(),
         incoming: Box::new([]),
     };
     let rows: Vec<_> = entry.incoming_targets().collect();

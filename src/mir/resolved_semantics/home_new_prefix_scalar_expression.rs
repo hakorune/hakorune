@@ -9,6 +9,7 @@ use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegment
 
 #[path = "home_static_eq_condition.rs"]
 mod static_eq_condition;
+pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
 pub(super) fn observe_local_initializer<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,

@@ -209,6 +209,7 @@ mod field_call;
 mod field_read;
 #[path = "home_new_prefix_scalar_expression.rs"]
 mod scalar_expression;
+pub(in crate::mir) use scalar_expression::contains_static_eq_lhs_source_v1;
 pub(crate) use field_read::{LocalFieldReadRequestV1, LocalFieldReadResultV1};
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;

@@ -1,6 +1,6 @@
 # Static CurrentOwner two-caller actual S1
 
-Status: selected implementation; target-scoped ingress Decision accepted
+Status: S1 implemented and focused acceptance green; physical Eq remains next
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1
 Related:
@@ -55,8 +55,8 @@ Decision brief:
   Static packet selection, and callee borrowed entry. Merely completing
   actuals is insufficient because those consumers currently read global
   `source.incoming` / `source.definitions`.
-- Non-claims: no executable two-caller entry, integer Eq, final module link,
-  EXE advance, or Heap/Page actual support is established yet.
+- Non-claims at design time: no executable two-caller entry, integer Eq,
+  final module link, EXE advance, or Heap/Page actual support was established.
 
 Decision: keep the global transport profile unchanged. During source ingress,
 issue one owner-local **source cohort** from the immutable
@@ -116,3 +116,34 @@ No physical integer Eq envelope, final module link, mimalloc-lite EXE
 advance, or old-edge deletion is claimed by source/actual completion alone.
 After this S1, the condition cohort D0 owns ordered Lhs/Rhs physical
 Invoke/Normal/Fault/Compare work.
+
+## Closeout evidence
+
+The selected implementation retains one target-scoped source cohort for the
+two original `size_to_bin` callers outside global `transport_owners`.
+`good_size` and `accepts` share the existing actual finisher, completed
+Static packet lender, and borrowed-entry owner view. The unchanged imported
+source issues the package without activating the unrelated Heap/Page
+`entry-source` failure. Removing one completed actual rejects both callee
+entry selection and the sibling packet. A wrong `>` or short-circuit `&&`
+condition does not issue the target cohort. The original `normalize_size`
+one-caller route and the source-bound V2 loop product remain green.
+
+Focused quick-profile evidence on the final source: real imported two-caller
+positive/negative 1/1; wrong-condition source-domain 1/1; borrowed-entry
+family 54/54; one-caller packet 2/2; real-source loop product 1/1; Static
+source port 4/4; Static entry family 9/9. The earlier attempt to call the
+*finalized physical* entry loan before lowering failed at `entry-values-missing`:
+that probe crossed this source/actual slice's boundary and was removed. The
+source-stage receiver/entry view and whole-cohort invalidation are covered
+by the real imported test. No unresolved test red remains. Pointer guard,
+`git diff --check`, new-file rustfmt check, and touched-file line limits pass.
+
+The existing candidate test file was already 809 lines at HEAD. Its two
+unchanged loop tests were moved as one test module to keep the modified
+file under the 800-line hard stop; their semantics and names remain. No new
+dedicated guard was added.
+
+No physical integer Eq envelope, ordered call lowering, final module link,
+EXE advance, or old-edge deletion is claimed. The condition-cohort D0 owns
+the next physical decision.

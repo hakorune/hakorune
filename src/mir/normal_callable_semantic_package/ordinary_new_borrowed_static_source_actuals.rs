@@ -360,6 +360,55 @@ fn project_pending_static_source_arguments_for_route_v1(
     if !has_source_fact && !current_owner {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
+    if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
+        if !current_owner {
+            return Err(freeze("borrowed-static/executable-current-owner-required"));
+        }
+        let original = retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
+        if !finish.corroborates_source_v1(original)
+            || required_i64_arguments != original.required_i64_arguments()
+        {
+            return Err(freeze("borrowed-static/executable-source-drift"));
+        }
+        let cohort = prepared.static_incoming_cohort_v1(original)?;
+        if cohort.len() == 2 {
+            let target = prepared
+                .target_static
+                .get(&original.callee_owner())
+                .ok_or_else(|| freeze("borrowed-static/executable-cohort-missing"))?;
+            if target.incoming.len() != 2 {
+                return Err(freeze("borrowed-static/executable-cohort-drift"));
+            }
+            for sibling in &cohort {
+                let ready = pending
+                    .get(sibling.call_site())
+                    .ok_or_else(|| freeze("borrowed-static/executable-sibling-missing"))?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(proof) = &ready.phase
+                else {
+                    return Err(freeze("borrowed-static/executable-sibling-unfinished"));
+                };
+                if !proof.corroborates_source_v1(sibling) {
+                    return Err(freeze("borrowed-static/executable-sibling-drift"));
+                }
+            }
+        } else if cohort.len() != 1 {
+            return Err(freeze("borrowed-static/executable-whole-cohort"));
+        }
+        let incoming_rows = prepared
+            .target_static
+            .get(&original.callee_owner())
+            .map_or(prepared.incoming.as_ref(), |row| row.incoming.as_ref());
+        let mut matching = incoming_rows.iter().filter(|row| &row.call == site);
+        let call = matching
+            .next()
+            .ok_or_else(|| freeze("borrowed-static/executable-incoming-missing"))?;
+        if matching.next().is_some() {
+            return Err(freeze("borrowed-static/executable-incoming-duplicate"));
+        }
+        return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };

@@ -70,6 +70,27 @@ fn checked_pair<E>(
     Ok(Some(pair))
 }
 
+/// Source eligibility borrows the same exact If-Eq law before Home issuance.
+/// A matching pair still needs both later Home observations.
+pub(in crate::mir) fn contains_exact_lhs<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    lhs: &OwnedExprSiteV1,
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+) -> Result<bool, E> {
+    if lhs.owner() != input.owner() {
+        return Ok(false);
+    }
+    for if_site in input.function().if_region_sites() {
+        let root = SourcePathV1::from_node(if_site.node())
+            .child(SourcePathSegmentV1::IfCondition)
+            .expr();
+        if checked_pair(input, &root, static_call)?.is_some_and(|pair| pair.lhs == *lhs.site()) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
 pub(super) fn contains_source_request<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     root: &SourceExprSiteV1,

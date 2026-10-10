@@ -273,6 +273,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 })
                 .map(|row| row.call.clone()),
         );
+        sites.extend(
+            prepared
+                .target_static
+                .values()
+                .flat_map(|cohort| cohort.sites().cloned()),
+        );
     }
     let results = seal_pending_results_v1(pending, &ingress, batch, constructors);
     Ok((targets, ingress, static_source_sites, results))

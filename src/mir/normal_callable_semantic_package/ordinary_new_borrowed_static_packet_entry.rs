@@ -64,6 +64,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .ok_or_else(|| freeze("borrowed-static/selected-source-missing"))?;
         let source = source.as_ref().map_err(Clone::clone)?;
+        if let Some(original) = source.target_static.values().flat_map(|cohort| cohort.incoming.iter())
+            .find_map(|row| match &row.source {
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+                    if &row.call == site => Some(original),
+                _ => None,
+            })
+        {
+            self.checked_completed_static_one_actuals_v1(original)?
+                .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+            self.verify_original_static_packet_source_v1(original)?;
+            self.borrowed_static_packet_actuals_v1(original)?
+                .ok_or_else(|| freeze("borrowed-static/local-actuals-missing"))?;
+            self.lexical_i64_call_source(site)
+                .ok_or_else(|| freeze("borrowed-static/local-completion-missing"))?;
+            return Ok(Some(Rc::clone(original)));
+        }
         if let Some(original) = source.source_incoming.static_observations().get(site) {
             let original = original.as_ref().map_err(Clone::clone)?;
             if self.is_static_zero_packet_cohort_v1(original) {
@@ -124,6 +140,13 @@ impl OrdinaryNewClaimLedgerV1 {
             self.selected_static_local_source_v1(&row.call)?
                 .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
             routed.push(row.call.clone());
+        }
+        for cohort in source.target_static.values() {
+            for row in &cohort.incoming {
+                self.selected_static_local_source_v1(&row.call)?
+                    .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
+                routed.push(row.call.clone());
+            }
         }
         // Source-only CurrentOwner packets are not co-sealed. Their canonical
         // demand remains selected: emission will preserve the original refusal
@@ -193,6 +216,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("borrowed-static/local-route-not-sealed"));
             }
             found = true;
+        }
+        for cohort in source.target_static.values() {
+            for row in cohort.incoming.iter().filter(|row| row.call.owner() == owner) {
+                self.selected_static_local_source_v1(&row.call)?
+                    .ok_or_else(|| freeze("borrowed-static/local-route-source-missing"))?;
+                if !routed.get(&owner).is_some_and(|sites| sites.contains(&row.call)) {
+                    return Err(freeze("borrowed-static/local-route-not-sealed"));
+                }
+                found = true;
+            }
         }
         for row in source
             .source_incoming

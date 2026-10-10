@@ -489,6 +489,16 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     }
     assert_eq!(callers, ["from_init", "tail", "cond", "looped"].into_iter().map(str::to_owned).collect());
     assert!(source.incoming.is_empty());
+    for condition in ["me.pick(p) > 0", "me.pick(p) > 0 && true"] {
+        let wrong_pair = package_fn(&format!("static box Layout {{
+            pick(p) {{ return 0 }}
+            from_init(p) {{ local k = me.pick(p) return 0 }}
+            cond(p) {{ if {condition} {{ return 0 }} return 0 }}
+        }} static box Main {{ main() {{ return 0 }} }}"));
+        let wrong_source = ingress(&wrong_pair);
+        assert!(wrong_source.target_static.is_empty(),
+            "initializer plus {condition} is not the exact Eq source cohort");
+    }
     // A Qualified initializer cannot activate a callee with a source-only
     // CurrentOwner initializer, even without a noninitializer context veto.
     let mixed = package_fn("static box Layout {

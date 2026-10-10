@@ -149,10 +149,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
-            let definition = source
-                .definitions
-                .get(&owner)
+            let view = self.checked_entry_owner_view_v1(source, owner)?
                 .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
+            let definition = view.definition;
             let roots: BTreeSet<_> = definition.origins.values().copied().collect();
             if roots != rows.iter().map(|(_, binding, _)| *binding).collect()
                 || rows.len() != roots.len()
@@ -168,7 +167,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("borrowed-entry/entry-values-identity"));
             }
             self.checked_borrowed_entry_incoming(source, owner)?;
-            for call in source.incoming.iter().filter(|call| call.callee == owner) {
+            for call in &view.incoming {
                 if call.arguments.len() != rows.len()
                     || call.arguments.iter().zip(rows.iter()).any(
                         |((ordinal, _, binding), (observed, formal, _))| {

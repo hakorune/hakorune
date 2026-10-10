@@ -15,6 +15,8 @@ pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
     owner: FunctionOwnerIdV1,
     formals: Box<[(u32, BindingRefV1)]>,
     source: &'ledger PreparedBorrowedFormalIngressV1,
+    definition: &'ledger super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
+    incoming_rows: Box<[&'ledger super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>,
     incoming: Box<
         [(
             &'ledger OwnedExprSiteV1,
@@ -31,7 +33,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         &self.formals
     }
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
-        &self.source.definitions[&self.owner].origins
+        &self.definition.origins
     }
     pub(crate) fn incoming(&self) -> &[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])] {
         &self.incoming
@@ -43,7 +45,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn compare_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -69,7 +71,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         String,
     > {
         use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
-        let draft = &self.source.definitions[&self.owner];
+        let draft = self.definition;
         let mut returns = Vec::new();
         for row in &draft.uses {
             let Use::IntegerReturn { exit, guard } = &row.kind else {
@@ -103,7 +105,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn add_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -124,7 +126,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
             super::borrowed_formal_uses::BorrowedMulSideV1,
         ),
     > {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -144,7 +146,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn array_element_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -162,7 +164,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn new_argument_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1, u32)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -180,7 +182,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn null_compare_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -197,7 +199,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn field_read_uses(
         &self,
     ) -> impl Iterator<Item = (BindingRefV1, BindingRefV1, &OwnedExprSiteV1)> {
-        self.source.definitions[&self.owner]
+        self.definition
             .uses
             .iter()
             .filter_map(|row| match &row.kind {
@@ -220,8 +222,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
         &self,
     ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>, String>>
     {
-        self.source
-            .incoming
+        self.incoming_rows
             .iter()
             .filter(move |row| row.callee == self.owner)
             .map(|row| {
@@ -276,6 +277,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
+        let view = self.checked_entry_owner_view_v1(source, owner)?
+            .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner,
@@ -284,6 +287,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 .map(|(ordinal, binding, _)| (*ordinal, *binding))
                 .collect(),
             source,
+            definition: view.definition,
+            incoming_rows: view.incoming,
             incoming,
         })
     }
@@ -347,11 +352,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let mut modes = source
-            .incoming
-            .iter()
-            .filter(|row| row.callee == owner)
-            .map(|row| row.source.as_loan().declaration_mode());
+        let view = self.checked_entry_owner_view_v1(source, owner)?
+            .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
+        let mut modes = view.incoming.iter().map(|row| row.source.as_loan().declaration_mode());
         let mode = modes
             .next()
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
@@ -527,11 +530,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let Some(definition) = source.definitions.get(&owner) else {
+        let Some(view) = self.checked_entry_owner_view_v1(source, owner)? else {
             // A source use outside the closed transport profile was excluded
             // before selection. This is not retry after a selected failure.
             return Ok(None);
         };
+        let definition = view.definition;
         let mut formals = Vec::new();
         for (index, (ordinal, binding, kind)) in parameters.iter().enumerate() {
             if *ordinal as usize != index || binding.owner() != owner {
@@ -549,7 +553,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("borrowed-entry/formal-cardinality"));
         }
         let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
-        for call in source.incoming.iter().filter(|call| call.callee == owner) {
+        for call in &view.incoming {
             if call.arguments.len() != formals.len()
                 || call.arguments.iter().zip(formals.iter()).any(
                     |((ordinal, _, formal), (expected, binding))| {
@@ -564,6 +568,8 @@ impl OrdinaryNewClaimLedgerV1 {
             owner,
             formals: formals.into_boxed_slice(),
             source,
+            definition,
+            incoming_rows: view.incoming,
             incoming,
         }))
     }
@@ -652,15 +658,22 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<Box<[(&'a OwnedExprSiteV1, &'a [PreparedBorrowedFormalActualV1])]>, String> {
         let mut seen = BTreeSet::new();
         let mut incoming = Vec::new();
-        for call in &source.incoming {
-            if !seen.insert(&call.call) || !source.definitions.contains_key(&call.callee) {
+        let owner_view = self.checked_entry_owner_view_v1(source, owner)?;
+        let mut calls: Vec<_> = source.incoming.iter().collect();
+        if let Some(cohort) = source.target_static.get(&owner) {
+            calls.extend(cohort.incoming.iter());
+        }
+        for call in calls {
+            let definition = source.definitions.get(&call.callee).or_else(|| {
+                (call.callee == owner).then(|| owner_view.as_ref().map(|view| view.definition)).flatten()
+            });
+            let Some(definition) = definition else {
+                return Err(freeze("borrowed-entry/incoming-identity"));
+            };
+            if !seen.insert(&call.call) {
                 return Err(freeze("borrowed-entry/incoming-identity"));
             }
-            let target_roots: BTreeSet<_> = source.definitions[&call.callee]
-                .origins
-                .values()
-                .copied()
-                .collect();
+            let target_roots: BTreeSet<_> = definition.origins.values().copied().collect();
             let argument_roots: BTreeSet<_> = call
                 .arguments
                 .iter()
@@ -681,7 +694,7 @@ impl OrdinaryNewClaimLedgerV1 {
             actuals.ordered_arguments_for_v1(call)?;
             let actuals = &actuals.opaque_actuals;
             for actual in actuals.iter() {
-                if source.definitions[&call.callee].origins.get(&actual.formal)
+                if definition.origins.get(&actual.formal)
                     != Some(&actual.formal)
                 {
                     return Err(freeze("borrowed-entry/actuals-identity"));
@@ -728,6 +741,8 @@ mod tests;
 
 #[path = "ordinary_new_borrowed_formal_entry_values.rs"]
 mod entry_values;
+#[path = "ordinary_new_borrowed_formal_entry_owner_view.rs"]
+mod owner_view;
 
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
 pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;
