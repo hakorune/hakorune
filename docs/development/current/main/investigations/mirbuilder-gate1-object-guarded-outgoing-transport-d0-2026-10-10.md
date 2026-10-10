@@ -105,11 +105,12 @@ do not authorize this `if` condition call. The existing Loop packet only
 covers a selected arity-one local initializer in a Loop; adapting its result
 by ignoring the condition site would create a second execution meaning.
 
-Fail-fast boundary: keep `source-only-object-actuals` while either condition
-input, tagged actual, result/Completion, Normal/Fault, or exact source/ABI
-identity is missing. Do not filter out `LayoutBox.accepts` or relax either
-static seed predicate independently. Every qualified and CurrentOwner caller
-must have an executable handoff before `class_id` joins transport owners.
+Fail-fast boundary: keep `source-only-object-actuals` while either selected
+condition input, tagged actual, result/Completion, Normal/Fault, or exact
+source/ABI identity is missing. Do not filter out `LayoutBox.accepts` by name
+or relax either static seed predicate independently. Every source-proved
+reachable qualified and CurrentOwner caller must have an executable handoff
+before `class_id` joins transport owners.
 
 Smallest next bounded series: the canonical `GreaterEqual` envelope landed at
 `c480ae8c70`. Next, admit only the original
@@ -119,13 +120,15 @@ ExactI64 call, and right integer-zero literal must be checked before asking
 the existing direct-value issuer for its source arguments. This first Home S0
 issues one `ExpressionValue` observation with original site, ordered actuals,
 and prior Homes. It does not make the Static source executable or weaken either
-transport seed veto. A following physical packet S0 must connect the same
-original incoming `Rc` and complete callee cohort to a selected condition
+transport seed veto. If the condition caller is source-proved reachable, a
+following physical packet S0 must connect the same original incoming `Rc`
+and selected complete callee cohort to a condition
 child-call lowering path, tagged formal actual, result Completion and
 Normal/Fault. General `located_if` binary lowering currently has no MethodCall
 child arm; the Loop-only packet and nonzero-arity qualified packet cannot be
-reused as permission. Static transport admission follows only after all
-original incoming edges have executable handoff, then unchanged mimalloc-lite
+reused as permission. Static transport admission follows only after the
+source-proved reachable incoming cohort has executable handoff and the full
+original inventory has been reconciled, then unchanged mimalloc-lite
 is probed for its actual next first-stop. The Page edges and result contract
 remain separate.
 
@@ -143,8 +146,8 @@ The condition-call source owner is selected as
 negative tests passed. Its physical consumer remains a
 following design dependency. No `LayoutBox.accepts` caller appears in the
 selected source corpus, so its formal's executable Integer view cannot be
-inferred from callers. The eventual physical packet must use an explicit
-declaration/entry contract or remain fail-closed. This D0 grants no transport
+inferred from callers. If `accepts` is selected in another artifact, its
+physical packet needs an explicit declaration/entry contract. This D0 grants no transport
 or production switch.
 
 ### Physical entry audit (2026-10-10)
@@ -156,8 +159,9 @@ source contract for both `LayoutBox.accepts(size)` and
 Integer. `checked_static_input` proves a checked Normal-use dependency, not
 an Integer payload or executable entry. `accepts` has no incoming caller in
 the selected mimalloc-lite corpus, so an empty caller set cannot supply its
-entry proof. Its body must receive the declared opaque carrier and check its
-kind before any Integer payload read, with a non-Integer kind taking Fault.
+entry proof. When selected, its body must receive the declared opaque carrier
+and check its kind before any Integer payload read, with a non-Integer kind
+taking Fault.
 
 The existing `static_incoming_cohort_v1` can retain both original
 `class_id` callers as one identity cohort, but `borrowed_static_packet_actuals_v1`
@@ -168,8 +172,42 @@ from the original `StaticIncomingSourceV1` and Home `ExpressionValue` row,
 with source-order actual, result Completion, and Normal/Fault coordinates
 checked at the selected If child. Generic `located_if` currently recurses
 through `lower_expr`, whose expression grammar has no MethodCall child arm.
-No generic Static veto changes before that packet and the declaration-backed
-tagged entry are executable for the complete cohort.
+No generic Static veto changes before the selected reachable cohort has a
+complete physical handoff; the original source inventory remains visible.
+
+### Decision revision: source reachability before new packet
+
+Source authority + canonical issuer: keep every original declaration and
+incoming call, including `accepts -> class_id`. An exact source-resolved
+root/birth reachability projection must select the closed-world physical
+callable cohort before function lowering. The existing final physical-program
+walk follows published MIR from root and births; it can corroborate this
+projection, but cannot issue the earlier source decision.
+
+Non-authority: no-caller fixture evidence, `ExactBool`, `OrdinaryScalar`, and
+post-lowering MIR reachability do not justify silently omitting `accepts`.
+Today the selected catalog includes every declaration. `accepts` has no
+incoming caller in this corpus and returns Bool; the physical call-result and
+function-role enums have no Bool call lane. Final borrowed-call coverage also
+requires every tagged callee to have a witnessed call. A fabricated caller or
+Integer result is not a valid bridge. The replacement policy's zero-reachable
+site rule favors caller-zero reconciliation over a new unused issuer.
+
+Fail-fast boundary: retain both Static seed vetoes until source authority
+proves the exact reachable cohort, every selected edge has a checked packet,
+and the final physical walk agrees. Unresolved or ambiguous targets prevent
+exclusion. Unreachable source rows remain in the full inventory; they grant
+no executable packet. A publicly required callable remains available for
+other artifacts and is not retired by this EXE-specific selection.
+
+Smallest next design task: locate the existing resolved-call and birth-edge
+issuer that can close reachability from the original root without a new
+name-based scan. Acceptance must retain the complete mimalloc-lite source
+inventory while proving `Heap -> class_id` selected and `accepts -> class_id`
+unselected; a corpus that calls `accepts` or has an unresolved edge must not
+exclude it. This revises the earlier blanket demand to execute every source
+Static row. The physical condition-call packet remains a later selected-case
+task if an actual reachable caller requires it.
 
 Non-claims: this D0 grants no executable actual, physical payload, result
 contract, EXE, Loop Mul, old-edge retirement or full MirBuilder completion.
