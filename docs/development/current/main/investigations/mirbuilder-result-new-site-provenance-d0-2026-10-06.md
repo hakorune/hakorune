@@ -881,3 +881,18 @@ therefore receive its own exact source-bound input relation; inventing a
 third carrier would add a false After obligation. This relation is a
 prerequisite to the selected V1 Recipe/JoinSig issuer, not a fallback or
 permission to inspect AST there.
+
+Read-only input Decision (read-only review integrated): extend V1 Recipe with
+an explicit root read-only binding/input relation for `shift_count`, separate
+from the two carrier rows. JoinSig seeds that binding at entry, admits its
+ordinary `ReadBinding` in the predicate, and excludes it from carrier payload
+and After. The input-source verifier partitions Recipe inputs into exactly
+one carrier or read-only relation per value and rejects overlap, missing or
+duplicate rows, class/declaration mismatch and any write to read-only input.
+The physical entry supplies the current source ValueId for all three inputs;
+only `scale` and `i` are writebacks. A direct Compare against a Recipe input
+without `ReadBinding` is rejected for this series: the existing physical value
+ledger and source-read effect proof would not own that use. Replaying the
+`shift_count` initializer is also rejected (the actual initializer is not a
+literal). This contract change belongs to the V1 Recipe/input/JoinSig owner
+slice; physical Mul admission remains separate.
