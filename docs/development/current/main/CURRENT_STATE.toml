@@ -24,8 +24,10 @@ input now stops at ordinary-new/local-commit/root-exit-source-missing.
 The search-loop exit relation S0 retains the original early I64Scalar and
 Normal projection through the preissued V2 product and ExactI64 claim.
 The unchanged SizeClassBox physical probe advances to root-exit-unconsumed.
-The new D0 must identify the exact physical exit row and sole emitter before
-implementation. No whole-source or mimalloc-lite EXE PASS is claimed.
+The D0 measured both SizeClassBox.size_to_bin exits with absent root progress.
+The remaining design dependency is a single root cleanup/Return handoff for
+the selected Static Loop and DraftSeal, including its shared fault frame.
+No whole-source or mimalloc-lite EXE PASS is claimed.
 """
 next_design_card = "MIRBUILDER-SEARCH-LOOP-ROOT-EXIT-CONSUMPTION-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-root-exit-consumption-d0-2026-10-11.md"
