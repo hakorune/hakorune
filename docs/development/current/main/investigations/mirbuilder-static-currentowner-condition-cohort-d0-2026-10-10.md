@@ -1,6 +1,6 @@
 # Static CurrentOwner condition cohort D0
 
-Status: Home S0 landed; two-caller replacement mapping remains design stop
+Status: Home S0 landed; two-caller S1 mapping accepted
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0
 Related:
@@ -18,7 +18,7 @@ not evidence that this Static upstream chain is complete.
 
 `SizeClassBox.size_to_bin` has two selected original callers: the
 `good_size -> size_to_bin` Body(0) local initializer and the `accepts ->
-size_to_bin` Body(0) Eq condition Lhs. Home observes only the initializer.
+size_to_bin` Body(0) Eq condition Lhs. Home observes both after `2ba998a6b3`.
 The original `accepts` condition is `me.size_to_bin(size) == me.huge_bin()`
 in `lang/src/hako_alloc/memory/size_class_box.hako`. The current one-input
 finisher deliberately rejects a cohort whose size is not one. Neither the
@@ -31,10 +31,8 @@ The original Static source authority remains
 inventory. `qualified_static_call_claim.rs` issues the source from the
 verified whole-source target/result and checks the exact source site.
 `home_new_prefix_scalar_expression.rs` has a narrow one-argument
-CurrentOwner `>= 0` arm; its generic scope and
-`home_static_value_call.rs` admit only zero-argument CurrentOwner leaves.
-`home_new_prefix_branch.rs` can stage the Eq child actual but does not issue
-the corresponding `LocalCallObservationV1`. The physical route is still the
+CurrentOwner `>= 0` arm and, after Home S0, a bounded pair for the original
+Eq condition. `home_new_prefix_branch.rs` stages the Eq child actual. The physical route is still the
 existing `CallPacketSourceV1::Static` with the selected Static packet owner.
 This audit was read-only; no Cargo or shared-worktree edits were delegated.
 The Eq has **two** call children: arity-one `size_to_bin` and zero-argument
@@ -47,8 +45,10 @@ not itself a Home or packet issuer.
 The physical `dynamic_operator_contract` currently issues no
 `Equal(NormalInteger, NormalInteger)` envelope. Generic Home scalar preflight
 can type an integer Eq, but that does not authorize physical comparison.
-Also, `size_to_bin` contains loop/header/body calls beyond this condition.
-Neither gap is a reason to enlarge the Home source slice.
+The callee's loop/header/body/tail calls use the existing Static I64 V2
+source/Recipe/Join path. The real-source collector test proves its standalone
+physical draft, not the final module link or EXE. Neither fact grants the
+two-caller transport owner.
 
 ## Integrated Decision and slice order
 
@@ -93,8 +93,8 @@ After Home S0, close the whole two-caller `size_to_bin` source/actual cohort
 before publishing physical Eq. `ordinary_new_borrowed_static_one_input_finish`
 still requires `cohort.len() == 1`; the original `good_size` initializer and
 `accepts` Eq Lhs together have two incoming identities. Both must agree on
-the original actuals, callee signature/result and Completion, including
-internal-loop obligations. `good_size` cannot be promoted on its own.
+the original actuals, callee signature/result and existing Completion.
+`good_size` cannot be promoted on its own.
 
 The read-only physical-owner audit fixes the remaining authority split:
 `QualifiedStaticCallClaimIndexV1` owns original Static source identity;
@@ -105,17 +105,28 @@ integer Eq execution envelope. Its current issuer has no
 ordinary `compare/eq`, but JSON spelling is not an execution proof. The
 existing `Equal(Dynamic, Null)` envelope cannot substitute for integer Eq.
 
-Decision order: first close the callee's loop/call obligations needed for
-`size_to_bin` Completion, then select a bounded two-caller executable actual
-closure against the unchanged `good_size` and `accepts` callers. Its positive
-must prove exactly two original incoming identities and actuals. Missing,
-duplicate, foreign, changed-site, wrong-class, or unproved callee-loop
-obligations must fail closed; the preceding one-caller `normalize_size`
-remains green. `issue_original_static_forwarded_actual_v1` already checks
-each member of a two-row source cohort, as its existing test demonstrates;
-do not mint a duplicate source-only receipt while Completion is unavailable.
-Next, issue
-the integer Eq envelope through the sole operator issuer. Physical lowering
+The preceding assertion that callee Completion must first be implemented was
+wrong. `raw_loop_child_entry/static_i64_v2.rs` already joins Completion with
+the loop V2 product, and `normal_callable_semantic_loan_port/static_i64_entry.rs`
+has a real-source positive/negative physical collector test. The direct
+missing boundary is `seed_static_transport_owners_v1`: it requires a single
+CurrentOwner initializer, while `borrowed_formal_incoming.rs` marks the Eq
+caller as unsupported static context. The later one-input finisher also
+requires a one-row cohort. `issue_original_static_forwarded_actual_v1` already
+checks each member of a two-row source cohort; do not mint another receipt.
+
+Decision: select the bounded two-caller source/actual closure S1 in the
+related execution card. Source authority is the original
+`QualifiedStaticCallClaimIndexV1` and whole incoming inventory; the canonical
+actual finisher reuses the existing signature/result/Completion and Home rows.
+The production replacement is both original `good_size` and `accepts`
+`SourceStatic`-only outgoing call responsibilities, never either caller alone.
+Wrong/missing/duplicate original caller, site, target, class, Home argument,
+signature or Completion rejects the whole cohort. An unrelated noninitializer
+caller remains vetoed. This S1 does not create a new Static claim, source
+receipt, physical Eq envelope, or final module-link claim.
+
+After S1, issue the integer Eq envelope through the sole operator issuer. Physical lowering
 must then show Lhs Invoke Normal -> RHS Invoke Normal -> Compare/Branch, with
 either child's Fault bypassing later steps and no `borrowed_null_compare`
 route. Only the fully linked chain can count as physical/EXE acceptance.
@@ -124,10 +135,9 @@ separate.
 
 Home S0 landed at `2ba998a6b3` with both ordered `accepts` Home rows and
 focused positive/negative acceptance. It did not issue a physical Eq
-envelope or executable two-caller entry. The physical-owner audit above is
-read-only; the two-caller source/actual slice still needs an exact replacement
-mapping before implementation. Do not infer execution permission from the
-Home green.
+envelope or executable two-caller entry. Read-only loop/physical audit
+resolved the next replacement mapping without new source authority. The
+bounded S1 may be built; do not infer execution permission from Home green.
 
 Non-claims: this D0 does not authorize physical Eq, two-caller execution,
 caller omission, generic reachability pruning, or whole-app completion.
