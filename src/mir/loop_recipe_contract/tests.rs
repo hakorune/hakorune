@@ -56,6 +56,24 @@ fn join_sig_accum_nested_is_deterministic_and_closed() {
 }
 
 #[test]
+fn logical_mul_is_verified_without_physical_admission() {
+    let mut recipe = golden().recipe;
+    let binary = recipe
+        .items
+        .iter_mut()
+        .find_map(|row| match &mut row.item {
+            LoopRecipeItemV1::Operation {
+                operation: super::schema::LoopOperationV1::BinaryI64 { op, .. },
+            } => Some(op),
+            _ => None,
+        })
+        .expect("golden has a binary operation");
+    *binary = super::schema::LoopBinaryI64OpV1::Mul;
+    let verified = LoopRecipeVerifierV1::verify(recipe).expect("logical Mul recipe");
+    LoopJoinSigElaboratorV1::elaborate(&verified).expect("Mul preserves value flow");
+}
+
+#[test]
 fn join_sig_rejects_late_value_use_before_any_physical_effect() {
     let mut artifact = golden();
     if let LoopRecipeItemV1::Operation {

@@ -150,6 +150,9 @@ pub(super) fn emit_prepared_pure_operation_at_target_v1(
                 LoopBinaryI64OpV1::Sub => {
                     loop_operation::emit_sub_i64_at(services.builder, by_role, lhs, rhs)
                 }
+                LoopBinaryI64OpV1::Mul => {
+                    return Err(LoopOperationEmissionRejectV1::UnsupportedOperation)
+                }
             }
             .map_err(LoopOperationEmissionRejectV1::Emission)?;
             (result, value)

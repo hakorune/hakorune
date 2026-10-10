@@ -896,3 +896,13 @@ ledger and source-read effect proof would not own that use. Replaying the
 `shift_count` initializer is also rejected (the actual initializer is not a
 literal). This contract change belongs to the V1 Recipe/input/JoinSig owner
 slice; physical Mul admission remains separate.
+
+Logical Mul vocabulary slice: V1 Recipe accepts `BinaryI64::Mul`
+as a typed logical operation and JoinSig carries its value flow. The current
+physical emitter rejects it explicitly; the selected Recipe producer and
+Home After still have to be issued. No V2 or EXE admission follows.
+Validation: focused quick logical-Mul test 1/1; existing V1 Recipe family
+40/40 including late-use rejection; direct-accum binding-SSA family 6/6.
+An initial helper-file-name filter selected 0 tests and was not counted.
+Pointer, diff and selected rustfmt checks passed. The first compile found one
+test helper's non-exhaustive match; it now rejects Mul alongside Sub.

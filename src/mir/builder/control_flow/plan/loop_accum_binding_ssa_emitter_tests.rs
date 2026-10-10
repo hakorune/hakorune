@@ -234,7 +234,7 @@ impl<'a> CanonicalLoopSsaEmitterV1<'a> {
                         super::LoopBinaryI64OpV1::Add => {
                             self.emit_add(self.block(role), left, right)
                         }
-                        super::LoopBinaryI64OpV1::Sub => {
+                        super::LoopBinaryI64OpV1::Sub | super::LoopBinaryI64OpV1::Mul => {
                             return Err("DirectAccum schedule requires add".to_owned())
                         }
                     };

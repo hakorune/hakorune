@@ -156,6 +156,12 @@ first/filter/ordinal reconstruction API exists. Empty, duplicate, foreign-owner,
 missing-carrier, class, declaration, and binding mismatches fail before Builder
 effects.
 
+V1 `BinaryI64` also has a logical `Mul` spelling for the selected
+variable-bound Loop Recipe. The structural verifier and JoinSig may accept
+its value flow; the physical operation emitter explicitly rejects Mul until
+the separate physical slice is admitted. This vocabulary addition alone
+does not make a Loop executable.
+
 S6A keeps the same one-owner rule for the recurrence source map. Private
 condition/update/step observations never become separate verified products;
 `VerifiedVariableAccumRecurrenceFactsV1` is the only neutral handoff. Its

@@ -226,6 +226,7 @@ pub(crate) enum LoopOperationV1 {
 pub(crate) enum LoopBinaryI64OpV1 {
     Add,
     Sub,
+    Mul,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
