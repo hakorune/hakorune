@@ -1,7 +1,7 @@
 # Hakorune 開発ルール
 
 Status: SSOT
-Date: 2026-10-08
+Date: 2026-10-10
 Scope: task selection, implementation, validation, production cutover, retirement, and restart routing.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -38,6 +38,7 @@ source authority・意味契約・失敗境界・必要な acceptance は実装�
 - `CURRENT_STATE.toml.work_mode` が `fast` / `design_stop` / `closeout` の唯一のmode選択元。blocker文言から推測しない。
 - `CURRENT_TASK.md` は再開用の薄いroot pointer。各sliceのたびに書き換えず、active cardへ作業範囲と証拠を記録する。
 - 1sliceは1責務。コード変更は第6節のpositive/negative検証を満たす。契約変更なら同じsliceでowner README/referenceを更新する。
+- 選択中の意味owner・familyが変わる時は、旧rowの未完了条件と引継ぎ先を明示し、着手前に`CURRENT_STATE.toml`のrow/cardを実際の作業へ切り替える。`blocker_token`だけの移動ではrowを増やさず、改名だけで旧rowを完了扱いにしない。
 
 ## 3. 毎回の流れ
 
@@ -89,6 +90,8 @@ Non-claims:
 - 一時的test/guard/adapter/proofには、owner・正本の置換先・`retire_when`・削除に必要な証拠を既存card/metadataへ記す。条件を満たした専有物は第4節に従い同じbounded seriesで統合・物理退役する。
   永続的な意味・安全性検証を一時負債に含めず、履歴はGitへ残す。退役を証明する新guard・台帳や、一律のtest数上限・全repo棚卸しを着手条件にしない。
 - 必要な検証がgreenなら、関連変更・失敗・未解決の懸念・要求gateがない限り再実行や拡張をしない。同じbuildをfilter実行で再利用し、結果は対象revision・実行条件に対応させる。
+- 選択production frontierは、変更前後の実sourceのfirst-stopと結果を比較する。計測にはsource revision、実行binaryの出所、command、build/link/実行時間を記し、未計測や古い結果を現HEADの進捗・速度として扱わない。
+- 固定acceptance suiteは、要求されたproduction cutover・goal closeout、またはsuite対象へ広く影響する変更で実行する。途中のsliceは選択frontierのfocused probeを使い、一律の時間間隔や毎sliceの全suite再実行を課さない。
 - 時間を測る際はbuild/link、test実行、shell guard、gateの重複実行を分ける。test名/ファイル数の削減だけで高速化を主張しない。
 - 同じcheckoutでtop-level Cargoを同時に複数起動しない。日常のfocused Rust testは`--profile quick`とし、`CARGO_BUILD_JOBS=4`を上限目安にする。
 - Cargoを中断した後は、既存の`cargo`/`rustc` processが終了したことを確かめてから次を起動する。
@@ -101,7 +104,7 @@ Non-claims:
 - 作業モード・スライス・検証・closeoutの正本はこのfile。現在地は`CURRENT_STATE.toml`、root再開pointerは`CURRENT_TASK.md`、置き場所は[DOCS_LAYOUT.md](current/main/DOCS_LAYOUT.md)が所有する。
 - `agent-current-entry-contract-ssot.md`はworker consultationとoptional NekoCodeの補助手順を保持する。作業モードや着手・退役条件がこのfileと異なる場合は、このfileを適用する。
 - active cardにはscope、acceptance、parked items、non-claims、実行結果を記録する。再開mirrorへ履歴を複製しない。
-- active cardは1000行以内。上限前に完了済み経緯をcommit参照へ圧縮し、現在の契約・未解決事項・必要証拠を残す。
+- active cardは1000行以内。上限前に完了済み経緯をcommit参照へ圧縮し、現在の契約・未解決事項・必要証拠を残す。別ownerの履歴を同じcardへ積み続けない。
 - 通常の実装sliceで更新する文書はactive card、選択やpointerが変わる場合の
   `CURRENT_STATE.toml`、契約が変わる場合のowner README/referenceに限る。
   workstream、隣接card、索引、restart mirrorは、それぞれが所有する事実を
@@ -124,7 +127,7 @@ Non-claims:
 - **slice closeout:** 選択ownerのpositive/negative evidence、要求guard、赤の分類、owner docsが揃う。sliceが契約整備ならproduction switch完了とは主張しない。
 - **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
 - 削除予定をtaskboardに残しただけではmigration完了にしない。
-- 進捗はproduction callerの切替、重複責務の解消、旧edgeの削除、実sourceの前進と検証で報告する。commit/file/test数だけを根拠にしない。
+- 進捗はproduction callerの切替、重複責務の解消、旧edgeの削除、実sourceのfirst-stopの変化と検証で報告する。前提契約だけが進んだ時はその旨と未達の実source条件を記し、commit/file/test数だけを根拠にしない。
 
 ## 10. local entryと旧文書
 
