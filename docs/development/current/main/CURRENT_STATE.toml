@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/search-loop-exit-relation-d0"
-current_design_stop = "MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-D0"
+current_blocker_token = "selfhost-resume/search-loop-exit-relation-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,20 +14,23 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-search-loop-exit-relation-d0-2026-10-11.md"
-latest_card = "mirbuilder-search-loop-exit-relation-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-exit-relation-d0-2026-10-11.md"
+latest_card = "mirbuilder-search-loop-exit-relation-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-exit-relation-s0-2026-10-11.md"
 latest_card_summary = """
 The selected SizeClassBox search-loop Home S0 is closed: both early and tail
 exit Home rows are ready, original Static packet/body scalar transport is
 retained, and the unchanged source moves past its prior first stop. Physical
 input now stops at ordinary-new/local-commit/root-exit-source-missing.
-The new D0 must identify the missing Normal exit source authority and issuer
-before implementation. No whole-source or mimalloc-lite EXE PASS is claimed.
+The exit D0 measured size_to_bin's ready early return with no retained
+terminal relation/Normal projection while its tail Call remains present.
+S0 selects a bounded join of that exact Home-issued I64Scalar with the
+preissued Static V2 product and ExactI64 result claim. No whole-source or
+mimalloc-lite EXE PASS is claimed.
 """
-next_design_card = "MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-exit-relation-d0-2026-10-11.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-exit-relation-s0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
