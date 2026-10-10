@@ -312,9 +312,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // prefix callback; neither Ok nor Err installs or changes a carrier.
     borrowed_formal_source:
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
-    // One exact source/Home Facts row per Loop site. This remains unavailable
-    // to Home After and raw emission until the shared Recipe/JoinSig handoff.
-    variable_bound_mul_facts: coseal_issue::SelectedLoopFactsV1,
+    // One source-bound product or refusal per Loop site. Home and raw entry
+    // cannot consume it until their separate verified loan slices.
+    variable_bound_mul_product: coseal_issue::SelectedLoopProductV1,
     loop_static_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>>>,
     loop_static_body_scalar_sources: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>>>,
     // The selected body call has no Home local-call observation. Its own

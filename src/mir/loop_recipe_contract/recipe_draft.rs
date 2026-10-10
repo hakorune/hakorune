@@ -27,13 +27,16 @@ use super::operation_effect::LoopOperationSourceEvidenceV1;
 use super::schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1, LoopNodeV1,
     LoopOperationV1, LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1,
-    LoopRecipeExitV1, LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeV1, LoopRecipeValueV1,
-    LoopValueClassV1,
+    LoopRecipeExitV1, LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeReadOnlyInputV1,
+    LoopRecipeV1, LoopRecipeValueV1, LoopValueClassV1,
 };
 use super::source_bound_core::{
     LoopBindingEffectAnchorV1, LoopBindingEffectRelationV1, LoopBindingEffectRoleV1,
     LoopRecipeBindingRelationV1,
 };
+
+#[path = "recipe_draft_read_only.rs"]
+mod read_only;
 
 #[derive(Debug)]
 struct DraftLoopV1 {
@@ -113,6 +116,7 @@ pub(crate) struct LoopRecipeDraftV1 {
     binding_relations: Vec<LoopRecipeBindingRelationV1>,
     values: Vec<LoopRecipeValueV1>,
     inputs: Vec<LoopValueKeyV1>,
+    read_only_inputs: Vec<LoopRecipeReadOnlyInputV1>,
     carriers: Vec<LoopRecipeCarrierV1>,
     exits: Vec<LoopRecipeExitV1>,
     effect_relations: Vec<LoopBindingEffectRelationV1>,
@@ -135,6 +139,7 @@ impl LoopRecipeDraftV1 {
             binding_relations: Vec::new(),
             values: Vec::new(),
             inputs: Vec::new(),
+            read_only_inputs: Vec::new(),
             carriers: Vec::new(),
             exits: Vec::new(),
             effect_relations: Vec::new(),
@@ -555,7 +560,7 @@ impl LoopRecipeDraftV1 {
                 bindings: self.bindings,
                 values: self.values,
                 inputs: self.inputs,
-                read_only_inputs: Vec::new(),
+                read_only_inputs: self.read_only_inputs,
                 carriers: self.carriers,
                 exits: self.exits,
             },

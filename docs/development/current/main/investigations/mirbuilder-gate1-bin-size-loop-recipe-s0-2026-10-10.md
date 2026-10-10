@@ -1,6 +1,6 @@
 # Gate1 bin_size Loop Recipe S0
 
-Status: selected; source-bound Recipe producer open
+Status: source-bound Recipe product verified; Home After remains separate
 Date: 2026-10-10
 Scope: MIRBUILDER-GATE1-BIN-SIZE-LOOP-RECIPE-S0
 Related:
@@ -55,3 +55,33 @@ logical Mul alone does not grant Home or physical execution.
 
 Non-claims: Home Body9 advance, physical Mul, return expression, EXE,
 old-edge retirement, and full Gate1/goal completion remain open.
+
+## S0 evidence and closeout
+
+The selected package now consumes its exact typed Facts into one retained
+owner/site/frame-bound product. `LoopRecipeDraftV1` allocates keys and records
+source relations once; V1 verifier, root JoinSig After closure, Core, input
+and operation-effect issuers check the same recipe. No second syntax walk or
+Home class inference was added. The package retains a typed refusal, including
+the producer's rejection reason, if any seal fails.
+
+At source base `60a89be5b8` plus this selected worktree diff, the unchanged
+`size_class_box.hako` SHA-256 is
+`ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0`.
+`cargo test --profile quick -p nyash-rust --lib real_bin_size_` passed 6/6;
+the same test binary passed `mir::loop_recipe_contract::` 227/227. Binary
+SHA-256: `c6862fa0a018d98903bd81640ca8583cc685c0719bb21ef0ebc8f832d6a9b3ba`.
+The selected test asserts two I64 carriers, one read-only I64 input, exact
+source declarations/initializers, ordered 11 operations and both root After
+bindings. Existing source-shape tests and the selected product test reject
+wrong bound class, operator, literal, order and extra body effect. Existing
+JoinSig tests reject missing or duplicate port bindings. The unchanged
+`real_bin_size_nested_mul_proves_only_subtract_initializer_home` test still
+observes first uncovered `Body(9)`; there is no production EXE claim.
+
+Pointer guard, diff check and selected new/changed-file rustfmt check pass.
+`recipe_draft.rs` whole-file rustfmt check fails on formatting already
+present at parent `60a89be5b8`; its parent file was checked separately
+and shows the same mismatch. No source cap exceeds 800 lines. Next row:
+`MIRBUILDER-GATE1-BIN-SIZE-LOOP-HOME-AFTER-S0` must consume this retained
+product in the Home walk and prove the unchanged source crosses Body9.

@@ -168,8 +168,13 @@ does not make a Loop executable.
 The V1 JoinSig owner can issue a complete root After closure from one verified
 Recipe. It rejects an empty carrier set and requires the root After rows to
 match every root carrier exactly; read-only inputs never become After rows.
-The selected source-bound producer must retain this closure with its matching
-Core before Home may consume any post-Loop class.
+The selected `bin_size` source-bound producer consumes the existing
+variable-bound Mul Facts through the canonical Recipe draft. It retains one
+verified Core/input/operation product with that complete two-carrier After
+closure. `shift_count` is a read-only root input; only `scale` and `i`
+carry an After value. The package stores one owner/site disposition. Home
+still stops at Body9 until a separate loan verifies and installs those
+post-Loop classes; no physical Mul or EXE permission follows this product.
 
 S6A keeps the same one-owner rule for the recurrence source map. Private
 condition/update/step observations never become separate verified products;

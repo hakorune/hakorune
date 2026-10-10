@@ -61,7 +61,7 @@ mod result_membership;
 
 #[path = "ordinary_new_coseal_issue_loop.rs"]
 mod loop_issue;
-pub(super) use loop_issue::{LoopFactsUnavailableV1, SelectedLoopFactsV1};
+pub(super) use loop_issue::{LoopProductUnavailableV1, SelectedLoopProductV1};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -94,7 +94,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut receiver_call_observations = BTreeMap::new();
     let mut birth_site_index = BTreeMap::new();
     let mut borrowed_formal_actuals = BTreeMap::new();
-    let mut variable_bound_mul_facts = BTreeMap::new();
+    let mut variable_bound_mul_product = BTreeMap::new();
     // Owned field children per canonical object: `Some` means every
     // residence-capable declared field has a sealed birth-side residence,
     // `None` means the disposition needs children the package never proved.
@@ -580,8 +580,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source, input,
                         ), &mut |prestate| {
-                            loop_issue::retain_selected_loop_facts_v1(
-                                input, prestate, &mut variable_bound_mul_facts,
+                            loop_issue::retain_selected_loop_product_v1(
+                                input, prestate, &mut variable_bound_mul_product,
                             );
                             Ok(())
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
@@ -742,7 +742,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
     ledger.borrowed_static_source_sites = Some(static_source_sites);
-    ledger.variable_bound_mul_facts = variable_bound_mul_facts;
+    ledger.variable_bound_mul_product = variable_bound_mul_product;
     ledger.install_borrowed_formal_preparation_v1(
         borrowed_formal_source,
         borrowed_formal_actuals,

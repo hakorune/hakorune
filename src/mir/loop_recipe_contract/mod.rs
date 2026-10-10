@@ -33,9 +33,7 @@ mod ids;
 mod input_source;
 mod join_sig;
 // Canonical draft builder: single key allocator + source-anchor co-recorder.
-// Caller-zero outside the Main0 Continue consumer until the shared seal
-// wiring lands; recheck at the next producer migration slice.
-#[allow(dead_code)]
+// Main0 Continue and the selected variable-bound Mul producer use this owner.
 mod recipe_draft;
 mod internal_declaration;
 mod join_sig_branch;
@@ -87,6 +85,7 @@ mod source_bound_core;
 mod typed_schema_v2;
 mod typed_schema_v2_structure;
 mod variable_accum_recurrence_producer;
+mod variable_bound_mul_producer;
 mod verify;
 
 #[cfg(test)]
@@ -340,6 +339,10 @@ pub(crate) use physical_layout::{
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
+pub(crate) use variable_bound_mul_producer::{
+    produce_variable_bound_mul_recipe_v1, VariableBoundMulRecipeRejectV1,
+    VerifiedVariableBoundMulRecipeProductV1,
+};
 #[allow(unused_imports)]
 pub(crate) use recipe_draft::{
     LoopRecipeDraftProductV1, LoopRecipeDraftRejectV1, LoopRecipeDraftV1,

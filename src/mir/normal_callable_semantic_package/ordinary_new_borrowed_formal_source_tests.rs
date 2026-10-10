@@ -81,8 +81,8 @@ fn real_bin_size_variable_bound_mul_source_is_exact_and_stays_untyped() {
 }
 
 #[test]
-fn real_bin_size_loop_facts_require_current_home_integer_classes() {
-    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::LoopFactsUnavailableV1;
+fn real_bin_size_loop_product_requires_current_home_integer_classes() {
+    use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::LoopProductUnavailableV1;
     use crate::mir::resolved_semantics::{
         SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
     };
@@ -95,11 +95,27 @@ fn real_bin_size_loop_facts_require_current_home_integer_classes() {
                 "local shift_count = true",
                 1,
             ),
-            Some(LoopFactsUnavailableV1::InputClass),
+            Some(LoopProductUnavailableV1::InputClass),
         ),
         (
             original.replacen("scale = scale * 2", "scale = scale + 2", 1),
-            Some(LoopFactsUnavailableV1::SourceShape),
+            Some(LoopProductUnavailableV1::SourceShape),
+        ),
+        (
+            original.replacen("i = i + 1", "i = i + 2", 1),
+            Some(LoopProductUnavailableV1::SourceShape),
+        ),
+        (
+            original.replacen("i = i + 1", "i = i + 1\n      scale = scale * 2", 1),
+            Some(LoopProductUnavailableV1::SourceShape),
+        ),
+        (
+            original.replacen(
+                "scale = scale * 2\n      i = i + 1",
+                "i = i + 1\n      scale = scale * 2",
+                1,
+            ),
+            Some(LoopProductUnavailableV1::SourceShape),
         ),
     ] {
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
@@ -121,19 +137,34 @@ fn real_bin_size_loop_facts_require_current_home_integer_classes() {
                 ]));
                 let row = package
                     .ordinary_new_claim_ledger
-                    .variable_bound_mul_facts
+                    .variable_bound_mul_product
                     .get(&(input.owner(), site.clone()));
                 let row = row.expect("Loop request must retain an exact disposition");
-                assert_eq!(row.as_ref().err().copied(), expected_error, "{source}");
-                if let Ok(facts) = row {
-                    assert_eq!(facts.owner(), input.owner());
-                    assert_eq!(facts.source().site(), &site);
-                    assert_eq!(facts.bindings().len(), 3);
-                    assert_eq!(facts.condition_operands().len(), 2);
-                    assert_eq!(facts.operation_operands().len(), 2);
-                    for ((declaration, initializer), binding) in
-                        facts.inputs().iter().zip(facts.bindings())
+                assert_eq!(row.as_ref().err(), expected_error.as_ref(), "{source}");
+                if let Ok(product) = row {
+                    assert_eq!(product.owner(), input.owner());
+                    assert_eq!(product.site(), &site);
+                    assert_eq!(product.bindings().len(), 3);
+                    assert_eq!(product.after().len(), 2);
+                    let recipe = product.operations().core().recipe().as_recipe();
+                    assert_eq!(recipe.items.len(), 11);
+                    assert_eq!(recipe.carriers.len(), 2);
+                    assert_eq!(recipe.read_only_inputs.len(), 1);
+                    assert_eq!(
+                        product
+                            .after()
+                            .iter()
+                            .map(|row| row.binding().raw())
+                            .collect::<Vec<_>>(),
+                        vec![0, 1]
+                    );
+                    assert_eq!(recipe.read_only_inputs[0].binding.raw(), 2);
+                    assert_eq!(product.inputs().rows().len(), 3);
+                    for (source_input, binding) in
+                        product.inputs().rows().iter().zip(product.bindings())
                     {
+                        let declaration = source_input.declaration();
+                        let initializer = source_input.initializer();
                         assert!(matches!(
                             declaration,
                             crate::mir::resolved_semantics::SourceBindingSiteV1::Local { .. }
