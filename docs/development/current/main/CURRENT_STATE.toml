@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "identify source-resolved root/birth reachable callable cohort issuer before Static transport admission"
+current_design_stop = "map complete-source zero-caller Static proof to closed-world physical selection owner"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -31,9 +31,10 @@ MIRBUILDER-GE-NORMAL-INTEGER-CONTRACT-S0, while opaque-formal source rejection
 remains. The bounded Home source observation for the original CurrentOwner
 `>= 0` condition is now issued, while the static-context transport veto is
 unchanged. A zero-caller Bool-returning `LayoutBox.accepts` cannot gain a
-tagged physical entry from caller evidence; next reconcile the full source
-inventory with a source-resolved root/birth-reachable physical cohort before
-designing any selected condition packet. The Page edges and
+tagged physical entry from caller evidence. The complete MethodCall inventory
+has no LayoutBox.accepts target in this corpus; next bind that caller-zero
+proof to closed-world physical selection before designing any condition
+packet. The Page edges and
 CALLEE-RETURN-OUTCOME-S0 remain unfinished;
 the finite goal and production EXE remain open.
 """

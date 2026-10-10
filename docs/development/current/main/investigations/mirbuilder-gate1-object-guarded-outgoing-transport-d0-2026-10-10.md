@@ -175,14 +175,19 @@ through `lower_expr`, whose expression grammar has no MethodCall child arm.
 No generic Static veto changes before the selected reachable cohort has a
 complete physical handoff; the original source inventory remains visible.
 
-### Decision revision: source reachability before new packet
+### Decision revision: complete-source caller zero before new packet
 
 Source authority + canonical issuer: keep every original declaration and
-incoming call, including `accepts -> class_id`. An exact source-resolved
-root/birth reachability projection must select the closed-world physical
-callable cohort before function lowering. The existing final physical-program
-walk follows published MIR from root and births; it can corroborate this
-projection, but cannot issue the earlier source decision.
+incoming call, including `accepts -> class_id`. The existing
+`VerifiedWholeSourceStaticCallTargetInventoryV1` is issued before selected
+mapping and owns the complete MethodCall inventory plus exact Static targets.
+Its first bounded observation gap must be absent before a Static target can
+be declared caller-zero. That proof can exclude the uncalled method from the
+closed-world EXE's physical callable selection while retaining it in the
+semantic catalog. The final physical-program walk follows published MIR from
+root and births; it can corroborate selection, but cannot issue the earlier
+source decision. A full root/birth reachability projection is not needed to
+prove this zero-incoming Static method unreachable.
 
 Non-authority: no-caller fixture evidence, `ExactBool`, `OrdinaryScalar`, and
 post-lowering MIR reachability do not justify silently omitting `accepts`.
@@ -200,14 +205,19 @@ exclusion. Unreachable source rows remain in the full inventory; they grant
 no executable packet. A publicly required callable remains available for
 other artifacts and is not retired by this EXE-specific selection.
 
-Smallest next design task: locate the existing resolved-call and birth-edge
-issuer that can close reachability from the original root without a new
-name-based scan. Acceptance must retain the complete mimalloc-lite source
-inventory while proving `Heap -> class_id` selected and `accepts -> class_id`
-unselected; a corpus that calls `accepts` or has an unresolved edge must not
-exclude it. This revises the earlier blanket demand to execute every source
-Static row. The physical condition-call packet remains a later selected-case
-task if an actual reachable caller requires it.
+Smallest next design task: bind this inventory's caller-zero proof to the
+closed-world physical selection owner, without weakening the all-declaration
+semantic catalog or changing library/public selection. The diagnostic on the
+unchanged mimalloc-lite source passed 1/1: 102 MethodCalls observed, no
+observation gap, 26 Static target rows, zero `LayoutBox.accepts` targets, and
+one distinct `SizeClassBox.accepts` target. The temporary print was removed.
+Acceptance must retain the full 15-caller Heap source inventory and
+`accepts -> class_id` source row while proving the original
+`Heap -> class_id` call selected and `accepts` unselected physically; a corpus
+that calls `LayoutBox.accepts` or has
+an observation gap must not exclude it. This revises the blanket demand to
+execute every source Static row. The condition-call packet remains a later
+selected-case task if an actual reachable caller requires it.
 
 Non-claims: this D0 grants no executable actual, physical payload, result
 contract, EXE, Loop Mul, old-edge retirement or full MirBuilder completion.
