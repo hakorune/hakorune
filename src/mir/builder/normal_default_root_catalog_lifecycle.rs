@@ -31,8 +31,8 @@ use super::{
 use super::{BuilderInstallConsumerV1, BuilderPrivateCallableLoweringScopeV1};
 use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::{
-    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1,
-    OrdinaryNewClaimLedgerV1,
+    issue_normal_callable_semantic_package_with_selection_v1, OrdinaryNewClaimLedgerV1,
+    PackagePhysicalSelectionV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::source_call_target::VerifiedStaticImportAliasViewV1;
@@ -160,6 +160,7 @@ impl ModuleBuilderInvocationSessionV1 {
             materialization_policy,
             runtime_inputs,
             None,
+            PackagePhysicalSelectionV1::AllSource,
         )
     }
 
@@ -171,6 +172,7 @@ impl ModuleBuilderInvocationSessionV1 {
         target_capability: Option<
             crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
+        physical_selection: PackagePhysicalSelectionV1,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
@@ -261,12 +263,13 @@ impl ModuleBuilderInvocationSessionV1 {
         let mut semantic_package = match callable_source.take() {
             Some(callable) => {
                 let package = match declaration_facts.with_brand_catalog(|catalog| {
-                    issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+                    issue_normal_callable_semantic_package_with_selection_v1(
                         &mut resolver,
                         callable,
                         Some(catalog),
                         self.config().generic_loop_facts_policy_v1(),
                         &import_rows,
+                        physical_selection,
                     )
                 }) {
                     Ok(package) => package,

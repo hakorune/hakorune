@@ -259,9 +259,13 @@ StaticBoxMethod rows. A valid unselected row remains in the complete batch,
 cannot steal selection, and is neither issuer failure nor fallback. Selected
 Dynamic input and its required contract must match the same private batch slot.
 
-For closed App static methods, the source-backed catalog retains an explicit
-omitted-identity cohort from the original complete MethodCall inventory. The
-co-seal validates that each such row remains a declaration and is absent from
+Production closed-App physical selection requires the runner's selected EXE
+branch to pass explicit intent. The presence of `Main.main` alone is not EXE
+intent: reusable package, MIR JSON, and other artifact requests keep all
+source declarations. For closed App static methods, the source-backed catalog
+retains an explicit omitted-identity cohort from the original complete
+MethodCall inventory. The co-seal validates that each such row remains a
+declaration and is absent from
 the selected batch map. It does not discard source calls or relax a selected
 callee's incoming transport veto.
 

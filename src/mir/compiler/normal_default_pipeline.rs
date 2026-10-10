@@ -89,6 +89,7 @@ pub struct NormalCompileRequestV1 {
     result_contract: CurrentNormalCompileResultContractV1,
     compile_target_capability:
         Option<super::target_capability::PinnedTextCompileTargetCapabilityV1>,
+    physical_selection: crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -202,6 +203,8 @@ impl NormalCompileRequestV1 {
             admission,
             result_contract: CurrentNormalCompileResultContractV1::ReportPreTransformVerification,
             compile_target_capability: None,
+            physical_selection:
+                crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::AllSource,
         }
     }
 
@@ -221,6 +224,7 @@ impl NormalCompileRequestV1 {
                 admission,
                 result_contract,
                 compile_target_capability: None,
+                physical_selection: crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::AllSource,
             }),
             Err(ast) => Err(RejectedNormalProgramCompileRequestV1 {
                 _ast: ast,
@@ -238,6 +242,12 @@ impl NormalCompileRequestV1 {
         capability: super::target_capability::PinnedTextCompileTargetCapabilityV1,
     ) -> Self {
         self.compile_target_capability = Some(capability);
+        self
+    }
+
+    pub(crate) fn for_closed_app_executable(mut self) -> Self {
+        self.physical_selection =
+            crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable;
         self
     }
 
@@ -487,6 +497,7 @@ impl NormalDefaultPublishedPipelineV1 {
             String,
         >,
     ) -> Result<R, String> {
+        let physical_selection = request.physical_selection;
         let (program, source, imports, _admission, result_contract, target_capability) =
             request.into_parts();
         let runtime_inputs = NormalRuntimeInputSnapshotV1::capture_from_normal_ingress();
@@ -510,6 +521,7 @@ impl NormalDefaultPublishedPipelineV1 {
                 materialization,
                 runtime_inputs,
                 target_capability,
+                physical_selection,
             )
             .map_err(|rejected| {
                 let message = rejected.error().to_string();

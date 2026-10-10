@@ -154,7 +154,9 @@ impl NyashRunner {
             .as_deref()
             .filter(|_| groups.emit.emit_mir_json.is_none())
         {
-            let emitted = mir_compiler.compile_normal_with_published(request, |view, verification| {
+            let emitted = mir_compiler.compile_normal_with_published(
+                request.for_closed_app_executable(),
+                |view, verification| {
                     if let Err(errors) = verification {
                         let details = errors.iter().map(ToString::to_string).collect::<Vec<_>>();
                         return Err(crate::runner::modes::common_util::verifier_gate::build_direct_emit_verify_lines(
@@ -181,7 +183,8 @@ impl NyashRunner {
                     } else {
                         Err("[freeze:contract][published-mir-backend-object] selected EXE lost typed route".to_owned())
                     }
-                });
+                },
+            );
             match emitted {
                 Ok(crate::mir::NormalPublishedCompileOutcome::Consumed(())) => {
                     println!("EXE written: {}", exe_out);

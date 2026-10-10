@@ -237,6 +237,24 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     // receiver names through one shared authority, never a second list.
     import_rows: &[(String, String)],
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    issue_normal_callable_semantic_package_with_selection_v1(
+        resolver,
+        source,
+        brand_catalog,
+        loop_policy,
+        import_rows,
+        super::PackagePhysicalSelectionV1::AllSource,
+    )
+}
+
+pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: ConsumedNormalRootCallableSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    loop_policy: LoopFactsPolicyFrameV1,
+    import_rows: &[(String, String)],
+    physical_selection: super::PackagePhysicalSelectionV1,
+) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let mut catalog =
         issue_source_backed_same_module_callable_catalog_v1(&source).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error }
@@ -252,11 +270,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::QualifiedStaticClaim { _error: error },
         )?;
-    catalog
-        .exclude_closed_app_static_keys(&closed_app_zero_incoming)
-        .map_err(
-            |error| NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error },
-        )?;
+    if physical_selection == super::PackagePhysicalSelectionV1::ClosedAppExecutable {
+        catalog
+            .exclude_closed_app_static_keys(&closed_app_zero_incoming)
+            .map_err(
+                |error| NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error },
+            )?;
+    }
     let instance_constructors = issue_instance_constructor_semantic_batch_v1(
         resolver,
         source.source(),

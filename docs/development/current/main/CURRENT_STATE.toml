@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-EXPLICIT-EXE-STATIC-SELECTION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "reconcile selected Static caller cohort after closed-App zero-incoming physical selection"
+current_blocker_token = "selfhost-resume/explicit-exe-static-selection-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,23 +14,24 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
-latest_card = "mirbuilder-gate1-object-guarded-outgoing-transport-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
+latest_card = "mirbuilder-explicit-exe-static-selection-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-explicit-exe-static-selection-s0-2026-10-10.md"
 latest_card_summary = """
-Closed-App static selection S0 is complete: LayoutBox.accepts is physically
-omitted on the unchanged mimalloc-lite source, while its declaration and
-original accepts -> class_id source call remain. All 15 Heap callers remain.
-Focused source, physical, real-imported-source, and bare-static rejection
-tests pass; Script selection remains total. The unchanged EXE still stops at
-source-only-object-actuals. Next resolve the selected-caller cohort so an
-omitted caller is retained as source evidence without vetoing a selected
-callee's executable transport. Page edges, Loop Mul, and
-CALLEE-RETURN-OUTCOME-S0 remain unfinished; the finite goal remains open.
+Prior closed-App static selection at 960880c040 passed its focused tests but
+selected by parsed App Main alone. Broad package validation exposed uncalled
+source declarations disappearing in reusable package consumers. The
+uncommitted selected-caller checkout showed 891 pass, 107 fail versus
+pre-selection baseline 995 pass, 3 known fail. This corrective
+row threads explicit EXE intent from the runner; generic package and MIR JSON
+remain total. Selected-caller cohort S0 has protected uncommitted work in a
+separate checkout and resumes only
+after this correction. Page edges, Loop Mul, and CALLEE-RETURN-OUTCOME-S0
+remain unfinished; the finite goal remains open.
 """
-next_design_card = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-EXPLICIT-EXE-STATIC-SELECTION-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-explicit-exe-static-selection-s0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

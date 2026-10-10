@@ -60,6 +60,14 @@ mod s6c_effects;
 mod s6c_storage_header;
 mod selected_mapping;
 
+/// Physical source selection belongs to the requested artifact, not to a
+/// parsed App Main found in a reusable package.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(in crate::mir) enum PackagePhysicalSelectionV1 {
+    AllSource,
+    ClosedAppExecutable,
+}
+
 /// Opaque capability created only by the package-owned install bridge.  The
 /// type name is visible to the Builder bridge, while its constructor and
 /// fields remain private to this package family.
@@ -119,6 +127,7 @@ pub(crate) use install::{
     SelectedCatalogedCallableLoweringInputV1,
 };
 pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1;
+pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_with_selection_v1;
 #[cfg(test)]
 pub(in crate::mir) use issuer::NormalCallableSemanticPackageIssueV1;
 #[cfg(test)]

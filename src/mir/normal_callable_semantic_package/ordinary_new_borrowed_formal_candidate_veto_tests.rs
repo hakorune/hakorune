@@ -118,9 +118,10 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
             };
             let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
             let consumed = NormalRootExecutionConsumerV1::consume_once(source).unwrap().into_consumed_source();
-            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_and_loop_policy_v1(
+            let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_selection_v1(
                 &mut FunctionSemanticResolverSessionV1::new(93).unwrap(), consumed, Some(&catalog),
                 crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &imports,
+                crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
             ).expect("one original factory");
             let claims = &package.source_static_claims_for_test;
             let uncalled_accepts = CanonicalSameModuleCallableKeyV1::static_box_method(

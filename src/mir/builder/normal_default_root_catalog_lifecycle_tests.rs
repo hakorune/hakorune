@@ -477,19 +477,27 @@ fn source_backed_app_main_qualified_static_call_uses_canonical_owner() {
 #[test]
 fn closed_app_omits_uncalled_static_method_before_physical_publication() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        "static box Helpers {
+    let text = "static box Helpers {
             live(value: i64): i64 { return value }
             dead(value: i64): i64 { return value }
         }
-        static box Main { main() { return Helpers.live(2) } }",
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
+        static box Main { main() { return Helpers.live(2) } }";
+    let total = session()
         .complete_normal_default_program_root_catalog_lifecycle(
-            source,
+            callable_source(text, ParserBuildConfig::default()),
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect("reusable package retains uncalled declarations");
+    let (_, total_module, _) = total.into_parts();
+    assert!(total_module.functions.contains_key("Helpers.dead/1"));
+    let completed = session()
+        .complete_normal_default_program_root_catalog_lifecycle_with_target(
+            callable_source(text, ParserBuildConfig::default()),
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+            None,
+            crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
         )
         .expect("closed App selection and package complete must agree");
     let (_, module, _) = completed.into_parts();
