@@ -265,6 +265,7 @@ pub(super) use incoming_source::BorrowedIncomingSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_incoming.rs"]
 mod incoming;
+pub(in crate::mir::normal_callable_semantic_package) use incoming::exact_bool_value_return_site_v1;
 #[cfg(test)]
 pub(super) use incoming::inventory_borrowed_incoming_calls_v1;
 pub(super) use incoming::{

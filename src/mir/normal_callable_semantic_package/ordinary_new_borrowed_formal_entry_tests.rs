@@ -2,6 +2,55 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use std::rc::Rc;
 
+#[test]
+fn original_accepts_bool_entry_uses_one_source_only_cohort() {
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
+        .expect("original SizeClassBox source issues");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let original = ingress.source_incoming.static_observations().values()
+        .filter_map(|row| row.as_ref().ok())
+        .find(|row| row.caller().name() == "accepts_usize" && row.target().name() == "accepts")
+        .expect("original Bool incoming");
+    let owner = original.callee_owner();
+    assert!(ingress.source_only_definitions.contains_key(&owner));
+    assert!(!ingress.source_incoming.has_unsupported_static_context(owner));
+    let entry = ledger.checked_completed_static_bool_entry_v1(ingress, owner).unwrap().unwrap();
+    assert_eq!(entry.len(), 1);
+    assert_eq!(entry[0].call, *original.call_site());
+    assert!(ledger.borrowed_formal_actuals[original.call_site()].as_ref().unwrap()
+        .require_executable_v1().unwrap_err().contains("bool-entry-not-call"));
+    let site = original.call_site().clone();
+    let binding = original.parameters()[0].binding;
+    ledger.record_borrowed_ordinary_entry_values_v1(owner,
+        Ok(Box::new([(0, binding, crate::mir::ValueId::new(73))]))).unwrap();
+    let loan = ledger.finalized_borrowed_ordinary_entry_source_v1(owner).unwrap();
+    assert_eq!(loan.formals(), &[(0, binding)]);
+    assert_eq!(loan.incoming_targets().count(), 1);
+    drop(entry);
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap()
+        .source_incoming.remove_exact_row_for_test(&site);
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    assert!(ledger.checked_completed_static_bool_entry_v1(ingress, owner).is_err());
+}
+
+#[test]
+fn bool_entry_rejects_non_return_context_and_unbound_caller_actual() {
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    for (replacement, stop) in [
+        ("local answer = me.accepts(size) return answer", "static-bool-entry/source-context"),
+        ("return me.accepts(1)", "static-bool-entry/caller-source-binding"),
+    ] {
+        let source = original.replace("return me.accepts(size)", replacement);
+        assert_ne!(source, original);
+        let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source)
+            .err().expect("unsupported Bool entry source must fail");
+        assert!(format!("{error:?}").contains(stop), "{replacement}: {error:?}");
+    }
+}
+
 fn package(body: &str, main: &str) -> VerifiedNormalCallableSemanticPackageV1 {
     let source = format!("box Transport {{ birth() {{ }} probe(p): i64 {{ {body} }} sink(q): i64 {{ return 0 }} }} static box Main {{ main() {{ {main} }} }}");
     crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(

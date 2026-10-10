@@ -190,6 +190,16 @@ impl<'a> CallableResultContractRefV1<'a> {
         }
     }
 
+    /// Agreement with the independent ExactBool source result. An absent
+    /// annotation alone never proves Bool or activates its physical ABI.
+    pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {
+        self.result.is_none()
+            && matches!(
+                self.completion.function_exit_contract().declared_result(),
+                DeclaredFunctionResultContractV1::Unannotated
+            )
+    }
+
     #[cfg(test)]
     pub(crate) fn declared_result(&self) -> &DeclaredFunctionResultContractV1 {
         self.completion.function_exit_contract().declared_result()

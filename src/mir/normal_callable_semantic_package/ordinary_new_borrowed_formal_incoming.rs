@@ -1,6 +1,26 @@
 //! Sole selected-caller incoming scan retains Static/Object transport evidence.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
+
+pub(in crate::mir::normal_callable_semantic_package) fn exact_bool_value_return_site_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+) -> bool {
+    input.body_shape().is_some_and(|shape| {
+        crate::mir::normal_callable_semantic_package::ordinary_new_coseal::verified_value_return_sites(input, shape)
+            .is_some_and(|values| values.as_slice() == std::slice::from_ref(site))
+            && shape.statements().iter().any(|statement| match statement {
+                crate::mir::resolved_semantics::BodyStatementShapeV1::Return {
+                    site: exit, value: Some(value),
+                } if value == site => shape.relations().iter().filter(|relation|
+                    relation.parent() == exit.node()
+                        && relation.role() == &crate::mir::resolved_semantics::SourcePathSegmentV1::Value
+                        && relation.child() == site).count() == 1,
+                _ => false,
+            })
+    })
+}
+
 #[path = "ordinary_new_borrowed_static_inventory.rs"]
 mod static_inventory;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use static_inventory::StaticIncomingContextV1;
@@ -512,8 +532,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     // Capability exclusions apply to the whole callee. Retain
                     // the original row below, including every caller and veto.
                     if contract.mode == CallableParameterDeclarationModeV1::StaticBoxMethod {
+                        let exact_bool_return = matches!(&exact,
+                            BorrowedIncomingSourceV1::Static(original)
+                                if original.is_current_owner_bool_source_v1())
+                            && exact_bool_value_return_site_v1(input, site);
                         if !input.function().expression_source().initializers().any(|initializer|
-                            initializer.initializer_site() == Some(site)) {
+                            initializer.initializer_site() == Some(site)) && !exact_bool_return {
                             unsupported_static_context.insert(*callee);
                         }
                         if call.arguments().iter().zip(&contract.parameters).any(|(argument, formal)|

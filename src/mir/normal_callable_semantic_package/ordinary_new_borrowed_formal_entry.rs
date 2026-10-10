@@ -237,7 +237,9 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                     &row.source
                 {
                     if !original.is_qualified()
-                        && !(original.is_current_owner_i64_source_v1()
+                        && !((original.is_current_owner_i64_source_v1()
+                            || (original.is_current_owner_bool_source_v1()
+                                && self.source.source_only_definitions.contains_key(&self.owner)))
                             && self.incoming.iter().any(|(site, actuals)| {
                                 *site == &row.call && actuals.len() == 1
                             }))
@@ -695,7 +697,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
-            actuals.ordered_arguments_for_v1(call)?;
+            if actuals.is_entry_only_static_bool_v1() {
+                self.checked_completed_static_bool_entry_v1(source, owner)?
+                    .ok_or_else(|| freeze("borrowed-entry/bool-entry-proof-missing"))?;
+            }
+            actuals.ordered_arguments_for_entry_v1(call)?;
             let actuals = &actuals.opaque_actuals;
             for actual in actuals.iter() {
                 if definition.origins.get(&actual.formal)

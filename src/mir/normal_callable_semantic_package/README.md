@@ -2283,3 +2283,15 @@ request cannot silently replace a prior result. This prerequisite does not
 lend post-loop Home classes or admit a builder Loop. Recipe, JoinSig and a
 verified After loan must consume this same source identity before Body9 can
 advance.
+
+An original CurrentOwner `ExactBool` Static callee can borrow an entry for
+one exact `return me.target(size)` caller when `size` is that caller's
+declared `usize` formal. The sole incoming inventory proves the Return/value
+site and target; the caller's resolved variable reference and parameter
+contract provide the source-only Integer actual through the existing Static
+source issuer. The ledger joins the whole one-call cohort to the callee's
+Completion, result contract and physical signature before the borrowed-entry
+issuer records its value. This entry-only proof cannot be consumed as a
+Static packet or Bool Invoke. Missing or changed incoming, context, binding,
+ABI or result evidence refuses before entry; physical Bool publication and
+whole-program coverage remain separate obligations.

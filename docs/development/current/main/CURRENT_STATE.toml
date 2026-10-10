@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
+current_execution_row = "MIRBUILDER-STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/bool-currentowner-entry-source-fixpoint-d0"
-current_design_stop = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
+current_blocker_token = "selfhost-resume/static-local-call-bindings-coverage-d0"
+current_design_stop = "MIRBUILDER-STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,22 +13,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
-latest_card = "mirbuilder-bool-currentowner-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-local-call-bindings-coverage-d0-2026-10-11.md"
+latest_card = "mirbuilder-static-local-call-bindings-coverage-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-local-call-bindings-coverage-d0-2026-10-11.md"
 latest_card_summary = """
-Mixed Static cohort package proof is checkpointed at 024af5d8aa and its
-pointer at f974f16d82. The package positive, missing-sibling route/lending
-negative, and 12 Static packet family tests pass, but physical acceptance
-remains open. The unchanged SizeClassBox published-view probe moves to
-accepts/1 borrowed-entry/entry-values-missing before the physical ABI
-callback. BOOL-CURRENTOWNER-ENTRY-D0 now audits the original ExactBool
-CurrentOwner source and transport-owner fixpoint: seeding accepts alone may
-still fail because its forwarded size_to_bin destination is source-only.
-No Bool ABI, whole-source publication or mimalloc-lite EXE PASS is claimed.
+BOOL-CURRENTOWNER-ENTRY-S0 closes one original source-backed borrowed entry:
+focused borrowed-entry family 59/59 and quick check pass. The unchanged
+SizeClassBox physical probe moves past accepts/1 entry-values-missing to
+IncompleteOrdinaryNewCoverage. Disposable diagnostics isolate unconsumed
+Static local-call binding groups for bin_size, size_to_bin and good_size;
+the mixed predecessor's physical acceptance remains open. The selected D0
+must identify the canonical exit/physical consumer before implementation.
+No whole-source publication or mimalloc-lite EXE PASS is claimed.
 """
-next_design_card = "MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-bool-currentowner-entry-d0-2026-10-11.md"
+next_design_card = "MIRBUILDER-STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-local-call-bindings-coverage-d0-2026-10-11.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
@@ -45,8 +44,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-11: MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-S0 — original accepts_usize -> accepts entry proof and fail-fast negative pass 59/59; unchanged SizeClassBox first stop moves from entry-values-missing to Static local-call binding coverage. Physical publication remains red. Next: STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0.",
   "2026-10-11: MIRBUILDER-STATIC-SCALAR-FORMAL-ROOT-ENTRY-S0 — exact USIZE scalar formal forwarding completes the original good_size cohort through the existing Static packet. Package positive, wrong-ABI negative and 11 static-packet-entry family tests pass. Unchanged SizeClassBox physical probe validates good_size_usize/1 Invoke/NormalResult and next stops at size_to_bin_usize/1; still red. Next: mixed-cohort D0 census.",
   "2026-10-10: MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0 landed at dd1ab9c2cb — original Static source, completion, ordered actuals and result publication issue one root packet; final MIR positive and focused negatives green. Unchanged SizeClassBox first stop moves from bin_size_usize/1 to good_size_usize/1; still red. Next: source-only forwarded wrapper D0.",
-  "2026-10-10: MIRBUILDER-STATIC-CALL-TERMINAL-RETENTION-S0 — exact original caller-keyed CurrentOwner Static I64 Call terminal survives child coseal; unqualified Call refusal remains. Unchanged SizeClassBox published-view probe moves from root-exit-source-missing to call-entry-missing; still red. Next: root Call entry D0.",
   ]
 

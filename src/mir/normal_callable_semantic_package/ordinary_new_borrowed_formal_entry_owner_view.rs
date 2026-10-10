@@ -47,6 +47,9 @@ impl OrdinaryNewClaimLedgerV1 {
             }));
         }
         if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if let Some(incoming) = self.checked_completed_static_bool_entry_v1(source, owner)? {
+                return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+            }
             if let Some(incoming) = self.checked_completed_static_scalar_cohort_v1(source, owner)? {
                 return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
             }

@@ -1,6 +1,6 @@
 # MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-D0
 
-Status: design_stop; source/fixpoint authority under audit
+Status: MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-S0 closed; physical Static coverage remains open
 Date: 2026-10-11
 Scope: unchanged `SizeClassBox.accepts_usize/1 -> accepts/1` borrowed entry
 Related:
@@ -47,27 +47,37 @@ The raw incoming census also marks the return-call context unsupported;
 admission must prove this exact return shape without suppressing that veto
 for unrelated calls.
 
-## Decision brief under audit
+## Decision
 
 ```text
-Decision: pending one integrated source/fixpoint/entry mapping.
+Decision: keep accepts source-only and complete one exact Bool CurrentOwner
+  entry cohort at the existing borrowed-entry issuer. Do not seed it into
+  the global transport-owner fixed point.
 Source authority + canonical issuer: original CurrentOwner incoming inventory,
-  ExactBool result disposition, declared USIZE formal, target opaque formal,
-  Completion and physical signature; existing borrowed-entry issuer.
+  resolved BodyShape singleton Return/value relation at the original call
+  site, ExactBool result disposition, declared USIZE caller formal/signature,
+  target opaque formal/origin/checked input, Completion and target signature;
+  existing borrowed-entry issuer records values.
 Non-authority: mixed packet as a substitute for accepts entry, caller ValueId,
-  I64-only CurrentOwner transport or physical Bool result.
+  I64-only CurrentOwner transport, and physical Bool result.
 Fail-fast boundary: wrong site/target/formal/ABI/result, incomplete incoming
-  cohort, unproved forwarding destination, or missing entry source.
-Smallest next slice: to be selected after the read-only fixpoint audit.
+  cohort, unsupported non-Return context, missing entry source, or attempt
+  to consume entry-only proof as a Static packet/Bool Invoke.
+Smallest next slice: BOOL-CURRENTOWNER-ENTRY-S0 stages one source-only Bool
+  scalar actual, completes an entry-only proof, then feeds the existing
+  borrowed-entry owner view and ordered-actual issuer.
 Non-claims: no Bool physical return/Invoke, no whole-source publication, no
   mixed S0 closeout, no mimalloc-lite EXE success.
 ```
 
-Audit acceptance: identify the exact original incoming and forwarding graph,
-which owner enters the fixed point under which proof, whether the existing
-borrowed-entry source/actual issuer can consume it, and a positive plus
-wrong-identity/missing-source negative that reaches the next named Bool
-boundary. Do not start semantic construction while this mapping is open.
+S0 acceptance: the unchanged-source `accepts` entry obtains a source-backed
+value through the existing borrowed-entry issuer and reaches the next named
+Bool boundary; a wrong Return/value site, target, result, formal, ABI,
+missing incoming row or non-Return context refuses before entry. The
+entry-only phase cannot be lent as a Static packet. Reuse the existing
+borrowed-entry and result tests and the original-source probe; add only
+independent missing conditions. A red whole-source probe at the next
+physical Bool frontier is expected, not a PASS.
 
 ## Read-only audit result
 
@@ -90,11 +100,70 @@ Three existing seams need one integrated Decision before construction:
   completed proof must satisfy entry checking without granting a Bool Static
   packet or Invoke. The checked entry owner view must consume that proof.
 
-The issuer remains the existing borrowed-entry path. The next design step
-is to name the exact Return/value-site proof already issued by resolved
-source/Completion, and specify how the entry-only phase is consumed by
-entry checking while physical call/result remain refused. Once that mapping
-is fixed, select one S0 with original-source entry positive, wrong
-site/target/result/formal/ABI and missing-row negatives, and the next named
-physical Bool frontier. The predecessor mixed S0 physical acceptance stays
-open throughout.
+The Return/value-site proof is the resolved `BodyStatementShapeV1::Return`
+value site plus its `BodyShapeRelationV1` Value child, joined to the exact
+original CurrentOwner call site. It does not infer a return ABI. The
+entry-only phase may pass the borrowed-entry ordered-actual correspondence
+check only when its completed source proof is present; the generic physical
+packet lender and Bool Invoke keep their existing refusal. The predecessor
+mixed S0 physical acceptance stays open throughout.
+
+## S0 evidence in progress
+
+The exact `return me.accepts(size)` call never reaches the Home expression
+walk's actual observer. For this one source-only Bool cohort, the entry
+finisher borrows the existing incoming row and the declared `usize` caller
+formal, checks that the resolved argument site names that binding, then
+passes a scalar candidate to the existing Static source-actual issuer.
+The completed phase is accepted only by the borrowed-entry ordered-argument
+checker and is refused by the physical Static packet lender. The earlier
+attempt to add this site to `static_source_sites` was removed: that set also
+selects physical call handling and is not the Bool entry authority.
+
+At the WIP revision before the responsibility-only module split,
+`cargo check --profile quick -p nyash-rust --lib` passed, the original-source
+focused Bool entry test passed 1/1, the borrowed-entry family passed 17/17,
+and the Static packet family passed 12/12. The post-split `cargo check` also
+passed. The post-split `borrowed_formal_entry::` focused family passed 58/58
+under the quick profile, including the original-source positive and existing
+negative cases (`/tmp/hako-bool-entry-final-family-20261011.log`).
+
+The unchanged SizeClassBox source with only a test `Main` suffix was probed
+in disposable worktree `/mnt/workdisk/hako-bool-entry-physical-probe-20261011`
+at base `f9cc86cf86` plus copied Bool WIP and the separately protected Eq
+overlay. Command: `CARGO_TARGET_DIR=/mnt/workdisk/hako-field-array-get-i64-target
+CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust --lib
+imported_size_class_accepts_publishes_ordered_static_integer_eq`.
+Build/link took 7m55s; the test ran in 0.02s. The physical probe is still
+red, but its first stop moved from `accepts/1 borrowed-entry/entry-values-missing`
+to install `IncompleteOrdinaryNewCoverage` (`/tmp/hako-bool-entry-physical-20261011.log`).
+This proves the previous entry stop was passed. The generic coverage failure
+does not by itself identify the remaining Bool physical obligation or prove
+the mixed root Call emitted. It needs a separate owner census before the next
+physical slice is selected; the predecessor mixed physical acceptance is open.
+
+The first dedicated negative was red: a Bool call in a local initializer
+issued a package even though the new entry must require the exact Return
+value site (`/tmp/hako-bool-entry-negative-20261011.log`). The existing
+inventory's initializer context exception was broader than this entry
+contract. The inventory and entry finisher now call one shared exact
+Return/value relation predicate; the finisher checks it whether the actual
+was observed by Home or sourced directly. This change-induced red is fixed:
+the post-fix borrowed-entry family passes 59/59, including the two new
+rejection cases and the unchanged-source positive
+(`/tmp/hako-bool-entry-final-family-2-20261011.log`). The final-revision
+physical probe repeated the same `IncompleteOrdinaryNewCoverage` first stop
+at the final WIP source revision (`/tmp/hako-bool-entry-physical-final-20261011.log`;
+quick build/link 5m54s, test 0.02s). It is an informational next frontier,
+not a green whole-source acceptance. Disposable-only diagnostics identified
+`local_call_bindings_consumed=false` as the lone failing top-level ledger
+condition (`/tmp/hako-bool-entry-coverage-diag-20261011.log`). Recorded owner
+slots 4, 5 and 7 have Static local-call groups but no exit entries; source
+order identifies them as `bin_size`, `size_to_bin` and `good_size`. Owner
+slot 10 (`accepts`) has an emitted exit entry containing its local-call
+groups (`/tmp/hako-bool-entry-coverage-owner-20261011.log`). Diagnostic
+prints exist only in the disposable worktree.
+
+S0 closes the one source-backed Bool borrowed entry and its fail-fast
+boundary. It does not close the mixed cohort's physical acceptance, Static
+local-call consumption, whole-source publication or mimalloc-lite EXE.

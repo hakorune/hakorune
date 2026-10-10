@@ -89,6 +89,17 @@ impl StaticIncomingSourceV1 {
         ) && self.argument_sites.len() == self.parameters.len()
     }
 
+    /// Original Bool result and input tuple. This is source identity only;
+    /// it grants neither an entry carrier nor an executable Bool call.
+    pub(in crate::mir::normal_callable_semantic_package) fn is_current_owner_bool_source_v1(
+        &self,
+    ) -> bool {
+        matches!(
+            self.current_owner_source().map(|row| row.result()),
+            Some(VerifiedCallableResultDispositionV1::ExactBool)
+        ) && self.argument_sites.len() == self.parameters.len()
+    }
+
     pub(in crate::mir) fn require_qualified(&self) -> Result<(), String> {
         if self.is_qualified() {
             Ok(())

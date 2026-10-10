@@ -70,6 +70,7 @@ enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
     ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
+    EntryOnlyStaticBool(static_bool_entry_finish::StaticBoolEntryFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
     SourceInstance(instance_source::InstanceSourceActualIdentityV1),
@@ -81,6 +82,8 @@ mod static_selected_actual;
 mod static_scalar_input_finish;
 #[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
 mod static_mixed_input_finish;
+#[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
+mod static_bool_entry_finish;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::{
     issue_original_static_forwarded_actual_v1, VerifiedStaticForwardedActualV1,
 };
@@ -112,6 +115,9 @@ impl PreparedBorrowedCallActualsV1 {
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_) => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::EntryOnlyStaticBool(_) => Err(freeze(
+                "ordinary-new/borrowed-entry/bool-entry-not-call",
+            )),
             BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-instance-actuals",
             )),
@@ -129,6 +135,13 @@ impl PreparedBorrowedCallActualsV1 {
         call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     ) -> Result<&[LocalCallArgumentV1], String> {
         self.require_executable_v1()?;
+        self.checked_ordered_arguments_v1(call)
+    }
+
+    fn checked_ordered_arguments_v1(
+        &self,
+        call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    ) -> Result<&[LocalCallArgumentV1], String> {
         if self.ordered_arguments.len() != call.source.argument_sites().len() {
             return Err(freeze("borrowed-entry/ordered-arguments-cardinality"));
         }

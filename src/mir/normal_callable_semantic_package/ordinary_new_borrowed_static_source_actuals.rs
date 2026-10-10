@@ -41,7 +41,9 @@ pub(super) fn prepare_static_source_actuals_v1(
         .get(call)
         .and_then(|row| row.as_ref().ok())
         .is_some_and(|source| {
-            source.is_zeroarg_i64_v1() || source.is_current_owner_i64_source_v1()
+            source.is_zeroarg_i64_v1()
+                || source.is_current_owner_i64_source_v1()
+                || source.is_current_owner_bool_source_v1()
         });
     if !opaque_source && !original_source {
         return Ok(None);
