@@ -314,3 +314,21 @@ reachable callers, and exclude an omitted caller only from executable
 transport obligations. Freeze the exact issuer/consumer and failure boundary
 before changing either Static seed veto. Page edges and return outcome are
 separate.
+
+## 2026-10-10 post-selection handoff
+
+`8b4339ecfb` confined closed-App omission to explicit EXE requests, and
+`1d8817ea39` removed only omitted Static callers from executable incoming
+obligations. The real imported mimalloc test now reports one selected
+`LayoutBox.class_id` incoming caller and candidate integer agreement while
+retaining the original `accepts -> class_id` source claim and all 15 Heap
+callers. The fresh quick CLI still stops at
+`ordinary-new/borrowed-entry/source-only-object-actuals` in 0.05s. The
+diagnostic has no owner/site in its CLI text, so the next first exclusion is
+unclassified; do not infer that a Page edge is first merely from the earlier
+ordering. The next design action is a read-only census of the post-selection
+source graph and existing failure owner/site evidence, then one Decision
+naming the precise outgoing actual issuer, consumer, and Normal/Fault
+boundary. No new transport construction begins before that mapping is fixed.
+The old trace naming `LayoutBox.class_id` described the pre-selection state
+and is superseded for current first-exclusion order.

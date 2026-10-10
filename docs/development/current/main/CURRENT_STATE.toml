@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-SELECTED-STATIC-CALLER-COHORT-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/selected-static-caller-cohort-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
+current_design_stop = "identify post-selection source-only-object-actuals first exclusion and canonical transport owner"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,21 +14,22 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
-latest_card = "mirbuilder-selected-static-caller-cohort-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-selected-static-caller-cohort-s0-2026-10-10.md"
+latest_card = "mirbuilder-gate1-object-guarded-outgoing-transport-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
 latest_card_summary = """
-Explicit EXE scope correction at 8b4339ecfb closed the overbroad App Main
-selection. Generic package validation returned to the pre-selection 995 pass,
-3 known fail; MIR JSON retains uncalled Static methods, and unchanged
-mimalloc-lite EXE keeps the prior source-only-object-actuals first stop.
-Selected-caller cohort S0 resumes next: protected uncommitted work in a
-separate checkout must be reconciled with EXE-only selection before testing
-or commit. Page edges, Loop Mul, and CALLEE-RETURN-OUTCOME-S0 remain open.
+EXE scope correction at 8b4339ecfb and selected Static incoming cohort at
+1d8817ea39 closed. Generic package tests remain 995 pass, 3 known fail;
+unchanged mimalloc-lite retains all 15 Heap callers and reaches candidate
+integer agreement for LayoutBox.class_id. The EXE still stops at
+source-only-object-actuals, with no owner/site in the CLI diagnostic. This D0
+must identify the new first exclusion and canonical outgoing actual boundary
+before another transport slice. Page edges, Loop Mul, and result outcome
+remain open; the finite goal is not complete.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-SELECTED-STATIC-CALLER-COHORT-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-selected-static-caller-cohort-s0-2026-10-10.md"
+next_design_card = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
