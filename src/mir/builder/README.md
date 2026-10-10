@@ -1460,6 +1460,10 @@ is a typed freeze error. A Cataloged `expected_lineage` demoted to
 The `StaticReceiver` route head and lowered static `me` route invoke this
 ingress before receiver/argument effects. For the qualified Cataloged path,
 the ingress selects the existing handoff by `(caller, SourceExprSiteV1)`;
+for a selected root Static Call Return, the Return statement's lineage must
+match the original incoming caller and the handoff is taken at that original
+Call expression site. The root packet alone moves the exact Call from local
+binding-group accounting into its own Invoke/NormalResult exit entry;
 owner/method/arity strings are route metadata only. A selected row reuses the
 existing ordered argument driver, generic Call receipt emitter, and
 `PreparedStaticCallResultPublicationV1`; a `TargetOnly` row returns its named

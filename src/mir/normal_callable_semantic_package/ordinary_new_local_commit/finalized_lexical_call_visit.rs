@@ -156,10 +156,9 @@ impl FinalizedRootSourceHandoffV1 {
                 continue;
             }
             self.with_terminal_call_packet_v1(self.owner(), exit, |packet| {
-                let arguments = self
-                    .ledger
-                    .borrowed_terminal_arguments_v1(self.owner(), exit)?
-                    .ok_or_else(|| freeze("final-call-visit/terminal-source-missing"))?;
+                let arguments = self.ledger.validate_lexical_terminal_packet(
+                    self.owner(), exit, packet,
+                )?;
                 walk(
                     self.owner(),
                     FinalizedLexicalCallContextV1::Return { exit },
@@ -187,10 +186,9 @@ impl FinalizedRootSourceHandoffV1 {
                 continue;
             }
             self.with_terminal_call_packet_v1(*owner, exit, |packet| {
-                let arguments = self
-                    .ledger
-                    .borrowed_terminal_arguments_v1(*owner, exit)?
-                    .ok_or_else(|| freeze("final-call-visit/terminal-source-missing"))?;
+                let arguments = self.ledger.validate_lexical_terminal_packet(
+                    *owner, exit, packet,
+                )?;
                 walk(
                     *owner,
                     FinalizedLexicalCallContextV1::Return { exit },

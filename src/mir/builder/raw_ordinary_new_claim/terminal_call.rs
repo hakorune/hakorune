@@ -79,6 +79,40 @@ pub(super) fn emit_terminal_i64_call_exit(
             "[freeze:contract][ordinary-new/local-commit/artifact-source-unavailable] owner={owner:?} site={stmt_site:?}"
         ));
     }
+    if let Some((_, terminal)) = ledger.call_source_completion_for_owner_at(owner, &stmt_site) {
+        let value_site = terminal.call_site().clone();
+        let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, value_site);
+        if let Some(original) = ledger.selected_static_local_source_v1(&owned)? {
+            let ledger = std::rc::Rc::clone(ledger);
+            use crate::mir::builder::static_result_publication_ingress::{
+                take_terminal_static_publication_v1, StaticResultPublicationIngressV1,
+            };
+            let ingress = take_terminal_static_publication_v1(
+                    port,
+                    builder.comp_ctx.callable_declaration_catalog().ok(),
+                    original.caller(),
+                    original.call_site().site(),
+                    original.target(),
+                )
+                .map_err(|error| error.to_string())?;
+            let StaticResultPublicationIngressV1::Selected(publication) = ingress else {
+                return Err("[freeze:contract][static-terminal/publication-not-selected]".into());
+            };
+            let packet =
+                crate::mir::normal_callable_semantic_package::CallPacketSourceV1::static_i64(
+                    original,
+                    publication,
+                    &ledger,
+                )?;
+            let state = port
+                .callable_ledger
+                .as_ref()
+                .ok_or("[freeze:contract][static-terminal/state-missing]")?;
+            return crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_static_return(
+                builder, &mut state.borrow_mut(), &ledger, owner, &stmt_site, packet,
+            ).map(Some);
+        }
+    }
     if ledger
         .terminal_call_arguments_for_owner_at(owner, &stmt_site)
         .is_none()

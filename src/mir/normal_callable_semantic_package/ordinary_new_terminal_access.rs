@@ -206,7 +206,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// The caller completion plus the Call terminal seated at this exact
     /// exit site — never a sibling exit's relation.
-    pub(in crate::mir::normal_callable_semantic_package) fn call_source_completion_for_owner_at(
+    pub(in crate::mir) fn call_source_completion_for_owner_at(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,

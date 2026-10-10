@@ -76,3 +76,45 @@ do not broaden the old direct-call loan or erase the Lexical distinction.
 
 The previous S0 was closed at the retained source relation boundary; this
 entry and whole-source publication remain separate responsibilities.
+
+## S0 closeout (2026-10-10)
+
+The root Static packet now joins the exact Home Call terminal and Completion
+exit to the original incoming source, completed inputs, selected result
+publication, and ordered Home observation. The publication take uses the
+original Call expression site after corroborating the Return statement's
+caller lineage. The packet emits one root `Invoke`/`NormalResult`; the root
+take moves only that exact site out of local binding-group accounting. A
+terminal-shaped Call that is actually lowered locally keeps its local route.
+Final Call visitation reuses the root packet validator for Static and Lexical
+argument sources. `Plain` still cannot satisfy a selected Call terminal.
+
+Evidence on the selected source revision before closeout:
+
+- `cargo check --profile quick -p nyash-rust`: PASS.
+- Focused final-MIR root Static positive: 1/1 PASS, one I64 Call Invoke and
+  one NormalResult after independent final validation. This fixture is
+  zero-input to isolate root transport; it is not a scalar whole-app claim.
+- Original scalar incoming/terminal package positives: 2/2 PASS. Existing
+  Static packet family: 9/9 PASS, including missing/changed actual and
+  completion negatives. Lexical return: 2/2 PASS. Final Call visitor:
+  4/4 PASS. Existing forwarded-I64 physical packet: 1/1 PASS.
+- Unchanged `size_class_box.hako` with protected Eq WIP, diagnostic checkout:
+  still red. Before S0 the first refusal was `call-entry-missing` at
+  `SizeClassBox.bin_size_usize/1`, owner slot 9, `Body(0)`. After S0 the
+  first refusal is the same named contract at owner slot 8, `Body(0)`, the
+  `good_size_usize/1` wrapper. This proves first-stop movement, not passage
+  of every later owner or whole-source publication. A temporary diagnostic
+  also found and fixed an intermediate local binding overflow at
+  `good_size/1` (`Body(1).IfCondition.Rhs` followed by `Body(2).Value`).
+  The diagnostic overlay was removed; the three protected Eq files retained
+  identical hashes and are the only remaining diagnostic checkout changes.
+- A scalar-only physical fixture with a Mul callee reaches
+  `borrowed-mul/operand-copy-missing`. That failure belongs to the later Mul
+  physical-copy frontier and is not counted as a root-entry PASS.
+
+S0 closes at the root Static packet and final MIR boundary. The next selected
+decision must identify why the original `good_size_usize/1` direct Static
+Return has a retained terminal Call but a `Plain` root entry, and whether its
+callee's whole incoming/actual/result cohort can select the existing packet.
+No source edit, Plain promotion, or fallback is authorized by this closeout.

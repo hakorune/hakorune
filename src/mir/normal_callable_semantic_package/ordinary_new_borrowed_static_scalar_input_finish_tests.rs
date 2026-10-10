@@ -34,6 +34,9 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
         .unwrap()
         .unwrap();
     assert_eq!(cohort.len(), 2);
+    for call in cohort.iter() {
+        assert!(ledger.selected_static_local_source_v1(&call.call).unwrap().is_some());
+    }
     let contract = package
         .parameter_contracts
         .iter()

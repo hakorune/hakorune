@@ -206,7 +206,7 @@ pub(in crate::mir::builder) fn prepare_arguments(
     )
 }
 
-fn prepare_arguments_for_source(
+pub(super) fn prepare_arguments_for_source(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,
     ledger: &OrdinaryNewClaimLedgerV1,

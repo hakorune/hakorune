@@ -87,7 +87,10 @@ pub(in crate::mir::builder) fn emit(
         Some(value),
         value,
         Some(RootExitIngress::Call(Emission {
-            source: Source::Lexical { row, prepared },
+            source: Source::Packet {
+                row: crate::mir::normal_callable_semantic_package::CallPacketSourceV1::instance(row),
+                prepared,
+            },
             arguments,
             call,
             result,

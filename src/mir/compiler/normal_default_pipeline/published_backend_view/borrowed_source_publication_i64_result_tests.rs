@@ -144,3 +144,27 @@ fn unannotated_borrowed_i64_result_publishes_call_forms() {
         }
     });
 }
+
+#[test]
+fn static_direct_return_records_one_root_invoke() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "static box Layout { word() { return 8 } relay() { return me.word() } } static box Main { main() { return 0 } }";
+        MirCompiler::with_options(false)
+            .compile_normal_for_mir_json(request(text), |view, verification| -> Result<(), String> {
+                classify_pretransform_report(verification);
+                let relay = &view.module().functions["Layout.relay/0"];
+                let instructions: Vec<_> = relay.blocks.values()
+                    .flat_map(|block| block.instructions.iter().chain(block.terminator.iter()))
+                    .collect();
+                assert_eq!(instructions.iter().filter(|row| matches!(row,
+                    crate::mir::MirInstruction::Invoke { operation:
+                        crate::mir::instruction::InvokeOperation::Call { result:
+                            crate::mir::instruction::InvokeCallResultKind::I64, .. }, .. })).count(), 1);
+                assert_eq!(instructions.iter().filter(|row| matches!(row,
+                    crate::mir::MirInstruction::InvokeNormalResult { .. })).count(), 1);
+                Ok(())
+            })
+            .unwrap();
+    });
+}

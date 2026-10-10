@@ -316,6 +316,43 @@ fn take_cataloged_publication_v1(
     })
 }
 
+/// A terminal Return is located at its statement; the result publication is
+/// owned by the original nested Call expression. Preserve the caller lineage
+/// from the source context, then take only that exact original call site.
+pub(in crate::mir::builder) fn take_terminal_static_publication_v1(
+    port: &mut RawInvocationChildPortV1<'_, '_>,
+    declarations: Option<&VerifiedSameModuleCallableDeclarationCatalogV1>,
+    original_caller: &CanonicalSameModuleCallableKeyV1,
+    original_site: &SourceExprSiteV1,
+    target: &CanonicalSameModuleCallableKeyV1,
+) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
+    let source = classify_source_context_v1(
+        port.current_source_context_v1().as_ref(),
+        port.callable_ledger.is_some(),
+        declarations,
+        target.owner(),
+        target.name(),
+        target.arity() as usize,
+    )?;
+    let StaticResultPublicationSourceClassV1::Cataloged { caller, .. } = source else {
+        return Ok(StaticResultPublicationIngressV1::Unavailable);
+    };
+    if &caller != original_caller {
+        return Err(StaticResultPublicationIngressErrorV1::ForeignLineage);
+    }
+    take_cataloged_publication_v1(
+        port,
+        StaticResultPublicationSourceClassV1::Cataloged {
+            caller,
+            site: original_site.clone(),
+        },
+        declarations,
+        target.owner(),
+        target.name(),
+        target.arity() as usize,
+    )
+}
+
 impl StaticResultPublicationIngressPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn take_static_result_publication_ingress_v1(
         &mut self,

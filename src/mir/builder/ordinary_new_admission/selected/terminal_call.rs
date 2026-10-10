@@ -11,6 +11,9 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
 pub(in crate::mir::builder) use lexical_i64::{emit_local_lexical_i64, emit_local_lexical_source};
+#[path = "terminal_call/static_return.rs"]
+mod static_return;
+pub(in crate::mir::builder) use static_return::emit as emit_static_return;
 
 pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
     pub(super) source: Source,
@@ -21,8 +24,8 @@ pub(in crate::mir::builder::ordinary_new_admission) struct Emission {
 
 pub(in crate::mir::builder::ordinary_new_admission) enum Source {
     Existing(RootCallDispositionV1),
-    Lexical {
-        row: LexicalInstanceCallDispositionRowV1,
+    Packet {
+        row: crate::mir::normal_callable_semantic_package::CallPacketSourceV1,
         prepared: crate::mir::normal_callable_semantic_package::PreparedLexicalCallProjectionV1,
     },
 }
@@ -35,8 +38,8 @@ impl Source {
     ) -> RootCallDispositionV1 {
         match self {
             Self::Existing(row) => row,
-            Self::Lexical { row, prepared } => RootCallDispositionV1::Lexical(std::rc::Rc::new(
-                crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1::new(
+            Self::Packet { row, prepared } => RootCallDispositionV1::Lexical(std::rc::Rc::new(
+                crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1::from_source(
                     row, prepared, invoke, projection,
                 ),
             )),

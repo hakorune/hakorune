@@ -123,7 +123,7 @@ impl OrdinaryNewClaimLedgerV1 {
             };
         };
         let expected = if let RootCallDispositionV1::Lexical(packet) = row {
-            self.validate_lexical_terminal_packet(owner, exit, packet)?;
+            let source_arguments = self.validate_lexical_terminal_packet(owner, exit, packet)?;
             let mut recorded = arguments.clone();
             recorded.extend([invoke.clone(), projection.clone()]);
             packet.validate_recorded_projected(&recorded, packet_finishing)?;
@@ -137,10 +137,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if mapped(original_invoke)? != *invoke || mapped(original_projection)? != *projection {
                 return Err(freeze("lexical-terminal/original-outer-drift"));
             }
-            let arguments = source
-                .lexical_arguments()
-                .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
-            packet.call_with_ledger(owner, arguments, self)?
+            packet.call_with_ledger(owner, &source_arguments, self)?
         } else {
             let terminal = source
                 .legacy_terminal()

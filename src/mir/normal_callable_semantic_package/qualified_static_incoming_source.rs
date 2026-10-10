@@ -105,7 +105,7 @@ impl StaticIncomingSourceV1 {
         }
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn caller(
+    pub(in crate::mir) fn caller(
         &self,
     ) -> &CanonicalSameModuleCallableKeyV1 {
         &self.caller
@@ -143,7 +143,7 @@ impl StaticIncomingSourceV1 {
             && handoff.representation() == &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64
             && handoff.required_callee_i64_arguments() == self.required_i64_arguments()
     }
-    pub(in crate::mir::normal_callable_semantic_package) fn call_site(&self) -> &OwnedExprSiteV1 {
+    pub(in crate::mir) fn call_site(&self) -> &OwnedExprSiteV1 {
         &self.call
     }
     pub(in crate::mir) fn target(&self) -> &CanonicalSameModuleCallableKeyV1 {

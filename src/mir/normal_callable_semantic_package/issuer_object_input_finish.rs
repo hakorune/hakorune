@@ -46,6 +46,9 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         )?;
     ledger.select_static_zero_local_routes_v1();
     ledger
+        .select_static_scalar_local_routes_v1()
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+    ledger
         .seal_object_return_dispositions_v1(selected, contracts, &signature)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },

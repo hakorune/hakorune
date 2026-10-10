@@ -25,6 +25,15 @@ backend permission. Historical implementation steps belong to Git history.
 
 ## Source-only Static local observations
 
+A completed original CurrentOwner Scalar cohort may select an exact Static
+packet only when the caller's Home retains the matching local Call observation
+and ordered BorrowedActual input. A terminal Return does not by itself remove
+that Call from local lifecycle accounting: only the Builder's actual root
+Static packet take moves its exact site out of the local binding-group route.
+The root packet, final Call visitor and independent MIR verifier reuse the
+same terminal/source validator; unready zero-input source rows retain their
+previous refusal at demand. This grants no general source-only Static entry.
+
 The selected `size_to_bin` body scalar source now retains the complete
 original `bin_size` Static incoming cohort through the existing ingress
 inventory. Its CurrentOwner call remains source-only; the qualified siblings

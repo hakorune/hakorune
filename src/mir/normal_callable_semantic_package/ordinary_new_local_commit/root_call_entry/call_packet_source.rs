@@ -182,7 +182,9 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         };
         ledger.verify_original_static_packet_source_v1(original)?;
         let handoff_agrees = original.corroborates_publication_handoff(publication)
-            || (ledger.checked_completed_static_one_actuals_v1(original)?.is_some()
+            || (ledger
+                .borrowed_static_packet_actuals_v1(original)?
+                .is_some()
                 && original.corroborates_selected_loop_publication_handoff(publication));
         if !handoff_agrees
             || observation.owner() != original.call_site().owner()

@@ -289,7 +289,7 @@ fn static_zero_input_finish_preserves_original_cohort_and_refusal_boundaries() {
 
 #[test]
 fn current_owner_static_scalar_return_retains_its_exact_child_terminal() {
-    let ready = package("static box Layout { word(bin) { return 8 } relay(bin: usize) { return me.word(bin) } } static box Main { main() { return 0 } }");
+    let ready = package("static box Layout { word(bin) { if bin <= 8 { return bin * 8 } return 0 } relay(bin: usize) { return me.word(bin) } } static box Main { main() { return 0 } }");
     let ledger = &ready.ordinary_new_claim_ledger;
     let incoming = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
     let call = incoming.source_incoming.exact_rows()
@@ -305,5 +305,7 @@ fn current_owner_static_scalar_return_retains_its_exact_child_terminal() {
     assert_eq!(terminal.owner(), owner);
     assert_eq!(terminal.return_site(), exit);
     assert_eq!(terminal.call_site(), call.call.site());
+    assert!(ledger.selected_static_local_source_v1(&call.call).unwrap().is_some());
+    assert!(ledger.has_routed_static_local_for_owner_v1(owner).unwrap());
     assert!(ledger.normal_exit_projection_v1(owner, exit).unwrap().is_some());
 }

@@ -1,5 +1,7 @@
 //! Existing terminal source owns the original immutable lexical packet.
 use super::*;
+use crate::mir::normal_callable_semantic_package::CallPacketSourceLoanV1;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Lend exact packet-owned reads to the independent whole-function census.
@@ -37,12 +39,40 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         exit: &SourceStmtSiteV1,
         packet: &EmittedLexicalCallProjectionV1,
-    ) -> Result<(), String> {
+    ) -> Result<Vec<LocalCallArgumentV1>, String> {
         let source = self
             .verified_terminal_call_source_v1(owner, exit)?
             .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
         if packet.call_site().owner() != owner || packet.call_site().site() != source.call_site() {
             return Err(freeze("lexical-terminal/source-identity"));
+        }
+        if let CallPacketSourceLoanV1::Static {
+            original,
+            observation,
+            ..
+        } = packet.original_source()
+        {
+            let terminal = source
+                .legacy_terminal()
+                .ok_or_else(|| freeze("static-terminal/legacy-source-missing"))?;
+            let selected = self
+                .selected_static_local_source_v1(original.call_site())?
+                .ok_or_else(|| freeze("static-terminal/original-source-missing"))?;
+            if !std::rc::Rc::ptr_eq(&selected, original)
+                || terminal.owner() != owner
+                || terminal.return_site() != exit
+                || terminal.call_site() != original.call_site().site()
+                || !terminal.arguments().is_empty()
+                || source.result() != crate::mir::instruction::InvokeCallResultKind::I64
+                || observation.owner() != owner
+                || observation.site() != original.call_site()
+            {
+                return Err(freeze("static-terminal/packet-source-drift"));
+            }
+            packet.original_source().validate_static(self)?;
+            let arguments = observation.arguments();
+            packet.call_with_ledger(owner, arguments, self)?;
+            return Ok(arguments.to_vec());
         }
         if source.legacy_terminal().is_none() {
             source.corroborate_row(packet.original_row()?)?;
@@ -53,6 +83,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .lexical_arguments()
             .ok_or_else(|| freeze("lexical-terminal/arguments-missing"))?;
         packet.call_with_ledger(owner, source, self)?;
-        Ok(())
+        Ok(source.to_vec())
     }
 }
