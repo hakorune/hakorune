@@ -165,6 +165,12 @@ its value flow; the physical operation emitter explicitly rejects Mul until
 the separate physical slice is admitted. This vocabulary addition alone
 does not make a Loop executable.
 
+The V1 JoinSig owner can issue a complete root After closure from one verified
+Recipe. It rejects an empty carrier set and requires the root After rows to
+match every root carrier exactly; read-only inputs never become After rows.
+The selected source-bound producer must retain this closure with its matching
+Core before Home may consume any post-Loop class.
+
 S6A keeps the same one-owner rule for the recurrence source map. Private
 condition/update/step observations never become separate verified products;
 `VerifiedVariableAccumRecurrenceFactsV1` is the only neutral handoff. Its

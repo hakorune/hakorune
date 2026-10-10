@@ -11,6 +11,7 @@ pub(super) mod recipe_view;
 mod recipe_view_v2;
 mod transfer_view_v1;
 mod transfer_view_v2;
+mod v1;
 mod v2;
 mod visibility;
 
@@ -30,6 +31,9 @@ pub(crate) use transfer_view_v1::{
 pub(crate) use transfer_view_v2::{
     LoopJoinBoundaryTransferRefV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitRefV2,
     LoopJoinBranchTransferRefV2, LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2,
+};
+pub(crate) use v1::{
+    issue_root_carrier_join_closure_v1, LoopJoinClosureRejectV1, VerifiedLoopJoinClosureV1,
 };
 pub(crate) use v2::{
     issue_sole_root_carrier_join_closure_v2, LoopJoinClosureRejectV2, VerifiedLoopJoinClosureV2,

@@ -1,7 +1,8 @@
 use super::ids::{LoopBindingKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::join_sig::{
-    port_bindings, LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1,
-    LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
+    issue_root_carrier_join_closure_v1, port_bindings, LoopJoinClosureRejectV1, LoopJoinEdgeRoleV1,
+    LoopJoinEdgeV1, LoopJoinLoopV1, LoopJoinPayloadV1, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1,
 };
 use super::schema::{
     LoopConditionV1, LoopNodeV1, LoopRecipeBlockV1, LoopRecipeV1, LoopValueClassV1,
@@ -35,6 +36,11 @@ fn row_with_edges(edges: Vec<LoopJoinEdgeV1>) -> LoopJoinLoopV1 {
 }
 
 fn empty_always_signature() -> super::join_sig::VerifiedLoopJoinSigV1 {
+    let verified = empty_always_recipe();
+    LoopJoinSigElaboratorV1::elaborate(&verified).expect("empty Always signature")
+}
+
+fn empty_always_recipe() -> super::verify::VerifiedLoopRecipeV1 {
     let recipe = LoopRecipeV1 {
         root_loop: LoopNodeKeyV1::new(0),
         loops: vec![LoopNodeV1 {
@@ -56,8 +62,27 @@ fn empty_always_signature() -> super::join_sig::VerifiedLoopJoinSigV1 {
         carriers: Vec::new(),
         exits: Vec::new(),
     };
-    let verified = LoopRecipeVerifierV1::verify(recipe).expect("empty Always recipe");
-    LoopJoinSigElaboratorV1::elaborate(&verified).expect("empty Always signature")
+    LoopRecipeVerifierV1::verify(recipe).expect("empty Always recipe")
+}
+
+#[test]
+fn root_after_closure_is_complete_and_rejects_empty_carrier_set() {
+    let artifact: super::schema::LoopRecipeArtifactV1 =
+        serde_json::from_str(include_str!("fixtures/nested_predicate_v1.json"))
+            .expect("nested fixture");
+    let recipe = LoopRecipeVerifierV1::verify(artifact.recipe).expect("nested recipe");
+    let closure = issue_root_carrier_join_closure_v1(&recipe).expect("root After closure");
+    assert_eq!(closure.after().len(), 2);
+    assert!(closure
+        .after()
+        .iter()
+        .all(|row| row.loop_key() == recipe.root_loop()));
+    assert_eq!(closure.join_sig().as_sig().loops.len(), 2);
+
+    assert!(matches!(
+        issue_root_carrier_join_closure_v1(&empty_always_recipe()),
+        Err(LoopJoinClosureRejectV1::RootCarrierCardinality { found: 0, .. })
+    ));
 }
 
 #[test]

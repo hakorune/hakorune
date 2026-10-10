@@ -919,3 +919,25 @@ quick test binary. Pointer and diff checks pass. The initial compile exposed
 one misplaced constructor field; it was corrected before the green run.
 This is a contract prerequisite only: selected source producer, Home After,
 physical Mul, and production EXE remain open.
+
+Decision (2026-10-10, read-only design review integrated): the selected
+package issuer joins the original resolver Loop membership and Home prestate
+through the existing variable-bound Mul Facts. One V1 producer consumes those
+Facts and alone allocates Recipe keys, then seals Recipe, JoinSig, Core, input
+source set, and operation effects. Root After must be a complete two-carrier
+closure from the same JoinSig: `scale` and `i` are I64, `shift_count` has no
+After. Home may cross Body9 only after owner/site/frame, exact cardinality and
+both classes pass; raw Loop entry later consumes the retained product without
+source reprojection. Probe and verified walks share the consult. Physical Mul,
+the return expression, and EXE remain later obligations.
+
+V1 JoinSig closure prerequisite: the JoinSig owner now issues the entire root
+After set against the same verified Recipe. Empty carrier sets and mismatched
+After sets refuse. This does not yet lend Home a post-Loop class or publish a
+Recipe product from the real source.
+Validation: focused quick positive/empty-negative 1/1; existing
+`loop_recipe_contract::` family 227/227 on the same binary; pointer, diff,
+and selected rustfmt checks passed. User-requested consultation stop follows
+this boundary. Next: consume the retained Facts in one source-bound V1
+Recipe/JoinSig/Core/input/effect producer, then lend the complete two-carrier
+After to the Home walk; no physical Mul or EXE claim yet.
