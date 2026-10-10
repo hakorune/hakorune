@@ -172,9 +172,11 @@ The selected `bin_size` source-bound producer consumes the existing
 variable-bound Mul Facts through the canonical Recipe draft. It retains one
 verified Core/input/operation product with that complete two-carrier After
 closure. `shift_count` is a read-only root input; only `scale` and `i`
-carry an After value. The package stores one owner/site disposition. Home
-still stops at Body9 until a separate loan verifies and installs those
-post-Loop classes; no physical Mul or EXE permission follows this product.
+carry an After value. The package stores one owner/site disposition. Its
+verified product can lend a move-only Home After capability only when both
+I64 After bindings join uniquely to the two carrier source relations and the
+read-only input remains separate. That loan grants scalar-class continuation
+of the selected Home walk, not physical Mul or EXE permission.
 
 S6A keeps the same one-owner rule for the recurrence source map. Private
 condition/update/step observations never become separate verified products;

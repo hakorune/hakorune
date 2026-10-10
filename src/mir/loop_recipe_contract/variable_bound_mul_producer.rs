@@ -52,6 +52,29 @@ pub(crate) struct VerifiedVariableBoundMulRecipeProductV1 {
     after: Box<[VerifiedLoopAfterBindingV1]>,
 }
 
+/// The complete source-bound root After lent to the Home scanner. Only the
+/// verified product can construct this move-only capability.
+#[derive(Debug)]
+pub(crate) struct VerifiedLoopHomeAfterLoanV1 {
+    owner: FunctionOwnerIdV1,
+    site: SourceStmtSiteV1,
+    carriers: [BindingRefV1; 2],
+}
+
+impl VerifiedLoopHomeAfterLoanV1 {
+    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn carriers(&self) -> [BindingRefV1; 2] {
+        self.carriers
+    }
+}
+
 impl VerifiedVariableBoundMulRecipeProductV1 {
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -76,6 +99,49 @@ impl VerifiedVariableBoundMulRecipeProductV1 {
     }
     pub(crate) fn after(&self) -> &[VerifiedLoopAfterBindingV1] {
         &self.after
+    }
+
+    pub(crate) fn home_after_loan(&self) -> Option<VerifiedLoopHomeAfterLoanV1> {
+        // The complete JoinSig closure is already verified. Join each logical
+        // After identity to its Core source relation; never assume raw keys
+        // or infer the result from source names.
+        if self.after.len() != 2 || self.bindings[0] == self.bindings[1] {
+            return None;
+        }
+        let relations = self.operations.core().binding_relations();
+        let mut seen = [false; 2];
+        for after in self.after.iter() {
+            if after.class() != LoopValueClassV1::I64 {
+                return None;
+            }
+            let mut matching = relations
+                .iter()
+                .filter(|relation| relation.recipe_binding() == after.binding());
+            let relation = matching.next()?;
+            if matching.next().is_some() || relation.class() != LoopValueClassV1::I64 {
+                return None;
+            }
+            let index = self.bindings[..2]
+                .iter()
+                .position(|binding| *binding == relation.source_binding())?;
+            if seen[index] {
+                return None;
+            }
+            seen[index] = true;
+        }
+        if !seen.into_iter().all(|found| found)
+            || self.inputs.rows().len() != 3
+            || !self.inputs.rows().iter().any(|row| {
+                row.source_binding() == self.bindings[2] && row.class() == LoopValueClassV1::I64
+            })
+        {
+            return None;
+        }
+        Some(VerifiedLoopHomeAfterLoanV1 {
+            owner: self.owner,
+            site: self.site.clone(),
+            carriers: [self.bindings[0], self.bindings[1]],
+        })
     }
 }
 

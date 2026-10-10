@@ -341,7 +341,7 @@ pub(crate) use physical_layout::{
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
 pub(crate) use variable_bound_mul_producer::{
     produce_variable_bound_mul_recipe_v1, VariableBoundMulRecipeRejectV1,
-    VerifiedVariableBoundMulRecipeProductV1,
+    VerifiedLoopHomeAfterLoanV1, VerifiedVariableBoundMulRecipeProductV1,
 };
 #[allow(unused_imports)]
 pub(crate) use recipe_draft::{

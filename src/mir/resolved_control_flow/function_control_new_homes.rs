@@ -60,7 +60,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(false),
-        &mut |_| Ok(()),
+        &mut |_| Ok(None),
         &mut |_| Ok(None),
     )?;
     Ok(
@@ -189,7 +189,10 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     ) -> Result<bool, E>,
     loop_prestate: &mut impl FnMut(
         crate::mir::resolved_semantics::home_new_prefix::LoopI64PreStateRequestV1,
-    ) -> Result<(), E>,
+    ) -> Result<
+        Option<crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1>,
+        E,
+    >,
 
     object_return: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,

@@ -81,7 +81,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // The dominated-view consult stays unavailable on this lane for
         // the same reason — a `Handle` leaf is truthfully uncovered here.
         &mut |_, _| Ok(false),
-        &mut |_| Ok(()),
+        &mut |_| Ok(None),
         &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {});
@@ -221,7 +221,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         local_field_read,
         borrowed_actuals,
         view_use,
-        &mut |_| Ok(()),
+        &mut |_| Ok(None),
         object_return,
     )
     .map(|outcome| outcome.0)

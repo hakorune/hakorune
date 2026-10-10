@@ -283,7 +283,7 @@ fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let root = "local top = x - (bit_group * 4)";
     let variants = [
-        (original.to_string(), 9),
+        (original.to_string(), 10),
         (
             original.replacen(root, "local top = x * (bit_group * 4)", 1),
             5,

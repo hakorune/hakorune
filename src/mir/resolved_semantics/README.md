@@ -1441,5 +1441,8 @@ The selected Loop Home scan can lend a typed prestate request at an exact
 resolver Loop site. It snapshots the already established Integer classes of
 current lexical bindings; it does not infer classes from Loop syntax. The
 package issuer uses this loan for the bounded variable-bound Mul Facts join.
-Until a verified After loan returns, the scanner keeps the Loop uncovered and
-does not install any post-loop class.
+Only a complete source-bound After loan lets the scanner atomically reinstall
+both I64 carrier classes and cross the selected Loop. A missing or mismatched
+loan keeps the Loop uncovered with no partial Home mutation. The scanner has
+no independent Loop source or Recipe authority, and unselected probes return
+no loan.

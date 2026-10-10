@@ -6,6 +6,7 @@
 //! Only a verified `ResolvedIfRegionBundleV1` admits the walk; any other `If`
 //! keeps `PrefixNotCovered`.
 use super::*;
+use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, BodyExpressionShapeV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1,
@@ -100,7 +101,9 @@ fn walk_branch<'a, E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
+    loop_prestate: &mut impl FnMut(
+        LoopI64PreStateRequestV1,
+    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -317,7 +320,9 @@ pub(super) fn observe_if_statement<'a, E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
+    loop_prestate: &mut impl FnMut(
+        LoopI64PreStateRequestV1,
+    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,

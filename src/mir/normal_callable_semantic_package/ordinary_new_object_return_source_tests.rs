@@ -279,7 +279,7 @@ fn foreign_selected_return_qualification_refuses_without_scalar_retry() {
                     panic!("no scalar argument retry");
                 }
                 Ok(None)
-            }, &mut |_, _| Ok(false), &mut |_| Ok(()),
+            }, &mut |_, _| Ok(false), &mut |_| Ok(None),
             &mut |requested| { assert_eq!(requested, site); asks += 1; Ok(Some(foreign_loan.clone())) },
         ).unwrap();
         assert!(flow.terminal_homes().is_err());

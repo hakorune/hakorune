@@ -12,6 +12,7 @@ use super::{
 };
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
 use crate::mir::resolved_control_flow::{
     issue_new_fault_continuation_v1, issue_result_new_fault_continuation_v1, NewFaultContinuationV1,
@@ -188,7 +189,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         // leaf stays truthfully uncovered on this lane — the verified
         // completion lane owns the issuer predicate.
         &mut |_, _| Ok(false),
-        &mut |_| Ok(()),
+        &mut |_| Ok(None),
         &mut |_| Ok(None),
     )
     .unwrap_or_else(|never| match never {})
@@ -329,7 +330,9 @@ pub(crate) fn scan_new_home_flow<E>(
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
+    loop_prestate: &mut impl FnMut(
+        LoopI64PreStateRequestV1,
+    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<Option<ObjectReturnCallQualificationV1>, E>,

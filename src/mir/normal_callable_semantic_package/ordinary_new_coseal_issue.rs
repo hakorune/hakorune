@@ -580,10 +580,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         }, &mut source_claims::dominated_view_use_consult_v1(
                             &borrowed_formal_source, input,
                         ), &mut |prestate| {
-                            loop_issue::retain_selected_loop_product_v1(
+                            Ok(loop_issue::retain_selected_loop_product_v1(
                                 input, prestate, &mut variable_bound_mul_product,
-                            );
-                            Ok(())
+                            ))
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
                             completion,

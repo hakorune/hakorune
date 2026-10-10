@@ -1,6 +1,6 @@
 //! The selected package's sole source/Home join for variable-bound Mul Loop.
-//! Facts are consumed into one retained Recipe product. Home still leaves the
-//! Loop uncovered until the subsequent After-loan slice.
+//! Facts are consumed into one retained Recipe product. A complete verified
+//! After loan is the only permission for the selected Home walk to continue.
 
 use std::collections::BTreeMap;
 
@@ -8,7 +8,7 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::variable_bound_mul_recurrence_source::observe_variable_bound_mul_source_v1;
 use crate::mir::loop_recipe_contract::{
     produce_variable_bound_mul_recipe_v1, VariableBoundMulRecipeRejectV1,
-    VerifiedVariableBoundMulRecipeProductV1,
+    VerifiedLoopHomeAfterLoanV1, VerifiedVariableBoundMulRecipeProductV1,
 };
 use crate::mir::loop_structural_facts::{
     issue_variable_bound_mul_facts_v1, VariableBoundMulFactsIssueV1,
@@ -35,7 +35,7 @@ pub(super) fn retain_selected_loop_product_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     prestate: LoopI64PreStateRequestV1,
     rows: &mut SelectedLoopProductV1,
-) {
+) -> Option<VerifiedLoopHomeAfterLoanV1> {
     let key = (prestate.owner(), prestate.site().clone());
     let candidate = (|| {
         let ledger = input
@@ -87,10 +87,11 @@ pub(super) fn retain_selected_loop_product_v1(
     })();
     match rows.entry(key) {
         std::collections::btree_map::Entry::Vacant(slot) => {
-            slot.insert(candidate);
+            slot.insert(candidate).as_ref().ok()?.home_after_loan()
         }
         std::collections::btree_map::Entry::Occupied(mut slot) => {
             let _ = slot.insert(Err(LoopProductUnavailableV1::Duplicate));
+            None
         }
     }
 }

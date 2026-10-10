@@ -1,6 +1,7 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
 use super::*;
+use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 
 /// Returns `true` when this path terminated at an explicit exit site —
 /// statements past it are unreachable on this path and are never walked.
@@ -120,7 +121,9 @@ pub(super) fn scan_statement_flow<'a, E>(
     // `AddOperand`, or `NewArgument` value use at this exact leaf site.
     // Coverage consult only; the draft stays the sole admission authority.
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    loop_prestate: &mut impl FnMut(LoopI64PreStateRequestV1) -> Result<(), E>,
+    loop_prestate: &mut impl FnMut(
+        LoopI64PreStateRequestV1,
+    ) -> Result<Option<VerifiedLoopHomeAfterLoanV1>, E>,
 
     object_return: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -281,12 +284,20 @@ pub(super) fn scan_statement_flow<'a, E>(
                 continue;
             }
             // The current Home prefix lends proven scalar classes at the
-            // exact Loop point. This observation alone cannot cover the Loop
-            // or install its After state; the normal uncovered boundary below
-            // remains until the package returns a verified After loan.
+            // exact Loop point. Only a complete source-bound After loan can
+            // advance this walk; a typed refusal keeps the old first-stop.
             if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
                 if let Some(request) = locals.loop_i64_prestate(statement.site()) {
-                    loop_prestate(request)?;
+                    if let Some(loan) = loop_prestate(request)? {
+                        // Re-observe at this same point: the callback does not
+                        // mutate Home state, and the loan must match the
+                        // current prestate before installing either carrier.
+                        if let Some(current) = locals.loop_i64_prestate(statement.site()) {
+                            if locals.install_loop_i64_after(current, loan) {
+                                continue;
+                            }
+                        }
+                    }
                 }
             }
             // Statement kinds this lane does not admit (loop, assignment,
