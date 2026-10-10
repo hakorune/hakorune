@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "identify post-selection source-only-object-actuals first exclusion and canonical transport owner"
+current_design_stop = "trace Static upstream transport exclusion before Heap-to-Page tagged actual handoff"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -21,10 +21,14 @@ EXE scope correction at 8b4339ecfb and selected Static incoming cohort at
 1d8817ea39 closed. Generic package tests remain 995 pass, 3 known fail;
 unchanged mimalloc-lite retains all 15 Heap callers and reaches candidate
 integer agreement for LayoutBox.class_id. The EXE still stops at
-source-only-object-actuals, with no owner/site in the CLI diagnostic. This D0
-must identify the new first exclusion and canonical outgoing actual boundary
-before another transport slice. Page edges, Loop Mul, and result outcome
-remain open; the finite goal is not complete.
+source-only-object-actuals. A temporary current-source trace identified the
+first exact site as Heap.allocate -> small_page.allocate at
+Body(1)/IfThen(0)/Value, with medium_page next. The trace was removed. This
+D0 first traces why LayoutBox.class_id has a source draft but no executable
+transport definition; Page.allocate already has both. Then it must close
+the original tagged size actual, selected entry, and Page-side Fault/Normal
+boundary before another transport slice. Loop Mul and result outcome remain
+open; the finite goal is not complete.
 """
 next_design_card = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"

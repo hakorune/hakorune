@@ -335,11 +335,10 @@ and is superseded for current first-exclusion order.
 
 ### Read-only audit correction: outgoing Page actual
 
-The current CLI token contains no owner/site. Earlier detailed logs point to
+The normal CLI token contains no owner/site. Earlier detailed logs pointed to
 `HakoAllocHeap.allocate` calling `me.small_page.allocate(size)` at the
-original Body(1)/IfThen(0) site; this remains a historical inference until a
-current-source per-site diagnostic confirms it. The medium-page sibling is a
-later candidate. The current real-source test proves the selected Heap caller
+original Body(1)/IfThen(0) site; the current-source trace below confirms it.
+The medium-page sibling is the next candidate. The current real-source test proves the selected Heap caller
 inventory and Integer candidate agreement for `LayoutBox.class_id`, but it
 does not prove the exact Page outgoing actual executable.
 
@@ -351,13 +350,46 @@ retains the original target/candidates while producing no executable opaque
 actual; `require_executable_v1` correctly rejects `SourceObject`. Keep that
 failure boundary.
 
-Next Decision: first identify the precise current failing owner/site using
-the existing pending actual map or a temporary test-only trace of its same
-issuer (remove the trace before commit). Then audit whether an existing
-Normal result-to-original-`size` actual authority proves the tagged kind and
-payload at that *same* site. If absent, specify that mapping and its Fault
-edge before construction; do not borrow a guard from another call or infer a
-kind from caller-wide candidate agreement. Reuse the imported-source and
-object-packet positive/negative families; a new test is justified only for
-an independently uncovered condition. The unchanged app remains the final
-first-stop probe.
+The temporary trace at the existing `require_executable_v1` rejection has now
+resolved the first site on the **current source**. A quick CLI build (2m39s)
+with only that temporary diagnostic, followed by the unchanged mimalloc-lite
+pure-first EXE command, reported `FunctionOwnerIdV1(1,33)` at
+`Body(1)/IfThen(0)/Value`: original
+`HakoAllocHeap.allocate -> HakoAllocPage.allocate`, stored `small_page`
+receiver, ordinal 0 `SelfRooted(size)` from the Heap formal. It also reported
+the `medium_page` sibling at `Body(2)/IfThen(0)/Value`. The command still
+exited 1 at `source-only-object-actuals`, with no EXE. The temporary print
+was removed; the tracked source is unchanged. The diagnostic build is for
+site evidence only, not a verified production binary.
+
+Next Decision: the `class_id(size)` result governs which Page call executes,
+but it is **not** the original `size` actual and does not classify that
+carrier's tag. Audit the existing `ForwardIdentityV1` from Heap's formal to
+each exact Page call, the selected caller's entry carrier/read, and the
+callee's checked comparison before any integer payload use. The tagged
+carrier may be forwarded unchanged only if the original call/ordinal/binding,
+Normal value, target formal, and Fault path are tied to the same authority;
+otherwise keep `SourceObject` fail-closed and specify the missing mapping.
+Do not borrow a guard from another call or infer a kind from caller-wide
+candidate agreement. Reuse the imported-source and object-packet
+positive/negative families; add a test only for an independently uncovered
+condition. The unchanged app remains the first-stop probe.
+
+Two temporary observations in the **existing** real imported-source test
+passed 1/1 each under the quick profile (`9078` other tests filtered, not
+counted as passes). They were removed before commit. For
+`HakoAllocPage.allocate`, the original source draft and executable borrowed
+transport definition are both present. Its four formal uses are the original
+Body(0) `Greater` comparison, Body(8) array-element value, Body(11) add,
+and Body(13) new argument. For `LayoutBox.class_id`, the original source
+draft is present but its executable transport definition is absent; its
+opaque formal has one Body(0) unresolved outgoing argument to
+`SizeClassBox.good_size`. The existing test already proves
+`HakoAllocHeap.allocate` lacks an executable definition. Thus simply lending
+the Page source forward cannot settle the selected Heap entry: the upstream
+Static chain is still pruned. The next read-only check must identify the
+**first** missing executable owner on the `class_id -> good_size ->
+size_to_bin -> normalize_size` chain using the same draft/selection owner.
+Do not generalize a Static CurrentOwner call or promote `SourceObject` from
+these observations alone. Once that prerequisite is closed, revisit the
+exact Page outgoing handoff and Page-side tagged kind/Fault proof above.
