@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-SEARCH-LOOP-ROOT-EXIT-CONSUMPTION-D0"
+current_execution_row = "MIRBUILDER-ROOT-EXIT-GRAPH-WRITER-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/search-loop-root-exit-consumption-d0"
-current_design_stop = "MIRBUILDER-SEARCH-LOOP-ROOT-EXIT-CONSUMPTION-D0"
+current_blocker_token = "selfhost-resume/root-exit-graph-writer-d0"
+current_design_stop = "MIRBUILDER-ROOT-EXIT-GRAPH-WRITER-D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,24 +13,19 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-search-loop-root-exit-consumption-d0-2026-10-11.md"
-latest_card = "mirbuilder-search-loop-root-exit-consumption-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-root-exit-consumption-d0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-root-exit-graph-writer-d0-2026-10-11.md"
+latest_card = "mirbuilder-root-exit-graph-writer-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-graph-writer-d0-2026-10-11.md"
 latest_card_summary = """
-The selected SizeClassBox search-loop Home S0 is closed: both early and tail
-exit Home rows are ready, original Static packet/body scalar transport is
-retained, and the unchanged source moves past its prior first stop. Physical
-input now stops at ordinary-new/local-commit/root-exit-source-missing.
-The search-loop exit relation S0 retains the original early I64Scalar and
-Normal projection through the preissued V2 product and ExactI64 claim.
-The unchanged SizeClassBox physical probe advances to root-exit-unconsumed.
-The D0 measured both SizeClassBox.size_to_bin exits with absent root progress.
-The remaining design dependency is a single root cleanup/Return handoff for
-the selected Static Loop and DraftSeal, including its shared fault frame.
-No whole-source or mimalloc-lite EXE PASS is claimed.
+The unchanged SizeClassBox physical first stop is root-exit-unconsumed.
+Both size_to_bin explicit exits have ready Home projections but absent root
+progress. The behavior-preserving frame port R0 is closed; this D0 must
+specify canonical CFG graph writes before selected two-exit consumption.
+DraftSeal remains the selected Return issuer. No whole-source or mimalloc-lite
+EXE PASS is claimed.
 """
-next_design_card = "MIRBUILDER-SEARCH-LOOP-ROOT-EXIT-CONSUMPTION-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-root-exit-consumption-d0-2026-10-11.md"
+next_design_card = "MIRBUILDER-ROOT-EXIT-GRAPH-WRITER-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-graph-writer-d0-2026-10-11.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
@@ -47,8 +42,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-11: MIRBUILDER-ROOT-EXIT-FRAME-PORT-R0 — same root graph and frame definition through a private frame port; focused root Plain/Call/Fault positive and negative pass, unchanged SizeClassBox first stop remains root-exit-unconsumed. Next: ROOT-EXIT-GRAPH-WRITER-D0.",
   "2026-10-11: MIRBUILDER-SEARCH-LOOP-EXIT-RELATION-S0 — exact Home-issued early I64Scalar retained only with selected V2 product and ExactI64 claim; early/tail Normal projections and negative family pass 2/2, original physical first stop advances to root-exit-unconsumed. No whole-source or EXE pass. Next: SEARCH-LOOP-ROOT-EXIT-CONSUMPTION-D0.",
   "2026-10-11: MIRBUILDER-SEARCH-LOOP-EARLY-RETURN-HOME-S0 — unchanged SizeClassBox size_to_bin has distinct ready early/tail Home exits and original Static packet/body scalar transport; focused positive/negative 2/2, unchanged-source physical first stop advances from IncompleteOrdinaryNewCoverage through static-packet-source-missing to root-exit-source-missing. No whole-source or EXE pass. Next: SEARCH-LOOP-EXIT-RELATION-D0.",
-  "2026-10-11: MIRBUILDER-BOOL-CURRENTOWNER-ENTRY-S0 — original accepts_usize -> accepts entry proof and fail-fast negative pass 59/59; unchanged SizeClassBox first stop moves from entry-values-missing to Static local-call binding coverage. Physical publication remains red. Next: STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0.",
   ]
 

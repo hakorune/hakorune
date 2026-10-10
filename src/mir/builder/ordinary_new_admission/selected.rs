@@ -6,6 +6,7 @@ mod arguments;
 pub(in crate::mir::builder) mod map;
 #[path = "selected/terminal_call.rs"]
 pub(in crate::mir::builder) mod terminal_call;
+use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
@@ -14,7 +15,34 @@ use crate::mir::normal_callable_semantic_package::{
     PreparedTerminalMapGetReturnV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::{BasicBlock, BasicBlockId, Callee, MirBuilder, MirInstruction, MirType, ValueId};
+use crate::mir::{
+    BasicBlock, BasicBlockId, Callee, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
+};
+
+trait RootExitFramePortV1 {
+    fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String>;
+    fn validate(&self, function: &MirFunction) -> Result<(), String>;
+}
+
+impl RootExitFramePortV1 for CallableSemanticLoweringState {
+    fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        self.borrow_fault_frame(builder)
+    }
+
+    fn validate(&self, function: &MirFunction) -> Result<(), String> {
+        self.validate_fault_frame(function)
+    }
+}
+
+impl RootExitFramePortV1 for FunctionFaultFrameV1 {
+    fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String> {
+        FunctionFaultFrameV1::materialize(self, builder)
+    }
+
+    fn validate(&self, function: &MirFunction) -> Result<(), String> {
+        FunctionFaultFrameV1::validate(self, function)
+    }
+}
 
 pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder,
@@ -248,7 +276,7 @@ pub(super) enum RootExitIngress {
 
 fn emit_root_home_exit_payload(
     builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
+    frame_port: &mut impl RootExitFramePortV1,
     ledger: &OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
     site: &crate::mir::resolved_semantics::SourceStmtSiteV1,
@@ -281,7 +309,7 @@ fn emit_root_home_exit_payload(
     // that finishing would remove while its recorded binding stayed live —
     // and do not materialize a frame definition no Invoke would consume.
     if !operations.is_empty() || ingress.is_some() {
-        let frame = state.borrow_fault_frame(builder)?;
+        let frame = frame_port.materialize(builder)?;
         let fault_terminal = builder.next_block_id();
         append_block(
             builder,
@@ -342,7 +370,7 @@ fn emit_root_home_exit_payload(
                     },
                     &mut bindings,
                 )?;
-                let frame_binding = fault_frame_binding(builder, state, frame)?;
+                let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
                 ledger.record_root_call_exit(
                     owner,
                     site,
@@ -368,7 +396,7 @@ fn emit_root_home_exit_payload(
                     ),
                     &mut bindings,
                 )?;
-                let frame_binding = fault_frame_binding(builder, state, frame)?;
+                let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
                 ledger.record_root_map_get_exit(
                     owner,
                     site,
@@ -619,12 +647,20 @@ pub(in crate::mir::builder) fn fault_frame_binding(
     state: &CallableSemanticLoweringState,
     frame: ValueId,
 ) -> Result<(BasicBlockId, MirInstruction), String> {
+    fault_frame_binding_with_port(builder, state, frame)
+}
+
+fn fault_frame_binding_with_port(
+    builder: &MirBuilder,
+    frame_port: &impl RootExitFramePortV1,
+    frame: ValueId,
+) -> Result<(BasicBlockId, MirInstruction), String> {
     let function = builder
         .function_state
         .current_function
         .as_ref()
         .ok_or_else(|| freeze("no-function"))?;
-    state.validate_fault_frame(function)?;
+    frame_port.validate(function)?;
     let entry = function
         .blocks
         .get(&function.entry_block)

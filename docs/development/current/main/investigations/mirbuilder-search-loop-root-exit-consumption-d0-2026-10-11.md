@@ -58,17 +58,46 @@ and `static_loop_tail.rs`; neither prepares or records root Home progress.
 `static_loop_entry_session.rs` validates both after DraftSeal. The worker
 also identified the Return ownership conflict above.
 
-## Remaining design dependency before an implementation slice
+## Physical handoff mapping and selected order
 
-The physical handoff shape is not yet fixed. Map how the existing
-`FunctionFaultFrameV1` in the Static Loop can be lent to the root emitter
-without a second frame, how tail's existing Invoke is moved under the sole
-root Call ingress, and how DraftSeal will corroborate rather than duplicate
-the chosen Return. Choose whether a behavior-preserving emitter extraction
-must land before the selected-path extension; keep the two meanings in
-separate slices. Then name the exact production caller replacement and
-focused positive/negative acceptance. Stay in `design_stop` until this
-mapping is fixed; do not issue a new semantic receipt or fixture first.
+The read-only follow-up found a workable split. The selected Static path
+already owns one `FunctionFaultFrameV1` (`static_loop_entry_session.rs`);
+its `materialize` is idempotent. The root payload uses the generic callable
+state only to borrow/validate this frame, so the frame access can be
+extracted without changing the existing graph. Tail's source loan retains
+the original static incoming source; the existing root static terminal
+packet/Call path can issue its one Invoke. The current direct Static tail
+Invoke must then be removed in that same selected cutover.
+
+DraftSeal remains the sole Return producer for this selected path. The root
+emitter must yield clean blocks without Return; the exact two Completion
+claims name those blocks. The detached DraftSeal projection appends Return,
+then the existing corroboration callback records each root exit with the
+projected Return binding before final validation and publication. This is
+required because direct-result validation checks that binding. The normal
+root path keeps its current immediate Return/record behavior. Canonical CFG
+creation, predecessor and sealing rules must own selected graph writes;
+raw `append_block` cannot be called directly from the Static V2 session.
+
+Bounded series:
+
+1. `MIRBUILDER-ROOT-EXIT-FRAME-PORT-R0`: behavior-preserving extraction of
+   root payload frame borrow/validation from the generic callable state.
+   Existing root callers and graph bytes remain unchanged.
+2. A separate behavior-preserving root graph writer extraction gives the
+   canonical CFG session an explicit writer port, without selecting Static
+   V2 yet. Exact node/edge/binding order and current root tests remain the
+   acceptance.
+3. One selected Static two-exit semantic cutover consumes the same root
+   graph, early Plain and tail Call packet; it replaces the direct tail
+   Invoke and keeps DraftSeal's Return. The old `ids.len() == 14` check must
+   be replaced by a source/graph-specific topology check, never dropped.
+
+The first selected execution card is
+`mirbuilder-root-exit-frame-port-r0-2026-10-11.md`. Later cards must state
+the exact graph writer and handoff acceptance before implementation. The
+unchanged original source must advance past `root-exit-unconsumed` only
+after both selected exits are recorded, with final MIR verification intact.
 
 Non-claims: no generic loop return, alternate cleanup emitter, whole
 SizeClassBox or mimalloc-lite EXE completion.
