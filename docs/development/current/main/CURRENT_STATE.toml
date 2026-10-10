@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-EQ-HOME-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-currentowner-eq-home-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/static-currentowner-two-caller-actual-d0"
+current_design_stop = "two-caller source/actual replacement mapping pending D0"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,23 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-currentowner-eq-home-s0-2026-10-10.md"
-latest_card = "mirbuilder-static-currentowner-eq-home-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-eq-home-s0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-currentowner-condition-cohort-d0-2026-10-10.md"
+latest_card = "mirbuilder-static-currentowner-condition-cohort-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-condition-cohort-d0-2026-10-10.md"
 latest_card_summary = """
 The original one-caller size_to_bin -> normalize_size CurrentOwner Static
 transport S0 closed at 184422090e, with tagged packet and EXE fixture proof.
 The unchanged mimalloc-lite EXE still stops at Heap-to-Page
 source-only-object-actuals. The D0 split the two-caller size_to_bin problem.
-Selected S0 owns only the composed Home observation for accepts Eq: its
-one-input Lhs and zero-input RHS must both be checked and returned in source
-order. Physical integer Eq, ordered Fault lowering, the full two-caller
-finisher and callee loop obligations remain separate. The finite goal is open.
+Home S0 landed at 2ba998a6b3: accepts Eq now has two ordered original
+CurrentOwner Static Home observations. Read-only audit fixed the next order:
+two-caller source/actual closure before physical integer Eq and ordered
+Normal/Fault lowering. The exact two-caller replacement mapping remains D0;
+no implementation is selected. The finite goal is open.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-CURRENTOWNER-EQ-HOME-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-eq-home-s0-2026-10-10.md"
+next_design_card = "MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-condition-cohort-d0-2026-10-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

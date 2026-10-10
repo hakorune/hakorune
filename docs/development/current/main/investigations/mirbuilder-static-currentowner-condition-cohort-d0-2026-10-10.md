@@ -1,6 +1,6 @@
 # Static CurrentOwner condition cohort D0
 
-Status: Home S0 decision accepted; execution cohort remains design stop
+Status: Home S0 landed; two-caller replacement mapping remains design stop
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0
 Related:
@@ -89,11 +89,42 @@ no partial Home observation. Existing zero-input and `>= 0` condition
 families remain green. No physical JSON, EXE, or app first-stop advance is
 claimed for this source-only S0.
 
-After Home S0, decide separately: (1) physical integer Eq and each child's
-Normal/Fault order under the sole operator/packet owners; (2) whole two-caller
-`size_to_bin` signature/result/Completion closure, including internal loop
-call obligations. `good_size` cannot be promoted on its own. `bin_size`
-condition calls and Heap-to-Page outgoing transport remain separate.
+After Home S0, close the whole two-caller `size_to_bin` source/actual cohort
+before publishing physical Eq. `ordinary_new_borrowed_static_one_input_finish`
+still requires `cohort.len() == 1`; the original `good_size` initializer and
+`accepts` Eq Lhs together have two incoming identities. Both must agree on
+the original actuals, callee signature/result and Completion, including
+internal-loop obligations. `good_size` cannot be promoted on its own.
+
+The read-only physical-owner audit fixes the remaining authority split:
+`QualifiedStaticCallClaimIndexV1` owns original Static source identity;
+`CallPacketSourceV1::static_i64` and `LexicalCallProjectionV1` own executable
+call packet/actual projection; `dynamic_operator_contract` alone issues the
+integer Eq execution envelope. Its current issuer has no
+`Equal(NormalInteger, NormalInteger)` arm. `physical_program_json` can spell
+ordinary `compare/eq`, but JSON spelling is not an execution proof. The
+existing `Equal(Dynamic, Null)` envelope cannot substitute for integer Eq.
+
+Decision order: first select a bounded two-caller source/actual closure cell
+against the unchanged `good_size` and `accepts` callers. Its positive must
+prove exactly two original incoming identities and actuals. Missing,
+duplicate, foreign, changed-site, wrong-class, or unproved callee-loop
+obligations must fail closed; the preceding one-caller `normalize_size`
+remains green. If whole Completion is not yet available, split a source-only
+actual receipt from executable closure and make no packet claim. Next, issue
+the integer Eq envelope through the sole operator issuer. Physical lowering
+must then show Lhs Invoke Normal -> RHS Invoke Normal -> Compare/Branch, with
+either child's Fault bypassing later steps and no `borrowed_null_compare`
+route. Only the fully linked chain can count as physical/EXE acceptance.
+`bin_size` condition calls and Heap-to-Page outgoing transport remain
+separate.
+
+Home S0 landed at `2ba998a6b3` with both ordered `accepts` Home rows and
+focused positive/negative acceptance. It did not issue a physical Eq
+envelope or executable two-caller entry. The physical-owner audit above is
+read-only; the two-caller source/actual slice still needs an exact replacement
+mapping before implementation. Do not infer execution permission from the
+Home green.
 
 Non-claims: this D0 does not authorize physical Eq, two-caller execution,
 caller omission, generic reachability pruning, or whole-app completion.
