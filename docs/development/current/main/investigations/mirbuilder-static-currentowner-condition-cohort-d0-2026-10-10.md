@@ -112,7 +112,11 @@ has a real-source positive/negative physical collector test. The direct
 missing boundary is `seed_static_transport_owners_v1`: it requires a single
 CurrentOwner initializer, while `borrowed_formal_incoming.rs` marks the Eq
 caller as unsupported static context. The later one-input finisher also
-requires a one-row cohort. `issue_original_static_forwarded_actual_v1` already
+requires a one-row cohort. Source seeding precedes Home: a broad seed followed
+by Home-skip would already alter transport owners and the incoming graph.
+Reuse the Home Eq source selector as a read-only pair query for exact
+pre-Home eligibility, then require both Home rows in the later finisher.
+`issue_original_static_forwarded_actual_v1` already
 checks each member of a two-row source cohort; do not mint another receipt.
 
 Decision: select the bounded two-caller source/actual closure S1 in the

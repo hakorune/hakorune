@@ -31,7 +31,15 @@ module link or the integer Eq condition.
 initializer and `borrowed_formal_incoming.rs` marks the Eq caller as an
 unsupported context. The one-input finisher requires a one-row cohort.
 Change these gates only for the exact two-row checked shape, using original
-sites and claims rather than method-name inference. A nonmatching
+sites and claims rather than method-name inference. Before Home runs, reuse
+the exact If-Eq source selector owned by `home_static_eq_condition.rs` as a
+read-only pair query: resolved If-region, Equal binary, one-input CurrentOwner
+I64 Lhs with local actual, zero-input CurrentOwner I64 RHS, and both original
+Static claim sites. This query authorizes only source eligibility; Home must
+still issue both observations later. Do not broadly seed every noninitializer
+caller and then skip failed Home checks: seeding already changes the transport
+owner and incoming graph. The two-row inventory must have exactly one
+initializer and this Eq Lhs, with no other caller. A nonmatching
 noninitializer context retains the old fail-closed boundary. The original
 actual `Rc`, target, ordinal, formal, source site, borrowed I64 class and
 Home argument must agree at both sites before either gains executable phase.
@@ -44,8 +52,10 @@ Home argument must agree at both sites before either gains executable phase.
    own original source/Home argument. Both must become available together.
 2. Missing or duplicate caller, changed source site/target/ordinal/formal,
    wrong actual class, Home argument drift, or absent signature/result/
-   Completion rejects the whole two-row executable cohort. A foreign
-   noninitializer caller remains source-only. No partial promotion or retry.
+   Completion rejects the whole two-row executable cohort. An initializer
+   paired with `if me.pick(p) > 0` or `&&` does not qualify at source selection
+   and remains source-only; a foreign noninitializer caller does likewise.
+   No partial promotion or retry.
 3. Existing one-caller `normalize_size` executable actual/packet and
    real-source V2 loop collector positives/negatives remain green. Run the
    focused Static actual/entry/packet tests and pointer guard. Classify any
