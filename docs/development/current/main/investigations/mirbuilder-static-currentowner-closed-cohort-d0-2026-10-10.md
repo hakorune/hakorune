@@ -1,10 +1,11 @@
 # Static CurrentOwner closed-cohort packet D0
 
-Status: selected design
+Status: design closed; handed to Static CurrentOwner one-caller S0
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-CLOSED-COHORT-D0
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/investigations/mirbuilder-static-currentowner-one-caller-s0-2026-10-10.md
   - docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md
   - src/mir/normal_callable_semantic_package/README.md
 
