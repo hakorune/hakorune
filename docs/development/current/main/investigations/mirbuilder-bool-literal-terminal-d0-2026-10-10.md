@@ -1,8 +1,8 @@
 # Bool literal terminal result D0
 
-Status: selected design stop
+Status: decision accepted; BOOL-LITERAL-TERMINAL-S0 selected
 Date: 2026-10-10
-Scope: MIRBUILDER-BOOL-LITERAL-TERMINAL-D0
+Scope: MIRBUILDER-BOOL-LITERAL-TERMINAL-D0 decision and selected MIRBUILDER-BOOL-LITERAL-TERMINAL-S0
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/investigations/mirbuilder-static-currentowner-i64-eq-s0-2026-10-10.md
@@ -22,36 +22,62 @@ and red; Eq S0 remains unfinished.
 The Home terminal scanner recognizes Bool literals as trivial, but its
 `Some(_) => true` arm retains no `TerminalRelationV1`. The child callable
 retention and `normal_exit_projection_v1` therefore have no exact exit row.
-`root_home` correctly refuses missing source. `ExactTrivialScalarAbiV1`
-currently has only I64; the unannotated result contract has no Bool physical
-header. A relation-only patch cannot claim the original physical Return.
+`root_home` correctly refuses missing source.
 
-## Decision to close before construction
+The existing `callable_result_representation` solver already issues
+`VerifiedCallableResultDispositionV1::ExactBool` for uniform Bool exits and
+rejects mixed representations; its `bool_results` tests exercise that rule.
+The ordinary package retains those solver rows through
+`QualifiedStaticCallClaimIndexV1::result_for_key`. This is the callable result
+meaning authority, not a physical ABI. `ExactTrivialScalarAbiV1` is currently
+the exact *declared* i64 spelling substrate; extending its declaration
+classifier to call an unannotated Bool result declared would manufacture
+authority. The physical ordinary role and selected-C call reader currently
+admit i64/map/handle/nullable-handle, not Bool. Also, the original
+`accepts_usize` returns `me.accepts(size)`, so Bool call transport is a
+distinct later frontier. A relation-only patch cannot claim whole-source
+physical publication.
 
-Source authority: resolved literal at each exact return value site,
-Completion explicit exit sites, and original Home exit flow. Canonical
-terminal issuer: `home_new_prefix_terminal`, retained through the existing
-terminal relation index. The child projection and physical header must borrow
-that result; neither may infer Bool from the emitted ValueId or AST spelling.
+## Decision
 
-Choose the narrow Bool result representation and source-to-physical
-correspondence for unannotated `accepts`, including:
+```text
+Decision: issue the two exact Bool-literal terminal relations before any
+  physical Bool result/call admission. Keep result class, terminal site and
+  physical representation as distinct evidence joined at their owners.
+Source authority + canonical issuer: resolved Bool literal at the exact
+  Return value site and verified Completion/Home exit flow;
+  home_new_prefix_terminal issues TerminalRelationV1::BoolLiteral, the existing
+  child retention and normal_exit_projection_v1 consume it. The existing
+  callable_result_representation solver remains the sole ExactBool class
+  issuer; a later physical-header projection must corroborate it by key.
+Non-authority: AST spelling at the physical boundary, emitted ValueId kind,
+  the absence of a result annotation, ExactTrivialScalarAbiV1::I64, and all
+  caller observations.
+Fail-fast boundary: missing, wrong-owner/site, duplicate or non-Bool source
+  relation never supplies a Normal exit or physical Bool result. A Bool
+  source relation alone cannot select an ordinary physical role or invoke.
+Smallest next slice: BOOL-LITERAL-TERMINAL-S0, issuing/retaining exact Bool
+  source exits for unchanged SizeClassBox.accepts/1, replacing the current
+  relation-less Some(_) acceptance. Then design/execute Bool result physical
+  header and ordinary return; treat accepts_usize Bool call separately.
+Non-claims: no Bool ABI, ordinary_bool role, selected-C Bool call/return,
+  Eq physical acceptance, whole-source publication or mimalloc-lite EXE PASS.
+```
 
-1. one Bool-literal relation per original exit, with value, owner and site;
-2. complete child retention and Normal/Fault root cleanup for both exits;
-3. result contract/header or an existing equivalent physical authority for
-   Bool, without treating an unannotated declaration as an arbitrary ABI;
-4. one ordinary physical Return path and final MIR/backend verification.
+S0 acceptance: the two original `accepts` exits retain distinct values,
+owner, Return/value sites and Normal/Fault Home obligations; a missing or
+wrong-site relation fails closed at the existing root exit. Reuse the existing
+Home/terminal tests and the unchanged-source published-view probe, adding
+only the independent Bool case. The probe may advance to a named physical
+Bool boundary but must not be reported as PASS. The uncommitted Eq changes
+remain protected and excluded from this S0 commit.
 
-The selected implementation must reject a missing, swapped, duplicated or
-non-Bool terminal, conflicting result class, wrong owner/site, and a Return
-whose physical value does not match the retained source relation. Preserve
-distinct failure positions. Reuse existing return emitter and cleanup owner;
-do not add a fallback or rewrite the `.hako` source.
-
-Smallest follow-up: close this Decision with the exact existing result and
-physical owners, then select one `MIRBUILDER-BOOL-LITERAL-TERMINAL-S0` slice
-covering the two original `accepts` exits. The Eq S0 card retains its
-uncompleted ordered Static packet/Compare/Branch acceptance and resumes only
-after Bool terminal publication is verified. The whole mimalloc-lite app's
-recorded first stop remains Heap-to-Page.
+The following Bool physical slice must borrow the existing `ExactBool` solver
+row and the exact terminal/Completion product, then issue a Bool result header
+and ordinary physical role with final MIR/backend checks. It must not call the
+i64 role Bool merely because both use an i64 payload. A separate Bool-call
+slice is required for `accepts_usize` if that source becomes selected. The Eq
+S0 card retains its uncompleted ordered Static packet/Compare/Branch
+acceptance and resumes only after the required Bool source/physical boundary
+is verified. The whole mimalloc-lite app's recorded first stop remains
+Heap-to-Page.

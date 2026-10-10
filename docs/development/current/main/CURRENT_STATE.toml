@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-BOOL-LITERAL-TERMINAL-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-BOOL-LITERAL-TERMINAL-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/bool-literal-terminal-result-d0"
-current_design_stop = "MIRBUILDER-BOOL-LITERAL-TERMINAL-D0"
+current_blocker_token = "selfhost-resume/bool-literal-terminal-source-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,18 +17,16 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-bool-literal-terminal-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-bool-literal-terminal-d0-2026-10-10.md"
 latest_card_summary = """
-The original accepts Static Eq S0 is unfinished. Its unchanged-source
-published-view probe reached SizeClassBox.accepts/1 and exposed missing
-Bool-literal terminal relations for return false/true before Eq physical
-acceptance. Resolve that separate result/return authority in this D0, then
-execute the Bool terminal S0 and resume Eq S0. The Eq issuer/test changes
-remain isolated and uncommitted in this checkout. The unchanged whole-app
-EXE first stop remains Heap-to-Page source-only-object-actuals.
+The original accepts Static Eq S0 is unfinished. The D0 decision selected
+the exact Bool-literal Home terminal relation as S0; Bool physical result
+and Bool call transport are later separate frontiers. The Eq issuer/test
+changes remain isolated and uncommitted in this checkout. The unchanged
+whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-BOOL-LITERAL-TERMINAL-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-bool-literal-terminal-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-BOOL-LITERAL-TERMINAL-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-bool-literal-terminal-d0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
