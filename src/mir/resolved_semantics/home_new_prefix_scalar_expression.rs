@@ -7,6 +7,9 @@ use crate::mir::dynamic_operator_contract::{
 };
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1, SourcePathV1};
 
+#[path = "home_static_eq_condition.rs"]
+mod static_eq_condition;
+
 pub(super) fn observe_local_initializer<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
@@ -64,6 +67,11 @@ pub(super) fn observe_scalar_expression<E>(
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
     if required == Some(SourceScalarKind::Bool) && !local_initializer_profile {
+        if let Some(calls) = static_eq_condition::observe(
+            input, site, statement, homes, static_call, borrowed_actuals,
+        )? {
+            return Ok(Some((SourceScalarKind::Bool, calls)));
+        }
         if let Some((if_site, call_site)) = if_current_owner_ge_zero_call(input, site) {
             if if_site == *statement {
                 let Some(call) = local_call_flow::issue_current_owner_i64_direct_value_call(
@@ -451,6 +459,9 @@ pub(super) fn contains_source_request<E>(
     locals: &PrefixLocalFlow<'_>,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
 ) -> Result<bool, E> {
+    if static_eq_condition::contains_source_request(input, root, static_call)? {
+        return Ok(true);
+    }
     if let Some((_, call)) = if_current_owner_ge_zero_call(input, root) {
         let owned = OwnedExprSiteV1::new(input.owner(), call);
         return Ok(static_call(&owned)?.is_some_and(|claim| {

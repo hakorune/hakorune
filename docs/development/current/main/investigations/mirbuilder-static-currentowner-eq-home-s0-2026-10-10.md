@@ -1,6 +1,6 @@
 # Static CurrentOwner Eq Home S0
 
-Status: selected implementation
+Status: implementation and focused acceptance verified; closeout ready
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-EQ-HOME-S0
 Related:
@@ -45,3 +45,29 @@ zero-input call issuers; do not create a second Static source authority.
 
 The physical integer Eq envelope, ordered Fault lowering, whole two-caller
 finisher, and `size_to_bin` internal loop remain dependent work under the D0.
+
+## Closeout evidence
+
+The unchanged `size_class_box.hako` publishes exactly two I64
+`LocalCallObservationV1` rows for `accepts`: the one-input Lhs at
+`Body(0)/IfCondition/Lhs`, then the zero-input RHS at
+`Body(0)/IfCondition/Rhs`. They share the original statement; the Lhs
+projects the staged borrowed actual. The existing direct-value issuer is
+reused for the projection and the existing zero-input issuer supplies the
+RHS. No second Static claim authority or physical packet was added.
+
+The focused positive/negative pair is 2/2. Negative source changes cover
+reversed operands, a literal RHS, a nested-call argument, and `&&`; none
+publishes a partial Home pair. Related scalar-expression tests are 13/13,
+Static claim tests 9/9, CurrentOwner tests 38/38, and resolved-semantics
+tests 363/363. The wider normal-callable package run is 999 passed with
+three known baseline reds: `birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`,
+`main_static_child_port_consumes_all_role_rows_once`, and
+`qualified_call_map_argument_reaches_the_named_capability_boundary`.
+These are the same three recorded before this selection in the explicit
+EXE Static S0 card; there is no new package failure. The original incoming
+`size_to_bin` cohort inventory tests passed and remain source-only.
+
+This closes only the Home source observation gap. Physical integer Eq,
+ordered Normal/Fault lowering, two-caller executable entry, and the app
+first stop are not claimed.

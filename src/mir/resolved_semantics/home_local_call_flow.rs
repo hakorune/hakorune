@@ -336,6 +336,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
 mod static_value_call;
 pub(super) use static_value_call::{
     issue_current_owner_i64_direct_value_call, issue_static_i64_value_call,
+    project_current_owner_i64_staged_value_call,
 };
 
 /// Issue an exact lexical instance-call local continuation. The package

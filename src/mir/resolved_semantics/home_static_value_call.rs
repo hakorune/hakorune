@@ -99,6 +99,62 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, true) {
         borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
     }
+    project_current_owner_i64_staged_value_call(
+        input,
+        statement,
+        site,
+        prior_homes,
+        static_call,
+        borrowed_arguments,
+    )
+}
+
+/// Reuse the direct-value issuer after an enclosing expression has already
+/// staged the original call actual. This projects source evidence only; it
+/// never observes a second actual or publishes a physical packet.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner_i64_staged_value_call<
+    E,
+>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &SourceExprSiteV1,
+    prior_homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    borrowed_arguments: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<LocalCallObservationV1>, E> {
+    if !site
+        .node()
+        .segments()
+        .starts_with(statement.node().segments())
+    {
+        return Ok(None);
+    }
+    let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    let Some(claim) = static_call(&owned)? else {
+        return Ok(None);
+    };
+    if claim
+        .current_owner_source_required_i64_arguments()
+        .is_none()
+    {
+        return Ok(None);
+    }
+    let mut calls = input
+        .function()
+        .method_calls()
+        .filter(|(observed, _)| *observed == site);
+    let Some((_, call)) = calls.next() else {
+        return Ok(None);
+    };
+    if calls.next().is_some()
+        || call.owner() != input.owner()
+        || !claim.corroborates_source(&owned, call.receiver(), call.arity())
+    {
+        return Ok(None);
+    }
     let Some(BorrowedCallArgumentsV1::StaticSource(arguments)) = borrowed_arguments(
         &owned,
         BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(&claim),

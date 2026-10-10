@@ -1,7 +1,62 @@
 //! Whole-root scalar admission and rejected-root staging, through the real issuer.
 use super::brand_catalog_tests::issue_with_brand_catalog as issue;
 use super::VerifiedNormalCallableSemanticPackageV1;
-use crate::mir::resolved_semantics::{BodyExpressionShapeV1, OwnedExprSiteV1};
+use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SelectedNormalCallableKeyV1};
+use crate::mir::resolved_semantics::home_new_prefix::{
+    LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
+};
+use crate::mir::resolved_semantics::{BodyExpressionShapeV1, OwnedExprSiteV1, SourcePathSegmentV1};
+
+fn static_accepts_home_calls(package: &VerifiedNormalCallableSemanticPackageV1) -> Vec<LocalCallObservationV1> {
+    let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "accepts", 1);
+    let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
+    let owner = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().owner;
+    package.ordinary_new_claim_ledger.completion_for_owner(owner)
+        .and_then(|completion| completion.cleanup().root_flow())
+        .expect("accepts source Home flow")
+        .local_calls().to_vec()
+}
+
+#[test]
+fn static_current_owner_eq_home_preserves_both_original_children_in_order() {
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let package = issue(source).expect("unchanged size-class source");
+    let calls = static_accepts_home_calls(&package);
+    assert_eq!(calls.len(), 2);
+    assert_eq!(calls[0].site().site().node().segments(), &[
+        SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfCondition,
+        SourcePathSegmentV1::Lhs,
+    ]);
+    assert_eq!(calls[1].site().site().node().segments(), &[
+        SourcePathSegmentV1::Body(0), SourcePathSegmentV1::IfCondition,
+        SourcePathSegmentV1::Rhs,
+    ]);
+    assert_eq!(calls[0].statement(), calls[1].statement());
+    assert!(calls.iter().all(|call| call.is_expression_value()
+        && call.result() == LocalCallResultClassV1::I64));
+    assert!(matches!(calls[0].arguments(), [LocalCallArgumentV1::BorrowedActual {
+        ordinal: 0, ..
+    }]));
+    assert!(calls[1].arguments().is_empty());
+}
+
+#[test]
+fn static_current_owner_eq_home_rejects_incomplete_or_reordered_pair() {
+    let source = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let original = "if me.size_to_bin(size) == me.huge_bin()";
+    for condition in [
+        "if me.huge_bin() == me.size_to_bin(size)",
+        "if me.size_to_bin(size) == 73",
+        "if me.size_to_bin(me.huge_bin()) == me.huge_bin()",
+        "if me.size_to_bin(size) && me.huge_bin()",
+    ] {
+        let changed = source.replacen(original, condition, 1);
+        assert_ne!(changed, source);
+        let package = issue(&changed).expect("changed source package");
+        let calls = static_accepts_home_calls(&package);
+        assert!(calls.is_empty(), "no partial Eq Home: {condition}");
+    }
+}
 
 fn package(body: &str) -> VerifiedNormalCallableSemanticPackageV1 {
     issue(&format!(

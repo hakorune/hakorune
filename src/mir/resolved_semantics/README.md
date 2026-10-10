@@ -525,6 +525,15 @@ arguments are requested. It records one `ExpressionValue` call with original
 ordered arguments and prior Homes. This is Home source coverage only: it
 does not grant an Integer entry class to an uncalled formal, a physical
 condition-call packet or Static transport admission.
+An exact resolver-sealed If `Equal` may additionally observe a
+one-input CurrentOwner Static I64 call on the left and a zero-input
+CurrentOwner Static I64 call on the right. The composed scalar owner checks
+both original call claims and child sites first, then projects the left
+call's already staged `SourceStatic` argument and returns both
+`ExpressionValue` observations in source order. Missing or reordered children,
+nested call arguments and short-circuit conditions do not publish a partial
+pair. This is Home source coverage only; the integer Eq execution envelope,
+ordered Fault lowering and full two-caller callee cohort remain separate.
 An `Add` local initializer can likewise borrow only the prepared, dominated
 `AddOperand` at its exact operand and binary sites. The whole initializer must
 still pass scalar preflight before its binding receives Integer class; an
