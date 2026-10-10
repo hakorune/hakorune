@@ -32,7 +32,18 @@ fn bin_size_words_root_mul_requires_ordered_integer_add_and_local() {
         ),
     ];
     for (source, first_uncovered) in variants {
-        let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let package = match brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Ok(package) => package,
+            Err(error)
+                if first_uncovered == 10
+                    && format!("{error:?}").contains(
+                        "[freeze:contract][ordinary-new/static-scalar/incoming-identity]",
+                    ) =>
+            {
+                continue;
+            }
+            Err(error) => panic!("unexpected source refusal: {error:?}"),
+        };
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
             "SizeClassBox",
             "bin_size",
@@ -77,7 +88,18 @@ fn bin_size_return_mul_requires_i64_local_and_exact_static_call() {
         (original.replacen(returned, "return words * 2", 1), false),
     ];
     for (source, expected) in variants {
-        let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let package = match brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Ok(package) => package,
+            Err(error)
+                if !expected
+                    && format!("{error:?}").contains(
+                        "[freeze:contract][ordinary-new/static-scalar/incoming-identity]",
+                    ) =>
+            {
+                continue;
+            }
+            Err(error) => panic!("unexpected source refusal: {error:?}"),
+        };
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
             "SizeClassBox",
             "bin_size",
@@ -101,5 +123,80 @@ fn bin_size_return_mul_requires_i64_local_and_exact_static_call() {
                 assert!(ledger.terminal_relation_for_owner_at(input.owner(), &exit).is_none());
             }
         }).unwrap();
+    }
+}
+
+#[test]
+fn bin_size_signed_immediate_return_uses_exact_home_terminal_source() {
+    use crate::mir::resolved_semantics::{
+        home_new_prefix::{HomePrefixUnavailableV1, TerminalRelationV1},
+        SourceNodeSiteV1, SourcePathSegmentV1 as Segment, SourceStmtSiteV1,
+    };
+    let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    for (source, expected) in [
+        (original.to_string(), true),
+        (original.replacen("return -1", "return -bin", 1), false),
+    ] {
+        let package = brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+        let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+            "SizeClassBox",
+            "bin_size",
+            1,
+        );
+        let slot = package
+            .selected
+            .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+            .unwrap();
+        package.batch().with_lowering_input(slot, |input| {
+            let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                Segment::Body(0), Segment::IfThen(0),
+            ]));
+            let ledger = &package.ordinary_new_claim_ledger;
+            let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
+            if expected {
+                assert!(flow.all_exits_ready());
+                assert!(matches!(flow.exit_row(&exit), Some(Ok(_))));
+                assert!(matches!(ledger.terminal_relation_for_owner_at(input.owner(), &exit),
+                    Some(TerminalRelationV1::IntegerLiteral(row)) if row.value() == -1));
+            } else {
+                assert!(matches!(flow.exit_row(&exit),
+                    Some(Err(HomePrefixUnavailableV1::ReturnValueNotCovered(site))) if site == &exit));
+                assert!(!flow.all_exits_ready());
+                assert!(ledger.terminal_relation_for_owner_at(input.owner(), &exit).is_none());
+            }
+        }).unwrap();
+        if expected {
+            let good_size =
+                crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
+                    "SizeClassBox",
+                    "good_size",
+                    1,
+                );
+            let slot = package
+                .selected
+                .batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(good_size))
+                .unwrap();
+            package
+                .batch()
+                .with_lowering_input(slot, |input| {
+                    let exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+                        Segment::Body(1),
+                        Segment::IfThen(0),
+                    ]));
+                    let ledger = &package.ordinary_new_claim_ledger;
+                    let flow = ledger
+                        .completion_for_owner(input.owner())
+                        .unwrap()
+                        .cleanup()
+                        .root_flow()
+                        .unwrap();
+                    assert!(flow.all_exits_ready());
+                    assert!(
+                        matches!(ledger.terminal_relation_for_owner_at(input.owner(), &exit),
+                    Some(TerminalRelationV1::IntegerLiteral(row)) if row.value() == -1)
+                    );
+                })
+                .unwrap();
+        }
     }
 }

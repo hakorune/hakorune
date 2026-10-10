@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-LOCAL-CALL-BINDINGS-COVERAGE-D0
 
-Status: design_stop; source/physical owner audit required
+Status: decided; bounded S0 and later loop design split
 Date: 2026-10-11
 Scope: unchanged `SizeClassBox` Static local-call binding groups at final package coverage
 Related:
@@ -31,21 +31,58 @@ to an emitted exit entry or a retained unavailable/finalized exit. The
 absence of an exit entry does not itself prove whether the group was never
 eligible, lost during issuance, or belongs to a different physical owner.
 
-## Decision required
+Read-only owner audit: `terminal_call.rs` is the sole local-call binding
+group issuer. The generic `return` in `statement_surface.rs` emits no
+`RootHomeExitEntry` and therefore cannot consume its groups. The selected
+return path enters `prepare_root_home_exit`, which requires every sibling
+exit in the same Completion to have a proven Home row before it can issue
+the per-exit entry. `finalized_lexical_call_visit` checks finished Call
+producers only after the package preflight; it does not prove per-exit Home
+cleanup. Do not bypass the group-consumption gate or force one exit entry
+while sibling exits remain unavailable.
+
+The next disposable run confirms each of owner slots 4 (`bin_size`), 5
+(`size_to_bin`), and 7 (`good_size`) has a `root_flow`, but
+`all_exits_ready=false`; slot 10 (`accepts`) has `all_exits_ready=true`
+(`/tmp/hako-bool-entry-coverage-flow-20261011.log`). Thus the missing
+entries are a consequence of the whole-owner exit readiness gate, not a
+missing `root_flow`. The exact disposable per-exit census is
+`/tmp/hako-bool-entry-coverage-exits-20261011.log`:
+
+| Owner | Unready exits | Ready exits |
+| --- | --- | --- |
+| `bin_size` slot 4 | Body(0)/IfThen(0) and Body(2)/IfThen(0): `ReturnValueNotCovered` for `return -1` | Body(1)/IfThen(0), Body(11) |
+| `size_to_bin` slot 5 | Body(2)/LoopBody(0)/IfThen(0): `TerminalNotCovered`; Body(3): `PrefixNotCovered` at the loop | none |
+| `good_size` slot 7 | Body(1)/IfThen(0): `ReturnValueNotCovered` for `return -1` | Body(2) |
+| `accepts` slot 10 | none | both exits |
+
+The two `return -1` owners share one missing source classifier. The search
+loop owner needs a different Completion/Home rule and remains outside S0.
+
+## Decision
 
 ```text
-Decision: pending read-only owner audit.
-Source authority + canonical issuer: determine from the original Static
-  call rows, verified Completion/exit flow and existing local-call binding
-  group issuer; do not create a second call or exit authority.
+Decision: issue one exact negative integer immediate through the existing
+  Home terminal IntegerLiteral relation, then allow the already selected
+  root Home exit path to consume covered groups for bin_size/good_size.
+Source authority: exact Unary Minus(Integer literal) and checked value from
+  expression_source::negative_integer_immediate; source site, Completion
+  exit and Home flow remain the existing authority. Canonical issuer is
+  home_new_prefix terminal/scalar observation, not a new return or Call
+  issuer. Physical Plain exit and integer emission are existing owners.
 Non-authority: the aggregate IncompleteOrdinaryNewCoverage error, slot order
   alone, and the disposable debug print.
 Fail-fast boundary: no unconsumed binding group may be treated as covered;
-  missing exit, wrong site/owner, partial group, or double consumption must
-  retain a named refusal.
-Smallest next slice: decide whether these eligible Static exits must issue
-  the existing exit entry, or whether an existing sole physical owner must
-  consume the group without it; name exact production callers and tests.
+  overflow, wrong unary shape/site, missing sibling exit, wrong owner,
+  partial group, or double consumption retain a named refusal.
+Smallest next slice: NEGATIVE-INTEGER-RETURN-HOME-S0, covering exact signed
+  immediate return source for unchanged bin_size/good_size. Positive:
+  their entire owner exit flow ready and local groups consumed via existing
+  Plain/Call exit entries. Negative: wrong unary/value/overflow and sibling
+  exit still unavailable refuse. Reuse current focused family and original
+  SizeClassBox probe; add only missing independent negative coverage.
+Follow-up: SEARCH-LOOP-EARLY-RETURN-HOME-D0 for size_to_bin; its loop
+  prefix/terminal failures are not a signed-immediate problem.
 Non-claims: no whole SizeClassBox publication, no mixed physical acceptance,
   no Bool physical Invoke, no mimalloc-lite EXE PASS.
 ```

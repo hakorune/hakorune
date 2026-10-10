@@ -224,6 +224,8 @@ mod new_local;
 mod scan;
 #[path = "home_new_prefix_terminal.rs"]
 mod terminal;
+#[path = "home_terminal_literal.rs"]
+mod terminal_literal;
 use scan::scan_statement_flow;
 
 /// One source walk supplies both New-failure prefixes and terminal ownership.

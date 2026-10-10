@@ -301,39 +301,16 @@ pub(super) fn observe_terminal_statement<'a, E>(
                         }
                         maps.extend(nested);
                     }
-                    match input.function().expression_source().literal(value.site()) {
-                        // `return void` spells the explicit-unit terminal;
-                        // completion classifies it like a bare return.
-                        Some(ResolvedLiteralSourceV1::Void) => {
-                            relation = Some(TerminalRelationV1::Unit(TerminalUnitReturnV1::issue(
-                                input.owner(),
-                                statement.site().clone(),
-                            )));
+                    match terminal_literal::classify_return_literal(
+                        input,
+                        statement.site(),
+                        value.site(),
+                    ) {
+                        Some(terminal) => {
+                            relation = Some(terminal);
                             true
                         }
-                        Some(ResolvedLiteralSourceV1::Integer(number)) => {
-                            relation = Some(TerminalRelationV1::IntegerLiteral(
-                                TerminalIntegerLiteralReturnV1::issue(
-                                    input.owner(),
-                                    statement.site().clone(),
-                                    value.site().clone(),
-                                    *number,
-                                ),
-                            ));
-                            true
-                        }
-                        Some(ResolvedLiteralSourceV1::Bool(value_bool)) => {
-                            relation = Some(TerminalRelationV1::BoolLiteral(
-                                TerminalBoolLiteralReturnV1::issue(
-                                    input.owner(),
-                                    statement.site().clone(),
-                                    value.site().clone(),
-                                    *value_bool,
-                                ),
-                            ));
-                            true
-                        }
-                        _ if terminal_call(&OwnedExprSiteV1::new(
+                        None if terminal_call(&OwnedExprSiteV1::new(
                             input.owner(),
                             value.site().clone(),
                         ))? =>
@@ -413,7 +390,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                 false
                             }
                         }
-                        _ => {
+                        None => {
                             let checked_return = match input.function().variable_ref(value.site()) {
                                 Some(ResolvedLexicalRefV1::Local(binding)) => view_use(
                                     &OwnedExprSiteV1::new(input.owner(), value.site().clone()),
