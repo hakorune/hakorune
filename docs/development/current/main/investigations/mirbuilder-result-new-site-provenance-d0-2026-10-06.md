@@ -848,3 +848,18 @@ mapping edit; the `real_bin_size_` family passed 6/6 before that edit. Pointer,
 diff and selected rustfmt checks passed. This closes only the Facts
 prerequisite. Body9 remains uncovered until verified After, Recipe and
 JoinSig are issued and consumed.
+
+Next-slice Decision (read-only review integrated): enrich the same compiler
+source observation/Facts with exact resolver-backed condition operands, both
+assignment operands/targets, literals, declarations and initializer sites.
+The V1 Recipe producer consumes those relations without another AST walk:
+`scale` and `i` are the two I64 carriers; `shift_count` is an I64 read-only
+input with no After obligation. Add logical Mul to V1 only, keeping the
+physical emitter fail-fast until its separate slice. The existing JoinSig
+issuer must return one complete, owner/site-bound After closure for both
+carriers; only that closure may let Home install their post-loop I64 classes
+and cross Body9. Missing/duplicate After, wrong owner/site/frame, wrong class,
+operation/order/literal or extra effect refuse at Body9. The later raw entry
+must consume this retained product once instead of reprojecting the source.
+The next bounded acceptance is unchanged `bin_size` crossing Body9 and these
+refusals; `words`, the return, physical Mul and EXE remain separate.
