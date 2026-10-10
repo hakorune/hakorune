@@ -17,6 +17,7 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     static_call_claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
@@ -237,6 +238,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         finish_ingress_from_drafts_v1(
             batch,
             selected,
+            omitted_static_callers,
             contracts,
             entry_home_loans,
             constructors,

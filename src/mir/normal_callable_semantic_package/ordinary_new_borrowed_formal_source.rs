@@ -156,6 +156,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
     finish_ingress_from_drafts_v1(
         batch,
         selected,
+        &BTreeSet::new(),
         contracts,
         entry_home_loans,
         instance_constructors,
@@ -175,6 +176,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
 pub(super) fn finish_ingress_from_drafts_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
@@ -218,6 +220,7 @@ pub(super) fn finish_ingress_from_drafts_v1(
     let inventory = inventory_borrowed_incoming_with_stored_dispatch_v1(
         batch,
         selected,
+        omitted_static_callers,
         &definitions,
         contracts,
         &calls,

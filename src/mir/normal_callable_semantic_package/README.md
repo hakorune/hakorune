@@ -117,10 +117,12 @@ closure, forward join and object-view solve retain their own contracts.
 ## Original incoming source graph
 
 One whole-batch scan retains raw accepted Instance definitions' exact incoming
-rows and callee-specific vetoes before transport closure. The final callee set
-projects the same immutable inventory; it never filters callers to obtain
-agreement, and global batch-loan errors remain global. Instance and qualified
-Static sources keep their original owned record or shared Rc. The existing
+rows and callee-specific vetoes before transport closure. In an explicitly
+selected closed-App EXE, only catalog-co-sealed omitted Static callers leave
+executable incoming observations; their source rows stay in the complete
+Static claim index. Other callers and global batch-loan errors keep their
+vetoes. The final callee set projects this selected-caller inventory. Instance
+and qualified Static sources keep their original owned record or shared Rc. The existing
 finite closure, forward join and final source corroboration borrow their common
 coordinates. Static destinations use the same full-cohort transport closure
 when their original source capabilities close. Receiver/object-only consumers explicitly require
@@ -212,14 +214,15 @@ issuer must preserve this index's catalog brand and complete call/input identity
 Raw Static drafts enter the existing classifier only through target membership
 in the same sealed qualified-static ExactI64 index and the original selected
 key, slot and complete formal contract. Static mode has no receiver. The same
-whole-batch scan retains each original QualifiedStatic Rc, including Main
+incoming scan retains each selected QualifiedStatic Rc, including Main
 literal calls and unavailable-call vetoes, and feeds the existing domain solver.
+The complete claim index retains original rows from omitted Static callers.
 Known Instance calls are another namespace only after their original call-site
 and ordered argument coordinates agree. Missing authority never removes a caller.
 
 Source agreement alone grants no execution or entry permission. The same
 incoming scan records unsupported Static actual spelling and non-initializer
-context per callee without dropping any source row or veto. An exact original
+context per selected callee without dropping a selected source row or veto. An exact original
 Static target/slot/full formal contract seeds the existing transport closure;
 Instance/Static namespace exclusions require the original opposite-mode proof.
 Unavailable proof retains the caller veto, and conflicting proofs reject.
@@ -265,9 +268,10 @@ intent: reusable package, MIR JSON, and other artifact requests keep all
 source declarations. For closed App static methods, the source-backed catalog
 retains an explicit omitted-identity cohort from the original complete
 MethodCall inventory. The co-seal validates that each such row remains a
-declaration and is absent from
-the selected batch map. It does not discard source calls or relax a selected
-callee's incoming transport veto.
+declaration and is absent from the selected batch map. It lends exact omitted
+owners to the ordinary incoming walk. Original Static claim rows remain;
+only omitted callers leave executable incoming obligations. Every selected
+caller keeps the existing transport veto.
 
 Parser identity is cloneable for comparison only: no serialization, pointer or
 numeric conversion, key use, or resolver-owner issuance. Catalog and batch are

@@ -622,6 +622,7 @@ mod borrowed_callback_tests {
 pub(super) fn prepare_source_preflight_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
     static_call_claims: &super::super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
@@ -668,6 +669,7 @@ pub(super) fn prepare_source_preflight_v1(
         super::super::lexical_instance_call::prepare_borrowed_profile_v1(
             batch,
             selected,
+            omitted_static_callers,
             instance_constructors,
             parameter_contracts,
             static_call_claims,

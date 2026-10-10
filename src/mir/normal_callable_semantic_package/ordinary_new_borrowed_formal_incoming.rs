@@ -1,4 +1,4 @@
-//! Sole incoming scan retains qualified Static/Object evidence without transport admission.
+//! Sole selected-caller incoming scan retains Static/Object transport evidence.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
 #[path = "ordinary_new_borrowed_static_inventory.rs"]
@@ -143,10 +143,10 @@ impl BorrowedIncomingInventoryV1 {
     }
 }
 
-/// Enumerate the complete source batch, including unselected callers. An
-/// unresolved selector/arity match can veto selection but never proves a
-/// target. `ordinary_callers` must later be corroborated against the issued
-/// Ordinary source scopes; these draft rows install no ABI or live actual.
+/// Visit the complete batch once, but omit only catalog-co-sealed closed-App
+/// Static callers from executable incoming obligations. Their original call
+/// rows remain in the separate complete Static claim index. Other unselected
+/// callers and unresolved selector/arity matches still veto as before.
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn inventory_borrowed_incoming_calls_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
@@ -160,6 +160,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     inventory_borrowed_incoming_with_stored_dispatch_v1(
         batch,
         selected,
+        &std::collections::BTreeSet::new(),
         drafts,
         contracts,
         calls,
@@ -172,6 +173,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn inventory_borrowed_incoming_with_stored_dispatch_v1(
     batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     selected: &super::super::VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     calls: &BTreeMap<OwnedExprSiteV1, &super::super::LexicalInstanceCallSourceTargetV1>,
@@ -345,7 +347,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let mut unsupported_static_spelling = std::collections::BTreeSet::new();
     let mut unsupported_static_context = std::collections::BTreeSet::new();
     let mut seen = std::collections::BTreeSet::new();
+    let mut unvisited_omitted = omitted_static_callers.clone();
     for declaration in batch.declarations() {
+        if omitted_static_callers.contains(&declaration.owner()) {
+            if declaration.mode()
+                != crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                || selected.key_for_batch_slot(declaration.batch_slot()).is_some()
+                || !unvisited_omitted.remove(&declaration.owner())
+            {
+                return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+            }
+            continue;
+        }
         let loan = batch.with_lowering_input(declaration.batch_slot(), |input| {
             for (site, call) in input.function().method_calls() {
                 let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
@@ -539,6 +552,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 break;
             }
         }
+    }
+    if !unvisited_omitted.is_empty() {
+        return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
     }
     for owner in definitions.keys() {
         if !seen.contains(owner) {

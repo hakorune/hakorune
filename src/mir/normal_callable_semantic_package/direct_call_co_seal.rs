@@ -10,8 +10,10 @@ use crate::mir::builder::{
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::{
-    ResolvedCallableSemanticBatchIssueV1, VerifiedResolvedCallableSemanticBatchV1,
+    ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchIssueV1,
+    VerifiedResolvedCallableSemanticBatchV1,
 };
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 
 use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 
@@ -23,16 +25,18 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-) -> Result<(), ResolvedCallableSemanticBatchIssueV1> {
+) -> Result<BTreeSet<FunctionOwnerIdV1>, ResolvedCallableSemanticBatchIssueV1> {
     let declaration_catalog = catalog.catalog();
     if !declaration_catalog
         .brand()
         .is_same(declaration_catalog.selected_source_inventory().brand())
+        || !declaration_catalog.brand().is_same(selected.catalog_brand())
     {
         return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
     }
 
     let mut owned_sites = BTreeSet::new();
+    let mut omitted_callers = BTreeSet::new();
     let app_main_identity = declaration_catalog
         .source_backed_app_main()
         .map(|main| main.parser_identity());
@@ -49,6 +53,9 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
             if omitted.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
                 || declaration_catalog.declaration(omitted).is_none()
                 || selected.key_for_batch_slot(slot).is_some()
+                || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                || declaration.parameter_count() != omitted.arity()
+                || !omitted_callers.insert(declaration.owner())
             {
                 return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
             }
@@ -171,5 +178,5 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
             .map_err(|_| ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?
             .ok_or(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation)?;
     }
-    Ok(())
+    Ok(omitted_callers)
 }

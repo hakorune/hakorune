@@ -66,6 +66,7 @@ pub(super) use loop_issue::{LoopProductUnavailableV1, SelectedLoopProductV1};
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
+    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],
@@ -142,6 +143,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     ) = lexical::prepare_source_preflight_v1(
         batch,
         selected,
+        omitted_static_callers,
         instance_constructors,
         parameter_contracts,
         static_call_claims,

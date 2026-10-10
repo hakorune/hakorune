@@ -1,11 +1,11 @@
-//! Complete original Static incoming identity before executable actuals.
+//! Complete selected Static incoming identity before executable actuals.
 
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
 
 impl PreparedBorrowedFormalIngressV1 {
-    /// The inventory's whole-callee projection retains unresolved vetoes.
+    /// The selected-caller inventory's whole-callee projection retains vetoes.
     /// This receipt is source-only: no actual, carrier or call coordinate.
     pub(in crate::mir::normal_callable_semantic_package) fn static_incoming_cohort_v1(
         &self,

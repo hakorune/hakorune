@@ -254,11 +254,16 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 let key = CanonicalSameModuleCallableKeyV1::static_box_method(class, method, 1);
                 let slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(key)).unwrap();
                 let formal = package.parameter_contracts.iter().find(|row| row.batch_slot == slot).unwrap().parameters[0].binding;
-                if method != "accepts" {
-                    assert!(!source.candidate_integer_agreement(formal));
-                }
                 assert!(source.checked_static_input(formal), "original checked/forward chain {class}.{method}");
             }
+            let class_id = CanonicalSameModuleCallableKeyV1::static_box_method("LayoutBox", "class_id", 1);
+            let class_id_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(class_id)).unwrap();
+            let class_id_formal = package.parameter_contracts.iter()
+                .find(|row| row.batch_slot == class_id_slot).unwrap().parameters[0].binding;
+            assert_eq!(source.candidate_input_inventory_for_test(class_id_formal.owner()), (1, false));
+            assert!(source.candidate_integer_agreement(class_id_formal));
+            assert!(source.source_incoming.static_observations().values().filter_map(|row| row.as_ref().ok())
+                .all(|row| row.caller() != &uncalled_accepts));
             let good_size = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "good_size", 1);
             let good_slot = package.selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(good_size.clone())).unwrap();
             let good_contract = package.parameter_contracts.iter().find(|row| row.batch_slot == good_slot).unwrap();
@@ -751,6 +756,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
         inventory_borrowed_incoming_with_stored_dispatch_v1(
             package.batch(),
             &package.selected,
+            &BTreeSet::new(),
             &source.definitions,
             &package.parameter_contracts,
             &calls,
