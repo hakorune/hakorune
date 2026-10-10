@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0
 
-Status: D0 accepted; S0 package checkpoint verified, physical acceptance open
+Status: D0 accepted; MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0 package checkpoint verified, physical acceptance open
 Date: 2026-10-11
 Scope: unchanged `SizeClassBox.size_to_bin_usize/1` Static Return
 Predecessor: `MIRBUILDER-STATIC-SCALAR-FORMAL-ROOT-ENTRY-S0`
