@@ -105,13 +105,16 @@ integer Eq execution envelope. Its current issuer has no
 ordinary `compare/eq`, but JSON spelling is not an execution proof. The
 existing `Equal(Dynamic, Null)` envelope cannot substitute for integer Eq.
 
-Decision order: first select a bounded two-caller source/actual closure cell
-against the unchanged `good_size` and `accepts` callers. Its positive must
-prove exactly two original incoming identities and actuals. Missing,
+Decision order: first close the callee's loop/call obligations needed for
+`size_to_bin` Completion, then select a bounded two-caller executable actual
+closure against the unchanged `good_size` and `accepts` callers. Its positive
+must prove exactly two original incoming identities and actuals. Missing,
 duplicate, foreign, changed-site, wrong-class, or unproved callee-loop
 obligations must fail closed; the preceding one-caller `normalize_size`
-remains green. If whole Completion is not yet available, split a source-only
-actual receipt from executable closure and make no packet claim. Next, issue
+remains green. `issue_original_static_forwarded_actual_v1` already checks
+each member of a two-row source cohort, as its existing test demonstrates;
+do not mint a duplicate source-only receipt while Completion is unavailable.
+Next, issue
 the integer Eq envelope through the sole operator issuer. Physical lowering
 must then show Lhs Invoke Normal -> RHS Invoke Normal -> Compare/Branch, with
 either child's Fault bypassing later steps and no `borrowed_null_compare`
