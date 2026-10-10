@@ -1,6 +1,6 @@
 # Static CurrentOwner two-caller actual S1
 
-Status: design stop; target-scoped executable ingress decision pending
+Status: selected implementation; target-scoped ingress Decision accepted
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1
 Related:
@@ -58,14 +58,40 @@ Decision brief:
 - Non-claims: no executable two-caller entry, integer Eq, final module link,
   EXE advance, or Heap/Page actual support is established yet.
 
-Before resuming implementation, fix one shared target-scoped accessor and
-its entry/packet consumers in this card. Preserve the exact pre-Home Eq
-eligibility query: resolved If-region, Equal binary, one-input CurrentOwner
-I64 Lhs with local actual, zero-input CurrentOwner I64 RHS, both original
-Static claim sites, exactly one initializer plus this Lhs and no other caller.
-The later Home pair remains mandatory. The original actual `Rc`, target,
-ordinal, formal, source site, borrowed I64 class and Home argument must agree
-at both sites before either gains executable phase.
+Decision: keep the global transport profile unchanged. During source ingress,
+issue one owner-local **source cohort** from the immutable
+`source_incoming.project({owner})` and the original `source_only_definitions`
+draft, without moving that draft into `definitions`. Select it only when the
+whole projection consists of exactly one CurrentOwner I64 initializer and
+one CurrentOwner I64 Eq Lhs, with no other caller or veto. Reuse the Home Eq
+source selector as a read-only query: resolved If-region, Equal binary,
+one-input CurrentOwner I64 Lhs with local actual, zero-input CurrentOwner I64
+RHS, and both original Static claim sites. This is pre-Home eligibility only.
+`unsupported_static_context` is a separate global-seed flag, not a veto in
+`project`; the owner-local check permits this exact Eq Lhs and rejects any
+other unsupported context or spelling. Extend `static_source_sites` from the
+cohort before the Home walk. Do not infer eligibility from a method name.
+
+After Home, the existing signature/result/Completion and both ordered Home
+observations, complete the two original `SourceStatic` actual rows together.
+The original actual `Rc`, target, ordinal, formal, source site, borrowed I64
+class and Home argument must agree at both sites. No partial executable
+phase may be published. A single ledger accessor lends an executable
+owner-local view only after both completed actuals corroborate the source
+cohort; the existing global definition/incoming remains its other, disjoint
+case. The view borrows the one original draft and projected incoming rows.
+The borrowed callee entry uses that view's draft directly rather than
+indexing `source.definitions`; its entry-values, incoming targets, receiver
+mode, and incoming/actual checks all use the same view. Static packet
+selection, co-seal, routed-owner check and actual lender consume that same
+completed cohort; `CallPacketSourceV1::static_i64` remains the sole packet
+issuer. Unrelated Instance/Object and Heap/Page routes continue using the
+global view and retain their pre-S1 source-only boundaries.
+
+Read-only audit confirmed the ordering: source cohort and site selection
+precede Home (`ordinary_new_borrowed_formal_profile.rs`), while actual closure
+follows Home plus signature (`issuer_object_input_finish.rs`). The packet
+issuer already calls ledger validation; no second physical route is needed.
 
 ## Acceptance
 

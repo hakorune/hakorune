@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-currentowner-target-scoped-ingress-d0"
-current_design_stop = "target-scoped two-caller ingress must connect actual, packet and callee entry without global transport graph activation"
+current_blocker_token = "selfhost-resume/static-currentowner-two-caller-actual-s1"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -25,15 +25,15 @@ Home S0 landed at 2ba998a6b3: accepts Eq now has two ordered original
 CurrentOwner Static Home observations. Read-only audit confirmed the callee
 V2 loop/Completion already exists and selected the two-caller source/actual
 closure S1 for good_size and accepts together. A global-seed attempt exposed
-unrelated Heap/Page actual activation, so S1 returned to design stop for a
-target-scoped ingress shared by actual, packet and callee entry. Physical
-integer Eq and ordered Normal/Fault lowering remain later. The finite goal
-is open.
+unrelated Heap/Page actual activation and was removed. Read-only audit then
+selected one target-scoped source cohort, with final shared actual/packet/
+callee-entry gating; S1 is back in fast mode. Physical integer Eq and
+ordered Normal/Fault lowering remain later. The finite goal is open.
 """
-next_design_card = "MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-two-caller-actual-s1-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-two-caller-actual-s1-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

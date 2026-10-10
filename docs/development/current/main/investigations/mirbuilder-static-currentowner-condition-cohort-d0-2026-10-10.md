@@ -1,6 +1,6 @@
 # Static CurrentOwner condition cohort D0
 
-Status: Home S0 landed; two-caller S1 target-scoped ingress design pending
+Status: Home S0 landed; two-caller S1 target-scoped ingress mapping accepted
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-CONDITION-COHORT-D0
 Related:
@@ -143,9 +143,9 @@ envelope or executable two-caller entry. Read-only loop/physical audit
 resolved the next replacement mapping without new source authority. A
 global-seed S1 attempt then activated unrelated Heap/Page actuals and failed
 at `ordinary-new/borrowed-actual/entry-source`. That implementation was
-removed. The related S1 card owns the pending target-scoped ingress Decision
-and acceptance; do not resume construction or infer execution permission
-from Home green alone.
+removed. The related S1 card now owns the target-scoped source/actual/entry
+Decision and acceptance. Construction may proceed on that mapping; Home green
+alone does not grant execution permission.
 
 Non-claims: this D0 does not authorize physical Eq, two-caller execution,
 caller omission, generic reachability pruning, or whole-app completion.
