@@ -1,6 +1,6 @@
 # Static CurrentOwner two-caller actual S1
 
-Status: selected implementation
+Status: design stop; target-scoped executable ingress decision pending
 Date: 2026-10-10
 Scope: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1
 Related:
@@ -30,19 +30,42 @@ module link or the integer Eq condition.
 `seed_static_transport_owners_v1` currently admits one CurrentOwner
 initializer and `borrowed_formal_incoming.rs` marks the Eq caller as an
 unsupported context. The one-input finisher requires a one-row cohort.
-Change these gates only for the exact two-row checked shape, using original
-sites and claims rather than method-name inference. Before Home runs, reuse
-the exact If-Eq source selector owned by `home_static_eq_condition.rs` as a
-read-only pair query: resolved If-region, Equal binary, one-input CurrentOwner
-I64 Lhs with local actual, zero-input CurrentOwner I64 RHS, and both original
-Static claim sites. This query authorizes only source eligibility; Home must
-still issue both observations later. Do not broadly seed every noninitializer
-caller and then skip failed Home checks: seeding already changes the transport
-owner and incoming graph. The two-row inventory must have exactly one
-initializer and this Eq Lhs, with no other caller. A nonmatching
-noninitializer context retains the old fail-closed boundary. The original
-actual `Rc`, target, ordinal, formal, source site, borrowed I64 class and
-Home argument must agree at both sites before either gains executable phase.
+An attempted exact two-row global seed compiled, but the unchanged imported
+source failed at `HakoAllocHeap.allocateResult -> me.allocate(size)` with
+`ordinary-new/borrowed-actual/entry-source`. It put `size_to_bin` into the
+global `transport_owners` before graph closure; that activated unrelated
+Heap/Page actual construction. The rejected actual was `SelfRooted` formal
+`size` (binding 1), while the entry receiver was binding 0. Treating it as
+the receiver would weaken the ownership contract. The source code experiment
+was removed after the failure; its patch is retained outside the checkout at
+`/tmp/hako-two-caller-global-seed-attempt-20261010.patch` for diagnosis.
+
+Decision brief:
+
+- Source authority + canonical issuer: the immutable original
+  `source_incoming` inventory, existing Eq source selector and Home pair,
+  selected signature/result/Completion, and sole
+  `CallPacketSourceV1::static_i64` physical packet issuer.
+- Non-authority: adding `size_to_bin` to global `transport_owners`, a
+  source-only actual, a name/AST shortcut, or independent packet construction.
+- Fail-fast boundary: both original callers must agree or neither gets an
+  executable actual; unchanged Heap/Page source-only behavior must remain.
+- Smallest next slice: design one target-scoped checked cohort from
+  `source_incoming.project({size_to_bin})`, consumed by the actual finisher,
+  Static packet selection, and callee borrowed entry. Merely completing
+  actuals is insufficient because those consumers currently read global
+  `source.incoming` / `source.definitions`.
+- Non-claims: no executable two-caller entry, integer Eq, final module link,
+  EXE advance, or Heap/Page actual support is established yet.
+
+Before resuming implementation, fix one shared target-scoped accessor and
+its entry/packet consumers in this card. Preserve the exact pre-Home Eq
+eligibility query: resolved If-region, Equal binary, one-input CurrentOwner
+I64 Lhs with local actual, zero-input CurrentOwner I64 RHS, both original
+Static claim sites, exactly one initializer plus this Lhs and no other caller.
+The later Home pair remains mandatory. The original actual `Rc`, target,
+ordinal, formal, source site, borrowed I64 class and Home argument must agree
+at both sites before either gains executable phase.
 
 ## Acceptance
 
@@ -55,6 +78,8 @@ Home argument must agree at both sites before either gains executable phase.
    Completion rejects the whole two-row executable cohort. An initializer
    paired with `if me.pick(p) > 0` or `&&` does not qualify at source selection
    and remains source-only; a foreign noninitializer caller does likewise.
+   The unchanged Heap/Page route must also retain its pre-S1 source-only
+   boundary instead of failing package construction at `entry-source`.
    No partial promotion or retry.
 3. Existing one-caller `normalize_size` executable actual/packet and
    real-source V2 loop collector positives/negatives remain green. Run the
