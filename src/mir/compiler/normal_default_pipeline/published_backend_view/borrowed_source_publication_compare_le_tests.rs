@@ -1,6 +1,34 @@
 //! Checked LessEqual uses the original comparison and source-owned carriers.
 use super::*;
 #[test]
+fn current_owner_forwarded_i64_emits_one_physical_static_packet() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return n } }";
+        MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
+            classify_pretransform_report(verification);
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            let wire = crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+            let document: serde_json::Value = serde_json::from_str(&wire).map_err(|error| error.to_string())?;
+            let functions = document["functions"].as_array().ok_or("physical functions missing")?;
+            let normalize = functions.iter().find(|row| row["name"] == "SizeClassBox.normalize_size/1")
+                .ok_or("normalize_size physical row missing")?;
+            assert_eq!(normalize["params"][0]["representation"], "borrowed_kind_payload_v1");
+            let caller = functions.iter().find(|row| row["name"] == "SizeClassBox.size_to_bin/1")
+                .ok_or("size_to_bin physical row missing")?;
+            let mut instructions = caller["blocks"].as_array().ok_or("caller blocks missing")?
+                .iter().filter_map(|block| block["terminator"]["instruction"].as_object());
+            assert!(instructions.clone().any(|row| row["op"] == "return_fault"));
+            assert!(instructions.clone().any(|row| row["op"] == "return"));
+            assert!(instructions.any(|row| row["op"] == "invoke"
+                && row["operation"]["kind"] == "ordinary_call"
+                && row["operation"]["result"] == "i64"
+                && row["operation"]["call"]["args"][0]["kind"] == "tagged"));
+            Ok(())
+        }).unwrap();
+    });
+}
+#[test]
 fn borrowed_less_equal_publishes_both_sides_shared_carrier_and_original_alias() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {

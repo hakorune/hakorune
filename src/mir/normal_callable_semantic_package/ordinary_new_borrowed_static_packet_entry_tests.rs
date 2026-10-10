@@ -161,6 +161,52 @@ fn static_packet_selection_retains_exact_final_source_and_sealed_routes() {
             .unwrap());
     }
 }
+
+#[test]
+fn current_owner_one_input_packet_requires_original_completed_cohort() {
+    let source_text = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source_text)
+        .expect("original size-class source");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let row = source.incoming.iter().find(|row| matches!(&row.source,
+        super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+            if original.caller().name() == "size_to_bin" && original.target().name() == "normalize_size"
+    )).expect("one original CurrentOwner incoming");
+    let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source else { unreachable!() };
+    assert_eq!(source.static_incoming_cohort_v1(original).unwrap().len(), 1);
+    assert_eq!(ledger.checked_completed_static_one_actuals_v1(original).unwrap().unwrap().opaque_actuals.len(), 1);
+    assert!(Rc::ptr_eq(original, &ledger.selected_static_local_source_v1(&row.call).unwrap().unwrap()));
+    assert!(ledger.has_routed_static_local_for_owner_v1(row.call.owner()).unwrap());
+    let original = Rc::clone(original);
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let actuals = ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap();
+    let ordered = actuals.ordered_arguments[0].clone();
+    actuals.ordered_arguments[0] = crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(10);
+    assert!(ledger.checked_completed_static_one_actuals_v1(&original).is_err());
+    assert!(ledger.borrowed_static_packet_actuals_v1(&original).is_err());
+    ledger.borrowed_formal_actuals.get_mut(original.call_site()).unwrap().as_mut().unwrap().ordered_arguments[0] = ordered;
+    ledger.completion_index.remove(&original.callee_owner());
+    assert!(ledger.checked_completed_static_one_actuals_v1(&original).is_err());
+    assert!(ledger.borrowed_static_packet_actuals_v1(&original).is_err());
+}
+
+#[test]
+fn current_owner_one_input_packet_can_follow_executable_caller_entry() {
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return 0 } }",
+    ).expect("same-shape executable caller");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let row = source.incoming.iter().find(|row| matches!(&row.source,
+        super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+            if original.caller().name() == "size_to_bin" && original.target().name() == "normalize_size"
+    )).expect("selected CurrentOwner incoming");
+    let super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) = &row.source else { unreachable!() };
+    assert!(source.definitions.contains_key(&row.call.owner()));
+    assert!(ledger.checked_completed_static_one_actuals_v1(original).unwrap().is_some());
+    assert!(ledger.has_routed_static_local_for_owner_v1(row.call.owner()).unwrap());
+}
 #[test]
 fn static_packet_selection_refuses_missing_and_rejected_callee_completion() {
     for rejected in [false, true] {

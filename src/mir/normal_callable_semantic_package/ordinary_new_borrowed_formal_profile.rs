@@ -267,7 +267,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 .filter(|row| {
                     matches!(
                         row.source,
-                        super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
+                        super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original)
+                            if original.is_qualified() || original.is_current_owner_i64_source_v1()
                     )
                 })
                 .map(|row| row.call.clone()),

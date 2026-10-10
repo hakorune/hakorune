@@ -84,7 +84,10 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        original.require_qualified()?;
+        if !original.is_qualified() {
+            self.checked_completed_static_one_actuals_v1(original)?
+                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+        }
         if rows.next().is_some() {
             return Err(freeze("borrowed-static/local-incoming-duplicate"));
         }
@@ -110,10 +113,12 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mut routed = Vec::new();
         for row in &source.incoming {
-            if !matches!(
-                row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified() && !self.is_static_zero_packet_cohort_v1(original)
-            ) {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source else { continue };
+            if self.is_static_zero_packet_cohort_v1(original)
+                || (!original.is_qualified()
+                    && self.checked_completed_static_one_actuals_v1(original)?.is_none())
+            {
                 continue;
             }
             self.selected_static_local_source_v1(&row.call)?
@@ -171,10 +176,12 @@ impl OrdinaryNewClaimLedgerV1 {
             .iter()
             .filter(|row| row.call.owner() == owner)
         {
-            if !matches!(
-                row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified() && !self.is_static_zero_packet_cohort_v1(original)
-            ) {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source else { continue };
+            if self.is_static_zero_packet_cohort_v1(original)
+                || (!original.is_qualified()
+                    && self.checked_completed_static_one_actuals_v1(original)?.is_none())
+            {
                 continue;
             }
             self.selected_static_local_source_v1(&row.call)?
@@ -214,8 +221,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
-        if !original.is_zeroarg_i64_v1() {
-            original.require_qualified()?;
+        if !original.is_zeroarg_i64_v1() && !original.is_qualified() {
+            self.checked_completed_static_one_actuals_v1(original)?
+                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
         }
         let source = self
             .borrowed_formal_source
@@ -240,6 +248,11 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
+            let row = self.checked_completed_static_one_actuals_v1(original)?
+                .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
+            return Ok(Some(row.opaque_actuals.as_ref()));
+        }
         if self.is_static_zero_packet_cohort_v1(original) {
             let Some(arguments) = self.checked_completed_static_zero_arguments_v1(original)? else {
                 return Ok(None);

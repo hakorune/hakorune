@@ -229,11 +229,15 @@ pub(super) fn finish_ingress_from_drafts_v1(
         stored_dispatch,
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    let checked_static_inputs =
+        checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;
     source_drafts::seed_static_transport_owners_v1(
         selected,
         contracts,
         &definitions,
         &inventory,
+        &static_arguments,
+        &checked_static_inputs,
         &mut transport_owners,
     )?;
     let call_sources = borrow_call_sources_v1(
@@ -311,8 +315,6 @@ pub(super) fn finish_ingress_from_drafts_v1(
             &inventory,
             &guarded_actuals,
         )?;
-    let checked_static_inputs =
-        checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
         .partition(|(owner, _)| transport_owners.contains(owner));

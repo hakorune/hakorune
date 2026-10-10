@@ -152,6 +152,11 @@ pub(super) fn seed_static_transport_owners_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     inventory: &BorrowedIncomingInventoryV1,
+    static_arguments: &BTreeMap<
+        (OwnedExprSiteV1, u32),
+        super::borrowed_static_argument::StaticArgumentSourceV1,
+    >,
+    checked_static_inputs: &BTreeSet<BindingRefV1>,
     owners: &mut BTreeSet<FunctionOwnerIdV1>,
 ) -> Result<(), String> {
     for source in inventory
@@ -159,13 +164,32 @@ pub(super) fn seed_static_transport_owners_v1(
         .values()
         .filter_map(|row| row.as_ref().ok())
     {
-        if !source.is_qualified()
+        let one_current_owner = source.is_current_owner_i64_source_v1()
+            && matches!(source.call_site().site().node().segments(),
+                [crate::mir::resolved_semantics::SourcePathSegmentV1::Body(_),
+                 crate::mir::resolved_semantics::SourcePathSegmentV1::Initializer(_)])
+            && source.parameters().len() == 1
+            && source.parameters()[0].kind.is_ordinary_borrowed_handle()
+            && checked_static_inputs.contains(&source.parameters()[0].binding)
+            && static_arguments
+                .get(&(source.call_site().clone(), 0))
+                .is_some_and(|argument| {
+                    std::rc::Rc::ptr_eq(argument.retained_call_source(), source)
+                        && checked_static_inputs.contains(&argument.formal())
+                        && argument.target_formal() == source.parameters()[0].binding
+                })
+            && inventory
+                .project(&BTreeSet::from([source.callee_owner()]))
+                .is_ok_and(|rows| rows.len() == 1);
+        if !(source.is_qualified() || one_current_owner)
             || inventory
                 .static_observations()
                 .values()
                 .filter_map(|row| row.as_ref().ok())
                 .any(|incoming| {
-                    incoming.callee_owner() == source.callee_owner() && !incoming.is_qualified()
+                    incoming.callee_owner() == source.callee_owner()
+                        && !incoming.is_qualified()
+                        && !std::rc::Rc::ptr_eq(incoming, source)
                 })
             || !definitions.contains_key(&source.callee_owner())
             || inventory.has_unsupported_static_spelling(source.callee_owner())

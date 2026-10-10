@@ -97,8 +97,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_original_static_fo
         || !prepared.checked_static_input(caller_formal)
         || !prepared.checked_static_input(formal.binding)
         || prepared
-            .source_only_definitions
-            .get(&original.call_site().owner())
+            .source_definition_for(original.call_site().owner())
             .and_then(|draft| draft.origins.get(&binding))
             != Some(&caller_formal)
         || !matches!(argument, LocalCallArgumentV1::BorrowedActual { ordinal: 0, site: observed } if observed == site)

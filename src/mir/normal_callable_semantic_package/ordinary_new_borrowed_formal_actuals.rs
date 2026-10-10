@@ -67,6 +67,7 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
 enum BorrowedCallActualEvidencePhaseV1 {
     Executable,
     ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
+    ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
     SourceInstance(instance_source::InstanceSourceActualIdentityV1),
@@ -101,7 +102,8 @@ impl PreparedBorrowedCallActualsV1 {
     pub(super) fn require_executable_v1(&self) -> Result<(), String> {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
-            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_) => Ok(()),
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_)
+            | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-instance-actuals",
             )),
@@ -183,6 +185,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     };
     if incoming.next().is_some() {
         return Err(freeze("borrowed-actual/duplicate-incoming"));
+    }
+    if matches!(&incoming_row.source,
+        super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original)
+            if original.is_current_owner_i64_source_v1())
+    {
+        // Final-callee membership is a candidate only. Keep the original
+        // CurrentOwner actual source-only until signature and Completion close
+        // its whole selected incoming cohort.
+        return static_source::prepare_static_source_actuals_v1(
+            prepared, contracts, call, actuals,
+        );
     }
     if needs_original_object_forward_source_v1(prepared, incoming_row, call, actuals)? {
         return object_source::prepare_object_source_actuals_v1(prepared, contracts, call, actuals);
@@ -749,6 +762,8 @@ enum TypedInputClosureV1 {
 
 #[path = "ordinary_new_borrowed_static_input_finish.rs"]
 mod static_input_finish;
+#[path = "ordinary_new_borrowed_static_one_input_finish.rs"]
+mod static_one_input_finish;
 
 #[path = "ordinary_new_borrowed_object_input_finish.rs"]
 mod object_input_finish;

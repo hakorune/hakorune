@@ -153,10 +153,15 @@ and every loan checks it before lookup, including calls with no retained argumen
 fact. CurrentOwner additionally corroborates CanonicalMe and
 the original same static owner/result row. Every context remains in the census.
 Opaque argument facts and source graph loans keep the same original `Rc`.
-CurrentOwner borrowed/nonzero-input entry is source-only: a Qualified sibling
-cannot seed it. Nonzero-input publication handoff, selected sites and physical
-packets still require the original Qualified route. Noninitializer/USIZE exclusions in that
-borrowed entry remain unchanged. No source observation grants an entry or ABI.
+CurrentOwner borrowed/nonzero-input entry remains source-only except for the
+original one-caller, one-input checked-I64 local initializer cohort. That cohort
+stays `SourceStatic` through source preparation; after the selected signature,
+I64 result and matching Completion are issued, the finisher checks the whole
+original cohort, Home observation and forwarded actual before granting entry,
+publication handoff and the existing Static physical packet. A Qualified
+sibling cannot seed CurrentOwner. Other nonzero-input packets retain the
+Qualified route. Noninitializer/USIZE exclusions remain unchanged. No source
+observation alone grants an entry or ABI.
 
 The checked-input source closure is separate from all-caller Integer agreement.
 The borrowed-formal issuer examines each original Static formal-use draft and
