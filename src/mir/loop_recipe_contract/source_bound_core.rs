@@ -495,9 +495,14 @@ fn verify_join_sig_pair(
         .map(|row| row.binding)
         .collect::<BTreeSet<_>>();
     if seen_loops.len() != loop_rows.len()
-        || binding_classes
-            .keys()
-            .any(|binding| !port_bindings.contains(binding))
+        || recipe
+            .carriers
+            .iter()
+            .any(|carrier| !port_bindings.contains(&carrier.binding))
+        || recipe
+            .read_only_inputs
+            .iter()
+            .any(|row| port_bindings.contains(&row.binding))
         || sig.port_bindings.iter().any(|row| {
             row.loop_key.raw() as usize >= recipe.loops.len()
                 || binding_classes.get(&row.binding) != Some(&row.class)

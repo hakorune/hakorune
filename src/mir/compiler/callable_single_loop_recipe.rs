@@ -139,6 +139,7 @@ pub(crate) fn canonical_callable_single_loop_recipe_v1(condition_bound: i64) -> 
         }],
         values,
         inputs: vec![LoopValueKeyV1::new(0)],
+        read_only_inputs: Vec::new(),
         carriers: vec![LoopRecipeCarrierV1 {
             key: LoopCarrierKeyV1::new(0),
             owner_loop: loop_key,

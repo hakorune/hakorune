@@ -151,9 +151,12 @@ opened.
 
 The common set co-seals declaration (including its statement site), initializer,
 `BindingRefV1`, Recipe input value, and class against the already sealed Recipe
-carrier and Core binding relation. It exposes the complete row slice only; no
+carrier or root read-only input and Core binding relation. The two input roles
+are disjoint: carriers require an After payload; read-only inputs seed a
+`ReadBinding` at Loop entry and may not be written or exported as After ports.
+It exposes the complete row slice only; no
 first/filter/ordinal reconstruction API exists. Empty, duplicate, foreign-owner,
-missing-carrier, class, declaration, and binding mismatches fail before Builder
+missing-input-role, class, declaration, and binding mismatches fail before Builder
 effects.
 
 V1 `BinaryI64` also has a logical `Mul` spelling for the selected

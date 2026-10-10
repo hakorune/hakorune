@@ -404,6 +404,7 @@ pub(super) fn direct_accum_recipe(shape: &DirectAccumStructuralShapeV1) -> LoopR
         ],
         values,
         inputs: vec![LoopValueKeyV1::new(0), LoopValueKeyV1::new(1)],
+        read_only_inputs: Vec::new(),
         carriers: vec![
             LoopRecipeCarrierV1 {
                 key: LoopCarrierKeyV1::new(0),

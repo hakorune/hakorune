@@ -113,6 +113,8 @@ pub(crate) struct LoopRecipeV1 {
     pub(crate) bindings: Vec<LoopRecipeBindingV1>,
     pub(crate) values: Vec<LoopRecipeValueV1>,
     pub(crate) inputs: Vec<LoopValueKeyV1>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub(crate) read_only_inputs: Vec<LoopRecipeReadOnlyInputV1>,
     pub(crate) carriers: Vec<LoopRecipeCarrierV1>,
     pub(crate) exits: Vec<LoopRecipeExitV1>,
 }
@@ -264,6 +266,16 @@ pub(crate) struct LoopRecipeValueV1 {
 #[serde(deny_unknown_fields)]
 pub(crate) struct LoopRecipeCarrierV1 {
     pub(crate) key: LoopCarrierKeyV1,
+    pub(crate) owner_loop: LoopNodeKeyV1,
+    pub(crate) binding: LoopBindingKeyV1,
+    pub(crate) class: LoopValueClassV1,
+    pub(crate) entry_value: LoopValueKeyV1,
+}
+
+/// Root input whose binding is readable but never carried or written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(crate) struct LoopRecipeReadOnlyInputV1 {
     pub(crate) owner_loop: LoopNodeKeyV1,
     pub(crate) binding: LoopBindingKeyV1,
     pub(crate) class: LoopValueClassV1,

@@ -84,6 +84,27 @@ pub(crate) enum LoopRecipeRejectReasonV1 {
         loop_key: LoopNodeKeyV1,
         binding: LoopBindingKeyV1,
     },
+    ReadOnlyInputNotRoot {
+        binding: LoopBindingKeyV1,
+    },
+    DuplicateReadOnlyInput {
+        binding: LoopBindingKeyV1,
+    },
+    DuplicateReadOnlyValue {
+        value: LoopValueKeyV1,
+    },
+    ReadOnlyInputNotDeclared {
+        value: LoopValueKeyV1,
+    },
+    ReadOnlyInputCarrierOverlap {
+        binding: LoopBindingKeyV1,
+    },
+    ReadOnlyInputWritten {
+        binding: LoopBindingKeyV1,
+    },
+    ReadOnlyInputUnused {
+        binding: LoopBindingKeyV1,
+    },
     DuplicateValueDefinition {
         key: LoopValueKeyV1,
     },

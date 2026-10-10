@@ -196,6 +196,7 @@ fn rust_assembled_artifact() -> LoopRecipeArtifactV1 {
             })
             .collect(),
             inputs: [0, 1].into_iter().map(LoopValueKeyV1::new).collect(),
+            read_only_inputs: Vec::new(),
             carriers: vec![
                 LoopRecipeCarrierV1 {
                     key: LoopCarrierKeyV1::new(0),

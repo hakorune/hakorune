@@ -423,6 +423,7 @@ pub(super) fn loop_cond_break_continue_recipe(
             },
         ],
         inputs: vec![input],
+        read_only_inputs: Vec::new(),
         carriers: vec![LoopRecipeCarrierV1 {
             key: LoopCarrierKeyV1::new(0),
             owner_loop: loop_key,

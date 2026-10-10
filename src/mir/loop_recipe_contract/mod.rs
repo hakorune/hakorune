@@ -391,7 +391,7 @@ pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,
     LoopNodeSourceBindingV1, LoopNodeV1, LoopOperationV1, LoopRecipeArtifactV1,
     LoopRecipeBindingV1, LoopRecipeBlockV1, LoopRecipeCarrierV1, LoopRecipeExitV1,
-    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeSourceBindingV1,
+    LoopRecipeItemRowV1, LoopRecipeItemV1, LoopRecipeProvenanceV1, LoopRecipeReadOnlyInputV1, LoopRecipeSourceBindingV1,
     LoopRecipeSourceOwnerV1, LoopRecipeV1, LoopRecipeValueV1, LoopSourcePathStepV1,
     LoopSourcePathV1, LoopValueClassV1, LOOP_RECIPE_SCHEMA_VERSION_V1,
 };

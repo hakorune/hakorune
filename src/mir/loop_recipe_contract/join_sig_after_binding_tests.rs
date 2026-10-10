@@ -52,6 +52,7 @@ fn empty_always_signature() -> super::join_sig::VerifiedLoopJoinSigV1 {
         bindings: Vec::new(),
         values: Vec::new(),
         inputs: Vec::new(),
+        read_only_inputs: Vec::new(),
         carriers: Vec::new(),
         exits: Vec::new(),
     };

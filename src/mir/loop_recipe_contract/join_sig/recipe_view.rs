@@ -26,6 +26,12 @@ pub(in crate::mir::loop_recipe_contract) trait LoopJoinRecipeView {
     fn item_at(&self, key: LoopItemKeyV1) -> Option<LoopJoinItemView<'_>>;
     fn carrier_count(&self) -> usize;
     fn carrier_at(&self, index: usize) -> Option<LoopJoinCarrierView<Self::Class>>;
+    fn read_only_input_count(&self) -> usize {
+        0
+    }
+    fn read_only_input_at(&self, _index: usize) -> Option<LoopJoinReadOnlyInputView> {
+        None
+    }
     fn exit_at(&self, key: LoopExitKeyV1) -> Option<LoopJoinExitView>;
     fn branch_exit_target(
         &self,
@@ -113,6 +119,13 @@ pub(in crate::mir::loop_recipe_contract) struct LoopJoinCarrierView<C> {
     pub(super) owner_loop: LoopNodeKeyV1,
     pub(super) binding: LoopBindingKeyV1,
     pub(super) class: C,
+    pub(super) entry_value: LoopValueKeyV1,
+}
+
+#[derive(Clone, Copy)]
+pub(in crate::mir::loop_recipe_contract) struct LoopJoinReadOnlyInputView {
+    pub(super) owner_loop: LoopNodeKeyV1,
+    pub(super) binding: LoopBindingKeyV1,
     pub(super) entry_value: LoopValueKeyV1,
 }
 
@@ -207,6 +220,19 @@ impl LoopJoinRecipeView for LoopRecipeV1JoinView<'_> {
             owner_loop: row.owner_loop,
             binding: row.binding,
             class: row.class,
+            entry_value: row.entry_value,
+        })
+    }
+
+    fn read_only_input_count(&self) -> usize {
+        self.recipe.read_only_inputs.len()
+    }
+
+    fn read_only_input_at(&self, index: usize) -> Option<LoopJoinReadOnlyInputView> {
+        let row = self.recipe.read_only_inputs.get(index)?;
+        Some(LoopJoinReadOnlyInputView {
+            owner_loop: row.owner_loop,
+            binding: row.binding,
             entry_value: row.entry_value,
         })
     }

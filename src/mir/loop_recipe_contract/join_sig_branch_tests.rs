@@ -66,6 +66,7 @@ fn branch_recipe() -> LoopRecipeV1 {
             class: LoopValueClassV1::Bool,
         }],
         inputs: vec![LoopValueKeyV1::new(0)],
+        read_only_inputs: Vec::new(),
         carriers: Vec::new(),
         exits: vec![
             LoopRecipeExitV1 {

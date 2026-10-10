@@ -555,6 +555,7 @@ impl LoopRecipeDraftV1 {
                 bindings: self.bindings,
                 values: self.values,
                 inputs: self.inputs,
+                read_only_inputs: Vec::new(),
                 carriers: self.carriers,
                 exits: self.exits,
             },

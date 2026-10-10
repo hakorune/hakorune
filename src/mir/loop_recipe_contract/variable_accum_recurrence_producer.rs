@@ -284,6 +284,7 @@ pub(super) fn recurrence_recipe(bound: i64, delta: i64) -> LoopRecipeV1 {
         ],
         values,
         inputs: vec![LoopValueKeyV1::new(0), LoopValueKeyV1::new(1)],
+        read_only_inputs: Vec::new(),
         carriers: vec![
             LoopRecipeCarrierV1 {
                 key: LoopCarrierKeyV1::new(0),

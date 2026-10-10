@@ -16,7 +16,8 @@ use super::recipe_view::{
     LoopJoinOperationView, LoopJoinRecipeView, LoopJoinValueUses, LoopRecipeV1JoinView,
 };
 use super::visibility::{
-    block_item, has_only_operations, payloads, seed_carriers, visible_payloads_from_view,
+    block_item, has_only_operations, payloads, seed_carriers, seed_read_only_inputs,
+    visible_payloads_from_view,
 };
 
 #[derive(Debug)]
@@ -90,6 +91,7 @@ pub(super) fn elaborate_loop<V: LoopJoinRecipeView>(
     let mut local = parent_bindings.clone();
     let mut local_available = parent_available.clone();
     seed_carriers(recipe, key, &mut local, &mut local_available);
+    seed_read_only_inputs(recipe, key, &mut local, &mut local_available);
     if node.parent.is_some()
         && matches!(node.condition, LoopJoinConditionView::Predicate { .. })
         && !is_bounded_nested_predicate(recipe, key)

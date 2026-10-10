@@ -25,6 +25,85 @@ fn verified_recipe() -> super::verify::VerifiedLoopRecipeV1 {
     LoopRecipeVerifierV1::verify(golden().recipe).expect("golden recipe verifies")
 }
 
+fn recipe_with_read_only_bound() -> super::schema::LoopRecipeV1 {
+    let mut recipe = golden().recipe;
+    let binding = LoopBindingKeyV1::new(2);
+    let entry = LoopValueKeyV1::new(7);
+    recipe.bindings.push(super::schema::LoopRecipeBindingV1 {
+        key: binding,
+        label: "bound".to_owned(),
+        class: LoopValueClassV1::I64,
+    });
+    recipe.values.push(super::schema::LoopRecipeValueV1 {
+        key: entry,
+        class: LoopValueClassV1::I64,
+    });
+    recipe.inputs.push(entry);
+    recipe
+        .read_only_inputs
+        .push(super::schema::LoopRecipeReadOnlyInputV1 {
+            owner_loop: LoopNodeKeyV1::new(0),
+            binding,
+            class: LoopValueClassV1::I64,
+            entry_value: entry,
+        });
+    recipe.items[0].item = LoopRecipeItemV1::Operation {
+        operation: super::schema::LoopOperationV1::ReadBinding {
+            binding,
+            result: LoopValueKeyV1::new(1),
+        },
+    };
+    recipe
+}
+
+#[test]
+fn read_only_input_is_available_without_after_carrier() {
+    let verified = LoopRecipeVerifierV1::verify(recipe_with_read_only_bound())
+        .expect("read-only input recipe");
+    let join = LoopJoinSigElaboratorV1::elaborate(&verified).expect("read-only bound in header");
+    assert_eq!(join.as_sig().loops[0].carriers.len(), 2);
+    assert!(join
+        .as_sig()
+        .port_bindings
+        .iter()
+        .all(|row| row.binding != LoopBindingKeyV1::new(2)));
+}
+
+#[test]
+fn read_only_input_refuses_write_overlap_and_duplicate() {
+    let mut written = recipe_with_read_only_bound();
+    written.items[4].item = LoopRecipeItemV1::Operation {
+        operation: super::schema::LoopOperationV1::WriteBinding {
+            binding: LoopBindingKeyV1::new(2),
+            value: LoopValueKeyV1::new(6),
+        },
+    };
+    assert_eq!(
+        LoopRecipeVerifierV1::verify(written).unwrap_err(),
+        Reject::ReadOnlyInputWritten {
+            binding: LoopBindingKeyV1::new(2)
+        }
+    );
+    let mut overlap = recipe_with_read_only_bound();
+    overlap.read_only_inputs[0].binding = LoopBindingKeyV1::new(0);
+    assert_eq!(
+        LoopRecipeVerifierV1::verify(overlap).unwrap_err(),
+        Reject::ReadOnlyInputCarrierOverlap {
+            binding: LoopBindingKeyV1::new(0)
+        }
+    );
+    let mut duplicate = recipe_with_read_only_bound();
+    duplicate
+        .read_only_inputs
+        .push(duplicate.read_only_inputs[0]);
+    assert_eq!(
+        LoopRecipeVerifierV1::verify(duplicate).unwrap_err(),
+        Reject::DuplicateReadOnlyInput {
+            binding: LoopBindingKeyV1::new(2)
+        }
+    );
+}
+
 #[test]
 fn join_sig_accum_nested_is_deterministic_and_closed() {
     let left = LoopJoinSigElaboratorV1::elaborate(&verified_recipe()).expect("left join signature");

@@ -25,6 +25,23 @@ pub(super) fn seed_carriers<V: LoopJoinRecipeView>(
     }
 }
 
+pub(super) fn seed_read_only_inputs<V: LoopJoinRecipeView>(
+    recipe: &V,
+    key: LoopNodeKeyV1,
+    bindings: &mut BTreeMap<LoopBindingKeyV1, LoopValueKeyV1>,
+    available: &mut BTreeSet<LoopValueKeyV1>,
+) {
+    for index in 0..recipe.read_only_input_count() {
+        let row = recipe
+            .read_only_input_at(index)
+            .expect("verified Recipe view has dense read-only input rows");
+        if row.owner_loop == key {
+            bindings.insert(row.binding, row.entry_value);
+            available.insert(row.entry_value);
+        }
+    }
+}
+
 pub(super) fn payloads<V: LoopJoinRecipeView>(
     recipe: &V,
     key: LoopNodeKeyV1,

@@ -123,6 +123,7 @@ fn if_continue_layout_splits_the_source_block_and_targets_the_loop_header() {
         bindings: Vec::new(),
         values: Vec::new(),
         inputs: Vec::new(),
+        read_only_inputs: Vec::new(),
         carriers: Vec::new(),
         exits: Vec::new(),
     };
@@ -510,6 +511,7 @@ fn always_loop_fixture(
         bindings: Vec::new(),
         values: Vec::new(),
         inputs: Vec::new(),
+        read_only_inputs: Vec::new(),
         carriers: Vec::new(),
         exits: Vec::new(),
     };

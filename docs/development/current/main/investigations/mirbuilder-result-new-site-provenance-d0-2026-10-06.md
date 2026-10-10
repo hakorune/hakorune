@@ -906,3 +906,16 @@ Validation: focused quick logical-Mul test 1/1; existing V1 Recipe family
 An initial helper-file-name filter selected 0 tests and was not counted.
 Pointer, diff and selected rustfmt checks passed. The first compile found one
 test helper's non-exhaustive match; it now rejects Mul alongside Sub.
+
+Read-only Recipe input contract slice (2026-10-10): V1 now names a root
+read-only binding/input independently of carried bindings. Recipe verification
+rejects missing input declarations, class mismatch, carrier overlap, duplicate
+rows, writes, and unused read-only bindings. JoinSig exposes the binding for
+reads without an After port; source-bound Core and the initialized-local input
+set preserve the same binding relation. Existing Recipe literals explicitly
+use an empty read-only set. Focused positive/negative tests: 2/2 quick PASS.
+The existing `loop_recipe_contract::` family passes 226/226 on the same
+quick test binary. Pointer and diff checks pass. The initial compile exposed
+one misplaced constructor field; it was corrected before the green run.
+This is a contract prerequisite only: selected source producer, Home After,
+physical Mul, and production EXE remain open.

@@ -757,6 +757,7 @@ pub(crate) fn nested_recipe(shape: &VerifiedNestedLoopSourceShapeV1) -> LoopReci
         ],
         values,
         inputs: vec![value_root_input, value_ancestor_input],
+        read_only_inputs: Vec::new(),
         carriers: vec![
             LoopRecipeCarrierV1 {
                 key: LoopCarrierKeyV1::new(0),

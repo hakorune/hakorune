@@ -161,27 +161,34 @@ pub(crate) fn issue_initialized_local_input_source_set_v1(
             .iter()
             .filter(|carrier| carrier.entry_value == row.recipe_value)
             .collect();
-        let Some(carrier) = carriers.first() else {
-            return Err(LoopInitializedLocalInputSourceSetRejectV1::MissingCarrier {
-                value: row.recipe_value,
-            });
-        };
-        if carriers.len() != 1 {
+        if carriers.len() > 1 {
             return Err(
                 LoopInitializedLocalInputSourceSetRejectV1::DuplicateCarrier {
                     value: row.recipe_value,
                 },
             );
         }
+        let recipe_binding = if let Some(carrier) = carriers.first() {
+            carrier.binding
+        } else {
+            recipe
+                .read_only_inputs
+                .iter()
+                .find(|input| input.entry_value == row.recipe_value)
+                .ok_or(LoopInitializedLocalInputSourceSetRejectV1::MissingCarrier {
+                    value: row.recipe_value,
+                })?
+                .binding
+        };
         let bindings: Vec<_> = core
             .binding_relations()
             .iter()
-            .filter(|relation| relation.recipe_binding() == carrier.binding)
+            .filter(|relation| relation.recipe_binding() == recipe_binding)
             .collect();
         let Some(binding) = bindings.first() else {
             return Err(
                 LoopInitializedLocalInputSourceSetRejectV1::MissingBindingRelation {
-                    binding: carrier.binding,
+                    binding: recipe_binding,
                 },
             );
         };

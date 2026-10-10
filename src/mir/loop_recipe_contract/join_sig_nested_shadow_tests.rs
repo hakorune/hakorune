@@ -25,6 +25,7 @@ fn projection_recipe(depth: u32, carriers: &[(u32, u32, u32)]) -> LoopRecipeV1 {
         bindings: Vec::new(),
         values: Vec::new(),
         inputs: Vec::new(),
+        read_only_inputs: Vec::new(),
         carriers: carriers
             .iter()
             .enumerate()
