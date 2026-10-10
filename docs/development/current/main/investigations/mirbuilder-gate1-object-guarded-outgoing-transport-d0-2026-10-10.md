@@ -393,3 +393,7 @@ size_to_bin -> normalize_size` chain using the same draft/selection owner.
 Do not generalize a Static CurrentOwner call or promote `SourceObject` from
 these observations alone. Once that prerequisite is closed, revisit the
 exact Page outgoing handoff and Page-side tagged kind/Fault proof above.
+
+The selected Static prerequisite is now
+`mirbuilder-static-currentowner-closed-cohort-d0-2026-10-10.md`. This object
+outgoing row remains open and dependent; no Page transport was promoted.

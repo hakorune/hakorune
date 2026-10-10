@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
+current_execution_row = "MIRBUILDER-STATIC-CURRENTOWNER-CLOSED-COHORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "trace Static upstream transport exclusion before Heap-to-Page tagged actual handoff"
+current_blocker_token = "selfhost-resume/static-currentowner-closed-cohort-d0"
+current_design_stop = "freeze exact one-caller normalize_size CurrentOwner packet, tagged entry, result, and Fault mapping"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,25 +13,22 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
-latest_card = "mirbuilder-gate1-object-guarded-outgoing-transport-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-currentowner-closed-cohort-d0-2026-10-10.md"
+latest_card = "mirbuilder-static-currentowner-closed-cohort-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-closed-cohort-d0-2026-10-10.md"
 latest_card_summary = """
-EXE scope correction at 8b4339ecfb and selected Static incoming cohort at
-1d8817ea39 closed. Generic package tests remain 995 pass, 3 known fail;
-unchanged mimalloc-lite retains all 15 Heap callers and reaches candidate
-integer agreement for LayoutBox.class_id. The EXE still stops at
-source-only-object-actuals. A temporary current-source trace identified the
-first exact site as Heap.allocate -> small_page.allocate at
-Body(1)/IfThen(0)/Value, with medium_page next. The trace was removed. This
-D0 first traces why LayoutBox.class_id has a source draft but no executable
-transport definition; Page.allocate already has both. Then it must close
-the original tagged size actual, selected entry, and Page-side Fault/Normal
-boundary before another transport slice. Loop Mul and result outcome remain
-open; the finite goal is not complete.
+The unchanged mimalloc-lite EXE still stops at Heap.allocate ->
+small_page.allocate(size), source-only-object-actuals. The selected Static
+upstream chain has source drafts but no executable transport. The original
+size_to_bin -> normalize_size CurrentOwner local initializer has Home source
+and a complete one-caller selected cohort; good_size -> size_to_bin has Home
+source but a two-caller cohort including a condition call without Home.
+This D0 freezes the first exact packet/entry/result/Fault mapping before
+construction. Heap-to-Page object outgoing, Static condition calls, Loop Mul,
+and result outcome remain open; the finite goal is not complete.
 """
-next_design_card = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-gate1-object-guarded-outgoing-transport-d0-2026-10-10.md"
+next_design_card = "MIRBUILDER-STATIC-CURRENTOWNER-CLOSED-COHORT-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-currentowner-closed-cohort-d0-2026-10-10.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
