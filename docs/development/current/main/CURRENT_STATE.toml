@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-mixed-cohort-root-entry-d0"
-current_design_stop = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
+current_blocker_token = "selfhost-resume/static-mixed-cohort-root-entry-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -23,15 +23,18 @@ for good_size_usize/1. Focused positive, wrong-ABI negative and the
 11-test static-packet-entry family pass. With protected Eq WIP copied into
 a disposable checkout, the unchanged SizeClassBox published-view probe
 moves from good_size_usize/1 to size_to_bin_usize/1 call-entry-missing; it
-remains red. The next D0 must census size_to_bin's apparent mixed three-row
-incoming cohort before choosing a common completion route. No Plain
-promotion or source rewrite. The whole-app EXE first stop remains
-Heap-to-Page source-only-object-actuals.
+remains red. The selected mixed-cohort D0 confirmed exactly three original
+size_to_bin incoming rows: one SourceStatic Scalar(Integer) from declared
+USIZE and two SourceStatic SelfRooted forwards from opaque formals, with
+one target formal and checked input. S0 must join the whole cohort through
+existing issuers and recheck packet lending. No Plain promotion or source
+rewrite. The whole-app EXE first stop remains Heap-to-Page
+source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-mixed-cohort-root-entry-d0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

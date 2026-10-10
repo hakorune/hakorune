@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-D0
 
-Status: design_stop; read-only census before Decision
+Status: D0 accepted; selected MIRBUILDER-STATIC-MIXED-COHORT-ROOT-ENTRY-S0
 Date: 2026-10-11
 Scope: unchanged `SizeClassBox.size_to_bin_usize/1` Static Return
 Predecessor: `MIRBUILDER-STATIC-SCALAR-FORMAL-ROOT-ENTRY-S0`
@@ -19,7 +19,20 @@ The original source has three calls into `size_to_bin(size)`: one from
 `size_to_bin_usize(size: usize)`, one from `good_size(size)`, and one from
 `accepts(size)`. The first appears to stage a Scalar(Integer) actual from
 an exact `USIZE` formal; the latter two appear to forward opaque formals.
-This is a source census, not yet authoritative candidate evidence.
+The source spelling alone did not establish the candidate classification.
+
+The focused package census on the unchanged source now confirms exactly
+three rows for target owner slot 5, all CurrentOwner Static and source-only
+(`definitions=false`, `target_static=false`). The target formal is the same
+opaque binding in each row, with `checked_static_input=true`; all three
+original sources have an empty required-I64-arguments list. Every pending
+actual is `SourceStatic` with integer evidence and ordered `BorrowedActual`
+Home. The wrapper in slot 6 has `Scalar(binding,Integer)` from its declared
+`ExactTrivial(USIZE)` formal. `good_size` slot 7 and `accepts` slot 10 have
+`SelfRooted` candidates from their declared `OpaqueHandle` formals.
+The diagnostic test passed 1/1 in a disposable detached worktree; it is
+not a permanent guard or an executable admission. Its log is
+`/tmp/hako-mixed-cohort-census-20261011.log`.
 
 The read-only worker found the current boundaries:
 
@@ -34,26 +47,40 @@ The read-only worker found the current boundaries:
   matching homogeneous checks. Broadening only route selection would
   leave packet lending unproved.
 
-## Unresolved Decision
+## Decision
 
-Before construction, use a focused original-source package census to
-confirm all three source observations, target slot/formal, source-only
-classification, actual candidate shapes, checked input and Home authority,
-Completion/result requirements, and whether any other call enters the same
-target cohort. If a candidate differs from the source prediction, revise
-the Decision rather than forcing it into a familiar arm.
-
-Candidate Decision: join exactly this complete target cohort through the
-existing Scalar and Forwarded evidence issuers, with a common target
+Join this exact complete target cohort through the existing Scalar and
+Forwarded evidence issuers, with a common target
 Completion, result/publication, signature and ordered Home check. Issue one
 Static packet only when all original rows complete. Recheck the whole
 cohort at demand-time lending and retain the independent final MIR verifier.
 Do not allow one successful caller to grant target entry or weaken the
-existing homogeneous paths. Source authority, failure boundary and the
-precise replacement owner must be fixed from the census before selecting
-an implementation slice.
+existing homogeneous paths.
 
-Acceptance for the eventual slice: original-source positive and focused
-negative coverage for an absent/drifted mixed sibling; unchanged-source
-physical root call with a later exact first stop; no source rewrite or
-parallel authority. Existing family tests and guard should be reused.
+Source authority and canonical issuer: `source_incoming` and
+`static_incoming_cohort_v1` own the whole original caller inventory;
+`SourceStatic` owns per-row actual candidates. Use the existing exact
+scalar-formal checks for slot 6 and
+`issue_original_static_forwarded_actual_v1` for slots 7 and 10. The
+existing Completion/result/signature and ordered Home issuers remain the
+only publication authority. The Static packet/root Call owner performs
+physical emission. The new mixed join is a composition at the existing
+actual finisher and packet lender, not a new caller census or ABI.
+
+Failure boundary: absent, extra, drifted or rejected cohort row; incorrect
+candidate/formal/source identity; missing checked forward input, Completion,
+result, signature or ordered Home must refuse before route selection and
+again at demand-time lending. Unselected SourceStatic stays passive.
+
+Production caller and replacement: `size_to_bin_usize/1` Body(0) is the
+observed first stop. The mixed target cohort also includes `good_size/1`
+and `accepts/1`, so the same bounded slice must audit all three. Replace
+only the source-only mixed-candidate dead end with the existing Static
+packet. No Plain route, .hako rewrite or homogeneous-path fallback.
+
+S0 acceptance: original-source positive and focused negative coverage for
+an absent/drifted mixed sibling; unchanged-source physical root Call with
+a later exact first stop; no source rewrite or parallel authority. Reuse
+existing family tests and guard. The focused positive and physical result
+are completion evidence, not construction prerequisites. Whole-source
+published view and mimalloc-lite EXE remain separate obligations.
