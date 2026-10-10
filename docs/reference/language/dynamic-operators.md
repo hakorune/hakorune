@@ -43,6 +43,13 @@ source operand order, and Fault before any result or operand mutation when
 an operand cannot satisfy the logical signed-integer class. They retain the
 existing synchronous, expression-bounded, potentially suspending envelope.
 
+Decision (2026-10-10): the same issuer also provides
+`GreaterEqual(NormalInteger, NormalInteger)` with those exact borrowed,
+source-order, Normal, Fault and lifecycle laws. This issues only the semantic
+envelope. It does not admit an opaque formal at `>=`, publish a CurrentOwner
+condition call, or authorize transport. Raw MIR/physical `sge` spelling is
+already present but cannot serve as source authority.
+
 Successful evaluation establishes the Integer operand class on either Boolean
 Normal outcome; truth of the comparison is a separate value fact. Fault grants
 no refinement. Null equality and general Dynamic Less do not grant this

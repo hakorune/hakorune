@@ -4,7 +4,7 @@ work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/object-guarded-outgoing-transport-d0"
-current_design_stop = "identify exact transport_owners pruning edge for Heap.allocate"
+current_design_stop = "identify canonical CurrentOwner static condition-call source and packet issuer for LayoutBox.accepts"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -21,9 +21,16 @@ The unchanged SizeClassBox.bin_size Home Body9/10/11 prerequisites landed at
 c6e9368099, 2b87d1c98f and 27ca82632e. Its physical Loop Mul and result
 remain separate. Fresh mimalloc-lite EXE probe stops earlier at
 source-only-object-actuals on Heap.allocate -> Page.allocate. The guarded
-source actual and 15-caller inventory exist, but Heap's transport_owners
-eligibility is false. Identify the exact outgoing use pruning edge before
-selecting executable transport. CALLEE-RETURN-OUTCOME-S0 remains unfinished;
+source actual and 15-caller inventory exist. Diagnostic focused test proved
+Heap's initial draft is valid; its Body0 LayoutBox.class_id(size) outgoing
+call is the first fixed-point exclusion. LayoutBox.class_id has a qualified
+Heap caller and a CurrentOwner condition caller in LayoutBox.accepts; both
+static seed vetoes are deliberate. The original condition uses `>=`;
+its bounded canonical NormalInteger envelope is now issued in
+MIRBUILDER-GE-NORMAL-INTEGER-CONTRACT-S0, while opaque-formal source rejection
+remains. Next design the executable CurrentOwner condition call.
+The Page
+edges and CALLEE-RETURN-OUTCOME-S0 remain unfinished;
 the finite goal and production EXE remain open.
 """
 next_design_card = "MIRBUILDER-GATE1-OBJECT-GUARDED-OUTGOING-TRANSPORT-D0"

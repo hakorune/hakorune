@@ -57,6 +57,18 @@ const GREATER_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnv
         None,
     );
 
+const GREATER_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::GreaterEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
 /// Inclusive checked comparison keeps the same borrowed operand and Fault
 /// laws; the Boolean result does not change either operand's Integer class.
 const LESS_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
@@ -146,6 +158,11 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::NormalInteger,
             DynamicOperatorValueClassV1::NormalInteger,
         ) => Ok(&GREATER_NORMAL_INTEGER_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::GreaterEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&GREATER_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
         (
             DynamicOperatorFamilyV1::LessEqual,
             DynamicOperatorValueClassV1::NormalInteger,

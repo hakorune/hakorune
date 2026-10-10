@@ -248,6 +248,7 @@ fn module_contains_no_partial_or_physical_authority() {
 fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract() {
     for family in [
         DynamicOperatorFamilyV1::Greater,
+        DynamicOperatorFamilyV1::GreaterEqual,
         DynamicOperatorFamilyV1::LessEqual,
     ] {
         let domain = DynamicOperatorDomainV1::new(
@@ -291,23 +292,28 @@ fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract(
 }
 
 #[test]
-fn less_equal_refuses_every_non_integer_operand_domain_without_borrowing_generic_less() {
+fn inclusive_integer_comparisons_refuse_every_other_operand_domain() {
     let classes = [
         DynamicOperatorValueClassV1::Dynamic,
         DynamicOperatorValueClassV1::I64,
         DynamicOperatorValueClassV1::NormalInteger,
         DynamicOperatorValueClassV1::Null,
     ];
-    for left in classes {
-        for right in classes {
-            if left == DynamicOperatorValueClassV1::NormalInteger && right == left {
-                continue;
+    for family in [
+        DynamicOperatorFamilyV1::GreaterEqual,
+        DynamicOperatorFamilyV1::LessEqual,
+    ] {
+        for left in classes {
+            for right in classes {
+                if left == DynamicOperatorValueClassV1::NormalInteger && right == left {
+                    continue;
+                }
+                assert_eq!(
+                    issue(family, left, right),
+                    Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
+                    "{family:?} {left:?}/{right:?}"
+                );
             }
-            assert_eq!(
-                issue(DynamicOperatorFamilyV1::LessEqual, left, right),
-                Err(DynamicOperatorEnvelopeIssueV1::UnsupportedDomain),
-                "{left:?}/{right:?}"
-            );
         }
     }
     let general_less = issue(
