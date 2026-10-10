@@ -96,11 +96,11 @@ still requires `cohort.len() == 1`; the original `good_size` initializer and
 the original actuals, callee signature/result and existing Completion.
 `good_size` cannot be promoted on its own.
 
-The read-only physical-owner audit fixes the remaining authority split:
+The read-only owner audit fixes the remaining authority split:
 `QualifiedStaticCallClaimIndexV1` owns original Static source identity;
 `CallPacketSourceV1::static_i64` and `LexicalCallProjectionV1` own executable
 call packet/actual projection; `dynamic_operator_contract` alone issues the
-integer Eq execution envelope. Its current issuer has no
+integer Eq semantic envelope, not CFG or MIR. Its current issuer has no
 `Equal(NormalInteger, NormalInteger)` arm. `physical_program_json` can spell
 ordinary `compare/eq`, but JSON spelling is not an execution proof. The
 existing `Equal(Dynamic, Null)` envelope cannot substitute for integer Eq.
@@ -130,7 +130,7 @@ signature or Completion rejects the whole cohort. An unrelated noninitializer
 caller remains vetoed. This S1 does not create a new Static claim, source
 receipt, physical Eq envelope, or final module-link claim.
 
-After S1, issue the integer Eq envelope through the sole operator issuer. Physical lowering
+After S1, issue the integer Eq envelope through the sole semantic operator issuer. Physical lowering
 must then show Lhs Invoke Normal -> RHS Invoke Normal -> Compare/Branch, with
 either child's Fault bypassing later steps and no `borrowed_null_compare`
 route. Only the fully linked chain can count as physical/EXE acceptance.
