@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-SEARCH-LOOP-EARLY-RETURN-HOME-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-SEARCH-LOOP-EARLY-RETURN-HOME-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/search-loop-early-return-home-d0"
-current_design_stop = "size_to_bin loop exit and trailing prefix lack a selected Home source issuer"
+current_blocker_token = "selfhost-resume/search-loop-early-return-home-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -14,21 +14,22 @@ method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replace
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-search-loop-early-return-home-d0-2026-10-11.md"
-latest_card = "mirbuilder-search-loop-early-return-home-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-early-return-home-d0-2026-10-11.md"
+latest_card = "mirbuilder-search-loop-early-return-home-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-early-return-home-s0-2026-10-11.md"
 latest_card_summary = """
 Signed-immediate Home and exact LoopCond after-PHI roles are closed as
 separate slices. The unchanged SizeClassBox probe crosses bin_size block 32
 and stops at IncompleteOrdinaryNewCoverage. Disposable coverage census shows
 bin_size owner 4, good_size owner 7 and accepts owner 10 ready; size_to_bin
 owner 5 alone lacks an early-loop terminal and trailing prefix Home row.
-Select its search-loop source/Completion D0. No whole-source or mimalloc-lite
-EXE PASS is claimed.
+The source/Completion D0 selected existing Static I64 loans plus exact
+source topology and Home-neutral proof as a pre-Home role. The selected S0
+must prove both exits. No whole-source or mimalloc-lite EXE PASS is claimed.
 """
-next_design_card = "MIRBUILDER-SEARCH-LOOP-EARLY-RETURN-HOME-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-early-return-home-d0-2026-10-11.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-SEARCH-LOOP-EARLY-RETURN-HOME-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-search-loop-early-return-home-s0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
