@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-call-root-entry-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/static-forwarded-root-entry-d0-ledger-census"
+current_design_stop = "Confirm the complete original good_size_usize incoming cohort and source-only forwarded outgoing actual phase before selecting an executable issuer."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,30 +13,25 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
-latest_card = "mirbuilder-static-call-root-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
+latest_card = "mirbuilder-static-forwarded-root-entry-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
 latest_card_summary = """
-The borrowed-Mul static Scalar actual S0 finished the full original incoming
-cohort in the same ledger and lent the checked callee entry. The unchanged
-SizeClassBox published-view probe, with protected Eq WIP in a detached
-checkout, moved past borrowed-mul/source-only-entry to
-ordinary-new/local-commit/root-exit-source-missing. Focused tests are green;
-the published view remains red. A detached diagnostic identified
-bin_size_usize/1 Body(0) now retains the Home-issued direct Static Call
-terminal from the exact original caller key/site and ExactI64 result. The
-unchanged SizeClassBox probe, still red, moved past root-exit-source-missing
-to ordinary-new/local-commit/call-entry-missing. The selected D0 must find
-the root Static Call packet and entry from original source, completed
-inputs, publication and exact terminal site. D0 selected that join with
-Static-specific ordered BorrowedActual validation; no Plain promotion.
-Bool physical result and call transport remain downstream. The whole-app EXE
-first stop remains Heap-to-Page source-only-object-actuals.
+Root Static Call S0 landed at dd1ab9c2cb. Its packet and final MIR tests are
+green. The unchanged SizeClassBox diagnostic, with protected Eq WIP in a
+separate checkout, remains red but moved from bin_size_usize/1 Body(0) to
+good_size_usize/1 Body(0), both at call-entry-missing. The wrapper forwards
+its formal through a source-only CurrentOwner Static call. The existing
+one-input executable finisher does not select that edge. The selected D0
+must confirm the complete original wrapper incoming cohort and outgoing
+actual phase, then choose one bounded forwarded finisher/route into the
+existing packet/root entry. No Plain promotion or source rewrite. The
+whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-call-root-entry-d0-2026-10-10.md"
+next_design_card = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -51,8 +46,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-10: MIRBUILDER-STATIC-CALL-ROOT-ENTRY-S0 landed at dd1ab9c2cb — original Static source, completion, ordered actuals and result publication issue one root packet; final MIR positive and focused negatives green. Unchanged SizeClassBox first stop moves from bin_size_usize/1 to good_size_usize/1; still red. Next: source-only forwarded wrapper D0.",
   "2026-10-10: MIRBUILDER-STATIC-CALL-TERMINAL-RETENTION-S0 — exact original caller-keyed CurrentOwner Static I64 Call terminal survives child coseal; unqualified Call refusal remains. Unchanged SizeClassBox published-view probe moves from root-exit-source-missing to call-entry-missing; still red. Next: root Call entry D0.",
   "2026-10-10: MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0 — full original CurrentOwner Scalar Integer cohort finishes atomically in the existing ledger; checked entry now feeds alias/Mul and unchanged SizeClassBox probe moves to root-exit-source-missing. Focused positive/negative and related families green; published view remains red. Next: root-exit-source-missing D0.",
-  "2026-10-10: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1 landed at 4a5592426d — unchanged good_size/accepts size_to_bin callers share one target-scoped completed actual/packet/entry cohort; missing sibling actual rejects both, Heap/Page source-only route remains. Next: integer Eq physical-owner D0; app first stop remains Heap-to-Page.",
   ]
 
