@@ -88,6 +88,11 @@ AppMain Value admission consumes known kinds in the selected consumer; unknown
 formal representation and ordinary callable execution remain separate obligations.
 
 The existing terminal relation also records a package-selected I64 Call return.
+For a resolved `return true` or `return false`, the same Home walk issues an
+exact-site Bool-literal terminal relation with the literal value. Completion
+and child retention carry it to Normal exit projection; it does not issue a
+Bool callable result class or a physical result ABI. Those require their
+separate verified owners.
 Literal arguments have no intervening acquisition; Normal alone supplies the
 pending return value, while Fault uses the same Completion's live Home state.
 Target/argument sites remain in the affine package row. Unary expressions,

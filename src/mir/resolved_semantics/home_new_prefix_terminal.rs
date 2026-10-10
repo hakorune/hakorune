@@ -322,6 +322,17 @@ pub(super) fn observe_terminal_statement<'a, E>(
                             ));
                             true
                         }
+                        Some(ResolvedLiteralSourceV1::Bool(value_bool)) => {
+                            relation = Some(TerminalRelationV1::BoolLiteral(
+                                TerminalBoolLiteralReturnV1::issue(
+                                    input.owner(),
+                                    statement.site().clone(),
+                                    value.site().clone(),
+                                    *value_bool,
+                                ),
+                            ));
+                            true
+                        }
                         _ if terminal_call(&OwnedExprSiteV1::new(
                             input.owner(),
                             value.site().clone(),

@@ -78,6 +78,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         return Err(freeze("artifact-root-literal-unavailable"));
                     }
                 }
+                TerminalRelationV1::BoolLiteral(_) => {
+                    return Err(freeze("artifact-root-bool-result-unsupported"));
+                }
                 TerminalRelationV1::I64Field(relation) => {
                     if relation.owner() != owner {
                         return Err(freeze("artifact-root-field-unavailable"));

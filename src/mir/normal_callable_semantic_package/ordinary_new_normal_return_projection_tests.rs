@@ -274,3 +274,74 @@ fn normal_projection_rejected_completion_preserves_original_cause() {
         .unwrap()
         .contains("original-projection-completion-error"));
 }
+
+#[test]
+fn bool_literal_exits_keep_distinct_source_relations_and_reject_missing_exit() {
+    let mut package = issue_with_brand_catalog(
+        "box Page { birth() {} } static box Predicate { accepts(size: i64) {
+            local page = new Page()
+            if size > 0 { return false }
+            return true
+        } } static box Main { main() { return 0 } }",
+    )
+    .expect("Bool source package");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let (owner, exits) = ledger
+        .completion_index
+        .iter()
+        .find_map(|(owner, completion)| {
+            let completion = completion.as_ref().ok()?;
+            (completion.explicit_sites().len() == 2)
+                .then(|| (*owner, completion.explicit_sites().to_vec()))
+        })
+        .expect("two Bool exits");
+    let mut values = Vec::new();
+    for exit in &exits {
+        let Some(TerminalRelationV1::BoolLiteral(row)) =
+            ledger.terminal_relation_for_owner_at(owner, exit)
+        else {
+            panic!(
+                "exact Bool literal relation at {exit:?}: {:?}",
+                ledger.terminal_relation_for_owner_at(owner, exit)
+            );
+        };
+        assert_eq!(row.owner(), owner);
+        assert_eq!(row.return_site(), exit);
+        let projection = ledger
+            .normal_exit_projection_v1(owner, exit)
+            .unwrap()
+            .expect("Bool exit Normal projection");
+        let cleanup = ledger.completion_index[&owner]
+            .as_ref()
+            .unwrap()
+            .cleanup();
+        let flow = cleanup.root_flow().unwrap();
+        let flow_row = flow.exit_row(exit).unwrap();
+        let original = flow_row.as_ref().unwrap();
+        assert_eq!(projection.homes(), original.homes());
+        assert_eq!(projection.fault_homes(), original.homes());
+        assert_eq!(original.homes().len(), 1);
+        values.push(row.value());
+    }
+    values.sort();
+    assert_eq!(values, [false, true]);
+
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    Rc::make_mut(ledger.terminal_relation_index.get_mut(&owner).unwrap()).remove(&exits[0]);
+    assert!(ledger
+        .normal_exit_projection_v1(owner, &exits[0])
+        .unwrap()
+        .is_none());
+    assert!(ledger
+        .normal_exit_projection_v1(owner, &exits[1])
+        .unwrap()
+        .is_some());
+    let sibling = ledger.terminal_relation_index[&owner][&exits[1]].clone();
+    Rc::make_mut(ledger.terminal_relation_index.get_mut(&owner).unwrap())
+        .insert(exits[0].clone(), sibling);
+    assert!(ledger
+        .normal_exit_projection_v1(owner, &exits[0])
+        .err()
+        .expect("wrong-site relation")
+        .contains("projection-terminal-owner"));
+}

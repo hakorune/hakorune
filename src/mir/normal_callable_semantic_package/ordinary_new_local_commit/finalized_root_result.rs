@@ -114,6 +114,8 @@ impl FinalizedRootSourceHandoffV1 {
                 TerminalRelationV1::IntegerLiteral(row) => {
                     FinalizedRootResultAbiV1::IntegerLiteralReturn { owner: row.owner() }
                 }
+                // Bool source evidence has no selected physical result ABI yet.
+                TerminalRelationV1::BoolLiteral(_) => return Ok(None),
                 TerminalRelationV1::I64Field(row) => {
                     FinalizedRootResultAbiV1::I64FieldReturn { owner: row.owner() }
                 }

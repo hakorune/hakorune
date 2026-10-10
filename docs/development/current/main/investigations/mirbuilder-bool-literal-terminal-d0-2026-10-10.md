@@ -81,3 +81,25 @@ S0 card retains its uncompleted ordered Static packet/Compare/Branch
 acceptance and resumes only after the required Bool source/physical boundary
 is verified. The whole mimalloc-lite app's recorded first stop remains
 Heap-to-Page.
+
+## S0 implementation evidence (source boundary)
+
+The Home verified walk now issues `BoolLiteral` from the resolver's exact
+literal site and retains it for ordinary child completion. Root-only final
+handoff refuses Bool physical publication explicitly. This does not change
+the plain-completion path: the focused test uses a real `new Page()` Home so
+both Bool exits traverse the selected verified walk and carry a live Home
+cleanup obligation.
+
+At the pre-commit source revision, `cargo test --profile quick -p nyash-rust
+--lib bool_literal_exits_keep_distinct_source_relations_and_reject_missing_exit`
+passed 1/1 (`CARGO_BUILD_JOBS=4`). The test pins false/true at separate
+Return sites, the same Completion's Normal and Fault Home sets, missing-site
+rejection, and sibling-site substitution rejection. Reusing the same built
+binary, Normal projection family passed 9/9 and existing Bool result solver
+tests passed 2/2. `git diff --check` passed. The first red iterations were
+test-input selection (`plain completion`) and then test-only Rust borrow/name
+errors; none remains in the final run. Unchanged-source Eq-integrated probe
+is still pending because its three Eq files are protected uncommitted work
+in the previous checkout. Until that probe identifies the next exact stop,
+S0 does not claim original-source physical progress.
