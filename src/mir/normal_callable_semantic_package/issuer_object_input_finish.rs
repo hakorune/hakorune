@@ -37,6 +37,9 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         .finish_static_one_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
     ledger
+        .finish_static_scalar_input_actuals_v1(selected, contracts, &signature, results)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+    ledger
         .finish_static_zero_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },

@@ -126,3 +126,30 @@ The next accepted slice must retest the unchanged published-view probe and
 move past `borrowed-mul/source-only-entry`, while retaining a negative
 missing or noninteger sibling. Existing two-caller forward tests must stay
 green. Physical ValueId/final MIR checks remain independent.
+
+## S0 closeout (2026-10-10)
+
+The same-ledger scalar finisher now consumes the complete original incoming
+projection, exact `Scalar(Integer)` source candidates, Completion, result and
+physical signature. It replaces no source inventory and lends the source-only
+Mul entry only after every caller has a checked executable actual. The alias
+and Mul reuse readers consume that same checked entry view. The later canonical
+physical binding read remains independent.
+
+The unchanged `size_class_box.hako` published-view probe, in the detached
+checkout with its protected Eq WIP, moved from
+`borrowed-mul/source-only-entry` through alias and Mul reuse to
+`ordinary-new/local-commit/root-exit-source-missing`. This is a red integration
+observation and a new first stop, not whole-source publication PASS. No `.hako`
+source was changed. The combined probe log is
+`/tmp/hako-static-scalar-eq-probe4.log`; the protected Eq changes are outside
+this S0 commit.
+
+The primary quick-profile test binary passed the new complete-cohort positive
+and missing/noninteger sibling negative (1/1), existing static-source tests
+15/15, borrowed-formal entry 16/16, alias materialization 6/6, and Mul
+materialization 2/2. Its build and focused run are recorded in
+`/tmp/hako-static-scalar-s0-final.log`. The earlier zero-match filter was not
+counted. The new first stop belongs to the Normal return/Home projection
+boundary and is handed to the next design row. S0 does not claim a physical
+published view or app EXE PASS.

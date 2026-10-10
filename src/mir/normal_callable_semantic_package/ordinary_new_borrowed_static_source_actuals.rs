@@ -409,6 +409,37 @@ fn project_pending_static_source_arguments_for_route_v1(
         }
         return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
     }
+    if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(proof) = &rows.phase {
+        if !current_owner { return Err(freeze("borrowed-static/scalar-current-owner-required")); }
+        let original = retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
+        if required_i64_arguments != [0] || original.required_i64_arguments() != [0] {
+            return Err(freeze("borrowed-static/scalar-required-integer-drift"));
+        }
+        let cohort = prepared.static_incoming_cohort_v1(original)?;
+        if cohort.is_empty() { return Err(freeze("borrowed-static/scalar-cohort-empty")); }
+        for sibling in &cohort {
+            let actual = pending.get(sibling.call_site())
+                .ok_or_else(|| freeze("borrowed-static/scalar-sibling-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(sibling_proof) = &actual.phase else {
+                return Err(freeze("borrowed-static/scalar-sibling-unfinished"));
+            };
+            if !sibling_proof.corroborates(sibling, &proof.completion)
+                || actual.opaque_actuals.len() != 1
+                || actual.opaque_actuals[0].ordinal != 0
+                || actual.opaque_actuals[0].site != sibling.argument_sites()[0]
+                || actual.opaque_actuals[0].formal != sibling.parameters()[0].binding
+                || !matches!(&actual.opaque_actuals[0].source,
+                    BorrowedFormalActualSourceV1::Scalar { binding, kind: SourceScalarKind::Integer }
+                        if *binding == sibling_proof.binding)
+            { return Err(freeze("borrowed-static/scalar-sibling-drift")); }
+        }
+        let mut matching = prepared.source_incoming.exact_rows()
+            .filter(|call| &call.call == site && call.callee == original.callee_owner());
+        let call = matching.next().ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
+        if matching.next().is_some() { return Err(freeze("borrowed-static/scalar-incoming-duplicate")); }
+        return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));
     };

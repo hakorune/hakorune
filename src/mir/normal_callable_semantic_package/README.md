@@ -2213,6 +2213,19 @@ unique Invoke coordinate. Only this selected prepacket derives the existing
 read. The generic SourceStatic pending row remains source-only and empty;
 publication and executable ABI still require the collector and final checks.
 
+An original CurrentOwner Static callee with a borrowed-formal Mul use may now
+finish an inventory-derived cohort of `Scalar(Integer)` callers in the same
+borrowed-formal ledger. Every original incoming row must agree on the target,
+one opaque formal and required i64 ordinal; each staged source candidate is
+joined to its exact site/binding, the callee Completion, result contract and
+physical signature before any actual becomes executable. Missing, vetoed,
+noninteger or mixed-route siblings leave the whole cohort source-only. The
+checked entry view lends the source-only draft only after that complete finish;
+alias and Mul reuse consumers read the same view, without promoting the global
+transport owner set or creating a second caller map. This finish has no
+per-iteration ValueId: the detached loop packet's canonical read and final
+publication checks remain independent obligations.
+
 Static original-use collection requires the co-sealed source context and exact
 selected Static owner/contract, not qualified incoming target membership.
 Uncalled and CurrentOwner-only caller drafts remain passive source; canonical

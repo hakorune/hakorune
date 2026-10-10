@@ -46,6 +46,11 @@ impl OrdinaryNewClaimLedgerV1 {
                 incoming: cohort.incoming.iter().collect(),
             }));
         }
+        if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if let Some(incoming) = self.checked_completed_static_scalar_cohort_v1(source, owner)? {
+                return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+            }
+        }
         let Some(definition) = source.definitions.get(&owner) else {
             return Ok(None);
         };

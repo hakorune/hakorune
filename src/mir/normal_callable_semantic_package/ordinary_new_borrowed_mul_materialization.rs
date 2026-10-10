@@ -264,18 +264,17 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         let source = source.as_ref().map_err(Clone::clone)?;
-        let Some(definition) = source.definitions.get(&owner) else {
-            if source
-                .source_only_definitions
-                .get(&owner)
-                .is_some_and(|definition| {
-                    definition.uses.iter().any(
-                        |row| matches!(&row.kind, Use::MulOperand { binary, .. } if binary == site),
-                    )
-                })
-            {
+        let definition = if let Some(definition) = source.definitions.get(&owner) {
+            definition
+        } else if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if !definition.uses.iter().any(
+                |row| matches!(&row.kind, Use::MulOperand { binary, .. } if binary == site))
+            { return Ok(None); }
+            if self.checked_completed_static_scalar_cohort_v1(source, owner)?.is_none() {
                 return Err(freeze("borrowed-mul/source-only-entry"));
             }
+            definition
+        } else {
             return Ok(None);
         };
         let mut selected: Option<&Rc<BorrowedMulSourceV1>> = None;
@@ -375,22 +374,23 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let installed: Vec<_> = installed.collect();
         let expected: BTreeSet<_> = match &self.borrowed_formal_source {
-            Some(source) => source
-                .as_ref()
-                .map_err(Clone::clone)?
-                .definitions
-                .get(&owner)
-                .map(|definition| {
-                    definition
-                        .uses
-                        .iter()
-                        .filter_map(|row| match &row.kind {
-                            Use::MulOperand { binary, .. } => Some(binary.clone()),
-                            _ => None,
-                        })
-                        .collect()
-                })
-                .unwrap_or_default(),
+            Some(source) => {
+                let source = source.as_ref().map_err(Clone::clone)?;
+                let definition = if let Some(definition) = source.definitions.get(&owner) {
+                    Some(definition)
+                } else if self.borrowed_entry_values.borrow().contains_key(&owner) {
+                    self.checked_entry_owner_view_v1(source, owner)?
+                        .map(|view| view.definition)
+                } else {
+                    None
+                };
+                definition.map(|definition| {
+                    definition.uses.iter().filter_map(|row| match &row.kind {
+                        Use::MulOperand { binary, .. } => Some(binary.clone()),
+                        _ => None,
+                    }).collect()
+                }).unwrap_or_default()
+            }
             None => BTreeSet::new(),
         };
         if expected.is_empty()

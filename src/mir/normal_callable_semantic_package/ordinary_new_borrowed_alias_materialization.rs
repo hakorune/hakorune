@@ -44,9 +44,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-alias/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = source
-            .definitions
-            .get(&owner)
+        let definition = self
+            .checked_entry_owner_view_v1(source, owner)?
+            .map(|view| view.definition)
             .ok_or_else(|| freeze("borrowed-alias/owner"))?;
         let binding = initializer.binding();
         if binding.owner() != owner {
@@ -119,9 +119,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-alias/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = source
-            .definitions
-            .get(&owner)
+        let definition = self
+            .checked_entry_owner_view_v1(source, owner)?
+            .map(|view| view.definition)
             .ok_or_else(|| freeze("borrowed-alias/owner"))?;
         let mut copies = definition
             .uses

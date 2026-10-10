@@ -662,6 +662,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut calls: Vec<_> = source.incoming.iter().collect();
         if let Some(cohort) = source.target_static.get(&owner) {
             calls.extend(cohort.incoming.iter());
+        } else if source.source_only_definitions.contains_key(&owner) {
+            if let Some(view) = &owner_view {
+                calls.extend(view.incoming.iter().copied());
+            }
         }
         for call in calls {
             let definition = source.definitions.get(&call.callee).or_else(|| {

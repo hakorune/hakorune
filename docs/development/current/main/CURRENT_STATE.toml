@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-ROOT-EXIT-SOURCE-MISSING-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/borrowed-mul-static-actual-entry-s0"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/root-exit-source-missing-d0"
+current_design_stop = "root-exit-source-missing: exact owner/exit and missing Normal projection authority not yet identified"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,26 +13,24 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
-latest_card = "mirbuilder-borrowed-mul-static-entry-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
+latest_card = "mirbuilder-root-exit-source-missing-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
 latest_card_summary = """
-Bool literal Home terminal source S0 landed at 597d844b31. The unchanged
-SizeClassBox published-view probe, with protected Eq WIP copied into a
-detached checkout, moved from root-exit-source-missing to
-borrowed-mul/source-only-entry. D0 diagnosed bin_size's guarded Mul and
-three CurrentOwner Scalar Integer incoming sites. The existing
-static_incoming_cohort_v1 already projects the complete original set, so a
-proposed source-only cache was discarded before commit. D0 selected an
-inventory-derived, same-ledger atomic Scalar actual finish and checked callee
-entry before the later independent loop physical packet check.
-Bool physical result and call transport remain downstream. The unchanged
-whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
+The borrowed-Mul static Scalar actual S0 finished the full original incoming
+cohort in the same ledger and lent the checked callee entry. The unchanged
+SizeClassBox published-view probe, with protected Eq WIP in a detached
+checkout, moved past borrowed-mul/source-only-entry to
+ordinary-new/local-commit/root-exit-source-missing. Focused tests are green;
+the published view remains red. The selected D0 must identify the exact
+owner/exit and missing Normal return projection authority before construction.
+Bool physical result and call transport remain downstream. The whole-app EXE
+first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-borrowed-mul-static-entry-d0-2026-10-10.md"
+next_design_card = "MIRBUILDER-ROOT-EXIT-SOURCE-MISSING-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-source-missing-d0-2026-10-10.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
@@ -47,8 +45,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-10: MIRBUILDER-BORROWED-MUL-STATIC-ACTUAL-ENTRY-S0 — full original CurrentOwner Scalar Integer cohort finishes atomically in the existing ledger; checked entry now feeds alias/Mul and unchanged SizeClassBox probe moves to root-exit-source-missing. Focused positive/negative and related families green; published view remains red. Next: root-exit-source-missing D0.",
   "2026-10-10: MIRBUILDER-STATIC-CURRENTOWNER-TWO-CALLER-ACTUAL-S1 landed at 4a5592426d — unchanged good_size/accepts size_to_bin callers share one target-scoped completed actual/packet/entry cohort; missing sibling actual rejects both, Heap/Page source-only route remains. Next: integer Eq physical-owner D0; app first stop remains Heap-to-Page.",
   "2026-10-06: MIRBUILDER-GATE1-NULLABLE-HANDLE-NEW-ACTUAL-S0 landed (S1 complete) — object_formal gate admits `Kind::Handle`; `object_birth_actuals` keys (site,ordinal) -> transport emits kind 3; C `call_transport` nullable rep admits 0/3; `indexed_flow` birth_call arm requires owned live handle (`origin >= 0`, LV4_LIVE) and consumes the lease on the Normal edge only (Fault keeps it for caller unwind). `nullable_birth_handle_actual_min_exe` PASS: v4-measure ok, EXE Result 0. Double-move -> `argument-source-unavailable`; pins 3/3 nullable. Baseline reds unchanged (4, parent-verified). Next: `selfhost-resume/nested-object-field-teardown` (D0).",
-  "2026-10-06: MIRBUILDER-GATE1-NULLABLE-NEW-ACTUAL-S0 (Null half) landed — `Parameter{provided}` seals at plan issue -> `ObjectFieldStores` formal capability -> `nullable_kind_payload_v1` param -> kind-0 `const_null` arg -> `object_field_set` + `home_release_if_live` fault tail. C: formal/call transport rep+kind-0, `origin -3` param class, object_field_set/if_live admission, prologue k0/(3,nonzero). Pins 4/4; suites construction 39/39, semantic 43/43, physical-object 7/7. `nullable_birth_actual_min_exe` PASS: v4-measure ok, EXE Result 0. Mismatched actuals -> `actual-kind-unavailable`. Baseline reds parent-verified (4). `Handle` actual stays sealed. Next: `selfhost-resume/nullable-new-actual` (`NULLABLE-HANDLE-NEW-ACTUAL-S0`).",
   ]
 
