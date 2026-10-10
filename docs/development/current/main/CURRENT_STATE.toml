@@ -1,10 +1,10 @@
 date = "2026-10-10"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-forwarded-root-entry-d0-ledger-census"
-current_design_stop = "Confirm the complete original good_size_usize incoming cohort and source-only forwarded outgoing actual phase before selecting an executable issuer."
+current_blocker_token = "selfhost-resume/static-forwarded-root-entry-s0"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -23,15 +23,17 @@ separate checkout, remains red but moved from bin_size_usize/1 Body(0) to
 good_size_usize/1 Body(0), both at call-entry-missing. The wrapper forwards
 its formal through a source-only CurrentOwner Static call. The existing
 one-input executable finisher does not select that edge. The selected D0
-must confirm the complete original wrapper incoming cohort and outgoing
-actual phase, then choose one bounded forwarded finisher/route into the
-existing packet/root entry. No Plain promotion or source rewrite. The
+selected D0 now fixes a bounded forwarded finisher/route using the original
+incoming inventory, candidate_integer_agreement, checked_static_input,
+Completion and result publication into the existing packet/root entry.
+The exact package cohort/phase and first-stop are S0 acceptance, not
+construction preconditions. No Plain promotion or source rewrite. The
 whole-app EXE first stop remains Heap-to-Page source-only-object-actuals.
 """
-next_design_card = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-forwarded-root-entry-d0-2026-10-10.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

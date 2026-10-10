@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-D0
 
-Status: design stop; bounded source-only forwarded actual authority under audit
+Status: D0 accepted; selected MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0
 Date: 2026-10-10
 Scope: unchanged `SizeClassBox.good_size_usize/1` direct Static Return
 Related:
@@ -24,11 +24,13 @@ fixture has four literal calls to `good_size_usize`. Its sole syntactic
 outgoing call forwards the wrapper's formal; `good_size` then forwards its
 formal to `size_to_bin`. Existing package evidence finds the original
 CurrentOwner Static source and `static_arguments` fact for the latter edge,
-and `checked_static_input` proves the known forward chain. This source
-census does not itself prove that every wrapper incoming actual is complete
-or that the outgoing row has executable phase.
+and `checked_static_input` proves the known forward chain. This is only
+structural checked-use evidence. The separate `candidate_integer_agreement`
+comes from classifying the sole incoming inventory across all callers,
+including vetoes, and is required for this bounded executable admission.
+Neither condition by itself grants physical payload or a packet.
 
-## Read-only audit and candidate Decision
+## Read-only audit and Decision
 
 The existing `finish_static_one_input_actuals_v1` enumerates executable
 `source.incoming` and special `target_static` rows. The wrapper's
@@ -36,16 +38,29 @@ source-only outgoing call is outside both. `checked_completed_static_one_actuals
 requires `ExecutableStaticOne`, while that edge remains `SourceStatic`.
 The scalar finisher requires a MulOperand definition, and cannot lend its
 authority to this forwarding edge. The prior S0 correctly refuses `Plain`.
+The existing `issue_original_static_forwarded_actual_v1` corroborates the
+same original source, formal, argument site, ordinal and staged
+`SourceStatic` candidate; it does not independently classify every caller.
+`candidate_integer_agreement` supplies that separate all-caller check.
+
+The prior card incorrectly demanded the implemented ledger's final phase
+before construction. RULES.md §4 requires authority, meaning/failure
+boundary, production caller/old responsibility and focused acceptance;
+green or caller-zero after implementation is not a construction prerequisite.
+The S0 positive must observe the exact four fixture calls in the current
+package inventory and the completed outgoing phase before closeout.
 
 ```text
-Decision candidate: complete one bounded source-only forwarded Static actual
+Decision: complete one bounded source-only forwarded Static actual
   from the original one-formal, one-call CurrentOwner source, then route its
   existing Static packet/root entry. This expands executable eligibility,
-  not source meaning. First verify the whole wrapper incoming cohort in the
-  same ledger; do not infer readiness from four fixture spellings or one
-  successful caller.
+  not source meaning. Require the existing original incoming projection and
+  candidate_integer_agreement for the caller formal, checked_static_input
+  for both ends of the forwarding chain, and the complete original target
+  cohort. Do not infer readiness from fixture spelling or one caller.
 Source authority + canonical issuer: original StaticIncomingSourceV1,
-  source_incoming inventory and static_arguments own identity; existing
+  source_incoming inventory and static_arguments own identity;
+  candidate_integer_agreement owns all-caller source class agreement;
   checked_static_input and issue_original_static_forwarded_actual_v1 own
   the forward proof; Completion, result contract/publication and Home ordered
   BorrowedActual corroborate it. Existing CallPacketSourceV1::static_i64
@@ -55,30 +70,37 @@ Non-authority: source-only phase by itself, terminal Call spelling, a Plain
 Fail-fast boundary: incomplete/mixed wrapper incoming cohort; changed
   caller formal, forwarding binding, target formal, ordinal or site; absent
   Completion/result/publication/Home observation; unselected SourceStatic.
-Smallest next slice: after ledger census, one source-only forwarded actual
-  finisher plus route selection for the exact one-input CurrentOwner cohort;
-  reuse the existing Static packet/root entry and independent final verifier.
+Selected production caller and old responsibility: the unchanged
+  SizeClassBox.good_size_usize/1 Body(0) direct Static Return is currently
+  retained as a Home Call but falls to Plain root entry. Replace that
+  incomplete local route with one completed actual and existing root packet.
+  Structurally identical source-only forwarders may enter only when every
+  same-authority condition and final verifier holds; audit each affected
+  selected caller in S0.
+Smallest next slice: one source-only forwarded actual finisher plus route
+  selection for the exact one-input CurrentOwner cohort; reuse existing
+  Static packet/root entry and independent final verifier.
 Non-claims: no whole SizeClassBox PASS, no general source-only Static
   promotion, no Bool/physical Mul completion, no mimalloc-lite EXE PASS.
 ```
 
-## D0 acceptance before implementation
+## S0 acceptance
 
-1. Inspect the actual package ledger for all four original wrapper incoming
-   sites and the one wrapper-to-`good_size` outgoing site: retained source,
-   phase, completion, target/formal binding and result publication. Record
-   which proof is already available and the precise missing executable arm.
-2. Confirm that the source-only outgoing edge can consume the existing
-   complete incoming cohort without issuing a second source or result
-   authority. If the join requires a new meaning, update this Decision
-   before code.
-3. Select a focused positive that pins executable forwarded actual, ordered
+1. Focused positive inspects the actual package ledger for all original
+   wrapper incoming sites, including the four literal fixture calls, and the
+   wrapper-to-`good_size` outgoing site: retained source, integer agreement,
+   completed phase, Completion, target/formal binding and result publication.
+   A missing or vetoed sibling must prevent the selected packet.
+2. Confirm in code and test that the outgoing edge consumes that same
+   incoming inventory without issuing a second source or result authority.
+   If this needs a new meaning, return to D0 before widening the slice.
+3. Focused positive pins executable forwarded actual, ordered
    BorrowedActual, one root Invoke/NormalResult after final MIR validation,
    and unchanged-source first-stop movement. Select negatives for one
    invalid wrapper actual and altered forwarding identity/ordinal; preserve
    refusal for an unselected SourceStatic edge. Reuse current family tests.
 
-No implementation or source rewrite is authorized while these ledger facts
-remain unconfirmed. The next D0 step is a read-only package census; once
-the Decision is confirmed, select `MIRBUILDER-STATIC-FORWARDED-ROOT-ENTRY-S0`
-as the bounded executable row.
+No source rewrite or general SourceStatic promotion is authorized. The
+package-ledger census and unchanged-source first-stop are S0 verification,
+not D0 prerequisites. The source authority and bounded failure conditions
+are now fixed, so construction may start.
