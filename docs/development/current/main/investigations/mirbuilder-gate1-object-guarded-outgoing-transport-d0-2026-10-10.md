@@ -29,12 +29,12 @@ refuses it. The typed-object input finisher can regenerate only the
 zero/all-ExactI64 case; it cannot authorize the unannotated opaque formal
 here. Do not promote `SourceObject` directly to executable.
 
-The original checked guard and outgoing actual source evidence already exist:
-`ordinary_new_borrowed_formal_uses.rs` records `BorrowedGuardedActualV1`
-at the exact call/ordinal, and the existing source-seeds owner consumes it.
-The real imported-source test retains all 15 Heap callers and confirms
-candidate Integer agreement while formal executable agreement is false.
-Thus another source-receipt slice would duplicate authority.
+The source classifier can issue `BorrowedGuardedActualV1` for a checked
+call/ordinal, and the existing source-seeds owner consumes those facts. This
+does not yet prove such a fact for the Page outgoing calls below. The real
+imported-source test retains all 15 Heap callers and confirms candidate
+Integer agreement while formal executable agreement is false. Do not issue a
+second source receipt or treat global guarded-actual coverage as site proof.
 
 The real-source diagnostic below distinguished source-draft admission from
 fixed-point pruning. Its first exclusion is `LayoutBox.class_id(size)`; the
@@ -332,3 +332,32 @@ naming the precise outgoing actual issuer, consumer, and Normal/Fault
 boundary. No new transport construction begins before that mapping is fixed.
 The old trace naming `LayoutBox.class_id` described the pre-selection state
 and is superseded for current first-exclusion order.
+
+### Read-only audit correction: outgoing Page actual
+
+The current CLI token contains no owner/site. Earlier detailed logs point to
+`HakoAllocHeap.allocate` calling `me.small_page.allocate(size)` at the
+original Body(1)/IfThen(0) site; this remains a historical inference until a
+current-source per-site diagnostic confirms it. The medium-page sibling is a
+later candidate. The current real-source test proves the selected Heap caller
+inventory and Integer candidate agreement for `LayoutBox.class_id`, but it
+does not prove the exact Page outgoing actual executable.
+
+`Heap.allocate` branches on the **result** of `LayoutBox.class_id(size)`.
+That branch does not check the tagged kind of `size`. In particular, the
+existence of some `BorrowedGuardedActualV1` facts in the corpus does not
+authorize either `Page.allocate(size)` site. `prepare_object_source_actuals_v1`
+retains the original target/candidates while producing no executable opaque
+actual; `require_executable_v1` correctly rejects `SourceObject`. Keep that
+failure boundary.
+
+Next Decision: first identify the precise current failing owner/site using
+the existing pending actual map or a temporary test-only trace of its same
+issuer (remove the trace before commit). Then audit whether an existing
+Normal result-to-original-`size` actual authority proves the tagged kind and
+payload at that *same* site. If absent, specify that mapping and its Fault
+edge before construction; do not borrow a guard from another call or infer a
+kind from caller-wide candidate agreement. Reuse the imported-source and
+object-packet positive/negative families; a new test is justified only for
+an independently uncovered condition. The unchanged app remains the final
+first-stop probe.
