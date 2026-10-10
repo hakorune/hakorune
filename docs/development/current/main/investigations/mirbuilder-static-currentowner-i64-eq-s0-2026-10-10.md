@@ -54,3 +54,26 @@ No partial receipt, fallback, or generic Eq retry after selected failure.
 The app's recorded first stop is Heap-to-Page `source-only-object-actuals`;
 do not count a standalone `accepts` result as whole-app EXE advance.
 Heap/Page support and unrelated condition forms remain outside this slice.
+
+## 2026-10-10 unchanged-source probe and prerequisite
+
+The focused published-view probe appended only a trivial `Main.main` to the
+unchanged `size_class_box.hako`. A direct Main call to `good_size` or
+`size_to_bin` stopped earlier at `main-import-view/selected-header-missing`;
+the trivial Main reached `SizeClassBox.accepts/1` and stopped at
+`ordinary-new/local-commit/root-exit-source-missing`. A temporary diagnostic
+identified the owner; it was removed after the probe. The probe remains
+uncommitted and red. It proves no physical Eq or whole-app advance.
+
+Read-only audit traced the stop to the two Bool literal exits: the Home
+terminal scanner accepts `return false` / `return true` as trivial but issues
+no terminal relation. `normal_exit_projection_v1` therefore cannot supply the
+source row required by root Home exit validation. The exact scalar ABI also
+has only I64, so adding a relation alone would not prove physical Bool Return.
+This is a separate return-result responsibility, not Eq operator execution.
+
+Decision: preserve this S0's uncompleted Eq acceptance and its isolated
+uncommitted issuer/test work. Select a bounded Bool literal terminal D0/S0
+prerequisite for the original `accepts` exits before resuming the physical Eq
+probe. Do not fold Bool return into the Eq slice or weaken the source-backed
+root-exit check. The app first stop remains Heap-to-Page.
