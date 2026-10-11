@@ -112,6 +112,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 // and arms its sole affine row. Do not issue a second root row.
                 continue;
             }
+            let static_site =
+                crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+            if self
+                .selected_static_local_source_v1(&static_site)?
+                .is_some()
+            {
+                // The checked Static packet owns this exact terminal. A
+                // source-only observation never selects this exclusion.
+                continue;
+            }
             self.root_instance_call_expected.borrow_mut().insert(owner);
             // The sole consumer (`prepare_root_home_exit`) can take this row only
             // when every terminal home reaches `end_available`: an Ordinary row

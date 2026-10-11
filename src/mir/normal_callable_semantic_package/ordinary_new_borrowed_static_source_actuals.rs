@@ -44,6 +44,7 @@ pub(super) fn prepare_static_source_actuals_v1(
             source.is_zeroarg_i64_v1()
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
+                || prepared.is_main_static_terminal_source_v1(source)
         });
     if !opaque_source && !original_source {
         return Ok(None);
@@ -228,17 +229,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_lo
     claim: &StaticI64CallClaimV1,
 ) -> Result<Option<(Rc<StaticIncomingSourceV1>, BindingRefV1, SourceExprSiteV1)>, String> {
     let reject = || freeze("borrowed-static/loop-scalar-source-drift");
-    let Some(arguments) = project_pending_current_owner_static_source_arguments_v1(
-        source, pending, site, claim,
-    )? else {
+    let Some(arguments) =
+        project_pending_current_owner_static_source_arguments_v1(source, pending, site, claim)?
+    else {
         return Ok(None);
     };
-    let [LocalCallArgumentV1::BorrowedActual { ordinal: 0, site: argument_site }] =
-        arguments.as_ref()
+    let [LocalCallArgumentV1::BorrowedActual {
+        ordinal: 0,
+        site: argument_site,
+    }] = arguments.as_ref()
     else {
         return Err(reject());
     };
-    let row = pending.get(site).ok_or_else(reject)?.as_ref().map_err(Clone::clone)?;
+    let row = pending
+        .get(site)
+        .ok_or_else(reject)?
+        .as_ref()
+        .map_err(Clone::clone)?;
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &row.phase else {
         return Err(reject());
     };
@@ -257,7 +264,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_lo
     {
         return Err(reject());
     }
-    Ok(Some((Rc::clone(&identity.source), *binding, candidate.site.clone())))
+    Ok(Some((
+        Rc::clone(&identity.source),
+        *binding,
+        candidate.site.clone(),
+    )))
 }
 
 fn project_pending_static_source_arguments_for_route_v1(
@@ -285,7 +296,13 @@ fn project_pending_static_source_arguments_for_route_v1(
         .get(site)
         .and_then(|row| row.as_ref().ok());
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
-    if !has_source_fact && !has_final_static && !(current_owner && has_current_owner_source) {
+    let has_main_terminal_source = !current_owner
+        && retained.is_some_and(|row| prepared.is_main_static_terminal_source_v1(row));
+    if !has_source_fact
+        && !has_final_static
+        && !has_main_terminal_source
+        && !(current_owner && has_current_owner_source)
+    {
         return Ok(None);
     }
     if retained.is_none_or(|row| {
@@ -359,14 +376,15 @@ fn project_pending_static_source_arguments_for_route_v1(
         }
         return Ok(Some(arguments.into()));
     }
-    if !has_source_fact && !current_owner {
+    if !has_source_fact && !current_owner && !has_main_terminal_source {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
         if !current_owner {
             return Err(freeze("borrowed-static/executable-current-owner-required"));
         }
-        let original = retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
+        let original =
+            retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
         if !finish.corroborates_source_v1(original)
             || required_i64_arguments != original.required_i64_arguments()
         {
@@ -409,21 +427,32 @@ fn project_pending_static_source_arguments_for_route_v1(
         if matching.next().is_some() {
             return Err(freeze("borrowed-static/executable-incoming-duplicate"));
         }
-        return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
+        return rows
+            .ordered_arguments_for_v1(call)
+            .map(|rows| Some(rows.into()));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(proof) = &rows.phase {
-        if !current_owner { return Err(freeze("borrowed-static/scalar-current-owner-required")); }
-        let original = retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
+        if !current_owner {
+            return Err(freeze("borrowed-static/scalar-current-owner-required"));
+        }
+        let original =
+            retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
         if required_i64_arguments != [0] || original.required_i64_arguments() != [0] {
             return Err(freeze("borrowed-static/scalar-required-integer-drift"));
         }
         let cohort = prepared.static_incoming_cohort_v1(original)?;
-        if cohort.is_empty() { return Err(freeze("borrowed-static/scalar-cohort-empty")); }
+        if cohort.is_empty() {
+            return Err(freeze("borrowed-static/scalar-cohort-empty"));
+        }
         for sibling in &cohort {
-            let actual = pending.get(sibling.call_site())
+            let actual = pending
+                .get(sibling.call_site())
                 .ok_or_else(|| freeze("borrowed-static/scalar-sibling-missing"))?
-                .as_ref().map_err(Clone::clone)?;
-            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(sibling_proof) = &actual.phase else {
+                .as_ref()
+                .map_err(Clone::clone)?;
+            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(sibling_proof) =
+                &actual.phase
+            else {
                 return Err(freeze("borrowed-static/scalar-sibling-unfinished"));
             };
             if !sibling_proof.corroborates(sibling, &proof.completion)
@@ -434,25 +463,42 @@ fn project_pending_static_source_arguments_for_route_v1(
                 || !matches!(&actual.opaque_actuals[0].source,
                     BorrowedFormalActualSourceV1::Scalar { binding, kind: SourceScalarKind::Integer }
                         if *binding == sibling_proof.binding)
-            { return Err(freeze("borrowed-static/scalar-sibling-drift")); }
+            {
+                return Err(freeze("borrowed-static/scalar-sibling-drift"));
+            }
         }
-        let mut matching = prepared.source_incoming.exact_rows()
+        let mut matching = prepared
+            .source_incoming
+            .exact_rows()
             .filter(|call| &call.call == site && call.callee == original.callee_owner());
-        let call = matching.next().ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
-        if matching.next().is_some() { return Err(freeze("borrowed-static/scalar-incoming-duplicate")); }
-        return rows.ordered_arguments_for_v1(call).map(|rows| Some(rows.into()));
+        let call = matching
+            .next()
+            .ok_or_else(|| freeze("borrowed-static/scalar-incoming-missing"))?;
+        if matching.next().is_some() {
+            return Err(freeze("borrowed-static/scalar-incoming-duplicate"));
+        }
+        return rows
+            .ordered_arguments_for_v1(call)
+            .map(|rows| Some(rows.into()));
     }
-    if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_)) {
+    if matches!(
+        rows.phase,
+        BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_)
+    ) {
         if !current_owner || !required_i64_arguments.is_empty() {
             return Err(freeze("borrowed-static/mixed-route-identity"));
         }
         let original = retained.ok_or_else(|| freeze("borrowed-static/mixed-source-missing"))?;
-        let cohort = super::static_mixed_input_finish::checked_mixed_rows_v1(
-            prepared, pending, original,
-        )?.ok_or_else(|| freeze("borrowed-static/mixed-cohort-unfinished"))?;
-        let call = cohort.iter().find(|row| row.call == *site)
+        let cohort =
+            super::static_mixed_input_finish::checked_mixed_rows_v1(prepared, pending, original)?
+                .ok_or_else(|| freeze("borrowed-static/mixed-cohort-unfinished"))?;
+        let call = cohort
+            .iter()
+            .find(|row| row.call == *site)
             .ok_or_else(|| freeze("borrowed-static/mixed-incoming-missing"))?;
-        return rows.ordered_arguments_for_v1(call).map(|args| Some(args.into()));
+        return rows
+            .ordered_arguments_for_v1(call)
+            .map(|args| Some(args.into()));
     }
     let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
         return Err(freeze("borrowed-static/source-phase-required"));

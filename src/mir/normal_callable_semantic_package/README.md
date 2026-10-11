@@ -65,6 +65,23 @@ sites retain the existing strict protocol. Failed owner walks revoke staged
 source evidence. SourceStatic grants no executable actuals, Static entry, ABI,
 physical packet or publication permission; those require later owner closure.
 
+The original AppMain co-seal also lends its direct ReturnValue sites. A
+Qualified call at one of those sites with one OpaqueHandle formal may retain
+source-only ordered actuals and a destination-less Call exit. The statement's
+existing observation pass runs once; the terminal issuer projects its staged
+arguments. A Value path alone is insufficient: assignment sites and
+DeclaredObject formals do not select this terminal membership. The same
+SourceStatic prohibition applies until the selected tagged entry and complete
+incoming cohort are independently closed.
+The existing input-finish owner can close that Main Integer-literal row as
+`ExecutableStaticTagged`: its original incoming Rc, formal, catalog brand,
+selected signature and shared Completion must agree with the existing tagged
+entry. It checks the complete original cohort, preserves forwarded SourceStatic
+rows and replaces selected Main rows only after all validation. Packet demand
+rechecks the retained identity, payload and ordered destination-less observation.
+Only that completed Static selection excludes this terminal from the root
+instance issuer; unrelated instance and annotation-only scalar owners remain.
+
 ## Original object-return source qualification
 
 `ObjectReturnCallQualificationV1` borrows the original result solver's exact

@@ -1,8 +1,8 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
 use super::*;
-use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
+use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
 use std::rc::Rc;
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -36,8 +36,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         rows.require_executable_v1()?;
         let arguments = rows.ordered_arguments_for_v1(call)?;
-        let Some(observation) = self
-            .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+        let Some(observation) =
+            self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
         else {
             return Ok(None);
         };
@@ -153,13 +153,23 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(original) = source.source_incoming.static_observations().get(site) {
             let original = original.as_ref().map_err(Clone::clone)?;
             if self
+                .checked_static_tagged_packet_actuals_v1(original)?
+                .is_some()
+            {
+                self.verify_original_static_packet_source_v1(original)?;
+                return Ok(Some(Rc::clone(original)));
+            }
+            if self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_some()
             {
                 self.verify_original_static_packet_source_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
-            if self.checked_static_mixed_packet_actuals_v1(original)?.is_some() {
+            if self
+                .checked_static_mixed_packet_actuals_v1(original)?
+                .is_some()
+            {
                 self.verify_original_static_packet_source_v1(original)?;
                 return Ok(Some(Rc::clone(original)));
             }
@@ -243,8 +253,15 @@ impl OrdinaryNewClaimLedgerV1 {
             else {
                 continue;
             };
-            let completed = self.checked_static_scalar_packet_actuals_v1(original)?.is_some()
-                || self.checked_static_mixed_packet_actuals_v1(original)?.is_some();
+            let completed = self
+                .checked_static_scalar_packet_actuals_v1(original)?
+                .is_some()
+                || self
+                    .checked_static_mixed_packet_actuals_v1(original)?
+                    .is_some()
+                || self
+                    .checked_static_tagged_packet_actuals_v1(original)?
+                    .is_some();
             let selected = if completed {
                 self.selected_static_local_source_v1(&row.call)?.is_some()
             } else if self.is_static_zero_packet_cohort_v1(original) {
@@ -349,6 +366,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .is_some()
                 || self
                     .checked_static_mixed_packet_actuals_v1(original)?
+                    .is_some()
+                || self
+                    .checked_static_tagged_packet_actuals_v1(original)?
                     .is_some())
                 && routed
                     .get(&owner)
@@ -378,13 +398,15 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<PreparedStaticTerminalRootRouteV1<'_>, String> {
-        let selected = self.selected_static_local_source_v1(original.call_site())?
+        let selected = self
+            .selected_static_local_source_v1(original.call_site())?
             .ok_or_else(|| freeze("static-terminal/route-missing"))?;
         if !Rc::ptr_eq(&selected, original) {
             return Err(freeze("static-terminal/route-drift"));
         }
         let routed = self.lifecycle_local_call_sites.borrow();
-        let sites = routed.get(&original.call_site().owner())
+        let sites = routed
+            .get(&original.call_site().owner())
             .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
         if !sites.iter().any(|site| site == original.call_site()) {
             return Err(freeze("static-terminal/local-route-missing"));
@@ -404,7 +426,9 @@ impl OrdinaryNewClaimLedgerV1 {
             && self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_none()
-            && self.checked_static_mixed_packet_actuals_v1(original)?.is_none()
+            && self
+                .checked_static_mixed_packet_actuals_v1(original)?
+                .is_none()
         {
             self.checked_completed_static_one_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
@@ -432,6 +456,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        if let Some(rows) = self.checked_static_tagged_packet_actuals_v1(original)? {
+            return Ok(Some(rows));
+        }
         if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
             if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
                 return Ok(Some(rows));

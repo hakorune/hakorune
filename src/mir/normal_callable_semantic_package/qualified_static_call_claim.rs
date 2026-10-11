@@ -302,6 +302,18 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
             caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
+    let has_main_terminal = input.function().method_calls().any(|(site, _)| {
+        claim_for_source_site_v1(
+            claims,
+            caller_key.as_ref(),
+            &input,
+            &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()),
+            selected,
+            contracts,
+            app_main,
+        )
+        .is_ok_and(|row| row.is_some_and(|claim| claim.is_qualified_terminal()))
+    });
     (
         move |site| {
             claim_for_source_site_v1(
@@ -314,7 +326,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
                 app_main,
             )
         },
-        has_current_owner_i64_source,
+        has_current_owner_i64_source || has_main_terminal,
     )
 }
 
@@ -334,6 +346,39 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
         return Ok(None);
     };
     if let Some(claim) = claims.claim(key, site.site()) {
+        use crate::mir::resolved_semantics::SourcePathSegmentV1 as Segment;
+        let main = app_main.is_some_and(|main| {
+            contracts.iter().any(|row| {
+                row.owner == input.owner()
+                    && main.matches_contract(row)
+                    && main.catalog_key() == key
+            })
+        });
+        if main
+            && site.owner() == input.owner()
+            && matches!(
+                site.site().node().segments(),
+                [Segment::Body(_), Segment::Value]
+            )
+            && input.body_shape().is_some_and(|shape| shape.statements().iter().any(|row|
+                matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(value), .. }
+                    if value == site.site())))
+        {
+            if let Some(call) = input.function().method_call(site.site()) {
+                let original = claims.incoming_source(key, site, call, selected, contracts, app_main)
+                    .map_err(|issue| super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
+                if original.is_some_and(|row| {
+                    row.contract().parameters.len() == 1
+                        && row.contract().parameters[0].kind
+                            == crate::mir::callable_parameter_contract::CallableParameterContractKindV1::OpaqueHandle
+                }) {
+                    return Ok(Some(StaticI64CallClaimV1::qualified_terminal(
+                        site.clone(),
+                        claim,
+                    )));
+                }
+            }
+        }
         return Ok(Some(StaticI64CallClaimV1::qualified(claim)));
     }
     let Some(source_row) = claims.current_owner_i64_source(key, site.site()) else {

@@ -6,6 +6,10 @@ use crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1;
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum StaticI64CallSourceV1 {
     Qualified(QualifiedStaticCallClaimV1),
+    QualifiedTerminal {
+        site: OwnedExprSiteV1,
+        claim: QualifiedStaticCallClaimV1,
+    },
     CurrentOwnerZeroArg(OwnedExprSiteV1),
     CurrentOwnerSource {
         site: OwnedExprSiteV1,
@@ -24,6 +28,21 @@ impl StaticI64CallClaimV1 {
         Self {
             source: StaticI64CallSourceV1::Qualified(claim),
         }
+    }
+
+    /// Original AppMain declaration and direct ReturnValue issue membership.
+    /// A finished incoming cohort is still required for physical emission.
+    pub(crate) fn qualified_terminal(
+        site: OwnedExprSiteV1,
+        claim: QualifiedStaticCallClaimV1,
+    ) -> Self {
+        Self {
+            source: StaticI64CallSourceV1::QualifiedTerminal { site, claim },
+        }
+    }
+
+    pub(crate) fn is_qualified_terminal(&self) -> bool {
+        matches!(self.source, StaticI64CallSourceV1::QualifiedTerminal { .. })
     }
 
     /// Only the package's sealed current-owner result index issues this row.
@@ -65,7 +84,8 @@ impl StaticI64CallClaimV1 {
 
     pub(crate) fn qualified_claim(&self) -> Option<&QualifiedStaticCallClaimV1> {
         match &self.source {
-            StaticI64CallSourceV1::Qualified(claim) => Some(claim),
+            StaticI64CallSourceV1::Qualified(claim)
+            | StaticI64CallSourceV1::QualifiedTerminal { claim, .. } => Some(claim),
             StaticI64CallSourceV1::CurrentOwnerZeroArg(_) => None,
             StaticI64CallSourceV1::CurrentOwnerSource { .. } => None,
         }
@@ -78,6 +98,9 @@ impl StaticI64CallClaimV1 {
         arity: u32,
     ) -> bool {
         match &self.source {
+            StaticI64CallSourceV1::QualifiedTerminal { site: original, .. } => {
+                original == site && receiver == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+            }
             StaticI64CallSourceV1::Qualified(_) => {
                 receiver == ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
             }

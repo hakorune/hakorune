@@ -62,6 +62,7 @@ pub(super) enum BorrowedCallActualEvidencePhaseV1 {
     ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
     ExecutableStaticMixed(static_mixed_input_finish::StaticMixedInputFinishV1),
+    ExecutableStaticTagged(static_tagged_input_finish::StaticTaggedInputFinishV1),
     EntryOnlyStaticBool(static_bool_entry_finish::StaticBoolEntryFinishV1),
     SourceStatic(static_source::StaticSourceActualIdentityV1),
     SourceObject(object_source::ObjectSourceActualIdentityV1),
@@ -71,8 +72,10 @@ pub(super) enum BorrowedCallActualEvidencePhaseV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCallActualsV1 {
     pub(super) phase: BorrowedCallActualEvidencePhaseV1,
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) opaque_actuals: Box<[PreparedBorrowedFormalActualV1]>,
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) ordered_arguments: Box<[LocalCallArgumentV1]>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) opaque_actuals:
+        Box<[PreparedBorrowedFormalActualV1]>,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) ordered_arguments:
+        Box<[LocalCallArgumentV1]>,
 }
 
 impl PreparedBorrowedCallActualsV1 {
@@ -88,16 +91,19 @@ impl PreparedBorrowedCallActualsV1 {
             .unwrap()
     }
 
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn require_executable_v1(&self) -> Result<(), String> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn require_executable_v1(
+        &self,
+    ) -> Result<(), String> {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_) => Ok(()),
-            BorrowedCallActualEvidencePhaseV1::EntryOnlyStaticBool(_) => Err(freeze(
-                "ordinary-new/borrowed-entry/bool-entry-not-call",
-            )),
+            BorrowedCallActualEvidencePhaseV1::EntryOnlyStaticBool(_) => {
+                Err(freeze("ordinary-new/borrowed-entry/bool-entry-not-call"))
+            }
             BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-instance-actuals",
             )),

@@ -449,7 +449,13 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 issue: issue.clone(),
             }
         })?;
-        if !sites.contains(site) {
+        // Main's exact terminal loan permits source projection only. It does
+        // not add the site to executable Static route membership.
+        if !sites.contains(site)
+            && !source
+                .as_ref()
+                .is_ok_and(|prepared| prepared.is_main_static_terminal_site_v1(site))
+        {
             return Ok(None);
         }
     }

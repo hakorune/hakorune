@@ -80,6 +80,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     if claim
         .current_owner_source_required_i64_arguments()
         .is_none()
+        && !claim.is_qualified_terminal()
     {
         return Ok(None);
     }
@@ -96,8 +97,10 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     {
         return Ok(None);
     }
-    for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, true) {
-        borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+    if !claim.is_qualified_terminal() {
+        for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, true) {
+            borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+        }
     }
     project_current_owner_i64_staged_value_call(
         input,
@@ -139,6 +142,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
     if claim
         .current_owner_source_required_i64_arguments()
         .is_none()
+        && !claim.is_qualified_terminal()
     {
         return Ok(None);
     }
@@ -157,7 +161,15 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
     }
     let Some(BorrowedCallArgumentsV1::StaticSource(arguments)) = borrowed_arguments(
         &owned,
-        BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(&claim),
+        match claim
+            .qualified_claim()
+            .filter(|_| claim.is_qualified_terminal())
+        {
+            Some(qualified) => {
+                BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(qualified)
+            }
+            None => BorrowedCallActualRequestV1::CurrentOwnerStaticSourceArguments(&claim),
+        },
     )?
     else {
         return Ok(None);

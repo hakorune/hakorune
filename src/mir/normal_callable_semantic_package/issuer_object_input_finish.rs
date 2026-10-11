@@ -35,16 +35,29 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         .map_err(|_error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error })?;
     ledger
         .finish_static_one_input_actuals_v1(selected, contracts, &signature, results)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .finish_static_scalar_input_actuals_v1(selected, contracts, &signature, results)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .finish_static_mixed_input_actuals_v1(selected, contracts, &signature, results)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
+    ledger
+        .finish_static_tagged_input_actuals_v1(selected, contracts, &signature, results)
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .finish_static_bool_entry_actual_v1(batch, selected, contracts, &signature, results)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .finish_static_zero_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(
@@ -53,10 +66,14 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
     ledger.select_static_zero_local_routes_v1();
     ledger
         .select_static_scalar_local_routes_v1()
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .select_static_mixed_local_routes_v1()
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
     ledger
         .seal_object_return_dispositions_v1(selected, contracts, &signature)
         .map_err(

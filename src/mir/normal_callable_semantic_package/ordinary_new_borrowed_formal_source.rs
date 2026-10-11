@@ -64,9 +64,13 @@ impl BorrowedFormalObjectViewV1 {
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedFormalIngressV1 {
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    /// Original AppMain co-seal identity; never inferred from a function name.
+    pub(super) app_main_owner: Option<FunctionOwnerIdV1>,
+    pub(super) app_main_terminal_sites: BTreeSet<OwnedExprSiteV1>,
     // Disjoint excluded owners from the same original draft issuance.
     pub(super) source_only_definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
-    pub(super) target_static: BTreeMap<FunctionOwnerIdV1, target_static::TargetStaticSourceCohortV1>,
+    pub(super) target_static:
+        BTreeMap<FunctionOwnerIdV1, target_static::TargetStaticSourceCohortV1>,
     /// Dominated-view value-use sites across every classified owner —
     /// `ArrayElementValue`, `AddOperand`, `MulOperand`, or `NewArgument` rows recorded
     /// at draft classification time, before borrowed-transport selection.
@@ -345,7 +349,13 @@ pub(super) fn finish_ingress_from_drafts_v1(
         return Err(freeze("borrowed-view/declared-object-class"));
     }
     object_views.retain(|formal, _| transport_owners.contains(&formal.owner()));
+    let app_main_terminal_sites = observation::app_main_terminal_sites_v1(batch, app_main)?;
     Ok(PreparedBorrowedFormalIngressV1 {
+        app_main_terminal_sites,
+        app_main_owner: contracts
+            .iter()
+            .find(|row| app_main.is_some_and(|main| main.matches_contract(row)))
+            .map(|row| row.owner),
         definitions,
         source_only_definitions,
         target_static,

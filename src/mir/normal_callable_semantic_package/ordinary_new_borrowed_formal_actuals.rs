@@ -11,18 +11,20 @@ use std::collections::BTreeMap;
 
 #[path = "ordinary_new_borrowed_formal_actual_model.rs"]
 mod model;
-pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
-pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
 use model::BorrowedCallActualEvidencePhaseV1;
+pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
+pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
 
-#[path = "ordinary_new_borrowed_static_selected_actual.rs"]
-mod static_selected_actual;
-#[path = "ordinary_new_borrowed_static_scalar_input_finish.rs"]
-mod static_scalar_input_finish;
-#[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
-mod static_mixed_input_finish;
 #[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
 mod static_bool_entry_finish;
+#[path = "ordinary_new_borrowed_static_mixed_input_finish.rs"]
+mod static_mixed_input_finish;
+#[path = "ordinary_new_borrowed_static_scalar_input_finish.rs"]
+mod static_scalar_input_finish;
+#[path = "ordinary_new_borrowed_static_selected_actual.rs"]
+mod static_selected_actual;
+#[path = "ordinary_new_borrowed_static_tagged_input_finish.rs"]
+mod static_tagged_input_finish;
 pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual::{
     issue_original_static_forwarded_actual_v1, VerifiedStaticForwardedActualV1,
 };
@@ -64,9 +66,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         // Final-callee membership is a candidate only. Keep the original
         // CurrentOwner actual source-only until signature and Completion close
         // its whole selected incoming cohort.
-        return static_source::prepare_static_source_actuals_v1(
-            prepared, contracts, call, actuals,
-        );
+        return static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals);
     }
     if needs_original_object_forward_source_v1(prepared, incoming_row, call, actuals)? {
         return object_source::prepare_object_source_actuals_v1(prepared, contracts, call, actuals);
@@ -608,8 +608,8 @@ mod discard_tests;
 
 #[path = "ordinary_new_borrowed_static_source_actuals.rs"]
 mod static_source;
-pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_current_owner_loop_scalar_source_v1;
+pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_current_owner_static_source_arguments_v1;
 pub(in crate::mir::normal_callable_semantic_package) use static_source::project_pending_static_source_arguments_v1;
 
 #[cfg(test)]
