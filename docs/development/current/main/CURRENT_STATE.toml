@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-ROOT-EXIT-CANONICAL-DOCUMENT-TRANSPORT-D0"
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-ROOT-EXIT-CANONICAL-DOCUMENT-TRANSPORT-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/canonical-document-invoke-transport"
-current_design_stop = "canonical-document/wire-and-transport-reader"
+current_blocker_token = "none"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-root-exit-static-two-exit-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md"
 latest_card_summary = """
-a56b9dedfa closes Main terminal scoped acceptance and retained Instance sibling
-source veto; native1/2/73 remains recorded at ba83498c6e. Return to parent JSON
-debt: lossless canonical document Static CallI64/Normal/ReturnFault/frame plus
-signature/carrier/source metadata. Read-only audit identifies lossy call and
-metadata writers; precise wire and transport-only reader API are design work.
-Preserve legacy/VM/LLVM execution fences and source-authority boundary. Parent
-final caller-zero/retirement and whole-product completion remain unpaid.
+Selected two-exit S0 and canonical document transport are accepted: original
+AllSource SizeClass+Main0 emits/readbacks13 definitions, current native1/2/73
+passes, selected early/tail old responsibilities are caller-zero and removed.
+No JSON execution grant; direct loader remains fenced. Scope guard count debt
+is unchanged baseline. Return to the existing mimalloc-lite completion bundle;
+whole-product completion and literal9 AllSource admission are not claimed.
 """
-next_design_card = "MIRBUILDER-ROOT-EXIT-CANONICAL-DOCUMENT-TRANSPORT-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md"
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"

@@ -79,6 +79,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Await { .. }
             | MirInstruction::Phi { .. }
             | MirInstruction::FaultFrameEnter { .. }
+            | MirInstruction::InvokeNormalResult { .. }
             | MirInstruction::PinnedTextOp { .. }
     )
 }
@@ -88,6 +89,8 @@ pub fn is_supported_mir_json_terminator(inst: &MirInstruction) -> bool {
     matches!(
         inst,
         MirInstruction::Return { .. }
+            | MirInstruction::Invoke { .. }
+            | MirInstruction::ReturnFault { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Branch { .. }
             | MirInstruction::CheckedCallOut { .. }

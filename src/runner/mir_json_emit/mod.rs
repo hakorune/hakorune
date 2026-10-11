@@ -5,6 +5,7 @@ mod a_prime_i64_capability;
 mod agg_local;
 mod array_metadata;
 mod array_write;
+mod canonical_transport;
 pub(crate) mod control_edge_args;
 mod core_metadata;
 mod decls;

@@ -1,3 +1,4 @@
+mod canonical_transport;
 mod checked_callout_access;
 mod linear_slot_access;
 

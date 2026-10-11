@@ -144,11 +144,15 @@ fn build_root_contents(
     profile: JsonEgressProfile,
 ) -> Result<serde_json::Value, String> {
     let use_v1_schema = profile.is_canonical_v1();
+    let canonical_transport = use_v1_schema && super::canonical_transport::selected(module);
     let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         let control_edge_args = VerifiedExactNoneControlEdgeArgsV1::verify(f);
+        if canonical_transport {
+            super::canonical_transport::validate_source(f)?;
+        }
         if let Some(carrier) = f.metadata.pinned_text_residence_backend_carrier.as_ref() {
             carrier
                 .verify_projected_function(f)
@@ -189,7 +193,7 @@ fn build_root_contents(
                 // No reordering except PHI consolidation at block start (LLVM constraint)
 
                 // Step 1: Emit all PHI instructions first (LLVM requirement)
-                insts.extend(emitters::emit_phi_instructions(f, bb));
+                insts.extend(emitters::emit_phi_instructions(f, bb, canonical_transport));
 
                 // Step 2: Emit all non-PHI instructions in MIR order (no reordering!)
                 emitters::emit_non_phi_instructions(
@@ -197,15 +201,18 @@ fn build_root_contents(
                     bb,
                     pinned_text_residence_transport,
                     profile,
+                    canonical_transport,
                     &boxed_sum_abi_plans,
                     &boxed_sum_site_plans,
                     &mut insts,
                 )?;
 
                 // Phase 131-13: Terminator emitted inline (no delayed copies)
-                if let Some(term) =
-                    emitters::emit_terminator(&bb.terminator, pinned_text_residence_transport)?
-                {
+                if let Some(term) = emitters::emit_terminator(
+                    &bb.terminator,
+                    pinned_text_residence_transport,
+                    canonical_transport,
+                )? {
                     insts.push(term);
                 }
                 instruction_count += insts.len();
@@ -226,8 +233,17 @@ fn build_root_contents(
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
         let mut metadata_json = build_function_metadata_json(f)?;
-        if let Ok(control_edge_args) = control_edge_args {
-            metadata_json["control_edge_args_v1"] = control_edge_args.to_json();
+        if canonical_transport {
+            metadata_json["canonical_transport_v1"] = super::canonical_transport::function(f)?;
+            for (id, ty) in &f.metadata.value_types {
+                metadata_json["value_types"][id.as_u32().to_string()] =
+                    super::canonical_transport::ty(ty)?;
+            }
+        }
+        if !canonical_transport {
+            if let Ok(control_edge_args) = control_edge_args {
+                metadata_json["control_edge_args_v1"] = control_edge_args.to_json();
+            }
         }
         let metadata_entry_count = metadata_json.as_object().map(|obj| obj.len()).unwrap_or(0);
         let function_export_summary = mir_json_export_model::summarize_function(
@@ -275,7 +291,7 @@ fn build_root_contents(
     // Phase 285LLVM-1.1+: shared root metadata for both JSON v1 and legacy v0.
     // Keep this list as the single insertion point when a new top-level plan
     // surface is added.
-    let root_metadata = vec![
+    let mut root_metadata = vec![
         ("cfg", cfg_info),
         (
             "user_box_decls",
@@ -367,6 +383,12 @@ fn build_root_contents(
             json!(collect_boxed_sum_abi_plan_values(module)),
         ),
     ];
+    if canonical_transport {
+        root_metadata.push((
+            "canonical_transport_v1",
+            super::canonical_transport::module(module),
+        ));
+    }
     let export_summary =
         mir_json_export_model::summarize_root(use_v1_schema, funs.len(), root_metadata.len());
     debug_assert_eq!(export_summary.function_count, funs.len());
@@ -396,6 +418,11 @@ fn build_root_contents(
     insert_root_metadata(&mut root, root_metadata);
     let serialized_export_document = mir_json_export_model::serialize_document(&export_document);
     debug_assert_eq!(serialized_export_document, root);
+    if canonical_transport {
+        crate::runner::json_v1_bridge::validate_canonical_document_transport_v1(
+            &serialized_export_document,
+        )?;
+    }
 
     // NOTE: numeric_core strict validation is applied on the AotPrep output
     // (tools/hakorune_emit_mir.sh) rather than at raw MIR emit time. This keeps
@@ -411,8 +438,8 @@ mod tests {
     #[test]
     fn both_json_profiles_reject_unretained_named_array_requirement() {
         use crate::mir::{
-            ArrayWriteSiteId, BasicBlockId, EffectMask, FunctionSignature, MirFunction,
-            MirModule, MirType, ValueId,
+            ArrayWriteSiteId, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule,
+            MirType, ValueId,
         };
         let mut module = MirModule::new("obligation".into());
         let mut function = MirFunction::new(
@@ -430,7 +457,10 @@ mod tests {
                     .unwrap()
                     .issue()
                     .unwrap(),
-                allocation: crate::mir::named_array_obligation::NamedArrayAllocationRefV1::LocalValue(ValueId::new(1)),
+                allocation:
+                    crate::mir::named_array_obligation::NamedArrayAllocationRefV1::LocalValue(
+                        ValueId::new(1),
+                    ),
                 receiver: ValueId::new(1),
                 argument: ValueId::new(2),
                 write: ArrayWriteSiteId(0),

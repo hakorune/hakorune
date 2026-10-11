@@ -1,6 +1,6 @@
 # MIRBUILDER-ROOT-EXIT-STATIC-TWO-EXIT-S0
 
-Status: parent S0 open; selected canonical document transport D0
+Status: accepted — selected two-exit S0 and canonical document transport; whole-product work remains
 Date: 2026-10-11
 Scope: selected Static V2 early/tail root exit cutover for unchanged `SizeClassBox.size_to_bin/1`
 Related: `mirbuilder-root-exit-canonical-writer-d0-2026-10-11.md`, `mirbuilder-root-exit-canonical-writer-r1-2026-10-11.md`
@@ -395,3 +395,186 @@ Current unresolved design is the precise wire shape and transport-only API,
 not missing source authority or an external dependency. Work mode design_stop
 until that mapping is fixed; no implementation, reader execution permission,
 whole-parent acceptance or whole-product completion is asserted.
+
+## Transport S0 Decision (2026-10-12)
+
+Selected row: `MIRBUILDER-ROOT-EXIT-CANONICAL-DOCUMENT-TRANSPORT-S0`.
+D0 mapping closes with the read-only review: extend existing CanonicalV1 writer
+and add `json_v1_bridge::parse_canonical_document_transport_v1(&str)` returning
+`Result<serde_json::Value, String>`. It checks transport data and returns no
+MirModule, admission witness, source loan, ABI grant or executable capability.
+Existing execution readers remain disconnected and reject the new fallible ops.
+
+Wire: module root `canonical_transport_v1` records version1, original module
+name and original canonical callable key->symbol relation. Each function's
+metadata `canonical_transport_v1` records signature parameter/return types and
+full effect bits, entry block, next ValueId, locals, original optional carrier
+array, source file/line, declared parameter evidence and aligned per-block
+instruction/terminator spans. Existing outer params and metadata.value_types
+stay their sole fields; the transport reader validates their correspondence.
+The export model already retains root/function metadata surfaces, so it owns
+these additions without a parallel document exporter or format adapter.
+Only the module containing Invoke/Normal/ReturnFault selects this finite
+extension; ordinary canonical documents and compatibility-v0 keep their routes.
+
+Invoke rows carry operation kind=call, result=i64, embedded dst=null,
+structured Global/SameModule/StaticBoxMethod key, ordered args, all four
+boolean CallFlags and complete effects bits; frame and distinct Normal/Fault
+block IDs remain explicit. Normal carries its original Invoke block and dst;
+ReturnFault carries frame. Existing frame mode is preserved. Unsupported
+Invoke families are named refusals, not projected into legacy mir_call.
+Carrier tags are read-only projections from existing signature metadata, never
+inferred from MirType or source annotations. No wider serde authority is added.
+
+Reader checks required fields/known vocabulary, bounded IDs, duplicate keys/
+functions/blocks/definitions, entry/signature/param/carrier consistency, exact
+target membership/arity, operand definitions and CFG/PHI predecessors, original
+Normal producer/projection placement, and frame/Fault correspondence. Original
+metadata stays data; mutable JSON is never treated as a fresh source proof.
+Writer preserves original body/PHI/span order or refuses a malformed source;
+no reordering or defaults repair the selected image.
+
+Implementation paths: existing mir_json_emit root/emitters and a private
+transport projection helper; existing signature metadata read-only projection;
+json_v1_bridge private transport reader helpers/tests; instruction reference.
+Acceptance: original published module independently read back with exact
+signature/key/carrier/CFG/source spans; selected malformed wire and source
+mutations reject; old execution readers refuse the new document. Then fresh
+unchanged SizeClass/Main canonical JSON CLI receipt and parent closeout review.
+Not a native rerun obligation or a nonempty cleanup/other Invoke acceptance claim.
+
+Transport verification correction (2026-10-12): V1 test compilation refused
+private `mir::compiler` imports; tests now use the existing public reexports.
+V2 quick build/link passed8m12s. Existing frame1/1, checked-callout1/1,
+executable-reader11/11 and backend-core20/20 pass from that one binary.
+The four new tests remained red: three synthetic positives required a carrier
+array from a zero-argument target whose original optional carrier is null;
+the source test accidentally used Main's literal9 call rather than the selected
+JSON fixture. The reader now permits exactly empty args/types with null carriers.
+No carrier for a nonempty signature is invented.
+
+Exact JSON selection remains unchanged SizeClass plus trivial Main `return 0`
+under AllSource, as selected by this card's original acceptance/CLI receipt.
+A pre-change CLI comparison confirms that fixture reaches `unsupported
+terminator Invoke`; literal9 AllSource stops earlier at RootInstanceCall
+`ordinary-new/root-instance-call-receiver`. Read-only review identifies
+`issue_root_instance_call_dispositions` as the demanding issuer but cannot name
+the rejected callable from that token alone. The latter is a separate unresolved
+source-admission boundary, not JSON transport acceptance; no ClosedApp selection
+or compiler/source rewrite is added. Its existing EXE receipt is not substituted
+for JSON. Restore the source test to the exact selected fixture and compare its
+original callable definitions, signature/carriers, CFG/instructions and source
+spans. V2's test executable/snapshot/logs are pinned under
+`/tmp/canonical-document-transport-v2-*`; new S0 acceptance remains unproven.
+
+## Actual AllSource transport mapping correction (2026-10-12)
+
+CLI build passed3m53s, but the unchanged selected source refused at
+`hmi/control-edge-args-v1/not-exact-none`, SizeClassBox.accepts/1 bb4 branch_then.
+The existing `--dump-mir` observes13 definitions:12 original SizeClass methods
+and main. This is a concrete correction to the EXE diagnostic subset census,
+not a reason to remove source functions or change AllSource to ClosedApp.
+V3 new synthetic3/3 and writer122/122 (one existing ignored), old reader11/11,
+backend20/20 pass; its original-source test wrongly used the C-only body helper.
+Use the real document writer into TempDir, check pre-transform verification,
+and independently read the file. Original source/whole-parent acceptance remains
+open until this full selected profile passes.
+
+Decision: preserve the additional original AllSource data in the same private
+transport owner. Unknown is an explicit `unknown` tag, never missing/null or an
+Integer projection. Preserve original optional carriers, including absence;
+known conflicting types still reject, but absence/Unknown supplies no proof.
+Preserve every16bit EffectMask including conservative ALL=0xffff; overflow rejects.
+The one ordinary Static Bool MirCall uses `canonical_call`, retaining original
+typed key/dst/args/flags/effects and its Bool callee signature; legacy execution
+readers do not understand this transport-only opcode. Other call forms refuse.
+Invoke remains the selected Static I64 family.
+
+Jump/Branch edge options are null or `{layout,values}` with existing
+`carriers_only`/`expr_result_plus_carriers` tags. None and Some(empty) remain
+separate. Do not produce the old `control_edge_args_v1:exact_none` witness for
+new transport; legacy profiles retain that contract. Preserve block return_env
+and optional return_env_layout in the existing block descriptor without
+inventing a layout. Check their value IDs, frame exclusion and dominance through
+existing verifier utilities. BasicBlock has no independent block-args field.
+Selected scalar dst hints come only from original value_types, not the legacy
+writer's Unknown-to-i64 default. This changes transport vocabulary, not source
+meaning, admission or runtime capability. No new semantic issuer/receipt/solver.
+
+Read-only worker confirms this mapping and the production document owner.
+Next implementation stays in this S0: exact source key/signature/carrier/metadata/
+edge/return-env comparison and independent malformed-image negatives, followed
+by fresh JSON CLI receipt. Literal9 AllSource source admission remains separate.
+
+V4 build/link passed8m17s. New synthetic4/4, writer122/122 (one ignored),
+old-reader11/11 and backend20/20 pass. The exact source test now uses the real
+file writer and rejects at `carrier-type`. Read-only producer review explains
+that `builder_metadata.rs:97-113` initializes ExistingCallableI64 before
+annotation projection; an unannotated raw signature stays Unknown. Preserve
+both without inferring Integer. Known Bool/I64 carrier conflicts remain refusals.
+Likewise DraftSeal preserves the full allocated type map and DCE deletes
+instructions/spans without purging that map: keep valid allocated-range type
+rows, checking actual producer/hint consistency where a definition exists.
+Undefined SSA operands remain forbidden; this is not an operand relaxation.
+
+The same review found two independent crosscall contradictions: null carriers
+must not hide known signature conflicts, and Unknown/missing metadata must not
+hide an explicit Bool Const/Compare/ordinary Bool Call. The one reader now lends
+an immutable direct-producer-kind index to its crosscall check; no recursive type
+inference or source proof is issued. The existing cross-surface fixture adds
+three precise negatives (null carrier, Unknown metadata, erased metadata).
+Unknown+I64-carrier and allocated-but-unused metadata have independent positives.
+
+
+## Selected S0 closeout (2026-10-12)
+
+The parent two-exit S0 is accepted for its exact bounded source/consumer and
+selected old responsibilities. This does not close whole SizeClass, mimalloc-lite
+or MIRBUILDER-FINAL-PIPELINE-v1. AllSource Main literal9 remains a separate
+RootInstanceCall admission boundary; it is not replaced with a ClosedApp JSON
+fixture or counted as a JSON success.
+
+Final evidence is based on f3e2d73aae plus the exact source hashes in
+`/tmp/canonical-document-transport-v5-snapshot.json` and
+`/tmp/canonical-document-transport-cli-v2-build-snapshot.json`:
+
+- Quick test build/link8m15s. Original source13-definition file publication and
+  independent reader, structured calls/signatures/carriers, original source spans,
+  None/Some edge/return environments, Unknown/unused allocated type data, and
+  independent wire corruptions pass5/5. Writer122/122 (one existing ignored),
+  executable reader11/11 and backend20/20 pass:158 passing, no current-change red.
+  Receipt/test executable: `/tmp/canonical-document-transport-v5-runtime-receipt.json`
+  and `/tmp/canonical-document-transport-v5-test-binary`.
+- Original selected pending transaction and shared nonempty Home/order tests pass
+  1/1 each (0.05s/0.015s), retaining independent precollect/final Return, packet,
+  route, Home/binding/Normal/Fault-order refusals and unpublished-state checks.
+  `/tmp/canonical-document-parent-focused-receipt.json` pins that same binary.
+- CLI build/link3m53s. Exact unchanged SizeClass plus trivial Main return0 now
+  emits CanonicalV1 JSON in0.053s (rc0), instead of pre-change unsupported Invoke.
+  The artifact has13 functions, Invoke15/Normal15/ReturnFault15/frame7, ordinary
+  Bool Call1, PHI13, and original edge/source metadata. CLI receipt:
+  `/tmp/canonical-document-transport-cli-v2-receipt.json`; original source hash
+  `ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0`.
+- Same fresh CLI/runtime generates and executes original source with input0/9/
+  4194305, returning1/2/73. Build/link2.228/2.235/2.224s, execution0.001s each;
+  pure-first, compatibility replay none, plugins disabled. Binary/runtime/source
+  hashes and commands: `/tmp/canonical-document-transport-native-receipt.json`.
+- Direct `--backend mir --mir-json-file` of the actual document still refuses
+  `fault_frame_enter` at Gate-C v1 bridge, rc1 in0.006s. No v0 retry or executable
+  JSON widening. `/tmp/canonical-document-transport-execution-fence-receipt.json`.
+- Read-only final review confirms selected early completion at root.graph.clean
+  and original tail packet -> sole root graph; direct then-block completion,
+  tail MirCall::global/emit_i64_invoke and independent Normal/Fault construction
+  are absent. Production collect_if_selected success returns; errors propagate,
+  never retry. The retirement set matches f9cb8906be/47b5886077. Shared raw
+  Plain/Call, header/body Invoke and unselected callers remain outside this set.
+- Pointer, touched rustfmt and diff checks PASS; changed source files stay below
+  800 lines. Qualified-route scope guard remains the classified unchanged
+  baseline debt: raw_loop_child_entry count3 vs >=4 at line446. No guard
+  suppression, baseline rebasing, fresh unrelated gate or all-repository green
+  claim is made. Literal9 AllSource refusal is independently reobserved in
+  `/tmp/canonical-document-transport-literal9-unresolved-receipt.json`.
+
+Next: return to the existing app-completion bundle and identify its unchanged
+production frontier. Keep the above literal9 document-admission boundary tracked
+without turning it into an automatic whole-product completion prerequisite.

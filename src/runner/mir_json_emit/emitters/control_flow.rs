@@ -60,6 +60,7 @@ pub(crate) fn emit_checked_callout_end(
 pub(crate) fn emit_terminator(
     term: &MirInstruction,
     pinned_text_residence_transport: bool,
+    canonical_transport: bool,
 ) -> Result<serde_json::Value, String> {
     let pinned_text_residence_terminator = pinned_text_residence_transport
         && matches!(
@@ -77,14 +78,31 @@ pub(crate) fn emit_terminator(
     }
 
     match term {
+        MirInstruction::Invoke { .. } | MirInstruction::ReturnFault { .. } => {
+            super::invoke::emit(term, canonical_transport)
+        }
         MirInstruction::Return { value } => Ok(emit_return(value.as_ref())),
-        MirInstruction::Jump { target, .. } => Ok(emit_jump(target)),
+        MirInstruction::Jump { target, edge_args } => {
+            let mut row = emit_jump(target);
+            if canonical_transport {
+                row["edge_args"] = super::super::canonical_transport::edge(edge_args);
+            }
+            Ok(row)
+        }
         MirInstruction::Branch {
             condition,
             then_bb,
             else_bb,
-            ..
-        } => Ok(emit_branch(condition, then_bb, else_bb)),
+            then_edge_args,
+            else_edge_args,
+        } => {
+            let mut row = emit_branch(condition, then_bb, else_bb);
+            if canonical_transport {
+                row["then_edge_args"] = super::super::canonical_transport::edge(then_edge_args);
+                row["else_edge_args"] = super::super::canonical_transport::edge(else_edge_args);
+            }
+            Ok(row)
+        }
         MirInstruction::CheckedCallOut {
             site_id,
             receiver,

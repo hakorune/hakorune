@@ -5,6 +5,7 @@ mod calls_compat_v0;
 mod control_flow;
 mod fastmem;
 mod fields;
+mod invoke;
 mod phi;
 mod sum;
 mod weak;
@@ -16,11 +17,24 @@ use crate::mir::MirInstruction as I;
 pub(crate) fn emit_phi_instructions(
     func: &crate::mir::MirFunction,
     block: &crate::mir::BasicBlock,
+    canonical_transport: bool,
 ) -> Vec<serde_json::Value> {
     let mut insts = Vec::new();
     for inst in &block.instructions {
         if let I::Phi { .. } = inst {
-            if let Some(value) = phi::emit_phi(inst, &func.metadata.value_types) {
+            if let Some(mut value) = phi::emit_phi(inst, &func.metadata.value_types) {
+                if canonical_transport {
+                    let I::Phi { type_hint, .. } = inst else {
+                        unreachable!()
+                    };
+                    value["type_hint"] = match type_hint {
+                        Some(crate::mir::MirType::Integer) => serde_json::json!("i64"),
+                        Some(crate::mir::MirType::Bool) => serde_json::json!("i1"),
+                        Some(crate::mir::MirType::Unknown) => serde_json::json!("unknown"),
+                        None => serde_json::Value::Null,
+                        _ => unreachable!("selected source profile checked before projection"),
+                    };
+                }
                 insts.push(value);
             }
         }
@@ -33,6 +47,7 @@ pub(crate) fn emit_non_phi_instructions(
     block: &crate::mir::BasicBlock,
     pinned_text_residence_transport: bool,
     profile: JsonEgressProfile,
+    canonical_transport: bool,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -51,6 +66,7 @@ pub(crate) fn emit_non_phi_instructions(
             inst,
             pinned_text_residence_transport,
             profile,
+            canonical_transport,
             boxed_sum_abi_plans,
             boxed_sum_site_plans,
         )?;
@@ -62,11 +78,15 @@ pub(crate) fn emit_non_phi_instructions(
 pub(crate) fn emit_terminator(
     terminator: &Option<crate::mir::MirInstruction>,
     pinned_text_residence_transport: bool,
+    canonical_transport: bool,
 ) -> Result<Option<serde_json::Value>, String> {
     match terminator.as_ref() {
-        Some(term) => {
-            control_flow::emit_terminator(term, pinned_text_residence_transport).map(Some)
-        }
+        Some(term) => control_flow::emit_terminator(
+            term,
+            pinned_text_residence_transport,
+            canonical_transport,
+        )
+        .map(Some),
         None => Ok(None),
     }
 }
@@ -78,6 +98,7 @@ fn emit_instruction(
     inst: &crate::mir::MirInstruction,
     pinned_text_residence_transport: bool,
     profile: JsonEgressProfile,
+    canonical_transport: bool,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -103,6 +124,13 @@ fn emit_instruction(
         ));
     }
 
+    if canonical_transport {
+        if let I::Call(call) = inst {
+            return Ok(
+                serde_json::json!({"op":"canonical_call", "call":invoke::call_payload(call)?}),
+            );
+        }
+    }
     match inst {
         I::ObjectFieldGet { .. } => {
             Err("[freeze:contract][mir-json/object-field-get-requires-published-view]".into())
@@ -162,7 +190,14 @@ fn emit_instruction(
             "fields": fields.iter().map(|value| value.as_u32()).collect::<Vec<_>>(),
         })),
         I::UnaryOp { dst, op, operand } => Ok(basic::emit_unary_op(dst, op, operand)),
+        I::Const {
+            dst,
+            value: crate::mir::ConstValue::Bool(value),
+        } if canonical_transport => Ok(
+            serde_json::json!({"op": "const", "dst": dst.as_u32(), "value": {"type": "i1", "value": value}}),
+        ),
         I::Const { dst, value } => Ok(basic::emit_const(dst, value)),
+        I::InvokeNormalResult { .. } => invoke::emit(inst, canonical_transport),
         I::StaticDataLoad {
             dst,
             source_name,
@@ -181,13 +216,16 @@ fn emit_instruction(
             index,
         )),
         I::TypeOp { dst, op, value, ty } => Ok(basic::emit_type_op(dst, op, value, ty)),
-        I::BinOp { dst, op, lhs, rhs } => Ok(basic::emit_bin_op(
-            dst,
-            op,
-            lhs,
-            rhs,
-            &func.metadata.value_types,
-        )),
+        I::BinOp { dst, op, lhs, rhs } => {
+            let mut row = basic::emit_bin_op(dst, op, lhs, rhs, &func.metadata.value_types);
+            if canonical_transport {
+                row.as_object_mut().unwrap().remove("dst_type");
+                if let Some(ty) = func.metadata.value_types.get(dst) {
+                    row["dst_type"] = super::canonical_transport::ty(ty)?;
+                }
+            }
+            Ok(row)
+        }
         I::Compare { dst, op, lhs, rhs } => Ok(basic::emit_compare(
             dst,
             op,

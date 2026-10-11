@@ -18,6 +18,11 @@ names.
 Route diagnostic reason/proof spelling is owned by
 `docs/reference/mir/route-diagnostics-vocabulary.md`.
 
+The `canonical_transport_v1` root/function descriptor is transport-only data;
+its finite signature/carrier/span contract is owned by
+[Canonical fallible document transport](INSTRUCTION_SET.md#canonical-fallible-document-transport).
+It never restores source brands, loans, admission or execution permission.
+
 Generic Loop V0/V1 post-effect stage evidence is documented separately in
 `docs/reference/mir/generic-loop-stage-matrix.md`; that page is inspection-only
 and does not select a production route.

@@ -230,11 +230,46 @@ the same operand and validate its definition/role at their completion boundaries
 
 The verifier checks Normal dominance (including PHI incoming edges) regardless
 of compatibility verification switches. DCE retains the structural projection;
-SimplifyCFG rewrites its origin when merging the Invoke block. Source emission
-binding and runtime cleanup are still pending: JSON/VM allowlists and the
-published selected-C view reject these instructions before artifact generation.
+SimplifyCFG rewrites its origin when merging the Invoke block. Selected source
+publication and native lifecycle emission use their retained source contracts.
+The finite canonical document transport below does not open VM or legacy LLVM
+JSON execution; those consumers retain their separate opcode fences.
 This is control vocabulary, not an additional target resolver or TextScan lease
 protocol. Diagnostic semantics remain in `../language/semantic-kernel.md#cleanup`.
+
+#### Canonical fallible document transport
+
+CanonicalV1 documents containing Invoke, InvokeNormalResult or ReturnFault use
+the finite `canonical_transport_v1` data extension. The root records version1,
+the module name and original canonical callable key-to-symbol definitions.
+Function metadata records the original signature/effect bits, entry, next value
+ID, locals, optional physical parameter carriers, source location, declarations
+and aligned instruction/terminator spans plus original return environments. Existing params/value_types remain
+their original fields; duplicate declaration surfaces must agree.
+
+The selected Invoke is StaticBoxMethod Call(I64) with embedded dst=null,
+structured namespace/owner/name/arity, ordered arguments, all four CallFlags,
+full effects, exact frame and distinct Normal/Fault edges. Normal names the
+original Invoke block; ReturnFault names the original frame. Bool constants
+retain i1 plus a JSON boolean, and PHIs retain their original optional type hint.
+Unknown is preserved explicitly as `unknown`; absent carriers remain absent and
+supply no execution proof. `canonical_call` preserves the original ordinary
+Static Bool call and its full payload. Jump/Branch options use null or
+`{layout, values}` with the two neutral MIR layouts, preserving Some(empty).
+All16bit EffectMask values, including conservative ALL, remain exact.
+Unannotated raw signatures may remain Unknown beside an existing I64 carrier;
+neither surface is converted into source type proof. Allocated-range type rows
+left by DCE remain data even when their defining instruction is gone.
+Other Invoke families and types outside this finite profile reject explicitly.
+
+`json_v1_bridge::parse_canonical_document_transport_v1` returns validated JSON
+data only. It checks unique keys/rows, bounded IDs, target/signature/carrier
+correspondence, spans, CFG/SSA, return-environment scope, Normal projection and Fault-frame structure.
+Its temporary structural MIR never escapes as an executable module. A tagged
+formal's i64 skeleton is not an Integer proof; Bool-to-tagged transport remains
+legal. Mutable metadata cannot recreate source brands, loans or admission.
+Existing execution readers do not consume this extension. This contract does
+not claim nonempty cleanup transport, wider Invoke coverage or S0 acceptance.
 
 Selected canonical EXE and llvm-boundary OBJ emission consume a final strict-
 verified module through one synchronous borrowed published view, before any
