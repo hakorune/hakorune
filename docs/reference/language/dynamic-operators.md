@@ -83,6 +83,33 @@ Source reach and the envelope alone do not grant entry or execution: original
 ordered operands, sole Mul append, FinishedBindings and independent physical
 validation remain required. Add and outgoing-argument reach laws are unchanged.
 
+## Published current-I64 scalar arithmetic
+
+Decision (2026-10-12): source-accepted Integer Add, Mul and selected Sub in the
+published current-I64 profile compute modulo 2^64, interpreted as a signed
+two's-complement Integer. They publish a fresh Integer with no borrowed identity
+or result lifecycle. Sub does not introduce an overflow Fault. This preserves
+the existing published Add/Mul policy; it does not select exact-width checked
+arithmetic or prove an unsigned field's range.
+
+Selected Div retains its source preflight restriction to an original positive
+Integer literal divisor. It computes the signed quotient truncated toward zero.
+Zero and negative divisors are outside this profile, so division overflow at
+MIN / -1 is excluded. No general Div or constant-expression evaluation is granted.
+
+Activation requires original source/operator/ordered-operand authority, exact
+original and derived finished producers, and physical I64 operands. A tagged,
+Bool or handle carrier is not an I64 operand for Sub/Div. Source evidence is
+issued by the existing semantic owner and borrowed through the existing ledger;
+IR spelling, an expected answer or an emitter whitelist cannot issue it.
+
+The physical mapping is plain `sub i64` and `sdiv i64`, without `nsw`, `nuw` or
+`exact`. Their arithmetic behavior is specified by the LLVM
+[sub](https://llvm.org/docs/LangRef.html#sub-instruction) and
+[sdiv](https://llvm.org/docs/LangRef.html#sdiv-instruction) contracts; those
+contracts specify physical execution, not source admission. This Decision alone
+does not authorize publication or claim native acceptance.
+
 ## Selected borrowed null equality (landed NULLCOMPARE-S0)
 
 Decision (2026-10-03): the existing `dynamic_operator_contract` owner issues

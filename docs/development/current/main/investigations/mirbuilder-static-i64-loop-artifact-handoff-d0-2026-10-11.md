@@ -6,7 +6,7 @@ Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source sca
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
 
 Original artifact row: `MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0`.
-Current row: `MIRBUILDER-STATIC-I64-SCALAR-DERIVED-CORRESPONDENCE-S0`.
+Current row: `MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-T0`.
 
 ## Decision
 
@@ -918,3 +918,25 @@ non-trailing byte; /tmp/static-scalar-checkpoint-commits.json retains hashes.
 All production blobs and the scalar test remain identical to the verified series.
 Source/negative/final projection evidence supports the Task2 construction
 checkpoint; prior S0, physical/native/JSON/caller-zero/retirement remain open.
+
+## Arithmetic Decision and next construction boundary (2026-10-12)
+
+Task2 construction is saved at `5af70e2b1f`; its unchanged source/negative
+proofs are verified in the combined series. Earlier S0/native/retirement and
+whole-goal acceptance are still unclosed and carry into this same series.
+Task3 Decision: selected source Integer Sub uses current published Add/Mul's
+modulo-2^64 policy, fresh Integer/no result lifecycle/no new overflow Fault.
+Positive original literal Div truncates toward zero; no general Div, tagged
+Sub/Div or exact-width/usize permission. Normative reference:
+`docs/reference/language/dynamic-operators.md#published-current-i64-scalar-arithmetic`.
+LLVM sub/sdiv semantics were checked against their primary LangRef sections;
+plain flags match this policy, but emitter behavior is not source authority.
+
+Current next slice is behavior-preserving C physical T0: extract operation
+schema and teardown responsibilities from the 766/758-line files before
+activation. Preserve existing translation unit, owner, type/flow/index checks
+and all accepted/rejected inputs. Validate the existing C harness and exact
+method movement, then connect Task4's source-loaned Rust/C/JSON path above.
+No physical activation, old-edge deletion or new semantic receipt in this T0.
+Task5 unchanged native0/9/4194305->1/2/73, final JSON/Normal/Fault, prior
+production/caller-zero/retirement and whole SizeClass/mimalloc/MirBuilder remain owed.
