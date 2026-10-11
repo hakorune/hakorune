@@ -130,9 +130,15 @@ from this selected two-exit cutover.
 
 ## Paused handoff (2026-10-11)
 
-User requested a pause for swe-2 handoff. Keep this checkout and all S0
-changes uncommitted; do not stash, reset, or discard them. Branch
-`codex/bool-literal-terminal-20261010` is at `be92d82912` plus this worktree.
+User requested a pause for swe-2 handoff. Worktree consolidation later moved
+this exact in-progress S0 state into `/mnt/workdisk/public_share/hakorune-selfhost`
+on `codex/birth-definition-publication`. Commit `f9cb8906be` is an explicit
+unfinished checkpoint, not S0 acceptance; do not treat it as a landed slice.
+The earlier `/mnt/workdisk/hako-bool-literal-terminal-20261010` worktree was
+removed after both trees and their clean status matched. Pre-integration
+changes from the old main checkout are preserved separately at local branch
+`archive/main-dirty-20261011` (`6e5c7d98d3`); do not merge that snapshot
+wholesale into this lane.
 The selected early exit now carries a read-only `PendingRootHomeExitV1` into
 child validation. The shared Home preview and pending cleanup-shape view are
 implemented, but the selected tail has no pending token and the early token
@@ -141,7 +147,9 @@ bindings, and physical-validation publication still need the atomic pending
 view/commit. This is unfinished S0, not a production cutover.
 
 Latest `cargo check --profile quick -p nyash-rust --lib` passed in the shared
-target (28.12 s); `git diff --check` passed. The narrowed focused positive
+target (28.12 s); the same check passed from the consolidated main checkout
+at `f9cb8906be` (1m 03s). `git diff --check` passed. The narrowed focused
+positive
 still stops at `root-exit-unconsumed` after the Home preview. Existing compiled
 `root_home` tests passed 46/46 before the latest pending-token edits; do not
 count them as current-tree acceptance. The original whole-app focused input
