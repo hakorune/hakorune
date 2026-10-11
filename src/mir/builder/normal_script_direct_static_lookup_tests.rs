@@ -197,3 +197,128 @@ fn issuer_rejects_a_target_outside_the_owned_catalog() {
         ))
     ));
 }
+
+fn make_selected_app_package(
+    text: &str,
+    selection: crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1,
+) -> VerifiedNormalCallableSemanticPackageV1 {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        text,
+        ParserBuildConfig::default(),
+    )
+    .unwrap();
+    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+    });
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("source-backed App")
+    };
+    let brand = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(source.ast()).unwrap();
+    let consumed = crate::mir::builder::NormalRootExecutionConsumerV1::consume_once(source)
+        .unwrap()
+        .into_consumed_source();
+    crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_selection_v1(
+        &mut FunctionSemanticResolverSessionV1::new(1810).unwrap(), consumed, Some(&brand),
+        crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &[], selection,
+    ).unwrap()
+}
+
+#[test]
+fn publication_demand_uses_omitted_caller_without_erasing_source_targets() {
+    use crate::mir::builder::CanonicalSameModuleCallableKeyV1 as Key;
+    use crate::mir::callable_result_representation::{
+        StaticCallResultPublicationOwnerFinishErrorV1 as Finish,
+        StaticCallResultPublicationOwnerTakeErrorV1 as Take,
+    };
+    use crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1 as Selection;
+    for (literal, selected_result) in [("7", true), ("1.5", false)] {
+        let text = format!("static box Helpers {{ value() {{ return {literal} }} unused() {{ return me.value() }} }} static box Main {{ main() {{ return Helpers.value() }} }}");
+        for selection in [Selection::AllSource, Selection::ClosedAppExecutable] {
+            let package = make_selected_app_package(&text, selection);
+            let declarations = package.declaration_catalog();
+            let imports = VerifiedStaticImportAliasViewV1::seal(declarations, []).unwrap();
+            let targets =
+                VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
+                    .unwrap()
+                    .into_targets();
+            let unused = Key::static_box_method("Helpers", "unused", 0);
+            let main = Key::static_box_method("Main", "main", 0);
+            let value = Key::static_box_method("Helpers", "value", 0);
+            let site_for = |caller: &Key| {
+                targets
+                    .rows()
+                    .find_map(|((key, site), _)| (key == caller).then(|| site.clone()))
+                    .unwrap()
+            };
+            let unused_site = site_for(&unused);
+            let main_site = site_for(&main);
+            let (_, mut owner) =
+                ScriptDirectStaticCallLookupIssuerV1::issue_for_test(&package, None, &[]).unwrap();
+            assert_eq!(owner.target_for_source(&unused, &unused_site), Some(&value));
+            assert_eq!(
+                owner
+                    .selected_handoff_for_source(&main, &main_site)
+                    .is_some(),
+                selected_result
+            );
+            let residual = owner.finish_empty().unwrap_err();
+            if selected_result {
+                assert!(matches!(residual, Finish::UnconsumedSelected { .. }));
+                assert_eq!(owner.pending_target_only_len(), 0);
+            } else {
+                assert!(matches!(residual, Finish::UnconsumedTargetOnly { .. }));
+                assert_eq!(owner.pending_selected_len(), 0);
+            }
+            if selection == Selection::ClosedAppExecutable {
+                assert!(package.omitted_closed_app_static_key(&unused));
+                assert!(owner
+                    .selected_handoff_for_source(&unused, &unused_site)
+                    .is_none());
+                assert_eq!(owner.pending_len(), 1);
+                assert!(matches!(
+                    owner.take_for_source(declarations, &unused, &unused_site),
+                    Err(Take::TargetDispositionMissing { .. })
+                ));
+                let taken = owner
+                    .take_for_source(declarations, &main, &main_site)
+                    .unwrap();
+                assert!(matches!(taken, crate::mir::callable_result_representation::StaticCallResultPublicationTakeV1::Selected(_)) == selected_result);
+                assert!(owner.finish_empty().is_ok());
+            } else {
+                assert!(!package.omitted_closed_app_static_key(&unused));
+                assert_eq!(
+                    owner
+                        .selected_handoff_for_source(&unused, &unused_site)
+                        .is_some(),
+                    selected_result
+                );
+                assert_eq!(owner.pending_len(), 2);
+            }
+            let results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets).unwrap();
+            let foreign = make_selected_app_package(&text, selection);
+            let rejected = VerifiedStaticCallResultPublicationOwnerV1::issue_for_selected_source(
+                foreign.source_backed_callable_catalog(),
+                &targets,
+                &results,
+            )
+            .unwrap_err();
+            assert_eq!(format!("{rejected:?}"), "TargetCatalogBrandMismatch");
+            let foreign_imports =
+                VerifiedStaticImportAliasViewV1::seal(foreign.declaration_catalog(), []).unwrap();
+            let foreign_targets = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(
+                foreign.declaration_catalog(),
+                &foreign_imports,
+            )
+            .unwrap()
+            .into_targets();
+            let foreign_results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(foreign.declaration_catalog(), &foreign_targets).unwrap();
+            let rejected = VerifiedStaticCallResultPublicationOwnerV1::issue_for_selected_source(
+                package.source_backed_callable_catalog(),
+                &targets,
+                &foreign_results,
+            )
+            .unwrap_err();
+            assert_eq!(format!("{rejected:?}"), "ResultCatalogBrandMismatch");
+        }
+    }
+}

@@ -198,10 +198,33 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             })
             .collect())
     }
+    /// AllSource fixtures retain the declaration-only entry. Production
+    /// borrows the package's declaration and physical selection together.
+    #[cfg(test)]
     pub(crate) fn issue(
         declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
         targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
+        Self::issue_with_selection(declarations, targets, results, None)
+    }
+
+    /// Borrow declaration identity and explicit omission from one source seal.
+    /// Complete source targets remain indexed even when their caller has no
+    /// physical publication demand in this artifact.
+    pub(crate) fn issue_for_selected_source(
+        source: &crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1,
+        targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
+        Self::issue_with_selection(source.catalog(), targets, results, Some(source))
+    }
+
+    fn issue_with_selection(
+        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+        targets: &VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+        source: Option<&crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1>,
     ) -> Result<Self, StaticCallResultPublicationOwnerErrorV1> {
         if !targets.is_branded_by(declarations) {
             return Err(StaticCallResultPublicationOwnerErrorV1::TargetCatalogBrandMismatch);
@@ -218,6 +241,9 @@ impl VerifiedStaticCallResultPublicationOwnerV1 {
             let key = (caller.clone(), site.clone());
             let expected = source_target.target().clone();
             insert_exact_target(&mut exact_targets, key.clone(), expected.clone())?;
+            if source.is_some_and(|source| source.omitted_closed_app_static_key(caller)) {
+                continue;
+            }
             if let Some(general) = results.call_result(caller, site) {
                 let actual = general.static_target_key().ok_or_else(|| {
                     StaticCallResultPublicationOwnerErrorV1::GeneralRowMustBeSameModuleStatic {

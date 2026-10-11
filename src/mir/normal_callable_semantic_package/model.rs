@@ -456,6 +456,14 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         self.catalog.catalog()
     }
 
+    /// The same catalog owns both complete declarations and the co-sealed
+    /// physical omission cohort. Publication must borrow them together.
+    pub(crate) fn source_backed_callable_catalog(
+        &self,
+    ) -> &crate::mir::builder::VerifiedSourceBackedSameModuleCallableCatalogV1 {
+        &self.catalog
+    }
+
     pub(crate) fn instance_constructors(
         &self,
     ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {

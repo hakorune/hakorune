@@ -62,12 +62,16 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
             _detail: format!("{error:?}").into(),
         })?;
         let publication_owner =
-            VerifiedStaticCallResultPublicationOwnerV1::issue(declarations, &targets, &results)
-                .map_err(
-                    |error| NormalScriptDirectStaticLookupIssueV1::PublicationOwner {
-                        _detail: format!("{error:?}").into(),
-                    },
-                )?;
+            VerifiedStaticCallResultPublicationOwnerV1::issue_for_selected_source(
+                package.source_backed_callable_catalog(),
+                &targets,
+                &results,
+            )
+            .map_err(|error| {
+                NormalScriptDirectStaticLookupIssueV1::PublicationOwner {
+                    _detail: format!("{error:?}").into(),
+                }
+            })?;
 
         let Some(neutral_window) = neutral_window else {
             return Ok((None, publication_owner));

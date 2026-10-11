@@ -1,9 +1,9 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-CLOSED-APP-STATIC-OMISSION-CLOSURE-S0"
+current_execution_row = "MIRBUILDER-CLOSED-APP-STATIC-PUBLICATION-SELECTION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/closed-app-static-omission-closure"
+current_blocker_token = "selfhost-resume/closed-app-static-publication-selection"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,22 +13,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-closed-app-static-omission-closure-s0-2026-10-11.md"
-latest_card = "mirbuilder-closed-app-static-omission-closure-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-omission-closure-s0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
+latest_card = "mirbuilder-closed-app-static-publication-selection-s0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
 latest_card_summary = """
-Root-exit two-exit S0 remains open, with pending-order checks passing and
-physical JSON/EXE plus final deletion closeout outstanding. EXE slot7 is
-SizeClassBox.good_size; its sole incoming wrapper is physically omitted,
-while one-pass source selection incorrectly retains the callee. Selected
-next work closes the existing conservative omission rule to a fixed point,
-retaining Main/export/uncertain-call protection and all selected cohort veto.
-No parent S0 or whole-app acceptance is claimed.
+Root-exit two-exit S0 remains open: physical JSON/EXE and final deletion
+closeout are outstanding. Omission closure removes EXE NoIncoming(slot7),
+but publication drain still demands omitted accepts -> size_to_bin. Selected
+work lends existing catalog omission to publication issuance, retaining all
+source targets and retained-caller residual checks. Prior real-mimalloc red
+first-stop classification remains open. No parent or whole-app acceptance.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-CLOSED-APP-STATIC-OMISSION-CLOSURE-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-omission-closure-s0-2026-10-11.md"
+next_execution_card = "MIRBUILDER-CLOSED-APP-STATIC-PUBLICATION-SELECTION-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

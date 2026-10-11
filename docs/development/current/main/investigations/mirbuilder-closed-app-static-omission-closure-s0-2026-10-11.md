@@ -1,6 +1,6 @@
 # MIRBUILDER-CLOSED-APP-STATIC-OMISSION-CLOSURE-S0
 
-Status: implementation verified; original CLI first-stop pending
+Status: implementation verified; CLI frontier measured; dependent publication selection open
 Date: 2026-10-11
 Scope: conservative closed-App static physical-selection closure
 Related: `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`, `src/mir/source_call_target/whole_source_inventory.rs`
@@ -101,6 +101,38 @@ AllSource selected behavior. Test inventory remains9100; no baseline update.
 Touched-file format/diff and pointer guard PASS. The prior unrelated scope
 guard count debt is unchanged, as recorded in the parent S0 card.
 
-Remaining: rebuild CLI and record original EXE first-stop. Until then this
-slice is not fully closed and the parent remains open. In particular, omission
-of unused helpers from a trivial Main is not selected two-exit execution proof.
+## Original CLI frontier receipt
+
+At `0ac73da94811963f274c057033de98d7cea9446d`, one quick CLI build completed
+in3m51s with1729 existing warnings. Binary SHA256
+`74425bfa42a0a3d710b0b4818465aae2ccc374287596db651f5248dbea2e0c85`.
+The unchanged combined source and command/env above were reused, with the
+output path replaced by `/tmp/closed-app-0ac73da948-trivial-exe.exe`.
+EXE rc1 in0.023s, no artifact: the old NoIncoming(slot7) is gone, and the
+first stop is `normal-collector-drain/StaticResultPublicationResidual`:
+omitted caller `SizeClassBox.accepts/1`, `[Body(0), IfCondition, Lhs]`,
+target `SizeClassBox.size_to_bin/1`. This is frontier movement, not acceptance.
+The JSON probe (`--emit-mir-json /tmp/closed-app-0ac73da948-trivial-json.json`
+with the same source/env/binary) rc1 in0.038s still rejects terminator Invoke.
+
+The real policy proof EXE rc1 in0.039s at static-scalar `UnresolvedCaller`
+(slot17, `[Body(36), IfCondition]`); mimalloc-lite EXE rc1 in0.045s at
+BorrowedFormalIngress entry-source (slot34, `[Body(1), Initializer(0)]`).
+Neither produced an artifact. No new authority or veto suppression is inferred.
+
+An additional real-mimalloc incoming test is red in both saved test binaries:
+pre-change `nyash_rust-ae6a234ed40ac569` (SHA256
+`2c1a3410c031988e6e01011d8d0c180359e6e08a378f1d4cd449730da8589571`)
+stops at NoIncoming(slot14); current `nyash_rust-bef87a5262fef8ae` stops at
+BorrowedFormalIngress entry-source(slot28). Each1 failed,0.07s. This proves
+pre-existing failure, but not equivalent failure: changed first-stop remains
+an open classification obligation, and is not added to the baseline manifest.
+
+Read-only owner audit identifies the EXE residual cause: the production
+Script lookup issuer rebuilds the complete source targets/results and issues
+publication demand for every caller, ignoring the package's already co-sealed
+omitted Static callers. The next selected publication-projection slice must
+borrow that existing selection, preserve complete source evidence and all
+retained-caller residual checks. It cannot suppress `finish_empty` or filter
+by target. Parent S0 and this row's final red classification remain open;
+unused-function omission is not selected two-exit execution proof.

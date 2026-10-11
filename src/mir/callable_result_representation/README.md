@@ -72,6 +72,15 @@ missing/consumed/foreign source-keyed rows freeze; only genuinely unselected
 source calls retain the ordinary terminal. The raw consumer supplies the
 sealed caller/site key, never a target reconstructed from route strings.
 
+At the package production boundary, that owner borrows the existing
+source-backed callable catalog's physical selection together with its
+declarations. A call from an explicitly omitted Closed-App Static caller
+retains its exact source target but creates no Selected/TargetOnly physical
+demand. Taking that omitted site rejects with TargetDispositionMissing;
+retained caller rows still require one-shot consumption and empty finish.
+The AllSource issuer is unchanged. Target membership alone never omits a
+caller obligation, and source result/target evidence is not pruned.
+
 This production connection does not add result inference, name lookup,
 GenericLoop defaults, local-copy policy, Completion meaning, retry, fallback,
 runtime behavior, backend behavior, or ownership behavior.
