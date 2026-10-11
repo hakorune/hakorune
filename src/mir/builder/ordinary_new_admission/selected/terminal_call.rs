@@ -184,6 +184,7 @@ pub(in crate::mir::builder) fn emit_instance(
 }
 
 pub(super) fn emit_ingress(
+    writer: &mut impl RootGraphWriterPortV1,
     builder: &mut MirBuilder,
     frame: ValueId,
     value: ValueId,
@@ -202,10 +203,10 @@ pub(super) fn emit_ingress(
         .function_state
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
-    let normal_landing = builder.next_block_id();
-    let fault_landing = builder.next_block_id();
+    let normal_landing = writer.reserve_block(builder);
+    let fault_landing = writer.reserve_block(builder);
     for (id, target) in [(normal_landing, clean), (fault_landing, fault)] {
-        append_block(
+        writer.append_terminated(
             builder,
             id,
             MirInstruction::Jump {
@@ -219,23 +220,15 @@ pub(super) fn emit_ingress(
         invoke_block: origin,
         dst: value,
     };
-    builder
-        .function_state
-        .current_function
-        .as_mut()
-        .ok_or_else(|| freeze("no-function"))?
-        .blocks
-        .get_mut(&normal_landing)
-        .ok_or_else(|| freeze("no-normal-landing"))?
-        .add_instruction(projection.clone());
+    writer.insert_projection(builder, normal_landing, projection.clone())?;
     let invoke = MirInstruction::Invoke {
         operation,
         fault_frame: frame,
         normal_landing,
         fault_landing,
     };
-    builder.emit_instruction(invoke.clone())?;
-    Ok(((origin, invoke), (normal_landing, projection)))
+    let emitted = writer.emit_current(builder, invoke)?;
+    Ok((emitted, (normal_landing, projection)))
 }
 
 /// Emit one source-issued local Call result and leave its normal continuation

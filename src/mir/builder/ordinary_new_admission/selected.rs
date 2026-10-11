@@ -4,6 +4,8 @@ use crate::mir::instruction::InvokeCallResultKind;
 mod arguments;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
+#[path = "selected/root_graph.rs"]
+mod root_graph;
 #[path = "selected/terminal_call.rs"]
 pub(in crate::mir::builder) mod terminal_call;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
@@ -18,6 +20,7 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{
     BasicBlock, BasicBlockId, Callee, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
+use root_graph::{RawRootGraphWriterV1, RootGraphWriterPortV1};
 
 trait RootExitFramePortV1 {
     fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String>;
@@ -295,8 +298,9 @@ fn emit_root_home_exit_payload(
         .map(|origin| origin.operation().clone())
         .collect();
     let mut bindings = Vec::new();
-    let mut clean = builder.next_block_id();
-    append_block(
+    let mut writer = RawRootGraphWriterV1;
+    let mut clean = writer.reserve_block(builder);
+    writer.append_terminated(
         builder,
         clean,
         MirInstruction::Return {
@@ -310,8 +314,8 @@ fn emit_root_home_exit_payload(
     // and do not materialize a frame definition no Invoke would consume.
     if !operations.is_empty() || ingress.is_some() {
         let frame = frame_port.materialize(builder)?;
-        let fault_terminal = builder.next_block_id();
-        append_block(
+        let fault_terminal = writer.reserve_block(builder);
+        writer.append_terminated(
             builder,
             fault_terminal,
             MirInstruction::ReturnFault { fault_frame: frame },
@@ -321,6 +325,7 @@ fn emit_root_home_exit_payload(
         fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
         for (index, origin) in operations.into_iter().enumerate().rev() {
             let fault = emit_pending_root_fault_sequence(
+                &mut writer,
                 builder,
                 frame,
                 &fault_operations,
@@ -328,7 +333,8 @@ fn emit_root_home_exit_payload(
                 &mut fault_nodes,
                 &mut bindings,
             )?;
-            let next_clean = cleanup_step(
+            let next_clean = cleanup_step_with_writer(
+                &mut writer,
                 builder,
                 frame,
                 origin.operation().clone(),
@@ -345,6 +351,7 @@ fn emit_root_home_exit_payload(
         }
         let fault = if ingress.is_some() {
             emit_pending_root_fault_sequence(
+                &mut writer,
                 builder,
                 frame,
                 &fault_operations,
@@ -359,6 +366,7 @@ fn emit_root_home_exit_payload(
         match ingress {
             Some(RootExitIngress::Call(call)) => {
                 let (invoke, projection) = terminal_call::emit_ingress(
+                    &mut writer,
                     builder,
                     frame,
                     statement_result,
@@ -386,6 +394,7 @@ fn emit_root_home_exit_payload(
             }
             Some(RootExitIngress::MapGet { map, utf8 }) => {
                 let (invoke, projection) = terminal_call::emit_ingress(
+                    &mut writer,
                     builder,
                     frame,
                     statement_result,
@@ -411,22 +420,18 @@ fn emit_root_home_exit_payload(
             None => {}
         }
     }
-    let origin = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
     let jump = MirInstruction::Jump {
         target: clean,
         edge_args: None,
     };
-    builder.emit_instruction(jump.clone())?;
-    bindings.push((origin, jump));
+    bindings.push(writer.emit_current(builder, jump)?);
     ledger.record_root_home_exit(owner, site, origins, bindings)?;
     Ok(statement_result)
 }
 
 /// Share only exact original-origin suffixes within this emission.
 fn emit_pending_root_fault_sequence(
+    writer: &mut impl RootGraphWriterPortV1,
     builder: &mut MirBuilder,
     frame: ValueId,
     full: &[InvokeOperation],
@@ -446,7 +451,8 @@ fn emit_pending_root_fault_sequence(
         let origin = full
             .get(sequence[offset])
             .ok_or_else(|| freeze("root-fault-origin-missing"))?;
-        next = cleanup_step(builder, frame, origin.clone(), next, next, bindings)?;
+        next =
+            cleanup_step_with_writer(writer, builder, frame, origin.clone(), next, next, bindings)?;
         nodes.insert(suffix.to_vec(), next);
     }
     Ok(next)
@@ -589,11 +595,31 @@ fn cleanup_step(
     fault_next: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<BasicBlockId, String> {
-    let origin = builder.next_block_id();
-    let normal = builder.next_block_id();
-    let fault = builder.next_block_id();
+    cleanup_step_with_writer(
+        &mut RawRootGraphWriterV1,
+        builder,
+        frame,
+        operation,
+        normal_next,
+        fault_next,
+        bindings,
+    )
+}
+
+fn cleanup_step_with_writer(
+    writer: &mut impl RootGraphWriterPortV1,
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    operation: InvokeOperation,
+    normal_next: BasicBlockId,
+    fault_next: BasicBlockId,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<BasicBlockId, String> {
+    let origin = writer.reserve_block(builder);
+    let normal = writer.reserve_block(builder);
+    let fault = writer.reserve_block(builder);
     for (landing, target) in [(normal, normal_next), (fault, fault_next)] {
-        append_block(
+        writer.append_terminated(
             builder,
             landing,
             MirInstruction::Jump {
@@ -603,7 +629,7 @@ fn cleanup_step(
             bindings,
         )?;
     }
-    append_block(
+    writer.append_terminated(
         builder,
         origin,
         MirInstruction::Invoke {
@@ -623,19 +649,7 @@ pub(in crate::mir::builder) fn append_block(
     terminator: MirInstruction,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<(), String> {
-    let function = builder
-        .function_state
-        .current_function
-        .as_mut()
-        .ok_or_else(|| freeze("no-function"))?;
-    if function.blocks.contains_key(&id) {
-        return Err(freeze("duplicate-block"));
-    }
-    let mut block = BasicBlock::new(id);
-    block.set_terminator(terminator.clone());
-    function.add_block(block);
-    bindings.push((id, terminator));
-    Ok(())
+    RawRootGraphWriterV1.append_terminated(builder, id, terminator, bindings)
 }
 
 fn freeze(reason: &str) -> String {
