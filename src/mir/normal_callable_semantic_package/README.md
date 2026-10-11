@@ -2226,12 +2226,22 @@ Header ownership also lends the publication-checked Normal landing's exact
 leading canonical PHI prefix and sole Invoke predecessor into physical boundary
 capture. Existing LoopCond after joins retain their multi-input topology;
 finished instruction sequences stay pinned. No general PHI waiver is granted.
-
+The finalized source accessor lends a selected Loop packet's original checked
+forwarded actual to verifier and physical publication. Generic ordinary access
+still rejects that canonical-only packet; final producer/source/coverage checks
+remain mandatory. Exact retained-packet membership and ledger observation
+are checked; the returned borrow cannot outlive the finalized handoff.
 The same entry owner checks the finished tagged whole incoming source cohort
 and the selected canonical formal/parameter correspondence. Its source-only
 entry view refuses actual-slice loans; every executable call still demands its
 original finalized packet witness. Entry values publish only at the successful
 collector commit boundary, with no fallible step after their recording.
+Final borrowed-call coverage uses one transport visitor over the original
+Lexical and detached LoopBody pools. The latter keeps its own source and scalar
+actual, and uses the existing finished-producer projection; it is not converted
+to a Home lexical packet or a synthetic Copy. Both final verification and
+physical publication retain their whole incoming/coordinate checks. Actual
+loans remain tied to the finalized handoff's exact retained packet.
 
 The same selected Loop packet now corroborates the existing result-publication
 owner's CurrentOwner arity-one I64 handoff by original catalog brand, caller,

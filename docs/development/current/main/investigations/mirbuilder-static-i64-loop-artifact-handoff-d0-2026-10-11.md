@@ -767,3 +767,15 @@ not an independently linked entry-only binary. Receipts:
 /tmp/static-scalar-series-v1-receipt.json and
 /tmp/static-scalar-intermediate-trees-v1-receipt.json. S0/native/finalized
 coverage/physical acceptance, caller-zero and retirement remain open.
+
+## Canonical actual/coverage construction checkpoint (2026-10-12)
+
+Decision: lend original canonical actuals from the exact retained packet and
+enumerate Lexical and detached LoopBody packets for BOTH final coverage
+consumers. Keep their source owners and actual/producer identities distinct.
+Coverage-only tree6871ac1a36acb7d06e2960c5b886705ed31feed0 lib+tests check PASS.
+Combined-series runtime reaches final verification and original/foreign/
+missing/duplicate/changed producer assertions, then the aggregate FAILS at
+published-lifecycle-program/instruction-unsupported. This is unmet physical
+acceptance, not an aggregate PASS, baseline debt or native/S0/retirement proof.
+Exact receipts remain the series and intermediate-tree receipts above.

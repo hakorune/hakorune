@@ -122,6 +122,14 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl PreparedLoopStaticBodyDetachedPacketV1 {
+    pub(in crate::mir) fn original_source(&self) -> &Rc<StaticIncomingSourceV1> {
+        &self.prepacket.source.original
+    }
+
+    pub(in crate::mir) fn scalar_actual(&self) -> &PreparedBorrowedFormalActualV1 {
+        &self.actual
+    }
+
     pub(in crate::mir) fn corroborates_retained_scalar(&self) -> bool {
         self.corroborates_selected_source(self.source_site(), self.prepacket.read.binding())
     }

@@ -142,18 +142,17 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     let mut owners = BTreeMap::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
-    source.visit_finalized_lexical_call_nodes_v1(
+    source.visit_finalized_borrowed_call_nodes_v1(
         module,
-        |_, _, packet, arguments, caller, (block, index), copies| {
-            let row = packet.original_source();
-            let selected_source = arguments.iter().any(|argument| matches!(argument,
-                crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual { .. }));
+        |packet, arguments, caller, (block, index), copies| {
+            let row = packet;
+            let selected_source = packet.selects_borrowed_source(arguments);
             let callee = callees.get(row.target());
             if !selected_source && callee.is_none() {
                 return Ok(());
             }
             let Some(callee) = callee else {
-                source.borrowed_packet_actuals_v1(packet)?
+                source.borrowed_finalized_call_actuals_v1(packet)?
                     .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
                 return Err(fault("borrowed-incoming/callee-carrier-missing"));
             };
@@ -201,7 +200,7 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 }
                 incoming.insert(target.call_site().clone());
             }
-            let actuals = source.borrowed_packet_actuals_v1(packet)?
+            let actuals = source.borrowed_finalized_call_actuals_v1(packet)?
                 .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
             // Source use admissions are function obligations; incoming actuals
             // and their entry correspondence remain checked on every call.

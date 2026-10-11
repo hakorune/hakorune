@@ -3,7 +3,6 @@
 //! producer provenance, full use closure and the immutable module snapshot.
 use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
 use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
-use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 use crate::mir::{BasicBlockId, MirModule};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -40,16 +39,14 @@ pub(super) fn original_call_slots(
     let mut callees = BTreeSet::new();
     let mut incoming = BTreeSet::new();
     let mut original = BTreeSet::new();
-    source.visit_finalized_lexical_call_nodes_v1(
+    source.visit_finalized_borrowed_call_nodes_v1(
         module,
-        |_, _, packet, arguments, caller, coordinate, _| {
-            let row = packet.original_source();
+        |packet, arguments, caller, coordinate, _| {
+            let row = packet;
             let symbol = module
                 .canonical_callable_definition_symbol(row.target())
                 .ok_or_else(|| "borrowed-source-target-missing".to_owned())?;
-            let selected_source = arguments
-                .iter()
-                .any(|argument| matches!(argument, LocalCallArgumentV1::BorrowedActual { .. }));
+            let selected_source = packet.selects_borrowed_source(arguments);
             if !selected_source && !selected.contains(symbol) {
                 return Ok(());
             }
@@ -103,7 +100,7 @@ pub(super) fn original_call_slots(
                 incoming.insert(target.call_site().clone());
             }
             let actuals = source
-                .borrowed_packet_actuals_v1(packet)?
+                .borrowed_finalized_call_actuals_v1(packet)?
                 .ok_or_else(|| "borrowed-source-actuals-missing".to_owned())?;
             let actual_slots: BTreeSet<_> = actuals
                 .iter()
@@ -128,7 +125,13 @@ pub(super) fn original_call_slots(
         },
     )?;
     if callees != selected || incoming != original {
-        return Err("borrowed-source-incoming-coverage".into());
+        return Err(format!(
+            "borrowed-source-incoming-coverage: missing-callees={:?}, extra-callees={:?}, missing-sites={:?}, extra-sites={:?}",
+            selected.difference(&callees).collect::<Vec<_>>(),
+            callees.difference(&selected).collect::<Vec<_>>(),
+            incoming.difference(&original).collect::<Vec<_>>(),
+            original.difference(&incoming).collect::<Vec<_>>(),
+        ));
     }
     Ok(loans)
 }
