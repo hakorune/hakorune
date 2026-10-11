@@ -235,3 +235,25 @@ Rc/reference mismatch; borrowing the ledger fixed it. Final quick build/link
 8m14s, test execution0.03s; no current-change red remains in this focused run.
 Pointer guard, qualified-route scope guard, touched-file rustfmt and diff check
 pass. No full-suite or fresh CLI acceptance was run for this test-only change.
+
+Pending-negative implementation Decision: separate the existing Static entry's
+preparation from its immediate collect terminal, preserving source selection
+and production call order. The existing source fixture can then select and
+prepare the same product, borrow the uncollected function, validate the one
+pending view, mutate it, and discard without collector admission. No new
+production validation, environment hook or semantic issuer is introduced.
+The body retention owner lends its packet only under cfg(test). Tail mutation
+uses publication batch ordinal3's original target; zero-argument matching is
+not authority because the header call is also zero-argument.
+
+Required size prerequisite: `resolved_lowering/mod.rs` was already803 lines.
+Its canonical function draft-entry `impl MirBuilder` is moved intact to
+`function_draft_entry.rs` (parent408/child400), with parent private helpers
+and original method visibility retained. Record this as a separate BoxShape
+commit from the pending-negative validation change; no grammar is widened.
+
+Size prerequisite verification: normalized Rust syntax of the extracted
+`impl MirBuilder` equals the pre-split parent implementation. Existing
+`normal_function_draft_lowering_tests` pass3/3 using the same built binary
+(restoration, typed BodyLowering refusal, typed DraftSeal refusal). No method
+contract or authority changes in this extraction.
