@@ -1,10 +1,10 @@
 date = "2026-10-11"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-CLOSED-APP-STATIC-PUBLICATION-SELECTION-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/closed-app-static-publication-selection"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/main-static-terminal-ingress"
+current_design_stop = "MainTerminalStaticPacketMapping__AnnotatedScalarHeaderIsNotAuthority"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -13,21 +13,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
-latest_card = "mirbuilder-closed-app-static-publication-selection-s0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
+latest_card = "mirbuilder-main-static-terminal-ingress-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
 latest_card_summary = """
-Root-exit two-exit S0 remains open: physical JSON/EXE and final deletion
-closeout are outstanding. Omission closure removes EXE NoIncoming(slot7),
-but publication drain still demands omitted accepts -> size_to_bin. Selected
-work lends existing catalog omission to publication issuance, retaining all
-source targets and retained-caller residual checks. Prior real-mimalloc red
-first-stop classification remains open. No parent or whole-app acceptance.
+Static publication selection landed at d1cbca0066. Trivial Main EXE builds
+and runs with the ordinary runtime, but unused SizeClass helpers are omitted.
+Parent two-exit S0 stays unaccepted. Actual size_to_bin terminal calls stop
+at annotation-only selected-header-missing. Selected design closes their
+existing Static packet/incoming/publication/root mapping without annotations
+or authority substitution. JSON and final deletion review remain owed.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-CLOSED-APP-STATIC-PUBLICATION-SELECTION-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md"
+next_design_card = "MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

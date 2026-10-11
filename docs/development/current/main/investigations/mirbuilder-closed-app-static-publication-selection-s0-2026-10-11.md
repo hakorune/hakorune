@@ -1,6 +1,6 @@
 # MIRBUILDER-CLOSED-APP-STATIC-PUBLICATION-SELECTION-S0
 
-Status: verified; ready for commit and parent handoff
+Status: landed at d1cbca0066; parent acceptance remains open
 Date: 2026-10-11
 Scope: physical publication demand for explicitly omitted Closed-App Static callers
 Related: `mirbuilder-closed-app-static-omission-closure-s0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
@@ -138,3 +138,8 @@ This slice closes only the publication-demand mismatch and replacement of
 its production issuer. Focused positive/negative and related tests, non-test
 build, format/diff and pointer checks PASS. Parent S0 and omission red
 classification obligations are carried forward rather than redefined.
+
+Next parent dependency is selected as
+`MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-D0`: close the actual Main terminal
+call's existing packet-owner mapping. This handoff does not accept parent S0
+or waive JSON/final deletion review.
