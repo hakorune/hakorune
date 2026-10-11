@@ -386,12 +386,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let routed = self.lifecycle_local_call_sites.borrow();
         let sites = routed.get(&original.call_site().owner())
             .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
-        let index = sites.iter().position(|site| site == original.call_site())
-            .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
+        if !sites.iter().any(|site| site == original.call_site()) {
+            return Err(freeze("static-terminal/local-route-missing"));
+        }
         Ok(PreparedStaticTerminalRootRouteV1 {
             ledger: self,
             site: original.call_site().clone(),
-            index,
         })
     }
 

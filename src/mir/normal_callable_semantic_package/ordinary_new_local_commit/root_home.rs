@@ -463,7 +463,7 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
     ) -> Result<(), String> {
-        self.validate_root_home_exit_with_pending(owner, function, projection, &[])
+        self.validate_root_home_exit_view(owner, function, projection, None)
     }
 
     pub(super) fn validate_root_home_exit_with_pending(
@@ -471,7 +471,17 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
-        pending: &[PendingRootHomeExitV1<'_>],
+        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
+    ) -> Result<(), String> {
+        self.validate_root_home_exit_view(owner, function, projection, Some(pending))
+    }
+
+    fn validate_root_home_exit_view(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         if !self.object_return_construction_ready_v1(owner)? {
             return Ok(());
@@ -491,9 +501,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("root-exit-source-missing"));
             };
             let expected_homes = exit_row.homes();
-            let pending_row = pending
-                .iter()
-                .find(|row| row.owner() == owner && row.site() == expected_exit);
+            let pending_row = pending.and_then(|pending| pending.root(owner, expected_exit));
             let progress = exits.get(&(owner, expected_exit.clone()));
             let (order, origins, bindings, entry) = match (pending_row, progress) {
                 (Some(row), None | Some(RootHomeExitProgress::Unprepared)) => {
@@ -514,11 +522,12 @@ impl OrdinaryNewClaimLedgerV1 {
                     {
                         return Err(freeze("root-exit-origin-order"));
                     }
-                    self.validate_call_entry(
+                    self.validate_call_entry_with_pending(
                         owner,
                         expected_exit,
                         function,
                         projection,
+                        pending.map_or(&[][..], |pending| pending.excluded_routes()),
                         entry,
                         bindings,
                     )?;
@@ -704,8 +713,8 @@ mod map_get_entry;
 
 pub(in crate::mir) use call_entry::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
-    PreparedSelectedStaticLoopCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
+    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 

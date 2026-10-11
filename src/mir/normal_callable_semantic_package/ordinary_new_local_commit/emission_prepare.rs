@@ -6,7 +6,25 @@ use super::super::{
 use super::*;
 use crate::mir::function::ObjectDestructionDispositionV1;
 
+pub(crate) struct PendingChildPhysicalValidationV1<'ledger> {
+    ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    owner: FunctionOwnerIdV1,
+    state: ChildPhysicalValidation,
+}
+
+impl PendingChildPhysicalValidationV1<'_> {
+    pub(crate) fn commit_after_collected(self) {
+        let mut states = self.ledger.child_physical_validation.borrow_mut();
+        assert!(states.insert(self.owner, self.state).is_none());
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
+    #[cfg(test)]
+    pub(in crate::mir) fn child_physical_validation_count_for_test(&self) -> usize {
+        self.child_physical_validation.borrow().len()
+    }
+
     /// Shared prepared-state computation: ABI check, reclaim origin and
     /// prior-Home unwind operands. `prior_homes` carries the caller's
     /// resolved `(prior_homes, required_unwind)`; `None` marks a retained
@@ -322,7 +340,9 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_child_emissions_with_selected_bindings(owner, function, &[], None, &[])
+        self.validate_child_emissions_with_pending(owner, function, None)?
+            .commit_after_collected();
+        Ok(())
     }
 
     /// Lend only the two source-checked Static Loop calls to the existing
@@ -331,48 +351,48 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        entry: &super::super::PreparedRootLexicalCallBindingGroupV1<'_>,
-        body: &super::super::PreparedLoopStaticBodyDetachedPacketV1,
-        pending: &[super::super::PendingRootHomeExitV1<'_>],
-    ) -> Result<(), String> {
+        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
+    ) -> Result<PendingChildPhysicalValidationV1<'_>, String> {
+        let entry = pending.entry();
+        let body = pending.body();
         if entry.source_site().owner() != owner
             || body.source_site().owner() != owner
             || entry.source_site() == body.source_site()
         {
             return Err(freeze("selected-static-loop-child-source-drift"));
         }
-        let bindings = [
-            entry.original_invoke_binding().clone(),
-            body.original_invoke_binding().clone(),
-        ];
-        self.validate_child_emissions_with_selected_bindings(
-            owner,
-            function,
-            &bindings,
-            Some(body.original_invoke_binding().0),
-            pending,
-        )
+        self.validate_child_emissions_with_pending(owner, function, Some(pending))
     }
 
-    fn validate_child_emissions_with_selected_bindings(
+    fn validate_child_emissions_with_pending(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        selected: &[(BasicBlockId, MirInstruction)],
-        selected_body_block: Option<BasicBlockId>,
-        pending: &[super::super::PendingRootHomeExitV1<'_>],
-    ) -> Result<(), String> {
+        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
+    ) -> Result<PendingChildPhysicalValidationV1<'_>, String> {
         if self.child_physical_validation.borrow().contains_key(&owner) {
             return Err(freeze("duplicate-child-physical-validation"));
         }
-        self.validate_new_emissions(owner, function)?;
+        if let Some(view) = pending {
+            self.validate_new_emissions_with_pending(owner, function, view)?;
+        } else {
+            self.validate_new_emissions(owner, function)?;
+        }
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
         self.validate_terminal_i64_field_return_projected(owner, function, None)?;
-        self.validate_root_home_exit_with_pending(owner, function, None, pending)?;
-        self.validate_root_cleanup_shape_with_pending(owner, function, pending)?;
-        let mut bindings = self.lifecycle_bindings(owner)?;
-        bindings.extend_from_slice(selected);
+        let (bindings, selected_body_block) = if let Some(view) = pending {
+            self.validate_root_home_exit_with_pending(owner, function, None, view)?;
+            self.validate_root_cleanup_shape_with_pending(owner, function, view)?;
+            (
+                self.lifecycle_bindings_with_pending(owner, view)?,
+                Some(view.body().original_invoke_binding().0),
+            )
+        } else {
+            self.validate_root_home_exit(owner, function, None)?;
+            self.validate_root_cleanup_shape(owner, function)?;
+            (self.lifecycle_bindings(owner)?, None)
+        };
         let copies = self.source_local_copies(owner)?;
         let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
         let loop_after_blocks =
@@ -385,14 +405,14 @@ impl OrdinaryNewClaimLedgerV1 {
             &loop_after_blocks,
             selected_body_block,
         )?;
-        self.child_physical_validation.borrow_mut().insert(
+        Ok(PendingChildPhysicalValidationV1 {
+            ledger: self,
             owner,
-            ChildPhysicalValidation::Checked {
+            state: ChildPhysicalValidation::Checked {
                 symbol: function.signature.name.clone(),
                 boundary,
             },
-        );
-        Ok(())
+        })
     }
 
     /// Called after all New overrides, never merely after Birth returns.

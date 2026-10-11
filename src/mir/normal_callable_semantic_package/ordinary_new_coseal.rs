@@ -43,16 +43,23 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 pub(crate) struct PreparedStaticTerminalRootRouteV1<'ledger> {
     ledger: &'ledger OrdinaryNewClaimLedgerV1,
     site: OwnedExprSiteV1,
-    index: usize,
 }
 
 impl PreparedStaticTerminalRootRouteV1<'_> {
+    pub(crate) fn site(&self) -> &OwnedExprSiteV1 {
+        &self.site
+    }
+
     pub(crate) fn commit_prechecked(self) {
         let mut routes = self.ledger.lifecycle_local_call_sites.borrow_mut();
         let sites = routes
             .get_mut(&self.site.owner())
             .expect("preflighted terminal route owner remains installed");
-        let removed = sites.remove(self.index);
+        let index = sites
+            .iter()
+            .position(|site| site == &self.site)
+            .expect("preflighted terminal route remains installed");
+        let removed = sites.remove(index);
         assert_eq!(removed, self.site, "preflighted terminal route remains exact");
     }
 }
@@ -120,6 +127,9 @@ pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1}
 pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
 pub(crate) use local_commit::PreparedRootHomeOrderV1;
 pub(crate) use local_commit::PendingRootHomeExitV1;
+pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
+pub(crate) use local_commit::PendingChildPhysicalValidationV1;
+pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
 pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
@@ -175,6 +185,7 @@ pub(crate) enum RootCallDispositionV1 {
     Direct(super::direct_call_loan::DirectCallDispositionRowV1),
     Instance(RootInstanceCallDispositionRowV1),
     Lexical(std::rc::Rc<local_commit::EmittedLexicalCallProjectionV1>),
+    PendingStatic(PendingStaticCallProjectionV1),
 }
 
 #[derive(Debug, PartialEq, Eq)]

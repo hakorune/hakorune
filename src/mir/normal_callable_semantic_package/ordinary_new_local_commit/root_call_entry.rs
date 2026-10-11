@@ -90,6 +90,42 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     #[cfg(test)]
+    pub(in crate::mir) fn emitted_root_exit_count_for_test(&self) -> usize {
+        self.root_exits
+            .borrow()
+            .values()
+            .filter(|progress| matches!(progress, RootHomeExitProgress::Emitted { .. }))
+            .count()
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn emitted_root_exits_share_one_lexical_group_for_test(&self) -> bool {
+        let exits = self.root_exits.borrow();
+        let mut sites = exits.values()
+            .filter_map(|progress| {
+                let RootHomeExitProgress::Emitted { entry, .. } = progress else {
+                    return None;
+                };
+                let groups = match entry {
+                    RootHomeExitEntry::Plain { local_bindings }
+                    | RootHomeExitEntry::Call { local_bindings, .. }
+                    | RootHomeExitEntry::MapGet { local_bindings, .. } => local_bindings,
+                };
+                Some(
+                    groups
+                        .iter()
+                        .filter(|group| group.lexical().is_some())
+                        .map(|group| group.site().clone()),
+                )
+            })
+            .flatten();
+        let Some(first) = sites.next() else {
+            return false;
+        };
+        sites.all(|site| site == first)
+    }
+
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn with_local_call_binding_groups_for_test<
         R,
     >(
@@ -262,85 +298,6 @@ impl OrdinaryNewClaimLedgerV1 {
             .collect())
     }
 
-    /// The routed lifecycle calls this exact exit covers, in `local_calls()`
-    /// source order. Sibling exits sharing a prefix each name the same
-    /// call sites; entry construction claims the recorded groups through
-    /// `select_local_call_binding_groups` instead of draining the pool.
-    fn expected_local_call_binding_sites_for_exit(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-    ) -> Result<Vec<OwnedExprSiteV1>, String> {
-        let completion = self
-            .completion_for_owner(owner)
-            .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let flow = completion
-            .cleanup()
-            .root_flow()
-            .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let Some(Ok(row)) = flow.exit_row(exit) else {
-            return Err(freeze("local-call-source-missing"));
-        };
-        let covered = row.covered_calls();
-        let routed = self.lifecycle_local_call_sites.borrow();
-        let routed = routed.get(&owner);
-        Ok(flow
-            .local_calls()
-            .iter()
-            .filter(|call| {
-                matches!(
-                    call.result(),
-                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
-                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
-                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
-                ) && covered.contains(call.site())
-                    && routed.is_some_and(|sites| sites.contains(call.site()))
-            })
-            .map(|call| call.site().clone())
-            .collect())
-    }
-
-    /// Select this exit's claimed binding-group rows from the recorded pool.
-    /// The pending map stays whole: a call site covered by several exits
-    /// must be claimable by each of them, and `local_call_bindings_consumed`
-    /// is the final arbiter that nothing recorded was left unclaimed.
-    pub(super) fn select_local_call_binding_groups(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-    ) -> Result<Vec<RootLocalCallBindingGroupV1>, String> {
-        let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
-        let pending = self.root_local_call_bindings.borrow();
-        let recorded = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
-        let mut selected = Vec::with_capacity(expected.len());
-        for site in &expected {
-            let Some(group) = recorded.iter().find(|recorded| recorded.site() == site) else {
-                return Err(freeze("local-call-binding-sequence"));
-            };
-            selected.push(group.clone());
-        }
-        Ok(selected)
-    }
-
-    pub(super) fn validate_local_call_binding_groups(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-        groups: &[RootLocalCallBindingGroupV1],
-    ) -> Result<(), String> {
-        let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
-        if groups.len() != expected.len()
-            || groups.iter().zip(expected.iter()).any(|(group, expected)| {
-                group.site().owner() != owner
-                    || group.site() != expected
-                    || group.bindings().is_empty()
-            })
-        {
-            return Err(freeze("local-call-binding-sequence"));
-        }
-        Ok(())
-    }
-
     /// Test-only sole-exit shorthand — production resolves through
     /// `terminal_call_arguments_for_owner_at`.
     #[cfg(test)]
@@ -379,6 +336,9 @@ impl OrdinaryNewClaimLedgerV1 {
             if let RootCallDispositionV1::Direct(direct) = &row {
                 let _ = direct.physical_emission();
             }
+        }
+        if matches!(&row, RootCallDispositionV1::PendingStatic(_)) {
+            return Err(freeze("pending-static-entry"));
         }
         if let RootCallDispositionV1::Lexical(packet) = &row {
             self.validate_lexical_terminal_packet(owner, site, packet)?;
@@ -612,32 +572,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    /// Match one exit's claimed lifecycle local-call binding groups against
-    /// the finished function: the source-ordered site sequence first, then
-    /// every recorded instruction at its projected block.
-    pub(super) fn check_local_call_binding_groups(
-        &self,
-        owner: FunctionOwnerIdV1,
-        exit: &SourceStmtSiteV1,
-        function: &MirFunction,
-        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        groups: &[RootLocalCallBindingGroupV1],
-    ) -> Result<(), String> {
-        self.validate_local_call_binding_groups(owner, exit, groups)?;
-        for group in groups {
-            for (id, instruction) in group.bindings() {
-                if !super::super::physical_boundary::check_binding(
-                    function,
-                    finishing,
-                    *id,
-                    instruction,
-                )? {
-                    return Err(freeze("local-call-binding-drift"));
-                }
-            }
-        }
-        Ok(())
-    }
+
 }
 
 impl RootHomeExitEntry {
@@ -764,8 +699,8 @@ mod validation;
 mod lexical_projection;
 pub(in crate::mir) use lexical_projection::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
-    LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
-    PreparedSelectedStaticLoopCallProjectionV1,
+    LexicalCallArgumentProjectionV1, PendingStaticCallProjectionV1,
+    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 

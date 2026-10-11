@@ -436,12 +436,37 @@ impl RootGraphWriterPortV1 for CanonicalRootGraphWriterV1<'_> {
         builder: &mut MirBuilder,
         instruction: MirInstruction,
     ) -> Result<(BasicBlockId, MirInstruction), String> {
-        let block = builder
+        let source = builder
             .function_state
             .current_block
             .ok_or_else(|| "[freeze:contract][root-graph/no-block]".to_owned())?;
-        self.write_terminator(builder, block, &instruction)?;
-        Ok((block, instruction))
+        let has_phi = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .and_then(|function| function.blocks.get(&source))
+            .is_none_or(|block| {
+                block
+                    .instructions
+                    .iter()
+                    .any(|instruction| matches!(instruction, MirInstruction::Phi { .. }))
+            });
+        let entry = if has_phi {
+            let entry = self.reserve_block(builder)?;
+            let function = builder
+                .function_state
+                .current_function
+                .as_mut()
+                .ok_or_else(|| "[freeze:contract][root-graph/no-function]".to_owned())?;
+            self.cfg
+                .emit_jump(function, source, entry)
+                .map_err(|error| error.to_string())?;
+            entry
+        } else {
+            source
+        };
+        self.write_terminator(builder, entry, &instruction)?;
+        Ok((entry, instruction))
     }
 
     fn insert_projection(

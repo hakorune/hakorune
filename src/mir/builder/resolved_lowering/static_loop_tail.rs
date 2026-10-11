@@ -8,21 +8,35 @@ use crate::mir::builder::resolved_lowering::static_loop_entry_session::{
 };
 use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
 use crate::mir::builder::MirBuilder;
-use crate::mir::definitions::MirCall;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
 use crate::mir::loop_recipe_contract::LoopValueClassV2;
-use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
+use crate::mir::normal_callable_semantic_package::{
+    CallPacketSourceV1, OrdinaryNewClaimLedgerV1, PreparedLexicalCallProjectionV1,
+    PreparedStaticTerminalPacketV1, PreparedStaticTerminalRootRouteV1,
+};
 use crate::mir::resolved_semantics::{ResolvedExitSiteV1, ResolvedMethodCallReceiverSourceV1};
-use crate::mir::{MirInstruction, MirType};
+use crate::mir::{BasicBlockId, MirInstruction, MirType};
 
-pub(super) fn emit_unpublished_tail_v1(
+pub(super) struct SelectedStaticTailRootV1<'ledger> {
+    pub(super) root: SelectedStaticRootGraphPhysicalV1,
+    pub(super) route: PreparedStaticTerminalRootRouteV1<'ledger>,
+    pub(super) packet: PreparedStaticTerminalPacketV1,
+    pub(super) prepared: PreparedLexicalCallProjectionV1,
+    pub(super) invoke: (BasicBlockId, MirInstruction),
+    pub(super) projection: (BasicBlockId, MirInstruction),
+    pub(super) frame: (BasicBlockId, MirInstruction),
+}
+
+pub(super) fn emit_unpublished_tail_v1<'ledger>(
     draft: &mut MirBuilder,
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     frame_owner: &mut FunctionFaultFrameV1,
-    claims: &OrdinaryNewClaimLedgerV1,
-) -> Result<SelectedStaticRootGraphPhysicalV1, String> {
+    claims: &'ledger OrdinaryNewClaimLedgerV1,
+    handoff: &VerifiedStaticCallResultPublicationHandoffV1,
+) -> Result<SelectedStaticTailRootV1<'ledger>, String> {
     let reject = || "[freeze:contract][callable-loop/static-tail-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
     let transfer = semantic
@@ -54,15 +68,19 @@ pub(super) fn emit_unpublished_tail_v1(
     {
         return Err(reject());
     }
+    let route = claims.prepare_static_terminal_root_route_v1(original)?;
+    let packet = CallPacketSourceV1::prepare_static_i64(original.clone(), handoff, claims)?;
+    let prepared = packet.prepare_zeroarg_projection(handoff)?;
+    let call = prepared.materialize_using(
+        canonical.owner(),
+        packet.loan(handoff),
+        packet.observation().arguments(),
+        Some(claims),
+    )?;
     canonical
         .cfg
         .select_block(draft, header.after)
         .map_err(|error| error.to_string())?;
-    let target = original
-        .target()
-        .canonical_global_target_v1()
-        .map_err(|_| "[freeze:contract][callable-loop/static-tail-target-missing]".to_owned())?;
-    let call = MirCall::global(None, target, vec![]);
     let value = canonical.issue_physical_value_id(draft)?;
     canonical.publish_physical_value_type(draft, value, MirType::Integer)?;
     let plan = claims.prepared_root_home_graph_plan_v1(canonical.owner(), tail.return_site())?;
@@ -83,6 +101,10 @@ pub(super) fn emit_unpublished_tail_v1(
     ) {
         return Err("[freeze:contract][callable-loop/static-tail-ingress-drift]".into());
     }
+    let (invoke, projection) =
+        root.graph.ingress.clone().ok_or_else(|| {
+            "[freeze:contract][callable-loop/static-tail-ingress-missing]".to_owned()
+        })?;
     let after_witness = {
         let function = draft
             .function_state
@@ -129,6 +151,14 @@ pub(super) fn emit_unpublished_tail_v1(
         .ok_or_else(|| {
             "[freeze:contract][callable-loop/static-tail-function-missing]".to_owned()
         })?;
-    frame_owner.validate(function)?;
-    Ok(root)
+    let frame = frame_owner.binding(function)?;
+    Ok(SelectedStaticTailRootV1 {
+        root,
+        route,
+        packet,
+        prepared,
+        invoke,
+        projection,
+        frame,
+    })
 }

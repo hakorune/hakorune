@@ -2,6 +2,7 @@
 //! This root Call entry owner never classifies source or issues affine rows.
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::builder::ExactLexicalReadV1;
+use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::definitions::MirCall;
 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
 use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1;
@@ -15,6 +16,48 @@ use super::super::physical_boundary::FinishedBindings;
 mod call_packet_source;
 pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
+
+/// Selected Static Call packet checked with a borrowed publication row.
+/// The owned handoff arrives only after collector admission succeeds.
+#[derive(Debug)]
+pub(crate) struct PendingStaticCallProjectionV1 {
+    packet: PreparedStaticTerminalPacketV1,
+    prepared: PreparedLexicalCallProjectionV1,
+    call: MirCall,
+}
+
+impl PendingStaticCallProjectionV1 {
+    pub(crate) fn new(
+        packet: PreparedStaticTerminalPacketV1,
+        prepared: PreparedLexicalCallProjectionV1,
+        call: MirCall,
+    ) -> Self {
+        Self {
+            packet,
+            prepared,
+            call,
+        }
+    }
+
+    pub(crate) fn packet(&self) -> &PreparedStaticTerminalPacketV1 {
+        &self.packet
+    }
+
+    pub(crate) fn expected_call(&self) -> &MirCall {
+        &self.call
+    }
+
+    pub(crate) fn validate_recorded(&self, bindings: &[Binding]) -> Result<(), String> {
+        self.prepared.validate_recorded_projected(bindings, None)
+    }
+
+    pub(crate) fn into_packet(
+        self,
+        publication: VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> (CallPacketSourceV1, PreparedLexicalCallProjectionV1) {
+        (self.packet.into_packet(publication), self.prepared)
+    }
+}
 
 /// Physical observations of the original ordered argument tree. These rows
 /// cannot classify a source argument or choose a call target.
@@ -137,7 +180,7 @@ impl PreparedLexicalCallProjectionV1 {
         self.validate_recorded_projected(bindings, None)
     }
 
-    fn validate_recorded_projected(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_recorded_projected(
         &self,
         bindings: &[Binding],
         finishing: Option<&FinishedBindings>,

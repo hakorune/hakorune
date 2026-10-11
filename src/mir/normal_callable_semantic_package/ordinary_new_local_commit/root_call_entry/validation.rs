@@ -14,7 +14,38 @@ impl OrdinaryNewClaimLedgerV1 {
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
-        self.validate_call_entry_storage(owner, exit, function, finishing, None, entry, cleanup)
+        self.validate_call_entry_storage(
+            owner,
+            exit,
+            function,
+            finishing,
+            None,
+            &[],
+            entry,
+            cleanup,
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_call_entry_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
+        finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        pending_routes: &[OwnedExprSiteV1],
+        entry: &RootHomeExitEntry,
+        cleanup: &[(BasicBlockId, MirInstruction)],
+    ) -> Result<(), String> {
+        self.validate_call_entry_storage(
+            owner,
+            exit,
+            function,
+            finishing,
+            None,
+            pending_routes,
+            entry,
+            cleanup,
+        )
     }
 
     /// Root Call storage has already been rebound; its packet keeps original coordinates.
@@ -33,6 +64,7 @@ impl OrdinaryNewClaimLedgerV1 {
             function,
             None,
             Some(original_projection),
+            &[],
             entry,
             cleanup,
         )
@@ -45,6 +77,7 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
         packet_finishing: Option<&super::super::super::physical_boundary::FinishedBindings>,
+        pending_routes: &[OwnedExprSiteV1],
         entry: &RootHomeExitEntry,
         cleanup: &[(BasicBlockId, MirInstruction)],
     ) -> Result<(), String> {
@@ -69,12 +102,13 @@ impl OrdinaryNewClaimLedgerV1 {
                     {
                         return Err(freeze("map-get-entry-missing"));
                     }
-                    self.check_local_call_binding_groups(
+                    self.check_local_call_binding_groups_with_pending(
                         owner,
                         exit,
                         function,
                         finishing,
                         local_bindings,
+                        pending_routes,
                     )
                 }
                 RootHomeExitEntry::Call { .. } => Err(freeze("call-source-missing")),
@@ -112,7 +146,14 @@ impl OrdinaryNewClaimLedgerV1 {
             if source.legacy_terminal().is_none() {
                 return Err(freeze("direct-result-entry-missing"));
             }
-            self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
+            self.check_local_call_binding_groups_with_pending(
+                owner,
+                exit,
+                function,
+                finishing,
+                local_bindings,
+                pending_routes,
+            )?;
             return if self.root_instance_call_expected(owner) {
                 // The source method is known, but its target result contract
                 // is unavailable. Preserve the existing artifact stop rather
@@ -122,30 +163,42 @@ impl OrdinaryNewClaimLedgerV1 {
                 Err(freeze("call-entry-missing"))
             };
         };
-        let expected = if let RootCallDispositionV1::Lexical(packet) = row {
-            let source_arguments = self.validate_lexical_terminal_packet(owner, exit, packet)?;
-            let mut recorded = arguments.clone();
-            recorded.extend([invoke.clone(), projection.clone()]);
-            packet.validate_recorded_projected(&recorded, packet_finishing)?;
-            let (original_invoke, original_projection) = packet.outer_bindings();
-            let mapped = |original: &(BasicBlockId, MirInstruction)| match packet_finishing {
-                Some(finishing) => finishing
-                    .binding(original.0, &original.1)?
-                    .ok_or_else(|| freeze("lexical-terminal/original-outer-drift")),
-                None => Ok(original.clone()),
-            };
-            if mapped(original_invoke)? != *invoke || mapped(original_projection)? != *projection {
-                return Err(freeze("lexical-terminal/original-outer-drift"));
+        let expected = match row {
+            RootCallDispositionV1::Lexical(packet) => {
+                let source_arguments = self.validate_lexical_terminal_packet(owner, exit, packet)?;
+                let mut recorded = arguments.clone();
+                recorded.extend([invoke.clone(), projection.clone()]);
+                packet.validate_recorded_projected(&recorded, packet_finishing)?;
+                let (original_invoke, original_projection) = packet.outer_bindings();
+                let mapped = |original: &(BasicBlockId, MirInstruction)| match packet_finishing {
+                    Some(finishing) => finishing
+                        .binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("lexical-terminal/original-outer-drift")),
+                    None => Ok(original.clone()),
+                };
+                if mapped(original_invoke)? != *invoke
+                    || mapped(original_projection)? != *projection
+                {
+                    return Err(freeze("lexical-terminal/original-outer-drift"));
+                }
+                packet.call_with_ledger(owner, &source_arguments, self)?
             }
-            packet.call_with_ledger(owner, &source_arguments, self)?
-        } else {
+            RootCallDispositionV1::PendingStatic(pending) => {
+                self.validate_pending_static_terminal_packet(owner, exit, pending)?;
+                let mut recorded = arguments.clone();
+                recorded.extend([invoke.clone(), projection.clone()]);
+                pending.validate_recorded(&recorded)?;
+                pending.expected_call().clone()
+            }
+            _ => {
             let terminal = source
                 .legacy_terminal()
                 .ok_or_else(|| freeze("direct-result-legacy-row"))?;
             let row_argument_count = match row {
                 RootCallDispositionV1::Direct(row) => row.argument_sites().len(),
                 RootCallDispositionV1::Instance(row) => row.argument_sites().len(),
-                RootCallDispositionV1::Lexical(_) => {
+                RootCallDispositionV1::Lexical(_)
+                | RootCallDispositionV1::PendingStatic(_) => {
                     return Err(freeze("lexical-terminal/strict-row"))
                 }
             };
@@ -221,7 +274,8 @@ impl OrdinaryNewClaimLedgerV1 {
                     .physical_emission()
                     .materialize_call_typed(None, typed)
                     .map_err(|_| freeze("call-projection-failed"))?,
-                RootCallDispositionV1::Lexical(_) => {
+                RootCallDispositionV1::Lexical(_)
+                | RootCallDispositionV1::PendingStatic(_) => {
                     return Err(freeze("lexical-terminal/strict-row"))
                 }
                 RootCallDispositionV1::Instance(row) => {
@@ -264,6 +318,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     call.clone()
                 }
             }
+            }
         };
         if !matches!(&invoke.1, MirInstruction::Invoke {
             operation: InvokeOperation::Call { call, result }, ..
@@ -294,7 +349,14 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("call-binding-drift"));
             }
         }
-        self.check_local_call_binding_groups(owner, exit, function, finishing, local_bindings)?;
+        self.check_local_call_binding_groups_with_pending(
+            owner,
+            exit,
+            function,
+            finishing,
+            local_bindings,
+            pending_routes,
+        )?;
         let mapped = |binding: &(BasicBlockId, MirInstruction)| match finishing {
             Some(p) => p
                 .binding(binding.0, &binding.1)?
@@ -353,4 +415,156 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         Ok(())
     }
-}
+    /// The routed lifecycle calls this exact exit covers, in `local_calls()`
+    /// source order. Sibling exits sharing a prefix each name the same
+    /// call sites; entry construction claims the recorded groups through
+    /// `select_local_call_binding_groups` instead of draining the pool.
+    fn expected_local_call_binding_sites_for_exit(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<Vec<OwnedExprSiteV1>, String> {
+        self.expected_local_call_binding_sites_for_exit_with_pending(owner, exit, &[])
+    }
+
+    fn expected_local_call_binding_sites_for_exit_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        pending_routes: &[OwnedExprSiteV1],
+    ) -> Result<Vec<OwnedExprSiteV1>, String> {
+        let completion = self
+            .completion_for_owner(owner)
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let flow = completion
+            .cleanup()
+            .root_flow()
+            .ok_or_else(|| freeze("local-call-source-missing"))?;
+        let Some(Ok(row)) = flow.exit_row(exit) else {
+            return Err(freeze("local-call-source-missing"));
+        };
+        let covered = row.covered_calls();
+        let routed = self.lifecycle_local_call_sites.borrow();
+        let routed = routed.get(&owner);
+        Ok(flow
+            .local_calls()
+            .iter()
+            .filter(|call| {
+                matches!(
+                    call.result(),
+                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
+                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
+                ) && covered.contains(call.site())
+                    && routed.is_some_and(|sites| sites.contains(call.site()))
+                    && !pending_routes.contains(call.site())
+            })
+            .map(|call| call.site().clone())
+            .collect())
+    }
+
+    /// Select this exit's claimed binding-group rows from the recorded pool.
+    /// The pending map stays whole: a call site covered by several exits
+    /// must be claimable by each of them, and `local_call_bindings_consumed`
+    /// is the final arbiter that nothing recorded was left unclaimed.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn select_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<Vec<RootLocalCallBindingGroupV1>, String> {
+        let expected = self.expected_local_call_binding_sites_for_exit(owner, exit)?;
+        let pending = self.root_local_call_bindings.borrow();
+        let recorded = pending.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
+        let mut selected = Vec::with_capacity(expected.len());
+        for site in &expected {
+            let Some(group) = recorded.iter().find(|recorded| recorded.site() == site) else {
+                return Err(freeze("local-call-binding-sequence"));
+            };
+            selected.push(group.clone());
+        }
+        Ok(selected)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        groups: &[RootLocalCallBindingGroupV1],
+    ) -> Result<(), String> {
+        self.validate_local_call_binding_groups_with_pending(owner, exit, groups, &[])
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_local_call_binding_groups_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        groups: &[RootLocalCallBindingGroupV1],
+        pending_routes: &[OwnedExprSiteV1],
+    ) -> Result<(), String> {
+        let expected = self.expected_local_call_binding_sites_for_exit_with_pending(
+            owner,
+            exit,
+            pending_routes,
+        )?;
+        if groups.len() != expected.len()
+            || groups.iter().zip(expected.iter()).any(|(group, expected)| {
+                group.site().owner() != owner
+                    || group.site() != expected
+                    || group.bindings().is_empty()
+            })
+        {
+            return Err(freeze("local-call-binding-sequence"));
+        }
+        Ok(())
+    }
+
+    /// Match one exit's claimed lifecycle local-call binding groups against
+    /// the finished function: the source-ordered site sequence first, then
+    /// every recorded instruction at its projected block.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        groups: &[RootLocalCallBindingGroupV1],
+    ) -> Result<(), String> {
+        self.check_local_call_binding_groups_with_pending(
+            owner,
+            exit,
+            function,
+            finishing,
+            groups,
+            &[],
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn check_local_call_binding_groups_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+        groups: &[RootLocalCallBindingGroupV1],
+        pending_routes: &[OwnedExprSiteV1],
+    ) -> Result<(), String> {
+        self.validate_local_call_binding_groups_with_pending(
+            owner,
+            exit,
+            groups,
+            pending_routes,
+        )?;
+        for group in groups {
+            for (id, instruction) in group.bindings() {
+                if !super::super::physical_boundary::check_binding(
+                    function,
+                    finishing,
+                    *id,
+                    instruction,
+                )? {
+                    return Err(freeze("local-call-binding-drift"));
+                }
+            }
+        }
+        Ok(())
+    }}

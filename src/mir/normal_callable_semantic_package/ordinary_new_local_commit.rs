@@ -33,6 +33,7 @@ pub(crate) use self::root_home::{RootHomeFaultSequencesV1, RootHomeReleaseOrigin
 pub(crate) use self::root_home::PreparedRootHomeGraphPlanV1;
 pub(crate) use self::root_home::PreparedRootHomeOrderV1;
 pub(crate) use self::root_home::PendingRootHomeExitV1;
+pub(in crate::mir) use self::root_home::PendingStaticCallProjectionV1;
 pub(crate) use self::root_home::PreparedStaticTerminalPacketV1;
 
 #[derive(Debug)]
@@ -657,8 +658,12 @@ mod call_received;
 use call_received::{
     CallReceivedCommitV1, CallReceivedPhase, CallReceivedProgress, CallReceivedReleaseV1,
 };
+#[path = "ordinary_new_local_commit/pending_selected_static_loop.rs"]
+mod pending_selected_static_loop;
+pub(crate) use pending_selected_static_loop::PendingSelectedStaticLoopViewV1;
 #[path = "ordinary_new_local_commit/emission_prepare.rs"]
 mod emission_prepare;
+pub(crate) use emission_prepare::PendingChildPhysicalValidationV1;
 #[path = "ordinary_new_local_commit/emission_validation.rs"]
 mod emission_validation;
 #[path = "ordinary_new_local_commit/handle_call.rs"]

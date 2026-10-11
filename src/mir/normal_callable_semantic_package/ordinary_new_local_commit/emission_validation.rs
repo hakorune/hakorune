@@ -9,7 +9,16 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_new_emissions_projected(owner, function, None)
+        self.validate_new_emissions_view(owner, function, None, None)
+    }
+
+    pub(super) fn validate_new_emissions_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
+    ) -> Result<(), String> {
+        self.validate_new_emissions_view(owner, function, None, Some(pending))
     }
 
     pub(super) fn validate_new_emissions_projected(
@@ -17,6 +26,16 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_new_emissions_view(owner, function, projection, None)
+    }
+
+    fn validate_new_emissions_view(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         for (site, row) in self
             .local_commits
@@ -42,7 +61,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     continue;
                 }
                 LocalCommitV1::CallReceived(_) => {
-                    self.validate_call_received_emission(site, function, projection)?;
+                    self.validate_call_received_emission(site, function, projection, pending)?;
                     continue;
                 }
             };
@@ -260,6 +279,7 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &OwnedExprSiteV1,
         function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
+        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
         let rows = self.local_commits.borrow();
         let Some(LocalCommitV1::CallReceived(row)) = rows.get(site) else {
@@ -428,6 +448,23 @@ impl OrdinaryNewClaimLedgerV1 {
                         })
                         .count();
                 }
+            }
+            if let Some(view) = pending {
+                owed += view
+                    .roots()
+                    .into_iter()
+                    .filter(|root| root.owner() == row.owner)
+                    .flat_map(|root| root.bindings().iter())
+                    .filter(|(_, emitted)| {
+                        matches!(
+                            emitted,
+                            MirInstruction::Invoke {
+                                operation: emitted,
+                                ..
+                            } if emitted == operation
+                        )
+                    })
+                    .count();
             }
             owed += rows
                 .values()

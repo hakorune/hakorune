@@ -156,6 +156,7 @@ pub(in crate::mir) use ordinary_new_coseal::{
     VerifiedLoopStaticBodyScalarSourceV1,
 };
 pub(crate) use ordinary_new_coseal::{
+    PendingChildPhysicalValidationV1, PendingSelectedStaticLoopViewV1,
     PreparedLoopStaticBodyRetentionV1, PreparedRootLexicalCallBindingGroupV1,
     RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
     PreparedRootHomeGraphPlanV1,

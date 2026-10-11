@@ -3,7 +3,7 @@
 //! This state neither discovers an entry nor issues source lifecycle meaning.
 
 use crate::mir::instruction::FaultFrameMode;
-use crate::mir::{MirBuilder, MirFunction, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirInstruction, ValueId};
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct FunctionFaultFrameV1 {
@@ -54,6 +54,33 @@ impl FunctionFaultFrameV1 {
 }
 
 impl FunctionFaultFrameV1 {
+    pub(in crate::mir::builder) fn binding(
+        &self,
+        function: &MirFunction,
+    ) -> Result<(BasicBlockId, MirInstruction), String> {
+        self.validate(function)?;
+        let Some(expected) = self.value else {
+            return Err(freeze("definition-missing"));
+        };
+        let entry = function
+            .blocks
+            .get(&function.entry_block)
+            .ok_or_else(|| freeze("entry-missing"))?;
+        let mut definitions = entry.instructions.iter().filter(|instruction| {
+            matches!(instruction,
+                MirInstruction::FaultFrameEnter { dst, mode }
+                    if *dst == expected && *mode == self.mode)
+        });
+        let definition = definitions
+            .next()
+            .ok_or_else(|| freeze("definition-missing"))?
+            .clone();
+        if definitions.next().is_some() {
+            return Err(freeze("definition-duplicate"));
+        }
+        Ok((function.entry_block, definition))
+    }
+
     pub(in crate::mir::builder) fn validate(&self, function: &MirFunction) -> Result<(), String> {
         let definitions = function
             .blocks

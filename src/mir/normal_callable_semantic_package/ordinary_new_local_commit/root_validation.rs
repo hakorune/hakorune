@@ -518,4 +518,26 @@ impl OrdinaryNewClaimLedgerV1 {
         );
         Ok(result)
     }
+
+    pub(super) fn lifecycle_bindings_with_pending(
+        &self,
+        owner: FunctionOwnerIdV1,
+        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let mut result = self.lifecycle_bindings(owner)?;
+        for row in pending.roots() {
+            if row.owner() == owner {
+                row.append_lifecycle_bindings(&mut result)?;
+            }
+        }
+        for binding in [
+            pending.entry().original_invoke_binding(),
+            pending.body().original_invoke_binding(),
+        ] {
+            if !result.contains(binding) {
+                result.push(binding.clone());
+            }
+        }
+        Ok(result)
+    }
 }

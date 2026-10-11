@@ -447,6 +447,24 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     #[cfg(test)]
+    pub(in crate::mir) fn selected_static_loop_route_count_for_test(
+        &self,
+        caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    ) -> usize {
+        let routed = self.lifecycle_local_call_sites.borrow();
+        routed
+            .values()
+            .flatten()
+            .filter(|site| {
+                self.selected_static_local_source_v1(site)
+                    .ok()
+                    .flatten()
+                    .is_some_and(|source| source.caller() == caller)
+            })
+            .count()
+    }
+
+    #[cfg(test)]
     pub(in crate::mir) fn remove_static_loop_local_route_for_test(
         &self,
         caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,

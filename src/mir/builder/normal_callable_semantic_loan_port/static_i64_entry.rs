@@ -50,6 +50,14 @@ pub(super) fn collect_if_selected(
             .ok_or_else(|| {
                 "[freeze:contract][callable-loop/static-publication-handoff-missing]".to_owned()
             })?;
+        let tail_handoff = module_port
+            .selected_static_result_handoff_for_source(
+                caller,
+                product.semantic().tail_call().call_site().site(),
+            )
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/static-tail-publication-missing]".to_owned()
+            })?;
         if !packet.corroborates_publication_handoff(handoff) {
             return Err(
                 "[freeze:contract][callable-loop/static-publication-handoff-drift]".to_owned(),
@@ -65,6 +73,7 @@ pub(super) fn collect_if_selected(
             &result,
             packet,
             handoff,
+            tail_handoff,
             publication,
             claims,
         )?
@@ -84,7 +93,10 @@ mod tests {
         NormalCatalogedBoxMethodDraftAdmissionV1,
     };
     use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
-    use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule, MirType};
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+        MirType,
+    };
     use crate::runner::modes::common_util::normal_callable::{
         materialize_normal_callable_program_with_identity_and_lineage_v1,
         NormalCallableMaterializationOutcomeV1,
@@ -153,6 +165,7 @@ mod tests {
                             installed.ordinary_new_claim_ledger().remove_static_loop_local_route_for_test(&key);
                         }
                         let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(key).unwrap();
+                        let caller_key = admission.source_key().clone();
                         let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
                         let mut builder = MirBuilder::new();
                         let mut collector = crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
@@ -201,8 +214,19 @@ mod tests {
                             drop(adapter);
                             let expected = usize::from(!missing_route && !duplicate_collector);
                             module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), usize::from(!missing_route)));
-                            assert_eq!(installed.ordinary_new_claim_ledger().selected_loop_body_packet_count_for_test(), expected);
-                            assert_eq!(installed.ordinary_new_claim_ledger().selected_static_entry_group_count_for_test(), expected);
+                            let ledger = installed.ordinary_new_claim_ledger();
+                            assert_eq!(ledger.selected_loop_body_packet_count_for_test(), expected);
+                            assert_eq!(ledger.selected_static_entry_group_count_for_test(), expected);
+                            assert_eq!(ledger.emitted_root_exit_count_for_test(), expected * 2);
+                            assert_eq!(
+                                ledger.emitted_root_exits_share_one_lexical_group_for_test(),
+                                !missing_route && !duplicate_collector
+                            );
+                            assert_eq!(ledger.child_physical_validation_count_for_test(), expected);
+                            assert_eq!(
+                                ledger.selected_static_loop_route_count_for_test(&caller_key),
+                                if missing_route { 3 } else if duplicate_collector { 4 } else { 1 }
+                            );
                         });
                         if !missing_route && !duplicate_collector {
                             let (_, collector, _) = invocation.into_state().into_parts();

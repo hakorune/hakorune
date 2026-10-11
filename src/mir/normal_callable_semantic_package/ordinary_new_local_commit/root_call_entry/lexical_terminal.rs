@@ -34,6 +34,41 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(reads)
     }
 
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_pending_static_terminal_packet(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        pending: &PendingStaticCallProjectionV1,
+    ) -> Result<(), String> {
+        let source = self
+            .verified_terminal_call_source_v1(owner, exit)?
+            .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
+        let packet = pending.packet();
+        let original = packet.original();
+        let observation = packet.observation();
+        let terminal = source
+            .legacy_terminal()
+            .ok_or_else(|| freeze("static-terminal/legacy-source-missing"))?;
+        let selected = self
+            .selected_static_local_source_v1(original.call_site())?
+            .ok_or_else(|| freeze("static-terminal/original-source-missing"))?;
+        if !std::rc::Rc::ptr_eq(&selected, original)
+            || terminal.owner() != owner
+            || terminal.return_site() != exit
+            || terminal.call_site() != original.call_site().site()
+            || !terminal.arguments().is_empty()
+            || source.result() != crate::mir::instruction::InvokeCallResultKind::I64
+            || observation.owner() != owner
+            || observation.site() != original.call_site()
+        {
+            return Err(freeze("static-terminal/packet-source-drift"));
+        }
+        self.verify_original_static_packet_source_v1(original)?;
+        self.borrowed_static_packet_actuals_v1(original)?
+            .ok_or_else(|| freeze("static-packet/actuals-missing"))?;
+        Ok(())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_lexical_terminal_packet(
         &self,
         owner: FunctionOwnerIdV1,

@@ -31,12 +31,32 @@ pub(in crate::mir) struct CallPacketSourceV1 {
 
 /// Original Static packet checked against a borrowed publication row. The
 /// collector's later exact batch take supplies that same owned row.
+#[derive(Debug)]
 pub(crate) struct PreparedStaticTerminalPacketV1 {
     original: Rc<StaticIncomingSourceV1>,
     observation: LocalCallObservationV1,
 }
 
 impl PreparedStaticTerminalPacketV1 {
+    pub(crate) fn loan<'a>(
+        &'a self,
+        publication: &'a VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> CallPacketSourceLoanV1<'a> {
+        CallPacketSourceLoanV1::Static {
+            original: &self.original,
+            observation: &self.observation,
+            publication,
+        }
+    }
+
+    pub(crate) fn original(&self) -> &Rc<StaticIncomingSourceV1> {
+        &self.original
+    }
+
+    pub(crate) fn observation(&self) -> &LocalCallObservationV1 {
+        &self.observation
+    }
+
     pub(crate) fn prepare_zeroarg_projection(
         &self,
         publication: &VerifiedStaticCallResultPublicationHandoffV1,

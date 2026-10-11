@@ -128,40 +128,53 @@ No whole mimalloc-lite EXE success, wider Static Loop grammar, general
 multiple-return inference, or final MirBuilder completion follows merely
 from this selected two-exit cutover.
 
-## Paused handoff (2026-10-11)
+## Current status (2026-10-11)
 
-User requested a pause for swe-2 handoff. Worktree consolidation later moved
-this exact in-progress S0 state into `/mnt/workdisk/public_share/hakorune-selfhost`
-on `codex/birth-definition-publication`. Commit `f9cb8906be` is an explicit
-unfinished checkpoint, not S0 acceptance; do not treat it as a landed slice.
-The earlier `/mnt/workdisk/hako-bool-literal-terminal-20261010` worktree was
-removed after both trees and their clean status matched. Pre-integration
-changes from the old main checkout are preserved separately at local branch
-`archive/main-dirty-20261011` (`6e5c7d98d3`); do not merge that snapshot
-wholesale into this lane.
-The archive has 36 paths absent from this branch, chiefly the old stored-child
-call/provider-fault probes and ordinary I64 Array/Birth indexed ABI WIP.
-Those old cards mark S1/S2 active and uncommitted; no acceptance or production
-switch was inherited. Reconcile each family against the then-current selected
-row before reusing it. This archive review is parked and does not expand S0.
-The selected early exit now carries a read-only `PendingRootHomeExitV1` into
-child validation. The shared Home preview and pending cleanup-shape view are
-implemented, but the selected tail has no pending token and the early token
-is still discarded during collect. `validate_new_emissions`, lifecycle
-bindings, and physical-validation publication still need the atomic pending
-view/commit. This is unfinished S0, not a production cutover.
+`f9cb8906be` remains an explicit unfinished checkpoint, not S0 acceptance.
+The archived unrelated work stays on local `archive/main-dirty-20261011`
+(`6e5c7d98d3`) and was not merged into this lane.
 
-Latest `cargo check --profile quick -p nyash-rust --lib` passed in the shared
-target (28.12 s); the same check passed from the consolidated main checkout
-at `f9cb8906be` (1m 03s). `git diff --check` passed. The narrowed focused
-positive still stops at `root-exit-unconsumed` after the Home preview.
-Existing compiled `root_home` tests passed 46/46 before the latest
-pending-token edits; do not count them as current-tree acceptance.
-The original whole-app focused input
-fails on clean base before this route at `static-mixed/source-actual-drift`.
-No selected positive/negative, JSON/EXE, or full acceptance was run after the
-latest edits. No Cargo process remains.
+Implementation now carries the selected two-exit batch through one
+`PendingSelectedStaticLoopViewV1`: the shared `normalize_size` lexical group,
+the three non-lexical selected routes, both pending root exits, the body
+retention packet, and a pending child physical-validation receipt. The tail
+packet is preflighted with the borrowed fourth publication handoff; its owned
+handoff is consumed only after collector success. `unpublished.collect()`
+then commits the three non-lexical routes, lexical group, early/tail exits,
+body packet, and physical receipt. Phi-bearing root source blocks enter the
+canonical writer through one isolated clean trampoline; non-Phi source blocks
+keep the existing writer shape.
 
-Next: finish the early/tail pending projection and post-collector atomic
-commit without mutating the ledger during preflight; then rerun focused
-positive/negative and required physical acceptance on unchanged source.
+Current evidence:
+
+- `cargo check --profile quick -p nyash-rust --lib` passes.
+- `cargo test --profile quick -p nyash-rust --lib
+  original_static_loop_collects_only_after_packet_preflight -- --nocapture`
+  passes 1/1 on the unchanged source plus trivial Main. The positive path
+  commits one body packet, one lexical group, two shared-group root exits,
+  and one physical receipt while retaining only the `normalize_size` route.
+  The missing-route case rejects with `static-packet-route-missing` and no
+  selected ledger publication; the duplicate-collector case rejects before
+  root, route, lexical, body, or physical rows are committed.
+- Existing focused filters pass: `local_commit` 82/82,
+  `root_graph_writer::tests` 3/3, `canonical_cfg` 33/33,
+  `module_draft_collector` 39/39, `completion_draft_seal` 12/12, and
+  `static_result_publication` 31/31.
+- `cargo build --profile quick -p nyash-rust --bin hakorune` passes.
+- Physical CLI probe uses the unchanged `size_class_box.hako` contents plus
+  trivial Main under `/tmp` with `NYASH_DISABLE_PLUGINS=1`,
+  `HAKO_BACKEND_COMPILE_RECIPE=pure-first`, and
+  `HAKO_BACKEND_COMPAT_REPLAY=none`. `--emit-mir-json` reaches egress and
+  returns rc1 at the existing JSON allowlist: `unsupported terminator Invoke`
+  (no JSON artifact). `--emit-exe` with
+  `--emit-exe-nyrt target/lifecycle-kernel/release` returns rc1 earlier at
+  `ordinary-new/static-scalar/incoming-veto` `NoIncoming(slot 7)`; no EXE is
+  produced. These are recorded limits, not EXE/JSON acceptance.
+- `git diff --check` passes; source files stay below the 800-line hard stop.
+
+This is not accepted S0 or a production cutover receipt. The selected direct
+tail `MirCall::global` construction was removed from `static_loop_tail`, but
+the final caller-zero review, card-required closeout evidence, and any later
+old-edge retirement still need explicit verification before the slice is
+closed. No whole `SizeClassBox`, mimalloc-lite, or MirBuilder EXE pass is
+claimed.
