@@ -218,15 +218,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
         .unwrap()
         .clone();
     let exit_site = exit_stmt_site.node().clone();
-    assert!(ledger
-        .prepare_root_home_exit(sites[0].owner(), &exit_site)
-        .unwrap());
-    assert!(ledger
-        .prepare_root_home_exit(sites[0].owner(), &exit_site)
-        .is_err());
     let origins = ledger
-        .begin_root_home_exit(sites[0].owner(), &exit_stmt_site)
-        .unwrap();
+        .prepared_root_home_graph_plan_v1(sites[0].owner(), &exit_stmt_site)
+        .unwrap()
+        .operations;
     assert_eq!(
         origins
             .iter()
@@ -325,6 +320,28 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             edge_args: None,
         });
     bindings.push((entry_id, entry_jump));
+    ledger.check_pending_nonempty_home_order_for_test(
+        sites[0].owner(),
+        &exit_stmt_site,
+        &origin_bindings,
+        &bindings,
+        &physical,
+    );
+    assert!(ledger
+        .prepare_root_home_exit(sites[0].owner(), &exit_site)
+        .unwrap());
+    assert!(ledger
+        .prepare_root_home_exit(sites[0].owner(), &exit_site)
+        .is_err());
+    assert_eq!(
+        ledger
+            .begin_root_home_exit(sites[0].owner(), &exit_stmt_site)
+            .unwrap(),
+        origin_bindings
+            .iter()
+            .map(|(origin, _, _)| origin.clone())
+            .collect::<Vec<_>>()
+    );
     ledger
         .record_root_home_exit(sites[0].owner(), &exit_stmt_site, origin_bindings, bindings)
         .unwrap();

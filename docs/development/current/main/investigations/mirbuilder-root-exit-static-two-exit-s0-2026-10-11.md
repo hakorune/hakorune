@@ -278,3 +278,72 @@ no failure baseline update and no fresh CLI/all-suite acceptance claim.
 S0 remains open: nonempty Home/origin/binding-order negative evidence and
 physical JSON/EXE requirements are still owed. The nine pending refusals
 close only their enumerated Return/tail/route unpublished-state obligations.
+
+
+Nonempty Home pending-order Decision (2026-10-11): reuse the existing
+`ordinary_new_home_prefix_retains_order_and_requires_prior_installation`
+source-issued three-Home fixture. Obtain the existing read-only graph plan
+before raw preparation and retain its Normal order (third, second, first).
+An owner-local cfg(test) child calls the same pending root preparation and
+cleanup shape validator before any root publication. Check origin reversal
+and omission, wrong entry binding, and physical Normal/Fault path changes;
+keep recorded instructions consistent with changed physical nodes so path
+refusal is not merely a snapshot mismatch. Drop every pending row and assert
+root progress remains absent/Unprepared, then run the original raw
+prepare/begin/record/finalization checks. This tests the shared nonempty Home
+owner, not a newly source-selected nonempty Static Loop profile. It does not
+replace the original selected two-exit transaction test or physical CLI
+acceptance. Focused verification is recorded below; S0 remains unaccepted.
+
+
+Physical acceptance follow-up audit (read-only, 2026-10-11): canonical MIR
+JSON document egress and lifecycle EXE physical publication are different
+consumers. `backend_core_ops/allowlists.rs`, `mir_json_emit` control-flow
+writer, and the instruction reference keep generic Invoke/Normal/Fault JSON
+admission closed. Do not add only an allowlist exception or substitute the
+lifecycle ABI JSON for the canonical document. The document egress owner
+needs a lossless schema/writer/reader contract preserving the published
+call/carrier, Normal projection, Fault frame/edges, cleanup order and source
+metadata. The S0 JSON requirement remains outstanding.
+
+EXE `NoIncoming(slot 7)` originates in the borrowed incoming inventory query,
+not runtime reachability. The same cohort query has both package selection
+and final source/entry consumers, so the token alone does not prove which
+consumer rejected the original probe. Next physical diagnostic: identify
+slot7's exact source callable and first demanding consumer using existing
+declaration identities. Then decide the borrowed incoming/entry boundary
+between an unselected source-only candidate and a published function needing
+entry authorization. Retain selected whole-cohort veto; do not suppress all
+NoIncoming errors, infer Integer from an opaque formal, delete uncalled
+functions without a selected deletion contract, or change the original Main
+to manufacture incoming evidence. This audit selects no new production
+implementation and does not waive either physical acceptance condition.
+
+
+Guard classification during pending-order verification: pointer guard PASS.
+`mirbuilder_qualified_route_scope_guard.sh` currently exits1 at line446:
+`lower_with_source_publication` count3 versus required >=4. Both guard and
+`raw_loop_child_entry.rs` are unchanged from HEAD `9c8d4a59a9`; that HEAD blob
+also counts3. This is known pre-change guard debt, not a pending-order test
+regression. Earlier recorded scope-guard PASS is historical evidence, not a
+PASS for this checkout run. Do not weaken the count as part of this slice.
+
+
+Nonempty pending-order evidence (2026-10-11, based on `9c8d4a59a9`):
+`ordinary_new_home_prefix_retains_order_and_requires_prior_installation`
+passes1/1, including the original raw installation/completion/finalization
+checks and the new pending positive plus five refusals described above.
+Every discarded pending result leaves the source root absent/Unprepared;
+read-only preview operations equal the subsequent raw begin result.
+Quick build/link8m15s, test0.01s. The same built executable runs
+`original_static_loop_collects_only_after_packet_preflight`1/1 in0.04s,
+retaining selected transaction and Return/tail/route coverage. No new test
+names or baseline changes. Touched Rust format and diff checks PASS.
+Pointer guard PASS; scope guard is the classified pre-change count debt above.
+Read-only worker confirmed the physical mutations test missing Normal
+obligations and Fault successor semantics, not only recorded snapshots.
+
+This closes the shared nonempty Home/origin/entry-binding/Normal/Fault order
+negative obligation. It does not claim a new nonempty selected Static source
+profile or whole-owner retirement. S0 remains open for the exact physical
+JSON/EXE acceptance and final caller-zero/deletion closeout at that revision.

@@ -381,3 +381,7 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 }
+
+#[cfg(test)]
+#[path = "pending_order_tests.rs"]
+mod order_tests;
