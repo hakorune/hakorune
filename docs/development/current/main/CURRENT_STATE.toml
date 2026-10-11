@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-root-exit-static-two-exit-s0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md"
 latest_card_summary = """
-The unchanged SizeClassBox physical first stop is root-exit-unconsumed.
-Both size_to_bin explicit exits have ready Home projections but absent root
-progress. Canonical writer R1 is closed: fallible block reservation, canonical
-CFG root Jump/Invoke/fault operations, deferred Returns, and focused positive
-and negative tests pass. The unchanged source still stops at
-root-exit-unconsumed. R2 closed the shared graph-core extraction without
-changing raw behavior or the unchanged-source first stop. S0 now owns the
-selected cutover and post-collect publication. No EXE PASS is claimed.
+Selected Static V2 two-exit production wiring is implemented, not S0 accepted.
+One pending view holds the shared lexical group, excluded routes, two Home
+roots, body packet and physical validation; ledger commit follows collection.
+The original SizeClassBox source passes root-exit-unconsumed in recorded probes.
+JSON stops at unsupported terminator Invoke; EXE at incoming-veto NoIncoming(slot 7).
+Closeout still owes selected pending-batch negatives and physical acceptance.
+Early direct-return responsibility and tail direct MirCall::global were replaced;
+shared raw Plain/Call consumers remain. No whole-app EXE success is claimed.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -236,6 +236,7 @@ mod tests {
                             let mut module = MirModule::new("selected-static-loop-finish".into());
                             module.functions.insert(function.signature.name.clone(), function);
                             let ledger = installed.ordinary_new_claim_ledger();
+                            reject_changed_root_returns(&ledger, &module);
                             ledger.validate_finalized_child_functions(&module, false).unwrap();
                             ledger.with_selected_loop_body_packet_for_test(|site, packet| {
                                 let (finished, coordinate) = ledger
@@ -267,5 +268,57 @@ mod tests {
             .unwrap()
             .join()
             .expect("cataloged Static Loop entry");
+    }
+
+    /// Independently mutated final MIR must not inherit the source root receipt.
+    /// Run before the sole successful finalization consumes its Checked state.
+    fn reject_changed_root_returns(
+        ledger: &OrdinaryNewClaimLedgerV1,
+        module: &crate::mir::MirModule,
+    ) {
+        let function = &module.functions["SizeClassBox.size_to_bin/1"];
+        let returns: Vec<_> = function
+            .blocks
+            .iter()
+            .filter_map(|(block, body)| match body.terminator.as_ref() {
+                Some(MirInstruction::Return { value: Some(value) }) => Some((*block, *value)),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            returns.len(),
+            2,
+            "both original source exits survive collection"
+        );
+        assert_ne!(
+            returns[0].1, returns[1].1,
+            "early and tail have distinct source results"
+        );
+        for (index, (block, _)) in returns.iter().enumerate() {
+            for (label, replacement) in [
+                ("missing", None),
+                ("no-value", Some(MirInstruction::Return { value: None })),
+                (
+                    "foreign-exit-value",
+                    Some(MirInstruction::Return {
+                        value: Some(returns[1 - index].1),
+                    }),
+                ),
+            ] {
+                let mut changed = module.clone();
+                changed
+                    .functions
+                    .get_mut("SizeClassBox.size_to_bin/1")
+                    .unwrap()
+                    .blocks
+                    .get_mut(block)
+                    .unwrap()
+                    .terminator = replacement;
+                let error = ledger
+                    .validate_finalized_child_functions(&changed, false)
+                    .expect_err("changed root Return must not finalize");
+                assert!(error.contains("[freeze:contract]"), "{label}: {error}");
+            }
+        }
     }
 }

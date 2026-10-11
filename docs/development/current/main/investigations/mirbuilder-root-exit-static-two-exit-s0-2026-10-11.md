@@ -178,3 +178,60 @@ the final caller-zero review, card-required closeout evidence, and any later
 old-edge retirement still need explicit verification before the slice is
 closed. No whole `SizeClassBox`, mimalloc-lite, or MirBuilder EXE pass is
 claimed.
+
+## Independent closeout audit (2026-10-11)
+
+Read-only worker and main-agent source review at `47b5886077` confirm the
+production selection in `normal_callable_semantic_loan_port.rs` dispatches
+`collect_if_selected` and returns on success; selected errors propagate with
+`?`, without retry to the later canonical route. Source selection is unchanged.
+
+Selected old responsibilities, bounded to this Static V2 two-exit caller:
+
+- Early: `f9cb8906be` replaced completion at `body_blocks.then_block` with
+  completion at the sole root graph's `clean` block. Current body-exit emitter
+  passes the Home plan to `emit_selected_root_graph_v1`; no selected direct
+  early-return completion remains at the body block.
+- Tail: `47b5886077` removed `MirCall::global(None, target, vec![])` from
+  `static_loop_tail.rs`. The current file contains no `MirCall::global` or
+  separate `emit_i64_invoke`; original packet/publication loan materializes
+  the Call used by the sole root graph. Shared raw Plain/Call owners remain.
+
+This is static before/after and caller-zero evidence for those exact old
+responsibilities, not whole-owner retirement or completed S0 acceptance.
+No additional production deletion is authorized by this audit.
+
+All Result-returning admission/publication operations precede `.collect()`;
+the following commits publish the prepared route/group/root/body/physical
+rows. No post-collect transaction defect was found in this read-only audit.
+The missing acceptance is concrete: pending-view rejection of foreign/missing
+Return, wrong Home/binding order, tail packet/route drift and stale predecessor
+must demonstrate no selected ledger publication. Generic owner tests alone
+are insufficient. The independently mutated final-MIR Return checks in the
+existing source test address finalization only, not this precollect obligation.
+JSON/EXE limits above remain outstanding physical acceptance; do not narrow
+S0's completion condition or silently retire its unfinished requirements.
+
+Next bounded test work stays in S0: an owner-local cfg(test) child of
+`static_loop_entry_session` can destructure the prepared batch and borrow the
+uncollected function with `pending.complete_before_restore`. Only the body
+retention packet needs an owner-local cfg(test) loan. Reuse the single pending
+validator for Return/tail packet/excluded-route mutations and assert all
+selected publication counts remain zero; do not add a second production
+validation, environment injection hook or semantic receipt. Nonempty Home
+order mutations require an existing nonempty Home fixture; this source's
+empty order cannot prove ordering. Canonical finish/DraftSeal owns stale CFG
+predecessor rejection, not a new pending-view CFG authority.
+
+Focused finished-MIR evidence (2026-10-11, code based on `47b5886077`):
+`original_static_loop_collects_only_after_packet_preflight` passes 1/1 with
+six independent mutations: each of the two original Return terminators is
+removed, changed to no-value, or given the other exit's value. Each mutated
+module refuses final child validation; the unchanged module then succeeds.
+The existing missing-route and duplicate-collector unpublished-state checks
+also pass in the same test. This does not supply the missing precollect
+Return/packet/Home-order evidence. First compile failed on a test-helper
+Rc/reference mismatch; borrowing the ledger fixed it. Final quick build/link
+8m14s, test execution0.03s; no current-change red remains in this focused run.
+Pointer guard, qualified-route scope guard, touched-file rustfmt and diff check
+pass. No full-suite or fresh CLI acceptance was run for this test-only change.
