@@ -217,50 +217,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     ) -> Option<&super::borrowed_formal_source::BorrowedFormalObjectViewV1> {
         self.source.formal_object_view(formal)
     }
-    /// Loan the original target, including its source owner and batch identity.
-    pub(crate) fn incoming_targets(
-        &self,
-    ) -> impl Iterator<Item = Result<super::borrowed_formal_uses::BorrowedCallSourceLoanV1<'_>, String>>
-    {
-        self.incoming_rows
-            .iter()
-            .filter(move |row| row.callee == self.owner)
-            .map(|row| {
-                let loan = row.source.as_loan();
-                if loan.call_site() != &row.call
-                    || loan.callee_owner() != row.callee
-                    || row.callee != self.owner
-                {
-                    return Err(freeze("borrowed-entry/incoming-source-identity"));
-                }
-                if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
-                    &row.source
-                {
-                    if !original.is_qualified()
-                        && !((original.is_current_owner_i64_source_v1()
-                            || (original.is_current_owner_bool_source_v1()
-                                && self.source.source_only_definitions.contains_key(&self.owner)))
-                            && self.incoming.iter().any(|(site, actuals)| {
-                                *site == &row.call && actuals.len() == 1
-                            }))
-                    {
-                        original.require_qualified()?;
-                    }
-                    let retained = self
-                        .source
-                        .source_incoming
-                        .static_observations()
-                        .get(&row.call)
-                        .ok_or_else(|| freeze("borrowed-entry/incoming-source-missing"))?
-                        .as_ref()
-                        .map_err(Clone::clone)?;
-                    if !Rc::ptr_eq(retained, original) {
-                        return Err(freeze("borrowed-entry/incoming-source-drift"));
-                    }
-                }
-                Ok(row.source.as_loan())
-            })
-    }
+
 }
 
 impl OrdinaryNewClaimLedgerV1 {
