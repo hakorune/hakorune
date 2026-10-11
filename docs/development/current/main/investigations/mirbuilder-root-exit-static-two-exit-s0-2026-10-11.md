@@ -139,6 +139,11 @@ removed after both trees and their clean status matched. Pre-integration
 changes from the old main checkout are preserved separately at local branch
 `archive/main-dirty-20261011` (`6e5c7d98d3`); do not merge that snapshot
 wholesale into this lane.
+The archive has 36 paths absent from this branch, chiefly the old stored-child
+call/provider-fault probes and ordinary I64 Array/Birth indexed ABI WIP.
+Those old cards mark S1/S2 active and uncommitted; no acceptance or production
+switch was inherited. Reconcile each family against the then-current selected
+row before reusing it. This archive review is parked and does not expand S0.
 The selected early exit now carries a read-only `PendingRootHomeExitV1` into
 child validation. The shared Home preview and pending cleanup-shape view are
 implemented, but the selected tail has no pending token and the early token
