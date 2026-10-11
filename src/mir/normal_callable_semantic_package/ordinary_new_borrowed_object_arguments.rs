@@ -8,6 +8,7 @@ use crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1;
 
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     actuals: &PendingBorrowedFormalActualsV1,
     target: &LexicalInstanceCallSourceTargetV1,
     loan: &ObjectReturnCallQualificationV1,
@@ -28,13 +29,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_a
     {
         return Err(freeze("borrowed-call/object-source-identity"));
     }
-    project_pending_object_target_arguments_v1(source, actuals, target)
+    project_pending_object_target_arguments_v1(source, contracts, actuals, target)
 }
 
 /// Borrows the exact original target's input phase; grants no result membership.
 /// Qualified callers validate their original qualification before this lender.
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_target_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     actuals: &PendingBorrowedFormalActualsV1,
     target: &LexicalInstanceCallSourceTargetV1,
 ) -> Result<ObjectCallSourceSupportV1, String> {
@@ -42,6 +44,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
     let ingress = source.as_ref().map_err(Clone::clone)?;
     if let Some(Err(issue)) = actuals.get(site) {
         return Err(issue.clone());
+    }
+    let source_only_forward =
+        super::object_source::selected_source_only_object_forward_v1(ingress, target);
+    if source_only_forward
+        && !matches!(actuals.get(site), Some(Ok(rows))
+        if matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::SourceObject(_)))
+    {
+        return Err(freeze("borrowed-object/source-phase-drift"));
     }
     if let Some(Ok(rows)) = actuals.get(site) {
         if let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &rows.phase {
@@ -61,6 +71,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_object_t
                 || !rows.opaque_actuals.is_empty()
             {
                 return Err(freeze("borrowed-object/source-actual-identity"));
+            }
+            let rechecked = super::object_source::prepare_object_source_actuals_v1(
+                ingress,
+                contracts,
+                site,
+                &identity.candidates,
+            )?
+            .ok_or_else(|| freeze("borrowed-object/source-phase-drift"))?;
+            if rows != &rechecked {
+                return Err(freeze("borrowed-object/source-snapshot-drift"));
             }
             return Ok(ObjectCallSourceSupportV1::SourceOnly(
                 rows.ordered_arguments.clone(),

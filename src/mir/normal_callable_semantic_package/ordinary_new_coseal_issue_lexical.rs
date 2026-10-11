@@ -348,6 +348,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
     if let BorrowedCallActualRequestV1::ReceivedObjectArguments(destination, result) = request {
         return super::super::lexical_instance_call::received_producer_arguments_v1(
             source,
+            contracts,
             pending,
             targets,
             candidates,
@@ -370,7 +371,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             destination,
             &mut |target, loan| {
                 super::super::lexical_instance_call::project_pending_object_arguments_v1(
-                    source, pending, target, loan,
+                    source, contracts, pending, target, loan,
                 )
             },
         )
@@ -412,7 +413,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             }
             let arguments =
                 super::super::lexical_instance_call::project_pending_object_arguments_v1(
-                    source, pending, target, loan,
+                    source, contracts, pending, target, loan,
                 )?;
             Ok(Some(BorrowedCallArgumentsV1::Object {
                 qualification: loan.clone(),
@@ -487,6 +488,23 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             return Ok(None);
         }
     }
+    if matches!(
+        request,
+        BorrowedCallActualRequestV1::I64ResultArguments
+            | BorrowedCallActualRequestV1::ScalarArguments
+    ) {
+        if let Some(arguments) =
+            super::super::lexical_instance_call::project_pending_instance_source_arguments_v1(
+                source, pending, contracts, site,
+            )
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: site.clone(),
+                issue,
+            })?
+        {
+            return Ok(Some(BorrowedCallArgumentsV1::SourceInstance(arguments)));
+        }
+    }
     match request {
         BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim) => {
             super::super::lexical_instance_call::project_pending_static_source_arguments_v1(
@@ -507,19 +525,6 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|row| row.map(BorrowedCallArgumentsV1::StaticSource))
         }
         BorrowedCallActualRequestV1::I64ResultArguments => {
-            if let Some(arguments) =
-                super::super::lexical_instance_call::project_pending_instance_source_arguments_v1(
-                    source, pending, contracts, site,
-                )
-                .map_err(|issue| {
-                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
-                        site: site.clone(),
-                        issue,
-                    }
-                })?
-            {
-                return Ok(Some(BorrowedCallArgumentsV1::SourceInstance(arguments)));
-            }
             super::super::lexical_instance_call::project_pending_i64_result_arguments_v1(
                 source, pending, results, site,
             )

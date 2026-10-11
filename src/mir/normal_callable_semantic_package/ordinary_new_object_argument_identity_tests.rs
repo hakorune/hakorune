@@ -74,11 +74,15 @@ fn object_arguments_reject_original_incoming_callee_drift_before_profile_unavail
     let ingress = source.as_mut().unwrap();
     ingress.incoming = vec![row].into_boxed_slice();
     ingress.definitions.clear();
-    assert!(
-        project_pending_object_arguments_v1(source, &Default::default(), &target, &loan)
-            .unwrap_err()
-            .contains("object-source-identity")
-    );
+    assert!(project_pending_object_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &Default::default(),
+        &target,
+        &loan
+    )
+    .unwrap_err()
+    .contains("object-source-identity"));
 }
 
 #[test]
@@ -96,7 +100,14 @@ fn object_arguments_demand_staged_error_before_missing_incoming_support() {
         Err("selected-original-actual-error".into()),
     );
     assert_eq!(
-        project_pending_object_arguments_v1(source, &actuals, &target, &loan).unwrap_err(),
+        project_pending_object_arguments_v1(
+            source,
+            &package.parameter_contracts,
+            &actuals,
+            &target,
+            &loan
+        )
+        .unwrap_err(),
         "selected-original-actual-error"
     );
 }
@@ -163,7 +174,7 @@ fn original_object_source_actuals_retain_order_and_refuse_executable_permission(
     let mut pending = PendingBorrowedFormalActualsV1::new();
     pending.insert(loan.call().clone(), Ok(rows));
     assert!(
-        matches!(project_pending_object_arguments_v1(source, &pending, &target, &loan).unwrap(),
+        matches!(project_pending_object_arguments_v1(source, &package.parameter_contracts, &pending, &target, &loan).unwrap(),
         ObjectCallSourceSupportV1::SourceOnly(arguments) if arguments.len() == 1)
     );
     reject_borrowed_actuals_for_owner_v1(
@@ -172,11 +183,15 @@ fn original_object_source_actuals_retain_order_and_refuse_executable_permission(
         &mut pending,
         "failed-original-walk".into(),
     );
-    assert!(
-        project_pending_object_arguments_v1(source, &pending, &target, &loan)
-            .unwrap_err()
-            .contains("failed-original-walk")
-    );
+    assert!(project_pending_object_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &pending,
+        &target,
+        &loan
+    )
+    .unwrap_err()
+    .contains("failed-original-walk"));
 }
 
 #[test]
@@ -231,11 +246,15 @@ fn failed_object_source_walk_revokes_unobserved_raw_call_without_execution_grant
         &mut pending,
         "unobserved-source-walk-failed".into(),
     );
-    assert!(
-        project_pending_object_arguments_v1(source, &pending, &target, &loan)
-            .unwrap_err()
-            .contains("unobserved-source-walk-failed")
-    );
+    assert!(project_pending_object_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &pending,
+        &target,
+        &loan
+    )
+    .unwrap_err()
+    .contains("unobserved-source-walk-failed"));
     let ingress = source.as_ref().unwrap();
     for (owner, draft) in &ingress.definitions {
         assert!(!ingress.source_only_definitions.contains_key(owner));
@@ -317,9 +336,53 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
     let mut staged = PendingBorrowedFormalActualsV1::new();
     staged.insert(loan.call().clone(), Ok(pending));
     assert!(matches!(
-        project_pending_object_arguments_v1(source, &staged, &target, &loan).unwrap(),
+        project_pending_object_arguments_v1(
+            source,
+            &package.parameter_contracts,
+            &staged,
+            &target,
+            &loan
+        )
+        .unwrap(),
         crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1::SourceOnly(_)
     ));
+    for replacement in [
+        BorrowedCallActualValueV1::Integer(7),
+        BorrowedCallActualValueV1::Bool(true),
+        BorrowedCallActualValueV1::Null,
+    ] {
+        let mut replaced = staged.clone();
+        let rows = replaced.get_mut(loan.call()).unwrap().as_mut().unwrap();
+        let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &mut rows.phase else {
+            unreachable!()
+        };
+        identity.candidates[0].value = replacement;
+        assert!(project_pending_object_arguments_v1(
+            source,
+            &package.parameter_contracts,
+            &replaced,
+            &target,
+            &loan,
+        )
+        .unwrap_err()
+        .contains("forward-source-identity"));
+    }
+    let mut replaced = staged.clone();
+    replaced
+        .get_mut(loan.call())
+        .unwrap()
+        .as_mut()
+        .unwrap()
+        .phase = BorrowedCallActualEvidencePhaseV1::Executable;
+    assert!(project_pending_object_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &replaced,
+        &target,
+        &loan,
+    )
+    .unwrap_err()
+    .contains("source-phase-drift"));
     for change in 0..3 {
         let mut changed = actual.clone();
         match change {
@@ -346,4 +409,141 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
             "change={change}"
         );
     }
+}
+
+#[test]
+fn unqualified_object_sibling_forward_retains_only_original_source_input() {
+    use crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1;
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Token {} box Maker {
+            make(p) { if p <= 0 { return null } return new Token() }
+            relay(p) { if p <= 0 { return new Token() } local item = me.make(p) return new Token() }
+            qualified() { return me.make(7) }
+        } static box Main { main() { return 0 } }"
+    ).expect("original unqualified sibling does not become an entry receiver");
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.borrowed_formal_source.as_ref().unwrap();
+    let ingress = source.as_ref().unwrap();
+    let original = ingress
+        .source_incoming
+        .exact_rows()
+        .find(|row| {
+            row.source.instance().is_some_and(|target| {
+                target.target().owner() == "Maker"
+                    && target.target().name() == "make"
+                    && !target.has_object_source_requirement()
+                    && ingress
+                        .source_only_definitions
+                        .contains_key(&row.call.owner())
+            })
+        })
+        .expect("unqualified original incoming sibling")
+        .clone();
+    let target = original.source.require_instance().unwrap().clone();
+    assert!(target.object_return_sources().is_none());
+    assert!(target.object_source_forwards().is_none());
+    assert!(ingress.source_incoming.has_object_input_callee_v1(&target));
+    assert!(!ingress.definitions.contains_key(&original.call.owner()));
+    let rows = ledger
+        .borrowed_formal_actuals
+        .get(&original.call)
+        .unwrap()
+        .as_ref()
+        .unwrap()
+        .clone();
+    assert!(matches!(
+        rows.phase,
+        BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+    ));
+    assert!(rows.opaque_actuals.is_empty());
+    assert!(rows
+        .require_executable_v1()
+        .unwrap_err()
+        .contains("source-only-object"));
+    let mut pending = PendingBorrowedFormalActualsV1::new();
+    pending.insert(original.call.clone(), Ok(rows));
+    assert!(matches!(
+        project_pending_object_target_arguments_v1(
+            source,
+            &package.parameter_contracts,
+            &pending,
+            &target,
+        )
+        .unwrap(),
+        ObjectCallSourceSupportV1::SourceOnly(_)
+    ));
+    assert_eq!(
+        super::super::instance_source::project_pending_instance_source_arguments_v1(
+            source,
+            &pending,
+            &package.parameter_contracts,
+            &original.call,
+        )
+        .unwrap()
+        .unwrap(),
+        pending[&original.call].as_ref().unwrap().ordered_arguments
+    );
+    assert!(lend_pending_borrowed_arguments_v1(source, &pending, &original.call).is_err());
+    for mutation in 0..7 {
+        let mut changed = pending.clone();
+        let row = changed.get_mut(&original.call).unwrap().as_mut().unwrap();
+        let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &mut row.phase else {
+            unreachable!()
+        };
+        match mutation {
+            0 => identity.candidates[0].ordinal = 1,
+            1 => identity.candidates[0].site = original.call.site().clone(),
+            2 | 3 => {
+                let BorrowedCallActualValueV1::SelfRooted { binding, root } =
+                    &mut identity.candidates[0].value
+                else {
+                    panic!("original forwarded binding")
+                };
+                let foreign = BindingRefV1::new(target.callee_owner(), binding.binding());
+                if mutation == 2 {
+                    *root = foreign;
+                } else {
+                    *binding = foreign;
+                }
+            }
+            4 => identity.candidates[0].value = BorrowedCallActualValueV1::Integer(7),
+            5 => row.ordered_arguments[0] = LocalCallArgumentV1::Integer(7),
+            _ => row.phase = BorrowedCallActualEvidencePhaseV1::Executable,
+        }
+        assert!(
+            project_pending_object_target_arguments_v1(
+                source,
+                &package.parameter_contracts,
+                &changed,
+                &target,
+            )
+            .is_err(),
+            "original sibling snapshot mutation {mutation}"
+        );
+    }
+    let missing = PendingBorrowedFormalActualsV1::new();
+    assert!(project_pending_object_target_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &missing,
+        &target,
+    )
+    .unwrap_err()
+    .contains("source-phase-drift"));
+    let staged = pending;
+    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let source = ledger.borrowed_formal_source.as_mut().unwrap();
+    source
+        .as_mut()
+        .unwrap()
+        .source_only_definitions
+        .remove(&original.call.owner());
+    assert!(project_pending_object_target_arguments_v1(
+        source,
+        &package.parameter_contracts,
+        &staged,
+        &target,
+    )
+    .unwrap_err()
+    .contains("sibling-source-draft"));
 }

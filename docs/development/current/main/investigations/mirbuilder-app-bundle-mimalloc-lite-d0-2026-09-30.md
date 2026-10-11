@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — unchanged app frontier selected; borrowed actual identity D0 remains open.
+Status: active bundle — source-only sibling input S0 accepted; qualified input D0 selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -918,58 +918,74 @@ Set/Add decisions. Original app EXE completion and bundle tasks 10-12 remain.
 No opaque operation activation or physical deletion claim is made here.
 
 
-## App frontier resume D0 (2026-10-12)
+## Source-only sibling forward S0 — accepted (2026-10-12)
 
-Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-FRONTIER-RESUME-D0`.
-The selected SizeClass two-exit/document S0 closes at 2f6f0a8a1a; current native
-1/2/73 and original13-definition JSON/independent readback are proven. Return
-here to the existing app-completion obligation, without reopening parked lanes.
+Parent bounded two-exit/document S0 accepted at `2f6f0a8a1a`; original13-definition
+JSON/readback and native1/2/73 pass. Whole app/product remain unfinished.
+**Correction to b3c9b84879:** header input enumeration is batch_slot, not owner
+slot. Exact contracts identify owner34 -> batch_slot30 `allocateResult(size)`;
+callee owner33 -> batch_slot29 `allocate(requested_size)`, both OpaqueHandle.
+Previous reallocResult/class conjectures are withdrawn. Contract/current-source
+map: `/tmp/mimalloc-borrowed-contract-join.log`, `...-current-callable-map.log`.
 
-Decision: first run the unchanged mimalloc-lite production EXE invocation with
-pure-first, compatibility replay none and plugins disabled using that tested CLI.
-Pin source/revision/binary/runtime/command/time and identify the first named
-source owner/site/terminal. Then select the smallest existing unfinished bundle
-mapping. Do not modify `.hako`, manufacture a caller or broaden an authority to
-make the probe pass. No full-app success, new implementation permission or
-source-owner assignment is claimed before this census. AllSource literal9 JSON
-admission remains a separately recorded boundary, not a substitute frontier.
+Original app SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
+Before: controlled EXE at2f6f0a8a1a refuses in0.049s, no artifact,
+`borrowed-actual/entry-source`, owner34 `Body(1)/Initializer(0)`.
+Read-only original loan: ordinal0 SelfRooted binding/root owner34/binding1,
+callee formal owner33/binding1, entry owner34/binding0. Caller executable draft
+absent, source-only origin present. Callee Object-input membership=true; Instance
+and Object preselectors disagreed about that original sibling input.
+Evidence: `/tmp/mimalloc-borrowed-entry-source-values.log`,
+`...-partition-join.log`, `...-source-selection.log`.
 
-### Controlled first-stop and exact rejection branch
+Decision + implemented mapping: original parameter catalog, excluded caller
+borrowed-use draft and immutable incoming target feed the existing Object actual
+owner. Callee Object-input membership consistently selects the input owner.
+Explicit return-forward loans keep exact identity checks; their ordinals require
+SelfRooted before candidate variant selection. An input without those loans joins
+unique UnresolvedArgument call/ordinal/site/binding/root and original origin.
+The same pending row retains SourceObject, empty opaque proofs, no execution grant.
+Demand reissues that same source preparation and compares the complete snapshot.
+For non-return-qualified Instance/producer-dependency inputs, generic I64/Scalar
+requests receive the existing passive SourceInstance response through that same
+lender; consumers end unarmed, with no strict retry. Qualified result requests
+retain their original protocol. No new receipt, solver, source rewrite or ABI.
+Selected replacement: this original input no longer falls into EntryReceiver;
+shared receiver/executable construction remains. No whole-owner deletion claim.
 
-- Revision `2f6f0a8a1a`, unchanged `apps/mimalloc-lite/main.hako` SHA256
-  `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`;
-  tested CLI SHA256 `c965cf19ba9cdf1afd36165be9c05567ed6ec0b2b49701beb9c0a56891c3e46a`.
-  Controlled `--backend mir --emit-exe` with pure-first/replay-none/plugins-off
-  rejects in 0.049s, no EXE: `ordinary-new/borrowed-actual/entry-source`,
-  owner slot34, `Body(1)/Initializer(0)`. Full command/runtime/time receipt:
-  `/tmp/mimalloc-lite-frontier-2f6f0a8a1a-receipt.json`.
-- Current-binary read-only GDB map confirms slot34 `HakoAllocHeap.reallocResult`
-  and slot33 `HakoAllocHeap.realloc`; `/tmp/mimalloc-current-callable-map.log`.
-  This is invocation-local identification, never source authority.
-- Exact freeze return address is constructor specialization `4254acdb1756d1d4`
-  +6384. Binary disassembly distinguishes its EntryReceiver rejection at
-  `0x1fda716` from the DeclaredObject owner rejection at `0x1fda735`.
-  Original candidate ordinal0 is SelfRooted; binding/root both brand1/slot34/
-  binding1, entry receiver brand1/slot34/binding0; incoming callee formal is
-  brand1/slot33/binding1. Thus this execution rejects root != entry, not a
-  DeclaredObject owner mismatch. Logs: `/tmp/mimalloc-borrowed-entry-source-audit.log`
-  and `/tmp/mimalloc-borrowed-entry-source-values.log`. No code instrumentation.
-- Static source audit: executable `definitions` and `source_only_definitions`
-  are disjoint. The constructor checks only executable origins before declared
-  formal/receiver alternatives; the existing object-source preselector is
-  conditional on its original target requirement. These facts alone do not
-  prove which source-only origin/contract exists for binding1.
+Evidence / red classification:
+- Final quick test build/link494.352s; object identity9PASS, actuals26PASS/1
+  known baseline, incoming12PASS, received4PASS: unique51PASS/1 baseline.
+  New original sibling case plus candidate/site/root/order/phase/missing-draft
+  negatives PASS; existing qualified forward rejects Integer/Bool/Null substitution.
+  `/tmp/mimalloc-sibling-forward-v3-runtime-receipt.json` pins binary/conditions.
+- NoIncoming in original_instance_forward_source_refuses_execution_and_snapshot_drift
+  reproduces on pre-change preserved V5 binary (SHA2563c3f483021776fe640d1d9ba980185776400228d59a5d7c1387614f3aa1932bd).
+  `/tmp/mimalloc-sibling-forward-baseline-instance.log`; not waived or rebased.
+- Interim source-only executable demand was a current-change missing consumer
+  mapping, fixed through the same lender. Focused qualification seed uses literal7
+  to avoid an unrelated unused opaque NoIncoming; relay's Opaque input is intact.
+  Original app source was never altered or replaced by this supporting fixture.
+- Final CLI build/link232.185s; unchanged app now passes owner34 and first refuses
+  owner37 `Body(5)/Initializer(0)`, source-only-object-actuals,0.047s/no EXE.
+  `/tmp/mimalloc-sibling-forward-cli-v3-runtime-receipt.json`; CLI/test snapshots
+  confirm identical changed Rust bytes. No app PASS or physical result claim.
+- Pointer/touched format/diff PASS, all touched Rust<800; lexical callback782
+  retains preexisting soft-limit debt. Scope guard remains unchanged baseline:
+  raw_loop_child_entry count3 vs required4; no suppression or guard loosening.
+  No full-suite/whole-repo green, JSON execution, or global retirement claim.
 
-Decision: keep implementation unselected until original caller parameter row,
-callee row and draft partition for that exact binding are joined. Do not label
-binding1 as handle/requested_size from numbering, lend source-only permission,
-or erase the receiver check. The earlier two-branch ambiguity is resolved.
-Smallest next tasks within existing formal-actual owner:
-1. Inspect exact sealed caller/callee parameter kinds and original formal origin,
-   incoming argument site and forwarding row for the above tuple.
-2. Select existing source-phase preparation or executable forwarding only after
-   its identity and permission requirements close; preserve one ordered call.
-3. Test original source positive plus foreign binding/root/site and unselected
-   phase negatives; rerun this unchanged app first-stop after the selected fix.
-Non-claims: D0 is open; no app PASS, physical carrier grant, production cutover,
-new deletion or whole-product completion. Prior guarded retirement stays closed.
+## Next bounded design — qualified source input D0
+
+Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-D0`.
+Exact contracts map owner37 -> batch_slot33 `HakoAllocHeap.realloc`; its original
+Body(5) initializer calls allocate with requested_size (binding/root2), ordinal0.
+Evidence `/tmp/mimalloc-next-qualified-source-contract.log`. The tagged input is
+retained SourceObject but generic Scalar/I64 discovery demands executable actuals.
+Close the passive input response for this qualified target in the same lender;
+ObjectArguments/ReceivedObject/Handle must retain original qualification checks.
+Negative: no Scalar/Executable response, foreign qualification/snapshot/phase
+rejection, direct execution refusal. Existing object_input_finish, Completion and
+receiver/result owners separately own activation, Normal/result and physical ABI.
+Design is selected, implementation not yet; do not claim qualified cutover,
+old-edge retirement, whole SizeClass/mimalloc-lite/MirBuilder completion.

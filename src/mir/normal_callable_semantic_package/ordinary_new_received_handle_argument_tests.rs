@@ -297,6 +297,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         let targets = Ok(vec![Ok(Some(target.clone()))]);
         let result = received_producer_arguments_v1(
             source,
+            &package.parameter_contracts,
             pending,
             &targets,
             &candidates,
@@ -319,6 +320,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         };
         assert!(received_producer_arguments_v1(
             source,
+            &package.parameter_contracts,
             pending,
             &targets,
             &candidates,
@@ -340,6 +342,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         ] {
             assert!(received_producer_arguments_v1(
                 source,
+                &package.parameter_contracts,
                 pending,
                 &broken,
                 &candidates,
@@ -352,6 +355,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         }
         assert!(received_producer_arguments_v1(
             source,
+            &package.parameter_contracts,
             pending,
             &targets,
             &[],
@@ -365,6 +369,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         let empty = result_class_claim::OrdinaryNewResultClassClaimsV1::new();
         assert!(received_producer_arguments_v1(
             source,
+            &package.parameter_contracts,
             pending,
             &targets,
             &candidates,
@@ -383,6 +388,7 @@ fn received_producer_source_preserves_original_phase_kind_and_selected_refusal()
         assert_eq!(
             received_producer_arguments_v1(
                 source,
+                &package.parameter_contracts,
                 &poisoned,
                 &targets,
                 &candidates,

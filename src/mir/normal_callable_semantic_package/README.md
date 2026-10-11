@@ -1760,7 +1760,12 @@ validation checks coordinates and duplicates without counting valid nonopaque
 ordinals as forwarded opaque identities. These requirements grant no execution.
 
 SourceObject actuals retain the original Instance target, incoming opaque
-coordinates and candidate vector on the same pending row. Their opaque proofs
+coordinates and candidate vector on the same pending row.
+An unqualified sibling sharing an Object-input callee may retain an excluded
+caller's exact origin/UnresolvedArgument join without borrowing a return loan.
+Explicit return-forward loans keep their own strict identity checks. Demand
+reissues the same source preparation from the original parameter catalog and
+compares the complete pending row; source-only membership never grants execution. Their opaque proofs
 remain empty and executable requests reject this phase. ObjectArguments reports
 SourceOnly separately from Observed; failed owner walks revoke retained rows.
 The single original draft map is partitioned into final and source-only owners,

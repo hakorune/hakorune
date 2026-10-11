@@ -81,25 +81,43 @@ pub(super) fn prepare_object_source_actuals_v1(
         {
             return Err(freeze("borrowed-object/source-actual-identity"));
         }
+        if target
+            .object_source_forwards()
+            .is_some_and(|forwards| forwards.iter().any(|row| row.ordinal() == actual.ordinal))
+            && !matches!(actual.value, BorrowedCallActualValueV1::SelfRooted { .. })
+        {
+            return Err(freeze("borrowed-object/forward-source-identity"));
+        }
+        if target.object_source_forwards().is_none()
+            && prepared.source_only_definitions.get(&call.owner()).is_some_and(|draft| {
+                draft.uses.iter().any(|row| matches!(&row.kind,
+                    super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::UnresolvedArgument {
+                        call: original, ordinal
+                    } if original == call && *ordinal == actual.ordinal))
+            })
+        {
+            validate_source_only_sibling_forward_v1(prepared, target, actual)?;
+        }
         if let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value {
-            let forwards = target
-                .object_source_forwards()
-                .ok_or_else(|| freeze("borrowed-object/forward-source-unavailable"))?;
-            let mut matching = forwards
-                .iter()
-                .filter(|forward| forward.ordinal() == actual.ordinal);
-            let forward = matching
-                .next()
-                .ok_or_else(|| freeze("borrowed-object/forward-source-missing"))?;
-            if matching.next().is_some()
-                || forward.call() != call
-                || forward.target() != target.target()
-                || forward.site().site() != &actual.site
-                || forward.binding() != binding
-                || forward.source_formal() != root
-                || forward.callee_formal() != formal.binding
-            {
-                return Err(freeze("borrowed-object/forward-source-identity"));
+            if let Some(forwards) = target.object_source_forwards() {
+                let mut matching = forwards
+                    .iter()
+                    .filter(|forward| forward.ordinal() == actual.ordinal);
+                let forward = matching
+                    .next()
+                    .ok_or_else(|| freeze("borrowed-object/forward-source-missing"))?;
+                if matching.next().is_some()
+                    || forward.call() != call
+                    || forward.target() != target.target()
+                    || forward.site().site() != &actual.site
+                    || forward.binding() != binding
+                    || forward.source_formal() != root
+                    || forward.callee_formal() != formal.binding
+                {
+                    return Err(freeze("borrowed-object/forward-source-identity"));
+                }
+            } else {
+                validate_source_only_sibling_forward_v1(prepared, target, actual)?;
             }
         }
         arguments.push(match &formal.kind {
@@ -132,4 +150,67 @@ pub(super) fn prepare_object_source_actuals_v1(
         opaque_actuals: Box::new([]),
         ordered_arguments: arguments.into_boxed_slice(),
     }))
+}
+
+/// An unqualified sibling lends only its original input use. It cannot borrow
+/// another caller's return qualification or the executable forwarding protocol.
+pub(super) fn validate_source_only_sibling_forward_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+    actual: &BorrowedCallActualCandidateV1,
+) -> Result<(), String> {
+    use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1;
+    let call = target.call_site();
+    let draft = prepared
+        .source_only_definitions
+        .get(&call.owner())
+        .filter(|_| !prepared.definitions.contains_key(&call.owner()))
+        .ok_or_else(|| freeze("borrowed-object/sibling-source-draft"))?;
+    let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
+        return Err(freeze("borrowed-object/sibling-source-actual"));
+    };
+    let mut uses = draft
+        .uses
+        .iter()
+        .filter(|row| row.site.site() == &actual.site);
+    let row = uses
+        .next()
+        .ok_or_else(|| freeze("borrowed-object/sibling-source-use"))?;
+    if uses.next().is_some()
+        || binding.owner() != call.owner()
+        || root.owner() != call.owner()
+        || target.argument_sites().get(actual.ordinal as usize) != Some(&actual.site)
+        || row.site.owner() != call.owner()
+        || row.binding != binding
+        || row.formal != root
+        || draft.origins.get(&binding) != Some(&root)
+        || !matches!(&row.kind, BorrowedFormalUseDraftKindV1::UnresolvedArgument { call: original, ordinal }
+            if original == call && *ordinal == actual.ordinal)
+    {
+        return Err(freeze("borrowed-object/sibling-source-identity"));
+    }
+    Ok(())
+}
+
+/// Demand uses original source selection even if a pending phase was lost.
+pub(super) fn selected_source_only_object_forward_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> bool {
+    use super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1;
+    let call = target.call_site();
+    if prepared.definitions.contains_key(&call.owner())
+        || !prepared.source_incoming.has_object_input_callee_v1(target)
+    {
+        return false;
+    }
+    if let Some(forwards) = target.object_source_forwards() {
+        return !forwards.is_empty();
+    }
+    prepared.source_only_definitions.get(&call.owner()).is_some_and(|draft| {
+        draft.uses.iter().any(|row| row.site.owner() == call.owner()
+            && draft.origins.get(&row.binding) == Some(&row.formal)
+            && matches!(&row.kind, BorrowedFormalUseDraftKindV1::UnresolvedArgument { call: original, .. }
+                if original == call))
+    })
 }

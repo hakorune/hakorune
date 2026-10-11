@@ -95,17 +95,27 @@ fn needs_original_object_forward_source_v1(
     let Some(target) = incoming.source.instance() else {
         return Ok(false);
     };
-    if !target.has_object_source_requirement() || prepared.definitions.contains_key(&call.owner()) {
+    if !prepared.source_incoming.has_object_input_callee_v1(target)
+        || prepared.definitions.contains_key(&call.owner())
+    {
         return Ok(false);
     }
     let Some(forwards) = target.object_source_forwards() else {
-        return Ok(false);
+        // A sibling can share the callee's original Object input demand without
+        // owning an Object-return qualification. Keep its input nonexecuting.
+        return Ok(prepared
+            .source_only_definitions
+            .get(&call.owner())
+            .is_some_and(|draft| {
+                actuals.iter().any(|actual| {
+                    matches!(actual.value,
+                BorrowedCallActualValueV1::SelfRooted { binding, .. }
+                    if draft.origins.contains_key(&binding))
+                })
+            }));
     };
     let mut source_only = false;
     for actual in actuals {
-        let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
-            continue;
-        };
         let matching: Vec<_> = forwards
             .iter()
             .filter(|row| row.ordinal() == actual.ordinal)
@@ -114,6 +124,9 @@ fn needs_original_object_forward_source_v1(
             if matching.is_empty() {
                 continue;
             }
+            return Err(freeze("borrowed-object/forward-source-identity"));
+        };
+        let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
             return Err(freeze("borrowed-object/forward-source-identity"));
         };
         if forward.call() != call

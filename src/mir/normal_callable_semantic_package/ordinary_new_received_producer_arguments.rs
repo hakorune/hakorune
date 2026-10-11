@@ -11,6 +11,7 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 
 pub(in crate::mir::normal_callable_semantic_package) fn received_producer_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     actuals: &PendingBorrowedFormalActualsV1,
     targets: &PreparedLexicalInstanceCallSourceTargetsV1,
     candidates: &[OrdinaryNewCandidate],
@@ -100,7 +101,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn received_producer_argume
         return Ok(None);
     }
     let arguments = super::object_arguments::project_pending_object_target_arguments_v1(
-        source, actuals, target,
+        source, contracts, actuals, target,
     )?;
     if matches!(arguments, ObjectCallSourceSupportV1::Unavailable) {
         return Err(freeze("arguments-unavailable"));
