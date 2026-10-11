@@ -29,6 +29,7 @@ use std::rc::Rc;
 use self::root_home::RootHomeExitEntry;
 pub(crate) use self::root_home::TerminalNullReturnSourceLoanV1;
 pub(crate) use self::root_home::PreparedRootLexicalCallBindingGroupV1;
+pub(crate) use self::root_home::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
 
 #[derive(Debug)]
 pub(super) enum RootNewValidation {

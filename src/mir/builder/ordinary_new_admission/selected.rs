@@ -14,7 +14,7 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewConstructorDispositionV1,
     OrdinaryNewTrivialArgumentV1, PreparedTerminalI64AddReturnV1, PreparedTerminalI64FieldReturnV1,
-    PreparedTerminalMapGetReturnV1,
+    PreparedTerminalMapGetReturnV1, RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{
@@ -22,7 +22,7 @@ use crate::mir::{
 };
 use root_graph::{RawRootGraphWriterV1, RootGraphWriterPortV1};
 
-trait RootExitFramePortV1 {
+pub(in crate::mir::builder) trait RootExitFramePortV1 {
     fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String>;
     fn validate(&self, function: &MirFunction) -> Result<(), String>;
 }
@@ -277,6 +277,20 @@ pub(super) enum RootExitIngress {
     MapGet { map: ValueId, utf8: String },
 }
 
+/// Exact physical graph evidence. The ledger wrapper retains its affine
+/// source rows; the selected canonical caller can validate this receipt before
+/// its post-collector commit.
+pub(in crate::mir::builder) struct RootGraphEmissionV1 {
+    pub origins: Vec<(RootHomeReleaseOriginV1, BasicBlockId, MirInstruction)>,
+    pub bindings: Vec<(BasicBlockId, MirInstruction)>,
+    pub ingress: Option<(
+        (BasicBlockId, MirInstruction),
+        (BasicBlockId, MirInstruction),
+    )>,
+    pub frame: Option<ValueId>,
+    pub clean: BasicBlockId,
+}
+
 fn emit_root_home_exit_payload(
     builder: &mut MirBuilder,
     frame_port: &mut impl RootExitFramePortV1,
@@ -292,13 +306,89 @@ fn emit_root_home_exit_payload(
         ledger.bind_root_direct_result_v1(owner, site, statement_result, call.result)?;
     }
     let fault_sequences = ledger.root_home_fault_sequences(owner, site)?;
+    let ingress_operation = match &ingress {
+        Some(RootExitIngress::Call(call)) => Some(InvokeOperation::Call {
+            call: call.call.clone(),
+            result: call.result,
+        }),
+        Some(RootExitIngress::MapGet { map, utf8 }) => Some(InvokeOperation::Map(
+            crate::mir::instruction::MapInvokeOperation::CheckedGetI64 {
+                map: *map,
+                utf8: utf8.clone(),
+            },
+        )),
+        None => None,
+    };
+    let emission = emit_root_graph_v1(
+        builder,
+        frame_port,
+        &mut RawRootGraphWriterV1,
+        operations,
+        fault_sequences,
+        return_value,
+        statement_result,
+        ingress_operation,
+    )?;
+    let RootGraphEmissionV1 {
+        origins,
+        bindings,
+        ingress: physical_ingress,
+        frame,
+        clean: _,
+    } = emission;
+    match (ingress, physical_ingress) {
+        (Some(RootExitIngress::Call(call)), Some((invoke, projection))) => {
+            let frame = frame.ok_or_else(|| freeze("root-frame-missing"))?;
+            let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
+            ledger.record_root_call_exit(
+                owner,
+                site,
+                call.source.finish(invoke.clone(), projection.clone()),
+                call.arguments,
+                invoke,
+                projection,
+                frame_binding,
+                origins,
+                bindings,
+            )?;
+        }
+        (Some(RootExitIngress::MapGet { .. }), Some((invoke, projection))) => {
+            let frame = frame.ok_or_else(|| freeze("root-frame-missing"))?;
+            let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
+            ledger.record_root_map_get_exit(
+                owner,
+                site,
+                invoke,
+                projection,
+                frame_binding,
+                origins,
+                bindings,
+            )?;
+        }
+        (None, None) => ledger.record_root_home_exit(owner, site, origins, bindings)?,
+        _ => return Err(freeze("root-ingress-graph-mismatch")),
+    }
+    Ok(statement_result)
+}
+
+/// Sole root Home graph algorithm for raw and canonical writer ports. Source
+/// order and fault suffixes are supplied by the existing Home ledger owner.
+pub(in crate::mir::builder) fn emit_root_graph_v1(
+    builder: &mut MirBuilder,
+    frame_port: &mut impl RootExitFramePortV1,
+    writer: &mut impl RootGraphWriterPortV1,
+    operations: Vec<RootHomeReleaseOriginV1>,
+    fault_sequences: RootHomeFaultSequencesV1,
+    return_value: Option<ValueId>,
+    statement_result: ValueId,
+    ingress_operation: Option<InvokeOperation>,
+) -> Result<RootGraphEmissionV1, String> {
     let fault_operations: Vec<_> = fault_sequences
         .full
         .iter()
         .map(|origin| origin.operation().clone())
         .collect();
     let mut bindings = Vec::new();
-    let mut writer = RawRootGraphWriterV1;
     let mut clean = writer.reserve_block(builder)?;
     writer.append_terminated(
         builder,
@@ -309,11 +399,12 @@ fn emit_root_home_exit_payload(
         &mut bindings,
     )?;
     let mut origins = Vec::with_capacity(operations.len());
-    // Empty-Home Plain has no Fault edge. Do not issue a disconnected terminal
-    // that finishing would remove while its recorded binding stayed live —
-    // and do not materialize a frame definition no Invoke would consume.
-    if !operations.is_empty() || ingress.is_some() {
+    let mut frame_value = None;
+    let mut ingress = None;
+    // Empty-Home Plain has no Fault edge and therefore no frame definition.
+    if !operations.is_empty() || ingress_operation.is_some() {
         let frame = frame_port.materialize(builder)?;
+        frame_value = Some(frame);
         let fault_terminal = writer.reserve_block(builder)?;
         writer.append_terminated(
             builder,
@@ -325,7 +416,7 @@ fn emit_root_home_exit_payload(
         fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
         for (index, origin) in operations.into_iter().enumerate().rev() {
             let fault = emit_pending_root_fault_sequence(
-                &mut writer,
+                writer,
                 builder,
                 frame,
                 &fault_operations,
@@ -334,7 +425,7 @@ fn emit_root_home_exit_payload(
                 &mut bindings,
             )?;
             let next_clean = cleanup_step_with_writer(
-                &mut writer,
+                writer,
                 builder,
                 frame,
                 origin.operation().clone(),
@@ -349,9 +440,9 @@ fn emit_root_home_exit_payload(
             origins.push((origin, block, instruction));
             clean = next_clean;
         }
-        let fault = if ingress.is_some() {
+        let fault = if ingress_operation.is_some() {
             emit_pending_root_fault_sequence(
-                &mut writer,
+                writer,
                 builder,
                 frame,
                 &fault_operations,
@@ -363,70 +454,35 @@ fn emit_root_home_exit_payload(
             fault_terminal
         };
         origins.reverse();
-        match ingress {
-            Some(RootExitIngress::Call(call)) => {
-                let (invoke, projection) = terminal_call::emit_ingress(
-                    &mut writer,
-                    builder,
-                    frame,
-                    statement_result,
-                    clean,
-                    fault,
-                    InvokeOperation::Call {
-                        call: call.call,
-                        result: call.result,
-                    },
-                    &mut bindings,
-                )?;
-                let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
-                ledger.record_root_call_exit(
-                    owner,
-                    site,
-                    call.source.finish(invoke.clone(), projection.clone()),
-                    call.arguments,
-                    invoke,
-                    projection,
-                    frame_binding,
-                    origins,
-                    bindings,
-                )?;
-                return Ok(statement_result);
-            }
-            Some(RootExitIngress::MapGet { map, utf8 }) => {
-                let (invoke, projection) = terminal_call::emit_ingress(
-                    &mut writer,
-                    builder,
-                    frame,
-                    statement_result,
-                    clean,
-                    fault,
-                    InvokeOperation::Map(
-                        crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { map, utf8 },
-                    ),
-                    &mut bindings,
-                )?;
-                let frame_binding = fault_frame_binding_with_port(builder, frame_port, frame)?;
-                ledger.record_root_map_get_exit(
-                    owner,
-                    site,
-                    invoke,
-                    projection,
-                    frame_binding,
-                    origins,
-                    bindings,
-                )?;
-                return Ok(statement_result);
-            }
-            None => {}
+        if let Some(operation) = ingress_operation {
+            ingress = Some(terminal_call::emit_ingress(
+                writer,
+                builder,
+                frame,
+                statement_result,
+                clean,
+                fault,
+                operation,
+                &mut bindings,
+            )?);
         }
     }
-    let jump = MirInstruction::Jump {
-        target: clean,
-        edge_args: None,
-    };
-    bindings.push(writer.emit_current(builder, jump)?);
-    ledger.record_root_home_exit(owner, site, origins, bindings)?;
-    Ok(statement_result)
+    if ingress.is_none() {
+        bindings.push(writer.emit_current(
+            builder,
+            MirInstruction::Jump {
+                target: clean,
+                edge_args: None,
+            },
+        )?);
+    }
+    Ok(RootGraphEmissionV1 {
+        origins,
+        bindings,
+        ingress,
+        frame: frame_value,
+        clean,
+    })
 }
 
 /// Share only exact original-origin suffixes within this emission.

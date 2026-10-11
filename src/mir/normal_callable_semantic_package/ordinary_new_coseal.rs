@@ -97,6 +97,7 @@ pub(in crate::mir) use loop_static_body_actual::{
 };
 pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
 pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
+pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;

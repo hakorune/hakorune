@@ -22,8 +22,9 @@ Both size_to_bin explicit exits have ready Home projections but absent root
 progress. Canonical writer R1 is closed: fallible block reservation, canonical
 CFG root Jump/Invoke/fault operations, deferred Returns, and focused positive
 and negative tests pass. The unchanged source still stops at
-root-exit-unconsumed. S0 now owns selected early/tail graph consumption and
-atomic post-collect root ledger publication. No EXE PASS is claimed.
+root-exit-unconsumed. R2 closed the shared graph-core extraction without
+changing raw behavior or the unchanged-source first stop. S0 now owns the
+selected cutover and post-collect publication. No EXE PASS is claimed.
 """
 next_design_card = "none"
 next_design_card_path = "none"
@@ -43,8 +44,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-10-11: MIRBUILDER-ROOT-EXIT-GRAPH-CORE-R2 — sole root Home graph core extracted behind raw writer; focused Call/cleanup/MapGet positives and negative pass, unchanged SizeClassBox first stop remains root-exit-unconsumed. One MapGet test is confirmed baseline red at b6a5b69ae2. Next: STATIC-TWO-EXIT-S0.",
   "2026-10-11: MIRBUILDER-ROOT-EXIT-CANONICAL-WRITER-R1 — one root algorithm now has a canonical CFG writer adapter; root graph/Call projection positives and fail-fast negatives pass. Original SizeClassBox first stop remains root-exit-unconsumed. Next: STATIC-TWO-EXIT-S0.",
   "2026-10-11: MIRBUILDER-ROOT-EXIT-GRAPH-PORT-R0 — behavior-preserving raw writer port; Plain/Call physical MIR and root binding order identical before/after, focused positive/negative and unchanged SizeClassBox first stop confirmed. Next: ROOT-EXIT-CANONICAL-WRITER-D0.",
-  "2026-10-11: MIRBUILDER-ROOT-EXIT-FRAME-PORT-R0 — same root graph and frame definition through a private frame port; focused root Plain/Call/Fault positive and negative pass, unchanged SizeClassBox first stop remains root-exit-unconsumed. Next: ROOT-EXIT-GRAPH-WRITER-D0.",
   ]
 
