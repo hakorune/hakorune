@@ -131,6 +131,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (after_phi || !value || (value->kind != LV4_I64 && value->kind != LV4_BOOL)) return 0;
       continue;
     }
+    int first_non_phi = !after_phi;
     after_phi = 1;
     if (lv4_is(ins, "op", "fault_frame_enter")) {
       if (lv4_u(block, "id") != lv4_u(fn->function, "entry") || ri || faulted) return 0;
@@ -161,6 +162,12 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (!lhs || !rhs ||
           (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
           (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
+    } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div")) {
+      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
+          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
+      if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64 ||
+          (lv4_is(ins, "op", "div") &&
+           !hako_physical_positive_divisor(fn->function, lv4_u(ins, "rhs")))) return 0;
     } else if (lv4_is(ins, "op", "compare")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -241,9 +248,9 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
       int result_requires_live = value && value->kind != LV4_TEXT_VIEW;
       /* Birth units carry one result projection: the proven provider
-         `new ArrayBox()` normal landing. It is still the first row of a
+         `new ArrayBox()` normal landing. It is the first non-PHI row of a
          block reached only by the invoke's Normal edge. */
-      if (faulted || ri || !value || value->origin < 0 ||
+      if (faulted || !first_non_phi || !value || value->origin < 0 ||
           (result_requires_live && state[value->origin] != LV4_LIVE)) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||

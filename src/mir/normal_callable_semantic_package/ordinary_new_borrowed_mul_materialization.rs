@@ -25,6 +25,27 @@ impl BorrowedMulSourceLoanV1 {
     pub(super) fn original(&self) -> &Rc<BorrowedMulSourceV1> {
         &self.original
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_literal(
+        &self,
+        side: usize,
+    ) -> Option<(&OwnedExprSiteV1, i64)> {
+        let side = match side {
+            0 => BorrowedMulSideV1::Left,
+            1 => BorrowedMulSideV1::Right,
+            _ => return None,
+        };
+        self.original.integer_literal(side)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn integer_call_source(
+        &self, side: usize,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>>{
+        let side = match side {
+            0 => BorrowedMulSideV1::Left,
+            1 => BorrowedMulSideV1::Right,
+            _ => return None,
+        };
+        self.original.integer_call_source(side)
+    }
     pub(super) fn view_binding(
         &self,
         side: BorrowedMulSideV1,

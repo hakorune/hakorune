@@ -45,6 +45,21 @@ fn mul_fixture() -> (FunctionUses, MirFunction, Coordinate) {
 fn borrowed_mul_selected_copy_and_guard_pass_final_scan() {
     let (mut state, function, _) = mul_fixture();
     super::tests::verify(&mut state, &function).unwrap();
+
+    // A Copy lent by the Compare carrier owner is tracked rather than an
+    // untracked view; the selected Mul still requires its exact coordinate.
+    let (mut state, function, mul) = mul_fixture();
+    let copy = state.mul_expected[&(mul, 0)].copy.unwrap();
+    let binding = (copy.0, function.blocks[&copy.0].instructions[copy.1].clone());
+    state.copy(&binding, Some(copy)).unwrap();
+    super::tests::verify(&mut state, &function).unwrap();
+    state.mul_expected.get_mut(&(mul, 0)).unwrap().copy = Some((copy.0, copy.1 + 1));
+    assert!(super::tests::verify(&mut state, &function)
+        .unwrap_err().contains("mul-operand"));
+    // A source child may itself be an already registered alias Copy. No
+    // additional selected operand Copy is required for identity reuse.
+    state.mul_expected.get_mut(&(mul, 0)).unwrap().copy = None;
+    super::tests::verify(&mut state, &function).unwrap();
 }
 
 #[test]

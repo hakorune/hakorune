@@ -178,3 +178,130 @@ fn exact_definition(function: &MirFunction, record: &Record) -> Result<(), Strin
 fn freeze(reason: &str) -> String {
     format!("[freeze:contract][borrowed-mul/{reason}]")
 }
+
+/// Physical identity reuse only; the selected Mul source still owns typing.
+pub(super) fn reuse_same_block_operand(
+    function: &MirFunction,
+    block: BasicBlockId,
+    value: ValueId,
+) -> Result<bool, String> {
+    let body = function.blocks.get(&block).ok_or_else(|| freeze("operand-block"))?;
+    let definitions = |value| {
+        function.blocks.iter().flat_map(|(id, body)| {
+            body.all_instructions().enumerate().filter_map(move |(index, row)| {
+                (row.dst_value() == Some(value)).then_some((*id, index, row))
+            })
+        }).collect::<Vec<_>>()
+    };
+    let rows = definitions(value);
+    if !rows.iter().any(|(id, _, row)| *id == block
+        && matches!(row, MirInstruction::Const { .. } | MirInstruction::Copy { .. }))
+    {
+        return Ok(false);
+    }
+    if rows.len() != 1 || function.params.contains(&value) {
+        return Err(freeze("operand-definition"));
+    }
+    if body.terminator.is_some() {
+        return Err(freeze("operand-block-closed"));
+    }
+    let dominators = crate::mir::verification::utils::compute_dominators(function);
+    let mut current = rows[0];
+    let mut visited = std::collections::BTreeSet::new();
+    while let MirInstruction::Copy { dst, src } = current.2 {
+        if !visited.insert(*dst) {
+            return Err(freeze("operand-copy-cycle"));
+        }
+        let sources = definitions(*src);
+        let parameters = function.params.iter().filter(|value| **value == *src).count();
+        if parameters == 1 && sources.is_empty() {
+            break;
+        }
+        if parameters != 0 || sources.len() != 1 {
+            return Err(freeze("operand-copy-source"));
+        }
+        let source = sources[0];
+        if source.0 == current.0 {
+            if source.1 >= current.1 {
+                return Err(freeze("operand-copy-order"));
+            }
+        } else if !dominators.is_reachable(source.0)
+            || !dominators.is_reachable(current.0)
+            || !dominators.dominates(source.0, current.0)
+        {
+            return Err(freeze("operand-copy-dominance"));
+        }
+        current = source;
+    }
+    Ok(true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
+
+    #[test]
+    fn selected_mul_operand_identity_requires_unique_ordered_open_definition() {
+        let mut function = MirFunction::new(FunctionSignature {
+            name: "operand/1".into(), params: vec![MirType::Integer],
+            return_type: MirType::Integer, effects: EffectMask::PURE,
+        }, BasicBlockId(0));
+        function.params = vec![ValueId(0)];
+        function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.extend([
+            MirInstruction::Const { dst: ValueId(1), value: ConstValue::Integer(-2) },
+            MirInstruction::Copy { dst: ValueId(2), src: ValueId(1) },
+            MirInstruction::Copy { dst: ValueId(3), src: ValueId(0) },
+        ]);
+        for value in [1, 2, 3] {
+            assert!(reuse_same_block_operand(&function, BasicBlockId(0), ValueId(value)).unwrap());
+        }
+        assert!(!reuse_same_block_operand(&function, BasicBlockId(0), ValueId(0)).unwrap());
+        function.add_block(BasicBlock::new(BasicBlockId(1)));
+        assert!(!reuse_same_block_operand(&function, BasicBlockId(1), ValueId(1)).unwrap());
+        for mutation in 0..5 {
+            let mut changed = function.clone();
+            let body = changed.blocks.get_mut(&BasicBlockId(0)).unwrap();
+            let expected = match mutation {
+                0 => {
+                    body.instructions.push(body.instructions[0].clone());
+                    "operand-definition"
+                }
+                1 => {
+                    body.terminator = Some(MirInstruction::Return { value: Some(ValueId(1)) });
+                    "operand-block-closed"
+                }
+                2 => {
+                    body.instructions.swap(0, 1);
+                    "operand-copy-order"
+                }
+                3 => {
+                    body.instructions[1] = MirInstruction::Copy { dst: ValueId(2), src: ValueId(999) };
+                    "operand-copy-source"
+                }
+                _ => {
+                    body.instructions[1] = MirInstruction::Copy { dst: ValueId(2), src: ValueId(2) };
+                    "operand-copy-order"
+                }
+            };
+            let value = if mutation < 2 { 1 } else { 2 };
+            let error = reuse_same_block_operand(&changed, BasicBlockId(0), ValueId(value)).unwrap_err();
+            assert!(error.contains(expected), "mutation={mutation}: {error}");
+        }
+        function.blocks.get_mut(&BasicBlockId(0)).unwrap().set_terminator(
+            MirInstruction::Jump { target: BasicBlockId(1), edge_args: None },
+        );
+        function.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions.push(
+            MirInstruction::Copy { dst: ValueId(4), src: ValueId(1) },
+        );
+        assert!(reuse_same_block_operand(&function, BasicBlockId(1), ValueId(4)).unwrap());
+        function.add_block(BasicBlock::new(BasicBlockId(2)));
+        function.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.push(
+            MirInstruction::Const { dst: ValueId(5), value: ConstValue::Integer(-2) },
+        );
+        function.blocks.get_mut(&BasicBlockId(1)).unwrap().instructions[0] =
+            MirInstruction::Copy { dst: ValueId(4), src: ValueId(5) };
+        assert!(reuse_same_block_operand(&function, BasicBlockId(1), ValueId(4))
+            .unwrap_err().contains("operand-copy-dominance"));
+    }
+}

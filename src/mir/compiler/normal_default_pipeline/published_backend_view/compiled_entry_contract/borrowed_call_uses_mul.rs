@@ -29,13 +29,17 @@ pub(super) fn entry(
         };
         let operands = [*lhs, *rhs];
         let views = loan.checked_views();
-        if views.len() != 2 {
-            return Err(fault("borrowed-use/mul-nonview-source-unproved"));
-        }
+        // The finalized source visitor has closed literal/call sides against
+        // their original producers. Only checked views consume formal guards.
         for (side, formal, guard_site) in views {
             let guard = *compare_sites
                 .get(&guard_site)
-                .ok_or_else(|| fault("borrowed-use/mul-guard-missing"))?;
+                .ok_or_else(|| {
+                    if crate::config::env::builder_mir_compile_trace() {
+                        eprintln!("[borrowed-mul/guard-trace] owner={owner:?} mul={:?} guard={guard_site:?} available={:?}", loan.site(), compare_sites.keys().collect::<Vec<_>>());
+                    }
+                    fault("borrowed-use/mul-guard-missing")
+                })?;
             if !state.compare_coordinates.as_ref().is_some_and(|expected| {
                 expected
                     .get(&formal)
@@ -85,6 +89,9 @@ pub(super) fn observe(
                 if expected.formal == *formal
                     && expected.operand == operand
                     && expected.copy == views.copy_coordinates.get(&operand).copied()
+                        .or_else(|| expected.copy.and_then(|_| {
+                            state.copies.get(&operand).and_then(|(_, coordinate)| *coordinate)
+                        }))
                     && dominates(expected.guard.0, coordinate.0)
                     && (expected.guard.0 != coordinate.0 || expected.guard.1 < coordinate.1) =>
             {

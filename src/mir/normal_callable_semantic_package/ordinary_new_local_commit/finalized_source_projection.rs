@@ -8,6 +8,12 @@ type Binding = (BasicBlockId, MirInstruction);
 #[path = "finalized_integer_return_projection.rs"]
 mod integer_return;
 
+#[path = "finalized_scalar_operation_projection.rs"]
+mod scalar_operations;
+
+#[path = "finalized_mul_operand_projection.rs"]
+mod mul_operands;
+
 impl FinalizedRootSourceHandoffV1 {
     /// Lend original append observations; derived and execution coverage remain separate.
     pub(in crate::mir) fn visit_scalar_operation_originals_v1(
@@ -326,6 +332,42 @@ impl FinalizedRootSourceHandoffV1 {
             })
     }
 
+    /// Lend only the Compare carrier owner's mandatory original/consumer Copies.
+    pub(in crate::mir) fn with_borrowed_ordinary_compare_carrier_copies_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        mut visit: impl FnMut(&Binding, (BasicBlockId, usize)) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            if function.signature.name != symbol {
+                return Err(freeze("borrowed-carrier/finished-function"));
+            }
+            self.ledger.verify_finished_borrowed_compares_v1(owner, function, |original| {
+                project_recorded(symbol, projection, original).map(|(_, binding)| binding)
+            })?;
+            for original in self.ledger.borrowed_compare_carrier_bindings_v1(owner)? {
+                let (_, finished) = project_recorded(symbol, projection, &original)?;
+                let MirInstruction::Copy { dst, .. } = finished.1 else {
+                    return Err(freeze("borrowed-carrier/finished-copy-kind"));
+                };
+                let coordinate = find_finished_producer(symbol, &finished, function)?;
+                if function.params.contains(&dst)
+                    || function.blocks.values().flat_map(|block| block.all_instructions())
+                        .filter(|row| row.dst_value() == Some(dst)).count() != 1
+                {
+                    return Err(freeze("borrowed-carrier/finished-copy-definition"));
+                }
+                if crate::config::env::builder_mir_compile_trace() {
+                    eprintln!("[borrowed-carrier/copy-loan-trace] owner={owner:?} coordinate={coordinate:?} binding={finished:?}");
+                }
+                visit(&finished, coordinate)?;
+            }
+            Ok(())
+        })
+    }
+
     /// Project the SAME issued Mul and its selected LocalSSA operand Copies.
     /// Source side/guard remains on the loan; final MIR grants no source row.
     pub(in crate::mir) fn with_borrowed_ordinary_muls_v1(
@@ -358,6 +400,7 @@ impl FinalizedRootSourceHandoffV1 {
                     mapped[side] = Some(copy);
                 }
             }
+            self.verify_finished_mul_nonviews_v1(owner, function, record, &finished, &mapped)?;
             visit(record.source(), &finished, &mapped)
         })
     }

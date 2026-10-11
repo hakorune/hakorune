@@ -23,6 +23,9 @@ use crate::mir::finalized_root_handoff::FinalizedRootHandoffV1;
 #[path = "physical_program_projection.rs"]
 mod projection;
 
+#[path = "physical_program_scalar.rs"]
+mod scalar;
+
 #[path = "physical_program_call_helpers.rs"]
 mod call_helpers;
 #[path = "physical_program_field_ref.rs"]
@@ -347,7 +350,7 @@ pub(super) fn issue_function<'module>(
     script: bool,
     ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
-    issue_function_with_module(None, function, role, script, ordinary_calls)
+    issue_function_with_module(None, function, role, script, ordinary_calls, None)
 }
 
 fn issue_function_with_module<'module>(
@@ -356,7 +359,10 @@ fn issue_function_with_module<'module>(
     role: PublishedLifecyclePhysicalFunctionRoleV1,
     script: bool,
     ordinary_calls: &[OrdinaryCallSite],
+    selected_view: Option<&PublishedMirBackendView<'module>>,
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
+    let scalar_bindings =
+        scalar::validate_selected_scalar_operations(module, function, selected_view)?;
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
     if ids.is_empty() || !function.blocks.contains_key(&function.entry_block) {
@@ -405,7 +411,12 @@ fn issue_function_with_module<'module>(
                 }
             }
             let field_ref = prepare_field_ref(module, function, block.id, index, instruction)?;
-            validate_instruction_with_context(field_ref, instruction, script, ordinary_calls)?;
+            if !scalar_bindings
+                .iter()
+                .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
+            {
+                validate_instruction_with_context(field_ref, instruction, script, ordinary_calls)?;
+            }
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
                 instruction,

@@ -85,6 +85,22 @@ int main(void) {
   rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":99", "function-body");
   rejects_replace(mul_valid, "\"op\":\"mul\",\"dst\":7",
       "\"op\":\"mul\",\"dst\":7,\"extra\":0", "function-body");
+  /* Same physical binary schema, with a narrower literal Div contract. */
+  for (size_t scalar = 0; scalar < 2; scalar++) {
+    const char* operation = scalar ? "div" : "sub";
+    memcpy(mul_op + strlen("\"op\":\""), operation, 3);
+    accepts(mul_valid);
+    rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":99", "function-body");
+    rejects_replace(mul_valid, "\"lhs\":5", "\"lhs\":99", "function-body");
+    rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":6,\"extra\":0", "function-body");
+    rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":6,\"rhs\":6", "function-body");
+    if (scalar) {
+      rejects_replace(mul_valid, "\"dst\":6,\"value\":20", "\"dst\":6,\"value\":0", "function-body");
+      rejects_replace(mul_valid, "\"dst\":6,\"value\":20", "\"dst\":6,\"value\":-1", "function-body");
+      rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":5", "function-body");
+      rejects_replace(mul_valid, "\"rhs\":6", "\"rhs\":7", "function-body");
+    }
+  }
   free(mul_valid);
   rejects_replace(valid, "\"process_result_site\":2,", "", "schema");
   rejects_replace(valid, "\"process_result_site\":2", "\"process_result_site\":0", "diagnostic-sites");

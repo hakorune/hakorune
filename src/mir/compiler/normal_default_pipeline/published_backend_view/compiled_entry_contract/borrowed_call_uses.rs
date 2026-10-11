@@ -161,6 +161,9 @@ impl BorrowedCallUses {
             Ok(())
         })?;
         state.compare_coordinates = Some(expected);
+        source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
+            state.copy(copy, Some(coordinate))
+        })?;
         mul::entry(state, source, owner, function, &compare_sites)?;
         integer_return::entry(state, source, owner, function)?;
         for (_, formal, _) in source
@@ -403,6 +406,13 @@ impl FunctionUses {
                         original.1 == *instruction && *expected == Some(coordinate)
                     })
                 {
+                    if crate::config::env::builder_mir_compile_trace() {
+                        eprintln!(
+                            "[borrowed-use/copy-trace] coordinate={coordinate:?} instruction={instruction:?} formal={:?} retained={:?}",
+                            tracked.get(src),
+                            self.copies.get(dst)
+                        );
+                    }
                     return Err(fault("borrowed-use/unproved-copy"));
                 }
             }

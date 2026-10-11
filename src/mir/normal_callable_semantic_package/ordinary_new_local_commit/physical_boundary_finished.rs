@@ -2,6 +2,25 @@
 use super::*;
 
 impl FinishedBindings {
+    /// Lend the exact captured producer of an observed raw child, never a
+    /// final instruction selected by its payload or operation shape.
+    pub(in super::super) fn captured_definition(
+        &self,
+        value: ValueId,
+    ) -> Result<&(BasicBlockId, MirInstruction), String> {
+        let mut definitions = self
+            .captured
+            .iter()
+            .filter(|(_, row)| row.dst_value() == Some(value));
+        let original = definitions
+            .next()
+            .ok_or_else(|| fault("captured-child-missing"))?;
+        if definitions.next().is_some() {
+            return Err(fault("captured-child-duplicate"));
+        }
+        Ok(original)
+    }
+
     pub(in super::super) fn destination(&self, id: BasicBlockId) -> Option<BasicBlockId> {
         self.destinations.get(&id).copied()
     }

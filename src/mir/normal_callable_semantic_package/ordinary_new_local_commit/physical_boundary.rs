@@ -400,10 +400,16 @@ impl PhysicalBoundary {
         )?;
         literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
         Ok(FinishedBindings {
-            captured: self.walk_graph.iter().flat_map(|(block, node)| {
-                node.instructions.iter().chain(std::iter::once(&node.terminal))
-                    .map(move |instruction| (*block, instruction.clone()))
-            }).collect(),
+            captured: self
+                .walk_graph
+                .iter()
+                .flat_map(|(block, node)| {
+                    node.instructions
+                        .iter()
+                        .chain(std::iter::once(&node.terminal))
+                        .map(move |instruction| (*block, instruction.clone()))
+                })
+                .collect(),
             validated_auxiliary_omissions: Vec::new(),
             destinations,
             recorded: Vec::new(),
@@ -455,7 +461,10 @@ impl PhysicalBoundary {
                     .accepts_omission(expected, &self.recorded_dsts)?
                 {
                     // The original proof cone owns this no-definition/no-use omission.
-                    if matches!(expected, MirInstruction::Const { .. } | MirInstruction::Copy { .. }) {
+                    if matches!(
+                        expected,
+                        MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+                    ) {
                         auxiliary_omissions.push((*id, expected.clone()));
                     }
                 } else if self.borrowed_copies.contains(expected) {
@@ -479,17 +488,36 @@ impl PhysicalBoundary {
                     // duplicate, a folded phi, or plain DCE. A recorded
                     // binding never rides this permission, and an actual-side
                     // extra instruction still fails the sequence.
-                    if matches!(expected, MirInstruction::Const { .. } | MirInstruction::Copy { .. }) {
+                    if matches!(
+                        expected,
+                        MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+                    ) {
                         auxiliary_omissions.push((*id, expected.clone()));
                     }
                     continue;
                 } else {
+                    if crate::config::env::builder_mir_compile_trace() {
+                        crate::runtime::get_global_ring0().log.debug(&format!(
+                            "[physical-boundary/sequence] function={} block={:?} expected={:?} actual={:?} pure={} used={} recorded={} single={}",
+                            function.signature.name, id, expected, remaining.peek(),
+                            expected.effects().is_pure(),
+                            expected.dst_value().is_some_and(|dst| used.contains(&dst)),
+                            expected.dst_value().is_some_and(|dst| self.recorded_dsts.contains(&dst)),
+                            expected.dst_value().is_some_and(|dst| self.single_definitions.contains(&dst))
+                        ));
+                    }
                     return Err(fault("finished-sequence"));
                 }
             }
             if remaining.next().is_some()
                 || actual.terminator.as_ref() != Some(&projection.instruction(terminal.clone()))
             {
+                if crate::config::env::builder_mir_compile_trace() {
+                    crate::runtime::get_global_ring0().log.debug(&format!(
+                        "[physical-boundary/sequence-tail] function={} block={:?} expected={:?} actual={:?}",
+                        function.signature.name, id, projection.instruction(terminal.clone()), actual
+                    ));
+                }
                 return Err(fault("finished-sequence"));
             }
         }

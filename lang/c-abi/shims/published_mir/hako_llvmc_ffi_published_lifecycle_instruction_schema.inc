@@ -114,6 +114,25 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   return 0;
 }
 
+/* Div is the selected positive literal profile, not a constant evaluator. */
+static int hako_physical_positive_divisor(yyjson_val* function, uint32_t value) {
+  if (hako_physical_value_def_count(function, value) != 1) return 0;
+  yyjson_val* blocks = hako_physical_blocks(function);
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    yyjson_val* rows = yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions");
+    for (size_t i = 0; i < yyjson_arr_size(rows); i++) {
+      yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, i), "instruction");
+      uint32_t dst;
+      if (hako_physical_u32(hako_physical_instruction_dst(ins), &dst) && dst == value) {
+        yyjson_val* literal = yyjson_obj_get(ins, "value");
+        return hako_physical_string(yyjson_obj_get(ins, "op"), "const_i64") &&
+            hako_physical_i64(literal) && yyjson_get_sint(literal) > 0;
+      }
+    }
+  }
+  return 0;
+}
+
 static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* functions,
     yyjson_val* layouts, yyjson_val* instruction, int terminal, const char* frame_mode,
     uint32_t current_block, uint32_t current_index, int native) {
@@ -160,6 +179,15 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
   /* The nullable-result null sentinel: an i64 slot carrying Void(0), emitted
      only inside `ordinary_nullable_handle` callees by the flow admission. */
   if (!strcmp(op, "const_null")) return hako_physical_exact_keys(instruction, const_unit, 2) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a);
+  if (!strcmp(op, "sub") || !strcmp(op, "div")) {
+    return hako_physical_exact_keys(instruction, binary, 4) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) &&
+        hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) &&
+        hako_physical_value_available_at(function, b, current_block, current_index) &&
+        hako_physical_value_available_at(function, c, current_block, current_index) &&
+        (strcmp(op, "div") || hako_physical_positive_divisor(function, c));
+  }
   if (!strcmp(op, "add") || !strcmp(op, "mul")) return hako_physical_exact_keys(instruction, binary, 4) && hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) && hako_physical_u32(yyjson_obj_get(instruction, "lhs"), &b) && hako_physical_u32(yyjson_obj_get(instruction, "rhs"), &c) && hako_physical_value_available_at(function, b, current_block, current_index) && hako_physical_value_available_at(function, c, current_block, current_index);
   if (!strcmp(op, "compare")) {
     const char* p = yyjson_get_str(yyjson_obj_get(instruction, "predicate"));
@@ -269,4 +297,3 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
 }
 
 #include "hako_llvmc_ffi_published_lifecycle_owned_layout.inc"
-

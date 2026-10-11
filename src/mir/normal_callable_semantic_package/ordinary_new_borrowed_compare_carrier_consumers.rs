@@ -42,7 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
         entry.carrier_consumers = Some(staged);
         Ok(())
     }
-    pub(super) fn borrowed_compare_carrier_bindings_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn borrowed_compare_carrier_bindings_v1(
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<Binding>, String> {

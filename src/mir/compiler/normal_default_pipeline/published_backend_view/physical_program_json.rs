@@ -248,6 +248,18 @@ fn encode_instruction(
             lhs,
             rhs,
         } => json!({ "op": "mul", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Sub,
+            lhs,
+            rhs,
+        } => json!({ "op": "sub", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Div,
+            lhs,
+            rhs,
+        } => json!({ "op": "div", "dst": value(dst), "lhs": value(lhs), "rhs": value(rhs) }),
         MirInstruction::Compare { dst, op, lhs, rhs } => {
             let predicate = match op {
                 crate::mir::CompareOp::Eq => "eq",
@@ -263,10 +275,11 @@ fn encode_instruction(
             // and the emitter reads the carrier's kind lane only. Without
             // the function context (serializer tests) the row keeps the
             // ordinary spelling.
-            let null_equality = matches!(*op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
-                && call_context.is_some_and(|(_, function, _)| {
-                    null_producer(function, *lhs) ^ null_producer(function, *rhs)
-                });
+            let null_equality =
+                matches!(*op, crate::mir::CompareOp::Eq | crate::mir::CompareOp::Ne)
+                    && call_context.is_some_and(|(_, function, _)| {
+                        null_producer(function, *lhs) ^ null_producer(function, *rhs)
+                    });
             if null_equality {
                 json!({ "op": "borrowed_null_compare", "dst": value(dst), "lhs": value(lhs),
                     "rhs": value(rhs), "predicate": predicate })
@@ -294,7 +307,11 @@ fn encode_instruction(
                 "field_ordinal": field.declaration_ordinal(),
             })
         }
-        MirInstruction::FieldSet { base, value: stored, .. } => {
+        MirInstruction::FieldSet {
+            base,
+            value: stored,
+            ..
+        } => {
             let field = field_ref.ok_or_else(|| fault("field-set-route-missing"))?;
             let site = required_site(diagnostic_site, abi_input.is_some())?;
             let runtime_check = call_context

@@ -26,8 +26,31 @@ fn derived_coverage_rejects_missing_observation_without_losing_source_loan() {
     // Force the existing writer into another block, rather than exercising
     // an identity/cache loan that correctly creates no new observation.
     let block = builder.core_ctx.next_block();
+    let source_block = builder.function_state.current_block.unwrap();
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .unwrap()
+        .blocks
+        .get_mut(&source_block)
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: block,
+            edge_args: None,
+        });
     builder.start_new_block(block).unwrap();
     let (derived, _) = super::super::checked_scalar_arg(&mut builder, value).unwrap();
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&block]
+        .instructions
+        .iter()
+        .any(|row| matches!(row, MirInstruction::Copy { dst, src }
+            if *dst == derived && *src == value)));
     let index = &mut builder.function_state.local_ssa_correspondence;
     let targets = BTreeSet::from([derived]);
     index.validate_scalar_consumer_coverage(&targets).unwrap();
@@ -329,6 +352,19 @@ fn consumer_handoff_is_atomic_and_rejects_resend_without_replacing_loans() {
         .scalar_loans
         .insert(values[0], missing);
     let block = builder.core_ctx.next_block();
+    let source_block = builder.function_state.current_block.unwrap();
+    builder
+        .function_state
+        .current_function
+        .as_mut()
+        .unwrap()
+        .blocks
+        .get_mut(&source_block)
+        .unwrap()
+        .set_terminator(MirInstruction::Jump {
+            target: block,
+            edge_args: None,
+        });
     builder.start_new_block(block).unwrap();
     for value in values {
         super::super::checked_scalar_arg(&mut builder, value).unwrap();
@@ -345,9 +381,9 @@ fn consumer_handoff_is_atomic_and_rejects_resend_without_replacing_loans() {
     let mut edits = 0;
     for block in changed.blocks.values_mut() {
         for row in &mut block.instructions {
-            if let MirInstruction::BinOp { dst, op, .. } = row {
+            if let MirInstruction::Copy { dst, src } = row {
                 if *dst == late_target {
-                    *op = crate::mir::BinaryOp::Add;
+                    *src = *dst;
                     edits += 1;
                 }
             }
@@ -427,4 +463,112 @@ fn same_block_selected_scalar_reuses_original_producer_and_facts() {
         &original
     ));
     assert!(index.scalar_observations().next().is_none());
+}
+
+#[test]
+fn selected_scalar_rejects_unreachable_cross_block_reuse() {
+    let (mut builder, left) = fixture();
+    let original = OriginalScalarAppendV1::fixture_for_correspondence_test(&mut builder, left);
+    let value = original.original().1.dst_value().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    builder
+        .function_state
+        .local_ssa_correspondence
+        .install_scalar_original(function, original)
+        .unwrap();
+    let target = builder.core_ctx.next_block();
+    builder.start_new_block(target).unwrap();
+    let error = super::super::checked_scalar_arg(&mut builder, value).unwrap_err();
+    assert!(error.contains("scalar-non-dominating-producer"), "{error}");
+    assert!(builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks[&target]
+        .instructions
+        .is_empty());
+}
+
+#[test]
+fn selected_scalar_rejects_reachable_nondominating_and_duplicate_producers_before_copy() {
+    for duplicate in [false, true] {
+        let (mut builder, left) = fixture();
+        let original = OriginalScalarAppendV1::fixture_for_correspondence_test(&mut builder, left);
+        let value = original.original().1.dst_value().unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        builder
+            .function_state
+            .local_ssa_correspondence
+            .install_scalar_original(function, original)
+            .unwrap();
+        let source = builder.function_state.current_block.unwrap();
+        let entry = builder.core_ctx.next_block();
+        let bypass = builder.core_ctx.next_block();
+        let target = builder.core_ctx.next_block();
+        let condition = builder.alloc_value_for_test();
+        {
+            let function = builder.function_state.current_function.as_mut().unwrap();
+            function.entry_block = entry;
+            let mut entry_block = crate::mir::BasicBlock::new(entry);
+            entry_block.instructions.push(MirInstruction::Const {
+                dst: condition,
+                value: crate::mir::ConstValue::Bool(true),
+            });
+            entry_block.set_terminator(MirInstruction::Branch {
+                condition,
+                then_bb: source,
+                else_bb: bypass,
+                then_edge_args: None,
+                else_edge_args: None,
+            });
+            function.blocks.insert(entry, entry_block);
+            let mut bypass_block = crate::mir::BasicBlock::new(bypass);
+            if duplicate {
+                bypass_block.instructions.push(MirInstruction::Const {
+                    dst: value,
+                    value: crate::mir::ConstValue::Integer(9),
+                });
+            }
+            bypass_block.set_terminator(MirInstruction::Jump {
+                target,
+                edge_args: None,
+            });
+            function.blocks.insert(bypass, bypass_block);
+            function
+                .blocks
+                .get_mut(&source)
+                .unwrap()
+                .set_terminator(MirInstruction::Jump {
+                    target,
+                    edge_args: None,
+                });
+        }
+        builder.start_new_block(target).unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let dominators = crate::mir::verification::utils::compute_dominators(function);
+        assert!(dominators.is_reachable(source) && dominators.is_reachable(target));
+        assert!(!dominators.dominates(source, target));
+        let error = super::super::checked_scalar_arg(&mut builder, value).unwrap_err();
+        let expected = if duplicate {
+            "scalar-original-producer"
+        } else {
+            "scalar-non-dominating-producer"
+        };
+        assert!(error.contains(expected), "{error}");
+        assert!(builder
+            .function_state
+            .current_function
+            .as_ref()
+            .unwrap()
+            .blocks[&target]
+            .instructions
+            .is_empty());
+        assert!(builder
+            .function_state
+            .local_ssa_correspondence
+            .scalar_observations()
+            .next()
+            .is_none());
+    }
 }

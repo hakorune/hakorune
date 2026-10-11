@@ -117,6 +117,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 .get(root.signature.name.as_str())
                 .map(Vec::as_slice)
                 .unwrap_or(&[]),
+            Some(self),
         )?);
         for (key, site) in &ordinary_sites {
             let symbol = self
@@ -182,6 +183,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 role,
                 false,
                 call_sets.get(symbol).map(Vec::as_slice).unwrap_or(&[]),
+                Some(self),
             )?);
         }
         for birth in births {
@@ -210,6 +212,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi: birth.clone() },
                 false,
                 call_sets.get(symbol).map(Vec::as_slice).unwrap_or(&[]),
+                Some(self),
             )?);
         }
         Ok(PublishedLifecyclePhysicalProgramV1 {

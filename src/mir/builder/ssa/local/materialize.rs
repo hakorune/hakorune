@@ -280,6 +280,51 @@ fn materialize_local_inner_v1(
             return Ok(v);
         }
 
+        let selected_scalar_copy = builder
+            .function_state
+            .local_ssa_correspondence
+            .selects_scalar(v)
+            && def_block != Some(bb);
+        if selected_scalar_copy {
+            let function = builder
+                .function_state
+                .current_function
+                .as_ref()
+                .ok_or_else(|| {
+                    LocalSsaMaterializationErrorV1::Contract(
+                        "[freeze:contract][local_ssa/scalar-function-missing]".into(),
+                    )
+                })?;
+            let dominators = crate::mir::verification::utils::compute_dominators(function);
+            let unique = function
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter(|instruction| instruction.dst_value() == Some(v))
+                .count()
+                == 1;
+            let valid = def_block.is_some_and(|source| {
+                dominators.is_reachable(source)
+                    && dominators.is_reachable(bb)
+                    && dominators.dominates(source, bb)
+            });
+            if !unique || function.params.contains(&v) {
+                return Err(LocalSsaMaterializationErrorV1::Contract(
+                    "[freeze:contract][local_ssa/scalar-original-producer]".into(),
+                ));
+            }
+            if !valid
+                || function
+                    .blocks
+                    .get(&bb)
+                    .is_none_or(|block| block.terminator.is_some())
+            {
+                return Err(LocalSsaMaterializationErrorV1::Contract(
+                    "[freeze:contract][local_ssa/scalar-non-dominating-producer]".into(),
+                ));
+            }
+        }
+
         if kind.can_forward_same_block_field_get_to_consumer()
             && def_block == Some(bb)
             && matches!(def_inst, Some(MirInstruction::FieldGet { .. }))
@@ -449,9 +494,13 @@ fn materialize_local_inner_v1(
             }
         }
 
-        let materialization = post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(
-            def_inst.as_ref(),
-        );
+        let materialization = if selected_scalar_copy {
+            post_success::LocalSsaMaterializationKindV1::PhysicalCopy(
+                post_success::LocalSsaPhysicalCopyReasonV1::DominatingFallbackCopy,
+            )
+        } else {
+            post_success::PreparedLocalSsaPostSuccessV1::classify_materialization(def_inst.as_ref())
+        };
         let prepared_physical_copy_type = match materialization {
             post_success::LocalSsaMaterializationKindV1::PhysicalCopy(_) => Some(
                 copy_type::PreparedLocalSsaPhysicalCopyTypeV1::prepare(
@@ -474,7 +523,9 @@ fn materialize_local_inner_v1(
         // to avoid returning undefined ValueId.
         let original_binding = def_block.zip(def_inst.clone());
         let mut ordered_operands = None;
-        let emit_res = match def_inst {
+        let emit_res = if selected_scalar_copy {
+            builder.emit_instruction(MirInstruction::Copy { dst: loc, src: v })
+        } else { match def_inst {
             Some(MirInstruction::Const { value, .. }) => {
                 builder.emit_instruction(MirInstruction::Const { dst: loc, value })
             }
@@ -580,7 +631,7 @@ fn materialize_local_inner_v1(
                 }
                 builder.emit_instruction(MirInstruction::Copy { dst: loc, src: v })
             }
-        };
+        } };
 
         if let Err(e) = emit_res {
             if crate::config::env::builder_local_ssa_trace() {

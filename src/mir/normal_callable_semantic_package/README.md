@@ -2386,8 +2386,20 @@ frame-index target inventory before storing observations. Selected fallible
 consumers propagate re-entry failures. The same captured FinishedBindings projects
 mandatory operations; auxiliary Const/Copy omission requires an omission accepted
 by that boundary plus final no-definition/no-use, including return_env. Final
-instruction producers cannot collide with parameters. This correspondence grants
-no backend arithmetic permission; physical/native acceptance remains separate.
+instruction producers cannot collide with parameters. The finished scalar visitor
+lends originals and captured derived targets through that same projection;
+removed or duplicate producers reject. Physical selection obtains this loan only
+from the existing final view together with its identical module/function, then
+checks full Sub/Div correspondence. Positive literal Div and current-I64 Sub
+policy belong to the selected operation contract, not LocalSSA. Physical/native
+acceptance remains separate until the required source and execution checks pass.
+
+The finalized ordinary Mul visitor closes nonview sides before lending a
+binding: original literal value and captured Const, or same Static source Rc
+and retained zero-argument Invoke/Normal packet, through the same
+FinishedBindings. Original producers must remain unique, reachable and ordered
+before the selected operand Copy/Mul. These loans do not replace checked-view
+guard coverage; executable acceptance remains separate.
 
 Compare source loans share the existing completed scalar incoming-cohort check
 for source-only owners. Passive selection observes their original descriptors;
@@ -2395,3 +2407,10 @@ only the exact selected binary/literal site demands the completed cohort.
 Materialization, carrier/literal consumption and reuse coverage borrow that same
 definition. Unrelated source sites stay unarmed; incomplete cohorts cannot lend
 Compare or literal permission, and a completed cohort cannot omit its Compare.
+
+Selected scalar LocalSSA reentry borrows the issued source producer. Across
+blocks, an exact unique reachable dominating producer is transported by Copy
+through the existing relation/index and finishing verification. This Copy is
+not a new arithmetic occurrence; original Sub/Div coverage remains mandatory.
+Non-dominating selected producers fail before emission; operand subtrees are
+not replayed to reconstruct their authority.

@@ -82,6 +82,112 @@ int main(void) {
   assert(fgetc(output) != EOF);
   assert(fclose(output) == 0);
 
+
+  /* Normal results follow a leading PHI prefix, but no ordinary operation.
+   * Both PHIs borrow the exact Invoke predecessor's available I64 value. */
+  char* prefix_input = replace_once(nested,
+      "\"mode\":\"root_owned\"}}],\"terminator\":{\"index\":1",
+      "\"mode\":\"root_owned\"}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":3,\"value\":7}}],\"terminator\":{\"index\":2");
+  const char* normal_row =
+      "{\"index\":0,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":1";
+  const char* prefix_rows =
+      "{\"index\":0,\"instruction\":{\"op\":\"phi\",\"dst\":4,\"inputs\":[{\"block\":0,\"value\":3}]}},"
+      "{\"index\":1,\"instruction\":{\"op\":\"phi\",\"dst\":5,\"inputs\":[{\"block\":0,\"value\":3}]}},"
+      "{\"index\":2,\"instruction\":{\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":3";
+  char* prefix = replace_once(prefix_input, normal_row, prefix_rows);
+  free(prefix_input);
+  error = NULL;
+  assert(compile(&session, prefix, &error) == 0);
+  assert(error == NULL);
+  output = fopen(output_path, "rb");
+  assert(output && fgetc(output) != EOF);
+  assert(fclose(output) == 0);
+  const char* prefix_bad_needles[] = {
+      "\"op\":\"phi\",\"dst\":5,\"inputs\":[{\"block\":0,\"value\":3}]",
+      "\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2",
+      "\"normal\":1,\"fault\":2"
+  };
+  const char* prefix_bad_rows[] = {
+      "\"op\":\"copy\",\"dst\":5,\"src\":3",
+      "\"op\":\"invoke_normal_result\",\"invoke_block\":1,\"dst\":2",
+      "\"normal\":2,\"fault\":1"
+  };
+  for (size_t i = 0; i < 3; i++) {
+    char* changed = replace_once(prefix, prefix_bad_needles[i], prefix_bad_rows[i]);
+    error = NULL;
+    assert(compile(&session, changed, &error) != 0);
+    assert(error);
+    free(error);
+    free(changed);
+    assert(fopen(output_path, "rb") == NULL);
+  }
+  free(prefix);
+
+  /* Physical arithmetic is I64-only. The checked source projection is tested
+   * in Rust; these cases exercise V4 admission and emitted LLVM independently. */
+  const char* scalar_rows =
+      "{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":2,\"value\":-9}},"
+      "{\"index\":2,\"instruction\":{\"op\":\"const_i64\",\"dst\":3,\"value\":4}},"
+      "{\"index\":3,\"instruction\":{\"op\":\"sub\",\"dst\":4,\"lhs\":2,\"rhs\":3}},"
+      "{\"index\":4,\"instruction\":{\"op\":\"div\",\"dst\":5,\"lhs\":4,\"rhs\":3}}";
+  char* scalar = replace_once(nested,
+      "{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":2,\"value\":7}}",
+      scalar_rows);
+  char* scalar_complete = replace_once(scalar,
+      "\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":2}",
+      "\"index\":5,\"instruction\":{\"op\":\"return\",\"value\":5}");
+  free(scalar);
+  error = NULL;
+  assert(compile(&session, scalar_complete, &error) == 0);
+  assert(error == NULL);
+  const char* bad_scalar[] = {
+      "\"op\":\"const_bool\",\"dst\":2,\"value\":true",
+      "\"op\":\"const_null\",\"dst\":2"
+  };
+  for (size_t i = 0; i < sizeof(bad_scalar) / sizeof(bad_scalar[0]); i++) {
+    char* changed = replace_once(scalar_complete,
+        "\"op\":\"const_i64\",\"dst\":2,\"value\":-9", bad_scalar[i]);
+    error = NULL;
+    assert(compile(&session, changed, &error) != 0);
+    assert(error);
+    free(error);
+    free(changed);
+    assert(fopen(output_path, "rb") == NULL);
+  }
+  /* Add keeps its checked tagged behavior; Sub/Div do not inherit it. */
+  char* tagged = replace_once(nested,
+      "\"mode\":\"borrowed\"}}],\"terminator\":{\"index\":1",
+      "\"mode\":\"borrowed\"}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":3,\"value\":9}}],\"terminator\":{\"index\":2");
+  char* tagged_call = replace_once(tagged, "\"target\":2,\"args\":[]",
+      "\"target\":2,\"args\":[{\"kind\":1,\"value\":3}]");
+  free(tagged);
+  tagged = replace_once(tagged_call,
+      "\"name\":\"inner\",\"role\":\"ordinary_i64\",\"receiver\":null,\"receiver_object\":null,\"params\":[]",
+      "\"name\":\"inner\",\"role\":\"ordinary_i64\",\"receiver\":null,\"receiver_object\":null,\"params\":[{\"value\":9,\"representation\":\"borrowed_kind_payload_v1\",\"object_view\":null}]");
+  free(tagged_call);
+  tagged_call = replace_once(tagged, "\"dst\":2,\"value\":7}}",
+      "\"dst\":2,\"value\":7}},{\"index\":2,\"instruction\":{\"op\":\"add\",\"dst\":3,\"lhs\":9,\"rhs\":2}}");
+  free(tagged);
+  tagged = replace_once(tagged_call,
+      "\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":2}",
+      "\"index\":3,\"instruction\":{\"op\":\"return\",\"value\":3}");
+  free(tagged_call);
+  error = NULL;
+  assert(compile(&session, tagged, &error) == 0);
+  assert(error == NULL);
+  for (size_t i = 0; i < 2; i++) {
+    char* changed = replace_once(tagged, "\"op\":\"add\"",
+        i ? "\"op\":\"div\"" : "\"op\":\"sub\"");
+    error = NULL;
+    assert(compile(&session, changed, &error) != 0);
+    assert(error && strstr(error, "unsupported-cohort"));
+    free(error);
+    free(changed);
+    assert(fopen(output_path, "rb") == NULL);
+  }
+  free(tagged);
+  free(scalar_complete);
+
   /* Installed-object teardown: object 7 stores an owned-array child 8
    * whose layout row marks its sole ArrayBox residence. The
    * object_field_release consumer must emit the nested walk — read the

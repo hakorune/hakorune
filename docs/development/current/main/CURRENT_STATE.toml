@@ -17,12 +17,12 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-Sub/Div source-loaned physical/C/JSON connection has focused evidence.
-Same-block Identity and mandatory DCE roots verified; unchanged-source focused
-compile passes optimize=false/true. Completed source-only Compare lending
-is verified; aggregate now reaches unproved-copy, literal Mul reaches
-operand-copy-missing. New Mul negatives, fresh default CLI/native/prior S0,
-caller-zero and retirement remain unpaid.
+Scalar physical/native construction verified: Rust V3 all14 focused filters
+PASS, LocalSSA32/32 and scalar optimize/mutation matrix PASS. Existing C flow
+accepts only leading PHIs before Normal projection; focused C checks PASS.
+Fresh unchanged SizeClass native0/9/4194305 returns1/2/73. JSON32/33 retains
+known owned-array baseline. Main instance sibling, parent canonical JSON and
+prior S0 caller-zero/retirement closeout remain unpaid; no whole completion.
 """
 next_design_card = "none"
 next_design_card_path = "none"

@@ -1,6 +1,6 @@
 # MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-D0
 
-Status: coverage S0 unaccepted; scalar correspondence construction verified; physical activation pending
+Status: coverage S0 unaccepted; focused native activation verified; Rust revalidation/retirement pending
 Date: 2026-10-12
 Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source scalar operation correspondence
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
@@ -65,152 +65,56 @@ review remain unpaid. This row closes only its physical ownership handoff and
 required positive/negative checks. Resume Main acceptance afterward. Whole
 SizeClassBox, mimalloc-lite and MirBuilder completion are not claimed.
 
-## Implementation checkpoint (acceptance pending)
+## Artifact retention checkpoint (native acceptance remains open)
 
-Existing body packet now retains its Invoke/Normal/Fault triple. Its header
-retention API borrows the original publication batch and the same detached
-function, rechecks batch brand/caller/body site/target and body physical shape,
-and checks header/tail before adding the header triple. Raw instruction append
-was rejected by independent review and removed; no semantic receipt was added.
-Both pending/collected collectors borrow the resulting six bindings; the
-original Invoke accessor remains for the existing producer-coordinate owner.
+Settled V1–V12 implementation history is retained in2981db8675.
+Existing body packet retains its Invoke/Normal/Fault triple and borrows the
+original publication batch and detached function to retain the header triple.
+Batch brand/caller/body site/target, body shape and header/tail are rechecked.
+Both pending/collected collectors borrow these six bindings. Existing producer
+coordinate readers keep the original Invoke accessor; no receipt was added.
 
-Existing pending mutation test now checks artifact coverage directly through
-the original validator: six bindings, missing/foreign Normal/Fault/Invoke and
-extra projection are rejected without publishing retention. Positive native
-results and retained acceptance remain unverified.
+Exact checked header Normal leading PHIs use existing source_phi_roles:
+prefix plus optional exact predecessor. Header Normal requires its original
+header predecessor, including empty-prefix cases. Existing LoopCond after
+roles retain None and legitimate multi-input joins. Structural predecessor/
+input rejection precedes prefix comparison; prefix comparison precedes generic
+join admission. Duplicate roles, missing/foreign/nonleading prefix, extra edge
+and finished drift reject. Full sequence/edge/DAG checks remain mandatory.
+Diagnostic block dumps used to discover bb39 were removed after observation.
 
-Early V1-V7 attempts and exact failure receipts are retained in2981db8675.
-V1 raw append API was rejected; V2-V3 current compile errors were corrected.
-V4 wrongly required direct tail Fault Return; tail's cleanup-owned exit remains.
-V5-V7 completed missing entry Fault ownership and its mutation coverage.
-Interrupted builds supplied no test evidence; processes ended before edits.
+V12 completed8m11s. Selected preflight1/1, boundary18/18, Main7/7 and
+canonical root writer3/3 PASS. Preserved binary:
+`/tmp/static-loop-artifact-v12-test-binary`, SHA256
+`2aceb78501285662128f87244e20e61c238cbab79fddf78fcaebad0954e620c5`.
+Earlier interrupted builds and zero-match filters grant no evidence; their
+failures and diagnostic ordering correction remain in Git/receipts.
 
+Selected responsibility caller-zero review: session replaces header-check/
+discard with same-packet retention; root_validation replaces pending and
+retained body Invoke-only projections; entry group adds original Fault Return.
+Direct header-check caller remains only inside packet owner, retention has one
+session caller, old body map(original_invoke) projections are absent. Shared
+Invoke coordinate readers, tail/root/artifact validator remain. This is not
+whole-owner/file retirement or current final closeout review.
 
-V7 compiled8m08s, focused test0.02s FAILED at physical-boundary/phi-in-recorded-block
-before the mutation matrix. Current-change incomplete ownership/policy join,
-not baseline debt. Follow-up static review distinguishes true two-predecessor
-header from its single-predecessor Normal landing, which may carry canonical
-SSA forwarding PHIs. No broad PHI waiver is authorized. First identify the
-actual rejecting block, then borrow its existing checked source-call Normal
-role into existing PHI policy with leading-prefix/input/sequence checks kept.
-A diagnostic-only change to physical_boundary_phi_policy includes block ID
-and instructions in the existing named reject; no acceptance rule changes.
-Fresh CLI probe will identify the exact first-stop before selecting this join.
-Two accidental recursive rustfmt child edits were canonically equal to HEAD
-and restored after confirming Cargo/rustc terminated.
+Fresh CLI V12 build3m50s, receipt:
+`/tmp/static-loop-artifact-verified-cli-receipt.json` pins revision+Rust diff,
+source/binary/runtime hashes and commands. Trivial EXE0; original inputs
+0/9/4194305 clear artifact/PHI refusal, then stop before artifact at
+selected-static-packet/canonical-entry-required. Compile0.031/0.037/0.033s;
+required EXEs1/2/73 remain unproved. Original source SHA256:
+`ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0`.
 
-Fresh diagnostic CLI build finished in3m52s. Receipt:
-`/tmp/static-loop-artifact-diagnostic-cli-receipt.json` records HEAD+Rust patch,
-source/binary/runtime hashes, commands and timings. Trivial EXE returns0; all
-three original SizeClass probes stop at bb39, with two leading PHIs from bb36
-followed by InvokeNormalResult(bb36) and Compare. Compile0.027/0.027/0.028s;
-no selected artifact exists. This is the checked header Normal landing, not
-header's true join. Existing source/publication packet must lend this exact
-Normal PHI prefix into physical boundary capture; no general single-pred waiver.
-
-Decision after independent read-only review: lend the exact checked header
-Normal leading-PHI prefix from the existing packet into the existing prefix
-role map (renamed source_phi_roles). Issuance checks original Normal has only
-header as predecessor and each prefix input comes from header. Merge rejects
-duplicate roles; capture compares the sealed prefix even if an extra edge
-would turn it into a generic join. Original full sequence/edge and DAG checks
-remain. Existing pending matrix adds missing/foreign/nonleading PHI cases;
-existing physical prefix tests add extra-predecessor and finished-drift cases.
-No new authority, semantic receipt, writer or generic PHI permission.
-
-V8 build interrupted before test execution during final negative audit:
-empty observed PHI prefix must not bypass an existing sealed nonempty role.
-Early-return now applies only to blocks without a source-prefix role; add
-all-PHIs-missing regression. Cargo/rustc termination confirmed before edits.
-V9 focused log: `/tmp/static-loop-artifact-handoff-focused-v9.log`.
-
-V9 interrupted before test execution after follow-up review found that
-LoopCond after issuer does not restrict incoming count. Correct the generalized
-loan to existing prefix plus optional exact predecessor: after roles keep None
-and legitimate multi-input joins; header Normal lends Some(original header),
-including empty-prefix cases. Prefix comparison precedes generic-join admission.
-Add existing-after two-input positive; fix real-fixture full-prefix deletion case.
-No V9 acceptance. V10 log `/tmp/static-loop-artifact-handoff-focused-v10.log`.
-
-V10 found current-change E0412: emission_prepare parent does not import
-BTreeMap. Use the owner's existing fully-qualified std::collections form.
-Interrupted after explicit diagnostic; cargo/rustc terminal before edits.
-V11 log `/tmp/static-loop-artifact-handoff-focused-v11.log`.
-
-Final read-only review accepts the prefix+optional predecessor mapping;
-no new specific safety hole found. V11 remains live. Existing wrong_input
-negative expects phi-in-recorded-block; current prefix-first order instead
-returns loop-after-phi-prefix-drift. After receipt, preserve the original
-sole-predecessor/input structural diagnostic before prefix comparison, while
-keeping prefix comparison before the generic-join success return. Do not
-change Rust while the current Cargo/rustc process is live.
-
-Independent read-only work while V11 builds identifies a candidate for owed
-Main sibling negative after returning to Main task4: unchanged SizeClass source
-plus instance Heap.lookup(size) calling size_to_bin(size), and Main creates
-Heap, invokes lookup(7), then returns size_to_bin(9). The real Main->Heap
-incoming should avoid NoIncoming; Heap's real forwarded sibling is not a
-static omission. First prove package/cohort positive, then remove only Heap's
-actual row and require cohort-unfinished while Main remains finished, restore
-and require packet again. Static candidate only: not tested or accepted yet.
-
-V11 finished8m09s; original selected Loop preflight1/1 PASS (0.04s), including
-nine binding mutations and Normal PHI negatives. Same binary Main7/7 PASS
-(0.04s). Physical boundary real module16/17 (0.01s): sole failure is the
-expected diagnostic-order regression at wrong_input, not acceptance. First
-wrong filter ran0 tests and was discarded. Restore structural single-pred/input
-reject before sealed prefix comparison, preserving prefix-before-join checks.
-Remove temporary block/instruction diagnostic now its purpose is complete;
-retain the original named reject. Add empty-PHI Normal topology positive/negative.
-No Cargo/rustc live before edits. V12 log:
-`/tmp/static-loop-artifact-handoff-focused-v12.log`. Native results still owed.
-
-V12 completed8m11s, focused selected preflight1/1 PASS (0.04s). Same binary:
-physical_boundary module18/18 (0.01s), Main7/7 (0.04s), canonical root writer3/3
-(0.00s), all PASS. Preserved binary `/tmp/static-loop-artifact-v12-test-binary`.
-Only the new emission_prepare region is formatted after receipt; rustfmt
-canonical before/after equality proves no semantic change. Other old format
-drift is preserved. Owner README combines the new ownership/PHI contract in
-its existing selected-loop paragraph. Source boundary782 lines receives only
-renames; before further growth its existing >760 responsibility needs splitting.
-Fresh CLI build log `/tmp/static-loop-artifact-handoff-cli-v12-build.log`;
-required native acceptance remains pending.
-
-Read-only closeout review confirms selected delete-set: session replaces the
-header-check/discard call with same-packet retention; root_validation replaces
-both pending and retained body Invoke-only projections; existing entry group
-adds its original Fault Return. Old direct header-check caller now exists only
-inside the packet owner, retain_header_bindings has one session caller, and
-old body map(original_invoke) projections are absent. Shared Invoke accessors
-remain coordinate readers, tail/root/artifact validator remain shared. This is
-selected responsibility caller-zero, not whole-owner/file retirement. Review
-found no blocking source issue; native receipt and row closeout remain pending.
-
-Fresh CLI V12 finished3m50s. Receipt:
-`/tmp/static-loop-artifact-verified-cli-receipt.json` records revision+Rust diff,
-source/binary/runtime hashes and original commands. Trivial EXE rc0; selected
-inputs0/9/4194305 clear artifact/PHI refusal, then all stop before artifact at
-`mir/invoke/ordinary-new/emission/selected-static-packet/canonical-entry-required`.
-Compile0.031/0.037/0.033s; no selected EXEs. Required bins1/2/73 are not proven.
-This row's implementation/negative/caller-zero checkpoint is verified, but
-its native acceptance remains open. Main/parent/full retirement remain owed.
-
-Next bounded design (independent read-only review): final verifier's
-original_call_slots visits a finalized lexical packet, then its existing source
-accessor delegates SelectedStaticLoop to the generic ordinary actual getter,
-which intentionally rejects it. Canonical emitter already uses the selected
-packet's checked forwarded actual. Extend only the finalized source accessor
-to lend that same packet actual with matching source observation and shared
-borrow lifetime. Preserve generic raw-entry refusal, finished producer/cleanup
-checks, whole incoming/slot coverage and physical publication checks. No new
-receipt, emitter, retry or grammar expansion. This accessor is shared by final
-verifier and compiled_entry_contract physical publication. Implementation is
-not in this artifact-retention checkpoint; select the next row before editing.
-Tests: finalized packet exact actual positive, foreign source/producer refusal,
-generic direct getter still canonical-entry-required; unchanged native probes.
-
-V12 binary SHA256: `2aceb78501285662128f87244e20e61c238cbab79fddf78fcaebad0954e620c5`; original source: `ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0`.
+Follow-up selected finalized accessor lends the SAME checked forwarded actual
+from the canonical packet, preserving generic raw-entry refusal, original
+observation/lifetime, finished producer/cleanup, incoming/slot coverage and
+physical publication. No new receipt/emitter/retry/grammar. Main sibling
+negative remains owed: unchanged SizeClass plus instance Heap.lookup(size)
+calling size_to_bin(size), real Main->Heap incoming, then remove only Heap's
+actual row and require cohort-unfinished while Main stays finished. This is a
+static candidate only, not accepted evidence. Main/parent/native/full retirement
+remain unpaid; source-boundary responsibility needs splitting before growth.
 
 ## Selected follow-up: finalized actual loan
 
@@ -929,18 +833,13 @@ Acceptance: real-source call/literal sides and optimized path; independent
 literal/value/Normal/Invoke/Fault/order mutations and checked-view regressions.
 Fresh native0/9/4194305 and prior S0/caller-zero/retirement remain required.
 
-Mul V1 check PASS1m12s; test build PASS8m14s. Exact23-path snapshot and
-runtime receipt: `/tmp/static-mul-nonview-v1-{snapshot,runtime-receipt}.json`.
-Required aggregate passes nonview source closure but now FAILS at
-borrowed-use/mul-guard-missing. New Probe test FAILS before closure at
-static-scalar/incoming-identity: its Global->opaque entry bypassed the selected
-CurrentOwner incoming contract. These are current unresolved failures, not baseline.
-Scalar optimize matrix1/1, existing Mul guard2/2/materialization2/2,
-LocalSSA29/29, boundary19/19, DCE35/35 PASS; JSON30/31 repeats known baseline.
-V2 uses the existing declared-usize -> CurrentOwner opaque source fixture,
-adds foreign-package Rc and control-only unreachable negatives, and observes
-missing guard/site correspondence under disabled-by-default compile trace.
-No S0/CLI/native/retirement closeout; diagnostic grants no guard permission.
+Mul nonview V1/V2 exploratory receipts remain in
+`/tmp/static-mul-nonview-v1-{snapshot,runtime-receipt}.json` and
+`/tmp/static-mul-nonview-v2-runtime-receipt.json`. V1 reached guard-missing;
+its Probe bypassed CurrentOwner incoming and failed incoming-identity.
+V2 retained unchanged SizeClass source and classified owner/site guard gap;
+foreign compilation-id negatives reject before same-owner Rc identity.
+These historical failures grant no S0/native/retirement acceptance.
 
 ## Compare source-only connection Decision (2026-10-12)
 
@@ -997,3 +896,101 @@ Read-only worker confirms these are distinct missing connections; no new type
 source, receipt, rematerialization waiver or source annotation is selected.
 Actual Copy coordinate and minimal sameblock operand reuse still need runtime
 validation. Main/parent S0, default CLI/native and retirement remain unpaid.
+
+## Copy correspondence checkpoint (2026-10-12)
+
+Diagnostic and Compare V1 runtime history is pinned in
+`/tmp/static-copy-diagnostic-v1-runtime-receipt.json` and
+`/tmp/static-compare-copy-loan-v1-runtime-receipt.json`. Aggregate progressed
+from Copy84 to Copy107 but remained unproved-copy; neither is a blanket waiver.
+SAME entry/function + FinishedBindings closes original Comparisons, carrier
+and literal groups before lending mandatory carrier Copies. Existing recorded
+projection requires exact producer, unique dst/no param collision and registers
+its coordinate in FunctionUses. No optional alias-Copy permission is issued.
+Selected Mul borrows the SAME registered coordinate with formal/operand/guard/
+dominance checks. Missing/changed/extra Copy tests guard this connection.
+Literal Mul remains separate: same open-block Const/Copy identity reuse checks
+unique dst/no param collision; source chains need definition/order/dominance
+and no cycles. Otherwise existing strict LocalSSA applies. No payload/type
+match, cache rewrite or crossblock initial-operand shortcut. Read-only review
+found no new hole. These checkpoints grant no prior S0/retirement completion.
+
+## Selected scalar dominating Copy Decision (2026-10-12)
+
+Copy identity V2 build PASS8m24s. Aggregate remains unproved-copy at bb22:2
+Copy107/src0: recursive LocalSSA replay of the source bin+3 subtree inside
+selected Sub/Div. Literal Mul clears operand-copy-missing but its control
+mutation and the new identity unit fail because test CFG successors were stale;
+both fixtures now use set_terminator, not yet revalidated. Receipt:
+`/tmp/static-copy-identity-v2-runtime-receipt.json`. These reds are current,
+not baseline. Other final scan/Compare/boundary/DCE/scalar filters PASS.
+
+Decision: same existing source-selected scalar index, after pin/PHI redirection
+and undefined checks, permits exact dominating producer -> local Copy through
+existing writer/post-success/relation/index. Require unique producer, no param
+collision, reachable source/use and dominance; reject invalid selected relation.
+Do not replay its operand subtree or infer new Add authority. Existing verified
+transport Copy relations remain fully covered by FinishedBindings but are not
+arithmetic operation rows. Read-only worker recommends this narrower connection.
+Acceptance: dominating Copy plus non-dominating/foreign/missing/changed producer
+negatives, original aggregate and literal matrix, unchanged value/Fault order.
+No S0, fresh native, caller-zero or retirement claim.
+
+Dominating Copy V1 build PASS8m24s, snapshot unchanged; receipt:
+`/tmp/static-scalar-dominating-copy-v1-runtime-receipt.json`. Original aggregate
+PASS both trace/default; literal Mul source/mutation matrix PASS. Main6/6,
+Mul2/2+identity1/1, final borrowed scan18/18, Compare/carriers4/4+3/3+3/3,
+boundary19/19 and DCE35/35 PASS. LocalSSA30/31 red expects the old producer
+error category; source optimize matrix red expects repeated derived Div.
+Both current contract/test mismatches corrected, not yet runtime-revalidated:
+missing selected producer names scalar-original-producer; arithmetic visitor
+counts only originals, tests mutate transported Copy and original divisor.
+JSON32/33 red is the recorded owned-array reverse-cleanup baseline;
+selected pending1/1 and entry-session3/3 PASS. No native or S0 closeout claim.
+
+Dominating Copy V2 build PASS8m19s, pinned snapshot unchanged; receipt:
+`/tmp/static-scalar-dominating-copy-v2-runtime-receipt.json`. Aggregate and Mul
+matrix PASS; LocalSSA31/31 plus prior focused filters PASS. Scalar matrix
+still red: no derived Div exists after removing subtree replay. Test now
+mutates actual Sub-result transport Copies and the same owner's original Div
+constant. Added reachable diamond/duplicate pre-Copy refusal, both unexecuted.
+CLI build completed3m54s with unchanged Rust source. Shared generic replay remains
+required by unselected callers and is not selected for physical deletion.
+
+## C Normal landing PHI-prefix Decision (2026-10-12)
+
+Fresh CLI/CAPI probes reach unsupported-cohort: size_to_bin bb39 has two
+leading PHIs before invoke_normal_result. Existing indexed flow requires ri=0.
+Decision: require first non-PHI, retaining leading I64/Bool PHIs, exact
+predecessors/Invoke landing, single projection, origin/live/Fault checks.
+Existing C flow owner only; no new source authority or schema. Read-only review
+confirms emitter ordering. Test legal prefix and non-PHI/foreign/Fault rejection;
+rerun unchanged source EXEs. No native/S0/caller-zero/retirement claim yet.
+
+C nested/PHI-prefix positive+3 refusals PASS. Fresh CLI V3 native0/9/4194305
+returns1/2/73; compile+link2.223/2.254/2.258s, each run0.001s; source unchanged.
+Receipt: `/tmp/static-scalar-dominating-copy-cli-v3-receipt.json`. Rust V3 pending.
+
+Closeout read-only review: selected scalar replay now uses Identity/dominating
+original Copy; shared generic replay still has unselected callers and stays.
+Main instance-Heap sibling negative remains genuinely unpaid: existing test
+rejects source issue, while row-removal evidence uses Static Heap. These are
+not interchangeable. Parent canonical JSON acceptance also remains distinct
+from the owned-array reverse-cleanup baseline. Rust V3 build and runtime are complete below;
+no edits to Rust after its snapshot. Prior S0 closeout stays separate.
+
+## Scalar publication validation checkpoint (2026-10-12)
+
+Rust V3 build8m26s PASS; pinned non-doc snapshot unchanged. All14 focused
+filters PASS, including LocalSSA32/32, scalar optimize/mutation matrix1/1,
+aggregate trace/default, literal Mul matrix, boundary19/19 and DCE35/35.
+Receipt: `/tmp/static-scalar-dominating-copy-v3-runtime-receipt.json`.
+Same binary extra: selected pending1/1, root writer3/3 PASS; JSON32/33 retains
+only the recorded owned-array reverse-cleanup baseline. C parser/nested tests,
+publication ingress guard, pointer guard and diff check PASS. Qualified-route
+stale-pin guard remains baseline red, not waived or claimed PASS.
+Native receipt above proves selected source execution; compiler and rebuilt
+FFI hashes plus build source snapshot are pinned. No whole owner is deleted.
+This validates current scalar construction/physical activation. Main instance
+sibling, parent canonical JSON and prior S0 final caller-zero/retirement review
+remain required, not paid by native results or Static-sibling evidence.
