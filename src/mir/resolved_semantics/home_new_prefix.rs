@@ -126,6 +126,10 @@ impl ResultNewHomePrefixV1 {
     }
 }
 
+#[path = "home_scalar_operation_source.rs"]
+mod scalar_operation_source;
+pub(crate) use scalar_operation_source::ScalarInitializerOperationSourceV1;
+
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
 pub(crate) use local_flow::{LoopI64PreStateRequestV1, SourceScalarKind};
@@ -217,8 +221,8 @@ mod field_call;
 mod field_read;
 #[path = "home_new_prefix_scalar_expression.rs"]
 mod scalar_expression;
-pub(in crate::mir) use scalar_expression::contains_static_eq_lhs_source_v1;
 pub(crate) use field_read::{LocalFieldReadRequestV1, LocalFieldReadResultV1};
+pub(in crate::mir) use scalar_expression::contains_static_eq_lhs_source_v1;
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
 #[path = "home_terminal_object_return.rs"]
@@ -405,6 +409,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 uncovered_implicit_exit,
                 maps,
                 local_calls,
+                scalar_operations: Vec::new(),
             },
             terminal_relations,
             argument_observations,
@@ -494,6 +499,7 @@ pub(crate) fn scan_new_home_flow<E>(
             uncovered_implicit_exit,
             maps,
             local_calls,
+            scalar_operations: locals.scalar_operations(),
         },
         terminal_relations,
         argument_observations,

@@ -2,6 +2,7 @@
 use super::*;
 
 pub(super) fn preflight<E>(
+    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
@@ -126,6 +127,7 @@ pub(super) fn preflight<E>(
     let checked_children =
         matches!(row.operator(), Op::Add | Op::Greater | Op::LessEqual).then_some(row.site());
     let Some(lhs) = preflight(
+        &mut None,
         input,
         row.lhs(),
         locals,
@@ -144,6 +146,7 @@ pub(super) fn preflight<E>(
         return Ok(None);
     };
     let Some(rhs) = preflight(
+        &mut None,
         input,
         row.rhs(),
         locals,
@@ -183,5 +186,43 @@ pub(super) fn preflight<E>(
             }
         }
     }
-    Ok((lhs == operand && rhs == operand).then_some(result))
+    if lhs != operand || rhs != operand {
+        return Ok(None);
+    }
+    if local_initializer_profile && is_root && matches!(row.operator(), Op::Subtract | Op::Divide) {
+        let mut initializers = input
+            .function()
+            .expression_source()
+            .initializers()
+            .filter(|initializer| initializer.initializer_site() == Some(site));
+        let Some(initializer) = initializers.next() else {
+            return Ok(None);
+        };
+        if initializers.next().is_some()
+            || initializer.binding().owner() != input.owner()
+            || !matches!(initializer.declaration_site(),
+                crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement: original, .. }
+                    if original == statement)
+        {
+            return Ok(None);
+        }
+        let positive_divisor = if row.operator() == Op::Divide {
+            match input.function().expression_source().literal(row.rhs()) {
+                Some(ResolvedLiteralSourceV1::Integer(value)) => Some(*value),
+                _ => return Ok(None),
+            }
+        } else {
+            None
+        };
+        *operation = Some(std::rc::Rc::new(
+            ScalarInitializerOperationSourceV1::retain(
+                input.owner(),
+                statement.clone(),
+                initializer.clone(),
+                row.clone(),
+                positive_divisor,
+            ),
+        ));
+    }
+    Ok(Some(result))
 }

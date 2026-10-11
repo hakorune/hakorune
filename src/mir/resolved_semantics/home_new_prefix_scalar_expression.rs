@@ -7,14 +7,15 @@ use crate::mir::dynamic_operator_contract::{
 };
 use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1, SourcePathV1};
 
-#[path = "home_static_eq_condition.rs"]
-mod static_eq_condition;
 #[path = "home_scalar_operation_preflight.rs"]
 mod scalar_preflight;
+#[path = "home_static_eq_condition.rs"]
+mod static_eq_condition;
 use scalar_preflight::preflight;
 pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
 pub(super) fn observe_local_initializer<E>(
+    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
@@ -31,7 +32,8 @@ pub(super) fn observe_local_initializer<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
-    observe_scalar_expression(
+    observe_scalar_expression_with_operation(
+        operation,
         input,
         site,
         locals,
@@ -70,9 +72,50 @@ pub(super) fn observe_scalar_expression<E>(
         BorrowedCallActualRequestV1<'_>,
     ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
 ) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
+    observe_scalar_expression_with_operation(
+        &mut None,
+        input,
+        site,
+        locals,
+        required,
+        local_initializer_profile,
+        local_field_read,
+        statement,
+        homes,
+        static_call,
+        checked_compare_operand,
+        borrowed_actuals,
+    )
+}
+
+fn observe_scalar_expression_with_operation<E>(
+    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1,
+    locals: &PrefixLocalFlow<'_>,
+    required: Option<SourceScalarKind>,
+    local_initializer_profile: bool,
+    local_field_read: &mut impl FnMut(
+        &[LocalFieldReadRequestV1],
+        bool,
+    ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
+    statement: &SourceStmtSiteV1,
+    homes: &[BindingRefV1],
+    static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
+    checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
+    borrowed_actuals: &mut impl FnMut(
+        &OwnedExprSiteV1,
+        BorrowedCallActualRequestV1<'_>,
+    ) -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<(SourceScalarKind, Vec<LocalCallObservationV1>)>, E> {
     if required == Some(SourceScalarKind::Bool) && !local_initializer_profile {
         if let Some(calls) = static_eq_condition::observe(
-            input, site, statement, homes, static_call, borrowed_actuals,
+            input,
+            site,
+            statement,
+            homes,
+            static_call,
+            borrowed_actuals,
         )? {
             return Ok(Some((SourceScalarKind::Bool, calls)));
         }
@@ -114,7 +157,9 @@ pub(super) fn observe_scalar_expression<E>(
     }
     let mut requests = Vec::new();
     let mut calls = Vec::new();
+    let mut prepared_operation = None;
     let Some(kind) = preflight(
+        &mut prepared_operation,
         input,
         site,
         locals,
@@ -152,6 +197,7 @@ pub(super) fn observe_scalar_expression<E>(
     for call in &calls {
         borrowed_actuals(call.site(), BorrowedCallActualRequestV1::Observe(&[]))?;
     }
+    *operation = prepared_operation;
     Ok(Some((kind, calls)))
 }
 

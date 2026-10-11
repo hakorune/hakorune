@@ -550,6 +550,13 @@ already Integer-class. This excludes a zero/variable divisor and signed
 minimum divided by -1; a failed child installs no result local. Conditions
 and returns retain their previous scalar profile. This Home class proof is
 not an executable Divide Recipe or a physical Fault check.
+The same successful scalar preflight retains an immutable original Subtract or
+positive-literal Divide initializer row in `RootHomeFlow`: exact owner, local
+statement/declaration binding, binary and ordered child sites, and divisor.
+The scan transports this row after complete field/call admission; it does not
+classify the operation again. Branch clones share this source inventory while
+keeping their local class/liveness state separate. Completion lends the same
+Rc; retention grants no physical occurrence, runtime admission or native result.
 For a local initializer rooted in Subtract, scalar preflight may also admit
 its exact right child when it is Multiply of a previously proven Integer local
 and an original Integer literal. It consults the existing NormalInteger Mul

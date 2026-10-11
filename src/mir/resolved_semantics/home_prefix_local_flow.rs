@@ -179,6 +179,10 @@ pub(super) struct PrefixLocalFlow<'source> {
     /// and invalidated by every re-store — the set alone proves nothing
     /// without the `ReceivedNullable` stored class.
     nonnull: std::collections::BTreeSet<BindingRefV1>,
+    // Branch clones share source inventory, never the path-sensitive local classes.
+    scalar_operations: std::rc::Rc<
+        std::cell::RefCell<Vec<std::rc::Rc<super::ScalarInitializerOperationSourceV1>>>,
+    >,
 }
 
 impl<'source> PrefixLocalFlow<'source> {
@@ -236,7 +240,29 @@ impl<'source> PrefixLocalFlow<'source> {
             input,
             locals: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
+            scalar_operations: Default::default(),
         }
+    }
+
+    pub(super) fn retain_scalar_operation(
+        &mut self,
+        row: std::rc::Rc<super::ScalarInitializerOperationSourceV1>,
+    ) -> bool {
+        let mut rows = self.scalar_operations.borrow_mut();
+        if row.owner() != self.input.owner()
+            || rows
+                .iter()
+                .any(|old| old.binary().site() == row.binary().site())
+        {
+            return false;
+        }
+        rows.push(row);
+        true
+    }
+    pub(super) fn scalar_operations(
+        &self,
+    ) -> Vec<std::rc::Rc<super::ScalarInitializerOperationSourceV1>> {
+        self.scalar_operations.borrow().clone()
     }
 
     /// Every stored-class mutation discards the binding's narrowing — a

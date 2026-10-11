@@ -6,7 +6,7 @@ Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source sca
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
 
 Original artifact row: `MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0`.
-Current row: `MIRBUILDER-STATIC-I64-SCALAR-OPERATION-CORRESPONDENCE-D0`.
+Current row: `MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0`.
 
 ## Decision
 
@@ -607,3 +607,81 @@ while final admission requires complete operation/operand correspondence and
 rejects inserted, missing, foreign or changed derived producers. The retained
 source proof loan and Sub policy remain Task2/3 internal design requirements;
 physical operation admission is still unauthorized. No external wait is needed.
+
+
+Source-retention mapping accepted (read-only owner review): the SAME scalar
+preflight returns its original Sub/positive-literal-Div initializer evidence only
+after both Integer children and the complete field/call batch succeed. Retain
+owner/statement/declaration binding, original binary child sites, Integer class
+and original positive literal through existing RootHomeFlow->Completion->ledger.
+Scan only transports it; no second classifier. Ordinary emission and LocalSSA
+will later borrow that original row, not reconstruct it. Select
+MIRBUILDER-STATIC-I64-SCALAR-SOURCE-RETENTION-S0 for this necessary connection.
+Paths: existing scalar preflight + responsibility child for immutable row;
+RootHomeFlow, prefix/branch scanner argument transport, existing source-local
+claim tests. Acceptance: original bin_size has exactly2Sub+1Div source rows with
+owner/binding/site and literal4; rejected/mixed/zero/negative-divisor roots retain
+none; clones retain same Rc. Source retention does not change supported syntax,
+physical admission, overflow policy, native or prior S0 acceptance. After this
+connection, continue original->derived producer correspondence and full Sub/Div
+publication in the same series; all prior debts remain unpaid.
+
+
+Source-retention construction checkpoint: preflight responsibility extraction is
+behavior-preserving commit de4d5f22e1 (original body unchanged); semantic retention
+remains uncommitted and unaccepted. Same preflight now retains original local
+statement/declaration correspondence only after complete Integer root admission.
+Added source-owner tests cover original SizeClass 2Sub/1Div, rejected roots, and
+both branch inventories with identical retained Rc loans. These are not physical
+producer or native acceptance. Lib+tests V3 check PASS1m11s, log
+/tmp/static-scalar-source-retention-check-v3.log. V1 wrong module import and V2
+iterator helper compile errors were current-change failures, corrected before V3.
+Focused test build V1 is running; no runtime acceptance claimed. Prior finalized
+coverage, physical publication, native/JSON, caller-zero and retirement remain owed.
+
+Task2 read-only connection refinement (not activation permission): original append
+belongs in existing OrdinaryNewClaimLedgerV1, borrowing the retained source Rc,
+expression site and ordered child values with exact block/BinOp. RawInvocation
+child port supplies current source site/owner; existing binary completion carries
+ordered child tuple rather than inferring source children from final MIR.
+LocalSSA success lends the same original record and retains original->derived
+producer plus each ordered operand relation. Its child arg() result alone is not
+provenance: distinguish existing/cache/new appends and link each to original lhs/
+rhs. Existing NormalCallableSemanticLoweringState ledger loan is sufficient.
+Required negatives: foreign owner/equal-but-distinct source, changed site/op/
+divisor, swapped or unrelated operands, missing original, duplicate row, failed
+emission publishing none. Positive: one original source with original+derived
+occurrences. Select this only after current retention acceptance; general Div,
+new semantic authority, physical activation and ABI changes remain excluded.
+
+Task2 failure refinement: LocalSSA BinOp child arg() uses LegacyFacade and can
+recover the raw operand after failed materialization. A selected scalar root and
+its recursive operand chain must instead use the existing Checked policy via the
+same ensure owner. Require original->returned physical outcomes (identity/cache/
+successful append) for both children, including Div's Const; failed child/parent
+must not publish cache or derived correspondence. Keep unselected legacy callers
+unchanged and do not reuse borrowed Mul authority. Tests must exercise child
+emission failure propagation, no failed publication, unchanged cache relation and
+ordered operand mismatch. This is a physical failure contract, not a new issuer.
+
+
+Source-retention S0 acceptance: V1 test binary build8m20s completed. Same binary
+scalar owner module15/16 PASS0.048s (new original-source/negative/branch tests3/3
+PASS), field-read module8/9 PASS0.019s. Both failing existing tests reproduce at
+the SAME named boundary in preserved pre-retention V12 binary: scalar module
+12/13 and field module8/9. Failures are known pre-existing debt, not retention
+regressions: static_current_owner_eq_home_rejects_incomplete_or_reordered_pair
+(home-missing) and local_field_read_rejects_parameter_receiver
+(source-actual-unavailable). Neither is ignored/waived or rebaselined. Exact binary
+hashes, commands, patch/untracked hashes and logs are in
+/tmp/static-scalar-source-retention-v1-receipt.json. Unrelated old rustfmt drift
+was restored after testing; no semantic changes. Source files592/228/49/718/751,
+test393 satisfy hard stop; pointer/diff guards PASS. Sole original source owner
+retains2Sub+1Div and branch Rc identity without physical permission.
+Close only MIRBUILDER-STATIC-I64-SCALAR-SOURCE-RETENTION-S0. Prior finalized coverage
+S0 remains unaccepted; physical program/incoming consumer, native0/9/4194305,
+Main closeout/caller-zero/old-edge and parent canonical JSON obligations remain.
+Next selected design: MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0,
+existing original Binary completion/ledger and sole LocalSSA Checked recursive
+operand/producer transport, as bounded above. Internal contract work, no external
+wait; no physical arithmetic activation yet.

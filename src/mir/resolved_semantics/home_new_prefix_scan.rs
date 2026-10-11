@@ -667,17 +667,30 @@ pub(super) fn scan_statement_flow<'a, E>(
                     }
                 }
                 continue;
-            } else if let Some((kind, calls)) = scalar_expression::observe_local_initializer(
-                input,
-                site,
-                locals,
-                local_field_read,
-                statement.site(),
-                homes,
-                local_static_call,
-                view_use,
-                borrowed_actuals,
-            )? {
+            } else if let Some((kind, calls)) = {
+                let mut operation = None;
+                let observed = scalar_expression::observe_local_initializer(
+                    &mut operation,
+                    input,
+                    site,
+                    locals,
+                    local_field_read,
+                    statement.site(),
+                    homes,
+                    local_static_call,
+                    view_use,
+                    borrowed_actuals,
+                )?;
+                if let Some(operation) = operation {
+                    if operation.initializer().binding() != binding
+                        || !locals.retain_scalar_operation(operation)
+                    {
+                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                        continue;
+                    }
+                }
+                observed
+            } {
                 path_calls.extend(calls.iter().map(|call| call.site().clone()));
                 local_calls.extend(calls);
                 locals.install_scalar_call_result(binding, kind);

@@ -293,3 +293,101 @@ fn scalar_expression_scope_preserves_outside_nested_conditions_without_claims() 
         );
     }
 }
+
+fn source_operations(
+    package: &VerifiedNormalCallableSemanticPackageV1,
+) -> Vec<
+    std::rc::Rc<
+        crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1,
+    >,
+> {
+    package
+        .batch()
+        .declarations()
+        .flat_map(|declaration| {
+            package
+                .ordinary_new_claim_ledger
+                .completion_for_owner(declaration.owner())
+                .and_then(|completion| completion.cleanup().root_flow())
+                .map(|flow| flow.scalar_operations().to_vec())
+                .unwrap_or_default()
+        })
+        .collect()
+}
+
+#[test]
+fn scalar_source_retention_preserves_original_size_class_initializer_rows() {
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    let package = issue(include_str!(
+        "../../../lang/src/hako_alloc/memory/size_class_box.hako"
+    ))
+    .unwrap();
+    let rows = source_operations(&package);
+    assert_eq!(rows.len(), 3);
+    assert_eq!(
+        rows.iter()
+            .filter(|row| row.binary().operator() == Op::Subtract)
+            .count(),
+        2
+    );
+    let div = rows
+        .iter()
+        .find(|row| row.binary().operator() == Op::Divide)
+        .unwrap();
+    assert_eq!(div.positive_divisor(), Some(4));
+    for row in &rows {
+        assert_eq!(row.initializer().binding().owner(), row.owner());
+        assert_eq!(
+            row.initializer().initializer_site(),
+            Some(row.binary().site())
+        );
+        assert_ne!(row.binary().lhs(), row.binary().rhs());
+        assert!(!row.statement().node().segments().is_empty());
+    }
+    let again = source_operations(&package);
+    assert!(rows
+        .iter()
+        .zip(again)
+        .all(|(original, retained)| std::rc::Rc::ptr_eq(original, &retained)));
+}
+
+#[test]
+fn scalar_source_retention_is_published_only_for_complete_integer_roots() {
+    use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1 as Op;
+    for (root, expected) in [
+        ("pool.size - 1", Some(Op::Subtract)),
+        ("pool.size / 4", Some(Op::Divide)),
+        ("pool.size / 0", None),
+        ("pool.size / -1", None),
+        ("pool.size / true", None),
+        ("pool.size - true", None),
+        ("pool.missing / 4", None),
+        ("pool.page / 4", None),
+        ("pool.size + 1", None),
+    ] {
+        let package = package(&format!("local value = {root} return 0"));
+        let rows = source_operations(&package);
+        assert_eq!(rows.len(), usize::from(expected.is_some()), "{root}");
+        if let Some(expected) = expected {
+            assert_eq!(rows[0].binary().operator(), expected);
+        }
+    }
+}
+
+#[test]
+fn scalar_source_retention_keeps_both_branch_inventories() {
+    let package = package("if pool.size == 0 { local left = pool.size / 4 return 1 } else { local right = pool.size - 1 return 2 }");
+    let rows = source_operations(&package);
+    assert_eq!(rows.len(), 2);
+    assert_ne!(rows[0].binary().site(), rows[1].binary().site());
+    for row in &rows {
+        assert!(matches!(row.initializer().declaration_site(),
+            crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, .. }
+                if statement == row.statement()));
+    }
+    let again = source_operations(&package);
+    assert!(rows
+        .iter()
+        .zip(again)
+        .all(|(left, right)| std::rc::Rc::ptr_eq(left, &right)));
+}
