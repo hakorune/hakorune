@@ -61,3 +61,65 @@ receipt or an independently inferred result/parameter authority.
 Non-claims: implementation permission, parent acceptance, source type
 annotation, wider Main grammar, whole-app/compiler completion, or reopening
 the parked mimalloc/VM/platform lanes.
+
+## Source and carrier audit (2026-10-11)
+
+Read-only inspection at `e31a1e247c`, independently checked by worker
+`static_two_exit_closeout_review`, narrows the missing connection. This is
+static evidence, not a new compiler execution receipt.
+
+- `qualified_static_call_claim::claim_for_source_site_v1` already issues the
+  Qualified claim for the original Main Value site. The incoming catalog is
+  present; neither a new target authority nor a result annotation is needed.
+- `home_static_value_call` only admits CurrentOwner direct values. The existing
+  terminal scalar observer therefore cannot issue this Qualified
+  `ExpressionValue` observation and `TerminalRelationV1::Call`.
+  `ordinary_new_coseal_issue_walk_triggers` covers static initializers, while
+  the predicate's extra walk trigger covers CurrentOwner source calls.
+- `home_new_prefix_scan` already calls `observe_borrowed_call_actuals` before
+  terminal observation. Once the verified walk is selected, reuse that ordered
+  observation; do not introduce a second actual-observation pass.
+- `ordinary_new_borrowed_static_source_actuals::prepare_static_source_actuals_v1`
+  admits forwarded static facts or original CurrentOwner source. A Qualified
+  literal without a forwarded binding has neither prerequisite.
+- `ordinary_new_borrowed_static_scalar_input_finish` requires CurrentOwner
+  source and a Scalar binding. Its completion cannot authorize a Qualified
+  literal by merely widening the receiver predicate. Likewise,
+  `issue_original_static_forwarded_actual_v1` requires a SelfRooted formal;
+  a literal must not be represented as that formal.
+- The existing physical consumer is
+  `raw_ordinary_new_claim/terminal_call` ->
+  `ordinary_new_admission/selected/terminal_call/static_return` -> root Call
+  graph. It requires an original packet and completed entry/actual proof;
+  an observation alone does not grant permission to publish or emit.
+
+### Carrier decision
+
+Keep the callee's source formal `OpaqueHandle`. Static V2
+`raw_loop_child_entry/static_i64_v2::join_physical_signature_v2` checks an
+`OrdinaryScalar` lane, but explicitly requires the existing tagged source
+product and returns `BorrowedTaggedValue`. The lane role alone is **not** a
+scalar or tagged ABI authority. The Integer literal's eventual actual must
+use the existing `BorrowedFormalActualSourceV1::Integer` representation and
+its Integer tag/payload projection, joined to that selected entry source.
+Do not change the formal to ExactI64 or reuse scalar completion just because
+both signatures contain an OrdinaryScalar lane.
+
+### Remaining finite design work
+
+Task 1's source/consumer trace and task 2's independent missing-connection
+audit are complete. Task 3 remains open: close the whole incoming cohort for
+the selected tagged entry before selecting implementation. In the existing
+incoming/actual ledger, specify how the entry's original owner/formal joins
+each retained incoming Rc, including Qualified terminal literals and existing
+forwarded callers. Preserve source-only status until that whole join closes;
+retain vetoes for unresolved, foreign or unfinished callers.
+
+The implementation plan must then combine the exact Main terminal walk
+trigger, Qualified direct-value observation, original literal actual staging,
+completed packet selection and Main root routing. Required negatives include
+literal payload/ordinal/site/formal drift, foreign brand/target, an unfinished
+sibling incoming row, source-only actual emission, duplicate publication and
+Fault-side result projection. Retain an annotated-scalar Main regression.
+Do not select routing alone as a completed cutover. The unchanged target's
+three EXE outcomes and parent JSON/deletion acceptance remain required.
