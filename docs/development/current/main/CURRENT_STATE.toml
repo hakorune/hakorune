@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-i64-finishing-and-mul-publication"
+current_blocker_token = "selfhost-resume/static-i64-compare-source-only-publication"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,8 +19,9 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-stat
 latest_card_summary = """
 Sub/Div source-loaned physical/C/JSON connection has focused evidence.
 Same-block Identity and mandatory DCE roots verified; unchanged-source focused
-compile passes optimize=false/true. Aggregate still owes Mul IntegerCall/literal
-closure; fresh default CLI/native/prior S0/caller-zero/retirement remain unpaid.
+compile passes optimize=false/true. Aggregate reaches mul-guard-missing;
+Compare source-only loan and new Mul negatives remain unpaid, as do fresh
+default CLI/native/prior S0/caller-zero/retirement.
 """
 next_design_card = "none"
 next_design_card_path = "none"

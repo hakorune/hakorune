@@ -80,33 +80,12 @@ the original validator: six bindings, missing/foreign Normal/Fault/Invoke and
 extra projection are rejected without publishing retention. Positive native
 results and retained acceptance remain unverified.
 
-V1 build was interrupted after review found the raw API issue (no test result).
-V2 typecheck failed E0603/private module and E0369/brand comparison; use a narrow
-existing type reexport and allocation `is_same`. V3 duplicate reexport E0252
-was a current-change compile error; build interrupted after diagnosis. All
-interrupted cargo/rustc processes were confirmed terminated before Rust edits.
-V4 focused output: `/tmp/static-loop-artifact-handoff-focused-v4.log`.
-These attempts provide no acceptance evidence.
+Early V1-V7 attempts and exact failure receipts are retained in2981db8675.
+V1 raw append API was rejected; V2-V3 current compile errors were corrected.
+V4 wrongly required direct tail Fault Return; tail's cleanup-owned exit remains.
+V5-V7 completed missing entry Fault ownership and its mutation coverage.
+Interrupted builds supplied no test evidence; processes ended before edits.
 
-V4 compiled in8m07s but focused test failed before the new mutation matrix at
-publication-zeroarg-physical-drift. Current-change error: header's direct
-ReturnFault requirement was accidentally applied to tail, whose existing root
-graph owns a cleanup route. Keep tail's original Invoke/Normal check and lend
-Fault bindings only for header. Fix applied; V5 also covers foreign Normal
-invoke linkage and Fault landing directly. No acceptance is claimed from V4.
-
-V5 interrupted before test execution after finite ownership review confirmed
-entry ReturnFault was also unretained. Independent worker corrected its earlier
-entry-complete claim. Existing entry packet/group now owns this third binding,
-with original landing/frame corroboration; header/body packet stays six bindings.
-Touched scope adds the existing entry lexical projection owner because it owns
-that missing group projection. No new owner or accepted grammar is selected.
-
-V6 interrupted before test execution to include entry in the same existing
-mutation matrix: nine entry/header/body bindings, missing/foreign results,
-Fault frames/landings and extra projection. All processes terminated before
-Rust edits. V7 output: `/tmp/static-loop-artifact-handoff-focused-v7.log`.
-No test result is claimed from either interrupted build.
 
 V7 compiled8m08s, focused test0.02s FAILED at physical-boundary/phi-in-recorded-block
 before the mutation matrix. Current-change incomplete ownership/policy join,
@@ -859,49 +838,20 @@ physical/JSON/C; Task5 still requires unchanged native0/9/4194305->1/2/73.
 
 ## Task4 physical activation checkpoint (2026-10-12, unaccepted)
 
-Existing final view now supplies source/module together to the private physical
-constructor; generic raw MIR does not obtain Sub/Div permission. The same ledger
-borrows original and captured derived target bindings through FinishedBindings;
-exact actual/expected coverage is checked without a new semantic receipt.
-Rust Div requires the original positive literal value, C requires I64 operands
-and a unique available positive literal, JSON keeps the exact binary schema,
-and emission uses plain sub/sdiv. Shared StaticV2 is unchanged.
-Read-only review caught all-operations-removed early success and missing C dst
-recognition; both corrected before acceptance. Existing source test now checks
-finished loans and removal of all selected operators; C parser/nested tests add
-chained outputs, malformed input, positive-divisor and non-I64 rejection.
-Rust V1 lib+tests check PASS1m13s; V2 no-run PASS8m21s.
-Initial C compile command used nonexistent src paths (no test evidence); fixed
-shims paths, parser V1 PASS. Native source results/prior S0/caller-zero and
-retirement remain owed. C schema child EOF blank line normalized in this slice.
-
-Task4 C V3 nested-call regression PASS, including actual OBJ generation for
-Sub->Div and pre-artifact Bool/Null/tagged operand rejection (tagged Add stays
-accepted). Independent physical-only native probes compare MIN-1 with MAX,
-MAX-(-1) with MIN, 0-1 with -1, -9/4 with -2, and 9/4 with2; all return1
-after linking the actual lifecycle archive. Receipt
-/tmp/static-scalar-physical-native-v2/receipt.json. Initial direct-main link
-collided with archive main; wrap-main resolved it. Raw extreme process results
-correctly hit process-result range Fault; in-callee comparisons test arithmetic
-without claiming a wider process-result contract. Not unchanged source evidence.
-
-Final read-only review confirms the two fixes. The all-removal negative targets
-the source visitor; constructor early-return behavior is statically reviewed,
-not a separately executed constructor mutation test. Rust V2 no-run handle94556
-is terminal; logs /tmp/static-scalar-physical-build-v2.{log,jsonl}.
-C receipt /tmp/static-scalar-physical-v2-receipt.json pins changed source and
-actual parser/nested/receiver runs. No Task4/S0 closeout before Rust source tests.
-
-V2 runtime: original+derived source loans and all-removal negative PASS; entry
-1/18, Main7, index7, ledger1, projection1, LocalSSA28, boundary19, transaction3
-and state1 PASS. Physical program2/order2 PASS, JSON30/31 (owned-array cleanup
-red is identical on preserved prechange series binary, classified baseline).
-Required aggregate now reaches borrowed-use/mul-nonview-source-unproved, not
-instruction-unsupported. Do not waive its existing IntegerCall/literal source
-proofs: close the nonview operand correspondence in the existing Mul owner.
-Receipt /tmp/static-scalar-physical-v2-runtime-receipt.json; binary preserved at
-/tmp/static-scalar-physical-v2-test-binary. Fresh CLI build handle68717 finished PASS3m54s; no native success claimed.
-
+Existing final source/module view -> same ledger/FinishedBindings -> full Sub/Div
+coverage -> JSON/C exact binary schema. Original positive literal Div and I64
+operands required; generic raw/tagged Sub/Div rejected, shared StaticV2 unchanged.
+Source-visitor all-removal negative is executed; constructor early-return fix
+is read-only reviewed, not an independently executed mutation test.
+Rust V2 check PASS1m13s/no-run PASS8m21s; source loans and existing local
+regressions PASS, JSON owned-array cleanup baseline30/31. Aggregate progressed
+from instruction-unsupported to mul-nonview-source-unproved, still FAIL.
+Receipts `/tmp/static-scalar-physical-v2-runtime-receipt.json` and
+`/tmp/static-scalar-physical-v2-receipt.json` pin exact source/binary and C tests.
+Parser/nested/receiver PASS; physical-only linked native MIN-1=MAX,
+MAX-(-1)=MIN,0-1=-1,-9/4=-2,9/4=2 in-callee comparisons PASS (wrap-main).
+`/tmp/static-scalar-physical-native-v2/receipt.json` is not source evidence.
+Raw process-result range Fault remains; native source/S0/retirement unpaid.
 
 ## Fresh production frontier and next Decision (2026-10-12)
 
@@ -930,26 +880,15 @@ its mandatory original. No crossblock/legacy forwarding, new authority or
 finishing waiver. Verify sameblock identity/facts, existing crossblock append,
 mandatory deletion rejection, and unchanged source with optimize false/true.
 
-V4 trace confirms Add35 pure=true/used=false/recorded=true/single=true;
-/tmp/static-scalar-physical-cli-v4-dce-receipt.json pins default command/binary.
-Same-block CheckedScalar reuse implemented; identity/facts test and unchanged
-source optimize=false/true matrix added. Runtime validation pending, not S0.
-
-Sameblock V1 lib+tests typecheck PASS1m13s; read-only final review found no new
-issue. /tmp/static-scalar-sameblock-v1-snapshot.json pins the three source paths;
-focused runtime/build still pending. No S0 or native success is inferred.
+Intermediate sameblock pending/check history is superseded by the verified
+finishing checkpoint below; historical receipts remain in2981db8675.
 
 ## Finishing liveness Decision and current reds (2026-10-12)
 
-Sameblock V1 build PASS8m13s; receipt
-`/tmp/static-scalar-sameblock-v1-runtime-receipt.json` pins matching source
-hashes. Identity/facts positive PASS. Two older correspondence tests FAIL
-because their sameblock fixture no longer exercises the append writer; move
-these fixtures across an explicit CFG edge, preserving child append and
-non-dominating Copy failure assertions. They are current-change failures,
-not baseline debt. Optimized source now passes the earlier Add35 stop but
-stops at mandatory Mul47 removed by DCE; aggregate still stops at
-mul-nonview-source-unproved. JSON owned-array cleanup is known baseline.
+Sameblock history/receipts remain in2981db8675 and
+`/tmp/static-scalar-sameblock-v1-runtime-receipt.json`. Two append fixtures
+were corrected to crossblock; required Mul47 DCE removal was a current error,
+not baseline. JSON owned-array cleanup remains classified baseline.
 
 Decision: lend existing scalar/borrowed-Mul/borrowed-Compare required bindings
 (dst present, excluding auxiliary Const/Copy) from the completed
@@ -992,3 +931,69 @@ Pointer and static-result publication guards PASS; qualified-route guard FAILS
 at its unchanged raw_loop_child_entry pin (requires>=4 call tokens; HEAD and
 worktree both have3). This is pre-existing guard debt, not current regression;
 trace `/tmp/static-scalar-dce-roots-qualified-guard-v1.log`. No guard waiver.
+
+## Mul nonview closure Decision (2026-10-12)
+
+Existing Mul source/materialization owns literal and CurrentOwner zeroarg I64
+call operands already. FinalizedRootSourceHandoffV1 closes them before lending
+its Mul callback; keep checked-view guard/coverage and check_finished_mul_group.
+Literal: exact raw child -> unique captured Const with original source value ->
+same FinishedBindings relation -> unique final producer. No payload search.
+Call: exact owner/site/local group and Static original Rc -> same sealed
+observation with empty arguments -> packet value equals raw child -> existing
+recorded Invoke projection plus captured Normal -> actual same-function
+producer, Normal/selected Copy ordering and dominance. Invoke/Fault unchanged.
+Replace backend's blanket two-views stop only after this source visitor proves
+both remaining sides; no new receipt, result solver, annotation, fallback or
+source form. Missing/foreign/duplicate/changed producers reject before lend.
+Read-only worker checked APIs; Invoke has no dst, so use existing call lender.
+Scope: existing Mul loan, FinishedBindings, finalized visitor child and its
+source tests, compiled-entry Mul consumer, active card and owner README.
+Acceptance: real-source call/literal sides and optimized path; independent
+literal/value/Normal/Invoke/Fault/order mutations and checked-view regressions.
+Fresh native0/9/4194305 and prior S0/caller-zero/retirement remain required.
+
+Mul V1 check PASS1m12s; test build PASS8m14s. Exact23-path snapshot and
+runtime receipt: `/tmp/static-mul-nonview-v1-{snapshot,runtime-receipt}.json`.
+Required aggregate passes nonview source closure but now FAILS at
+borrowed-use/mul-guard-missing. New Probe test FAILS before closure at
+static-scalar/incoming-identity: its Global->opaque entry bypassed the selected
+CurrentOwner incoming contract. These are current unresolved failures, not baseline.
+Scalar optimize matrix1/1, existing Mul guard2/2/materialization2/2,
+LocalSSA29/29, boundary19/19, DCE35/35 PASS; JSON30/31 repeats known baseline.
+V2 uses the existing declared-usize -> CurrentOwner opaque source fixture,
+adds foreign-package Rc and control-only unreachable negatives, and observes
+missing guard/site correspondence under disabled-by-default compile trace.
+No S0/CLI/native/retirement closeout; diagnostic grants no guard permission.
+
+## Compare source-only connection Decision (2026-10-12)
+
+V2 check PASS1m12s/build PASS8m14s; source snapshot unchanged. Runtime receipt
+`/tmp/static-mul-nonview-v2-runtime-receipt.json`. Aggregate trace identifies
+owner slot4 bin_size, Mul Body1/IfThen0/Value, guard Body1/IfCondition,
+compare_sites empty. Existing Compare has/prepare/reuse/literal/carrier lending
+looks only at definitions, unlike Mul's completed source_only_definitions loan.
+Read-only review confirms this asymmetric owner connection; no MIR scan fix.
+
+Next bounded implementation: reuse existing ledger/Compare definition owner.
+Global definitions unchanged; lend source-only definition ONLY after SAME
+checked_completed_static_scalar_cohort_v1(owner) succeeds. Passive probes may
+see both inventories; prepare/check/coverage must require completed cohort.
+Keep original source/operator/envelope, append, whole compare coverage,
+FinishedBindings, checked-view guards and final scans. No new source forms,
+receipt, permissive or_else, guard waiver or normal-result type inference.
+Acceptance: original SizeClass guard->Mul contract, source-only incomplete/
+foreign/missing original negatives, existing Compare carrier/literal/consumer
+regressions and selected source native matrix afterward.
+
+V2 small Probe Main route stopped at selected-header-missing before lending;
+replace TEST fixture with existing SizeClass selected Loop route, varying only
+already-admitted early Mul sides/literals. Production .hako stays unchanged.
+Independent package owns another compilation id: real foreign-record negative
+must assert nonview-owner, not claim to execute ptr_eq rejection after owner
+mismatch. Same-owner substituted Rc branch remains separate evidence debt.
+Trace-enabled boundary run15/19 exposed existing uninitialized Ring0 diagnostic
+path; SAME binary normal env19/19 PASS. This is diagnostic-config evidence,
+not default regression or guard waiver. V3 fixture lib+tests check PASS1m07s;
+runtime remains unexecuted (/tmp/static-mul-nonview-check-v3.log).
+S0, fresh CLI/native, production switch/caller-zero and retirement remain unpaid.
