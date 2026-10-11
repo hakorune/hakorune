@@ -10,13 +10,30 @@ use super::copy_type;
 use super::error::{LocalSsaFailurePolicyV1, LocalSsaMaterializationErrorV1};
 use super::finalize::finalize_compare;
 use super::post_success;
-use super::{arg, strict_planner_required, LocalKind};
+use super::{strict_planner_required, LocalKind};
 
 pub(super) fn materialize_local_v1(
     builder: &mut MirBuilder,
     v: ValueId,
     kind: LocalKind,
     forbid_non_pure: bool,
+    failure_policy: LocalSsaFailurePolicyV1,
+) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
+    let failure_policy = if builder.function_state.local_ssa_correspondence.selects_scalar(v) {
+        LocalSsaFailurePolicyV1::CheckedScalar
+    } else { failure_policy };
+    let result = materialize_local_inner_v1(builder, v, kind, forbid_non_pure, failure_policy);
+    if matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar) {
+        result.map_err(|error| match error {
+            LocalSsaMaterializationErrorV1::Contract(message)
+            | LocalSsaMaterializationErrorV1::BlockCreation(message)
+            | LocalSsaMaterializationErrorV1::InstructionEmission(message) => LocalSsaMaterializationErrorV1::Contract(message),
+        })
+    } else { result }
+}
+
+fn materialize_local_inner_v1(
+    builder: &mut MirBuilder, v: ValueId, kind: LocalKind, forbid_non_pure: bool,
     failure_policy: LocalSsaFailurePolicyV1,
 ) -> Result<ValueId, LocalSsaMaterializationErrorV1> {
     if kind == LocalKind::CompareOperand
@@ -444,13 +461,24 @@ pub(super) fn materialize_local_v1(
 
         // CRITICAL: Check emit_instruction result - if emission fails, return original value
         // to avoid returning undefined ValueId.
+        let original_binding = def_block.zip(def_inst.clone());
+        let mut ordered_operands = None;
         let emit_res = match def_inst {
             Some(MirInstruction::Const { value, .. }) => {
                 builder.emit_instruction(MirInstruction::Const { dst: loc, value })
             }
             Some(MirInstruction::BinOp { op, lhs, rhs, .. }) => {
-                let lhs_local = arg(builder, lhs);
-                let rhs_local = arg(builder, rhs);
+                let (lhs_local, rhs_local) = if matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar) {
+                    let lhs_local = materialize_local_v1(builder, lhs, LocalKind::Arg, forbid_non_pure, failure_policy)?;
+                    let rhs_local = materialize_local_v1(builder, rhs, LocalKind::Arg, forbid_non_pure, failure_policy)?;
+                    (lhs_local, rhs_local)
+                } else {
+                    (
+                        super::try_arg(builder, lhs).map_err(LocalSsaMaterializationErrorV1::Contract)?,
+                        super::try_arg(builder, rhs).map_err(LocalSsaMaterializationErrorV1::Contract)?,
+                    )
+                };
+                ordered_operands = Some(vec![(lhs, lhs_local), (rhs, rhs_local)]);
                 builder.emit_instruction(MirInstruction::BinOp {
                     dst: loc,
                     op,
@@ -500,6 +528,7 @@ pub(super) fn materialize_local_v1(
                 } else {
                     materialize_local_v1(builder, src, kind, forbid_non_pure, failure_policy)?
                 };
+                ordered_operands = Some(vec![(src, src_local)]);
                 builder.emit_instruction(MirInstruction::Copy {
                     dst: loc,
                     src: src_local,
@@ -572,6 +601,13 @@ pub(super) fn materialize_local_v1(
             let ring0 = crate::runtime::get_global_ring0();
             ring0.log.debug(&format!("[local-sa:ensure:success] fn={} entry={:?} bb={:?} kind={:?} v=%{} loc=%{} returning_loc",
                 fn_name, fn_entry, bb, kind, v.0, loc.0));
+        }
+        if let Some(function) = builder.function_state.current_function.as_ref() {
+            builder.function_state.local_ssa_correspondence.record_append(
+                function, v, original_binding, loc, bb, ordered_operands,
+            );
+            builder.function_state.local_ssa_correspondence.record_selected_append(function, v, loc)
+                .map_err(LocalSsaMaterializationErrorV1::Contract)?;
         }
         // Success: COPY0 owns physical-Copy exact facts; C-prime retains
         // StoredUnknown, origin, receiver fallback, and non-Copy exact facts.

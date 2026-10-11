@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-DERIVED-CORRESPONDENCE-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/static-i64-scalar-operation-correspondence"
-current_design_stop = "selfhost-resume/static-i64-scalar-operation-correspondence"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-Source retention S0 accepted. Original producer construction unaccepted: LocalSSA
-rematerializes Const/BinOp even before original append, so Copy-only correspondence
-cannot accept legitimate source. Resolve same-owner physical index/Checked recursion
-inside Task2; preserve coverage/physical/JSON/native/caller-zero/retirement debts.
+Entry/coverage and scalar producer correspondence construction verified in the
+exact combined series; source/negative/regression and3 intermediate checks PASS.
+Aggregate remains instruction-unsupported. Prior S0, arithmetic physical/JSON,
+native0/9/4194305, caller-zero/retirement and parent JSON obligations remain owed.
 """
-next_design_card = "MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIRBUILDER-STATIC-I64-SCALAR-DERIVED-CORRESPONDENCE-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

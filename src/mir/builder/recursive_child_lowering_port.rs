@@ -98,6 +98,20 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         Ok(())
     }
 
+    fn prepare_ordinary_scalar_source_v1(
+        &mut self, _operator: &crate::ast::BinaryOperator,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>>, String> { Ok(None) }
+
+    fn complete_ordinary_scalar_source_v1(
+        &mut self, _source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>, _children: (ValueId, ValueId),
+        _relations: [std::rc::Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>; 2],
+        _completed: &super::ops::CompletedOrdinaryBinaryV1,
+        _index: &crate::mir::builder::ssa::local::LocalSsaPhysicalIndexV1,
+        _function: &crate::mir::MirFunction,
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>, String> {
+        Err("[freeze:contract][scalar-original/consumer-unavailable]".into())
+    }
+
     fn prepare_borrowed_compare_source_v1(
         &mut self,
         _operator: &crate::ast::BinaryOperator,

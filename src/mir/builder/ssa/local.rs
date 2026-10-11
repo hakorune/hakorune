@@ -3,6 +3,8 @@ use crate::mir::ValueId;
 
 pub(in crate::mir::builder) mod checked_compare;
 pub(in crate::mir::builder) mod checked_mul;
+pub(in crate::mir::builder) mod correspondence;
+pub(in crate::mir) use correspondence::{LocalSsaPhysicalIndexV1, LocalSsaPhysicalRelationV1};
 mod copy_type;
 mod error;
 mod finalize;
@@ -96,7 +98,7 @@ fn ensure_inner(
     kind: LocalKind,
     forbid_non_pure: bool,
 ) -> Result<ValueId, String> {
-    ensure_inner_with_policy(builder, v, kind, forbid_non_pure, false)
+    ensure_inner_with_policy(builder, v, kind, forbid_non_pure, false, false)
 }
 
 fn ensure_inner_with_policy(
@@ -105,6 +107,7 @@ fn ensure_inner_with_policy(
     kind: LocalKind,
     forbid_non_pure: bool,
     require_checked: bool,
+    selected_scalar: bool,
 ) -> Result<ValueId, String> {
     let checked = require_checked || builder.function_state.checked_compare_reuse.contains(v)
         || (kind == LocalKind::CompareOperand
@@ -117,7 +120,9 @@ fn ensure_inner_with_policy(
         v,
         kind,
         forbid_non_pure,
-        if checked {
+        if selected_scalar {
+            LocalSsaFailurePolicyV1::CheckedScalar
+        } else if checked {
             LocalSsaFailurePolicyV1::Checked
         } else {
             LocalSsaFailurePolicyV1::LegacyFacade
@@ -177,13 +182,40 @@ pub fn arg(builder: &mut MirBuilder, v: ValueId) -> ValueId {
     ensure(builder, v, LocalKind::Arg)
 }
 
+/// Selected scalar reuse propagates failure through existing fallible consumers.
+pub(in crate::mir::builder) fn try_arg(
+    builder: &mut MirBuilder,
+    value: ValueId,
+) -> Result<ValueId, String> {
+    if builder.function_state.local_ssa_correspondence.selects_scalar(value) {
+        checked_scalar_arg(builder, value).map(|(value, _)| value)
+    } else {
+        Ok(arg(builder, value))
+    }
+}
+
 /// The selected Mul source cannot inherit the legacy facade's recovery to
 /// the raw operand when LocalSSA fails to emit its required Copy.
 pub(in crate::mir::builder) fn checked_mul_arg(
     builder: &mut MirBuilder,
     value: ValueId,
 ) -> Result<ValueId, String> {
-    ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true)
+    ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true, false)
+}
+
+/// Selected scalar source operands propagate materialization failures.
+/// This borrows source selection from the caller; it issues no operation proof.
+pub(in crate::mir::builder) fn checked_scalar_arg(
+    builder: &mut MirBuilder,
+    value: ValueId,
+) -> Result<(ValueId, std::rc::Rc<LocalSsaPhysicalRelationV1>), String> {
+    let returned = ensure_inner_with_policy(builder, value, LocalKind::Arg, false, true, true)?;
+    let function = builder.function_state.current_function.as_ref()
+        .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
+    let relation = builder.function_state.local_ssa_correspondence.loan(function, value, returned)
+        .ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?;
+    relation.verify(function)?;
+    Ok((returned, relation))
 }
 
 /// Selected checked Bool failures always propagate; unselected conditions keep
@@ -222,9 +254,17 @@ pub(in crate::mir::builder) fn try_cmp_operand(
         .function_state
         .checked_compare_reuse
         .contains_operand(v)
+        || builder.function_state.local_ssa_correspondence.selects_scalar(v)
     {
         ensure_inner(builder, v, LocalKind::CompareOperand, false)
     } else {
         Ok(cmp_operand(builder, v))
+    }
+}
+
+impl MirBuilder {
+    /// Borrow the current function's physical evidence; it confers no source authority.
+    pub(in crate::mir) fn local_ssa_physical_correspondence_v1(&self) -> &LocalSsaPhysicalIndexV1 {
+        &self.function_state.local_ssa_correspondence
     }
 }

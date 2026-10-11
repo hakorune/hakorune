@@ -62,6 +62,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct
 
 #[derive(Debug)]
 pub(super) struct FinishedBindings {
+    captured: Vec<(BasicBlockId, MirInstruction)>,
+    validated_auxiliary_omissions: Vec<(BasicBlockId, MirInstruction)>,
     destinations: BTreeMap<BasicBlockId, BasicBlockId>,
     recorded: Vec<(BasicBlockId, MirInstruction)>,
     sequences: BTreeMap<BasicBlockId, (Vec<MirInstruction>, MirInstruction)>,
@@ -398,6 +400,11 @@ impl PhysicalBoundary {
         )?;
         literal_controls.validate_carrier_destinations(&walk_graph, &destinations)?;
         Ok(FinishedBindings {
+            captured: self.walk_graph.iter().flat_map(|(block, node)| {
+                node.instructions.iter().chain(std::iter::once(&node.terminal))
+                    .map(move |instruction| (*block, instruction.clone()))
+            }).collect(),
+            validated_auxiliary_omissions: Vec::new(),
             destinations,
             recorded: Vec::new(),
             sequences: expected,
@@ -431,6 +438,7 @@ impl PhysicalBoundary {
         {
             return Err(fault("unused-constant-became-used"));
         }
+        let mut auxiliary_omissions = Vec::new();
         for (id, (instructions, terminal)) in &projection.sequences {
             let actual = &function.blocks[id];
             let instructions: Vec<_> = instructions
@@ -447,10 +455,14 @@ impl PhysicalBoundary {
                     .accepts_omission(expected, &self.recorded_dsts)?
                 {
                     // The original proof cone owns this no-definition/no-use omission.
+                    if matches!(expected, MirInstruction::Const { .. } | MirInstruction::Copy { .. }) {
+                        auxiliary_omissions.push((*id, expected.clone()));
+                    }
                 } else if self.borrowed_copies.contains(expected) {
                     if !self.borrowed_copies.may_omit(function, expected) {
                         return Err(fault("borrowed-copy-omission"));
                     }
+                    auxiliary_omissions.push((*id, expected.clone()));
                 } else if matches!(expected, MirInstruction::Const { dst, .. }
                     if self.removable_constants.contains(dst))
                     || matches!(expected, MirInstruction::Copy { dst, .. }
@@ -467,6 +479,9 @@ impl PhysicalBoundary {
                     // duplicate, a folded phi, or plain DCE. A recorded
                     // binding never rides this permission, and an actual-side
                     // extra instruction still fails the sequence.
+                    if matches!(expected, MirInstruction::Const { .. } | MirInstruction::Copy { .. }) {
+                        auxiliary_omissions.push((*id, expected.clone()));
+                    }
                     continue;
                 } else {
                     return Err(fault("finished-sequence"));
@@ -574,6 +589,7 @@ impl PhysicalBoundary {
                 function.signature.name
             )));
         }
+        projection.validated_auxiliary_omissions = auxiliary_omissions;
         for binding in projection.bindings(bindings)? {
             if !projection.recorded.contains(&binding) {
                 projection.recorded.push(binding);

@@ -9,6 +9,60 @@ impl FinishedBindings {
         &self.recorded
     }
 
+    /// A relation borrows exact captured membership and validated omission permission.
+    pub(in super::super) fn relation_binding(
+        &self,
+        function: &MirFunction,
+        original: &(BasicBlockId, MirInstruction),
+    ) -> Result<Option<(BasicBlockId, MirInstruction)>, String> {
+        let value = original
+            .1
+            .dst_value()
+            .ok_or_else(|| fault("relation-dst"))?;
+        if function.params.contains(&value) {
+            return Err(fault("relation-parameter-collision"));
+        }
+        let mut captured = self
+            .captured
+            .iter()
+            .filter(|(_, row)| row.dst_value() == Some(value));
+        if captured.next() != Some(original) || captured.next().is_some() {
+            return Err(fault("relation-captured-membership"));
+        }
+        let mapped = self
+            .binding(original.0, &original.1)?
+            .ok_or_else(|| fault("relation-destination"))?;
+        let definitions: Vec<_> = function
+            .blocks
+            .iter()
+            .flat_map(|(block, body)| body.all_instructions().map(move |row| (*block, row)))
+            .filter(|(_, row)| row.dst_value() == Some(value))
+            .collect();
+        if definitions.len() == 1 && definitions[0] == (mapped.0, &mapped.1) {
+            return Ok(Some(mapped));
+        }
+        let unused = function.blocks.values().all(|block| {
+            block
+                .all_instructions()
+                .all(|row| !row.used_values().contains(&value))
+                && block
+                    .return_env
+                    .as_ref()
+                    .is_none_or(|values| !values.contains(&value))
+        });
+        if definitions.is_empty()
+            && unused
+            && matches!(
+                original.1,
+                MirInstruction::Const { .. } | MirInstruction::Copy { .. }
+            )
+            && self.validated_auxiliary_omissions.contains(&mapped)
+        {
+            return Ok(None);
+        }
+        Err(fault("relation-finished-producer"))
+    }
+
     /// Check the source-issued local Copy against the same finished
     /// projection used by lifecycle bindings. A DCE omission is accepted only
     /// when the captured boundary explicitly marked that Copy removable and
@@ -128,5 +182,84 @@ impl FinishedBindings {
             .iter()
             .filter_map(|(id, i)| self.binding(*id, i).transpose())
             .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn relation_requires_validated_omission_and_exact_unique_finished_producer() {
+        let (original, bindings) = super::super::tests::fixture();
+        let raw = (
+            BasicBlockId(0),
+            original.blocks[&BasicBlockId(0)].instructions[1].clone(),
+        );
+        let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+        let mut projection = boundary.project(&original).unwrap();
+        boundary
+            .validate_complete(&original, &mut projection, &bindings)
+            .unwrap();
+        assert_eq!(
+            projection.relation_binding(&original, &raw).unwrap(),
+            Some(raw.clone())
+        );
+        let mut collision = original.clone();
+        collision.params.push(ValueId(2));
+        assert!(projection
+            .relation_binding(&collision, &raw)
+            .unwrap_err()
+            .contains("parameter-collision"));
+        let mut foreign = raw.clone();
+        if let MirInstruction::Const { value, .. } = &mut foreign.1 {
+            *value = crate::mir::ConstValue::Integer(99);
+        }
+        assert!(projection
+            .relation_binding(&original, &foreign)
+            .unwrap_err()
+            .contains("captured-membership"));
+        let mut changed = original.clone();
+        changed
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions[1] = foreign.1.clone();
+        assert!(projection.relation_binding(&changed, &raw).is_err());
+        let mut duplicate = original.clone();
+        duplicate
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .push(raw.1.clone());
+        assert!(projection.relation_binding(&duplicate, &raw).is_err());
+        let mut omitted = original.clone();
+        omitted
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .truncate(1);
+        let mut projection = boundary.project(&omitted).unwrap();
+        assert!(projection.relation_binding(&omitted, &raw).is_err());
+        boundary
+            .validate_complete(&omitted, &mut projection, &bindings)
+            .unwrap();
+        assert!(projection
+            .relation_binding(&omitted, &raw)
+            .unwrap()
+            .is_none());
+        let mut live = omitted.clone();
+        live.blocks.get_mut(&BasicBlockId(0)).unwrap().return_env = Some(vec![ValueId(2)]);
+        assert!(projection.relation_binding(&live, &raw).is_err());
+        let mut resurrected = omitted.clone();
+        resurrected
+            .blocks
+            .get_mut(&BasicBlockId(0))
+            .unwrap()
+            .instructions
+            .push(foreign.1);
+        assert!(projection.relation_binding(&resurrected, &raw).is_err());
     }
 }

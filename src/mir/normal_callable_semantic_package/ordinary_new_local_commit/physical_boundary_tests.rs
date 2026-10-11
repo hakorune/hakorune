@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::{BasicBlock, ConstValue, EffectMask, FunctionSignature, MirType};
 
-fn fixture() -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
+pub(super) fn fixture() -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
     let mut function = MirFunction::new(
         FunctionSignature {
             name: "physical-boundary".into(),

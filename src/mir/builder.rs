@@ -577,6 +577,7 @@ mod router; // RouterPolicyBox（Unified vs BoxCall）
 mod schedule; // BlockScheduleBox（物理順序: PHI→materialize→body）
 mod scope_context; // Phase 136 follow-up (Step 3/7): ScopeContext extraction
 mod ssa; // LocalSSA helpers (in-block materialization)
+pub(in crate::mir) use ssa::local::{LocalSsaPhysicalIndexV1, LocalSsaPhysicalRelationV1};
 mod static_scalar_facts; // Narrow verified static-scalar method fact surface
 mod stmts;
 mod type_context; // Phase 136 follow-up: TypeContext extraction

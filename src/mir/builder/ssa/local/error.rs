@@ -24,6 +24,7 @@ impl LocalSsaMaterializationErrorV1 {
 pub(super) enum LocalSsaFailurePolicyV1 {
     LegacyFacade,
     Checked,
+    CheckedScalar,
 }
 
 impl LocalSsaFailurePolicyV1 {
@@ -37,7 +38,7 @@ impl LocalSsaFailurePolicyV1 {
                 let _ = error.message();
                 Ok(original)
             }
-            Self::Checked => Err(error),
+            Self::Checked | Self::CheckedScalar => Err(error),
         }
     }
 }

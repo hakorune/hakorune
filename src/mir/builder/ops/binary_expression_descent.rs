@@ -214,6 +214,7 @@ where
 enum SelectedBinarySourceV1 {
     Compare(crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1),
     Mul(crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1),
+    Scalar(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>),
 }
 
 pub(in crate::mir::builder) fn drive_ordinary_binary_expression_v1<Port>(
@@ -234,11 +235,13 @@ where
     let source = match (
         port.prepare_binary_source_v1(&operator)?,
         port.prepare_binary_mul_source_v1(&operator)?,
+        port.prepare_ordinary_scalar_source_v1(&operator)?,
     ) {
-        (Some(compare), None) => Some(SelectedBinarySourceV1::Compare(compare)),
-        (None, Some(mul)) => Some(SelectedBinarySourceV1::Mul(mul)),
-        (None, None) => None,
-        (Some(_), Some(_)) => {
+        (Some(compare), None, None) => Some(SelectedBinarySourceV1::Compare(compare)),
+        (None, Some(mul), None) => Some(SelectedBinarySourceV1::Mul(mul)),
+        (None, None, Some(scalar)) => Some(SelectedBinarySourceV1::Scalar(scalar)),
+        (None, None, None) => None,
+        _ => {
             return Err("[freeze:contract][borrowed-binary/source-overlap]".into())
         }
     };
@@ -250,11 +253,16 @@ where
     if let Some(SelectedBinarySourceV1::Compare(source)) = &source {
         port.prepare_binary_operands_v1(builder, source, (left, right))?;
     }
+    let mut scalar_relations = None;
     let completed = if matches!(&source, Some(SelectedBinarySourceV1::Mul(_))) {
         if operator != BinaryOperator::Multiply {
             return Err("[freeze:contract][borrowed-mul/operator-drift]".into());
         }
         builder.build_borrowed_mul_from_values_recorded(left, right)?
+    } else if matches!(&source, Some(SelectedBinarySourceV1::Scalar(_))) {
+        let (completed, relations) = builder.build_source_scalar_from_values_recorded(operator, left, right)?;
+        scalar_relations = Some(relations);
+        completed
     } else {
         builder.build_binary_op_from_values_recorded(operator, left, right)?
     };
@@ -263,6 +271,14 @@ where
             SelectedBinarySourceV1::Compare(source) => {
                 let record = port.complete_binary_source_v1(source, (left, right), &completed)?;
                 super::super::ssa::local::checked_compare::install(builder, record)?;
+            }
+            SelectedBinarySourceV1::Scalar(source) => {
+                let function = builder.function_state.current_function.as_ref()
+                    .ok_or_else(|| "[freeze:contract][scalar-original/function-missing]".to_owned())?;
+                let record = port.complete_ordinary_scalar_source_v1(source, (left, right),
+                    scalar_relations.ok_or_else(|| "[freeze:contract][scalar-original/operand-correspondence]".to_owned())?,
+                    &completed, builder.local_ssa_physical_correspondence_v1(), function)?;
+                builder.function_state.local_ssa_correspondence.install_scalar_original(function, record)?;
             }
             SelectedBinarySourceV1::Mul(source) => {
                 let record =

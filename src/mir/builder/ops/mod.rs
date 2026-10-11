@@ -164,8 +164,8 @@ impl super::MirBuilder {
         match mir_op {
             // Arithmetic operations
             BinaryOpType::Arithmetic(op) => {
-                let lhs = crate::mir::builder::ssa::local::arg(self, lhs_raw);
-                let rhs = crate::mir::builder::ssa::local::arg(self, rhs_raw);
+                let lhs = crate::mir::builder::ssa::local::try_arg(self, lhs_raw)?;
+                let rhs = crate::mir::builder::ssa::local::try_arg(self, rhs_raw)?;
                 arithmetic::build_arithmetic_op_recorded(self, op, lhs, rhs)
                     .map(CompletedOrdinaryBinaryV1::Arithmetic)
             }
@@ -174,6 +174,20 @@ impl super::MirBuilder {
                 .build_comparison_op_recorded(op, lhs_raw, rhs_raw)
                 .map(CompletedOrdinaryBinaryV1::Comparison),
         }
+    }
+
+    /// The existing arithmetic writer with selected source operand failures propagated.
+    pub(in crate::mir) fn build_source_scalar_from_values_recorded(
+        &mut self, operator: BinaryOperator, lhs_raw: ValueId, rhs_raw: ValueId,
+    ) -> Result<(CompletedOrdinaryBinaryV1, [std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>; 2]), String> {
+        let op = match converters::convert_binary_operator(operator)? {
+            BinaryOpType::Arithmetic(op @ (crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div)) => op,
+            _ => return Err("[freeze:contract][scalar-original/operator]".into()),
+        };
+        let (lhs, left_relation) = crate::mir::builder::ssa::local::checked_scalar_arg(self, lhs_raw)?;
+        let (rhs, right_relation) = crate::mir::builder::ssa::local::checked_scalar_arg(self, rhs_raw)?;
+        let completed = arithmetic::build_arithmetic_op_recorded(self, op, lhs, rhs)?;
+        Ok((CompletedOrdinaryBinaryV1::Arithmetic(completed), [left_relation, right_relation]))
     }
 
     /// SAME arithmetic issuer with checked LocalSSA for a selected borrowed

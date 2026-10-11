@@ -171,6 +171,22 @@ where
         self.child.complete_ordinary_binary_expression_v1(completed)
     }
 
+    fn prepare_ordinary_scalar_source_v1(
+        &mut self, operator: &crate::ast::BinaryOperator,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>>, String> {
+        self.child.prepare_ordinary_scalar_source_v1(operator)
+    }
+
+    fn complete_ordinary_scalar_source_v1(
+        &mut self, source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>, children: (ValueId, ValueId),
+        relations: [std::rc::Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>; 2],
+        completed: &super::ops::CompletedOrdinaryBinaryV1,
+        index: &crate::mir::builder::ssa::local::LocalSsaPhysicalIndexV1,
+        function: &crate::mir::MirFunction,
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>, String> {
+        self.child.complete_ordinary_scalar_source_v1(source, children, relations, completed, index, function)
+    }
+
     fn prepare_borrowed_compare_source_v1(
         &mut self,
         operator: &crate::ast::BinaryOperator,

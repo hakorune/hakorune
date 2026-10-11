@@ -115,8 +115,8 @@ impl CorePlanEffectEmissionPortV1<'_> {
                 let args = args
                     .iter()
                     .copied()
-                    .map(|value| builder.local_arg(value))
-                    .collect();
+                    .map(|value| crate::mir::builder::ssa::local::try_arg(builder, value))
+                    .collect::<Result<Vec<_>, _>>()?;
                 let emitted =
                     lower_selected_static_result_publication_with_arguments_and_destination_v1(
                         builder, handoff, args, *dst,
@@ -212,8 +212,8 @@ fn emit_selected_exact_i64(
     let args: Vec<ValueId> = args
         .iter()
         .copied()
-        .map(|value| builder.local_arg(value))
-        .collect();
+        .map(|value| crate::mir::builder::ssa::local::try_arg(builder, value))
+        .collect::<Result<_, _>>()?;
     builder.emit_unified_call(
         Some(*dst),
         CallTarget::Global(

@@ -76,6 +76,9 @@ pub(crate) use ordinary_new_arguments::{
 mod completion_index;
 #[path = "ordinary_new_completion_lookup.rs"]
 mod completion_lookup;
+#[path = "ordinary_new_scalar_operations.rs"]
+mod scalar_operations;
+pub(in crate::mir) use scalar_operations::OriginalScalarAppendV1;
 #[path = "ordinary_new_coseal_helpers.rs"]
 mod coseal_helpers;
 #[path = "ordinary_new_field_reads.rs"]
@@ -303,6 +306,8 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 #[derive(Debug)]
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
+    scalar_operation_appends: RefCell<BTreeMap<OwnedExprSiteV1, Rc<OriginalScalarAppendV1>>>,
+    scalar_operation_consumers: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<scalar_operations::ScalarConsumerObservationV1>>>,
     // Return-position `new` claims keyed by the exact `new` site — the
     // bounded transfer-to-caller family inside this same ledger, not a
     // parallel issuer.

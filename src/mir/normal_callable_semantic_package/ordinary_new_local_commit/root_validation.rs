@@ -81,6 +81,9 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
+            self.verify_finished_scalar_operations_v1(owner, function, |original| {
+                projection.relation_binding(function, original)
+            })?;
             self.verify_finished_borrowed_compares_v1(owner, function, |original| {
                 let mapped = projection
                     .binding(original.0, &original.1)?
@@ -217,6 +220,9 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        self.verify_finished_scalar_operations_v1(owner, function, |original| {
+            projection.relation_binding(function, original)
+        })?;
         self.verify_finished_borrowed_muls_v1(owner, function, |original| {
             let mapped = projection
                 .binding(original.0, &original.1)?
@@ -533,6 +539,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
+        result.extend(self.scalar_operation_bindings_v1(owner)?);
         result.extend(
             self.selected_loop_body_packets
                 .borrow()

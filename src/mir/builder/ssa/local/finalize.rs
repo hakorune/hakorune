@@ -1,4 +1,4 @@
-use super::{arg, strict_planner_required, try_cmp_operand, try_ensure, LocalKind};
+use super::{strict_planner_required, try_cmp_operand, try_ensure, LocalKind};
 use crate::mir::builder::ssa::phi_input_contract;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{MirInstruction, ValueId};
@@ -173,7 +173,7 @@ pub fn finalize_args(builder: &mut MirBuilder, args: &mut Vec<ValueId>) -> Resul
                 }
             }
         } else {
-            *a = arg(builder, *a);
+            *a = super::try_arg(builder, *a)?;
         }
     }
     Ok(())

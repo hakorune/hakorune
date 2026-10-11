@@ -17,6 +17,7 @@ use crate::mir::builder::calls::call_target::typed_global_target_from_selected_s
 use crate::mir::builder::calls::CallTarget;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreExitPlan};
 use crate::mir::builder::MirBuilder;
+use crate::mir::builder::ssa::local::try_arg;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
 fn try_emit_select_as_phi_for_merge(
@@ -153,7 +154,7 @@ impl super::PlanLowerer {
             } => {
                 let receiver = builder.local_recv(*receiver);
                 let args: Vec<ValueId> =
-                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                    args.iter().copied().map(|a| try_arg(builder, a)).collect::<Result<_, _>>()?;
                 crate::mir::builder::calls::unified_emitter::
                     emit_canonical_instance_call_at_v1(
                         builder,
@@ -177,7 +178,7 @@ impl super::PlanLowerer {
                 // a different control-flow path.
                 let box_val = builder.local_recv(*object);
                 let args: Vec<ValueId> =
-                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                    args.iter().copied().map(|a| try_arg(builder, a)).collect::<Result<_, _>>()?;
                 if matches!(method.as_str(), "push" | "set" | "insert")
                     && crate::mir::builder::types::array_element::receiver_is_array_like(
                         builder,
@@ -221,7 +222,7 @@ impl super::PlanLowerer {
                 source: _,
             } => {
                 let args: Vec<ValueId> =
-                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                    args.iter().copied().map(|a| try_arg(builder, a)).collect::<Result<_, _>>()?;
                 builder.emit_unified_call(
                     *dst,
                     CallTarget::Global(typed_global_target_from_selected_symbol(func, args.len())?),
@@ -236,7 +237,7 @@ impl super::PlanLowerer {
             } => {
                 let callee = builder.local_arg(*callee);
                 let args: Vec<ValueId> =
-                    args.iter().copied().map(|a| builder.local_arg(a)).collect();
+                    args.iter().copied().map(|a| try_arg(builder, a)).collect::<Result<_, _>>()?;
                 builder.emit_unified_call(*dst, CallTarget::Value(callee), args)?;
             }
             CoreEffectPlan::ExternCall {
@@ -343,7 +344,7 @@ impl super::PlanLowerer {
                     })?;
                     (lhs, rhs)
                 } else {
-                    (builder.local_arg(*lhs), builder.local_arg(*rhs))
+                    (try_arg(builder, *lhs)?, try_arg(builder, *rhs)?)
                 };
                 builder.emit_instruction(MirInstruction::BinOp {
                     dst: *dst,
@@ -401,7 +402,7 @@ impl super::PlanLowerer {
                         )
                     })?
                 } else {
-                    builder.local_arg(*src)
+                    try_arg(builder, *src)?
                 };
                 builder.emit_instruction(MirInstruction::Copy {
                     dst: *dst,

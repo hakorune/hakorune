@@ -8,6 +8,40 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn prepare_ordinary_scalar_source_v1(
+        &mut self, operator: &crate::ast::BinaryOperator,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>>, String> {
+        let (Some(ledger), Some(owner)) = (&self.ordinary_new_claim_ledger, self.callable_owner_v1()) else { return Ok(None); };
+        if !ledger.has_scalar_operation_source_v1(owner) { return Ok(None); }
+        let node = self.current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][scalar-original/source-site-missing]".to_owned())?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        let operator = match super::super::ops::converters::convert_binary_operator(operator.clone())? {
+            super::super::ops::converters::BinaryOpType::Arithmetic(op) => Some(op),
+            _ => None,
+        };
+        ledger.prepare_scalar_operation_source_v1(owner, &site, operator)
+    }
+
+    fn complete_ordinary_scalar_source_v1(
+        &mut self, source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>, children: (ValueId, ValueId),
+        relations: [std::rc::Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>; 2],
+        completed: &super::super::ops::CompletedOrdinaryBinaryV1,
+        index: &crate::mir::builder::ssa::local::LocalSsaPhysicalIndexV1,
+        function: &crate::mir::MirFunction,
+    ) -> Result<std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>, String> {
+        let ledger = self.ordinary_new_claim_ledger.as_ref()
+            .ok_or_else(|| "[freeze:contract][scalar-original/ledger-missing]".to_owned())?;
+        let node = self.current_source_site_v1()
+            .ok_or_else(|| "[freeze:contract][scalar-original/source-site-missing]".to_owned())?;
+        if self.callable_owner_v1() != Some(source.owner())
+            || source.binary().site() != &crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node) {
+            return Err("[freeze:contract][scalar-original/source-site-drift]".into());
+        }
+        ledger.record_scalar_operation_append_v1(source, children, relations, completed, index, function)
+    }
+
     fn prepare_borrowed_compare_source_v1(
         &mut self,
         operator: &crate::ast::BinaryOperator,
@@ -324,7 +358,15 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     }
 
     fn complete_construction_stores_v1(&mut self, builder: &MirBuilder) -> Result<(), String> {
+        let has_selected_scalar = builder.local_ssa_physical_correspondence_v1()
+            .scalar_originals().next().is_some();
+        if has_selected_scalar && self.ordinary_new_claim_ledger.is_none() {
+            return Err("[freeze:contract][scalar-original/ledger-missing]".into());
+        }
         let Some(ledger) = self.callable_ledger.as_ref() else {
+            if has_selected_scalar {
+                return Err("[freeze:contract][scalar-original/entry-missing]".into());
+            }
             if !builder.function_state.checked_mul_reuse.is_empty() {
                 return Err("[freeze:contract][borrowed-mul/entry-missing]".into());
             }
@@ -380,6 +422,8 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
                 function,
                 builder.function_state.checked_compare_reuse.observations(),
             )?;
+            news.record_scalar_operation_consumers_v1(state.owner(), function,
+                builder.local_ssa_physical_correspondence_v1())?;
             news.complete_new_emissions(state.owner(), function)?;
         }
         Ok(())

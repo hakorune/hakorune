@@ -1,12 +1,12 @@
 # MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-D0
 
-Status: coverage S0 unaccepted; scalar operation correspondence D0 selected
+Status: coverage S0 unaccepted; scalar correspondence construction verified; physical activation pending
 Date: 2026-10-12
 Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source scalar operation correspondence
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
 
 Original artifact row: `MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0`.
-Current row: `MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0`.
+Current row: `MIRBUILDER-STATIC-I64-SCALAR-DERIVED-CORRESPONDENCE-S0`.
 
 ## Decision
 
@@ -687,104 +687,234 @@ operand/producer transport, as bounded above. Internal contract work, no externa
 wait; no physical arithmetic activation yet.
 
 
-Producer D0 first connection accepted with independent read-only review:
-Decision: select original producer retention, not derived coverage/activation.
-Authority: same immutable scalar initializer Rc in Completion RootHomeFlow.
-Caller: existing Binary descent under RawInvocationChildPort; borrow by exact
-owner/site before children, mutually exclusive with existing Compare/Mul loans.
-After ordered descent, retain children plus CompletedOrdinaryBinary append in
-OrdinaryNewClaimLedgerV1; validate original Rc membership, site/op/dst/coordinate,
-one original per source, and Div rhs unique original Const with actual Copy path.
-Do not search for a matching literal or give the root proof to nested Mul.
-Replace only selected scalar's blind original append responsibility; compatibility
-and nonselected source keep current route. Same-series derived coverage will
-replace selected LocalSSA's blind reuse; do not retire shared physical owner.
-Focused acceptance: unchanged SizeClass source's3 original operations/3 appends
-at final verified callback, exact Rc/site/operator/ordered child correspondence;
-foreign source, changed site/op/divisor, swapped child, duplicate, missing append
-rejections. Missing/failed append publishes no record. No second semantic issuer.
-Paths: existing ledger/initializer module, existing Binary/source port hooks,
-existing raw child transport, final source read-only projection and owner tests.
-Select MIRBUILDER-STATIC-I64-SCALAR-ORIGINAL-PRODUCER-S0. This is a necessary first
-part of Task2, not full Task2 acceptance: derived producer/Checked recursion,
-Sub policy, physical/JSON/native and all older closeout conditions still owed.
+## Task2 current producer correspondence (2026-10-12)
 
+Construction evidence is verified below; S0/native acceptance remains UNACCEPTED. Source retention is accepted at
+`1998e02ab6`; prior finalized coverage and original/index S0 remain unclosed.
+Superseded Copy-only operand mapping was rejected by read-only review: LocalSSA
+can actually re-emit Const/BinOp/Copy before the first original scalar append.
+Actual Copy emits a new Copy after materializing its child, not Copy-forward.
+No shape/equal-Const search, alternate forward arm or new source issuer is allowed.
 
-Original-producer S0 construction is UNACCEPTED. Read-only review found its
-Copy-only operand mapping incomplete: the SAME LocalSSA may emit a fresh Const
-or BinOp even before the first scalar original append. materialize.rs allocates
-loc before definition classification and Const/BinOp arms directly re-emit into
-loc; arg cache lacks provenance. Thus derived physical correspondence is needed
-for original operands as well as the second Div. Do not weaken copy_path or search
-for same-valued Const, and do not run an expensive acceptance build on this known
-incomplete mapping. V1 lib+tests check found test-only visibility/snapshot errors;
-fixed using existing public test instruction snapshot, V2 check pending.
-Reopen existing producer correspondence D0; keep original construction dirty and
-all previous coverage/native/retirement obligations. Candidate: sole LocalSSA
-private physical index observes actual successful appends with original->new and
-ordered operand mapping; original scalar ledger loans its exact records. Existing
-function-state transaction, idle check and root-exit reset must preserve/clear it.
-Identity/cache reuse requires its retained relation, not matching shape. Selected
-recursive children propagate Checked failure. No new source issuer or execution
-permission. Integrate this in Task2 before accepting original producer S0.
-
-
-Producer D0 refinement Decision: use a function-owned private LocalSSA physical
-correspondence index, not a temporary trace. Earlier cache results predate a
-selected scalar call. No equivalent existing index was found in the bounded
-LocalSSA/function lifecycle review. Original/derived source semantics stay in the
-same ordinary-new ledger; the index is physical evidence only.
-Record exact input producer and successful output append plus ordered original/
-returned child pairs at the existing materialization owner. Copy-forward is an
-explicit alias event; identity needs no fabricated append; cache lends an existing
-relation. Redirect/ambiguous/missing provenance supplies no selected loan, never
-an equality/shape repair. Generic recording must not introduce new legacy rejects.
-Selected original/derived consumers require the exact relation and recursively
-Checked child materialization. Failed append/child publishes no relation or cache;
-selected consumption refuses foreign/changed/missing/duplicate physical evidence.
+Decision: retain the ordinary-new ledger's immutable scalar initializer source Rc
+as sole authority. The sole LocalSSA materialization writer records physical
+correspondence in its EXISTING function-owned frame state. Record successful
+exact original/output producer and ordered child loans. Identity/cache lend the
+same index relation; they do not mint append/source evidence. Generic recording
+adds no legacy rejection and checks local shape only; selected consumption checks
+same-index Rc membership, unique definitions and recursive producer mutation.
 Keep index history across block cache clear. FunctionLoweringState, nested
-function_state_transaction save/restore, idle check and root exit reset own its
-lifetime. Source/divisor Rc membership remains solely in ordinary-new ledger.
-V2 lib+tests check PASS1m08s after test visibility errors corrected; original
-producer runtime acceptance is still absent and known Copy-only mapping invalid.
-Smallest next implementation closes this physical index and loans into the current
-original producer drafts, then same-source derived producer/final binding coverage.
-Required positives include raw Const/BinOp rematerialization before first original,
-3 original source operations, repeated Div, existing/cache/new paths. Required
-negatives include child emission failure/no publication, cache/source/operand
-mutation and nested function/index lifetime. No physical arithmetic activation.
+function_state_transaction, idle check and root exit own save/restore/reset.
 
-## Entry correspondence construction checkpoint (2026-10-12)
+Original Binary completion receives raw children plus exact ordered operand
+relations, validates same source Rc/site/owner/op and positive Divisor, then
+returns Rc<OriginalScalarAppendV1>. SAME Binary descent installs that record at
+original dst in the SAME frame index. LocalSSA successful derived append lends
+that SAME record to returned dst. Duplicate install/target rejects. Failed child
+or parent publishes no parent cache/relation/consumer record.
 
-Decision: the existing entry owner borrows the finished whole tagged source
-cohort and publishes the canonical formal tuple only at collector success.
-Executable actuals remain owed at their original canonical packets. Missing/
-foreign/formal/ordinal/duplicate or failed preparation cannot lend an entry.
-Entry-only tree be38fad07033ddce064d29bc53ff19909641c500: lib+tests check PASS73.83s.
-Full-series tree1bead9fdf6c698c5acd0a23540312315e95924ef runtime: preflight1/1,
-entry18/18 and Main selected filter7/7 PASS. Runtime used the combined series,
-not an independently linked entry-only binary. Receipts:
-/tmp/static-scalar-series-v1-receipt.json and
-/tmp/static-scalar-intermediate-trees-v1-receipt.json. S0/native/finalized
-coverage/physical acceptance, caller-zero and retirement remain open.
+Selected original/derived re-entry uses CheckedScalar recursively. Converting
+errors inside materialize is insufficient while ordinary arg() uses unwrap_or.
+The existing fallible try_arg dispatch checks selected values; nonselected facade
+is retained. Finite source consumers are bit_group -> Mul, shift_count -> Compare,
+legacy BinOp children and default Call args. Loop CoreEffect BinOp/Copy/Call args,
+selected Static and declared GlobalCall args use the same Result dispatch.
+Completion refuses missing callable entry/ordinary-new ledger with installed
+scalar originals. No deferred terminal, second reuse box or second semantic issuer.
 
-## Canonical actual/coverage construction checkpoint (2026-10-12)
+At existing complete_construction_stores_v1, original inventory must match
+expected source rows by count, unique site and exact source/record Rc. Derived
+observations must match non-original scalar loan targets, append keys and collected
+consumer targets. Validate every source/index membership, exact relation and unique
+target before atomically retaining observations in the SAME ordinary-new ledger.
+No partial consumer handoff on failure.
 
-Decision: lend original canonical actuals from the exact retained packet and
-enumerate Lexical and detached LoopBody packets for BOTH final coverage
-consumers. Keep their source owners and actual/producer identities distinct.
-Coverage-only tree6871ac1a36acb7d06e2960c5b886705ed31feed0 lib+tests check PASS.
-Combined-series runtime reaches final verification and original/foreign/
-missing/duplicate/changed producer assertions, then the aggregate FAILS at
-published-lifecycle-program/instruction-unsupported. This is unmet physical
-acceptance, not an aggregate PASS, baseline debt or native/S0/retirement proof.
-Exact receipts remain the series and intermediate-tree receipts above.
+The SAME FinishedBindings projects original/derived mandatory operations and
+non-Const/Copy relation dependencies at root AND child finishing. Do not compare
+draft block IDs directly to final MIR. Exact captured membership and unique final
+producer are required; instruction dst cannot collide with a parameter. Parameter
+relations retain exact ordinal/ValueId and reject instruction collisions.
+Only auxiliary Const/Copy omissions actually accepted by existing validate_complete
+are retained by FinishedBindings; absence alone grants no permission. Final
+no-definition/no-use includes return_env. No arbitrary pure-op omission becomes
+scalar authority. If real source requires a nonselected Add/Mul snapshot omission,
+decide that bounded policy before accepting, not via equality repair.
 
-## FinishedBindings responsibility extraction (2026-10-12)
+Projection prerequisite T0 extracted FinishedBindings responsibility from the
+782-line physical_boundary.rs, preserving local_commit method visibility.
+Original/derived source observations stay on the same ledger; final projection
+issues no Integer, divisor, overflow, backend or execution permission.
 
-Pure T0 tree4e7c4eb9936c9c784fed13327790a343e0ad6e60 lib+tests check PASS.
-Existing method bodies move unchanged into physical_boundary_finished.rs,
-preserving owner visibility. No new fields, relation policy, omission or source
-acceptance in this checkpoint. Byte-preservation receipt:
-/tmp/static-scalar-finished-bindings-t0-move-receipt.json. Combined-series
-boundary regression19/19 PASS; arithmetic/native/retirement remains open.
+Required acceptance still owed:
+- Actual source original3 rows (2Sub+1Div), repeated derived Div, SAME Rc source,
+  same finished projection and unchanged source identity.
+- Const/BinOp before original; identity/cache/actual Copy append and nested-frame
+  lifetime; selected child/re-entry failure before parent publication.
+- Foreign source/index, changed op/divisor/ordered operand/producer, missing or
+  duplicate original/derived target, consumer coverage and atomic failure.
+- Finished exact/mutated/duplicate/parameter-collision producer, missing mandatory
+  operation, permitted dead Const/Copy vs unvalidated/foreign/live omission.
+- Task3 Sub policy, Task4 physical/C/JSON, Task5 native0/9/4194305, prior finalized
+  coverage, production switch/caller-zero/old-edge retirement and parent JSON
+  remain separate obligations. Whole SizeClass/mimalloc/MirBuilder not complete.
+
+Earlier checks and integrated runtime: V1/V2 source/index/projection receipts
+are retained at /tmp/static-scalar-finished-connection-v{1,2}-receipt.json.
+The missing Ring0 initialization, wrong undefined-source emission fixture and
+projection visibility errors were current-change setup/scope failures; corrected
+code was checked and the actual Copy-emission refusal/source proof passed V2/V3.
+They are not baseline debt, ignored tests or unexecuted acceptance. V3 below is
+the latest integrated runtime. All physical/native/retirement/JSON debts remain.
+
+Scoped-closeout review: correspondence/index/ledger/projection has no direct Rust
+API dependency on preceding entry/coverage changes, but its unchanged real-source
+invocation does require those runtime prerequisites (isolated V2 below). Keep
+their responsibilities separate in the same series. Integrated real-source PASS
+does not prove a Task2-only commit; do not drop the positive or close earlier S0.
+
+Task3 read-only design recommendation (not physical activation): selected source
+Integer Sub should share the existing published I64 Add/Mul modulo-2^64 policy,
+with fresh Integer/no result lifecycle and no newly introduced overflow Fault.
+The operator reference currently preserves the I64 policy without specifying
+wrapping explicitly; document that bounded Decision before activation. Exact
+numeric checked add/sub/mul in types.md is a separate deferred substrate and
+is not authority for this source Integer row. Preserve the existing source
+preflight/retained Binary/ordered operands; no new arithmetic receipt or solver.
+Div stays original positive Integer-literal scope, excluding zero and MIN/-1;
+no general Div or exact-width/usize permission. Task4 must retain I64-only
+Sub/Div operands (not Add/Mul's tagged extension), complete source/finished
+correspondence, and schema/index/type-flow/admission/emission checks together.
+Focused conformance: MIN-1->MAX, MAX-(-1)->MIN, 0-1->-1; changed operator/order,
+Bool/tagged/handle, missing operations and Div divisor0/-1/nonconstant reject.
+Unchanged source and native0/9/4194305 remain required; Task2 is still selected.
+
+Task4 read-only mapping review (not activation or Task2 acceptance): reuse
+FinalizedRootSourceHandoffV1's SAME ledger and FinishedBindings. A read-only
+visitor lends actual function, exact final binding and original source loan;
+derived rows project the relation's retained target snapshot, not a value/shape
+search in final MIR. Reverify the complete original/consumer set before lending.
+Rust physical projection admits Sub/Div only at those exact function/coordinates;
+missing, foreign, duplicate or changed producers reject. JSON projects the
+validated instruction without issuing source authority or adding a receipt.
+C schema/index/admission/flow/emission retain unique definitions, availability
+and dominance. Both Sub/Div operands must be LV4_I64, excluding Add/Mul's tagged
+extension. Div rhs must be an available unique same-function const_i64 in
+1..=INT64_MAX; no constant evaluator or general Div. After Task3's policy is
+fixed, emit plain sub/sdiv without nsw/nuw/exact or a new overflow Fault.
+Before activation, separate behavior-preserving T0: extract operation schema
+validation from the 766-line physical schema and teardown helpers from the
+758-line emitter into responsibility-owned child includes. No second index,
+translation unit, source issuer or old StaticV2 backend authority.
+Negatives additionally cover unloaned/extra Sub/Div, foreign coordinates,
+Bool/tagged/handle operands, zero/negative/nonconstant/non-dominating/duplicate
+divisor and malformed JSON keys. Both original and derived operations must
+survive the physical image. Task5 native/JSON and prior cutover/retirement debts
+remain owed; this mapping does not change the selected Task2 row.
+
+
+Test ownership: scalar real-source/finished mutation tests now reside in the
+existing owner's private finalized_scalar_source_tests.rs child; pending borrowed
+coverage borrows the same unchanged source/Main preparation. Split lib+tests
+check PASS1m11s. Reconstruction matches pre-move V2 source SHA exactly:
+/tmp/static-scalar-owner-test-move-receipt.json. V3 executes the separated test.
+No isolated runtime or earlier coverage completion is inferred from that move.
+
+Completion acceptance: missing original install, changed late derived producer,
+no partial consumer publication, successful original-function handoff, duplicate
+handoff refusal and preserved original/relation Rc are covered by the new existing
+owner test. Correspondence tests moved to a private sibling to preserve800hard.
+Two V1 private package/ledger test-scope errors were corrected through the existing
+cfg(test) OriginalScalarAppend inventory fixture; production visibility unchanged.
+Consumer V2 lib+tests check PASS1m11s. V3 source47-file snapshot did not change
+during the original build. Initial accepted-vs-index Rc equality was added after
+V3 terminal and still needs the isolated runtime below; no S0 closeout yet.
+
+V3 integrated runtime receipt: no-run terminal PASS8m18s; both focused and
+regression drivers terminal. Source47-file snapshot unchanged. Binary SHA256
+a36899a53c524bd7d9562114b9a6e96335fbd8fab0526730c9d057a4100d470a, preserved
+at /tmp/static-scalar-finished-connection-v3-test-binary. Index7/7 (including
+consumer atomic/missing/resend), original ledger1/1, separated actual source/
+finished mutations1/1, final projection1/1 PASS. Regression LocalSSA28/28,
+physical boundary19/19, transaction3/3 and lowering state1/1 PASS. Required
+aggregate remains red at instruction-unsupported; no waiver or physical claim.
+Receipts /tmp/static-scalar-finished-connection-v3{,-regression}-receipt.json.
+
+After original Cargo/rustc and both drivers became terminal, strengthened initial
+handoff's accepted original/relation Rc equality against index observations.
+New selected tree fb80099872fbde33ff5be5f67170d5c247152bba contains only29 Task2
+paths; /tmp/static-scalar-task2-selected-snapshot.json records the exact tree.
+Isolated no-run/8-filter driver is live at the archive checkout, reusing dependency
+artifacts only after original Cargo termination. It will establish whether prior
+unaccepted entry/coverage is actually needed by the real-source positive and
+execute the exact-Rc success assertion. No isolated PASS inferred yet. Build log
+/tmp/static-scalar-task2-isolated-build-v1.log; receipt planned
+/tmp/static-scalar-task2-isolated-v1-receipt.json. Real index stays unchanged.
+
+Isolated V1 no-run terminal101: only two current-change reference errors in the
+new Rc equality assertion; no missing entry/coverage dependency was reported.
+Borrowed both tuple Rc fields explicitly without changing production code. After
+original isolated Cargo/driver termination, selected tree is now
+24307681b65671788043907e3c767048dc0f84a9; all29 selected archive blobs match.
+V2 isolated build/driver terminal: no-run PASS8m16s. Index7/7 (including exact
+accepted/index Rc equality), original ledger1/1, final projection1/1 PASS;
+regression LocalSSA28/28, physical boundary19/19, transaction3/3 and lowering
+state1/1 PASS. Unchanged actual-source positive FAILS before the callback with
+ordinary-new/emission/selected-static-packet/canonical-entry-required. This is
+a real dependency on preceding unaccepted Static entry work, not baseline debt
+or permission to replace/drop the source positive. Integrated V3 source PASS
+cannot justify an independently accepted Task2 commit. Preserve exact selected
+tree and receipts at /tmp/static-scalar-task2-isolated-v2-receipt.json; identify
+the finite prerequisite entry hunks and their acceptance before scoped closeout.
+Isolated binary SHA256 is
+75577f51d5fb69da3bf22d3fa7f994006b4ff6b0eceff66ab593f0c1b9bbda3d;
+preserved at /tmp/static-scalar-task2-isolated-v2-test-binary. All8 filters ran
+nonzero tests; the driver exit0 does not turn its failing source filter into PASS.
+Physical/native/retirement/JSON and earlier S0 debts remain unchanged.
+
+Finite prerequisite review selected four construction checkpoints: tagged Static
+entry correspondence; canonical actual loans plus BOTH finalized coverage
+consumers; behavior-preserving FinishedBindings extraction; Task2 provenance and
+finished scalar correspondence. Entry registry alone is insufficient: its tuple
+validation needs the same checked source-only tagged cohort/owner view. The
+entry/coverage/Task2 changes issue no new source authority and remain unaccepted
+as native/S0/retirement evidence. Use one exact full-series runtime snapshot and
+sequential lib+tests checks for each intermediate tree; do not repeat three heavy
+test builds or claim intermediate runtime independence.
+The unchanged source fixture now lives in the earlier Static actual test child;
+the scalar test borrows it. Exact helper-body SHA256
+b78bd3ab295798dab637ecaaf5d296fbaf9c7e8c0e70512a75b51abd77659061
+is retained at /tmp/static-scalar-prerequisite-fixture-move-receipt.json.
+Pure T0 method movement preserves bodies except owner visibility; receipt
+/tmp/static-scalar-finished-bindings-t0-move-receipt.json. Prepared intermediate
+trees and path sets are in /tmp/static-scalar-checkpoint-trees.json. Full series
+tree1bead9fdf6c698c5acd0a23540312315e95924ef has47 code/README paths;
+/tmp/static-scalar-series-selected-snapshot.json pins exact source blobs.
+Full-series V1 build/12-filter driver terminal: no-run PASS8m15s, unchanged
+source47-path snapshot. Entry preflight1/1, entry18/18, selected Main filter7/7,
+index7/7, original ledger1/1, unchanged source/finished mutation positive1/1,
+final projection1/1 PASS. Regression LocalSSA28/28, boundary19/19, transaction3/3
+and lowering state1/1 PASS. The required aggregate still FAILS only after its
+callback assertions at published-lifecycle-program/instruction-unsupported;
+record it as unmet physical acceptance, not PASS or baseline debt. Driver exit0
+means no unexpected failure, not aggregate success. Receipt
+/tmp/static-scalar-series-v1-receipt.json; preserved binary
+/tmp/static-scalar-series-v1-test-binary, SHA256
+bdc8dd28c1d7d7f90df939a4be1aaa441a54f03f4beaa82ba7379d37d6fda8c0.
+Only after both original build and driver terminated did the sequential
+intermediate lib+tests checks run; all3 PASS. No S0/native/retirement completion
+is inferred. Their exact trees/commands/times are recorded at
+/tmp/static-scalar-intermediate-trees-v1-receipt.json.
+
+## Construction checkpoints (2026-10-12)
+
+- Entry correspondence: `49ad735662`; entry-only lib+tests PASS73.83s.
+- Canonical actual/coverage: `1fbaa8e461`; coverage-only lib+tests PASS72.62s.
+- Pure FinishedBindings extraction: `26cb57c4aa`; lib+tests PASS72.47s.
+
+These save separate responsibilities in the same bounded series. Runtime uses
+the exact combined source tree described above, not three independently linked
+intermediate binaries. Coverage test EOF was normalized without changing any
+non-trailing byte; /tmp/static-scalar-checkpoint-commits.json retains hashes.
+All production blobs and the scalar test remain identical to the verified series.
+Source/negative/final projection evidence supports the Task2 construction
+checkpoint; prior S0, physical/native/JSON/caller-zero/retirement remain open.

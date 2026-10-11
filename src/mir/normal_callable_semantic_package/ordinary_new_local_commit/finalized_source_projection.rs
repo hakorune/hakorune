@@ -9,6 +9,14 @@ type Binding = (BasicBlockId, MirInstruction);
 mod integer_return;
 
 impl FinalizedRootSourceHandoffV1 {
+    /// Lend original append observations; derived and execution coverage remain separate.
+    pub(in crate::mir) fn visit_scalar_operation_originals_v1(
+        &self,
+        visit: impl FnMut(&std::rc::Rc<crate::mir::normal_callable_semantic_package::OriginalScalarAppendV1>) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.ledger.visit_scalar_operation_originals_v1(visit)
+    }
+
     /// Preserve unissued class views separately from explicitly unproven ownership.
     pub(in crate::mir) fn owned_field_inventory_v1(
         &self,
@@ -649,3 +657,7 @@ fn find_finished_producer(
 #[cfg(test)]
 #[path = "finalized_static_loop_actual_tests.rs"]
 mod selected_loop_actual_tests;
+
+#[cfg(test)]
+#[path = "finalized_scalar_source_tests.rs"]
+mod scalar_source_tests;

@@ -2362,3 +2362,21 @@ issuer records its value. This entry-only proof cannot be consumed as a
 Static packet or Bool Invoke. Missing or changed incoming, context, binding,
 ABI or result evidence refuses before entry; physical Bool publication and
 whole-program coverage remain separate obligations.
+
+Original scalar initializer operations retain the source owner's immutable Rc.
+Their ordinary Binary completion borrows ordered operand relations from the sole
+LocalSSA writer's current function index. The ledger requires exact source and
+index Rc membership and verifies the actual original append and operand producers
+before recording. LocalSSA evidence describes physical provenance only; it does
+not grant Integer, positive-divisor semantics, overflow policy, or backend
+permission. Selected recursive materialization propagates failures; unselected
+callers keep their existing failure policy. Derived producer and final artifact
+coverage require their separate acceptance before production completion.
+
+Scalar original/derived consumer completion closes the exact same source Rc and
+frame-index target inventory before storing observations. Selected fallible
+consumers propagate re-entry failures. The same captured FinishedBindings projects
+mandatory operations; auxiliary Const/Copy omission requires an omission accepted
+by that boundary plus final no-definition/no-use, including return_env. Final
+instruction producers cannot collide with parameters. This correspondence grants
+no backend arithmetic permission; physical/native acceptance remains separate.
