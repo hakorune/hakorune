@@ -395,14 +395,27 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let copies = self.source_local_copies(owner)?;
         let aliases = self.borrowed_ordinary_alias_bindings_v1(owner)?;
-        let loop_after_blocks =
-            self.recorded_loop_cond_after_blocks(owner, function, &bindings)?;
-        let boundary = physical_boundary::PhysicalBoundary::capture_with_loop_after_roles(
+        let mut source_phi_roles: std::collections::BTreeMap<_, _> = self
+            .recorded_loop_cond_after_blocks(owner, function, &bindings)?
+            .into_iter()
+            .map(|(block, phis)| (block, (phis, None)))
+            .collect();
+        if let Some(view) = pending {
+            if let Some((normal, predecessor, phis)) = view.body().header_normal_phi_role() {
+                if source_phi_roles
+                    .insert(normal, (phis.into(), Some(predecessor)))
+                    .is_some()
+                {
+                    return Err(freeze("duplicate-source-phi-role"));
+                }
+            }
+        }
+        let boundary = physical_boundary::PhysicalBoundary::capture_with_source_phi_roles(
             function,
             &bindings,
             &copies,
             &aliases,
-            &loop_after_blocks,
+            &source_phi_roles,
             selected_body_block,
         )?;
         Ok(PendingChildPhysicalValidationV1 {

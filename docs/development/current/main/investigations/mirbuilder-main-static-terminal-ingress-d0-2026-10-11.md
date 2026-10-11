@@ -287,3 +287,26 @@ unchanged pre-change pin debt (`test3 -ge4` at line446, both HEAD and worktree
 count3); it is not reported as PASS. Required CLI/EXE evidence is still pending.
 Three unchanged-target EXE outcomes, selected caller-zero/cutover review and
 the parent JSON/final retirement conditions remain owed.
+
+## Production receipt and ownership handoff (be65b69354)
+
+Fresh quick CLI build PASS (3m50s). Binary SHA256
+`e2da2eb687f9bc7849dd42a49d79310e2d9a7ed2d7b834703649ee3f0763d707`;
+unchanged SizeClass source SHA256
+`ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0`.
+`--emit-exe --emit-exe-nyrt target/release` with plugins disabled, pure-first
+and no compat replay clears selected-header-missing for Main inputs0/9/4194305.
+All three fail before artifact publication at
+`ordinary-new/local-commit/artifact-unowned-lifecycle-site`: header Invoke
+max_regular_bin or body InvokeNormalResult in SizeClassBox.size_to_bin/1.
+Compile times0.031/0.032/0.035s; no EXEs generated. Trivial Main return0
+compiles/links0.764s and executes0.001s, but never exercises size_to_bin.
+Receipt: `/tmp/main-static-terminal-cli-receipt.json` at clean be65b69354.
+Annotated scalar Main canonical-owner regression also passes1/1 on V4 binary.
+
+Main S0 remains unaccepted. Next selected owner is existing Static LoopV2
+physical ownership retention, specified in
+`mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md`.
+After that handoff, return to Main tasks4/5: three native outcomes, retained
+sibling negative, selected terminal cutover/caller-zero and retirement review.
+Parent JSON and final retirement acceptance remain separate.

@@ -82,7 +82,8 @@ impl OrdinaryNewClaimLedgerV1 {
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
             self.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                let mapped = projection.binding(original.0, &original.1)?
+                let mapped = projection
+                    .binding(original.0, &original.1)?
                     .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
                 if !projection.recorded().contains(&mapped) {
                     return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
@@ -98,8 +99,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 Ok(mapped)
             })?;
-                self.verify_finished_borrowed_compares_v1(owner, function, |original| {
-                let mapped = projection.binding(original.0, &original.1)?
+            self.verify_finished_borrowed_compares_v1(owner, function, |original| {
+                let mapped = projection
+                    .binding(original.0, &original.1)?
                     .ok_or_else(|| freeze("borrowed-compare/mandatory-binding-removed"))?;
                 if !projection.recorded().contains(&mapped) {
                     return Err(freeze("borrowed-compare/mandatory-binding-unrecorded"));
@@ -119,15 +121,20 @@ impl OrdinaryNewClaimLedgerV1 {
                     .filter(|row| row.owner() == owner)
                     .filter_map(|row| {
                         let row = row.ordinary()?;
-                        matches!(row.emission, NewEmissionProgress::RetainedUnavailable { .. })
-                            .then(|| format!(
+                        matches!(
+                            row.emission,
+                            NewEmissionProgress::RetainedUnavailable { .. }
+                        )
+                        .then(|| {
+                            format!(
                                 "{:?} decl={:?} construction={:?} home_prefix_err={} children={}",
                                 row.emission,
                                 row.declaration,
                                 row.construction,
                                 row.home_prefix.is_err(),
                                 row.children.is_some()
-                            ))
+                            )
+                        })
                     })
                     .collect();
                 if !retained.is_empty() {
@@ -224,7 +231,10 @@ impl OrdinaryNewClaimLedgerV1 {
         // already-issued Call payload at its own exit before the handoff
         // moves it affinely.
         for site in self.terminal_relation.keys() {
-            if self.verified_terminal_call_source_v1(owner, site)?.is_some() {
+            if self
+                .verified_terminal_call_source_v1(owner, site)?
+                .is_some()
+            {
                 self.rebind_root_call_entry(owner, site, &projection)?;
             }
         }
@@ -335,6 +345,17 @@ impl OrdinaryNewClaimLedgerV1 {
 impl OrdinaryNewClaimLedgerV1 {
     /// Use the same checked cleanup projection as diagnostic finishing. No stale
     /// block observer or independently reconstructed release list may enter here.
+    #[cfg(test)]
+    pub(in crate::mir) fn validate_selected_loop_artifact_coverage_for_test(
+        &self,
+        owner: FunctionOwnerIdV1,
+        function: &MirFunction,
+        pending: &super::PendingSelectedStaticLoopViewV1<'_, '_>,
+    ) -> Result<(), String> {
+        let bindings = self.lifecycle_bindings_with_pending(owner, pending)?;
+        self.validate_artifact_lifecycle_coverage(owner, function, &bindings)
+    }
+
     fn validate_artifact_lifecycle_coverage(
         &self,
         owner: FunctionOwnerIdV1,
@@ -487,7 +508,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             }
             if let RootHomeExitProgress::Emitted {
-                bindings, entry, order, ..
+                bindings,
+                entry,
+                order,
+                ..
             } = progress
             {
                 result.extend_from_slice(bindings);
@@ -514,7 +538,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .borrow()
                 .values()
                 .filter(|packet| packet.source_site().owner() == owner)
-                .map(|packet| packet.original_invoke_binding().clone()),
+                .flat_map(|packet| packet.lifecycle_bindings().iter().cloned()),
         );
         Ok(result)
     }
@@ -530,10 +554,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 row.append_lifecycle_bindings(&mut result)?;
             }
         }
-        for binding in [
-            pending.entry().original_invoke_binding(),
-            pending.body().original_invoke_binding(),
-        ] {
+        for binding in std::iter::once(pending.entry().original_invoke_binding())
+            .chain(pending.body().lifecycle_bindings().iter())
+        {
             if !result.contains(binding) {
                 result.push(binding.clone());
             }

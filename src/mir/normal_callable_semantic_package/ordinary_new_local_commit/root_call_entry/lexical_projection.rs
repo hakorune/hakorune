@@ -14,8 +14,8 @@ use super::super::physical_boundary::FinishedBindings;
 
 #[path = "call_packet_source.rs"]
 mod call_packet_source;
-pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
+pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 
 /// Selected Static Call packet checked with a borrowed publication row.
 /// The owned handoff arrives only after collector admission succeeds.
@@ -114,6 +114,7 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
 /// later publication terminal may exchange it for an emitted lexical packet.
 pub(in crate::mir) struct PreparedSelectedStaticLoopCallProjectionV1 {
     packet: EmittedLexicalCallProjectionV1,
+    fault: Binding,
 }
 
 impl PreparedSelectedStaticLoopCallProjectionV1 {
@@ -133,7 +134,11 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
         EmittedLexicalCallProjectionV1,
     ) {
         let site = self.packet.call_site().clone();
-        let bindings = vec![self.packet.invoke.clone(), self.packet.projection.clone()];
+        let bindings = vec![
+            self.packet.invoke.clone(),
+            self.packet.projection.clone(),
+            self.fault,
+        ];
         (site, bindings, self.packet)
     }
 
@@ -143,8 +148,17 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
         entry_value: ValueId,
         invoke: Binding,
         projection: Binding,
+        fault: Binding,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
+        if !matches!((&invoke.1, &fault.1),
+            (MirInstruction::Invoke { fault_frame, fault_landing, normal_landing, .. },
+             MirInstruction::ReturnFault { fault_frame: returned })
+                if *fault_landing == fault.0 && fault.0 != invoke.0
+                    && fault.0 != *normal_landing && fault_frame == returned)
+        {
+            return Err(freeze("selected-static-packet/fault-binding-drift"));
+        }
         let row = CallPacketSourceV1::selected_static_loop(packet, ledger)?;
         let CallPacketSourceLoanV1::SelectedStaticLoop { observation, .. } = row.loan() else {
             unreachable!("selected static source constructor");
@@ -170,7 +184,7 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
             projection,
         };
         packet.value_with_ledger(read.owner(), &source, ledger)?;
-        Ok(Self { packet })
+        Ok(Self { packet, fault })
     }
 }
 

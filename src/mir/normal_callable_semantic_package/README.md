@@ -2215,6 +2215,18 @@ The selected CurrentOwner row additionally corroborates the disposable tagged
 `%0` Invoke actual. This is complete source-actual evidence for the selected
 cohort only; the general `SourceStatic` phase remains non-executable. Physical
 packet/finished-coordinate and final entry coverage still gate publication.
+The selected Static Loop's detached body packet retains exact header/body
+Invoke, Normal projection and Fault Return bindings. The source publication
+batch checks the header; the body prepacket checks its own call. Pending and
+collected local_commit validation borrow that same inventory. The entry group also retains its
+direct Fault Return, checked against the entry Invoke landing/frame. Tail
+remains with its existing root owner. Retention occurs only after
+collection; artifact coverage is never inferred from unowned MIR operations.
+Header ownership also lends the publication-checked Normal landing's exact
+leading canonical PHI prefix and sole Invoke predecessor into physical boundary
+capture. Existing LoopCond after joins retain their multi-input topology;
+finished instruction sequences stay pinned. No general PHI waiver is granted.
+
 The same selected Loop packet now corroborates the existing result-publication
 owner's CurrentOwner arity-one I64 handoff by original catalog brand, caller,
 site, target and required ordinals. The generic qualified/zero-argument

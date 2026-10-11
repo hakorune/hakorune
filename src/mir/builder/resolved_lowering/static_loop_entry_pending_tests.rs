@@ -42,6 +42,128 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
             // Reborrow the one production validator; successful preparation is
             // a pending receipt, never a committed state.
             drop(claims.validate_selected_static_loop_child_emissions(owner, &function, &view)?);
+            claims.validate_selected_loop_artifact_coverage_for_test(owner, &function, &view)?;
+            let body_bindings = body_retention.packet_for_test().lifecycle_bindings();
+            assert_eq!(
+                body_bindings.len(),
+                6,
+                "header and body each retain Invoke/Normal/Fault"
+            );
+            let mut checked_bindings = body_bindings.to_vec();
+            let entry_invoke = entry_group.original_invoke_binding();
+            let MirInstruction::Invoke { normal_landing, fault_landing, .. } = &entry_invoke.1 else { unreachable!() };
+            checked_bindings.push(entry_invoke.clone());
+            checked_bindings.push((*normal_landing, function.blocks[normal_landing].instructions.iter()
+                .find(|row| matches!(row, MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == entry_invoke.0))
+                .unwrap().clone()));
+            checked_bindings.push((*fault_landing, function.blocks[fault_landing].terminator.as_ref().unwrap().clone()));
+            assert_eq!(checked_bindings.len(), 9, "entry/header/body coverage");
+            for binding in &checked_bindings {
+                let mut changed = function.clone();
+                let block = changed.blocks.get_mut(&binding.0).unwrap();
+                match &binding.1 {
+                    MirInstruction::Invoke { .. } => {
+                        let MirInstruction::Invoke { fault_frame, .. } =
+                            block.terminator.as_mut().unwrap()
+                        else {
+                            unreachable!()
+                        };
+                        *fault_frame = ValueId::new(900001);
+                    }
+                    MirInstruction::InvokeNormalResult { .. } => {
+                        let projection = block
+                            .instructions
+                            .iter_mut()
+                            .find(|row| **row == binding.1)
+                            .unwrap();
+                        let MirInstruction::InvokeNormalResult { dst, .. } = projection else {
+                            unreachable!()
+                        };
+                        *dst = ValueId::new(900002);
+                    }
+                    MirInstruction::ReturnFault { .. } => {
+                        block.terminator = Some(MirInstruction::ReturnFault {
+                            fault_frame: ValueId::new(900003),
+                        });
+                    }
+                    _ => panic!("unexpected retained lifecycle operation"),
+                }
+                assert!(
+                    claims
+                        .validate_selected_loop_artifact_coverage_for_test(owner, &changed, &view)
+                        .is_err(),
+                    "foreign entry/header/body lifecycle binding admitted"
+                );
+                let mut missing = function.clone();
+                let block = missing.blocks.get_mut(&binding.0).unwrap();
+                if matches!(binding.1, MirInstruction::InvokeNormalResult { .. }) {
+                    block.instructions.retain(|row| row != &binding.1);
+                } else {
+                    block.terminator = None;
+                }
+                assert!(
+                    claims
+                        .validate_selected_loop_artifact_coverage_for_test(owner, &missing, &view)
+                        .is_err(),
+                    "missing entry/header/body lifecycle binding admitted"
+                );
+                unpublished();
+            }
+            for binding in &checked_bindings {
+                let mut changed = function.clone();
+                match &binding.1 {
+                    MirInstruction::Invoke { normal_landing, .. } => {
+                        let MirInstruction::Invoke { fault_landing, .. } = changed
+                            .blocks
+                            .get_mut(&binding.0)
+                            .unwrap()
+                            .terminator
+                            .as_mut()
+                            .unwrap()
+                        else {
+                            unreachable!()
+                        };
+                        *fault_landing = *normal_landing;
+                    }
+                    MirInstruction::InvokeNormalResult { .. } => {
+                        let projection = changed
+                            .blocks
+                            .get_mut(&binding.0)
+                            .unwrap()
+                            .instructions
+                            .iter_mut()
+                            .find(|row| **row == binding.1)
+                            .unwrap();
+                        let MirInstruction::InvokeNormalResult { invoke_block, .. } = projection
+                        else {
+                            unreachable!()
+                        };
+                        *invoke_block = binding.0;
+                    }
+                    _ => continue,
+                }
+                assert!(
+                    claims
+                        .validate_selected_loop_artifact_coverage_for_test(owner, &changed, &view)
+                        .is_err(),
+                    "foreign Normal linkage/Fault landing admitted"
+                );
+                unpublished();
+            }
+            let mut extra = function.clone();
+            let (normal, projection) = &body_bindings[1];
+            extra
+                .blocks
+                .get_mut(normal)
+                .unwrap()
+                .instructions
+                .push(projection.clone());
+            assert!(
+                claims
+                    .validate_selected_loop_artifact_coverage_for_test(owner, &extra, &view)
+                    .is_err(),
+                "extra lifecycle operation admitted"
+            );
             unpublished();
             let reject = |changed: &MirFunction,
                           candidate: &PendingSelectedStaticLoopViewV1<'_, '_>,
@@ -55,6 +177,30 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
                 assert!(error.contains("[freeze:contract]"), "{label}: {error}");
                 unpublished();
             };
+            let (normal, _, phis) = body_retention.packet_for_test()
+                .header_normal_phi_role().expect("source-checked header Normal role");
+            assert!(!phis.is_empty(), "original fixture exercises canonical forwarding PHIs");
+            for mutation in 0..5 {
+                let mut changed = function.clone();
+                let block = changed.blocks.get_mut(&normal).unwrap();
+                match mutation {
+                    0 => {
+                        let MirInstruction::Phi { inputs, .. } = &mut block.instructions[0] else { unreachable!() };
+                        inputs[0].0 = normal;
+                    }
+                    1 => {
+                        let MirInstruction::Phi { inputs, .. } = &mut block.instructions[0] else { unreachable!() };
+                        inputs[0].1 = ValueId::new(900004);
+                    }
+                    2 => {
+                        let phi = block.instructions.remove(0);
+                        block.instructions.push(phi);
+                    }
+                    3 => { block.instructions.remove(0); }
+                    _ => { block.instructions.retain(|row| !matches!(row, MirInstruction::Phi { .. })); }
+                }
+                reject(&changed, &view, "header Normal PHI prefix drift");
+            }
             let returns: Vec<_> = function
                 .blocks
                 .iter()

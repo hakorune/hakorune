@@ -58,6 +58,12 @@ pub(in crate::mir) struct PreparedLoopStaticBodyDetachedPacketV1 {
     actual: PreparedBorrowedFormalActualV1,
     coordinate: (crate::mir::BasicBlockId, usize),
     original_invoke: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    lifecycle_bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+    header_normal_phis: Option<(
+        crate::mir::BasicBlockId,
+        crate::mir::BasicBlockId,
+        Box<[crate::mir::MirInstruction]>,
+    )>,
 }
 
 /// A preflighted owner/site slot held across the collector's fallible checks.
@@ -130,6 +136,104 @@ impl PreparedLoopStaticBodyDetachedPacketV1 {
         &self.original_invoke
     }
 
+    pub(in crate::mir) fn lifecycle_bindings(
+        &self,
+    ) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] {
+        &self.lifecycle_bindings
+    }
+
+    /// Lent only after the original publication has checked this Normal landing.
+    pub(in crate::mir) fn header_normal_phi_role(
+        &self,
+    ) -> Option<(
+        crate::mir::BasicBlockId,
+        crate::mir::BasicBlockId,
+        &[crate::mir::MirInstruction],
+    )> {
+        self.header_normal_phis
+            .as_ref()
+            .map(|(block, predecessor, phis)| (*block, *predecessor, phis.as_ref()))
+    }
+
+    pub(in crate::mir) fn corroborates_publication_batch(
+        &self,
+        brand: &crate::mir::builder::SameModuleCallableCatalogBrandV1,
+        caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        body: &(
+            SourceExprSiteV1,
+            crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        ),
+    ) -> bool {
+        let original = &self.prepacket.source.original;
+        original.catalog_brand().is_same(brand)
+            && original.caller() == caller
+            && original.call_site().site() == &body.0
+            && original.target() == &body.1
+    }
+
+    /// Check the original publication batch and this same detached draft;
+    /// callers cannot append arbitrary instructions as ownership evidence.
+    pub(in crate::mir) fn retain_header_bindings(
+        &mut self,
+        publication: &crate::mir::builder::resolved_lowering::SelectedStaticLoopPublicationBatchV1,
+        function: &MirFunction,
+        header: crate::mir::BasicBlockId,
+        header_normal: crate::mir::BasicBlockId,
+        tail: crate::mir::BasicBlockId,
+        tail_normal: crate::mir::BasicBlockId,
+    ) -> Result<(), String> {
+        self.prepacket.corroborate_unpublished_function(function)?;
+        let bindings = publication.corroborate_detached_zeroarg_invokes(
+            self,
+            function,
+            header,
+            header_normal,
+            tail,
+            tail_normal,
+        )?;
+        if self.lifecycle_bindings.len() != 3
+            || bindings
+                .iter()
+                .any(|binding| self.lifecycle_bindings.contains(binding))
+        {
+            return Err("[freeze:contract][callable-loop/header-retention-drift]".into());
+        }
+        let block = function
+            .blocks
+            .get(&header_normal)
+            .ok_or_else(|| "[freeze:contract][callable-loop/header-normal-missing]".to_owned())?;
+        let predecessors: Vec<_> = function
+            .blocks
+            .values()
+            .flat_map(|block| {
+                block
+                    .out_edges()
+                    .into_iter()
+                    .map(move |edge| (block.id, edge.target))
+            })
+            .filter_map(|(from, to)| (to == header_normal).then_some(from))
+            .collect();
+        if predecessors.as_slice() != [header] {
+            return Err("[freeze:contract][callable-loop/header-normal-predecessor-drift]".into());
+        }
+        let phis: Vec<_> = block
+            .instructions
+            .iter()
+            .take_while(|row| matches!(row, crate::mir::MirInstruction::Phi { .. }))
+            .cloned()
+            .collect();
+        if phis.iter().any(|row| {
+            !matches!(row,
+            crate::mir::MirInstruction::Phi { inputs, .. }
+                if inputs.len() == 1 && inputs[0].0 == header)
+        }) {
+            return Err("[freeze:contract][callable-loop/header-normal-phi-drift]".into());
+        }
+        self.header_normal_phis = Some((header_normal, header, phis.into_boxed_slice()));
+        self.lifecycle_bindings.extend(bindings);
+        Ok(())
+    }
+
     pub(in crate::mir) fn corroborates_selected_source(
         &self,
         site: &OwnedExprSiteV1,
@@ -187,6 +291,37 @@ impl VerifiedLoopStaticBodyPrepacketV1 {
             .and_then(|block| block.terminator.as_ref())
             .expect("unique Invoke coordinate has its original terminator")
             .clone();
+        let crate::mir::MirInstruction::Invoke {
+            fault_frame,
+            fault_landing,
+            ..
+        } = &invoke
+        else {
+            return Err("[freeze:contract][callable-loop/body-detached-invoke-missing]".into());
+        };
+        let projection = function
+            .blocks
+            .get(&self.normal)
+            .and_then(|block| block.instructions.first())
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/body-detached-projection-missing]".to_owned()
+            })?;
+        let fault_return = function
+            .blocks
+            .get(fault_landing)
+            .and_then(|block| block.terminator.as_ref())
+            .ok_or_else(|| {
+                "[freeze:contract][callable-loop/body-detached-fault-missing]".to_owned()
+            })?;
+        if !matches!(fault_return, crate::mir::MirInstruction::ReturnFault { fault_frame: returned } if returned == fault_frame)
+        {
+            return Err("[freeze:contract][callable-loop/body-detached-fault-drift]".into());
+        }
+        let lifecycle_bindings = vec![
+            (self.entry, invoke.clone()),
+            (self.normal, projection.clone()),
+            (*fault_landing, fault_return.clone()),
+        ];
         let actual = PreparedBorrowedFormalActualV1 {
             ordinal: 0,
             site: self.source.site.clone(),
@@ -201,6 +336,8 @@ impl VerifiedLoopStaticBodyPrepacketV1 {
             prepacket: self,
             actual,
             original_invoke: (coordinate.0, invoke),
+            lifecycle_bindings,
+            header_normal_phis: None,
         })
     }
 }

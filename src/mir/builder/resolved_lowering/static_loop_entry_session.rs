@@ -362,14 +362,15 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             }
         };
         let projected_body = prepared.corroborate_detached_function(|function| {
-            publication.corroborate_detached_zeroarg_invokes(
+            let mut packet = body.prepare_detached_packet(function)?;
+            packet.retain_header_bindings(
+                &publication,
                 function,
                 header.header,
                 header.normal,
                 header.after,
                 tail_projection_block,
             )?;
-            let packet = body.prepare_detached_packet(function)?;
             if !packet.corroborates_selected_source(
                 product.semantic().source_calls().2.call_site(),
                 product.semantic().roles().bin_binding,
@@ -570,6 +571,17 @@ fn emit_unpublished_static_invoke(
         entry_value,
         (entry, invoke),
         (normal, projection),
+        (
+            fault,
+            function
+                .blocks
+                .get(&fault)
+                .and_then(|block| block.terminator.as_ref())
+                .ok_or_else(|| {
+                    "[freeze:contract][callable-loop/static-fault-binding-missing]".to_owned()
+                })?
+                .clone(),
+        ),
         claims,
     )?;
     if prepared.source_site() != &source_site {

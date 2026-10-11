@@ -21,9 +21,11 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
     };
     inputs[0].1 = ValueId(1);
     let sealed_phi = function.blocks[&BasicBlockId(3)].instructions[0].clone();
-    let after =
-        std::collections::BTreeMap::from([(BasicBlockId(3), vec![sealed_phi].into_boxed_slice())]);
-    let boundary = PhysicalBoundary::capture_with_loop_after_roles(
+    let after = std::collections::BTreeMap::from([(
+        BasicBlockId(3),
+        (vec![sealed_phi].into_boxed_slice(), None),
+    )]);
+    let boundary = PhysicalBoundary::capture_with_source_phi_roles(
         &function,
         &bindings,
         &[],
@@ -36,7 +38,7 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
 
     let wrong_block =
         std::collections::BTreeMap::from([(BasicBlockId(0), after[&BasicBlockId(3)].clone())]);
-    let error = PhysicalBoundary::capture_with_loop_after_roles(
+    let error = PhysicalBoundary::capture_with_source_phi_roles(
         &function,
         &bindings,
         &[],
@@ -57,7 +59,7 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         panic!("fixture PHI missing")
     };
     inputs[0].0 = BasicBlockId(1);
-    let error = PhysicalBoundary::capture_with_loop_after_roles(
+    let error = PhysicalBoundary::capture_with_source_phi_roles(
         &wrong_input,
         &bindings,
         &[],
@@ -80,7 +82,7 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
     // Value 2 is already defined in the same predecessor, so CFG and generic
     // SSA checks alone cannot distinguish it from the sealed PHI input.
     inputs[0].1 = ValueId(2);
-    let error = PhysicalBoundary::capture_with_loop_after_roles(
+    let error = PhysicalBoundary::capture_with_source_phi_roles(
         &wrong_value,
         &bindings,
         &[],
@@ -101,7 +103,7 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
         panic!("fixture PHI missing")
     };
     *dst = ValueId(7);
-    let error = PhysicalBoundary::capture_with_loop_after_roles(
+    let error = PhysicalBoundary::capture_with_source_phi_roles(
         &wrong_destination,
         &bindings,
         &[],
@@ -111,4 +113,134 @@ fn verified_loop_after_phi_requires_exact_block_and_predecessor() {
     )
     .unwrap_err();
     assert!(error.contains("loop-after-phi-prefix-drift"), "{error}");
+}
+
+#[test]
+fn source_phi_role_rejects_extra_predecessor_and_finished_prefix_drift() {
+    let (mut function, bindings) = join_fixture(1, true, false);
+    let MirInstruction::Phi { inputs, .. } = &mut function
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .instructions[0]
+    else {
+        unreachable!()
+    };
+    inputs[0].1 = ValueId(1);
+    let prefix = vec![function.blocks[&BasicBlockId(3)].instructions[0].clone()].into_boxed_slice();
+    let roles =
+        std::collections::BTreeMap::from([(BasicBlockId(3), (prefix, Some(BasicBlockId(0))))]);
+    let boundary = PhysicalBoundary::capture_with_source_phi_roles(
+        &function,
+        &bindings,
+        &[],
+        &[],
+        &roles,
+        None,
+    )
+    .unwrap();
+    assert!(validate(&boundary, &function, &bindings));
+    let mut changed = function.clone();
+    let MirInstruction::Phi { inputs, .. } = &mut changed
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .instructions[0]
+    else {
+        unreachable!()
+    };
+    inputs[0].1 = ValueId(2);
+    assert!(
+        !validate(&boundary, &changed, &bindings),
+        "finished PHI sequence must remain pinned"
+    );
+    let mut missing = function.clone();
+    missing
+        .blocks
+        .get_mut(&BasicBlockId(3))
+        .unwrap()
+        .instructions
+        .remove(0);
+    assert!(
+        PhysicalBoundary::capture_with_source_phi_roles(
+            &missing,
+            &bindings,
+            &[],
+            &[],
+            &roles,
+            None
+        )
+        .is_err(),
+        "an empty observed prefix cannot erase a sealed nonempty prefix"
+    );
+    let mut extra = function.clone();
+    let mut predecessor = BasicBlock::new(BasicBlockId(7));
+    predecessor.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    });
+    extra.add_block(predecessor);
+    let error =
+        PhysicalBoundary::capture_with_source_phi_roles(&extra, &bindings, &[], &[], &roles, None)
+            .unwrap_err();
+    assert!(
+        error.contains("phi-in-recorded-block"),
+        "source role cannot degrade into a generic join: {error}"
+    );
+}
+
+#[test]
+fn source_phi_prefix_preserves_existing_multi_predecessor_after_join() {
+    let (function, bindings) = join_fixture(2, true, false);
+    let prefix = vec![function.blocks[&BasicBlockId(3)].instructions[0].clone()].into_boxed_slice();
+    let roles = std::collections::BTreeMap::from([(BasicBlockId(3), (prefix, None))]);
+    let boundary = PhysicalBoundary::capture_with_source_phi_roles(
+        &function,
+        &bindings,
+        &[],
+        &[],
+        &roles,
+        None,
+    )
+    .expect("source-bound LoopCond after remains a legitimate multi-input join");
+    assert!(validate(&boundary, &function, &bindings));
+}
+
+#[test]
+fn source_normal_predecessor_role_is_checked_without_phis() {
+    let (function, bindings) = join_fixture(1, false, false);
+    let roles = std::collections::BTreeMap::from([(
+        BasicBlockId(3),
+        (
+            Vec::<MirInstruction>::new().into_boxed_slice(),
+            Some(BasicBlockId(0)),
+        ),
+    )]);
+    let boundary = PhysicalBoundary::capture_with_source_phi_roles(
+        &function,
+        &bindings,
+        &[],
+        &[],
+        &roles,
+        None,
+    )
+    .unwrap();
+    assert!(validate(&boundary, &function, &bindings));
+    let mut changed = function.clone();
+    let mut extra = BasicBlock::new(BasicBlockId(7));
+    extra.set_terminator(MirInstruction::Jump {
+        target: BasicBlockId(3),
+        edge_args: None,
+    });
+    changed.add_block(extra);
+    let error = PhysicalBoundary::capture_with_source_phi_roles(
+        &changed,
+        &bindings,
+        &[],
+        &[],
+        &roles,
+        None,
+    )
+    .unwrap_err();
+    assert!(error.contains("phi-in-recorded-block"), "{error}");
 }

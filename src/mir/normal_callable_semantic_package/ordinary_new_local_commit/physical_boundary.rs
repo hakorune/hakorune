@@ -98,7 +98,7 @@ impl PhysicalBoundary {
         bindings: &Bindings,
         copies: &[(ValueId, ValueId)],
         borrowed_copies: &Bindings,
-        loop_after_blocks: &BTreeMap<BasicBlockId, Box<[MirInstruction]>>,
+        source_phi_roles: &phi_policy::SourcePhiRoles,
         single_predecessor_phi_body: Option<BasicBlockId>,
     ) -> Result<Self, String> {
         let borrowed_copies = OriginalBorrowedCopies::capture(function, bindings, borrowed_copies)?;
@@ -137,7 +137,7 @@ impl PhysicalBoundary {
                 function,
                 *id,
                 block,
-                loop_after_blocks,
+                source_phi_roles,
                 single_predecessor_phi_body,
             )?;
             for instruction in &block.instructions {

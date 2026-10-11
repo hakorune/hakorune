@@ -11,7 +11,7 @@ use crate::mir::normal_callable_semantic_package::VerifiedStaticLoopPacketSource
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::{BasicBlockId, MirInstruction};
 
-pub(in crate::mir::builder) struct SelectedStaticLoopPublicationBatchV1 {
+pub(in crate::mir) struct SelectedStaticLoopPublicationBatchV1 {
     brand: SameModuleCallableCatalogBrandV1,
     caller: CanonicalSameModuleCallableKeyV1,
     sites_and_targets: [(SourceExprSiteV1, CanonicalSameModuleCallableKeyV1); 4],
@@ -80,16 +80,50 @@ impl SelectedStaticLoopPublicationBatchV1 {
         })
     }
 
-    pub(super) fn corroborate_detached_zeroarg_invokes(
+    pub(in crate::mir) fn corroborate_detached_zeroarg_invokes(
         &self,
+        packet: &crate::mir::normal_callable_semantic_package::PreparedLoopStaticBodyDetachedPacketV1,
         function: &MirFunction,
         header: BasicBlockId,
         header_normal: BasicBlockId,
         tail: BasicBlockId,
         tail_normal: BasicBlockId,
-    ) -> Result<(), String> {
-        self.check_zeroarg(function, 1, header, header_normal)?;
-        self.check_zeroarg(function, 3, tail, tail_normal)
+    ) -> Result<[(BasicBlockId, MirInstruction); 3], String> {
+        if !packet.corroborates_publication_batch(
+            &self.brand,
+            &self.caller,
+            &self.sites_and_targets[2],
+        ) {
+            return Err("[freeze:contract][callable-loop/header-body-source-drift]".into());
+        }
+        let [invoke, projection] = self.check_zeroarg(function, 1, header, header_normal)?;
+        self.check_zeroarg(function, 3, tail, tail_normal)?;
+        // The tail's Fault graph is already owned by its root exit. Only the
+        // detached header has a direct Fault Return to retain here.
+        let reject =
+            || "[freeze:contract][callable-loop/publication-header-fault-drift]".to_owned();
+        let MirInstruction::Invoke {
+            fault_frame,
+            fault_landing,
+            ..
+        } = &invoke.1
+        else {
+            return Err(reject());
+        };
+        let source = function.blocks.get(&header).ok_or_else(reject)?;
+        let normal = function.blocks.get(&header_normal).ok_or_else(reject)?;
+        let fault = function.blocks.get(fault_landing).ok_or_else(reject)?;
+        let fault_return = fault.terminator.as_ref().ok_or_else(reject)?;
+        if *fault_landing == header
+            || *fault_landing == header_normal
+            || !normal.predecessors.contains(&source.id)
+            || !fault.predecessors.contains(&source.id)
+            || !matches!(fault_return, MirInstruction::ReturnFault { fault_frame: returned } if returned == fault_frame)
+        {
+            return Err(reject());
+        }
+        let fault_binding = (*fault_landing, fault_return.clone());
+        Ok([invoke, projection, fault_binding])
     }
 
     fn check_zeroarg(
@@ -98,7 +132,7 @@ impl SelectedStaticLoopPublicationBatchV1 {
         index: usize,
         source: BasicBlockId,
         normal: BasicBlockId,
-    ) -> Result<(), String> {
+    ) -> Result<[(BasicBlockId, MirInstruction); 2], String> {
         let reject =
             || "[freeze:contract][callable-loop/publication-zeroarg-physical-drift]".to_owned();
         let target = self.sites_and_targets[index]
@@ -119,7 +153,11 @@ impl SelectedStaticLoopPublicationBatchV1 {
         {
             return Err(reject());
         }
-        Ok(())
+        let invoke = source_block.terminator.as_ref().ok_or_else(reject)?;
+        let projection = normal_block.instructions.iter().find(|instruction| matches!(instruction,
+            MirInstruction::InvokeNormalResult { invoke_block, .. } if *invoke_block == source
+        )).ok_or_else(reject)?;
+        Ok([(source, invoke.clone()), (normal, projection.clone())])
     }
 
     pub(super) fn into_parts(

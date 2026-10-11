@@ -111,7 +111,7 @@ pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpu
 pub(in crate::mir::builder) use static_loop_entry_session::{
     prepare_selected_static_loop_entry_v1, PreparedSelectedStaticLoopEntryV1,
 };
-pub(in crate::mir::builder) use static_loop_publication::SelectedStaticLoopPublicationBatchV1;
+pub(in crate::mir) use static_loop_publication::SelectedStaticLoopPublicationBatchV1;
 
 /// Consume one already-admitted trivial Binding-SSA plan on an existing
 /// function skeleton.  The caller owns the package recipe port; this helper
