@@ -779,3 +779,12 @@ missing/duplicate/changed producer assertions, then the aggregate FAILS at
 published-lifecycle-program/instruction-unsupported. This is unmet physical
 acceptance, not an aggregate PASS, baseline debt or native/S0/retirement proof.
 Exact receipts remain the series and intermediate-tree receipts above.
+
+## FinishedBindings responsibility extraction (2026-10-12)
+
+Pure T0 tree4e7c4eb9936c9c784fed13327790a343e0ad6e60 lib+tests check PASS.
+Existing method bodies move unchanged into physical_boundary_finished.rs,
+preserving owner visibility. No new fields, relation policy, omission or source
+acceptance in this checkpoint. Byte-preservation receipt:
+/tmp/static-scalar-finished-bindings-t0-move-receipt.json. Combined-series
+boundary regression19/19 PASS; arithmetic/native/retirement remains open.
