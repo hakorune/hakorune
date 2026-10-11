@@ -1,6 +1,6 @@
 # MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-D0
 
-Status: selected design; implementation not yet authorized
+Status: D0 mapping closed; selected S0 implementation, acceptance pending
 Date: 2026-10-11
 Scope: Main terminal qualified call to the existing selected Static packet owner
 Related: `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`, `mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md`
@@ -58,7 +58,7 @@ receipt or an independently inferred result/parameter authority.
    only the selected terminal edge, verify caller-zero for its old handling,
    and retain shared owners. JSON and parent final review are still separate.
 
-Non-claims: implementation permission, parent acceptance, source type
+Non-claims: parent acceptance, source type
 annotation, wider Main grammar, whole-app/compiler completion, or reopening
 the parked mimalloc/VM/platform lanes.
 
@@ -123,3 +123,53 @@ sibling incoming row, source-only actual emission, duplicate publication and
 Fault-side result projection. Retain an annotated-scalar Main regression.
 Do not select routing alone as a completed cutover. The unchanged target's
 three EXE outcomes and parent JSON/deletion acceptance remain required.
+
+## S0 Decision and implementation order
+
+Selected row: `MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-S0`.
+The existing incoming/actual owner completes the original Main literal row;
+the packet and root Call owners consume it. No new meaning authority or
+receipt layer is selected. Extend the existing evidence phase with a finished
+tagged state retaining the same `StaticSourceActualIdentityV1` (incoming Rc,
+ordered candidates and evidence), rather than repurposing Scalar completion.
+
+Borrow tagged-entry authority from both existing residual tagged rows and
+`preissued_static_i64_products.packet_source_inputs()`, as the current packet
+issuer does. Never take either affine source during actual preparation.
+Join its formal owner/binding with the callee's selected key, original
+contract, physical signature and completion. Check the whole incoming cohort
+for **that formal's owner**; the tagged entry's internal original call targets
+normalize_size and must not stand in for Main's size_to_bin incoming.
+
+Finish only selected Main Integer-literal actuals. Existing forwarded members
+must pass their original forwarded witness checks and retain their SourceStatic
+phase. Validate every cohort member and stage replacements before publishing
+any finished row. ClosedApp omissions come only from the existing incoming
+inventory; retain all its unresolved/outside/duplicate vetoes. Do not promote
+source-only definitions or grant the general borrowed entry owner permission.
+
+Implementation tasks, in dependency order:
+
+1. Retain the existing AppMain loan's identity in incoming preparation. Select
+   only its exact direct ReturnValue Qualified site for the verified walk and
+   source-only literal staging. Reuse the existing single Observe callback.
+2. Project its Qualified staged arguments into the existing destination-less
+   call observation and Call exit. Keep nonselected Qualified expression
+   contexts unavailable; no local scalar fallback or wider grammar.
+3. Close the selected tagged actual phase in the existing signature/input
+   finish stage. Lend finished actuals through the existing Static packet
+   lookup and mark only their completed source sites for ordinary Main routing.
+   Preserve the internal loop packet and forwarded-source consumers.
+4. Run source/ledger positives and independent identity/cohort/carrier
+   negatives listed above; reuse original Static pending/publication tests.
+   Execute unchanged size_to_bin through Main for all three expected bins.
+5. Review selected terminal cutover/caller-zero; keep the shared annotated
+   scalar owner. Parent JSON transport and final retirement review remain
+   separate unfinished requirements, not waived by this S0.
+
+Normal: Integer tagged actual is evaluated before Invoke, I64 is projected
+only on Normal, then the existing root graph returns it. Fault: no result
+projection, no retry; original root cleanup/Fault propagation remains sole.
+Rejected source/cohort/packet preflight must not publish a partial draft.
+Files near 800 lines receive delegated helpers, not inline expansion; any
+required behavior-preserving split stays separate from acceptance expansion.
