@@ -6,7 +6,7 @@ Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source sca
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
 
 Original artifact row: `MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0`.
-Current row: `MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-T0`.
+Current row: `MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0`.
 
 ## Decision
 
@@ -940,3 +940,14 @@ method movement, then connect Task4's source-loaned Rust/C/JSON path above.
 No physical activation, old-edge deletion or new semantic receipt in this T0.
 Task5 unchanged native0/9/4194305->1/2/73, final JSON/Normal/Fault, prior
 production/caller-zero/retirement and whole SizeClass/mimalloc/MirBuilder remain owed.
+
+C physical T0 verified (2026-10-12): operation/instruction schemas moved into
+physical_instruction_schema child (parent766->497, child272); marked-field
+teardown moved into teardown_emit child (parent758->667, child94). Original
+bodies reconstruct byte-for-byte, and cc -E -P output is identical before/after
+with HAKO_LLVMC_LIFECYCLE_TEST_SEAM. Existing physical parser, receiver identity
+and nested-call regressions all PASS; no Rust/Cargo rebuild was needed for
+unchanged C preprocessing. Receipts /tmp/static-scalar-c-t0-{movement,regression}-receipt.json.
+No Sub/Div activation, source/native acceptance or retirement is claimed.
+Next is Task4's same-source-ledger/FinishedBindings loan into existing physical
+projection and matching C/JSON checks, under the arithmetic Decision above.

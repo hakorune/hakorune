@@ -1,7 +1,7 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-T0"
+current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/static-i64-scalar-physical-publication"
 current_design_stop = "none"
@@ -19,12 +19,12 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-stat
 latest_card_summary = """
 Entry/coverage and scalar correspondence construction saved at5af70e2b1f;
 combined source/negative/regression and3 intermediate checks PASS. Arithmetic
-policy fixed; next C schema/teardown T0 before exact source-loaned Sub/Div
-activation. Aggregate/native/JSON/caller-zero/retirement and prior S0 remain owed.
+policy fixed and C responsibility T0 verified. Next exact source-loaned Sub/Div
+physical/C/JSON activation. Aggregate/native/caller-zero/retirement and prior S0 remain owed.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-T0"
+next_execution_card = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
