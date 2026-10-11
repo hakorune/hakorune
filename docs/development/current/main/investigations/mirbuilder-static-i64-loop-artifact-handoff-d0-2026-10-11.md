@@ -1,12 +1,12 @@
 # MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-D0
 
-Status: mapping closed; S0 selected, acceptance pending
+Status: coverage S0 unaccepted; scalar operation correspondence D0 selected
 Date: 2026-10-12
-Scope: existing selected Static LoopV2 ownership, finalized actual loan and tagged entry correspondence
+Scope: selected Static LoopV2 handoff; unpaid coverage acceptance and source scalar operation correspondence
 Related: `mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md`, `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`
 
 Original artifact row: `MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0`.
-Current row: `MIRBUILDER-STATIC-I64-LOOP-TAGGED-ENTRY-CORRESPONDENCE-S0`.
+Current row: `MIRBUILDER-STATIC-I64-SCALAR-OPERATION-CORRESPONDENCE-D0`.
 
 ## Decision
 
@@ -452,3 +452,133 @@ consumer/lifetime review. Current selected construction row:
 Only the transport/consumer connection above is selected. New reachable sibling
 fixture has been edited but not rebuilt; keep it unpaid. All earlier entry/
 finalized positive and native/JSON/retirement conditions carry into this series.
+
+
+Coverage S0 implementation uses one existing-owner transport enum/visitor:
+Lexical reuses the exact prior finalized visitor; LoopBody borrows the original
+pool and finished_loop_body_call_producer_v1. Both consumers now call this
+visitor and the self-retained actual getter. Original identity, scalar read/
+Invoke correspondence, duplicate site/coordinate checks and both full coverage
+predicates remain. No packet, source authority or Copy dependency is forged.
+Existing finalized test adds exact body witness/foreign invocation/missing,
+duplicate and changed producer refusal plus lifecycle compiled-entry publication.
+Owner README owns this shared coverage contract. Independent read-only review
+found no source/lifetime/coverage blocker; runtime positive still required.
+Lib+tests check PASS1m10s, log /tmp/static-loop-finalized-coverage-s0-check-v1.log.
+Focused V1 build live, logs/patch/hashes under
+/tmp/static-loop-finalized-coverage-s0-v1-*. No runtime acceptance yet.
+
+
+Coverage S0 V1 build489.267s, receipt/patch/source hashes saved at
+/tmp/static-loop-finalized-coverage-s0-v1-receipt.json and -rust.patch.
+Final verification now PASSES and callback reaches all lexical/body exact loans,
+foreign-invocation refusals, body missing/duplicate/changed producer negatives and
+lexical producer/target mutations. Final callback step fails at physical program
+construction: published-lifecycle-program/instruction-unsupported (before the
+physical incoming checker). Thus the aggregate test1 remains FAILED0.04s; do not
+call both-consumer/native/S0 acceptance complete. This is current incomplete
+physical publication, not a baseline waiver.
+Main8/8 now PASS0.04s: reachable Static sibling positive, missing-row whole cohort
+veto, duplicate/formal/ordinal negatives and unsupported instance refusal all run.
+Entry18/18 (0.03s), selected preflight1/1 (0.04s), physical18/18 (0.01s) PASS.
+Selected caller-zero static inspection: both coverage consumer callsites use the
+common typed visitor; neither delegates coverage to lexical-only enumeration.
+Shared lexical visitor remains inside that same source owner for other readers.
+Physical program allowlist admits Add/Mul but not Sub/Div, both present in original
+bin_size source. Need exact real module/instruction boundary and physical contract
+review before changing it; broader admission or JSON waiver is not selected.
+Fresh unchanged CLI/native first-stop probes selected next; no Rust edit during
+build. Prior native/physical/JSON/retirement conditions remain unpaid.
+
+
+## Fresh native evidence and next owner (2026-10-12)
+
+CLI build completed in3m50s, quick/jobs4/incremental0, at5622cc8159 plus
+uncommitted Rust patch abc0b763792c5a17a12bd1f7f429b59fd361514c084e3c1831a849cad544d3a7
+and the two untracked source hashes in the V1 receipt above. Executable SHA256:
+e7f7c3d7c8773a970f017681bb36920346e07ff5ef1819d985922231e087016d.
+Original SizeClass source remains unchanged, SHA256:
+ac6513ccd595a664bf7bd4a47402baff1377152a93ef2a059566826b13d642b0.
+
+Two runtime selections are recorded separately, not as compiler regressions:
+- target/release/libnyash_kernel.a is stale for selected lifecycle admission:
+  all three actual inputs stop at checked Map symbol missing/duplicate,
+  nyash.map.checked_array_length_v1. Trivial compatibility EXE exits0 in0.001s,
+  compile/link0.731s; it does not exercise selected lifecycle publication.
+- Existing target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a has the
+  required symbol and descriptor; archive SHA256
+  9f6fe986691e9e1b754b41b632d1453fe9bc6c627b21ddbd3728699723bc7dec.
+  Actual inputs0/9/4194305 reach published-lifecycle-program/instruction-unsupported
+  in1.991/2.000/2.026s. No artifact or native return code was obtained.
+  Trivial compatibility EXE requires the generic archive and is not a lifecycle
+  positive. Keep both archive results; do not rename an archive or relax inventory.
+
+Commands: target/quick/hakorune --emit-exe /tmp/<case>.exe
+--emit-exe-nyrt target/lifecycle-kernel/release /tmp/<case>.hako,
+with NYASH_DISABLE_PLUGINS=1, HAKO_BACKEND_COMPILE_RECIPE=pure-first,
+HAKO_BACKEND_COMPAT_REPLAY=none. Full receipts:
+/tmp/static-loop-finalized-coverage-v1-cli-receipt.json and
+/tmp/static-loop-finalized-coverage-v1-lifecycle-runtime-cli-receipt.json.
+Canonical ClosedApp dump uses the SAME regular source and fresh binary with
+--backend mir --dump-mir --mir-verbose --emit-exe and the runtime selector;
+/tmp/static-loop-finalized-coverage-v1-dump.log. Dump is evidence of final MIR,
+not physical publication or successful canonical JSON transport.
+
+Dump resolves the finite arithmetic inventory in SizeClassBox.bin_size/1:
+- bb15: %45 = %38 Div %40, %40 is original const4.
+- bb15: %55 = %44 Sub %54, %54 is original const2.
+- bb22: %117 = %109 Div %118, %118 is const4.
+- bb22: %108 = %109 Sub %115, %115 is the original Mul result.
+Both negative returns are Const(-1). Source has one Div and two Sub sites;
+there are two emitted Div occurrences, so a one-source/one-instruction assumption
+is invalid. The dump does not itself issue authority for any occurrence.
+
+Decision: select internal scalar-operation correspondence D0 before extending
+physical admission. Keep previous finalized coverage S0 UNACCEPTED: verifier and
+original-loan negatives pass, but physical incoming admission and native outcomes
+remain unpaid. Keep tagged entry, Main production closeout, selected old-edge
+retirement and parent canonical MIR JSON transport obligations unchanged.
+
+Source authority + canonical issuer: existing resolver expression_source binary,
+operand/literal/local-origin sites and source scalar owner. Existing scalar
+preflight admits Integer Sub and local-initializer-root Div with a positive
+Integer literal divisor. That divisor excludes zero and MIN/-1; no general Div
+Fault policy or exact-width/usize arithmetic is inferred. The preflight currently
+returns kind/calls, not a retained operation proof. This missing connection is
+internal implementation/design work, not an external dependency.
+
+Non-authority: MirType, final const4, function name, expected native result,
+old StaticV2 sdiv support, emitter whitelist, or a second occurrence matching by
+shape. Do not infer source authority backward from the dump.
+
+Fail-fast boundary: original owner/source/site/operator and ordered operands;
+each original emitted occurrence; exact FinishedBindings projection; operand
+class and positive-divisor correspondence; missing/foreign/duplicate/changed
+operation rejection. No new semantic receipt, solver, fallback or source rewrite.
+
+Smallest next design/implementation tasks:
+1. Trace the actual source lowering paths for both Div occurrences. Confirm how
+   the existing source binding origin is carried during local initializer reuse;
+   do not assume the ordinary Binary completion hook covers both paths.
+2. Lend the existing scalar source proof before ordered operand descent. Retain
+   each exact append with its original source site in the existing ledger owner.
+   Reuse CompletedOrdinaryBinary/FinishedBindings where their actual paths allow;
+   source1->multiple occurrences is explicit, not a new authority or proof pool.
+3. Fix the I64 Sub policy against existing arithmetic contracts before activation;
+   do not invent checked overflow for Sub alone. Retain source-accepted total Div
+   scope, with original positive divisor guaranteed through publication.
+4. After mapping is fixed, connect Rust physical admission/JSON and existing C
+   schema/index/type-flow/admission/emitter for those exact operations. Preserve
+   Integer vs tagged/Bool distinction and all operand/use checks. Other operators,
+   general Div, Float and exact-width extensions are separate capabilities.
+5. Verify original source and source/physical mutation negatives, including each
+   Div occurrence and changed divisor. Rerun the unaccepted finalized positive,
+   then inputs0/9/4194305 must exit1/2/73 using the selected runtime. Only afterward
+   close prior production/caller-zero/retirement obligations within their scopes.
+
+Read-only owner review confirmed source preflight's positive literal restriction
+and the missing retained correspondence. FinishedBindings maps each ORIGINAL
+physical binding; it does not manufacture source1->multiple occurrences. Existing
+ordinary Binary completion is a possible connection, currently unarmed. Task1
+must resolve the actual route before implementation. This D0 is not S0 permission
+and not NoSafeSlice; continue the finite internal mapping above.

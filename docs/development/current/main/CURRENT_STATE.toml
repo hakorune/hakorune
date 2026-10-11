@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-I64-LOOP-FINALIZED-BORROWED-COVERAGE-S0"
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-OPERATION-CORRESPONDENCE-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-i64-loop-finalized-borrowed-coverage"
-current_design_stop = "none"
+current_blocker_token = "selfhost-resume/static-i64-scalar-operation-correspondence"
+current_design_stop = "SourceScalarOperationCorrespondence__OriginalOccurrenceLoanMissing"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-V5 confirms final coverage lacks SizeClassBox.bin_size/1: retained LoopBody pool
-has no borrowed-call enumeration consumer. Existing entry/preflight/physical
-regressions pass; reachable sibling positive pending. Mapping accepted to connect existing
-packet loans to both coverage consumers; prior S0/native/JSON/retirement unpaid.
+Coverage S0 now passes final verification and exact source-loan negatives, but
+physical publication remains unaccepted. Fresh selected-runtime inputs0/9/4194305
+stop at instruction-unsupported. Source Div1 has two emitted occurrences; select
+existing scalar owner correspondence D0, carry prior native/JSON/retirement debts.
 """
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-I64-LOOP-FINALIZED-BORROWED-COVERAGE-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
+next_design_card = "MIRBUILDER-STATIC-I64-SCALAR-OPERATION-CORRESPONDENCE-D0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
