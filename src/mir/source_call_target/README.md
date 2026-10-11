@@ -110,11 +110,16 @@ cardinality, Builder, MIR, runtime, or production route.
 
 For a parser-sealed closed App, the same inventory can project static methods
 with no possible incoming call. It requires complete MethodCall observation
-and an exact App catalog brand. Every call with the candidate's method and
-arity must have an exact *different* canonical target; a non-exact row keeps
-the candidate. Main and explicitly annotated visibility/ABI methods remain
-selected. This is physical-selection evidence, not declaration removal or a
-transport proof.
+and an exact App catalog brand. The zero-incoming rule is applied to a
+fixed point: incoming calls from already omitted canonical static callers no
+longer keep a candidate selected. Every remaining call with the candidate's
+method and arity must have an exact *different* canonical target; a non-exact
+row keeps the candidate. Main-owner and explicitly annotated visibility/ABI
+methods remain selected, as do self/recursive cycles without a zero-incoming
+seed. Nonstatic callers are never omitted by this projection. Source calls,
+declarations and targets remain intact, and AllSource selection is unchanged.
+This is physical-selection evidence, not declaration removal, entry permission
+or a transport proof; selected incoming/cohort vetoes still apply.
 
 ## RAW-SOURCE-CURSOR0-S0 catalog-backed Raw navigation
 

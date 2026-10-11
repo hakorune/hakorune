@@ -138,6 +138,57 @@ fn closed_app_static_omission_distinguishes_exact_other_from_uncertain_incoming(
         static box Main { main() { return 0 } }";
     assert!(app_omissions(observation_gap).is_empty());
 
+    let chain = "static box Chain {
+        leaf(p) { return p * 2 }
+        middle(p) { return me.leaf(p) }
+        root(p) { return me.middle(p) }
+    } static box Main { main() { return 0 } }";
+    let keys: std::collections::BTreeSet<_> = ["leaf", "middle", "root"]
+        .into_iter()
+        .map(|name| CanonicalSameModuleCallableKeyV1::static_box_method("Chain", name, 1))
+        .collect();
+    assert_eq!(app_omissions(chain), keys);
+    for root in [
+        "static box Main { main() { return Chain.root(1) } }",
+        "static box PublicRoot { @rune Public entry(p) { return Chain.root(p) } }
+         static box Main { main() { return 0 } }",
+        "box Caller { use(x) { return x.root(1) } }
+         static box Main { main() { return 0 } }",
+    ] {
+        let retained = format!("{} {root}", chain.split("static box Main").next().unwrap());
+        assert!(app_omissions(&retained).is_disjoint(&keys));
+    }
+    let cycle = "static box Cycle {
+        left(p) { return me.right(p) }
+        right(p) { return me.left(p) }
+        self_call(p) { return me.self_call(p) }
+    } static box Main { main() { return 0 } }";
+    assert!(
+        app_omissions(cycle).is_empty(),
+        "zero-incoming closure retains cycles"
+    );
+    let original_size_class = format!(
+        "{} static box Main {{ main() {{ return 0 }} }}",
+        include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako")
+    );
+    let omitted = app_omissions(&original_size_class);
+    for method in [
+        "good_size_usize",
+        "good_size",
+        "size_to_bin",
+        "bin_size",
+        "normalize_size",
+    ] {
+        assert!(
+            omitted.contains(&CanonicalSameModuleCallableKeyV1::static_box_method(
+                "SizeClassBox",
+                method,
+                1,
+            )),
+            "original unrooted dependency must be consistently omitted: {method}"
+        );
+    }
+
     let public_method = "static box LayoutBox {
             @rune Public
             accepts(size) { return 1 }

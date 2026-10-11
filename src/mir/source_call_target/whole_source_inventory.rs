@@ -181,40 +181,55 @@ impl<'catalog> VerifiedWholeSourceStaticCallTargetInventoryV1<'catalog> {
         {
             return BTreeSet::new();
         }
-        self.declarations
-            .static_declarations()
-            .filter_map(|(key, declaration)| {
-                // Main and its static children remain physical roots. Explicit
-                // visibility/ABI metadata is conservatively retained too.
-                if key.owner() == app_key.owner()
-                    || declaration.attrs().runes.iter().any(|rune| {
-                        matches!(
-                            rune.name.as_str(),
-                            "Public"
-                                | "Internal"
-                                | "FfiSafe"
-                                | "Symbol"
-                                | "CallConv"
-                                | "ReturnsOwned"
-                                | "FreeWith"
-                        )
-                    })
-                {
-                    return None;
-                }
-                self.calls()
-                    .filter(|row| {
-                        let call = row.call();
-                        call.method() == key.name() && call.arity() == key.arity()
-                    })
-                    .all(|row| {
-                        let call = row.call();
-                        self.target(call.caller(), call.site())
-                            .is_some_and(|target| target.target() != key)
-                    })
-                    .then(|| key.clone())
-            })
-            .collect()
+        // Keep the same conservative incoming rule after each physical
+        // omission. Source rows stay intact; an omitted caller cannot keep
+        // an otherwise uncalled candidate physically selected.
+        let mut omitted = BTreeSet::new();
+        loop {
+            let next: BTreeSet<_> = self
+                .declarations
+                .static_declarations()
+                .filter_map(|(key, declaration)| {
+                    if omitted.contains(key) {
+                        return None;
+                    }
+                    // Main and its static children remain physical roots. Explicit
+                    // visibility/ABI metadata is conservatively retained too.
+                    if key.owner() == app_key.owner()
+                        || declaration.attrs().runes.iter().any(|rune| {
+                            matches!(
+                                rune.name.as_str(),
+                                "Public"
+                                    | "Internal"
+                                    | "FfiSafe"
+                                    | "Symbol"
+                                    | "CallConv"
+                                    | "ReturnsOwned"
+                                    | "FreeWith"
+                            )
+                        })
+                    {
+                        return None;
+                    }
+                    self.calls()
+                        .filter(|row| !omitted.contains(row.call().caller()))
+                        .filter(|row| {
+                            let call = row.call();
+                            call.method() == key.name() && call.arity() == key.arity()
+                        })
+                        .all(|row| {
+                            let call = row.call();
+                            self.target(call.caller(), call.site())
+                                .is_some_and(|target| target.target() != key)
+                        })
+                        .then(|| key.clone())
+                })
+                .collect();
+            if next.is_empty() {
+                return omitted;
+            }
+            omitted.extend(next);
+        }
     }
 }
 
