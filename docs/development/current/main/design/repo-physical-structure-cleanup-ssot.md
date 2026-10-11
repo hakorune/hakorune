@@ -393,6 +393,19 @@ copied full-body archive replacement = 0
 
 A census-only, docs-only, rename-only, or net-zero move batch is progress zero.
 
+## Local campaign cache retirement (parked)
+
+`LOCAL-CAMPAIGN-CACHE-RETIRE-R0` runs at campaign closeout. Inventory exact
+worktree/target owners and sizes first; this parked task does not gate MirBuilder.
+Candidates observed on 2026-10-11: `hako-baseline-target`, `hako-baseline-c887-target`,
+`hako-c-flow-return-split-target`, `hako-field-array-get-i64-target`,
+`hako-static-source-prereq-closure-target`,
+`target-head-s0b`, and `tmp-targets`; names alone grant no deletion.
+After confirming no active job, needed receipt, or uncommitted change uses a
+candidate, remove only its verified clean worktree and disposable exact target.
+Unknown ownership stays retained. Record `git worktree list`, `du` before/after,
+and the retired exact paths; never delete the active campaign cache.
+
 ## Family Repository Surface Budget
 
 Repository reduction is part of each production family's closeout, not a
