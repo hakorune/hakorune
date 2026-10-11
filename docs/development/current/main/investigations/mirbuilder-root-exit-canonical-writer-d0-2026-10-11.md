@@ -1,6 +1,6 @@
 # MIRBUILDER-ROOT-EXIT-CANONICAL-WRITER-D0
 
-Status: selected design stop
+Status: decision closed; execution at `MIRBUILDER-ROOT-EXIT-CANONICAL-WRITER-R1`
 Date: 2026-10-11
 Scope: canonical CFG implementation of the existing root graph writer port
 Related: `mirbuilder-root-exit-graph-writer-d0-2026-10-11.md`, `mirbuilder-root-exit-graph-port-r0-2026-10-11.md`
@@ -31,6 +31,65 @@ recording projected Return bindings. Preserve the existing Normal/Fault Home
 order and sole tail Call Invoke. If the port is insufficient, revise that
 single port rather than adding a parallel emitter.
 
-Smallest next slice: one bounded canonical writer plus selected two-exit
-consumption only after these mappings and focused positive/negative
-acceptance are fixed. No progress-only ledger marking or raw graph adoption.
+## Decision
+
+Source authority + canonical issuer: the existing Home Normal/Fault plans,
+root exit ledger, and original selected Static call packets select the same
+root graph algorithm in `ordinary_new_admission/selected.rs`. The selected
+Static function's `CanonicalSsaFunctionSessionV2` owns block creation, edges,
+predecessors, and sealing. DraftSeal alone issues the two clean Returns.
+
+The writer port must make block reservation fallible. The canonical adapter
+allocates an ID through the current builder and immediately registers an
+empty block with canonical CFG. It reserves all root targets before emitting
+edges, emits every Jump through canonical CFG, and installs cleanup and
+terminal Call Invokes through a narrow canonical Invoke operation that checks
+the exact source, frame, distinct landings, and open targets before recording
+both predecessors. The existing empty-landing I64 Invoke rule stays intact.
+The root Fault terminal uses a narrow validated frame operation; the generic
+direct-Incoming-Invoke Fault rule stays intact. Projected normal results are
+inserted into the created open landing. Each graph block is sealed only after
+all incoming edges exist, with canonical CFG and SSA identity together;
+`finish` independently checks predecessor caches. The old `ids.len() == 14`
+finish assumption is replaced by an exact graph receipt, never a relaxed
+whole-function check. Logical binding order remains clean Return, Fault
+Return, each Home's Normal Jump/Fault Jump/Invoke, then ingress. Physical
+write order may differ; no caller may forge a generic terminator through the
+port.
+
+The selected early Plain and tail Call graph leave clean targets open.
+DraftSeal projects both Returns onto the detached function. The selected
+entry's pending `normalize_size` lexical binding group is shared by both
+exits according to each source exit's `covered_calls`; the body `bin_size`
+packet remains a separate retained body packet, and `huge_bin` remains the
+tail terminal Call ingress. The group is not committed during detached
+corroboration. A prepared two-exit root batch validates the projected
+Returns, source sites, Home order, group selection, physical bindings, and
+both exits against a read-only view that includes the pending group. Its
+physical child check must use the same pending view. All fallible validation
+finishes before collector admission. Only after successful `.collect()` are
+the entry group, body retention, and both root exits committed without a new
+fallible lookup. Duplicate-collector failure must leave none of these rows
+published.
+
+Non-authority: all-caller inference, a raw graph inserted into a canonical
+session, a second cleanup emitter, a temporary ledger insert/rollback, and
+`validate_selected_static_loop_child_emissions` before pending exits are
+visible. No `.hako` rewrite or fallback is permitted.
+
+Fail-fast boundary: reject duplicate/missing blocks, sealed or occupied
+sources, distinct-landing/frame mismatch, stale predecessors, unexpected
+binding order or source site, unprojected Return, missing/extra lexical group,
+and collector rejection without publishing ledger progress.
+
+Smallest next slice: `MIRBUILDER-ROOT-EXIT-CANONICAL-WRITER-R1` is a
+behavior-preserving canonical writer preparation. It tightens the single
+port and adds canonical CFG root operations with focused synthetic positive
+and negative checks; existing raw Plain/Call physical MIR remains identical.
+The named production caller to switch is selected Static V2
+`size_to_bin`, currently stopped at `root-exit-unconsumed`; its old
+responsibility is direct early/tail termination without Home root progress.
+The following `MIRBUILDER-ROOT-EXIT-STATIC-TWO-EXIT-S0` consumes both graphs
+and the prepared root batch in that caller, with original-source first-stop,
+duplicate-collector rollback, physical JSON/EXE, and existing root validation
+as acceptance. R1 alone makes no selected or EXE success claim.
