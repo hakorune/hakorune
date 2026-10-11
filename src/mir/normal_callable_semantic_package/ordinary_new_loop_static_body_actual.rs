@@ -68,6 +68,11 @@ pub(crate) struct PreparedLoopStaticBodyRetentionV1<'ledger> {
 }
 
 impl PreparedLoopStaticBodyRetentionV1<'_> {
+    #[cfg(test)]
+    pub(in crate::mir) fn packet_for_test(&self) -> &PreparedLoopStaticBodyDetachedPacketV1 {
+        &self.packet
+    }
+
     pub(crate) fn commit_after_collected(self) {
         self.ledger
             .selected_loop_body_packets

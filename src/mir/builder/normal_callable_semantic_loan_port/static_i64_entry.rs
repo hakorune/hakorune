@@ -15,11 +15,36 @@ pub(super) fn collect_if_selected(
     claims: &OrdinaryNewClaimLedgerV1,
     signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
 ) -> Result<bool, String> {
+    let Some(prepared) =
+        prepare_if_selected(builder, module_port, selected, admission, claims, signature)?
+    else {
+        return Ok(false);
+    };
+    prepared.collect(module_port, admission)?;
+    Ok(true)
+}
+
+fn prepare_if_selected<'builder, 'ledger>(
+    builder: &'builder mut MirBuilder,
+    module_port: &mut ModuleLoweringPortV1<'_>,
+    selected: &SelectedCallableLoweringInputRefV1<'_>,
+    admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
+    claims: &'ledger OrdinaryNewClaimLedgerV1,
+    signature: &ResolvedCallablePhysicalSignatureLoanV1<'_>,
+) -> Result<
+    Option<
+        crate::mir::builder::resolved_lowering::PreparedSelectedStaticLoopEntryV1<
+            'builder,
+            'ledger,
+        >,
+    >,
+    String,
+> {
     let input = selected.source();
     let Some(product) =
         super::super::raw_loop_child_entry::take_at_function_entry_v2(input, claims)?
     else {
-        return Ok(false);
+        return Ok(None);
     };
     let formal = product.join_physical_signature_v2(signature)?;
     let result = claims
@@ -78,8 +103,7 @@ pub(super) fn collect_if_selected(
             claims,
         )?
     };
-    prepared.collect(module_port, admission)?;
-    Ok(true)
+    Ok(Some(prepared))
 }
 
 #[cfg(test)]
@@ -118,8 +142,8 @@ mod tests {
                     ])
                     .collect();
                 crate::test_support::with_env_vars(&env_updates, || {
-                    for (missing_route, duplicate_collector) in
-                        [(false, false), (true, false), (false, true)]
+                    for (missing_route, duplicate_collector, pending_negatives) in
+                        [(false, false, false), (true, false, false), (false, true, false), (false, false, true)]
                     {
                         let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
                             .join("lang/src/hako_alloc/memory/size_class_box.hako");
@@ -192,8 +216,20 @@ mod tests {
                             &mut builder, collector,
                         );
                         invocation.with_module_port(|builder, module_port| {
-                            let mut raw_port = crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(module_port);
                             let package_port = installed.begin_lowering(&context).unwrap();
+                            let outcome = if pending_negatives {
+                                let mut package_port = package_port;
+                                let ledger = installed.ordinary_new_claim_ledger();
+                                package_port.with_selected_cataloged_lowering_input_signature_and_loop_break(
+                                    admission, |input, signature, _| {
+                                        let (selected, admission, _) = input.into_lowering_and_admission();
+                                        let prepared = prepare_if_selected(builder, module_port, &selected, &admission, &ledger, &signature)?
+                                            .expect("original source selects Static loop");
+                                        prepared.check_unpublished_mutations_for_test(&ledger)
+                                    },
+                                ).unwrap()
+                            } else {
+                            let mut raw_port = crate::mir::builder::recursive_child_lowering::RawInvocationChildPortV1::new(module_port);
                             let mut adapter = super::super::NormalCallableSemanticPackagePortAdapterV1::new(
                                 &mut raw_port, package_port, None, None,
                             ).unwrap();
@@ -202,6 +238,9 @@ mod tests {
                                 builder, admission, Vec::new(), Vec::new(), None,
                                 Vec::new(), Vec::new(), crate::ast::DeclarationAttrs::default(), None,
                             );
+                            drop(adapter);
+                            outcome
+                            };
                             if missing_route {
                                 let error = outcome.unwrap_err();
                                 assert!(error.contains("static-packet-route-missing"), "{error}");
@@ -211,24 +250,23 @@ mod tests {
                             } else {
                                 assert!(outcome.is_ok(), "{outcome:?}");
                             }
-                            drop(adapter);
-                            let expected = usize::from(!missing_route && !duplicate_collector);
-                            module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), usize::from(!missing_route)));
+                            let expected = usize::from(!missing_route && !duplicate_collector && !pending_negatives);
+                            module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), usize::from(!missing_route && !pending_negatives)));
                             let ledger = installed.ordinary_new_claim_ledger();
                             assert_eq!(ledger.selected_loop_body_packet_count_for_test(), expected);
                             assert_eq!(ledger.selected_static_entry_group_count_for_test(), expected);
                             assert_eq!(ledger.emitted_root_exit_count_for_test(), expected * 2);
                             assert_eq!(
                                 ledger.emitted_root_exits_share_one_lexical_group_for_test(),
-                                !missing_route && !duplicate_collector
+                                !missing_route && !duplicate_collector && !pending_negatives
                             );
                             assert_eq!(ledger.child_physical_validation_count_for_test(), expected);
                             assert_eq!(
                                 ledger.selected_static_loop_route_count_for_test(&caller_key),
-                                if missing_route { 3 } else if duplicate_collector { 4 } else { 1 }
+                                if missing_route { 3 } else if duplicate_collector || pending_negatives { 4 } else { 1 }
                             );
                         });
-                        if !missing_route && !duplicate_collector {
+                        if !missing_route && !duplicate_collector && !pending_negatives {
                             let (_, collector, _) = invocation.into_state().into_parts();
                             let function = collector
                                 .into_single_observation_draft("SizeClassBox.size_to_bin/1")

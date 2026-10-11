@@ -257,3 +257,24 @@ Size prerequisite verification: normalized Rust syntax of the extracted
 `normal_function_draft_lowering_tests` pass3/3 using the same built binary
 (restoration, typed BodyLowering refusal, typed DraftSeal refusal). No method
 contract or authority changes in this extraction.
+
+Pending-batch evidence (2026-10-11): the existing original source test passes
+1/1 including its new no-collect branch. One successful pending-view check
+is followed by nine independent refusals: both projected Returns missing or
+using the other exit's value (4), original tail target/result drift (2), and
+each of three route exclusions omitted (3). Every case keeps lexical-group,
+root-exit, body-retention and physical-validation counts zero. At callback
+completion collector symbols remain zero and all four original routes remain
+unconsumed. Original normal, missing-route and duplicate-collector branches
+and six independently changed final Return checks still pass.
+The first pending-test compile was intentionally stopped after read-only
+review found ambiguous zeroarg tail selection; this has been replaced by
+exact publication ordinal3 source target. Final quick build/link8m14s,
+test0.04s. Canonical CFG regression33/33 and typed function draft regression3/3
+reuse that binary, each0.00s; pointer/scope guard, format and diff check pass.
+No current-change failures remain in these focused checks, no new test names,
+no failure baseline update and no fresh CLI/all-suite acceptance claim.
+
+S0 remains open: nonempty Home/origin/binding-order negative evidence and
+physical JSON/EXE requirements are still owed. The nine pending refusals
+close only their enumerated Return/tail/route unpublished-state obligations.

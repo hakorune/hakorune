@@ -22,7 +22,8 @@ One pending view holds the shared lexical group, excluded routes, two Home
 roots, body packet and physical validation; ledger commit follows collection.
 The original SizeClassBox source passes root-exit-unconsumed in recorded probes.
 JSON stops at unsupported terminator Invoke; EXE at incoming-veto NoIncoming(slot 7).
-Closeout still owes selected pending-batch negatives and physical acceptance.
+Pending Return/tail/route negatives pass without publication; nonempty Home/order
+negatives and physical JSON/EXE acceptance remain outstanding.
 Early direct-return responsibility and tail direct MirCall::global were replaced;
 shared raw Plain/Call consumers remain. No whole-app EXE success is claimed.
 """

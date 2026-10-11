@@ -652,3 +652,7 @@ fn verify_entry(
     }
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "static_loop_entry_pending_tests.rs"]
+mod pending_tests;
