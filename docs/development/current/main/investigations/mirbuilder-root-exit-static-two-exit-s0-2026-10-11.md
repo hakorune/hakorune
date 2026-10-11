@@ -1,6 +1,6 @@
 # MIRBUILDER-ROOT-EXIT-STATIC-TWO-EXIT-S0
 
-Status: selected execution slice
+Status: parent S0 open; selected canonical document transport D0
 Date: 2026-10-11
 Scope: selected Static V2 early/tail root exit cutover for unchanged `SizeClassBox.size_to_bin/1`
 Related: `mirbuilder-root-exit-canonical-writer-d0-2026-10-11.md`, `mirbuilder-root-exit-canonical-writer-r1-2026-10-11.md`
@@ -347,3 +347,51 @@ This closes the shared nonempty Home/origin/entry-binding/Normal/Fault order
 negative obligation. It does not claim a new nonempty selected Static source
 profile or whole-owner retirement. S0 remains open for the exact physical
 JSON/EXE acceptance and final caller-zero/deletion closeout at that revision.
+
+## Canonical document handoff D0 (2026-10-12)
+
+Selected row: `MIRBUILDER-ROOT-EXIT-CANONICAL-DOCUMENT-TRANSPORT-D0`.
+
+Main terminal acceptance closes at a56b9dedfa, with original Instance sibling
+veto, selected old annotation-only handling exclusion and retained shared
+annotated owner. Physical native1/2/73 is recorded at ba83498c6e. This changes
+the next parent task; it does not satisfy this parent's JSON requirement or
+final whole-series retirement review.
+
+Decision: finish lossless canonical MIR document transport in existing
+mir_json_emit/json_v1_bridge owners. The document is data, not source authority
+or execution permission. Preserve existing VM/LLVM opcode fences and the
+retired legacy mir_call ingress. A new executable JSON admission is out of scope.
+Source authority: the already published canonical source-backed module; writer
+and transport reader preserve its representations and never infer them anew.
+
+Read-only audit of the selected profile finds Call(I64) Invoke8, Normal8,
+ReturnFault8, FaultFrameEnter3, PHI13, Copy23, Const21, Compare7 and scalar
+Add4/Mul5/Sub2/Div1. The examined diagnostic CAPI input is corroboration, not
+canonical document acceptance; confirm the original current published MIR when
+fixing the wire shape. Cleanup Invoke is absent in this profile, so no nonempty
+cleanup transport acceptance may be claimed. Other Invoke variants retain typed
+rejection. The existing global-call writer flattens target identity and effects;
+canonical metadata egress omits physical parameter carriers. Allowlisting Invoke
+alone cannot preserve this source's contract.
+
+Smallest next tasks, in order:
+1. Fix the finite wire representation for canonical Static target namespace,
+   owner/method/arity, full flags/effects, ordered arguments, Invoke Normal/Fault
+   edges, result projection/frame and ReturnFault. Specify signature/entry,
+   tagged physical carrier and necessary source metadata without re-inference.
+2. Define the existing reader's explicit transport-only API and independent
+   structural validation. Do not broaden the existing execution loader. JSON
+   metadata must never reconstruct invocation brands or source publication loans.
+3. Once these contracts close, extend the same writer/reader plus reference and
+   existing positive/negative tests. Reject unsupported operations, target/carrier
+   drift, projection/frame/edge corruption, missing/duplicate rows and invalid IDs;
+   preserve PHI/body order and all represented ownership/cleanup metadata.
+4. Run unchanged SizeClass/Main canonical JSON egress and independent readback,
+   pin revision/binary/source/commands and timing, compare the published structure,
+   then review the parent's remaining caller-zero/deletion and acceptance conditions.
+
+Current unresolved design is the precise wire shape and transport-only API,
+not missing source authority or an external dependency. Work mode design_stop
+until that mapping is fixed; no implementation, reader execution permission,
+whole-parent acceptance or whole-product completion is asserted.
