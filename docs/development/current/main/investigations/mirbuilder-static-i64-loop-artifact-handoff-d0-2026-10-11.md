@@ -561,9 +561,10 @@ Smallest next design/implementation tasks:
    the existing source binding origin is carried during local initializer reuse;
    do not assume the ordinary Binary completion hook covers both paths.
 2. Lend the existing scalar source proof before ordered operand descent. Retain
-   each exact append with its original source site in the existing ledger owner.
-   Reuse CompletedOrdinaryBinary/FinishedBindings where their actual paths allow;
-   source1->multiple occurrences is explicit, not a new authority or proof pool.
+   the original exact append with its source site in the existing ledger owner.
+   Derived appends must borrow that SAME source proof through their physical
+   rematerialization correspondence, never mint a second source materialization.
+   Reuse CompletedOrdinaryBinary/FinishedBindings where their actual paths allow.
 3. Fix the I64 Sub policy against existing arithmetic contracts before activation;
    do not invent checked overflow for Sub alone. Retain source-accepted total Div
    scope, with original positive divisor guaranteed through publication.
@@ -582,3 +583,27 @@ physical binding; it does not manufacture source1->multiple occurrences. Existin
 ordinary Binary completion is a possible connection, currently unarmed. Task1
 must resolve the actual route before implementation. This D0 is not S0 permission
 and not NoSafeSlice; continue the finite internal mapping above.
+
+
+Task1 focused static refinement: LocalSSA materialize.rs:451 directly emits
+BinOp after recursive arg(lhs)/arg(rhs), and :500 follows Copy sources recursively.
+It bypasses ordinary Binary completion. This path can explain the repeated
+Div/operand chain in the dump; do not classify the second append as a second
+resolver traversal merely from equal operators. The exact source->original
+append loan and original->derived append relation still need implementation and
+a focused execution test. Existing local_ssa_map is a reuse cache, post_success
+is type/newbox metadata (non-Copy rematerialization excluded from exact-fact
+publication), and propagate_record_local_value is RecordBox state. None is an
+arithmetic lineage proof. BorrowedMulMaterialization supplies an original-source
+retention example, but explicitly rejects a second materialization at the same
+source site; do not register two source records to evade this boundary.
+
+Task2 physical correspondence design is now constrained: sole LocalSSA owner
+records original producer->derived producer and the actual ordered operand
+rematerializations ONLY after successful emission. Failure and cache hit record
+no new append; a cache use borrows its existing relation. The source proof stays
+one per original site. FinishedBindings validates each original/derived binding,
+while final admission requires complete operation/operand correspondence and
+rejects inserted, missing, foreign or changed derived producers. The retained
+source proof loan and Sub policy remain Task2/3 internal design requirements;
+physical operation admission is still unauthorized. No external wait is needed.
