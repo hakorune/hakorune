@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — scalar expression S0 landed at 06cf1a1481; opaque formal ingress child selected.
+Status: active bundle — unchanged app frontier selected; borrowed actual identity D0 remains open.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -916,3 +916,60 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0. The focused
 card owns exact domain/use-closure/entry/physical acceptance and remaining
 Set/Add decisions. Original app EXE completion and bundle tasks 10-12 remain.
 No opaque operation activation or physical deletion claim is made here.
+
+
+## App frontier resume D0 (2026-10-12)
+
+Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-FRONTIER-RESUME-D0`.
+The selected SizeClass two-exit/document S0 closes at 2f6f0a8a1a; current native
+1/2/73 and original13-definition JSON/independent readback are proven. Return
+here to the existing app-completion obligation, without reopening parked lanes.
+
+Decision: first run the unchanged mimalloc-lite production EXE invocation with
+pure-first, compatibility replay none and plugins disabled using that tested CLI.
+Pin source/revision/binary/runtime/command/time and identify the first named
+source owner/site/terminal. Then select the smallest existing unfinished bundle
+mapping. Do not modify `.hako`, manufacture a caller or broaden an authority to
+make the probe pass. No full-app success, new implementation permission or
+source-owner assignment is claimed before this census. AllSource literal9 JSON
+admission remains a separately recorded boundary, not a substitute frontier.
+
+### Controlled first-stop and exact rejection branch
+
+- Revision `2f6f0a8a1a`, unchanged `apps/mimalloc-lite/main.hako` SHA256
+  `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`;
+  tested CLI SHA256 `c965cf19ba9cdf1afd36165be9c05567ed6ec0b2b49701beb9c0a56891c3e46a`.
+  Controlled `--backend mir --emit-exe` with pure-first/replay-none/plugins-off
+  rejects in 0.049s, no EXE: `ordinary-new/borrowed-actual/entry-source`,
+  owner slot34, `Body(1)/Initializer(0)`. Full command/runtime/time receipt:
+  `/tmp/mimalloc-lite-frontier-2f6f0a8a1a-receipt.json`.
+- Current-binary read-only GDB map confirms slot34 `HakoAllocHeap.reallocResult`
+  and slot33 `HakoAllocHeap.realloc`; `/tmp/mimalloc-current-callable-map.log`.
+  This is invocation-local identification, never source authority.
+- Exact freeze return address is constructor specialization `4254acdb1756d1d4`
+  +6384. Binary disassembly distinguishes its EntryReceiver rejection at
+  `0x1fda716` from the DeclaredObject owner rejection at `0x1fda735`.
+  Original candidate ordinal0 is SelfRooted; binding/root both brand1/slot34/
+  binding1, entry receiver brand1/slot34/binding0; incoming callee formal is
+  brand1/slot33/binding1. Thus this execution rejects root != entry, not a
+  DeclaredObject owner mismatch. Logs: `/tmp/mimalloc-borrowed-entry-source-audit.log`
+  and `/tmp/mimalloc-borrowed-entry-source-values.log`. No code instrumentation.
+- Static source audit: executable `definitions` and `source_only_definitions`
+  are disjoint. The constructor checks only executable origins before declared
+  formal/receiver alternatives; the existing object-source preselector is
+  conditional on its original target requirement. These facts alone do not
+  prove which source-only origin/contract exists for binding1.
+
+Decision: keep implementation unselected until original caller parameter row,
+callee row and draft partition for that exact binding are joined. Do not label
+binding1 as handle/requested_size from numbering, lend source-only permission,
+or erase the receiver check. The earlier two-branch ambiguity is resolved.
+Smallest next tasks within existing formal-actual owner:
+1. Inspect exact sealed caller/callee parameter kinds and original formal origin,
+   incoming argument site and forwarding row for the above tuple.
+2. Select existing source-phase preparation or executable forwarding only after
+   its identity and permission requirements close; preserve one ordered call.
+3. Test original source positive plus foreign binding/root/site and unselected
+   phase negatives; rerun this unchanged app first-stop after the selected fix.
+Non-claims: D0 is open; no app PASS, physical carrier grant, production cutover,
+new deletion or whole-product completion. Prior guarded retirement stays closed.
