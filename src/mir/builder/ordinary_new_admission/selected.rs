@@ -5,7 +5,7 @@ mod arguments;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
 #[path = "selected/root_graph.rs"]
-mod root_graph;
+pub(in crate::mir::builder) mod root_graph;
 #[path = "selected/terminal_call.rs"]
 pub(in crate::mir::builder) mod terminal_call;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
@@ -299,7 +299,7 @@ fn emit_root_home_exit_payload(
         .collect();
     let mut bindings = Vec::new();
     let mut writer = RawRootGraphWriterV1;
-    let mut clean = writer.reserve_block(builder);
+    let mut clean = writer.reserve_block(builder)?;
     writer.append_terminated(
         builder,
         clean,
@@ -314,7 +314,7 @@ fn emit_root_home_exit_payload(
     // and do not materialize a frame definition no Invoke would consume.
     if !operations.is_empty() || ingress.is_some() {
         let frame = frame_port.materialize(builder)?;
-        let fault_terminal = writer.reserve_block(builder);
+        let fault_terminal = writer.reserve_block(builder)?;
         writer.append_terminated(
             builder,
             fault_terminal,
@@ -615,9 +615,9 @@ fn cleanup_step_with_writer(
     fault_next: BasicBlockId,
     bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<BasicBlockId, String> {
-    let origin = writer.reserve_block(builder);
-    let normal = writer.reserve_block(builder);
-    let fault = writer.reserve_block(builder);
+    let origin = writer.reserve_block(builder)?;
+    let normal = writer.reserve_block(builder)?;
+    let fault = writer.reserve_block(builder)?;
     for (landing, target) in [(normal, normal_next), (fault, fault_next)] {
         writer.append_terminated(
             builder,

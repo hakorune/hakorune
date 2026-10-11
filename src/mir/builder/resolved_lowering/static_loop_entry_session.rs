@@ -1,6 +1,9 @@
 //! Canonical entry for the selected Static I64 Loop collector row.
 //! Source/result receipts choose the ABI; final incoming coverage remains owed.
 
+#[path = "static_loop_root_graph_writer.rs"]
+mod root_graph_writer;
+
 use crate::ast::ASTNode;
 use crate::mir::builder::calls::PendingFunctionSessionCloseV1;
 use crate::mir::builder::emission::constant;

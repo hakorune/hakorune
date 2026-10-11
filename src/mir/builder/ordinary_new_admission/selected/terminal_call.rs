@@ -203,8 +203,8 @@ pub(super) fn emit_ingress(
         .function_state
         .current_block
         .ok_or_else(|| freeze("no-block"))?;
-    let normal_landing = writer.reserve_block(builder);
-    let fault_landing = writer.reserve_block(builder);
+    let normal_landing = writer.reserve_block(builder)?;
+    let fault_landing = writer.reserve_block(builder)?;
     for (id, target) in [(normal_landing, clean), (fault_landing, fault)] {
         writer.append_terminated(
             builder,

@@ -2,8 +2,8 @@
 //! The raw implementation preserves the current block and binding order.
 use super::*;
 
-pub(super) trait RootGraphWriterPortV1 {
-    fn reserve_block(&mut self, builder: &mut MirBuilder) -> BasicBlockId;
+pub(in crate::mir::builder) trait RootGraphWriterPortV1 {
+    fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String>;
     fn append_terminated(
         &mut self,
         builder: &mut MirBuilder,
@@ -27,8 +27,8 @@ pub(super) trait RootGraphWriterPortV1 {
 pub(super) struct RawRootGraphWriterV1;
 
 impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
-    fn reserve_block(&mut self, builder: &mut MirBuilder) -> BasicBlockId {
-        builder.next_block_id()
+    fn reserve_block(&mut self, builder: &mut MirBuilder) -> Result<BasicBlockId, String> {
+        Ok(builder.next_block_id())
     }
 
     fn append_terminated(
@@ -38,6 +38,18 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         terminator: MirInstruction,
         bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
+        if !matches!(
+            terminator,
+            MirInstruction::Return { .. }
+                | MirInstruction::ReturnFault { .. }
+                | MirInstruction::Jump {
+                    edge_args: None,
+                    ..
+                }
+                | MirInstruction::Invoke { .. }
+        ) {
+            return Err(freeze("root-graph-terminator-unsupported"));
+        }
         let function = builder
             .function_state
             .current_function
@@ -58,6 +70,15 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         builder: &mut MirBuilder,
         instruction: MirInstruction,
     ) -> Result<(BasicBlockId, MirInstruction), String> {
+        if !matches!(
+            instruction,
+            MirInstruction::Jump {
+                edge_args: None,
+                ..
+            } | MirInstruction::Invoke { .. }
+        ) {
+            return Err(freeze("root-graph-current-unsupported"));
+        }
         let block = builder
             .function_state
             .current_block
@@ -72,6 +93,9 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         landing: BasicBlockId,
         projection: MirInstruction,
     ) -> Result<(), String> {
+        if !matches!(projection, MirInstruction::InvokeNormalResult { .. }) {
+            return Err(freeze("root-graph-projection-unsupported"));
+        }
         builder
             .function_state
             .current_function

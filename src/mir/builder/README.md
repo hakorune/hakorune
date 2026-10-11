@@ -1,5 +1,19 @@
 # MIR Builder (`src/mir/builder/`)
 
+## Root Home graph writer boundary
+
+`ordinary_new_admission/selected.rs` owns one root cleanup graph algorithm.
+Its raw writer preserves the existing Plain/terminal Call path. The canonical
+adapter in `resolved_lowering/static_loop_root_graph_writer.rs` reserves each
+block through `CanonicalCfgSessionV1`, records Jump/Invoke predecessors there,
+and retains clean Returns for DraftSeal projection. Its root Invoke operation
+accepts only cleanup or terminal-ingress shapes with a unique entry Fault
+frame and exact prepopulated landings; the existing source ledger verifies
+which operation was authorized. The ordinary empty-landing I64 Invoke
+and direct-Fault rules stay separate. The selected Static V2 caller and its
+two-exit atomic ledger handoff are not switched by this preparation; the
+active card owns that cutover.
+
 ## Source-backed exact usize entry projection
 
 The selected callable source scope lends its original `ExactTrivial(USIZE)`
