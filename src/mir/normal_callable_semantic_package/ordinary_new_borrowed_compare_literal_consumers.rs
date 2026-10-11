@@ -101,7 +101,10 @@ impl OrdinaryNewClaimLedgerV1 {
             .borrowed_formal_source
             .as_ref()
             .and_then(|s| s.as_ref().ok());
-        let definition = source.and_then(|s| s.definitions.get(&owner));
+        let definition = match source {
+            Some(source) => self.checked_borrowed_compare_definition_v1(source, owner)?,
+            None => None,
+        };
         let mut used = std::collections::BTreeSet::new();
         for compare in entry.comparisons.values() {
             let Some(definition) = definition else {

@@ -54,7 +54,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         self.borrowed_formal_source.as_ref().and_then(|source| source.as_ref().ok())
-            .and_then(|source| source.definitions.get(&owner))
+            .and_then(|source| source.definitions.get(&owner).or_else(|| source.source_only_definitions.get(&owner)))
             .is_some_and(|definition| definition.uses.iter().any(|row| {
                 matches!(&row.kind, Use::CompareOperand { source, .. } if source.integer_literal().is_some())
             }))
@@ -78,10 +78,18 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-literal/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = source
-            .definitions
-            .get(&owner)
-            .ok_or_else(|| freeze("borrowed-literal/owner"))?;
+        if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if !definition.uses.iter().any(|row| {
+                matches!(&row.kind,
+                Use::CompareOperand { source, .. }
+                    if source.integer_literal().is_some_and(|(literal, _)| literal == site))
+            }) {
+                return Ok(None);
+            }
+        }
+        let definition = self
+            .checked_borrowed_compare_definition_v1(source, owner)?
+            .ok_or_else(|| freeze("borrowed-literal/source-only-entry"))?;
         let mut selected = None;
         for row in &definition.uses {
             let Use::CompareOperand { binary, source } = &row.kind else {

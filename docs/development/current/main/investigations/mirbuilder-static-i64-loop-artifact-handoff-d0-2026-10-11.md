@@ -853,35 +853,16 @@ MAX-(-1)=MIN,0-1=-1,-9/4=-2,9/4=2 in-callee comparisons PASS (wrap-main).
 `/tmp/static-scalar-physical-native-v2/receipt.json` is not source evidence.
 Raw process-result range Fault remains; native source/S0/retirement unpaid.
 
-## Fresh production frontier and next Decision (2026-10-12)
+## Historical default frontier (superseded by finishing checkpoint)
 
-Fresh CLI unchanged-source inputs0/9/4194305 all stop before artifact at
-physical-boundary/finished-sequence (~0.03s each); exact binary/runtime/source
-hashes and commands: /tmp/static-scalar-physical-cli-v2-receipt.json.
-Diagnostic --no-optimize reaches mul-nonview-source-unproved; this is not default
-acceptance. Existing tests use optimize=false, so do not equate their frontier
-with the default production route. Next: observe the first sequence mismatch
-under the existing disabled-by-default compile trace; keep rejection unchanged.
-Mul closure Decision stays existing source/materialization -> captured producer
--> SAME FinishedBindings. Literal uses original site/value and unique captured
-raw-child Const; call uses retained original Static Rc and exact Invoke/Normal
-raw-child, preserving order/dominance/Fault. No payload scan or new receipt.
-V3 CLI trace identifies bin_size/1 bb15 Add dst35; DCE logs its unused-pure
-removal, while boundary expects it before Add dst39. Guard remains unchanged.
-Close both default finishing and Mul correspondence before native acceptance;
-prior S0/caller-zero/retirement and whole-goal obligations remain unchanged.
-
-
-Finishing Decision (read-only review): keep mandatory source/target producers
-and verify_projected intact. Existing CheckedScalar materialization may reuse
-an already-emitted same-block BinOp after phi redirect/undefined-source checks,
-using the existing Identity loan/cache; do not replay it and then let DCE drop
-its mandatory original. No crossblock/legacy forwarding, new authority or
-finishing waiver. Verify sameblock identity/facts, existing crossblock append,
-mandatory deletion rejection, and unchanged source with optimize false/true.
-
-Intermediate sameblock pending/check history is superseded by the verified
-finishing checkpoint below; historical receipts remain in2981db8675.
+Original-source inputs0/9/4194305 stopped before artifact at finished-sequence;
+`/tmp/static-scalar-physical-cli-v{2,4}-receipt.json` and v4-dce receipt pin
+commands/binary/source. --no-optimize reaching Mul was diagnostic, not native
+acceptance. Add35 and Mul47 pure-DCE losses were resolved by sameblock Identity
+and completed-root mandatory liveness in2981db8675; no validator waiver.
+Existing source/materialization -> captured producer -> SAME FinishedBindings
+remains the Mul contract; original Static Rc/Invoke/Normal/Fault must stay exact.
+Prior S0/caller-zero/retirement/native obligations remain unpaid.
 
 ## Finishing liveness Decision and current reds (2026-10-12)
 
@@ -914,18 +895,13 @@ moving its finishing responsibility into a child module, not compressing lines.
 First roots lib+tests typecheck PASS1m11s; this preceded the reviewed 3-group
 union and negative tests, so it is not final runtime evidence.
 
-Finishing V1 lib+tests check PASS1m12s; no-run PASS8m12s. Runtime receipt
-`/tmp/static-scalar-dce-roots-v1-runtime-receipt.json` pins all30 source paths;
+Finishing construction landed2981db8675: check PASS1m12s/build PASS8m12s;
+`/tmp/static-scalar-dce-roots-v1-runtime-receipt.json` pins30 source paths and
 binary63bbc89dd9e94220b1f4c2688d54a58ecfc5bb32e5b99770cd2b5f1da782c673.
-Correspondence8/8, LocalSSA29/29, DCE35/35, root preflight negatives1/1,
-optimized/unoptimized unchanged-source matrix1/1 and boundary19/19 PASS.
-Entry1/18/Main7, ledger1, projection1, transaction3/state1, physical2/order2
-PASS; JSON30/31 repeats classified owned-array baseline. Required aggregate
-still FAILS at mul-nonview-source-unproved, not finishing-sequence. This is
-combined-worktree evidence, not isolated checkpoint or fresh CLI/native proof.
-Materialize.rs fmt drift also exists in HEAD; no fmt-clean claim or broad cleanup.
-Next: close literal/call operands via original source -> captured producer ->
-same FinishedBindings, preserving Invoke/Normal/Fault order. No S0 closeout.
+LocalSSA29/29, DCE35/35, boundary19/19 and optimize source matrix1/1 PASS.
+Then aggregate still failed at Mul nonview, JSON30/31 was known baseline;
+full overlapping filters and previous fmt debt remain in2981db8675/receipt.
+This combined-worktree evidence grants no fresh CLI/native or S0 closeout.
 
 Pointer and static-result publication guards PASS; qualified-route guard FAILS
 at its unchanged raw_loop_child_entry pin (requires>=4 call tokens; HEAD and
@@ -968,12 +944,11 @@ No S0/CLI/native/retirement closeout; diagnostic grants no guard permission.
 
 ## Compare source-only connection Decision (2026-10-12)
 
-V2 check PASS1m12s/build PASS8m14s; source snapshot unchanged. Runtime receipt
-`/tmp/static-mul-nonview-v2-runtime-receipt.json`. Aggregate trace identifies
-owner slot4 bin_size, Mul Body1/IfThen0/Value, guard Body1/IfCondition,
-compare_sites empty. Existing Compare has/prepare/reuse/literal/carrier lending
-looks only at definitions, unlike Mul's completed source_only_definitions loan.
-Read-only review confirms this asymmetric owner connection; no MIR scan fix.
+V2 receipts retain the exact owner/site/keys diagnostic in
+`/tmp/static-mul-nonview-v2-runtime-receipt.json`: bin_size slot4,
+Mul Body1/IfThen0/Value, guard Body1/IfCondition, no Compare keys.
+Compare's definitions-only lookup omitted Mul's completed source-only owner.
+Read-only review confirmed this connection gap; no MIR scan fix.
 
 Next bounded implementation: reuse existing ledger/Compare definition owner.
 Global definitions unchanged; lend source-only definition ONLY after SAME
@@ -997,3 +972,28 @@ path; SAME binary normal env19/19 PASS. This is diagnostic-config evidence,
 not default regression or guard waiver. V3 fixture lib+tests check PASS1m07s;
 runtime remains unexecuted (/tmp/static-mul-nonview-check-v3.log).
 S0, fresh CLI/native, production switch/caller-zero and retirement remain unpaid.
+
+## Compare connection construction receipt and next Copy boundary
+
+Compare source-only V1 build PASS8m19s; snapshot unchanged. Final narrowed
+helper has no new private-interface warning. Exact27-path/source+binary receipt:
+`/tmp/static-compare-source-only-v1-runtime-receipt.json` (combined worktree).
+Completed/incomplete/foreign-site/missing-append cohort1/1, Compare6/6,
+literal4/4, carrier4/4+3/3, literal consumers4/4, Compare consumers3/3 PASS.
+LocalSSA29/29, boundary19/19, DCE35/35 and scalar optimize matrix1/1 PASS.
+JSON30/31 repeats classified baseline. Original aggregate now fails later at
+borrowed-use/unproved-copy; new real-source literal fixture fails during lowering
+at borrowed-mul/operand-copy-missing. Neither is baseline or S0 acceptance.
+
+Next Decision: retain existing Copy owners and strict correspondence. Final
+borrowed scanner must consume Compare carrier Copies only after original
+source/retained group + SAME FinishedBindings has closed them; first identify
+stopped Copy coordinates against that owner. No arbitrary Copy exemption.
+Selected Mul's ordinary LocalSSA rematerializes Const/Copy, while checked Mul
+currently demands only identity or a direct Copy from its raw child. Reuse a
+sameblock original only with exact definition/order proof; otherwise retain the
+existing writer's exact relation. Same payload/type is not correspondence.
+Read-only worker confirms these are distinct missing connections; no new type
+source, receipt, rematerialization waiver or source annotation is selected.
+Actual Copy coordinate and minimal sameblock operand reuse still need runtime
+validation. Main/parent S0, default CLI/native and retirement remain unpaid.

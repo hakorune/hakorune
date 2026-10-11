@@ -35,7 +35,10 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
         .unwrap();
     assert_eq!(cohort.len(), 2);
     for call in cohort.iter() {
-        assert!(ledger.selected_static_local_source_v1(&call.call).unwrap().is_some());
+        assert!(ledger
+            .selected_static_local_source_v1(&call.call)
+            .unwrap()
+            .is_some());
     }
     let contract = package
         .parameter_contracts
@@ -57,6 +60,40 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
         .prepare_borrowed_mul_source_v1(owner, &mul, Some(crate::mir::BinaryOp::Mul))
         .unwrap()
         .is_some());
+    let (compare, literal, integer) = ingress.source_only_definitions[&owner].uses.iter()
+        .find_map(|row| match &row.kind {
+            super::super::super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } => {
+                let (literal, integer) = source.integer_literal()?;
+                Some((binary.clone(), literal.clone(), integer))
+            }
+            _ => None,
+        }).unwrap();
+    assert!(ledger
+        .prepare_borrowed_compare_source_v1(owner, &compare, Some(crate::mir::CompareOp::Le))
+        .unwrap()
+        .is_some());
+    assert!(ledger
+        .prepare_borrowed_compare_integer_literal_v1(owner, &literal, integer)
+        .unwrap()
+        .is_some());
+    assert!(
+        ledger
+            .verify_borrowed_compare_reuse_v1(owner, std::iter::empty())
+            .unwrap_err()
+            .contains("reuse-coverage"),
+        "completed source requires the original comparison append"
+    );
+    let other = package
+        .parameter_contracts
+        .iter()
+        .find(|row| row.owner != owner)
+        .unwrap()
+        .owner;
+    let foreign = OwnedExprSiteV1::new(other, compare.site().clone());
+    assert!(ledger
+        .prepare_borrowed_compare_source_v1(owner, &foreign, Some(crate::mir::CompareOp::Le))
+        .unwrap_err()
+        .contains("source-owner"));
     let removed = cohort[0].call.clone();
     drop(cohort);
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
@@ -75,6 +112,25 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
         .prepare_borrowed_mul_source_v1(owner, &mul, Some(crate::mir::BinaryOp::Mul))
         .unwrap_err()
         .contains("source-only-entry"));
+    assert!(ledger
+        .prepare_borrowed_compare_source_v1(owner, &compare, Some(crate::mir::CompareOp::Le))
+        .unwrap_err()
+        .contains("source-only-entry"));
+    assert!(ledger
+        .prepare_borrowed_compare_integer_literal_v1(owner, &literal, integer)
+        .unwrap_err()
+        .contains("source-only-entry"));
+    assert!(
+        ledger
+            .prepare_borrowed_compare_source_v1(owner, &mul, Some(crate::mir::CompareOp::Le))
+            .unwrap()
+            .is_none(),
+        "unrelated source site stays unarmed even without its cohort"
+    );
+    assert!(ledger
+        .prepare_borrowed_compare_integer_literal_v1(owner, &mul, integer)
+        .unwrap()
+        .is_none());
     ledger
         .borrowed_formal_actuals
         .insert(removed.clone(), saved);

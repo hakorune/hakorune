@@ -2388,3 +2388,10 @@ mandatory operations; auxiliary Const/Copy omission requires an omission accepte
 by that boundary plus final no-definition/no-use, including return_env. Final
 instruction producers cannot collide with parameters. This correspondence grants
 no backend arithmetic permission; physical/native acceptance remains separate.
+
+Compare source loans share the existing completed scalar incoming-cohort check
+for source-only owners. Passive selection observes their original descriptors;
+only the exact selected binary/literal site demands the completed cohort.
+Materialization, carrier/literal consumption and reuse coverage borrow that same
+definition. Unrelated source sites stay unarmed; incomplete cohorts cannot lend
+Compare or literal permission, and a completed cohort cannot omit its Compare.

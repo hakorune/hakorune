@@ -56,8 +56,12 @@ pub(in crate::mir) struct BorrowedCompareMaterializationV1 {
 }
 
 impl BorrowedCompareMaterializationV1 {
-    pub(super) fn source(&self) -> &BorrowedCompareSourceLoanV1 { &self.source }
-    pub(super) fn children(&self) -> (ValueId, ValueId) { self.children }
+    pub(super) fn source(&self) -> &BorrowedCompareSourceLoanV1 {
+        &self.source
+    }
+    pub(super) fn children(&self) -> (ValueId, ValueId) {
+        self.children
+    }
 
     pub(in crate::mir) fn owner(&self) -> FunctionOwnerIdV1 {
         self.source.owner()
@@ -74,12 +78,51 @@ impl BorrowedCompareMaterializationV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the existing definition; source-only transport still requires
+    /// the same completed incoming cohort before any Compare loan is issued.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_borrowed_compare_definition_v1<
+        'a,
+    >(
+        &self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<
+        Option<&'a super::super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
+        String,
+    > {
+        if let Some(definition) = source.definitions.get(&owner) {
+            return Ok(Some(definition));
+        }
+        let Some(definition) = source.source_only_definitions.get(&owner) else {
+            return Ok(None);
+        };
+        if !definition
+            .uses
+            .iter()
+            .any(|row| matches!(row.kind, Use::CompareOperand { .. }))
+        {
+            return Ok(None);
+        }
+        if self
+            .checked_completed_static_scalar_cohort_v1(source, owner)?
+            .is_none()
+        {
+            return Ok(None);
+        }
+        Ok(Some(definition))
+    }
+
     /// A probe selects original source inventory; it grants no validation.
     pub(crate) fn has_borrowed_compare_source_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.borrowed_formal_source
             .as_ref()
             .and_then(|source| source.as_ref().ok())
-            .and_then(|source| source.definitions.get(&owner))
+            .and_then(|source| {
+                source
+                    .definitions
+                    .get(&owner)
+                    .or_else(|| source.source_only_definitions.get(&owner))
+            })
             .is_some_and(|definition| {
                 definition
                     .uses
@@ -106,10 +149,17 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-compare/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = source
-            .definitions
-            .get(&owner)
-            .ok_or_else(|| freeze("borrowed-compare/owner"))?;
+        if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if !definition.uses.iter().any(|row| {
+                matches!(&row.kind,
+                Use::CompareOperand { binary, .. } if binary == site)
+            }) {
+                return Ok(None);
+            }
+        }
+        let definition = self
+            .checked_borrowed_compare_definition_v1(source, owner)?
+            .ok_or_else(|| freeze("borrowed-compare/source-only-entry"))?;
         let mut selected: Option<BorrowedCompareSourceLoanV1> = None;
         let mut witnesses = Vec::new();
         for row in &definition.uses {
@@ -243,7 +293,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 Err(freeze("borrowed-compare/source-missing"))
             };
         };
-        let Some(definition) = source.definitions.get(&owner) else {
+        let Some(definition) = self.checked_borrowed_compare_definition_v1(source, owner)? else {
             return if installed.is_empty() {
                 Ok(())
             } else {

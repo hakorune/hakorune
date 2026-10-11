@@ -81,9 +81,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-compare/carrier-source"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let definition = source
-            .definitions
-            .get(&owner)
+        let definition = self
+            .checked_borrowed_compare_definition_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-compare/carrier-owner"))?;
         let entries = self.borrowed_entry_values.borrow();
         let entry = entries
