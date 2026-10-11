@@ -72,6 +72,13 @@ the entry group, body retention, and both root exits committed without a new
 fallible lookup. Duplicate-collector failure must leave none of these rows
 published.
 
+S0 implementation audit refined this pending-view requirement: the view must
+also exclude the pending `huge_bin` terminal route and include both pending
+root rows in every physical child validation reader. Its physical validation
+receipt remains pending until collector success. The active S0 card's
+"atomic pending view" Decision is the exact execution contract; this D0
+paragraph is historical context for the R1 writer decision.
+
 Non-authority: all-caller inference, a raw graph inserted into a canonical
 session, a second cleanup emitter, a temporary ledger insert/rollback, and
 `validate_selected_static_loop_child_emissions` before pending exits are
