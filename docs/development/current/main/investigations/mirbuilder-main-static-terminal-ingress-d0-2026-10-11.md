@@ -1,11 +1,11 @@
 # MIRBUILDER-MAIN-STATIC-TERMINAL-INGRESS-D0
 
-Status: D0 mapping closed; selected S0 implementation, acceptance pending
-Date: 2026-10-11
+Status: Main terminal S0 accepted; parent JSON and final retirement remain open
+Date: 2026-10-12
 Scope: Main terminal qualified call to the existing selected Static packet owner
 Related: `mirbuilder-root-exit-static-two-exit-s0-2026-10-11.md`, `mirbuilder-closed-app-static-publication-selection-s0-2026-10-11.md`
 
-## Current boundary
+## Initial boundary (2026-10-11)
 
 Publication-demand projection is fixed at `d1cbca0066`: the unchanged
 SizeClassBox plus trivial Main produces and runs a native EXE with the existing
@@ -310,3 +310,97 @@ physical ownership retention, specified in
 After that handoff, return to Main tasks4/5: three native outcomes, retained
 sibling negative, selected terminal cutover/caller-zero and retirement review.
 Parent JSON and final retirement acceptance remain separate.
+
+## Return from scalar publication: Instance sibling source closure D0
+
+`ba83498c6e` clears physical activation: unchanged SizeClass source inputs
+0/9/4194305 execute as1/2/73. Exact native/Rust/C receipts remain in the artifact
+handoff card. Main S0 still owes its real Instance sibling veto and selected
+terminal cutover/caller-zero review; parent JSON/retirement remain separate.
+
+Decision: connect retained Instance caller formals to the EXISTING conditional
+Normal-use source closure for Static argument forwarding. The original
+Heap.lookup(size) fixture's only size use is its exact Static argument; its
+closure may depend on the target's check without an entry Integer proof.
+Independent read-only review confirms Instance source drafts already contain
+origins/aliases, rebind, captures and all variable-use classifications.
+
+Source authority + canonical issuer: original callable parameter contracts,
+whole BorrowedFormalUsesDraftV1 and retained StaticArgumentSourceV1;
+issue_checked_static_inputs_v1 remains the sole least-fixed-point issuer.
+Non-authority: inferred field/class/type, expected bin, SourceInstance phase,
+method names or accepting every Instance formal. Formal remains OpaqueHandle.
+Fail-fast boundary: exact contract/owner/formal/origin, all-use coverage,
+source site/ordinal/binding and forward targets. Preserve forward-only cycle
+refusal, incomplete/foreign-source veto and SourceInstance execution refusal.
+
+Smallest next slice: extend only the existing issuer's candidate collection
+with InstanceBoxMethod ordinary borrowed formals named as caller formals by
+retained Static arguments. Keep Static candidates and all closure checks.
+Replace the unsupported-instance expectation in the existing Main test with
+its original Instance fixture; remove only Heap's retained actual row and
+require whole cohort rejection while Main's finished literal row remains.
+Retain existing static/literal/foreign/source-only negatives; exercise missing
+source, uncovered use and forward-only cycle at the same owner as needed.
+Old responsibility: categorical Static-caller-only exclusion from this source
+closure. No new receipt, physical emitter, type authority or executable phase.
+Non-claims: Instance physical entry/caller completion, Main S0 acceptance,
+parent JSON or whole product. Required focused source proof comes first;
+then return to Main's terminal cutover/retirement review in this same series.
+Selected implementation row: MIRBUILDER-MAIN-STATIC-TERMINAL-SIBLING-SOURCE-S0.
+
+Construction pending runtime: candidate collection is restricted as above;
+existing Main fixture now includes its original Instance Heap alongside Static
+and no-sibling controls. Only Heap's actual row is removed; Main remains
+ExecutableStaticTagged. Existing issuer test covers retained source/draft
+absence, one uncovered use, missing target check and changed formal origin.
+These are unexecuted tests, not source closure or Main acceptance evidence.
+
+V1 compilation failed (current-change): test referred to the source-use module
+at the wrong package root, with downstream type-inference errors. Corrected
+to its existing parent module and Box-slice take; no production contract change.
+No V1 runtime evidence. Revalidation follows on one Cargo process.
+
+V2 snapshot/build: `/tmp/main-instance-static-closure-v2-{snapshot.json,build.jsonl,build.log}`;
+Cargo session71139 running; prepared same-binary focused runner ends in
+`-run.py`. Read-only implementation review found no new source-authority or
+lifetime hole; runtime acceptance remains unproved. Source untouched after snapshot.
+
+## Main terminal closeout (2026-10-12)
+
+V2 quick build/link PASS in8m16s; source snapshot matches all changed Rust
+and owner README bytes. `/tmp/main-instance-static-closure-v2-runtime-receipt.json`
+pins the executable hash, commands and ten nonempty filters. Main tests8/8,
+conditional Instance closure1/1, retained annotated relation1/1, finished Loop
+actual1/1, scalar source operation1/1 and borrowed-use regressions18/18 PASS.
+Source-domain batch9/11; original Instance source-only test0/1. These three
+reds reproduce at the identical issue site and NoIncoming(slot1) terminal on
+preserved pre-change scalar V3 binary (hash checked against its build receipt).
+Comparison: `/tmp/main-instance-static-closure-prechange-receipt.json`.
+They are known baseline debt; the failed Instance test provides no new dynamic
+execution-refusal evidence. No failure baseline or unrelated test is changed.
+Pointer/publication ingress guards, touched-source rustfmt and diff check PASS.
+Qualified-route scope guard remains the previously classified unchanged debt.
+
+The original Instance Heap fixture now retains its Static forwarded actual.
+Removing only that actual rejects the entire target cohort while Main's
+ExecutableStaticTagged literal remains. The issuer's absence/uncovered-use/
+missing-target-check/origin negatives pass; no Instance physical permission
+or Integer classification is issued. Shared Static behavior remains covered.
+
+Task5 read-only closeout: `model.rs::issue_app_main_qualified_receiver_catalog_relation`
+returns None for the completed selected Static route;
+`normal_callable_semantic_loan_port/main_root.rs` excludes its old qualified
+recipe branch using the same `has_routed_static_local_for_owner_v1` check.
+The latter revalidates same-source packet actuals and sealed lifecycle sites.
+Thus this terminal has zero selected old annotation-only handling; shared
+annotated relation/consumer functions remain required and are not deleted.
+The unchanged-source native1/2/73 receipt at scalar checkpoint ba83498c6e
+supplies the selected physical execution evidence, not a fresh V2 CLI run.
+Read-only review found no additional concrete uncovered counterexample.
+
+Main tasks4/5 and this conditional-source slice are accepted within that scope.
+Parent canonical MIR JSON transport and parent final retirement review are
+still unpaid. Whole SizeClass/mimalloc-lite/MirBuilder completion is not claimed.
+Next work returns to the parent's lossless document schema/writer/reader D0;
+transport acceptance must not grant execution or recreate source authority.

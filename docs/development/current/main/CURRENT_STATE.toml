@@ -1,9 +1,9 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
+work_mode = "closeout"
+current_execution_row = "MIRBUILDER-MAIN-STATIC-TERMINAL-SIBLING-SOURCE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-i64-compare-and-mul-copy-correspondence"
+current_blocker_token = "selfhost-resume/main-instance-static-conditional-input"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -13,21 +13,21 @@ phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-rep
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-current_execution_design = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
-latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
+latest_card = "mirbuilder-main-static-terminal-ingress-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
 latest_card_summary = """
-Scalar physical/native construction verified: Rust V3 all14 focused filters
-PASS, LocalSSA32/32 and scalar optimize/mutation matrix PASS. Existing C flow
-accepts only leading PHIs before Normal projection; focused C checks PASS.
-Fresh unchanged SizeClass native0/9/4194305 returns1/2/73. JSON32/33 retains
-known owned-array baseline. Main instance sibling, parent canonical JSON and
-prior S0 caller-zero/retirement closeout remain unpaid; no whole completion.
+Main terminal scoped acceptance closed: original Instance sibling veto and
+conditional source closure pass, shared annotated relation retained. V2 focused
+39 pass/3 baseline reds; pre-change binary reproduces all three NoIncoming reds.
+Selected terminal old annotation-only handling is excluded by both existing
+consumer branches; native1/2/73 evidence remains at ba83498c6e. Parent canonical
+JSON schema/writer/transport-only reader and final retirement remain unpaid.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
+next_execution_card = "MIRBUILDER-MAIN-STATIC-TERMINAL-SIBLING-SOURCE-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-main-static-terminal-ingress-d0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

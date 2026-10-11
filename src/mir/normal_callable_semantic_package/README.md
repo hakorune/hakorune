@@ -2145,6 +2145,12 @@ the V2 source product checks Completion and consumes it. A missing or changed
 tail refuses the selected route before MIR. This is source continuity only:
 Home, executable call and physical return remain separate obligations.
 
+Conditional checked-input closure keeps Static candidates and includes Instance
+formals only when retained Static argument source rows name them as callers.
+The same contract/origin/all-use checks and least fixed point apply. A forwarded
+formal may depend on the target's Normal check; this grants neither Integer
+classification nor Instance executable entry or actual publication.
+
 The selected Static I64 Loop also retains a source-only ClosedCallable Home
 effect receipt in this package. It checks the whole original caller body and
 every transitively reached Static target against a finite Home-neutral syntax,

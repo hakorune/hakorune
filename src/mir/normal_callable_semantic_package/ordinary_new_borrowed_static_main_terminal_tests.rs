@@ -10,7 +10,10 @@ fn closed_package(
 
 fn try_closed_package(
     source: &str,
-) -> Result<crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1, String> {
+) -> Result<
+    crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1,
+    String,
+> {
     use crate::mir::builder::NormalRootExecutionConsumerV1;
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
         source,
@@ -382,22 +385,16 @@ fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
             .join("lang/src/hako_alloc/memory/size_class_box.hako"),
     )
     .unwrap();
-    let unsupported = try_closed_package(&format!(
-        "{text}\nbox Heap {{ lookup(size) {{ local k = SizeClassBox.size_to_bin(size) return 0 }} }}\nstatic box Main {{ main() {{ local heap = new Heap() local k = heap.lookup(7) return SizeClassBox.size_to_bin(9) }} }}"
-    ))
-    .err()
-    .expect("instance forwarded input cannot acquire Static checked-input authority");
-    assert!(unsupported.contains("selected-forwarded-actual-unavailable"), "{unsupported}");
-    for sibling in [false, true] {
-        let extra = if sibling {
-            "static box Heap { lookup(size) { if size <= 0 { return 0 } local k = SizeClassBox.size_to_bin(size) return 0 } }"
-        } else {
-            ""
+    for sibling in 0..3 {
+        let extra = match sibling {
+            0 => "",
+            1 => "static box Heap { lookup(size) { if size <= 0 { return 0 } local k = SizeClassBox.size_to_bin(size) return 0 } }",
+            _ => "box Heap { lookup(size) { local k = SizeClassBox.size_to_bin(size) return 0 } }",
         };
-        let main = if sibling {
-            "local k = Heap.lookup(7) return SizeClassBox.size_to_bin(9)"
-        } else {
-            "return SizeClassBox.size_to_bin(9)"
+        let main = match sibling {
+            0 => "return SizeClassBox.size_to_bin(9)",
+            1 => "local k = Heap.lookup(7) return SizeClassBox.size_to_bin(9)",
+            _ => "local heap = new Heap() local k = heap.lookup(7) return SizeClassBox.size_to_bin(9)",
         };
         let mut package = closed_package(&format!(
             "{text}\n{extra}\nstatic box Main {{ main() {{ {main} }} }}"
@@ -441,7 +438,7 @@ fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
             .checked_completed_static_tagged_entry_v1(ingress, owner)
             .unwrap()
             .expect("finished whole tagged cohort");
-        assert_eq!(rows.len(), if sibling { 2 } else { 1 });
+        assert_eq!(rows.len(), if sibling > 0 { 2 } else { 1 });
         let sibling_site = rows
             .iter()
             .find(|row| row.call != *original.call_site())
@@ -460,6 +457,16 @@ fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
                 .require_executable_v1()
                 .is_err());
             let saved = ledger.borrowed_formal_actuals.remove(&site).unwrap();
+            assert!(
+                matches!(
+                    ledger.borrowed_formal_actuals[original.call_site()]
+                        .as_ref()
+                        .unwrap()
+                        .phase,
+                    BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_)
+                ),
+                "Main's finished literal row remains while only Heap's row is absent"
+            );
             let ingress = ledger
                 .borrowed_formal_source
                 .as_ref()
@@ -502,6 +509,6 @@ fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
             .incoming_targets()
             .collect::<Result<Vec<_>, _>>()
             .unwrap();
-        assert_eq!(incoming.len(), if sibling { 2 } else { 1 });
+        assert_eq!(incoming.len(), if sibling > 0 { 2 } else { 1 });
     }
 }
