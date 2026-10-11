@@ -528,6 +528,7 @@ impl NormalDefaultPublishedPipelineV1 {
                 rejected.discard();
                 message
             })?;
+        let scalar_roots = completed.scalar_finishing_liveness_v1()?;
         let (session, module, validate_source_bindings) = select_validation(completed);
         super::super::compile_timing::trace_stage("build_module", stage_start.elapsed());
 
@@ -535,7 +536,7 @@ impl NormalDefaultPublishedPipelineV1 {
             CurrentNormalCompileResultContractV1::ReportPreTransformVerification => {}
         }
         let finish_schedule = finish_schedule_for_normal_module(&module)?;
-        let result = compiler.finish_built_module(module, finish_schedule)?;
+        let result = compiler.finish_built_module(module, finish_schedule, &scalar_roots)?;
         let source_output = validate_source_bindings(&result.module)?;
         if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic {
             // The selected module must not be published or handed to a

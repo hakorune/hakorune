@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-STATIC-I64-SCALAR-PHYSICAL-PUBLICATION-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-i64-scalar-physical-publication"
+current_blocker_token = "selfhost-resume/static-i64-finishing-and-mul-publication"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-Entry/coverage and scalar correspondence construction saved at5af70e2b1f;
-combined source/negative/regression and3 intermediate checks PASS. Arithmetic
-policy fixed and C responsibility T0 verified. Next exact source-loaned Sub/Div
-physical/C/JSON activation. Aggregate/native/caller-zero/retirement and prior S0 remain owed.
+Sub/Div source-loaned physical/C/JSON connection has focused evidence.
+Same-block Identity and mandatory DCE roots verified; unchanged-source focused
+compile passes optimize=false/true. Aggregate still owes Mul IntegerCall/literal
+closure; fresh default CLI/native/prior S0/caller-zero/retirement remain unpaid.
 """
 next_design_card = "none"
 next_design_card_path = "none"

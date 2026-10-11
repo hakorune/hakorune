@@ -829,125 +829,166 @@ Consumer V2 lib+tests check PASS1m11s. V3 source47-file snapshot did not change
 during the original build. Initial accepted-vs-index Rc equality was added after
 V3 terminal and still needs the isolated runtime below; no S0 closeout yet.
 
-V3 integrated runtime receipt: no-run terminal PASS8m18s; both focused and
-regression drivers terminal. Source47-file snapshot unchanged. Binary SHA256
-a36899a53c524bd7d9562114b9a6e96335fbd8fab0526730c9d057a4100d470a, preserved
-at /tmp/static-scalar-finished-connection-v3-test-binary. Index7/7 (including
-consumer atomic/missing/resend), original ledger1/1, separated actual source/
-finished mutations1/1, final projection1/1 PASS. Regression LocalSSA28/28,
-physical boundary19/19, transaction3/3 and lowering state1/1 PASS. Required
-aggregate remains red at instruction-unsupported; no waiver or physical claim.
-Receipts /tmp/static-scalar-finished-connection-v3{,-regression}-receipt.json.
+Construction runtime history is retained in `5af70e2b1f` and the full-series
+receipt `/tmp/static-scalar-series-v1-receipt.json`. Entry/coverage/LocalSSA
+focused checks passed on the combined snapshot; intermediate runtime
+independence, native acceptance and retirement were not claimed. Isolated
+Task2 stopped at canonical-entry-required; this dependency remains explicit.
 
-After original Cargo/rustc and both drivers became terminal, strengthened initial
-handoff's accepted original/relation Rc equality against index observations.
-New selected tree fb80099872fbde33ff5be5f67170d5c247152bba contains only29 Task2
-paths; /tmp/static-scalar-task2-selected-snapshot.json records the exact tree.
-Isolated no-run/8-filter driver is live at the archive checkout, reusing dependency
-artifacts only after original Cargo termination. It will establish whether prior
-unaccepted entry/coverage is actually needed by the real-source positive and
-execute the exact-Rc success assertion. No isolated PASS inferred yet. Build log
-/tmp/static-scalar-task2-isolated-build-v1.log; receipt planned
-/tmp/static-scalar-task2-isolated-v1-receipt.json. Real index stays unchanged.
+## Saved construction and arithmetic Decision (2026-10-12)
 
-Isolated V1 no-run terminal101: only two current-change reference errors in the
-new Rc equality assertion; no missing entry/coverage dependency was reported.
-Borrowed both tuple Rc fields explicitly without changing production code. After
-original isolated Cargo/driver termination, selected tree is now
-24307681b65671788043907e3c767048dc0f84a9; all29 selected archive blobs match.
-V2 isolated build/driver terminal: no-run PASS8m16s. Index7/7 (including exact
-accepted/index Rc equality), original ledger1/1, final projection1/1 PASS;
-regression LocalSSA28/28, physical boundary19/19, transaction3/3 and lowering
-state1/1 PASS. Unchanged actual-source positive FAILS before the callback with
-ordinary-new/emission/selected-static-packet/canonical-entry-required. This is
-a real dependency on preceding unaccepted Static entry work, not baseline debt
-or permission to replace/drop the source positive. Integrated V3 source PASS
-cannot justify an independently accepted Task2 commit. Preserve exact selected
-tree and receipts at /tmp/static-scalar-task2-isolated-v2-receipt.json; identify
-the finite prerequisite entry hunks and their acceptance before scoped closeout.
-Isolated binary SHA256 is
-75577f51d5fb69da3bf22d3fa7f994006b4ff6b0eceff66ab593f0c1b9bbda3d;
-preserved at /tmp/static-scalar-task2-isolated-v2-test-binary. All8 filters ran
-nonzero tests; the driver exit0 does not turn its failing source filter into PASS.
-Physical/native/retirement/JSON and earlier S0 debts remain unchanged.
+Verified construction commits: entry49ad735662, coverage1fbaa8e461, pure
+FinishedBindings26cb57c4aa, scalar provenance5af70e2b1f. Sequential intermediate
+lib+tests checks PASS73.83/72.62/72.47s; runtime is the exact combined snapshot
+above, not independent intermediate execution. Tree/path/hash receipts remain
+/tmp/static-scalar-{checkpoint-commits,intermediate-trees-v1-receipt}.json.
+Native/prior S0/caller-zero/retirement remain unpaid across this same series.
 
-Finite prerequisite review selected four construction checkpoints: tagged Static
-entry correspondence; canonical actual loans plus BOTH finalized coverage
-consumers; behavior-preserving FinishedBindings extraction; Task2 provenance and
-finished scalar correspondence. Entry registry alone is insufficient: its tuple
-validation needs the same checked source-only tagged cohort/owner view. The
-entry/coverage/Task2 changes issue no new source authority and remain unaccepted
-as native/S0/retirement evidence. Use one exact full-series runtime snapshot and
-sequential lib+tests checks for each intermediate tree; do not repeat three heavy
-test builds or claim intermediate runtime independence.
-The unchanged source fixture now lives in the earlier Static actual test child;
-the scalar test borrows it. Exact helper-body SHA256
-b78bd3ab295798dab637ecaaf5d296fbaf9c7e8c0e70512a75b51abd77659061
-is retained at /tmp/static-scalar-prerequisite-fixture-move-receipt.json.
-Pure T0 method movement preserves bodies except owner visibility; receipt
-/tmp/static-scalar-finished-bindings-t0-move-receipt.json. Prepared intermediate
-trees and path sets are in /tmp/static-scalar-checkpoint-trees.json. Full series
-tree1bead9fdf6c698c5acd0a23540312315e95924ef has47 code/README paths;
-/tmp/static-scalar-series-selected-snapshot.json pins exact source blobs.
-Full-series V1 build/12-filter driver terminal: no-run PASS8m15s, unchanged
-source47-path snapshot. Entry preflight1/1, entry18/18, selected Main filter7/7,
-index7/7, original ledger1/1, unchanged source/finished mutation positive1/1,
-final projection1/1 PASS. Regression LocalSSA28/28, boundary19/19, transaction3/3
-and lowering state1/1 PASS. The required aggregate still FAILS only after its
-callback assertions at published-lifecycle-program/instruction-unsupported;
-record it as unmet physical acceptance, not PASS or baseline debt. Driver exit0
-means no unexpected failure, not aggregate success. Receipt
-/tmp/static-scalar-series-v1-receipt.json; preserved binary
-/tmp/static-scalar-series-v1-test-binary, SHA256
-bdc8dd28c1d7d7f90df939a4be1aaa441a54f03f4beaa82ba7379d37d6fda8c0.
-Only after both original build and driver terminated did the sequential
-intermediate lib+tests checks run; all3 PASS. No S0/native/retirement completion
-is inferred. Their exact trees/commands/times are recorded at
-/tmp/static-scalar-intermediate-trees-v1-receipt.json.
-
-## Construction checkpoints (2026-10-12)
-
-- Entry correspondence: `49ad735662`; entry-only lib+tests PASS73.83s.
-- Canonical actual/coverage: `1fbaa8e461`; coverage-only lib+tests PASS72.62s.
-- Pure FinishedBindings extraction: `26cb57c4aa`; lib+tests PASS72.47s.
-
-These save separate responsibilities in the same bounded series. Runtime uses
-the exact combined source tree described above, not three independently linked
-intermediate binaries. Coverage test EOF was normalized without changing any
-non-trailing byte; /tmp/static-scalar-checkpoint-commits.json retains hashes.
-All production blobs and the scalar test remain identical to the verified series.
-Source/negative/final projection evidence supports the Task2 construction
-checkpoint; prior S0, physical/native/JSON/caller-zero/retirement remain open.
-
-## Arithmetic Decision and next construction boundary (2026-10-12)
-
-Task2 construction is saved at `5af70e2b1f`; its unchanged source/negative
-proofs are verified in the combined series. Earlier S0/native/retirement and
-whole-goal acceptance are still unclosed and carry into this same series.
-Task3 Decision: selected source Integer Sub uses current published Add/Mul's
-modulo-2^64 policy, fresh Integer/no result lifecycle/no new overflow Fault.
-Positive original literal Div truncates toward zero; no general Div, tagged
-Sub/Div or exact-width/usize permission. Normative reference:
+Arithmetic Decision f1b8c7ff6d fixes Integer Sub modulo2^64, fresh Integer/no
+new overflow Fault and positive original literal Div truncation toward zero;
+no general Div, tagged Sub/Div or exact-width/usize permission. Normative owner:
 `docs/reference/language/dynamic-operators.md#published-current-i64-scalar-arithmetic`.
-LLVM sub/sdiv semantics were checked against their primary LangRef sections;
-plain flags match this policy, but emitter behavior is not source authority.
+Plain LLVM sub/sdiv flags agree; emitter shape grants no source authority.
 
-Current next slice is behavior-preserving C physical T0: extract operation
-schema and teardown responsibilities from the 766/758-line files before
-activation. Preserve existing translation unit, owner, type/flow/index checks
-and all accepted/rejected inputs. Validate the existing C harness and exact
-method movement, then connect Task4's source-loaned Rust/C/JSON path above.
-No physical activation, old-edge deletion or new semantic receipt in this T0.
-Task5 unchanged native0/9/4194305->1/2/73, final JSON/Normal/Fault, prior
-production/caller-zero/retirement and whole SizeClass/mimalloc/MirBuilder remain owed.
+Pure C prerequisite T0 landed0b21bcfeea before activation. Schema766->497+272
+and emitter758->667+94 preserve exact original bodies and cc -E -P output;
+parser/receiver/nested regressions PASS, no Rust rebuild required. Receipts
+/tmp/static-scalar-c-t0-{movement,regression}-receipt.json. No activation or
+retirement credit in T0. Task4 remains source loan -> SAME FinishedBindings ->
+physical/JSON/C; Task5 still requires unchanged native0/9/4194305->1/2/73.
 
-C physical T0 verified (2026-10-12): operation/instruction schemas moved into
-physical_instruction_schema child (parent766->497, child272); marked-field
-teardown moved into teardown_emit child (parent758->667, child94). Original
-bodies reconstruct byte-for-byte, and cc -E -P output is identical before/after
-with HAKO_LLVMC_LIFECYCLE_TEST_SEAM. Existing physical parser, receiver identity
-and nested-call regressions all PASS; no Rust/Cargo rebuild was needed for
-unchanged C preprocessing. Receipts /tmp/static-scalar-c-t0-{movement,regression}-receipt.json.
-No Sub/Div activation, source/native acceptance or retirement is claimed.
-Next is Task4's same-source-ledger/FinishedBindings loan into existing physical
-projection and matching C/JSON checks, under the arithmetic Decision above.
+## Task4 physical activation checkpoint (2026-10-12, unaccepted)
+
+Existing final view now supplies source/module together to the private physical
+constructor; generic raw MIR does not obtain Sub/Div permission. The same ledger
+borrows original and captured derived target bindings through FinishedBindings;
+exact actual/expected coverage is checked without a new semantic receipt.
+Rust Div requires the original positive literal value, C requires I64 operands
+and a unique available positive literal, JSON keeps the exact binary schema,
+and emission uses plain sub/sdiv. Shared StaticV2 is unchanged.
+Read-only review caught all-operations-removed early success and missing C dst
+recognition; both corrected before acceptance. Existing source test now checks
+finished loans and removal of all selected operators; C parser/nested tests add
+chained outputs, malformed input, positive-divisor and non-I64 rejection.
+Rust V1 lib+tests check PASS1m13s; V2 no-run PASS8m21s.
+Initial C compile command used nonexistent src paths (no test evidence); fixed
+shims paths, parser V1 PASS. Native source results/prior S0/caller-zero and
+retirement remain owed. C schema child EOF blank line normalized in this slice.
+
+Task4 C V3 nested-call regression PASS, including actual OBJ generation for
+Sub->Div and pre-artifact Bool/Null/tagged operand rejection (tagged Add stays
+accepted). Independent physical-only native probes compare MIN-1 with MAX,
+MAX-(-1) with MIN, 0-1 with -1, -9/4 with -2, and 9/4 with2; all return1
+after linking the actual lifecycle archive. Receipt
+/tmp/static-scalar-physical-native-v2/receipt.json. Initial direct-main link
+collided with archive main; wrap-main resolved it. Raw extreme process results
+correctly hit process-result range Fault; in-callee comparisons test arithmetic
+without claiming a wider process-result contract. Not unchanged source evidence.
+
+Final read-only review confirms the two fixes. The all-removal negative targets
+the source visitor; constructor early-return behavior is statically reviewed,
+not a separately executed constructor mutation test. Rust V2 no-run handle94556
+is terminal; logs /tmp/static-scalar-physical-build-v2.{log,jsonl}.
+C receipt /tmp/static-scalar-physical-v2-receipt.json pins changed source and
+actual parser/nested/receiver runs. No Task4/S0 closeout before Rust source tests.
+
+V2 runtime: original+derived source loans and all-removal negative PASS; entry
+1/18, Main7, index7, ledger1, projection1, LocalSSA28, boundary19, transaction3
+and state1 PASS. Physical program2/order2 PASS, JSON30/31 (owned-array cleanup
+red is identical on preserved prechange series binary, classified baseline).
+Required aggregate now reaches borrowed-use/mul-nonview-source-unproved, not
+instruction-unsupported. Do not waive its existing IntegerCall/literal source
+proofs: close the nonview operand correspondence in the existing Mul owner.
+Receipt /tmp/static-scalar-physical-v2-runtime-receipt.json; binary preserved at
+/tmp/static-scalar-physical-v2-test-binary. Fresh CLI build handle68717 finished PASS3m54s; no native success claimed.
+
+
+## Fresh production frontier and next Decision (2026-10-12)
+
+Fresh CLI unchanged-source inputs0/9/4194305 all stop before artifact at
+physical-boundary/finished-sequence (~0.03s each); exact binary/runtime/source
+hashes and commands: /tmp/static-scalar-physical-cli-v2-receipt.json.
+Diagnostic --no-optimize reaches mul-nonview-source-unproved; this is not default
+acceptance. Existing tests use optimize=false, so do not equate their frontier
+with the default production route. Next: observe the first sequence mismatch
+under the existing disabled-by-default compile trace; keep rejection unchanged.
+Mul closure Decision stays existing source/materialization -> captured producer
+-> SAME FinishedBindings. Literal uses original site/value and unique captured
+raw-child Const; call uses retained original Static Rc and exact Invoke/Normal
+raw-child, preserving order/dominance/Fault. No payload scan or new receipt.
+V3 CLI trace identifies bin_size/1 bb15 Add dst35; DCE logs its unused-pure
+removal, while boundary expects it before Add dst39. Guard remains unchanged.
+Close both default finishing and Mul correspondence before native acceptance;
+prior S0/caller-zero/retirement and whole-goal obligations remain unchanged.
+
+
+Finishing Decision (read-only review): keep mandatory source/target producers
+and verify_projected intact. Existing CheckedScalar materialization may reuse
+an already-emitted same-block BinOp after phi redirect/undefined-source checks,
+using the existing Identity loan/cache; do not replay it and then let DCE drop
+its mandatory original. No crossblock/legacy forwarding, new authority or
+finishing waiver. Verify sameblock identity/facts, existing crossblock append,
+mandatory deletion rejection, and unchanged source with optimize false/true.
+
+V4 trace confirms Add35 pure=true/used=false/recorded=true/single=true;
+/tmp/static-scalar-physical-cli-v4-dce-receipt.json pins default command/binary.
+Same-block CheckedScalar reuse implemented; identity/facts test and unchanged
+source optimize=false/true matrix added. Runtime validation pending, not S0.
+
+Sameblock V1 lib+tests typecheck PASS1m13s; read-only final review found no new
+issue. /tmp/static-scalar-sameblock-v1-snapshot.json pins the three source paths;
+focused runtime/build still pending. No S0 or native success is inferred.
+
+## Finishing liveness Decision and current reds (2026-10-12)
+
+Sameblock V1 build PASS8m13s; receipt
+`/tmp/static-scalar-sameblock-v1-runtime-receipt.json` pins matching source
+hashes. Identity/facts positive PASS. Two older correspondence tests FAIL
+because their sameblock fixture no longer exercises the append writer; move
+these fixtures across an explicit CFG edge, preserving child append and
+non-dominating Copy failure assertions. They are current-change failures,
+not baseline debt. Optimized source now passes the earlier Add35 stop but
+stops at mandatory Mul47 removed by DCE; aggregate still stops at
+mul-nonview-source-unproved. JSON owned-array cleanup is known baseline.
+
+Decision: lend existing scalar/borrowed-Mul/borrowed-Compare required bindings
+(dst present, excluding auxiliary Const/Copy) from the completed
+OrdinaryNew root/child ledger before decompose, using its own module and the
+same captured boundary. Carry only temporary per-function DCE liveness roots
+through both existing DCE waves; keep dependency propagation and unreachable
+pruning. Identical original bindings may deduplicate; conflicting same-dst
+bindings, missing/foreign actual producers or boundary mismatch reject.
+Source-backed artifact and non-artifact compilation share this connection;
+Absent/Script and legacy compilation lend no selected scalar roots.
+Non-authority: the roots do not grant source/Integer/ABI permission. No new
+receipt, KeepAlive instruction, optimizer skip or boundary/relation waiver.
+Read-only worker checked ownership and duplicate-producer semantics.
+Acceptance: mandatory original/derived/operand retention, unrelated dead
+arithmetic still eliminated, missing original rejected, unchanged source
+optimize=false/true. Then close existing Mul literal/call correspondence and
+native0/9/4194305 -> 1/2/73. S0/caller-zero/retirement remain unpaid.
+
+Implementation scope adds the completed-root loan, existing compiler/optimizer
+DCE call chain and the existing DCE liveness test owner. Compiler/mod.rs was
+already765 lines; this narrow connection is770 (<800). Next growth requires
+moving its finishing responsibility into a child module, not compressing lines.
+First roots lib+tests typecheck PASS1m11s; this preceded the reviewed 3-group
+union and negative tests, so it is not final runtime evidence.
+
+Finishing V1 lib+tests check PASS1m12s; no-run PASS8m12s. Runtime receipt
+`/tmp/static-scalar-dce-roots-v1-runtime-receipt.json` pins all30 source paths;
+binary63bbc89dd9e94220b1f4c2688d54a58ecfc5bb32e5b99770cd2b5f1da782c673.
+Correspondence8/8, LocalSSA29/29, DCE35/35, root preflight negatives1/1,
+optimized/unoptimized unchanged-source matrix1/1 and boundary19/19 PASS.
+Entry1/18/Main7, ledger1, projection1, transaction3/state1, physical2/order2
+PASS; JSON30/31 repeats classified owned-array baseline. Required aggregate
+still FAILS at mul-nonview-source-unproved, not finishing-sequence. This is
+combined-worktree evidence, not isolated checkpoint or fresh CLI/native proof.
+Materialize.rs fmt drift also exists in HEAD; no fmt-clean claim or broad cleanup.
+Next: close literal/call operands via original source -> captured producer ->
+same FinishedBindings, preserving Invoke/Normal/Fault order. No S0 closeout.
+
+Pointer and static-result publication guards PASS; qualified-route guard FAILS
+at its unchanged raw_loop_child_entry pin (requires>=4 call tokens; HEAD and
+worktree both have3). This is pre-existing guard debt, not current regression;
+trace `/tmp/static-scalar-dce-roots-qualified-guard-v1.log`. No guard waiver.

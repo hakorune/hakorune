@@ -2369,9 +2369,17 @@ LocalSSA writer's current function index. The ledger requires exact source and
 index Rc membership and verifies the actual original append and operand producers
 before recording. LocalSSA evidence describes physical provenance only; it does
 not grant Integer, positive-divisor semantics, overflow policy, or backend
-permission. Selected recursive materialization propagates failures; unselected
-callers keep their existing failure policy. Derived producer and final artifact
+permission. Selected recursive materialization propagates failures; after phi
+redirect, a same-block issued BinOp can lend its Identity relation without
+replaying the mandatory original. Crossblock materialization and unselected
+failure policy remain unchanged. Derived producer and final artifact
 coverage require their separate acceptance before production completion.
+
+Before finishing consumes the completed draft, its existing OrdinaryNew ledger
+lends mandatory scalar/Mul/Compare producer destinations to both DCE waves.
+Each original is matched to that same captured boundary and unique actual
+producer; auxiliary Const/Copy are not seeded. These liveness roots grant no
+source or ABI permission, and final correspondence rejection remains required.
 
 Scalar original/derived consumer completion closes the exact same source Rc and
 frame-index target inventory before storing observations. Selected fallible

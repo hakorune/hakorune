@@ -193,6 +193,11 @@ fn copy_of_binary_retains_actual_append_and_ordered_children() {
         .type_ctx
         .value_types
         .insert(copy, crate::mir::MirType::Integer);
+    // Exercise the cross-block writer: same-block BinOp children now lend
+    // their original producer through Identity instead of replaying it.
+    let target = builder.core_ctx.next_block();
+    crate::mir::builder::emission::branch::emit_jump(&mut builder, target).unwrap();
+    builder.start_new_block(target).unwrap();
     let (returned, relation) = super::super::checked_scalar_arg(&mut builder, copy).unwrap();
     assert_ne!(copy, returned);
     relation
@@ -252,6 +257,9 @@ fn selected_child_emission_failure_publishes_no_parent_cache_or_relation() {
                 .value_types
                 .insert(parent, crate::mir::MirType::Integer);
             builder.comp_ctx.emit_debug_policy = crate::mir::builder::emit_debug_policy::BuilderEmitDebugPolicySnapshotV1::from_environment();
+            let target = builder.core_ctx.next_block();
+            crate::mir::builder::emission::branch::emit_jump(&mut builder, target).unwrap();
+            builder.start_new_block(target).unwrap();
             let before = builder.current_function_instructions();
             let error = super::super::checked_scalar_arg(&mut builder, parent).unwrap_err();
             assert!(
@@ -387,4 +395,36 @@ fn consumer_handoff_is_atomic_and_rejects_resend_without_replacing_loans() {
         assert!(Rc::ptr_eq(&before.0, &after.0));
         assert!(Rc::ptr_eq(&before.1, &after.1));
     }
+}
+
+#[test]
+fn same_block_selected_scalar_reuses_original_producer_and_facts() {
+    let (mut builder, left) = fixture();
+    let original = OriginalScalarAppendV1::fixture_for_correspondence_test(&mut builder, left);
+    let value = original.original().1.dst_value().unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    builder
+        .function_state
+        .local_ssa_correspondence
+        .install_scalar_original(function, Rc::clone(&original))
+        .unwrap();
+    let instructions = builder.current_function_instructions();
+    let types = builder.function_state.type_ctx.value_types.clone();
+    let literals = builder.function_state.type_ctx.string_literals.clone();
+    let (actual, relation) = super::super::checked_scalar_arg(&mut builder, value).unwrap();
+    assert_eq!(actual, value);
+    assert_eq!(relation.values(), (value, value));
+    assert!(relation.target_binding().is_none());
+    relation
+        .verify(builder.function_state.current_function.as_ref().unwrap())
+        .unwrap();
+    assert_eq!(builder.current_function_instructions(), instructions);
+    assert_eq!(builder.function_state.type_ctx.value_types, types);
+    assert_eq!(builder.function_state.type_ctx.string_literals, literals);
+    let index = &builder.function_state.local_ssa_correspondence;
+    assert!(Rc::ptr_eq(
+        index.scalar_source_for(value).unwrap(),
+        &original
+    ));
+    assert!(index.scalar_observations().next().is_none());
 }

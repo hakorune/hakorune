@@ -51,6 +51,14 @@ impl MirOptimizer {
 
     /// Run all optimization passes on a MIR module
     pub fn optimize_module(&mut self, module: &mut MirModule) -> OptimizationStats {
+        self.optimize_module_with_required_roots(module, &Default::default())
+    }
+
+    pub(in crate::mir) fn optimize_module_with_required_roots(
+        &mut self,
+        module: &mut MirModule,
+        roots: &crate::mir::passes::dce::RequiredLivenessRoots,
+    ) -> OptimizationStats {
         let mut stats = OptimizationStats::new();
 
         // Compiler-lane contract: strict+planner_required gates validate
@@ -82,8 +90,8 @@ impl MirOptimizer {
 
         self.run_normalize_frontend_surface(module, &mut stats);
         self.run_placement_effect_pre(module, &mut stats);
-        self.run_canonical_simplification(module, &mut stats);
-        self.run_memory_cleanup_wave(module, &mut stats);
+        self.run_canonical_simplification(module, &mut stats, roots);
+        self.run_memory_cleanup_wave(module, &mut stats, roots);
         self.run_placement_effect_post(module, &mut stats);
         self.run_late_call_and_inline(module, &mut stats);
         self.run_optional_and_diagnostics(module, &mut stats);
@@ -135,14 +143,22 @@ impl MirOptimizer {
         &mut self,
         module: &mut MirModule,
         stats: &mut OptimizationStats,
+        roots: &crate::mir::passes::dce::RequiredLivenessRoots,
     ) {
         // Semantic simplification bundle owner seam. Current cut keeps
         // behavior identical by bundling the landed DCE and CSE passes under
         // one top-level owner.
-        stats.merge(crate::mir::passes::semantic_simplification::apply(module));
+        stats.merge(
+            crate::mir::passes::semantic_simplification::apply_with_required_roots(module, roots),
+        );
     }
 
-    fn run_memory_cleanup_wave(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {
+    fn run_memory_cleanup_wave(
+        &mut self,
+        module: &mut MirModule,
+        stats: &mut OptimizationStats,
+        roots: &crate::mir::passes::dce::RequiredLivenessRoots,
+    ) {
         // Memory-effect layer owner seam. This remains separate from DCE so
         // future store/load widening can grow without re-burying memory logic
         // inside DCE.
@@ -150,7 +166,8 @@ impl MirOptimizer {
 
         // Rerun pure DCE after memory effects; this can expose newly dead pure
         // defs after private-carrier Load/Store cleanup.
-        stats.dead_code_eliminated += crate::mir::passes::dce::eliminate_dead_code(module);
+        stats.dead_code_eliminated +=
+            crate::mir::passes::dce::eliminate_dead_code_with_required_roots(module, roots);
     }
 
     fn run_placement_effect_post(&mut self, module: &mut MirModule, stats: &mut OptimizationStats) {

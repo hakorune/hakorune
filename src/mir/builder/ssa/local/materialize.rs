@@ -269,6 +269,17 @@ fn materialize_local_inner_v1(
             )));
         }
 
+        if matches!(failure_policy, LocalSsaFailurePolicyV1::CheckedScalar)
+            && def_block == Some(bb)
+            && matches!(def_inst, Some(MirInstruction::BinOp { .. }))
+        {
+            // The same issued producer is already local. Replaying it creates
+            // a dead mandatory original that finishing cannot legally discard.
+            // Borrow its Identity relation; keep cross-block materialization.
+            builder.function_state.local_ssa_map.insert(key, v);
+            return Ok(v);
+        }
+
         if kind.can_forward_same_block_field_get_to_consumer()
             && def_block == Some(bb)
             && matches!(def_inst, Some(MirInstruction::FieldGet { .. }))

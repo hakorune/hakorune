@@ -12,10 +12,18 @@
 use crate::mir::{optimizer_stats::OptimizationStats, MirModule};
 
 pub fn apply(module: &mut MirModule) -> OptimizationStats {
+    apply_with_required_roots(module, &Default::default())
+}
+
+pub(in crate::mir) fn apply_with_required_roots(
+    module: &mut MirModule,
+    roots: &crate::mir::passes::dce::RequiredLivenessRoots,
+) -> OptimizationStats {
     let mut stats = OptimizationStats::new();
 
     stats.cfg_simplified += crate::mir::passes::simplify_cfg::simplify(module);
-    stats.dead_code_eliminated += crate::mir::passes::dce::eliminate_dead_code(module);
+    stats.dead_code_eliminated +=
+        crate::mir::passes::dce::eliminate_dead_code_with_required_roots(module, roots);
     stats.cse_eliminated += crate::mir::passes::cse::eliminate_common_subexpressions(module);
 
     stats

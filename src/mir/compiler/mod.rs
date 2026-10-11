@@ -109,11 +109,11 @@ mod resolved_direct_accum_hardening_p0;
 #[cfg(test)]
 mod sibling_call_tests;
 #[cfg(test)]
-mod static_result_target_only_emission_tests;
-#[cfg(test)]
 mod source_bound_package_p0;
 #[cfg(test)]
 mod source_view_tests;
+#[cfg(test)]
+mod static_result_target_only_emission_tests;
 use crate::mir::builder::BuilderInvocationConfigV1;
 use capability::{CanonicalFirstFamilyPlanV1, CanonicalLoopFamilyPlanV1};
 pub(in crate::mir) use lowering_input::LegacyModuleLoweringInputV1;
@@ -631,7 +631,11 @@ impl MirCompiler {
         schedule: CanonicalFinishScheduleV1,
     ) -> Result<MirCompileResult, CanonicalLoweringErrorV1> {
         let result = self
-            .finish_built_module(module, MirFinishScheduleV1::Canonical(schedule))
+            .finish_built_module(
+                module,
+                MirFinishScheduleV1::Canonical(schedule),
+                &Default::default(),
+            )
             .map_err(|detail| CanonicalLoweringErrorV1::BuilderContract { detail })?;
 
         // Legacy reports its historical pre-transform verifier result.
@@ -657,6 +661,7 @@ impl MirCompiler {
         &mut self,
         mut module: MirModule,
         schedule: MirFinishScheduleV1,
+        scalar_roots: &crate::mir::passes::dce::RequiredLivenessRoots,
     ) -> Result<MirCompileResult, String> {
         if schedule == MirFinishScheduleV1::SelectedDynamic {
             // DraftSeal and the selected metadata pair are already closed at
@@ -679,7 +684,7 @@ impl MirCompiler {
         if self.optimize {
             let stage_start = Instant::now();
             let mut optimizer = MirOptimizer::new();
-            let stats = optimizer.optimize_module(&mut module);
+            let stats = optimizer.optimize_module_with_required_roots(&mut module, scalar_roots);
             super::compile_timing::trace_stage("optimize", stage_start.elapsed());
             if (crate::config::env::opt_diag_fail() || crate::config::env::opt_diag_forbid_legacy())
                 && stats.diagnostics_reported > 0

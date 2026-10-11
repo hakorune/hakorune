@@ -9,12 +9,20 @@ use crate::mir::MirFunction;
 use crate::runtime::get_global_ring0;
 
 pub(super) fn eliminate_dead_code_in_function(function: &mut MirFunction) -> usize {
+    eliminate_dead_code_with_required_roots(function, std::iter::empty())
+}
+
+pub(super) fn eliminate_dead_code_with_required_roots(
+    function: &mut MirFunction,
+    roots: impl IntoIterator<Item = crate::mir::ValueId>,
+) -> usize {
     let reachable_blocks = crate::mir::verification::utils::compute_reachable_blocks(function);
     let local_reads = analyze_local_reads(function, &reachable_blocks);
     let overwritten_local_writes =
         collect_overwritten_local_field_sets(function, &reachable_blocks, &local_reads);
 
     let mut base_used_values = LiveValueSet::default();
+    base_used_values.extend(roots);
 
     for (bid, block) in &function.blocks {
         if !reachable_blocks.contains(bid) {

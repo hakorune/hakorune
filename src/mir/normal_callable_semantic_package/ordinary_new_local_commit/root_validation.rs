@@ -3,6 +3,9 @@
 use super::*;
 use std::collections::BTreeSet;
 
+#[path = "scalar_finishing_liveness.rs"]
+mod scalar_finishing_liveness;
+
 #[cfg(test)]
 #[path = "terminal_field_projection_tests.rs"]
 mod terminal_field_projection_tests;

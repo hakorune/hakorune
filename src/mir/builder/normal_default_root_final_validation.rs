@@ -61,6 +61,18 @@ impl RootValidation {
 }
 
 impl CompletedNormalDefaultRootCatalogLifecycleV1 {
+    /// Borrow liveness from this completed draft before its source is consumed.
+    pub(in crate::mir) fn scalar_finishing_liveness_v1(
+        &self,
+    ) -> Result<crate::mir::passes::dce::RequiredLivenessRoots, String> {
+        match &self.root_validation {
+            RootValidation::OrdinaryNew { key, ledger } => {
+                ledger.scalar_finishing_liveness_v1(&self.module, key)
+            }
+            RootValidation::Absent | RootValidation::Script { .. } => Ok(Default::default()),
+        }
+    }
+
     #[cfg(test)]
     pub(in crate::mir::builder) fn ordinary_root_ledger_for_test(
         &self,

@@ -33,6 +33,11 @@ impl LocalSsaPhysicalRelationV1 {
         (self.from, self.to)
     }
 
+    /// Exact captured writer output; callers still need the original source loan.
+    pub(in crate::mir) fn target_binding(&self) -> Option<&PhysicalBinding> {
+        self.target.as_ref()
+    }
+
     pub(in crate::mir) fn append_required_bindings(&self, bindings: &mut Vec<PhysicalBinding>) {
         let mut append = |binding: &PhysicalBinding| {
             if !matches!(

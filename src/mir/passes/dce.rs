@@ -15,7 +15,10 @@ pub(crate) mod memory;
 mod tests;
 
 use crate::mir::{MirFunction, MirModule, ValueId};
-use std::collections::HashSet;
+use std::collections::{BTreeMap, BTreeSet, HashSet};
+
+/// Draft-validated physical producers retained only as DCE liveness roots.
+pub(in crate::mir) type RequiredLivenessRoots = BTreeMap<String, BTreeSet<ValueId>>;
 
 #[derive(Clone, Default)]
 pub(super) struct LiveValueSet {
@@ -81,9 +84,22 @@ impl LiveValueSet {
 ///
 /// Returns the number of eliminated instructions.
 pub fn eliminate_dead_code(module: &mut MirModule) -> usize {
-    let mut eliminated_total = 0usize;
-    for (_func_name, func) in &mut module.functions {
-        eliminated_total += elimination::eliminate_dead_code_in_function(func);
+    eliminate_dead_code_with_required_roots(module, &RequiredLivenessRoots::new())
+}
+
+pub(in crate::mir) fn eliminate_dead_code_with_required_roots(
+    module: &mut MirModule,
+    roots: &RequiredLivenessRoots,
+) -> usize {
+    let mut eliminated_total = 0;
+    for (symbol, function) in &mut module.functions {
+        let required = roots.get(symbol);
+        eliminated_total += elimination::eliminate_dead_code_with_required_roots(
+            function,
+            required
+                .into_iter()
+                .flat_map(|values| values.iter().copied()),
+        );
     }
     eliminated_total
 }

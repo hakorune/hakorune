@@ -557,3 +557,69 @@ fn test_dce_prunes_pure_no_dst_call_and_its_dead_operand_chain() {
         .iter()
         .any(|inst| matches!(inst, MirInstruction::LegacyCallV0 { dst: None, .. })));
 }
+
+#[test]
+fn required_scalar_roots_keep_dependencies_without_reviving_unreachable_code() {
+    use crate::mir::BinaryOp;
+    let mut module = MirModule::new("required_scalar_roots".into());
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "scalar/0".into(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId(0),
+    );
+    let entry = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+    for value in [1, 2] {
+        entry.add_instruction(MirInstruction::Const {
+            dst: ValueId(value),
+            value: ConstValue::Integer(value as i64),
+        });
+    }
+    for (dst, op, lhs) in [
+        (3, BinaryOp::Mul, 1),
+        (4, BinaryOp::Sub, 3),
+        (5, BinaryOp::Add, 1),
+    ] {
+        entry.add_instruction(MirInstruction::BinOp {
+            dst: ValueId(dst),
+            op,
+            lhs: ValueId(lhs),
+            rhs: ValueId(2),
+        });
+    }
+    entry.set_terminator(MirInstruction::Return { value: None });
+    let mut unreachable = BasicBlock::new(BasicBlockId(1));
+    unreachable.add_instruction(MirInstruction::Const {
+        dst: ValueId(6),
+        value: ConstValue::Integer(6),
+    });
+    unreachable.set_terminator(MirInstruction::Return {
+        value: Some(ValueId(6)),
+    });
+    function.add_block(unreachable);
+    module.add_function(function);
+    let roots = super::super::RequiredLivenessRoots::from([(
+        "scalar/0".to_owned(),
+        [ValueId(4), ValueId(6)].into_iter().collect(),
+    )]);
+    crate::mir::passes::semantic_simplification::apply_with_required_roots(&mut module, &roots);
+    super::super::eliminate_dead_code_with_required_roots(&mut module, &roots);
+    let function = module.get_function("scalar/0").unwrap();
+    assert!(!function.blocks.contains_key(&BasicBlockId(1)));
+    let destinations: Vec<_> = function
+        .blocks
+        .values()
+        .flat_map(|block| {
+            block
+                .all_instructions()
+                .filter_map(MirInstruction::dst_value)
+        })
+        .collect();
+    assert_eq!(
+        destinations,
+        vec![ValueId(1), ValueId(2), ValueId(3), ValueId(4)]
+    );
+}
