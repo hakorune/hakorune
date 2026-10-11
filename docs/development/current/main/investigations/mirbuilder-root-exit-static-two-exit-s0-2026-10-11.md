@@ -154,10 +154,10 @@ view/commit. This is unfinished S0, not a production cutover.
 Latest `cargo check --profile quick -p nyash-rust --lib` passed in the shared
 target (28.12 s); the same check passed from the consolidated main checkout
 at `f9cb8906be` (1m 03s). `git diff --check` passed. The narrowed focused
-positive
-still stops at `root-exit-unconsumed` after the Home preview. Existing compiled
-`root_home` tests passed 46/46 before the latest pending-token edits; do not
-count them as current-tree acceptance. The original whole-app focused input
+positive still stops at `root-exit-unconsumed` after the Home preview.
+Existing compiled `root_home` tests passed 46/46 before the latest
+pending-token edits; do not count them as current-tree acceptance.
+The original whole-app focused input
 fails on clean base before this route at `static-mixed/source-actual-drift`.
 No selected positive/negative, JSON/EXE, or full acceptance was run after the
 latest edits. No Cargo process remains.
