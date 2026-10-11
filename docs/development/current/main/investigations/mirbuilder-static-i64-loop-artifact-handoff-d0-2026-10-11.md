@@ -685,3 +685,71 @@ Next selected design: MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0,
 existing original Binary completion/ledger and sole LocalSSA Checked recursive
 operand/producer transport, as bounded above. Internal contract work, no external
 wait; no physical arithmetic activation yet.
+
+
+Producer D0 first connection accepted with independent read-only review:
+Decision: select original producer retention, not derived coverage/activation.
+Authority: same immutable scalar initializer Rc in Completion RootHomeFlow.
+Caller: existing Binary descent under RawInvocationChildPort; borrow by exact
+owner/site before children, mutually exclusive with existing Compare/Mul loans.
+After ordered descent, retain children plus CompletedOrdinaryBinary append in
+OrdinaryNewClaimLedgerV1; validate original Rc membership, site/op/dst/coordinate,
+one original per source, and Div rhs unique original Const with actual Copy path.
+Do not search for a matching literal or give the root proof to nested Mul.
+Replace only selected scalar's blind original append responsibility; compatibility
+and nonselected source keep current route. Same-series derived coverage will
+replace selected LocalSSA's blind reuse; do not retire shared physical owner.
+Focused acceptance: unchanged SizeClass source's3 original operations/3 appends
+at final verified callback, exact Rc/site/operator/ordered child correspondence;
+foreign source, changed site/op/divisor, swapped child, duplicate, missing append
+rejections. Missing/failed append publishes no record. No second semantic issuer.
+Paths: existing ledger/initializer module, existing Binary/source port hooks,
+existing raw child transport, final source read-only projection and owner tests.
+Select MIRBUILDER-STATIC-I64-SCALAR-ORIGINAL-PRODUCER-S0. This is a necessary first
+part of Task2, not full Task2 acceptance: derived producer/Checked recursion,
+Sub policy, physical/JSON/native and all older closeout conditions still owed.
+
+
+Original-producer S0 construction is UNACCEPTED. Read-only review found its
+Copy-only operand mapping incomplete: the SAME LocalSSA may emit a fresh Const
+or BinOp even before the first scalar original append. materialize.rs allocates
+loc before definition classification and Const/BinOp arms directly re-emit into
+loc; arg cache lacks provenance. Thus derived physical correspondence is needed
+for original operands as well as the second Div. Do not weaken copy_path or search
+for same-valued Const, and do not run an expensive acceptance build on this known
+incomplete mapping. V1 lib+tests check found test-only visibility/snapshot errors;
+fixed using existing public test instruction snapshot, V2 check pending.
+Reopen existing producer correspondence D0; keep original construction dirty and
+all previous coverage/native/retirement obligations. Candidate: sole LocalSSA
+private physical index observes actual successful appends with original->new and
+ordered operand mapping; original scalar ledger loans its exact records. Existing
+function-state transaction, idle check and root-exit reset must preserve/clear it.
+Identity/cache reuse requires its retained relation, not matching shape. Selected
+recursive children propagate Checked failure. No new source issuer or execution
+permission. Integrate this in Task2 before accepting original producer S0.
+
+
+Producer D0 refinement Decision: use a function-owned private LocalSSA physical
+correspondence index, not a temporary trace. Earlier cache results predate a
+selected scalar call. No equivalent existing index was found in the bounded
+LocalSSA/function lifecycle review. Original/derived source semantics stay in the
+same ordinary-new ledger; the index is physical evidence only.
+Record exact input producer and successful output append plus ordered original/
+returned child pairs at the existing materialization owner. Copy-forward is an
+explicit alias event; identity needs no fabricated append; cache lends an existing
+relation. Redirect/ambiguous/missing provenance supplies no selected loan, never
+an equality/shape repair. Generic recording must not introduce new legacy rejects.
+Selected original/derived consumers require the exact relation and recursively
+Checked child materialization. Failed append/child publishes no relation or cache;
+selected consumption refuses foreign/changed/missing/duplicate physical evidence.
+Keep index history across block cache clear. FunctionLoweringState, nested
+function_state_transaction save/restore, idle check and root exit reset own its
+lifetime. Source/divisor Rc membership remains solely in ordinary-new ledger.
+V2 lib+tests check PASS1m08s after test visibility errors corrected; original
+producer runtime acceptance is still absent and known Copy-only mapping invalid.
+Smallest next implementation closes this physical index and loans into the current
+original producer drafts, then same-source derived producer/final binding coverage.
+Required positives include raw Const/BinOp rematerialization before first original,
+3 original source operations, repeated Div, existing/cache/new paths. Required
+negatives include child emission failure/no publication, cache/source/operand
+mutation and nested function/index lifetime. No physical arithmetic activation.

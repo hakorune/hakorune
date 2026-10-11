@@ -17,10 +17,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-Scalar source retention S0 accepted: original2Sub/1Div, negatives and branch Rc
-identity pass; touched-module two existing reds reproduce in preserved V12 binary.
-Select producer correspondence D0, preserve coverage S0 unaccepted and all physical/
-JSON/native/caller-zero/retirement debts. No arithmetic activation yet.
+Source retention S0 accepted. Original producer construction unaccepted: LocalSSA
+rematerializes Const/BinOp even before original append, so Copy-only correspondence
+cannot accept legitimate source. Resolve same-owner physical index/Checked recursion
+inside Task2; preserve coverage/physical/JSON/native/caller-zero/retirement debts.
 """
 next_design_card = "MIRBUILDER-STATIC-I64-SCALAR-PRODUCER-CORRESPONDENCE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
