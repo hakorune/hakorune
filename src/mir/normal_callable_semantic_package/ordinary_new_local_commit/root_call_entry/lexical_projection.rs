@@ -14,6 +14,7 @@ use super::super::physical_boundary::FinishedBindings;
 #[path = "call_packet_source.rs"]
 mod call_packet_source;
 pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
+pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
 
 /// Physical observations of the original ordered argument tree. These rows
 /// cannot classify a source argument or choose a call target.

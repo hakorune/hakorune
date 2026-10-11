@@ -110,8 +110,11 @@ mod tests {
                         [(false, false), (true, false), (false, true)]
                     {
                         let filename = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-                            .join("apps/mimalloc-lite/main.hako");
-                        let code = std::fs::read_to_string(&filename).unwrap();
+                            .join("lang/src/hako_alloc/memory/size_class_box.hako");
+                        let code = format!(
+                            "{}\nstatic box Main {{ main() {{ return 0 }} }}\n",
+                            std::fs::read_to_string(&filename).unwrap()
+                        );
                         let runner = crate::runner::NyashRunner::new(Default::default());
                         let prepared = crate::runner::modes::common_util::source_hint::prepare_normal_source_with_imports(
                             &runner, filename.to_str().unwrap(), &code,

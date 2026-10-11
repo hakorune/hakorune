@@ -158,6 +158,11 @@ pub(in crate::mir) use ordinary_new_coseal::{
 pub(crate) use ordinary_new_coseal::{
     PreparedLoopStaticBodyRetentionV1, PreparedRootLexicalCallBindingGroupV1,
     RootHomeFaultSequencesV1, RootHomeReleaseOriginV1,
+    PreparedRootHomeGraphPlanV1,
+    PreparedRootHomeOrderV1,
+    PendingRootHomeExitV1,
+    PreparedStaticTerminalRootRouteV1,
+    PreparedStaticTerminalPacketV1,
 };
 pub(in crate::mir) use ordinary_new_coseal::LoopEntryStaticI64SourceLoanV1;
 pub(in crate::mir) use ordinary_new_coseal::LoopTailStaticI64SourceLoanV1;

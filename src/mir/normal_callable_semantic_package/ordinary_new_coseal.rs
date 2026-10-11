@@ -38,6 +38,25 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{Effect, EffectMask};
 use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
 
+/// One original terminal Static route, checked before selected draft admission.
+/// The shared ledger changes only after the collector accepts the draft.
+pub(crate) struct PreparedStaticTerminalRootRouteV1<'ledger> {
+    ledger: &'ledger OrdinaryNewClaimLedgerV1,
+    site: OwnedExprSiteV1,
+    index: usize,
+}
+
+impl PreparedStaticTerminalRootRouteV1<'_> {
+    pub(crate) fn commit_prechecked(self) {
+        let mut routes = self.ledger.lifecycle_local_call_sites.borrow_mut();
+        let sites = routes
+            .get_mut(&self.site.owner())
+            .expect("preflighted terminal route owner remains installed");
+        let removed = sites.remove(self.index);
+        assert_eq!(removed, self.site, "preflighted terminal route remains exact");
+    }
+}
+
 #[path = "ordinary_new_claim_access.rs"]
 mod claim_access;
 #[path = "ordinary_new_arguments.rs"]
@@ -98,6 +117,10 @@ pub(in crate::mir) use loop_static_body_actual::{
 pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
 pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
 pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
+pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
+pub(crate) use local_commit::PreparedRootHomeOrderV1;
+pub(crate) use local_commit::PendingRootHomeExitV1;
+pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
 pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;

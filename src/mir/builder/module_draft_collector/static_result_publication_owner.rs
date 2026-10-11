@@ -14,13 +14,19 @@ impl UnpublishedFunctionDraftV1<'_> {
         self,
         brand: &SameModuleCallableCatalogBrandV1,
         caller: &CanonicalSameModuleCallableKeyV1,
-        sites_and_targets: &[(SourceExprSiteV1, CanonicalSameModuleCallableKeyV1)],
-    ) -> Result<Self, StaticCallResultPublicationOwnerTakeErrorV1> {
+        sites_and_targets: &[(SourceExprSiteV1, CanonicalSameModuleCallableKeyV1); 4],
+    ) -> Result<
+        (Self, [VerifiedStaticCallResultPublicationHandoffV1; 4]),
+        StaticCallResultPublicationOwnerTakeErrorV1,
+    > {
         let Some(owner) = self.collector.static_result_publication_owner.as_mut() else {
             return Err(StaticCallResultPublicationOwnerTakeErrorV1::OwnerUnavailable);
         };
-        let _consumed = owner.take_selected_batch_for_source(brand, caller, sites_and_targets)?;
-        Ok(self)
+        let consumed = owner.take_selected_batch_for_source(brand, caller, sites_and_targets)?;
+        let handoffs = consumed
+            .try_into()
+            .expect("four preflighted selected publication sites");
+        Ok((self, handoffs))
     }
 }
 

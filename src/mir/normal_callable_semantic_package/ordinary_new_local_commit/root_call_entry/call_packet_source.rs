@@ -29,6 +29,46 @@ pub(in crate::mir) struct CallPacketSourceV1 {
     kind: CallPacketSourceKindV1,
 }
 
+/// Original Static packet checked against a borrowed publication row. The
+/// collector's later exact batch take supplies that same owned row.
+pub(crate) struct PreparedStaticTerminalPacketV1 {
+    original: Rc<StaticIncomingSourceV1>,
+    observation: LocalCallObservationV1,
+}
+
+impl PreparedStaticTerminalPacketV1 {
+    pub(crate) fn prepare_zeroarg_projection(
+        &self,
+        publication: &VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> Result<PreparedLexicalCallProjectionV1, String> {
+        if !self.original.argument_sites().is_empty() || !self.observation.arguments().is_empty() {
+            return Err(freeze("static-terminal/zeroarg-projection-required"));
+        }
+        PreparedLexicalCallProjectionV1::for_source(
+            CallPacketSourceLoanV1::Static {
+                original: &self.original,
+                observation: &self.observation,
+                publication,
+            },
+            None,
+            Vec::new(),
+        )
+    }
+
+    pub(crate) fn into_packet(
+        self,
+        publication: VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> CallPacketSourceV1 {
+        CallPacketSourceV1 {
+            kind: CallPacketSourceKindV1::Static {
+                original: self.original,
+                observation: self.observation,
+                publication,
+            },
+        }
+    }
+}
+
 #[derive(Clone, Copy)]
 pub(in crate::mir) enum CallPacketSourceLoanV1<'a> {
     Instance(&'a LexicalInstanceCallDispositionRowV1),
@@ -76,19 +116,29 @@ impl CallPacketSourceV1 {
         publication: VerifiedStaticCallResultPublicationHandoffV1,
         ledger: &OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, String> {
+        Ok(Self::prepare_static_i64(original, &publication, ledger)?
+            .into_packet(publication))
+    }
+
+    pub(crate) fn prepare_static_i64(
+        original: Rc<StaticIncomingSourceV1>,
+        publication: &VerifiedStaticCallResultPublicationHandoffV1,
+        ledger: &OrdinaryNewClaimLedgerV1,
+    ) -> Result<PreparedStaticTerminalPacketV1, String> {
         let observation = ledger
             .local_call_for_owner(original.call_site().owner(), original.call_site().site())
             .ok_or_else(|| freeze("static-packet/local-source-missing"))?
             .clone();
-        let source = Self {
-            kind: CallPacketSourceKindV1::Static {
-                original,
-                observation,
-                publication,
-            },
-        };
-        source.loan().validate_static(ledger)?;
-        Ok(source)
+        CallPacketSourceLoanV1::Static {
+            original: &original,
+            observation: &observation,
+            publication,
+        }
+        .validate_static(ledger)?;
+        Ok(PreparedStaticTerminalPacketV1 {
+            original,
+            observation,
+        })
     }
 
     pub(super) fn selected_static_loop(

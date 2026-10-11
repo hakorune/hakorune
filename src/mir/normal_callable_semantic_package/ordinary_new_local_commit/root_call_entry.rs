@@ -21,6 +21,18 @@ pub(crate) struct PreparedRootLexicalCallBindingGroupV1<'ledger> {
 }
 
 impl PreparedRootLexicalCallBindingGroupV1<'_> {
+    pub(crate) fn source_site(&self) -> &OwnedExprSiteV1 {
+        self.group.group.site()
+    }
+
+    pub(crate) fn original_invoke_binding(&self) -> &(BasicBlockId, MirInstruction) {
+        self.packet.outer_bindings().0
+    }
+
+    pub(crate) fn pending_group(&self) -> &RootLocalCallBindingGroupV1 {
+        &self.group.group
+    }
+
     pub(crate) fn commit(self) -> Result<std::rc::Rc<EmittedLexicalCallProjectionV1>, String> {
         self.group.commit()?;
         Ok(self.packet)
@@ -755,6 +767,7 @@ pub(in crate::mir) use lexical_projection::{
     LexicalCallArgumentProjectionV1, PreparedLexicalCallProjectionV1,
     PreparedSelectedStaticLoopCallProjectionV1,
 };
+pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 
 #[path = "root_call_entry/local_binding_group.rs"]
 mod local_binding_group;

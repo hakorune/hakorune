@@ -11,6 +11,9 @@ use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::module_draft_collector::{DraftPublicationPolicyV1, FunctionDraftKeyV1};
 use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
+use crate::mir::builder::ordinary_new_admission::selected::{
+    emit_root_graph_v1, RootGraphEmissionV1,
+};
 use crate::mir::builder::raw_loop_child_entry::{
     StaticI64LoopFunctionEntryV2, StaticI64LoopTaggedPhysicalFormalV2,
 };
@@ -23,8 +26,12 @@ use crate::mir::function::{MirFunction, MirParamDecl};
 use crate::mir::normal_callable_semantic_package::{
     BorrowedFormalActualSourceV1, OrdinaryNewClaimLedgerV1, PreparedLoopStaticBodyRetentionV1,
     PreparedRootLexicalCallBindingGroupV1, PreparedSelectedStaticLoopCallProjectionV1,
-    VerifiedStaticLoopI64ResultSourceV1, VerifiedStaticLoopPacketSourceV1,
+    PreparedRootHomeGraphPlanV1, PreparedRootHomeOrderV1,
+    PendingRootHomeExitV1,
+    VerifiedStaticLoopI64ResultSourceV1,
+    VerifiedStaticLoopPacketSourceV1,
 };
+use crate::mir::instruction::InvokeOperation;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
 use crate::mir::resolved_semantics::{
     SourceBindingSiteV1, VerifiedResolvedBlockExpressionExpectationV1,
@@ -36,6 +43,57 @@ pub(in crate::mir::builder) struct PreparedSelectedStaticLoopEntryV1<'builder, '
     entry_group: PreparedRootLexicalCallBindingGroupV1<'ledger>,
     body_retention: PreparedLoopStaticBodyRetentionV1<'ledger>,
     publication: SelectedStaticLoopPublicationBatchV1,
+    early_root_pending: PendingRootHomeExitV1<'ledger>,
+}
+
+/// Physical receipt for one selected root graph. DraftSeal still owns the
+/// Return insertion; graph emission owns all incoming edges and projections.
+pub(super) struct SelectedStaticRootGraphPhysicalV1 {
+    pub(super) graph: RootGraphEmissionV1,
+    pub(super) created: Vec<BasicBlockId>,
+    pub(super) deferred_return: (BasicBlockId, MirInstruction),
+    pub(super) home_order: PreparedRootHomeOrderV1,
+}
+
+pub(super) fn emit_selected_root_graph_v1(
+    draft: &mut MirBuilder,
+    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
+    frame_owner: &mut FunctionFaultFrameV1,
+    plan: PreparedRootHomeGraphPlanV1,
+    return_value: Option<ValueId>,
+    statement_result: ValueId,
+    ingress: Option<InvokeOperation>,
+) -> Result<SelectedStaticRootGraphPhysicalV1, String> {
+    let PreparedRootHomeGraphPlanV1 {
+        operations,
+        faults,
+        order,
+    } = plan;
+    let mut writer = root_graph_writer::CanonicalRootGraphWriterV1::new(&mut canonical.cfg);
+    let graph = emit_root_graph_v1(
+        draft,
+        frame_owner,
+        &mut writer,
+        operations,
+        faults,
+        return_value,
+        statement_result,
+        ingress,
+    )?;
+    let [deferred_return] = writer.deferred_clean() else {
+        return Err("[freeze:contract][callable-loop/root-return-projection-count]".into());
+    };
+    if deferred_return.0 != graph.clean
+        || !matches!(&deferred_return.1, MirInstruction::Return { value } if *value == return_value)
+    {
+        return Err("[freeze:contract][callable-loop/root-return-projection-drift]".into());
+    }
+    Ok(SelectedStaticRootGraphPhysicalV1 {
+        created: writer.created().to_vec(),
+        deferred_return: deferred_return.clone(),
+        home_order: order,
+        graph,
+    })
 }
 
 impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
@@ -49,6 +107,7 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
             entry_group,
             body_retention,
             publication,
+            early_root_pending: _,
         } = self;
         let (brand, caller, sites_and_targets) = publication.into_parts();
         pending.complete_before_restore(|draft| {
@@ -60,14 +119,14 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
                     DraftPublicationPolicyV1::CanonicalRejectDuplicate,
                 )
                 .map_err(|error| error.to_string())?;
-            prepared
+            let (unpublished, _handoffs) = prepared
                 .seal(draft)
                 .map_err(|error| error.to_string())?
                 .consume_selected_static_result_batch(&brand, &caller, &sites_and_targets)
                 .map_err(|error| {
                     format!("[freeze:contract][callable-loop/publication-batch/{error:?}]")
-                })?
-                .collect();
+                })?;
+            unpublished.collect();
             entry_group.commit_after_collected();
             body_retention.commit_after_collected();
             Ok(())
@@ -159,25 +218,36 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             &mut frame_owner,
             body_source,
         )?;
-        super::static_loop_body_exit::emit_unpublished_body_exit_v1(
+        let pre_root_blocks = draft
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| "[freeze:contract][callable-loop/pre-root-function-missing]".to_owned())?
+            .block_ids();
+        let early_root = super::static_loop_body_exit::emit_unpublished_body_exit_v1(
             draft,
             &mut canonical,
             product.semantic(),
             &header,
             &body,
+            &mut frame_owner,
+            claims,
         )?;
-        let terminal = super::static_loop_tail::emit_unpublished_tail_v1(
+        let tail_root = super::static_loop_tail::emit_unpublished_tail_v1(
             draft,
             &mut canonical,
             product.semantic(),
             &header,
             &mut frame_owner,
+            claims,
         )?;
         let ready = super::static_loop_draft_finish::finish_unpublished_static_loop_v1(
             draft,
             canonical,
             product.semantic(),
-            terminal,
+            &pre_root_blocks,
+            &early_root,
+            &tail_root,
             &body,
         )?;
         let open = ready.open(
@@ -189,13 +259,36 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             Ok(prepared) => prepared,
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
+        let (site, bindings, packet) = entry_packet.into_local_group_parts();
+        let entry_group = match claims.prepare_root_lexical_call_bindings(
+            input.owner(), site, bindings, packet,
+        ) {
+            Ok(group) => group,
+            Err(error) => {
+                prepared.commit_pending().abort_and_restore();
+                return Err(error);
+            }
+        };
+        let early_root_pending = match claims.prepare_selected_plain_root_exit_v1(
+            early_root.home_order,
+            early_root.graph.origins,
+            early_root.graph.bindings,
+            &entry_group,
+        ) {
+            Ok(row) => row,
+            Err(error) => {
+                prepared.commit_pending().abort_and_restore();
+                return Err(error);
+            }
+        };
         let projected_body = prepared.corroborate_detached_function(|function| {
             publication.corroborate_detached_zeroarg_invokes(
                 function,
                 header.header,
                 header.normal,
                 header.after,
-                terminal,
+                tail_root.graph.ingress.as_ref().map(|(_, projection)| projection.0)
+                    .ok_or_else(|| "[freeze:contract][callable-loop/tail-ingress-missing]".to_owned())?,
             )?;
             let packet = body.prepare_detached_packet(function)?;
             if !packet.corroborates_selected_source(
@@ -207,21 +300,17 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             claims.validate_selected_static_loop_child_emissions(
                 input.owner(),
                 function,
-                &entry_packet,
+                &entry_group,
                 &packet,
+                std::slice::from_ref(&early_root_pending),
             )?;
             Ok(packet)
         });
         let retention = (|| {
             let body_packet = projected_body?;
-            let body_retention =
-                claims.prepare_selected_loop_body_retention(input.owner(), body_packet)?;
-            let (site, bindings, packet) = entry_packet.into_local_group_parts();
-            let entry_group =
-                claims.prepare_root_lexical_call_bindings(input.owner(), site, bindings, packet)?;
-            Ok::<_, String>((entry_group, body_retention))
+            claims.prepare_selected_loop_body_retention(input.owner(), body_packet)
         })();
-        let (entry_group, body_retention) = match retention {
+        let body_retention = match retention {
             Ok(value) => value,
             Err(error) => {
                 prepared.commit_pending().abort_and_restore();
@@ -233,6 +322,7 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             entry_group,
             body_retention,
             publication,
+            early_root_pending,
         })
     })();
     if let Some(outer) = outer {

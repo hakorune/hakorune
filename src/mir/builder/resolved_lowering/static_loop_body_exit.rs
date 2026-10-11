@@ -1,13 +1,18 @@
 //! Selected Static I64 Loop's Return and carrier backedge in one unpublished draft.
 
 use crate::mir::builder::emission::loop_operation;
+use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
 use crate::mir::builder::normal_callable_loop_source_facts::VerifiedStaticI64LoopSemanticV2;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::static_loop_body::{
     read_i64, StaticLoopBodyContinuationV1,
 };
 use crate::mir::builder::resolved_lowering::static_loop_header::StaticLoopHeaderContinuationV1;
+use crate::mir::builder::resolved_lowering::static_loop_entry_session::{
+    emit_selected_root_graph_v1, SelectedStaticRootGraphPhysicalV1,
+};
 use crate::mir::builder::MirBuilder;
+use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::loop_recipe_contract::{
     LoopBinaryI64OpV2, LoopExitKindV2, LoopOperationV2, LoopRecipeItemV2,
 };
@@ -20,7 +25,9 @@ pub(super) fn emit_unpublished_body_exit_v1(
     semantic: &VerifiedStaticI64LoopSemanticV2,
     header: &StaticLoopHeaderContinuationV1,
     body_blocks: &StaticLoopBodyContinuationV1,
-) -> Result<(), String> {
+    frame_owner: &mut FunctionFaultFrameV1,
+    claims: &OrdinaryNewClaimLedgerV1,
+) -> Result<SelectedStaticRootGraphPhysicalV1, String> {
     let reject = || "[freeze:contract][callable-loop/static-body-exit-source-drift]".to_owned();
     let recipe = semantic.recipe().as_recipe();
     let roles = semantic.roles();
@@ -133,10 +140,20 @@ pub(super) fn emit_unpublished_body_exit_v1(
         &roles.return_value_site,
         roles.bin_binding,
     )?;
+    let plan = claims.prepared_root_home_graph_plan_v1(canonical.owner(), &roles.return_site)?;
+    let root = emit_selected_root_graph_v1(
+        draft,
+        canonical,
+        frame_owner,
+        plan,
+        Some(returned),
+        returned,
+        None,
+    )?;
     canonical.completion.claim_explicit_return(
         &roles.return_site,
         canonical.target_function(),
-        body_blocks.then_block,
+        root.graph.clean,
         returned,
     )?;
     canonical
@@ -185,5 +202,5 @@ pub(super) fn emit_unpublished_body_exit_v1(
     canonical
         .identity
         .seal_block(draft, &mut canonical.phis, header.header, &witness)?;
-    Ok(())
+    Ok(root)
 }

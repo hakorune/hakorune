@@ -322,7 +322,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        self.validate_child_emissions_with_selected_bindings(owner, function, &[], None)
+        self.validate_child_emissions_with_selected_bindings(owner, function, &[], None, &[])
     }
 
     /// Lend only the two source-checked Static Loop calls to the existing
@@ -331,8 +331,9 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
-        entry: &super::super::PreparedSelectedStaticLoopCallProjectionV1,
+        entry: &super::super::PreparedRootLexicalCallBindingGroupV1<'_>,
         body: &super::super::PreparedLoopStaticBodyDetachedPacketV1,
+        pending: &[super::super::PendingRootHomeExitV1<'_>],
     ) -> Result<(), String> {
         if entry.source_site().owner() != owner
             || body.source_site().owner() != owner
@@ -349,6 +350,7 @@ impl OrdinaryNewClaimLedgerV1 {
             function,
             &bindings,
             Some(body.original_invoke_binding().0),
+            pending,
         )
     }
 
@@ -358,6 +360,7 @@ impl OrdinaryNewClaimLedgerV1 {
         function: &MirFunction,
         selected: &[(BasicBlockId, MirInstruction)],
         selected_body_block: Option<BasicBlockId>,
+        pending: &[super::super::PendingRootHomeExitV1<'_>],
     ) -> Result<(), String> {
         if self.child_physical_validation.borrow().contains_key(&owner) {
             return Err(freeze("duplicate-child-physical-validation"));
@@ -366,8 +369,8 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_field_reads(owner, function)?;
         self.validate_terminal_integer_literal_return(owner, function)?;
         self.validate_terminal_i64_field_return_projected(owner, function, None)?;
-        self.validate_root_home_exit(owner, function, None)?;
-        self.validate_root_cleanup_shape(owner, function)?;
+        self.validate_root_home_exit_with_pending(owner, function, None, pending)?;
+        self.validate_root_cleanup_shape_with_pending(owner, function, pending)?;
         let mut bindings = self.lifecycle_bindings(owner)?;
         bindings.extend_from_slice(selected);
         let copies = self.source_local_copies(owner)?;

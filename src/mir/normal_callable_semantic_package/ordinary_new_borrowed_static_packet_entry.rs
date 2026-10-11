@@ -1,6 +1,7 @@
 //! Static packet actuals borrow the same complete checked incoming owner.
 //! Publication proves the result; it does not replace entry or actual proof.
 use super::*;
+use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
 
@@ -368,18 +369,30 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
+        self.prepare_static_terminal_root_route_v1(original)?
+            .commit_prechecked();
+        Ok(())
+    }
+
+    pub(crate) fn prepare_static_terminal_root_route_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<PreparedStaticTerminalRootRouteV1<'_>, String> {
         let selected = self.selected_static_local_source_v1(original.call_site())?
             .ok_or_else(|| freeze("static-terminal/route-missing"))?;
         if !Rc::ptr_eq(&selected, original) {
             return Err(freeze("static-terminal/route-drift"));
         }
-        let mut routed = self.lifecycle_local_call_sites.borrow_mut();
-        let sites = routed.get_mut(&original.call_site().owner())
+        let routed = self.lifecycle_local_call_sites.borrow();
+        let sites = routed.get(&original.call_site().owner())
             .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
-        let position = sites.iter().position(|site| site == original.call_site())
+        let index = sites.iter().position(|site| site == original.call_site())
             .ok_or_else(|| freeze("static-terminal/local-route-missing"))?;
-        sites.remove(position);
-        Ok(())
+        Ok(PreparedStaticTerminalRootRouteV1 {
+            ledger: self,
+            site: original.call_site().clone(),
+            index,
+        })
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn verify_original_static_packet_source_v1(

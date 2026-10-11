@@ -50,12 +50,40 @@ All three physical child validation readers must consume that same view.
 The view is ephemeral and does not create a second semantic authority. Check
 the tail packet's original `Rc` identity and route membership without
 mutation; derive both exit orders and fault suffixes from the already
-prepared Home plans. Reuse the root graph algorithm with the canonical writer;
+verified Home preparation rules. Reuse the root graph algorithm with the canonical writer;
 do not add another cleanup emitter. Hold the physical validation receipt
 pending as well. Preflight every exact ledger target and commit order, then
 after successful `.collect()` consume the route, lexical group, body
 retention, two root exits, and physical receipt infallibly. The ordinary raw
 caller retains its current immediate record path.
+
+The selected tail also needs the original publication handoff. The collector's
+existing four-site `take_selected_batch_for_source` returns owned handoffs in
+source order, but `consume_selected_static_result_batch` currently drops them.
+Preflight the tail packet with the borrowed handoff before admission and carry
+its original source and Invoke/Normal projection through the pending root
+view. In the same successful collector transaction, retain the fourth owned
+handoff, assemble the checked tail packet, then commit the root entry after
+`.collect()`. Do not take a publication row early or issue a duplicate
+handoff; the batch's exact site order is the correspondence authority.
+
+S0 correction from focused source probe: the selected path bypasses raw
+`prepare_root_home_exit`, so its `root_exits` slots are not yet `Prepared`.
+The read-only preview must apply the same construction-ready, root-flow,
+explicit-site, Normal projection, Home end-plan, and direct-object rules as
+raw preparation. Both selected I64 exits require available orders; a missing
+or unavailable order is an explicit refusal, while a valid empty order is
+allowed. Reject a direct-object return in this I64 profile. Carry the two
+owned orders through graph emission and pending validation, then install
+their checked progress only after collector success. The legacy raw caller
+continues to commit its preparation at its existing dispatch point.
+
+Evidence: at `325cf48950`, the preexisting whole-app focused test fails before
+selected lowering at `ordinary-new/static-mixed/source-actual-drift` (baseline).
+With unchanged `size_class_box.hako` plus trivial Main, the same selected test
+first reached `ordinary-new/local-commit/root-exit-not-prepared`. The shared
+read-only Home preview moved that first stop to `root-exit-unconsumed`; the
+pending validation view and post-collect commit remain unimplemented.
 
 Source authority + canonical issuer: existing Home plans, original Static
 packet identities, root flow `covered_calls`, and canonical CFG/DraftSeal.
@@ -99,3 +127,28 @@ not authorize a broader Static Loop grammar.
 No whole mimalloc-lite EXE success, wider Static Loop grammar, general
 multiple-return inference, or final MirBuilder completion follows merely
 from this selected two-exit cutover.
+
+## Paused handoff (2026-10-11)
+
+User requested a pause for swe-2 handoff. Keep this checkout and all S0
+changes uncommitted; do not stash, reset, or discard them. Branch
+`codex/bool-literal-terminal-20261010` is at `be92d82912` plus this worktree.
+The selected early exit now carries a read-only `PendingRootHomeExitV1` into
+child validation. The shared Home preview and pending cleanup-shape view are
+implemented, but the selected tail has no pending token and the early token
+is still discarded during collect. `validate_new_emissions`, lifecycle
+bindings, and physical-validation publication still need the atomic pending
+view/commit. This is unfinished S0, not a production cutover.
+
+Latest `cargo check --profile quick -p nyash-rust --lib` passed in the shared
+target (28.12 s); `git diff --check` passed. The narrowed focused positive
+still stops at `root-exit-unconsumed` after the Home preview. Existing compiled
+`root_home` tests passed 46/46 before the latest pending-token edits; do not
+count them as current-tree acceptance. The original whole-app focused input
+fails on clean base before this route at `static-mixed/source-actual-drift`.
+No selected positive/negative, JSON/EXE, or full acceptance was run after the
+latest edits. No Cargo process remains.
+
+Next: finish the early/tail pending projection and post-collector atomic
+commit without mutating the ledger during preflight; then rerun focused
+positive/negative and required physical acceptance on unchanged source.
