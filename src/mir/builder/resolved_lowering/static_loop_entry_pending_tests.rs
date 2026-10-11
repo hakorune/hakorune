@@ -32,6 +32,7 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
             &routes,
         );
         let unpublished = || {
+            assert!(!claims.has_borrowed_ordinary_entry_v1(owner));
             assert_eq!(claims.selected_static_entry_group_count_for_test(), 0);
             assert_eq!(claims.emitted_root_exit_count_for_test(), 0);
             assert_eq!(claims.selected_loop_body_packet_count_for_test(), 0);

@@ -17,12 +17,7 @@ pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
     source: &'ledger PreparedBorrowedFormalIngressV1,
     definition: &'ledger super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
     incoming_rows: Box<[&'ledger super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>,
-    incoming: Box<
-        [(
-            &'ledger OwnedExprSiteV1,
-            &'ledger [PreparedBorrowedFormalActualV1],
-        )],
-    >,
+    incoming: BorrowedEntryActualsV1<'ledger>,
 }
 
 impl BorrowedOrdinaryEntrySourceRefV1<'_> {
@@ -35,8 +30,11 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
         &self.definition.origins
     }
-    pub(crate) fn incoming(&self) -> &[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])] {
-        &self.incoming
+    pub(crate) fn incoming(&self) -> Result<&[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])], String> {
+        match &self.incoming {
+            BorrowedEntryActualsV1::Executable(rows) => Ok(rows),
+            BorrowedEntryActualsV1::SelectedTagged => Err(freeze("borrowed-entry/canonical-packet-actual-required")),
+        }
     }
     /// Checked-compare operand admissions this owner's draft proved:
     /// `(binding, formal, binary site)` rows under the operation owner's
@@ -238,7 +236,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let view = self.checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
-        let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
+        let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
             owner,
             formals: values
@@ -511,7 +509,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if roots != formals.iter().map(|(_, binding)| *binding).collect() {
             return Err(freeze("borrowed-entry/formal-cardinality"));
         }
-        let incoming = self.checked_borrowed_entry_incoming(source, owner)?;
+        let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         for call in &view.incoming {
             if call.arguments.len() != formals.len()
                 || call.arguments.iter().zip(formals.iter()).any(
@@ -710,6 +708,7 @@ mod tests;
 mod entry_values;
 #[path = "ordinary_new_borrowed_formal_entry_owner_view.rs"]
 mod owner_view;
+use owner_view::BorrowedEntryActualsV1;
 
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
 pub(crate) use entry_values::BorrowedCompareIntegerLiteralLoanV1;

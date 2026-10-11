@@ -9,6 +9,7 @@ use super::*;
 pub(super) struct BorrowedEntryOwnerViewV1<'a> {
     pub(super) definition: &'a BorrowedFormalUsesDraftV1,
     pub(super) incoming: Box<[&'a BorrowedIncomingCallDraftV1]>,
+    pub(super) tagged: bool,
 }
 
 impl OrdinaryNewClaimLedgerV1 {
@@ -44,20 +45,45 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(Some(BorrowedEntryOwnerViewV1 {
                 definition,
                 incoming: cohort.incoming.iter().collect(),
+                tagged: false,
             }));
         }
         if let Some(definition) = source.source_only_definitions.get(&owner) {
+            if let Some(incoming) = self.checked_completed_static_tagged_entry_v1(source, owner)? {
+                return Ok(Some(BorrowedEntryOwnerViewV1 {
+                    definition,
+                    incoming,
+                    tagged: true,
+                }));
+            }
             if let Some(incoming) = self.checked_completed_static_bool_entry_v1(source, owner)? {
-                return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+                return Ok(Some(BorrowedEntryOwnerViewV1 {
+                    definition,
+                    incoming,
+                    tagged: false,
+                }));
             }
             if let Some(incoming) = self.checked_completed_static_scalar_cohort_v1(source, owner)? {
-                return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+                return Ok(Some(BorrowedEntryOwnerViewV1 {
+                    definition,
+                    incoming,
+                    tagged: false,
+                }));
             }
-            if let Ok(rows) = source.source_incoming.project(&std::collections::BTreeSet::from([owner])) {
+            if let Ok(rows) = source
+                .source_incoming
+                .project(&std::collections::BTreeSet::from([owner]))
+            {
                 if let Some(first) = rows.first() {
                     if let BorrowedIncomingSourceV1::Static(original) = &first.source {
-                        if let Some(incoming) = self.checked_completed_static_mixed_cohort_v1(source, original)? {
-                            return Ok(Some(BorrowedEntryOwnerViewV1 { definition, incoming }));
+                        if let Some(incoming) =
+                            self.checked_completed_static_mixed_cohort_v1(source, original)?
+                        {
+                            return Ok(Some(BorrowedEntryOwnerViewV1 {
+                                definition,
+                                incoming,
+                                tagged: false,
+                            }));
                         }
                     }
                 }
@@ -73,6 +99,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .iter()
                 .filter(|call| call.callee == owner)
                 .collect(),
+            tagged: false,
         }))
     }
 }
@@ -98,11 +125,16 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                     &row.source
                 {
                     if !original.is_qualified()
+                        && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
                             || (original.is_current_owner_bool_source_v1()
-                                && self.source.source_only_definitions.contains_key(&self.owner)))
-                            && self.incoming.iter().any(|(site, actuals)| {
-                                *site == &row.call && actuals.len() == 1
+                                && self
+                                    .source
+                                    .source_only_definitions
+                                    .contains_key(&self.owner)))
+                            && self.incoming().is_ok_and(|rows| {
+                                rows.iter()
+                                    .any(|(site, actuals)| *site == &row.call && actuals.len() == 1)
                             }))
                     {
                         original.require_qualified()?;
@@ -121,5 +153,27 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 }
                 Ok(row.source.as_loan())
             })
+    }
+}
+
+/// Canonical source correspondence does not grant an executable actual loan.
+#[derive(Debug)]
+pub(super) enum BorrowedEntryActualsV1<'a> {
+    Executable(Box<[(&'a OwnedExprSiteV1, &'a [PreparedBorrowedFormalActualV1])]>),
+    SelectedTagged,
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn entry_actual_loans_v1<'a>(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        view: &BorrowedEntryOwnerViewV1<'a>,
+    ) -> Result<BorrowedEntryActualsV1<'a>, String> {
+        if view.tagged {
+            return Ok(BorrowedEntryActualsV1::SelectedTagged);
+        }
+        self.checked_borrowed_entry_incoming(source, owner)
+            .map(BorrowedEntryActualsV1::Executable)
     }
 }

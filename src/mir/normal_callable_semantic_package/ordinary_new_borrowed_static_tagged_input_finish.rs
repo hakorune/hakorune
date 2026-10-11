@@ -184,6 +184,84 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(rows.opaque_actuals.as_ref()))
     }
 
+    /// Entry correspondence borrows the checked whole source cohort. Actuals
+    /// remain owned by each executable canonical packet, not by this view.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_completed_static_tagged_entry_v1<
+        'a,
+    >(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<
+        Option<Box<[&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>>,
+        String,
+    > {
+        let seed = self
+            .borrowed_formal_actuals
+            .values()
+            .find_map(|row| match row {
+                Ok(rows) => match &rows.phase {
+                    BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(proof)
+                        if proof.formal.owner() == owner =>
+                    {
+                        Some(&proof.identity.source)
+                    }
+                    _ => None,
+                },
+                _ => None,
+            });
+        let Some(seed) = seed else { return Ok(None) };
+        if !source.source_only_definitions.contains_key(&owner)
+            || source.definitions.contains_key(&owner)
+            || source.target_static.contains_key(&owner)
+        {
+            return Err(freeze("static-tagged/entry-owner-overlap"));
+        }
+        self.checked_static_tagged_packet_actuals_v1(seed)?
+            .ok_or_else(|| freeze("static-tagged/entry-cohort-unfinished"))?;
+        let projected = source
+            .source_incoming
+            .project(&BTreeSet::from([owner]))
+            .map_err(|error| {
+                format!("{}: {error:?}", freeze("static-tagged/entry-incoming-veto"))
+            })?;
+        let mut retained = Vec::new();
+        for row in projected.iter() {
+            let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+                &row.source
+            else {
+                return Err(freeze("static-tagged/entry-source-kind"));
+            };
+            if row.callee != owner
+                || original.callee_owner() != owner
+                || original.call_site() != &row.call
+                || row.arguments.as_ref()
+                    != [(
+                        0,
+                        original.argument_sites()[0].clone(),
+                        original.parameters()[0].binding,
+                    )]
+            {
+                return Err(freeze("static-tagged/entry-source-identity"));
+            }
+            let mut matching = source
+                .source_incoming
+                .exact_rows()
+                .filter(|candidate| candidate.callee == row.callee && candidate.call == row.call);
+            let exact = matching
+                .next()
+                .ok_or_else(|| freeze("static-tagged/entry-row-missing"))?;
+            if matching.next().is_some()
+                || !matches!(&exact.source, super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source) if Rc::ptr_eq(source, original))
+                || exact.arguments != row.arguments
+            {
+                return Err(freeze("static-tagged/entry-row-drift"));
+            }
+            retained.push(exact);
+        }
+        Ok(Some(retained.into_boxed_slice()))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn finish_static_tagged_input_actuals_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,

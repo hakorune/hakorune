@@ -1,9 +1,16 @@
 //! Original Main terminal observation and checked tagged packet admission.
 use super::*;
+use crate::mir::ValueId;
 
 fn closed_package(
     source: &str,
 ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
+    try_closed_package(source).unwrap()
+}
+
+fn try_closed_package(
+    source: &str,
+) -> Result<crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1, String> {
     use crate::mir::builder::NormalRootExecutionConsumerV1;
     let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
         source,
@@ -24,7 +31,7 @@ fn closed_package(
         &mut crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1::new(93).unwrap(),
         source, Some(&catalog), crate::mir::builder::LoopFactsPolicyFrameV1::from_environment(), &[],
         crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
-    ).unwrap()
+    ).map_err(|error| format!("{error:?}"))
 }
 
 #[test]
@@ -365,5 +372,136 @@ fn main_static_terminal_membership_rejects_assignment_and_declared_object() {
                 assert!(!claim.is_qualified_terminal());
             })
             .unwrap();
+    }
+}
+
+#[test]
+fn main_terminal_tagged_entry_keeps_canonical_actuals_and_whole_sibling_veto() {
+    let text = std::fs::read_to_string(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("lang/src/hako_alloc/memory/size_class_box.hako"),
+    )
+    .unwrap();
+    let unsupported = try_closed_package(&format!(
+        "{text}\nbox Heap {{ lookup(size) {{ local k = SizeClassBox.size_to_bin(size) return 0 }} }}\nstatic box Main {{ main() {{ local heap = new Heap() local k = heap.lookup(7) return SizeClassBox.size_to_bin(9) }} }}"
+    ))
+    .err()
+    .expect("instance forwarded input cannot acquire Static checked-input authority");
+    assert!(unsupported.contains("selected-forwarded-actual-unavailable"), "{unsupported}");
+    for sibling in [false, true] {
+        let extra = if sibling {
+            "static box Heap { lookup(size) { if size <= 0 { return 0 } local k = SizeClassBox.size_to_bin(size) return 0 } }"
+        } else {
+            ""
+        };
+        let main = if sibling {
+            "local k = Heap.lookup(7) return SizeClassBox.size_to_bin(9)"
+        } else {
+            "return SizeClassBox.size_to_bin(9)"
+        };
+        let mut package = closed_package(&format!(
+            "{text}\n{extra}\nstatic box Main {{ main() {{ {main} }} }}"
+        ));
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let ingress = ledger
+            .borrowed_formal_source
+            .as_ref()
+            .unwrap()
+            .as_ref()
+            .unwrap();
+        let original = ingress
+            .source_incoming
+            .static_observations()
+            .values()
+            .filter_map(|row| row.as_ref().ok())
+            .find(|row| ingress.is_main_static_terminal_source_v1(row))
+            .unwrap()
+            .clone();
+        let owner = original.callee_owner();
+        let formal = original.parameters()[0].binding;
+        let foreign = ingress
+            .source_only_definitions
+            .values()
+            .chain(ingress.definitions.values())
+            .flat_map(|row| row.origins.keys())
+            .copied()
+            .find(|binding| binding.owner() != owner)
+            .unwrap();
+        assert!(!ledger.has_borrowed_ordinary_entry_v1(owner));
+        for bad in [
+            Box::new([(1, formal, ValueId(0))]),
+            Box::new([(0, foreign, ValueId(0))]),
+        ] {
+            assert!(ledger
+                .validate_borrowed_ordinary_entry_values_v1(owner, &Ok(bad))
+                .is_err());
+            assert!(!ledger.has_borrowed_ordinary_entry_v1(owner));
+        }
+        let rows = ledger
+            .checked_completed_static_tagged_entry_v1(ingress, owner)
+            .unwrap()
+            .expect("finished whole tagged cohort");
+        assert_eq!(rows.len(), if sibling { 2 } else { 1 });
+        let sibling_site = rows
+            .iter()
+            .find(|row| row.call != *original.call_site())
+            .map(|row| row.call.clone());
+        if let Some(site) = sibling_site {
+            assert!(matches!(
+                ledger.borrowed_formal_actuals[&site]
+                    .as_ref()
+                    .unwrap()
+                    .phase,
+                BorrowedCallActualEvidencePhaseV1::SourceStatic(_)
+            ));
+            assert!(ledger.borrowed_formal_actuals[&site]
+                .as_ref()
+                .unwrap()
+                .require_executable_v1()
+                .is_err());
+            let saved = ledger.borrowed_formal_actuals.remove(&site).unwrap();
+            let ingress = ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            assert!(ledger
+                .checked_completed_static_tagged_entry_v1(ingress, owner)
+                .unwrap_err()
+                .contains("static-tagged/cohort-unfinished"));
+            assert!(ledger
+                .validate_borrowed_ordinary_entry_values_v1(
+                    owner,
+                    &Ok(Box::new([(0, formal, ValueId(0))]))
+                )
+                .is_err());
+            ledger.borrowed_formal_actuals.insert(site, saved);
+        }
+        let values: Box<[_]> = Box::new([(0, formal, ValueId(0))]);
+        ledger
+            .record_borrowed_ordinary_entry_values_v1(owner, Ok(values.clone()))
+            .unwrap();
+        assert!(ledger
+            .record_borrowed_ordinary_entry_values_v1(owner, Ok(values.clone()))
+            .unwrap_err()
+            .contains("duplicate-entry-values"));
+        assert_eq!(
+            ledger.borrowed_ordinary_entry_values_v1(owner).unwrap(),
+            values
+        );
+        let entry = ledger
+            .finalized_borrowed_ordinary_entry_source_v1(owner)
+            .unwrap();
+        assert_eq!(entry.formals(), [(0, formal)]);
+        assert!(entry
+            .incoming()
+            .unwrap_err()
+            .contains("canonical-packet-actual-required"));
+        let incoming = entry
+            .incoming_targets()
+            .collect::<Result<Vec<_>, _>>()
+            .unwrap();
+        assert_eq!(incoming.len(), if sibling { 2 } else { 1 });
     }
 }

@@ -166,7 +166,7 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("borrowed-entry/entry-values-identity"));
             }
-            self.checked_borrowed_entry_incoming(source, owner)?;
+            self.entry_actual_loans_v1(source, owner, &view)?;
             for call in &view.incoming {
                 if call.arguments.len() != rows.len()
                     || call.arguments.iter().zip(rows.iter()).any(

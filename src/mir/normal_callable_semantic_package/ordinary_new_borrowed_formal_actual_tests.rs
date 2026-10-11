@@ -575,9 +575,9 @@ fn installed_entry_demands_nonopaque_actual_proof_before_borrowed_values() {
             } else {
                 let projection = projection.unwrap().unwrap();
                 assert_eq!(projection.formals().len(), 1);
-                assert_eq!(projection.incoming().len(), 1);
+                assert_eq!(projection.incoming().unwrap().len(), 1);
                 assert_eq!(
-                    projection.incoming()[0].1[0].source,
+                    projection.incoming().unwrap()[0].1[0].source,
                     BorrowedFormalActualSourceV1::Bool(true)
                 );
             }
@@ -652,7 +652,7 @@ fn assert_nested_consumers(
             let error = entry.unwrap_err();
             assert!(error.contains(expected), "{error}");
         } else {
-            assert_eq!(entry.unwrap().unwrap().incoming().len(), expected_incoming);
+            assert_eq!(entry.unwrap().unwrap().incoming().unwrap().len(), expected_incoming);
         }
     })
     .unwrap();

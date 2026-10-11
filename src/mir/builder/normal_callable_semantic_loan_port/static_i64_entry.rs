@@ -183,6 +183,12 @@ mod tests {
                             declarations, &targets, &results,
                         ).unwrap();
                         let key = CanonicalSameModuleCallableKeyV1::static_box_method("SizeClassBox", "size_to_bin", 1);
+                        let identity = package.source_backed_callable_catalog().selected_identities()
+                            .find_map(|(selected, identity, _)| matches!(selected,
+                                crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(found)
+                                    if found == &key).then_some(identity)).unwrap();
+                        let selected_owner = package.batch().declarations()
+                            .find(|row| row.same_declaration_identity(identity)).unwrap().owner();
                         let mut context = CompilationContext::new();
                         let installed = package.prepare_install(&mut context).unwrap().commit();
                         if missing_route {
@@ -223,6 +229,7 @@ mod tests {
                                 package_port.with_selected_cataloged_lowering_input_signature_and_loop_break(
                                     admission, |input, signature, _| {
                                         let (selected, admission, _) = input.into_lowering_and_admission();
+                                        assert!(!ledger.has_borrowed_ordinary_entry_v1(selected.source().owner()));
                                         let prepared = prepare_if_selected(builder, module_port, &selected, &admission, &ledger, &signature)?
                                             .expect("original source selects Static loop");
                                         prepared.check_unpublished_mutations_for_test(&ledger)
@@ -253,6 +260,7 @@ mod tests {
                             let expected = usize::from(!missing_route && !duplicate_collector && !pending_negatives);
                             module_port.with_headers(|headers| assert_eq!(headers.symbol_count(), usize::from(!missing_route && !pending_negatives)));
                             let ledger = installed.ordinary_new_claim_ledger();
+                            assert_eq!(ledger.has_borrowed_ordinary_entry_v1(selected_owner), expected == 1);
                             assert_eq!(ledger.selected_loop_body_packet_count_for_test(), expected);
                             assert_eq!(ledger.selected_static_entry_group_count_for_test(), expected);
                             assert_eq!(ledger.emitted_root_exit_count_for_test(), expected * 2);
@@ -274,6 +282,13 @@ mod tests {
                             let mut module = MirModule::new("selected-static-loop-finish".into());
                             module.functions.insert(function.signature.name.clone(), function);
                             let ledger = installed.ordinary_new_claim_ledger();
+                            let entry = ledger.borrowed_ordinary_entry_values_v1(selected_owner).unwrap();
+                            assert_eq!(entry.len(), 1);
+                            assert_eq!(entry[0].0, 0);
+                            assert_eq!(entry[0].1.owner(), selected_owner);
+                            assert_eq!(entry[0].2, module.functions["SizeClassBox.size_to_bin/1"].params[0]);
+                            assert!(ledger.record_borrowed_ordinary_entry_values_v1(selected_owner, Ok(entry))
+                                .unwrap_err().contains("duplicate-entry-values"));
                             reject_changed_root_returns(&ledger, &module);
                             ledger.validate_finalized_child_functions(&module, false).unwrap();
                             ledger.with_selected_loop_body_packet_for_test(|site, packet| {

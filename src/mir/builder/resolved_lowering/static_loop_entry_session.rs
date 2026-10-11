@@ -38,6 +38,9 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{BasicBlockId, EffectMask, FunctionSignature, MirInstruction, MirType, ValueId};
 
 pub(in crate::mir::builder) struct PreparedSelectedStaticLoopEntryV1<'builder, 'ledger> {
+    claims: &'ledger OrdinaryNewClaimLedgerV1,
+    entry_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    entry_values: Box<[(u32, crate::mir::resolved_semantics::BindingRefV1, ValueId)]>,
     pending: PendingFunctionSessionCloseV1<'builder>,
     entry_group: PreparedRootLexicalCallBindingGroupV1<'ledger>,
     body_retention: PreparedLoopStaticBodyRetentionV1<'ledger>,
@@ -107,6 +110,9 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
         admission: &NormalCatalogedBoxMethodDraftAdmissionV1,
     ) -> Result<(), String> {
         let Self {
+            claims,
+            entry_owner,
+            entry_values,
             pending,
             entry_group,
             body_retention,
@@ -135,6 +141,9 @@ impl PreparedSelectedStaticLoopEntryV1<'_, '_> {
                 .map_err(|error| {
                     format!("[freeze:contract][callable-loop/publication-batch/{error:?}]")
                 })?;
+            // All fallible draft and publication checks precede this record.
+            // Nothing fallible follows: failed collection never lends an entry.
+            claims.record_borrowed_ordinary_entry_values_v1(entry_owner, Ok(entry_values))?;
             unpublished.collect();
             let [_, _, _, tail_handoff] = handoffs;
             tail_route.commit_prechecked();
@@ -202,6 +211,9 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             formal.lane_index(),
         )?;
         verify_entry(draft, product.semantic(), formal, result_source, value)?;
+        let entry_values: Box<[_]> = Box::new([(0, formal.formal(), value)]);
+        claims
+            .validate_borrowed_ordinary_entry_values_v1(input.owner(), &Ok(entry_values.clone()))?;
         let (entry_packet, mut frame_owner) = emit_unpublished_static_invoke(
             draft,
             &mut canonical,
@@ -405,6 +417,9 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             }
         };
         Ok(PreparedSelectedStaticLoopEntryV1 {
+            claims,
+            entry_owner: input.owner(),
+            entry_values,
             pending: prepared.commit_pending(),
             entry_group,
             body_retention,

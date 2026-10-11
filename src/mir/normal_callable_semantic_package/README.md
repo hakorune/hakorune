@@ -2227,6 +2227,12 @@ leading canonical PHI prefix and sole Invoke predecessor into physical boundary
 capture. Existing LoopCond after joins retain their multi-input topology;
 finished instruction sequences stay pinned. No general PHI waiver is granted.
 
+The same entry owner checks the finished tagged whole incoming source cohort
+and the selected canonical formal/parameter correspondence. Its source-only
+entry view refuses actual-slice loans; every executable call still demands its
+original finalized packet witness. Entry values publish only at the successful
+collector commit boundary, with no fallible step after their recording.
+
 The same selected Loop packet now corroborates the existing result-publication
 owner's CurrentOwner arity-one I64 handoff by original catalog brand, caller,
 site, target and required ordinals. The generic qualified/zero-argument

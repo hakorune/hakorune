@@ -753,3 +753,17 @@ Required positives include raw Const/BinOp rematerialization before first origin
 3 original source operations, repeated Div, existing/cache/new paths. Required
 negatives include child emission failure/no publication, cache/source/operand
 mutation and nested function/index lifetime. No physical arithmetic activation.
+
+## Entry correspondence construction checkpoint (2026-10-12)
+
+Decision: the existing entry owner borrows the finished whole tagged source
+cohort and publishes the canonical formal tuple only at collector success.
+Executable actuals remain owed at their original canonical packets. Missing/
+foreign/formal/ordinal/duplicate or failed preparation cannot lend an entry.
+Entry-only tree be38fad07033ddce064d29bc53ff19909641c500: lib+tests check PASS73.83s.
+Full-series tree1bead9fdf6c698c5acd0a23540312315e95924ef runtime: preflight1/1,
+entry18/18 and Main selected filter7/7 PASS. Runtime used the combined series,
+not an independently linked entry-only binary. Receipts:
+/tmp/static-scalar-series-v1-receipt.json and
+/tmp/static-scalar-intermediate-trees-v1-receipt.json. S0/native/finalized
+coverage/physical acceptance, caller-zero and retirement remain open.

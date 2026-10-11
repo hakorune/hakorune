@@ -35,7 +35,7 @@ fn source_graph_physical_incoming_iterator_lends_static_without_filtering() {
         source,
         definition: source.source_definition_for(owner).unwrap(),
         incoming_rows: source.incoming.iter().collect(),
-        incoming: Box::new([]),
+        incoming: BorrowedEntryActualsV1::Executable(Box::new([])),
     };
     let rows: Vec<_> = entry.incoming_targets().collect();
     assert_eq!(rows.len(), 1, "Static may not disappear through filter_map");

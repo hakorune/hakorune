@@ -725,7 +725,7 @@ fn static_entry_installed_loan_retains_all_actuals_and_physical_source() {
                 .unwrap()
                 .unwrap();
             assert_eq!(entry.owner(), owner);
-            assert_eq!(entry.incoming().len(), 3);
+            assert_eq!(entry.incoming().unwrap().len(), 3);
             assert_eq!(entry.formals().len(), 1);
             assert!(Rc::ptr_eq(
                 &completion,

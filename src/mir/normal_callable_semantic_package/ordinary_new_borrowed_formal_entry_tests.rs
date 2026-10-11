@@ -118,7 +118,7 @@ fn installed_ordinary_loan_borrows_all_actual_domains_without_reclassifying_form
             .unwrap();
         assert_eq!(projection.owner(), owner);
         assert_eq!(projection.formals(), &[(0, parameters[0].1)]);
-        assert_eq!(projection.incoming().len(), 3);
+        assert_eq!(projection.incoming().unwrap().len(), 3);
         assert_eq!(
             projection.origins().get(&parameters[0].1),
             Some(&parameters[0].1)
@@ -128,7 +128,7 @@ fn installed_ordinary_loan_borrows_all_actual_domains_without_reclassifying_form
             CallableParameterContractKindV1::OpaqueHandle
         );
         let actuals: Vec<_> = projection
-            .incoming()
+            .incoming().unwrap()
             .iter()
             .flat_map(|(_, rows)| rows.iter())
             .collect();
@@ -366,7 +366,7 @@ fn selected_entry_retains_copied_formal_forwarding_in_the_same_cohort() {
             .unwrap()
             .unwrap();
         assert_eq!(projection.owner(), *owner);
-        assert!(!projection.incoming().is_empty());
+        assert!(!projection.incoming().unwrap().is_empty());
     }
     assert!(source.definitions.values().any(|row| row.origins.len() > 1));
 }
