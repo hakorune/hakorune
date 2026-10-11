@@ -1,9 +1,9 @@
-date = "2026-10-11"
+date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
-current_execution_row = "MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0"
+current_execution_row = "MIRBUILDER-STATIC-I64-LOOP-FINALIZED-BORROWED-COVERAGE-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-i64-loop-artifact-handoff"
+current_blocker_token = "selfhost-resume/static-i64-loop-finalized-borrowed-coverage"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,14 +17,14 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-static-i64-loop-artifact-handoff-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 latest_card_summary = """
-Existing LoopV2 header/body ownership handoff selected: retain checked
-Invoke, Normal projection and Fault Return in the existing packet; lend
-same bindings to pending and collected artifact validation. Main S0 and
-parent JSON/retirement acceptance remain unfinished and must resume.
+V5 confirms final coverage lacks SizeClassBox.bin_size/1: retained LoopBody pool
+has no borrowed-call enumeration consumer. Existing entry/preflight/physical
+regressions pass; reachable sibling positive pending. Mapping accepted to connect existing
+packet loans to both coverage consumers; prior S0/native/JSON/retirement unpaid.
 """
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIRBUILDER-STATIC-I64-LOOP-ARTIFACT-HANDOFF-S0"
+next_execution_card = "MIRBUILDER-STATIC-I64-LOOP-FINALIZED-BORROWED-COVERAGE-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-i64-loop-artifact-handoff-d0-2026-10-11.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
