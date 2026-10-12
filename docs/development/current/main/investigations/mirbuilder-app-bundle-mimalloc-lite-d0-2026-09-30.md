@@ -14,8 +14,8 @@ suite.
 | item | current evidence / next obligation |
 | --- | --- |
 | Selected product | Acceptance target: unchanged `apps/mimalloc-lite/main.hako` must reach canonical MIR/direct `--emit-exe`, execute, and match the existing suite output. This bundle remains unfinished; binary-trees is not selected by this card. |
-| Source identity / latest app result | SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`; latest fresh app probe exits1/no EXE at owner34 Body(1)/Initializer(0) → callee33 `HakoAllocHeap.allocate/1`. Completion is Ready; guarded input cohort is still uncompleted. |
-| Required Object Forward S0 | Semantic WIP remains uncommitted and unaccepted. The later build-time card records95 focused PASS, including the original source-identity producer and all seven corruption refusals; both final physical publication positives remain owed. |
+| Source identity / latest app result | V12 CLI SHA256 `d4b5d8e86527e7ca9a2e5df2c8903fa7d1d814e2e3e9c94fb6e578eb54946d94`; unchanged app SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`; latest fresh app probe exits1/no EXE at owner34 Body(1)/Initializer(0) → callee33 `HakoAllocHeap.allocate/1`. Completion is Ready; guarded input cohort is still uncompleted. |
+| Required Object Forward S0 | Semantic WIP remains uncommitted and unaccepted. The existing `mirbuilder-build-link-time-measurement-d0-2026-10-08.md` records95 focused PASS, including the original source-identity producer and all seven corruption refusals; both final physical publication positives remain owed. |
 | Common input owner next | Inspect SAME original signature/reconstruction/whole-incoming gates in the existing typed Object input finisher. Do not retry a missing-Completion hypothesis or add a sibling result qualification. |
 | Physical membership next | `Maker.qualified/0` still rejects in final admission. Align original declaration / incoming participant / execution membership through their own Completion, result and cleanup authorities; preserve actual call sets and both final consumers. Do not invent an OrdinaryCallSite or permit all-module execution. |
 | Session state | User-requested design consultation and goal pause remain in effect. This update authorizes no implementation/build or resume; CURRENT_STATE points here for the paused integration consultation; host-tooling results remain in their own card. |
@@ -29,12 +29,58 @@ prove caller-zero and required checks; shared owners and unselected callers rema
 No second Builder or whole-project rewrite is selected. An existing owner may be
 rewritten coherently within the same production responsibility.
 
+## Existing task consolidation — source responsibility to final consumer
+
+The former14 feature/internal items map to the five rows below. These are existing
+responsibilities, not new task IDs, cards or completion claims. `depends_on` names
+source obligations; it is not a fixed execution order. CURRENT_STATE selects only
+the current guarded input series, while the goal remains paused for consultation.
+
+| responsibility / existing rows | depends_on and unfinished source obligations | production acceptance / known versus unmeasured | retirement / retained shared surface |
+| --- | --- | --- | --- |
+| Object construction and Home ending — former1–4, existing landed ledger | Existing declared-storage, ObjectDestructionDisposition, construction and field-residence authorities. Local scalar/container/object teardown and user-new field-init admission are accepted premises; do not reopen them merely because the app fails later. | Known: existing focused/probe receipts in the landed ledger. Not measured as whole-app success or complete shared-edge retirement. Reuse original-source regressions when a selected change affects them. | Primarily added coverage; no inferred legacy deletion. Retain lifecycle owners and shared callers. Retire only specifically replaced exclusive edges after their caller-zero/gates close. |
+| Guarded original callable input through entry/result/cleanup/final publication — current REQUIRED-OBJECT-FORWARD-S0, existing Static final-incoming/catalog/input decisions; uses accepted portions of former5/6/8/9 | SAME catalog/signature, original incoming graph, CheckedIntegerGuard/BorrowedGuardedActual and callee Completion. Completion is Ready; reconstruct the exact original input cohort, preserve all real-call packets, and close both final consumers with own result/body/cleanup and declaration/participant membership. The accepted Static/scalar/field-read claims are premises, not new S0 todo. Wider opaque/call/String operations are not automatically admitted. | Known:95 focused PASS; original owner34→callee33 input still pending; Maker.qualified/0 rejects final membership. Unmeasured: exact remaining Pending cause, both final publication positives and app first-stop advance. Close the same source series with final positive/negative checks and a fresh unchanged-app canonical emit-exe probe; preparation green is insufficient. | Current guarded input adds coverage; an old-edge deletion set is not yet proven. Existing check_module wrapper retirement below is real history. Reuse one source lender; retain independent final checks. Older receiver protocol/shared default readers cannot be deleted before their named remaining callers and gate coverage are checked. |
+| Owned allocation result through field/call destination, cleanup and publication — former7/10/11/12 | Existing object-field receiver/callee claim, constructor arguments, Direct/Received result qualification, Completion/Home and cleanup. Required input contracts from the prior row are dependencies. Broader ObjectFieldReceiver, result-new arguments and forwarded Handle/NullableHandle remain owed, but are not scope additions to current S0. Any result/body/cleanup already necessary for current S0 stays inside that S0. | Known: these source obligations remain open in existing owner cards. Unmeasured at current source/CLI cohort: their next-stop order and remaining exact failure. Select the next existing source owner from the unchanged-app result, then prove original call/result/destination through final consumer and app progress. Broader opaque operations and mixed call/String roots remain at the existing opaque-formal/operation owners. | Added source coverage claims no deletion. Replace exclusive predecessors only with named callers/retire_when/gates; retain shared Object result and cleanup owners and unselected consumers. No speculative deletion list or separate result/cleanup/publication cards. |
+| Callable Loop source through physical publication — former13 and existing bin_size/LoopCond owners | Original Loop membership, Home Integer prestate, typed Facts, sole Recipe and JoinSig After. bin_size Body9 Home After, Body10 words Mul, Body11 returned Mul Home, and selected LoopCond after-PHI capture are accepted material, not remaining construction tasks. seedBlocks alias loop and wider selected result/cleanup/physical obligations retain their original owners. Their scheduling relation to current S0 is not established by table order. | Known: source/Home closures and exact selected physical PHI boundary are closed at the commits below. The earlier Recipe6/6+227/227 receipt's Body9 stop was superseded; do not re-task it. That later physical receipt reached aggregate IncompleteOrdinaryNewCoverage, attributing size_to_bin as the then-next Home gap. Unmeasured in latest V12 app cohort: remaining Loop/source result/cleanup/final readiness and seedBlocks residual; V12 stops independently at guarded input. Reuse closed source cases and select only an actually remaining original-source obligation. | Reuse accepted Recipe/Home/LoopCond products. The disproved VariableAccum issuer was removed from the production diff; its preserved scratch patch is history, not work to resume. Keep independent final checks and shared callers. No second Home solver, per-app route or deletion permission from preparation green. |
+| Unchanged mimalloc product closeout — former14 and existing mimalloc_lite_exe | Depends on all source obligations actually required by the original app closure, including retained original incoming participants. Existing manifest/runner owns expected output and exit. This is acceptance closeout, not a new semantic family. | Known: fixed app SHA, latest rc1/no EXE. Unmeasured: EXE generation/run/output. Require canonical MIR/direct emit-exe, pure-first/replay-none, execution and suite output/exit agreement. Re-pin the negative only at the truthful rejected boundary. Full MirBuilder/other apps/selfhost completion remains separate. | Retire exclusive replacements when each series proves caller-zero/gates, without waiting for this whole-app closeout. Keep shared owners/unselected callers explicitly; no cleanup census or new proof ledger. |
+
+Accepted bin_size material is retained at existing owners: Recipe `1f92ffc172`,
+Body9 Home After `c6e9368099`, Body10 words Mul `2b87d1c98f`, and Body11 returned
+Mul Home `27ca82632e` (their respective bin-size cards). The returned-Mul card's
+fresh unchanged-app probe stopped independently at source-only-object-actuals.
+Selected LoopCond after-PHI physical capture is CLOSED at `ad7c1c9ef9` in
+`mirbuilder-loop-cond-after-phi-s0-2026-10-11.md`; the preceding
+`mirbuilder-bin-size-single-predecessor-phi-d0-2026-10-11.md` VariableAccum proposal
+is superseded, with its wrong issuer removed. The LoopCond receipt found bin_size
+and good_size ready and identified size_to_bin as its then-next Home frontier.
+These dated observations do not assert current V12 whole-Loop readiness or select
+a new row. Current V12 stops at guarded input; do not re-task accepted Body9/10/11
+or the selected PHI boundary, nor label unmeasured downstream work unimplemented.
+
+Inherited callee body-call carrier/incoming, mixed result, field installation,
+cleanup and physical publication conditions retain their existing owner in
+`mirbuilder-result-new-site-provenance-d0-2026-10-06.md`; check its later accepted
+material before selecting a residual. That owner retains reallocResult315/318 as
+existing Gate1 incoming/result-closure obligations; earlier unused-app-method
+non-claims do not discharge them or require whole bodies without a selected source
+contract. Stored-child sibling and Gates2–4 remain parked. Opaque transport
+follow-ups retain their source/operation owners in
+`mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md`; they are not
+automatically promoted into current S0 or dropped by consolidation.
+
+The ingress transport already retired `invoke::check_module` after caller-zero,
+recorded in `mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md`. That
+wrapper deletion is an established retirement; current guarded input work is still
+unaccepted added coverage. The older receiver protocol and lender-free APIs are
+shared/unchecked deletion candidates, not proven zero-caller assets. No retirement
+permission follows from coverage absence, local green or this table.
+
 ## Decision — MIRBUILDER-APP-BUNDLE-MIMALLOC-LITE-D0 (accepted)
 
 Decision:
   `mimalloc_lite_exe` becomes one completion bundle: ordered internal
-  slices, each with its own D0/S0 + positive/negative/Focused-gate
-  verification; the app closes only when `mimalloc_lite_exe` passes
+  source-to-final-consumer series with internal focused positive/negative
+  verification under RULES; the app closes only when `mimalloc_lite_exe` passes
   end-to-end (MIR-JSON negative pin re-worded for the drifted terminal +
   pure-first EXE parity run).
 
@@ -55,101 +101,19 @@ Fail-fast boundary:
   no permissive arms, no fallback emission. Unsupported shapes keep
   their designed terminal.
 
-Probe census (post-`1eba1bcb11`, `--emit-exe --backend mir pure-first`,
-minimal drivers — each isolates one family):
+Historical probe census at `1eba1bcb11`, the initial usize claim analysis and
+former14 feature items are retained in this card at `3931f40df6`. They explain
+earlier admission failures; they do not select current tasks or describe current
+production support. Landed former1–4 receipts remain in
+`mirbuilder-app-bundle-mimalloc-lite-landed-2026-10-01.md`; no fresh acceptance
+or shared-owner retirement follows from that history.
 
-| probe | shape | first terminal |
-| --- | --- | --- |
-| `new Page{v:i64}` + `return 0` | baseline | compiles (nyrt gate) |
-| `v: usize` field | usize scalar field | `artifact-source-unavailable` |
-| `extra: usize = 0` default | usize + default | `artifact-source-unavailable` |
-| `items: ArrayBox = new ArrayBox()` | container field | `artifact-source-unavailable` |
-| `c: Child = new Child(1)` field-init | object field + user `new` init | `artifact-source-unavailable` |
-| `new HakoAllocPage(0,8,4)` (real `using`) | usize+ArrayBox fields | `artifact-unowned-lifecycle-site` |
-| `LayoutBox.class_size(0)` | static-box call | `artifact-root-completion-unavailable` |
-| `c.get(): i64` no-arg | instance call | compiles (existing claim) |
-| `c.add(5)` scalar arg | argumented call | `artifact-source-unavailable` |
-| `new Outer(i)` object arg | object argument | `artifact-source-unavailable` |
-| `local s = i.v` | `handle.<field>` read | `artifact-source-unavailable` |
-| `return false/true` in unused method | Bool literals | compiles (needs reachable-fn recheck) |
-
-Claim internals for the `usize` probe (pending-claims census):
-`home_prefix=Ok`, `construction=Ok`, `argument_rows=Ok`,
-`destruction=Unavailable(FieldType)` — the only failing component is
-`object_definition.rs`'s closed `declared_type_name == "i64"` profile.
-The claim's object must end its Home at every exit; a non-`i64` field
-makes that unprovable today, so the row stays `RetainedUnavailable`.
-
-Bundle slice inventory (each becomes its own bounded D0/S0; order is
-the dependency order, not a strict serialization):
-
-1. `DESTRUCTION-SCALAR-FIELD` — admit integer-scalar declared field
-   types (`usize` etc., via `classify_numeric_type_name` authority) as
-   trivially releasable alongside `i64`. Design Q: extend
-   `PlainI64NoHook` or rename disposition; verify the physical release
-   path treats `usize` identically. This is the universal first gate —
-   every allocator box (`HakoAllocHandle.requested_size`,
-   `HakoAllocPage`'s usize fields) trips `FieldType`.
-2. `DESTRUCTION-ARRAYBOX-FIELD` — owned `ArrayBox` fields (4× on
-   `HakoAllocPage`): child release plan at object end.
-3. `DESTRUCTION-OBJECT-FIELD` — owned user-object fields
-   (`HakoAllocHeap.small_page`/`medium_page`): nested release.
-4. `FIELD-INIT-USER-NEW` — `small_page: HakoAllocPage = new
-   HakoAllocPage(LayoutBox.class_size(0), …)`: the
-   `ProviderConstruction` store arm admits builtin zero-arg `new` only;
-   user-class field-init `new` with call arguments needs its own
-   construction row. (Today → `FieldContractUnsupported`.)
-5. `STATIC-CALL-CLAIM` — `LayoutBox.class_size/class_id/class_capacity`
-   static-box calls: `artifact-root-completion-unavailable`.
-6. `INSTANCE-CALL-SCALAR-ARG` — `heap.allocate(8)`, `heap.release(h)`:
-   argumented instance calls (0-arg i64 already compiles).
-7. `CALL-RESULT-ARG-POSITION` — `handles.push(heap.allocate(8))`: a
-   live Invoke inside a core-method argument.
-8. `HANDLE-FIELD-READ` — `handle.block_id`, `heap.small_page`,
-   `small.alloc_count`: `handle.<field>` reads.
-9. `OPAQUE-SCALAR-POSITION` — `requested_size` in `.set` args and
-   `requested_bytes + requested_size` (allocate Body(8)+).
-10. `OBJECT-FIELD-RECEIVER-CALL` — `me.small_page.seedBlocks()`,
-    `me.small_page.allocate(size)`: `me.<ObjectField>.m(..)` (the
-    ArrayBox lane of the nested-receiver S0 does not cover object
-    fields — needs callee-claim authority, not the core manifest).
-11. `RESULT-NEW-OBJECT-ARGS` — `return new HakoAllocHandle(me.page_id,
-    block_id, requested_size)`: `me.<i64 field>` arg partially covered;
-    BoundValue/OpaqueHandle arg positions remain.
-12. `FORWARDED-RESULT` — `return me.small_page.allocate(size)`,
-    `return same`, nullable `Handle`/`NullableHandle` results.
-13. `SEEDBLOCKS-LOOP-ALIAS` — `local free_stack = me.free_stack` +
-    `loop(i < capacity) { free_stack.push(i) }`: container-field alias
-    locals + calls inside loop bodies (callable-loop domain).
-14. `MIR-JSON-PIN-REWORD` — the negative leg now freezes
-    `emission-binding-drift` (drifted inside the fail-closed ladder);
-    re-pin when the app approaches.
-
-Normal/Fault verification per slice: positive + negative pin tests in
-`brand_catalog_*_tests.rs`, the `page_heap_fixture_result_claim_census`
-frontier pin, official quick-profile serial, and the 3× emit-exe smoke.
-Product completion requires the unchanged app EXE and execution result. Each
-replacement series records its named production caller switch and retires replaced
-exclusive edges / temporary assets in that same bounded series when caller-zero
-and required acceptance/guards are proven under RULES sections4/6. Shared owners
-and unselected callers remain; feature additions claim coverage, not deletion.
-Retirement is not deferred wholesale until the entire app passes.
-
-Non-claims:
-  No promise on ordering beyond "destruction admission is empirically
-  first"; slices may merge/split at their own D0s. No claim that
-  unused-by-app methods (`realloc*`, `allocateResult`, `isLiveHandle`,
-  `resizeInPlace`, `HakoAllocHandleResult` births) are required — the
-  reachable-set boundary is a per-slice question. Bool literals are
-  provisionally unblocked (probe_s) pending a reachable-function
-  recheck.
-
-Landed slices 1-4 (DESTRUCTION-SCALAR-FIELD, DESTRUCTION-ARRAYBOX-FIELD,
-DESTRUCTION-OBJECT-FIELD, FIELD-INIT-USER-NEW — D0 decisions and S0
-landed receipts) moved to
-`mirbuilder-app-bundle-mimalloc-lite-landed-2026-10-01.md` to keep this
-active card under the 1000-line pointer-guard bound.
-
+Normal/Fault checks reuse existing source-family tests and stable guards under
+RULES section6. Product acceptance and per-series retirement follow the table
+above, without turning every internal obligation into a new card. Unused-by-app
+methods are not automatically executable product requirements, but their original
+incoming participation is not silently filtered away. Reachability and original
+validation membership are distinct obligations.
 
 ## Accepted claim and scalar-expression history
 
@@ -216,21 +180,9 @@ same owner: global source/inventory validation plus selected-callee execution
 closure and original forward dependencies. Other opaque entry/Object contracts
 must remain unchanged. SourceObject is retained, not promoted.
 
-Initial D0 questions (resolved by the selected-S0 Decision below):
-1. Loan T0 below binds the canonical catalog; Static source validation must
-   borrow it, not copy authority or use executable ordered checks for SourceObject.
-2. Define shared global uniqueness/definition/cardinality/error/missing/snapshot
-   checks; all selected callee callers and required forward dependencies still
-   require executable proof. Audit existing object-view agreement obligations.
-3. Keep original qualification/Completion and validate-all-before-mark ordering.
-4. Positive: unrelated healthy SourceObject retained, selected Static closes.
-   Negative: same-callee later caller/forward missing, unrelated Err/missing or
-   changed source snapshot, foreign original, missing Completion, partial mark.
-5. Focused entry/packet/Object regression and unchanged original app first-stop;
-   no physical deletion permission or Object activation inferred from passage.
-Read-only worker supports the split as an explicit owner contract change, not
-an already-authorized weakening. Canonical catalog loan and validation domains
-are resolved by the selected-S0 Decision below; no external wait or completion.
+Accepted Static source/execution-domain decision and its original questions are
+retained at `3931f40df6`; the current guarded declaration/input obligations below
+remain open. No new source authority or broad Object activation is inferred.
 
 ## Original catalog loan T0 — accepted (2026-10-12)
 
@@ -278,52 +230,15 @@ required executable phase, exact source identity, forward coverage and class-vie
 agreement remain mandatory. SourceObject passive validation lends no executable
 actual/result/Normal/ABI/artifact permission. Validate all before any route mark.
 
-Smallest next slice: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-S0`.
-Production mapping: existing borrowed_static_packet_actuals_v1 -> entry owner
-common core, for LayoutBox.class_id -> SizeClassBox.good_size. Replace that
-Static call's whole-final execution obligation; preserve the normal/Object wrapper.
-Shared owner and other callers stay; no physical deletion permission in this S0.
-
-1. Keep checked_borrowed_entry_incoming as unchanged default wrapper. A private
-   core accepts optional execution-owner scope; only the qualified opaque Static
-   branch selects scope. Put closure validation in existing entry_owner_view child
-   and SourceObject revalidation in existing formal_actuals owner. Do not mint a
-   second checker/receipt or broaden field visibility. Source760/800 still apply.
-2. Seed selected callee. Compute finite reverse closure from ORIGINAL forwards
-   whose callee_formal.owner is included, never from pending actual variants. Match
-   exactly one final incoming/opaque actual by call/target/site/ordinal/binding/
-   source_formal/callee_formal; corroborate both drafts' origins. Require the
-   pending actual's original Forwarded variant; reject orphan pending forwards.
-   Add source_formal.owner, repeat to fixed point. Dependencies require final
-   definitions and nonempty incoming, not invented source-only completion.
-3. Project the SAME original inventory over that execution set, preserving its
-   global/selected-owner vetoes. Compare one-to-one with final calls, including
-   only the existing requested target_static/owner_view extension. Compare call,
-   callee, full arguments, Static Rc pointer or full Instance target identity.
-   Missing/extra/duplicate required calls reject. Sanctioned omitted Static
-   callers were excluded at issuance and stay excluded: this proves inventory
-   coverage, not a new all-source-callable census.
-4. Unselected SourceObject may remain passive only when exact original call/
-   callee/arguments/Instance target agree, SAME catalog regeneration equals the
-   entire pending snapshot, and its opaque callee formals have no object_views
-   membership. Existing view membership rejects rather than skipping agreement.
-   Required/dependency SourceObject still rejects. All other phases use existing
-   executable ordered checks; qualification/Completion/mark ordering stays.
-5. Existing packet tests: unrelated healthy SourceObject+selected Static positive;
-   source phase/candidate/ordered/original drift, Err/missing, class-view member,
-   selected source-only and default global rejection negatives. Forward negatives:
-   pending Forwarded->Integer, orphan/duplicate/root/site/ordinal/target drift,
-   dependency missing definition/incoming, required original call removed. Check
-   failed co-seal leaves every route unmarked. Reuse entry/packet/Object regressions.
-6. Build once, focused positive/negative filters nonzero, classify reds and record
-   source/binary snapshots. Fresh unchanged original app first-stop before/after.
-   Required pointer/diff checks; qualified-route guard's unchanged raw_loop caller
-   count debt remains reported, never waived. No full suite/CI required here.
-
-Non-claims: S0 acceptance, production cutover closeout, caller-zero/old-edge
-retirement, whole SizeClassBox/app/MirBuilder completion remain unproved.
-Read-only worker confirmed original-inventory projection and sanctioned omissions;
-no remaining external dependency or required future-green construction condition.
+Accepted production mapping: borrowed_static_packet_actuals_v1 → the common entry
+owner for LayoutBox.class_id → SizeClassBox.good_size. The same original inventory
+is globally validated before any mark; only qualified opaque Static selects its
+original-forward reverse execution closure. Dependency SourceObject still refuses
+without execution proof; passive unrelated SourceObject requires SAME catalog,
+complete regenerated snapshot and no object-view membership. Normal/Object
+whole-final execution and real incoming coverage remain. Detailed original
+closure/corruption/mark-ordering acceptance is retained in `7901d434fa` and the
+document snapshot `3931f40df6`; this accepted scope does not close current S0.
 
 ### STATIC-FINAL-INCOMING-S0 receipt — accepted (2026-10-12)
 
@@ -355,7 +270,8 @@ SizeClassBox/app/MirBuilder remain unproved. Shared/default owners stay.
 
 ## Required Object forward D0 — current boundary (2026-10-12)
 
-Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0`.
+Historical D0 parent: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0`;
+CURRENT_STATE selects its unfinished S0 integration, paused for consultation.
 The internal input-closure gap is allocateResult(owner34/batch30),
 Body(1)/Initializer(0), argument0 `size` -> allocate(owner33/batch29), opaque
 formal1, REQUIRED by good_size <- class_id <- allocate reverse dependency.
@@ -380,7 +296,8 @@ lane reopening or whole-app claim. This is internal design work, no external wai
 Near milestone: unchanged mimalloc-lite, selected pure-first/replay-none physical
 route, EXE generation -> execution -> exact suite output. Full retirement and
 selfhost remain later REQUIRED milestones of MIRBUILDER-FINAL-PIPELINE-v1, not
-removed or counted complete. Current work stays ONLY Required Object Forward D0.
+removed or counted complete. Current integration stays within Required Object
+Forward S0; the consultation pause remains in effect.
 After its smallest S0: focused tests, then the SAME original app; record first-stop
 by terminal AND owner/site plus EXE/run result. If it does not move, audit repeated
 proof construction/common owner before stacking another small patch. Do not add
@@ -464,41 +381,12 @@ split before800; put bounded entry logic in its existing owner-view child.
 Non-claims: Integer/class/ownership entry, whole body completion, S0 acceptance,
 EXE success, production closeout/caller-zero/retirement and full product completion.
 
-### User-requested restart handoff (2026-10-12)
+### Historical restart and responsibility split
 
-Stopped during S0; HEAD `741d8a37cb` is pushed. Four UNCOMMITTED Rust files:
-entry/owner_view, guarded_actual and compare_materialization (original draft).
-Draft declaration profile/SAME guard correspondence/Compare lender are connected;
-NO Cargo/build/test/app rerun yet. Pointer/diff PASS; no Cargo/rustc live at stop.
-Resume tasks4-7 above: exact guarded input reconstruction and demand rechecks,
-BOTH zero-call final consumers, focused negatives, then unchanged original app.
-Retain/review these drafts; S0 NOT accepted. Compact landed history before adding
-receipts; keep source below800 and card below1000; do not extend parked lanes.
-
-### Restart preparation — responsibility split and history compaction (2026-10-12)
-
-User requested this before input reconstruction/final-consumer work. Entry's
-complete incoming checker moves unchanged into its private incoming child;
-source projection, owner selection and entry values keep their existing owners.
-Only sibling visibility of the shared core changes; no admission/phase/ABI change.
-Completed early claim/scalar-expression history above now points to immutable
-commits; selected Required Object Forward tasks1-7 and unfinished bundle conditions
-remain here. Four original semantic draft files remain unaccepted and preserved.
-Entry651 + incoming114 lines; card remains below500. Original checker body is
-identical after module-path/visibility/rustfmt normalization; final parent blank
-cleanup is token-equivalent. Existing quick/serial `borrowed_formal_entry` filter
-62PASS/0FAIL (includes Static packet/scope negatives), build/link418s, tests0.12s.
-`/tmp/mirbuilder-entry-split-tests.log` retains the run. The additional
-`borrowed_static_packet` filter matched0 and is NOT evidence; no rerun needed
-because the first filter already includes those module tests. Test worktree
-includes the four retained unaccepted semantic drafts; this receipt accepts ONLY
-the proven responsibility move, not their behavior or S0. No new tests added.
-Pointer/diff/child-format and immutable-history-reference checks PASS. Scope guard
-FAIL at unchanged raw_loop_child_entry count3 vs4 (HEAD bytes identical), known
-baseline; not waived. Initial child-wrapper visibility error corrected before
-successful build. Warning count812; no suppression. Split `a03d2c8597` contains only the responsibility move and owner routing;
-this card commit owns history compaction and evidence. Semantic
-draft hunks remain unstaged. No S0/EXE/retirement claim.
+Earlier pause states, four-file/unbuilt handoffs, entry incoming-owner extraction
+and their test/build receipts are retained in this document at `3931f40df6`
+(`git show 3931f40df6:<this card path>`). They are historical evidence, not current
+resume instructions. Current semantic WIP is preserved and still unaccepted.
 
 ### Required guarded forwarding implementation refinement (2026-10-12)
 
@@ -528,196 +416,97 @@ for room below800; its logic is unchanged. Final projection lender now contains
 its dedicated declaration correspondence check. Relevant owner contract docs and
 focused tests are still being completed; this draft grants no S0/EXE acceptance.
 
-### User-requested design consultation stop (2026-10-12)
+### Current implementation refinements and remaining owner closure
 
-Goal pause requested; HEAD remains pushed `3272688876`. All S0 changes and four
-new Rust child/test files remain UNCOMMITTED. No Cargo/rustc live at stop; external
-same-checkout release/LLVM build also ended (its exit/result was not observed).
-No S0 acceptance, fresh CLI/app result, production retirement or product completion.
+Generic preparation remains selected for every original Object cohort meeting the
+bounded guarded profile. The issuer finishes Object inputs after signatures and
+before Static finishers; Static demand cannot issue source/catalog/signature or
+Completion authority. Registered clean NoIncoming lends only a declaration. Lost,
+duplicate or wrong sentinel, global failure, failed caller and sentinel+real rows
+refuse; normal executable projection retains its veto. Guarded/unrelated fixture
+expectations distinguish this accepted source profile from truly unguarded inputs
+without changing source or dropping corruption checks.
 
-Evidence: check-v2 lib PASS. Guarded tests-v2 build361s,10PASS/4FAIL:
-2 existing guard tests reproduce identical NoIncoming on SHA-verified prior V7
-binary; 2 new declaration tests lacked the Object qualification fixture, now
-corrected but untested. V2 saved binary regressions: Object input10PASS,
-use closure24PASS, Static packet14PASS/1NEWFAIL, actual26PASS/1original baseline.
-New Static failure is guarded declaration execution projection rejecting original
-NoIncoming. V3 test compile rejected Vec-vs-Box metadata test; corrected, not rebuilt.
-New physical zero-declaration and Static guarded-phase corruption tests await build.
+Final declaration correspondence uses the original canonical key: raw receiver
+signature is Box(original class), opaque formal is Unknown|Integer, while the
+recorded carrier column is ExistingCallableI64/BorrowedTaggedValue. Demand exact
+mode, arity, unique params and recorded values. Original Static mode is checked
+in the scalar cohort checker as well as entry routing; Instance NoIncoming cannot
+be interpreted as Static execution permission.
 
-Design issue for consultation: original inventory NoIncoming is an execution veto,
-but only a clean registered completed-scan sentinel can lend an empty DECLARATION.
-New project_declaration_v1 preserves other/global vetoes and rejects missing,
-duplicate/mismatched sentinel or sentinel+real rows. Guarded lender and reverse
-closure now use declaration versus executable projections; these latest edits are
-UNBUILT/UNTESTED. Read-only audit confirmed sentinel may coexist with failed callers,
-so no generic NoIncoming waiver is allowed; normal project remains unchanged.
-Also review scope: current input finisher reconstructs every eligible guarded Object
-cohort, while existing unrelated-Object regression expects passive inputs. The old
-fixture itself meets the new bounded profile. Decide generic admission versus
-required-consumer demand consistently before changing fixture expectations; no
-fixture change or selected-demand restriction has been made for this issue.
+The SAME guarded source input may select existing receiver Object packet
+retention while keeping ExistingBorrowedResult. Its own full-slot result, callee
+Completion/teardown and caller CallReceived observation still issue the packet.
+Retain real call/binding-group membership through emission/final visitation; no
+sibling return qualification, omission, fabricated packet or old-protocol retry.
+The same guarded query plus original Object observation selects the existing
+homes-aware walk before Completion, issuing received Home/local-call flow and
+cleanup rather than inventing completed rows afterward.
 
-Resume after consultation: settle that scope in one Decision, finish declaration
-inventory negative matrix, then focused build/tests and SAME unchanged app with
-fresh binary provenance. Current new source/lender/consumer paths are drafts.
-Pointer/diff checks passed before pause; latest added inventory API still needs
-format/type checks. Preserve the current worktree; do not commit unverified S0.
+Physical admission still rejects Maker.qualified/0, an original retained terminal
+packet caller to make with no incoming call itself. Preserve its original incoming
+participation. Its source result must use its own Direct Object-return lender;
+uniform_call_result_kind defaults empty maps/OwnedCall to I64 and cannot supply
+this authority. Entry declaration grants no result/body/cleanup permission. Align
+admission/projection membership through original source owners, own Completion,
+terminal result and exact cleanup, keeping actual call sets separate from
+declaration membership. Never fabricate an OrdinaryCallSite or admit all-module
+execution. Both final consumers' positives remain owed within this same series.
 
-### Resumed scope Decision (2026-10-12)
+SourceObject demand attribution lends original call/callee/target and the existing
+Completion gate diagnostic. It stores no second semantic receipt and changes no
+phase acceptance. Latest app evidence proves that Completion is Ready; inspect
+original signature, full incoming and guarded argument reconstruction next. Do
+not claim a missing Completion or an input/result cycle that has not been observed.
 
-Decision: retain generic preparation of every original Object cohort satisfying
-the selected guarded profile. The existing issuer finishes Object inputs after
-signature issuance and before Static finishers; Static demand is not an authority
-for source/catalog/Completion/signature preparation. No demand selector is added.
-The old independent-Static fixture's guarded relay meets the new profile: cover
-its reconstructed plan and a genuinely unguarded passive input separately, keeping
-global missing/Err/phase/snapshot/catalog/view vetoes and selected Static closure.
-Source authority remains the SAME original declaration, inventory and guard;
-plans still owe physical Compare dominance, tag Fault and real-call coverage.
-The clean registered NoIncoming sentinel lends only declaration correspondence;
-ordinary execution projection retains its veto. Lost/duplicate/wrong sentinel,
-global failure, failed caller and sentinel+real rows must refuse.
-Read-only worker independently confirmed this scope and owner order. No app source
-change, new semantic receipt, S0 acceptance or whole-product completion follows.
-Fresh pre-resume CLI (C-1 binary SHA `2b63b1a1604fce8d084df51afbdd0f95f601dd550fb702f0fdae96a51a9d52f7`)
-still stops at LexicalInstanceCall/source-only-object-actuals in 0.035s, no EXE;
-unchanged source SHA `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
-Provenance/logs: `/tmp/mirbuilder-required-forward-resume/app-before.*`.
+### Verification receipt capsule — S0 still unaccepted
 
-V4 verification: quick test build/link317s PASS; inventory9, typed-input10 and
-physical-use24 PASS. New zero-call positive exposed a checker mismatch: raw MIR
-retains receiver `Box(original class)` and opaque formal `Unknown|Integer`, while
-the carrier column records receiver ExistingCallableI64/formal BorrowedTaggedValue.
-Corrected final lender receives the canonical key from each original owner lookup;
-receiver class/arity/mode, unique params and recorded tagged formals stay exact.
-Tests now reject receiver Integer/foreign class and formal Bool in both consumers.
-Static regression's unguarded Instance was incorrectly inspected by Static scalar
-finishers. The entry owner now demands a unique original Static declaration mode
-before those finishers; guarded Instance admission runs first. No NoIncoming waiver.
-V4 broad publication45PASS/5FAIL: four old failing names reproduce on SHA-recorded
-pre-S0 V7 binary; the new positive above is corrected, awaiting V5. Guard filter
-13PASS/3FAIL includes two pre-S0 NoIncoming failures. Entry63PASS/1FAIL is the
-unguarded mode collision above. Zero-match `compiled_entry_contract::borrowed_call_uses`
-is not evidence; corrected `borrowed_call_incoming::borrowed_uses` matched24.
-Logs/snapshots and baseline comparison remain in the resume directory. V5 is
-building; S0 is unaccepted and its semantic changes remain uncommitted.
+V2–V12 detailed commands, snapshots, warning/guard debt, interrupted/failed builds,
+old pause states and the source-identity correction decision are preserved in the
+committed **document** at `3931f40df6`. Compiler WIP was and remains uncommitted;
+a document receipt commit is not source acceptance. Full artifacts remain under
+`/tmp/mirbuilder-required-forward-resume/`.
 
-V5 verification exposed the remaining producer/consumer join: the new positive
-passes declaration correspondence, then original real incoming still includes
-relay Body(1)/Initializer(0) -> make, but final packet visitation omits that site.
-All recorded local groups are moved at final handoff; the missing group was never
-retained. Original unqualified sibling remains ExistingBorrowedResult, while the
-receiver Object packet gate only selects a call's own Object source requirement.
-Decision: the same bounded original guarded input may select the existing receiver
-Object packet retention path; this is source membership, not result permission.
-Demand regenerates guarded actuals; existing full-slot callee result, Completion,
-teardown and caller CallReceived observation gates still issue the packet. Keep
-its SAME original target/requirement, no copied sibling return qualification and
-no omitted real call or fabricated packet. Retain packet+binding group through
-the current emitter and final scans. Read-only worker confirms this exact join.
-Static scalar selection also calls its cohort checker directly, so its SAME
-original Static mode gate must live in that checker, not just the entry wrapper.
-V5 324s build PASS; inventory/input/use positives remain green, two new failures
-above remain unresolved until the next focused run. No S0 acceptance yet.
+| cohort | exact retained result / provenance |
+| --- | --- |
+| Pre-S0 broad publication baseline | Saved binary SHA `d9aa05dd43d6f57f5f0a1d834932f5604e7e88ac558cb75bd59f0fb44bd68684`;45PASS/4FAIL. Four names below reproduce before S0. |
+| V8 final-bridge checks | Test build310.81s PASS; guarded16PASS/1NEWFAIL; entry65, inventory9, typed-input10, Static scope3, physical-use24 PASS. Broad publication45PASS/5FAIL = four old failures plus new physical positive, now stopping at Maker.qualified/0 admission. |
+| V12 test/input diagnostic | Build294.08s PASS; input10/entry65/packet11 PASS. Identity8PASS/1 changed-scope expectation was corrected using the same original producer and retained corruption refusals; it was not a baseline failure. |
+| Later host-tooling focused cohort | Existing build-time card records95PASS, including identity9PASS and all seven original snapshot/phase corruption refusals. This supersedes the old UNBUILT identity handoff; it does not supply both final publication positives or app execution. |
+| Latest fresh app CLI: V12 | LLVM quick CLI build152.30s PASS; binary SHA `d4b5d8e86527e7ca9a2e5df2c8903fa7d1d814e2e3e9c94fb6e578eb54946d94`. Built against the manifest at HEAD1e92d4e62a plus selected WIP; app0.05141s/rc1/no EXE, unchanged owner34 Body(1)/Initializer(0)→callee33 HakoAllocHeap.allocate/1, Completion Ready/input cohort pending. Exact build/source manifest and argv/env: cli-v12-* and app-v12.json. Later docs/tooling receipts are not a fresh app probe. |
 
-V6 was intentionally interrupted at76.66s after finding two unconverted consumers;
-its Cargo/rustc ended before source edits. V7 build312s PASS: Static scope3,
-inventory9, input10 and physical-use24 PASS; earlier guard NoIncoming tests now
-pass under original-mode selection. Two new failures remain: packet is SourcePending
-and physical receiver-object/local-source-missing. No changed input/guard waiver.
-Holistic audit found source receiver observation precedes Completion, but only
-Nullable observations select the homes-aware walk. The error's OR does not prove
-that the earlier receiver observation is absent; plain Completion lacks the local
-Handle/Home flow. Existing Handle self scan already handles this source.
-Decision: the SAME original bounded guarded input plus the original Object receiver
-observation selects that existing homes-aware walk before Completion. Reuse one
-original guarded input query in the packet and walk selectors. The verifier must
-issue the original CallReceived flow, prior-home unwind and cleanup; no completed
-rows are fabricated afterward. Selected mapping/receiver/class producers remain
-unchanged, as the audit found no permission gap there. No new scan arm or fixture
-rewrite. Full-slot preparation and both final consumers still owe their checks.
+The four pre-S0 publication failures are:
 
+- borrowed_local_call_results_publish_grounded_chain_in_both_orders
+- borrowed_nullable_result_frontiers_stay_fail_closed
+- parameter_field_frontiers_stay_fail_closed
+- unproven_bound_returns_stay_fail_closed
 
-V8 verification: quick test build/link310.81s PASS; guarded16PASS/1NEWFAIL,
-entry65, inventory9, typed-input10, Static scope3 and physical-use24 PASS.
-Broad publication45PASS/5FAIL: same four pre-S0 failures plus the new physical
-positive. Fresh llvm CLI build233.09s PASS; binary SHA
-`ae990a1117384319b67cd3b8fe3dbf0d712de77bfd91f2eca61a20e88d2f960e`.
-SAME unchanged mimalloc-lite SHA above, canonical MIR/direct emit-exe,
-pure-first/compat-none and fresh C-1 runtime/FFI: emit exit1 at0.04928s,
-LexicalInstanceCall/source-only-object-actuals, no EXE. Exact argv/env, source
-manifest and logs: `/tmp/mirbuilder-required-forward-resume/{cli-v8-*,app-v8.*}`.
-No production first-stop advance or S0 acceptance is claimed.
+Baseline reproduction is retained in publication-v7-baseline.log/.json; these
+reds are classified, not waived as S0 or whole-goal acceptance. The new final
+physical positive still fails; both independent final publication positives
+remain mandatory. The qualified-route guard's unchanged raw_loop_child_entry
+count3 versus expected4 remains debt, not PASS.
 
-Read-only V8 debugger attribution: final admission's first birth-validation
-rejection is `Maker.qualified/0`, not the guarded relay. Saved unit binary and
-log `/tmp/mirbuilder-required-forward-resume/admission-v8.log`; entry was inspected
-with the Rust sret ABI name pointer, not guessed from MIR signature. This caller
-owns the retained original terminal packet -> make and participates in its full
-original incoming coverage despite having no incoming call itself. Source result
-must use its own Direct Object-return lender, not uniform_call_result_kind:
-that helper defaults empty maps and OwnedCall to I64. Zero-call declaration entry
-alone still cannot grant result/body/cleanup permission.
+Latest app source SHA256 remains
+`33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
+V12 canonical command (repository root):
 
-Decision: before changing admission/projection, identify the SAME app input's
-actual call/callee and missing preparation gate. The SourceObject demand fault
-now appends only its original call, callee owner and canonical target; the phase,
-acceptance and existing diagnostic tag are unchanged. This is attribution only,
-not a semantic receipt or completion proof. Next: focused source-only rejection
-checks and fresh unchanged native probe; then map pending cause at the original
-input finisher. Separate physical membership work must retain original packet
-caller participants and bounded declarations using their own Completion/terminal
-result and exact cleanup proofs, never fabricated OrdinaryCallSite or all-module
-admission. Both final consumers' positives are still owed; code is uncommitted.
+```text
+target/quick/hakorune --grammar-profile canonical --backend mir \
+  --emit-exe /tmp/mirbuilder-required-forward-resume/app-v12.exe \
+  --emit-exe-nyrt /tmp/hakorune-c1-20261012/runtime apps/mimalloc-lite/main.hako
+```
 
+Inherited HAKO/NYASH variables were cleared; overrides were NYASH_DISABLE_PLUGINS=1,
+NYASH_LLVM_ROUTE_TRACE=1, HAKO_BACKEND_COMPILE_RECIPE=pure-first,
+HAKO_BACKEND_COMPAT_REPLAY=none and HAKO_AOT_FFI_LIB=target/release/libhako_llvmc_ffi.so
+(absolute repository path in the receipt). Fresh C-1 runtime/FFI sources were
+unchanged for this probe; exact artifacts and timing are recorded, not inferred.
 
-V9 attribution-only CLI build154.17s PASS; binary SHA
-`37c30bf7060124f337cb5040aed088f67e4839b8392be69eca75b65dedb38b55`.
-Unchanged app emit exit1 at0.04903s, no EXE and same source-only tag; exact source
-call owner34 Body(1)/Initializer(0), callee33 `HakoAllocHeap.allocate/1` now appears
-in the original demand fault. This confirms the prior target hypothesis only,
-not which Pending gate or an input/result cycle. Logs: `cli-v9-*`, `app-v9.*`.
-
-Attribution follow-up: factor the existing typed Object input Completion gate
-once inside its current finisher. Preparation still returns Pending/Refused/Ready
-with identical acceptance; the existing SourceObject entry demand can borrow its
-named pending cause (missing Completion/root flow/exits/exit row/terminal). No
-stored diagnostic/semantic receipt or new proof census. If that gate is Ready,
-say only that the input cohort remains uncompleted, not a guessed later reason.
-Extend the existing missing-Completion regression to check original owner/site
-attribution while preserving SourceObject and refusal. Focused V10 build started;
-no acceptance/commit or membership change yet.
-
-V10 build72.26s FAIL at inaccessible phase type; V11 build22.79s FAIL at
-finisher diagnostic method visibility. Both Cargo/rustc ended before corrections.
-Keep phase internals private: actuals owner lends only a source-only predicate;
-finisher lends diagnostic text to its lexical parent subtree. V12 awaiting build.
-
-V12 test build294.08s PASS; input10/entry65/packet11 PASS. Identity8PASS/1FAIL:
-unqualified_object_sibling_forward_retains_only_original_source_input expects
-SourceObject after the generic input finisher. This is a changed-scope expectation,
-NOT a pre-S0 baseline failure: SHA-verified pre-S0 V7 binary
-`d9aa05dd43d6f57f5f0a1d834932f5604e7e88ac558cb75bd59f0fb44bd68684`
-passes that exact test; logs `identity-v12-baseline.*`. Its original relay satisfies
-the accepted generic guarded profile, as the earlier scoped-Static fixture does.
-Keep the source unchanged and all seven original snapshot/phase mutation refusals:
-assert exact finished ExecutableGuardedObject, then call the SAME original source
-producer with retained original candidates to verify the earlier SourceObject view
-separately. Source-only remains non-executable and borrows no sibling result loan.
-This test correction awaits V13; it does not widen the selected admission.
-
-
-User priority handoff: measure/install shared compiler cache before continuing S0.
-CLI V12 build152.30s PASS; binary SHA
-`d4b5d8e86527e7ca9a2e5df2c8903fa7d1d814e2e3e9c94fb6e578eb54946d94`.
-Unchanged app emit exit1 at0.05141s, same owner34 Body(1)/Initializer(0)->callee33;
-new original gate diagnostic is **completion-ready; input cohort still uncompleted**.
-No missing Completion/root-flow/terminal gate is demonstrated; inspect downstream
-signature/whole-incoming actual reconstruction at this SAME input finisher next.
-Logs `cli-v12-*`, `app-v12.*`; no EXE. Identity correction was then UNBUILT;
-the subsequent build-time card records95 focused PASS including that correction
-and all seven corruption refusals. Physical membership positive still rejects
-Maker.qualified/0; both final publication positives remain owed. S0 remains unaccepted
-and all semantic WIP remains uncommitted. No Cargo/rustc live at priority switch.
-Selected handoff: MIRBUILDER-HOST-SCCACHE-I0 in existing build/link observation card;
-then restore Required Object Forward S0 with these unfinished conditions intact.
+Resume only after the user's consultation pause is lifted. Keep original source,
+selected WIP, full guard/incoming/result/cleanup obligations and existing acceptance
+scope. First close the common input cause and physical membership inside the
+current series; use its unchanged-app result to select the next existing source
+owner. No implementation/build permission, S0 acceptance, EXE result, retirement
+or finite-product completion is granted by this documentation consolidation.

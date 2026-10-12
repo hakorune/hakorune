@@ -502,7 +502,7 @@ verifier.
 | 3 landed | `published_backend_view::physical_program` — `MIRBUILDER-PHYSICAL-PROGRAM-MODULE-BORROW-RETIRE-R0` | After a caller census, remove the unused `PublishedLifecyclePhysicalProgramV1::module` borrow and getter if no downstream consumer remains. Close the getter so later JSON/layout consumers cannot return to the original module through this product. | Landed at `7a31b48b75`; the caller census is zero, issuance-time `Option<&MirModule>` remains, physical-program tests (13) pass, and the dedicated guard passes. No semantic projection, layout authority, or transport change. |
 | 4 landed | `lang/c-abi/tests/published_lifecycle_v4_receiver_identity_test.c` plus the existing V4 admission owner — `MIRBUILDER-PHYSICAL-NEGATIVE-TEST-PROOF-R0` | Make the receiver fixture the reusable base for physical integrity negatives: first prove a valid normal path and valid fault/cleanup path, then mutate exactly one field and require the check's stable named rejection. Extend the existing admission reason propagation only for a concrete selected negative; do not accept a generic nonzero or `unsupported-cohort` as isolated proof. | Landed at `5a117a96a2` with guard follow-up `a451f939f8`; receiver keeps the valid normal/fault base and receiver-only named mismatch, while Map reuses a valid graph, mutates only `layouts[0].fields`, and asserts parser-owned `abi-layout`. Map physical execution passes including 26 malformed inputs; no second verifier or broad error taxonomy. |
 
-| 5 landed | `selfhost::json::parse_mir_json_v0_line` — `MIR-CALL-LEGACY-READER-STOP-R0` (strict/dev `boxcall` owner-unit) | The existing strict/dev helper is the pre-effect boundary for `stage_a_route`, `stage_a_compat_bridge`, and the stage1 stub parser. It rejects `op: "boxcall"` with `[freeze:contract][callsite-retire:legacy-boxcall]` before `mir_json_v0::parse_mir_v0_to_module`; release/v0 compatibility remains on its existing edge. | Landed before this R7 selection at `4e1d6f92fb`; the existing strict/dev named-reject and release compatibility tests prove the bounded stop. The shared `module.rs` `boxcall` arm and `LegacyCallV0` carrier remain until their other callers reach caller-zero. |
+| 5 landed | `selfhost::json::parse_mir_json_v0_line` — `MIR-CALL-LEGACY-READER-STOP-R0` (strict/dev `boxcall` owner-unit) | The existing strict/dev helper is the pre-effect boundary for `stage_a_route`, `stage_a_compat_bridge`, and the stage1 stub parser. It rejects `op: "boxcall"` with `[freeze:contract][callsite-retire:legacy-boxcall]` before `mir_json_v0::parse_mir_v0_to_module`; release/v0 compatibility remains on its existing edge. | Landed before this R7 selection at `4e1d6f92fb`; the existing strict/dev named-reject and release compatibility tests prove the bounded stop. This is historical strict/dev evidence. At `011349e0b4`, the shared `module.rs` `boxcall` arm switched to canonical Call(Method); its surviving v0 wire spelling is a compatibility contract, not proof of a remaining LegacyCallV0 minter. Shared legacy carrier readers retire only after their own caller dispositions close. |
 
 The in-process LLVM C-API cutover is already structurally closed at
 `720849812b`: it reuses the existing session/emitter and removes the V4 `llc`
@@ -935,11 +935,16 @@ post-R6 migration:
 
 #### M8/M9 — physical thinning and backend retirement
 
-After R7, remove builder barrel registrations, raw ports, `variable_map`
-bypasses, stale wrappers (including the parked public `emit_global_call` candidate), disconnected proof modules, and retired backend
-consumers leaf-first. A file move or tracked archive copy receives zero
-reduction credit. Each family deletes its private tests/guards/docs with the
-old edge; durable history remains in Git.
+R7 closes the shared schema; it is not a prerequisite for deleting an already
+replaced family-exclusive edge. Under RULES sections4/6, each replacement series
+switches its named production callers and retires its proved caller-zero private
+implementation, adapters and temporary assets in that series. Shared barrel
+registrations, raw ports, `variable_map` bypasses, wrappers and backend consumers
+remain until their own caller/contract obligations close, then retire leaf-first.
+The public `emit_global_call` facade remains a candidate until its API/feature
+callers and successor checks are verified; no immediate deletion is selected.
+Preserve durable semantic/rejection tests. Moves and tracked archive copies earn
+no reduction credit; Git retains completed evidence.
 
 ### Post-M7 improvement backlog (navigation only)
 
@@ -3238,7 +3243,11 @@ selection -> MirBuilder then parser migration -> non-delegating self-compile.
 This records dependencies only; CURRENT_STATE still selects execution.
 
 `MIRBUILDER-FINAL-PIPELINE-v1` の完了は Loop の production cutover だけで
-終わらない。次の直列順を最終 finish line として固定する。
+終わらない。下図は既存owner間の依存の参照であり、閉じた行を再実行する
+queueではない。現在の未完条件と既存IDの対応は
+[workstreamの残作業](../workstreams/mirbuilder-inplace-replacement-current.md#dependency-ordered-remaining-development)
+に集約する。各ownerのaccepted証拠を再利用し、最初の未完dependencyから
+接続・切替・選択退役を閉じる。図の順番だけで新しいsliceを増やさない。
 
 ```text
 CANONICAL-FUNCTION-FINISH-TERMINAL-R0
@@ -3262,9 +3271,11 @@ CANONICAL-FUNCTION-FINISH-TERMINAL-R0
 durable-only 化、Rust/.hako/compat authority の分類、Context の owner 分離、
 `CURRENT_STATE` と設計 registry の収束、temporary proof/receipt/adapter の
 promote/quarantine/retire、旧 D4/S-series ledger の archive 化まで確認する。
-cleanup は Loop cutover 前に開かず、各実装 row は owning README/reference、
-guard index、current mirror を同じ commit で更新する。詳細な row と stop
-条件は上記 cleanup SSOT にのみ置き、ここに第二の task ledger は作らない。
+未完の共有cleanupと最終確認は必要なLoop/caller条件の後に閉じる。
+既に置換済みの専有edge・一時assetの退役は各series内で行い、全体確認まで
+後置しない。閉じたG0の構造監査は再開taskにせず、その証拠と現在の
+製品acceptanceを区別する。文書更新はRULES第7節の所有範囲に限定し、
+詳細なcleanup条件は上記cleanup SSOTへ参照する。ここに第二の台帳は作らない。
 
 ## Explicit non-goals
 

@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-09-06
+Date: 2026-10-12
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -42,40 +42,15 @@ source -> exact Facts/Recipe -> typed target before arguments
        -> canonical Call -> Seal -> Atomic Publish
 ```
 
-The M1 current-HEAD Call producer/consumer census and M2 remaining-family
-disposition are closed in `mirbuilder-final-pipeline-ssot.md`. M3-A is now
-closed at `474e8518b0`: the UnifiedCallEmitter core has zero environment
-reads and zero `emit_legacy_call` calls, while the outer MirBuilder facade
-preserves explicit compatibility and required ingress stays fail-closed.
-Historical Call test inventory and baseline receipts live in Git; the recorded
-133 whole-lib failure set is not a green claim for the current Array row.
-M3-B is parked after its finite census: the Birth issuer is unique, but two
-unclaimed compatibility writers share the existing outer APIs and have no
-exclusive delete-set. M3-C's four JoinIR/JSON ingress censuses are complete
-and parked.
-R6 Group A closed at `45c6759962` and Group B closed at
-`cce62db090`: canonical and legacy instruction shapes are separate, and the
-VM reference reader directly consumes canonical Builtin(Print) while wrong
-arity and other canonical targets fail closed. The finite post-Group-B census
-closed at `bb41e2e880` with
-`NoSafeSlice__NoSingleRemainingCanonicalReaderFamily`.
+Closed Call groundwork lives in Git/final-pipeline: M1/M2 census/disposition;
+M3-A emitter core env/legacy-call zero `474e8518b0`; M3-B/C shared compatibility
+remain parked, not deleted. Group A/B carrier split/reference Print landed at
+`45c6759962`/`cce62db090`; residual census `bb41e2e880` is not a global stop.
+Reader stops: WASM Global/Extern `833eb87a80`/`3c7f5ea5bc`; VM Global/Extern
+`111216b539`/`18f08124f8`. Their existing reject contracts/imports remain;
+no canonical WASM reader, backend parity or schema retirement is claimed.
+Historical whole-lib reds remain baseline evidence, not current green.
 
-Do not repeat the census. The bounded WASM `LegacyCallV0(Global)` reader stop
-landed at `833eb87a80`: the shared preflight now rejects it before shape/WAT/
-binary/fallback work, and the name/arity/zero-padding reader is gone. No
-canonical WASM reader or general fallback retirement is claimed. The next
-exact tuple `MIR-CALL-VM-GLOBAL-CANONICAL-CUTOVER-R0` has now landed at
-`111216b539`: the VM canonical Print reader covers same-module
-FreeFunction/StaticBoxMethod, Legacy Global is rejected at the shared ingress,
-and only that finite VM legacy arm was removed. The stale WSM-G4-min8 success
-probe was retargeted to explicit pre-WAT rejection and its old lock retired.
-The exact reader stop `MIR-CALL-LEGACY-READER-STOP-VM-EXTERN-R0` landed at
-`18f08124f8`: Legacy Extern now rejects before provider dispatch and its VM
-legacy arm is gone. The exact Rust WASM reader stop
-`MIR-CALL-LEGACY-READER-STOP-WASM-EXTERN-R0` landed at `3c7f5ea5bc`: the
-preflight rejects before shape/WAT/binary/fallback, the legacy Extern lowering
-arm and reader-only name helpers are gone, and `EXTERN_CALL_MAP` remains the
-runtime import contract.
 Reopen another family only when source authority, typed issuer, lossless
 selected consumer, real production caller, fail-fast terminal, exclusive
 old-edge delete-set, outside-reader inventory, and source budget form one exact
@@ -89,7 +64,6 @@ one exact R6 family cutover
   -> R7 caller-zero schema/repair deletion
   -> remaining shared Builder physical thinning
   -> backend retirement after replacement
-
 post-R6 sibling:
   Hako published-view ingress and backend family migration
 ```
@@ -170,83 +144,31 @@ or one compatibility reader and typed terminal (for Stop), a finite caller set,
 a planned delete-set, and no unclassified red. Unsettled competing authorities
 remain parked; several callers sharing one owner are eligible.
 
-The 2026-09-04 worker audit decomposed the former shared boundaries at their
-outer leaves. Reuse generic `MIR-CALL-LEGACY-READER-STOP-R0`; do not add a new
-card, semantic receipt, adapter, fixture file, cohort dispatcher, or guard.
-`direct_mir_json_duplicate_reader_delete` landed at `ef3ee28bc5`,
-`skip_ws_probe_reader_delete` at `d4ce50b87c`, and
-`canonical_value_fallthrough_stop` at `a33987e8e4`, and
-`methodize_fallthrough_stop` at `24ece062bb`; the fixed comparator stayed
-unchanged. `singleton_name_args0_reissuer_stop` landed at `01a1a6bc83`:
-its retired JSON singleton name/args[0] reissuer is stopped before mutation,
-the singleton rewrite code is gone, and early-phi/JSON classification remain
-unchanged. Stage1's ReturnCall writer/name/arity path was removed at
-`99b4446cab`, but the selected defs boundary has no executable acceptance: the
-three old smokes neither contain that defs writer nor pass the earlier static
-terminal. The semantic cohort is
-`ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`; do not
-restore its writer, add a test-only seam, or call it landed. The three invalid
-probe scripts and their exclusive fixtures (6 files/189 lines) were
-RetireFromTree'd at `f15098cf0b`; stale quick/checklist paths and default
-integration discovery are now zero. The active
-`mir_json_v0_call_ingress_stop` leaf landed at `9a40ece824`: both
-call spellings stop in the shared Rust MIR JSON-v0 dispatch before publication,
-the caller-zero call/catalog parsers and call-only tests are deleted, and 14
-focused tests pass. Its closeout compacts the 1,000-line active card toward
-900 lines using hash-plus-one-line tombstones. Only a future unchanged route
-reaching `FuncLoweringBox` may reopen terminal ownership and predicate naming;
-caller-zero deletes that owner instead. Remaining families stay local
-`ParkedSealed`; R7 still waits for all legacy callers to reach zero. The
-ArrayElementWrite projection candidate is now closed by the typed selected-C
-consumer landed at `9cb7a6c71a`: all four operations have one published row
-owner, the three selected native artifact callers no longer invoke legacy
-projection, and the generic `Insert` gap is covered by a direct runtime alias.
-The remaining llvmlite projection is an explicit compatibility lane outside
-this closeout.
+Closed outer-leaf receipts (detail in Git): duplicate readers
+`ef3ee28bc5`/`d4ce50b87c`, fallthrough stops `a33987e8e4`/`24ece062bb`,
+singleton reissuer stop `01a1a6bc83`, v0 call stop/deletion `9a40ece824`.
+Stage1 ReturnCall writer removal `99b4446cab` did not prove executable defs
+acceptance: `ParkedSealed__SelectedBoundaryUnreachableThroughCurrentImportClosure`.
+Invalid probes/fixtures retired at `f15098cf0b`; only an unchanged route reaching
+FuncLoweringBox may reopen its terminal, and caller-zero deletes that owner.
+ArrayElementWrite selected-C projection landed at `9cb7a6c71a`; remaining
+llvmlite compatibility is outside that closeout. Reuse generic M7-S, no new
+card/receipt/adapter/fixture/guard; shared callers may migrate before R7 zero.
 
 ### S-class gate coverage (navigation only)
 
-The five post-M9 S-class gates are already defined by the final-pipeline SSOT;
-they are not additional current execution rows. Their concrete coverage is
-kept explicit here so a release claim cannot be mistaken for the current R6
-closeout:
-
-```text
-S1 Enforce       M4/M6/M7 + M8; private boundary constructors/capabilities
-                 and negative guards must be observed before release.
-S2 Prove         M5/M6 evidence is necessary but not sufficient. A future
-                 MIR-VERIFY-VM-LLVM-DIFFERENTIAL-R0 must compare observable
-                 results/failures/effect order, and a compact spec-ID trace
-                 matrix must link each rule to positive and reject evidence.
-S3 Delete        M3/M4/M7/M9; LegacyCallV0 production writers/reissuers/
-                 readers and compatibility repair must reach caller-zero.
-S4 Bootstrap     owner: selfhost-bootstrap-route-ssot; stage0->stage1->stage2
-                 reproducibility and identity comparison are post-M9 gates.
-S5 Release       owner: hakoruneup-release-distribution-ssot; clean checkout,
-                 pinned tools, sample ladder, limitations, and regression
-                 evidence are post-M9 gates.
-```
-
-S2's differential harness, rule traceability, S4 bootstrap proof, and S5
-release packaging are planned but unopened. The accepted whole-library receipt
-is `7543/7381/133/29`; it is stable known debt, not a green claim or permission
-to rebaseline.
+Post-M9 S1..S5 remain navigation in final-pipeline: Enforce, Prove,
+Delete, Bootstrap, Release. Their existing differential/spec trace, bootstrap
+and distribution owners are not new tasks or replacements for current app
+acceptance. No coverage/release claim follows from Call/R6 local closure.
 
 ### Compact closed tail
 
-- Core/Call retirement tombstones: `598530d23b`, `e5120589dc`, `2b7b3e7489`,
-  `44555655ab`, `7a6fb9e2db`, and ordinary-new `4b2db34ee3`.
-- Repository/tooling tombstones: legacy-tests `bcc9a6ba65`; entrypoint policy
-  `06454bd084`/`c78889dc0b`/`b22a87392d`; baseline/matrix
-  `878480e395`/`80dc7102fb`; current accepted receipt is
-  `7543/7381/133/29`; the earlier 7555/7393 and 138-name receipts are
-  historical.
-- focused green is not a whole-repo green claim; the 133-name receipt remains known debt.
-
-Each production family closeout repays its own old implementation, exclusive
-tests/proofs, row guards, adapters, and closed docs. Moves or tracked archive
-copies earn zero reduction credit. A standalone broad test/guard purge stays
-parked unless caller-zero plus an equal-or-stronger successor is proved.
+Core/Call: `598530d23b`/`e5120589dc`/`2b7b3e7489`/`44555655ab`/
+`7a6fb9e2db`/`4b2db34ee3`; tooling: `06454bd084`/`c78889dc0b`/
+`b22a87392d`; baseline/matrix `878480e395`/`80dc7102fb`.
+Recorded7543/7381/133/29 is historical, not current whole-lib green.
+Family-exclusive asset repayment follows RULES; broad purges stay parked.
 
 ### Audit follow-up boundary
 
@@ -391,65 +313,59 @@ The former B0/Wpre/individual-row navigation list is superseded here;
 its exact historical body remains at `bafa076579`. This removes stale
 scheduling instructions, not unfinished acceptance obligations.
 
-### Closed now — VM legacy call terminal collapse
+### Closed VM receipt
 
-M7-S `vm_legacy_call_terminal_collapse_i0` landed at `a74648f0b3`; no new card, semantic
-carrier, receipt, adapter, fixture, or guard. ArrayElementWrite write-only
-source/MIR/OBJ/EXE/reject evidence is closed; runtime readback remains at its
-separate `mir_call_no_route` terminal and is not widened into that row.
+`a74648f0b3` owns VM terminal collapse, finite dispatch/helper deletion and
+canonical/reject evidence. Shared LegacyCallV0, runtime-readback terminal and
+backend parity remain outside it. Do not reopen this closed cohort or add a
+second terminal/receipt; its detailed acceptance lives in Git.
 
-1. **One terminal.** Both existing VM instruction paths in
-   `src/backend/mir_interpreter/handlers/mod.rs` and `exec/block.rs` call the
-   same `reject_legacy_call` helper. Global, Method, Value, Extern,
-   missing-callee, and other unsupported legacy shapes keep their existing
-   typed rejection contract; canonical `MirCall` paths are untouched.
-2. **Old edge delete-set.** Remove `handle_call`, `execute_callee_call`, the
-   VM legacy dispatch connections, and the VM-only `HAKO_CABI_TRACE` legacy
-   route display. Do not remove the `LegacyCallV0` schema or reopen canonical
-   Call/R7 work.
-3. **Acceptance (landed).** Existing call-handler tests and
-   `cargo check --features vm-reference` must pass. Structural search proves
-   the deleted VM symbols have no callers; canonical print/free/static tests
-   remain green and legacy Global/Method/Value/missing-callee inputs reject
-   before old dispatch. The fixed baseline comparator and existing pointer
-   guards remain unchanged.
+### M7-S handoff after closed VM
 
-Non-claims: no VM feature parity, no `SameModuleInstance` execution, no
-LegacyCallV0 schema deletion, no Hako/WASM/JSON ingress work, no new backend
-consumer, and no whole-repository green claim. After closeout, the next
-eligible M7-S owner is selected from the existing finite queue; parked families
-remain family-local.
-
-### M7-S prerequisite selection after the closed VM cohort
-
-The prior blanket pause is superseded by the worker-audited direct MIR loader
-Stop in the [final-pipeline owner](../design/mirbuilder-final-pipeline-ssot.md#accepted-prerequisite-design-2026-09-10-audited-at-adab473a7b).
-`direct_mir_json_schema_error_stop` removes v1 `Err` -> v0 retry at the existing
-CLI/core/loader boundary, preserving schema-absent v0 selection. It landed at
-`26e59acaef` with loader/core rejection evidence, README/reference updates and
-the existing pointer/M7-S guards green.
-Shared boxcall/egress migration still needs per-caller dispositions. R7's
-caller-zero is their output, not an external prerequisite for beginning work.
-Do not repeat the broad census, reopen VM, or delete the shared schema early.
-
-These are repair/verification tasks, not a request for a new source authority.
-An upstream terminal is dependency evidence: name its owner and fix an in-scope
-regression or make a bounded disposition decision; do not silently claim the
-downstream acceptance passed.
+Direct-loader v1 error-to-v0 retry Stop landed at `26e59acaef`, preserving
+schema-absent v0. Shared ingress/egress dispositions below remain owed;
+caller-zero is their output. Preserve supported inputs/shared readers and
+fix attributed upstream dependencies; no broad census or VM reopening.
 
 ### Dependency-ordered remaining development
 
-| order | existing task / owner | finite output and handoff |
+Numbers group dependencies, not nine implementation units or a strict queue.
+CSTATE selects execution. If Loop/shared migration is an app repair dependency,
+connect it within that owner series first. S0 input/membership dependency order
+is still unresolved; the mimalloc card owns the investigation and handoff.
+
+| order / existing owner | responsibility and dependency | acceptance / retirement / unresolved boundary |
 | --- | --- | --- |
-| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Scope selection closed: the fixed 11-entry EXE receipt and exclusions are recorded. This closes the measurement scope, not its failed programs or product acceptance; the fixed suite remains required by final-pipeline. |
-| B | M7-S remaining owner-unit Stop/Promote/Delete | Historical census closed `NoSafeSlice__M7SNoRemainingUnsharedDeleteSet`; it selected no action. Shared owners permit finite caller migration and selected old-edge removal under the current R7 contract. Keep other readers; do not require an unshared owner or repeat this census. |
-| C | Call/R7 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | All production `LegacyCallV0` ingress minters retired (S4/S5); D1..D4 caller-zero censuses landed S6 (Method arm), S7 `ec9a78254a` (array-write repair), S8 `b9d6853bef` (Closure arm), S9 (Global no-op arm). D4 worker census: remaining surface = interpreter/published-view fail-fast boundaries, compat owners, variant lifetime, shared readers — `NoSafeSlice`; reopen on v0 wire or llvmlite lane retirement. |
-| D | Loop prerequisite closure (M10) | B3 D2 is family-local `NoSafeSlice`: production substring route/codepoint outcome and ArrayPush provider/failure/commit authorities are missing. Reopen only on tracked route/provider plus source-outcome evidence; D3, LoopCond connection, cutover and selected-edge deletion remain open. |
-| E | Loop/M8 S6/M9 S7 | S0 `798551e8de`; S6D `b0fe3bf6a2`; S6E `0bdfbda1da`; **S6G `b419b84c3d`** all19 closeout; M8 closed. **S7A `f6c1d71015`** (D1): `.hako` wire subtree (scalar/string only). **S7B1–S7B5 `f4b1432929`..`f96fec7d8a`**: M8A/B/C(V2)/D/E wire + parity vs producer issuers; M9 producer half deferred. **S7G landed**: all19 parity — 8 wire-backed routes (incl. DirectAccum/Nested/LoopTrue live-producer emitters) + 11 declined pinned in census; literal M9 Done deferred. |
-| F | `LOOP-PRODUCTION-SELECTION-D0` → Loop/M10b → M11 → M12 → C0 | R0 `6e88441c0b`; M11 `9f55aea31b`/`8dff99ef22`; M12 `682acbc2ca`→`b50e8b9a56`; baseline `e53c0693c5`. C0 `25a030b5f3`/`f8f76d5ade`/`94ffe5e5cc`: 605-row census (457 durable/134 test/7 bootstrap/7 orphan-retired); move manifest = 598 keep, homes already satisfy four-box split. Cleanup steps 2-3 landed (topology rebase, root surface, context census/split, role manifest, JoinModule disposition); final audit closed at row G. |
-| G | `REPO-FINAL-CONVERGENCE-AUDIT0-G0` and physical cleanup | Closed 2026-09-25: 34-record disposition matrix + `repo_final_convergence_guard.sh` registered/green; import hygiene fixed; source-backed gates 15/15+164/164 pass on a vm-reference build; 11-entry EXE 2/9 failures assigned to `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE`. Recheck closed: gate-1 unsatisfied; `MIR-CALL-R6S0-BOUNDARY-SELECTION-D0` accepted S0-A 2026-09-25. Structural closure does not claim real-app EXE/run acceptance. |
-| H | unified selfhost resume owner | CSTATE selects the row; consultation pause remains. Its cards own unaccepted Required Object Forward S0 WIP and tooling handoff. Gate1 and EXE remain open: Loop Body9/Home After, callee carrier/incoming/mixed result/cleanup/physical acceptance, reallocResult315/318. Stored-child sibling and Gates2-4 stay parked. |
-| I | authority migration and final self-compile task pack | Facts/REGISTRY/commands/executor then parser; pinned compiler closure compiled by Stage1 without Rust frontend delegation, runnable Stage2 compiles and runs acceptance programs. Equality alone is bootstrap evidence. |
+| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` | CSTATE selects; mimalloc card retains unaccepted WIP and host-tooling consultation handoff. | Original input reconstruction and both final physical positives remain owed; focused95PASS is not app acceptance. |
+| 2 [mimalloc bundle D0][app-bundle] / Gate1 | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | Same unchanged app must reach regular-route EXE/run/exit/stdout. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
+| 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest remains product acceptance; scope selection was Closed. | All existing stdout/exit/boundary expectations; failed programs stay open with storage/usize/Loop owners. Suite exclusions do not waive the later required selfhost handoff. |
+| 4 `MIR-CALL-LEGACY-READER-STOP-R0` / R6-S3 | Choose finite remaining ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |
+| 5 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | After all required legacy writers/reissuers/readers close, remove shared carrier/repair. | LegacyCallV0 and its schema/readers stay until that proof; durable reject tests remain. Wire compatibility spelling alone is not legacy-carrier debt. |
+| 6 `LOOP-PRODUCTION-SELECTION-D0` | Select first unmet named Loop dependency; M10 B3 D2/D3 and LoopCond remain unresolved. | Existing route/provider/source-outcome authorities; production cutover and selected deletion. Reuse landed M8/M11/M12 evidence; M9 producer gaps/declined shapes are not accepted source coverage. |
+| 7 Call/M8 / [physical cleanup][cleanup-owner] | Retire remaining shared raw/barrel/wrapper debt after its own callers/contracts close. | Exclusive proved leaves need no R7 wait. Public emit_global_call and legacy me default remain candidates pending finite API/implementor proof; coverage0 grants no deletion. |
+| 8 `REPO-FINAL-CONVERGENCE-AUDIT0-G0` / final-pipeline | Sole authority pipeline, typed runner ingress, canonical Return/collect/publish, selected old owners0 and frozen corpus/backend green. | Recheck semantic/product finish line. Past structural G0 Closed remains true, but did not prove the real apps; no repeated whole-repo census. |
+| 9 authority migration / parser / self-compile | Later REQUIRED handoff follows accepted unified resume order after convergence, compiler-source conformance and canonical mimalloc promotion. | Existing Facts/REGISTRY/rule/commands/executor then parser switches retire Rust predecessors; pinned non-delegating Stage2 compiles/runs acceptance. Queued dependencies grant no automatic resume. |
+
+Closed E/F/G groundwork: Loop M8 `b419b84c3d`; S7B5 `f96fec7d8a` is
+not the S7G final receipt. S7G recorded8 wire/11 declined normalized parity;
+M9 producer completion remains open, not19 accepted source shapes.
+M11 `9f55aea31b`/`8dff99ef22`, M12 `b50e8b9a56`; C0/G0 records and
+34-row structural audit remain historical evidence, with app failures open.
+Existing legacy-test deletion `bcc9a6ba65` and feature facade/guard deletion
+`13ca2339a3` remain physical retirement evidence, not whole-goal completion.
+The [mimalloc card][app-bundle] records accepted bin_size Recipe/Home After
+and later selected PHI evidence; these are not reopened Body9 tasks. Callee
+carrier/incoming/mixed-result/cleanup/final physical and reallocResult315/318
+obligations remain with their existing owners; stored-child sibling and
+Gates2-4 remain parked.
+
+[app-bundle]: ../investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md
+[cleanup-owner]: ../design/repo-physical-structure-cleanup-ssot.md
+
+The later REQUIRED handoff uses
+[unified resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order);
+its compiler-source conformance dependency adds neither all Language-v1 features
+nor optional WASM/backend work. Current row and pause follow CSTATE/RULES.
 
 ### Acceptance-scope closeout (queued existing owner)
 
