@@ -920,78 +920,76 @@ No opaque operation activation or physical deletion claim is made here.
 
 ## Source-only sibling forward S0 — accepted (2026-10-12)
 
-Landed `96624eb74e` owns implementation, negatives, evidence and the explicit
-correction to b3c9b84879: header enumeration is batch_slot, not owner slot.
-Original contracts map owner34/batch30 allocateResult(size) to owner33/batch29
-allocate(requested_size), both OpaqueHandle; reallocResult conjecture withdrawn.
-The same Object lender retains original sibling input as SourceObject and checks
-full source/candidate/ordered snapshots. Generic non-return-qualified I64/Scalar
-requests receive passive SourceInstance, not executable/result/ABI permission.
-Explicit return-forward ordinal identity remains mandatory. Shared owners remain.
-
+Landed `96624eb74e` owns implementation, full negatives/receipts and correction
+to b3c9b84879: header enumeration is batch_slot, not owner slot. Original
+allocateResult(owner34/batch30) -> allocate(owner33/batch29), both OpaqueHandle;
+reallocResult conjecture withdrawn. Same Object lender retains/rechecks passive
+SourceObject, generic unqualified input returns SourceInstance, no execution grant.
 Original app SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
-Before: owner34 Body(1)/Initializer(0), borrowed-actual/entry-source,0.049s/no EXE.
-After: owner37 Body(5)/Initializer(0), source-only-object-actuals,0.047s/no EXE.
-Test build/link494.352s; CLI build/link232.185s. Unique51 focused PASS,1 known
-NoIncoming baseline reproduced on pre-change V5 binary. Pointer/format/diff PASS;
-scope guard unchanged baseline raw_loop_child_entry count3 vs required4.
-Receipts: `/tmp/mimalloc-sibling-forward-v3-runtime-receipt.json` and
-`/tmp/mimalloc-sibling-forward-cli-v3-runtime-receipt.json`; matching Rust snapshots.
-No full-suite/whole-repo green, production completion or global retirement claim.
-Parent bounded two-exit/document S0 remains accepted at `2f6f0a8a1a`;
-original13-definition JSON/readback and native1/2/73 pass, whole app unfinished.
+First-stop owner34 Body1 entry-source -> owner37 Body5 source-only-object-actuals,
+no EXE. Unique51 focused PASS/1 reproduced baseline; receipts and build times in
+that commit. Parent two-exit/document S0 `2f6f0a8a1a` remains accepted; original
+JSON/readback/native1/2/73 evidence is not whole app or global retirement proof.
 
-## Qualified source input D0 — Decision (2026-10-12)
+## Qualified source input S0 — accepted (2026-10-12)
 
-Decision accepted at `c82ee43752`; selected implementation row:
-`MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-S0` (not yet accepted).
-Exact contracts map owner37/batch33 HakoAllocHeap.realloc; Body(5) initializer
-calls allocate with requested_size(binding/root2), ordinal0. Original evidence:
-`/tmp/mimalloc-next-qualified-source-contract.log`; unchanged app receipt above.
-The retained SourceObject input reaches issue_lexical_nullable_local_call ->
-ScalarArguments -> executable lender and refuses. This is input discovery, not a
-missing source contract or permission to turn that input into an executable row.
+Decision `c82ee43752`, landing `4d202191a8` own full mapping, negatives and receipts.
+Original owner37/batch33 realloc Body5 calls allocate with requested_size(root2).
+Generic Scalar/I64 borrows the same passive Object input; dedicated Object/
+ReceivedObject/Handle qualification branches and execution/result/ABI owners stay.
+SourceInstance returns unarmed in both lexical/stored paths, with no strict retry.
+No private visibility was widened and no shared owner physically deleted.
 
-Decision: remove only the return-qualification exclusion from the existing
-passive Instance source projector. Original source incoming target + parameter
-catalog + Object input lender remain canonical; regenerate/compare full pending
-snapshot. SourceInstance means unarmed in both lexical and stored receiver paths;
-no strict retry, Scalar response, executable proof or result witness loan.
-ObjectArguments/ReceivedObject/ReceivedHandle branches must remain before the
-generic Scalar/I64 precheck and keep their original qualification validation.
-Non-authority: nullable membership, generic discovery, backend or fixture shape.
+Quick build/link8m20s; focused53PASS/1 pre-change NoIncoming baseline. Pointer/
+format/diff PASS; qualified-route count3 vs4 remains unchanged baseline.
+Test receipt `/tmp/mimalloc-qualified-input-v2-runtime-receipt.json` covers passive
+response equality, missing/phase/candidate/ordered mutation and foreign refusal.
+CLI build/link232.212s; original app0.050s/rc1/no EXE. OrdinaryNew input discovery
+now passes into LexicalInstanceCall source-only-object-actuals refusal. The less
+specific diagnostic alone does not prove owner/site advancement. All3 changed
+Rust bytes match test/CLI snapshots. CLI receipt:
+`/tmp/mimalloc-qualified-input-cli-v1-runtime-receipt.json`.
+Read-only `/tmp/mimalloc-qualified-input-executable-stack.log` locates Static
+packet's whole-final-incoming checker. Input S0 is not qualified execution
+cutover, Normal/result/ABI permission, app success or full old-edge retirement.
 
-Qualified input S0 acceptance (2026-10-12):
-- Existing passive projector now covers qualified source input; dedicated Object/
-  ReceivedObject/Handle qualification branches unchanged. No visibility widening.
-- Quick build/link8m20s; focused53PASS/1 pre-change NoIncoming baseline. Existing
-  forward test covers passive equality and execution/mutation refusal; callback
-  tests cover both Scalar/I64 and foreign qualification. Receipt:
-  `/tmp/mimalloc-qualified-input-v2-runtime-receipt.json`.
-- CLI build/link232.212s; original unchanged app0.050s/rc1/no EXE. Previous
-  OrdinaryNew BorrowedFormalIngress gives way to LexicalInstanceCall with the
-  same source-only-object-actuals terminal. No owner/site advancement is inferred
-  from this less-specific diagnostic. CLI receipt:
-  `/tmp/mimalloc-qualified-input-cli-v1-runtime-receipt.json`.
-- Current/test/CLI snapshots match all3 changed Rust files. Pointer/format/diff
-  PASS; qualified-route guard's unchanged count3 vs4 baseline remains classified.
-- Read-only GDB `/tmp/mimalloc-qualified-input-executable-stack.log` locates the
-  new demand: co_seal_static_local_routes -> selected_static_local_source ->
-  borrowed_static_packet_actuals -> checked_borrowed_entry_incoming -> require_executable.
-Delete set: no shared-owner physical deletion; this target's generic executable
-input demand is replaced by the existing passive response. Input mapping accepted,
-not qualified execution cutover, result/ABI permission or full old-edge retirement.
-
-## Next bounded design — Static final-incoming D0
+## Static final-incoming D0 — current boundary (2026-10-12)
 
 Selected: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0`.
-Existing entry checker deliberately validates whole-final-incoming before lending
-requested owner rows (borrowed_formal_entry.rs). Static packet checks original
-qualified Rc/call/parameters/Completion first, then uses that shared closure.
-Do not classify the new rejection as accidental eager scope or filter/skip it.
-Read-only worker confirmed the explicit global contract. Next: identify requested
-Static source/owner/site and the rejecting SourceObject incoming/callee from this
-same invocation, then decide the existing final-membership/input-closure law.
-Source-only evidence is not executable proof. Keep global failure scope until an
-explicit owner Decision; no new solver/receipt/fallback or source rewrite.
-No whole SizeClass/mimalloc-lite/MirBuilder completion claim.
+Original app, current tested CLI bytes, pure-first/replay-none. Read-only trace:
+- Requested Static: LayoutBox.class_id(owner17/batch13), Body(0)/Initializer(0)
+  -> SizeClassBox.good_size(owner11/batch7).
+- Rejecting SourceObject: HakoAllocHeap.allocateResult(owner34/batch30),
+  Body(1)/Initializer(0) -> allocate(owner33/batch29).
+- Different callee cohorts, same source graph. Sealed contract rows provide
+  batch-slot joins; header enumeration alone is not owner identity.
+Evidence: `/tmp/mimalloc-static-final-incoming-site.log`, `...-contract.log`,
+`/tmp/mimalloc-static-final-current-map.log`; current-binary disassembly validates
+memory offsets. Those offsets are diagnostic only, not authority/portable ABI.
+
+Current checker deliberately validates whole-final-incoming before lending only
+requested owner rows. Static packet checks original qualified Rc/call/parameters/
+Completion first. README's opaque Object/entry global execution contract remains.
+Decision: do not skip SourceObject, filter the shared checker, grant execution or
+turn rejection into missing evidence. Explore a Static-specific split inside the
+same owner: global source/inventory validation plus selected-callee execution
+closure and original forward dependencies. Other opaque entry/Object contracts
+must remain unchanged. SourceObject is retained, not promoted.
+
+Next implementation mapping to close before S0:
+1. Bind the exact original parameter catalog to Static source validation using
+   the existing issuer/package loan; avoid copied authority/new receipt. The
+   current entry checker has no catalog, so ordered-arguments checks alone do
+   not validate SourceObject's intentionally empty opaque-proof storage.
+2. Define shared global uniqueness/definition/cardinality/error/missing/snapshot
+   checks; all selected callee callers and required forward dependencies still
+   require executable proof. Audit existing object-view agreement obligations.
+3. Keep original qualification/Completion and validate-all-before-mark ordering.
+4. Positive: unrelated healthy SourceObject retained, selected Static closes.
+   Negative: same-callee later caller/forward missing, unrelated Err/missing or
+   changed source snapshot, foreign original, missing Completion, partial mark.
+5. Focused entry/packet/Object regression and unchanged original app first-stop;
+   no physical deletion permission or Object activation inferred from passage.
+Read-only worker supports the split as an explicit owner contract change, not
+an already-authorized weakening. Canonical catalog loan and validation domains
+remain the internal design work; no external wait or whole-product completion.
