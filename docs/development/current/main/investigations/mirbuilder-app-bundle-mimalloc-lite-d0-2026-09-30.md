@@ -907,3 +907,38 @@ Worker checks the concrete authority gap and existing producer/consumer, then ma
 records one Decision and smallest implementation slice here. No source annotation
 workaround, pending-phase cast, global execution waiver, new receipt chain, parked
 lane reopening or whole-app claim. This is internal design work, no external wait.
+
+### Owner-selected milestone and D0 refinement (2026-10-12)
+
+Near milestone: unchanged mimalloc-lite, selected pure-first/replay-none physical
+route, EXE generation -> execution -> exact suite output. Full retirement and
+selfhost remain later REQUIRED milestones of MIRBUILDER-FINAL-PIPELINE-v1, not
+removed or counted complete. Current work stays ONLY Required Object Forward D0.
+After its smallest S0: focused tests, then the SAME original app; record first-stop
+by terminal AND owner/site plus EXE/run result. If it does not move, audit repeated
+proof construction/common owner before stacking another small patch. Do not add
+unrelated improvement/audit lanes or caller-specific authority/receipts.
+
+Read-only worker found existing Integer Normal authority: SAME CheckedIntegerGuard
+Rc and BorrowedGuardedActual's exact call/ordinal/site/binding reach survive source
+pruning. Current consumer uses it only as a domain seed. Compare materialization
+of source-only definitions accepts completed STATIC scalar cohorts; Instance owner34
+has no matching consumer. Typed Object finish requires ExactI64 scalar parameters,
+so it cannot activate this OpaqueHandle input unchanged.
+
+Decision direction: declaration-bound tagged carrier binding in existing entry
+owner, checked Normal continuation in existing compare owner, and exact guarded
+forward reconstruction in existing actual/input owner. Keep formal OpaqueHandle
+and kind/payload ABI; use existing original catalog/signature, not caller consensus.
+An unused declaration's complete-empty observed incoming may bind its DECLARED
+carrier, never certify executable incoming or Integer/class/ownership/whole body.
+Required callee33 incoming stays complete; no outgoing edge is omitted.
+
+Before S0 selection, close the exact bounded profile/entry API and signature/formal/
+guard matching; identify its physical compare/dominance validation and residual
+body/constructor/result/cleanup gates. Missing/foreign declarations, signature or
+guard, rebind, comparison-before/branch mismatch, omitted REAL incoming, missing
+physical compare/dominance and call after guard Fault must refuse. Comparison
+syntax or source-only phase alone remains non-authority; no global definitions
+insertion/phase cast or source annotation workaround. This consumer contract is
+internal work, not an external dependency or a pre-implementation green demand.
