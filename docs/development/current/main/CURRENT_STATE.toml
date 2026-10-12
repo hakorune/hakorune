@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0"
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "selfhost-resume/required-object-forward-execution-unproved"
-current_design_stop = "RequiredObjectForward__SourceOnlyInputNotExecutable"
+current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,17 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Static scoped input S0 accepted:82 focused PASS/1 known NoIncoming baseline.
-Original app still source-only-object-actuals/no EXE. Fresh scoped=true trace joins
-GoodSize<-class_id<-allocate original forwards; allocateResult->allocate is REQUIRED,
-so refusing its source-only input is correct. No global entry/Object weakening.
-Next D0 closes that guarded opaque forward's existing operation/Normal/input proof.
-Production cutover review, caller-zero, retirement and whole product remain owed.
+Required Object Forward D0 closed: SAME guarded source/catalog/signature can bind
+an Instance declaration tagged entry, lend checked Compare Normal and reconstruct
+its exact required input. Both final consumers must independently validate zero-call
+declarations while preserving full real-call coverage. S0 selected, not accepted.
+Unchanged app remains source-only-object-actuals/no EXE; after S0 rerun mandatory.
+Production closeout/caller-zero/retirement and whole product remain owed.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"

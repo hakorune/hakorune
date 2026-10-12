@@ -846,45 +846,31 @@ no remaining external dependency or required future-green construction condition
 
 ### STATIC-FINAL-INCOMING-S0 receipt — accepted (2026-10-12)
 
-One private entry core retains global source checks; only qualified opaque Static
-selects original-forward reverse execution closure. View-free unrelated
-SourceObject stays passive after SAME catalog/full-snapshot revalidation. Default
-entry/Object still requires whole-final execution. Required inputs remain refused.
-No new authority, receipt, source rewrite, ABI/result or artifact grant.
+Landed `7901d434fa`; full acceptance/provenance is retained in that commit.
+Only qualified opaque Static uses original-forward reverse execution closure;
+view-free unrelated SourceObject requires SAME catalog/full-snapshot revalidation.
+Default entry/Object and required inputs keep whole-final executable checks.
+No new authority/receipt/source rewrite/ABI/result/artifact grant or deletion credit.
 
-- Final V7 quick build succeeds; observed build interval recorded in
-  `/tmp/mimalloc-static-scoped-s0-v7-runtime-receipt.json`. Focused82PASS/1 original
-  NoIncoming baseline: packet15, entry18, Object identity9/port2/slot12, actual26.
-  The exact previously reproduced baseline remains unchanged; no rebaseline.
-- Ten parameterized forward corruptions and missing forward/dependency/nonforward
-  incoming refuse. Natural guarded opaque sibling passes passively; selected and
-  default paths refuse. Phase forgery has matching ordinal/site/formal/ordered
-  shape and still refuses. Err/missing/snapshot/catalog/class-view mutations fail
-  before any partial route mark. The prior new-fixture NoIncoming failure is fixed,
-  not waived; interrupted builds and V3/V6 evidence remain under `/tmp` prefixes.
-- V7 source/binary snapshot is exact. One added condition is subsequently reflowed
-  only; full-file rustfmt-normalized contents are identical (`...-format-proof.json`).
-  The fresh CLI snapshot matches all final6 Rust files byte-for-byte. Existing
-  whole-file entry/test format debt stays; new actuals/owner-view/scope child clean.
-- CLI succeeds; observed build interval251.974s. Original app SHA256 remains
+- V7 focused82PASS/1 original NoIncoming baseline: packet15, entry18, Object
+  identity9/port2/slot12, actual26; no rebaseline. Exact runtime receipt and snapshot:
+  `/tmp/mimalloc-static-scoped-s0-v7-runtime-receipt.json` and `...-snapshot-v7.json`.
+  Forward/phase/catalog/view/coverage corruptions reject before partial route marks.
+- V7 reflow-only equivalence: `...-format-proof.json`; fresh CLI matches final6 Rust
+  files. Existing whole-file fmt debt remains; new actuals/owner-view/scope clean.
+- CLI build251.974s; original app SHA256
   `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
-  pure-first/replay-none probe0.050s/rc1/no EXE, SAME LexicalInstanceCall/
-  source-only-object-actuals first-stop. Runtime receipt `...-cli-v1-runtime-receipt.json`.
-- Fresh-binary read-only trace explains the unchanged stop: scoped Static=true,
-  requested GoodSize owner11/batch7; rejected incoming34->33. ORIGINAL forward
-  edges17->11 and33->17 make allocate(owner33/batch29) REQUIRED, not unrelated.
-  Exact sealed owner/batch joins and header names are in `...-contract.log` and
-  `...-map.log`; `...-forward-graph.log` / `...-tuple.log` / fresh disassembly prove
-  the observed dependency. Memory offsets are diagnostic only, never authority.
-- Test warning signatures812->812; CLI1735->1735, no new/removed signature or
-  suppression. Pointer/diff pass. Qualified-route guard remains original debt:
-  unchanged raw_loop_child_entry call count3 vs required4; not PASS or waived.
-  Changed source sizes below760; scope tests329 lines, parent556, entry752.
+  pure-first/replay-none probe0.050s/rc1/noEXE; same LexicalInstanceCall/
+  source-only-object-actuals. `...-cli-v1-runtime-receipt.json` records provenance.
+- Fresh trace: scoped=true, GoodSize11/batch7, rejecting34->33. Original17->11 and
+  33->17 make allocate33/batch29 REQUIRED. SAME sealed joins in `...-contract.log`,
+  `...-map.log`, `...-forward-graph.log`, `...-tuple.log`; offsets diagnostic only.
+- Warning signatures test812/CLI1735 unchanged. Pointer/diff pass; unchanged
+  qualified-route guard debt raw_loop_child_entry count3 vs4 is NOT PASS/waived.
+  Sources below760 (entry752, test parent556/child329).
 
-Production Static caller now invokes the scoped contract, but whole production
-cutover acceptance/caller-zero/old-edge retirement are NOT proved by this receipt.
-Shared/default owners stay; physical deletion credit0. Whole SizeClassBox,
-mimalloc-lite and MirBuilder remain unfinished.
+Production calls scoped contract; full cutover/caller-zero/retirement and whole
+SizeClassBox/app/MirBuilder remain unproved. Shared/default owners stay.
 
 ## Required Object forward D0 — current boundary (2026-10-12)
 
@@ -934,11 +920,65 @@ An unused declaration's complete-empty observed incoming may bind its DECLARED
 carrier, never certify executable incoming or Integer/class/ownership/whole body.
 Required callee33 incoming stays complete; no outgoing edge is omitted.
 
-Before S0 selection, close the exact bounded profile/entry API and signature/formal/
-guard matching; identify its physical compare/dominance validation and residual
-body/constructor/result/cleanup gates. Missing/foreign declarations, signature or
-guard, rebind, comparison-before/branch mismatch, omitted REAL incoming, missing
-physical compare/dominance and call after guard Fault must refuse. Comparison
-syntax or source-only phase alone remains non-authority; no global definitions
-insertion/phase cast or source annotation workaround. This consumer contract is
-internal work, not an external dependency or a pre-implementation green demand.
+### MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0 Decision and bounded tasks (2026-10-12)
+
+Decision: connect the existing declaration-tagged entry, checked Compare Normal
+and guarded argument owners for this required forward. No caller consensus,
+class inference, source rewrite, phase cast or separate proof ledger.
+Source authority + canonical issuer: SAME original parameter catalog/signature,
+source use draft and CheckedIntegerGuard/BorrowedGuardedActual; existing entry,
+compare and actual/input owners issue and lend their corresponding obligations.
+Non-authority: source-only phase, comparison syntax, diagnostic owner numbers,
+physical metadata alone, missing packets or completed-empty fabricated inventory.
+
+Bounded profile: original source-only InstanceBoxMethod with OpaqueHandle formals;
+at least one checked Compare and one exact guarded outgoing Object input. EVERY
+formal use must be CompareOperand or an exact guarded UnresolvedArgument; roots,
+ordinals, bindings and declaration mode must match SAME original catalog. Project
+original incoming with its vetoes preserved; only complete-empty observed incoming
+may bind this declaration's tagged carrier. Nonempty real incoming stays covered.
+Neither case grants an executable incoming loan, Integer entry or whole-body permit.
+
+Smallest next slice (one responsibility: guarded required input forwarding):
+1. Existing entry owner lends that bounded declaration view as SelectedTagged.
+   Check supplied parameter kinds as well as roots/ordinals/bindings against the
+   original catalog. Receiver law comes from its original declaration mode;
+   all nonempty incoming modes agree. Do not infer mode from physical params.
+2. Existing guarded-actual owner lends exact call/ordinal/site/binding/formal and
+   SAME Compare Rc correspondence to the draft. No retained batch/signature copy
+   is added solely to repeat source validation already closed at issuance.
+3. Existing Compare owner accepts that Instance declaration view; physical lowering
+   still emits the original checked comparison, preserves operand order/tag Fault,
+   and final use closure independently verifies its Normal CFG dominance.
+4. Existing actual/input owner reconstructs the guarded outgoing input from SAME
+   original target/arguments/catalog/signature. Keep callee33's complete incoming
+   and original forwarding dependencies. Update SourceObject demand-time rechecks
+   to recognize only this reconstructed guarded contract; never allow arbitrary
+   Executable phase replacement. Preparation proves a plan; final publication
+   independently owes the actual Compare/Normal path, not a preconstruction result.
+5. Validate zero-call tagged DECLARATIONS independently in BOTH final consumers:
+   compiled_entry_contract/borrowed_call_incoming.rs and invoke_borrowed_calls.rs.
+   Published target -> handoff.callables().owner_for_canonical_key; MIR side uses
+   the unique canonical definition key/symbol -> root.callables() lookup. Demand
+   finished source/owner/symbol, bounded profile, complete-empty original incoming,
+   recorded entry values and exact params/carriers/receiver correspondence. Reuse
+   BorrowedCallUses::entry for published full-use closure. Keep incoming==original,
+   real-call actual coverage and physical/witnessed coordinate equality unchanged;
+   add no fake packet, call slot or coordinate. Share the existing source lender.
+6. Existing-owner positives/negatives cover the guarded declaration/forward and
+   zero-call final verification. Refuse foreign/missing catalog/signature/guard,
+   supplied kind drift, rebinding, pre-compare/branch mismatch, omitted real calls,
+   missing physical Compare/dominance and outgoing execution after guard Fault.
+   Bool/object fail at the original Compare; usize range remains its original
+   write boundary. Body/constructor/result/cleanup residual gates stay mandatory.
+7. Focused nonzero filters and required guards, classify reds, then rerun SAME
+   unchanged mimalloc-lite with fresh binary provenance. Record terminal AND
+   owner/site and EXE/run/output. If unchanged, inspect common proof owner before
+   another patch. Commit/push only selected files; keep this card below1000 lines.
+
+Read-only worker independently confirmed both zero-call gaps and existing canonical
+owner lookup (also used by birth_calls.rs). This closes the D0 correspondence;
+S0 is selected, not accepted. Changed source beyond760 requires responsibility
+split before800; put bounded entry logic in its existing owner-view child.
+Non-claims: Integer/class/ownership entry, whole body completion, S0 acceptance,
+EXE success, production closeout/caller-zero/retirement and full product completion.
