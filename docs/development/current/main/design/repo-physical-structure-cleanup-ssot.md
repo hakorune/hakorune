@@ -15,6 +15,14 @@ Related:
 
 # Repo Physical Structure Cleanup (SSOT)
 
+## Operational authority and product evidence
+
+RULES owns operations; `CURRENT_STATE.toml` selects the row. This file owns
+physical debt. Its parked trains do not delay proved selected-owner retirement.
+The selected unchanged app needs regular-route EXE/run/exit/stdout acceptance;
+local/preparation/structural closure does not prove it. Fixed-suite and final
+completion conditions remain required; this file grants no resume permission.
+
 ## Current Capsule
 
 - **Current decision:** physical cleanup must reduce tracked files/lines when
@@ -53,16 +61,12 @@ permission to interrupt the active Birth source-to-EXE/OBJ cutover.
 | Published lifecycle transport placement | `PUBLISHED-LIFECYCLE-C-TRANSPORT-PHYSICAL-PLACEMENT-R0` is parked until the typed lifecycle C consumer has a stable live interface. The two distinct transport implementations currently enter the published view through cross-directory `#[path]`; this is placement debt, not duplicate authority. | Move them under the sole published-view owner (or a named transport subdirectory), delete those cross-directory mounts, and retain facade reexports only while direct callers exist. Require zero matching cross-directory mounts, unchanged tests/errors and no route/ABI change. |
 | Semantic package README capsule | `SEMANTIC-PACKAGE-README-CAPSULE-R0` is parked until the active constructor closeout. Split evergreen owner/issuer/non-authority/module-map contract from dated landing narrative, keeping durable history only at its canonical linked location. | Live README becomes a concise entry contract with resolving references and lower tracked live-doc pressure; no semantic rewrite, archive bulk purge or history copy. |
 
-Keep sealed bundles, affine scope boundaries and collector prepare/seal/commit.
-A new type is justified by distinct semantics, ownership or state transition,
-not by rewrapping the same data. Stop/Delete applies only to explicitly retired
-compatibility, never as a substitute for required product acceptance. Track
-local tests, source-to-MIR, source-to-execution and physical deletion separately.
-These tasks reuse existing owners/cards/guards; no new framework or dispatcher.
+Keep sealed/affine/prepare-seal-commit boundaries and distinct type semantics.
+Stop/Delete does not substitute for product acceptance; distinguish local,
+MIR, execution and deletion evidence using existing owners/cards/guards.
 
-- 設計文書の美しさを、repo の物理構造でも読める形へ寄せる。
-- root / `CURRENT_TASK.md` / `src/mir` の認知負荷を下げる。
-- cleanup を `BoxShape` として進め、受理形追加や broad rename と混ぜない。
+Reduce root/current/MIR navigation load through BoxShape cleanup;
+keep acceptance growth and broad renaming separate.
 
 ## Pressure Snapshot
 
@@ -73,11 +77,8 @@ Local snapshot on 2026-03-22:
 - `src/mir/**/*.rs`: `1031` files / `210851` lines
 - `src/mir/builder` subdirectories: `92`
 
-Current reading:
-
-- 設計哲学は先に整っている
-- 物理構造がまだ追いついていない
-- まず必要なのは crate split ではなく、入口と衛生の整理
+Reading: physical structure lags design; prioritize entry/ownership hygiene
+before crate splitting.
 
 Audit refresh on 2026-08-07 (`42ec69ab84`, local `rg` census):
 
@@ -91,10 +92,8 @@ design Markdown recursive / direct      = 859 / 847
 src/mir/mod.rs module declarations      = 198
 ```
 
-These counts prove repository-topology pressure, not semantic ownership.
-`cfg(test)` presence does not make a file legacy, and seed/pilot names do not
-authorize deletion. The root-module namespace gap and its post-cutover rows are
-owned by `mir-root-facade-contract-ssot.md`.
+These topology counts do not grant deletion authority (RULES).
+`mir-root-facade-contract-ssot.md` owns root namespace/post-cutover rows.
 
 ### Absolute reduction refresh (2026-09-01)
 
@@ -113,16 +112,13 @@ tracked generated Hako artifacts      =    108 files /    13,461 lines
 Rust MIR interpreter                  =     93 files /    18,449 lines
 ```
 
-The physical docs count is 17,530 files / 2,016,957 lines, but its untracked
-`docs/private` component is outside this SSOT. Moving tracked history from one
-repo directory to another changes navigation, not the absolute footprint.
+Physical docs: 17,530 files / 2,016,957 lines; untracked `docs/private` is
+outside scope. Tracked moves do not reduce footprint.
 
 ### `REPO-ABSOLUTE-REDUCTION-R0` parked task train
 
-This train is nonblocking cleanup and does not preempt the selected MirBuilder
-production vertical. It may run only when `CURRENT_STATE.toml` explicitly
-selects a clean-worktree cleanup window. The source/guard/docs reductions are
-separate bounded commits; they never share a semantic implementation commit.
+This nonblocking train requires CSTATE-selected clean-worktree cleanup;
+source/guard/docs reductions stay separate from semantic commits.
 
 ```text
 REPO-LIFECYCLE-BASELINE-REFRESH-R0
@@ -139,9 +135,8 @@ REPO-LIFECYCLE-BASELINE-REFRESH-R0
 
 ### `REPO-LIFECYCLE-BASELINE-REFRESH-R0` (landed)
 
-This was a one-time BoxShape/receipt task, not a repository reduction batch
-and not a MirBuilder semantic implementation. It ran only after
-`CURRENT_STATE.toml` selected the row in a clean worktree.
+This one-time BoxShape receipt task selected by CSTATE in a clean worktree
+claimed neither repository reduction nor MirBuilder semantic implementation.
 
 ```text
 Decision:
@@ -463,18 +458,22 @@ mandatory-Callee R6
 Call R7 caller-zero
   -> delete legacy Call/Method(None)/callee=None/repair readers and their
      exclusive tests, guards, docs, adapters, and fixtures
+selected owner cutover
+  -> retire proven exclusive obsolete exports, ports, wrappers, allowances
+     and temporary proofs in-series; do not wait for aggregate R7
 post-R7 thinning
-  -> delete dead barrel exports, raw ports, stale wrappers, false
-     #[allow(dead_code)] allowances, and disconnected proof modules leaf-first
+  -> retire remaining shared debt after its own callers/contracts close
 backend replacement
   -> delete selected-C/Rust-VM family consumers only after equal-or-stronger
      selected product coverage and caller-zero evidence
 ```
 
-Tests are not deleted by count, age, filename, or current failure status. A
-test retires only with a caller-zero implementation/compatibility family or an
-equal-or-stronger successor. The known-red inventory remains a comparison
-owner; rebaselining, ignoring, or renaming-away a failure is not reduction.
+Follow RULES for retirement: shared carrier/reader contracts remain until
+closed; functional additions need no invented delete-set. Existing owner cards
+distinguish temporary proofs from durable semantic/negative tests, without new
+censuses/guards/ledgers. Count, age, filename, failure or zero runtime coverage
+alone grants no deletion; upstream stops can explain zero coverage. Preserve
+caller-zero/successor evidence and the known-red comparison owner.
 
 ## Reading Rule
 

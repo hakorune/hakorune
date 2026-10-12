@@ -1,7 +1,7 @@
 # Hakorune 開発ルール
 
 Status: SSOT
-Date: 2026-10-10
+Date: 2026-10-12
 Scope: task selection, implementation, validation, production cutover, retirement, and restart routing.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -55,11 +55,13 @@ source authority・意味契約・失敗境界・必要な acceptance は実装�
 
 ## 4. 建設と旧経路退役の証明タイミング
 
-- 建設の入口は二点で決める。①選ぶsource authority・canonical issuerと、このsliceが受け持つ意味／失敗境界が固定されている。②置き換えるproduction callerと旧責務を名前で指し、新経路を判定するfocused positive/negative acceptanceが決まっている。
+- MirBuilderの第一達成点は、goalの既存acceptanceから選ぶ未変更実アプリ1本の正規EXE生成・実行・出力/exit一致とする。選択は既存active cardに記し、goal全体の完了条件や固定suiteを置き換えない。
+- 建設の入口は二点で決める。①選ぶsource authority・canonical issuerと、受け持つ意味／失敗境界が固定されている。②接続するproduction caller、新owner、置き換える旧責務とedge、focused positive/negative acceptanceが決まっている。
+- bounded seriesは一つのsource責務を最終consumerまで接続する単位。内部sliceを分けても、entry・引数・結果・cleanup・publicationの必要な接続を同じseriesで閉じる。契約準備、機能追加、挙動不変の整理を区別し、準備の局所greenを本番置換完了にしない。旧責務を置き換えない純粋な機能追加はその旨を記し、LOC減少を強制しない。
 - この二点が閉じたら建設を始める。建設後のgreen、caller-zero、別callerの全数調査、CI完走を着手条件にしない。テスト失敗は選んだmapping内で直し、受理形やauthorityを広げる必要が出た時だけ設計へ戻る。
 - `NoSafeSlice`はdesign stopのまま扱う。候補・拒否・空receipt・fallbackへ変換しない。
 - production cutoverでは、同じsource authorityからselected consumerへ通す。失敗後に旧経路へretryしない。
-- 旧edgeを物理削除する前に、影響callerが同じbounded series内で切替または停止済みであり、対象acceptanceとguardが通り、そのedgeのcallerが0であることを確認する。削除集合は選択済み範囲内とし、共有ownerと未選択callerは残す。
+- 旧edgeを物理削除する前に、影響callerが同じbounded series内で切替または停止済みであり、対象acceptanceとguardが通り、そのedgeのcallerが0であることを確認する。条件を満たす旧専有実装・一時adapterは同じseriesで削除し、実アプリ全体の成功まで無条件に延期しない。共有ownerと未選択callerは残し、残存callerと未完の退役条件を既存cardに明記する。削除証明を建設の着手条件にしない。
 
 ## 5. 詰まりと設計停止
 
@@ -75,7 +77,7 @@ Smallest next slice:
 Non-claims:
 ```
 
-- 同じ責務で3回続けて `NoSafeSlice` になったら、edge censusを繰り返す前にsemantic unit、全classifier arms、opaque/transferred subtrees、型要件、counterexampleを監査する。難しい独立設計はread-only workerで確認し、主担当が1つのDecisionへ統合する。
+- 実sourceのfirst-stopが修正後も同じなら、次の局所patchの前に既存調査を再利用して関連producerから最終consumer、全classifier armsと必要な関数参加集合を調べ、欠けた共通責務をowner単位で直す。同じ責務で3回続けて `NoSafeSlice` ならsemantic unit、opaque/transferred subtrees、型要件、counterexampleも見直し、edge censusや深いtask suffixを繰り返さない。難しい独立設計はread-only workerで確認し、主担当が既存cardの1つのDecisionへ統合する。
 - read-only workerは共有checkoutを編集せず、Cargoを起動しない。文書と実態が食い違えば原因を確認し、記載か設計判断を更新する。
 - 候補選択・design stopの解決順・停止判断は[family-local scheduler](current/main/design/agent-current-entry-contract-ssot.md#family-local-action-scheduler)を続けて使う。ここに定めたmodeと入口・退役の規則が優先する。
 - ユーザーが設計相談中の停止やgoalのpauseを明示したら、それに従う。
@@ -90,10 +92,10 @@ Non-claims:
 - 一時的test/guard/adapter/proofには、owner・正本の置換先・`retire_when`・削除に必要な証拠を既存card/metadataへ記す。条件を満たした専有物は第4節に従い同じbounded seriesで統合・物理退役する。
   永続的な意味・安全性検証を一時負債に含めず、履歴はGitへ残す。退役を証明する新guard・台帳や、一律のtest数上限・全repo棚卸しを着手条件にしない。
 - 必要な検証がgreenなら、関連変更・失敗・未解決の懸念・要求gateがない限り再実行や拡張をしない。同じbuildをfilter実行で再利用し、結果は対象revision・実行条件に対応させる。
-- 選択production frontierは、変更前後の実sourceのfirst-stopと結果を比較する。計測にはsource revision、実行binaryの出所、command、build/link/実行時間を記し、未計測や古い結果を現HEADの進捗・速度として扱わない。
+- 選択production frontierは、変更前後の実sourceのfirst-stopと結果を比較する。first-stopが不変なら、局所契約の改善と実アプリ未達を分けて記す。計測にはsource revision、実行binaryの出所、command、build/link/実行時間を記し、未計測や古い結果を現HEADの進捗・速度として扱わない。
 - 固定acceptance suiteは、要求されたproduction cutover・goal closeout、またはsuite対象へ広く影響する変更で実行する。途中のsliceは選択frontierのfocused probeを使い、一律の時間間隔や毎sliceの全suite再実行を課さない。
 - 時間を測る際はbuild/link、test実行、shell guard、gateの重複実行を分ける。test名/ファイル数の削減だけで高速化を主張しない。
-- 同じcheckoutでtop-level Cargoを同時に複数起動しない。日常のfocused Rust testは`--profile quick`とし、`CARGO_BUILD_JOBS=4`を上限目安にする。
+- 同じcheckoutでtop-level Cargoを同時に複数起動しない。`nyash-rust --lib`の日常focused testは`cargo quick-test-fast`（quick、root testのみopt-level=0）を使う。他package・最適化状態の検証とCLI buildは従来のquick設定を使い、`CARGO_BUILD_JOBS=4`を上限目安にする。
 - Cargoを中断した後は、既存の`cargo`/`rustc` processが終了したことを確かめてから次を起動する。
 - `--release`、`--nocapture`、`RUSTFLAGS=-Awarnings`はactive cardが必要とする場合だけ使う。warningを隠すために再実行しない。
 - 赤は今回の変更・既知baseline・informationalに分類する。未分類の赤はcloseoutしない。
@@ -124,7 +126,7 @@ Non-claims:
 
 ## 9. 完了の定義
 
-- **slice closeout:** 選択ownerのpositive/negative evidence、要求guard、赤の分類、owner docsが揃う。sliceが契約整備ならproduction switch完了とは主張しない。
+- **slice closeout:** 選択ownerのpositive/negative evidence、要求guard、赤の分類、owner docsが揃う。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
 - **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
 - 削除予定をtaskboardに残しただけではmigration完了にしない。
 - 進捗はproduction callerの切替、重複責務の解消、旧edgeの削除、実sourceのfirst-stopの変化と検証で報告する。前提契約だけが進んだ時はその旨と未達の実source条件を記し、commit/file/test数だけを根拠にしない。

@@ -23,6 +23,13 @@ Resolve -> Observe -> Facts -> Recipe -> Verify
 同じbounded seriesで交換する。第二MirBuilder、consumer-zero route、fallback、
 fixture由来のacceptance、新しい文字列authorityは作らない。
 
+## Product milestone and operational authority
+
+RULES owns operations; `CURRENT_STATE.toml` selects the row. The selected
+unchanged mimalloc-lite frontier first needs regular-route EXE/run/exit/stdout
+acceptance. Local, preparation and structural Closed rows do not prove it.
+The fixed suite and final-pipeline completion conditions remain required.
+
 ## Current restart pointer
 
 `CURRENT_STATE.toml` is the sole mode and row authority. Current birth work is
@@ -80,17 +87,15 @@ The finish path is:
 one exact R6 family cutover
   -> stop/quarantine every product-reachable LegacyCallV0 reader
   -> R7 caller-zero schema/repair deletion
-  -> Builder physical thinning
+  -> remaining shared Builder physical thinning
   -> backend retirement after replacement
 
 post-R6 sibling:
   Hako published-view ingress and backend family migration
 ```
 
-Backend parity is not an R7 prerequisite. In particular, Rust WASM's legacy
-reader must stop or quarantine before R7, while Hako WASM W0 may land later on
-the mandatory canonical publication. Closed details remain in Git and the
-final-pipeline SSOT; this workstream does not duplicate their task ledger.
+Backend parity is not an R7 prerequisite: Rust WASM legacy readers must stop
+or quarantine before R7; Hako WASM W0 may follow canonical publication.
 
 Broad Extern, Value/closure, explicit object method, nested/upvar receiver,
 ordinary-new no-claim, generic CorePlan GlobalCall, and physical thunk are not
@@ -99,23 +104,18 @@ source authority, canonical issuer, live caller, lossless selected consumer,
 and finite old-edge delete set. Otherwise they stay `ParkedSealed` and no
 additional D0/receipt/adapter/fixture/guard is created.
 
-Hako SameModuleInstance remains `ParkedSealed__HakoIngressMissing`: the Rust
-published-view owner exists, but Hako has no borrow-only ingress and no real
-scalar production caller. This does not block mandatory-Callee MirBuilder core
-completion. selected-C arbitrary UserBox remains typed
-`UnsupportedBeforeObject`; it is a compatibility/backend fate, not a language
-or semantic issuer.
+Hako SameModuleInstance stays `ParkedSealed__HakoIngressMissing` (no borrow-only
+ingress/real scalar caller), outside core completion. selected-C arbitrary
+UserBox remains `UnsupportedBeforeObject`, a backend fate, not source authority.
 
-Repository reduction is coupled to the same queue. Every switched family
-deletes its selected old edge and exclusive temporary assets before the next
-family. R7 owns Call-only legacy tests/guards/docs/adapters after caller-zero;
-post-R7 thinning owns dead barrel exports, raw ports, stale wrappers, false
-dead-code allowances, and disconnected proof modules. Closed detail belongs
-to Git history; tracked archive copies receive zero reduction credit.
+Repository reduction follows RULES: retire proved exclusive obsolete edges and
+assets in the selected owner series, without waiting for aggregate R7. Shared
+carriers/readers remain until their own callers/contracts close; R7/post-R7 own
+that debt. Preserve durable negatives; coverage zero grants no deletion.
+Functional additions need no invented delete-set. Use existing cards, not new
+censuses/guards/ledgers; tracked archive copies earn no reduction credit.
 
-The superseded 2026-09-02 family audit, baseline refresh detail, and landed
-family table are retained by Git history and the owning manifest. They are not
-a second executable queue.
+Closed family audit and baseline detail live in Git and the owning manifest.
 
 ### Execution order authority
 
@@ -441,14 +441,14 @@ downstream acceptance passed.
 
 | order | existing task / owner | finite output and handoff |
 | --- | --- | --- |
-| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Closed: the fixed 11-entry EXE receipt and exclusions are recorded; no acceptance run remains to select here. Its scope feeds convergence after required owner cutovers. |
+| A | `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` in final-pipeline | Scope selection closed: the fixed 11-entry EXE receipt and exclusions are recorded. This closes the measurement scope, not its failed programs or product acceptance; the fixed suite remains required by final-pipeline. |
 | B | M7-S remaining owner-unit Stop/Promote/Delete | Historical census closed `NoSafeSlice__M7SNoRemainingUnsharedDeleteSet`; it selected no action. Shared owners permit finite caller migration and selected old-edge removal under the current R7 contract. Keep other readers; do not require an unshared owner or repeat this census. |
 | C | Call/R7 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | All production `LegacyCallV0` ingress minters retired (S4/S5); D1..D4 caller-zero censuses landed S6 (Method arm), S7 `ec9a78254a` (array-write repair), S8 `b9d6853bef` (Closure arm), S9 (Global no-op arm). D4 worker census: remaining surface = interpreter/published-view fail-fast boundaries, compat owners, variant lifetime, shared readers — `NoSafeSlice`; reopen on v0 wire or llvmlite lane retirement. |
 | D | Loop prerequisite closure (M10) | B3 D2 is family-local `NoSafeSlice`: production substring route/codepoint outcome and ArrayPush provider/failure/commit authorities are missing. Reopen only on tracked route/provider plus source-outcome evidence; D3, LoopCond connection, cutover and selected-edge deletion remain open. |
 | E | Loop/M8 S6/M9 S7 | S0 `798551e8de`; S6D `b0fe3bf6a2`; S6E `0bdfbda1da`; **S6G `b419b84c3d`** all19 closeout; M8 closed. **S7A `f6c1d71015`** (D1): `.hako` wire subtree (scalar/string only). **S7B1–S7B5 `f4b1432929`..`f96fec7d8a`**: M8A/B/C(V2)/D/E wire + parity vs producer issuers; M9 producer half deferred. **S7G landed**: all19 parity — 8 wire-backed routes (incl. DirectAccum/Nested/LoopTrue live-producer emitters) + 11 declined pinned in census; literal M9 Done deferred. |
 | F | `LOOP-PRODUCTION-SELECTION-D0` → Loop/M10b → M11 → M12 → C0 | R0 `6e88441c0b`; M11 `9f55aea31b`/`8dff99ef22`; M12 `682acbc2ca`→`b50e8b9a56`; baseline `e53c0693c5`. C0 `25a030b5f3`/`f8f76d5ade`/`94ffe5e5cc`: 605-row census (457 durable/134 test/7 bootstrap/7 orphan-retired); move manifest = 598 keep, homes already satisfy four-box split. Cleanup steps 2-3 landed (topology rebase, root surface, context census/split, role manifest, JoinModule disposition); final audit closed at row G. |
-| G | `REPO-FINAL-CONVERGENCE-AUDIT0-G0` and physical cleanup | Closed 2026-09-25: 34-record disposition matrix + `repo_final_convergence_guard.sh` registered/green; import hygiene fixed; source-backed gates 15/15+164/164 pass on a vm-reference build; 11-entry EXE 2/9 failures assigned to `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE`. Recheck closed: gate-1 unsatisfied; `MIR-CALL-R6S0-BOUNDARY-SELECTION-D0` accepted S0-A 2026-09-25. |
-| H | unified selfhost resume owner | Gate1 open. [BIN-SIZE-LOOP-RECIPE-S0](../investigations/mirbuilder-gate1-bin-size-loop-recipe-s0-2026-10-10.md) selected for Body9 source product; Home After follows. [CALLEE-RETURN-OUTCOME-S0](../investigations/mirbuilder-result-new-site-provenance-d0-2026-10-06.md) remains open with carrier/incoming, mixed result, cleanup and physical acceptance owed. reallocResult315/318 and EXE incomplete. Stored-child sibling and Gates2-4 parked. |
+| G | `REPO-FINAL-CONVERGENCE-AUDIT0-G0` and physical cleanup | Closed 2026-09-25: 34-record disposition matrix + `repo_final_convergence_guard.sh` registered/green; import hygiene fixed; source-backed gates 15/15+164/164 pass on a vm-reference build; 11-entry EXE 2/9 failures assigned to `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE`. Recheck closed: gate-1 unsatisfied; `MIR-CALL-R6S0-BOUNDARY-SELECTION-D0` accepted S0-A 2026-09-25. Structural closure does not claim real-app EXE/run acceptance. |
+| H | unified selfhost resume owner | CSTATE selects the row; consultation pause remains. Its cards own unaccepted Required Object Forward S0 WIP and tooling handoff. Gate1 and EXE remain open: Loop Body9/Home After, callee carrier/incoming/mixed result/cleanup/physical acceptance, reallocResult315/318. Stored-child sibling and Gates2-4 stay parked. |
 | I | authority migration and final self-compile task pack | Facts/REGISTRY/commands/executor then parser; pinned compiler closure compiled by Stage1 without Rust frontend delegation, runnable Stage2 compiles and runs acceptance programs. Equality alone is bootstrap evidence. |
 
 ### Acceptance-scope closeout (queued existing owner)

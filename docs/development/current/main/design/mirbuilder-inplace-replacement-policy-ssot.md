@@ -4,6 +4,7 @@ Date: 2026-09-01
 Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する
 Related:
+  - docs/development/RULES.md
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -17,14 +18,20 @@ Related:
 
 ## Current Capsule
 
+実装着手・停止・検証・commit・退役の運用正本は
+[開発ルール](../../../RULES.md)だけである。このpolicyは本番交換の構造を
+説明し、独立した停止条件やcommit数上限を追加しない。現在のユーザー指定の
+相談停止・goal pauseを解除するものではない。
+
 - **Current decision:** replace one live production responsibility in place;
   do not grow a second Builder or a chain of disconnected prerequisites.
 - **Current implementation status:** caller/owner/old-edge accounting is the
   accepted migration discipline.
 - **Next ordered task:** the active pointer selects the only executable cell;
   this policy does not select a row.
-- **Production stop line:** a vertical opens only when its exact family,
-  caller, issuer/owner, selected physical path, and old-edge set form one row.
+- **Production series:** one source family and responsibility connect the
+  canonical issuer to its named final consumer; construction and retirement
+  timing follow RULES section 4.
 - **Retirement finish line:** the live caller uses the new owner, the selected
   old edge is physically gone, and fallback/retry/reselection are zero.
 
@@ -38,9 +45,11 @@ Related:
 MirBuilderは、独立した第二実装を完成させて最後に丸ごと交換する方式では
 作り直さない。
 
-現在の本番MirBuilderを動かしたまま、一つの責務を抽出し、同じ本番callerを
-新ownerへ差し替え、その責務を持っていた旧branch／helper／callerを直ちに
-削除する。
+一つの本番pipeline内で、一つのsource familyから最終consumerまでの
+責務をまとまりとして置き換える。既存owner内部のまとまった書き直しも
+許可する。同じ本番callerを新ownerへ接続し、選択した旧edgeと専有資産は
+RULES第4・6節のcaller-zeroと必要検証が成立した同じseriesで物理削除する。
+共有ownerや未選択callerを残す理由は既存cardに明示する。
 
 ```text
 existing production MirBuilder
@@ -136,14 +145,15 @@ classifier variant、shared consumer、test fixtureの存在だけで
 `production_reachable_callers > 0`と数えてはならない。逆にpublic contract ownerは
 現在のproduction reachが0でも削除許可へ読み替えない。
 
-4軸から選べる処分は次で固定する。
+4軸は責務の分類に使う。建設・退役の許可判断はRULES第4節に従う。
 
 ```text
 production_reachable_callers > 0:
-  exact new ownerとsame-cell old-edge deletionが閉じた場合だけI0を開く
+  named caller、新owner、選択旧edgeを同じ本番seriesで置き換える
 
 production_reachable_callers = 0 and structural_sites > 0:
-  新owner／issuerを作らず、caller-zero reconciliationまたはRET0を選ぶ
+  上流gateで止まる選択実sourceの責務と、利用callerのない資産を区別する
+  前者の接続はseriesの出力、後者はcaller-zero reconciliationまたはRET0
 
 production_reachable_callers = 0 and test_only_injections > 0:
   fixtureはproduction acceptanceにしない。削除、移行、またはtyped retirementへ閉じる
@@ -152,7 +162,7 @@ public_contract_owners > 0:
   production reachにかかわらず、明示Decisionとsuccessorなしにretireしない
 
 未分類または境界未確定:
-  design_stop。推測値でfastを開かない
+  source authority・意味・失敗境界を確認し、RULES第4・5節の判断を適用する
 ```
 
 ### Caller-first vertical admission gate
@@ -176,27 +186,16 @@ Implementing/connecting that named consumer and proving execution are series
 outputs; do not require the replacement to be implemented before starting.
 `RejectBeforeEffect` proves only a retirement row, not a successful vertical.
 
-```text
-exactly one complete tuple:
-  fixed 2--5 commits; at most one S0
-  finish with caller switch + same-series I0/R0 deletion
+一つのseriesは複数commitに分けてもよいが、同じsource familyの
+producerから最終consumerまでを接続する一責務を持つ。建設の入口、設計へ
+戻る条件、旧edge削除の証拠はRULES第4・5節に従う。未実装consumerや
+caller-zeroを着手前のgreen条件にはしない。準備・fixtureの局所greenだけでは
+製品到達、本番交換、退役を主張しない。
 
-zero complete tuples or multiple competing tuples:
-  park the whole vertical outside the active boundary
-  add no D0/receipt/adapter/fixture-only route/per-row guard
-```
-
-Reopen a parked vertical when code evidence or an accepted owner decision
-settles a missing tuple field. Caller-zero is a retirement output, not a
-prerequisite for designing its migration. Restated prose, candidate types and
-local-green fixtures alone are not reopen evidence.
-
-Intermediate assets have no progress credit. If the series cannot reach its
-switch/delete terminal, revert or stash detached S0 assets and park it.
-
-fast開始後に新しいproduction caller、classifier arm、consumer、public contractを
-発見した場合はscopeへ足さず、直ちにdesign_stopへ戻す。同じ責務の追加発見を
-実装commitの通常作業として扱わない。
+同じ責務のcaller・consumerを発見したら、そのmappingを既存cardで確認する。
+選択source authority・意味・失敗境界を広げる必要がある場合は設計へ戻る。
+WIPは未完条件とともに保持し、commit数だけでrevert・stash・parkしない。
+別責務へ移る場合のpointerと引継ぎはRULES第2節に従う。
 
 ## Row vocabulary
 
@@ -204,15 +203,10 @@ fast開始後に新しいproduction caller、classifier arm、consumer、public 
 
 一つの既存production seamへ差し替えるための新ownerを作る。
 
-`production caller = 0`を許すのはS0だけである。T0の機械的交換ではS0を
-独立commitにせず、I0/R0と同じcommitにまとめることを優先する。
-
-S0を分ける場合の上限は一つのlanded commitである。次のlanded commitは
-必ず同じcellのI0/R0でなければならない。別cell、追加proof、追加相談を
-挟んではならない。
-
-I0/R0へ安全に進めないS0は、mainへ積み続けずrevertまたはstashして設計へ
-戻す。
+本番接続前のprepared ownerは本番交換の証拠ではない。S0を分ける場合も
+同じseriesのnamed caller、最終consumer、未完の接続と退役条件を保持する。
+準備を独立した製品進捗として積まず、必要な検証が閉じた接続・専有資産退役へ
+進む。commit数や追加発見だけで停止条件を作らない。
 
 ## Design before substrate
 
@@ -232,7 +226,9 @@ subset用のadmission productの`Outside`、`Deferred`、或いはbooleanを、
 total execution roleの既定値として読み替えない。consumer censusは直接caller
 だけでなく、そのproductから派生するrole、catalog、work plan、
 dispatch、physical entryまで閉じる。一つでも未分類のstateまたはconsumerが
-残る間はT2 `design_stop`であり、transportやloanを先に作らない。
+残る場合は選択責務の意味と失敗境界を確認し、RULES第4・5節の
+建設条件と設計停止判断を適用する。未実装や未実行のconsumer自体を
+建設前の完成条件にはしない。
 
 ### I0 — production integration
 
@@ -253,8 +249,8 @@ candidate内部、collector内部、prepared owner間だけの接続には`I0`�
 I0で不要になった旧branch／symbol／caller／inline orchestrationを物理的に
 削除する。
 
-T0 cellではI0とR0を同じcommitにする。Rustのbuildability上分ける必要が
-ある場合だけ、I0直後の一commitをR0に予約し、他作業を挟まない。
+I0とR0は同じbounded seriesで閉じる。必要なbuildability・検証のため
+commitを分けてよい。物理削除はRULES第4節の条件が成立した専有集合から行う。
 
 旧helperが別の未交換branchにも必要なら、そのhelper自体を残してよい。
 ただし、選択した旧edgeは0でなければならず、残るconsumerと後続packを
@@ -282,8 +278,8 @@ detached route delta  <= 0
 
 ### CUT0 — authority cutover
 
-CUT0は、production authorityの切替と旧authorityの物理削除を同じcommitで
-行う場合だけ使う。
+CUT0はproduction authorityの切替と選択旧authorityの物理削除を
+閉じた成果を表す。実行時期とcommit分割はRULES第3・4節に従う。
 
 ```text
 production consumers = 0
@@ -342,30 +338,10 @@ owner、sunset、retire_whenを固定し、closeout後はfresh censusへ戻る�
 
 ### Premise-reset breaker
 
-同じproduction責務について`NoSafeSlice` / `NoStandaloneRow`が3回続いたら、
-fresh census規律を一時停止する。4回目の候補edge探索、候補名の差し替え、
-docs-only consultationは禁止する。
-
-既存rolling card内で、次を一度だけ監査する。
-
-```text
-semantic unitの定義
-body / runtime windowのexact membership
-authoritative classifier / partitionの全arm
-別ownerへtransferされるsubtree
-型が構造的に要求する条件（型名からの推測ではない）
-誤った前提を壊す最小counterexample
-```
-
-たとえばScript bodyを決めるときは、Program work-planの全disposition armを
-読む前に「全Program item」または「宣言を除くruntime列」と仮定しては
-ならない。再開には、全armとの対応、counterexample fixture、named
-production consumer、same-commit old-edge deletionが必要である。
-
-repo-wide inventoryはstatic searchを優先し、benchmark／allocator／proof
-harnessをcensus runnerとして流用しない。外部process scanは既定serial、
-最大2並列とし、1件→small sample→対象件数表示のdry-runを先に行う。
-子processが4超またはaggregate RSSが8GiB超なら即停止する。
+同じ責務での再停止の扱いはRULES第5節を適用する。既存cardで
+semantic unit、全classifier arms、transferred subtrees、型要件、counterexampleを
+確認し、一つのDecisionに統合する。新しい全repo census、proof台帳、guardを
+監査の着手条件にしない。検証と計算資源はRULES第6節に従う。
 
 replacementの実装単位は次で固定する。
 
@@ -441,31 +417,10 @@ commitでregistry rowを追加または更新する。closeoutのcensusはregist
 unregistered / closedの件数を報告し、`LegacyChildDraftAdmissionV1` のような
 source occurrence countはowner-disposition数と混同しない観測値として別記する。
 
-T0はatomic I0/R0を原則とする。detached S0を分けた場合は最大一commitで、
-次のforward semantic commitは同じcellのI0/R0だけである。進めなければ
-revert／stashしてD0へ戻る。承認済みRefactor Series Modeだけは2〜5個の
-buildable commitを許すが、全commitが一目的で、series終端がnamed
-production cutoverとselected old-edge deletionを閉じなければならない。
-
-predeclared Refactor Series以外で、selected old edgeを減らさないforward
-implementation commitが二つ連続したら、三つ目へ進まずdesignへ戻る。
-D0、障害修正、revert、post-cutover parity、docs／asset closeoutはこの
-連続数へ入れず、進捗creditにも使わない。split S0は一つ目になり得るため、
-その次は必ずold edgeを減らすsame-cell I0/R0である。
-
-```text
-split S0 landed:
-  next = same-cell I0/R0 or revert/stash
-
-bounded series ended:
-  selected old edge = 0
-  fallback / retry / reselection = 0
-
-otherwise:
-  stop forward work
-  classify disconnected assets
-  return to design
-```
+seriesの本番成果は、実sourceの到達、named callerの切替、重複責務の
+解消、選択旧edgeの物理削除で記録する。準備commit数やtest数は成果の代わりに
+しない。新しい受理形の追加はfeature additionとして区別し、存在しない旧edgeの
+退役creditを付けない。未完seriesの次の判断はRULES第2・4・5節に従う。
 
 800行境界は責務分割のhygiene triggerである。task selector、LOC非増加、
 progress credit、completion conditionではない。超える前に同じselected
@@ -503,7 +458,7 @@ cellはsource partitionをcreditするのであって、列挙したownerが同�
 ```text
 consultation card = 0
 new per-cell shell guard = 0
-default commits = 1 atomic I0/R0
+commit grouping = one responsibility; RULES sections 3--4
 focused fixture + shared pack guard = 1
 ```
 
@@ -515,7 +470,7 @@ focused fixture + shared pack guard = 1
 ### T2 — new semantics or authority
 
 新しい言語意味、source authority、identity issuer、ABI、backend policy、
-failure ownerを導入する場合だけdesign stopを開く。
+failure ownerを扱う場合の建設・設計停止判断はRULES第4・5節に従う。
 
 既存挙動を別ownerへ運ぶたびにT2相談を開いてはならない。
 
@@ -535,7 +490,7 @@ production consumer 0のrouteを複数cell先まで建設
 ```text
 同じproduction pipeline内部の責務owner交換
 source-neutralなreceipt / verifier / collector / plannerの再利用
-本番cutover前の最大一commitのS0
+同じ本番series内のS0（準備だけでは製品進捗にしない）
 reference laneをreference laneとして維持
 ```
 

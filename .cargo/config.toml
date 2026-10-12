@@ -15,3 +15,6 @@ rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 # Daily development shortcuts for the lightweight profile.
 quick-build = "build --profile quick"
 quick-test = "test --profile quick"
+# Daily focused root-library tests: optimize dependencies, skip root test codegen
+# optimization. Keep quick-test for optimized checks and CLI builds unchanged.
+quick-test-fast = ["test", "--profile", "quick", "--lib", "-p", "nyash-rust", "--config", "profile.quick.package.nyash-rust.opt-level=0"]

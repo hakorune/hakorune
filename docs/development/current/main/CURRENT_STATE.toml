@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/required-object-forward-execution-unproved"
-current_design_stop = "none"
+current_blocker_token = "user-requested/design-consultation"
+current_design_stop = "UserRequestedDesignConsultation"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,16 +17,17 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Required Object Forward D0 closed: SAME guarded source/catalog/signature can bind
-an Instance declaration tagged entry, lend checked Compare Normal and reconstruct
-its exact required input. Both final consumers must independently validate zero-call
-declarations while preserving full real-call coverage. S0 selected, not accepted.
-Unchanged app remains source-only-object-actuals/no EXE; after S0 rerun mandatory.
-Production closeout/caller-zero/retirement and whole product remain owed.
+Goal remains paused for user design consultation; no implementation/build resume.
+Selected first product is unchanged mimalloc-lite EXE/run/output, still unmet.
+Required Object Forward S0 WIP is retained and unaccepted: Completion Ready,
+original input cohort pending; Maker.qualified/0 membership rejects. Both final
+positives remain owed. RULES owns source-to-final-consumer integration and
+same-series exclusive retirement; local green is not product completion.
+Host cache/quick-test-fast measurements remain in their own tooling card.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
+next_execution_card = "none (user-requested design consultation)"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
