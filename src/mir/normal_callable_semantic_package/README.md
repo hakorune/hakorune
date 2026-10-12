@@ -23,6 +23,17 @@ Selected Pair V4 EXE/independent OBJ and Fault cleanup are verified there.
 That does not authorize other source families or turn package retention into
 backend permission. Historical implementation steps belong to Git history.
 
+## Borrowed entry owner routing
+
+`ordinary_new_borrowed_formal_entry.rs` lends source/parameter projections and
+recorded entry correspondence. Its private `ordinary_new_borrowed_formal_entry_incoming.rs`
+child owns the complete incoming checker: the default requires executable
+actuals globally; qualified Static alone selects the original-forward execution
+scope. `ordinary_new_borrowed_formal_entry_owner_view.rs` selects the existing
+owner view and validates that scope; `ordinary_new_borrowed_formal_entry_values.rs`
+owns physical value correspondence. Module boundaries do not change admission,
+source authority, pending phases or the packet's execution obligations.
+
 ## Source-only Static local observations
 
 A completed original CurrentOwner Scalar cohort may select an exact Static
