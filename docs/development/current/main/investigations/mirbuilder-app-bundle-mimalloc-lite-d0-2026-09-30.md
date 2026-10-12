@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — Static validation scope S0 accepted; required Object forward D0 active.
+Status: active bundle — Static validation scope S0 accepted; required Object forward S0 in progress, not accepted.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -126,578 +126,34 @@ landed receipts) moved to
 active card under the 1000-line pointer-guard bound.
 
 
-## Decision — MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-D0 (accepted)
+## Accepted claim and scalar-expression history
 
-```text
-Decision: admit qualified static-box calls as non-lifecycle local-call
-          claims. `local class_id = LayoutBox.class_id(size)` must not
-          end as `PrefixNotCovered`: static calls emit the existing
-          generic `Call{Callee::Global}` (StaticReceiver route →
-          static-result ingress → typed receipt), never `Invoke`, so
-          they owe no lifecycle site — but the homes-aware prefix scan
-          classifies local-call initializers only through
-          `direct_call_observations`, which qualified receivers never
-          produce. The claim gap is the I64 lane of
-          `issue_local_call`, not emission.
-Source authority + canonical issuer: the method-call inventory row
-          (`QualifiedUnbound` receiver +
-          `ResolvedQualifiedReceiverIdentityV1`) resolved through the
-          source-call-target catalog /
-          `VerifiedStaticImportAliasViewV1` (`using … as LayoutBox` →
-          canonical owner), corroborated by the callable index
-          `StaticBoxMethod` header and the callable
-          result-representation solver disposition
-          (`ExactI64{required_i64_arguments}` /
-          `ExactBool`/`ExactString`). Sole claim product:
-          `LocalCallObservationV1{result: I64}` issued inside
-          `scan_statement_flow`'s I64 lane through a package-injected
-          membership predicate — the same injection pattern as
-          `terminal_call`/`local_map_call`. The issued row installs
-          `install_i64_call_result`, records no Home, no ledger row,
-          no lifecycle site.
-Non-authority: `direct_call_observations` for qualified receivers,
-          receiver-name spelling or `Unresolved` guesses, the retired
-          generic-compatibility lane (`UnissuedStaticCallRetirementV1`).
-Fail-fast boundary: sites failing exact membership keep
-          `PrefixNotCovered`; `new`-argument static calls keep
-          `ArgumentNotCovered`/`ArgumentNotTrivial` until
-          `CALL-RESULT-ARG-POSITION`; `me.class_id(..)` stays on the
-          separate `resolve_me_call_with_publication_ingress` route
-          (its `TargetOnly` freeze is out of scope).
-Smallest next slice: STATIC-CALL-CLAIM-S0 — package-injected static
-          membership predicate + I64-lane admission for
-          `local x = QualifiedBox.m(args)` in ordinary non-birth
-          functions; args sealed to Integer/Bool literals or scalar
-          `Local`/parameter bindings; positive pin
-          `local class_id = LayoutBox.class_id(size)`; negatives:
-          unresolvable alias, non-static target, unproven result
-          disposition, non-trivial arg.
-Non-claims: no emission lane added (StaticReceiver route is the sole
-          emitter), no `Invoke`/lifecycle/ledger row, no arg-position
-          or `new`-arg calls, no `me.m()` static-route change, no EXE
-          or app-level completion claim.
-```
+Completed STATIC-CALL-CLAIM, INSTANCE-CALL-SCALAR-ARG,
+CALL-RESULT-ARG-POSITION and HANDLE-FIELD-READ decisions/receipts are retained in
+this card at `7171048755`. The current owner README retains their contracts.
+Their focused positives/negatives passed; original app remained unavailable.
+No Handle-argument ownership, nullable container escape, whole-app completion
+or shared-owner retirement permission follows from those accepted slices.
 
-Then `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0` lands the
-claim end to end.
+Completed OPAQUE-SCALAR-POSITION's COSEAL-SIZE-T0 and
+SCALAR-EXPRESSION-POSITION-S0 decisions, transaction/lifetime/condition refinements
+and exact acceptance are retained in this card at `741d8a37cb` (sections with
+those names). T0 publication: `0d60daa3f59155990aa216b207df3cf5da9d49f6`.
+Scalar-expression12/12, existing local_field_read9/9 and selected-new/frontier
+regressions passed. Final full-lib verification was KNOWN BASELINE:
+8151PASS/126FAIL/56ignored; unchanged deterministic failure SHA256
+`eed5d558e18359d7d8502c87a0bd54b42cdbcb8215f3ab505671169c34e6e497`.
+The earlier nullable flake and qualified-route guard size debt remain historical
+classified reds, not waived. Current pure scalar/field contract is in owner README:
+whole-root proof before staging, exact sites, live borrowed alias roots,
+Integer/Bool distinction and conditional RHS placement. Shared Dynamic readers
+remain; no physical deletion credit or opaque/call/String-root admission.
 
-## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0
-
-Claim-only qualified Static/I64 source rows; no emission/lifecycle change. Six claim tests pass; module batch763PASS/3 documented baseline reds. Original app remained emission-binding-drift; no app/retirement claim.
-Full implementation/negative tests/receipt history: this card at `7171048755`.
-The accepted D0 above and current owner README retain the contract; this historical
-receipt grants no additional execution or retirement permission.
-
-## Decision — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0 (accepted)
-
-```text
-Decision: admit `local x = recv.m(args)` — lexical-receiver instance
-          calls whose sealed callee is an `InstanceBoxMethod` with an
-          `I64` result — as non-lifecycle local-call claims. Census
-          (worker + fixture probes): no predicate admits an i64-result
-          lexical-receiver call today — `terminal_call`'s instance arm
-          is terminal-only and 0-arity, the I64 `issue_local_call` lane
-          requires `direct_call_observations` (method calls are never
-          there), and the site falls to
-          `install_inventoried_call_result` + soft `PrefixNotCovered`,
-          letting the generic/dynamic member route emit an unowned
-          Invoke (debug builds then panic in return_type_strategy for
-          `return r`). The semantic gap is the claim row, not physical
-          machinery: `LexicalInstanceCallDispositionRowV1` already
-          proves receiver class + unique InstanceBoxMethod target +
-          callee result kind, and `emit_canonical_instance_call_at_v1`
-          / the lexical Invoke emitters already take `Vec<ValueId>`.
-Source authority + canonical issuer: `LexicalInstanceCallDispositionRowV1`
-          (`ordinary_new_lexical_instance_call.rs`, minted at
-          issuer.rs) is the sole membership authority — claim-local or
-          parameter-proven receiver class -> unique
-          `InstanceBoxMethod` target -> callee's uniform result kind
-          `Some(I64)`; the row already carries `argument_sites`. The
-          flow-side issuer corroborates `Lexical(Local)` receiver
-          against the method-call inventory and seals every argument
-          via `PrefixLocalFlow::observe` — Integer/Bool literals or
-          `TrivialLocal` scalar bindings — while the callee's
-          `parameter_contracts` (`ExactTrivial(I64)` formals, the same
-          proof `lexical_handle_result_call` uses) supply the required
-          i64 ordinals. Sole claim product:
-          `LocalCallObservationV1{result: I64}` +
-          `install_i64_call_result`, `path_calls` membership; no Home,
-          no ledger row beyond the shared observation, no lifecycle
-          site change.
-Non-authority: `terminal_call`'s app-main 0-arg instance arm (keeps
-          its terminal-relation duty), `direct_call_observations`,
-          receiver-name spelling guesses, the dynamic member route
-          (it must never re-emit an armed site once the lifecycle gate
-          takes it), `me.m(..)` receiver calls (nullable route),
-          `me.<field>.m(..)` (manifest lane), `QualifiedUnbound`
-          (static lane).
-Fail-fast boundary: non-`Lexical(Local)` receivers, non-`I64`
-          dispositions, unproven receiver class, non-unique targets,
-          any callee formal not `ExactTrivial(I64)`, and any argument
-          that is not an Integer/Bool literal or scalar `TrivialLocal`
-          all keep `PrefixNotCovered` — Handle/BoundValue/map/home/
-          nested-call args are explicitly out. Emission honors the
-          Handle-lane co-seal contract: caller-side observation and
-          disposition row must agree on target and result class; a
-          half-sealed edge freezes.
-Smallest next slice: STATIC claim S0 shape reused —
-          `INSTANCE-CALL-SCALAR-ARG-S0`: an issuer predicate consulting
-          `lexical_instance_calls` + callee parameter contracts (all
-          formals `ExactTrivial(I64)` required for the claim), an
-          `issue_lexical_local_call`-style flow issuer producing
-          `LocalCallObservationV1{I64}` with `LocalCallArgumentV1`
-          rows, and a symmetric Standard-route emit gate
-          (observation + `take_lexical_instance_call` result==I64 +
-          selector agreement -> `Invoke{SameModuleInstance, I64}` with
-          materialized args; the dst value is registered I64 so
-          `return r` type-checks). Positive pin: `local r =
-          pool.allocate(8)` inside `main`/`run`; negatives: non-I64
-          callee, handle-typed formal (`release(h)`), map/home arg,
-          unproven receiver.
-Non-claims: `heap.release(h)` and any handle-argument call need a
-          consume-vs-borrow contract from source — a separate D0 (the
-          `new`-arg `moved_arguments` move is the existing precedent,
-          but no call-argument analog exists). Arg-position calls
-          (`handles.push(heap.allocate(8))`) stay with
-          CALL-RESULT-ARG-POSITION. `return recv.m()` terminal-forwarded
-          results stay with FORWARDED-RESULT. No `me.m(..)` route
-          change, no new ownership product, no app-level completion
-          claim.
-```
-
-Next: MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
-
-## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
-
-ExactTrivial(I64) lexical instance arguments and sole I64 Invoke gate accepted. Six local-call tests and source emission pin pass; manifest reds reproduce at D0. Nullable allocate remained outside this scope; original app emission-binding-drift.
-Full implementation/negative tests/receipt history: this card at `7171048755`.
-The accepted D0 above and current owner README retain the contract; this historical
-receipt grants no additional execution or retirement permission.
-
-## Decision — MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0 (accepted)
-
-```text
-Decision: admit a proven i64-result lexical call in DIRECT argument
-          position of an already-claimed i64 lexical call — `local x =
-          recv.m(recv2.m2(scalars))` — by sealing the inner site as a
-          `CallResult` argument. Census (read-only worker + fixture
-          probes): every argument seal today goes through
-          `PrefixLocalFlow::observe` (literal / variable_ref only), so a
-          nested-call arg returns `None` and the OUTER claim is withheld
-          — yet the inner site already owns a
-          `LexicalInstanceCallDispositionRowV1` (the issuer walks all
-          `method_calls()`, arg-position included) and the raw lane
-          already materializes the inner Invoke through
-          `drive_call_arguments_v1`/`drive_legacy_expression_v1`. The
-          observed gap is claim + type attribution: `local r =
-          pool.give(pool.allocate(8))` panics in return_type_strategy
-          because the dynamically emitted Invoke never registers its
-          result value. App reality: every direct arg-position call in
-          mimalloc-lite is handle-adjacent (`push(heap.allocate(..))` is
-          a NullableObject escaping into container storage; `get(..)` is
-          `Dynamic`), so the real sites still wait on the
-          consume/borrow D0 — this slice lands the scalar machinery
-          first, the same pattern FIELD-INIT-USER-NEW followed.
-Source authority + canonical issuer: the inner site's
-          `lexical_i64_result_call` predicate, reused unchanged
-          (claim-local receiver + unique `InstanceBoxMethod` + all-i64
-          formals + literal/i64-formal value returns). The outer issuer
-          `issue_lexical_i64_local_call` gains a `CallResult` argument
-          arm that looks the arg site up in `method_calls()` and runs
-          the inner predicate; the claim product carries the inner
-          site's sealed observation — a destination-free arg-position
-          row (parallel to `LocalCallObservationV1`, which is
-          binding-shaped and cannot express an arg-position call), never
-          a widened `destination`. The existing arg-position disposition
-          row corroborates `result == Some(I64)` at co-seal exactly like
-          the statement lanes.
-Non-authority: `BoundValue` (binding-shaped provenance only, never a
-          bare-site record), `me.<field>.m(..)` subtree-neutrality
-          (`argument_subtree_neutral` keeps rejecting `MethodCall`),
-          the raw descent (it emits but never claims),
-          `QualifiedUnbound` receivers, receiver-name guesses.
-Fail-fast boundary: any argument that is not an Integer/Bool literal,
-          a scalar `TrivialLocal`, or a call site the inner predicate
-          claims; an inner callee whose exits are not uniformly I64
-          (nullable/handle/dynamic/mixed); inner formals not all
-          `ExactTrivial(I64)`; calls inside binary/condition subtrees
-          deeper than a direct argument site; statement-position calls
-          (`handles.push(x)` itself is a separate NoValue-core-method
-          lane). A sealed outer row whose inner claim later fails at
-          co-seal freezes — never degrades.
-Smallest next slice: `CALL-RESULT-ARG-POSITION-S0` —
-          `LocalCallArgumentV1::CallResult{site}` (or the sibling arg
-          row), the arg-position observation mint, the disposition
-          arm for arg sites, and the emit arm: `emit_local_lexical_i64`
-          materializes a `CallResult` argument by recursively emitting
-          the inner call (its own Invoke + projection + shared
-          prior-home unwind + binding-group record) before the outer
-          Invoke. Positive pin: `pool.give(pool.allocate(8))` lowers to
-          two `Invoke{SameModuleInstance, I64}` with the inner result
-          feeding the outer's argument slot. Negatives: nullable or
-          handle-result inner calls, non-i64 inner formals, statement
-          calls, deeper subtree calls.
-Non-claims: `push(heap.allocate(8))` itself — a NullableObject result
-          escaping into container storage — stays with the
-          consume/borrow D0 together with `heap.release(h)`;
-          `handles.push(x)` statement calls need the lexical-receiver
-          NoValue core-method lane (own slice); `handles.get(..)`
-          `Dynamic` results; calls inside `+`/`==`/`&&` subtrees;
-          `me.m(..)`/`me.<field>.m(..)` receivers; `QualifiedUnbound`
-          inner calls; app-level completion.
-```
-
-Next: MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
-
-## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
-
-Nested CallResult reuses the outer binding group and recursively seals/emits each Invoke once. Focused10/10; serial8130/126/56 with unchanged deterministic failures and documented nullable flake. NoValue push/nullable allocate remain separate contracts.
-Full implementation/negative tests/receipt history: this card at `7171048755`.
-The accepted D0 above and current owner README retain the contract; this historical
-receipt grants no additional execution or retirement permission.
-
-## Decision — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0 (accepted)
-
-```text
-Decision: admit `local x = <proven receiver>.<declared field>` as a
-          claimed field-read local binding — one meaning, two result
-          classes dispatched by the field's DECLARED type. Numeric
-          scalar fields (`is_numeric_integer_type_name`: i64/usize
-          family, i64 wire) seal a Trivial scalar local; object-class
-          fields seal a borrowed field-alias binding that joins NO
-          Home (the field's teardown is owned by the root object's
-          destruction plan) and carries the field's declared class as
-          the alias's binding-class authority — so a later `x.f` /
-          `x.m(..)` resolves on the field's class, never on the root
-          receiver's class. Census (read-only worker): the app's
-          `run()` needs `local small = heap.small_page` (handle field)
-          and `small.alloc_count`/`medium.*` (usize fields, all in
-          concat/if subtrees — slice 9's domain); the alias's class
-          authority is the missing link for every downstream read.
-Source authority + canonical issuer: `BodyExpressionShapeV1::FieldAccess`
-          sites on the local-initializer position only. Receiver class:
-          claim-local `new` candidate class OR `me` entry-loan box —
-          the existing `binding_class`/`initializer_class` provenance.
-          Field identity: `with_source_object_definition` →
-          `UserBoxFieldDecl` ordinal → `CanonicalFieldRefV1`
-          (declaration-ordinal authority — never a name lookup).
-          Result class: `UserBoxFieldDecl.declared_type_name` — a
-          numeric-integer name seals scalar, a known ordinary-box name
-          seals object-alias, anything else is unclaimed. The claim
-          product extends the local-initializer observation in
-          `scan_statement_flow` (the FieldAccess arm currently falls
-          through to `observe`=None → `PrefixNotCovered`) and installs
-          a `binding_class` initializer arm for non-`me` FieldAccess
-          receivers via declared type (the me-only `field_write_claim`
-          arm stays untouched). Physical owner: staged `FieldRead`
-          row + `ObjectFieldGet{dst, base, CanonicalFieldRefV1}`
-          (claims must reach Emitted — existing
-          `ordinary_new_field_reads.rs` validation); scalar results
-          register `Integer`, object-alias results register the field
-          class's box type so a downstream receiver/return stays typed.
-Non-authority: `field_origin_by_box`/`value_origin_newbox` MIR-level
-          inference (claim issuers never consult physical facts);
-          `field_write_claims` for non-`me` receivers (write-claim
-          provenance is not declaration authority); name-string field
-          resolution; `DeclaredHandle` param contracts
-          (`handle: HakoAllocHandle` stays `UnsupportedDeclaredType` —
-          param-receiver reads are a separate D0).
-Fail-fast boundary: receiver class unproven (no claim-local `new`, no
-          entry loan, rebound/multiple initializers) → unclaimed;
-          field absent/weak/undeclared-type → unclaimed; alias escape —
-          returned, container-stored, passed as a call argument, or
-          used where a Home join is assumed (e.g. as a lexical-i64-call
-          receiver, whose prior-Homes membership check would freeze) →
-          unclaimed for now; a scalar field read emits
-          `ObjectFieldGet` only — never a raw `FieldGet` guess.
-Smallest next slice: `HANDLE-FIELD-READ-S0` — one claim row minted by
-          a new initializer-observation arm, the field-alias binding
-          record (root binding + `CanonicalFieldRefV1` + declared
-          class, excluded from `homes` and from unwind evidence), the
-          non-`me` `binding_class` extension, staged `FieldRead` +
-          `ObjectFieldGet` emit. Positive pins: `local small =
-          heap.small_page` installs an alias whose class is
-          `HakoAllocPage` and joins no Home; `local n = page.capacity`
-          (usize) installs an Integer scalar. Negatives: param-receiver
-          reads, unproven receiver, weak/undeclared field, alias
-          escape (return/container/call-arg), subtree positions.
-Non-claims: `handle.block_id` param-receiver reads (DeclaredHandle
-          contract widening is its own D0); scalar field reads inside
-          concat/`==`/`&&` subtrees or call arguments
-          (`small.alloc_count` in the app's `print`/`if` — slice 9
-          OPAQUE-SCALAR-POSITION); `x.m(..)` calls on an alias receiver
-          (needs the alias's prior-Homes/exhaustion semantics — its
-          own decision); `me.<ObjectField>.m(..)` receivers (slice
-          10); `local a = me.<ArrayBox>` residence aliases (slice 13);
-          field writes on non-`me` receivers; chained
-          `a.b.c` reads; app-level completion — `run()` still needs
-          slices 9-13.
-```
-
-Next: MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
-
-## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
-
-Declared field type is sole authority for direct-initializer Scalar/Alias; staged one-shot ObjectFieldGet, no borrowed alias Home/transfer. Nine claim tests plus two emission pins pass; original app emission-binding-drift, baseline failures unchanged, array batch-only flake retained.
-Full implementation/negative tests/receipt history: this card at `7171048755`.
-The accepted D0 above and current owner README retain the contract; this historical
-receipt grants no additional execution or retirement permission.
-
-## Decision — OPAQUE-SCALAR-POSITION-D0 (2026-10-01)
-
-Read-only worker audited `e939989660`: the unresolved premise was whether
-scalar subtree projection and opaque-parameter use share an existing owner.
-They do not have the same admission contract; the decision separates them.
-No compiler execution or new baseline measurement was performed for this D0.
-
-```text
-Decision: reuse declaration-backed scalar field-read claims at explicit
-  expression positions; keep opaque parameters opaque. First restore the
-  source size boundary in a separate BoxShape T0, then implement the bounded
-  scalar-expression S0. Opaque borrowing and mixed call/String roots require
-  their own contract decisions inside this bundle, not a permissive observe.
-Source authority + canonical issuer: exact resolver expression_source rows
-  (operator and child sites), current PrefixLocalFlow scalar/receiver proofs,
-  terminal_home::local_read_field and the receiver's declared numeric field.
-  Existing LocalFieldRead ledger -> exact field port -> ObjectFieldGet stays
-  the sole projection/physical chain. No new field-read map or evaluator.
-Non-authority: parameter spelling, caller literal 8, a usize destination,
-  MIR value_types, Other("BinaryOp"), VM behavior or a proved leaf alone.
-Fail-fast boundary: missing receiver/field/operator evidence, opaque or
-  object-valued operands, and unproved call-containing roots remain unavailable.
-Smallest next slice: MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0; no semantic
-  change. Follow with SCALAR-EXPRESSION-POSITION-S0 under the profile below.
-Non-claims: no DeclaredHandle widening, nullable push, object-field method,
-  String concatenation, forwarded object result, app PASS or global retirement.
-```
-
-### Finite source inventory and distinct contracts
-
-| Selected source | Existing evidence / gap | Disposition |
-| --- | --- | --- |
-| `apps/mimalloc-lite/main.hako:39-40` | Eight numeric field leaves on prior `small`/`medium` aliases; surrounding print/concat also calls `freeCount` | Reuse field declaration proof; String/call root admission remains separate |
-| `apps/mimalloc-lite/main.hako:44` | The same eight fields in comparisons/And; root also calls `freeCount`, `requestedBytes`, `outstandingBlocks` | Condition traversal must be explicit; field support alone does not cover the whole root |
-| `page_heap_box.hako` allocate `Body(8)` and requested-bytes RHS | Unannotated `requested_size` is `OpaqueHandle`, installed as `StoredLocal::Handle`, not scalar | Keep rejection; select checked operation/borrow/Fault contract before widening |
-| Existing exact scalar local in builtin argument/store RHS | Field-call and field-store walkers have different transfer rules | Preserve each context's current admission; do not merge them by bool or spelling |
-
-There are 16 scalar field-read occurrences in the app source, not 16 new
-owners or proof products. Imported allocator operands are a separate part
-of the same app dependency chain. This static inventory is not an observed
-runtime terminal order and does not repeat the whole-repository census.
-
-### Ordered implementation tasks inside slice 9
-
-1. **COSEAL-SIZE-T0 (next).** The committed issuer is 1,048 lines and ledger
-   module 807. Split private source-claim preparation, per-declaration
-   observation/claim assembly and ledger/error vocabulary at their ownership
-   boundaries. Existing `#[path]` modules are sufficient; keep source loans,
-   invocation identity, take/finish order, errors, ABI and acceptance unchanged.
-   Merely moving the two bottom helpers does not make the issuer small enough.
-   Every touched/extracted source must be below 800, with room below 760 where
-   practical. Do not add semantic arms to either oversized parent beforehand.
-2. **SCALAR-EXPRESSION-POSITION-S0.** Generalize the existing field-read site
-   helper while retaining its direct-initializer adapter and Alias behavior.
-   New subtree positions accept only Scalar field results on an exact Home,
-   entry `me` or live prior alias. Use sealed expression source operator/child
-   rows, not the generic body-shape kind, for the initial pure profile:
-   Integer/Bool literals and exact scalar locals; integer Add/Subtract,
-   integer Equal/NotEqual comparisons, and Bool And/Or. Require Integer
-   operands for arithmetic/comparisons and Bool operands for And/Or; mixed
-   Integer/Bool operands reject. A fully proved initializer installs its
-   actual Integer or Bool class (existing scalar install), never a fabricated
-   local for each leaf. Require Bool for this profile's if-condition root
-   before branch traversal; branch
-   body verification does not prove condition leaves. Reuse existing ordinary
-   binary and short-circuit consumers; their evaluation/Fault semantics stay
-   unchanged. Other operators and effectful/mixed-call roots are excluded.
-3. **Transactional staging and physical cutover (same S0).** Prove the complete
-   selected root before committing staged field-read rows. Rejected roots
-   leave no successful partial claim/residual rows. Keep exact owner/site,
-   receiver child path and canonical field; every accepted leaf uses the
-   existing once-only take/record/finish checks and Integer ObjectFieldGet.
-   Short-circuit RHS reads remain in the RHS control region; never hoist them.
-   Existing core arguments/store RHS may reuse the leaf helper only while
-   preserving their own whole-root, transfer and effect checks.
-4. **Remaining slice-9 decisions.** For opaque allocator parameters select the
-   exact source binding, checked operation/provider, normal representation,
-   borrow/retain/transfer behavior, rejection/Fault and caller unwind. For
-   String concat/print and call-containing conditions name each existing call
-   and operation consumer before combining leaf evidence. Do not weaken an
-   exact-I64 call contract or relabel Handle from its use position. Keep these
-   tasks in this bundle; do not open a second interpreter or observer census.
-5. **App closeout and retirement.** Re-observe the chosen app after relevant
-   boundaries change; close the bundle only at its original EXE acceptance.
-   Scalar-expression green alone is not permission to re-pin the app as PASS.
-
-### Acceptance and deletion accounting
-
-- Positive: Home numeric field in `local n = page.count + 1`; entry `me`
-  numeric comparison; prior-alias numeric condition; supported scalar-local
-  store/argument; repeated same-field reads have distinct exact sites.
-- Negative: mixed scalar operands or non-Bool condition, unknown/rebound/
-  consumed receiver, missing/weak/noninteger field,
-  alias as numeric value, foreign/duplicate/wrong child site, double take,
-  opaque operand, hidden call, unsupported operator and partially proved root.
-- Physical: exact canonical field/base and Integer destination feed the
-  actual operator/condition; short-circuit RHS stays conditional. Normal/Fault
-  cleanup retains each original obligation exactly once; no borrowed alias
-  enters Home teardown or escapes as a movable argument.
-- T0 uses existing field-read claim/emit and touched-module regressions; S0
-  adds discriminating focused positives/negatives and physical tests. Classify
-  failures against the existing quick-profile baseline; never promote a flake
-  into the deterministic failure manifest to make a run green.
-- Retirement mapping: selected scalar FieldAccess source sites previously
-  entering raw Dynamic/FieldGet must consume the exact ObjectFieldGet port.
-  Assert no raw FieldGet/re-entry for those exact sites and no stranded claims.
-  The shared Dynamic arm has outside readers and is retained. Physical delete
-  credit is zero until an actual helper/edge has migrated callers, verified
-  acceptance and caller-zero; record any such finite delete set before removal.
-- Keep unrelated legacy schema/backend retirement parked. The app bundle's
-  production switch and selected-edge retirement remain mandatory closeout,
-  not a claim made by this design or by the BoxShape split.
-
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-COSEAL-SIZE-T0`, then
-`MIRBUILDER-APP-MIMALLOC-LITE-SCALAR-EXPRESSION-POSITION-S0`.
-
-
-### COSEAL-SIZE-T0 publication receipt (2026-10-01)
-
-- Behavior-preserving ownership split: issuer 1048 -> 711 lines, source-claim
-  child 405; coseal 807 -> 434, ledger child 381. Ledger method visibility
-  retains the original semantic-package boundary. Existing claim order,
-  invocation identity, errors and affine take/finish behavior are unchanged.
-- Module README and scope-guard pins follow the moved responsibilities; both
-  new modules are registered in the size boundary. No semantic arm or selected
-  old-edge retirement was added; physical deletion credit remains zero.
-- Focused quick/serial `local_field_read`: 9 passed, 0 failed (7 claim and
-  2 emitter tests). Full lib baseline verifier: KNOWN BASELINE, exit 0;
-  8139 passed / 126 failed / 56 ignored, inventory 8321, unchanged failure
-  SHA256 `eed5d558e18359d7d8502c87a0bd54b42cdbcb8215f3ab505671169c34e6e497`.
-- Pointer guard, touched-file rustfmt, shell syntax and diff check pass.
-  Qualified-route scope guard still rejects unchanged `brand_catalog_tests.rs`
-  at 961 lines: existing size debt, not a T0 regression; not waived or hidden.
-- D0 and T0 worktree changes were preserved and pushed together by an external
-  handoff at `0d60daa3f59155990aa216b207df3cf5da9d49f6`. This existing history
-  is retained; separate D0/T0 patch snapshots remain available in `/tmp`.
-  Local `.git` is now writable; the earlier publication restriction is resolved.
-- Next: SCALAR-EXPRESSION-POSITION-S0 under the accepted profile above.
-  App acceptance and legacy retirement remain incomplete.
-
-
-### S0 transaction decision — worker audit (2026-10-01)
-
-The existing verified callback stages each successful leaf eagerly; the probe
-callback is pure. Recursing through that verified callback before whole-root
-acceptance would leave a left-hand read staged when a later operand rejects.
-This is an extension hazard, not evidence of a direct-initializer regression.
-
-Decision: change the existing local-field-read callback to an all-or-none batch
-at the same source/issuer boundary. Do not add a second semantic owner/map or
-use a rollback after physical emission. Ordered implementation within S0:
-
-1. Add passive exact read requests (owned read site, receiver expression site,
-   receiver binding, Home root, optional alias class, declared field name).
-   Direct initializer uses a singleton allow-Alias adapter; pure expression
-   roots request Scalar-only. Requests are not claims or authority.
-2. Preflight the whole root using sealed literal/local/operator rows. Check
-   binary row identity and exact Lhs/Rhs child paths. A field is a conditional
-   Integer obligation, not a proven Integer: collect its exact request while
-   checking receiver provenance. Reject unsupported/mixed roots before staging.
-   Preserve Integer/Bool class; obtain IfCondition through the existing located
-   source port and require Bool before branch forks. Do not tighten unrelated
-   previously accepted conditions without the selected-profile scope check.
-3. The existing issuer proves EVERY request via terminal_home::local_read_field
-   into a temporary vector. Check unique owner/sites, canonical fields and
-   declared result; Scalar-only batches reject Alias/None. Repeated exact sites
-   may be idempotent across passes only if receiver site/binding, Home root,
-   canonical field and result match the existing row. Reject drift rather than
-   answering solely from contains_key. No ledger insertion occurs on rejection
-   or error. Only after all checks succeed extend local_staged_reads once.
-   The source-only probe uses the same admission with no staging.
-4. Keep batch preparation private to the existing issuer's source-claim child
-   or a responsibility-specific child; do not grow the 711-line issuer to 800.
-   Update the existing scanner/branch/completion callback wiring together.
-   Exact ObjectFieldGet and one-shot ledger consumption stay the physical path;
-   RHS short-circuit placement stays owned by the existing operator consumer.
-5. Add focused negatives for valid-left/invalid-right, second-field Alias,
-   opaque/mixed operand, wrong binary child site, non-Bool condition, duplicate
-   request and cached-site drift. Check rejected roots add zero staged rows.
-   Positive emitter tests prove arithmetic/comparison destinations and a
-   conditional RHS field read, plus direct initializer/Alias regressions.
-
-This refines task 3's transaction mechanism; it does not broaden the accepted
-profile, claim app PASS, or authorize shared Dynamic-arm removal. S0 remains
-selected; no external dependency or completed migration is inferred.
-
-
-S0 lifetime refinement (read-only follow-up, 2026-10-01): the existing
-field_read_receiver bypasses ordinary Handle observation's Consumed-root
-check, and FieldAlias retains only class. Selected-new argument transfer calls
-consume_home before later reads, with no other source owner rejecting these
-stale receivers. Preserve root provenance inside existing FieldAlias state;
-pass the exact request Home root into alias installation and inherit it through
-alias chains. Require a live Home/self-rooted entry Handle for RootedHandle and
-Alias receiver proof; include root in branch-state equality. Keep the alias as
-borrowed storage with no Home obligation or movement authority. Add negatives
-for direct Handle alias and FieldAlias reads after a verified selected transfer;
-assert the transfer was accepted and later reads stage no rows. This closes the
-already-required consumed-receiver rejection, without new assignment admission.
-
-
-S0 condition-scope refinement (read-only audit, 2026-10-01): select the
-whole pure morphology before semantic proof, not merely the presence of a
-field or a supported outer operator. A recursive selector permits the profile's
-sealed binaries, Integer/Bool literals, lexical variables, and FieldAccess with
-only direct Variable/Me receivers. Nested unsupported operators, calls, String/
-Null, containers and nested/effectful receivers remain outside this profile and
-retain their existing condition owner, with zero new read claims. Selected pure
-roots still reject mixed types, missing fields, consumed receivers and non-Bool
-results. Add regression evidence for nested Greater, call and nested field
-receivers; the page-heap Body(0) Greater condition must not move its existing
-Body(8) opaque-operand frontier backwards. The old argument negative for a local
-initialized by `1 + 2` becomes a positive exact-Local assertion; its direct-call
-argument case remains negative. Do not rebaseline either discrepancy as debt.
-
-
-### SCALAR-EXPRESSION-POSITION-S0 receipt (2026-10-01)
-
-- Existing field declarations and sealed expression/operator paths now prove
-  complete pure Integer/Bool initializer roots and selected field conditions.
-  Every batch is checked before staging; cached-site descriptor drift and
-  duplicate sites reject without partial insertion. Direct initializer Alias
-  behavior remains on its singleton adapter. Borrowed aliases retain the
-  original root and reject reads after its selected transfer.
-- Source-backed physical tests consume the exact Integer ObjectFieldGet in
-  arithmetic (including existing Copy bindings); RHS short-circuit reads stay
-  in a distinct control block. Selected sites do not emit raw FieldGet. The
-  shared Dynamic arm retains outside readers: physical deletion credit zero.
-- Focused scalar expression 12/12; existing local_field_read 9/9. Page-heap
-  fixture census and selected-new argument regression each pass. The former
-  keeps Body(8), rather than regressing to the earlier Greater condition.
-  The old `local x = 1 + 2` negative now checks its admitted exact Local rows;
-  direct hidden-call arguments still reject.
-- Full quick/serial observation: 8150 passed / 127 failed / 56 ignored,
-  inventory 8333. Twelve tests added, none removed; all 126 deterministic
-  baseline failures unchanged. The sole extra failure is the already-recorded
-  nullable_receiver_call_serializes_nullable_handle_and_checked_release flake,
-  which passes in isolation. Baseline verifier reproduced that summary drift:
-  FAIL, not PASS. Its deterministic failure manifest is unchanged; inventory
-  and expected passing count alone are refreshed for the twelve added tests.
-- Qualified-route guard still rejects unchanged brand_catalog_tests.rs=961:
-  existing debt, not waived. All touched/new Rust sources are below 800.
-  Pointer, touched-file format, shell syntax and diff checks pass.
-- Final post-format verifier: KNOWN BASELINE, exit 0; 8151 passed / 126 failed /
-  56 ignored, inventory 8333, unchanged failure SHA256
-  `eed5d558e18359d7d8502c87a0bd54b42cdbcb8215f3ab505671169c34e6e497`.
-  Earlier nullable flake observations remain recorded above. No whole-app EXE
-  PASS, opaque support, String/call-root admission or global retirement claim.
-
-
-### Task 4 handoff — opaque borrowed operations
-
-The focused [opaque-formal card](mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md)
-owns ingress/operation decisions and receipts; bundle tasks10-12 and original
-app EXE remain required. No physical deletion or whole-app completion claim.
+Remaining opaque operation work is owned by
+[opaque-formal card](mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md).
+Bundle tasks10-12, mixed call/String roots, original unchanged app EXE acceptance,
+production cutover and selected old-edge retirement remain required; only the
+CURRENT_STATE-selected row grants current execution scope.
 
 ## Accepted input preparation slices (2026-10-12)
 
@@ -982,3 +438,39 @@ S0 is selected, not accepted. Changed source beyond760 requires responsibility
 split before800; put bounded entry logic in its existing owner-view child.
 Non-claims: Integer/class/ownership entry, whole body completion, S0 acceptance,
 EXE success, production closeout/caller-zero/retirement and full product completion.
+
+### User-requested restart handoff (2026-10-12)
+
+Stopped during S0; HEAD `741d8a37cb` is pushed. Four UNCOMMITTED Rust files:
+entry/owner_view, guarded_actual and compare_materialization (original draft).
+Draft declaration profile/SAME guard correspondence/Compare lender are connected;
+NO Cargo/build/test/app rerun yet. Pointer/diff PASS; no Cargo/rustc live at stop.
+Resume tasks4-7 above: exact guarded input reconstruction and demand rechecks,
+BOTH zero-call final consumers, focused negatives, then unchanged original app.
+Retain/review these drafts; S0 NOT accepted. Compact landed history before adding
+receipts; keep source below800 and card below1000; do not extend parked lanes.
+
+### Restart preparation — responsibility split and history compaction (2026-10-12)
+
+User requested this before input reconstruction/final-consumer work. Entry's
+complete incoming checker moves unchanged into its private incoming child;
+source projection, owner selection and entry values keep their existing owners.
+Only sibling visibility of the shared core changes; no admission/phase/ABI change.
+Completed early claim/scalar-expression history above now points to immutable
+commits; selected Required Object Forward tasks1-7 and unfinished bundle conditions
+remain here. Four original semantic draft files remain unaccepted and preserved.
+Entry651 + incoming114 lines; card remains below500. Original checker body is
+identical after module-path/visibility/rustfmt normalization; final parent blank
+cleanup is token-equivalent. Existing quick/serial `borrowed_formal_entry` filter
+62PASS/0FAIL (includes Static packet/scope negatives), build/link418s, tests0.12s.
+`/tmp/mirbuilder-entry-split-tests.log` retains the run. The additional
+`borrowed_static_packet` filter matched0 and is NOT evidence; no rerun needed
+because the first filter already includes those module tests. Test worktree
+includes the four retained unaccepted semantic drafts; this receipt accepts ONLY
+the proven responsibility move, not their behavior or S0. No new tests added.
+Pointer/diff/child-format and immutable-history-reference checks PASS. Scope guard
+FAIL at unchanged raw_loop_child_entry count3 vs4 (HEAD bytes identical), known
+baseline; not waived. Initial child-wrapper visibility error corrected before
+successful build. Warning count812; no suppression. Split `a03d2c8597` contains only the responsibility move and owner routing;
+this card commit owns history compaction and evidence. Semantic
+draft hunks remain unstaged. No S0/EXE/retirement claim.
