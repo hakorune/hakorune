@@ -346,6 +346,49 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
         .unwrap(),
         crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1::SourceOnly(_)
     ));
+    let passive = project_pending_instance_source_arguments_v1(
+        source,
+        &staged,
+        &package.parameter_contracts,
+        loan.call(),
+    )
+    .unwrap()
+    .expect("qualified source input remains passive");
+    assert_eq!(
+        passive,
+        staged
+            .get(loan.call())
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .ordered_arguments
+    );
+    assert!(
+        lend_pending_borrowed_arguments_v1(source, &staged, loan.call())
+            .unwrap_err()
+            .contains("source-only-object-actuals")
+    );
+    for mutation in 0..3 {
+        let mut changed = staged.clone();
+        let rows = changed.get_mut(loan.call()).unwrap().as_mut().unwrap();
+        match mutation {
+            0 => rows.ordered_arguments = Box::new([]),
+            1 => rows.phase = BorrowedCallActualEvidencePhaseV1::Executable,
+            _ => {
+                changed.remove(loan.call());
+            }
+        }
+        assert!(
+            project_pending_instance_source_arguments_v1(
+                source,
+                &changed,
+                &package.parameter_contracts,
+                loan.call(),
+            )
+            .is_err(),
+            "qualified passive mutation {mutation}"
+        );
+    }
     for replacement in [
         BorrowedCallActualValueV1::Integer(7),
         BorrowedCallActualValueV1::Bool(true),
@@ -363,6 +406,14 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
             &replaced,
             &target,
             &loan,
+        )
+        .unwrap_err()
+        .contains("forward-source-identity"));
+        assert!(project_pending_instance_source_arguments_v1(
+            source,
+            &replaced,
+            &package.parameter_contracts,
+            loan.call(),
         )
         .unwrap_err()
         .contains("forward-source-identity"));

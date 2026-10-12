@@ -173,11 +173,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance
             .filter(|row| &row.call == site);
         if let Some(original) = originals.next() {
             if let Some(target) = original.source.instance() {
-                // An unqualified Instance sibling lends the same passive input
-                // response even when the Object owner retains its source phase.
-                if target.object_return_sources().is_none()
-                    && super::object_source::selected_source_only_object_forward_v1(ingress, target)
-                {
+                // Generic discovery borrows only the original input phase.
+                // Qualified result permission stays with its dedicated consumer.
+                if super::object_source::selected_source_only_object_forward_v1(ingress, target) {
                     if originals.next().is_some() {
                         return Err(freeze("borrowed-instance/duplicate-source"));
                     }

@@ -2351,7 +2351,10 @@ original source-only draft origin/argument membership are rechecked at demand.
 The phase owns no opaque proofs and grants no Integer class or executable entry.
 Object input source retains its existing owner. Home receives an explicit
 SourceInstance response, leaving the call unavailable without strict fallback;
-existing executable result/input lenders reject it. No implicit promotion exists.
+existing executable result/input lenders reject it. Generic Scalar/I64 discovery
+borrows that same passive Object input response even for return-qualified targets;
+the dedicated Object/ReceivedHandle/ReceivedObject consumers still validate their
+original result qualification before lending inputs. No implicit promotion exists.
 
 For the selected variable-bound Mul Loop, the package issuer retains the
 resolver's exact Loop membership and the source-layer observation together

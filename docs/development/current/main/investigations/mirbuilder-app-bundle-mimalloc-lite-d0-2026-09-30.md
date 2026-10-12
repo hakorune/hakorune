@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — source-only sibling input S0 accepted; qualified input D0 selected.
+Status: active bundle — qualified input S0 accepted; Static final-incoming D0 selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -943,7 +943,8 @@ original13-definition JSON/readback and native1/2/73 pass, whole app unfinished.
 
 ## Qualified source input D0 — Decision (2026-10-12)
 
-Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-D0`.
+Decision accepted at `c82ee43752`; selected implementation row:
+`MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-S0` (not yet accepted).
 Exact contracts map owner37/batch33 HakoAllocHeap.realloc; Body(5) initializer
 calls allocate with requested_size(binding/root2), ordinal0. Original evidence:
 `/tmp/mimalloc-next-qualified-source-contract.log`; unchanged app receipt above.
@@ -960,18 +961,37 @@ ObjectArguments/ReceivedObject/ReceivedHandle branches must remain before the
 generic Scalar/I64 precheck and keep their original qualification validation.
 Non-authority: nullable membership, generic discovery, backend or fixture shape.
 
-Implementation tasks, same bounded S0:
-1. Broaden that passive input projection, retaining source-only selection checks.
-2. Extend existing qualified forward test: passive argument equality, original
-   Object lender still SourceOnly, direct execution refusal; phase/candidate/
-   ordered/source identity mutations reject through the passive projection too.
-3. Verify both generic callback requests return SourceInstance, while foreign
-   Object qualification rejects; no strict fallback or invented Normal grant.
-4. Run focused Object identity/callback/regression tests, classify known reds,
-   rebuild CLI and compare original app first-stop; record snapshots and times.
-5. Close only this input mapping after acceptance, retain object_input_finish,
-   Completion and receiver/result owners for activation/Normal/result/physical ABI.
-Delete set: no physical shared-owner deletion; replace this target's generic
-executable-demand edge with existing passive response. No qualified cutover,
-old-edge retirement or whole SizeClass/mimalloc-lite/MirBuilder completion claim.
-Read-only worker confirmed this boundary; no new receipt/solver/source rewrite.
+Qualified input S0 acceptance (2026-10-12):
+- Existing passive projector now covers qualified source input; dedicated Object/
+  ReceivedObject/Handle qualification branches unchanged. No visibility widening.
+- Quick build/link8m20s; focused53PASS/1 pre-change NoIncoming baseline. Existing
+  forward test covers passive equality and execution/mutation refusal; callback
+  tests cover both Scalar/I64 and foreign qualification. Receipt:
+  `/tmp/mimalloc-qualified-input-v2-runtime-receipt.json`.
+- CLI build/link232.212s; original unchanged app0.050s/rc1/no EXE. Previous
+  OrdinaryNew BorrowedFormalIngress gives way to LexicalInstanceCall with the
+  same source-only-object-actuals terminal. No owner/site advancement is inferred
+  from this less-specific diagnostic. CLI receipt:
+  `/tmp/mimalloc-qualified-input-cli-v1-runtime-receipt.json`.
+- Current/test/CLI snapshots match all3 changed Rust files. Pointer/format/diff
+  PASS; qualified-route guard's unchanged count3 vs4 baseline remains classified.
+- Read-only GDB `/tmp/mimalloc-qualified-input-executable-stack.log` locates the
+  new demand: co_seal_static_local_routes -> selected_static_local_source ->
+  borrowed_static_packet_actuals -> checked_borrowed_entry_incoming -> require_executable.
+Delete set: no shared-owner physical deletion; this target's generic executable
+input demand is replaced by the existing passive response. Input mapping accepted,
+not qualified execution cutover, result/ABI permission or full old-edge retirement.
+
+## Next bounded design — Static final-incoming D0
+
+Selected: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0`.
+Existing entry checker deliberately validates whole-final-incoming before lending
+requested owner rows (borrowed_formal_entry.rs). Static packet checks original
+qualified Rc/call/parameters/Completion first, then uses that shared closure.
+Do not classify the new rejection as accidental eager scope or filter/skip it.
+Read-only worker confirmed the explicit global contract. Next: identify requested
+Static source/owner/site and the rejecting SourceObject incoming/callee from this
+same invocation, then decide the existing final-membership/input-closure law.
+Source-only evidence is not executable proof. Keep global failure scope until an
+explicit owner Decision; no new solver/receipt/fallback or source rewrite.
+No whole SizeClass/mimalloc-lite/MirBuilder completion claim.

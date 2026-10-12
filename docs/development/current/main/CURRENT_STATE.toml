@@ -1,10 +1,10 @@
 date = "2026-10-12"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-D0"
+current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/qualified-source-input-demands-execution"
-current_design_stop = "QualifiedObjectInput__GenericScalarDemandsExecutable"
+current_blocker_token = "selfhost-resume/static-packet-final-incoming-source-only"
+current_design_stop = "StaticPacketFinalIncoming__SourceObjectNotExecutable"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,15 +17,15 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Source-only sibling input S0 accepted:51 focused PASS/1 reproduced baseline.
-Exact original allocateResult -> allocate input joins the existing Object lender;
-no executable/result/ABI grant. Unchanged app first-stop advances owner34 Body1
-entry-source to owner37 Body5 source-only-object-actuals, no EXE. Corrected
-batch-slot/owner-slot confusion is explicit. Next: qualified input passive
-response D0, original qualification consumer and execution owners preserved.
+Qualified source input S0 accepted:53 focused PASS/1 reproduced NoIncoming baseline.
+Generic Scalar/I64 now borrow passive original Object input; dedicated qualification
+consumers and execution/result/ABI owners unchanged. Original app advances from
+OrdinaryNew BorrowedFormalIngress to LexicalInstanceCall rejection, no EXE.
+GDB locates Static packet whole-final-incoming executable closure. Next D0 maps
+requested Static source and rejecting Object incoming before changing that law.
 Whole app/product and global retirement remain unfinished.
 """
-next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-D0"
+next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
