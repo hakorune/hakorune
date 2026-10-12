@@ -920,72 +920,58 @@ No opaque operation activation or physical deletion claim is made here.
 
 ## Source-only sibling forward S0 — accepted (2026-10-12)
 
-Parent bounded two-exit/document S0 accepted at `2f6f0a8a1a`; original13-definition
-JSON/readback and native1/2/73 pass. Whole app/product remain unfinished.
-**Correction to b3c9b84879:** header input enumeration is batch_slot, not owner
-slot. Exact contracts identify owner34 -> batch_slot30 `allocateResult(size)`;
-callee owner33 -> batch_slot29 `allocate(requested_size)`, both OpaqueHandle.
-Previous reallocResult/class conjectures are withdrawn. Contract/current-source
-map: `/tmp/mimalloc-borrowed-contract-join.log`, `...-current-callable-map.log`.
+Landed `96624eb74e` owns implementation, negatives, evidence and the explicit
+correction to b3c9b84879: header enumeration is batch_slot, not owner slot.
+Original contracts map owner34/batch30 allocateResult(size) to owner33/batch29
+allocate(requested_size), both OpaqueHandle; reallocResult conjecture withdrawn.
+The same Object lender retains original sibling input as SourceObject and checks
+full source/candidate/ordered snapshots. Generic non-return-qualified I64/Scalar
+requests receive passive SourceInstance, not executable/result/ABI permission.
+Explicit return-forward ordinal identity remains mandatory. Shared owners remain.
 
 Original app SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
-Before: controlled EXE at2f6f0a8a1a refuses in0.049s, no artifact,
-`borrowed-actual/entry-source`, owner34 `Body(1)/Initializer(0)`.
-Read-only original loan: ordinal0 SelfRooted binding/root owner34/binding1,
-callee formal owner33/binding1, entry owner34/binding0. Caller executable draft
-absent, source-only origin present. Callee Object-input membership=true; Instance
-and Object preselectors disagreed about that original sibling input.
-Evidence: `/tmp/mimalloc-borrowed-entry-source-values.log`,
-`...-partition-join.log`, `...-source-selection.log`.
+Before: owner34 Body(1)/Initializer(0), borrowed-actual/entry-source,0.049s/no EXE.
+After: owner37 Body(5)/Initializer(0), source-only-object-actuals,0.047s/no EXE.
+Test build/link494.352s; CLI build/link232.185s. Unique51 focused PASS,1 known
+NoIncoming baseline reproduced on pre-change V5 binary. Pointer/format/diff PASS;
+scope guard unchanged baseline raw_loop_child_entry count3 vs required4.
+Receipts: `/tmp/mimalloc-sibling-forward-v3-runtime-receipt.json` and
+`/tmp/mimalloc-sibling-forward-cli-v3-runtime-receipt.json`; matching Rust snapshots.
+No full-suite/whole-repo green, production completion or global retirement claim.
+Parent bounded two-exit/document S0 remains accepted at `2f6f0a8a1a`;
+original13-definition JSON/readback and native1/2/73 pass, whole app unfinished.
 
-Decision + implemented mapping: original parameter catalog, excluded caller
-borrowed-use draft and immutable incoming target feed the existing Object actual
-owner. Callee Object-input membership consistently selects the input owner.
-Explicit return-forward loans keep exact identity checks; their ordinals require
-SelfRooted before candidate variant selection. An input without those loans joins
-unique UnresolvedArgument call/ordinal/site/binding/root and original origin.
-The same pending row retains SourceObject, empty opaque proofs, no execution grant.
-Demand reissues that same source preparation and compares the complete snapshot.
-For non-return-qualified Instance/producer-dependency inputs, generic I64/Scalar
-requests receive the existing passive SourceInstance response through that same
-lender; consumers end unarmed, with no strict retry. Qualified result requests
-retain their original protocol. No new receipt, solver, source rewrite or ABI.
-Selected replacement: this original input no longer falls into EntryReceiver;
-shared receiver/executable construction remains. No whole-owner deletion claim.
-
-Evidence / red classification:
-- Final quick test build/link494.352s; object identity9PASS, actuals26PASS/1
-  known baseline, incoming12PASS, received4PASS: unique51PASS/1 baseline.
-  New original sibling case plus candidate/site/root/order/phase/missing-draft
-  negatives PASS; existing qualified forward rejects Integer/Bool/Null substitution.
-  `/tmp/mimalloc-sibling-forward-v3-runtime-receipt.json` pins binary/conditions.
-- NoIncoming in original_instance_forward_source_refuses_execution_and_snapshot_drift
-  reproduces on pre-change preserved V5 binary (SHA2563c3f483021776fe640d1d9ba980185776400228d59a5d7c1387614f3aa1932bd).
-  `/tmp/mimalloc-sibling-forward-baseline-instance.log`; not waived or rebased.
-- Interim source-only executable demand was a current-change missing consumer
-  mapping, fixed through the same lender. Focused qualification seed uses literal7
-  to avoid an unrelated unused opaque NoIncoming; relay's Opaque input is intact.
-  Original app source was never altered or replaced by this supporting fixture.
-- Final CLI build/link232.185s; unchanged app now passes owner34 and first refuses
-  owner37 `Body(5)/Initializer(0)`, source-only-object-actuals,0.047s/no EXE.
-  `/tmp/mimalloc-sibling-forward-cli-v3-runtime-receipt.json`; CLI/test snapshots
-  confirm identical changed Rust bytes. No app PASS or physical result claim.
-- Pointer/touched format/diff PASS, all touched Rust<800; lexical callback782
-  retains preexisting soft-limit debt. Scope guard remains unchanged baseline:
-  raw_loop_child_entry count3 vs required4; no suppression or guard loosening.
-  No full-suite/whole-repo green, JSON execution, or global retirement claim.
-
-## Next bounded design — qualified source input D0
+## Qualified source input D0 — Decision (2026-10-12)
 
 Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-QUALIFIED-SOURCE-INPUT-D0`.
-Exact contracts map owner37 -> batch_slot33 `HakoAllocHeap.realloc`; its original
-Body(5) initializer calls allocate with requested_size (binding/root2), ordinal0.
-Evidence `/tmp/mimalloc-next-qualified-source-contract.log`. The tagged input is
-retained SourceObject but generic Scalar/I64 discovery demands executable actuals.
-Close the passive input response for this qualified target in the same lender;
-ObjectArguments/ReceivedObject/Handle must retain original qualification checks.
-Negative: no Scalar/Executable response, foreign qualification/snapshot/phase
-rejection, direct execution refusal. Existing object_input_finish, Completion and
-receiver/result owners separately own activation, Normal/result and physical ABI.
-Design is selected, implementation not yet; do not claim qualified cutover,
-old-edge retirement, whole SizeClass/mimalloc-lite/MirBuilder completion.
+Exact contracts map owner37/batch33 HakoAllocHeap.realloc; Body(5) initializer
+calls allocate with requested_size(binding/root2), ordinal0. Original evidence:
+`/tmp/mimalloc-next-qualified-source-contract.log`; unchanged app receipt above.
+The retained SourceObject input reaches issue_lexical_nullable_local_call ->
+ScalarArguments -> executable lender and refuses. This is input discovery, not a
+missing source contract or permission to turn that input into an executable row.
+
+Decision: remove only the return-qualification exclusion from the existing
+passive Instance source projector. Original source incoming target + parameter
+catalog + Object input lender remain canonical; regenerate/compare full pending
+snapshot. SourceInstance means unarmed in both lexical and stored receiver paths;
+no strict retry, Scalar response, executable proof or result witness loan.
+ObjectArguments/ReceivedObject/ReceivedHandle branches must remain before the
+generic Scalar/I64 precheck and keep their original qualification validation.
+Non-authority: nullable membership, generic discovery, backend or fixture shape.
+
+Implementation tasks, same bounded S0:
+1. Broaden that passive input projection, retaining source-only selection checks.
+2. Extend existing qualified forward test: passive argument equality, original
+   Object lender still SourceOnly, direct execution refusal; phase/candidate/
+   ordered/source identity mutations reject through the passive projection too.
+3. Verify both generic callback requests return SourceInstance, while foreign
+   Object qualification rejects; no strict fallback or invented Normal grant.
+4. Run focused Object identity/callback/regression tests, classify known reds,
+   rebuild CLI and compare original app first-stop; record snapshots and times.
+5. Close only this input mapping after acceptance, retain object_input_finish,
+   Completion and receiver/result owners for activation/Normal/result/physical ABI.
+Delete set: no physical shared-owner deletion; replace this target's generic
+executable-demand edge with existing passive response. No qualified cutover,
+old-edge retirement or whole SizeClass/mimalloc-lite/MirBuilder completion claim.
+Read-only worker confirmed this boundary; no new receipt/solver/source rewrite.
