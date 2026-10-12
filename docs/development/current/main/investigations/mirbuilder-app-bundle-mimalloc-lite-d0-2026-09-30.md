@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — original catalog loan T0 accepted; Static incoming scope D0 active.
+Status: active bundle — catalog loan T0 accepted; Static validation scope D0 decided, S0 selected.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -183,66 +183,10 @@ claim end to end.
 
 ## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-STATIC-CALL-CLAIM-S0
 
-Landed as designed — the claim product only; no emission, lifecycle, or
-ownership semantics moved:
-
-- `QualifiedStaticCallClaimIndexV1`
-  (`normal_callable_semantic_package/qualified_static_call_claim.rs`)
-  composes the already-sealed authorities into a
-  `(canonical caller key, source site) -> QualifiedStaticCallClaimV1`
-  map: `VerifiedStaticImportAliasViewV1::seal` (the same `using` rows the
-  lifecycle passes in via `issue_normal_callable_semantic_package_with_
-  brand_catalog_and_loop_policy_v1`'s new `import_rows` parameter),
-  `VerifiedWholeSourceStaticCallTargetInventoryV1::verify`, and
-  `VerifiedSameModuleCallableResultCatalogV1::verify`. Only
-  `QualifiedStatic` targets with an `ExactI64` disposition keep a row;
-  the row carries `required_i64_arguments`.
-- `issue_qualified_static_local_call` (`home_local_call_flow.rs`)
-  corroborates the `QualifiedUnbound` receiver shape against the
-  method-call inventory and seals every argument: Integer/Bool literals
-  or `TrivialLocal` scalar bindings via `PrefixLocalFlow::observe`;
-  callee-required i64 ordinals require i64-class evidence. Sole product:
-  `LocalCallObservationV1{result: I64}` — `install_i64_call_result`,
-  `path_calls` membership, no Home, no ledger row, no lifecycle site.
-- `LocalCallObservationV1.arguments` widened from `Box<[i64]>` to
-  `Box<[LocalCallArgumentV1]>` (`Integer`/`Bool`/`Scalar(binding)`);
-  the lexical-handle emitter consumes `Integer` only and fails closed
-  on any other class.
-- Predicate threading: `scan_statement_flow` / `observe_if_statement` /
-  `walk_branch` / `verify_function_completion_with_new_homes_and_
-  argument_observations_v1` take the package-injected predicate;
-  bounded siblings (`issue_new_home_prefixes_v1`,
-  `issue_new_home_prefixes_with_arguments_v1`, plain
-  `verify_function_completion_with_new_homes_v1`) stub `Ok(None)`.
-  `issue_new_home_prefixes_probing_fields_v1` now installs the caller's
-  declared parameter contracts (was `iter::empty()`) and the same
-  predicate — probe and verified walk can never diverge on scalar
-  arguments again.
-- Caller keys: selected rows translate through `caller_key_for_
-  function`; App Main (never a selected row) falls back to the
-  catalog's `source_backed_app_main` co-seal key.
-- Focused tests (`qualified_static_call_claim_tests.rs`, 6 green):
-  exact `Alias.m(size)` claim, scalar-parameter argument, imported
-  alias resolution; fail-closed for bool-at-i64-ordinal, handle/map
-  arguments, non-`QualifiedUnbound` receivers, and unregistered sites.
-- Incidental reclassification: same-module qualified static calls
-  (e.g. `Sizes.size(7)`) previously sat unclassified as `BoundValue`;
-  the claim now installs them as `Trivial(Integer)` and `new` argument
-  rows read `Local` — `selected_new_arguments_admit_inventoried_call_
-  result_local` updated to the honest kind (admission unchanged).
-- Gates: `cargo check --lib` clean; `cargo test --lib` over
-  `normal_callable_semantic_package` + `resolved_semantics` = 763 pass,
-  3 fail — all three are the documented red-baseline rows in
-  `cargo_lib_red_baseline.failures.txt` (no new regressions). Real-app
-  frontier check: `apps/mimalloc-lite` MIR emit still stops at the
-  pinned `emission-binding-drift` gate — downstream of this slice's
-  claim lane, unchanged by design (D0 non-claims: no app-level
-  completion claim).
-
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0` —
-bundle slice 6: argumented instance calls (`heap.allocate(8)`,
-`heap.release(h)`); 0-arg i64 instance calls already compile, this
-slice designs the scalar-argument claim surface.
+Claim-only qualified Static/I64 source rows; no emission/lifecycle change. Six claim tests pass; module batch763PASS/3 documented baseline reds. Original app remained emission-binding-drift; no app/retirement claim.
+Full implementation/negative tests/receipt history: this card at `7171048755`.
+The accepted D0 above and current owner README retain the contract; this historical
+receipt grants no additional execution or retirement permission.
 
 ## Decision — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-D0 (accepted)
 
@@ -325,64 +269,10 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
 
 ## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-INSTANCE-CALL-SCALAR-ARG-S0
 
-Landed as designed — one claim lane, one disposition arm, one emit
-gate; no new ownership product and no semantic scope beyond the D0:
-
-- `lexical_i64_result_call`
-  (`ordinary_new_coseal_issue_lexical.rs`) is the package-injected
-  predicate: lexical `Local` receiver whose owner-local binding is
-  not rebound, exactly one initializer tied to an ordinary-new
-  claim, unique selected `InstanceBoxMethod`, all callee formals
-  `ExactTrivial(I64)`, no callable result-class claim
-  (Handle/Nullable/Object), and every verified value-return site is
-  literal/scalar-compatible — `return <i64 formal>` is admitted via
-  the callee's own parameter contract.
-- `issue_lexical_i64_local_call` (`home_local_call_flow.rs`)
-  corroborates the receiver binding against the method-call
-  inventory and seals each argument via `PrefixLocalFlow::observe`
-  — Integer literals or scalar local bindings only. Sole product:
-  `LocalCallObservationV1{result: I64, arguments: sealed rows}`.
-- Disposition issuer arm
-  (`ordinary_new_lexical_instance_call.rs`): an i64 observation +
-  uniform i64 callee result mints
-  `Some(InvokeCallResultKind::I64)` and records the site as a
-  lifecycle local-call site for root binding accounting; a
-  mismatched result class fails closed.
-- `emit_local_lexical_i64` (`terminal_call.rs`): requires the I64
-  disposition + sealed observation; receiver must appear in prior
-  Homes and is materialized from the exact lexical binding, args
-  from sealed rows zipped with exact `argument_sites`; emits
-  `Invoke{Call, SameModuleInstance(InstanceBoxMethod), I64}`, runs
-  the newest-first prior-home unwind (shared with the Handle lane
-  in `handle_call.rs`), registers the dst as integer, and records
-  root local-call bindings.
-- Standard-route dispatch (`direct_call_disposition_port.rs`)
-  consults Handle and i64 lexical observations together, takes the
-  disposition exactly once, validates selector + result kind, then
-  hands off to the matching emitter — the dynamic member route
-  never re-emits an armed site.
-- Predicate threading mirrors the static-claim S0: verified walk
-  and `probing_fields` share the same predicate, bounded siblings
-  stub `Ok(None)`.
-- Focused tests: `lexical_i64_local_call_tests.rs` (6 green —
-  parameter receiver, claim-local receiver, unproven call-result
-  arg/receiver, non-i64/mixed result, one-shot disposition) + an
-  emit-level pin in `normal_default_root_catalog_lifecycle_tests.rs`
-  asserting `Pool.allocate/1` emits
-  `Invoke{SameModuleInstance, I64}` with one scalar argument.
-- Gates: focused `normal_callable_semantic_package` +
-  `resolved_semantics` + lifecycle batches green; the only reds
-  observed are manifest rows 12/64 of
-  `cargo_lib_red_baseline.failures.txt`
-  (`literal-physical-drift`, upstream `ReceiverNonEscape` boundary)
-  — both reproduce identically at the D0 HEAD, no slice regression.
-  App smoke: `apps/mimalloc-lite` still stops at the pinned
-  `emission-binding-drift` frontier — `heap.allocate` is
-  nullable-result and correctly outside this lane (D0 non-claim).
-
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0` —
-bundle slice 7: `handles.push(heap.allocate(8))`, a live Invoke
-inside a core-method argument.
+ExactTrivial(I64) lexical instance arguments and sole I64 Invoke gate accepted. Six local-call tests and source emission pin pass; manifest reds reproduce at D0. Nullable allocate remained outside this scope; original app emission-binding-drift.
+Full implementation/negative tests/receipt history: this card at `7171048755`.
+The accepted D0 above and current owner README retain the contract; this historical
+receipt grants no additional execution or retirement permission.
 
 ## Decision — MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-D0 (accepted)
 
@@ -461,61 +351,10 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
 
 ## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-CALL-RESULT-ARG-POSITION-S0
 
-Landed as designed — one sealed argument row, one recursive seal, one
-recursive emit; no disposition-issuer change (the arg-position row was
-already minted with `Some(I64)` by the `(false, false, other)` arm) and
-no second lifecycle binding group:
-
-- `LocalCallArgumentV1::CallResult(Box<ArgumentCallObservationV1>)`
-  (`home_local_call_flow.rs`) is the sole nested-call evidence: the
-  inner `OwnedExprSiteV1`, the enclosing prior Homes, and recursively
-  sealed argument rows. `seal_i64_call_arguments`/
-  `seal_argument_call` reuse the unchanged `lexical_i64_result_call`
-  predicate — an arg-site that is a proven i64 lexical call seals as
-  `CallResult`, anything else leaves the outer site unclaimed.
-- Emit refactor (`terminal_call.rs`): `emit_local_lexical_i64` keeps
-  the single `record_root_local_call_bindings` call for the outer
-  site and delegates physical emission to `emit_lexical_i64_call`,
-  which the `CallResult` arm re-enters — take the inner site's
-  armed disposition exactly once, recursively emit its Invoke +
-  normal projection, and feed the inner result `ValueId` into the
-  outer argument slot. Inner instructions append to the outer
-  `bindings` vector in physical order, so the one recorded group
-  covers both invocations (the inner call owns no destination
-  binding and no expected lifecycle site — the strict
-  source-order accounting stays exact).
-- Focused tests: `lexical_i64_local_call_tests.rs` +2 (positive
-  `CallResult` seal with inner site/args/prior-Home evidence and a
-  one-shot armed disposition; four-case fail-closed table —
-  construction-result, opaque-formal, deeper-subtree, bool-actual
-  inner calls keep the outer site unclaimed) + an emit-level pin in
-  `normal_default_root_catalog_lifecycle_tests.rs` asserting two
-  `Invoke{SameModuleInstance, I64}` where the `give` invoke seats
-  on `allocate`'s normal-landing edge and the inner projection dst
-  is the outer call's argument.
-- Gates: focused `lexical_i64` (10/10) +
-  `normal_callable_semantic_package`/`resolved_semantics`/
-  lifecycle batches green modulo manifest baseline reds
-  (`main_static_child_port_consumes_all_role_rows_once`,
-  `qualified_call_map_argument_reaches_the_named_capability_boundary`,
-  `artifact_child_rejects_retained_unavailable_commit_before_lifecycle_coverage`,
-  `birth_receiver_non_escape_rejects_unproven_uses_before_row_publication`)
-  plus one batch-only flake that passes in isolation — no slice
-  regression. Serial quick-profile run: `8130/126/56` with the
-  failure-name set byte-identical to the accepted receipt
-  (`failure_sha256` unchanged); the manifest re-baselines the
-  +3-test inventory only. One intermittent observation:
-  `nullable_receiver_call_serializes_nullable_handle_and_checked_release`
-  flaked red in one serial run and in isolation — it reproduces
-  identically at the D0 HEAD (`ordinary-membership-drift`), so it is
-  pre-existing flake debt outside this slice, not a regression.
-  App smoke: `apps/mimalloc-lite` still stops at the
-  pinned `emission-binding-drift` frontier — `handles.push` is a
-  NoValue core-method lane and `heap.allocate` is nullable-result,
-  both D0 non-claims waiting on their own slices.
-
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0` — bundle
-slice 8.
+Nested CallResult reuses the outer binding group and recursively seals/emits each Invoke once. Focused10/10; serial8130/126/56 with unchanged deterministic failures and documented nullable flake. NoValue push/nullable allocate remain separate contracts.
+Full implementation/negative tests/receipt history: this card at `7171048755`.
+The accepted D0 above and current owner README retain the contract; this historical
+receipt grants no additional execution or retirement permission.
 
 ## Decision — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-D0 (accepted)
 
@@ -599,64 +438,10 @@ Next: MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
 
 ## S0 landed — MIRBUILDER-APP-MIMALLOC-LITE-HANDLE-FIELD-READ-S0
 
-Landed as designed — one field-declaration authority, one staged
-ledger row, one physical `ObjectFieldGet` owner; `field_write_claims`
-stay non-authority and the bounded `with_arguments` sibling keeps its
-stub (local-initializer reads admit on the verified lane only):
-
-- `StoredLocal::FieldAlias { class }` + `field_read_receiver`
-  (`home_prefix_local_flow.rs`) is the sole alias record — borrowed
-  storage carrying the declared class, observable as `None` so an alias
-  never moves the receiver root into a `new` argument and never joins
-  the Home/teardown set. Receiver provenance classifies into
-  `OwnedHome` / `RootedHandle` / `Alias`; `me` receiver sites resolve
-  through the `Me` shape (`BodyMeReceiverV1::Lexical`), not
-  `variable_ref`.
-- `home_new_prefix_field_read.rs` is the sole local-initializer
-  observer — `local x = recv.field` only (the FieldAccess must be the
-  statement's direct initializer; subtree positions stay
-  `PrefixNotCovered`). It sits after the field-call arm and before the
-  inventoried-call fallback; scalar results install `Trivial(Integer)`,
-  box results install `FieldAlias`.
-- `terminal_home::local_read_field` is the one declaration authority —
-  three provenances each proven on their own class: claim-local `new`
-  candidate (construction plan's object must equal the definition's
-  object; duplicate destinations fail hard), the entry loan's `me` root
-  (`home == loan.receiver()`, same owner), and a prior alias's retained
-  declared class (resolved through ordinary-box coverage). Result class:
-  `is_numeric_integer_type_name` → `Scalar`, `coverage.contains_box` →
-  `Alias`, anything else (weak/duplicate/undeclared/MapBox) →
-  `Ok(None)` unclaimed.
-- Ledger (`ordinary_new_field_reads.rs`): `LocalFieldRead` rows stage
-  through the coseal predicate (idempotent across observation/accounting
-  passes), merge with owner/duplicate checks, take once with
-  receiver-site `Receiver`-segment + progress validation, and record
-  `Emitted` with `ObjectFieldGet`; completeness and physical validation
-  cover the local rows the same as terminal/argument rows.
-- Emit (`fields.rs` + `raw_ordinary_new_claim.rs`):
-  `PreparedExactFieldReadClaimV1::{Terminal, Local}` splits the claim
-  family — `Local(Scalar)` lowers `MirType::Integer`, `Local(Alias)`
-  lowers `MirType::Box(class)`; the terminal take falls through to
-  `take_local_field_read`, and the sealed class (not MIR inference)
-  types the destination.
-- Focused tests: `local_field_read_claim_tests.rs` +7 (scalar on
-  selected `new`, object alias, read-on-alias, `me` entry-receiver read
-  in a `new`-carrying method, alias rejected as movable `new` argument,
-  missing/MapBox field fail-closed, parameter receiver unstaged) + 2
-  emit-level pins in `normal_default_root_catalog_lifecycle_tests.rs`
-  (single `ObjectFieldGet` typed `Integer`; chained alias read basing on
-  the alias binding's materialized `Copy`, typed `Box("Page")`).
-- Gates: focused `local_field_read` (9/9) +
-  `normal_callable_semantic_package`/`resolved_semantics`/lifecycle
-  batches green modulo manifest baseline reds (unchanged set) plus the
-  known `array_source_binding` batch-only flake passing in isolation —
-  no slice regression. App smoke: `apps/mimalloc-lite` still stops at
-  the pinned `emission-binding-drift` frontier — `handles.push` is a
-  NoValue core-method lane and `heap.allocate` is nullable-result, both
-  D0 non-claims waiting on their own slices.
-
-Next: `MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-SCALAR-POSITION-D0` — bundle
-slice 9.
+Declared field type is sole authority for direct-initializer Scalar/Alias; staged one-shot ObjectFieldGet, no borrowed alias Home/transfer. Nine claim tests plus two emission pins pass; original app emission-binding-drift, baseline failures unchanged, array batch-only flake retained.
+Full implementation/negative tests/receipt history: this card at `7171048755`.
+The accepted D0 above and current owner README retain the contract; this historical
+receipt grants no additional execution or retirement permission.
 
 ## Decision — OPAQUE-SCALAR-POSITION-D0 (2026-10-01)
 
@@ -950,7 +735,7 @@ same owner: global source/inventory validation plus selected-callee execution
 closure and original forward dependencies. Other opaque entry/Object contracts
 must remain unchanged. SourceObject is retained, not promoted.
 
-Next implementation mapping to close before S0:
+Initial D0 questions (resolved by the selected-S0 Decision below):
 1. Loan T0 below binds the canonical catalog; Static source validation must
    borrow it, not copy authority or use executable ordered checks for SourceObject.
 2. Define shared global uniqueness/definition/cardinality/error/missing/snapshot
@@ -964,7 +749,7 @@ Next implementation mapping to close before S0:
    no physical deletion permission or Object activation inferred from passage.
 Read-only worker supports the split as an explicit owner contract change, not
 an already-authorized weakening. Canonical catalog loan and validation domains
-remain the internal design work after loan T0; no external wait or completion.
+are resolved by the selected-S0 Decision below; no external wait or completion.
 
 ## Original catalog loan T0 — accepted (2026-10-12)
 
@@ -987,10 +772,74 @@ parent (`/tmp/mimalloc-original-catalog-t0-format-baseline.json`), not cleaned h
 Warning signatures unchanged (812 recorded in both test builds); no suppression.
 No phase/selection/global execution change, old-edge retirement or app success.
 
-Parent Static final-incoming D0 now borrows this canonical catalog. Next close
-its global source versus selected-callee execution domains and reverse formal
-forward dependencies. Preserve unrelated class-view agreement: only view-free
+Parent Static final-incoming D0 borrows this canonical catalog. The Decision
+below closes its global source versus selected-callee execution domains and
+reverse formal forward dependencies. Preserve unrelated class-view agreement: only view-free
 SourceObject may be passively revalidated; required dependency stays executable.
 Pre-T0 same-source read-only view lookup for allocate formal(owner33/binding1)
 is None (`/tmp/mimalloc-static-final-object-view.log`); diagnostic old-binary
 provenance, not fresh T0/S0 execution or permission. No automatic promotion.
+
+## Static final-incoming D0 Decision — selected S0 (2026-10-12)
+
+Decision: one existing entry owner validates the complete final incoming source
+graph, but qualified opaque Static packet execution obligations cover the selected
+callee and its reverse original-formal forwarding dependencies. This changes only
+the Static packet contract; ordinary entry/Object whole-final execution stays.
+
+Source authority + canonical issuer: the SAME retained original parameter catalog,
+source incoming inventory, final definition/origin drafts, original forward rows,
+qualified Static Rc and SAME callee Completion. No new authority/receipt.
+Non-authority: pending phase alone, method names, header numbering, runtime tags,
+old diagnostic memory offsets, missing class-view rows as execution evidence.
+Fail-fast boundary: global duplicate/definition/cardinality/Err/missing checks;
+required executable phase, exact source identity, forward coverage and class-view
+agreement remain mandatory. SourceObject passive validation lends no executable
+actual/result/Normal/ABI/artifact permission. Validate all before any route mark.
+
+Smallest next slice: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-S0`.
+Production mapping: existing borrowed_static_packet_actuals_v1 -> entry owner
+common core, for LayoutBox.class_id -> SizeClassBox.good_size. Replace that
+Static call's whole-final execution obligation; preserve the normal/Object wrapper.
+Shared owner and other callers stay; no physical deletion permission in this S0.
+
+1. Keep checked_borrowed_entry_incoming as unchanged default wrapper. A private
+   core accepts optional execution-owner scope; only the qualified opaque Static
+   branch selects scope. Put closure validation in existing entry_owner_view child
+   and SourceObject revalidation in existing formal_actuals owner. Do not mint a
+   second checker/receipt or broaden field visibility. Source760/800 still apply.
+2. Seed selected callee. Compute finite reverse closure from ORIGINAL forwards
+   whose callee_formal.owner is included, never from pending actual variants. Match
+   exactly one final incoming/opaque actual by call/target/site/ordinal/binding/
+   source_formal/callee_formal; corroborate both drafts' origins. Require the
+   pending actual's original Forwarded variant; reject orphan pending forwards.
+   Add source_formal.owner, repeat to fixed point. Dependencies require final
+   definitions and nonempty incoming, not invented source-only completion.
+3. Project the SAME original inventory over that execution set, preserving its
+   global/selected-owner vetoes. Compare one-to-one with final calls, including
+   only the existing requested target_static/owner_view extension. Compare call,
+   callee, full arguments, Static Rc pointer or full Instance target identity.
+   Missing/extra/duplicate required calls reject. Sanctioned omitted Static
+   callers were excluded at issuance and stay excluded: this proves inventory
+   coverage, not a new all-source-callable census.
+4. Unselected SourceObject may remain passive only when exact original call/
+   callee/arguments/Instance target agree, SAME catalog regeneration equals the
+   entire pending snapshot, and its opaque callee formals have no object_views
+   membership. Existing view membership rejects rather than skipping agreement.
+   Required/dependency SourceObject still rejects. All other phases use existing
+   executable ordered checks; qualification/Completion/mark ordering stays.
+5. Existing packet tests: unrelated healthy SourceObject+selected Static positive;
+   source phase/candidate/ordered/original drift, Err/missing, class-view member,
+   selected source-only and default global rejection negatives. Forward negatives:
+   pending Forwarded->Integer, orphan/duplicate/root/site/ordinal/target drift,
+   dependency missing definition/incoming, required original call removed. Check
+   failed co-seal leaves every route unmarked. Reuse entry/packet/Object regressions.
+6. Build once, focused positive/negative filters nonzero, classify reds and record
+   source/binary snapshots. Fresh unchanged original app first-stop before/after.
+   Required pointer/diff checks; qualified-route guard's unchanged raw_loop caller
+   count debt remains reported, never waived. No full suite/CI required here.
+
+Non-claims: S0 acceptance, production cutover closeout, caller-zero/old-edge
+retirement, whole SizeClassBox/app/MirBuilder completion remain unproved.
+Read-only worker confirmed original-inventory projection and sanctioned omissions;
+no remaining external dependency or required future-green construction condition.
