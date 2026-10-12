@@ -1,10 +1,15 @@
 # Hakorune Quick Reference
 
-Status: Current syntax summary. Check the [language status index](status-index.md)
-before treating any example or gate as live support.
+Status: Syntax and target summary; not yet a verified executable guide.
+
+This page includes planned features and implementation notes. To understand a
+construct, follow its topic reference; to check implementation progress, use the
+[status index](status-index.md). Neither parser acceptance nor an example here
+guarantees EXE support. The [verified-guide task](../../development/current/main/workstreams/language-v1-convergence-current.md#7-langv1-conformance-closeout-001)
+will replace this mixed summary with tested examples and reproducible commands.
 
 Purpose
-- One-page practical summary for writing and implementing current Hakorune.
+- Compact navigation for current syntax and accepted target contracts.
 - Keep grammar minimal; clarify rules that often cause confusion.
 
 Ownership note

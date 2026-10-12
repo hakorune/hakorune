@@ -1,6 +1,6 @@
 ---
 Status: Parked taskboard; no current execution authority
-Date: 2026-07-25
+Date: 2026-10-12
 Scope: Hakorune language v1 semantic convergence before selfhost migration.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -9,6 +9,7 @@ Related:
   - docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md
   - docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md
   - docs/reference/language/EBNF.md
+  - docs/development/current/main/investigations/docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md
   - docs/reference/language/grammar-contract.md#separator-list-and-precedence-convergence-queue
   - docs/reference/language/types.md
   - docs/reference/language/lifecycle.md
@@ -24,6 +25,45 @@ Related:
 Language semantics and this taskboard remain valid, but no row below may
 preempt the current production responsibility replacement. Resume only when
 `CURRENT_STATE.toml` explicitly selects this workstream again.
+
+## Language review decision (2026-10-12)
+
+Decision: accepted — preserve the current language contracts, converge the
+existing targets, and make delivered support demonstrable. This review accepts
+no new syntax or runtime semantic change. Implementation remains parked; the
+user authorized judgment, documentation and task registration during the paused
+MirBuilder goal. These follow-ups do not enlarge that goal's mandatory scope.
+
+| Feedback | Judgment and existing owner |
+| --- | --- |
+| Remove null or Option | Keep `Option` for absence, `Result` for recoverable failure, and Unit for successful no-result. Reaffirm Failure/Outcome's existing Canonical-null retirement direction. Immediate deletion is not accepted: current `null`/`void` aliasing stays valid until that row decides and implements the explicit profile/source migration. `Some(null)` rejection alone does not disprove the model. |
+| Dynamic values versus `x: T` | Keep dynamic values plus boundary contracts enforced by runtime checks or verified proof. A static checker is not required for that model. Publish actual annotation-site support; `Integer` and active exact-numeric `i64` annotations are not interchangeable availability claims. |
+| Strict comparison versus stringify `+` | Different operations may have different contracts. Do not change coercion from this criticism alone. Resolve the concrete operand-order discrepancy in the existing Coercion/Equality row below; Canonical `String + String` remains its pending candidate. |
+| Loops, accumulation, recursion and enum match fail | Treat each as a route/profile implementation or conformance gap until reproduced against its exact normative source shape. Do not weaken the language to fit a missing lowering. Distinguish known-enum shorthand, qualified constructors and qualified match patterns. |
+| Rename static `me` | Retain the existing lexical `StaticCurrentOwner` meaning; no instance receiver is fabricated. Explain it with instance/static examples in the user guide; no new keyword or source migration. |
+| Freeze a working v1 subset | Accept a verified delivery profile, separate from the full normative language and full MirBuilder completion. An unpassed case, including Result/match, is a backlog item, never a supported example. Existing accepted features are implemented before adding unrelated language features. |
+
+Source contracts remain in [types](../../../../reference/language/types.md),
+[Option](../../../../reference/language/option.md) and
+[call evaluation](../../../../reference/language/function-call-evaluation.md).
+Null and coercion changes still require reference-first Decisions and the
+existing meaning-specific migration gates; this review does not activate them.
+
+Evidence boundary: fable's reported tests used a 2026-10-04 binary against a
+2026-10-12 checkout. They motivate reproduction, not a claim that the current
+compiler supports only print/return. Its counts and app failures were not
+independently remeasured here. The manual `fast-smoke.yml` uses MIR JSON ->
+`ny-llvmc`, including an explicit compatibility replay case; that does not prove
+the selected direct `--emit-exe` route. No compiler or application was run for
+this documentation decision.
+
+Task routing: delivery evidence and CI follow-through belong to
+[Conformance closeout](#7-langv1-conformance-closeout-001); current/target/user-doc
+separation and proof retirement extend existing
+[H-2/H-4](../investigations/docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md#independent-tasks-and-timing).
+Selfhost source migration follows the existing
+[unified resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order).
+No duplicate taskboard, per-example card, or new verification ledger is added.
 
 ## Priority Decision
 
@@ -398,158 +438,30 @@ authority. Rerun mutable counts when their owning row starts.
 
 ### 0. LANGV1-CONSTITUTION-001
 
-Status: landed as 3457.
-
-Deliverables:
-
-1. Create `docs/reference/language/semantic-contract-charter.md` containing
-   the seven laws, normative document precedence, compatibility rule, and
-   change protocol.
-2. State that syntax/meaning changes require accepted Decision, positive and
-   negative fixtures, and an unsupported-backend rule.
-3. Point the language index, v1 freeze SSOT, and this taskboard at the charter.
-4. Do not change parser, runtime, type, lifecycle, or backend behavior.
-
-Acceptance:
-
-```text
-language_constitution_owner_count = 1
-constitutional_law_count = 7
-normative_precedence_defined = 1
-compatibility_requires_explicit_profile = 1
-runtime_behavior_changed = 0
-```
-
-Next: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001`.
+Closed as 3457. The seven laws, normative precedence, explicit compatibility
+and reference-first change protocol are owned by
+[semantic-contract-charter.md](../../../../reference/language/semantic-contract-charter.md).
 
 ### 1. LANGV1-SEMANTIC-KERNEL-001
 
-Status: complete through 3459. Grammar decision consultation active as 3460.
-
-Decision surface:
-
-```text
-Outcome =
-  Normal(value_or_unit)
-  Return(value_or_unit)
-  Break
-  Continue
-  Fault(reason)
-
-Place =
-  Local(slot)
-  Field(base_once, field)
-  Index(base_once, index_once)
-```
-
-Deliverables:
-
-1. Define source-order and exactly-once evaluation for expressions, calls,
-   assignment, compound assignment, short circuit, guard, match, and cleanup.
-2. Define cleanup outcome precedence for every incoming Outcome and cleanup
-   Fault. Cleanup always runs where registered.
-3. Define `NoFallthrough` as the guard-let else contract. Do not require a
-   broad static `Never` type merely to express control termination.
-4. Define the canonical normal form as semantic operations over evaluated
-   values and Places, not AST text substitution.
-5. Add side-effecting fixtures proving `array[nextIndex()] += makeValue()`
-   evaluates receiver/index/RHS once in source order.
-6. Replace the current compound-assignment AST clone lowering with one Place
-   read-modify-write implementation. This is the first code-facing slice after
-   the semantic basis.
-
-Acceptance:
-
-```text
-semantic_kernel_owner_count = 1
-outcome_variant_count = 5
-place_evaluation_once = 1
-source_evaluation_order_fixed = 1
-sugar_observational_equivalence = 1
-compound_assignment_ast_clone = 0
-guard_else_no_fallthrough = 1
-```
-
-Closeout: `LANGV1-EVALUATED-PLACE-COMPOUND-ASSIGN-001` implements the
-evaluated-Place slice. Grammar work advances through
-`LANGV1-GRAMMAR-CONTRACT-SUBSTRATE-001`.
+Closed through 3459 for the evaluated-Place slice. The five Outcomes, source
+order, exactly-once Place evaluation, cleanup precedence and NoFallthrough
+remain in [semantic-kernel.md](../../../../reference/language/semantic-kernel.md).
+Later failure/Home activation is still gated by its rows below.
 
 ### 2. LANGV1-GRAMMAR-001
 
-Status: complete through 3478. Contract basis accepted as 3460; substrate landed as 3461; Rust
-grammar-profile owner accepted as 3462; profile plumbing plus statement-try
-landed as 3463; Rust peek Compat2025 alias landed as 3464; Rust from
-transport-only decision accepted as 3465; Rust from transport boundary landed
-as 3466; Hako profile/witness ownership is accepted as 3467; adapter health
-lands as 3468; explicit Hako profile facade plus statement-try lands as 3469;
-Hako peek-to-Match alias lands as 3470. The ordered parser/MIR corrective card
-3472 closes its correctness, compile-cost, fixture, and source-layout
-prerequisites. Card 3471 accepts explicit Hako compatibility-transport
-exclusion, delimiter-aware Match context, route-family convergence graph
-ownership, and scoped test-config ownership. Card 3473 opens the first
-code-facing slice.
+Closed through 3478 for the then-selected grammar corpus: one registry,
+independent Rust/Hako parsers, Canonical default, explicit Compat2025 and shared
+ParseWitness comparison. Historical evidence: 106/106 recursive corpus and
+bounded differential composition green. This is not current EXE evidence or
+activation of later C′/Home targets. The grammar contract and registry own the
+current shapes; pending changes below retain their separate decisions.
 
-Deliverables:
-
-1. Define one grammar registry row schema:
-   `row_id`, production, status, normalized shape, reject tag, Stage0/Stage1
-   support, positive fixtures, and negative fixtures.
-2. Classify every spelling as `canonical`, `compatibility_only`, `reserved`,
-   or `rejected`.
-3. Seed the then-current registry evidence for guard/guard-let, match/peek,
-   postfix catch/cleanup/try, delegation/from, loops, weak, records, and
-   current literal surfaces. Later superseding Decisions may classify those
-   rows as retirement input; seeding is not target-language acceptance.
-4. Generate EBNF tables, support matrix, keyword policy, and fixture index from
-   the registry. Do not generate parser implementations.
-5. Define `Canonical` default and explicit `Compat2025`; compatibility aliases
-   normalize immediately to canonical shape.
-6. Define a span-free `ParseWitness` and run one golden corpus through the
-   independent Rust and Hako parsers under both profiles.
-7. Missing, extra, accept/reject, reject-tag, and normalized-shape drift fail
-   fast.
-
-Acceptance:
-
-```text
-canonical_grammar_registry_count = 1
-default_profile = Canonical
-implicit_compatibility_count = 0
-parser_implementation_count = 2
-shared_parser_implementation_count = 0
-parse_witness_conformance = 1
-```
-
-Post-3472 ordered follow-up queue:
-
-```text
-Q0 complete: 3471 accepts Decisions A-D
-Q1 complete: 3473 Hako CompatibilityTransport explicit exclusion
-Q2 complete: 3474 LANGV1-HAKO-MATCH-RECORD-DELIMITER-OWNER-001
-  owner = delimiter-aware ExprContext / BlockDelimitedHeadStopsBeforeTopLevelBrace
-Q3 complete: 3475 MIR-CONVERGENCE-ROUTE-FAMILY-GRAPH-SHADOW-001
-  owner = route-family dependency graph
-  changed-function worklist and local invalidation = subordinate mechanisms
-Q4 complete: 3476 TEST-PROCESS-STATE-SCOPED-CONFIG-OWNER-001
-  owner = scoped config injection
-  subprocess execution = classification oracle only
-Q5 audit complete in 3476:
-  current 22-row corpus = green
-  LANGV1-GRAMMAR-001 closeout = disproved by missing loops/weak/records/literals
-Q5 decision complete in 3477:
-  remaining surfaces and registry normalization contract accepted
-Q5 implementation complete in 3478:
-  one registry/corpus/adapter refactor-and-expansion series
-  106/106 recursive corpus green
-  bounded differential composition green
-  Canonical rejected source occurrences = 0
-```
-
-Q2-Q4 may be reviewed in the same consultation packet, but their code deltas
-must remain separate. Do not create inventory-only or rerun-only numbered
-cards for this queue.
-
-Next: `LANGV1-TYPE-GUARANTEE-001`.
+Completed 3457–3478 task and verification detail is retained at immutable
+commit `3272688876f2ae57e94daa108bca5486c4077e4b`, this file's same three
+headings (`git show <commit>:docs/development/current/main/workstreams/language-v1-convergence-current.md`).
+The durable laws above and all unfinished macro rows stay readable here.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
@@ -747,6 +659,10 @@ Deliverables:
 4. Classify and migrate `null`, uninitialized locals, Weak upgrade, Null/Void/
    Missing boxes, and FFI observations by meaning; no global text rewrite or
    Canonical-to-Compat retry.
+   Reaffirmed by the 2026-10-12 review: keep Option, Result and Unit distinct;
+   preserve current null semantics until the migration lands. Resolve
+   `Option<void>` / `Some(void)` payload-domain consistency in this same matrix;
+   no new optional carrier or blanket deletion is implied.
 5. Publish the VM/EXE value/Outcome/cleanup matrix, including first-Fault
    chronology, suppressed teardown Faults, and remaining-release witnesses.
 6. Use only `P0 -> I0 -> R0 -> HOME0-I0 (Unique/field) -> HOME0-I0/S
@@ -780,6 +696,15 @@ Next: `LANGV1-COERCION-EQUALITY-COMPAT-001`.
 ### 4A. LANGV1-COERCION-EQUALITY-COMPAT-001
 
 Status: design decision required after Failure/Outcome.
+
+Review evidence (2026-10-12, source inspection only): `types.md` §4.1 accepts
+`String + any` but rejects other combinations; VM `eval_binop` in
+`src/backend/mir_interpreter/helpers.rs` also accepts `any + String`.
+The linked historical Phase-274 P3 C2 text rejects both mixed directions.
+Deliverable 1 must resolve that discrepancy under the current normative owner,
+mark superseded historical wording, and cover both operand orders, nullish
+rejection and explicit conversion. No native behavior was measured here;
+VM branches and old phase prose cannot redefine the current contract.
 
 Purpose: remove dynamic-language compatibility residue from Canonical
 truthiness, equality, concatenation, and type tests without silently changing
@@ -969,19 +894,50 @@ Next: `LANGV1-CONFORMANCE-CLOSEOUT-001`.
 
 ### 7. LANGV1-CONFORMANCE-CLOSEOUT-001
 
-Status: queued last.
+Status: queued last; delivery substeps registered 2026-10-12, not executed.
+Evidence may be accumulated in the owning implementation slices; final closeout
+waits for every required language macro row. Follow the unified resume order,
+not the historical instruction to automatically resume MapStore 3456.
 
-Deliverables:
+| Substep | Dependency / owner | Completion evidence |
+| --- | --- | --- |
+| C-1: pin delivered profile | Explicit selection after the required MirBuilder convergence; existing topic contracts and smoke owners | Fresh source revision and dirty diff identity if any, built binary provenance, toolchain, backend/profile, exact command, stdout/exit and first-stop. Classify supported, intentionally rejected and pending cases. Reproduce fable's failures without rewriting their source to bypass the compiler. |
+| C-2: close elementary EXE coverage | C-1; existing callable/loop/value owners and reusable smoke runner | Cover box/field/method/new, if, condition loops (including method-call conditions), range/accumulation, recursion, Array read/write, and their meaningful compositions. Reuse existing fixtures, roughly 20–30 small programs if sufficient; coverage and exact expected behavior, not file count, close the task. Result/enum-match joins only after its parser/semantic/backend prerequisites pass. |
+| C-3: require qualified native checks | C-2's deterministic green cases; existing `MIRBUILDER-PR-STRUCTURAL-GATES-I0` CI owner | Qualify the real LLVM smoke, then gate the advertised delivery pack on non-draft PR updates through the existing CI tiers. Prove actual EXE execution and expected stdout/exit with no fallback or skip-as-pass; record build/link separately from execution cost. Verify the named check on the integration head and branch protection separately. |
+| C-4: publish usable guide | C-1–C-3; H-2 owns the documentation change | Every quick-reference example links to the verified fixture and executable command for the named revision/profile. Planned features and implementation status have separate destinations. Unverified cases stay out of the usable guide. |
+| C-5: compiler-source migration handoff | Post-closeout follow-up; existing selfhost migration owner | After the applicable type/failure/Home contracts work, migrate one selected compiler family and its callers by meaning. Prove parser witness and required EXE behavior before removing the old form; record any accepted semantic delta. No blanket typed/Home/Result rewrite or compiler-gap workaround. |
 
-1. Run canonical grammar and ParseWitness conformance on both parsers.
-2. Run semantic-kernel evaluation-order and Outcome fixtures on VM and EXE.
-3. Run type, failure, ownership, identity, and capability positive/negative
-   packs with unsupported-backend preflight checks.
-4. Prove Canonical default has zero implicit compatibility.
-5. Update reference docs from generated views and close v1 freeze.
-6. Only then unpark selfhost migration and resume 3456.
+C-5 implementation is not a prerequisite for this closeout. Syntax migrations
+needed by a language macro row remain in that row's acceptance. Selfhost
+authority switches wait for unified resume gates 1–3 and explicit CURRENT_STATE
+selection; registering this follow-up supplies no earlier execution permission.
 
-Acceptance:
+C-1/C-2 reuse the existing
+[`real-apps-exe-boundary` suite](../../../../../tools/smokes/v2/suites/integration/real-apps-exe-boundary.txt),
+runner and individual smoke owners for commands, expectations and route checks.
+Do not expand that frozen suite's scope by silently inserting this proposed
+user pack. Bind each advertised example to one existing or missing semantic
+case; the source fixture and runner own expected behavior, not this table.
+The small-program pack supplements real applications; it cannot replace the
+unchanged mimalloc acceptance or whole MirBuilder completion.
+
+C-3 follows the [CI queue](../../../../../.github/workflows/README.md#parked-mirbuilder-merge-readiness-hardening).
+Do not promote `fast-smoke.yml` unchanged: its MIR-JSON/compatibility route is
+not the direct physical EXE proof. Workflow wiring and external required-check
+configuration are distinct completion evidence; neither was changed here.
+
+Final acceptance retains all existing obligations:
+
+1. Canonical grammar and ParseWitness conformance on both independent parsers.
+2. Semantic-kernel evaluation-order and Outcome fixtures on VM and EXE.
+3. Type, failure, ownership, identity and capability positive/negative packs,
+   including unsupported-backend rejection before user-visible effects.
+4. Canonical default with zero implicit compatibility, generated reference
+   views and the verified delivery guide; unsupported target features are not
+   advertised as delivered.
+5. Selfhost handoff only through the
+   [unified resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order),
+   including the separate mimalloc promotion gate and actual authority selection.
 
 ```text
 language_v1_frozen = 1
@@ -991,11 +947,12 @@ independent_parser_count = 2
 canonical_normal_form_count = 1
 implicit_compatibility_count = 0
 vm_exe_semantic_parity = 1
-selfhost_migration_unparked = 1
+selfhost_resume_prerequisites_recorded = 1
 ```
 
 ## Current Front
 
-The live front is owned only by `CURRENT_STATE.toml`. Do not duplicate a card
-token here. The parked MirBuilder resume remains recorded by the current-state
-lane status and the language-v1 closeout row.
+The live front is owned only by `CURRENT_STATE.toml`. This language taskboard
+remains parked while MirBuilder owns the selected implementation lane. The
+2026-10-12 documentation decision does not resume the paused goal or select
+any implementation row.

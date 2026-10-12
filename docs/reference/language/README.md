@@ -1,13 +1,19 @@
 # Hakorune Language Reference – Index
 
-This is the entry point for the current Hakorune language reference.
-Status: Current navigation index. Feature availability is defined in the
-[language feature status index](status-index.md); this page does not infer
-parser support from examples or historical prose.
+This index leads to Hakorune's language contracts and implementation information.
+Status: Current navigation index; the reference includes planned features.
 
-Start with the [language feature status index](status-index.md). It separates
-grammar status from Stage0/Stage1/concurrency availability and records known
-conflicts without making parser support guesses.
+- **Language meaning:** use the topic pages below. Their contracts describe
+  what each construct means; an example alone does not establish executable
+  support.
+- **Implementation information:** the [feature status index](status-index.md)
+  distinguishes grammar and implementation progress. Parser acceptance does not
+  establish that a program compiles and runs on a particular backend.
+- **Writing a runnable program:** the [quick reference](quick-reference.md)
+  is currently a mixed syntax/target summary, not a verified EXE tutorial.
+  A tested guide with a named build/profile, commands and fixture-backed examples
+  is [queued here](../../development/current/main/workstreams/language-v1-convergence-current.md#7-langv1-conformance-closeout-001).
+  Until it lands, this index does not claim a general supported EXE subset.
 
 Current canonical surface:
 
@@ -20,7 +26,7 @@ Current canonical surface:
 - Grammar and accepted rows: [EBNF.md](EBNF.md)
 - Bootstrap / phase-1 usable surface profiles: see the profile manual below.
 - Feature status: [status-index.md](status-index.md)
-- Practical syntax summary: [quick-reference.md](quick-reference.md)
+- Syntax summary (includes planned features): [quick-reference.md](quick-reference.md)
 - Ownership / aliasing / explicit Shared boundary:
   [ownership.md](ownership.md)
 - Type and enum surface: [types.md](types.md)

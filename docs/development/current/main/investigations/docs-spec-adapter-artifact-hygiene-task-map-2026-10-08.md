@@ -1,6 +1,6 @@
 Task: DOCS-SPEC-ADAPTER-ARTIFACT-HYGIENE-D0
 Status: accepted follow-up queue; implementation is not selected
-Date: 2026-10-08
+Date: 2026-10-12
 Scope: four independent hygiene tasks plus the existing borrowed-residence safety task
 Exception: explicit user-requested task registration, separate from the compiler slice
 ParentCurrentCard: docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md
@@ -11,6 +11,7 @@ Related:
 - docs/development/current/main/design/current-docs-archive-policy-ssot.md
 - docs/reference/language/variables-and-scope.md
 - docs/reference/language/failure-outcome-relations.md
+- docs/development/current/main/workstreams/language-v1-convergence-current.md
 - docs/development/current/main/investigations/test-guard-responsibility-retirement-task-2026-10-08.md
 
 # Hygiene follow-up task map
@@ -49,7 +50,7 @@ between current and target contracts, not an accidental runtime behavior change.
 | Task | Select when | Responsibility and completion |
 |---|---|---|
 | H-1: active history thinning | Before the next append reaches the card cap; workstream before its next append | Keep current contract, unresolved decisions, required acceptance, known reds and parked boundaries. Replace completed execution prose with exact commit references. Preserve incoming links and shrink selected tracked text. |
-| H-2: current/target specification alignment | A separate documentation slice at a compiler slice boundary | Give `local x` one current/target/activation/owner comparison in its existing reference owners. Both references lead to the same activation decision; current null behavior and target activation 0 remain explicit. |
+| H-2: user guide / specification / implementation status | Navigation correction now; verified guide after language delivery evidence | Separate tested usage, normative meaning and mutable implementation status. Preserve the existing `local x` current/target comparison in its owners. Each usable example must have a fixture, revision/profile and reproducible EXE command. |
 | H-3: source responsibility split and adapter retirement | At the owning family's next implementation boundary | Split one oversized owner by responsibility without semantic changes; preserve signatures/callers. Separately switch any superseded adapter's callers, verify its obligations, prove exact caller-zero and physically delete only that exclusive edge. |
 | H-4: generated/proof/receipt retention | After one artifact family's generator and live consumers are identified | Use existing GENERATED-ARTIFACT-RETENTION-D0 and lifecycle inventory. Record canonical input, generator, reproduction, consumer, release need and `retire_when`; delete only reproducible, unused copies after dependency closure. |
 
@@ -64,6 +65,26 @@ H-2 is documentation only. If a new activation is desired, it needs a separately
 selected semantic slice and its own source/VM/backend acceptance. Do not infer
 activation from example wording or conflate null, Unit and UninitializedSlot.
 
+2026-10-12 user review extends H-2 to the language entrypoints:
+
+- `docs/reference/language/README.md` routes readers to normative topic pages,
+  implementation status and the eventual verified guide. `quick-reference.md`
+  must honestly identify its current mixed syntax/target coverage until its
+  examples have the delivery evidence owned by Language v1 C-1–C-3.
+- Then rewrite `quick-reference.md` around commands and tested examples only.
+  Put target rationale in its design owner and migration/activation vocabulary
+  in the existing status/task owners. Preserve topic contracts and useful links;
+  moving prose cannot activate a feature or remove a semantic obligation.
+- Complete when every advertised example maps to a runnable fixture/command
+  and the named supported profile, with no `production 0`, internal task tokens
+  or parser-only success presented as usable behavior. Planned features remain
+  discoverable through a separate link; no second support-status ledger.
+
+Navigation is corrected in this documentation slice. The verified guide remains
+queued; no fresh EXE support was measured or invented. Language decisions and
+delivery acceptance are owned by the
+[existing workstream](../workstreams/language-v1-convergence-current.md#language-review-decision-2026-10-12).
+
 H-3 starts with one of the currently oversized owners when its family is selected.
 Do not re-split the already corrected instance_construction owner based on the
 obsolete count. At 760 lines design the split; do not add to an oversized file or
@@ -74,6 +95,16 @@ H-4 uses a release/consumer condition rather than an arbitrary expiry date.
 Required acceptance evidence and non-reproducible assets remain available.
 Missing generator or unresolved consumers means UnknownRetain. The historical
 108-file inventory is not a newly measured baseline; recheck the chosen family.
+
+The 2026-10-12 `apps/*-proof` feedback is included in H-4, not a new delete-all
+task. For one selected family, distinguish human examples, permanent semantic
+tests and disposable migration proofs. Route permanent tests to their test owner
+when needed, update all imports/runner/docs consumers, and delete only exclusive
+completed proofs whose obligations have a retained replacement. Keep concise
+human examples discoverable from `apps`; Git retains completed migration history.
+Acceptance is preserved coverage plus resolved consumer links and reproducible
+generation where required. Directory suffixes and reported counts do not prove
+retirement eligibility; no app was moved or deleted in this registration.
 
 Each implementation slice fixes its authority, named consumer, replacement or
 delete set and acceptance before construction. Later deletion requires caller
