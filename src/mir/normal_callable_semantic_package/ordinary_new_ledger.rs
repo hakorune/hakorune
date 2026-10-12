@@ -2,6 +2,27 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn retain_original_parameter_contracts_v1(
+        &mut self,
+        contracts: &Rc<[super::super::model::OwnedCallableParameterContractDeclarationV1]>,
+    ) -> Result<(), String> {
+        if self.original_parameter_contracts.is_some() {
+            return Err(
+                "[freeze:contract][ordinary-new/borrowed-entry/catalog-already-retained]"
+                    .to_owned(),
+            );
+        }
+        self.original_parameter_contracts = Some(Rc::clone(contracts));
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn original_parameter_contracts_v1(
+        &self,
+    ) -> Option<&Rc<[super::super::model::OwnedCallableParameterContractDeclarationV1]>> {
+        self.original_parameter_contracts.as_ref()
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn requires_map_lifecycle_consumer(
         &self,
     ) -> bool {
@@ -120,6 +141,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     .collect(),
             ),
             ordinary_box_names,
+            original_parameter_contracts: None,
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
             child_physical_validation: RefCell::new(BTreeMap::new()),

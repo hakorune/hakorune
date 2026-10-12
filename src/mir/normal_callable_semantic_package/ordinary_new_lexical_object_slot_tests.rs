@@ -411,11 +411,11 @@ fn object_slot_formal_ordinal_and_binding_drift_refuse() {
             LexicalInstanceCallDispositionSlotV1::SourcePending(source) => source.callee_owner(),
             _ => panic!("pending"),
         };
-        let contract = package
-            .parameter_contracts
-            .iter_mut()
-            .find(|row| row.owner == owner)
-            .unwrap();
+        let mut contracts =
+            crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(
+                &package.parameter_contracts,
+            );
+        let contract = contracts.iter_mut().find(|row| row.owner == owner).unwrap();
         if binding {
             contract.parameters[0].binding = package
                 .physical_signature
@@ -426,6 +426,7 @@ fn object_slot_formal_ordinal_and_binding_drift_refuse() {
         } else {
             contract.parameters[0].ordinal = 1;
         }
+        package.parameter_contracts = contracts.into();
         assert!(ledger
             .finish_object_lexical_slots_v1(
                 &package.selected,

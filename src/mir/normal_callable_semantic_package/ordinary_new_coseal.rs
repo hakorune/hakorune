@@ -313,6 +313,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // parallel issuer.
     result_claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewResultClaimV1>>,
     ordinary_box_names: Box<[Box<str>]>,
+    // Borrow the package's single immutable catalog; never reissue parameters.
+    original_parameter_contracts:
+        Option<Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
     child_physical_validation:

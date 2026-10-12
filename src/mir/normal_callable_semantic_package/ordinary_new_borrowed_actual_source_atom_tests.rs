@@ -41,7 +41,7 @@ fn borrowed_source_atoms_keep_parameter_identity_without_home_or_scalar_grant() 
         "box Transport { probe(p): i64 { return 0 } forward(p) { local out = me.probe(p) return 0 } } static box Main { main() { local s = new Transport() local out = s.forward(7) return 0 } }"
     ).unwrap();
     let mut checked = 0;
-    for contract in &package.parameter_contracts {
+    for contract in package.parameter_contracts.iter() {
         package
             .batch()
             .with_lowering_input(contract.batch_slot, |input| {

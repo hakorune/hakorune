@@ -503,13 +503,17 @@ fn mixed_actuals_check_the_nonopaque_formal_ordinal() {
         .unwrap()
         .incoming[0]
         .callee;
-    package
-        .parameter_contracts
+    let mut contracts =
+        crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(
+            &package.parameter_contracts,
+        );
+    contracts
         .iter_mut()
         .find(|row| row.owner == callee)
         .unwrap()
         .parameters[1]
         .ordinal = 0;
+    package.parameter_contracts = contracts.into();
     let error = prepare_borrowed_call_actuals_v1(
         package
             .ordinary_new_claim_ledger
@@ -652,7 +656,10 @@ fn assert_nested_consumers(
             let error = entry.unwrap_err();
             assert!(error.contains(expected), "{error}");
         } else {
-            assert_eq!(entry.unwrap().unwrap().incoming().unwrap().len(), expected_incoming);
+            assert_eq!(
+                entry.unwrap().unwrap().incoming().unwrap().len(),
+                expected_incoming
+            );
         }
     })
     .unwrap();

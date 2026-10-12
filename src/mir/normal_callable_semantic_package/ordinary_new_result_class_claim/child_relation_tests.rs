@@ -213,8 +213,11 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
         .find(|row| row.batch_slot() == slot)
         .unwrap()
         .owner();
-    let parameters = package
-        .parameter_contracts
+    let mut contracts =
+        crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test(
+            &package.parameter_contracts,
+        );
+    let parameters = contracts
         .iter_mut()
         .find(|row| row.batch_slot == slot)
         .unwrap();
@@ -224,6 +227,7 @@ fn child_relation_changed_forward_formal_ordinal_rejects_whole_mixed_candidate()
         .find(|p| p.ordinal == 0)
         .unwrap()
         .ordinal = 9;
+    package.parameter_contracts = contracts.into();
     let mut scratch = rebuild(&package);
     attach_source_child_relations_v1(
         &mut scratch,

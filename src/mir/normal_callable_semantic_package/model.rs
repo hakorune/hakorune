@@ -188,7 +188,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-    pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
     pub(super) result_contracts: super::result_contract::VerifiedCallableResultContractCohortV1,
     pub(super) physical_signature:
         super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
@@ -540,4 +540,29 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             }
         }
     }
+}
+
+/// Deliberately unverified copies for malformed-catalog tests only.
+#[cfg(test)]
+pub(super) fn parameter_catalog_for_drift_test(
+    source: &[OwnedCallableParameterContractDeclarationV1],
+) -> Vec<OwnedCallableParameterContractDeclarationV1> {
+    source
+        .iter()
+        .map(|row| OwnedCallableParameterContractDeclarationV1 {
+            batch_slot: row.batch_slot,
+            owner: row.owner,
+            mode: row.mode,
+            parameters: row
+                .parameters
+                .iter()
+                .map(|formal| OwnedCallableParameterContractV1 {
+                    ordinal: formal.ordinal,
+                    binding: formal.binding,
+                    kind: formal.kind.clone(),
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice(),
+        })
+        .collect()
 }

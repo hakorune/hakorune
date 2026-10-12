@@ -341,25 +341,26 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         issue_callable_parameter_contract_v1(&batch).map_err(|error| {
             NormalCallableSemanticPackageIssueV1::ParameterContract { _error: error }
         })?;
-    let parameter_contracts = parameter_contract_catalog
-        .declarations()
-        .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
-            batch_slot: declaration.batch_slot(),
-            owner: declaration.owner(),
-            mode: declaration.mode(),
-            parameters: declaration
-                .parameters()
-                .iter()
-                .map(|parameter| OwnedCallableParameterContractV1 {
-                    ordinal: parameter.ordinal(),
-                    binding: parameter.binding(),
-                    kind: parameter.kind(),
-                })
-                .collect::<Vec<_>>()
-                .into_boxed_slice(),
-        })
-        .collect::<Vec<_>>()
-        .into_boxed_slice();
+    let parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]> =
+        parameter_contract_catalog
+            .declarations()
+            .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
+                batch_slot: declaration.batch_slot(),
+                owner: declaration.owner(),
+                mode: declaration.mode(),
+                parameters: declaration
+                    .parameters()
+                    .iter()
+                    .map(|parameter| OwnedCallableParameterContractV1 {
+                        ordinal: parameter.ordinal(),
+                        binding: parameter.binding(),
+                        kind: parameter.kind(),
+                    })
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice(),
+            })
+            .collect::<Vec<_>>()
+            .into();
     // The sole Home ABI issuer consumes the live common parameter catalog
     // once — it projects entry demands for the exact instance cohort without
     // reissuing parameter meaning and publishes no complete call-site ABI.
@@ -503,6 +504,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         }
         error => NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error },
     })?;
+    ordinary_new_claim_ledger
+        .retain_original_parameter_contracts_v1(&parameter_contracts)
+        .map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::S6CChild { _error: error })?;
     ordinary_new_claim_ledger

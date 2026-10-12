@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "selfhost-resume/static-cross-callee-catalog-loan-unbound"
-current_design_stop = "StaticCrossCalleeClosure__OriginalCatalogLoanUnbound"
+current_blocker_token = "selfhost-resume/static-incoming-validation-scope-unbound"
+current_design_stop = "StaticCrossCalleeClosure__ValidationScopeUnbound"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,13 +17,13 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Qualified source input S0 landed4d202191a8:53 PASS/1 reproduced baseline.
-Exact current runtime joins LayoutBox.class_id(owner17/batch13) ->
-SizeClassBox.good_size(owner11/batch7) to rejecting allocateResult(owner34/batch30)
--> allocate(owner33/batch29) SourceObject. Cross-callee global execution coupling
-is confirmed. Static-specific source validation/execution closure split needs
-original catalog loan and validation-domain mapping; shared Object/entry laws stay.
-Original app has no EXE; whole product and global retirement remain unfinished.
+Original catalog loan T0 accepted:95 focused PASS/1 reproduced NoIncoming baseline.
+One immutable Rc allocation shared by package/ledger/completed context; no Owned
+record Clone, authority reissue or phase change. Fresh CLI original app has same
+LexicalInstanceCall/source-only-object-actuals refusal, no EXE;13 Rust snapshots match.
+Next Static D0 closes global source validation and selected-callee/reverse-forward
+execution closure using the same catalog, preserving class-view obligations.
+Whole app/product and global retirement remain unfinished.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"

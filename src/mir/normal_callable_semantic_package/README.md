@@ -2428,3 +2428,10 @@ through the existing relation/index and finishing verification. This Copy is
 not a new arithmetic occurrence; original Sub/Div coverage remains mandatory.
 Non-dominating selected producers fail before emission; operand subtrees are
 not replayed to reconstruct their authority.
+
+The parameter issuer allocates the existing owned parameter catalog once behind
+an immutable Rc. Verified/Installed packages and completed context move that same
+allocation; the ordinary ledger retains one loan before input finish/co-seal.
+Missing or duplicate attachment grants no parameter, Completion, result or ABI
+permission. Owned parameter records remain non-Clone. Sharing this lifetime does
+not change whole-final-incoming execution checks or source-only refusal.

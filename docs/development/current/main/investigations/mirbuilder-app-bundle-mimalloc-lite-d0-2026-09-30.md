@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — qualified input S0 accepted; Static final-incoming D0 selected.
+Status: active bundle — original catalog loan T0 accepted; Static incoming scope D0 active.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -908,54 +908,28 @@ argument case remains negative. Do not rebaseline either discrepancy as debt.
   PASS, opaque support, String/call-root admission or global retirement claim.
 
 
-### Task 4 handoff — opaque borrowed operations (2026-10-01)
+### Task 4 handoff — opaque borrowed operations
 
-OPAQUE-BORROWED-OPERATIONS-D0's ingress Decision is accepted in
-[the focused opaque-formal card](mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md).
-Next: MIRBUILDER-APP-MIMALLOC-LITE-OPAQUE-FORMAL-INGRESS-S0. The focused
-card owns exact domain/use-closure/entry/physical acceptance and remaining
-Set/Add decisions. Original app EXE completion and bundle tasks 10-12 remain.
-No opaque operation activation or physical deletion claim is made here.
+The focused [opaque-formal card](mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md)
+owns ingress/operation decisions and receipts; bundle tasks10-12 and original
+app EXE remain required. No physical deletion or whole-app completion claim.
 
+## Accepted input preparation slices (2026-10-12)
 
-## Source-only sibling forward S0 — accepted (2026-10-12)
-
-Landed `96624eb74e` owns implementation, full negatives/receipts and correction
-to b3c9b84879: header enumeration is batch_slot, not owner slot. Original
-allocateResult(owner34/batch30) -> allocate(owner33/batch29), both OpaqueHandle;
-reallocResult conjecture withdrawn. Same Object lender retains/rechecks passive
-SourceObject, generic unqualified input returns SourceInstance, no execution grant.
-Original app SHA256 `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
-First-stop owner34 Body1 entry-source -> owner37 Body5 source-only-object-actuals,
-no EXE. Unique51 focused PASS/1 reproduced baseline; receipts and build times in
-that commit. Parent two-exit/document S0 `2f6f0a8a1a` remains accepted; original
-JSON/readback/native1/2/73 evidence is not whole app or global retirement proof.
-
-## Qualified source input S0 — accepted (2026-10-12)
-
-Decision `c82ee43752`, landing `4d202191a8` own full mapping, negatives and receipts.
-Original owner37/batch33 realloc Body5 calls allocate with requested_size(root2).
-Generic Scalar/I64 borrows the same passive Object input; dedicated Object/
-ReceivedObject/Handle qualification branches and execution/result/ABI owners stay.
-SourceInstance returns unarmed in both lexical/stored paths, with no strict retry.
-No private visibility was widened and no shared owner physically deleted.
-
-Quick build/link8m20s; focused53PASS/1 pre-change NoIncoming baseline. Pointer/
-format/diff PASS; qualified-route count3 vs4 remains unchanged baseline.
-Test receipt `/tmp/mimalloc-qualified-input-v2-runtime-receipt.json` covers passive
-response equality, missing/phase/candidate/ordered mutation and foreign refusal.
-CLI build/link232.212s; original app0.050s/rc1/no EXE. OrdinaryNew input discovery
-now passes into LexicalInstanceCall source-only-object-actuals refusal. The less
-specific diagnostic alone does not prove owner/site advancement. All3 changed
-Rust bytes match test/CLI snapshots. CLI receipt:
-`/tmp/mimalloc-qualified-input-cli-v1-runtime-receipt.json`.
-Read-only `/tmp/mimalloc-qualified-input-executable-stack.log` locates Static
-packet's whole-final-incoming checker. Input S0 is not qualified execution
-cutover, Normal/result/ABI permission, app success or full old-edge retirement.
+`96624eb74e` owns sibling S0 (51PASS/1 baseline) and corrected batch/owner mapping;
+`c82ee43752` + `4d202191a8` own qualified input D0/S0 (53PASS/1 baseline).
+Generic discovery borrows passive SourceObject input through SourceInstance;
+dedicated qualification, execution/Normal/result/ABI gates remain. No source rewrite
+or shared-owner physical deletion. Full receipts, times and negatives in those
+commits; current contract is in owner README. Original unchanged app SHA256
+`33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` now stops
+at LexicalInstanceCall/source-only-object-actuals,0.050s/no EXE. Test/CLI snapshots
+match. Parent two-exit/document S0 `2f6f0a8a1a` remains accepted; its JSON/readback/
+native1/2/73 evidence is not whole app or global retirement proof.
 
 ## Static final-incoming D0 — current boundary (2026-10-12)
 
-Selected: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0`.
+Parent: `MIRBUILDER-APP-MIMALLOC-LITE-STATIC-FINAL-INCOMING-D0`.
 Original app, current tested CLI bytes, pure-first/replay-none. Read-only trace:
 - Requested Static: LayoutBox.class_id(owner17/batch13), Body(0)/Initializer(0)
   -> SizeClassBox.good_size(owner11/batch7).
@@ -977,10 +951,8 @@ closure and original forward dependencies. Other opaque entry/Object contracts
 must remain unchanged. SourceObject is retained, not promoted.
 
 Next implementation mapping to close before S0:
-1. Bind the exact original parameter catalog to Static source validation using
-   the existing issuer/package loan; avoid copied authority/new receipt. The
-   current entry checker has no catalog, so ordered-arguments checks alone do
-   not validate SourceObject's intentionally empty opaque-proof storage.
+1. Loan T0 below binds the canonical catalog; Static source validation must
+   borrow it, not copy authority or use executable ordered checks for SourceObject.
 2. Define shared global uniqueness/definition/cardinality/error/missing/snapshot
    checks; all selected callee callers and required forward dependencies still
    require executable proof. Audit existing object-view agreement obligations.
@@ -992,4 +964,33 @@ Next implementation mapping to close before S0:
    no physical deletion permission or Object activation inferred from passage.
 Read-only worker supports the split as an explicit owner contract change, not
 an already-authorized weakening. Canonical catalog loan and validation domains
-remain the internal design work; no external wait or whole-product completion.
+remain the internal design work after loan T0; no external wait or completion.
+
+## Original catalog loan T0 — accepted (2026-10-12)
+
+The existing Owned parameter catalog is one immutable Rc allocation shared by
+Verified/Installed package, completed context and ordinary ledger. Issuer attaches
+its same loan once before finish/co-seal; missing/duplicate attachment grants no
+permission. Owned records remain non-Clone, no copied authority or new receipt.
+Test-only malformed descriptors preserve all earlier rejection assertions.
+
+Evidence: quick test build/link494.796s; 95 focused PASS/1 pre-change NoIncoming
+baseline. Same-allocation/context lifetime, foreign/missing/duplicate/ordinal,
+entry/Static packet/Object input and all adapted mutation families covered.
+`/tmp/mimalloc-original-catalog-t0-v2-runtime-receipt.json`.
+CLI build/link232.574s; unchanged original app0.050s/rc1/no EXE, identical
+LexicalInstanceCall/source-only-object-actuals first-stop. All13 changed Rust
+bytes match test/CLI/current snapshots; CLI receipt:
+`/tmp/mimalloc-original-catalog-t0-cli-v1-runtime-receipt.json`.
+Pointer/diff/new-hunk format PASS; coseal/install whole-file format debt matches
+parent (`/tmp/mimalloc-original-catalog-t0-format-baseline.json`), not cleaned here.
+Warning signatures unchanged (812 recorded in both test builds); no suppression.
+No phase/selection/global execution change, old-edge retirement or app success.
+
+Parent Static final-incoming D0 now borrows this canonical catalog. Next close
+its global source versus selected-callee execution domains and reverse formal
+forward dependencies. Preserve unrelated class-view agreement: only view-free
+SourceObject may be passively revalidated; required dependency stays executable.
+Pre-T0 same-source read-only view lookup for allocate formal(owner33/binding1)
+is None (`/tmp/mimalloc-static-final-object-view.log`); diagnostic old-binary
+provenance, not fresh T0/S0 execution or permission. No automatic promotion.

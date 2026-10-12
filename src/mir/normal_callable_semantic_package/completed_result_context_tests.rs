@@ -1,3 +1,4 @@
+use crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test as mutable_catalog;
 use crate::mir::normal_callable_semantic_package::{
     brand_catalog_tests::issue_with_brand_catalog as issue,
     NormalCallableSemanticPackageInstallIssueV1 as Issue,
@@ -11,20 +12,18 @@ fn completed_context_rejects_missing_foreign_and_duplicate_formals() {
     top_level_inputs_join_original_completed_context();
     for mode in 0..3 {
         let mut package = issue(SOURCE).unwrap();
+        let mut contracts = mutable_catalog(&package.parameter_contracts);
         if mode == 0 {
-            package.parameter_contracts = Box::new([]);
+            contracts.clear();
         } else if mode == 1 {
-            let owner = package.parameter_contracts[0].owner;
-            let row = package
-                .parameter_contracts
-                .iter_mut()
-                .find(|row| row.owner != owner)
-                .unwrap();
+            let owner = contracts[0].owner;
+            let row = contracts.iter_mut().find(|row| row.owner != owner).unwrap();
             row.owner = owner;
         } else {
-            let slot = package.parameter_contracts[0].batch_slot;
-            package.parameter_contracts[1].batch_slot = slot;
+            let slot = contracts[0].batch_slot;
+            contracts[1].batch_slot = slot;
         }
+        package.parameter_contracts = contracts.into();
         let result = package
             .result_contracts
             .retain_completed_context(package.selected, package.parameter_contracts);
@@ -103,12 +102,13 @@ fn top_level_inputs_join_original_completed_context() {
                 .iter()
                 .map(|row| row.owner)
                 .collect();
-            package
-                .parameter_contracts
+            let mut contracts = mutable_catalog(&package.parameter_contracts);
+            contracts
                 .iter_mut()
                 .find(|row| !owners.contains(&row.owner))
                 .unwrap()
                 .batch_slot = slot;
+            package.parameter_contracts = contracts.into();
         } else if mode == 4 {
             let foreign_owner = package
                 .result_contracts
@@ -151,4 +151,41 @@ fn top_level_inputs_join_original_completed_context() {
             );
         }
     }
+}
+
+#[test]
+fn original_parameter_catalog_loan_shares_package_and_completed_context() {
+    use std::rc::Rc;
+    let package = issue(SOURCE).unwrap();
+    let original = Rc::clone(&package.parameter_contracts);
+    let ledger = &package.ordinary_new_claim_ledger;
+    assert!(Rc::ptr_eq(
+        &original,
+        ledger.original_parameter_contracts_v1().unwrap()
+    ));
+    let mut empty = super::super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1::issue(
+        Box::new([]),
+        Box::new([]),
+        Box::new([]),
+    );
+    assert!(empty.original_parameter_contracts_v1().is_none());
+    empty
+        .retain_original_parameter_contracts_v1(&original)
+        .unwrap();
+    assert!(empty
+        .retain_original_parameter_contracts_v1(&original)
+        .unwrap_err()
+        .contains("catalog-already-retained"));
+    let context = package
+        .result_contracts
+        .retain_completed_context(package.selected, package.parameter_contracts)
+        .unwrap();
+    assert!(Rc::ptr_eq(
+        &original,
+        &context.completed_context.as_ref().unwrap().1
+    ));
+    assert!(Rc::ptr_eq(
+        &original,
+        ledger.original_parameter_contracts_v1().unwrap()
+    ));
 }

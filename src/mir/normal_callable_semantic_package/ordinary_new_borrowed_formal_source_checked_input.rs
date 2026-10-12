@@ -153,7 +153,7 @@ mod tests {
             .parameters[0]
             .binding;
         let mut definitions = BTreeMap::new();
-        for contract in &package.parameter_contracts {
+        for contract in package.parameter_contracts.iter() {
             if contract.parameters.is_empty() {
                 continue;
             }

@@ -37,7 +37,7 @@ pub(crate) struct VerifiedCallableResultContractCohortV1 {
     named_array_emissions: Box<[super::EmittedNamedArrayRequirementV1]>,
     completed_context: Option<(
         super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        Box<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+        std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
     )>,
 }
 
@@ -458,7 +458,7 @@ impl VerifiedCallableResultContractCohortV1 {
     pub(super) fn retain_completed_context(
         mut self,
         selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
-        parameters: Box<[super::model::OwnedCallableParameterContractDeclarationV1]>,
+        parameters: std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
     ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
         use super::NormalCallableSemanticPackageInstallIssueV1 as Issue;
         if self.completed_context.is_some() {

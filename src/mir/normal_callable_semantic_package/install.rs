@@ -117,7 +117,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
-    parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
     result_contracts: VerifiedCallableResultContractCohortV1,
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
     declared_instance_call_locators:

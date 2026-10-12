@@ -4,6 +4,7 @@ use crate::mir::callable_result_representation::{
     StaticCallResultPublicationTakeV1, VerifiedSameModuleCallableResultCatalogV1,
     VerifiedStaticCallResultPublicationOwnerV1,
 };
+use crate::mir::normal_callable_semantic_package::model::parameter_catalog_for_drift_test as mutable_catalog;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::{
     caller_key_for_function, incoming_source::StaticIncomingSourceV1,
 };
@@ -263,7 +264,7 @@ fn qualified_static_input_source_rejects_missing_duplicate_slot_and_ordinal_cont
     for drift in 0..7 {
         let mut package = issue(HEAP);
         let source = input_source(&package, false).unwrap();
-        let mut contracts = std::mem::take(&mut package.parameter_contracts).into_vec();
+        let mut contracts = mutable_catalog(&package.parameter_contracts);
         let owner = if drift >= 5 {
             source.call_site().owner()
         } else {
@@ -295,7 +296,7 @@ fn qualified_static_input_source_rejects_missing_duplicate_slot_and_ordinal_cont
             3 => contracts[index].parameters[0].ordinal += 1,
             _ => contracts[index].parameters[0].binding = caller_binding,
         }
-        package.parameter_contracts = contracts.into_boxed_slice();
+        package.parameter_contracts = contracts.into();
         assert!(
             input_source(&package, false)
                 .unwrap_err()
