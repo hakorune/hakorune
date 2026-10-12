@@ -1,5 +1,5 @@
 ---
-Status: Parked taskboard; no current execution authority
+Status: Implementation parked; C-1 observation authorized separately
 Date: 2026-10-12
 Scope: Hakorune language v1 semantic convergence before selfhost migration.
 Related:
@@ -24,7 +24,9 @@ Related:
 
 Language semantics and this taskboard remain valid, but no row below may
 preempt the current production responsibility replacement. Resume only when
-`CURRENT_STATE.toml` explicitly selects this workstream again.
+`CURRENT_STATE.toml` explicitly selects this workstream again. C-1 observation
+is independent of implementation selection: the user requested one current
+measurement before MirBuilder convergence on 2026-10-12.
 
 ## Language review decision (2026-10-12)
 
@@ -54,8 +56,9 @@ Evidence boundary: fable's reported tests used a 2026-10-04 binary against a
 compiler supports only print/return. Its counts and app failures were not
 independently remeasured here. The manual `fast-smoke.yml` uses MIR JSON ->
 `ny-llvmc`, including an explicit compatibility replay case; that does not prove
-the selected direct `--emit-exe` route. No compiler or application was run for
-this documentation decision.
+the selected direct `--emit-exe` route. The initial documentation decision ran
+no compiler or application; the separately requested C-1 observation below
+records the subsequent fresh measurement.
 
 Task routing: delivery evidence and CI follow-through belong to
 [Conformance closeout](#7-langv1-conformance-closeout-001); current/target/user-doc
@@ -152,49 +155,22 @@ The charter, semantic kernel, and grammar contract are current truth. Card 3478
 closes the grammar registry, dual-parser recursive corpus, Canonical source
 migration, and bounded differential composition.
 
-`FUNCTION-EXIT-SEMANTICS-prime-r1` remains the accepted function/Main/Script/entry
-boundary authority. Its implementation queue is closed history, not the current
-frontier:
+`FUNCTION-EXIT-SEMANTICS-prime-r1` remains the accepted boundary contract in
+[function-exit-and-entry-result.md](../../../../reference/language/function-exit-and-entry-result.md).
+Current execution is selected only by CURRENT_STATE's row, blocker and active
+card; historical Main/source-plan descriptions do not select today's compiler work.
 
-```text
-normative topic =
-  docs/reference/language/function-exit-and-entry-result.md
-
-current executable row =
-  read CURRENT_STATE.current_execution_row
-
-execution card =
-  docs/development/current/main/investigations/script-result-tail0-s0-execution-task-2026-07-25.md (closed history)
-
-Current docs frontier:
-
-```text
-current row = read CURRENT_STATE.current_execution_row
-current blocker = read CURRENT_STATE.current_blocker_token
-current card = read CURRENT_STATE.latest_card_path
-```
-
-The active row is the bounded canonical-core row named by
-`CURRENT_STATE.current_execution_row`. The current Main/source-plan series
-does not map a legacy caller or reopen normal/default cutover. Read the card
-named by `CURRENT_STATE.latest_card_path` before changing code or adding a
-production consumer.
-```
-
-The preceding RETURN0 row closed the existing `VerifiedFunctionCompletionV1`
-producer's exact zero-or-one root-terminal source contract. The accepted
-DRAFT-SEAL decision absorbs MATERIALIZE0 into one prepared/infallible owner:
-exit materialization, PHI closure verification, type/stale facts, signature,
-metadata, projected verification, extraction, and session close. That exact
-0-or-1 slice is closed.
-
-`SCRIPT-RESULT-TAIL-prime-r1` now activates the accepted
-`ScriptLastExpressionOrUnit` target without a parser grammar change. One
-source-owned prelude/terminal contract replaces the old
-`ScriptLastValueOrVoid` and Builder-last-`ValueId` policy. The same row also
-closes the remaining Raw BODY temporal gap by preparing exit plus tracker
-completion before one infallible commit. App policy, entry projection, and
-public activation remain later rows.
+Closed RETURN0/DRAFT-SEAL history: the exact zero-or-one root-terminal source
+contract uses `VerifiedFunctionCompletionV1`; one prepared/infallible owner
+handles exit materialization, PHI/type/stale-fact/signature/metadata checks,
+projected verification, extraction and session close. Closed Script-tail history
+uses source-owned `ScriptLastExpressionOrUnit` instead of Builder-last-ValueId,
+with exit and tracker completion prepared before one infallible BODY commit;
+parser grammar is unchanged. App/entry/public activation follows its own queue.
+Full detail is retained in this file at immutable commit
+`2585448d618ddf1dbd6581fd43b95c3664da5e74` and the
+[closed Script-tail card](../investigations/script-result-tail0-s0-execution-task-2026-07-25.md).
+All unfinished branches remain below.
 
 The durable function-exit queue is:
 
@@ -583,48 +559,24 @@ normative_type_law_status_ledger_separated = 1
 
 Next: `LANGV1-FAILURE-OUTCOME-001`.
 
-Fable5 review routing (2026-07-11):
+Earlier review routing (2026-07-11), retained responsibilities:
 
-```text
-already owned by Failure/Outcome:
-  null / void / Option::None terminal relation
-  local-without-initializer default migration
-  failed WeakRef upgrade result migration
-  grammar literal_null Canonical -> Compat2025 decision and source migration
+- Failure/Outcome owns null/void/None, uninitialized-local defaults, Weak
+  upgrade failure, and the literal-null Canonical -> Compat2025 decision.
+- Coercion/Equality follows it; Ownership owns strong-field cascade fini
+  removal and the identity/lifetime split.
+- Parked compiler BoxShape follow-ups remain separate, not v1 blockers:
+  nested-loop depth1 decomposition needs four existing feature-product planners,
+  one `NestedLoopDepth1Skeleton` + typed `FeatureSet`, with REGISTRY/CorePlan
+  ownership, no accepted-shape expansion and no release-default change.
+  Route-family promotion needs current-corpus shadow/full-refresh parity,
+  deterministic dirty worklists, zero stale metadata reads and measured recompute
+  reduction without semantic drift. `route_dependency_graph` / `route_fixpoint`
+  own the authority-switch design card, which must precede optimization;
+  helper/fixture caches and wall-clock termination remain forbidden.
 
-new semantic row after Failure/Outcome:
-  truthiness, compatibility equality, broad String concatenation, type tests
-
-already owned by Ownership/Identity:
-  ordinary strong-field cascade fini removal
-  identity/lifetime split
-
-parked compiler BoxShape, not Language-v1 blockers:
-  nested-loop depth1 feature-product decomposition
-  route-family graph shadow -> authority promotion
-```
-
-Parked compiler follow-up contracts:
-
-```text
-nested-loop depth1 decomposition:
-  owner = plan/REGISTRY.md + coreplan skeleton/feature SSOT
-  trigger = four feature-product planners already exist
-  shape = one NestedLoopDepth1Skeleton + typed FeatureSet
-  accepted-shape expansion = 0
-  release-default change = 0
-
-route-family convergence promotion:
-  owner = route_dependency_graph + route_fixpoint facade
-  prerequisite = fresh current-corpus shadow/full-refresh parity
-  prerequisite = deterministic dirty worklist and zero stale metadata reads
-  prerequisite = measured recompute reduction without semantic drift
-  next step = one authority-switch design card, not an optimization patch
-  helper-name cache / fixture cache / wall-clock termination = forbidden
-```
-
-Neither compiler follow-up may preempt the current Language v1 blocker without
-an explicit lane-priority decision.
+Neither parked follow-up preempts the selected lane. Full historical wording
+is retained in this file at commit `2585448d618ddf1dbd6581fd43b95c3664da5e74`.
 
 The current registry already classifies `literal_null` as Canonical in both
 profiles. Moving it to Compat2025 therefore overturns an accepted 3477/3478
@@ -894,15 +846,21 @@ Next: `LANGV1-CONFORMANCE-CLOSEOUT-001`.
 
 ### 7. LANGV1-CONFORMANCE-CLOSEOUT-001
 
-Status: queued last; delivery substeps registered 2026-10-12, not executed.
+Status: final closeout queued last; first C-1 observation completed before convergence.
 Evidence may be accumulated in the owning implementation slices; final closeout
 waits for every required language macro row. Follow the unified resume order,
 not the historical instruction to automatically resume MapStore 3456.
 
+C-1 measures current support without changing the compiler or selecting a new
+implementation lane. The first run below used a fresh release binary and eight
+small-program shapes from the review, through direct `--emit-exe`, recording every
+success, rejection and earlier stop. A red observation is useful evidence, not
+permission to fix code, weaken a contract or claim conformance completion.
+
 | Substep | Dependency / owner | Completion evidence |
 | --- | --- | --- |
-| C-1: pin delivered profile | Explicit selection after the required MirBuilder convergence; existing topic contracts and smoke owners | Fresh source revision and dirty diff identity if any, built binary provenance, toolchain, backend/profile, exact command, stdout/exit and first-stop. Classify supported, intentionally rejected and pending cases. Reproduce fable's failures without rewriting their source to bypass the compiler. |
-| C-2: close elementary EXE coverage | C-1; existing callable/loop/value owners and reusable smoke runner | Cover box/field/method/new, if, condition loops (including method-call conditions), range/accumulation, recursion, Array read/write, and their meaningful compositions. Reuse existing fixtures, roughly 20–30 small programs if sufficient; coverage and exact expected behavior, not file count, close the task. Result/enum-match joins only after its parser/semantic/backend prerequisites pass. |
+| C-1: observe current executable support | No MirBuilder convergence dependency; first observation completed below; existing topic contracts and smoke owners | Fresh source revision and dirty diff identity if any, built binary provenance, toolchain, backend/profile, exact command, stdout/exit and first-stop. Classify observed passes, intentional rejection and implementation gaps. Equivalent probes are not exact reproductions without the original source. Preserve failing inputs. |
+| C-2: close elementary EXE coverage | C-1 plus explicit implementation selection; existing callable/loop/value owners and reusable smoke runner | Cover box/field/method/new, if, condition loops (including method-call conditions), range/accumulation, recursion, Array read/write, and their meaningful compositions. Reuse existing fixtures, roughly 20–30 small programs if sufficient; coverage and exact expected behavior, not file count, close the task. Result/enum-match joins only after its parser/semantic/backend prerequisites pass. |
 | C-3: require qualified native checks | C-2's deterministic green cases; existing `MIRBUILDER-PR-STRUCTURAL-GATES-I0` CI owner | Qualify the real LLVM smoke, then gate the advertised delivery pack on non-draft PR updates through the existing CI tiers. Prove actual EXE execution and expected stdout/exit with no fallback or skip-as-pass; record build/link separately from execution cost. Verify the named check on the integration head and branch protection separately. |
 | C-4: publish usable guide | C-1–C-3; H-2 owns the documentation change | Every quick-reference example links to the verified fixture and executable command for the named revision/profile. Planned features and implementation status have separate destinations. Unverified cases stay out of the usable guide. |
 | C-5: compiler-source migration handoff | Post-closeout follow-up; existing selfhost migration owner | After the applicable type/failure/Home contracts work, migrate one selected compiler family and its callers by meaning. Prove parser witness and required EXE behavior before removing the old form; record any accepted semantic delta. No blanket typed/Home/Result rewrite or compiler-gap workaround. |
@@ -950,9 +908,90 @@ vm_exe_semantic_parity = 1
 selfhost_resume_prerequisites_recorded = 1
 ```
 
+#### C-1 observation — 2026-10-12
+
+Observed **4/8 EXEs emitted and ran with the intended exit; 4/8 stopped**.
+This is a current-worktree observation, not S0 acceptance, a supported-language
+freeze or a before/after regression claim. Seven probes are equivalent examples;
+only `ternary_basic` uses the exact existing fixture. Compiler sources were unchanged.
+
+- Source: `2585448d618ddf1dbd6581fd43b95c3664da5e74` plus the retained uncommitted compiler WIP.
+- Compiler WIP path/content manifest SHA256: `ebdc88337bb78ec579a5f95dbeb46a9f401a49511a945bc3ccfd8de913dc0e14`.
+- `hakorune` SHA256: `2b63b1a1604fce8d084df51afbdd0f95f601dd550fb702f0fdae96a51a9d52f7`.
+- Runtime archives SHA256 (ordinary / lifecycle): `fb330b2e47694f432d459bc778ad65843c66dd2b657f34bf6687dc0b454c63bb` / `03aac9dc6d19b24a09a51247e71cbdb5a572d84ceb66ed4dcdcf2fbaeb7f2636`.
+- FFI SHA256: `c4c97d16922ed3ea8e32f278ce4b075e775db671f08486c51a4a1baf2e10014b`; host x86_64 Linux, Rust/Cargo 1.89.0, LLVM 18.1.8.
+- Local raw logs, exact argv/env, WIP patch/untracked snapshots and results: `/tmp/hakorune-c1-20261012/`.
+
+Our Cargo builds ran serially with `CARGO_BUILD_JOBS=4`; no cache wipe or source fixes.
+Compiler build/link 518.23s; ordinary runtime 646.42s; lifecycle runtime 537.88s;
+FFI 6.29s. A separate quick-test build overlapped part of the ordinary-runtime
+build; these are setup observations, not uncontended performance comparisons.
+The initial lifecycle command omitted the root package and rejected the feature
+in 0.06s; corrected package selection below succeeded. No language input caused that setup failure.
+
+```sh
+cargo build --release --features llvm --bin hakorune --timings
+cargo build --release -p nyash_kernel --features nyash-rust/llvm
+cargo build --release --lib -p nyash-rust -p nyash_lifecycle_kernel --features nyash-rust/llvm
+bash tools/build_hako_llvmc_ffi.sh
+```
+
+Run from repository root. Stage the fresh ordinary `libnyash_kernel.a` and
+`libnyash_lifecycle_kernel.a` in `/tmp/hakorune-c1-20261012/runtime` (save the
+ordinary archive before the lifecycle build). Clear inherited `HAKO_*`/`NYASH_*`;
+set `NYASH_DISABLE_PLUGINS=1`, `NYASH_LLVM_ROUTE_TRACE=1`,
+`HAKO_BACKEND_COMPILE_RECIPE=pure-first`, `HAKO_BACKEND_COMPAT_REPLAY=none`,
+and `HAKO_AOT_FFI_LIB=<repo>/target/release/libhako_llvmc_ffi.so`.
+
+```sh
+target/release/hakorune --grammar-profile canonical --backend mir --emit-exe /tmp/hakorune-c1-20261012/outputs/CASE.exe --emit-exe-nyrt /tmp/hakorune-c1-20261012/runtime INPUT
+```
+
+Compile timeout 120s; successful EXE run timeout 30s. Run with only
+`NYASH_DISABLE_PLUGINS=1` among those prefixes. No source/route retry.
+
+| Case | Expected exit | Observed result / first stop | Emit+link / run (s) |
+| --- | --- | --- | --- |
+| `return3` | 3 | EXE/run exit 3; stdout `Result: 3\n` | 0.8129 / 0.0012 |
+| `hello` | 0 | EXE/run exit 0; stdout `hello\nResult: 0\n` | 0.8130 / 0.0012 |
+| `new_page` | 0 | EXE/run exit 0; stdout `Result: 0\n` | 2.2222 / 0.0010 |
+| `range_sum` | 10 | emit exit 1; MIR resolver: `UnsupportedStatement { kind: "LoopRange" }`, Main.main Body(1); no EXE | 0.0145 / — |
+| `recursive_fib` | 8 | emit exit 1; MIR: `static-result-ingress/target-only/RecursiveDependency`, Main.fib/1; no EXE | 0.0159 / — |
+| `integer_result` | 3 | EXE/run exit 3; stdout `Result: 3\n` | 0.8080 / 0.0012 |
+| `qualified_result_match` | 7 | emit exit 1; Parser line 5: `IDENTIFIER("Result"), expected literal`; no EXE | 0.0141 / — |
+| `ternary_basic` | 10 | emit exit 1; MIR: `ordinary-new/local-commit/artifact-root-completion-unavailable`; no EXE | 0.0154 / — |
+
+All four runs also print the plugin-disabled warning to stderr. The `Result: N`
+line is runtime output from `crates/nyash_kernel/src/entry.rs`, not source print.
+The initial source-only stdout oracle therefore matched none; raw expectations
+are retained, and native execution/exit facts are reported separately. No output
+was stripped or case rerun to obtain a pass. `new_page` proves lifecycle-v4/C-API;
+scalar return/annotation traces select boundary pure-first/compat-none C-API,
+and hello records published builtin_print consumption. No compatibility replay.
+`main(): Integer` success proves only this Main sample, not every annotation site.
+Range stops before accumulation; qualified-pattern rejection says nothing about
+known-enum shorthand. The four first stops are observed gaps, not newly introduced regressions.
+
+Exact generated inputs (decode each JSON string as `<case>.hako`):
+
+```json
+{
+  "return3": "static box Main {\n  main() {\n    return 3\n  }\n}\n",
+  "hello": "static box Main {\n  main() {\n    print(\"hello\")\n    return 0\n  }\n}\n",
+  "new_page": "box Page {\n  value: i64 = 7\n}\nstatic box Main {\n  main() {\n    local p = new Page()\n    return 0\n  }\n}\n",
+  "range_sum": "static box Main {\n  main() {\n    local s = 0\n    loop i in 0..5 {\n      s = s + i\n    }\n    return s\n  }\n}\n",
+  "recursive_fib": "static box Main {\n  fib(n) {\n    if n < 2 { return n }\n    return me.fib(n - 1) + me.fib(n - 2)\n  }\n  main() {\n    return me.fib(6)\n  }\n}\n",
+  "integer_result": "static box Main {\n  main(): Integer {\n    return 3\n  }\n}\n",
+  "qualified_result_match": "static box Main {\n  main() {\n    local r: Result<i64, String> = Result::Ok(7)\n    return match r {\n      Result::Ok(v) => v\n      Result::Err(e) => 0\n    }\n  }\n}\n"
+}
+```
+`ternary_basic` uses unchanged `apps/tests/ternary_basic.hako` at the measured revision.
+
+Temporary probes are owned by C-1; retain these exact inputs here until equivalent
+permanent conformance fixtures supersede them. This run adds no CI gate or proof app.
+
 ## Current Front
 
-The live front is owned only by `CURRENT_STATE.toml`. This language taskboard
-remains parked while MirBuilder owns the selected implementation lane. The
-2026-10-12 documentation decision does not resume the paused goal or select
-any implementation row.
+The live front is owned only by `CURRENT_STATE.toml`. Language implementation
+remains parked while MirBuilder owns the selected lane. The 2026-10-12 C-1
+measurement does not resume the paused goal or select an implementation row.
