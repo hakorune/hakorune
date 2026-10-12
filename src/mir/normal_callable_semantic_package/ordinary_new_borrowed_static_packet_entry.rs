@@ -525,7 +525,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }) {
             return Err(freeze("borrowed-static/callee-completion-missing"));
         }
-        self.checked_borrowed_entry_incoming(source, call.callee)?;
+        self.checked_borrowed_entry_incoming_core_v1(source, call.callee, true)?;
         let rows = self
             .borrowed_formal_actuals
             .get(&call.call)

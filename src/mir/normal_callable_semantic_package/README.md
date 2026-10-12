@@ -2435,3 +2435,21 @@ allocation; the ordinary ledger retains one loan before input finish/co-seal.
 Missing or duplicate attachment grants no parameter, Completion, result or ABI
 permission. Owned parameter records remain non-Clone. Sharing this lifetime does
 not change whole-final-incoming execution checks or source-only refusal.
+
+Qualified opaque Static packet validation reuses the ordinary entry checker core.
+The Static wrapper retains global final-call definition, uniqueness, cardinality,
+staged-error and missing-row checks, with execution scoped to its selected callee
+and reverse original-formal forwarding dependencies. The scope derives from the
+original forward graph, not mutable pending actual variants. Each required owner
+has complete original projected incoming coverage; Static source identity uses
+the original Rc and Instance identity uses the full original target. Sanctioned
+source-inventory omissions are retained, never enlarged into a whole-source census.
+
+Only unrelated view-free SourceObject inputs may remain passive after reissuing
+the SAME source preparation from the retained original catalog and comparing the
+whole pending snapshot. Existing object-view obligations cannot be skipped.
+Selected/required inputs still demand executable proofs, original qualification
+and SAME callee Completion; all validation precedes route marking. This grants no
+Object result, Normal, ABI or artifact permission. Ordinary entry and Object
+lenders retain their previous whole-final execution contract. Acceptance and app
+cutover/retirement evidence are recorded separately in the selected active card.

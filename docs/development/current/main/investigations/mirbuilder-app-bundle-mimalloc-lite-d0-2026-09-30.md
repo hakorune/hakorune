@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0 (2026-09-30)
 
-Status: active bundle — catalog loan T0 accepted; Static validation scope D0 decided, S0 selected.
+Status: active bundle — Static validation scope S0 accepted; required Object forward D0 active.
 Scope: mimalloc-lite completion bundle; selected source contracts and retirement only.
 Related: CURRENT_STATE.toml; docs/development/RULES.md; parent Gate-1 card below.
 
@@ -843,3 +843,67 @@ Non-claims: S0 acceptance, production cutover closeout, caller-zero/old-edge
 retirement, whole SizeClassBox/app/MirBuilder completion remain unproved.
 Read-only worker confirmed original-inventory projection and sanctioned omissions;
 no remaining external dependency or required future-green construction condition.
+
+### STATIC-FINAL-INCOMING-S0 receipt — accepted (2026-10-12)
+
+One private entry core retains global source checks; only qualified opaque Static
+selects original-forward reverse execution closure. View-free unrelated
+SourceObject stays passive after SAME catalog/full-snapshot revalidation. Default
+entry/Object still requires whole-final execution. Required inputs remain refused.
+No new authority, receipt, source rewrite, ABI/result or artifact grant.
+
+- Final V7 quick build succeeds; observed build interval recorded in
+  `/tmp/mimalloc-static-scoped-s0-v7-runtime-receipt.json`. Focused82PASS/1 original
+  NoIncoming baseline: packet15, entry18, Object identity9/port2/slot12, actual26.
+  The exact previously reproduced baseline remains unchanged; no rebaseline.
+- Ten parameterized forward corruptions and missing forward/dependency/nonforward
+  incoming refuse. Natural guarded opaque sibling passes passively; selected and
+  default paths refuse. Phase forgery has matching ordinal/site/formal/ordered
+  shape and still refuses. Err/missing/snapshot/catalog/class-view mutations fail
+  before any partial route mark. The prior new-fixture NoIncoming failure is fixed,
+  not waived; interrupted builds and V3/V6 evidence remain under `/tmp` prefixes.
+- V7 source/binary snapshot is exact. One added condition is subsequently reflowed
+  only; full-file rustfmt-normalized contents are identical (`...-format-proof.json`).
+  The fresh CLI snapshot matches all final6 Rust files byte-for-byte. Existing
+  whole-file entry/test format debt stays; new actuals/owner-view/scope child clean.
+- CLI succeeds; observed build interval251.974s. Original app SHA256 remains
+  `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685`.
+  pure-first/replay-none probe0.050s/rc1/no EXE, SAME LexicalInstanceCall/
+  source-only-object-actuals first-stop. Runtime receipt `...-cli-v1-runtime-receipt.json`.
+- Fresh-binary read-only trace explains the unchanged stop: scoped Static=true,
+  requested GoodSize owner11/batch7; rejected incoming34->33. ORIGINAL forward
+  edges17->11 and33->17 make allocate(owner33/batch29) REQUIRED, not unrelated.
+  Exact sealed owner/batch joins and header names are in `...-contract.log` and
+  `...-map.log`; `...-forward-graph.log` / `...-tuple.log` / fresh disassembly prove
+  the observed dependency. Memory offsets are diagnostic only, never authority.
+- Test warning signatures812->812; CLI1735->1735, no new/removed signature or
+  suppression. Pointer/diff pass. Qualified-route guard remains original debt:
+  unchanged raw_loop_child_entry call count3 vs required4; not PASS or waived.
+  Changed source sizes below760; scope tests329 lines, parent556, entry752.
+
+Production Static caller now invokes the scoped contract, but whole production
+cutover acceptance/caller-zero/old-edge retirement are NOT proved by this receipt.
+Shared/default owners stay; physical deletion credit0. Whole SizeClassBox,
+mimalloc-lite and MirBuilder remain unfinished.
+
+## Required Object forward D0 — current boundary (2026-10-12)
+
+Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-D0`.
+The internal input-closure gap is allocateResult(owner34/batch30),
+Body(1)/Initializer(0), argument0 `size` -> allocate(owner33/batch29), opaque
+formal1, REQUIRED by good_size <- class_id <- allocate reverse dependency.
+The source has `if size <= 0 { return new HakoAllocHandleResult(0,2,null) }`
+before the call. That syntax is not Integer/entry/execution authority by itself.
+
+Smallest next design: inspect SAME source-only draft/original incoming and existing
+operation/Normal proof owner for that guarded forward. Establish whether the
+existing checked argument or borrowed entry finish can lend executable input at
+this exact site without inventing class authority or reissuing the formal catalog.
+Keep OpaqueHandle/tagged ABI, source evaluation/Fault order and true/false scopes;
+Integer Normal proof and usize range checking remain distinct. Callee source-only
+phase is not permission; all required callers/dependencies must still validate.
+
+Worker checks the concrete authority gap and existing producer/consumer, then main
+records one Decision and smallest implementation slice here. No source annotation
+workaround, pending-phase cast, global execution waiver, new receipt chain, parked
+lane reopening or whole-app claim. This is internal design work, no external wait.

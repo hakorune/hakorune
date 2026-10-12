@@ -551,3 +551,6 @@ fn static_zero_packet_selection_keeps_pending_demands_and_refuses_before_publica
         }
     }
 }
+
+#[path = "ordinary_new_borrowed_static_packet_scope_tests.rs"]
+mod scope_tests;

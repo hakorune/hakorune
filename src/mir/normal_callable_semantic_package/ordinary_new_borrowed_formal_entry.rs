@@ -613,6 +613,15 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &'a PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<Box<[(&'a OwnedExprSiteV1, &'a [PreparedBorrowedFormalActualV1])]>, String> {
+        self.checked_borrowed_entry_incoming_core_v1(source, owner, false)
+    }
+
+    fn checked_borrowed_entry_incoming_core_v1<'a>(
+        &'a self,
+        source: &'a PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        scoped_static: bool,
+    ) -> Result<Box<[(&'a OwnedExprSiteV1, &'a [PreparedBorrowedFormalActualV1])]>, String> {
         let mut seen = BTreeSet::new();
         let mut incoming = Vec::new();
         let owner_view = self.checked_entry_owner_view_v1(source, owner)?;
@@ -624,6 +633,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 calls.extend(view.incoming.iter().copied());
             }
         }
+        let execution = scoped_static
+            .then(|| self.checked_static_execution_owners_v1(source, owner, &calls))
+            .transpose()?;
         for call in calls {
             let definition = source.definitions.get(&call.callee).or_else(|| {
                 (call.callee == owner).then(|| owner_view.as_ref().map(|view| view.definition)).flatten()
@@ -655,6 +667,20 @@ impl OrdinaryNewClaimLedgerV1 {
             if actuals.is_entry_only_static_bool_v1() {
                 self.checked_completed_static_bool_entry_v1(source, owner)?
                     .ok_or_else(|| freeze("borrowed-entry/bool-entry-proof-missing"))?;
+            }
+            if execution
+                .as_ref()
+                .is_some_and(|owners| !owners.contains(&call.callee))
+            {
+                let contracts = self
+                    .original_parameter_contracts
+                    .as_deref()
+                    .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
+                if super::borrowed_formal_actuals::revalidate_passive_object_incoming_v1(
+                    source, contracts, call, actuals,
+                )? {
+                    continue;
+                }
             }
             actuals.ordered_arguments_for_entry_v1(call)?;
             let actuals = &actuals.opaque_actuals;

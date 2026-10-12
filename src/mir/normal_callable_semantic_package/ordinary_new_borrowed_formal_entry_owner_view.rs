@@ -177,3 +177,154 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(BorrowedEntryActualsV1::Executable)
     }
 }
+
+/// Execution dependency is determined by original forwards, never pending phase.
+impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn checked_static_execution_owners_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        owner: FunctionOwnerIdV1,
+        calls: &[&BorrowedIncomingCallDraftV1],
+    ) -> Result<BTreeSet<FunctionOwnerIdV1>, String> {
+        use super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1;
+        let mut owners = BTreeSet::from([owner]);
+        loop {
+            let mut added = BTreeSet::new();
+            for forward in source
+                .forwards
+                .iter()
+                .filter(|row| owners.contains(&row.callee_formal.owner()))
+            {
+                let matching: Vec<_> = calls
+                    .iter()
+                    .filter(|call| call.call == forward.call)
+                    .collect();
+                let [call] = matching.as_slice() else {
+                    return Err(freeze("borrowed-static/forward-incoming-identity"));
+                };
+                let actuals = self
+                    .borrowed_formal_actuals
+                    .get(&call.call)
+                    .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
+                    .as_ref()
+                    .map_err(Clone::clone)?;
+                let actual: Vec<_> = actuals
+                    .opaque_actuals
+                    .iter()
+                    .filter(|actual| actual.ordinal == forward.ordinal)
+                    .collect();
+                let [actual] = actual.as_slice() else {
+                    return Err(freeze("borrowed-static/forward-actual-identity"));
+                };
+                if call.callee != forward.callee_formal.owner()
+                    || call.call.owner() != forward.source_formal.owner()
+                    || call.source.target() != &forward.target
+                    || forward.site.owner() != call.call.owner()
+                    || actual.site != *forward.site.site()
+                    || actual.formal != forward.callee_formal
+                    || !call.arguments.iter().any(|(ordinal, site, formal)| {
+                        *ordinal == forward.ordinal
+                            && site == forward.site.site()
+                            && *formal == forward.callee_formal
+                    })
+                    || actual.source
+                        != (BorrowedFormalActualSourceV1::Forwarded {
+                            binding: forward.binding,
+                            formal: forward.source_formal,
+                        })
+                    || source
+                        .definitions
+                        .get(&forward.source_formal.owner())
+                        .and_then(|draft| draft.origins.get(&forward.binding))
+                        != Some(&forward.source_formal)
+                    || source
+                        .definitions
+                        .get(&forward.callee_formal.owner())
+                        .and_then(|draft| draft.origins.get(&forward.callee_formal))
+                        != Some(&forward.callee_formal)
+                {
+                    return Err(freeze("borrowed-static/forward-source-drift"));
+                }
+                added.insert(forward.source_formal.owner());
+            }
+            let old_len = owners.len();
+            owners.extend(added);
+            if owners.len() == old_len {
+                break;
+            }
+        }
+        for dependency in owners.iter().filter(|dependency| **dependency != owner) {
+            if !source.definitions.contains_key(dependency)
+                || !calls.iter().any(|call| call.callee == *dependency)
+            {
+                return Err(freeze("borrowed-static/forward-entry-missing"));
+            }
+        }
+        let originals = source.source_incoming.project(&owners).map_err(|error| {
+            format!("{}: {error:?}", freeze("borrowed-static/incoming-coverage"))
+        })?;
+        let selected: Vec<_> = calls
+            .iter()
+            .filter(|call| owners.contains(&call.callee))
+            .copied()
+            .collect();
+        if selected.len() != originals.len() {
+            return Err(freeze("borrowed-static/incoming-coverage"));
+        }
+        for original in &originals {
+            let matching: Vec<_> = selected
+                .iter()
+                .filter(|call| call.call == original.call)
+                .collect();
+            let [call] = matching.as_slice() else {
+                return Err(freeze("borrowed-static/incoming-coverage"));
+            };
+            let source_agrees = match (&call.source, &original.source) {
+                (
+                    BorrowedIncomingSourceV1::Static(actual),
+                    BorrowedIncomingSourceV1::Static(original),
+                ) => Rc::ptr_eq(actual, original),
+                (
+                    BorrowedIncomingSourceV1::Instance(actual),
+                    BorrowedIncomingSourceV1::Instance(original),
+                ) => actual == original,
+                _ => false,
+            };
+            if call.callee != original.callee
+                || call.arguments != original.arguments
+                || !source_agrees
+            {
+                return Err(freeze("borrowed-static/incoming-source-drift"));
+            }
+            let actuals = self
+                .borrowed_formal_actuals
+                .get(&call.call)
+                .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
+                .as_ref()
+                .map_err(Clone::clone)?;
+            for actual in &actuals.opaque_actuals {
+                if let BorrowedFormalActualSourceV1::Forwarded { binding, formal } = &actual.source
+                {
+                    if source
+                        .forwards
+                        .iter()
+                        .filter(|row| {
+                            row.call == call.call
+                                && row.target == *call.source.target()
+                                && row.ordinal == actual.ordinal
+                                && row.site.site() == &actual.site
+                                && row.binding == *binding
+                                && row.source_formal == *formal
+                                && row.callee_formal == actual.formal
+                        })
+                        .count()
+                        != 1
+                    {
+                        return Err(freeze("borrowed-static/forward-source-drift"));
+                    }
+                }
+            }
+        }
+        Ok(owners)
+    }
+}

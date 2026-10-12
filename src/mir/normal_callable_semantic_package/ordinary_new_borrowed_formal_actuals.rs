@@ -29,6 +29,79 @@ pub(in crate::mir::normal_callable_semantic_package) use static_selected_actual:
     issue_original_static_forwarded_actual_v1, VerifiedStaticForwardedActualV1,
 };
 
+/// Revalidate a passive Object input without lending executable arguments.
+pub(super) fn revalidate_passive_object_incoming_v1(
+    ingress: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    rows: &PreparedBorrowedCallActualsV1,
+) -> Result<bool, String> {
+    if call.source.instance().is_none()
+        && !matches!(
+            rows.phase,
+            BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+        )
+    {
+        return Ok(false);
+    }
+    let mut originals = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| row.call == call.call);
+    let original = originals
+        .next()
+        .ok_or_else(|| freeze("borrowed-object/source-row-missing"))?;
+    if let Some(target) = original.source.instance() {
+        if object_source::selected_source_only_object_forward_v1(ingress, target)
+            && !matches!(
+                rows.phase,
+                BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+            )
+        {
+            return Err(freeze("borrowed-object/source-phase-drift"));
+        }
+    }
+    let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &rows.phase else {
+        if originals.next().is_some()
+            || original.callee != call.callee
+            || original.arguments != call.arguments
+            || original.source.require_instance()? != call.source.require_instance()?
+        {
+            return Err(freeze("borrowed-object/source-actual-identity"));
+        }
+        return Ok(false);
+    };
+    if originals.next().is_some()
+        || original.call != call.call
+        || original.callee != call.callee
+        || original.arguments != call.arguments
+        || original.source.require_instance()? != call.source.require_instance()?
+        || identity.source != *call.source.require_instance()?
+        || identity.incoming_arguments != call.arguments
+        || !rows.opaque_actuals.is_empty()
+    {
+        return Err(freeze("borrowed-object/source-actual-identity"));
+    }
+    if call
+        .arguments
+        .iter()
+        .any(|(_, _, formal)| ingress.object_views.contains_key(formal))
+    {
+        return Err(freeze("borrowed-entry/object-view-drift"));
+    }
+    let rechecked = object_source::prepare_object_source_actuals_v1(
+        ingress,
+        contracts,
+        &call.call,
+        &identity.candidates,
+    )?
+    .ok_or_else(|| freeze("borrowed-object/source-phase-drift"))?;
+    if rows != &rechecked {
+        return Err(freeze("borrowed-object/source-snapshot-drift"));
+    }
+    Ok(true)
+}
+
 pub(in crate::mir::normal_callable_semantic_package) type PendingBorrowedFormalActualsV1 =
     BTreeMap<OwnedExprSiteV1, Result<PreparedBorrowedCallActualsV1, String>>;
 
