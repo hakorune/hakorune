@@ -483,16 +483,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         continue;
       }
       if (lv4_is(op, "kind", "object_field_release")) {
-        /* Owned user-object field: read the slot, then under the live
-           child call the child's generated teardown — the per-class
-           `hako_lifecycle_teardown_<id>` helper owns its own marked
-           residences (arrays released, object children torn down then
-           Home-released), so nested depth and self-reference recurse
-           through the call graph — before the child's plain Home
-           release. A plain child carries an empty mark list and keeps
-           the plain release unchanged. The child's status drives this
-           op's fault edge; a failed slot read is contract violation. */
-        yyjson_val* child = lv4_layout(in, lv4_u(op, "child_object_id"));
+        /* The admitted child End owns contents and outer Home together.
+           Root home_release remains outer-only after explicit field cleanup. */
         fprintf(f,
             "  %%ofr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%ofr_read%u)\n"
             "  %%ofr_ok%u = icmp eq i32 %%ofr_get%u, 0\n"
@@ -504,18 +496,11 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%ofr_live%u = icmp ne i64 %%ofr_val%u, 0\n"
             "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n",
             b, b, b, b, b, b, b, b);
-        if (lv4_layout_marked(child))
-          fprintf(f,
-              "  %%ofr_td%u = call i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%ofr_val%u, i64 %llu)\n"
-              "  switch i32 %%ofr_td%u, label %%invalid [ i32 0, label %%ofr_home%u i32 1, label %%%s ]\nofr_home%u:\n",
-              b, lv4_u(op, "child_object_id"), b, site,
-              b, b, fault_label, b);
         fprintf(f,
-            "  %%ofr_status%u = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%ofr_val%u, i64 %lld)\n"
+            "  %%ofr_status%u = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%ofr_val%u, i64 %llu)\n"
             "  switch i32 %%ofr_status%u, label %%invalid [ i32 0, label %%ofr_done%u i32 1, label %%%s ]\nofr_done%u:\n"
             "  br label %%%s\n",
-            b, in->profile, site, b,
-            (long long)lv4_u(child, "runtime_type_id"),
+            b, lv4_u(op, "child_object_id"), b, site,
             b, b, fault_label, b, normal_label);
         continue;
       }
@@ -660,12 +645,10 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
     for (uint32_t i = 0; i < count; i++) fprintf(f, "%si32 %u", i ? ", " : "", HAKO_LLVMC_LIFECYCLE_STORAGE_I64);
     fprintf(f, "]\n");
   }
-  /* The per-class teardown family: one helper per marked layout, emitted
-     before any caller — self-reference and cross-class recursion resolve
-     inside the module's own call graph. */
+  /* Complete End symbols cover plain and marked admitted layouts. Recursive
+     child calls resolve in this module; no runtime class inference is used. */
   for (size_t li = 0; li < in->layout_count; li++)
-    if (lv4_layout_marked(in->layouts[li].row) &&
-        !lv4_emit_teardown(f, in, in->layouts[li].id, in->layouts[li].row))
+    if (!lv4_emit_end(f, in, in->layouts[li].id, in->layouts[li].row))
       return 0;
   for (size_t fi = 1; fi < in->index_count; fi++)
     if (!lv4_emit_function(f, in, abi, fi)) return 0;

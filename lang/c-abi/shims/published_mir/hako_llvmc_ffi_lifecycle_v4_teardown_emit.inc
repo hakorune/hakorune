@@ -1,31 +1,18 @@
-/* Marked-field teardown helpers within the existing lifecycle-v4 emitter. */
-/* A layout carries a teardown inventory when either mark list is
- * nonempty: `owned_residences` array slots or `owned_object_residences`
- * (field,child) rows — the sealed census rows the physical ABI pins. */
-static int lv4_layout_marked(yyjson_val* layout) {
-  return layout &&
-      (yyjson_arr_size(yyjson_obj_get(layout, "owned_residences")) > 0 ||
-       yyjson_arr_size(yyjson_obj_get(layout, "owned_object_residences")) > 0);
-}
-
-/* The generated per-class teardown helper — the sole physical owner of
- * an object's marked-field contents. `object_field_release` calls it on
- * the live child, and each object mark inside it calls the child's own
- * helper before that child's plain Home release, so nested depth and
- * self-reference recurse through the emitted call graph on live
- * instances — never through a census-time unroll. `%site` carries the
- * calling op's diagnostic site so a nested fault attributes to the
- * outermost release. Status contract: 0 contents released, nonzero is
- * the kernel status (1 fault edge, 2 contract violation). */
-static int lv4_emit_teardown(FILE* f, const hako_lv4_input* in, uint32_t id,
+/* Source-admitted complete End helpers in the lifecycle-v4 emitter. */
+/* Complete End for an admitted source layout: reverse marked contents, then
+ * outer Home. Children call this same owner. Fault (1) retains the frame's
+ * primary and continues cleanup; InvalidContract (2) is unrecoverable. Layout
+ * metadata does not itself grant a caller destruction permission. */
+static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
     yyjson_val* layout) {
   yyjson_val* arrays = yyjson_obj_get(layout, "owned_residences");
   yyjson_val* objects = yyjson_obj_get(layout, "owned_object_residences");
   size_t na = yyjson_arr_size(arrays), no = yyjson_arr_size(objects);
   long long type = (long long)lv4_u(layout, "runtime_type_id");
   fprintf(f,
-      "define internal i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%handle, i64 %%site) {\nstart:\n",
+      "define internal i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%handle, i64 %%site) {\nstart:\n",
       id);
+  fprintf(f, "  %%td_status = alloca i32, align 4\n  store i32 0, ptr %%td_status, align 4\n");
   for (size_t i = 0; i < na + no; i++)
     fprintf(f, "  %%td_read%zu = alloca i64, align 8\n", i);
   /* Newest-first across both mark lists: each walks declaration order,
@@ -71,24 +58,19 @@ static int lv4_emit_teardown(FILE* f, const hako_lv4_input* in, uint32_t id,
         "  %%td_live%zu = icmp ne i64 %%td_val%zu, 0\n"
         "  br i1 %%td_live%zu, label %%td_chain%zu, label %%td_done%zu\ntd_chain%zu:\n",
         mi, mi, mi, mi, mi, mi, mi, mi);
-    if (lv4_layout_marked(child))
-      fprintf(f,
-          "  %%td_call%zu = call i32 @hako_lifecycle_teardown_%u(ptr %%frame, i64 %%td_val%zu, i64 %%site)\n"
-          "  %%td_cok%zu = icmp eq i32 %%td_call%zu, 0\n"
-          "  br i1 %%td_cok%zu, label %%td_home%zu, label %%td_prop%zu\ntd_prop%zu:\n"
-          "  ret i32 %%td_call%zu\ntd_home%zu:\n",
-          mi, child_id, mi, mi, mi, mi, mi, mi, mi, mi, mi);
-    else
-      fprintf(f, "  br label %%td_home%zu\ntd_home%zu:\n", mi, mi);
     fprintf(f,
-        "  %%td_rel%zu = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %%site, i64 %%td_val%zu, i64 %lld)\n"
-        "  %%td_rok%zu = icmp eq i32 %%td_rel%zu, 0\n"
-        "  br i1 %%td_rok%zu, label %%td_done%zu, label %%td_prop2%zu\ntd_prop2%zu:\n"
-        "  ret i32 %%td_rel%zu\ntd_done%zu:\n",
-        mi, in->profile, mi,
-        (long long)lv4_u(child, "runtime_type_id"),
-        mi, mi, mi, mi, mi, mi, mi, mi);
+        "  %%td_call%zu = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%td_val%zu, i64 %%site)\n"
+        "  switch i32 %%td_call%zu, label %%bad [ i32 0, label %%td_done%zu i32 1, label %%td_fault%zu ]\ntd_fault%zu:\n"
+        "  store i32 1, ptr %%td_status, align 4\n"
+        "  br label %%td_done%zu\ntd_done%zu:\n",
+        mi, child_id, mi, mi, mi, mi, mi, mi, mi);
   }
-  fprintf(f, "  ret i32 0\nbad:\n  ret i32 2\n}\n");
+  fprintf(f,
+      "  %%td_outer = call i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr %%frame, i32 %u, i64 %%site, i64 %%handle, i64 %lld)\n"
+      "  switch i32 %%td_outer, label %%bad [ i32 0, label %%finish i32 1, label %%finish ]\nfinish:\n"
+      "  %%td_prior = load i32, ptr %%td_status, align 4\n"
+      "  %%td_result = or i32 %%td_prior, %%td_outer\n"
+      "  ret i32 %%td_result\nbad:\n  ret i32 2\n}\n",
+      in->profile, type);
   return !ferror(f);
 }

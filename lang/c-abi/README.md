@@ -568,8 +568,19 @@ Reproduce with the Rust test
 `tests/published_lifecycle_v4_owned_slot_consumer_test.py` and
 `tests/published_lifecycle_v4_owned_slot_consumer_execution_test.py` with its
 false/true source captures. The latter links the actual lifecycle archive and
-injects every object/Array allocation and field store Fault. This boundary does
-not grant Unit calls, ordinary Array-local release or borrowed-child reads.
+injects every object/Array allocation and field store Fault, plus Faults after
+successful Home consumption. The per-layout `hako_lifecycle_end_<id>` owns
+reverse marked contents and outer Home together. A child Fault retains the
+first diagnostic and continues remaining marks and outer reclaim; status 2
+remains an unrecoverable contract violation. `object_field_release` calls this
+owner once; root `home_release` stays outer-only after explicit field cleanup.
+The same test globalizes that internal symbol in a test object copy to execute
+recursive End directly against the source-captured layout. It checks all five
+Array releases, reverse child/parent order, one consumption per object, primary
+retention and suppressed order under single and multiple End Faults. Production
+symbol visibility and source admission remain unchanged. This does not connect
+owning object Array slots or grant Unit calls, ordinary Array-local release or
+borrowed-child reads.
 ## Borrowed/null physical comparison
 
 The published lifecycle `borrowed_null_compare` row accepts `eq` and `ne`
