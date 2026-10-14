@@ -50,6 +50,12 @@ The result operation vector records these source relations without promoting
 representation evidence to executable ownership or effect permission. The live
 Home scalar walker and result projection share the same binary-child proof.
 
+`expression_root` borrows the original PrintValue or ReturnValue root from
+that same owner's body-shape inventory, requiring its exact canonical Value
+site, source membership and unique statement-to-value relation. Bare Return
+and other statement shapes supply no value root. Roles do not classify the
+value, grant Home neutrality, or authorize Print/Return execution.
+
 ## SSA-I0-PROFILE contract
 
 `VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It

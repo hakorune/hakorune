@@ -565,3 +565,50 @@ fn source_result_product_rejects_non_empty_block_expr_prelude() {
         Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(_))
     ));
 }
+
+#[test]
+fn statement_expression_roots_keep_original_print_and_return_roles() {
+    use super::expression_children::ExpressionChildIssueV1;
+    use super::expression_root::{statement_expression_root_v1, StatementExpressionRoleV1};
+    use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1 as Role, SourceStmtSiteV1};
+    let root = NyashParser::parse_from_string(
+        "static box Helpers { value() { print(1) return 2 } }",
+    ).unwrap();
+    let mut declaration = method_declaration(&root, "Helpers", "value");
+    let ASTNode::FunctionDeclaration { body, .. } = &mut declaration else { unreachable!() };
+    // Both are original source statements, but neither has a value-root role.
+    body.push(ASTNode::Literal {
+        value: crate::ast::LiteralValue::Integer(3),
+        span: crate::ast::Span::unknown(),
+    });
+    body.push(ASTNode::Return { value: None, span: crate::ast::Span::unknown() });
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(declaration).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+    let shape = input.body_shape().unwrap();
+    assert_eq!(shape.statements().len(), 4);
+    for (index, role) in [StatementExpressionRoleV1::PrintValue, StatementExpressionRoleV1::ReturnValue]
+        .into_iter().enumerate()
+    {
+        let statement = shape.statements()[index].site();
+        let value = statement_expression_root_v1(&ledger, shape, statement).unwrap().unwrap();
+        assert_eq!(value.role, role);
+        assert_eq!(value.value.node().segments(), &[Role::Body(index as u32), Role::Value]);
+        assert!(super::expression_children::expression_children_v1(
+            &ledger, Some(shape), value.value,
+        ).is_ok());
+    }
+    for statement in &shape.statements()[2..] {
+        assert!(statement_expression_root_v1(&ledger, shape, statement.site()).unwrap().is_none());
+    }
+    let missing = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![Role::Body(99)]));
+    assert!(matches!(statement_expression_root_v1(&ledger, shape, &missing),
+        Err(ExpressionChildIssueV1::MissingSource)));
+    let foreign = VerifiedResolvedSourceUnitV1::resolve_function(
+        method_declaration(&root, "Helpers", "value"),
+    ).unwrap();
+    let foreign_input = foreign.root_function_input().unwrap();
+    assert!(matches!(statement_expression_root_v1(
+        &ledger, foreign_input.body_shape().unwrap(), shape.statements()[0].site(),
+    ), Err(ExpressionChildIssueV1::ForeignOwner)));
+}

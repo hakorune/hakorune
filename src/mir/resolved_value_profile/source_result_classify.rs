@@ -9,6 +9,7 @@
 use super::super::expression_children::{
     binary_children_v1, expression_children_v1, ExpressionChildrenV1,
 };
+use super::super::expression_root::{statement_expression_root_v1, StatementExpressionRoleV1};
 use super::super::expression_source::{expression_source_v1, ResolvedExpressionSourceV1};
 use super::*;
 use crate::mir::resolved_semantics::{
@@ -134,10 +135,17 @@ pub(super) fn infer_statements(
             ASTNode::Return {
                 value: Some(value), ..
             } => {
-                let value_site = statement_path.child(SourcePathSegmentV1::Value).expr();
-                let class = classify_entry(state, &value_site, value)?;
+                let root = statement_expression_root_v1(
+                    state.ledger,
+                    state.body_shape,
+                    &statement_path.stmt(),
+                )
+                .map_err(|_| SourceResultProductErrorV1::ChildSourceIdentity(statement_path.expr()))?
+                .filter(|root| root.role == StatementExpressionRoleV1::ReturnValue)
+                .ok_or_else(|| SourceResultProductErrorV1::ChildSourceIdentity(statement_path.expr()))?;
+                let class = classify_entry(state, root.value, value)?;
                 state.returns.push(class.result().ok_or_else(|| {
-                    SourceResultProductErrorV1::UnprovenResultClass(value_site.clone())
+                    SourceResultProductErrorV1::UnprovenResultClass(root.value.clone())
                 })?);
             }
             ASTNode::Return { value: None, .. } => {

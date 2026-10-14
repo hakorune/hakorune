@@ -184,7 +184,7 @@ pub(crate) fn issue_generic_g0_no_external_effect_v1(
         .iter()
         .filter_map(|statement| match statement {
             BodyStatementShapeV1::Return { site, .. } => Some(site),
-            BodyStatementShapeV1::SequenceItem { .. } => None,
+            BodyStatementShapeV1::SequenceItem { .. } | BodyStatementShapeV1::Print { .. } => None,
         })
         .filter(|site| *site == return_site)
         .count();

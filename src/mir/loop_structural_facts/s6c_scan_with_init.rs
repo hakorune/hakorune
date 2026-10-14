@@ -257,11 +257,7 @@ fn expected_relations(
 }
 
 fn statement_shape_site(shape: &BodyStatementShapeV1) -> SourceStmtSiteV1 {
-    match shape {
-        BodyStatementShapeV1::SequenceItem { site } | BodyStatementShapeV1::Return { site, .. } => {
-            site.clone()
-        }
-    }
+    shape.site().clone()
 }
 
 fn expression_shape_site(shape: &BodyExpressionShapeV1) -> SourceExprSiteV1 {

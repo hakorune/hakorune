@@ -327,6 +327,10 @@ matching sibling.  Missing, foreign, or drifted products reject before any
 effect, skeleton, session, or Builder mutation.  The next design stop is the
 separate Generic function-effect projection issuer.
 
+The same passive statement inventory retains Print and Return value roots.
+The original shadow traversal records each exact statement-to-Value relation;
+Print's identity grants no Query, Home, effect, result-class or execution proof.
+
 ## Resolver callable-contract I0
 
 `ResolverCoreMethodCallableContractIssuerV1` is the bounded Loop bridge. It

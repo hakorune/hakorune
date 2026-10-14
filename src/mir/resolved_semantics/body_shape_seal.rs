@@ -34,6 +34,9 @@ pub(crate) fn seal_shadow_body_shape(
             ShadowStatementShapeV0::Return { site, value } => {
                 BodyStatementShapeV1::Return { site, value }
             }
+            ShadowStatementShapeV0::Print { site, value } => {
+                BodyStatementShapeV1::Print { site, value }
+            }
         })
         .collect::<Vec<_>>()
         .into_boxed_slice();

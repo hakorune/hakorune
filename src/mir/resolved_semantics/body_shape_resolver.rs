@@ -27,6 +27,12 @@ impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
                         .expr()
                 }),
             },
+            crate::ast::ASTNode::Print { .. } => ShadowStatementShapeV0::Print {
+                site: site.clone(),
+                value: SourcePathV1::from_node(site.node())
+                    .child(SourcePathSegmentV1::Value)
+                    .expr(),
+            },
             _ => ShadowStatementShapeV0::SequenceItem { site: site.clone() },
         };
         self.body_shape.statements.insert(site.clone(), shape);

@@ -146,10 +146,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     ),
                 )
             }
-            ASTNode::Print { expression, .. } => self.resolve_expr(
-                expression,
-                &Self::stmt_expr_path(statement, path, ExprChildRoleV1::PrintValue),
-            ),
+            ASTNode::Print { expression, .. } => {
+                let value_path = Self::stmt_expr_path(statement, path, ExprChildRoleV1::PrintValue);
+                self.resolve_expr(expression, &value_path)?;
+                self.record_relation(
+                    path.node(),
+                    crate::mir::resolved_semantics::SourcePathSegmentV1::Value,
+                    value_path.expr(),
+                );
+                Ok(())
+            }
             ASTNode::Nowait {
                 variable,
                 expression,

@@ -26,12 +26,16 @@ pub(crate) enum BodyStatementShapeV1 {
         site: SourceStmtSiteV1,
         value: Option<SourceExprSiteV1>,
     },
+    Print {
+        site: SourceStmtSiteV1,
+        value: SourceExprSiteV1,
+    },
 }
 
 impl BodyStatementShapeV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         match self {
-            Self::SequenceItem { site } | Self::Return { site, .. } => site,
+            Self::SequenceItem { site } | Self::Return { site, .. } | Self::Print { site, .. } => site,
         }
     }
 
@@ -182,6 +186,10 @@ pub(crate) enum ShadowStatementShapeV0 {
     Return {
         site: SourceStmtSiteV1,
         value: Option<SourceExprSiteV1>,
+    },
+    Print {
+        site: SourceStmtSiteV1,
+        value: SourceExprSiteV1,
     },
 }
 
