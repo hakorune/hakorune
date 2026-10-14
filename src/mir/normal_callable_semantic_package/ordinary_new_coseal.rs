@@ -471,7 +471,7 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     terminal_i64_field_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
     terminal_i64_field_values:
         RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
-    terminal_result_progress: RefCell<BTreeMap<SourceStmtSiteV1, terminal_result::Progress>>,
+    terminal_result_progress: RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), terminal_result::Progress>>,
     root_completion: Option<
         Result<
             Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,

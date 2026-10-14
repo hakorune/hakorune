@@ -493,8 +493,8 @@ pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
         .type_ctx
         .value_types
         .insert(result, MirType::Integer);
-    ledger.record_terminal_i64_add(&return_site, block, result, values[0], values[1])?;
-    ledger.complete_terminal_i64_add_return(&return_site, result)?;
+    ledger.record_terminal_i64_add(prepared.owner, &return_site, block, result, values[0], values[1])?;
+    ledger.complete_terminal_i64_add_return(prepared.owner, &return_site, result)?;
     Ok(result)
 }
 

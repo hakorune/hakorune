@@ -2,8 +2,8 @@
 //!
 //! The relation remains source-only. This module retains only the one-way
 //! physical progress needed to prove it was emitted without raw AST descent.
-//! Progress is keyed by the exact exit site: one `return` path's reserved
-//! reads can never satisfy a sibling exit.
+//! Progress is keyed by owner and exact exit site: one function or `return`
+//! path can never satisfy another function or sibling exit.
 use super::*;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
@@ -27,6 +27,7 @@ pub(super) enum Progress {
 }
 
 pub(crate) struct PreparedTerminalI64AddReturnV1 {
+    pub(crate) owner: FunctionOwnerIdV1,
     pub(crate) return_site: SourceStmtSiteV1,
     pub(crate) reads: [(OwnedExprSiteV1, ValueId, CanonicalFieldRefV1); 2],
 }
@@ -51,7 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if self
             .terminal_result_progress
             .borrow()
-            .contains_key(&stmt_site)
+            .contains_key(&(owner, stmt_site.clone()))
         {
             return Err(fault("duplicate-reservation"));
         }
@@ -80,12 +81,13 @@ impl OrdinaryNewClaimLedgerV1 {
             (reads[1].clone(), second.0, second.1),
         ];
         self.terminal_result_progress.borrow_mut().insert(
-            stmt_site.clone(),
+            (owner, stmt_site.clone()),
             Progress::Reserved {
                 reads: reads.clone(),
             },
         );
         Ok(Some(PreparedTerminalI64AddReturnV1 {
+            owner,
             return_site: stmt_site,
             reads,
         }))
@@ -93,6 +95,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn record_terminal_i64_add(
         &self,
+        owner: FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
         block: BasicBlockId,
         result: ValueId,
@@ -101,7 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         let expected = {
             let progress = self.terminal_result_progress.borrow();
-            let Some(Progress::Reserved { reads: reserved }) = progress.get(site) else {
+            let Some(Progress::Reserved { reads: reserved }) = progress.get(&(owner, site.clone())) else {
                 return Err(fault("add-without-reservation"));
             };
             let reads = self.field_reads.borrow();
@@ -120,14 +123,14 @@ impl OrdinaryNewClaimLedgerV1 {
             [values[0], values[1]]
         };
         let mut progress = self.terminal_result_progress.borrow_mut();
-        if !matches!(progress.get(site), Some(Progress::Reserved { .. })) {
+        if !matches!(progress.get(&(owner, site.clone())), Some(Progress::Reserved { .. })) {
             return Err(fault("add-without-reservation"));
         }
         if [lhs, rhs] != expected {
             return Err(fault("add-operand-order"));
         }
         progress.insert(
-            site.clone(),
+            (owner, site.clone()),
             Progress::AddEmitted {
                 result,
                 block,
@@ -144,6 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     pub(crate) fn complete_terminal_i64_add_return(
         &self,
+        owner: FunctionOwnerIdV1,
         site: &SourceStmtSiteV1,
         result: ValueId,
     ) -> Result<(), String> {
@@ -152,7 +156,7 @@ impl OrdinaryNewClaimLedgerV1 {
             result: expected,
             block,
             instruction,
-        }) = progress.remove(site)
+        }) = progress.remove(&(owner, site.clone()))
         else {
             return Err(fault("complete-without-add"));
         };
@@ -160,7 +164,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(fault("return-result-mismatch"));
         }
         progress.insert(
-            site.clone(),
+            (owner, site.clone()),
             Progress::Completed {
                 result,
                 block,
@@ -180,7 +184,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     && !self
                         .terminal_result_progress
                         .borrow()
-                        .contains_key(row.return_site()))
+                        .contains_key(&(row.owner(), row.return_site().clone())))
         })
     }
 
@@ -190,7 +194,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.terminal_relation
             .values()
             .filter_map(|relation| match relation {
-                TerminalRelationV1::I64Add(row) => Some(row.return_site().clone()),
+                TerminalRelationV1::I64Add(row) => Some((row.owner(), row.return_site().clone())),
                 _ => None,
             })
             .all(|site| {
@@ -219,7 +223,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 result,
                 block,
                 instruction,
-            }) = progress.get(relation.return_site())
+            }) = progress.get(&(owner, relation.return_site().clone()))
             else {
                 return Err(fault("unconsumed"));
             };
