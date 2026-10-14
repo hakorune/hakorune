@@ -25,10 +25,6 @@ pub(crate) enum DeclaredInstanceCallSemanticEffectV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum DeclaredInstanceCallEffectIssueV1 {
-    RelationSyntaxCoverage {
-        relation_rows: usize,
-        syntax_rows: usize,
-    },
     TargetSyntaxMissing,
     TargetSyntaxDuplicate,
     TargetSyntaxOutsideDeclaredInstance,
@@ -102,13 +98,9 @@ impl DeclaredInstanceCallEffectIssuerV1 {
         let DeclaredInstanceCallSourceDispositionV1::Published(relation) = relation else {
             return Ok(DeclaredInstanceCallEffectSourceDispositionV1::NoRootDeclaredInstanceCall);
         };
-        if relation.len() > syntax_rows.len() {
-            return Err(DeclaredInstanceCallEffectIssueV1::RelationSyntaxCoverage {
-                relation_rows: relation.len(),
-                syntax_rows: syntax_rows.len(),
-            });
-        }
-
+        // Relation rows are call uses; syntax rows are declarations. Several
+        // original calls may share one target. Each use still requires the
+        // exact unique original target syntax below.
         let mut rows = Vec::with_capacity(relation.len());
         for relation_row in relation.rows() {
             let mut matches = syntax_rows

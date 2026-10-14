@@ -1505,3 +1505,11 @@ root scanner then observes the tail return. Call coverage is recorded for
 each exit separately. Any missing product, mismatched owner/site or I64
 prestate, unsupported body, or unobserved call leaves the Loop uncovered.
 Home never issues a second Recipe or physical permission.
+
+
+Declared-instance effect rows correspond to original call uses, while callable
+syntax rows correspond to declarations. Repeated calls may share one canonical
+target, so the issuer does not compare those two counts. Every call still
+requires exactly one matching original target syntax, rejects missing/duplicate
+or non-instance syntax, and retains its own caller/site identity and Query or
+Opaque effect. No guessed target or effect is supplied for a missing definition.
