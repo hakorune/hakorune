@@ -1823,3 +1823,11 @@ ID reservation, Fault cleanup, received-Home commit and final binding inventory
 remain with their existing owners. Expression-owned Append candidates must
 provide their own original source/acquisition/transfer/End correspondence rather
 than inventing a local destination to reuse a local-call wrapper.
+
+The ordinary-New raw port contract stays in `raw_ordinary_new_claim.rs`;
+`raw_ordinary_new_claim/invocation.rs` owns its invocation-backed implementation.
+Compatibility defaults and source-scope validation keep their existing owners.
+This is the same capability and physical emitter, with no new construction
+selection or fallback. The split makes room for the selected owned-Array entry
+connection without exceeding the source-file limit; that connection remains
+part of Required Object Forward S0 and is not enabled by this move.
