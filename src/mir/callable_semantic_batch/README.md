@@ -23,6 +23,13 @@ including ordered Map EntryValue relations. The batch issuer has already
 checked its owner/body root; lending it does not issue Map ownership or cleanup
 semantics. Do not pair a separate shape loan by an owner number or reconstruct
 the shape downstream. Low-level input constructors may still omit a shape.
+The same row retains resolver-issued non-root body shapes beside its existing
+root Arc. `with_owner_lowering_input` borrows a specified owner from that SAME
+forest/projection and validates its retained owner/body root. Nested inputs
+receive no enclosing callable header/index or selected execution permission.
+Constructor inputs use the same compiler-owned owner projection with their
+already-retained complete shape map. No source re-resolution is involved.
+
 
 Parameter syntax is an exact partial projection onto private batch slots. The
 loan preserves optional declared-type spelling as borrowed source syntax; it

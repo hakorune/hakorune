@@ -357,6 +357,18 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
         self.birth_effect
     }
 
+    /// Borrow another original owner using the SAME constructor forest and
+    /// retained shape. The ordinary root input still verifies Birth completion.
+    pub(crate) fn lowering_input_for_owner<'a>(
+        &'a self, source: &'a ASTNode, owner: FunctionOwnerIdV1,
+    ) -> Result<ResolvedFunctionLoweringInputV1<'a>, String> {
+        let root = self.lowering_input(source)?;
+        let shape = self.body_shapes.get(&owner).ok_or_else(||
+            "[freeze:contract][mir/instance-constructor-semantic/owner-shape]".to_owned())?;
+        root.for_owner(owner, shape).map_err(|error|
+            format!("[freeze:contract][mir/instance-constructor-semantic/owner-input] {error:?}"))
+    }
+
     pub(crate) fn lowering_input<'a>(
         &'a self,
         source: &'a ASTNode,

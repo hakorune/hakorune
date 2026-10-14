@@ -554,6 +554,10 @@ lambda. Forests and body-shape products move through install; missing/changed
 syntax, deferred resolution, root/profile/cardinality drift or residual owners
 reject before Builder effects. Retention alone does not consume Brand relations
 physically or retire raw `is_brand_declared` probes.
+`lowering_input_for_owner` lends a constructor's retained nested shape through
+compiler's SAME owner/source projection after the ordinary root checks. It
+rejects foreign owner/shape and lends no enclosing callable header/index.
+
 
 `instance_constructor_non_escape` checks every resolved receiver/alias use before
 Birth issuance. Exact local initializer/plain rebind propagates conservative

@@ -32,6 +32,8 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) function_origin: FunctionOriginV1,
     pub(super) forest: VerifiedSemanticOwnerForestV1,
     pub(super) body_shape: Arc<VerifiedResolvedBodyShapeInventoryV1>,
+    // Original non-root shapes; the root's existing Arc remains its sole owner.
+    pub(super) nested_body_shapes: std::collections::BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
     pub(super) block_expr_expectation: VerifiedResolvedBlockExpressionExpectationV1,
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
@@ -176,6 +178,27 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         callback: impl for<'source> FnOnce(ResolvedFunctionLoweringInputV1<'source>) -> R,
     ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
         self.with_lowering_input_and_method_source(batch_slot, |input, _| callback(input))
+    }
+
+    /// Borrow any original function owner in this declaration's same forest.
+    /// A nested source loan is not a selected callable or execution admission.
+    pub(crate) fn with_owner_lowering_input<R>(
+        &self,
+        batch_slot: u32,
+        owner: FunctionOwnerIdV1,
+        callback: impl for<'source> FnOnce(ResolvedFunctionLoweringInputV1<'source>) -> R,
+    ) -> Result<R, ResolvedCallableSemanticBatchLoanErrorV1> {
+        self.with_lowering_input(batch_slot, |root| {
+            if owner == root.owner() { return Ok(callback(root)); }
+            let row = self.rows.get(batch_slot as usize)
+                .filter(|row| row.batch_slot == batch_slot)
+                .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
+            let shape = row.nested_body_shapes.get(&owner)
+                .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch)?;
+            let input = root.for_owner(owner, shape).map_err(|error|
+                ResolvedCallableSemanticBatchLoanErrorV1::LoweringInput { _error: error })?;
+            Ok(callback(input))
+        })?
     }
 
     pub(crate) fn with_lowering_input_and_source_identity<R>(

@@ -341,6 +341,17 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                 .map_err(|error| {
                     ResolvedCallableSemanticBatchIssueV1::Projection { _error: error }
                 })?;
+                // Keep every resolver-issued nested shape beside its original
+                // forest. Do not drop lambda/source obligations at root sealing.
+                let mut nested_body_shapes = std::collections::BTreeMap::new();
+                for (nested, product) in forest.semantic_owners().filter(|(nested, _)| nested != owner) {
+                    let shape = body_shapes.remove(&nested)
+                        .ok_or(ResolvedCallableSemanticBatchIssueV1::BodyShapeMissing)?;
+                    if shape.owner() != nested || shape.body_root() != &product.root_profile().body_root() {
+                        return Err(ResolvedCallableSemanticBatchIssueV1::BodyShapeOwnerMismatch);
+                    }
+                    nested_body_shapes.insert(nested, shape);
+                }
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {
                     batch_slot,
                     identity,
@@ -350,6 +361,7 @@ fn issue_resolved_callable_semantic_batch_with_policy_and_main_v1(
                     function_origin: function.function_origin(),
                     forest,
                     body_shape: Arc::new(body_shape),
+                    nested_body_shapes,
                     block_expr_expectation,
                     projection,
                     method_source_observation,

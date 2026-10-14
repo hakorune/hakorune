@@ -131,6 +131,29 @@ impl<'a> ResolvedFunctionLoweringInputV1<'a> {
         Ok(input)
     }
 
+    /// Project a retained semantic owner without re-resolving syntax or lending
+    /// the enclosing callable's header/index to a nested function.
+    pub(in crate::mir) fn for_owner(
+        self,
+        owner: FunctionOwnerIdV1,
+        shape: &'a VerifiedResolvedBodyShapeInventoryV1,
+    ) -> Result<Self, CanonicalLoweringErrorV1> {
+        let function = self.forest.owner(owner).ok_or_else(||
+            CanonicalLoweringErrorV1::SourceUnitResolution { detail: "resolved_input_owner_missing".into() })?;
+        if shape.owner() != owner || shape.body_root() != &function.root_profile().body_root() {
+            return Err(CanonicalLoweringErrorV1::SourceUnitResolution {
+                detail: "resolved_input_owner_shape_mismatch".into(),
+            });
+        }
+        let source = self.source.for_owner(owner).map_err(|error|
+            CanonicalLoweringErrorV1::SourceNavigation { detail: error.to_string() })?;
+        Ok(Self {
+            owner, source, function, forest: self.forest, body_shape: Some(shape),
+            callable_index: if owner == self.owner { self.callable_index } else { None },
+            callable_header: if owner == self.owner { self.callable_header } else { None },
+        })
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }

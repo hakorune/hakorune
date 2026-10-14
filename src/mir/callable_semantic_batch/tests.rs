@@ -142,7 +142,7 @@ fn lowering_loan_preserves_exact_row_shape_and_map_entry_relations() {
     let batch = batch(
         "static box Api {\n\
          first(value) { local m = %{\"dup\" => value, \"dup\" => 2} return 30 }\n\
-         second() { return 7 } }",
+         second() { local build = fn() { return new Token() } return 7 } } box Token {}",
     );
     batch
         .with_declaration_semantics(|view| {
@@ -166,6 +166,23 @@ fn lowering_loan_preserves_exact_row_shape_and_map_entry_relations() {
                             })
                             .collect::<Vec<_>>();
                         assert_eq!(entries, if slot == 0 { vec![0, 1] } else { vec![] });
+                        assert!(batch.with_owner_lowering_input(slot as u32,
+                            view.declarations()[1 - slot].owner(), |_| ()).is_err());
+                        batch.with_owner_lowering_input(slot as u32, input.owner(), |same| {
+                            assert!(std::ptr::eq(same.body_shape().unwrap(), shape));
+                        }).unwrap();
+                        if slot == 1 {
+                            let nested = input.forest().owners().find(|(owner, _)| *owner != input.owner()).unwrap().0;
+                            batch.with_owner_lowering_input(slot as u32, nested, |child| {
+                                assert!(std::ptr::eq(child.forest(), input.forest()));
+                                assert_eq!(child.owner(), nested);
+                                assert_eq!(child.body_shape().unwrap().owner(), nested);
+                                assert!(matches!(child.source().root(), crate::ast::ASTNode::Lambda { .. }));
+                                assert_eq!(child.function().expression_source().constructions().count(), 1);
+                                assert!(child.callable_header().is_none() && child.callable_index().is_none());
+                                assert!(input.for_owner(nested, shape).is_err());
+                            }).unwrap();
+                        }
                     })
                     .expect("same-row lowering loan");
             }

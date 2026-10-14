@@ -83,6 +83,11 @@ impl<'a> FunctionSourceViewV1<'a> {
         })
     }
 
+    /// Reopen another original owner through this SAME source unit projection.
+    pub(super) fn for_owner(self, owner: FunctionOwnerIdV1) -> Result<Self, SourceNavigationErrorV1> {
+        Self::from_exact_parts(self.unit_syntax_root, owner, self.forest, self.projection)
+    }
+
     pub(crate) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }

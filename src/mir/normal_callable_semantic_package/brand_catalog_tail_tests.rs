@@ -96,6 +96,19 @@ box Holder {
     assert!(rows[0].source_id().same_as(rows[0].source_id()));
     assert_eq!(rows[0].forest().owner_count(), 2);
     assert_eq!(rows[1].key(), "pack/1");
+    package.batch().with_normal_program_source_loan(|loan| {
+        let root = rows[0].lowering_input(loan.program()).unwrap();
+        let nested = root.forest().owners().find(|(owner, _)| *owner != root.owner()).unwrap().0;
+        let input = rows[0].lowering_input_for_owner(loan.program(), nested).unwrap();
+        assert_eq!(input.owner(), nested);
+        assert_eq!(input.body_shape().unwrap().owner(), nested);
+        assert!(matches!(input.source().root(), crate::ast::ASTNode::Lambda { .. }));
+        assert!(input.callable_header().is_none() && input.callable_index().is_none());
+        assert_eq!(input.function().brand_call_relations().count(), 1);
+        assert!(std::ptr::eq(input.forest(), root.forest()));
+        assert!(rows[1].lowering_input_for_owner(loan.program(), nested).is_err());
+        assert!(root.for_owner(nested, root.body_shape().unwrap()).is_err());
+    }).unwrap();
     assert!(rows.iter().all(|row| row.published_birth_key().is_none()));
     assert_eq!(
         rows.iter()
