@@ -21,16 +21,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::source_call_target::VerifiedSourceCallTargetV1;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum ExprClassV1 {
-    I64,
-    String,
-    Bool,
-    Null,
-    /// Sealed rows exist but no source class is proven: unannotated
-    /// parameters, unproven call results, or non-value bindings.
-    Opaque,
-}
+pub(super) use super::super::expression_class::ExpressionValueClassV1 as ExprClassV1;
 
 impl ExprClassV1 {
     fn result(self) -> Option<SourceResultClassV1> {
@@ -285,65 +276,30 @@ fn classify_binary(
         .ok_or_else(|| SourceResultProductErrorV1::ChildSourceIdentity(site.clone()))?;
     let lhs = classify(state, lhs_site)?;
     let rhs = classify(state, rhs_site)?;
-    match row.operator() {
-        ResolvedBinaryOperatorV1::Add
-            if lhs == ExprClassV1::String || rhs == ExprClassV1::String =>
-        {
-            state
-                .operations
-                .push(SourceValueOperationV1::StringConcat { site: site.clone() });
-            Ok(ExprClassV1::String)
-        }
-        ResolvedBinaryOperatorV1::Add
-        | ResolvedBinaryOperatorV1::Subtract
-        | ResolvedBinaryOperatorV1::Multiply
-        | ResolvedBinaryOperatorV1::Divide
-        | ResolvedBinaryOperatorV1::Modulo
-        | ResolvedBinaryOperatorV1::BitAnd
-        | ResolvedBinaryOperatorV1::BitOr
-        | ResolvedBinaryOperatorV1::BitXor
-        | ResolvedBinaryOperatorV1::Shl
-        | ResolvedBinaryOperatorV1::Shr
-            if lhs == ExprClassV1::I64 && rhs == ExprClassV1::I64 =>
-        {
-            Ok(ExprClassV1::I64)
-        }
-        ResolvedBinaryOperatorV1::Equal => Ok(ExprClassV1::Bool),
-        ResolvedBinaryOperatorV1::NotEqual => {
-            if lhs == ExprClassV1::Null || rhs == ExprClassV1::Null {
-                let (string_operand, null_operand) = if lhs == ExprClassV1::String {
-                    (row.lhs(), row.rhs())
-                } else if rhs == ExprClassV1::String {
-                    (row.rhs(), row.lhs())
-                } else {
-                    return Err(SourceResultProductErrorV1::NullableOperandNotString(
-                        site.clone(),
-                    ));
-                };
-                state.bool_facts.push(SourceBoolFactV1 {
-                    owner: state.owner.clone(),
-                    site: site.clone(),
-                    lhs: string_operand.clone(),
-                    null_operand: null_operand.clone(),
-                });
-            }
-            Ok(ExprClassV1::Bool)
-        }
-        ResolvedBinaryOperatorV1::Less
-        | ResolvedBinaryOperatorV1::Greater
-        | ResolvedBinaryOperatorV1::LessEqual
-        | ResolvedBinaryOperatorV1::GreaterEqual
-            if lhs == ExprClassV1::I64 && rhs == ExprClassV1::I64 =>
-        {
-            Ok(ExprClassV1::Bool)
-        }
-        ResolvedBinaryOperatorV1::And | ResolvedBinaryOperatorV1::Or
-            if lhs == ExprClassV1::Bool && rhs == ExprClassV1::Bool =>
-        {
-            Ok(ExprClassV1::Bool)
-        }
-        _ => Err(SourceResultProductErrorV1::UnknownExpression(site.clone())),
+    let class = super::super::expression_class::binary_expression_class_v1(row.operator(), lhs, rhs)
+        .map_err(|issue| match issue {
+            super::super::expression_class::ExpressionClassIssueV1::NullableOperandNotString =>
+                SourceResultProductErrorV1::NullableOperandNotString(site.clone()),
+            super::super::expression_class::ExpressionClassIssueV1::Unproven =>
+                SourceResultProductErrorV1::UnknownExpression(site.clone()),
+        })?;
+    if row.operator() == ResolvedBinaryOperatorV1::Add && class == ExprClassV1::String {
+        state.operations.push(SourceValueOperationV1::StringConcat { site: site.clone() });
     }
+    if row.operator() == ResolvedBinaryOperatorV1::NotEqual
+        && (lhs == ExprClassV1::Null || rhs == ExprClassV1::Null)
+    {
+        let (string_operand, null_operand) = if lhs == ExprClassV1::String {
+            (row.lhs(), row.rhs())
+        } else {
+            (row.rhs(), row.lhs())
+        };
+        state.bool_facts.push(SourceBoolFactV1 {
+            owner: state.owner.clone(), site: site.clone(),
+            lhs: string_operand.clone(), null_operand: null_operand.clone(),
+        });
+    }
+    Ok(class)
 }
 
 fn classify_unary(
