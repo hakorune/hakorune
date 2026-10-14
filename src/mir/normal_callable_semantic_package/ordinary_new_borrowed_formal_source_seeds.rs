@@ -1,6 +1,8 @@
 //! Sole original actual classifier product; projections never revisit source.
 //! Source Integer evidence and selected transport share the same immutable rows.
 use super::*;
+#[path = "ordinary_new_borrowed_formal_new_seeds.rs"]
+mod new_seeds;
 
 #[derive(Debug)]
 struct OriginalCallSeedsV1 {
@@ -15,6 +17,7 @@ pub(super) struct OriginalFormalSeedProductV1 {
     source_vetoes: BTreeSet<FunctionOwnerIdV1>,
     definition_owners: BTreeSet<FunctionOwnerIdV1>,
     source_integers: BTreeSet<BindingRefV1>,
+    new_calls: new_seeds::OriginalNewSeedsV1,
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) struct OriginalBorrowedFormalSourceV1 {
@@ -74,12 +77,53 @@ pub(super) fn prepare_original_formal_seeds_v1(
         }).map_err(|_| freeze("borrowed-view/caller-loan"))?;
         rows.push(OriginalCallSeedsV1 { incoming: call.clone(), seeds: seeds.into_boxed_slice() });
     }
+    let mut new_calls = new_seeds::OriginalNewSeedsV1::default();
+    for declaration in batch.declarations() {
+        let slot = declaration.batch_slot();
+        let root_owner = declaration.owner();
+        let local_candidates = candidates.get(&slot).and_then(|rows| rows.as_ref().ok())
+            .map(Vec::as_slice).unwrap_or(&[]);
+        let receiver = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+            selected, batch, entry_home_loans.for_batch_slot(slot), slot,
+        );
+        let observed = batch.with_lowering_input(slot, |root| {
+            for (owner, _) in root.forest().semantic_owners() {
+                if batch.with_owner_lowering_input(slot, owner, |input| {
+                    new_calls.observe(input, batch, constructors, |site| {
+                        classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
+                            if owner == root_owner { local_candidates } else { &[] },
+                            if owner == root_owner { receiver } else { None },
+                            definitions, contracts, site, None)
+                    });
+                }).is_err() { new_calls.missing_owner(); }
+            }
+        });
+        if observed.is_err() { new_calls.missing_owner(); }
+    }
+    if batch.with_normal_program_source_loan(|loan| {
+        for constructor in constructors.rows() {
+            for (owner, _) in constructor.forest().semantic_owners() {
+                match constructor.lowering_input_for_owner(loan.program(), owner) {
+                    Ok(input) => new_calls.observe(input, batch, constructors, |site| {
+                        if let Some(origin) = new_seeds::stable_constructor_formal_v1(input, site, constructors) {
+                            OriginalFormalActualSeedV1::Forward { origin, declared_constraint: None }
+                        } else {
+                            classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
+                                &[], None, definitions, contracts, site, None)
+                        }
+                    }),
+                    Err(_) => new_calls.missing_owner(),
+                }
+            }
+        }
+    }).is_err() { new_calls.missing_owner(); }
     let mut product = OriginalFormalSeedProductV1 {
         rows: rows.into_boxed_slice(),
         owners: inventory.registered_owners_v1().clone(),
         source_vetoes: inventory.source_vetoed_owners_v1(),
         definition_owners: definitions.keys().copied().collect(),
         source_integers: BTreeSet::new(),
+        new_calls,
     };
     product.source_integers = product.project_v1(
         batch, constructors, contracts, inventory,
@@ -163,6 +207,9 @@ impl OriginalFormalSeedProductV1 {
                 };
                 seeds.entry(*formal).or_default().push(seed);
             }
+        }
+        if matches!(projection, FormalDomainProjectionV1::SourceInteger) {
+            self.new_calls.append_source_seeds(constructors, &mut seeds);
         }
         let (mut objects, integers) = value_domain::resolve_formal_domains_v1(&seeds, batch, constructors);
         let mut mismatches = BTreeSet::new();

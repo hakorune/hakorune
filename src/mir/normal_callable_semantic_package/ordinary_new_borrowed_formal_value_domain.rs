@@ -184,6 +184,31 @@ mod tests {
                 assert!(ingress.formal_object_view(binding).is_none());
             }
         }
+        // Birth source agreement includes every original New, even an
+        // unselected direct local, nested closure, Return or constructor body.
+        for (main, other, expected) in [
+            ("local p = new Page(8)", "", true),
+            ("local p = new Page(8) local bad = new Page(true)", "", false),
+            ("local p = new Page(8) local bad = new Page(null)", "", false),
+            ("local p = new Page(8) local make = fn() { return new Page(true) }", "", false),
+            ("local p = new Page(8)", "static box Extra { make() { return new Page(true) } }", false),
+            ("local p = new Page(8)", "box Extra { init() { local bad = new Page(true) } }", false),
+            ("", "", false),
+            ("local p = new Parent(8)", "box Parent { birth(capacity) { local p = new Page(capacity) } }", true),
+            ("local p = new Parent(8)", "box Parent { birth(capacity) { capacity = true local p = new Page(capacity) } }", false),
+            ("local p = new Parent(8)", "box Parent { birth(capacity) { local change = fn() { capacity = true return 0 } local p = new Page(capacity) } }", false),
+            ("", "box Parent { birth(capacity) { local again = new Parent(capacity) local p = new Page(capacity) } }", false),
+        ] {
+            let source = format!("box Page {{ value: i64 birth(capacity: usize) {{ me.value = capacity }} }}
+                {other} static box Main {{ main() {{ {main} return 0 }} }}");
+            let package = issue_with_brand_catalog(&source).expect("original New source package");
+            let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap()
+                .as_ref().expect("source New formal domain");
+            let ctor = package.instance_constructors.rows().iter().find(|row| row.box_name() == "Page").unwrap();
+            let capacity = ctor.formal_contracts()[0].binding();
+            assert_eq!(ingress.candidate_integer_agreement(capacity), expected, "{main}/{other}");
+            assert!(!ingress.formal_integer_agreement(capacity), "source New proof grants no selected borrowed transport");
+        }
     }
 
     #[test]

@@ -666,6 +666,19 @@ without a separate scan. These pending plans grant no NormalInteger/read/result
 permission. Numeric closure still owes genuine source-ordered Birth seeds and
 all-writer preservation through the existing formal/result grounding owner;
 field self-cycles, declaration/storage names and Scalar alone cannot seed it.
+The SAME early formal seed product now retains all original New rows and ordered
+actuals from every callable/constructor semantic owner, including nested owners,
+direct locals, Returns and providers. Each row retains the original Birth source,
+owner/formal ordinal binding or explicit no-Birth/outside/unavailable disposition.
+Missing owner inputs, duplicates, unavailable/arity mismatches, unknown actuals
+and absent incoming evidence veto source Integer agreement. Stable constructor
+formal/alias Forward needs that whole original incoming join, not its annotation;
+direct rebind, upvar read and write-only upvar rebind refuse forwarding.
+Only the SourceInteger projection extends the existing value-domain fold;
+selected borrowed transport remains unchanged. Original New field overrides are
+retained but not proved by the argument join: field invariants still owe those
+obligations and all updates, and unsupported construction/override remains refused.
+
 The declared-field value-source projection shares that SAME immutable inventory
 and canonical declaration. It retains original constructor identity/store ordinal,
 then borrows and independently rechecks the original ConstructionPlan store,
