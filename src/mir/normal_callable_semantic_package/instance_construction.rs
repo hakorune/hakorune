@@ -178,7 +178,7 @@ impl ConstructionPlanV1 {
 
 /// Called only within the exact parser declaration loan at semantic issuance.
 ///
-/// `provider_static_claims` is the caller's published `birth` key paired
+/// `provider_static_sources` is the caller's published `birth` key paired
 /// with the package's qualified static-call membership index: the sole
 /// authority for admitting `Alias.m(..)` results as provider `new`
 /// arguments. Rows outside a Birth carry `None` — they own no provider
@@ -191,9 +191,9 @@ pub(super) fn issue_construction_plan(
         &crate::parser::ConstructorSourceIdV1,
         ResolvedFunctionLoweringInputV1<'_>,
     )>,
-    provider_static_claims: Option<(
+    provider_static_sources: Option<(
         &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+        &[std::rc::Rc<super::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>],
     )>,
     // Published Birth inventory keyed by final Box ordinal: the same
     // membership `birth_for` consults, loaned by the catalog caller so
@@ -435,7 +435,7 @@ pub(super) fn issue_construction_plan(
                 }
             }
             ASTNode::New { .. } => provider::issue_provider_rhs_v1(
-                object_id, &input, row.value_site(), provider_static_claims,
+                object_id, &input, row.value_site(), provider_static_sources,
                 birth_rows, objects, definitions, &mut expressions,
             )?,
             ASTNode::FieldAccess { .. } => {

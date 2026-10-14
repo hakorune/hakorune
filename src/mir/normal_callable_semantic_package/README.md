@@ -1032,6 +1032,15 @@ empty-cleanup proof; provider fields carry the existing Handle home demand.
 Selected stores also retain receiver and parameter-RHS sites/bindings;
 consumers use the exact binding observer, not assignment AST recovery.
 
+Qualified Static provider arguments are sealed once on the original constructor
+row before whole-Birth eligibility. The existing target/result index supplies
+ExactI64 and required-input ordinals; the seal retains original constructor,
+assignment/canonical field, New/ordinal/site and the complete ordered literal
+tuple. The construction-plan consumer borrows the SAME source Rc instead of
+requalifying targets or arguments. A later unsupported Birth statement leaves
+these source facts intact, while the complete construction stays unavailable.
+This source proof grants no successful Birth, value, ABI or cleanup permission.
+
 Only empty NoBirthZero and exhaustively initialized scalar+provider Birth
 bodies have this construction eligibility — i64/usize fields behind literal or
 parameter stores, and source-proven provider fields behind bare `new` stores. An

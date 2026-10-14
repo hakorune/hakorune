@@ -56,7 +56,7 @@ fn expect_field_contract_unsupported(label: &str, provider_args: &str) {
 
 #[test]
 fn provider_static_call_argument_seals_target_and_literal_actuals() {
-    let construction = parent_construction(
+    let package = issue(
         "static box LayoutBox { class_size(unused) { return 8 } }
         box Page {
             s: i64
@@ -67,8 +67,10 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
             birth() { }
         }
         static box Main { main() { return 0 } }",
-    );
-    let plan = construction.expect("sealed provider argument stays eligible");
+    ).expect("original provider package");
+    let parent = package.instance_constructors().rows().iter()
+        .find(|row| row.box_name() == "Parent").unwrap();
+    let plan = parent.construction().as_ref().expect("sealed provider argument stays eligible");
     let rhs = plan
         .stores()
         .iter()
@@ -113,6 +115,26 @@ fn provider_static_call_argument_seals_target_and_literal_actuals() {
         actuals.as_ref(),
         &[QualifiedStaticCallArgumentKindV1::Integer(0)]
     );
+
+    package.batch().with_normal_program_source_loan(|source| {
+        let input = parent.lowering_input(source.program()).unwrap();
+        let original = input.function().expression_source().constructions()
+            .find(|row| row.class() == "Page").unwrap();
+        let lender = |ordinal, claims: &super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1| {
+            package.instance_constructors().provider_static_argument_source_v1(
+                input, original, ordinal, claims, &package.selected)
+        };
+        let loan = lender(1, &package.source_static_claims_for_test).unwrap().unwrap();
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), original.site().clone());
+        assert!(loan.matches_original(&site, original, 1));
+        assert!(!loan.matches_original(&site, original, 0));
+        assert!(loan.matches_constructor(package.instance_constructors()));
+        assert!(lender(0, &package.source_static_claims_for_test).unwrap().is_none());
+        assert!(lender(2, &package.source_static_claims_for_test).is_err());
+        let foreign = issue("static box Main { main() { return 0 } }").unwrap();
+        assert!(lender(1, &foreign.source_static_claims_for_test).is_err());
+        assert!(!loan.matches_constructor(foreign.instance_constructors()));
+    }).unwrap();
 }
 
 #[test]

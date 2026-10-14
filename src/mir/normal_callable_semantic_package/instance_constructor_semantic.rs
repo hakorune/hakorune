@@ -4,6 +4,8 @@ use crate::mir::function::CanonicalObjectDefinitionV1;
 use hakorune_mir_defs::CanonicalObjectIdV1;
 use std::collections::BTreeMap;
 mod formal_contract;
+#[path = "instance_construction_provider_source.rs"]
+pub(super) mod provider_source;
 mod object_definition;
 use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
 pub(crate) use formal_contract::{
@@ -74,6 +76,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
     construction: ConstructionEligibilityV1,
+    provider_static_arguments: Box<[std::rc::Rc<provider_source::ProviderStaticArgumentSourceV1>]>,
     formal_contracts: Box<[BirthFormalContractV1]>,
 }
 
@@ -629,6 +632,14 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                         .find(|(own, _)| own.same_source_as(&box_source))
                         .map(|(_, id)| *id)
                         .ok_or(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?;
+                let provider_static_arguments = if kind == ConstructorSourceKindV1::Birth {
+                    let caller = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
+                        &box_name, source_arity);
+                    source.with_ordinary_box_syntax(&box_source, |parent|
+                        provider_source::issue_provider_static_sources_v1(
+                            &source_id, object, parent, input, &caller, static_claims))
+                        .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
+                } else { Box::new([]) };
                 let construction = if kind == ConstructorSourceKindV1::Birth {
                     let birth_key =
                         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
@@ -641,7 +652,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                             &box_source,
                             parent,
                             Some((&source_id, input)),
-                            Some((&birth_key, static_claims)),
+                            Some((&birth_key, provider_static_arguments.as_ref())),
                             &birth_rows,
                             &object_sources,
                             &object_definitions,
@@ -652,6 +663,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 };
                 let mut row = VerifiedInstanceConstructorSemanticRowV1 {
                     construction,
+                    provider_static_arguments,
                     formal_contracts: Box::new([]),
                     // Only the exact unannotated source contract is selected.
                     // Explicit constructor contracts need their own admission;

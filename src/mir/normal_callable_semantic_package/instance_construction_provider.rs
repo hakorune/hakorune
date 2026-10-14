@@ -5,7 +5,7 @@ use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use crate::mir::resolved_semantics::{
-    ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
+    SourceExprSiteV1,
 };
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::collections::{BTreeMap, BTreeSet};
@@ -14,9 +14,9 @@ pub(super) fn issue_provider_rhs_v1(
     object_id: CanonicalObjectIdV1,
     input: &ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
-    provider_static_claims: Option<(
+    provider_static_sources: Option<(
         &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-        &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+        &[std::rc::Rc<super::super::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>],
     )>,
     birth_rows: &BTreeMap<usize, BTreeSet<u32>>,
     objects: &[(
@@ -126,63 +126,20 @@ pub(super) fn issue_provider_rhs_v1(
                     ..
                 } => super::super::OrdinaryNewTrivialArgumentKindV1::Bool(*value),
                 ASTNode::MethodCall { .. } => {
-                    // A qualified `Alias.m(..)` actual joins only
-                    // through the package claim index: the row
-                    // corroborates the resolver's own
-                    // `QualifiedUnbound` receiver shape, the
-                    // claim proves the `StaticBoxMethod` target
-                    // and its `ExactI64` result, and every inner
-                    // actual must seal to an Integer/Bool literal
-                    // with i64 evidence at the callee's
-                    // required-i64 ordinals — the same discipline
-                    // `issue_static_i64_local_call` owns.
-                    let Some((caller_key, claims)) = provider_static_claims else {
+                    // The constructor retained this source seal before whole-
+                    // body eligibility. Physical construction consumes the SAME
+                    // row as the original numeric argument fold.
+                    let Some((caller_key, sources)) = provider_static_sources else {
                         return Err(U::FieldContractUnsupported);
                     };
-                    let Some(call) = function.method_call(arg_site) else {
-                        return Err(U::FieldContractUnsupported);
-                    };
-                    if call.receiver() != ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
-                        || call.site() != arg_site
-                    {
-                        return Err(U::FieldContractUnsupported);
-                    }
-                    let Some((claim, target)) = claims.claim_target(caller_key, arg_site) else {
-                        return Err(U::FieldContractUnsupported);
-                    };
-                    if call.arguments().len() != target.arity() as usize {
-                        return Err(U::FieldContractUnsupported);
-                    }
-                    let mut sealed_arguments = Vec::with_capacity(call.arguments().len());
-                    for argument in call.arguments() {
-                        let (kind, i64_evidence) = match input
-                            .function()
-                            .expression_source()
-                            .literal(argument.site())
-                        {
-                            Some(ResolvedLiteralSourceV1::Integer(value)) => (
-                                super::super::QualifiedStaticCallArgumentKindV1::Integer(*value),
-                                true,
-                            ),
-                            Some(ResolvedLiteralSourceV1::Bool(value)) => (
-                                super::super::QualifiedStaticCallArgumentKindV1::Bool(*value),
-                                false,
-                            ),
-                            _ => return Err(U::FieldContractUnsupported),
-                        };
-                        if claim.required_i64_arguments().contains(&argument.ordinal())
-                            && !i64_evidence
-                        {
-                            return Err(U::FieldContractUnsupported);
-                        }
-                        sealed_arguments.push(kind);
-                        expressions.insert(argument.site().clone());
-                    }
+                    let mut kinds = sources.iter().filter_map(|source|
+                        source.construction_argument(caller_key, *input, construction, arg_ordinal));
+                    let kind = kinds.next().ok_or(U::FieldContractUnsupported)?;
+                    if kinds.next().is_some() { return Err(U::SourceRelationMissing); }
+                    let call = function.method_call(arg_site).ok_or(U::SourceRelationMissing)?;
                     expressions.insert(call.receiver_site().clone());
-                    super::super::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
-                        target: target.clone(),
-                        arguments: sealed_arguments.into_boxed_slice(),
-                    }
+                    expressions.extend(call.arguments().iter().map(|argument| argument.site().clone()));
+                    kind.clone()
                 }
                 _ => return Err(U::FieldContractUnsupported),
             };
@@ -206,7 +163,7 @@ pub(super) fn issue_provider_rhs_v1(
         object,
         arguments,
         owned_fields: owned_fields.into_boxed_slice(),
-        caller: provider_static_claims
+        caller: provider_static_sources
             .map(|(caller, _)| caller.clone())
             .ok_or(U::SourceRelationMissing)?,
     })
