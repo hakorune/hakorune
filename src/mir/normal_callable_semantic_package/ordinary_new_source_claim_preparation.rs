@@ -91,7 +91,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         })
         .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)??;
     let (field_write_claims, field_residences) =
-        field_write_draft.finish(batch.ordinary_box_coverage());
+        field_write_draft.finish(batch.ordinary_box_coverage(), instance_constructors);
     // A provider `new` mints no `local`-bound claim, so its child's
     // owned-field inventory would never reach the ledger through a claim.
     // Seal it here against the same residences; unproven children stay

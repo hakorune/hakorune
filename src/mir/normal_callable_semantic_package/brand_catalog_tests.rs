@@ -133,6 +133,26 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let plan = claim.construction().as_ref().unwrap();
     assert_eq!(plan.stores().len(), 1);
     assert!(plan.reclaims_unpublished_outer_storage());
+    let source_field = package.ordinary_new_claim_ledger.field_value_source("Page", "value")
+        .expect("original declared field").as_ref().expect("complete original writer/store correspondence");
+    assert_eq!(source_field.field(), plan.stores()[0].field());
+    assert_eq!(source_field.declared_type_name(), Some("i64"));
+    let [original_write] = package.ordinary_new_claim_ledger.field_write_sources_for_test() else {
+        panic!("one original Page store");
+    };
+    assert!(std::ptr::eq(source_field.writers().next().unwrap(), original_write));
+    assert_eq!(source_field.writers().count(), 1);
+    let actual_store = source_field.birth_store(&package.instance_constructors, 0)
+        .unwrap().expect("original Birth store");
+    let constructor = package.instance_constructors.rows().iter()
+        .find(|row| Some(row.source_id()) == original_write.birth_source()).unwrap();
+    assert!(std::ptr::eq(actual_store, &constructor.construction().as_ref().unwrap().stores()[0]));
+    assert!(matches!(actual_store.rhs(), super::instance_construction::ConstructionStoreRhsV1::Parameter { .. }),
+        "parameter initialization stays an input requirement, not an Integer literal proof");
+    let foreign = issue_with_brand_catalog(source).unwrap();
+    assert!(source_field.birth_store(&foreign.instance_constructors, 0).is_err(),
+        "equal constructor spelling with foreign parser brand cannot lend a base");
+
     let source = source.replace("new Page(7)", "new Page(7) { value: 8 }");
     let package = issue_with_brand_catalog(&source).unwrap();
     let claim_rows = package.ordinary_new_claim_ledger.pending_claims_for_test();

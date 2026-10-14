@@ -662,6 +662,16 @@ without a separate scan. These pending plans grant no NormalInteger/read/result
 permission. Numeric closure still owes genuine source-ordered Birth seeds and
 all-writer preservation through the existing formal/result grounding owner;
 field self-cycles, declaration/storage names and Scalar alone cannot seed it.
+The declared-field value-source projection shares that SAME immutable inventory
+and canonical declaration. It retains original constructor identity/store ordinal,
+then borrows and independently rechecks the original ConstructionPlan store,
+including exact assignment and receiver binding/site. Before issuing this source
+correspondence, every resolver FieldWrite across the observed forests' semantic
+owners must have exactly one matching retained writer (owner/target/receiver).
+Missing nested writes, duplicates and coordinate drift refuse the value view
+without changing the existing object/residence projection or its opaque veto.
+This correspondence is not a numeric invariant or executable field-read loan.
+
 
 [Result-class claims](ordinary_new_result_class_claim.rs) transport class
 provenance across call-result locals: a selected callable claims a class only

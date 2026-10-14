@@ -404,6 +404,14 @@ impl OrdinaryNewClaimLedgerV1 {
         self.field_write_claims.writes()
     }
 
+    /// Original field/writer/constructor correspondence, without a value-class
+    /// or execution grant. Numeric preservation must close every writer later.
+    pub(crate) fn field_value_source(
+        &self, class: &str, field: &str,
+    ) -> Option<&Result<Rc<field_write_claim::DeclaredFieldValueSourceV1>, field_write_claim::FieldValueSourceIssueV1>> {
+        self.field_write_claims.value_source(class, field)
+    }
+
     /// Class provenance for `me.f` reads: the agreed `new` class of field
     /// `field` on `owner_box`, when every package write to that field is an
     /// attributed `me.` write of one ordinary box.

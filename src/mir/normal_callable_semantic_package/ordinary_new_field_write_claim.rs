@@ -29,33 +29,52 @@ use crate::mir::resolved_value_profile::expression_plan::{
 
 use crate::mir::resolved_semantics::{
     BindingKindV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
-    ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1,
+    ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1, SourceExprSiteV1,
 };
 use crate::parser::{ConstructorSourceIdV1, ParserOrdinaryBoxSourceCoverageV1};
+
+#[path = "ordinary_new_field_value_source.rs"]
+mod value_source;
+pub(crate) use value_source::{DeclaredFieldValueSourceV1, FieldValueSourceIssueV1};
+
+type FieldValueSourcesV1 = BTreeMap<
+    (Box<str>, Box<str>), Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>,
+>;
 
 /// The same sealed writer inventory owns the object-class projection and
 /// pending original RHS needs. Retaining a plan grants no numeric value class.
 #[derive(Debug, Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimsV1 {
     object_classes: BTreeMap<(Box<str>, Box<str>), Box<str>>,
+    writers: Rc<OriginalFieldWriterInventoryV1>,
+    value_sources: FieldValueSourcesV1,
+}
+
+/// One immutable original inventory shared by all of its derived field loans.
+#[derive(Debug, Default)]
+struct OriginalFieldWriterInventoryV1 {
     writes: Box<[ObservedFieldWriteV1]>,
     unattributed_fields: BTreeSet<Box<str>>,
     opaque: bool,
+    value_incomplete: bool,
 }
 impl OrdinaryNewFieldWriteClaimsV1 {
     pub(crate) fn get(&self, key: &(Box<str>, Box<str>)) -> Option<&Box<str>> {
         self.object_classes.get(key)
     }
     pub(crate) fn writes(&self) -> &[ObservedFieldWriteV1] {
-        &self.writes
+        &self.writers.writes
+    }
+    pub(crate) fn value_source(&self, class: &str, field: &str) -> Option<&Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>> {
+        self.value_sources.get(&(class.into(), field.into()))
     }
     /// Missing function inventory and unknown receivers remain explicit vetoes
     /// for every later typed consumer, including when no object claim exists.
     pub(crate) fn has_hidden_writers(&self) -> bool {
-        self.opaque
+        self.writers.opaque
     }
     pub(crate) fn has_unattributed_field(&self, field: &str) -> bool {
-        self.unattributed_fields.contains(field)
+        self.writers.unattributed_fields.contains(field)
     }
 }
 
@@ -64,7 +83,8 @@ pub(crate) struct ObservedFieldWriteV1 {
     owner: FunctionOwnerIdV1,
     owner_box: Option<Box<str>>,
     field: Box<str>,
-    attributed: bool,
+    receiver: Option<crate::mir::resolved_semantics::BindingRefV1>,
+    receiver_site: SourceExprSiteV1,
     birth_source: Option<ConstructorSourceIdV1>,
     assignment: ResolvedAssignmentSourceV1,
     source: Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1>,
@@ -81,8 +101,10 @@ impl ObservedFieldWriteV1 {
         &self.field
     }
     pub(crate) fn is_attributed(&self) -> bool {
-        self.attributed
+        self.receiver.is_some()
     }
+    pub(crate) fn receiver(&self) -> Option<crate::mir::resolved_semantics::BindingRefV1> { self.receiver }
+    pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 { &self.receiver_site }
     pub(crate) fn in_birth(&self) -> bool {
         self.birth_source.is_some()
     }
@@ -126,6 +148,7 @@ enum ObservedFieldStoreV1 {
 pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
     writes: Vec<ObservedFieldWriteV1>,
     opaque: bool,
+    required_writers: BTreeSet<(FunctionOwnerIdV1, SourceExprSiteV1, SourceExprSiteV1)>,
 }
 
 impl OrdinaryNewFieldWriteClaimDraftV1 {
@@ -145,6 +168,16 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
         owner_box: Option<&str>,
         birth_source: Option<&ConstructorSourceIdV1>,
     ) {
+        // Resolver targets are the inverse completeness authority. Include all
+        // semantic owners: an unobserved nested owner cannot disappear merely
+        // because the enclosing root has a complete body shape.
+        for (owner, product) in input.forest().semantic_owners() {
+            for (target, assignment) in product.assignment_targets() {
+                if let ResolvedAssignmentTargetV1::FieldWrite { receiver } = assignment {
+                    self.required_writers.insert((owner, target.clone(), receiver.clone()));
+                }
+            }
+        }
         let function = input.function();
         let Some(shape) = input.body_shape() else {
             // Writes we cannot observe could hold any value; no field
@@ -164,15 +197,13 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
             ) {
                 continue;
             }
-            let attributed = matches!(
-                shape.expression_shape(object),
+            let receiver = match shape.expression_shape(object) {
                 Some(BodyExpressionShapeV1::Me {
-                    receiver: BodyMeReceiverV1::Lexical(receiver),
-                    ..
-                }) if function
-                    .binding(*receiver)
-                    .is_some_and(|record| record.kind() == BindingKindV1::Receiver)
-            );
+                    receiver: BodyMeReceiverV1::Lexical(receiver), ..
+                }) if function.binding(*receiver)
+                    .is_some_and(|record| record.kind() == BindingKindV1::Receiver) => Some(*receiver),
+                _ => None,
+            };
             let store = match function
                 .expression_source()
                 .construction(assignment.value_site())
@@ -212,7 +243,8 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 owner: input.owner(),
                 owner_box: owner_box.map(Into::into),
                 field: field.clone(),
-                attributed,
+                receiver,
+                receiver_site: object.clone(),
                 birth_source: birth_source.cloned(),
                 assignment: assignment.clone(),
                 source,
@@ -232,11 +264,19 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     pub(crate) fn finish(
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &super::VerifiedInstanceConstructorSemanticBatchV1,
     ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedFieldResidencesV1) {
+        let mut observed = BTreeMap::new();
+        for write in &self.writes {
+            *observed.entry((write.owner(), write.assignment().target_site().clone(),
+                write.receiver_site().clone())).or_insert(0usize) += 1;
+        }
+        let value_incomplete = observed.len() != self.required_writers.len()
+            || self.required_writers.iter().any(|key| observed.get(key) != Some(&1));
         let unattributed_fields: BTreeSet<Box<str>> = self
             .writes
             .iter()
-            .filter(|write| !write.attributed || write.owner_box.is_none())
+            .filter(|write| !write.is_attributed() || write.owner_box.is_none())
             .map(|write| write.field.clone())
             .collect();
         // Group references to the original observations, not a second scan of
@@ -296,14 +336,16 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 object_classes.insert((owner_box, field), class.clone());
             }
         }
-        (
-            OrdinaryNewFieldWriteClaimsV1 {
-                object_classes,
-                writes: self.writes.into_boxed_slice(),
-                unattributed_fields,
-                opaque: self.opaque,
-            },
-            residences,
-        )
+        let mut claims = OrdinaryNewFieldWriteClaimsV1 {
+            object_classes,
+            writers: Rc::new(OriginalFieldWriterInventoryV1 {
+                writes: self.writes.into_boxed_slice(), unattributed_fields, opaque: self.opaque, value_incomplete,
+            }),
+            value_sources: BTreeMap::new(),
+        };
+        claims.value_sources = value_source::issue_value_sources_v1(
+            &claims.writers, ordinary_box_coverage, constructors,
+        );
+        (claims, residences)
     }
 }

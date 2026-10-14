@@ -175,7 +175,7 @@ mod terminal_home;
 use candidate::OrdinaryNewCandidate;
 pub(in crate::mir::normal_callable_semantic_package) use terminal_home::{
     entry_receiver_box_proof, nullable_result_integer_field, receiver_array_field,
-    receiver_scalar_field,
+    receiver_scalar_field, source_declared_field,
 };
 
 pub(crate) use local_commit::{
