@@ -110,7 +110,7 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                     .unwrap_err()
                     .contains("disposition-not-owned-and-taken"));
                 assert!(ledger
-                    .object_packet_teardown_v1(ready)
+                    .borrowed_object_call_packet_v1(ready)
                     .unwrap_err()
                     .contains("disposition-not-owned-and-taken"));
                 drop(slots);
@@ -124,9 +124,15 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                 let (checked_actuals, checked_arguments) =
                     row.checked_object_packet_inputs_v1(ledger).unwrap();
                 let emitted_arguments = ledger.object_packet_arguments_v1(&row).unwrap();
+                let packet = ledger.borrowed_object_call_packet_v1(&row).unwrap();
+                assert_eq!(packet.arguments().as_ptr(), original.ordered_arguments.as_ptr());
+                assert_eq!(Some(packet.result()), row.result());
+                assert!(std::ptr::eq(packet.teardown(), row.object_packet.as_ref().unwrap()
+                    .teardown.descriptor().unwrap().0));
                 assert!(ledger
-                    .object_packet_teardown_v1(&row)
+                    .borrowed_object_call_packet_v1(&row)
                     .unwrap()
+                    .teardown()
                     .owned_children()
                     .is_none());
                 assert_eq!(actuals.as_ptr(), original.opaque_actuals.as_ptr());
@@ -225,7 +231,7 @@ fn object_packet_taken_lends_same_typed_opaque_zero_direct_received_storage() {
                     .contains("already-taken"));
                 if received {
                     let mut row = row;
-                    let descriptor = ledger.object_packet_teardown_v1(&row).unwrap().clone();
+                    let descriptor = ledger.borrowed_object_call_packet_v1(&row).unwrap().teardown().clone();
                     row.object_packet.as_mut().unwrap().teardown =
                         ObjectReturnTeardownAvailabilityV1::Verified {
                             descriptor: descriptor.clone(),
@@ -285,7 +291,7 @@ fn object_packet_wrong_result_and_foreign_completion_refuse() {
     let ledger = &package.ordinary_new_claim_ledger;
     let before = format!("{:?}", ledger.local_commits.borrow());
     assert!(ledger
-        .object_packet_teardown_v1(&row)
+        .borrowed_object_call_packet_v1(&row)
         .unwrap_err()
         .contains("teardown-unavailable"));
     assert!(ledger
@@ -506,30 +512,33 @@ fn object_packet_opaque_original_raw_duplicate_refuses_unchanged_final_incoming(
 
 #[test]
 fn object_packet_unqualified_nested_producer_lends_completed_zero_inputs() {
-    let package = issue_with_brand_catalog("box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { return me.make(7) } ignored() { local item = me.relay() return 0 } } static box Main { main() { return 0 } }").unwrap();
-    let ledger = &package.ordinary_new_claim_ledger;
-    let site = ledger
-        .lexical_instance_calls
-        .borrow()
-        .iter()
-        .find_map(|(site, slot)| match slot {
-            LexicalInstanceCallDispositionSlotV1::Ready(row)
-                if row.source_target().object_producer_dependencies().is_some() =>
-            {
-                Some(site.clone())
-            }
-            _ => None,
-        })
-        .unwrap();
-    let row = ledger
-        .take_lexical_instance_call(site.owner(), site.site())
-        .unwrap()
-        .unwrap();
-    assert!(row.source_target().object_return_sources().is_none());
-    assert_eq!(row.result(), Some(InvokeCallResultKind::NullableHandle));
-    assert!(ledger
-        .borrowed_call_actuals_v1(&row)
-        .unwrap()
-        .unwrap()
-        .is_empty());
+    for expression in ["local item = me.relay()", "me.relay()"] {
+        let source = "box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { return me.make(7) } ignored() { CANDIDATE return 0 } } static box Main { main() { return 0 } }".replace("CANDIDATE", expression);
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let site = ledger.lexical_instance_calls.borrow().iter()
+            .find_map(|(site, slot)| match slot {
+                LexicalInstanceCallDispositionSlotV1::Ready(row)
+                    if row.source_target().object_producer_dependencies().is_some() =>
+                { Some(site.clone()) }
+                _ => None,
+            });
+        if expression == "me.relay()" {
+            // A generic expression statement has no completed packet route.
+            // Lending the joined view must not silently select that family.
+            // A future Append consumer needs its own original source relation.
+            assert!(site.is_none());
+            continue;
+        }
+        let site = site.expect("original local zero-input producer packet");
+        let row = ledger.take_lexical_instance_call(site.owner(), site.site())
+            .unwrap().unwrap();
+        assert!(row.source_target().object_return_sources().is_none());
+        assert_eq!(row.result(), Some(InvokeCallResultKind::NullableHandle));
+        assert!(ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap().is_empty());
+        let packet = ledger.borrowed_object_call_packet_v1(&row).unwrap();
+        assert!(packet.arguments().is_empty());
+        assert_eq!(packet.result(), InvokeCallResultKind::NullableHandle);
+        assert!(packet.teardown().owned_children().is_none());
+    }
 }

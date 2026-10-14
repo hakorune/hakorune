@@ -256,7 +256,8 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("object-packet/declaration-drift"));
         }
-        let descriptor = self.object_packet_teardown_v1(row)?;
+        let packet = self.borrowed_object_call_packet_v1(row)?;
+        let descriptor = packet.teardown();
         let object = descriptor.object();
         let end_children = descriptor
             .owned_children()

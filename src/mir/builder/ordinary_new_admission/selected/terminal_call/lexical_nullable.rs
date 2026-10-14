@@ -88,10 +88,17 @@ fn emit_object(
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
+    let object_packet = if row.source_target().has_object_source_requirement() {
+        Some(ledger.borrowed_object_call_packet_v1(&row)?)
+    } else {
+        None
+    };
     let source_arguments = if borrowed_receiver {
-        ledger.receiver_object_packet_arguments_v1(&row)?
-    } else if row.source_target().has_object_source_requirement() {
-        let arguments = ledger.object_packet_arguments_v1(&row)?;
+        object_packet.as_ref()
+            .ok_or_else(|| freeze("receiver-object/source-requirement"))?
+            .arguments()
+    } else if let Some(packet) = &object_packet {
+        let arguments = packet.arguments();
         if arguments != relation.arguments() {
             return Err(freeze("lexical-object/flow-arguments-drift"));
         }
@@ -150,7 +157,7 @@ fn emit_object(
     // The `CallReceived` commit for this exact site mints the canonical
     // object the live arm carries and selects the checked release — the
     // `Void` arm keeps no residence.
-    if row.source_target().has_object_source_requirement() {
+    if object_packet.is_some() {
         ledger.begin_object_packet_call_emission(&row)?;
     } else {
         match result_kind {

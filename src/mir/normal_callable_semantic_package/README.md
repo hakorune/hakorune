@@ -2563,3 +2563,15 @@ Both projections use the existing value-domain fold, original forwarding rows,
 and all original New/Birth actuals, with the same inventory identity and vetoes.
 This prevents forwarding from erasing the original ABI distinction; it grants
 no field invariant, executable result, Normal range, or physical signature.
+
+
+The existing Object packet owner lends `BorrowedObjectCallPacketV1` from one
+Taken row: the original ordered argument storage and the same complete End
+descriptor stay borrowed, with separate ledger and row lifetimes. The local
+Object/Nullable emitter and received-Home installation use this same view;
+`object_packet_teardown_v1` has no remaining caller and is removed. Receiver-only
+argument lending remains for its separate physical/final consumers. This view
+issues neither an expression acquisition nor an Array consumer classification.
+Original Append membership must first select a complete Object packet; a source
+class loan alone does not make a Ready row. Generic expression statements retain
+their existing unselected/pending boundary.

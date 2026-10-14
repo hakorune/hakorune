@@ -199,6 +199,27 @@ impl LexicalInstanceCallDispositionRowV1 {
     }
 }
 
+/// Borrow the exact existing affine packet as a whole. This view owns no
+/// destination, acquisition, receipt or new source inventory. Local and
+/// expression consumers keep their different transfer/cleanup obligations.
+#[derive(Debug)]
+pub(crate) struct BorrowedObjectCallPacketV1<'ledger, 'packet> {
+    arguments: &'ledger [crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1],
+    row: &'packet LexicalInstanceCallDispositionRowV1,
+    teardown: &'packet ObjectReturnTeardownDescriptorV1,
+}
+impl BorrowedObjectCallPacketV1<'_, '_> {
+    pub(crate) fn arguments(&self) -> &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1] {
+        self.arguments
+    }
+    pub(crate) fn result(&self) -> InvokeCallResultKind {
+        self.row.result().expect("checked original Object packet result")
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn teardown(&self) -> &ObjectReturnTeardownDescriptorV1 {
+        self.teardown
+    }
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// One Taken Object packet lends its original executable ordered arguments.
     /// Typed and zero-argument calls owe the same completed incoming proof.
@@ -231,27 +252,21 @@ impl OrdinaryNewClaimLedgerV1 {
             .map(|inputs| inputs.1)
     }
 
-    /// Borrow the same Taken packet's Verified descriptor after all input and
-    /// original Completion/terminal identity checks. Partial descriptors refuse.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn object_packet_teardown_v1<
-        'a,
-    >(
-        &self,
-        row: &'a LexicalInstanceCallDispositionRowV1,
-    ) -> Result<&'a ObjectReturnTeardownDescriptorV1, String> {
-        self.object_packet_arguments_v1(row)?;
-        let seal = row
-            .object_packet
-            .as_ref()
+    /// Inputs and complete End come from one Taken packet borrow. A nested
+    /// expression uses this same boundary without manufacturing a local Home.
+    pub(crate) fn borrowed_object_call_packet_v1<'ledger, 'packet>(
+        &'ledger self,
+        row: &'packet LexicalInstanceCallDispositionRowV1,
+    ) -> Result<BorrowedObjectCallPacketV1<'ledger, 'packet>, String> {
+        let arguments = self.object_packet_arguments_v1(row)?;
+        let seal = row.object_packet.as_ref()
             .ok_or_else(|| freeze("object-packet/seal-missing"))?;
-        let (descriptor, nullable) = seal
-            .teardown
-            .descriptor()
+        let (teardown, nullable) = seal.teardown.descriptor()
             .ok_or_else(|| freeze("object-packet/teardown-unavailable"))?;
         if nullable != (row.result() == Some(InvokeCallResultKind::NullableHandle)) {
             return Err(freeze("object-packet/teardown-kind-drift"));
         }
-        Ok(descriptor)
+        Ok(BorrowedObjectCallPacketV1 { arguments, row, teardown })
     }
 
     /// Entry-receiver flow rows intentionally carry no argument authority.
