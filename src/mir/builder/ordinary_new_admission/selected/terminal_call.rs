@@ -63,6 +63,38 @@ fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirT
     }
 }
 
+/// Sole physical Call/Normal pair for source-qualified lexical results.
+/// Callers retain source/argument authority, reserve IDs in their original
+/// order, and own the Fault cleanup and final inventory. This helper neither
+/// invents a local destination nor transfers a Home.
+fn emit_call_normal(
+    builder: &mut MirBuilder,
+    call: MirCall,
+    result_kind: InvokeCallResultKind,
+    frame: ValueId,
+    normal_landing: BasicBlockId,
+    fault_landing: BasicBlockId,
+    result: ValueId,
+    carrier: MirType,
+) -> Result<
+    ((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction)),
+    String,
+> {
+    let origin = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
+    let invoke = MirInstruction::Invoke {
+        operation: InvokeOperation::Call { call, result: result_kind },
+        fault_frame: frame,
+        normal_landing,
+        fault_landing,
+    };
+    builder.emit_instruction(invoke.clone())?;
+    builder.start_new_block(normal_landing)?;
+    let projection = MirInstruction::InvokeNormalResult { invoke_block: origin, dst: result };
+    builder.emit_instruction(projection.clone())?;
+    builder.function_state.type_ctx.value_types.insert(result, carrier);
+    Ok(((origin, invoke), (normal_landing, projection)))
+}
+
 pub(in crate::mir::builder) fn emit(
     builder: &mut MirBuilder,
     state: &mut CallableSemanticLoweringState,

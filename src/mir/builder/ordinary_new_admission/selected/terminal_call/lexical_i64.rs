@@ -148,33 +148,10 @@ fn emit_lexical_i64_call(
         bindings,
     )?;
     let call = prepared.materialize_using(owner, row, sealed_arguments, Some(ledger))?;
-    let origin = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call,
-            result: InvokeCallResultKind::I64,
-        },
-        fault_frame: frame,
-        normal_landing,
-        fault_landing,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, result_type(InvokeCallResultKind::I64, None)?);
-    let invoke = (origin, invoke);
-    let projection = (normal_landing, projection);
+    let (invoke, projection) = emit_call_normal(
+        builder, call, InvokeCallResultKind::I64, frame, normal_landing,
+        fault_landing, result, result_type(InvokeCallResultKind::I64, None)?,
+    )?;
     bindings.push(invoke.clone());
     bindings.push(projection.clone());
     Ok(EmittedCall::from_source(

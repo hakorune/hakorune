@@ -186,37 +186,11 @@ fn emit_object(
         &mut bindings,
     )?;
     let call = prepared.materialize_with_ledger(owner, &row, source_arguments, ledger)?;
-    let origin = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call,
-            result: result_kind,
-        },
-        fault_frame: frame,
-        normal_landing,
-        fault_landing,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    builder
-        .function_state
-        .type_ctx
-        .value_types
-        .insert(result, result_type);
-    let emitted = EmittedCall::new(
-        row,
-        prepared,
-        (origin, invoke),
-        (normal_landing, projection),
-    );
+    let (invoke, projection) = emit_call_normal(
+        builder, call, result_kind, frame, normal_landing, fault_landing,
+        result, result_type,
+    )?;
+    let emitted = EmittedCall::new(row, prepared, invoke, projection);
     bindings.push(emitted.outer_bindings().0.clone());
     bindings.push(emitted.outer_bindings().1.clone());
     // The binding group is the finalized-call inventory — the exit

@@ -1814,3 +1814,12 @@ callers retain their Return endpoint and original Home origin correspondence;
 plain roots do not create an unused acquisition-fault chain. A body expression
 must supply its own verified continuation and source/frame correspondence before
 using this same writer. This factoring alone does not activate source Print.
+
+
+Lexical I64 and Object/Nullable result wrappers share the private
+`terminal_call::emit_call_normal` physical append owner. It emits exactly the
+caller-reserved Call/Normal projection pair and carrier; source/argument checks,
+ID reservation, Fault cleanup, received-Home commit and final binding inventory
+remain with their existing owners. Expression-owned Append candidates must
+provide their own original source/acquisition/transfer/End correspondence rather
+than inventing a local destination to reuse a local-call wrapper.
