@@ -158,9 +158,13 @@ fn observe_scalar_expression_with_operation<E>(
     let mut requests = Vec::new();
     let mut calls = Vec::new();
     let mut prepared_operation = None;
+    let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else {
+        return Ok(None);
+    };
     let Some(kind) = preflight(
         &mut prepared_operation,
         input,
+        &ledger,
         site,
         locals,
         &mut requests,

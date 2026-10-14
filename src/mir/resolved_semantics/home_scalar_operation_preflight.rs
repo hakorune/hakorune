@@ -1,9 +1,13 @@
 //! Same-owner scalar operator/operand preflight; parent publishes whole-expression results.
 use super::*;
+use crate::mir::resolved_value_profile::expression_source::{
+    expression_source_v1, ResolvedExpressionSourceV1,
+};
 
 pub(super) fn preflight<E>(
     operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
     input: ResolvedFunctionLoweringInputV1<'_>,
+    ledger: &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     requests: &mut Vec<LocalFieldReadRequestV1>,
@@ -40,7 +44,9 @@ pub(super) fn preflight<E>(
         requests.push(request);
         return Ok(Some(SourceScalarKind::Integer));
     }
-    let Some(row) = input.function().expression_source().binary(site) else {
+    let Some(row) = expression_source_v1(ledger, input.body_shape(), site)
+        .and_then(ResolvedExpressionSourceV1::binary)
+    else {
         return Ok(None);
     };
     if !binary_sites_match(site, row) {
@@ -68,10 +74,8 @@ pub(super) fn preflight<E>(
         Op::Multiply
             if local_initializer_profile
                 && is_root
-                && input
-                    .function()
-                    .expression_source()
-                    .binary(row.lhs())
+                && expression_source_v1(ledger, input.body_shape(), row.lhs())
+                    .and_then(ResolvedExpressionSourceV1::binary)
                     .is_some_and(|add| {
                         add.operator() == Op::Add
                             && binary_sites_match(row.lhs(), add)
@@ -129,6 +133,7 @@ pub(super) fn preflight<E>(
     let Some(lhs) = preflight(
         &mut None,
         input,
+        ledger,
         row.lhs(),
         locals,
         requests,
@@ -148,6 +153,7 @@ pub(super) fn preflight<E>(
     let Some(rhs) = preflight(
         &mut None,
         input,
+        ledger,
         row.rhs(),
         locals,
         requests,

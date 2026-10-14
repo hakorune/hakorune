@@ -6,6 +6,7 @@
 //! An unclaimed site is a named `UnknownExpression` rejection, never an AST
 //! re-scan.
 
+use super::super::expression_source::{expression_source_v1, ResolvedExpressionSourceV1};
 use super::*;
 use crate::mir::resolved_semantics::{
     BindingRefV1, BodyExpressionShapeV1, ResolvedAssignmentTargetV1,
@@ -169,57 +170,46 @@ fn classify(
     state: &mut InferenceState<'_>,
     site: &SourceExprSiteV1,
 ) -> Result<ExprClassV1, SourceResultProductErrorV1> {
-    if let Some(row) = state.ledger.conditional_source(site) {
-        classify_conditional(state, site, row)
-    } else if let Some(row) = state.ledger.binary_source(site) {
-        classify_binary(state, site, row)
-    } else if let Some(row) = state.ledger.unary_source(site) {
-        classify_unary(state, site, row)
-    } else if let Some(literal) = state.ledger.literal_source(site) {
-        let class = literal_class(site, literal)?;
-        if let Some(result) = class.result() {
-            state.operations.push(SourceValueOperationV1::Literal {
-                site: site.clone(),
-                class: result,
+    match expression_source_v1(state.ledger, Some(state.body_shape), site) {
+        Some(ResolvedExpressionSourceV1::Conditional(row)) => {
+            classify_conditional(state, site, row)
+        }
+        Some(ResolvedExpressionSourceV1::Binary(row)) => classify_binary(state, site, row),
+        Some(ResolvedExpressionSourceV1::Unary(row)) => classify_unary(state, site, row),
+        Some(ResolvedExpressionSourceV1::Literal(literal)) => {
+            let class = literal_class(site, literal)?;
+            if let Some(result) = class.result() {
+                state.operations.push(SourceValueOperationV1::Literal {
+                    site: site.clone(),
+                    class: result,
+                });
+            }
+            Ok(class)
+        }
+        Some(ResolvedExpressionSourceV1::Reference(reference)) => {
+            classify_reference(state, site, reference)
+        }
+        Some(ResolvedExpressionSourceV1::MethodCall(row)) => classify_method_call(state, site, row),
+        Some(ResolvedExpressionSourceV1::DirectCall) => classify_direct_call(state, site),
+        Some(ResolvedExpressionSourceV1::Shape(BodyExpressionShapeV1::BlockExpr { .. })) => {
+            // Wrapper shape is not permission to discard prelude effects.
+            let site_segments = site.node().segments();
+            let has_prelude_item = state.body_shape.statements().iter().any(|statement| {
+                matches!(statement.site().node().segments().split_last(),
+                    Some((SourcePathSegmentV1::BlockExprPrelude(_), prefix))
+                        if prefix == site_segments)
             });
+            if has_prelude_item {
+                return Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(
+                    site.clone(),
+                ));
+            }
+            let tail = SourcePathV1::from_node(site.node())
+                .child(SourcePathSegmentV1::BlockExprTail)
+                .expr();
+            classify(state, &tail)
         }
-        Ok(class)
-    } else if let Some(reference) = state.ledger.variable_ref(site) {
-        classify_reference(state, site, reference)
-    } else if let Some(row) = state.ledger.method_call(site) {
-        classify_method_call(state, site, row)
-    } else if state.ledger.direct_call_target(site).is_some()
-        || state.ledger.direct_call_observation(site).is_some()
-    {
-        classify_direct_call(state, site)
-    } else if let Some(BodyExpressionShapeV1::BlockExpr { .. }) =
-        state.body_shape.expression_shape(site)
-    {
-        // A BlockExpr wrapper is transparent only when its prelude is empty:
-        // `{ stmt; tail }` statement effects sit outside the result product's
-        // model, so a non-empty prelude rejects instead of being dropped.
-        let site_segments = site.node().segments();
-        let has_prelude_item = state.body_shape.statements().iter().any(|statement| {
-            matches!(
-                statement.site().node().segments().split_last(),
-                Some((SourcePathSegmentV1::BlockExprPrelude(_), prefix))
-                    if prefix == site_segments
-            )
-        });
-        if has_prelude_item {
-            return Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(
-                site.clone(),
-            ));
-        }
-        // Transparent BlockExpr wrapper (e.g. an expression-If branch tail):
-        // the sealed shape row proves the wrapper, so the only child to
-        // consume is the resolver-published `BlockExprTail` expression site.
-        let tail = SourcePathV1::from_node(site.node())
-            .child(SourcePathSegmentV1::BlockExprTail)
-            .expr();
-        classify(state, &tail)
-    } else {
-        Err(SourceResultProductErrorV1::UnknownExpression(site.clone()))
+        _ => Err(SourceResultProductErrorV1::UnknownExpression(site.clone())),
     }
 }
 

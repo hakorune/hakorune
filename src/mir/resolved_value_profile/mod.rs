@@ -9,6 +9,7 @@ mod consumption;
 mod coverage;
 mod direct_call;
 pub(crate) mod error;
+pub(crate) mod expression_source;
 mod function_return;
 mod nested_recipe_facts;
 mod nested_recipe_mapper;

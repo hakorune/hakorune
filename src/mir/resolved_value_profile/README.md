@@ -23,6 +23,22 @@ This layer must not import or infer from `MirBuilder`, `ValueId`,
 `BasicBlockId`, `MirType`, `StorageClass`, runtime values, spans, pointers, or
 names. It decides no CFG layout and emits no MIR.
 
+## Shared expression source view
+
+`expression_source` borrows structural rows from one original callable source
+ledger and its same-owner body shape. The result classifier and the live Home
+scalar preflight share this selection; recursion keeps the same ledger loan.
+It preserves the original row-family priority, including direct-call target
+and observation membership as one family. Shape-only fields, receivers and
+constructors remain unresolved source structure.
+
+The view issues no result class, operator envelope, call target, Recipe, Home
+or executable permission. Consumers retain their exact call/field/operator
+checks and BlockExpr prelude restrictions. The source result product remains
+a representation proof. Ordered expression obligations, String temporaries,
+Fault/End, physical correspondence and final verification are later consumers;
+this structural connection grants no String activation.
+
 ## SSA-I0-PROFILE contract
 
 `VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It
