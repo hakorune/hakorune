@@ -304,3 +304,145 @@ fn checked_c_operations_preserve_primary_and_out_slot() {
         assert_eq!(handle, 777);
     }
 }
+
+#[test]
+fn checked_string_pairs_preserve_bytes_independence_and_fault_cleanup() {
+    use super::checked_string::{self as api, Operand, OwnedText};
+    use nyash_rust::runtime::dynamic_v2_lease as lease;
+    use std::num::NonZeroU64;
+    unsafe extern "C" {
+        #[link_name = "nyash.string.checked_add_v1"]
+        fn checked_add(
+            storage: *mut std::ffi::c_void,
+            site: u64,
+            left: *const Operand,
+            right: *const Operand,
+            out: *mut OwnedText,
+        ) -> u32;
+        #[link_name = "nyash.string.checked_end_v1"]
+        fn checked_end(storage: *mut std::ffi::c_void, site: u64, handle: u64, token: u64) -> u32;
+    }
+    let literal = |bytes: &[u8]| Operand {
+        kind: 1,
+        reserved: 0,
+        bytes: bytes.as_ptr(),
+        len: bytes.len(),
+        handle: 0,
+        token: 0,
+        integer: 0,
+    };
+    let owned = |pair: OwnedText| Operand {
+        kind: 2,
+        reserved: 0,
+        bytes: std::ptr::null(),
+        len: 0,
+        handle: pair.handle,
+        token: pair.token,
+        integer: 0,
+    };
+    let read = |pair: OwnedText| {
+        lease::with_end_authorized_text_pair(
+            pair.handle,
+            NonZeroU64::new(pair.token).unwrap(),
+            str::to_owned,
+        )
+    };
+    let mut frame = FaultFrame::new();
+    let pointer = (&mut frame as *mut FaultFrame).cast();
+    let sentinel = OwnedText {
+        handle: 777,
+        token: 888,
+    };
+    let mut first = sentinel;
+    let mut second = sentinel;
+    unsafe {
+        assert_eq!(
+            checked_add(pointer, 1, &literal(b""), &literal(b""), &mut first),
+            0
+        );
+        assert_eq!(
+            checked_add(pointer, 2, &owned(first), &literal(b""), &mut second),
+            0
+        );
+        assert_ne!(first.handle, second.handle);
+        assert_ne!(first.token, second.token);
+        assert_eq!(read(first), Ok(String::new()));
+        assert_eq!(read(second), Ok(String::new()));
+        assert_eq!(checked_end(pointer, 3, second.handle, first.token), 2);
+        assert_eq!(checked_end(pointer, 3, 0, first.token), 2);
+        assert_eq!(read(first), Ok(String::new()));
+        assert_eq!(checked_end(pointer, 3, first.handle, first.token), 0);
+        assert_eq!(checked_end(pointer, 3, first.handle, first.token), 2);
+        assert_eq!(read(second), Ok(String::new()));
+        assert_eq!(checked_end(pointer, 3, second.handle, second.token), 0);
+
+        let mut result = sentinel;
+        let integer = Operand {
+            kind: 3,
+            integer: i64::MIN,
+            ..owned(OwnedText {
+                handle: 0,
+                token: 0,
+            })
+        };
+        assert_eq!(
+            checked_add(
+                pointer,
+                4,
+                &literal("猫\0".as_bytes()),
+                &integer,
+                &mut result
+            ),
+            0
+        );
+        let expected = format!("猫\0{}", i64::MIN);
+        assert_eq!(read(result), Ok(expected.clone()));
+        let mut bytes = Vec::new();
+        assert_eq!(
+            api::print_to(&mut frame, 5, expected.as_bytes(), &mut bytes),
+            0
+        );
+        assert_eq!(bytes, format!("{expected}\n").as_bytes());
+        for (left, right) in [
+            (integer, literal(b"wrong direction")),
+            (literal(b"prefix"), literal(&[0xff])),
+            (literal(b"prefix"), owned(first)),
+            (
+                literal(b"prefix"),
+                Operand {
+                    kind: 99,
+                    ..integer
+                },
+            ),
+        ] {
+            let mut out = sentinel;
+            assert_eq!(checked_add(pointer, 6, &left, &right, &mut out), 2);
+            assert_eq!(out, sentinel);
+        }
+        assert!(frame.diagnostics().unwrap().0.is_none());
+        // Existing primary stays primary, IO fault becomes suppressed; every
+        // successful acquisition remains End-able after the writer fails.
+        assert!(matches!(
+            frame.record(Diagnostic::new(999, 7, [0, 0])),
+            Ok(Status::Fault)
+        ));
+        struct Failing;
+        impl std::io::Write for Failing {
+            fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::other("sink failed"))
+            }
+            fn flush(&mut self) -> std::io::Result<()> {
+                Ok(())
+            }
+        }
+        assert_eq!(
+            api::print_to(&mut frame, 8, expected.as_bytes(), &mut Failing),
+            1
+        );
+        assert_eq!(frame.diagnostics().unwrap().0.unwrap().reason, 999);
+        assert_eq!(frame.diagnostics().unwrap().1[0].reason, 300);
+        assert_eq!(checked_end(pointer, 9, result.handle, result.token), 0);
+        assert!(read(result).is_err());
+        assert_eq!(frame.diagnostics().unwrap().0.unwrap().reason, 999);
+    }
+}

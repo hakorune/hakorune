@@ -282,3 +282,19 @@ The Nyash Kernel integrates with:
 
 *Part of Phase 15 Nyash Self-hosting Revolution*
 *Documentation: [ChatGPT5 NyRT→NyKernel Design](../../docs/private/roadmap2/phases/phase-15/chatgpt5-nyrt-kernel-design.md)*
+
+### Checked expression String ABI
+
+`fault_checked_string.rs` implements checked Add/Print/End declared in
+`include/nyrt_fault_v1.h`. String operands are exact UTF-8 static bytes or an
+existing generation-validated handle/token pair; the only numeric operand is
+explicit signed NormalInteger. No generic Box stringification is accepted.
+Add publishes a fresh independent pair only on Normal, including empty strings.
+The existing `runtime::dynamic_v2_lease` owns publication, paired borrowing and
+one-shot End; no second registry is introduced. Borrow callbacks cannot publish,
+End or reenter the lease owner while identity locks are held.
+Print writes exact bytes and a newline; writer failure records reason300 while
+preserving any primary Fault. Reservation/publication failure records reason301;
+allocator termination remains fatal. Compiler callers must End actual Normal
+acquisitions in reverse order after Print or a later Fault. These exports do not
+activate source lowering or prove compiler/native frame correspondence.

@@ -84,6 +84,44 @@ enum {
 #ifdef __cplusplus
 extern "C" {
 #endif
+/* Checked expression String physical ABI. Source proof and Normal/Fault End
+ * order remain compiler-owned. Every pointer is live/aligned/nonoverlapping;
+ * static text uses exact UTF-8 byte length (NUL is ordinary data). Inactive
+ * operand fields and reserved must be zero. Owned pairs are never copied into
+ * independently owned values; borrowing never consumes the pair. */
+#define NYRT_STRING_STATIC_TEXT_V1 1u
+#define NYRT_STRING_OWNED_TEXT_V1 2u
+#define NYRT_STRING_NORMAL_INTEGER_V1 3u
+#define NYRT_FAULT_REASON_STRING_WRITE_FAILED_V1 300u
+#define NYRT_FAULT_REASON_STRING_ALLOCATION_FAILED_V1 301u
+typedef struct NyrtStringOperandV1 {
+    uint32_t kind;
+    uint32_t reserved;
+    const uint8_t *bytes;
+    size_t len;
+    uint64_t handle;
+    uint64_t token;
+    int64_t integer;
+} NyrtStringOperandV1;
+typedef struct NyrtOwnedStringV1 {
+    uint64_t handle;
+    uint64_t token;
+} NyrtOwnedStringV1;
+/* Add accepts String + (String | signed NormalInteger). Normal publishes one
+ * fresh pair, even for empty operands. Failure leaves both out words untouched.
+ * Print borrows String/NormalInteger and appends one newline. Writer failure
+ * records Fault; the caller still Ends all earlier Normal acquisitions.
+ * End validates generation and consumes exactly once, including during Fault
+ * cleanup. Identity mismatch is InvalidContract and preserves a valid pair.
+ * Allocator termination is fatal, not a returned Fault. */
+uint32_t nyrt_string_checked_add_v1(void *, uint64_t,
+    const NyrtStringOperandV1 *, const NyrtStringOperandV1 *, NyrtOwnedStringV1 *)
+    __asm__("nyash.string.checked_add_v1");
+uint32_t nyrt_string_checked_print_v1(void *, uint64_t, const NyrtStringOperandV1 *)
+    __asm__("nyash.string.checked_print_v1");
+uint32_t nyrt_string_checked_end_v1(void *, uint64_t, uint64_t, uint64_t)
+    __asm__("nyash.string.checked_end_v1");
+
 uint32_t nyrt_fault_frame_init_v1(void *) __asm__("nyash.fault.frame_init_v1");
 uint32_t nyrt_fault_record_static_v1(void *, uint32_t, uint64_t, int64_t, int64_t)
     __asm__("nyash.fault.record_static_v1");

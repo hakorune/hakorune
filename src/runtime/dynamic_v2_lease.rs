@@ -27,7 +27,7 @@ pub enum LeaseConsumeRejectV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum EndAuthorizedTextBorrowRejectV1 {
+pub enum EndAuthorizedTextBorrowRejectV1 {
     UnknownOrAlreadyConsumed,
     TokenHandleMismatch,
     StaleHandleIdentity,
@@ -79,18 +79,7 @@ impl EndAuthorizedTextV1 {
         &self,
         callback: impl FnOnce(&str) -> R,
     ) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
-        let (handle, generation) = {
-            let table = leases().lock().expect("dynamic v2 lease mutex poisoned");
-            let identity = table
-                .get(&self.token)
-                .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
-            if identity.handle() != self.handle {
-                return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
-            }
-            (identity.handle(), identity.generation())
-        };
-        host_handles::with_text_formal_wire(handle, generation, callback)
-            .map_err(map_text_lookup_reject)
+        with_end_authorized_text_pair(self.handle, self.token, callback)
     }
 
     /// Consume the paired lease exactly once.  This is the only normal-path
@@ -98,6 +87,37 @@ impl EndAuthorizedTextV1 {
     pub(crate) fn finish(self) -> Result<(), LeaseConsumeRejectV1> {
         consume_end_authorized_pair(self.handle, self.token)
     }
+}
+
+/// Borrow the exact text generation named by a live handle/token pair, without
+/// adopting or consuming it. The callback must not publish/drop handles or
+/// reenter the lease owner: both identity locks remain held until it returns.
+pub fn with_end_authorized_text_pair<R>(
+    handle: u64,
+    token: NonZeroU64,
+    callback: impl FnOnce(&str) -> R,
+) -> Result<R, EndAuthorizedTextBorrowRejectV1> {
+    let table = leases().lock().expect("dynamic v2 lease mutex poisoned");
+    let identity = table
+        .get(&token)
+        .ok_or(EndAuthorizedTextBorrowRejectV1::UnknownOrAlreadyConsumed)?;
+    if handle == 0 || identity.handle() != handle {
+        return Err(EndAuthorizedTextBorrowRejectV1::TokenHandleMismatch);
+    }
+    host_handles::with_text_formal_wire(handle, identity.generation(), callback)
+        .map_err(map_text_lookup_reject)
+}
+
+/// End the exact pair; a mismatched handle preserves the valid token. No raw
+/// reusable handle alone authorizes release of a checked String result.
+pub fn end_authorized_text_pair(
+    handle: u64,
+    token: NonZeroU64,
+) -> Result<(), LeaseConsumeRejectV1> {
+    if handle == 0 {
+        return Err(LeaseConsumeRejectV1::TokenHandleMismatch);
+    }
+    consume_end_authorized_pair(handle, token)
 }
 
 static NEXT_TOKEN: AtomicU64 = AtomicU64::new(1);
@@ -325,7 +345,11 @@ mod tests {
             assert_eq!(replacement, old_handle);
 
             assert_eq!(
-                consume_end_authorized(token),
+                with_end_authorized_text_pair(old_handle, token, str::to_owned),
+                Err(EndAuthorizedTextBorrowRejectV1::StaleHandleIdentity)
+            );
+            assert_eq!(
+                end_authorized_text_pair(old_handle, token),
                 Err(LeaseConsumeRejectV1::StaleHandleIdentity)
             );
             assert_eq!(

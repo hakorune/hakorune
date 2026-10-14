@@ -12,6 +12,9 @@ mod checked_array;
 #[path = "fault_checked_map.rs"]
 pub(super) mod checked_map;
 
+#[path = "fault_checked_string.rs"]
+mod checked_string;
+
 mod runtime_abi_target {
     include!(concat!(env!("OUT_DIR"), "/runtime_abi_target.rs"));
 }
