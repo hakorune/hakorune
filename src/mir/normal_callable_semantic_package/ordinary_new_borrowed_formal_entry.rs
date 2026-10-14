@@ -311,7 +311,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         let view = self.checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
-        let mut modes = view.incoming.iter().map(|row| row.source.as_loan().declaration_mode());
+        let mut modes = view.incoming.iter().map(|row| row.source.as_loan().map(|loan| loan.declaration_mode())).collect::<Result<Vec<_>, String>>()?.into_iter();
         let mode = modes
             .next()
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;

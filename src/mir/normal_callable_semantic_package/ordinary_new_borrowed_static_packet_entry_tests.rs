@@ -373,7 +373,7 @@ fn static_packet_physical_selector_preserves_original_error_demand_scope() {
         .incoming
         .iter()
         .find(|row| {
-            row.source.as_loan().target().namespace()
+            row.source.as_loan().unwrap().target().namespace()
                 == crate::mir::builder::SameModuleCallableNamespaceV1::InstanceBoxMethod
         })
         .unwrap()

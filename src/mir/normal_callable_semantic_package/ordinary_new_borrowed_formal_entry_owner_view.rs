@@ -114,7 +114,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
             .iter()
             .filter(move |row| row.callee == self.owner)
             .map(|row| {
-                let loan = row.source.as_loan();
+                let loan = row.source.as_loan()?;
                 if loan.call_site() != &row.call
                     || loan.callee_owner() != row.callee
                     || row.callee != self.owner
@@ -151,7 +151,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                         return Err(freeze("borrowed-entry/incoming-source-drift"));
                     }
                 }
-                Ok(row.source.as_loan())
+                Ok(loan)
             })
     }
 }
@@ -279,17 +279,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let [call] = matching.as_slice() else {
                 return Err(freeze("borrowed-static/incoming-coverage"));
             };
-            let source_agrees = match (&call.source, &original.source) {
-                (
-                    BorrowedIncomingSourceV1::Static(actual),
-                    BorrowedIncomingSourceV1::Static(original),
-                ) => Rc::ptr_eq(actual, original),
-                (
-                    BorrowedIncomingSourceV1::Instance(actual),
-                    BorrowedIncomingSourceV1::Instance(original),
-                ) => actual == original,
-                _ => false,
-            };
+            let source_agrees = call.source.same_source(&original.source);
             if call.callee != original.callee
                 || call.arguments != original.arguments
                 || !source_agrees

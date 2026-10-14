@@ -268,7 +268,7 @@ fn construct_borrowed_call_actuals_v1(
     {
         return Err(freeze("borrowed-actual/source-identity"));
     }
-    if incoming_row.source.as_loan().declaration_mode() != contract.mode {
+    if incoming_row.source.as_loan()?.declaration_mode() != contract.mode {
         return Err(freeze("borrowed-actual/source-mode"));
     }
     if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =

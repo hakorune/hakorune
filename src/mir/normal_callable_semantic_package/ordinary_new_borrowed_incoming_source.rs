@@ -1,30 +1,52 @@
 //! Owned incoming identity preserves the original instance or static source kind.
 //! Common coordinates never grant a receiver, object authority or executable ABI.
+use super::super::source::{CallTargetReferenceV1, StoredReceiverSourceV1};
+use super::super::{LexicalCallSourceResultRequirementV1, LexicalInstanceCallReceiverV1};
 use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use std::rc::Rc;
+
+/// Conditional source requirement only. Canonical declaration coordinates do
+/// not prove a live receiver, eligibility, incoming payload or executable call.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct OriginalStoredIncomingV1 {
+    reference: CallTargetReferenceV1,
+    receiver: StoredReceiverSourceV1,
+    result: LexicalCallSourceResultRequirementV1,
+    expected_receiver: LexicalInstanceCallReceiverV1,
+}
 
 #[derive(Debug, Clone)]
 pub(in crate::mir::normal_callable_semantic_package) enum BorrowedIncomingSourceV1 {
     Instance(super::super::LexicalInstanceCallSourceTargetV1),
     Static(Rc<StaticIncomingSourceV1>),
+    PendingStored(Rc<OriginalStoredIncomingV1>),
+    SelectedStored {
+        original: Rc<OriginalStoredIncomingV1>,
+        target: super::super::LexicalInstanceCallSourceTargetV1,
+    },
 }
 
 impl BorrowedIncomingSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn as_loan(
         &self,
-    ) -> BorrowedCallSourceLoanV1<'_> {
+    ) -> Result<BorrowedCallSourceLoanV1<'_>, String> {
         match self {
-            Self::Instance(row) => BorrowedCallSourceLoanV1::Instance(row),
-            Self::Static(row) => BorrowedCallSourceLoanV1::Static(row),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => {
+                Ok(BorrowedCallSourceLoanV1::Instance(row))
+            }
+            Self::Static(row) => Ok(BorrowedCallSourceLoanV1::Static(row)),
+            Self::PendingStored(_) => Err(super::super::freeze(
+                "borrowed-formal/incoming-stored-pending",
+            )),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn instance(
         &self,
     ) -> Option<&super::super::LexicalInstanceCallSourceTargetV1> {
         match self {
-            Self::Instance(row) => Some(row),
-            Self::Static(_) => None,
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => Some(row),
+            Self::Static(_) | Self::PendingStored(_) => None,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn require_instance(
@@ -38,45 +60,159 @@ impl BorrowedIncomingSourceV1 {
         &mut self,
     ) -> &mut super::super::LexicalInstanceCallSourceTargetV1 {
         match self {
-            Self::Instance(row) => row,
-            Self::Static(_) => panic!("Instance mutation requires Instance source"),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => row,
+            Self::Static(_) | Self::PendingStored(_) => {
+                panic!("Instance mutation requires Instance source")
+            }
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn call_site(&self) -> &OwnedExprSiteV1 {
         match self {
-            Self::Instance(row) => row.call_site(),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => row.call_site(),
             Self::Static(row) => row.call_site(),
+            Self::PendingStored(row) => &row.reference.call_site,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn target(
         &self,
     ) -> &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1 {
         match self {
-            Self::Instance(row) => row.target(),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => row.target(),
             Self::Static(row) => row.target(),
+            Self::PendingStored(row) => &row.reference.target,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn callee_owner(
         &self,
     ) -> FunctionOwnerIdV1 {
         match self {
-            Self::Instance(row) => row.callee_owner(),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => row.callee_owner(),
             Self::Static(row) => row.callee_owner(),
+            Self::PendingStored(row) => row.reference.callee_owner,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn target_batch_slot(&self) -> u32 {
         match self {
-            Self::Instance(row) => row.target_batch_slot(),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => {
+                row.target_batch_slot()
+            }
             Self::Static(row) => row.target_batch_slot(),
+            Self::PendingStored(row) => row.reference.target_batch_slot,
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn argument_sites(
         &self,
     ) -> &[SourceExprSiteV1] {
         match self {
-            Self::Instance(row) => row.argument_sites(),
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => row.argument_sites(),
             Self::Static(row) => row.argument_sites(),
+            Self::PendingStored(row) => &row.reference.argument_sites,
         }
+    }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn reissue_stored_origin_for_test(
+        &mut self,
+    ) {
+        let Self::SelectedStored { original, .. } = self else {
+            panic!("selected original Stored source")
+        };
+        *original = Rc::new(OriginalStoredIncomingV1 {
+            reference: original.reference.clone(),
+            receiver: original.receiver.clone(),
+            result: original.result.clone(),
+            expected_receiver: original.expected_receiver.clone(),
+        });
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn is_pending(&self) -> bool {
+        matches!(self, Self::PendingStored(_))
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn same_source(
+        &self,
+        other: &Self,
+    ) -> bool {
+        match (self, other) {
+            (Self::Instance(a), Self::Instance(b)) => a == b,
+            (Self::Static(a), Self::Static(b)) => Rc::ptr_eq(a, b),
+            (Self::PendingStored(a), Self::PendingStored(b)) => Rc::ptr_eq(a, b),
+            (
+                Self::SelectedStored {
+                    original: a,
+                    target: at,
+                },
+                Self::SelectedStored {
+                    original: b,
+                    target: bt,
+                },
+            ) => Rc::ptr_eq(a, b) && at == bt,
+            _ => false,
+        }
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn pending_stored_v1(
+        batch: &crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        reference: &CallTargetReferenceV1,
+        receiver: &StoredReceiverSourceV1,
+        result: &LexicalCallSourceResultRequirementV1,
+    ) -> Result<Self, String> {
+        let coverage = batch.ordinary_box_coverage();
+        let parent = coverage
+            .row_for(&receiver.parent_class)
+            .ok()
+            .flatten()
+            .ok_or_else(|| super::super::freeze("borrowed-formal/incoming-parent-source"))?;
+        let child = coverage
+            .row_for(&receiver.child_class)
+            .ok()
+            .flatten()
+            .ok_or_else(|| super::super::freeze("borrowed-formal/incoming-child-source"))?;
+        let (field, _) = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::terminal_home::source_declared_field(
+            constructors, parent, &reference.call_site, &receiver.field_name,
+        ).map_err(|_| super::super::freeze("borrowed-formal/incoming-field-source"))?
+            .ok_or_else(|| super::super::freeze("borrowed-formal/incoming-field-source"))?;
+        let child = constructors
+            .object_for(child)
+            .map_err(|_| super::super::freeze("borrowed-formal/incoming-child-source"))?;
+        Ok(Self::PendingStored(Rc::new(OriginalStoredIncomingV1 {
+            reference: reference.clone(),
+            receiver: receiver.clone(),
+            result: result.clone(),
+            expected_receiver: LexicalInstanceCallReceiverV1::StoredOwnedChild {
+                parent_binding: receiver.parent_binding,
+                parent_site: receiver.parent_site.clone(),
+                field,
+                child,
+            },
+        })))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn bind_selected_v1(
+        &self,
+        target: &super::super::LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Self, String> {
+        let original = match self {
+            Self::PendingStored(original) | Self::SelectedStored { original, .. } => original,
+            _ => {
+                return if self.instance() == Some(target) {
+                    Ok(self.clone())
+                } else {
+                    Err(super::super::freeze(
+                        "borrowed-formal/incoming-selected-drift",
+                    ))
+                }
+            }
+        };
+        if CallTargetReferenceV1::from_target(target) != original.reference
+            || target.receiver != original.expected_receiver
+            || target.result_requirement != original.result
+            || target.target().owner() != original.receiver.child_class.as_ref()
+        {
+            return Err(super::super::freeze(
+                "borrowed-formal/incoming-selected-drift",
+            ));
+        }
+        Ok(Self::SelectedStored {
+            original: Rc::clone(original),
+            target: target.clone(),
+        })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn object_return_sources(&self) -> Option<&[crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ObjectReturnCallQualificationV1]>{
         self.instance().and_then(|row| row.object_return_sources())

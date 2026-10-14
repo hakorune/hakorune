@@ -51,7 +51,7 @@ pub(super) fn prepare_object_source_actuals_v1(
         || target.argument_sites().len() != target.target().arity() as usize
         || contract.parameters.len() != actuals.len()
         || actuals.len() != target.argument_sites().len()
-        || original.source.as_loan().declaration_mode() != contract.mode
+        || original.source.as_loan()?.declaration_mode() != contract.mode
     {
         return Err(freeze("borrowed-object/source-actual-identity"));
     }

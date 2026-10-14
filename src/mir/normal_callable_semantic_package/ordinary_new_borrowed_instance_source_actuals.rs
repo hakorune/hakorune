@@ -64,7 +64,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
         || target.call_site() != site
         || target.callee_owner() != original.callee
         || target.target_batch_slot() != contract.batch_slot
-        || contract.mode != original.source.as_loan().declaration_mode()
+        || contract.mode != original.source.as_loan()?.declaration_mode()
         || target.argument_sites().len() != target.target().arity() as usize
         || contract.parameters.len() != actuals.len()
         || actuals.len() != target.argument_sites().len()

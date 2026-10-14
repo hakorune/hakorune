@@ -338,7 +338,7 @@ fn source_graph_static_owner_preserves_rc_and_refuses_instance_authority() {
         matches!(owned.clone(), BorrowedIncomingSourceV1::Static(row) if Rc::ptr_eq(&row, original))
     );
     assert!(
-        matches!(owned.as_loan(), BorrowedCallSourceLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
+        matches!(owned.as_loan().unwrap(), BorrowedCallSourceLoanV1::Static(row) if std::ptr::eq(row, original.as_ref()))
     );
     assert!(owned
         .require_instance()

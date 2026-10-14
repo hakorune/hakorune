@@ -92,10 +92,10 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
     object_packet: Option<object_slot::ObjectPacketSealV1>,
 }
 
-impl LexicalInstanceCallSourceTargetV1 {
+impl LexicalCallSourceResultRequirementV1 {
     pub(crate) fn has_object_source_requirement(&self) -> bool {
         !matches!(
-            self.result_requirement,
+            self,
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
         )
     }
@@ -103,7 +103,7 @@ impl LexicalInstanceCallSourceTargetV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
         &self,
     ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
-        match &self.result_requirement {
+        match self {
             LexicalCallSourceResultRequirementV1::ObjectProducerDependency(rows) => Some(rows),
             _ => None,
         }
@@ -112,13 +112,30 @@ impl LexicalInstanceCallSourceTargetV1 {
     pub(crate) fn object_return_sources(
         &self,
     ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
-        match &self.result_requirement {
+        match self {
             LexicalCallSourceResultRequirementV1::ObjectReturnSource { qualifications, .. } => {
                 Some(qualifications)
             }
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
         }
+    }
+
+}
+
+impl LexicalInstanceCallSourceTargetV1 {
+    pub(crate) fn has_object_source_requirement(&self) -> bool {
+        self.result_requirement.has_object_source_requirement()
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
+        &self,
+    ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
+        self.result_requirement.object_producer_dependencies()
+    }
+    pub(crate) fn object_return_sources(
+        &self,
+    ) -> Option<&[super::result_class_claim::ObjectReturnCallQualificationV1]> {
+        self.result_requirement.object_return_sources()
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn object_source_forwards(

@@ -25,143 +25,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn exact_bool_value_return_
 mod static_inventory;
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use static_inventory::StaticIncomingContextV1;
 
-#[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
-struct BorrowedIncomingInventoryV1
-{
-    owners: std::collections::BTreeSet<FunctionOwnerIdV1>,
-    unsupported_static_spelling: std::collections::BTreeSet<FunctionOwnerIdV1>,
-    unsupported_static_context: std::collections::BTreeSet<FunctionOwnerIdV1>,
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) static_observations:
-        BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1>,
-    observations: Vec<(
-        Option<FunctionOwnerIdV1>,
-        Result<BorrowedIncomingCallDraftV1, BorrowedIncomingDraftErrorV1>,
-    )>,
-}
-impl BorrowedIncomingInventoryV1 {
-    #[cfg(test)]
-    pub(in crate::mir::normal_callable_semantic_package) fn duplicate_object_row_for_test(
-        &mut self,
-        site: &OwnedExprSiteV1,
-    ) {
-        let (owner, row) = self
-            .observations
-            .iter()
-            .find(|(_, row)| row.as_ref().is_ok_and(|row| &row.call == site))
-            .unwrap()
-            .clone();
-        self.observations.push((owner, row));
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::normal_callable_semantic_package) fn remove_exact_row_for_test(
-        &mut self,
-        site: &OwnedExprSiteV1,
-    ) {
-        self.observations
-            .retain(|(_, row)| !row.as_ref().is_ok_and(|row| &row.call == site));
-    }
-
-    /// Original callers sharing a qualified callee retain input evidence only.
-    /// The immutable inventory already corroborates its seed's sealed contract.
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_object_input_callee_v1(
-        &self,
-        target: &super::super::LexicalInstanceCallSourceTargetV1,
-    ) -> bool {
-        self.exact_rows().any(|seed| {
-            seed.source.instance().is_some_and(|original| {
-                original.has_object_source_requirement()
-                    && seed.callee == target.callee_owner()
-                    && original.callee_owner() == seed.callee
-                    && original.call_site() == &seed.call
-                    && original.target() == target.target()
-                    && original.target_batch_slot() == target.target_batch_slot()
-            })
-        })
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_unsupported_static_spelling(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
-        self.unsupported_static_spelling.contains(&owner)
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn has_unsupported_static_context(
-        &self,
-        owner: FunctionOwnerIdV1,
-    ) -> bool {
-        self.unsupported_static_context.contains(&owner)
-    }
-
-    /// Orphan proof requires a complete scan. A global loan failure remains
-    /// retained and fails every final projection, including the empty set.
-    fn corroborate_scan_completeness(
-        &self,
-        seen: &std::collections::BTreeSet<OwnedExprSiteV1>,
-        context: Option<&StaticIncomingContextV1<'_>>,
-        stored_complete: bool,
-    ) -> Result<(), BorrowedIncomingDraftErrorV1> {
-        if self.observations.iter().any(|(owner, row)| {
-            owner.is_none() && matches!(row, Err(BorrowedIncomingDraftErrorV1::BatchLoan))
-        }) {
-            return Ok(());
-        }
-        if !stored_complete
-            || context.is_some_and(|context| {
-                context
-                    .arguments
-                    .keys()
-                    .any(|(site, _)| !seen.contains(site))
-            })
-        {
-            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-        }
-        Ok(())
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn static_observations(
-        &self,
-    ) -> &BTreeMap<OwnedExprSiteV1, static_inventory::StaticIncomingObservationV1> {
-        &self.static_observations
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn exact_rows(
-        &self,
-    ) -> impl Iterator<Item = &BorrowedIncomingCallDraftV1> {
-        self.observations
-            .iter()
-            .filter_map(|(_, row)| row.as_ref().ok())
-    }
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn vetoed_owners(
-        &self,
-    ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
-        let mut vetoes = std::collections::BTreeSet::new();
-        for (owner, row) in &self.observations {
-            if row.is_err() {
-                match owner {
-                    Some(owner) => {
-                        vetoes.insert(*owner);
-                    }
-                    None => return self.owners.clone(),
-                }
-            }
-        }
-        vetoes
-    }
-
-    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project(
-        &self,
-        owners: &std::collections::BTreeSet<FunctionOwnerIdV1>,
-    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
-        if !owners.is_subset(&self.owners) {
-            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-        }
-        self.observations
-            .iter()
-            .filter(|(owner, _)| owner.is_none_or(|owner| owners.contains(&owner)))
-            .map(|(_, row)| row.clone())
-            .collect::<Result<Vec<_>, _>>()
-            .map(Vec::into_boxed_slice)
-    }
-}
+#[path = "ordinary_new_borrowed_formal_incoming_inventory.rs"]
+mod inventory;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use inventory::BorrowedIncomingInventoryV1;
 
 /// Visit the complete batch once, but omit only catalog-co-sealed closed-App
 /// Static callers from executable incoming obligations. Their original call
@@ -187,6 +53,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         ordinary_callers,
         static_context,
         None,
+        None,
     )
 }
 
@@ -200,6 +67,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     ordinary_callers: &std::collections::BTreeSet<FunctionOwnerIdV1>,
     static_context: Option<&StaticIncomingContextV1<'_>>,
     stored_dispatch: Option<&super::super::source::PreparedSourceNeedsV1>,
+    constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
 ) -> Result<BorrowedIncomingInventoryV1, BorrowedIncomingDraftErrorV1> {
     let mut stored = BTreeMap::new();
     if let Some(prepared) = stored_dispatch {
@@ -213,11 +81,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             if let Some(super::super::source::PreparedSourceCallNeedV1::Stored {
                 reference,
                 receiver,
-                ..
+                result_requirement,
             }) = need
             {
                 if stored
-                    .insert(&reference.call_site, (reference, receiver))
+                    .insert(&reference.call_site, (reference, receiver, result_requirement))
                     .is_some()
                 {
                     return Err(BorrowedIncomingDraftErrorV1::CallIdentity(
@@ -272,14 +140,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     }
     // Qualified Object calls with typed inputs still need the same whole-batch
     // caller census. Their empty opaque subset grants no borrowed entry/domain.
-    for (site, target) in calls {
-        if !target.has_object_source_requirement() {
+    // Index only the already-retained needs; the source scan still occurs once.
+    // Stored result requirements register the same callee even without a use
+    // draft, before an executable receiver can exist.
+    let retained = calls.iter().map(|(site, target)|
+        (site, super::super::source::CallTargetReferenceV1::from_target(target), &target.result_requirement)
+    ).chain(stored.iter().filter(|(site, _)| !calls.contains_key(*site)).map(|(site, (reference, _, requirement))|
+        (*site, (*reference).clone(), *requirement)
+    ));
+    for (site, target, requirement) in retained {
+        if !requirement.has_object_source_requirement() {
             continue;
         }
-        let qualifications = target.object_return_sources();
+        let qualifications = requirement.object_return_sources();
         let mut matching = contracts
             .iter()
-            .filter(|row| row.owner == target.callee_owner());
+            .filter(|row| row.owner == target.callee_owner);
         let contract = matching
             .next()
             .ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?;
@@ -293,19 +169,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 rows.is_empty()
                     || rows
                         .iter()
-                        .any(|loan| loan.call() != site || loan.key() != target.target())
+                        .any(|loan| loan.call() != site || loan.key() != &target.target)
             })
-            || target
+            || requirement
                 .object_producer_dependencies()
                 .is_some_and(|rows| rows.is_empty())
-            || target.call_site() != site
-            || target.target() != key
-            || target.target_batch_slot() != contract.batch_slot
+            || &target.call_site != site
+            || &target.target != key
+            || target.target_batch_slot != contract.batch_slot
             || key.namespace()
                 != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
             || contract.mode != CallableParameterDeclarationModeV1::InstanceBoxMethod
             || key.arity() as usize != contract.parameters.len()
-            || target.argument_sites().len() != contract.parameters.len()
+            || target.argument_sites.len() != contract.parameters.len()
             || contract
                 .parameters
                 .iter()
@@ -402,7 +278,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     }
                 }
                 let instance = calls.get(&owned);
-                let stored_target = if let Some((reference, receiver)) = stored.get(&owned) {
+                let stored_target = if let Some((reference, receiver, _)) = stored.get(&owned) {
                     corroborate_stored_dispatch_v1(input, call, reference, receiver, selected, contracts)?;
                     if instance.is_some_and(|row| super::super::source::CallTargetReferenceV1::from_target(row) != **reference) {
                         return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
@@ -450,7 +326,15 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             if stored_target.is_some_and(|target| target != *key) {
                                 continue;
                             }
-                            instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
+                            if let Some((reference, receiver, result)) = stored.get(&owned) {
+                                Some(BorrowedIncomingSourceV1::pending_stored_v1(
+                                    batch,
+                                    constructors.ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?,
+                                    reference, receiver, result,
+                                ).map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()))?)
+                            } else {
+                                instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
+                            }
                         }
                         CallableParameterDeclarationModeV1::StaticBoxMethod => {
                             // Passive source identity is also exact about the namespace.

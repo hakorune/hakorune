@@ -5,7 +5,7 @@ use super::borrowed_formal_result::{
     stored_eligible_v1, BorrowedI64ResultSourceV1,
 };
 use super::borrowed_formal_source::{
-    collect_borrowed_source_drafts_v1, finish_ingress_from_drafts_v1,
+    collect_borrowed_source_drafts_v1, finish_ingress_from_drafts_v1, prepare_original_incoming_v1,
 };
 use super::source::{PreparedSourceCallNeedV1, StoredReceiverSourceV1};
 use super::*;
@@ -144,6 +144,23 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         .filter(|(_, fact)| fact.call_source().is_qualified())
         .map(|((site, _), _)| site.clone())
         .collect());
+    // The source scan sees exact original Stored dispatch without pretending
+    // its receiver is executable. The same inventory is completed below.
+    let original_inventory = (|| {
+        let mut lexical_calls = BTreeMap::new();
+        for need in needs.as_ref().map_err(Clone::clone)? {
+            if let Some(PreparedSourceCallNeedV1::Lexical(target)) = need.as_ref().map_err(Clone::clone)? {
+                if lexical_calls.insert(target.call_site().clone(), target).is_some() {
+                    return Err(freeze("borrowed-formal/duplicate-source-call"));
+                }
+            }
+        }
+        prepare_original_incoming_v1(
+            batch, selected, omitted_static_callers, contracts, &lexical_calls,
+            &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
+            app_main, Some(&needs), constructors,
+        )
+    })();
     let pending = prepare_pending_results_v1(
         batch,
         selected,
@@ -238,7 +255,6 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         finish_ingress_from_drafts_v1(
             batch,
             selected,
-            omitted_static_callers,
             contracts,
             entry_home_loans,
             constructors,
@@ -254,7 +270,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 guarded_actuals,
             ),
             static_arguments,
-            Some(&needs),
+            original_inventory,
         )
     })();
     // Successful final closure adds literal-only Main sites. An error retains

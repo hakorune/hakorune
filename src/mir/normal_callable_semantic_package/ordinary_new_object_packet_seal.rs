@@ -265,14 +265,7 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 fn same_incoming(a: &BorrowedIncomingCallDraftV1, b: &BorrowedIncomingCallDraftV1) -> bool {
-    let source = match (&a.source, &b.source) {
-        (BorrowedIncomingSourceV1::Instance(a), BorrowedIncomingSourceV1::Instance(b)) => a == b,
-        (
-            BorrowedIncomingSourceV1::Static(a),
-            BorrowedIncomingSourceV1::Static(b),
-        ) => Rc::ptr_eq(a, b),
-        _ => false,
-    };
+    let source = a.source.same_source(&b.source);
     source && a.call == b.call && a.callee == b.callee && a.arguments == b.arguments
 }
 

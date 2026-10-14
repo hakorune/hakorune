@@ -34,6 +34,19 @@ owner view and validates that scope; `ordinary_new_borrowed_formal_entry_values.
 owns physical value correspondence. Module boundaries do not change admission,
 source authority, pending phases or the packet's execution obligations.
 
+The same incoming inventory is now prepared before pending result eligibility.
+Original Stored observations retain their exact reference, receiver requirement,
+result requirement and full ordered argument sites in `PendingStored`. Pure source
+field/object coordinates do not issue a live receiver or executable call. Pending
+loans/projections fail, and missing selected targets keep the original row and
+callee veto. After the existing eligibility and receiver issuer, ingress finish
+binds each same row as `SelectedStored`, preserving its original Rc and checking
+the entire target/receiver/result requirement without another source scan.
+Entry/packet identity and common final corroboration retain that original source
+identity. Static source identity and every global/missing/orphan veto remain.
+These source phases do not provide Integer agreement or enable Array execution.
+
+
 ## Source-only Static local observations
 
 A completed original CurrentOwner Scalar cohort may select an exact Static
