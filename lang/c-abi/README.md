@@ -651,3 +651,22 @@ second resource table. Static byte globals and ABI declarations precede native
 module emission. The physical runtime test owner supports `--checked-string`
 with `HAKO_TEST_LIFECYCLE_ARCHIVE` selecting the actual archive. This is physical
 ABI evidence only; source frame activation/final correspondence remain required.
+
+
+Checked owned-object Array uses the existing indexed V4 consumer only:
+`array_owned_claim`, `array_owned_append`, `array_owned_get`, `array_owned_end`.
+The immutable `(canonical child object, nullable)` descriptor includes the
+published storage profile/runtime type and the existing complete child End
+thunk. Only successful append transfers the candidate; Fault retains its
+cleanup obligation. Get borrows from the live holder, using the existing
+nullable typed-object argument wire, and never acquires a child Home. End
+consumes the holder on both outcomes and continues reverse child cleanup.
+The no-layout native cohort refuses these operations.
+
+The existing physical test owner supports `--owned-array`, with
+`HAKO_TEST_FFI_DIR` and `HAKO_TEST_LIFECYCLE_ARCHIVE` selecting the actual shim
+and archive containing the checked owned-slot exports. Its independent graphs
+exercise real runtime release and injected append/child-End Faults, including
+pending-candidate primary/suppressed cleanup. They do not prove source Recipe,
+compiler admission, root Home/final correspondence, or app acceptance; those
+connections remain required before source execution gates can open.

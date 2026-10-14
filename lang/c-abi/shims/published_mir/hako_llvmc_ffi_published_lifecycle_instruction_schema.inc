@@ -30,7 +30,7 @@ static int hako_physical_result_operation(yyjson_val* op, int native) {
       !strcmp(kind, "map_install_borrowed_array") ||
       !strcmp(kind, "map_checked_get") || !strcmp(kind, "map_array_length") ||
       !strcmp(kind, "map_array_index_map") ||
-      !strcmp(kind, "map_get_text") || !strcmp(kind, "ordinary_call");
+      !strcmp(kind, "map_get_text") || !strcmp(kind, "array_owned_get") || !strcmp(kind, "ordinary_call");
 }
 
 static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* functions,
@@ -61,6 +61,23 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
         ? hako_physical_string_operand(function, yyjson_obj_get(operation, "value"), block, index, 0)
         : hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
             hako_physical_value_available_at(function, value, block, index);
+  }
+  if (!strcmp(kind, "array_owned_claim") || !strcmp(kind, "array_owned_append") ||
+      !strcmp(kind, "array_owned_get") || !strcmp(kind, "array_owned_end")) {
+    static const char* const holder[] = {"kind", "array", "object_id", "nullable", "site"};
+    static const char* const append[] = {"kind", "array", "object_id", "nullable", "site", "value"};
+    static const char* const get[] = {"kind", "array", "object_id", "nullable", "site", "index"};
+    int push = !strcmp(kind, "array_owned_append"), read = !strcmp(kind, "array_owned_get");
+    if (native || !hako_physical_exact_keys(operation, push ? append : read ? get : holder, push || read ? 6 : 5) ||
+        !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "object_id"), &object_id) ||
+        !hako_physical_layout_has_object(layouts, object_id) ||
+        !yyjson_is_bool(yyjson_obj_get(operation, "nullable")) ||
+        !hako_physical_u32(yyjson_obj_get(operation, "array"), &value) ||
+        !hako_physical_value_available_at(function, value, block, index)) return 0;
+    return !(push || read) ||
+        (hako_physical_u32(yyjson_obj_get(operation, push ? "value" : "index"), &value) &&
+         hako_physical_value_available_at(function, value, block, index));
   }
   if (hako_physical_map_kind(kind))
     return !native && hako_physical_map_operation(function, layouts, operation, block, index);
@@ -202,7 +219,7 @@ static int hako_physical_validate_instruction(yyjson_val* function, yyjson_val* 
         hako_physical_u32(yyjson_obj_get(instruction, "dst"), &a) &&
         hako_physical_u64(yyjson_obj_get(instruction, "bits"), NULL);
   }
-  if (native && !strcmp(op, "array_residence_release"))
+  if (!strcmp(op, "array_residence_release"))
     return hako_physical_exact_keys(instruction, ret, 2) &&
         hako_physical_u32(yyjson_obj_get(instruction, "value"), &a) &&
         hako_physical_value_available_at(function, a, current_block, current_index);

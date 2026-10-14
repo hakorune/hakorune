@@ -33,6 +33,8 @@ static hako_lv4_value* lv4_borrowed_copy_root(hako_lv4_function_index* fn,
   return value;
 }
 
+#include "hako_llvmc_ffi_lifecycle_v4_owned_array_flow.inc"
+
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_birth_fields.inc"
 
 static int lv4_borrowed_typed_live(const hako_lv4_input* in,
@@ -107,6 +109,8 @@ static int lv4_null_lane_present(hako_lv4_function_index* fn) {
       if (lv4_is(ins, "op", "borrowed_null_compare")) return 1;
     }
     op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
+    if (op && lv4_is(op, "kind", "array_owned_append") &&
+        yyjson_get_bool(yyjson_obj_get(op, "nullable"))) return 1;
     if (op && (lv4_is(op, "kind", "ordinary_call") ||
         lv4_is(op, "kind", "birth_call"))) {
       yyjson_val* args = yyjson_obj_get(yyjson_obj_get(op, "call"), "args");
@@ -144,6 +148,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     after_phi = 1;
     if (lv4_is(ins, "op", "fault_frame_enter")) {
       if (lv4_u(block, "id") != lv4_u(fn->function, "entry") || ri || faulted) return 0;
+    } else if (lv4_is(ins, "op", "array_residence_release")) {
+      hako_lv4_value* root = lv4_owned_array_root(fn, lv4_u(ins, "value"));
+      if (!root || !lv4_owned_array_claim(fn, root) || state[root->origin] != LV4_LIVE) return 0;
+      state[root->origin] = 0;
     } else if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "const_bool") ||
         lv4_is(ins, "op", "const_string")) {
       /* Text constants have no runtime lane; their uses remain unsupported. */
@@ -159,9 +167,10 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
     } else if (lv4_is(ins, "op", "copy")) {
       hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
       if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
-          source->kind != LV4_HANDLE && source->kind != LV4_TAGGED)) return 0;
+          source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_ARRAY_BORROW)) return 0;
+      if (source->kind == LV4_ARRAY_BORROW && (faulted || !lv4_owned_array_borrow_live(fn, source, state))) return 0;
       if (source->kind == LV4_HANDLE && !lv4_indexed_live(fn, source->id,
-          LV4_HANDLE, state, 0, 0)) return 0;
+          LV4_HANDLE, state, 0, 0) && !lv4_owned_array_holder_live(fn, source->id, state)) return 0;
     } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
       hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
           *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
@@ -271,7 +280,7 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
       if (value->kind == LV4_OUTCOME && (!lv4_is(op, "kind", "map_end_outcome") ||
           lv4_u(op, "outcome") != value->id)) return 0;
       /* Ordinary calls produce a scalar result, not a live storage lease. */
-      if (value->kind == LV4_I64) state[value->origin] = 0;
+      if (value->kind == LV4_I64 || value->kind == LV4_ARRAY_BORROW) state[value->origin] = 0;
     } else return 0;
   }
   return 1;
@@ -323,7 +332,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
-    if (lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print")) {
+    if (lv4_owned_array_kind(op)) {
+      if (birth || !lv4_owned_array_step(in, fn, op, faulted, state, normal, bi)) return 0;
+    } else if (lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print")) {
       int add = lv4_is(op, "kind", "string_add");
       if (birth || faulted || state[bi] ||
           !lv4_string_indexed_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state) ||
@@ -385,7 +396,11 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                  borrowed: the Void sentinel or a live lease — never a
                  spent origin, never a forwarded tagged carrier. The ABI
                  owner selects tag 0/3 at runtime. */
-              if (!value || value->kind != LV4_HANDLE || value->origin < 0 ||
+              int array_borrow = value && value->kind == LV4_ARRAY_BORROW;
+              if (array_borrow) {
+                if (!class_domain || !lv4_owned_array_borrow_live(fn, value, state) ||
+                    !value->object_id_set || value->object_id != yyjson_get_uint(view)) return 0;
+              } else if (!value || value->kind != LV4_HANDLE || value->origin < 0 ||
                   state[value->origin] != LV4_LIVE) return 0;
               /* A nullable spelling cannot erase a known New/Copy class.
                  Unknown acquired call-result class is checked in prologue. */

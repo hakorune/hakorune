@@ -18,6 +18,7 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 #include "hako_llvmc_ffi_lifecycle_v4_string_emit.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_teardown_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_owned_array_emit.inc"
 
 
 #include "hako_llvmc_ffi_lifecycle_v4_return_emit.inc"
@@ -85,6 +86,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     if ((ordinary || birth) && lv4_is(op, "kind", "ordinary_call") &&
         !lv4_is(op, "result", "map"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (op && lv4_is(op, "kind", "array_owned_get"))
+      fprintf(f, "  %%owned_get%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
     lv4_string_alloca(f, op, lv4_u(block, "id"));
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
@@ -305,7 +308,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
               "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
               "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
               dst, producer_id, dst, producer_id, dst, dst);
-        } else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
+        } else if (kind == LV4_ARRAY_BORROW)
+          fprintf(f, "  %%v%u = load i64, ptr %%owned_get%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
             lv4_is(producer_op, "kind", "map_array_length")))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
@@ -535,7 +540,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         }
       }
       fprintf(f, "  %%status%u = call i32 ", b);
-      if (lv4_is(op, "kind", "array_new")) {
+      if (lv4_owned_array_kind(op)) {
+        lv4_owned_array_emit_call(f, op, b, site);
+      } else if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
       } else if (lv4_is(op, "kind", "array_claim")) {
         fprintf(f, "@\"nyash.array.checked_claim_v1\"(ptr %%frame, i64 %llu, i64 %%v%u, i32 %u)\n",
@@ -652,6 +659,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
   lv4_map_declarations(f, in);
+  lv4_owned_array_globals(f, in);
   for (size_t li = 0; li < in->layout_count; li++) {
     yyjson_val* layout = in->layouts[li].row;
     uint32_t count = lv4_u(layout, "field_count");

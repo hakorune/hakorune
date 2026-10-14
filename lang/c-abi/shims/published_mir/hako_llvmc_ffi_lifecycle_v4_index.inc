@@ -74,6 +74,7 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
   return bsearch(&key, fn->blocks, fn->block_count, sizeof(key), lv4_block_compare);
 }
 static int lv4_operation_result(yyjson_val* op) {
+  if (lv4_is(op, "kind", "array_owned_get")) return LV4_ARRAY_BORROW;
   if (lv4_is(op, "kind", "string_add")) return LV4_OWNED_STRING;
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "ordinary_call"))
@@ -156,7 +157,7 @@ static int lv4_index_seed(const hako_lv4_input* in,
     if (!block || !op) return 0;
     value->kind = lv4_operation_result(op);
     value->origin = (int)block->ordinal;
-    if (lv4_is(op, "kind", "new_box")) {
+    if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_owned_get")) {
       value->object_id = lv4_u(op, "object_id"); value->object_id_set = 1;
     }
   }

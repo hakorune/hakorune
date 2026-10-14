@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Consume Rust-captured Script inputs; malformed mutations are physical evidence only."""
 import copy
+import hashlib
+import time
 import json
 import os
 from pathlib import Path
@@ -10,9 +12,10 @@ import sys
 ROOT = Path(__file__).resolve().parents[3]
 work = Path(sys.argv[1])
 string_only = len(sys.argv) > 2 and sys.argv[2] == "--checked-string"
+owned_only = len(sys.argv) > 2 and sys.argv[2] == "--owned-array"
 work.mkdir(parents=True, exist_ok=True)
-inputs = [] if string_only else [json.loads(path.read_text()) for path in sorted(work.glob("*.json"), key=lambda p: int(p.stem))]
-assert string_only or len(inputs) == 39
+inputs = [] if string_only or owned_only else [json.loads(path.read_text()) for path in sorted(work.glob("*.json"), key=lambda p: int(p.stem))]
+assert string_only or owned_only or len(inputs) == 39
 
 
 def checked(args):
@@ -21,10 +24,11 @@ def checked(args):
     return result
 
 
+library_dir = Path(os.environ.get("HAKO_TEST_FFI_DIR", ROOT / "target/release"))
 driver = work / "driver"
 checked(["cc", ROOT / "lang/c-abi/tests/published_lifecycle_v4_driver.c",
-         "-L" + str(ROOT / "target/release"), "-lhako_llvmc_ffi",
-         "-Wl,-rpath," + str(ROOT / "target/release"), "-o", driver])
+         "-L" + str(library_dir), "-lhako_llvmc_ffi",
+         "-Wl,-rpath," + str(library_dir), "-o", driver])
 obj = work / "out.o"
 
 
@@ -40,6 +44,7 @@ def compile_input(data, success):
     else:
         assert "[freeze:contract]" in result.stderr
         assert obj.read_bytes() == before, "rejection changed existing output"
+    return result
 
 
 def instructions(data):
@@ -173,6 +178,248 @@ def checked_string_physical():
                 b["terminator"] = {"index": 0, "instruction": fault}; b["edges"] = []
             compile_input(bad, False)
     print("checked String: indexed/native real ABI, literal NUL, MIN Integer, Normal/Fault LIFO End and malformed input refusal")
+
+
+def owned_array_physical():
+    # Independent physical graph, never source admission or app acceptance.
+    def inv(kind, normal, fault, **args):
+        operation = {"kind": kind, **args}
+        if kind != "ordinary_call": operation["site"] = 1
+        return {"op": "invoke", "operation": operation,
+                "fault_frame": 0, "normal": normal, "fault": fault}
+    def own(kind, normal, fault, **args):
+        return inv("array_owned_" + kind, normal, fault,
+                   array=10, object_id=1, nullable=True, **args)
+    def block(id, term, rows=()):
+        edges = ([{"target": term[k], "args": None} for k in ("normal", "fault")]
+                 if term["op"] == "invoke" else
+                 [{"target": term["target"], "args": None}] if term["op"] == "jump" else
+                 [{"target": term[k], "args": None} for k in ("then", "else")]
+                 if term["op"] == "branch" else [])
+        return {"id": id, "edges": edges,
+                "instructions": [{"index": i, "instruction": r} for i, r in enumerate(rows)],
+                "terminator": {"index": len(rows), "instruction": term}}
+    def result(producer, dst):
+        return {"op": "invoke_normal_result", "invoke_block": producer, "dst": dst}
+    fault = {"op": "return_fault", "fault_frame": 0}
+    rows = [
+        block(0, inv("array_new", 1, 90), [
+            {"op": "fault_frame_enter", "mode": "root_owned", "dst": 0},
+            {"op": "const_i64", "dst": 1, "value": 0}]),
+        block(1, own("claim", 2, 91), [result(0, 10)]),
+        block(2, inv("new_box", 3, 92, object_id=1)),
+        block(3, own("append", 4, 93, value=20), [result(2, 20)]),
+        block(4, own("get", 5, 92, index=1)),
+        block(5, inv("ordinary_call", 6, 92, result="i64", call={
+            "target": 1, "dst": None, "args": [{"kind": "nullable_typed_object", "value": 31}]}),
+            [result(4, 30), {"op": "copy", "dst": 31, "src": 30}]),
+        block(6, own("end", 7, 90), [result(5, 40)]),
+        block(7, {"op": "return", "value": 40}), block(90, fault),
+        block(91, fault, [{"op": "array_residence_release", "value": 10}]),
+        block(92, own("end", 90, 90)),
+        block(93, inv("home_release", 92, 92, object_id=1, value=20)),
+        block(94, inv("new_box", 95, 92, object_id=1)),
+        block(95, own("append", 4, 96, value=21), [result(94, 21)]),
+        block(96, inv("home_release", 92, 92, object_id=1, value=21))]
+    rows[3]["terminator"]["instruction"]["normal"] = 94
+    rows[3]["edges"][0]["target"] = 94
+    value_ops = {"array_new", "new_box", "array_owned_get", "ordinary_call"}
+    for b in list(rows):
+        term = b["terminator"]["instruction"]
+        if term["op"] == "invoke" and term["operation"]["kind"] not in value_ops:
+            target = term["normal"]; landing = 1000 + b["id"]
+            term["normal"] = landing; b["edges"][0]["target"] = landing
+            rows.append(block(landing, {"op": "jump", "target": target, "args": None}))
+    for i, b in enumerate(rows):
+        if b["terminator"]["instruction"]["op"] == "invoke" and b["terminator"]["instruction"]["operation"]["kind"] != "ordinary_call":
+            b["terminator"]["instruction"]["operation"]["site"] = 100 + i
+    worker = {"name": "observe_null", "role": "ordinary_i64", "receiver": None,
+        "receiver_object": None, "params": [{"value": 1,
+            "representation": "borrowed_kind_payload_v1", "object_view": 1}], "entry": 0,
+        "blocks": [block(0, {"op": "branch", "condition": 3, "then": 1, "else": 2,
+            "then_args": None, "else_args": None}, [
+                {"op": "fault_frame_enter", "mode": "borrowed", "dst": 0},
+                {"op": "const_null", "dst": 2},
+                {"op": "borrowed_null_compare", "dst": 3, "lhs": 1, "rhs": 2, "predicate": "eq"}]),
+            block(1, {"op": "return", "value": 4}, [{"op": "const_i64", "dst": 4, "value": 1}]),
+            block(2, {"op": "return", "value": 5}, [{"op": "const_i64", "dst": 5, "value": 0}])]}
+    base = {"schema": "hako.published-lifecycle-physical-program.v2", "fault_abi_version": 1,
+        "process_result_site": 99, "storage_profile": 1,
+        "layouts": [{"object_id": 1, "runtime_type_id": 770001, "field_count": 0,
+            "fields": [], "owned_residences": [], "owned_object_residences": []}],
+        "functions": [{"name": "owned_array", "role": "root_i64", "receiver": None,
+            "receiver_object": None, "params": [], "entry": 0, "blocks": rows}, worker]}
+    probe = work / "owned-runtime-observer.c"
+    probe.write_text(r'''/* Observe the real ABI and compiled child End callback; issue no source proof. */
+#include <assert.h>
+#include <stdio.h>
+#include "nyrt_fault_v1.h"
+#ifndef TEST_FAIL_APPEND_AT
+#define TEST_FAIL_APPEND_AT 0
+#endif
+#ifndef TEST_FAIL_CHILD_END_AT
+#define TEST_FAIL_CHILD_END_AT 0
+#endif
+static int64_t children[8];
+static unsigned made, ended, attempts, arrays_ended;
+static const NyrtArrayOwnedDescriptorV1* original;
+static void descriptor(const NyrtArrayOwnedDescriptorV1* d) {
+  assert(d && d->profile == 1 && d->nullable == 1 && d->type_id == 770001 && d->end);
+  if (!original) original = d;
+  assert(original == d);
+}
+uint32_t real_new(void*,uint32_t,uint64_t,int64_t,const uint32_t*,size_t,int64_t*) __asm__("__real_nyash.object.checked_new_v1");
+uint32_t wrap_new(void*,uint32_t,uint64_t,int64_t,const uint32_t*,size_t,int64_t*) __asm__("__wrap_nyash.object.checked_new_v1");
+uint32_t wrap_new(void* f,uint32_t p,uint64_t s,int64_t t,const uint32_t* l,size_t n,int64_t* o) {
+  uint32_t r=real_new(f,p,s,t,l,n,o); if (!r) { assert(made<8); children[made++]=*o; } return r;
+}
+uint32_t real_release(void*,uint32_t,uint64_t,int64_t,int64_t) __asm__("__real_nyash.object.home_release_plain_i64_v1");
+uint32_t wrap_release(void*,uint32_t,uint64_t,int64_t,int64_t) __asm__("__wrap_nyash.object.home_release_plain_i64_v1");
+uint32_t wrap_release(void* f,uint32_t p,uint64_t s,int64_t h,int64_t t) {
+  assert(ended<made && h==children[made-ended-1] && t==770001);
+  printf("CHILD_END %u\n",made-ended); ended++;
+  uint32_t r=real_release(f,p,s,h,t); assert(r==0);
+  return ended==TEST_FAIL_CHILD_END_AT ? nyrt_fault_record_static_v1(f,9402,s,ended,0) : r;
+}
+#define OWN_PROTO(name,args) uint32_t real_##name args __asm__("__real_nyash.array.checked_owned_" #name "_v1"); \
+  uint32_t wrap_##name args __asm__("__wrap_nyash.array.checked_owned_" #name "_v1")
+OWN_PROTO(claim,(void*,uint64_t,int64_t,const NyrtArrayOwnedDescriptorV1*));
+uint32_t wrap_claim(void* f,uint64_t s,int64_t h,const NyrtArrayOwnedDescriptorV1* d) {
+  descriptor(d); return real_claim(f,s,h,d);
+}
+OWN_PROTO(append,(void*,uint64_t,int64_t,const NyrtArrayOwnedDescriptorV1*,int64_t));
+uint32_t wrap_append(void* f,uint64_t s,int64_t h,const NyrtArrayOwnedDescriptorV1* d,int64_t c) {
+  descriptor(d); attempts++;
+  if (attempts==TEST_FAIL_APPEND_AT) { printf("APPEND_FAULT %u\n",attempts); return nyrt_fault_record_static_v1(f,9401,s,attempts,0); }
+  return real_append(f,s,h,d,c);
+}
+OWN_PROTO(get,(void*,uint64_t,int64_t,const NyrtArrayOwnedDescriptorV1*,int64_t,int64_t*));
+uint32_t wrap_get(void* f,uint64_t s,int64_t h,const NyrtArrayOwnedDescriptorV1* d,int64_t i,int64_t* o) {
+  descriptor(d); return real_get(f,s,h,d,i,o);
+}
+OWN_PROTO(end,(void*,uint64_t,int64_t,const NyrtArrayOwnedDescriptorV1*));
+uint32_t wrap_end(void* f,uint64_t s,int64_t h,const NyrtArrayOwnedDescriptorV1* d) {
+  descriptor(d); uint32_t r=real_end(f,s,h,d);
+  assert(ended==made && arrays_ended++==0); printf("ARRAY_END %u\n",r); return r;
+}
+int32_t real_report(const void*) __asm__("__real_nyash.fault.report_final_v1");
+int32_t wrap_report(const void*) __asm__("__wrap_nyash.fault.report_final_v1");
+int32_t wrap_report(const void* f) {
+  const NyrtFaultFrameV1* frame=f; assert(ended==made && arrays_ended==1);
+  printf("FAULT %u\n",frame->primary.reason);
+  for (unsigned i=0;i<frame->suppressed_len;i++) printf("SUPPRESSED %u\n",frame->suppressed[i].reason);
+  return real_report(f);
+}
+uint32_t real_dispose(void*) __asm__("__real_nyash.fault.frame_dispose_v1");
+uint32_t wrap_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1");
+uint32_t wrap_dispose(void* f) {
+  assert(ended==made && arrays_ended==1); printf("DISPOSE %u %u\n",made,ended); return real_dispose(f);
+}
+''')
+    wraps = ["nyash.object.checked_new_v1", "nyash.object.home_release_plain_i64_v1",
+        *["nyash.array.checked_owned_" + kind + "_v1" for kind in ("claim", "append", "get", "end")],
+        "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
+    executions, rejections = [], []
+    def digest(path):
+        with Path(path).open("rb") as stream:
+            return hashlib.file_digest(stream, "sha256").hexdigest()
+    def execute(data, expected, defines=(), ends=(2, 1), primary=None, suppressed=None):
+        started = time.monotonic()
+        compile_input(data, True)
+        object_seconds = time.monotonic() - started
+        started = time.monotonic()
+        exe = work / "owned-array"
+        checked(["cc", obj, probe, archive, "-I" + str(ROOT / "include"),
+            *defines, *["-Wl,--wrap=" + kind for kind in wraps],
+            "-lpthread", "-ldl", "-lm", "-o", exe])
+        link_seconds = time.monotonic() - started
+        started = time.monotonic()
+        run = subprocess.run([str(exe)], text=True, capture_output=True,
+            env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
+        run_seconds = time.monotonic() - started
+        assert run.returncode == expected, (run.returncode, run.stdout, run.stderr)
+        lines = run.stdout.splitlines()
+        assert [line for line in lines if line.startswith("CHILD_END ")] == [f"CHILD_END {i}" for i in ends], lines
+        assert lines[-1] == f"DISPOSE {len(ends)} {len(ends)}", lines
+        assert sum(line.startswith("ARRAY_END ") for line in lines) == 1, lines
+        if primary is not None: assert f"FAULT {primary}" in lines, lines
+        if suppressed is not None: assert f"SUPPRESSED {suppressed}" in lines, lines
+        case = work / f"owned-case-{len(executions)}.json"
+        case.write_text(json.dumps(data))
+        executions.append({"input": str(case), "input_sha256": digest(case),
+            "object_sha256": digest(obj), "exe_sha256": digest(exe), "defines": list(defines),
+            "exit": run.returncode, "stdout": run.stdout, "stderr": run.stderr,
+            "object_seconds": object_seconds, "link_seconds": link_seconds, "run_seconds": run_seconds})
+    for index, expected in [(0, 0), (1, 0), (2, 1), (-1, 1)]:
+        data = copy.deepcopy(base)
+        data["functions"][0]["blocks"][0]["instructions"][1]["instruction"]["value"] = index
+        execute(data, expected)
+    execute(base, 70, ["-DTEST_FAIL_APPEND_AT=2"], primary=9401)
+    execute(base, 70, ["-DTEST_FAIL_CHILD_END_AT=1"], primary=9402)
+    execute(base, 70, ["-DTEST_FAIL_APPEND_AT=2", "-DTEST_FAIL_CHILD_END_AT=1"], primary=9401, suppressed=9402)
+    stored_null = copy.deepcopy(base)
+    by_id = {b["id"]: b for b in stored_null["functions"][0]["blocks"]}
+    for id, target in [(94, 95), (96, 92)]:
+        by_id[id]["terminator"]["instruction"] = {"op": "jump", "target": target, "args": None}
+        by_id[id]["edges"] = [{"target": target, "args": None}]
+    by_id[95]["instructions"][0]["instruction"] = {"op": "const_null", "dst": 21}
+    stored_null["functions"][0]["blocks"].remove(by_id[1096])
+    by_id[0]["instructions"][1]["instruction"]["value"] = 1
+    execute(stored_null, 1, ends=(1,))
+    execute(stored_null, 70, ["-DTEST_FAIL_APPEND_AT=2"], ends=(1,), primary=9401)
+    mutations = []
+    def mutate(change):
+        data = copy.deepcopy(base); change(data); mutations.append(data)
+    def op(data, kind):
+        return first(data, "array_owned_" + kind)["operation"]
+    def root_block(data, id):
+        return next(b for b in data["functions"][0]["blocks"] if b["id"] == id)
+    mutate(lambda d: op(d, "get").update(nullable=False))
+    mutate(lambda d: op(d, "get").update(index=10))
+    mutate(lambda d: op(d, "append").update(value=10))
+    mutate(lambda d: op(d, "get").update(object_id=999))
+    mutate(lambda d: op(d, "get").pop("nullable"))
+    mutate(lambda d: op(d, "get").update(nullable=1))
+    mutate(lambda d: root_block(d, 7)["terminator"]["instruction"].update(value=31))
+    mutate(lambda d: first(d, "ordinary_call")["operation"]["call"]["args"][0].update(kind=3))
+    def late_borrow(data):
+        b = root_block(data, 7)
+        b["instructions"].append({"index": 0, "instruction": {"op": "copy", "src": 31, "dst": 41}})
+        b["terminator"]["index"] = 1
+    mutate(late_borrow)
+    def bypass(data, id, target):
+        b = root_block(data, id)
+        b["terminator"]["instruction"] = {"op": "jump", "target": target, "args": None}
+        b["edges"] = [{"target": target, "args": None}]
+    mutate(lambda d: bypass(d, 93, 92))  # Fault keeps candidate cleanup owed.
+    mutate(lambda d: bypass(d, 6, 7))    # Successful append still owes holder End.
+    def foreign_view(data):
+        layout = copy.deepcopy(data["layouts"][0]); layout.update(object_id=2, runtime_type_id=770002)
+        data["layouts"].append(layout)
+        data["functions"][1]["params"][0]["object_view"] = 2
+    mutate(foreign_view)
+    def no_layout(data):
+        data.pop("storage_profile"); data.pop("layouts")
+        data["runtime_requirements"] = {"kind": "native_array", "abi_version": 1}
+    mutate(no_layout)
+    for data in mutations:
+        result = compile_input(data, False)
+        rejections.append({"input_sha256": digest(work / "input.json"),
+            "exit": result.returncode, "stderr": result.stderr})
+    (work / "owned-runtime-results.json").write_text(json.dumps({
+        "head": checked(["git", "-C", ROOT, "rev-parse", "HEAD"]).stdout.strip(),
+        "script_sha256": digest(__file__), "ffi_sha256": digest(library_dir / "libhako_llvmc_ffi.so"),
+        "archive": str(archive), "archive_sha256": digest(archive),
+        "executions": executions, "rejections": rejections,
+        "env_overrides": {"NYASH_NYRT_SILENT_RESULT": "1", "HAKO_NYRT_PLUGIN_HOST": "off"},
+        "non_claim": "independent physical/runtime ABI graph, no source Recipe or app acceptance"
+    }, indent=2))
+    print("owned Array: real indexed nonnull/missing/stored-null Get; Normal and injected append/child-End Fault cleanup, reverse all-child End and retained primary/suppressed; malformed wire/lifetime/call refusal; no source acceptance")
+
+
+if owned_only:
+    owned_array_physical()
+    sys.exit(0)
 
 
 if string_only:
