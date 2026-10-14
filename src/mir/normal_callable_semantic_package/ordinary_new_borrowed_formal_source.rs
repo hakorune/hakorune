@@ -221,6 +221,42 @@ pub(super) fn classify_actual_seed(
     )
 }
 
+/// Original source classification retains a forward's declaration constraint
+/// without deciding transport membership. The same row can be projected later.
+#[derive(Debug)]
+enum OriginalFormalActualSeedV1 {
+    Integer,
+    Class(Box<str>),
+    Null,
+    Forward {
+        origin: BindingRefV1,
+        declared_constraint: Option<Box<str>>,
+    },
+    Conflict,
+}
+impl OriginalFormalActualSeedV1 {
+    fn project_selected_v1(
+        &self,
+        caller: FunctionOwnerIdV1,
+        transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
+    ) -> FormalActualSeedV1 {
+        match self {
+            Self::Integer => FormalActualSeedV1::Integer,
+            Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
+            Self::Null => FormalActualSeedV1::Null,
+            Self::Conflict => FormalActualSeedV1::Conflict,
+            Self::Forward { origin, declared_constraint } => {
+                let outside = transport_owners.is_some_and(|owners| !owners.contains(&caller));
+                match (outside, declared_constraint) {
+                    (false, Some(class)) => FormalActualSeedV1::Class(class.clone()),
+                    (true, None) => FormalActualSeedV1::ForwardIntegerOnly(*origin),
+                    _ => FormalActualSeedV1::Forward(*origin),
+                }
+            }
+        }
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn classify_actual_seed_in_scope(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
@@ -236,22 +272,42 @@ fn classify_actual_seed_in_scope(
     transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
 ) -> FormalActualSeedV1 {
+    classify_original_actual_seed_in_scope(
+        input, batch, selected, callable_result_classes, caller, candidates,
+        receiver, definitions, contracts, site, guarded,
+    ).project_selected_v1(caller, transport_owners)
+}
+
+#[allow(clippy::too_many_arguments)]
+fn classify_original_actual_seed_in_scope(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    caller: FunctionOwnerIdV1,
+    candidates: &[super::super::candidate::OrdinaryNewCandidate],
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    site: &SourceExprSiteV1,
+    guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
+) -> OriginalFormalActualSeedV1 {
     if let Some((fact, call, ordinal)) = guarded {
         return if fact.corroborates(input, call, ordinal, site) {
-            FormalActualSeedV1::Integer
+            OriginalFormalActualSeedV1::Integer
         } else {
-            FormalActualSeedV1::Conflict
+            OriginalFormalActualSeedV1::Conflict
         };
     }
     let function = input.function();
     match function.expression_source().literal(site) {
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Null) => {
-            return FormalActualSeedV1::Null;
+            return OriginalFormalActualSeedV1::Null;
         }
         Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::Integer(_)) => {
-            return FormalActualSeedV1::Integer;
+            return OriginalFormalActualSeedV1::Integer;
         }
-        Some(_) => return FormalActualSeedV1::Conflict,
+        Some(_) => return OriginalFormalActualSeedV1::Conflict,
         None => {}
     }
     if function
@@ -259,32 +315,32 @@ fn classify_actual_seed_in_scope(
         .negative_integer_immediate(site)
         .is_some()
     {
-        return FormalActualSeedV1::Integer;
+        return OriginalFormalActualSeedV1::Integer;
     }
     let Some(mut binding) = arg_site_binding(input, site) else {
-        return FormalActualSeedV1::Conflict;
+        return OriginalFormalActualSeedV1::Conflict;
     };
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-        return FormalActualSeedV1::Integer;
+        return OriginalFormalActualSeedV1::Integer;
     }
     let mut visited = BTreeSet::new();
     loop {
         if binding.owner() != caller || !visited.insert(binding) {
-            return FormalActualSeedV1::Conflict;
+            return OriginalFormalActualSeedV1::Conflict;
         }
         if let Some(candidate) = candidates
             .iter()
             .find(|candidate| candidate.destination == binding)
         {
             return if candidate.construction.is_ok() {
-                FormalActualSeedV1::Class(candidate.class.clone())
+                OriginalFormalActualSeedV1::Class(candidate.class.clone())
             } else {
-                FormalActualSeedV1::Conflict
+                OriginalFormalActualSeedV1::Conflict
             };
         }
         if let Some((root, row)) = receiver {
             if root == binding {
-                return FormalActualSeedV1::Class(row.name().into());
+                return OriginalFormalActualSeedV1::Class(row.name().into());
             }
         }
         if let Some(class) =
@@ -297,37 +353,28 @@ fn classify_actual_seed_in_scope(
                 binding,
             )
         {
-            return FormalActualSeedV1::Class(class);
+            return OriginalFormalActualSeedV1::Class(class);
         }
         if let Some(formal) = definitions
             .get(&caller)
             .and_then(|draft| draft.origins.get(&binding))
         {
-            let candidate_only = transport_owners.is_some_and(|owners| !owners.contains(&caller));
-            if let Some(class) = contracts
+            let declared_constraint = contracts
                 .iter()
                 .find(|row| row.owner == caller)
                 .and_then(|row| row.parameters.iter().find(|row| row.binding == *formal))
                 .and_then(|row| match &row.kind {
-                    CallableParameterContractKindV1::DeclaredObject(class) => Some(class),
+                    CallableParameterContractKindV1::DeclaredObject(class) => Some(class.clone()),
                     _ => None,
-                })
-            {
-                return if candidate_only {
-                    FormalActualSeedV1::Conflict
-                } else {
-                    FormalActualSeedV1::Class(class.clone())
-                };
-            }
-            return if candidate_only {
-                FormalActualSeedV1::ForwardIntegerOnly(*formal)
-            } else {
-                FormalActualSeedV1::Forward(*formal)
+                });
+            return OriginalFormalActualSeedV1::Forward {
+                origin: *formal,
+                declared_constraint,
             };
         }
         match alias_source_binding(input, binding) {
             Some(next) => binding = next,
-            None => return FormalActualSeedV1::Conflict,
+            None => return OriginalFormalActualSeedV1::Conflict,
         }
     }
 }
