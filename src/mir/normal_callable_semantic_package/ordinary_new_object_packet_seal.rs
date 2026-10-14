@@ -215,6 +215,15 @@ impl BorrowedObjectCallPacketV1<'_, '_> {
     pub(crate) fn result(&self) -> InvokeCallResultKind {
         self.row.result().expect("checked original Object packet result")
     }
+    /// Complete cancellation operations for this Taken packet's projected
+    /// candidate. The expression consumer must corroborate that real Normal
+    /// producer and own the pending transfer/Fault path; no LOCAL is created.
+    pub(crate) fn cancellation_operations_v1(&self, value: crate::mir::ValueId) -> Vec<crate::mir::instruction::InvokeOperation> {
+        super::super::super::object_end::operations_v1(
+            self.teardown.object(), self.result() == InvokeCallResultKind::NullableHandle,
+            self.teardown.owned_children().unwrap_or(&[]), value,
+        ).map(|(_, operation)| operation).collect()
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn teardown(&self) -> &ObjectReturnTeardownDescriptorV1 {
         self.teardown
     }

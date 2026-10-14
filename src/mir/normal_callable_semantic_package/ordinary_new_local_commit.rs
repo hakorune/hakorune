@@ -484,37 +484,14 @@ impl NewLocalCommitV1 {
             ) => unreachable!("owned teardown without sealed residences"),
             (None, _) => &[],
         };
-        let children = children.iter().rev().map(|child| {
-            (
-                root_home::RootHomeReleaseSubjectV1::FieldResidence {
-                    binding: self.binding,
-                    field: child.field,
+        super::object_end::operations_v1(self.object, false, children, base)
+            .map(|(field, operation)| (
+                match field {
+                    Some(field) => root_home::RootHomeReleaseSubjectV1::FieldResidence { binding: self.binding, field },
+                    None => root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
                 },
-                match child.kind {
-                    super::OwnedFieldChildKindV1::Array => {
-                        InvokeOperation::OwnedFieldResidenceRelease {
-                            field: child.field,
-                            base,
-                        }
-                    }
-                    super::OwnedFieldChildKindV1::Object(child_object) => {
-                        InvokeOperation::OwnedObjectFieldRelease {
-                            field: child.field,
-                            base,
-                            child: child_object,
-                        }
-                    }
-                },
-            )
-        });
-        children
-            .chain(std::iter::once((
-                root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
-                InvokeOperation::HomeRelease {
-                    object: self.object,
-                    value: base,
-                },
-            )))
+                operation,
+            ))
             .collect()
     }
 }

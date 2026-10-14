@@ -2575,3 +2575,15 @@ issues neither an expression acquisition nor an Array consumer classification.
 Original Append membership must first select a complete Object packet; a source
 class loan alone does not make a Ready row. Generic expression statements retain
 their existing unselected/pending boundary.
+
+Complete Object End operation order is projected once by
+`ordinary_new_object_end`: reverse declared child releases followed by the
+parent release, conditional only for a validated nullable result. Ordinary
+local Homes, received-call Homes and direct returned objects share that
+projection and attach their own original release subjects. Their existing
+availability/destruction checks remain the authority; missing owned-child
+proof never becomes a plain release. The Taken Object packet lends cancellation
+operations from its same complete teardown and result kind, without creating
+a LOCAL or Home. Its supplied ValueId is only a coordinate parameter: an
+expression consumer must bind it to the same real Normal result and verify
+Append transfer/Fault cancellation correspondence before execution admission.

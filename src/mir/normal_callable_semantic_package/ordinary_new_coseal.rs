@@ -72,6 +72,8 @@ pub(crate) use ordinary_new_arguments::{
     OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     QualifiedStaticCallArgumentKindV1,
 };
+#[path = "ordinary_new_object_end.rs"]
+mod object_end;
 #[path = "ordinary_new_completion_index.rs"]
 mod completion_index;
 #[path = "ordinary_new_completion_lookup.rs"]

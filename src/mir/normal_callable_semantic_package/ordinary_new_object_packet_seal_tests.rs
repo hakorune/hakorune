@@ -127,6 +127,16 @@ fn original_main_object_packet_matrix_borrows_same_executable_storage_and_affine
                 let packet = ledger.borrowed_object_call_packet_v1(&row).unwrap();
                 assert_eq!(packet.arguments().as_ptr(), original.ordered_arguments.as_ptr());
                 assert_eq!(Some(packet.result()), row.result());
+                for value in [crate::mir::ValueId(71), crate::mir::ValueId(93)] {
+                    let object = packet.teardown().object();
+                    let expected = if nullable {
+                        crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { object, value }
+                    } else {
+                        crate::mir::instruction::InvokeOperation::HomeRelease { object, value }
+                    };
+                    assert_eq!(packet.cancellation_operations_v1(value), [expected],
+                        "pure End projection keeps original nullable kind and supplied result coordinate");
+                }
                 assert!(std::ptr::eq(packet.teardown(), row.object_packet.as_ref().unwrap()
                     .teardown.descriptor().unwrap().0));
                 assert!(ledger

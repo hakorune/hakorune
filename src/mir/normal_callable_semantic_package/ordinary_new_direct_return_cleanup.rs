@@ -1,6 +1,5 @@
 //! Retain the SAME checked Direct handoff without exposing a proof constructor.
 use super::super::local_commit::RootHomeReleaseSubjectV1;
-use super::super::OwnedFieldChildKindV1;
 use super::return_handoff::VerifiedObjectReturnHandoffV1;
 use crate::mir::instruction::{InvokeCallResultKind, InvokeOperation};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceStmtSiteV1};
@@ -46,49 +45,19 @@ impl DirectRootCleanupSourceV1 {
             return Err("[freeze:contract][ordinary-new/direct-result-null-kind]".into());
         }
         let site = self.call();
-        let mut plan: Vec<_> = descriptor
-            .children()
-            .iter()
-            .rev()
-            .map(|child| {
-                (
-                    RootHomeReleaseSubjectV1::DirectResultField {
-                        site: site.clone(),
-                        field: child.field,
-                    },
-                    match child.kind {
-                        OwnedFieldChildKindV1::Array => {
-                            InvokeOperation::OwnedFieldResidenceRelease {
-                                field: child.field,
-                                base: value,
-                            }
-                        }
-                        OwnedFieldChildKindV1::Object(object) => {
-                            InvokeOperation::OwnedObjectFieldRelease {
-                                field: child.field,
-                                base: value,
-                                child: object,
-                            }
-                        }
-                    },
-                )
-            })
-            .collect();
-        let release = match self.kind {
-            InvokeCallResultKind::Handle => InvokeOperation::HomeRelease {
-                object: descriptor.object(),
-                value,
-            },
-            InvokeCallResultKind::NullableHandle => InvokeOperation::HomeReleaseIfLive {
-                object: descriptor.object(),
-                value,
-            },
+        let nullable = match self.kind {
+            InvokeCallResultKind::Handle => false,
+            InvokeCallResultKind::NullableHandle => true,
             _ => return Err("[freeze:contract][ordinary-new/direct-result-kind]".into()),
         };
-        plan.push((
-            RootHomeReleaseSubjectV1::DirectResult { site: site.clone() },
-            release,
-        ));
-        Ok(plan)
+        Ok(super::super::object_end::operations_v1(
+            descriptor.object(), nullable, descriptor.children(), value,
+        ).map(|(field, operation)| (
+            match field {
+                Some(field) => RootHomeReleaseSubjectV1::DirectResultField { site: site.clone(), field },
+                None => RootHomeReleaseSubjectV1::DirectResult { site: site.clone() },
+            },
+            operation,
+        )).collect())
     }
 }

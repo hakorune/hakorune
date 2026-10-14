@@ -111,46 +111,15 @@ impl CallReceivedCommitV1 {
             Some(None) => unreachable!("owned teardown without sealed residences"),
             None => &[],
         };
-        let release = match self.release {
-            CallReceivedReleaseV1::Handle => InvokeOperation::HomeRelease {
-                object: self.object,
-                value: base,
+        super::super::object_end::operations_v1(
+            self.object, self.release == CallReceivedReleaseV1::Nullable, children, base,
+        ).map(|(field, operation)| (
+            match field {
+                Some(field) => super::root_home::RootHomeReleaseSubjectV1::FieldResidence { binding: self.binding, field },
+                None => super::root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
             },
-            CallReceivedReleaseV1::Nullable => InvokeOperation::HomeReleaseIfLive {
-                object: self.object,
-                value: base,
-            },
-        };
-        children
-            .iter()
-            .rev()
-            .map(|child| {
-                (
-                    super::root_home::RootHomeReleaseSubjectV1::FieldResidence {
-                        binding: self.binding,
-                        field: child.field,
-                    },
-                    match child.kind {
-                        super::super::OwnedFieldChildKindV1::Array => {
-                            InvokeOperation::OwnedFieldResidenceRelease {
-                                field: child.field,
-                                base,
-                            }
-                        }
-                        super::super::OwnedFieldChildKindV1::Object(child_object) => {
-                            InvokeOperation::OwnedObjectFieldRelease {
-                                field: child.field,
-                                base,
-                                child: child_object,
-                            }
-                        }
-                    },
-                )
-            })
-            .chain(std::iter::once((
-                super::root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
-                release,
-            )))
+            operation,
+        ))
             .collect()
     }
     pub(super) fn checked_bindings(&self) -> Result<&[(BasicBlockId, MirInstruction)], String> {
