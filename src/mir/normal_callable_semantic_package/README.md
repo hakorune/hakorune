@@ -2541,3 +2541,11 @@ candidate Integer consumer rechecks the original inventory; ordinary formal
 agreement remains selected-only. Array qualification is projected after selection
 on the same rows, without reclassifying their expressions. This grants no field
 invariant, range, Normal-result, construction, cleanup or executable ABI proof.
+
+The same original seed product also retains the narrower source-I64 projection.
+Exact `usize` actuals keep their Integer-lane classification for existing source
+and selected transport consumers, but are conflicting inputs for source-I64.
+Both projections use the existing value-domain fold, original forwarding rows,
+and all original New/Birth actuals, with the same inventory identity and vetoes.
+This prevents forwarding from erasing the original ABI distinction; it grants
+no field invariant, executable result, Normal range, or physical signature.

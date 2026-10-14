@@ -207,7 +207,19 @@ mod tests {
             let ctor = package.instance_constructors.rows().iter().find(|row| row.box_name() == "Page").unwrap();
             let capacity = ctor.formal_contracts()[0].binding();
             assert_eq!(ingress.candidate_integer_agreement(capacity), expected, "{main}/{other}");
+            assert_eq!(ingress.candidate_i64_source_agreement(capacity), expected, "original signed New inputs: {main}/{other}");
             assert!(!ingress.formal_integer_agreement(capacity), "source New proof grants no selected borrowed transport");
+        }
+        for scalar in ["i64", "usize"] {
+            let package = issue_with_brand_catalog(&format!(
+                "box Page {{ value: i64 birth(capacity) {{ me.value = capacity }} read() {{ return me.value }} }}
+                 static box Main {{ make(size: {scalar}) {{ return new Page(size) }} main() {{ return 0 }} }}"
+            )).unwrap();
+            let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            let ctor = package.instance_constructors.rows().iter().find(|row| row.box_name() == "Page").unwrap();
+            let capacity = ctor.formal_contracts()[0].binding();
+            assert!(ingress.candidate_integer_agreement(capacity));
+            assert_eq!(ingress.candidate_i64_source_agreement(capacity), scalar == "i64");
         }
     }
 
@@ -441,6 +453,9 @@ mod tests {
                 .as_ref()
                 .unwrap();
             assert!(ingress.formal_integer_agreement(binding));
+            assert!(ingress.candidate_integer_agreement(binding));
+            assert_eq!(ingress.candidate_i64_source_agreement(binding), scalar == "i64",
+                "forwarded usize remains source Integer without signed result credit");
             assert!(ingress.formal_object_view(binding).is_none());
             assert_eq!(ingress.incoming.len(), 1);
             let original_call = &ingress.incoming[0];

@@ -227,6 +227,8 @@ pub(super) fn classify_actual_seed(
 #[derive(Debug)]
 enum OriginalFormalActualSeedV1 {
     Integer,
+    /// Exact usize declaration: Integer lane, without signed result permission.
+    SourceInteger,
     Class(Box<str>),
     Null,
     Forward {
@@ -236,11 +238,12 @@ enum OriginalFormalActualSeedV1 {
     Conflict,
 }
 impl OriginalFormalActualSeedV1 {
-    fn project_source_integer_v1(&self) -> FormalActualSeedV1 {
+    fn project_source_integer_v1(&self, current_i64: bool) -> FormalActualSeedV1 {
         match self {
             Self::Forward { origin, declared_constraint: Some(_) } => FormalActualSeedV1::Forward(*origin),
             Self::Forward { origin, declared_constraint: None } => FormalActualSeedV1::ForwardIntegerOnly(*origin),
             Self::Integer => FormalActualSeedV1::Integer,
+            Self::SourceInteger => if current_i64 { FormalActualSeedV1::Conflict } else { FormalActualSeedV1::Integer },
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
             Self::Conflict => FormalActualSeedV1::Conflict,
@@ -253,7 +256,7 @@ impl OriginalFormalActualSeedV1 {
         transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
     ) -> FormalActualSeedV1 {
         match self {
-            Self::Integer => FormalActualSeedV1::Integer,
+            Self::Integer | Self::SourceInteger => FormalActualSeedV1::Integer,
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
             Self::Conflict => FormalActualSeedV1::Conflict,
@@ -333,7 +336,9 @@ fn classify_original_actual_seed_in_scope(
         return OriginalFormalActualSeedV1::Conflict;
     };
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
-        return OriginalFormalActualSeedV1::Integer;
+        return if contracts.iter().filter(|row| row.owner == input.owner()).flat_map(|row| &row.parameters)
+            .any(|row| row.binding == binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
+        { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger };
     }
     let mut visited = BTreeSet::new();
     loop {

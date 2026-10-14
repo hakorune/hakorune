@@ -86,6 +86,7 @@ impl OriginalNewSeedsV1 {
         &self,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         seeds: &mut BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>>,
+        current_i64: bool,
     ) {
         let mut incoming: BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>> = constructors.rows().iter()
             .filter(|row| row.kind() == ConstructorSourceKindV1::Birth)
@@ -105,7 +106,7 @@ impl OriginalNewSeedsV1 {
                         || row.seeds.len() != formals.len()
                     { vetoes.insert(row.original.class()); continue; }
                     for (formal, seed) in formals.iter().zip(row.seeds.iter()) {
-                        incoming.entry(*formal).or_default().push(seed.project_source_integer_v1());
+                        incoming.entry(*formal).or_default().push(seed.project_source_integer_v1(current_i64));
                     }
                 }
                 OriginalNewBirthV1::Unavailable => { vetoes.insert(row.original.class()); }
