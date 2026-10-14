@@ -17,6 +17,12 @@ struct BorrowedIncomingInventoryV1
 }
 impl BorrowedIncomingInventoryV1 {
     #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn replace_stored_origin_for_test(&mut self, site: &OwnedExprSiteV1) {
+        let (_, row) = self.observations.iter_mut()
+            .find(|(_, row)| row.as_ref().is_ok_and(|row| &row.call == site)).unwrap();
+        row.as_mut().unwrap().source.reissue_stored_origin_for_test();
+    }
+    #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn duplicate_object_row_for_test(
         &mut self,
         site: &OwnedExprSiteV1,
@@ -106,12 +112,21 @@ impl BorrowedIncomingInventoryV1 {
             .iter()
             .filter_map(|(_, row)| row.as_ref().ok())
     }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn registered_owners_v1(&self) -> &std::collections::BTreeSet<FunctionOwnerIdV1> {
+        &self.owners
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn source_vetoed_owners_v1(&self) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
+        self.collect_vetoes_v1(false)
+    }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn vetoed_owners(
         &self,
     ) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
+        self.collect_vetoes_v1(true)
+    }
+    fn collect_vetoes_v1(&self, pending_execution_veto: bool) -> std::collections::BTreeSet<FunctionOwnerIdV1> {
         let mut vetoes = std::collections::BTreeSet::new();
         for (owner, row) in &self.observations {
-            if row.is_err() || row.as_ref().is_ok_and(|row| row.source.is_pending()) {
+            if row.is_err() || (pending_execution_veto && row.as_ref().is_ok_and(|row| row.source.is_pending())) {
                 match owner {
                     Some(owner) => {
                         vetoes.insert(*owner);

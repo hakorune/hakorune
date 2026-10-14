@@ -218,6 +218,50 @@ mod tests {
                 "never omit the conflicting original caller"
             );
         }
+        for (actual, expected) in [("8", true), ("true", false), ("null", false), ("new Token()", false)] {
+            for change in 0..3 {
+                let mut package = issue_with_brand_catalog(&format!(
+                    "box Token {{}} box Leaf {{ flag: i64 birth() {{ me.flag = 0 }} read(p) {{ return 0 }} }}
+                     box Parent {{ leaf: Leaf birth() {{ me.leaf = new Leaf() }}
+                         first() {{ return me.leaf.read(7) }} second() {{ return me.leaf.read({actual}) }} }}
+                     static box Main {{ main() {{ local parent = new Parent() local a = parent.first() return parent.second() }} }}"
+                )).unwrap();
+                let key = CanonicalSameModuleCallableKeyV1::instance_box_method("Leaf", "read", 1);
+                let contract = package.parameter_contracts.iter().find(|row|
+                    package.selected.key_for_batch_slot(row.batch_slot)
+                        == Some(&SelectedNormalCallableKeyV1::Cataloged(key.clone()))).unwrap();
+                let formal = contract.parameters[0].binding;
+                let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+                let ingress = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+                assert_eq!(ingress.candidate_integer_agreement(formal), expected, "{actual}");
+                let stored = ingress.source_incoming.exact_rows().find(|row|
+                    row.callee == formal.owner() && row.source.is_pending()).unwrap().call.clone();
+                match change {
+                    0 => {
+                        assert!(!ingress.formal_integer_agreement(formal), "real Pending has no selected formal agreement");
+                        assert_eq!(ingress.candidate_integer_agreement(formal), expected, "Pending: {actual}");
+                        let (_, selected_integers, _) = ingress.original_formal_seeds.selected_views_v1(
+                            &package.batch, &package.instance_constructors,
+                            &package.parameter_contracts,
+                            &ingress.definitions.keys().copied().collect(), &ingress.source_incoming,
+                        ).unwrap();
+                        assert!(!selected_integers.contains(&formal), "Pending is not selected input permission");
+                        assert!(ingress.source_incoming.project(&std::collections::BTreeSet::from([formal.owner()])).is_err());
+                    }
+                    1 => {
+                        ingress.source_incoming.remove_exact_row_for_test(&stored);
+                        assert!(!ingress.candidate_integer_agreement(formal), "lost original source");
+                    }
+                    _ => {
+                        ingress.source_incoming.replace_stored_origin_for_test(&stored);
+                        assert!(!ingress.candidate_integer_agreement(formal), "equal source, foreign original Rc");
+                    }
+                }
+                assert!(ingress.source_incoming.project(&std::collections::BTreeSet::from([formal.owner()])).is_err(),
+                    "the final incoming lender refuses unselected Stored input: {actual}/{change}");
+            }
+        }
+
     }
 
     #[test]

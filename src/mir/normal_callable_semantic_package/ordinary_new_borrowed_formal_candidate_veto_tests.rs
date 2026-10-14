@@ -62,20 +62,15 @@ fn candidate_integer_agreement_refuses_good_row_plus_unresolved_caller_veto() {
     assert!(inventory.vetoed_owners().contains(&contract.owner));
     let empty_loans =
         crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1::issue(Box::new([]));
-    let (objects, integers, _) = prepare_borrowed_formal_views_v1(
-        package.batch(),
-        &package.selected,
-        &empty_loans,
-        &package.instance_constructors,
-        &package.ordinary_new_claim_ledger.callable_result_classes,
-        &BTreeMap::new(),
-        &package.parameter_contracts,
-        &definitions,
-        &BTreeSet::new(),
-        &inventory,
-        &BTreeMap::new(),
-    )
-    .unwrap();
+    let original_seeds = source_seeds::prepare_original_formal_seeds_v1(
+        package.batch(), &package.selected, &empty_loans, &package.instance_constructors,
+        &package.ordinary_new_claim_ledger.callable_result_classes, &BTreeMap::new(),
+        &package.parameter_contracts, &definitions, &inventory, &BTreeMap::new(),
+    ).unwrap();
+    let (objects, integers, _) = original_seeds.selected_views_v1(
+        package.batch(), &package.instance_constructors,
+        &package.parameter_contracts, &BTreeSet::new(), &inventory,
+    ).unwrap();
     assert!(objects.is_empty());
     assert!(integers.is_empty());
     assert_eq!(

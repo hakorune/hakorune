@@ -19,13 +19,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
     stored_dispatch: Option<&super::super::source::PreparedSourceNeedsV1>,
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-) -> Result<BorrowedIncomingInventoryV1, String> {
+    entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
+    local_candidates: &BTreeMap<u32, Result<Vec<super::super::super::candidate::OrdinaryNewCandidate>, super::super::super::OrdinaryNewCoSealIssueV1>>,
+    callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    guarded_actuals: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+) -> Result<source_seeds::OriginalBorrowedFormalSourceV1, String> {
     let context = static_claims.map(|claims| StaticIncomingContextV1 {
         claims,
         arguments: static_arguments,
         main: app_main,
     });
-    inventory_borrowed_incoming_with_stored_dispatch_v1(
+    let inventory = inventory_borrowed_incoming_with_stored_dispatch_v1(
         batch,
         selected,
         omitted,
@@ -37,7 +41,12 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         stored_dispatch,
         Some(constructors),
     )
-    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))
+    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
+    let seeds = source_seeds::prepare_original_formal_seeds_v1(
+        batch, selected, entry_home_loans, constructors, callable_result_classes,
+        local_candidates, contracts, definitions, &inventory, guarded_actuals,
+    )?;
+    Ok(source_seeds::OriginalBorrowedFormalSourceV1 { inventory, seeds })
 }
 
 /// Consume the original drafts once; never reconstruct them after profile selection.
@@ -69,7 +78,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         (OwnedExprSiteV1, u32),
         super::borrowed_static_argument::StaticArgumentSourceV1,
     >,
-    original_inventory: Result<BorrowedIncomingInventoryV1, String>,
+    original_inventory: Result<source_seeds::OriginalBorrowedFormalSourceV1, String>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
     let (_ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
@@ -80,7 +89,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         })
         .map(|row| row.owner)
         .collect();
-    let mut inventory = original_inventory?;
+    let source_seeds::OriginalBorrowedFormalSourceV1 { mut inventory, seeds: original_formal_seeds } = original_inventory?;
     inventory.finish_selected_calls_v1(&calls)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let checked_static_inputs =
@@ -166,18 +175,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
     }
     let (mut object_views, integer_agreements, source_declared_mismatches) =
-        prepare_borrowed_formal_views_v1(
-            batch,
-            selected,
-            entry_home_loans,
-            instance_constructors,
-            callable_result_classes,
-            local_candidates,
-            contracts,
-            &definitions,
-            &transport_owners,
-            &inventory,
-            &guarded_actuals,
+        original_formal_seeds.selected_views_v1(
+            batch, instance_constructors, contracts, &transport_owners, &inventory,
         )?;
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
@@ -212,6 +211,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         source_incoming: inventory,
         object_views,
         integer_agreements,
+        original_formal_seeds,
         checked_static_inputs,
         static_arguments,
         guarded_actuals,

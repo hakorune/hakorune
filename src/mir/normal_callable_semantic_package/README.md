@@ -2500,3 +2500,17 @@ and SAME callee Completion; all validation precedes route marking. This grants n
 Object result, Normal, ABI or artifact permission. Ordinary entry and Object
 lenders retain their previous whole-final execution contract. Acceptance and app
 cutover/retirement evidence are recorded separately in the selected active card.
+
+Original borrowed-formal argument seeds are classified once before pending-result
+eligibility, then retained with exact call, ordinal, site, formal and original
+source identity. These rows cover the borrowed-formal argument subset; the source
+reference retains the complete ordered call arguments, whose full input, receiver,
+result and ABI checks remain separate requirements. The same immutable seed
+product and original definition-owner set feed the source Integer and selected
+transport projections through the existing value-domain solver. Source Integer
+keeps all real scanner errors and conflicting inputs, while PendingStored alone
+is an execution veto. Selected transport still refuses PendingStored. The existing
+candidate Integer consumer rechecks the original inventory; ordinary formal
+agreement remains selected-only. Array qualification is projected after selection
+on the same rows, without reclassifying their expressions. This grants no field
+invariant, range, Normal-result, construction, cleanup or executable ABI proof.

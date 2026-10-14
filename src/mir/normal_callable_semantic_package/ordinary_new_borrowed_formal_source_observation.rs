@@ -75,7 +75,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self,
         formal: BindingRefV1,
     ) -> bool {
-        self.integer_agreements.contains(&formal)
+        self.original_formal_seeds.candidate_integer_agreement_v1(&self.source_incoming, formal)
     }
 
     #[cfg(test)]

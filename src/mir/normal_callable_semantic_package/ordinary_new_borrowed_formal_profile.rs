@@ -159,6 +159,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             batch, selected, omitted_static_callers, contracts, &lexical_calls,
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
             app_main, Some(&needs), constructors,
+            entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals,
         )
     })();
     let pending = prepare_pending_results_v1(

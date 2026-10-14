@@ -113,8 +113,9 @@ impl BorrowedIncomingSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn reissue_stored_origin_for_test(
         &mut self,
     ) {
-        let Self::SelectedStored { original, .. } = self else {
-            panic!("selected original Stored source")
+        let original = match self {
+            Self::SelectedStored { original, .. } | Self::PendingStored(original) => original,
+            _ => panic!("original Stored source"),
         };
         *original = Rc::new(OriginalStoredIncomingV1 {
             reference: original.reference.clone(),
@@ -145,6 +146,17 @@ impl BorrowedIncomingSourceV1 {
                 },
             ) => Rc::ptr_eq(a, b) && at == bt,
             _ => false,
+        }
+    }
+    /// Source-phase identity across the checked Pending -> Selected binding.
+    /// This does not replace the selected target equality required for execution.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn same_original_source_v1(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::SelectedStored { original, target }, Self::PendingStored(pending))
+            | (Self::PendingStored(pending), Self::SelectedStored { original, target }) => {
+                Rc::ptr_eq(original, pending) && self.bind_selected_v1(target).is_ok()
+            }
+            _ => self.same_source(other),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn pending_stored_v1(

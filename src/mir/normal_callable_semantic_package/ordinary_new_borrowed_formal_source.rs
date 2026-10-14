@@ -28,7 +28,6 @@ mod static_cohort;
 mod target_static;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]
 mod value_domain;
-use source_seeds::prepare_borrowed_formal_views_v1;
 
 /// The sealed class view one borrowed formal may carry on a dominated
 /// `formal.field` read: minted only when every incoming actual names one
@@ -93,6 +92,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) object_views: BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
     /// Complete original incoming agreement; never execution or payload permission.
     pub(super) integer_agreements: BTreeSet<BindingRefV1>,
+    original_formal_seeds: source_seeds::OriginalFormalSeedProductV1,
     /// Source-only, least-fixed-point proof that the tagged formal is checked
     /// before numeric payload use, including exact Static forward chains.
     pub(super) checked_static_inputs: BTreeSet<BindingRefV1>,
@@ -163,6 +163,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
     let inventory = prepare_original_incoming_v1(
         batch, selected, &BTreeSet::new(), contracts, &calls, &drafts.0, &drafts.1,
         None, &BTreeMap::new(), None, None, instance_constructors,
+        entry_home_loans, local_candidates, callable_result_classes, &drafts.3,
     );
     finish_ingress_from_drafts_v1(
         batch,
@@ -235,6 +236,17 @@ enum OriginalFormalActualSeedV1 {
     Conflict,
 }
 impl OriginalFormalActualSeedV1 {
+    fn project_source_integer_v1(&self) -> FormalActualSeedV1 {
+        match self {
+            Self::Forward { origin, declared_constraint: Some(_) } => FormalActualSeedV1::Forward(*origin),
+            Self::Forward { origin, declared_constraint: None } => FormalActualSeedV1::ForwardIntegerOnly(*origin),
+            Self::Integer => FormalActualSeedV1::Integer,
+            Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
+            Self::Null => FormalActualSeedV1::Null,
+            Self::Conflict => FormalActualSeedV1::Conflict,
+        }
+    }
+
     fn project_selected_v1(
         &self,
         caller: FunctionOwnerIdV1,
