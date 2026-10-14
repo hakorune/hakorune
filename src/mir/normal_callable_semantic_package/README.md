@@ -655,6 +655,11 @@ writers, unattributed receivers (`o.f = x` vetoes the field name globally),
 and any function whose sealed body-shape inventory is missing all veto the
 field. Both edge arguments (`f.m(x)` passing `local v = me.f`) and claim-local
 receivers (`local v = me.f` then `v.m(...)`) consume the same proof.
+A field initializer may also use a lexical receiver whose class the same
+sole-initializer/caller-edge owner proves (`local v = parent.f`). Rebound or
+unproven parent bindings remain unselected. This joins original receiver class
+and the same field-write claim only; scalar-family membership, live receiver
+root, inputs, cleanup and final correspondence remain independent obligations.
 
 The existing field-write claim product also retains every observed original
 assignment and its shared `resolved_value_profile` RHS plan (or explicit plan

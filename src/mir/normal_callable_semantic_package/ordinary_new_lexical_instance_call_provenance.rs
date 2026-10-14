@@ -291,32 +291,54 @@ impl LexicalReceiverClassSourceV1<'_> {
         };
         match shape.expression_shape(initializer_site) {
             Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) => {
-                let Some(BodyExpressionShapeV1::Me {
+                let owner_box: Box<str> = if let Some(BodyExpressionShapeV1::Me {
                     receiver: BodyMeReceiverV1::Lexical(receiver),
                     ..
                 }) = shape.expression_shape(object)
-                else {
-                    return Ok(None);
-                };
-                if input
-                    .function()
-                    .binding(*receiver)
-                    .is_none_or(|record| record.kind() != BindingKindV1::Receiver)
                 {
-                    return Ok(None);
-                }
-                let Some(owner_box) = selected.keys().find_map(|selected_key| {
-                    let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
-                        return None;
+                    if input
+                        .function()
+                        .binding(*receiver)
+                        .is_none_or(|record| record.kind() != BindingKindV1::Receiver)
+                    {
+                        return Ok(None);
+                    }
+                    let Some(class) = selected.keys().find_map(|selected_key| {
+                        let SelectedNormalCallableKeyV1::Cataloged(key) = selected_key else {
+                            return None;
+                        };
+                        (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                            && selected.batch_slot(selected_key) == Some(batch_slot))
+                        .then(|| key.owner().into())
+                    }) else {
+                        return Ok(None);
                     };
-                    (key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && selected.batch_slot(selected_key) == Some(batch_slot))
-                    .then(|| key.owner())
-                }) else {
-                    return Ok(None);
+                    class
+                } else {
+                    let Some(ResolvedLexicalRefV1::Local(receiver)) =
+                        input.function().variable_ref(object)
+                    else {
+                        return Ok(None);
+                    };
+                    // Reuse sole-initializer/caller-edge provenance, including
+                    // its rebound veto and recursion bound. Field declarations
+                    // alone cannot choose a receiver class or call target.
+                    let Some(class) = self.binding_class(
+                        batch,
+                        selected,
+                        batch_slot,
+                        owner,
+                        input,
+                        receiver,
+                        depth + 1,
+                    )?
+                    else {
+                        return Ok(None);
+                    };
+                    class
                 };
                 Ok(self
-                    .field_write_claim(owner_box, field.as_ref())
+                    .field_write_claim(&owner_box, field.as_ref())
                     .map(|class| class.into()))
             }
             Some(BodyExpressionShapeV1::MethodCall {

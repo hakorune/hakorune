@@ -378,8 +378,18 @@ static box Main {
 /// any caller edge.
 #[test]
 fn lexical_instance_call_arms_field_read_claim_local_receiver() {
-    let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
-        r#"
+    for (initializer, armed) in [
+        ("local inner = me.inner", true),
+        (
+            "local parent = new Outer() local inner = parent.inner",
+            true,
+        ),
+        (
+            "local parent = new Outer() parent = null local inner = parent.inner",
+            false,
+        ),
+    ] {
+        let text = r#"
 box Inner {
     birth() { }
     seal(): i64 { return 1 }
@@ -403,17 +413,21 @@ static box Main {
         return o.run()
     }
 }
-"#,
-    )
-    .expect("field-read claim-local source package");
-    let ledger = &package.ordinary_new_claim_ledger;
-    let (owner, site) = call_site_of(&package, "seal");
-    let row = ledger
-        .take_lexical_instance_call(owner, &site)
-        .expect("take armed row")
-        .expect("field-read claim-local disposition row");
-    assert_eq!(row.target().owner(), "Inner");
-    assert_eq!(row.target().name(), "seal");
+"#
+        .replace("local inner = me.inner", initializer);
+        let package = super::super::brand_catalog_tests::issue_with_brand_catalog(&text)
+            .unwrap_or_else(|issue| panic!("{initializer}: {issue:?}"));
+        let ledger = &package.ordinary_new_claim_ledger;
+        let (owner, site) = call_site_of(&package, "seal");
+        let row = ledger
+            .take_lexical_instance_call(owner, &site)
+            .expect("take original source row");
+        assert_eq!(row.is_some(), armed, "{initializer}");
+        if let Some(row) = row {
+            assert_eq!(row.target().owner(), "Inner");
+            assert_eq!(row.target().name(), "seal");
+        }
+    }
 }
 
 /// Call-result receiver proven through the callee's result-class claim:
