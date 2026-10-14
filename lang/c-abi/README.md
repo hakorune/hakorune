@@ -640,3 +640,14 @@ The existing checked-compare execution family accepts `integer-return` as its
 second argument for the source-issued formal/alias captures in both finishing
 modes, plus external zero/Bool/null actual probes. Those mutations test the C
 input/runtime boundary and do not supply new source-language authority.
+
+Checked expression String uses the existing V4 physical consumer in both indexed
+and native cohorts: `string_add`, `string_print`, `string_end`, exact inline UTF-8
+or typed owned-String/NormalInteger operands, and a distinct two-word Normal
+result. Shared emission calls the checked kernel ABI; old console/concat helpers
+are excluded. Each existing per-origin state carries String acquisition rank,
+so borrow liveness, reverse End and all Fault prefixes are checked without a
+second resource table. Static byte globals and ABI declarations precede native
+module emission. The physical runtime test owner supports `--checked-string`
+with `HAKO_TEST_LIFECYCLE_ARCHIVE` selecting the actual archive. This is physical
+ABI evidence only; source frame activation/final correspondence remain required.

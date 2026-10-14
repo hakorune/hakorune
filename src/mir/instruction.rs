@@ -20,7 +20,7 @@ pub use construction_target::ConstructionTarget;
 
 mod invoke;
 pub use invoke::{
-    FaultFrameMode, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation,
+    FaultFrameMode, InvokeCallResultKind, InvokeNormalResultKind, InvokeOperation, StringInvokeOperand, StringInvokeOperation,
     MapInvokeOperation, MapValueKind,
 };
 

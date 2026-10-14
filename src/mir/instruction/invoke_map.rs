@@ -18,6 +18,8 @@ pub enum InvokeNormalResultKind {
     /// Borrowed Text view produced by a checked MapGetText. The view has no
     /// End authority and cannot cross a return or call boundary.
     TextView,
+    /// Fresh immutable String handle plus generation-branded one-shot End token.
+    OwnedString,
 }
 
 /// Physical scalar payload; source capability cannot supply this distinction.

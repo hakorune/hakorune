@@ -74,6 +74,7 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
   return bsearch(&key, fn->blocks, fn->block_count, sizeof(key), lv4_block_compare);
 }
 static int lv4_operation_result(yyjson_val* op) {
+  if (lv4_is(op, "kind", "string_add")) return LV4_OWNED_STRING;
   if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "ordinary_call"))
     /* A nullable call result occupies a handle lease slot: it carries a
@@ -213,7 +214,7 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     hako_lv4_value* value = &fn->values[i];
     if (!lv4_is(value->instruction, "op", "copy")) continue;
     if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
-        value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW)
+        value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW || value->kind == LV4_OWNED_STRING)
       return 0;
     if (value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
     hako_lv4_value* source = value;

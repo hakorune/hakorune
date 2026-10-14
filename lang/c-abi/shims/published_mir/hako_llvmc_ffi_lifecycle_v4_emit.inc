@@ -15,6 +15,7 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 }
 
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_string_emit.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_teardown_emit.inc"
 
@@ -85,6 +86,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         !lv4_is(op, "result", "map"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
+    lv4_string_alloca(f, op, lv4_u(block, "id"));
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
       if (lv4_is(ins, "op", "object_field_get"))
@@ -291,12 +293,19 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "\n");
       } else if (lv4_is(ins, "op", "invoke_normal_result")) {
         int kind = lv4_input_type(in, fn, dst);
-        hako_lv4_block* producer = lv4_index_block(&in->index[fi], lv4_u(ins, "invoke_block"));
+        hako_lv4_block* producer = in->native ? NULL : lv4_index_block(&in->index[fi], lv4_u(ins, "invoke_block"));
         yyjson_val* producer_op = producer ? yyjson_obj_get(lv4_term(producer->block), "operation") : NULL;
         const char* storage = kind == LV4_MAP ? "map" : kind == LV4_KEY ? "key" :
             kind == LV4_OUTCOME ? "outcome" : kind == LV4_MAP_VIEW ? "view" :
             kind == LV4_TEXT_VIEW ? "text" : NULL;
-        if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
+        if (kind == LV4_OWNED_STRING) {
+          uint32_t producer_id = lv4_u(ins, "invoke_block");
+          fprintf(f,
+              "  %%v%u = load i64, ptr %%strout%u, align 8\n"
+              "  %%tokenptr%u = getelementptr inbounds %%nyrt.string.owned, ptr %%strout%u, i32 0, i32 1\n"
+              "  %%t%u = load i64, ptr %%tokenptr%u, align 8\n",
+              dst, producer_id, dst, producer_id, dst, dst);
+        } else if (storage) fprintf(f, "  %%v%u = getelementptr i8, ptr %%%s%u, i64 0\n", dst, storage, lv4_u(ins, "invoke_block"));
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
             lv4_is(producer_op, "kind", "map_array_length")))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
@@ -385,6 +394,10 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     } else {
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
+      if (lv4_string_operation(op)) {
+        lv4_string_emit(f, op, fi, b, normal_label, fault_label);
+        continue;
+      }
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind")))) {
         lv4_map_emit_operation(f, in, term, b, fi, normal_label, fault_label);
         continue;
@@ -614,6 +627,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.fault.record_static_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.fault.frame_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
+  lv4_string_globals(f, in);
   if (in->native) {
     fprintf(f,
         "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"

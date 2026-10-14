@@ -9,8 +9,10 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[3]
 work = Path(sys.argv[1])
-inputs = [json.loads(path.read_text()) for path in sorted(work.glob("*.json"), key=lambda p: int(p.stem))]
-assert len(inputs) == 39
+string_only = len(sys.argv) > 2 and sys.argv[2] == "--checked-string"
+work.mkdir(parents=True, exist_ok=True)
+inputs = [] if string_only else [json.loads(path.read_text()) for path in sorted(work.glob("*.json"), key=lambda p: int(p.stem))]
+assert string_only or len(inputs) == 39
 
 
 def checked(args):
@@ -51,8 +53,133 @@ def first(data, kind):
     return next(row for row in instructions(data) if row.get("operation", {}).get("kind") == kind)
 
 
-archive = ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"
+archive = Path(os.environ.get("HAKO_TEST_LIFECYCLE_ARCHIVE", ROOT / "target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a"))
 assert archive.is_file()
+def checked_string_physical():
+    # Independent physical ABI fixtures. These do not claim source activation.
+    literal = lambda text: {"kind": "static_text", "utf8": text}
+    owned = lambda value: {"kind": "owned_string", "value": value}
+    def inv(kind, normal, fault, **operands):
+        return {"op": "invoke", "operation": {"kind": kind, "site": 7, **operands},
+                "fault_frame": 0, "normal": normal, "fault": fault}
+    def end(value, normal, fault):
+        return inv("string_end", normal, fault, value=value)
+    def block(id, term, rows=()):
+        edges = ([{"target": term[k], "args": None} for k in ["normal", "fault"]]
+                 if term["op"] == "invoke" else
+                 [{"target": term["target"], "args": None}] if term["op"] == "jump" else [])
+        return {"id": id, "instructions": [{"index": i, "instruction": r} for i, r in enumerate(rows)],
+                "terminator": {"index": len(rows), "instruction": term}, "edges": edges}
+    entry = [{"op": "fault_frame_enter", "dst": 0, "mode": "root_owned"},
+             {"op": "const_i64", "dst": 1, "value": -9223372036854775808}]
+    fault = {"op": "return_fault", "fault_frame": 0}
+    rows = [block(0, inv("string_add", 1, 90, left=literal("猫\0"), right=literal("")), entry),
+            block(1, inv("string_add", 2, 10, left=owned(2), right={"kind": "normal_integer", "value": 1}),
+                  [{"op": "invoke_normal_result", "invoke_block": 0, "dst": 2}]),
+            block(2, inv("string_print", 3, 20, value=owned(3)),
+                  [{"op": "invoke_normal_result", "invoke_block": 1, "dst": 3}]),
+            block(3, end(3, 4, 21)), block(4, end(2, 5, 90)),
+            block(5, {"op": "return", "value": 4}, [{"op": "const_i64", "dst": 4, "value": 0}]),
+            block(10, end(2, 90, 91)), block(20, end(3, 21, 22)),
+            block(21, end(2, 90, 91)), block(22, end(2, 90, 91)), block(90, fault), block(91, fault)]
+    # All Invoke Normal landings, including cleanup, remain exclusive.
+    for b in list(rows):
+        t = b["terminator"]["instruction"]
+        if t["op"] == "invoke" and t["operation"]["kind"] != "string_add":
+            target = t["normal"]; landing = 1000 + b["id"]; t["normal"] = landing
+            b["edges"][0]["target"] = landing
+            rows.append(block(landing, {"op": "jump", "target": target, "args": None}))
+    for i, b in enumerate(rows):
+        if b["terminator"]["instruction"]["op"] == "invoke":
+            b["terminator"]["instruction"]["operation"]["site"] = 100 + i
+    fn = {"name": "checked_string", "role": "root_i64", "receiver": None,
+          "receiver_object": None, "params": [], "entry": 0, "blocks": rows}
+    base = {"schema": "hako.published-lifecycle-physical-program.v2", "fault_abi_version": 1,
+            "process_result_site": 99, "functions": [fn], "storage_profile": 1, "layouts": []}
+    wraps = ["nyash.array.checked_new_v1", "nyash.array.checked_claim_v1",
+             "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
+             "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",
+             "nyash.string.checked_add_v1", "nyash.string.checked_print_v1", "nyash.string.checked_end_v1",
+             "nyash.fault.report_final_v1", "nyash.fault.frame_dispose_v1"]
+    def execute(data, defines=(), status=0, endings=(), payload=None, primary=None):
+        compile_input(data, True)
+        exe = work / "checked-string"
+        checked(["cc", obj, ROOT / "lang/c-abi/tests/published_native_array_runtime_probe.c", archive,
+                 "-DTEST_CHECKED_STRING", *defines, *["-Wl,--wrap=" + name for name in wraps],
+                 "-lpthread", "-ldl", "-lm", "-o", exe])
+        r = subprocess.run([str(exe)], capture_output=True, env=dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off"))
+        assert r.returncode == status, (r.returncode, r.stdout, r.stderr)
+        if payload is not None: assert payload in r.stdout, r.stdout
+        ends = [line for line in r.stdout.splitlines() if line.startswith(b"STRING_END ")]
+        assert ends == [f"STRING_END {i}".encode() for i in endings], r.stdout
+        if primary is not None: assert f"FAULT {primary} ".encode() in r.stdout, r.stdout
+        if "-DTEST_FAIL_STRING_PRINT" in defines and "-DTEST_FAIL_STRING_END_AT=1" in defines:
+            assert b"STRING_SUPPRESSED 9303" in r.stdout, r.stdout
+    for native in [False, True]:
+        data = copy.deepcopy(base)
+        if native:
+            del data["storage_profile"]; del data["layouts"]
+            data["runtime_requirements"] = {"kind": "native_array", "abi_version": 1}
+        execute(data, endings=[1, 0], payload="猫\0-9223372036854775808\n".encode())
+        for attempt, endings in [(1, []), (2, [0])]:
+            execute(data, [f"-DTEST_FAIL_STRING_ADD_AT={attempt}"], 70, endings, primary=9301)
+        execute(data, ["-DTEST_FAIL_STRING_PRINT"], 70, [1, 0], primary=9302)
+        execute(data, ["-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9303)
+        execute(data, ["-DTEST_FAIL_STRING_PRINT", "-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9302)
+        bare = copy.deepcopy(data)
+        bare["functions"][0]["blocks"] = [block(0, inv("string_print", 1, 2, value=literal("猫\0")), entry),
+            block(1, {"op": "return", "value": 4}, [{"op": "const_i64", "dst": 4, "value": 0}]), block(2, fault)]
+        execute(bare, endings=[], payload="猫\0\n".encode())
+        if native:
+            mixed = copy.deepcopy(data)
+            f = mixed["functions"][0]; f["entry"] = 2000
+            b = next(b for b in f["blocks"] if b["id"] == 0)
+            b["instructions"] = [{"index": 0, "instruction": entry[1]}]; b["terminator"]["index"] = 1
+            f["blocks"] += [
+                block(2000, inv("array_new", 2001, 2004), [entry[0]]),
+                block(2001, inv("array_claim", 2002, 2003, array=10, element_tag=4),
+                      [{"op": "invoke_normal_result", "invoke_block": 2000, "dst": 10}]),
+                block(2002, {"op": "jump", "target": 0, "args": None}),
+                block(2003, fault, [{"op": "array_residence_release", "value": 10}]), block(2004, fault)]
+            for b in f["blocks"]:
+                if b["id"] in [2000, 2001]: b["terminator"]["instruction"]["operation"]["site"] = b["id"]
+                if b["id"] in [5, 90, 91]:
+                    b["instructions"].append({"index": len(b["instructions"]),
+                        "instruction": {"op": "array_residence_release", "value": 10}})
+                    b["terminator"]["index"] = len(b["instructions"])
+            execute(mixed, endings=[1, 0], payload="猫\0-9223372036854775808\n".encode())
+            execute(mixed, ["-DTEST_FAIL_STRING_PRINT", "-DTEST_FAIL_STRING_END_AT=1"], 70, [1, 0], primary=9302)
+            bad = copy.deepcopy(mixed)
+            next(b for b in bad["functions"][0]["blocks"] if b["id"] == 3)["instructions"] = [
+                {"index": 0, "instruction": {"op": "array_residence_release", "value": 3}}]
+            next(b for b in bad["functions"][0]["blocks"] if b["id"] == 3)["terminator"]["index"] = 1
+            compile_input(bad, False)
+        for block_id, value in [(3, 2), (4, 3), (10, 3)]:
+            bad = copy.deepcopy(data)
+            b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == block_id)
+            b["terminator"]["instruction"]["operation"]["value"] = value
+            compile_input(bad, False)
+        for change in ["integer_alias", "copy", "extra_key", "missing_end", "duplicate_site"]:
+            bad = copy.deepcopy(data)
+            b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 2)
+            if change == "integer_alias": b["terminator"]["instruction"]["operation"]["value"]["kind"] = "normal_integer"
+            elif change == "duplicate_site": b["terminator"]["instruction"]["operation"]["site"] = 100
+            elif change == "extra_key": b["terminator"]["instruction"]["operation"]["value"]["token"] = 9
+            elif change == "copy":
+                b["instructions"].append({"index": 1, "instruction": {"op": "copy", "src": 3, "dst": 100}})
+                b["terminator"]["index"] = 2
+            else:
+                b = next(b for b in bad["functions"][0]["blocks"] if b["id"] == 10)
+                b["terminator"] = {"index": 0, "instruction": fault}; b["edges"] = []
+            compile_input(bad, False)
+    print("checked String: indexed/native real ABI, literal NUL, MIN Integer, Normal/Fault LIFO End and malformed input refusal")
+
+
+if string_only:
+    checked_string_physical()
+    sys.exit(0)
+
+
 wraps = ["nyash.array.checked_new_v1", "nyash.array.checked_claim_v1",
          "nyash.array.checked_append_i64_v1", "nyash.array.checked_append_bool_v1",
          "nyash.array.checked_append_f64_v1", "nyrt_handle_release_h",

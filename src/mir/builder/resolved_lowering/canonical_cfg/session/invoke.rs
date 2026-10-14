@@ -25,7 +25,8 @@ impl CanonicalCfgSessionV1 {
         }
         let cleanup = matches!(
             &operation,
-            InvokeOperation::HomeRelease { .. }
+            InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::End { .. })
+                | InvokeOperation::HomeRelease { .. }
                 | InvokeOperation::HomeReleaseIfLive { .. }
                 | InvokeOperation::OwnedFieldResidenceRelease { .. }
                 | InvokeOperation::OwnedObjectFieldRelease { .. }
@@ -37,6 +38,8 @@ impl CanonicalCfgSessionV1 {
         ) || matches!(
             &operation,
             InvokeOperation::Map(crate::mir::instruction::MapInvokeOperation::CheckedGetI64 { .. })
+                | InvokeOperation::String(crate::mir::instruction::StringInvokeOperation::Add { .. }
+                    | crate::mir::instruction::StringInvokeOperation::Print { .. })
         );
         if !cleanup && !ingress {
             return Err(CanonicalCfgErrorV1::Invoke(

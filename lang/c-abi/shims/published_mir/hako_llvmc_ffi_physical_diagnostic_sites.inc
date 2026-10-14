@@ -30,7 +30,7 @@ static int hako_physical_checked_sites_unique(yyjson_val* functions, uint64_t pr
             strcmp(kind, "field_residence_release") && strcmp(kind, "object_field_release") &&
             strcmp(kind, "home_release") && strcmp(kind, "home_release_if_live") &&
             strcmp(kind, "reclaim_unpublished") &&
-            strcmp(kind, "array_new") && strcmp(kind, "array_claim") && strcmp(kind, "array_append") && !hako_physical_map_kind(kind))) continue;
+            strcmp(kind, "array_new") && strcmp(kind, "array_claim") && strcmp(kind, "array_append") && !hako_physical_map_kind(kind) && !hako_physical_string_kind(kind))) continue;
         if (!hako_physical_u64(yyjson_obj_get(operation, "site"), &site)) { free(sites); return 0; }
         }
         if (site == process_result_site) { free(sites); return 0; }

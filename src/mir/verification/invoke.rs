@@ -8,6 +8,8 @@ use crate::mir::instruction::{InvokeOperation, MapInvokeOperation};
 mod borrowed_calls;
 #[path = "invoke_map.rs"]
 mod map;
+#[path = "invoke_string.rs"]
+mod string;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
@@ -430,6 +432,9 @@ fn check_function_inner(
         dom::check_dominance_with_policy(function, &definitions, &dominators, false)
     {
         errors.append(&mut found);
+    }
+    if let Err(reason) = string::check(function) {
+        errors.push(error(function.entry_block, reason));
     }
     if let Err(reason) = map::check(function, module) {
         errors.push(error(function.entry_block, reason));

@@ -589,6 +589,7 @@ fn validate_instruction_with_context(
                 | MirInstruction::ObjectFieldGet { .. }
                 | MirInstruction::Invoke {
                     operation: InvokeOperation::Map(_)
+                        | InvokeOperation::String(_)
                         | InvokeOperation::NewBox { .. }
                         | InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::FieldSet { .. }

@@ -13,7 +13,7 @@ typedef struct {
 
 enum {
   LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL,
-  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW
+  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW, LV4_OWNED_STRING
 };
 
 static uint32_t lv4_u(yyjson_val* object, const char* key) {
@@ -54,7 +54,11 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
       lv4_is(def, "op", "object_field_get")) return LV4_I64;
   if (lv4_is(def, "op", "const_bool")) return LV4_BOOL;
   if (lv4_is(def, "op", "const_f64_bits")) return LV4_F64;
-  if (lv4_is(def, "op", "invoke_normal_result")) return LV4_HANDLE;
+  if (lv4_is(def, "op", "invoke_normal_result")) {
+    yyjson_val* origin = hako_physical_block_by_id(fn, lv4_u(def, "invoke_block"));
+    return lv4_is(yyjson_obj_get(lv4_term(origin), "operation"), "kind", "string_add")
+        ? LV4_OWNED_STRING : LV4_HANDLE;
+  }
   if (lv4_is(def, "op", "fault_frame_enter")) return LV4_FRAME;
   if (lv4_is(def, "op", "const_unit")) return LV4_UNIT;
   if (lv4_is(def, "op", "const_string")) return LV4_TEXT;
@@ -70,6 +74,14 @@ static size_t lv4_value_budget(yyjson_val* fn) {
 }
 
 #include "hako_llvmc_ffi_lifecycle_v4_index.inc"
+/* Existing per-origin state also carries String acquisition rank. Distinct
+ * from live Array/Object state and Map transfer tags (at most 258). */
+enum { LV4_STRING_RANK_BASE = 1024 };
+static uint16_t lv4_string_top(const uint16_t* state, size_t count) {
+  uint16_t top = LV4_STRING_RANK_BASE;
+  for (size_t i = 0; i < count; i++) if (state[i] > top) top = state[i];
+  return top;
+}
 #include "hako_llvmc_ffi_lifecycle_v4_native_admission.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"

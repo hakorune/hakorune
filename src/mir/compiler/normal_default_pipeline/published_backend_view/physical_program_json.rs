@@ -456,6 +456,20 @@ fn encode_invoke(
     call_context: Option<CallContext<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
+        InvokeOperation::String(operation) => {
+            use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Op};
+            let operand = |operand: &Operand| match operand {
+                Operand::StaticText { utf8 } => json!({"kind":"static_text", "utf8":utf8}),
+                Operand::OwnedString(v) => json!({"kind":"owned_string", "value":value(v)}),
+                Operand::NormalInteger(v) => json!({"kind":"normal_integer", "value":value(v)}),
+            };
+            let encoded = match operation {
+                Op::Add { left, right } => json!({"kind":"string_add", "left":operand(left), "right":operand(right)}),
+                Op::Print { value } => json!({"kind":"string_print", "value":operand(value)}),
+                Op::End { value:v } => json!({"kind":"string_end", "value":value(v)}),
+            };
+            with_site(encoded, required_site(diagnostic_site, abi_input.is_some())?)?
+        }
         InvokeOperation::Map(operation) => {
             use crate::mir::instruction::MapInvokeOperation as Map;
             let encoded = match operation {

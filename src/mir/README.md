@@ -351,3 +351,18 @@ uses fresh caller-owned descriptors: ArrayIndexMap records the live parent and
 child Map, and MapGetText consumes it to expose borrowed UTF-8 bytes without a
 clone. Source admission, production caller cutover, OBJ execution, and legacy
 retirement remain separate slices.
+
+### Checked expression String Invoke
+
+`instruction/invoke_string.rs` owns Add/Print/End and explicit StaticText,
+OwnedString and signed NormalInteger operands. Add Normal projects a distinct
+`OwnedString` pair; it never projects an Object handle or Map TextView. Static
+UTF-8 bytes retain their full length, including NUL. Add borrows operands and
+creates a fresh independent End obligation even for empty concatenation.
+`verification/invoke_string.rs` independently checks ordered acquisitions on
+Normal only, live borrows, reverse End on all later Fault/Normal paths, and
+rejects pair escape, scalar reinterpretation, duplicate/missing/out-of-order
+End and effects after Fault. Shared Invoke checks retain SSA/projection authority.
+The physical vocabulary, diagnostic sites and JSON do not activate source Print:
+source frames, sole lowering, native ABI and final correspondence must all close
+before the selected production path can use it. Shared compatibility remains.

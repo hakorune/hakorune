@@ -1,7 +1,25 @@
 /* Operation and instruction schema within the existing physical-v2 owner. */
+static int hako_physical_string_kind(const char* kind) {
+  return kind && (!strcmp(kind, "string_add") || !strcmp(kind, "string_print") || !strcmp(kind, "string_end"));
+}
+static int hako_physical_string_operand(yyjson_val* function, yyjson_val* operand,
+    uint32_t block, uint32_t index, int text_only) {
+  static const char* const text[] = {"kind", "utf8"};
+  static const char* const value_keys[] = {"kind", "value"};
+  uint32_t value;
+  if (hako_physical_string(yyjson_obj_get(operand, "kind"), "static_text"))
+    return hako_physical_exact_keys(operand, text, 2) && yyjson_is_str(yyjson_obj_get(operand, "utf8"));
+  return (hako_physical_string(yyjson_obj_get(operand, "kind"), "owned_string") ||
+      (!text_only && hako_physical_string(yyjson_obj_get(operand, "kind"), "normal_integer"))) &&
+      hako_physical_exact_keys(operand, value_keys, 2) &&
+      hako_physical_u32(yyjson_obj_get(operand, "value"), &value) &&
+      hako_physical_value_available_at(function, value, block, index);
+}
+
 static int hako_physical_result_operation(yyjson_val* op, int native) {
   const char* kind = yyjson_get_str(yyjson_obj_get(op, "kind"));
   if (!kind) return 0;
+  if (!strcmp(kind, "string_add")) return 1;
   if (native) return !strcmp(kind, "array_new");
   /* `array_new` outside the native lane is the proven provider `new
      ArrayBox()` inside a birth unit — its normal result is the store's
@@ -28,6 +46,22 @@ static int hako_physical_validate_operation(yyjson_val* function, yyjson_val* fu
   const char* kind = operation ? yyjson_get_str(yyjson_obj_get(operation, "kind")) : NULL;
   uint32_t object_id, ordinal, value;
   if (!kind) return 0;
+  if (!strcmp(kind, "string_add")) {
+    static const char* const keys[] = {"kind", "left", "right", "site"};
+    return hako_physical_exact_keys(operation, keys, 4) &&
+        hako_physical_u64(yyjson_obj_get(operation, "site"), NULL) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "left"), block, index, 1) &&
+        hako_physical_string_operand(function, yyjson_obj_get(operation, "right"), block, index, 0);
+  }
+  if (!strcmp(kind, "string_print") || !strcmp(kind, "string_end")) {
+    static const char* const keys[] = {"kind", "value", "site"};
+    if (!hako_physical_exact_keys(operation, keys, 3) ||
+        !hako_physical_u64(yyjson_obj_get(operation, "site"), NULL)) return 0;
+    return !strcmp(kind, "string_print")
+        ? hako_physical_string_operand(function, yyjson_obj_get(operation, "value"), block, index, 0)
+        : hako_physical_u32(yyjson_obj_get(operation, "value"), &value) &&
+            hako_physical_value_available_at(function, value, block, index);
+  }
   if (hako_physical_map_kind(kind))
     return !native && hako_physical_map_operation(function, layouts, operation, block, index);
   if (native) {

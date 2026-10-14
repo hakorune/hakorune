@@ -37,6 +37,9 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     MapGetText,
     MapEndOutcome,
     MapEnd,
+    StringAdd,
+    StringPrint,
+    StringEnd,
     ArrayNew,
     ArrayClaim,
     ArrayWrite,
@@ -72,6 +75,11 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             return None;
         };
         match operation {
+            InvokeOperation::String(operation) => Some(match operation {
+                crate::mir::instruction::StringInvokeOperation::Add { .. } => Self::StringAdd,
+                crate::mir::instruction::StringInvokeOperation::Print { .. } => Self::StringPrint,
+                crate::mir::instruction::StringInvokeOperation::End { .. } => Self::StringEnd,
+            }),
             InvokeOperation::Map(operation) => Some(match operation {
                 MapInvokeOperation::New => Self::MapNew,
                 MapInvokeOperation::PrepareKey { .. } => Self::MapPrepareKey,
@@ -658,7 +666,7 @@ fn referenced_objects(
                             ids.insert(field.object().declaration_index());
                             ids.insert(child.declaration_index());
                         }
-                        InvokeOperation::Call { .. } | InvokeOperation::Map(_) => {}
+                        InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
                         InvokeOperation::IntrinsicArrayNew
                         | InvokeOperation::ArrayStateContractClaim { .. }
                         | InvokeOperation::ArrayElementWrite { .. } => {}

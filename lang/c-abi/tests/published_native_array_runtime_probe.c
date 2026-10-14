@@ -7,6 +7,9 @@
 
 static int64_t handles[16];
 static unsigned created, released, appends, reports;
+#ifdef TEST_CHECKED_STRING
+static unsigned string_depth;
+#endif
 #ifdef TEST_FAIL_NEW_AT
 static unsigned new_attempts;
 #define TEST_INJECTED_NEW_FAULT 9001u
@@ -86,6 +89,11 @@ int32_t wrap_report(const void*) __asm__("__wrap_nyash.fault.report_final_v1");
 int32_t wrap_report(const void* frame) {
   const NyrtFaultFrameV1* f = frame;
   assert(released == created && reports++ == 0);
+#ifdef TEST_CHECKED_STRING
+  assert(string_depth == 0);
+  for (unsigned i = 0; i < f->suppressed_len; i++)
+    printf("STRING_SUPPRESSED %u\n", f->suppressed[i].reason);
+#endif
   printf("FAULT %u %lld %lld\n", f->primary.reason,
       (long long)f->primary.details[0], (long long)f->primary.details[1]);
   return real_report(frame);
@@ -94,6 +102,64 @@ uint32_t real_dispose(void*) __asm__("__real_nyash.fault.frame_dispose_v1");
 uint32_t wrap_dispose(void*) __asm__("__wrap_nyash.fault.frame_dispose_v1");
 uint32_t wrap_dispose(void* frame) {
   assert(released == created);
+#ifdef TEST_CHECKED_STRING
+  assert(string_depth == 0);
+#endif
   printf("DISPOSE %u %u %u %u\n", created, appends, released, reports);
   return real_dispose(frame);
 }
+
+#ifdef TEST_CHECKED_STRING
+/* Observe the real paired ABI. Injection never creates or releases a fake
+ * owner: Add Fault leaves out untouched; End Fault follows real consumption. */
+static NyrtOwnedStringV1 strings[16];
+static unsigned string_adds, string_ends;
+uint32_t real_string_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__real_nyash.string.checked_add_v1");
+uint32_t wrap_string_add(void*, uint64_t, const NyrtStringOperandV1*, const NyrtStringOperandV1*, NyrtOwnedStringV1*)
+    __asm__("__wrap_nyash.string.checked_add_v1");
+uint32_t wrap_string_add(void* f, uint64_t s, const NyrtStringOperandV1* a,
+    const NyrtStringOperandV1* b, NyrtOwnedStringV1* out) {
+  ++string_adds;
+#ifdef TEST_FAIL_STRING_ADD_AT
+  if (string_adds == TEST_FAIL_STRING_ADD_AT)
+    return nyrt_fault_record_static_v1(f, 9301, s, string_adds, 0);
+#endif
+  uint32_t status = real_string_add(f,s,a,b,out);
+  if (!status) {
+    assert(string_depth < 16);
+    if (string_depth) assert(strings[string_depth-1].handle != out->handle &&
+        strings[string_depth-1].token != out->token);
+    strings[string_depth++] = *out;
+  }
+  printf("STRING_ADD %u %u\n", string_adds, status);
+  return status;
+}
+uint32_t real_string_print(void*, uint64_t, const NyrtStringOperandV1*)
+    __asm__("__real_nyash.string.checked_print_v1");
+uint32_t wrap_string_print(void*, uint64_t, const NyrtStringOperandV1*)
+    __asm__("__wrap_nyash.string.checked_print_v1");
+uint32_t wrap_string_print(void* f, uint64_t s, const NyrtStringOperandV1* value) {
+#ifdef TEST_FAIL_STRING_PRINT
+  return nyrt_fault_record_static_v1(f, 9302, s, 0, 0);
+#else
+  return real_string_print(f,s,value);
+#endif
+}
+uint32_t real_string_end(void*, uint64_t, uint64_t, uint64_t)
+    __asm__("__real_nyash.string.checked_end_v1");
+uint32_t wrap_string_end(void*, uint64_t, uint64_t, uint64_t)
+    __asm__("__wrap_nyash.string.checked_end_v1");
+uint32_t wrap_string_end(void* f, uint64_t s, uint64_t handle, uint64_t token) {
+  assert(string_depth && strings[string_depth-1].handle == handle &&
+      strings[string_depth-1].token == token);
+  uint32_t status = real_string_end(f,s,handle,token);
+  assert(status == 0); --string_depth; ++string_ends;
+  printf("STRING_END %u\n", string_depth);
+#ifdef TEST_FAIL_STRING_END_AT
+  if (string_ends == TEST_FAIL_STRING_END_AT)
+    return nyrt_fault_record_static_v1(f, 9303, s, string_ends, 0);
+#endif
+  return status;
+}
+#endif

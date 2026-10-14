@@ -340,3 +340,19 @@ fn nullable_receiver_call_serializes_nullable_handle_and_checked_release() {
             .unwrap();
     });
 }
+
+#[test]
+fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
+    use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Op};
+    let encode = |operation| encode_invoke(&InvokeOperation::String(operation),
+        &BTreeMap::new(), &BTreeMap::new(), 0, Some(42), None, None).unwrap();
+    let add = Op::Add { left: Operand::StaticText { utf8: "猫\0".into() },
+        right: Operand::NormalInteger(ValueId(7)) };
+    assert_eq!(encode(add), json!({"kind":"string_add", "site":42,
+        "left":{"kind":"static_text", "utf8":"猫\0"},
+        "right":{"kind":"normal_integer", "value":7}}));
+    assert_eq!(encode(Op::Print { value: Operand::OwnedString(ValueId(9)) }),
+        json!({"kind":"string_print", "site":42, "value":{"kind":"owned_string", "value":9}}));
+    assert_eq!(encode(Op::End { value:ValueId(9) }),
+        json!({"kind":"string_end", "site":42, "value":9}));
+}

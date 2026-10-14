@@ -119,6 +119,15 @@ static int lv4_null_lane_present(hako_lv4_function_index* fn) {
   return 0;
 }
 
+static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* operand,
+    const uint16_t* state) {
+  if (lv4_is(operand, "kind", "static_text")) return 1;
+  hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
+  if (lv4_is(operand, "kind", "normal_integer")) return value && value->kind == LV4_I64;
+  return value && value->kind == LV4_OWNED_STRING && value->origin >= 0 &&
+      state[value->origin] > LV4_STRING_RANK_BASE;
+}
+
 static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
     yyjson_val* block, uint16_t* state, int faulted, int birth) {
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
@@ -251,7 +260,8 @@ static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* f
          `new ArrayBox()` normal landing. It is the first non-PHI row of a
          block reached only by the invoke's Normal edge. */
       if (faulted || !first_non_phi || !value || value->origin < 0 ||
-          (result_requires_live && state[value->origin] != LV4_LIVE)) return 0;
+          (result_requires_live && (value->kind == LV4_OWNED_STRING
+              ? state[value->origin] <= LV4_STRING_RANK_BASE : state[value->origin] != LV4_LIVE))) return 0;
       yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
       if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
           lv4_is(op, "kind", "map_install_value") || lv4_is(op, "kind", "map_install_text") ||
@@ -313,7 +323,19 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   if (lv4_is(term, "op", "invoke")) {
     yyjson_val* op = yyjson_obj_get(term, "operation");
     failed = 1;
-    if (lv4_is(op, "kind", "ordinary_call")) {
+    if (lv4_is(op, "kind", "string_add") || lv4_is(op, "kind", "string_print")) {
+      int add = lv4_is(op, "kind", "string_add");
+      if (birth || faulted || state[bi] ||
+          !lv4_string_indexed_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state) ||
+          (add && !lv4_string_indexed_operand(fn, yyjson_obj_get(op, "right"), state))) return 0;
+      if (add) normal[bi] = lv4_string_top(state, count) + 1;
+    } else if (lv4_is(op, "kind", "string_end")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      if (birth || !value || value->kind != LV4_OWNED_STRING || value->origin < 0 ||
+          state[value->origin] <= LV4_STRING_RANK_BASE ||
+          state[value->origin] != lv4_string_top(state, count)) return 0;
+      normal[value->origin] = state[value->origin] = 0;
+    } else if (lv4_is(op, "kind", "ordinary_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
       uint32_t target = lv4_u(call, "target");
