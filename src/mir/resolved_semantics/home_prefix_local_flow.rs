@@ -180,9 +180,7 @@ pub(super) struct PrefixLocalFlow<'source> {
     /// without the `ReceivedNullable` stored class.
     nonnull: std::collections::BTreeSet<BindingRefV1>,
     // Branch clones share source inventory, never the path-sensitive local classes.
-    scalar_operations: std::rc::Rc<
-        std::cell::RefCell<Vec<std::rc::Rc<super::ScalarInitializerOperationSourceV1>>>,
-    >,
+    expression_plans: std::rc::Rc<std::cell::RefCell<Vec<super::HomeExpressionPlanV1>>>,
 }
 
 impl<'source> PrefixLocalFlow<'source> {
@@ -240,29 +238,24 @@ impl<'source> PrefixLocalFlow<'source> {
             input,
             locals: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
-            scalar_operations: Default::default(),
+            expression_plans: Default::default(),
         }
     }
 
-    pub(super) fn retain_scalar_operation(
-        &mut self,
-        row: std::rc::Rc<super::ScalarInitializerOperationSourceV1>,
-    ) -> bool {
-        let mut rows = self.scalar_operations.borrow_mut();
-        if row.owner() != self.input.owner()
-            || rows
-                .iter()
-                .any(|old| old.binary().site() == row.binary().site())
+    pub(super) fn retain_expression_plan(&mut self, plan: super::HomeExpressionPlanV1) -> bool {
+        let mut plans = self.expression_plans.borrow_mut();
+        if plan.source().owner() != self.input.owner()
+            || !plan.is_consistent()
+            || plans.iter().any(|old| old.source().root().statement() == plan.source().root().statement()
+                && old.source().nodes()[0].site() == plan.source().nodes()[0].site())
         {
             return false;
         }
-        rows.push(row);
+        plans.push(plan);
         true
     }
-    pub(super) fn scalar_operations(
-        &self,
-    ) -> Vec<std::rc::Rc<super::ScalarInitializerOperationSourceV1>> {
-        self.scalar_operations.borrow().clone()
+    pub(super) fn expression_plans(&self) -> Vec<super::HomeExpressionPlanV1> {
+        self.expression_plans.borrow().clone()
     }
 
     /// Every stored-class mutation discards the binding's narrowing — a

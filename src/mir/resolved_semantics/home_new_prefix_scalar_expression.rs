@@ -16,7 +16,7 @@ use scalar_preflight::preflight;
 pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
 pub(super) fn observe_local_initializer<E>(
-    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
+    operation: &mut Option<HomeExpressionPlanV1>,
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
@@ -90,7 +90,7 @@ pub(super) fn observe_scalar_expression<E>(
 }
 
 fn observe_scalar_expression_with_operation<E>(
-    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
+    operation: &mut Option<HomeExpressionPlanV1>,
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,

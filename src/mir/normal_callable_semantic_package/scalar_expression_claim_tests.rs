@@ -298,7 +298,7 @@ fn source_operations(
     package: &VerifiedNormalCallableSemanticPackageV1,
 ) -> Vec<
     std::rc::Rc<
-        crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1,
+        crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1,
     >,
 > {
     package
@@ -309,7 +309,7 @@ fn source_operations(
                 .ordinary_new_claim_ledger
                 .completion_for_owner(declaration.owner())
                 .and_then(|completion| completion.cleanup().root_flow())
-                .map(|flow| flow.scalar_operations().to_vec())
+                .map(|flow| flow.scalar_operations().cloned().collect::<Vec<_>>())
                 .unwrap_or_default()
         })
         .collect()
@@ -336,11 +336,16 @@ fn scalar_source_retention_preserves_original_size_class_initializer_rows() {
         .unwrap();
     assert_eq!(div.positive_divisor(), Some(4));
     for row in &rows {
-        assert_eq!(row.initializer().binding().owner(), row.owner());
+        assert_eq!(row.initializer().unwrap().binding().owner(), row.owner());
         assert_eq!(
-            row.initializer().initializer_site(),
+            row.initializer().unwrap().initializer_site(),
             Some(row.binary().site())
         );
+        assert_eq!(row.plan().owner(), row.owner());
+        assert_eq!(row.plan().nodes()[0].binary(), Some(row.binary()));
+        assert!(!row.plan().has_opaque_obligations());
+        assert!(row.plan().nodes().iter().any(|node| node.site() == row.binary().lhs()));
+        assert!(row.plan().nodes().iter().any(|node| node.site() == row.binary().rhs()));
         assert_ne!(row.binary().lhs(), row.binary().rhs());
         assert!(!row.statement().node().segments().is_empty());
     }
@@ -381,7 +386,7 @@ fn scalar_source_retention_keeps_both_branch_inventories() {
     assert_eq!(rows.len(), 2);
     assert_ne!(rows[0].binary().site(), rows[1].binary().site());
     for row in &rows {
-        assert!(matches!(row.initializer().declaration_site(),
+        assert!(matches!(row.initializer().unwrap().declaration_site(),
             crate::mir::resolved_semantics::SourceBindingSiteV1::Local { statement, .. }
                 if statement == row.statement()));
     }

@@ -56,6 +56,25 @@ site, source membership and unique statement-to-value relation. Bare Return
 and other statement shapes supply no value root. Roles do not classify the
 value, grant Home neutrality, or authorize Print/Return execution.
 
+`expression_plan` retains one immutable original root and its preorder nodes
+using those same source/children loans. Local roots retain the exact original
+initializer ledger row; statement roots retain the original Print/Return role.
+Static/current-owner and qualified receiver leaves borrow the exact original
+parent method row's receiver disposition, preserving shape-independent Local
+profiles. They grant no value class or dispatch; future semantic consumers must
+reborrow original operator/call facts rather than infer them from node tags.
+Ordered child reach remains attached to each parent. Field/Call nodes are
+unresolved lender needs; opaque scope/prelude/tail obligations are retained.
+This structure alone grants neither value classes nor executable coverage.
+
+The existing Home owner holds the same source plan and stable qualified
+operation loans in its one expression-plan collection. The current Local
+Sub/positive-literal-Div cohort keeps all previous preflight restrictions and
+publishes only after the complete original field/call batch succeeds. Physical
+and independent final scalar consumers flatten only those operation loans,
+never all structural nodes. There is no plan-to-loan ownership backedge.
+Print/Return execution and String temporary/Fault/End remain later consumers.
+
 ## SSA-I0-PROFILE contract
 
 `VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It

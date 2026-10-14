@@ -30,7 +30,7 @@ pub(crate) enum ExpressionChildIssueV1 {
     ChildIdentity,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum ExpressionChildrenV1 {
     Known(Vec<ExpressionChildV1>),
     Opaque {
@@ -171,7 +171,8 @@ pub(crate) fn expression_children_v1(
                 add(Role::Argument(ordinal as u32), site, Always)?;
             }
         }
-        ResolvedExpressionSourceV1::Literal(_) | ResolvedExpressionSourceV1::Reference(_) => {}
+        ResolvedExpressionSourceV1::Literal(_) | ResolvedExpressionSourceV1::Reference(_)
+        | ResolvedExpressionSourceV1::ReceiverQualification(_) => {}
         ResolvedExpressionSourceV1::Shape(BodyExpressionShapeV1::FieldAccess {
             object, ..
         }) => {

@@ -572,7 +572,7 @@ fn statement_expression_roots_keep_original_print_and_return_roles() {
     use super::expression_root::{statement_expression_root_v1, StatementExpressionRoleV1};
     use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1 as Role, SourceStmtSiteV1};
     let root = NyashParser::parse_from_string(
-        "static box Helpers { value() { print(1) return 2 } }",
+        r#"static box Helpers { value() { print("x" + 1) return 2 } }"#,
     ).unwrap();
     let mut declaration = method_declaration(&root, "Helpers", "value");
     let ASTNode::FunctionDeclaration { body, .. } = &mut declaration else { unreachable!() };
@@ -597,6 +597,26 @@ fn statement_expression_roots_keep_original_print_and_return_roles() {
         assert!(super::expression_children::expression_children_v1(
             &ledger, Some(shape), value.value,
         ).is_ok());
+        let plan = super::expression_plan::statement_expression_source_plan_v1(
+            &ledger, shape, statement,
+        ).unwrap().unwrap();
+        assert_eq!(plan.owner(), ledger.owner());
+        assert_eq!(plan.nodes()[0].site(), value.value);
+        assert!(!plan.has_opaque_obligations());
+        assert!(matches!(plan.root(), super::expression_plan::ExpressionPlanRootV1::Statement {
+            statement: original, role: actual_role, value: original_value,
+        } if original == statement && *actual_role == role && original_value == value.value));
+        if index == 0 {
+            assert_eq!(plan.nodes().len(), 3);
+            let super::expression_children::ExpressionChildrenV1::Known(children) =
+                plan.nodes()[0].children() else { panic!("original concat children") };
+            assert_eq!(children[0].role, Role::Lhs);
+            assert_eq!(children[1].role, Role::Rhs);
+            assert_eq!(plan.nodes()[1].site(), &children[0].site);
+            assert_eq!(plan.nodes()[2].site(), &children[1].site);
+        } else {
+            assert_eq!(plan.nodes().len(), 1);
+        }
     }
     for statement in &shape.statements()[2..] {
         assert!(statement_expression_root_v1(&ledger, shape, statement.site()).unwrap().is_none());
@@ -611,4 +631,31 @@ fn statement_expression_roots_keep_original_print_and_return_roles() {
     assert!(matches!(statement_expression_root_v1(
         &ledger, foreign_input.body_shape().unwrap(), shape.statements()[0].site(),
     ), Err(ExpressionChildIssueV1::ForeignOwner)));
+    // Shape-independent Local profiles retain their original call receiver
+    // qualification from the sealed method row, without a fabricated Me row.
+    for expression in ["7 - 1", "me.scalar() - 1"] {
+        let root = NyashParser::parse_from_string(&format!(
+            "static box Helpers {{ value() {{ local n = {expression} return n }} scalar() {{ return 7 }} }}",
+        )).unwrap();
+        let declaration = method_declaration(&root, "Helpers", "value");
+        let ASTNode::FunctionDeclaration { params, body, .. } = &declaration else { unreachable!() };
+        // The enclosing original box is static. Resolve that real receiver
+        // policy explicitly, as the callable catalog does in production.
+        let syntax = crate::mir::resolved_semantics::FunctionSyntaxViewV1::from_borrowed_function_parts(
+            params, body, crate::mir::resolved_semantics::ReceiverPolicyV1::StaticCurrentOwner,
+        );
+        let (forest, shapes) = FunctionSemanticResolverSessionV1::new(0).unwrap()
+            .resolve_forest_with_body_shapes(syntax).unwrap();
+        let owner = forest.roots()[0];
+        let ledger = forest.callable_source_ledger(owner).unwrap();
+        let initializer = ledger.initializer_relations().next().unwrap();
+        let shaped = super::expression_plan::local_expression_source_plan_v1(
+            &ledger, Some(&shapes[&owner]), initializer,
+        ).unwrap();
+        let without_shape = super::expression_plan::local_expression_source_plan_v1(
+            &ledger, None, initializer,
+        ).unwrap();
+        assert_eq!(shaped, without_shape, "{expression}");
+        assert!(!without_shape.has_opaque_obligations());
+    }
 }

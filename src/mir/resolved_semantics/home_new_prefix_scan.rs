@@ -682,8 +682,8 @@ pub(super) fn scan_statement_flow<'a, E>(
                     borrowed_actuals,
                 )?;
                 if let Some(operation) = operation {
-                    if operation.initializer().binding() != binding
-                        || !locals.retain_scalar_operation(operation)
+                    if operation.source().root().initializer().map(|row| row.binding()) != Some(binding)
+                        || !locals.retain_expression_plan(operation)
                     {
                         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                         continue;

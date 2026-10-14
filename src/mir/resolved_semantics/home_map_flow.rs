@@ -40,7 +40,7 @@ pub(crate) struct RootHomeFlow {
     pub(super) uncovered_implicit_exit: bool,
     pub(super) maps: Vec<MapHomeObservation>,
     pub(super) local_calls: Vec<LocalCallObservationV1>,
-    pub(super) scalar_operations: Vec<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
+    pub(super) expression_plans: Vec<HomeExpressionPlanV1>,
 }
 impl RootHomeFlow {
     /// The sole exit's homes — only when the flow observed exactly one
@@ -76,8 +76,8 @@ impl RootHomeFlow {
     pub(crate) fn maps(&self) -> &[MapHomeObservation] {
         &self.maps
     }
-    pub(crate) fn scalar_operations(&self) -> &[std::rc::Rc<ScalarInitializerOperationSourceV1>] {
-        &self.scalar_operations
+    pub(crate) fn scalar_operations(&self) -> impl Iterator<Item = &std::rc::Rc<ExpressionScalarOperationLoanV1>> {
+        self.expression_plans.iter().flat_map(HomeExpressionPlanV1::scalar_operations)
     }
     pub(crate) fn local_calls(&self) -> &[LocalCallObservationV1] {
         &self.local_calls

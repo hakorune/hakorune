@@ -12,6 +12,7 @@ pub(crate) mod error;
 pub(crate) mod expression_source;
 pub(crate) mod expression_children;
 pub(crate) mod expression_root;
+pub(crate) mod expression_plan;
 mod function_return;
 mod nested_recipe_facts;
 mod nested_recipe_mapper;

@@ -126,9 +126,9 @@ impl ResultNewHomePrefixV1 {
     }
 }
 
-#[path = "home_scalar_operation_source.rs"]
-mod scalar_operation_source;
-pub(crate) use scalar_operation_source::ScalarInitializerOperationSourceV1;
+#[path = "home_expression_plan.rs"]
+mod expression_plan;
+pub(crate) use expression_plan::{ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
@@ -409,7 +409,7 @@ pub(crate) fn scan_new_home_flow<E>(
                 uncovered_implicit_exit,
                 maps,
                 local_calls,
-                scalar_operations: Vec::new(),
+                expression_plans: Vec::new(),
             },
             terminal_relations,
             argument_observations,
@@ -499,7 +499,7 @@ pub(crate) fn scan_new_home_flow<E>(
             uncovered_implicit_exit,
             maps,
             local_calls,
-            scalar_operations: locals.scalar_operations(),
+            expression_plans: locals.expression_plans(),
         },
         terminal_relations,
         argument_observations,

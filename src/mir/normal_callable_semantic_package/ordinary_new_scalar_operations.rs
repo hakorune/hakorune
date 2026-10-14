@@ -1,7 +1,7 @@
 //! Same scalar source evidence joined to its original ordinary Binary append.
 //! This is physical correspondence, not execution or derived-reuse authority.
 use super::*;
-use crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1 as Source;
+use crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1 as Source;
 use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
 use crate::mir::{BasicBlockId, BinaryOp, ConstValue, MirFunction, MirInstruction, ValueId};
 
@@ -76,7 +76,7 @@ impl OriginalScalarAppendV1 {
                 ledger
                     .completion_for_owner(declaration.owner())
                     .and_then(|row| row.cleanup().root_flow())
-                    .map(|flow| flow.scalar_operations().to_vec())
+                    .map(|flow| flow.scalar_operations().cloned().collect::<Vec<_>>())
                     .unwrap_or_default()
             })
             .collect();
@@ -104,7 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir) fn has_scalar_operation_source_v1(&self, owner: FunctionOwnerIdV1) -> bool {
         self.completion_for_owner(owner)
             .and_then(|row| row.cleanup().root_flow())
-            .is_some_and(|flow| !flow.scalar_operations().is_empty())
+            .is_some_and(|flow| flow.scalar_operations().next().is_some())
     }
 
     pub(in crate::mir) fn prepare_scalar_operation_source_v1(
@@ -124,7 +124,6 @@ impl OrdinaryNewClaimLedgerV1 {
         };
         let mut rows = flow
             .scalar_operations()
-            .iter()
             .filter(|row| row.binary().site() == site.site());
         let Some(row) = rows.next() else {
             return Ok(None);
@@ -215,8 +214,8 @@ impl OrdinaryNewClaimLedgerV1 {
         let expected = self
             .completion_for_owner(owner)
             .and_then(|row| row.cleanup().root_flow())
-            .map(|flow| flow.scalar_operations())
-            .unwrap_or(&[]);
+            .map(|flow| flow.scalar_operations().cloned().collect::<Vec<_>>())
+            .unwrap_or_default();
         let originals: Vec<_> = index.scalar_originals().collect();
         if originals.len() != expected.len() {
             return Err(reject("original-coverage"));

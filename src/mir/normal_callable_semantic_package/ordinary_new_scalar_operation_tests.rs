@@ -16,7 +16,7 @@ fn original_scalar_append_requires_same_source_and_exact_ordered_producer() {
             ledger
                 .completion_for_owner(declaration.owner())
                 .and_then(|row| row.cleanup().root_flow())
-                .map(|flow| flow.scalar_operations().to_vec())
+                .map(|flow| flow.scalar_operations().cloned().collect::<Vec<_>>())
                 .unwrap_or_default()
         })
         .collect();

@@ -3,7 +3,8 @@
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, CallableSemanticSourceLedgerView, ResolvedBinaryExpressionSourceV1,
     ResolvedConditionalExpressionSourceV1, ResolvedLexicalRefV1, ResolvedLiteralSourceV1,
-    ResolvedUnaryExpressionSourceV1, SourceExprSiteV1, VerifiedResolvedBodyShapeInventoryV1,
+    ResolvedMethodCallReceiverSourceV1, ResolvedUnaryExpressionSourceV1, SourceExprSiteV1,
+    SourceNodeSiteV1, SourcePathSegmentV1, VerifiedResolvedBodyShapeInventoryV1,
     VerifiedResolvedMethodCallSourceV1,
 };
 
@@ -16,6 +17,7 @@ pub(crate) enum ResolvedExpressionSourceV1<'a> {
     Reference(ResolvedLexicalRefV1),
     MethodCall(&'a VerifiedResolvedMethodCallSourceV1),
     DirectCall,
+    ReceiverQualification(&'a VerifiedResolvedMethodCallSourceV1),
     Shape(&'a BodyExpressionShapeV1),
 }
 
@@ -56,7 +58,31 @@ pub(crate) fn expression_source_v1<'a>(
         || ledger.direct_call_observation(site).is_some()
     {
         ResolvedExpressionSourceV1::DirectCall
+    } else if let Some(row) = original_receiver_qualification(ledger, site) {
+        ResolvedExpressionSourceV1::ReceiverQualification(row)
     } else {
         ResolvedExpressionSourceV1::Shape(shape?.expression_shape(site)?)
     })
+}
+
+/// Source receiver qualification is already sealed on its original call row.
+/// It is not a value class, dispatch choice, or executable receiver permission.
+fn original_receiver_qualification<'a>(
+    ledger: &'a CallableSemanticSourceLedgerView<'_>,
+    site: &SourceExprSiteV1,
+) -> Option<&'a VerifiedResolvedMethodCallSourceV1> {
+    let (SourcePathSegmentV1::Receiver, parent) = site.node().segments().split_last()? else {
+        return None;
+    };
+    let parent = SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(parent.to_vec()));
+    let row = ledger.method_call(&parent)?;
+    (row.owner() == ledger.owner()
+        && row.site() == &parent
+        && row.receiver_site() == site
+        && matches!(
+            row.receiver(),
+            ResolvedMethodCallReceiverSourceV1::CurrentOwner
+                | ResolvedMethodCallReceiverSourceV1::QualifiedUnbound
+        ))
+    .then_some(row)
 }

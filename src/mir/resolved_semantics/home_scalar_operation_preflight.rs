@@ -5,7 +5,7 @@ use crate::mir::resolved_value_profile::expression_source::{
 };
 
 pub(super) fn preflight<E>(
-    operation: &mut Option<std::rc::Rc<ScalarInitializerOperationSourceV1>>,
+    operation: &mut Option<HomeExpressionPlanV1>,
     input: ResolvedFunctionLoweringInputV1<'_>,
     ledger: &crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
     site: &SourceExprSiteV1,
@@ -220,15 +220,15 @@ pub(super) fn preflight<E>(
         } else {
             None
         };
-        *operation = Some(std::rc::Rc::new(
-            ScalarInitializerOperationSourceV1::retain(
-                input.owner(),
-                statement.clone(),
-                initializer.clone(),
-                row.clone(),
-                positive_divisor,
-            ),
-        ));
+        let Ok(source) = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+            ledger, input.body_shape(), initializer,
+        ) else {
+            return Ok(None);
+        };
+        let Some(plan) = HomeExpressionPlanV1::scalar_root(source, row, positive_divisor) else {
+            return Ok(None);
+        };
+        *operation = Some(plan);
     }
     Ok(Some(result))
 }

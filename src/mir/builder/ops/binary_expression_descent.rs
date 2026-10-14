@@ -214,7 +214,7 @@ where
 enum SelectedBinarySourceV1 {
     Compare(crate::mir::normal_callable_semantic_package::BorrowedCompareSourceLoanV1),
     Mul(crate::mir::normal_callable_semantic_package::BorrowedMulSourceLoanV1),
-    Scalar(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>),
+    Scalar(std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>),
 }
 
 pub(in crate::mir::builder) fn drive_ordinary_binary_expression_v1<Port>(

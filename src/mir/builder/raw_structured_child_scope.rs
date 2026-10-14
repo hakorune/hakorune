@@ -173,12 +173,12 @@ where
 
     fn prepare_ordinary_scalar_source_v1(
         &mut self, operator: &crate::ast::BinaryOperator,
-    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>>, String> {
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>>, String> {
         self.child.prepare_ordinary_scalar_source_v1(operator)
     }
 
     fn complete_ordinary_scalar_source_v1(
-        &mut self, source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ScalarInitializerOperationSourceV1>, children: (ValueId, ValueId),
+        &mut self, source: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::ExpressionScalarOperationLoanV1>, children: (ValueId, ValueId),
         relations: [std::rc::Rc<crate::mir::builder::ssa::local::LocalSsaPhysicalRelationV1>; 2],
         completed: &super::ops::CompletedOrdinaryBinaryV1,
         index: &crate::mir::builder::ssa::local::LocalSsaPhysicalIndexV1,
