@@ -1831,3 +1831,9 @@ This is the same capability and physical emitter, with no new construction
 selection or fallback. The split makes room for the selected owned-Array entry
 connection without exceeding the source-file limit; that connection remains
 part of Required Object Forward S0 and is not enabled by this move.
+
+Root callable capture implementations live in
+`normal_callable_semantic_loan_port/root_capture.rs`; the parent owns the
+shared adapter and scope wiring. This responsibility split preserves all
+canonical route choices and physical consumers. The separately pending owned
+Array source borrow does not activate execution or grant a new source authority.
