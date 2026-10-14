@@ -1431,6 +1431,9 @@ exact acquisition site; ordinary observations expose Handles, while only an
 available direct Home can transfer. The package callback checks already-issued
 descriptor compatibility, not availability. Aliases cannot supply transfer and
 cannot recover an observation through a consumed root.
+`home_map_value_flow` owns the recursive Array element and Map value leaf
+classification used by `home_map_flow`; it borrows the same source walk and
+transfer accounting without introducing another issuer or inventory.
 `home_map_flow` retains initial reverse Home order once, each Home's exact
 transfer entry, and each entry's issued displaced/replacement relation. Borrowed
 prefix projections expose precommit/committed outer cleanup without storing four
