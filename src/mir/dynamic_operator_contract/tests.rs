@@ -15,43 +15,47 @@ fn issue(
 }
 
 #[test]
-fn add_issues_one_complete_non_aliasing_carrier_contract() {
-    let envelope = issue(
-        DynamicOperatorFamilyV1::Add,
-        DynamicOperatorValueClassV1::Dynamic,
-        DynamicOperatorValueClassV1::I64,
-    )
-    .unwrap();
+fn add_issues_complete_owned_result_contracts() {
+    use DynamicOperatorNormalResultV1::{OwnedStringValue, SelfContainedNonAliasingDynamicCarrier};
+    use DynamicOperatorValueClassV1::{Dynamic, NormalInteger, String, I64};
+    for (left, right, result) in [
+        (Dynamic, I64, SelfContainedNonAliasingDynamicCarrier),
+        (String, String, OwnedStringValue),
+        (String, NormalInteger, OwnedStringValue),
+    ] {
+        let envelope = issue(DynamicOperatorFamilyV1::Add, left, right).unwrap();
 
-    assert_eq!(envelope.effect(), DynamicOperatorEffectV1::OpaqueObservable);
-    assert_eq!(
-        envelope.ordering(),
-        DynamicOperatorOrderingV1::SynchronousNonDetached
-    );
-    assert_eq!(
-        envelope.suspension(),
-        DynamicOperatorSuspensionV1::MaySuspend
-    );
-    assert_eq!(
-        envelope.control(),
-        DynamicOperatorControlV1::ExpressionBounded
-    );
-    assert_eq!(
-        envelope.input_access(),
-        DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation
-    );
-    assert_eq!(
-        envelope.normal_result(),
-        DynamicOperatorNormalResultV1::SelfContainedNonAliasingDynamicCarrier
-    );
-    assert_eq!(
-        envelope.fault(),
-        DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
-    );
-    assert_eq!(
-        envelope.lifecycle(),
-        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded)
-    );
+        assert_eq!(envelope.effect(), DynamicOperatorEffectV1::OpaqueObservable);
+        assert_eq!(
+            envelope.ordering(),
+            DynamicOperatorOrderingV1::SynchronousNonDetached
+        );
+        assert_eq!(
+            envelope.suspension(),
+            DynamicOperatorSuspensionV1::MaySuspend
+        );
+        assert_eq!(
+            envelope.control(),
+            DynamicOperatorControlV1::ExpressionBounded
+        );
+        assert_eq!(
+            envelope.input_access(),
+            DynamicOperatorInputAccessV1::BorrowedNoEscapeForOperation
+        );
+        assert_eq!(envelope.normal_result(), result);
+        assert_eq!(
+            envelope.fault(),
+            DynamicOperatorFaultV1::TypeErrorBeforeResultNoOperandMutationNoRebind
+        );
+        assert_eq!(
+            envelope.lifecycle(),
+            Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded)
+        );
+        assert_eq!(
+            envelope.domain(),
+            DynamicOperatorDomainV1::new(DynamicOperatorFamilyV1::Add, left, right)
+        );
+    }
 }
 
 #[test]
@@ -142,6 +146,26 @@ fn equal_dynamic_null_issues_non_suspending_trivial_bool() {
 #[test]
 fn unsupported_domains_fail_without_fallback() {
     for domain in [
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Dynamic,
+        ),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::Null,
+        ),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::I64,
+        ),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::String,
+        ),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::Dynamic,

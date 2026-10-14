@@ -33,6 +33,34 @@ DynamicLess(Dynamic, Dynamic|I64):
 result is self-contained and is not a borrowed alias of either operand. This
 is an operator-result relation, not a Home classification.
 
+## Checked String concatenation
+
+The operator issuer also provides a bounded projection of the existing String
+concatenation semantics: `Add(String, String)` and
+`Add(String, NormalInteger)`. `String` here requires an exact source String
+proof, and `NormalInteger` requires the logical signed-integer proof. Both
+operands are evaluated in source order and borrowed without escape or mutation.
+The integer conversion is the builtin signed decimal conversion; this profile
+does not invoke user-defined stringification.
+
+Normal produces an independently owned immutable String value. Reusing
+immutable text storage is permitted; returning a borrowed operand's ownership
+token as the result is not. The result owes exactly one End unless forwarded.
+Fault produces no result or ownership transfer and does not mutate or rebind
+operands. These envelopes retain the synchronous, expression-bounded,
+potentially suspending, observable operation contract and TypeError boundary.
+Other operand domains require their own checked projection.
+
+Print borrows its argument without taking ownership. The enclosing expression
+scope retains and ends produced String temporaries after their last use,
+including cleanup when a later operand evaluation faults. String literals do
+not acquire a temporary ownership obligation merely by being printed.
+
+An exact String result representation alone proves neither this execution
+contract nor cleanup. The String envelope does not activate a source, physical
+or runtime consumer. The compatibility String-concat route and opaque
+`DynamicAdd(Dynamic, I64)` remain separate execution contracts.
+
 ## Checked Integer comparisons
 
 Decision (2026-10-07): the same profile-neutral operator issuer provides

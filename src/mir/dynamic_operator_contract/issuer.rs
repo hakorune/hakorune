@@ -18,6 +18,30 @@ const ADD_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
     );
 
+const ADD_STRING_STRING: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::String,
+        ),
+        DynamicOperatorNormalResultV1::OwnedStringValue,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
+    );
+
+const ADD_STRING_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::OwnedStringValue,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        Some(DynamicCarrierLifecycleObligationV1::EndExactlyOnceUnlessForwarded),
+    );
+
 const LESS_DYNAMIC_DYNAMIC: VerifiedDynamicOperatorExecutionEnvelopeV1 =
     VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
         DynamicOperatorDomainV1::new(
@@ -138,6 +162,16 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
     domain: DynamicOperatorDomainV1,
 ) -> Result<&'static VerifiedDynamicOperatorExecutionEnvelopeV1, DynamicOperatorEnvelopeIssueV1> {
     match (domain.family(), domain.left(), domain.right()) {
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::String,
+        ) => Ok(&ADD_STRING_STRING),
+        (
+            DynamicOperatorFamilyV1::Add,
+            DynamicOperatorValueClassV1::String,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&ADD_STRING_NORMAL_INTEGER),
         (
             DynamicOperatorFamilyV1::Add,
             DynamicOperatorValueClassV1::Dynamic,

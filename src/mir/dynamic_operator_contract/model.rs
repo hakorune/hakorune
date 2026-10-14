@@ -14,6 +14,8 @@ pub(crate) enum DynamicOperatorFamilyV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorValueClassV1 {
     Dynamic,
+    /// Exact immutable String value, established from original source facts.
+    String,
     I64,
     /// Logical signed-integer operand proven by a checked view, never by
     /// storage spelling (`usize`/U64Bits lanes stay physical detail).
@@ -88,6 +90,9 @@ pub(crate) enum DynamicOperatorInputAccessV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum DynamicOperatorNormalResultV1 {
     SelfContainedNonAliasingDynamicCarrier,
+    /// One independently owned String result. Immutable text storage may be
+    /// shared; the result never borrows an operand ownership token.
+    OwnedStringValue,
     TrivialBool,
     /// A fresh logical signed-integer value produced by an arithmetic view
     /// use; it carries no borrowed identity and no lifecycle obligation.
