@@ -1805,3 +1805,12 @@ may carry a leading single-predecessor PHI; normal child capture still rejects
 that shape. The retained body Invoke now projects through the child's
 `FinishingChecked` bindings to one finished coordinate; a missing or duplicate
 producer rejects. Root publication and final incoming coverage remain open.
+
+The selected root graph delegates cleanup suffix construction to its existing
+`ordinary_new_admission/selected/root_graph.rs` writer owner. The caller supplies
+the clean continuation; this physical helper preserves original operation-index
+suffixes, dedicated Normal/Fault landings and the pending-Fault terminal. Root
+callers retain their Return endpoint and original Home origin correspondence;
+plain roots do not create an unused acquisition-fault chain. A body expression
+must supply its own verified continuation and source/frame correspondence before
+using this same writer. This factoring alone does not activate source Print.

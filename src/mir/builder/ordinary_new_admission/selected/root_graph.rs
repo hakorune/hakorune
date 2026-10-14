@@ -108,3 +108,153 @@ impl RootGraphWriterPortV1 for RawRootGraphWriterV1 {
         Ok(())
     }
 }
+
+/// One physical cleanup algorithm for a caller-owned clean continuation. The
+/// root caller supplies a Return block; a body expression supplies its next
+/// block. This port neither infers Home obligations nor manufactures origins.
+pub(super) struct CleanupSuffixGraphV1 {
+    pub(super) clean: BasicBlockId,
+    pub(super) fault_terminal: BasicBlockId,
+    pub(super) acquisition_fault: BasicBlockId,
+    pub(super) normal_origins: Vec<(BasicBlockId, MirInstruction)>,
+}
+
+pub(super) fn emit_cleanup_suffixes_with_writer(
+    writer: &mut impl RootGraphWriterPortV1,
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    mut clean: BasicBlockId,
+    normal_operations: &[InvokeOperation],
+    fault_operations: &[InvokeOperation],
+    after_normal: &[Vec<usize>],
+    acquisition: &[usize],
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<CleanupSuffixGraphV1, String> {
+    if after_normal.len() != normal_operations.len()
+        || after_normal
+            .iter()
+            .flatten()
+            .chain(acquisition)
+            .any(|index| *index >= fault_operations.len())
+    {
+        return Err(freeze("root-fault-sequence-shape"));
+    }
+    let fault_terminal = writer.reserve_block(builder)?;
+    writer.append_terminated(
+        builder,
+        fault_terminal,
+        MirInstruction::ReturnFault { fault_frame: frame },
+        bindings,
+    )?;
+    let mut fault_nodes = std::collections::BTreeMap::new();
+    fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
+    let mut normal_origins = Vec::with_capacity(normal_operations.len());
+    for (index, operation) in normal_operations.iter().enumerate().rev() {
+        let fault = emit_pending_root_fault_sequence(
+            writer,
+            builder,
+            frame,
+            fault_operations,
+            &after_normal[index],
+            &mut fault_nodes,
+            bindings,
+        )?;
+        clean = cleanup_step_with_writer(
+            writer,
+            builder,
+            frame,
+            operation.clone(),
+            clean,
+            fault,
+            bindings,
+        )?;
+        normal_origins.push(
+            bindings
+                .last()
+                .cloned()
+                .ok_or_else(|| freeze("root-home-release-binding-missing"))?,
+        );
+    }
+    let acquisition_fault = emit_pending_root_fault_sequence(
+        writer,
+        builder,
+        frame,
+        fault_operations,
+        acquisition,
+        &mut fault_nodes,
+        bindings,
+    )?;
+    normal_origins.reverse();
+    Ok(CleanupSuffixGraphV1 {
+        clean,
+        fault_terminal,
+        acquisition_fault,
+        normal_origins,
+    })
+}
+
+/// Share only exact original-origin suffixes within this emission.
+fn emit_pending_root_fault_sequence(
+    writer: &mut impl RootGraphWriterPortV1,
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    full: &[InvokeOperation],
+    sequence: &[usize],
+    nodes: &mut std::collections::BTreeMap<Vec<usize>, crate::mir::BasicBlockId>,
+    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
+) -> Result<crate::mir::BasicBlockId, String> {
+    let mut next = *nodes
+        .get(&Vec::new())
+        .ok_or_else(|| freeze("root-fault-terminal-missing"))?;
+    for offset in (0..sequence.len()).rev() {
+        let suffix = &sequence[offset..];
+        if let Some(existing) = nodes.get(suffix) {
+            next = *existing;
+            continue;
+        }
+        let origin = full
+            .get(sequence[offset])
+            .ok_or_else(|| freeze("root-fault-origin-missing"))?;
+        next =
+            cleanup_step_with_writer(writer, builder, frame, origin.clone(), next, next, bindings)?;
+        nodes.insert(suffix.to_vec(), next);
+    }
+    Ok(next)
+}
+
+pub(super) fn cleanup_step_with_writer(
+    writer: &mut impl RootGraphWriterPortV1,
+    builder: &mut MirBuilder,
+    frame: ValueId,
+    operation: InvokeOperation,
+    normal_next: BasicBlockId,
+    fault_next: BasicBlockId,
+    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
+) -> Result<BasicBlockId, String> {
+    let origin = writer.reserve_block(builder)?;
+    let normal = writer.reserve_block(builder)?;
+    let fault = writer.reserve_block(builder)?;
+    for (landing, target) in [(normal, normal_next), (fault, fault_next)] {
+        writer.append_terminated(
+            builder,
+            landing,
+            MirInstruction::Jump {
+                target,
+                edge_args: None,
+            },
+            bindings,
+        )?;
+    }
+    writer.append_terminated(
+        builder,
+        origin,
+        MirInstruction::Invoke {
+            operation,
+            fault_frame: frame,
+            normal_landing: normal,
+            fault_landing: fault,
+        },
+        bindings,
+    )?;
+    Ok(origin)
+}

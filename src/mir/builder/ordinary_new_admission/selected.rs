@@ -20,7 +20,7 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{
     BasicBlock, BasicBlockId, Callee, MirBuilder, MirFunction, MirInstruction, MirType, ValueId,
 };
-use root_graph::{RawRootGraphWriterV1, RootGraphWriterPortV1};
+use root_graph::{cleanup_step_with_writer, RawRootGraphWriterV1, RootGraphWriterPortV1};
 
 pub(in crate::mir::builder) trait RootExitFramePortV1 {
     fn materialize(&mut self, builder: &mut MirBuilder) -> Result<ValueId, String>;
@@ -405,55 +405,21 @@ pub(in crate::mir::builder) fn emit_root_graph_v1(
     if !operations.is_empty() || ingress_operation.is_some() {
         let frame = frame_port.materialize(builder)?;
         frame_value = Some(frame);
-        let fault_terminal = writer.reserve_block(builder)?;
-        writer.append_terminated(
-            builder,
-            fault_terminal,
-            MirInstruction::ReturnFault { fault_frame: frame },
+        let cleanup = root_graph::emit_cleanup_suffixes_with_writer(
+            writer, builder, frame, clean,
+            &operations.iter().map(|origin| origin.operation().clone()).collect::<Vec<_>>(),
+            &fault_operations, &fault_sequences.after_normal,
+            if ingress_operation.is_some() { &fault_sequences.acquisition } else { &[] },
             &mut bindings,
         )?;
-        let mut fault_nodes = std::collections::BTreeMap::new();
-        fault_nodes.insert(Vec::<usize>::new(), fault_terminal);
-        for (index, origin) in operations.into_iter().enumerate().rev() {
-            let fault = emit_pending_root_fault_sequence(
-                writer,
-                builder,
-                frame,
-                &fault_operations,
-                &fault_sequences.after_normal[index],
-                &mut fault_nodes,
-                &mut bindings,
-            )?;
-            let next_clean = cleanup_step_with_writer(
-                writer,
-                builder,
-                frame,
-                origin.operation().clone(),
-                clean,
-                fault,
-                &mut bindings,
-            )?;
-            let (block, instruction) = bindings
-                .last()
-                .cloned()
-                .ok_or_else(|| freeze("root-home-release-binding-missing"))?;
-            origins.push((origin, block, instruction));
-            clean = next_clean;
-        }
+        clean = cleanup.clean;
+        origins.extend(operations.into_iter().zip(cleanup.normal_origins)
+            .map(|(origin, (block, instruction))| (origin, block, instruction)));
         let fault = if ingress_operation.is_some() {
-            emit_pending_root_fault_sequence(
-                writer,
-                builder,
-                frame,
-                &fault_operations,
-                &fault_sequences.acquisition,
-                &mut fault_nodes,
-                &mut bindings,
-            )?
+            cleanup.acquisition_fault
         } else {
-            fault_terminal
+            cleanup.fault_terminal
         };
-        origins.reverse();
         if let Some(operation) = ingress_operation {
             ingress = Some(terminal_call::emit_ingress(
                 writer,
@@ -483,35 +449,6 @@ pub(in crate::mir::builder) fn emit_root_graph_v1(
         frame: frame_value,
         clean,
     })
-}
-
-/// Share only exact original-origin suffixes within this emission.
-fn emit_pending_root_fault_sequence(
-    writer: &mut impl RootGraphWriterPortV1,
-    builder: &mut MirBuilder,
-    frame: ValueId,
-    full: &[InvokeOperation],
-    sequence: &[usize],
-    nodes: &mut std::collections::BTreeMap<Vec<usize>, crate::mir::BasicBlockId>,
-    bindings: &mut Vec<(crate::mir::BasicBlockId, MirInstruction)>,
-) -> Result<crate::mir::BasicBlockId, String> {
-    let mut next = *nodes
-        .get(&Vec::new())
-        .ok_or_else(|| freeze("root-fault-terminal-missing"))?;
-    for offset in (0..sequence.len()).rev() {
-        let suffix = &sequence[offset..];
-        if let Some(existing) = nodes.get(suffix) {
-            next = *existing;
-            continue;
-        }
-        let origin = full
-            .get(sequence[offset])
-            .ok_or_else(|| freeze("root-fault-origin-missing"))?;
-        next =
-            cleanup_step_with_writer(writer, builder, frame, origin.clone(), next, next, bindings)?;
-        nodes.insert(suffix.to_vec(), next);
-    }
-    Ok(next)
 }
 
 pub(in crate::mir::builder) fn emit_terminal_i64_add_return(
@@ -660,43 +597,6 @@ fn cleanup_step(
         fault_next,
         bindings,
     )
-}
-
-fn cleanup_step_with_writer(
-    writer: &mut impl RootGraphWriterPortV1,
-    builder: &mut MirBuilder,
-    frame: ValueId,
-    operation: InvokeOperation,
-    normal_next: BasicBlockId,
-    fault_next: BasicBlockId,
-    bindings: &mut Vec<(BasicBlockId, MirInstruction)>,
-) -> Result<BasicBlockId, String> {
-    let origin = writer.reserve_block(builder)?;
-    let normal = writer.reserve_block(builder)?;
-    let fault = writer.reserve_block(builder)?;
-    for (landing, target) in [(normal, normal_next), (fault, fault_next)] {
-        writer.append_terminated(
-            builder,
-            landing,
-            MirInstruction::Jump {
-                target,
-                edge_args: None,
-            },
-            bindings,
-        )?;
-    }
-    writer.append_terminated(
-        builder,
-        origin,
-        MirInstruction::Invoke {
-            operation,
-            fault_frame: frame,
-            normal_landing: normal,
-            fault_landing: fault,
-        },
-        bindings,
-    )?;
-    Ok(origin)
 }
 
 pub(in crate::mir::builder) fn append_block(
