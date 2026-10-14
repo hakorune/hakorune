@@ -102,16 +102,22 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     }
     Ok(())
 }
-fn terminal(function: &MirFunction, id: BasicBlockId) -> Result<&MirInstruction, String> {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn terminal(function: &MirFunction, id: BasicBlockId) -> Result<&MirInstruction, String> {
     function
         .blocks
         .get(&id)
         .and_then(|b| b.terminator.as_ref())
         .ok_or_else(|| fault("ordered-path/missing-node"))
 }
-fn skip(function: &MirFunction, mut id: BasicBlockId) -> Result<BasicBlockId, String> {
+fn skip(function: &MirFunction, id: BasicBlockId) -> Result<BasicBlockId, String> {
+    skip_until(function, id, None)
+}
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn skip_until(
+    function: &MirFunction, mut id: BasicBlockId, stop: Option<BasicBlockId>,
+) -> Result<BasicBlockId, String> {
     let mut visited = BTreeSet::new();
     loop {
+        if Some(id) == stop { return Ok(id); }
         if !visited.insert(id) {
             return Err(fault("ordered-path/cycle"));
         }
@@ -124,7 +130,7 @@ fn skip(function: &MirFunction, mut id: BasicBlockId) -> Result<BasicBlockId, St
         }
     }
 }
-fn release(
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn release(
     function: &MirFunction,
     id: BasicBlockId,
     expected: &InvokeOperation,
@@ -144,13 +150,24 @@ fn release(
 }
 fn pending(
     function: &MirFunction,
-    mut id: BasicBlockId,
+    id: BasicBlockId,
     expected: &[super::super::root_home::RootHomeReleaseOriginV1],
     frame: Option<crate::mir::ValueId>,
 ) -> Result<(), String> {
-    for origin in expected {
+    pending_operations(function, id, &expected.iter().map(|origin| origin.operation().clone()).collect::<Vec<_>>(), frame).map(drop)
+}
+
+/// Reused by body-expression prefixes, whose source includes String End before
+/// the same prior-Home unwind. Expected operations never come from MIR census.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn pending_operations(
+    function: &MirFunction, mut id: BasicBlockId, expected: &[InvokeOperation],
+    frame: Option<crate::mir::ValueId>,
+) -> Result<BTreeSet<BasicBlockId>, String> {
+    let mut consumed = BTreeSet::new();
+    for operation in expected {
         id = skip(function, id)?;
-        let (normal, fault_edge) = release(function, id, origin.operation(), frame)?;
+        consumed.insert(id);
+        let (normal, fault_edge) = release(function, id, operation, frame)?;
         if skip(function, normal)? != skip(function, fault_edge)? {
             return Err(fault("ordered-path/fault-outcomes"));
         }
@@ -161,5 +178,5 @@ fn pending(
     {
         return Err(fault("ordered-path/fault-terminal"));
     }
-    Ok(())
+    Ok(consumed)
 }
