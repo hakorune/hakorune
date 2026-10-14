@@ -1,6 +1,7 @@
 //! One composed If Eq Home source: checked one-input Static Lhs and
 //! zero-input Static RHS. No execution, operator envelope or packet is issued.
 use super::*;
+use crate::mir::resolved_semantics::SourcePathV1;
 
 struct StaticEqPairV1 {
     statement: SourceStmtSiteV1,
@@ -17,7 +18,9 @@ fn source_pair(
         .with_if_region_for_condition(root, |row| row.site().clone())
         .ok()?;
     let binary = input.function().expression_source().binary(root)?;
-    if binary.operator() != ResolvedBinaryOperatorV1::Equal || !binary_sites_match(root, binary) {
+    if binary.operator() != ResolvedBinaryOperatorV1::Equal
+        || binary_children_v1(root, binary).is_none()
+    {
         return None;
     }
     let lhs = input.function().method_call(binary.lhs())?;

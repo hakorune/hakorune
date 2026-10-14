@@ -6,6 +6,9 @@
 //! An unclaimed site is a named `UnknownExpression` rejection, never an AST
 //! re-scan.
 
+use super::super::expression_children::{
+    binary_children_v1, expression_children_v1, ExpressionChildrenV1,
+};
 use super::super::expression_source::{expression_source_v1, ResolvedExpressionSourceV1};
 use super::*;
 use crate::mir::resolved_semantics::{
@@ -170,6 +173,33 @@ fn classify(
     state: &mut InferenceState<'_>,
     site: &SourceExprSiteV1,
 ) -> Result<ExprClassV1, SourceResultProductErrorV1> {
+    let block_tail = match expression_children_v1(state.ledger, Some(state.body_shape), site)
+        .map_err(|_| SourceResultProductErrorV1::ChildSourceIdentity(site.clone()))?
+    {
+        ExpressionChildrenV1::Known(children) => {
+            let tail = children
+                .iter()
+                .find(|child| child.role == SourcePathSegmentV1::BlockExprTail)
+                .map(|child| child.site.clone());
+            state.operations.push(SourceValueOperationV1::Children {
+                site: site.clone(),
+                children: children.into_boxed_slice(),
+            });
+            tail
+        }
+        ExpressionChildrenV1::Opaque {
+            scope,
+            prelude,
+            tail,
+        } => {
+            if !prelude.is_empty() {
+                return Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(scope));
+            }
+            // An unresolved shape never becomes a leaf or an execution proof.
+            debug_assert!(tail.is_none());
+            None
+        }
+    };
     match expression_source_v1(state.ledger, Some(state.body_shape), site) {
         Some(ResolvedExpressionSourceV1::Conditional(row)) => {
             classify_conditional(state, site, row)
@@ -192,23 +222,11 @@ fn classify(
         Some(ResolvedExpressionSourceV1::MethodCall(row)) => classify_method_call(state, site, row),
         Some(ResolvedExpressionSourceV1::DirectCall) => classify_direct_call(state, site),
         Some(ResolvedExpressionSourceV1::Shape(BodyExpressionShapeV1::BlockExpr { .. })) => {
-            // Wrapper shape is not permission to discard prelude effects.
-            let site_segments = site.node().segments();
-            let has_prelude_item = state.body_shape.statements().iter().any(|statement| {
-                matches!(statement.site().node().segments().split_last(),
-                    Some((SourcePathSegmentV1::BlockExprPrelude(_), prefix))
-                        if prefix == site_segments)
-            });
-            if has_prelude_item {
-                return Err(SourceResultProductErrorV1::NonEmptyBlockExprPrelude(
-                    site.clone(),
-                ));
-            }
-            let tail = SourcePathV1::from_node(site.node())
-                .child(SourcePathSegmentV1::BlockExprTail)
-                .expr();
+            let tail = block_tail
+                .ok_or_else(|| SourceResultProductErrorV1::ChildSourceIdentity(site.clone()))?;
             classify(state, &tail)
         }
+
         _ => Err(SourceResultProductErrorV1::UnknownExpression(site.clone())),
     }
 }
@@ -234,8 +252,8 @@ fn classify_conditional(
         });
     }
     classify(state, row.condition())?;
-    let then_class = classify(state, row.then_tail())?;
-    let else_class = classify(state, row.else_tail())?;
+    let then_class = classify(state, row.then_block())?;
+    let else_class = classify(state, row.else_block())?;
     if then_class != else_class {
         return Err(SourceResultProductErrorV1::MixedReturnClasses);
     }
@@ -255,8 +273,10 @@ fn classify_binary(
     site: &SourceExprSiteV1,
     row: &ResolvedBinaryExpressionSourceV1,
 ) -> Result<ExprClassV1, SourceResultProductErrorV1> {
-    let lhs = classify(state, row.lhs())?;
-    let rhs = classify(state, row.rhs())?;
+    let [lhs_site, rhs_site] = binary_children_v1(site, row)
+        .ok_or_else(|| SourceResultProductErrorV1::ChildSourceIdentity(site.clone()))?;
+    let lhs = classify(state, lhs_site)?;
+    let rhs = classify(state, rhs_site)?;
     match row.operator() {
         ResolvedBinaryOperatorV1::Add
             if lhs == ExprClassV1::String || rhs == ExprClassV1::String =>

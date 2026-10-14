@@ -5,12 +5,13 @@ use crate::mir::dynamic_operator_contract::{
     issue_dynamic_operator_execution_envelope_v1, DynamicOperatorDomainV1, DynamicOperatorFamilyV1,
     DynamicOperatorValueClassV1,
 };
-use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1, SourcePathV1};
+use crate::mir::resolved_semantics::{ResolvedBinaryOperatorV1, SourcePathSegmentV1};
 
 #[path = "home_scalar_operation_preflight.rs"]
 mod scalar_preflight;
 #[path = "home_static_eq_condition.rs"]
 mod static_eq_condition;
+use crate::mir::resolved_value_profile::expression_children::binary_children_v1;
 use scalar_preflight::preflight;
 pub(in crate::mir) use static_eq_condition::contains_exact_lhs as contains_static_eq_lhs_source_v1;
 
@@ -234,7 +235,7 @@ pub(super) fn observe_local_mul_return<E>(
     else {
         return Ok(GuardedMulReturnV1::Unselected);
     };
-    if !binary_sites_match(site, binary)
+    if binary_children_v1(site, binary).is_none()
         || !normal_integer_mul_available()
         || !matches!(
             locals.observe(binary.lhs()),
@@ -360,7 +361,7 @@ fn if_current_owner_ge_zero_call(
         .ok()?;
     let binary = input.function().expression_source().binary(root)?;
     if binary.operator() != ResolvedBinaryOperatorV1::GreaterEqual
-        || !binary_sites_match(root, binary)
+        || binary_children_v1(root, binary).is_none()
         || !matches!(
             input.function().expression_source().literal(binary.rhs()),
             Some(ResolvedLiteralSourceV1::Integer(0))
@@ -478,20 +479,10 @@ fn profile_scope<E>(
     Ok(Some(locals.is_field_read_candidate(binding)))
 }
 
-fn binary_sites_match(
-    root: &SourceExprSiteV1,
-    row: &crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1,
-) -> bool {
-    let path = SourcePathV1::from_node(root.node());
-    row.site() == root
-        && row.lhs() == &path.child(SourcePathSegmentV1::Lhs).expr()
-        && row.rhs() == &path.child(SourcePathSegmentV1::Rhs).expr()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1;
+    use crate::mir::resolved_semantics::{ResolvedBinaryExpressionSourceV1, SourcePathV1};
 
     #[test]
     fn scalar_expression_binary_rejects_foreign_root_and_swapped_child_sites() {
@@ -505,18 +496,15 @@ mod tests {
             lhs.clone(),
             rhs.clone(),
         );
-        assert!(binary_sites_match(&root, &good));
-        assert!(!binary_sites_match(
-            &SourcePathV1::root_body(1).expr(),
-            &good
-        ));
+        assert!(binary_children_v1(&root, &good).is_some());
+        assert!(binary_children_v1(&SourcePathV1::root_body(1).expr(), &good).is_none());
         let swapped = ResolvedBinaryExpressionSourceV1::from_parts_for_test(
             root.clone(),
             ResolvedBinaryOperatorV1::Add,
             rhs,
             lhs,
         );
-        assert!(!binary_sites_match(&root, &swapped));
+        assert!(binary_children_v1(&root, &swapped).is_none());
     }
 
     #[test]

@@ -10,6 +10,7 @@ mod coverage;
 mod direct_call;
 pub(crate) mod error;
 pub(crate) mod expression_source;
+pub(crate) mod expression_children;
 mod function_return;
 mod nested_recipe_facts;
 mod nested_recipe_mapper;

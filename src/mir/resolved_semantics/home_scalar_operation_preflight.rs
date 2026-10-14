@@ -49,9 +49,9 @@ pub(super) fn preflight<E>(
     else {
         return Ok(None);
     };
-    if !binary_sites_match(site, row) {
+    let Some([lhs_site, rhs_site]) = binary_children_v1(site, row) else {
         return Ok(None);
-    }
+    };
     use ResolvedBinaryOperatorV1 as Op;
     use SourceScalarKind as Kind;
     if matches!(row.operator(), Op::Equal | Op::NotEqual) {
@@ -78,7 +78,7 @@ pub(super) fn preflight<E>(
                     .and_then(ResolvedExpressionSourceV1::binary)
                     .is_some_and(|add| {
                         add.operator() == Op::Add
-                            && binary_sites_match(row.lhs(), add)
+                            && binary_children_v1(row.lhs(), add).is_some()
                             && matches!(
                                 input.function().expression_source().literal(add.lhs()),
                                 Some(ResolvedLiteralSourceV1::Integer(_))
@@ -134,7 +134,7 @@ pub(super) fn preflight<E>(
         &mut None,
         input,
         ledger,
-        row.lhs(),
+        lhs_site,
         locals,
         requests,
         calls,
@@ -154,7 +154,7 @@ pub(super) fn preflight<E>(
         &mut None,
         input,
         ledger,
-        row.rhs(),
+        rhs_site,
         locals,
         requests,
         calls,

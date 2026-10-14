@@ -92,24 +92,107 @@ fn source_result_product_preserves_string_conditional_and_null_fact() {
         }
     )));
     assert_eq!(product.bool_facts().len(), 1);
+    use super::expression_children::ExpressionChildReachV1::{Always, When};
+    use crate::mir::resolved_semantics::SourcePathSegmentV1 as Role;
+    let children = product
+        .operations()
+        .iter()
+        .find_map(|operation| match operation {
+            SourceValueOperationV1::Children { children, .. }
+                if children.iter().any(|child| child.role == Role::IfCondition) =>
+            {
+                Some(children)
+            }
+            _ => None,
+        })
+        .expect("original conditional children");
+    assert_eq!(children.len(), 3);
+    assert_eq!(children[0].role, Role::IfCondition);
+    assert_eq!(children[0].reach, Always);
+    assert_eq!(children[1].role, Role::IfThen(0));
+    assert_eq!(
+        children[1].reach,
+        When {
+            condition: children[0].site.clone(),
+            value: true
+        }
+    );
+    assert_eq!(children[2].role, Role::IfElse(0));
+    assert_eq!(
+        children[2].reach,
+        When {
+            condition: children[0].site.clone(),
+            value: false
+        }
+    );
+    for branch in &children[1..] {
+        let wrapper = product
+            .operations()
+            .iter()
+            .find_map(|operation| match operation {
+                SourceValueOperationV1::Children { site, children } if site == &branch.site => {
+                    Some(children)
+                }
+                _ => None,
+            })
+            .expect("original branch wrapper stays in the source structure");
+        assert_eq!(wrapper.len(), 1);
+        assert_eq!(wrapper[0].role, Role::BlockExprTail);
+        assert_eq!(wrapper[0].reach, Always);
+    }
 }
 
 #[test]
 fn source_result_product_joins_i64_conditional_return() {
-    let product = issue(
-        r#"static box Helpers { value() { local lhs = 1 local rhs = 2 return (lhs < rhs) ? { 1 } : { 0 } } }"#,
-        "Helpers",
-        "value",
-    )
-    .unwrap();
-    assert_eq!(product.result(), SourceResultClassV1::I64);
-    assert!(product.operations().iter().any(|row| matches!(
-        row,
-        SourceValueOperationV1::ConditionalValue {
-            class: SourceResultClassV1::I64,
-            ..
+    use super::expression_children::ExpressionChildReachV1::{Always, When};
+    use crate::mir::resolved_semantics::SourcePathSegmentV1 as Role;
+    for (condition, short_circuit) in [
+        ("lhs < rhs", None),
+        ("true && lhs < rhs", Some(true)),
+        ("false || lhs < rhs", Some(false)),
+    ] {
+        let product = issue(
+            &format!("static box Helpers {{ value() {{ local lhs = 1 local rhs = 2 return ({condition}) ? {{ 1 }} : {{ 0 }} }} }}"),
+            "Helpers", "value",
+        ).unwrap();
+        assert_eq!(product.result(), SourceResultClassV1::I64);
+        assert!(product.operations().iter().any(|row| matches!(
+            row,
+            SourceValueOperationV1::ConditionalValue {
+                class: SourceResultClassV1::I64,
+                ..
+            }
+        )));
+        let guarded: Vec<_> = product
+            .operations()
+            .iter()
+            .filter_map(|operation| match operation {
+                SourceValueOperationV1::Children { children, .. }
+                    if children.len() == 2
+                        && children[1].role == Role::Rhs
+                        && matches!(children[1].reach, When { .. }) =>
+                {
+                    Some(children)
+                }
+                _ => None,
+            })
+            .collect();
+        if let Some(value) = short_circuit {
+            assert_eq!(guarded.len(), 1);
+            let children = guarded[0];
+            assert_eq!(children[0].role, Role::Lhs);
+            assert_eq!(children[0].reach, Always);
+            assert_eq!(
+                children[1].reach,
+                When {
+                    condition: children[0].site.clone(),
+                    value
+                }
+            );
+        } else {
+            assert!(guarded.is_empty());
         }
-    )));
+    }
 }
 
 #[test]

@@ -49,6 +49,11 @@ impl SourceResultClassV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum SourceValueOperationV1 {
+    /// Structural relations only; result representation grants no execution.
+    Children {
+        site: SourceExprSiteV1,
+        children: Box<[super::expression_children::ExpressionChildV1]>,
+    },
     Literal {
         site: SourceExprSiteV1,
         class: SourceResultClassV1,
@@ -133,6 +138,7 @@ pub(crate) enum SourceResultProductErrorV1 {
     UnknownExpression(SourceExprSiteV1),
     MissingConditionalSource(SourceExprSiteV1),
     MissingBodyShape,
+    ChildSourceIdentity(SourceExprSiteV1),
     MissingInitializerSource(SourceBindingSiteV1),
     MissingAssignmentTarget(SourceExprSiteV1),
     AmbiguousCallTarget(SourceExprSiteV1),

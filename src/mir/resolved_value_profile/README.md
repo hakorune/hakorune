@@ -39,6 +39,17 @@ a representation proof. Ordered expression obligations, String temporaries,
 Fault/End, physical correspondence and final verification are later consumers;
 this structural connection grants no String activation.
 
+`expression_children` retains exact ordered child sites and roles from that
+same source view. Binary operands keep LHS/RHS identity; logical RHS and
+conditional branches retain their original condition-dependent reach. Receiver
+relations are structural: original target/receiver issuers still decide value
+evaluation and qualification. Unknown structure is Opaque, not an empty leaf;
+missing original rows, wrong owners and child/ordinal drift are identity errors.
+BlockExpr retains its original prelude statements and tail as opaque obligations.
+The result operation vector records these source relations without promoting
+representation evidence to executable ownership or effect permission. The live
+Home scalar walker and result projection share the same binary-child proof.
+
 ## SSA-I0-PROFILE contract
 
 `VerifiedTrivialCanonicalOwnerV1` is a pre-Builder whole-owner proof. It
