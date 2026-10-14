@@ -376,8 +376,18 @@ only on Normal; Get projects `BorrowedNullableHandle`, which carries no caller
 Home or independent End authority. ABI layout collection and exact JSON retain
 the descriptor and required diagnostic site, without numeric Array tags or
 runtime class inference.
-This is vocabulary/transport preparation. The physical-program allowlist still
-rejects these operations. Source acquisition/commit/live borrow/End handback,
-holder-dependent lifetime and exact original call-slot verification, indexed
-runtime descriptor/complete End emission and final coverage must connect before
-execution admission changes. Existing Array input execution gates remain closed.
+`verification/invoke_owned_array.rs` checks the bounded acyclic holder cohort:
+allocation precedes Claim; only Append Normal transfers a live candidate; Fault
+keeps its cleanup obligation; Get copies retain the live holder/descriptor;
+End consumes the holder on both outcomes. Original literal-Integer indices
+cannot be replaced by handle words. Borrowed values cannot escape, survive
+holder End, or be used after Fault. Candidate cancellation must match its child
+object, and completed Call results cannot use unpublished reclaim.
+Module verification lends the existing original Call coordinate/argument slots
+before consuming them; cataloged-call shape alone never permits a Get borrow.
+These are affine outer-resource checks. Complete child End still belongs to
+existing descriptor-derived source/root cleanup correspondence, not this pass.
+The physical-program allowlist still rejects these operations. Source
+acquisition/commit/live borrow/End handback, indexed runtime descriptor/complete
+End emission and independent final coverage remain required before execution
+admission changes. Existing Array input execution gates remain closed.

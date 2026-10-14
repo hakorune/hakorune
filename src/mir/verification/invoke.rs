@@ -10,6 +10,8 @@ mod borrowed_calls;
 mod map;
 #[path = "invoke_string.rs"]
 mod string;
+#[path = "invoke_owned_array.rs"]
+mod owned_array;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
@@ -44,6 +46,12 @@ pub(super) fn check_module_with_source(
     })?;
     let mut errors = Vec::new();
     for function in module.functions.values() {
+        if let Err(reason) = owned_array::check_source_uses(function, |block, row, ordinal| {
+            loans.get(&(function.signature.name.clone(), block, row))
+                .is_some_and(|slots| slots.contains(&ordinal))
+        }) {
+            errors.push(error(function.entry_block, reason));
+        }
         for (id, block) in &function.blocks {
             for (index, instruction) in block.all_instructions().enumerate() {
                 if let MirInstruction::ObjectFieldGet { field, .. } = instruction {
@@ -434,6 +442,9 @@ fn check_function_inner(
         errors.append(&mut found);
     }
     if let Err(reason) = string::check(function) {
+        errors.push(error(function.entry_block, reason));
+    }
+    if let Err(reason) = owned_array::check(function) {
         errors.push(error(function.entry_block, reason));
     }
     if let Err(reason) = map::check(function, module) {
