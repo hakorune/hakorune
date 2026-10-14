@@ -10,9 +10,10 @@ use super::expression_root::{statement_expression_root_v1, StatementExpressionRo
 use super::expression_source::{expression_source_v1, ResolvedExpressionSourceV1};
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, CallableSemanticSourceLedgerView, FunctionOwnerIdV1,
-    ResolvedBinaryExpressionSourceV1, ResolvedInitializerRelationV1, ResolvedLexicalRefV1,
-    ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1, SourceBindingSiteV1,
-    SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedBodyShapeInventoryV1,
+    ResolvedAssignmentSourceV1, ResolvedBinaryExpressionSourceV1, ResolvedInitializerRelationV1,
+    ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    VerifiedResolvedBodyShapeInventoryV1,
 };
 
 #[derive(Debug, PartialEq, Eq)]
@@ -20,6 +21,9 @@ pub(crate) enum ExpressionPlanRootV1 {
     LocalInitializer {
         statement: SourceStmtSiteV1,
         initializer: ResolvedInitializerRelationV1,
+    },
+    Assignment {
+        assignment: ResolvedAssignmentSourceV1,
     },
     Statement {
         statement: SourceStmtSiteV1,
@@ -34,12 +38,13 @@ impl ExpressionPlanRootV1 {
             Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. } => {
                 statement
             }
+            Self::Assignment { assignment } => assignment.statement_site(),
         }
     }
     pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
         match self {
             Self::LocalInitializer { initializer, .. } => Some(initializer),
-            Self::Statement { .. } => None,
+            Self::Statement { .. } | Self::Assignment { .. } => None,
         }
     }
 }
@@ -135,6 +140,46 @@ pub(crate) fn local_expression_source_plan_v1(
             initializer: initializer.clone(),
         },
         site,
+    )
+}
+
+/// An assignment retains its original target, RHS and Plain/Compound form.
+/// The RHS plan is not the stored-value proof of a compound assignment.
+/// Assignment rows have no statement-to-Value relation; validate their actual
+/// sealed row and both canonical expression sites instead of inventing one.
+pub(crate) fn assignment_expression_source_plan_v1(
+    ledger: &CallableSemanticSourceLedgerView<'_>,
+    shape: &VerifiedResolvedBodyShapeInventoryV1,
+    assignment: &ResolvedAssignmentSourceV1,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
+    if shape.owner() != ledger.owner() {
+        return Err(Issue::ForeignOwner);
+    }
+    let inventory = ledger.source_site_inventory();
+    let mut rows = shape
+        .assignment_sources()
+        .iter()
+        .filter(|row| row.statement_site() == assignment.statement_site());
+    let path = SourcePathV1::from_node(assignment.statement_site().node());
+    if rows.next() != Some(assignment)
+        || rows.next().is_some()
+        || !inventory.contains_statement(assignment.statement_site())
+        || assignment.target_site() != &path.child(SourcePathSegmentV1::Target).expr()
+        || assignment.value_site() != &path.child(SourcePathSegmentV1::Value).expr()
+        || !inventory.contains_expression(assignment.target_site())
+        || !inventory.contains_expression(assignment.value_site())
+        || ledger.assignment_target(assignment.target_site()).is_none()
+    {
+        return Err(Issue::ChildIdentity);
+    }
+    build_plan(
+        ledger,
+        Some(shape),
+        ExpressionPlanRootV1::Assignment {
+            assignment: assignment.clone(),
+        },
+        assignment.value_site(),
     )
 }
 

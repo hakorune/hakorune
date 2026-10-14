@@ -659,3 +659,50 @@ fn statement_expression_roots_keep_original_print_and_return_roles() {
         assert!(!without_shape.has_opaque_obligations());
     }
 }
+
+#[test]
+fn assignment_expression_plan_preserves_original_target_rhs_and_form() {
+    use super::expression_children::ExpressionChildIssueV1;
+    use super::expression_plan::{assignment_expression_source_plan_v1, ExpressionPlanRootV1};
+    use crate::mir::resolved_semantics::{ResolvedAssignmentFormV1, SourcePathSegmentV1 as Role};
+    let root = NyashParser::parse_from_string(
+        "static box Helpers { value() { local n = 0 n = n + 1 n += 2 return n } }",
+    ).unwrap();
+    let unit = VerifiedResolvedSourceUnitV1::resolve_function(
+        method_declaration(&root, "Helpers", "value"),
+    ).unwrap();
+    let input = unit.root_function_input().unwrap();
+    let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+    let shape = input.body_shape().unwrap();
+    assert_eq!(shape.assignment_sources().len(), 2);
+    for (row, form) in shape.assignment_sources().iter().zip([
+        ResolvedAssignmentFormV1::Plain, ResolvedAssignmentFormV1::Compound,
+    ]) {
+        let plan = assignment_expression_source_plan_v1(&ledger, shape, row).unwrap();
+        assert_eq!(plan.owner(), input.owner());
+        assert_eq!(plan.root().statement(), row.statement_site());
+        assert_eq!(plan.nodes()[0].site(), row.value_site());
+        assert!(plan.root().initializer().is_none());
+        assert!(matches!(plan.root(), ExpressionPlanRootV1::Assignment { assignment }
+            if assignment == row && assignment.form() == form));
+        assert_eq!(row.target_site().node().segments().last(), Some(&Role::Target));
+        assert_eq!(row.value_site().node().segments().last(), Some(&Role::Value));
+        assert!(!plan.has_opaque_obligations());
+        assert_eq!(plan.nodes().len(), if form == ResolvedAssignmentFormV1::Plain { 3 } else { 1 });
+        // A Compound RHS plan intentionally does not invent a target read or
+        // operator: it is not the value ultimately stored by +=.
+    }
+    let other_root = NyashParser::parse_from_string(
+        "static box Helpers { value() { local n = 0 n += 1 return n } }",
+    ).unwrap();
+    let other = VerifiedResolvedSourceUnitV1::resolve_function(
+        method_declaration(&other_root, "Helpers", "value"),
+    ).unwrap();
+    let other_input = other.root_function_input().unwrap();
+    assert!(matches!(assignment_expression_source_plan_v1(
+        &ledger, other_input.body_shape().unwrap(), &shape.assignment_sources()[0],
+    ), Err(ExpressionChildIssueV1::ForeignOwner)));
+    assert!(matches!(assignment_expression_source_plan_v1(
+        &ledger, shape, &other_input.body_shape().unwrap().assignment_sources()[0],
+    ), Err(ExpressionChildIssueV1::ChildIdentity)), "same path with a different form is not the original row");
+}

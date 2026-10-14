@@ -639,6 +639,17 @@ and any function whose sealed body-shape inventory is missing all veto the
 field. Both edge arguments (`f.m(x)` passing `local v = me.f`) and claim-local
 receivers (`local v = me.f` then `v.m(...)`) consume the same proof.
 
+The existing field-write claim product also retains every observed original
+assignment and its shared `resolved_value_profile` RHS plan (or explicit plan
+failure), owner, field and Birth role. Its object-class `get` projection and
+owned-residence rules are unchanged. Unknown receivers and missing inventories
+remain vetoes in this same product; failed/non-object writers are never erased.
+Default initializers already enter as original normalized Birth assignments,
+without a separate scan. These pending plans grant no NormalInteger/read/result
+permission. Numeric closure still owes genuine source-ordered Birth seeds and
+all-writer preservation through the existing formal/result grounding owner;
+field self-cycles, declaration/storage names and Scalar alone cannot seed it.
+
 [Result-class claims](ordinary_new_result_class_claim.rs) transport class
 provenance across call-result locals: a selected callable claims a class only
 when its sealed body ends in a value-bearing `return` and every `return` row —

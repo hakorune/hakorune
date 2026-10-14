@@ -419,6 +419,15 @@ fn defaulted_scalar_field_accepts_birth_overwrite() {
          static box Main { main() { return 30 } }",
     )
     .expect("defaulted-scalar overwrite package");
+    let writes = package.ordinary_new_claim_ledger.field_write_sources_for_test();
+    assert_eq!(writes.len(), 3, "retain the normalized default and both original Birth stores");
+    assert_eq!(writes.iter().filter(|write| write.field() == "x").count(), 2);
+    assert_eq!(writes.iter().filter(|write| write.field() == "y").count(), 1);
+    for write in writes {
+        assert_eq!(write.owner_box(), Some("Point"));
+        assert!(write.in_birth() && write.is_attributed());
+        assert_eq!(write.source().unwrap().nodes()[0].site(), write.assignment().value_site());
+    }
     let claims = package
         .ordinary_new_claim_ledger
         .pending_result_claims_for_test();

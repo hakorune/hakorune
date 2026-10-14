@@ -66,6 +66,11 @@ reborrow original operator/call facts rather than infer them from node tags.
 Ordered child reach remains attached to each parent. Field/Call nodes are
 unresolved lender needs; opaque scope/prelude/tail obligations are retained.
 This structure alone grants neither value classes nor executable coverage.
+Assignment roots retain the original sealed target/RHS/form row, owner and both
+canonical source sites; they use the same ordered node builder. Assignments do
+not have a statement-to-Value relation. Compound RHS structure is retained as
+Compound and grants no stored-value class without its evaluated-place/operator
+contract; it is never silently treated as a Plain store.
 
 The existing Home owner holds the same source plan and stable qualified
 operation loans in its one expression-plan collection. The current Local

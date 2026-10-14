@@ -59,10 +59,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
         batch
             .with_lowering_input(declaration.batch_slot(), |input| {
                 field_write_draft.observe_function(
-                    input.function(),
-                    input.body_shape(),
+                    input,
                     owner_box,
-                    false,
+                    None,
                 );
                 if let Some(key) = &source_key {
                     if main.is_some_and(|main| {
@@ -83,10 +82,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn pre
                     .lowering_input(loan.program())
                     .map_err(|_| OrdinaryNewCoSealIssueV1::BatchLoan)?;
                 field_write_draft.observe_function(
-                    input.function(),
-                    input.body_shape(),
+                    input,
                     Some(row.box_name()),
-                    true,
+                    Some(row.source_id()),
                 );
             }
             Ok(())

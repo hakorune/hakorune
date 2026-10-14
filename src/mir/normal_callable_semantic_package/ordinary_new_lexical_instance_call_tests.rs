@@ -675,6 +675,21 @@ static box Main {
     )
     .expect("non-new field write source package");
     let ledger = &package.ordinary_new_claim_ledger;
+    let writes = ledger.field_write_claims.writes();
+    let [write] = writes else { panic!("retain the original non-object writer: {writes:?}") };
+    assert_eq!(write.owner_box(), Some("Outer"));
+    assert_eq!(write.field(), "inner");
+    assert!(write.is_attributed() && write.in_birth());
+    let birth = package.instance_constructors.rows().iter().find(|row| row.box_name() == "Outer")
+        .expect("original Outer Birth");
+    assert_eq!(write.birth_source(), Some(birth.source_id()));
+    let plan = write.source().expect("literal RHS original plan");
+    assert_eq!(plan.owner(), write.owner());
+    assert_eq!(plan.root().statement(), write.assignment().statement_site());
+    assert_eq!(plan.nodes()[0].site(), write.assignment().value_site());
+    assert!(!ledger.field_write_claims.has_hidden_writers());
+    assert!(!ledger.field_write_claims.has_unattributed_field("inner"));
+
     let (owner, site) = call_site_of(&package, "seal");
     assert!(
         !ledger.lexical_instance_call_covered(owner, &site),
@@ -719,6 +734,16 @@ static box Main {
     )
     .expect("multi-class field writer source package");
     let ledger = &package.ordinary_new_claim_ledger;
+    let writes = ledger.field_write_claims.writes();
+    assert_eq!(writes.len(), 2, "retain both disagreeing original writers");
+    assert_eq!(writes.iter().filter(|write| write.in_birth()).count(), 1);
+    for write in writes {
+        assert_eq!(write.owner_box(), Some("Outer"));
+        assert_eq!(write.field(), "inner");
+        assert!(write.is_attributed());
+        assert_eq!(write.source().unwrap().owner(), write.owner());
+    }
+
     let (owner, site) = call_site_of(&package, "seal");
     assert!(
         !ledger.lexical_instance_call_covered(owner, &site),
@@ -762,6 +787,37 @@ static box Main {
     )
     .expect("unattributed field write source package");
     let ledger = &package.ordinary_new_claim_ledger;
+    assert!(ledger.field_write_claims.has_unattributed_field("inner"));
+    assert_eq!(ledger.field_write_claims.writes().len(), 2);
+    let foreign = ledger.field_write_claims.writes().iter().find(|write| !write.is_attributed())
+        .expect("foreign writer is retained rather than erased");
+    assert_eq!(foreign.field(), "inner");
+    assert!(foreign.owner_box().is_none());
+    assert!(!foreign.in_birth());
+    assert_eq!(foreign.source().unwrap().nodes()[0].site(), foreign.assignment().value_site());
+
+    // Reuse the real Birth input, deliberately omitting only its shape loan.
+    // One opaque participant vetoes the projection without erasing known rows.
+    package.batch().with_normal_program_source_loan(|loan| {
+        let birth = package.instance_constructors.rows().iter().find(|row| row.box_name() == "Outer")
+            .expect("original Outer Birth");
+        let input = birth.lowering_input(loan.program()).unwrap();
+        let projection = crate::mir::compiler::source_projection::VerifiedSourceProjectionV1::seal_with_root_profile(
+            input.source().root(), input.forest(), input.function().root_profile(),
+        ).unwrap();
+        let without_shape = crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            input.source().root(), input.forest(), &projection,
+        ).unwrap();
+        assert!(without_shape.body_shape().is_none());
+        let mut draft = super::field_write_claim::OrdinaryNewFieldWriteClaimDraftV1::new();
+        draft.observe_function(input, Some("Outer"), Some(birth.source_id()));
+        draft.observe_function(without_shape, Some("Outer"), Some(birth.source_id()));
+        let (claims, residences) = draft.finish(package.batch().ordinary_box_coverage());
+        assert!(claims.has_hidden_writers());
+        assert_eq!(claims.writes().len(), 1, "keep the known writer under the global veto");
+        assert!(claims.get(&("Outer".into(), "inner".into())).is_none());
+        assert!(residences.is_empty());
+    }).unwrap();
     let (owner, site) = call_site_of(&package, "seal");
     assert!(
         !ledger.lexical_instance_call_covered(owner, &site),

@@ -179,7 +179,7 @@ impl OrdinaryNewClaimLedgerV1 {
             birth_abi_handoffs: RefCell::new(BTreeMap::new()),
             birth_site_index: RefCell::new(BTreeMap::new()),
             provider_births: RefCell::new(Vec::new()),
-            field_write_claims: BTreeMap::new(),
+            field_write_claims: field_write_claim::OrdinaryNewFieldWriteClaimsV1::default(),
             owned_field_children: BTreeMap::new(),
             callable_result_classes: result_class_claim::OrdinaryNewResultClassClaimsV1::new(),
             array_i64_fields: BTreeMap::new(),
@@ -395,6 +395,13 @@ impl OrdinaryNewClaimLedgerV1 {
         self.owned_field_children
             .get(&object)
             .map(|children| children.as_deref())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn field_write_sources_for_test(
+        &self,
+    ) -> &[field_write_claim::ObservedFieldWriteV1] {
+        self.field_write_claims.writes()
     }
 
     /// Class provenance for `me.f` reads: the agreed `new` class of field

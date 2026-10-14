@@ -15,18 +15,87 @@
 //! soundness here means the field name is never written outside the
 //! observed `me.` writers. A function whose sealed body-shape inventory
 //! is missing hides its writes entirely, so one missing inventory empties
-//! the product — additive evidence, never a fallback.
+//! the object-class projection. The same product retains original writer
+//! requirements and their vetoes — additive evidence, never a fallback.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
+
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::resolved_value_profile::expression_children::ExpressionChildIssueV1;
+use crate::mir::resolved_value_profile::expression_plan::{
+    assignment_expression_source_plan_v1, ExpressionSourcePlanV1,
+};
 
 use crate::mir::resolved_semantics::{
-    BindingKindV1, BodyExpressionShapeV1, BodyMeReceiverV1, ResolvedAssignmentTargetV1,
-    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
+    BindingKindV1, BodyExpressionShapeV1, BodyMeReceiverV1, FunctionOwnerIdV1,
+    ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1,
 };
-use crate::parser::ParserOrdinaryBoxSourceCoverageV1;
+use crate::parser::{ConstructorSourceIdV1, ParserOrdinaryBoxSourceCoverageV1};
 
-/// Key: (owning box name, field name). Value: the agreed `new` class.
-pub(crate) type OrdinaryNewFieldWriteClaimsV1 = BTreeMap<(Box<str>, Box<str>), Box<str>>;
+/// The same sealed writer inventory owns the object-class projection and
+/// pending original RHS needs. Retaining a plan grants no numeric value class.
+#[derive(Debug, Default)]
+pub(crate) struct OrdinaryNewFieldWriteClaimsV1 {
+    object_classes: BTreeMap<(Box<str>, Box<str>), Box<str>>,
+    writes: Box<[ObservedFieldWriteV1]>,
+    unattributed_fields: BTreeSet<Box<str>>,
+    opaque: bool,
+}
+impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(crate) fn get(&self, key: &(Box<str>, Box<str>)) -> Option<&Box<str>> {
+        self.object_classes.get(key)
+    }
+    pub(crate) fn writes(&self) -> &[ObservedFieldWriteV1] {
+        &self.writes
+    }
+    /// Missing function inventory and unknown receivers remain explicit vetoes
+    /// for every later typed consumer, including when no object claim exists.
+    pub(crate) fn has_hidden_writers(&self) -> bool {
+        self.opaque
+    }
+    pub(crate) fn has_unattributed_field(&self, field: &str) -> bool {
+        self.unattributed_fields.contains(field)
+    }
+}
+
+#[derive(Debug)]
+pub(crate) struct ObservedFieldWriteV1 {
+    owner: FunctionOwnerIdV1,
+    owner_box: Option<Box<str>>,
+    field: Box<str>,
+    attributed: bool,
+    birth_source: Option<ConstructorSourceIdV1>,
+    assignment: ResolvedAssignmentSourceV1,
+    source: Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1>,
+    object_store: ObservedFieldStoreV1,
+}
+impl ObservedFieldWriteV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+    pub(crate) fn owner_box(&self) -> Option<&str> {
+        self.owner_box.as_deref()
+    }
+    pub(crate) fn field(&self) -> &str {
+        &self.field
+    }
+    pub(crate) fn is_attributed(&self) -> bool {
+        self.attributed
+    }
+    pub(crate) fn in_birth(&self) -> bool {
+        self.birth_source.is_some()
+    }
+    pub(crate) fn birth_source(&self) -> Option<&ConstructorSourceIdV1> {
+        self.birth_source.as_ref()
+    }
+    pub(crate) fn assignment(&self) -> &ResolvedAssignmentSourceV1 {
+        &self.assignment
+    }
+    pub(crate) fn source(&self) -> Result<&Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+        self.source.as_ref().map_err(|issue| *issue)
+    }
+}
 
 /// The sole observed birth-side write proves an owned field residence.
 /// `Provider` stores `new <class>()` at the store site; `Provided`
@@ -41,8 +110,7 @@ pub(crate) enum OwnedFieldResidenceV1 {
 /// Key: (owning box name, field name). The field's sole observed write is
 /// a birth-side `me.<field> = <residence value>` store; re-assignment,
 /// non-birth writers and unattributed writers all veto the residence.
-pub(crate) type OwnedFieldResidencesV1 =
-    BTreeMap<(Box<str>, Box<str>), OwnedFieldResidenceV1>;
+pub(crate) type OwnedFieldResidencesV1 = BTreeMap<(Box<str>, Box<str>), OwnedFieldResidenceV1>;
 
 /// One write observation: `Construction(class)` for a `new C(...)` value
 /// site, `Provided` for a `Parameter` binding store, `Other` for any
@@ -56,10 +124,7 @@ enum ObservedFieldStoreV1 {
 
 #[derive(Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimDraftV1 {
-    writes: BTreeMap<(Box<str>, Box<str>), Vec<ObservedFieldStoreV1>>,
-    birth_new_writes: BTreeSet<(Box<str>, Box<str>)>,
-    birth_provided_writes: BTreeSet<(Box<str>, Box<str>)>,
-    unattributed_fields: BTreeSet<Box<str>>,
+    writes: Vec<ObservedFieldWriteV1>,
     opaque: bool,
 }
 
@@ -72,16 +137,16 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
     /// `owner_box` is the box this function belongs to when its selected
     /// key is `InstanceBoxMethod` (or the constructor row's `box_name`);
     /// a `me.` write with no attributable owner vetoes the field name.
-    /// `in_birth` marks constructor rows: only a birth-side provider
+    /// `birth_source` retains the original constructor identity: only a birth-side provider
     /// `new` store can seed an owned residence claim.
     pub(crate) fn observe_function(
         &mut self,
-        function: &VerifiedResolvedFunctionV1,
-        body_shape: Option<&VerifiedResolvedBodyShapeInventoryV1>,
+        input: ResolvedFunctionLoweringInputV1<'_>,
         owner_box: Option<&str>,
-        in_birth: bool,
+        birth_source: Option<&ConstructorSourceIdV1>,
     ) {
-        let Some(shape) = body_shape else {
+        let function = input.function();
+        let Some(shape) = input.body_shape() else {
             // Writes we cannot observe could hold any value; no field
             // claim may stand on a package with hidden writers.
             self.opaque = true;
@@ -108,14 +173,6 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                     .binding(*receiver)
                     .is_some_and(|record| record.kind() == BindingKindV1::Receiver)
             );
-            let Some(owner_box) = owner_box else {
-                self.unattributed_fields.insert(field.clone());
-                continue;
-            };
-            if !attributed {
-                self.unattributed_fields.insert(field.clone());
-                continue;
-            }
             let store = match function
                 .expression_source()
                 .construction(assignment.value_site())
@@ -141,25 +198,26 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                     }
                 }
             };
-            match &store {
-                ObservedFieldStoreV1::Construction(class)
-                    if in_birth
-                        && (class.as_ref() == "ArrayBox"
-                            || !crate::box_trait::is_builtin_box(class.as_ref())) =>
-                {
-                    self.birth_new_writes
-                        .insert((owner_box.into(), field.clone()));
-                }
-                ObservedFieldStoreV1::Provided if in_birth => {
-                    self.birth_provided_writes
-                        .insert((owner_box.into(), field.clone()));
-                }
-                _ => {}
-            }
-            self.writes
-                .entry((owner_box.into(), field.clone()))
-                .or_default()
-                .push(store);
+            // Retain a failed plan as an observed writer, never as absence.
+            // Foreign receivers likewise survive in this one inventory and
+            // veto every same-named field in the object and future typed views.
+            let source = input
+                .forest()
+                .callable_source_ledger(input.owner())
+                .map_err(|_| ExpressionChildIssueV1::MissingSource)
+                .and_then(|ledger| {
+                    assignment_expression_source_plan_v1(&ledger, shape, assignment)
+                });
+            self.writes.push(ObservedFieldWriteV1 {
+                owner: input.owner(),
+                owner_box: owner_box.map(Into::into),
+                field: field.clone(),
+                attributed,
+                birth_source: birth_source.cloned(),
+                assignment: assignment.clone(),
+                source,
+                object_store: store,
+            });
         }
     }
 
@@ -175,52 +233,77 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
         self,
         ordinary_box_coverage: &ParserOrdinaryBoxSourceCoverageV1,
     ) -> (OrdinaryNewFieldWriteClaimsV1, OwnedFieldResidencesV1) {
-        if self.opaque {
-            return (BTreeMap::new(), BTreeMap::new());
+        let unattributed_fields: BTreeSet<Box<str>> = self
+            .writes
+            .iter()
+            .filter(|write| !write.attributed || write.owner_box.is_none())
+            .map(|write| write.field.clone())
+            .collect();
+        // Group references to the original observations, not a second scan of
+        // source or an independent numeric classifier.
+        let mut fields: BTreeMap<(Box<str>, Box<str>), Vec<&ObservedFieldWriteV1>> =
+            BTreeMap::new();
+        for write in &self.writes {
+            if let Some(owner_box) = &write.owner_box {
+                fields
+                    .entry((owner_box.clone(), write.field.clone()))
+                    .or_default()
+                    .push(write);
+            }
         }
         let mut residences = BTreeMap::new();
-        let claims = self
-            .writes
-            .into_iter()
-            .filter_map(|((owner_box, field), stores)| {
-                if self.unattributed_fields.contains(&field) {
-                    return None;
-                }
-                let key = (owner_box.clone(), field.clone());
-                match stores.as_slice() {
-                    [ObservedFieldStoreV1::Construction(class)]
-                        if (class.as_ref() == "ArrayBox"
-                            || !crate::box_trait::is_builtin_box(class.as_ref()))
-                            && self.birth_new_writes.contains(&key) =>
-                    {
-                        residences
-                            .insert(key, OwnedFieldResidenceV1::Provider(class.clone()));
+        let mut object_classes = BTreeMap::new();
+        for ((owner_box, field), stores) in fields {
+            if self.opaque || unattributed_fields.contains(&field) {
+                continue;
+            }
+            let key = (owner_box.clone(), field.clone());
+            if let [write] = stores.as_slice() {
+                if write.in_birth() {
+                    match &write.object_store {
+                        ObservedFieldStoreV1::Construction(class)
+                            if class.as_ref() == "ArrayBox"
+                                || !crate::box_trait::is_builtin_box(class.as_ref()) =>
+                        {
+                            residences.insert(key, OwnedFieldResidenceV1::Provider(class.clone()));
+                        }
+                        ObservedFieldStoreV1::Provided => {
+                            residences.insert(key, OwnedFieldResidenceV1::Provided);
+                        }
+                        _ => {}
                     }
-                    [ObservedFieldStoreV1::Provided]
-                        if self.birth_provided_writes.contains(&key) =>
-                    {
-                        residences.insert(key, OwnedFieldResidenceV1::Provided);
-                    }
-                    _ => {}
                 }
-                let mut unique = BTreeSet::new();
-                for store in stores {
-                    let ObservedFieldStoreV1::Construction(class) = store else {
-                        return None;
-                    };
+            }
+            let mut unique = BTreeSet::new();
+            let mut complete = true;
+            for write in stores {
+                if let ObservedFieldStoreV1::Construction(class) = &write.object_store {
                     unique.insert(class);
+                } else {
+                    complete = false;
                 }
-                let unique = unique.into_iter().collect::<Vec<_>>();
-                let [class] = unique.as_slice() else {
-                    return None;
-                };
-                ordinary_box_coverage
-                    .row_for(class)
-                    .ok()
-                    .flatten()
-                    .map(|_| ((owner_box, field), class.clone()))
-            })
-            .collect();
-        (claims, residences)
+            }
+            if !complete || unique.len() != 1 {
+                continue;
+            }
+            let class = *unique.first().unwrap();
+            if ordinary_box_coverage
+                .row_for(class)
+                .ok()
+                .flatten()
+                .is_some()
+            {
+                object_classes.insert((owner_box, field), class.clone());
+            }
+        }
+        (
+            OrdinaryNewFieldWriteClaimsV1 {
+                object_classes,
+                writes: self.writes.into_boxed_slice(),
+                unattributed_fields,
+                opaque: self.opaque,
+            },
+            residences,
+        )
     }
 }
