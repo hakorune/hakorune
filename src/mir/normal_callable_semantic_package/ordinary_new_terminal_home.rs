@@ -273,10 +273,7 @@ pub(super) fn local_read_field(
     alias_class: Option<&str>,
     field: &str,
 ) -> Result<
-    Option<(
-        hakorune_mir_defs::CanonicalFieldRefV1,
-        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
-    )>,
+    Option<Rc<LocalFieldReadSourceV1>>,
     OrdinaryNewCoSealIssueV1,
 > {
     let declared = if let Some(class) = alias_class {
@@ -358,7 +355,9 @@ pub(super) fn local_read_field(
         Some(name) if coverage.contains_box(name) => LocalFieldReadResultV1::Alias(name.into()),
         _ => return Ok(None),
     };
-    Ok(Some((field_ref, result)))
+    Ok(Some(LocalFieldReadSourceV1::from_declaration(
+        field_ref, result, declared.expect("classified declared field type").into_boxed_str(),
+    )))
 }
 
 /// Integer-field proof for a non-null-narrowed received nullable: `class`

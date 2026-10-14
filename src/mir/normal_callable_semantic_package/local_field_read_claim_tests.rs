@@ -66,26 +66,18 @@ fn new_claim_prefix_covered(
 
 #[test]
 fn local_field_read_claims_scalar_on_selected_new_home() {
-    let package = issue(
-        "box Pool {
-            size: i64 = 0
-            birth() { }
-        }
-        static box Main { main() {
-            local pool = new Pool()
-            local n = pool.size
-            return n
-        } }",
-    )
-    .expect("scalar field read package");
-    let site = field_access_site(&package, "size");
-    let (field, result) = package
-        .ordinary_new_claim_ledger
-        .staged_local_field_read(&site)
-        .expect("staged local field read");
-    assert_eq!(result, LocalFieldReadResultV1::Scalar);
-    assert_eq!(field.declaration_ordinal(), 0);
-    assert!(new_claim_prefix_covered(&package));
+    for declared in ["i64", "usize", "u64"] {
+        let package = issue(&format!(
+            "box Pool {{ size: {declared} = 0 birth() {{ }} }}
+             static box Main {{ main() {{ local pool = new Pool() local n = pool.size return n }} }}",
+        )).expect("existing numeric field profile");
+        let site = field_access_site(&package, "size");
+        let source = package.ordinary_new_claim_ledger.staged_local_field_source(&site).unwrap();
+        assert_eq!(source.result(), &LocalFieldReadResultV1::Scalar);
+        assert_eq!(source.declared_type_name(), declared);
+        assert_eq!(source.field().declaration_ordinal(), 0);
+        assert!(new_claim_prefix_covered(&package));
+    }
 }
 
 #[test]

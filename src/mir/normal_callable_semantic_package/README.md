@@ -1196,6 +1196,18 @@ Scalar expression field reads share the existing local read ledger. The issuer's
 source-claim helper proves each declaration into a temporary batch and checks
 cached-site descriptors before committing any row. Duplicate/drifting sites
 reject without partial insertion; no new field-read authority or map is issued.
+The same local-read row retains one immutable `LocalFieldReadSourceV1` with its
+canonical field, existing Scalar/Alias result, and original declared type name.
+Take and sole emission borrow the cached descriptor's same Rc; local affine
+progress retains it, and independent final validation checks descriptor identity
+and the actual ObjectFieldGet field. Equal repeated source observations preserve
+the old descriptor and affine progress. A changed declaration is a source drift.
+The held S0 array-index integration borrows this descriptor from its original
+unique-field census; that integration remains with protected WIP until the
+series closes. Staging never fills in an assumed type. These are declaration
+metadata, not a NormalInteger or all-writer numeric producer proof. Existing numeric
+storage behavior, unknown-writer refusals and String execution gates remain.
+
 
 Lexical instance-call ownership: `ordinary_new_lexical_instance_call.rs` owns
 exact selected disposition issuance and affine take; its private

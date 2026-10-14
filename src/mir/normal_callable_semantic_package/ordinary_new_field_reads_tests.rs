@@ -288,3 +288,42 @@ fn terminal_read_rows_retain_alias_sites_and_commit_only_complete_expression() {
         }
     }
 }
+
+#[test]
+fn local_field_declaration_descriptor_survives_emission_and_rejects_replacement() {
+    for declared in ["i64", "usize", "u64"] {
+        let package = issue_with_brand_catalog(&format!(
+            "box Pool {{ size: {declared} = 0 birth() {{ }} }}
+             static box Main {{ main() {{ local pool = new Pool() local n = pool.size return n }} }}",
+        )).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let site = ledger.local_field_reads.borrow().keys().next().unwrap().clone();
+        let source = ledger.staged_local_field_source(&site).unwrap();
+        assert_eq!(source.declared_type_name(), declared);
+        let (base, taken) = ledger.take_local_field_read(&site, |_| Ok(ValueId(10))).unwrap().unwrap();
+        assert!(Rc::ptr_eq(&source, &taken));
+        assert!(ledger.take_local_field_read(&site, |_| panic!("duplicate take")).is_err());
+        let field = taken.field();
+        let foreign = Rc::new((*taken).clone());
+        assert!(ledger.record_local_field_read(&site, BasicBlockId(0), ValueId(11), base, field, &foreign).is_err());
+        ledger.record_local_field_read(&site, BasicBlockId(0), ValueId(11), base, field, &taken).unwrap();
+        let mut function = MirFunction::new(crate::mir::FunctionSignature {
+            name: "field_source_state".into(), params: vec![], return_type: crate::mir::MirType::Integer,
+            effects: crate::mir::EffectMask::PURE,
+        }, BasicBlockId(0));
+        function.blocks.get_mut(&BasicBlockId(0)).unwrap().add_instruction(
+            MirInstruction::ObjectFieldGet { dst: ValueId(11), base, field },
+        );
+        ledger.validate_field_reads(site.owner(), &function).unwrap();
+        // Same field and class, but replacing the declaration descriptor
+        // after emission must fail the independent source correspondence.
+        let replacement = LocalFieldReadSourceV1::from_declaration(
+            field, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar, "i32".into(),
+        );
+        ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = replacement;
+        assert!(ledger.validate_field_reads(site.owner(), &function).unwrap_err()
+            .contains("source-descriptor-drift"));
+        ledger.local_field_reads.borrow_mut().get_mut(&site).unwrap().source = source;
+        ledger.validate_field_reads(site.owner(), &function).unwrap();
+    }
+}

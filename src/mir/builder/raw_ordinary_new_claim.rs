@@ -244,14 +244,15 @@ impl RawOrdinaryNewClaimPortV1 for super::RawInvocationChildPortV1<'_, '_> {
         // A claimed `local x = recv.field` initializer reaches the same
         // raw FieldAccess dispatch — its staged row carries the sealed
         // declared-type classification that decides the destination type.
-        if let Some((base, field, result)) = ledger.take_local_field_read(&site, &resolve)? {
+        if let Some((base, source)) = ledger.take_local_field_read(&site, &resolve)? {
+            let field = source.field();
             return Ok(Some(PreparedRawFieldReadV1::exact_object(
                 object,
                 base,
                 field,
                 site,
                 ledger.clone(),
-                PreparedExactFieldReadClaimV1::Local(result),
+                PreparedExactFieldReadClaimV1::Local(source),
             )));
         }
         Ok(None)

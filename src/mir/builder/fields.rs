@@ -23,7 +23,7 @@ pub(in crate::mir::builder) struct PreparedRawFieldReadV1 {
 /// `Integer`, `Alias` reads a `Box` handle of the declared class.
 pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
     Terminal,
-    Local(crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1),
+    Local(std::rc::Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>),
 }
 
 enum PreparedRawFieldReadRouteV1 {
@@ -180,21 +180,19 @@ impl super::MirBuilder {
                     field,
                 })?;
                 let ty = match &claim {
-                    PreparedExactFieldReadClaimV1::Terminal
-                    | PreparedExactFieldReadClaimV1::Local(
-                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
-                    ) => crate::mir::MirType::Integer,
-                    PreparedExactFieldReadClaimV1::Local(
-                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class),
-                    ) => crate::mir::MirType::Box(class.to_string()),
+                    PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
+                    PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
+                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
+                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
+                    },
                 };
                 self.function_state.type_ctx.value_types.insert(dst, ty);
                 match claim {
                     PreparedExactFieldReadClaimV1::Terminal => {
                         ledger.record_terminal_field_read(&site, block, dst, base, field)?;
                     }
-                    PreparedExactFieldReadClaimV1::Local(_) => {
-                        ledger.record_local_field_read(&site, block, dst, base, field)?;
+                    PreparedExactFieldReadClaimV1::Local(source) => {
+                        ledger.record_local_field_read(&site, block, dst, base, field, &source)?;
                     }
                 }
                 Ok(dst)

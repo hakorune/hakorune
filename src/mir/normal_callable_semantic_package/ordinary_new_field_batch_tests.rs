@@ -1,5 +1,6 @@
 //! Cached-site drift and duplicate rejection must not commit an earlier row.
 use super::*;
+use crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1;
 use crate::mir::resolved_semantics::{
     BodyExpressionShapeV1, ResolvedLexicalRefV1, SourcePathSegmentV1, SourcePathV1,
 };
@@ -25,9 +26,9 @@ fn rows() -> Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> {
                         panic!("receiver");
                     };
                     let owned = OwnedExprSiteV1::new(declaration.owner(), site.clone());
-                    let (field, result) = package
+                    let source = package
                         .ordinary_new_claim_ledger
-                        .staged_local_field_read(&owned)
+                        .staged_local_field_source(&owned)
                         .expect("staged read");
                     rows.push((
                         owned,
@@ -35,9 +36,8 @@ fn rows() -> Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> {
                             receiver_site: object.clone(),
                             receiver,
                             home: receiver,
-                            field,
-                            result,
-                            progress: field_reads::Progress::Pending,
+                            source,
+                            progress: field_reads::LocalReadProgress::Pending,
                         },
                     ));
                 }
@@ -50,45 +50,54 @@ fn rows() -> Vec<(OwnedExprSiteV1, field_reads::LocalFieldRead)> {
 
 #[test]
 fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
-    let mut rows = rows();
-    let (site, old) = rows.pop().unwrap();
-    let mut drift = field_reads::LocalFieldRead {
-        receiver_site: SourcePathV1::from_node(old.receiver_site.node())
-            .child(SourcePathSegmentV1::Lhs)
-            .expr(),
-        receiver: old.receiver,
-        home: old.home,
-        field: old.field,
-        result: old.result.clone(),
-        progress: field_reads::Progress::Pending,
-    };
-    let original_site = old.receiver_site.clone();
-    let mut staged = BTreeMap::from([(site.clone(), old)]);
-    let fresh = rows[0].0.clone();
-    rows.push((site.clone(), drift));
-    assert!(matches!(
-        stage_local_field_read_batch(&mut staged, rows),
-        Err(OrdinaryNewCoSealIssueV1::DuplicateSite { .. })
-    ));
-    assert_eq!(staged.len(), 1);
-    assert!(!staged.contains_key(&fresh));
-    assert_eq!(staged[&site].receiver_site, original_site);
-    // Equal descriptors preserve the old row (including its affine progress).
-    drift = field_reads::LocalFieldRead {
-        receiver_site: original_site,
-        receiver: staged[&site].receiver,
-        home: staged[&site].home,
-        field: staged[&site].field,
-        result: staged[&site].result.clone(),
-        progress: field_reads::Progress::Pending,
-    };
-    assert_eq!(
-        stage_local_field_read_batch(&mut staged, vec![(site, drift)])
-            .unwrap()
-            .len(),
-        1
-    );
-    assert_eq!(staged.len(), 1);
+    for metadata_drift in [false, true] {
+        let mut rows = rows();
+        let (site, old) = rows.pop().unwrap();
+        let mut drift = field_reads::LocalFieldRead {
+            receiver_site: if metadata_drift { old.receiver_site.clone() } else {
+                SourcePathV1::from_node(old.receiver_site.node()).child(SourcePathSegmentV1::Lhs).expr()
+            },
+            receiver: old.receiver,
+            home: old.home,
+            source: if metadata_drift {
+                LocalFieldReadSourceV1::from_declaration(old.source.field(), old.source.result().clone(), "usize".into())
+            } else { Rc::clone(&old.source) },
+            progress: field_reads::LocalReadProgress::Pending,
+        };
+        let original_site = old.receiver_site.clone();
+        let mut staged = BTreeMap::from([(site.clone(), old)]);
+        let fresh = rows[0].0.clone();
+        rows.push((site.clone(), drift));
+        assert!(matches!(
+            stage_local_field_read_batch(&mut staged, rows),
+            Err(OrdinaryNewCoSealIssueV1::DuplicateSite { .. })
+        ));
+        assert_eq!(staged.len(), 1);
+        assert!(!staged.contains_key(&fresh));
+        assert_eq!(staged[&site].receiver_site, original_site);
+        let original_source = Rc::clone(&staged[&site].source);
+        staged.get_mut(&site).unwrap().progress = field_reads::LocalReadProgress::Taken {
+            base: crate::mir::ValueId(42), source: Rc::clone(&original_source),
+        };
+        // Equal descriptors preserve the old row (including its affine progress).
+        drift = field_reads::LocalFieldRead {
+            receiver_site: original_site,
+            receiver: staged[&site].receiver,
+            home: staged[&site].home,
+            source: Rc::new((*staged[&site].source).clone()),
+            progress: field_reads::LocalReadProgress::Pending,
+        };
+        assert_eq!(
+            stage_local_field_read_batch(&mut staged, vec![(site, drift)])
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(staged.len(), 1);
+        assert!(Rc::ptr_eq(&staged.values().next().unwrap().source, &original_source));
+        assert!(matches!(staged.values().next().unwrap().progress,
+            field_reads::LocalReadProgress::Taken { base: crate::mir::ValueId(42), .. }));
+    }
 }
 
 #[test]
@@ -99,9 +108,8 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
         receiver_site: row.receiver_site.clone(),
         receiver: row.receiver,
         home: row.home,
-        field: row.field,
-        result: row.result.clone(),
-        progress: field_reads::Progress::Pending,
+        source: Rc::clone(&row.source),
+        progress: field_reads::LocalReadProgress::Pending,
     };
     rows.push((site.clone(), row));
     rows.push((site, duplicate));

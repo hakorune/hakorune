@@ -73,12 +73,9 @@ pub(super) fn has_me_object_field_read_v1(
                     None,
                     field,
                 )? {
-                    Some((
-                        _,
-                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(
-                            _,
-                        ),
-                    )) => {
+                    Some(source) if matches!(source.result(),
+                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(_)
+                    ) => {
                         found = true;
                         break;
                     }

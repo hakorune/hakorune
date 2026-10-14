@@ -56,7 +56,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         } else {
             request.alias_class.clone()
         };
-        let Some((field, result)) = terminal_home::local_read_field(
+        let Some(source) = terminal_home::local_read_field(
             constructors,
             candidates,
             coverage,
@@ -69,7 +69,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
         else {
             return Ok(None);
         };
-        if scalar_only && result != LocalFieldReadResultV1::Scalar {
+        if scalar_only && *source.result() != LocalFieldReadResultV1::Scalar {
             return Ok(None);
         }
         rows.push((
@@ -78,9 +78,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 receiver_site: request.receiver_site.clone(),
                 receiver: request.receiver,
                 home: request.home,
-                field,
-                result,
-                progress: field_reads::Progress::Pending,
+                source,
+                progress: field_reads::LocalReadProgress::Pending,
             },
         ));
     }
@@ -104,14 +103,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn stage_local_field_read_b
             if old.receiver_site != row.receiver_site
                 || old.receiver != row.receiver
                 || old.home != row.home
-                || old.field != row.field
-                || old.result != row.result
+                || old.source != row.source
             {
                 return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
             }
         }
     }
-    let results = rows.iter().map(|(_, row)| row.result.clone()).collect();
+    let results = rows.iter().map(|(_, row)| row.source.result().clone()).collect();
     for (site, row) in rows {
         staged.entry(site).or_insert(row);
     }

@@ -626,7 +626,7 @@ pub(super) fn probe_source_home_prefixes_v1(
                         .map(|view| view.class().into())
                 },
             )
-            .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.result).collect()))
+            .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.source.result().clone()).collect()))
         },
         &mut |site, actuals| {
             borrowed_call_arguments_callback_v1(

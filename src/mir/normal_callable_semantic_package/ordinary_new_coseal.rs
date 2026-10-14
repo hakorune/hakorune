@@ -83,6 +83,7 @@ pub(in crate::mir) use scalar_operations::OriginalScalarAppendV1;
 mod coseal_helpers;
 #[path = "ordinary_new_field_reads.rs"]
 mod field_reads;
+pub(in crate::mir) use field_reads::LocalFieldReadSourceV1;
 #[path = "ordinary_new_field_write_claim.rs"]
 mod field_write_claim;
 // The helper owns the exact `SourcePathSegmentV1::Initializer` admission shape.
