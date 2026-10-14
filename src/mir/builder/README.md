@@ -1837,3 +1837,10 @@ Root callable capture implementations live in
 shared adapter and scope wiring. This responsibility split preserves all
 canonical route choices and physical consumers. The separately pending owned
 Array source borrow does not activate execution or grant a new source authority.
+
+Selected Map emission uses `selected/invoke_operation.rs` for the physical
+Invoke/Normal writer. Source-selected callers retain operation and Fault
+selection; the writer only emits the supplied operation and exact projection.
+The pending owned-Array construction uses the same writer, with its own original
+source recipe and separate unclaimed-storage cleanup; its full lifecycle remains
+unaccepted until Append/Get/Home/final consumers close.

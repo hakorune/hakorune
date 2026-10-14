@@ -2,6 +2,8 @@
 use crate::mir::instruction::InvokeCallResultKind;
 #[path = "selected/arguments.rs"]
 mod arguments;
+#[path = "selected/invoke_operation.rs"]
+mod invoke_operation;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
 #[path = "selected/root_graph.rs"]
