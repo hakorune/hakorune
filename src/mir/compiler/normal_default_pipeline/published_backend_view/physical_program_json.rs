@@ -456,6 +456,24 @@ fn encode_invoke(
     call_context: Option<CallContext<'_>>,
 ) -> Result<Value, String> {
     Ok(match operation {
+        InvokeOperation::OwnedArray(operation) => {
+            use crate::mir::instruction::OwnedArrayInvokeOperation as Op;
+            let descriptor = operation.descriptor();
+            let kind = match operation {
+                Op::Claim { .. } => "array_owned_claim",
+                Op::Append { .. } => "array_owned_append",
+                Op::Get { .. } => "array_owned_get",
+                Op::End { .. } => "array_owned_end",
+            };
+            let mut encoded = json!({"kind":kind, "array":value(&operation.array()),
+                "object_id":descriptor.object().declaration_index(), "nullable":descriptor.nullable()});
+            match operation {
+                Op::Append { candidate, .. } => { encoded["value"] = value(candidate).into(); }
+                Op::Get { index, .. } => { encoded["index"] = value(index).into(); }
+                Op::Claim { .. } | Op::End { .. } => {}
+            }
+            with_site(encoded, required_site(diagnostic_site, true)?)?
+        }
         InvokeOperation::String(operation) => {
             use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Op};
             let operand = |operand: &Operand| match operand {

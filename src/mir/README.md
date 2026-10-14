@@ -366,3 +366,18 @@ End and effects after Fault. Shared Invoke checks retain SSA/projection authorit
 The physical vocabulary, diagnostic sites and JSON do not activate source Print:
 source frames, sole lowering, native ABI and final correspondence must all close
 before the selected production path can use it. Shared compatibility remains.
+
+
+### Owned Array Invoke transport
+
+`instruction/invoke_owned_array.rs` carries explicit Claim/Append/Get/End and
+one canonical child object plus nullable descriptor. Append transfers a candidate
+only on Normal; Get projects `BorrowedNullableHandle`, which carries no caller
+Home or independent End authority. ABI layout collection and exact JSON retain
+the descriptor and required diagnostic site, without numeric Array tags or
+runtime class inference.
+This is vocabulary/transport preparation. The physical-program allowlist still
+rejects these operations. Source acquisition/commit/live borrow/End handback,
+holder-dependent lifetime and exact original call-slot verification, indexed
+runtime descriptor/complete End emission and final coverage must connect before
+execution admission changes. Existing Array input execution gates remain closed.

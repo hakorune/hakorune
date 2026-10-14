@@ -43,6 +43,10 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     ArrayNew,
     ArrayClaim,
     ArrayWrite,
+    OwnedArrayClaim,
+    OwnedArrayAppend,
+    OwnedArrayGet,
+    OwnedArrayEnd,
     FieldSet,
     ObjectFieldSet,
     HomeRelease,
@@ -75,6 +79,12 @@ impl PublishedLifecycleCheckedOperationKindV1 {
             return None;
         };
         match operation {
+            InvokeOperation::OwnedArray(operation) => Some(match operation {
+                crate::mir::instruction::OwnedArrayInvokeOperation::Claim { .. } => Self::OwnedArrayClaim,
+                crate::mir::instruction::OwnedArrayInvokeOperation::Append { .. } => Self::OwnedArrayAppend,
+                crate::mir::instruction::OwnedArrayInvokeOperation::Get { .. } => Self::OwnedArrayGet,
+                crate::mir::instruction::OwnedArrayInvokeOperation::End { .. } => Self::OwnedArrayEnd,
+            }),
             InvokeOperation::String(operation) => Some(match operation {
                 crate::mir::instruction::StringInvokeOperation::Add { .. } => Self::StringAdd,
                 crate::mir::instruction::StringInvokeOperation::Print { .. } => Self::StringPrint,
@@ -665,6 +675,9 @@ fn referenced_objects(
                         | InvokeOperation::ObjectFieldSet { field, child, .. } => {
                             ids.insert(field.object().declaration_index());
                             ids.insert(child.declaration_index());
+                        }
+                        InvokeOperation::OwnedArray(operation) => {
+                            ids.insert(operation.descriptor().object().declaration_index());
                         }
                         InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
                         InvokeOperation::IntrinsicArrayNew

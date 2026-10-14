@@ -6,6 +6,9 @@ use crate::mir::{Effect, EffectMask, ValueId};
 
 #[path = "invoke_map.rs"]
 mod map;
+#[path = "invoke_owned_array.rs"]
+mod owned_array;
+pub use owned_array::{OwnedArrayInvokeOperation, OwnedArraySlotDescriptorV1};
 #[path = "invoke_string.rs"]
 mod string;
 pub use string::{StringInvokeOperand, StringInvokeOperation};
@@ -69,6 +72,8 @@ pub enum InvokeOperation {
     Map(MapInvokeOperation),
     /// Checked expression String operations; never an Object handle lane.
     String(StringInvokeOperation),
+    /// Source-owned object slots; distinct from numeric Array state.
+    OwnedArray(OwnedArrayInvokeOperation),
     /// Adopt the source-issued numeric state contract; Unit on Normal.
     ArrayStateContractClaim { contract_id: String, array: ValueId },
     /// Checked mutation; Unit on Normal and no mutation on Fault.
@@ -138,6 +143,7 @@ impl InvokeOperation {
             Self::NewBox { .. } | Self::IntrinsicArrayNew => Some(InvokeNormalResultKind::Handle),
             Self::Map(operation) => operation.normal_result_kind(),
             Self::String(operation) => operation.normal_result_kind(),
+            Self::OwnedArray(operation) => operation.normal_result_kind(),
             Self::Call {
                 result: InvokeCallResultKind::I64,
                 ..
@@ -174,6 +180,7 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.effects(),
             Self::String(operation) => operation.effects(),
+            Self::OwnedArray(operation) => operation.effects(),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
             Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
             Self::FieldSet { .. }
@@ -195,6 +202,7 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.used_values(),
             Self::String(operation) => operation.used_values(),
+            Self::OwnedArray(operation) => operation.used_values(),
             Self::Call { call, .. } => {
                 let mut values = Vec::new();
                 call.callee
@@ -231,6 +239,7 @@ impl InvokeOperation {
         match self {
             Self::Map(operation) => operation.rewrite_values(rewrite),
             Self::String(operation) => operation.rewrite_values(rewrite),
+            Self::OwnedArray(operation) => operation.rewrite_values(rewrite),
             Self::Call { call, .. } => {
                 call.callee.rewrite_value_operands(|value| rewrite(value));
                 for value in &mut call.args {

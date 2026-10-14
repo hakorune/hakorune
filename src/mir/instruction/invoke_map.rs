@@ -9,6 +9,9 @@ pub enum InvokeNormalResultKind {
     /// sentinel; the caller owes a checked release, never an unconditional
     /// one.
     NullableHandle,
+    /// Borrowed object-or-null from an owned Array slot. The original holder
+    /// and descriptor determine liveness; this projection owns no lease.
+    BorrowedNullableHandle,
     Map,
     MapKey,
     MapOutcome,

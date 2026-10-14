@@ -356,3 +356,35 @@ fn checked_string_transport_preserves_bytes_operand_roles_and_sites() {
     assert_eq!(encode(Op::End { value:ValueId(9) }),
         json!({"kind":"string_end", "site":42, "value":9}));
 }
+
+
+#[test]
+fn owned_array_transport_preserves_descriptor_and_borrowed_result_role() {
+    use crate::mir::instruction::{
+        InvokeNormalResultKind, OwnedArrayInvokeOperation as Op, OwnedArraySlotDescriptorV1,
+    };
+    let object = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(7).unwrap();
+    for nullable in [false, true] {
+        let descriptor = OwnedArraySlotDescriptorV1::new(object, nullable);
+        for (operation, kind, extra) in [
+            (Op::Claim { array: ValueId(1), descriptor }, "array_owned_claim", None),
+            (Op::Append { array: ValueId(1), descriptor, candidate: ValueId(2) }, "array_owned_append", Some(("value", 2))),
+            (Op::Get { array: ValueId(1), descriptor, index: ValueId(3) }, "array_owned_get", Some(("index", 3))),
+            (Op::End { array: ValueId(1), descriptor }, "array_owned_end", None),
+        ] {
+            let operation = InvokeOperation::OwnedArray(operation);
+            let mut expected = json!({"kind":kind, "array":1, "object_id":7, "nullable":nullable, "site":42});
+            if let Some((key, value)) = extra { expected[key] = json!(value); }
+            assert_eq!(encode_invoke(&operation, &BTreeMap::new(), &BTreeMap::new(),
+                0, Some(42), None, None).unwrap(), expected);
+            assert_eq!(operation.normal_result_kind(), if kind == "array_owned_get" {
+                Some(InvokeNormalResultKind::BorrowedNullableHandle)
+            } else { None });
+            assert_ne!(operation.normal_result_kind(), Some(InvokeNormalResultKind::NullableHandle));
+            // Missing diagnostic identity cannot be serialized into a valid
+            // checked operation, even when no final ABI view was supplied.
+            assert!(encode_invoke(&operation, &BTreeMap::new(), &BTreeMap::new(),
+                0, None, None, None).is_err());
+        }
+    }
+}
