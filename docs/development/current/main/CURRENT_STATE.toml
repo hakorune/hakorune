@@ -18,41 +18,40 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 Required Object Forward S0 remains unaccepted/uncommitted; inherited WIP protected.
-Provider source/actual/publication now shares the construction writer and final
-borrowed-call visitor; original final ABI/JSON and independent drift cases pass.
-Returned-New SAME prefix now retains Fault prior and original post-move Normal
-homes. No ownership inference or new Home/receipt; Fault consumers unchanged.
-V598 build51.941771sPASS and31 uniquePASS including exact sibling identity,
-after-affine source and full final cleanup; no added testfn/guard.
-V600 artifact-verdict focused6PASS; canonical source-bound verdict reaches callback.
-V601 diagnostic-only build62.150387sPASS and existing physical refusal2PASS;
-zero-match filename filter excluded. Root testfn count remains9196.
-Latest actual CLI107 exactly matches tested V601 source: build145.794073s,
-app44.215741s rc1/noEXE binary527667fe SAME app/FFI/env/direct route.
-Exact physical instruction refusal: main/root_i64 bb0 index1 raw NewBox
-ArrayBox dst53 args[]. decls.rs injects declared main args using this legacy
-writer; this is wrapper argv materialization, not the workload handles source.
-Accepted mapping with two read-only workers: same original resolved Main
-identity/Parameter bindings plus SAME Rc ingress snapshot own wrapper arguments.
-Normal materialization enters original source scope after root frame, before adoption. ScriptArgumentsNew builds whole UTF8 Array locally before
-Normal-only owned handle publication; source Body Homes unwind before exact
-wrapper ArrayResidenceRelease suffix. No artificial source New/Home or receipt.
-Same ledger retains original source/entry/frame/Invoke/Normal/Fault/release;
-exact bindings and CFG live/absent checks reach final verifier, ABI/JSON and C.
-V607 build51.022446sPASS; empty/Unicode/NUL snapshot final JSON plus6 drift
-refusalsPASS in existing ingress test. Existing arity test is exact pre-change
-V601 baseline admission-candidate-unavailable; retain expectation debt.
-Own V602/V604 compile and V603/V605/V606 source/final mapping failures corrected;
-V605 provider4 and full document handoff1PASS. Root testfn9196 unchanged.
-C FFI build/issued empty+text JSON->OBJ2PASS. KernelV608 pending; final current
-source tests and original app must still be rerun. No argv/S0/app acceptance or Rust commit yet.
-Ingress test moved to runtime_inputs leaf (parent704/leaf144) for800limit; no newtestfn.
-Legacy/reference default injector keeps explicit compatibility caller; installed
-normal raw NewBox injection replaced, retirement acceptance still pending.
+Provider source/actual/publication shares the construction writer and final
+borrowed-call visitor; original ABI/JSON and independent drifts pass.
+Returned-New SAME prefix retains Fault prior and post-move Normal homes.
+V598 siblings31PASS; V600 artifact verdict6PASS; no new testfn/guard.
+CLI107 exposed wrapper main args raw NewBox ArrayBox, not workload handles.
+Selected normal injection now uses original AppMain/Parameter bindings and SAME
+Rc ingress snapshot inside original source scope after frame, before adoption.
+Whole ScriptArgumentsNew publishes only fully built UTF8 Array on Normal;
+body Homes unwind before wrapper release, allocation Fault owns no argv.
+No artificial New/Home/receipt, unused elision or shape allowlist.
+SAME source product/ledger retains entry/frame/Invoke/Normal/Fault/releases.
+Original source rows stay unchanged; final bindings borrow SAME canonical
+FinishedBindings after validate_complete, every effect mandatory and recorded.
+Only identical mapped expected release rows coalesce; actual duplicates refuse.
+C schema/flow/emit and kernel/header share source payload/Normal acquisition.
+KernelV6089PASS; runtimeV610 build164.046739sPASS immutable archive6e868626.
+Last actual CLI108 build177.159420sPASS/app15.339211s rc1/noEXE,
+binary38c4b2f02d1727604cc2dff56c77647fd37729206d6a440c8eebc4e8e9c2cfa6.
+Its own unreleased-exit RED corrected: writer now updates instruction spans
+through canonical API. V611 ingress+DCE spans2PASS. V612 own optimized-body
+release-census RED corrected by existing finishing projection loan.
+V613 build78.545948sPASS expanded ingress1+DCE1PASS; source-issued unchanged
+JSON->CABI/OBJ/EXE10PASS pure/body empty+text Normal/argvFault/PrintFault,
+including source Home before argv. V614 build57.799224sPASS ingress1/provider4/
+full documenthandoff1PASS. V615 build64.230233sPASS ingress1PASS including
+actual/detached duplicate release refusal,10 drifts; issued JSON4 files EXACT
+C execution inputs. CLI109 build pending; new app run still required.
+Legacy/reference default injector retains explicit shared caller; selected
+normal raw injection replaced, retirement acceptance still being checked.
+Existing arity RED exact pre-change V601 admission-candidate-unavailable;
+expectation debt retained. All other inherited source/physical debts retained.
 First milestone unchanged mimalloc EXE/run/output/exit still unmet.
 Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
-selfcompile and inherited Mixed/source/physical debts remain required.
-Detailed evidence and unfinished acceptance remain in the SAME active card.
+selfcompile remain required. Detailed evidence in SAME active card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
