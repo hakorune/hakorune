@@ -17,38 +17,38 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Required Object Forward S0 unaccepted/uncommitted; inherited WIP protected.
-SAME card owns original source/Completion/argument/cleanup/final correspondence.
-Argv source->bindings/JSON/C/runtime connected; V615 bothopts+10drifts/C10PASS,
-kernelV6089PASS/runtimeV6106e868626; selectedraw argv edge retired, shared retained.
+RequiredObjectForwardS0 unaccepted/WIPprotected; SAMEcard source-to-final owner.
+Argvconnected V615 bothopts+10drifts/C10PASS; kernelV6089/runtimeV610, rawedge retired.
 Last actual CLI111 build167.087861sPASS/app152.767664s rc1/noEXE,
 binaryfc278bb1013ab7d158c26e0dff4e9abb4fa3251162a96865fafbdaa132ac7958.
 Own Copy correspondence fixedfocused; underlyingCLI110 HakoAllocHeap.realloc/2
 MixedHandle(formal0) arity3 correct. No laterCLI/product improvement claimed.
-V628 originalapp Mixed+BorrowedNullable Return correspondence bothoptsPASS;
-12drifts; classfreeformal optionalqualifiedview only, ABI/role/C stillclosed.
+V628 originalapp Mixed/BorrowedNullable Returnbothopts+12driftsPASS (sourceonly).
 Kernel residence V6277PASS/headerlayoutPASS; V631 SAME childRc argumenttransport5PASS.
-Fresh retains originalargumentrows/Rc census; root9196/kernel398 unchanged.
-Current WIP retains originalrelation/witnessRc+formal; Normal rechecks support.
-OldowningEnd blocked for Forwardfield insharedreduce AND Mixed shortcuts;
-descriptor remainsclasswide, source support never grantsfield/ABIpermission.
-Distinct ConstructionChildArgument keeps sourceborrow outside numericguard and
-outsidegenerictransport; sameRc coverage tested in existing sourceuse owner.
-Shared originaldeclaration frame now joins roots/useorigins/declaredview/incoming;
-QualifiedObject input+entry reuse sole fullinputowner. Mixed guards and original
-SourceInstance selectors retained; passedcontract/catalog fully matched.
-V640 build121.918045sPASS, handoff11/Home1/wholeinput13/leaf10/Normal9=44PASS;
-priorformalrelay ownRED resolved, wholebad(localh) sibling retained/refusedescape.
-Actualcontext CandidateSlice/LedgerOriginal/SourceOnly; sourceclaim/commit pre/postTake.
-Exactnullable acquisition/target/resultclass; no fakecandidate/newHome/receipt.
-All reconstruction/finalized contexts shareledger; NoLedgerHome/nullablePending.
-V641 build54.452244sPASS, 45focusedPASS: above44 +nullable sourceowner1.
-Rootnullable source sameowner/indexabsent only; indexErr/rootErr retained/tested.
-Formal tests direct/received relay/hop, calleeformal1->caller0; localescape refused.
-Binary24af6a5ae29a5909d3eab6edfb8c56dc9fdba5854188d11210b730cacbb3427b.
-Next: retain SAME verifiedReturn rows currentlydiscarded atphysicalprojection
-into exactMixed/BorrowedNullable role->ABI/JSON/C outcome/Normal/Return consumer.
-Childloans->sameFinalizedBirthActuals->canonicalformal/store/useclosure stillowed.
+OriginalFresh arguments/childRc andformal/witness supports retained; Normalrechecks.
+OldowningEnd blocksForwardfield; sourceSupport grantsnoHome/field/ABIpermission.
+ConstructionChildArgument remainsseparate fromnumericguard/generictransport;
+sharedoriginaldeclaration frame/fullinput owner andcanonicalcatalog checks retained.
+Root9196/kernel398 testfn unchanged; no newguard/card; sourceWIP unaccepted.
+V641 sourcecontext fixed; build54.452244sPASS/45focusedPASS, priorformalrelayRED
+resolved withwholebad(localh) sibling retained/refusedescape. Context CandidateSlice/
+LedgerOriginal/SourceOnly; exactclaim/commit pre/postTake, no physicalHomegrant.
+Nullable root exactsameowner/indexabsent only, indexErr/rootErr retained/tested.
+Formal direct/received relay/hop mapscallee1->caller0 independently ofctorarg0.
+Current: SAME FinalizedObjectReturnOutcome retains ORIGINALresult+outerordinal;
+physical Mixed/BorrowedNullable roles retain SAMErows instead ofdiscardingthem.
+Functionconsumer exactsourcekind/ordinal/paramlane/carrier, originrole, required
+producer/Copy bindingcardinality andReturncensus; logicalinnerordinal distinct.
+Compiledentry caller+target/Birth participation andnonnumericreturn gate connected.
+JSONReturn transports SAME bindingcoords; ABIcorroborate exactresult+outcomerows.
+V642/V643 owncompileREDS corrected; V644 build72.057809sPASS/legacyPair1PASS,
+longapp intentionallyinterrupted fororiginalresult retention (notPASS/RED).
+V645 build63.789352sPASS/legacyPair1PASS; existingoriginalapp test BOTHopts RUNNING
+session39661. Binary909c00e0b0433d3e4ac8c2a4eb2b0ddd57a3b62785143a241db0435c4cd68ed5.
+Reuse SAME livehandle, do not rebuild/testrestart whilelive; pendingnotacceptance.
+Next: finishoriginalapp role/ReturnJSON anddrift validation, then SAME resultwire
+ABI/JSON/C CallNormal/Return, typedchildfield support andcompleteconditionalEnd.
+JSON Mixed/BorrowedInvoke andObjectEndIfOwned remainCLOSED, no publicationgrant.
 PhysicalReturn rows->role/ABI/JSON/C/completeEnd plusNew pre/postHome/orderedFault
 partition stillowed. Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained.
 First milestone unchangedmimalloc unmet; fixed11/retirement/R6R7/Loop/authority/
