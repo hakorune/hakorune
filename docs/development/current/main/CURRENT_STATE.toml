@@ -28,10 +28,8 @@ MixedHandle(formal0) arity3 correct. No laterCLI/product improvement claimed.
 V628 originalapp Mixed+BorrowedNullable Return correspondence bothoptsPASS;
 12drifts; classfreeformal optionalqualifiedview only, ABI/role/C stillclosed.
 Kernel residence V6277PASS/headerlayoutPASS; V631 SAME childRc argumenttransport5PASS.
-V633 Fresh retains original argumentrows/exactrelationcensus; leaf10/handoff11/
-result8PASS. Root9196/kernel398 testfn unchanged; no newguard/card/sourcefile.
-Current WIP retains relation/witnessRc+formal, composes same acquisition/actuals;
-Normalprojection rechecks, local escape test remainsRED before this newmapper.
+Fresh retains originalargumentrows/Rc census; root9196/kernel398 unchanged.
+Current WIP retains originalrelation/witnessRc+formal; Normal rechecks support.
 OldowningEnd blocked for Forwardfield insharedreduce AND Mixed shortcuts;
 descriptor remainsclasswide, source support never grantsfield/ABIpermission.
 Distinct ConstructionChildArgument keeps sourceborrow outside numericguard and
@@ -39,16 +37,18 @@ outsidegenerictransport; sameRc coverage tested in existing sourceuse owner.
 Shared originaldeclaration frame now joins roots/useorigins/declaredview/incoming;
 QualifiedObject input+entry reuse sole fullinputowner. Mixed guards and original
 SourceInstance selectors retained; passedcontract/catalog fully matched.
-V638 build60.924352sPASS, focused51PASS1ownRED: leaf10/handoff10+RED1/result8/
-Normal9/wholeinput13/sourceuse1. RED is new formalrelay, NOTbaseline orcloseout.
-Original argument snapshot advancedUnavailable->SourceOnly. Samecallee bad(localh)
-sibling blockswholeinput: oldreconstruct hasemptyCandidate/no nullableclass,
-originalinputcontext explicitlyPending on Home/ReceivedNullable.
-Next: normalize SAME actualconstructor CandidateSlice vs LedgerOriginal source
-context; exactlocalNew claim/commit before/afterTake + nullable originalsource.
-Propagate through reconstruct/recheck/projectedarguments/Finalized; no fakeNew,
-newHome/receipt/map, phasefallback or callerphysicalemission dependency.
-Preservebad sibling/allincoming/positive expectation. No sourcecommit/EXE yet.
+V640 build121.918045sPASS, handoff11/Home1/wholeinput13/leaf10/Normal9=44PASS;
+priorformalrelay ownRED resolved, wholebad(localh) sibling retained/refusedescape.
+Actualcontext CandidateSlice/LedgerOriginal/SourceOnly; sourceclaim/commit pre/postTake.
+Exactnullable acquisition/target/resultclass; no fakecandidate/newHome/receipt.
+All reconstruction/finalized contexts shareledger; NoLedgerHome/nullablePending.
+V641 build54.452244sPASS, 45focusedPASS: above44 +nullable sourceowner1.
+Rootnullable source sameowner/indexabsent only; indexErr/rootErr retained/tested.
+Formal tests direct/received relay/hop, calleeformal1->caller0; localescape refused.
+Binary24af6a5ae29a5909d3eab6edfb8c56dc9fdba5854188d11210b730cacbb3427b.
+Next: retain SAME verifiedReturn rows currentlydiscarded atphysicalprojection
+into exactMixed/BorrowedNullable role->ABI/JSON/C outcome/Normal/Return consumer.
+Childloans->sameFinalizedBirthActuals->canonicalformal/store/useclosure stillowed.
 PhysicalReturn rows->role/ABI/JSON/C/completeEnd plusNew pre/postHome/orderedFault
 partition stillowed. Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained.
 First milestone unchangedmimalloc unmet; fixed11/retirement/R6R7/Loop/authority/
