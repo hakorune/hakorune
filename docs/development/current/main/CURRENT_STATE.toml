@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/array-set-unsupported"
+current_blocker_token = "required-object-forward/borrowed-use-argument"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,43 +17,33 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted; cumulative sourceWIP protected/unlanded.
-Earlier status checkpoint52bad7c66e; SAMEcard owner/fullgoal retained.
-Argv source/JSON/C/runtime connected; selectedrawargv retired/sharedcompat kept.
-Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth owed.
-Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI unfinished.
-KeepAlive Rust/JSON/C metadata connected; FFIe55/runtimeV610 unchanged.
-ConditionalEnd allfamilies->FinishedBindings/fullcensus connected; EndJSON/C owed.
-FieldWrite scalarRHS originalAssignment/sharedHome->ScalarAppend/LocalSSA/FinishedBindings.
-Nullable originalReturn+allRc+Completion->bodytoken Unknown; noLOCALdemand/repair.
-Arrayread SAME descriptorRc/residenceRc/emission->lifecyclecapture/FinishedBindings
-->finalfieldroute; current originalprovider redemanded. No-rowowners needno
-finishing; no readloan storepermission. V676 build67.660263s/V677 build62.518666s
-PASS; descriptor/dominatedset/compareleguard 3focusedPASS. Actualapp test
-559.343813s optfalse RED unfinishedFieldWrite unproved-copy bb249/index3 dst60/src1.
-BeforeRED 4originalArrayread projections+5physical mutations+missingWrite refusal
-PASS; actual Unknown/forcedVoid refusal PASS. Opttrue notreached/root9196unchanged.
-CLI119 build161.754987s/app165.951872s rc1/noEXE binary662fbe26; sameappSHA33d3/
-FFIe55/runtimeV610. Frontier field-get-route-drift ->array-set-unsupported.
-CLI120 diagnosticbuild152.745774s/app150.557180s rc1/noEXE binaryed07ad1a:
-seedBlocks/0 bb263/index3 Push MethodCall site0 receiver27/value29; routeexact.
-USERRESUME 2026-10-16: same sourceWIP/row/fullgoal; canonical Phi completion next.
-SAME NoExit proof/Completion/sourceI64tree ->sole normalizer output retained.
-Freshen remap nowrequires private solefreshener maploan, not arbitraryFnMut.
-SelectedFieldPush->checkedInvoke/fullFaultEnd/sourceprefix/group WIP connected.
-ImplicitUnit source joins SAMEFieldLoop proof withoutinventedUnitCall/Completion.
-V692build59.099007sPASS; typedproviderRED optfalse beforecallback/finishing=false:
-Holder.seed/0 Phi v11 bb56 capturedinputs[] vscompleted[(bb55,v10),(bb58,v12)].
-Next solePhiwriter completion ->sameLocalSSA provenance/capture; noPhi skip.
-Old BorrowedTagged directset/numericguard/store arms retain separate source-use
-obligations; 2regressions abovePASS, callerzero retirement stillowed.
-Then SAME FieldWrite+guard sharedHomeframe->LifecyclePrefix/bindinggroup->real
-pinrelations+FieldSet->FinishedBindings->bothborrowedclosure scans. No registry.
-Fieldpair/Birth exactsupport/prepostHome/Fault and EndJSON/C stillowed.
-First milestone unchangedmimalloc EXE unmet; fixed11/retirement/R6R7/Loop/
-authority/parser/nondelegating selfcompile remainrequired. Sourceproofs landwith
-coherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
-First999cardlines SHAprotected; ABIJSON/C unwired; actualEXE remainsCLI120/noEXE.
+RequiredObjectForwardS0 remains unaccepted; cumulative source WIP is unlanded.
+Same owner, active card and full finite goal; existing WIP must be protected.
+Canonical Phi completion now shares the original LocalSSA writer loans;
+source-consumed producers and dependencies survive CFG/CSE finishing.
+Field Array Push retains the same source/Completion/residence/read/packet Rc,
+checked Invoke/Fault group and final physical coordinate. V703 provider passes
+both opts with eight independent mutations refused. V704 adds required
+function/block/instruction coordinates to native and field Array write rows;
+provider emits four I64 array_append JSON operations in both opts. Native
+I64/Bool/F64 coverage remains green. C residence execution is still unwired.
+Latest actual unchanged mimalloc: CLI127 build136.235435s/app156.220897s,
+rc1/no EXE, binary1eacab89/appSHA33d3/FFIe55/runtimeV610.
+Stop: HakoAllocHeap.realloc/2 bb432/index0, isLiveHandle/1 argument0 value1;
+tracked caller formal(owner37,binding1), expected argument source slot absent.
+Next: verify original DeclaredFormal versus Forwarded source origin and join
+it to the existing borrowed argument closure, without opcode/type inference.
+Existing declared-only regression passes; mixed-entry counterexample in progress.
+C follow-up: initialized receiver/residence premise must hold at all actual
+calls and owning-child stores; preserve nullable/Normal/Fault contracts.
+No fake Call/unused Birth/lease/registry or fixture workaround is authorized.
+Other S0 connections remain owed: field Birth/full support, FieldWrite real pins,
+mixed/borrowed result ABI and conditional End JSON/C. Existing argv/KeepAlive
+connections remain WIP. Source/consumer cutover and exclusive retirement are
+unaccepted; tmp/adapters must be classified and card history compressed at landing.
+First milestone is unchanged mimalloc EXE/run/output/exit, still unmet.
+Fixed suite, required integration/retirement/R6/R7/Loop/authority/parser and
+nondelegating selfcompile remain required for the full goal.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
