@@ -1,4 +1,4 @@
-date = "2026-10-15"
+date = "2026-10-16"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
@@ -17,40 +17,43 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Required Object Forward S0 unaccepted/uncommitted; all inherited WIP protected.
+Required Object Forward S0 unaccepted/uncommitted; inherited WIP protected.
 SAME card owns original source/Completion/argument/cleanup/final correspondence.
-Source-backed main argv reaches bindings/JSON/C/runtime; Home End precedes argv
-release. V615 bothopts+10driftsPASS/C10PASS/kernelV6089PASS/runtimeV6106e868626.
-Selected normal raw argv edge removed; shared compatibility retained.
-Last measured CLI111 build167.087861sPASS/app152.767664s rc1/noEXE,
+Argv source->bindings/JSON/C/runtime connected; V615 bothopts+10drifts/C10PASS,
+kernelV6089PASS/runtimeV6106e868626; selectedraw argv edge retired, shared retained.
+Last actual CLI111 build167.087861sPASS/app152.767664s rc1/noEXE,
 binaryfc278bb1013ab7d158c26e0dff4e9abb4fa3251162a96865fafbdaa132ac7958.
-Own sourcegetter Copy mismatch fixed focused; no later actualCLI/productclaim.
-Underlying CLI110 frontier HakoAllocHeap.realloc/2 MixedHandle(formal0), arity3
-correct; outcome/field/C consumers unconnected. No matrix-only widening.
-V628 originalapp source/final Return correspondence bothoptsPASS621.522589s:
-8Mixed+8BorrowedNullable Returns and12drifts; class-free nullable formal retains
-optional qualified view, no source-only inference or ABIpermission promotion.
-Kernel residence pair V627 build187.427505sPASS/focused7PASS/headerlayoutPASS;
-atomic same-slot payload+Null/Fresh/Forward; finalconsumer/lifetime stillowed.
-V631 sourcechildrelation SAME Rc through original argument/Emitted/FinalizedBirth
-focused5PASS; sourceissue793lines/root9196/kernel398 testfn unchanged.
-Known pageheap PrefixNotCovered Body0 RED pinnedV522/V518; notcurrentgreen.
-Fresh return leaf now retains original argument rows+SAME Rc, exactNew/actualsite/
-ordinal/fullrelation census/perargument order; descriptor staysclasswide.
-V633 build56.608992sPASS; existing leaf10/handoff11/result8PASS, root9196 unchanged.
-Nullchild requires1loan before erasure-negative; sourceprovenance prerequisite only.
-Next initialhandoff projects support via existing completed-object-input owner
-and SAME pendingactuals; Taken-only API cannot run before slot issuance.
-All input branches/finalcontext recheck share sameoriginal seals; exactcaller
-formal/local supports survive outerlastuse/End, local-support escape refused.
-Final Return rows must flow to physical role/Return/JSON/completeEnd instead of
-being discarded aftervalidation; no secondsolver/newregistry/phasefallback.
-Original New pre/post Home +orderedconstruction pending-formal Fault partition
-remain sameactual/formal/store owner, notsecondsubtractionset. FullABI staysclosed.
-First milestone unchanged mimalloc EXE/run/output/exit unmet; fixed11/retirement/
-R6R7/Loop/requiredauthority/parser/nondelegating selfcompile stillowed.
-Landing classifies tmp/adapters, commits actualproofs then compressescompleted
-cardhistory; first999lines protected. Details/allREDs/receipts in SAMEcard.
+Own Copy correspondence fixedfocused; underlyingCLI110 HakoAllocHeap.realloc/2
+MixedHandle(formal0) arity3 correct. No laterCLI/product improvement claimed.
+V628 originalapp Mixed+BorrowedNullable Return correspondence bothoptsPASS;
+12drifts; classfreeformal optionalqualifiedview only, ABI/role/C stillclosed.
+Kernel residence V6277PASS/headerlayoutPASS; V631 SAME childRc argumenttransport5PASS.
+V633 Fresh retains original argumentrows/exactrelationcensus; leaf10/handoff11/
+result8PASS. Root9196/kernel398 testfn unchanged; no newguard/card/sourcefile.
+Current WIP retains relation/witnessRc+formal, composes same acquisition/actuals;
+Normalprojection rechecks, local escape test remainsRED before this newmapper.
+OldowningEnd blocked for Forwardfield insharedreduce AND Mixed shortcuts;
+descriptor remainsclasswide, source support never grantsfield/ABIpermission.
+Distinct ConstructionChildArgument keeps sourceborrow outside numericguard and
+outsidegenerictransport; sameRc coverage tested in existing sourceuse owner.
+Shared originaldeclaration frame now joins roots/useorigins/declaredview/incoming;
+QualifiedObject input+entry reuse sole fullinputowner. Mixed guards and original
+SourceInstance selectors retained; passedcontract/catalog fully matched.
+V638 build60.924352sPASS, focused51PASS1ownRED: leaf10/handoff10+RED1/result8/
+Normal9/wholeinput13/sourceuse1. RED is new formalrelay, NOTbaseline orcloseout.
+Original argument snapshot advancedUnavailable->SourceOnly. Samecallee bad(localh)
+sibling blockswholeinput: oldreconstruct hasemptyCandidate/no nullableclass,
+originalinputcontext explicitlyPending on Home/ReceivedNullable.
+Next: normalize SAME actualconstructor CandidateSlice vs LedgerOriginal source
+context; exactlocalNew claim/commit before/afterTake + nullable originalsource.
+Propagate through reconstruct/recheck/projectedarguments/Finalized; no fakeNew,
+newHome/receipt/map, phasefallback or callerphysicalemission dependency.
+Preservebad sibling/allincoming/positive expectation. No sourcecommit/EXE yet.
+PhysicalReturn rows->role/ABI/JSON/C/completeEnd plusNew pre/postHome/orderedFault
+partition stillowed. Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained.
+First milestone unchangedmimalloc unmet; fixed11/retirement/R6R7/Loop/authority/
+parser/nondelegating selfcompile owed. Landing commits proofs/classifies tmp,
+thencompresses history; first999cardlines protected.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
