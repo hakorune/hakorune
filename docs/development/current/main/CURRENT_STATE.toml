@@ -1,10 +1,10 @@
-date = "2026-10-12"
+date = "2026-10-15"
 development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "user-requested/design-consultation"
-current_design_stop = "UserRequestedDesignConsultation"
+current_blocker_token = "required-object-forward/provider-static-input-cohort"
+current_design_stop = "provider-static-actual-through-final-owner"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,20 +17,31 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Goal remains paused for user design consultation; no implementation/build resume.
-Selected first product is unchanged mimalloc-lite EXE/run/output, still unmet.
-Required Object Forward S0 WIP is retained and unaccepted: Completion Ready,
-original input cohort pending; Maker.qualified/0 membership rejects. Both final
-positives remain owed. Existing bundle tasks are grouped by production
-responsibility; the active card and workstream retain dependencies, acceptance,
-same-series retirement and unmeasured obligations. Closed preparation is evidence,
-not a repeated task or product completion. RULES remains operational authority.
-Host cache/quick-test-fast measurements remain in their own tooling card.
+Required Object Forward S0 unaccepted/uncommitted; inherited WIP protected.
+Latest canonical actual CLI102: build141.835236s/app13.775421s rc1/noEXE,
+binary816fa8b4; SAME app/FFI/env pinned in active card and app-v102 receipt.
+CLI102 source exactly matches tested V588: build63.518080s PASS;
+deduplicated84PASS+1 exact preexisting source-child NoIncoming baseline.
+Qualified terminal Calls and whole scalar input now reach the existing
+Static packet/final ABI/JSON in the extended original child positive.
+Six Integer comparison source/envelope/physical/final coordinates share
+existing owners; published-only opcode drift and Object equality coercion
+refuse. Eq/Ne require SAME original complete Integer input agreement.
+Actual first stop is now owner19 LayoutBox.class_capacity/1 Compare entry.
+Both incoming calls are constructor owner3 Body0/1 Value Argument(2),
+recorded in original inventory but pending actuals are NONE.
+Internal design_stop maps existing ProviderStaticArgumentSource through
+same whole-input finisher, sole provider writer and final independent checks.
+Do not fabricate LocalCallObservation, Return membership or Loop evidence.
+Goal remains active; first milestone unchanged mimalloc EXE/run/output/exit
+unmet. Fixed11/selected retirement/R6R7/Loop/required authority/parser and
+nondelegating selfcompile, inherited Mixed/source/physical debts remain owed.
+Detailed original contracts/evidence remain in the SAME active card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "none (user-requested design consultation)"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
