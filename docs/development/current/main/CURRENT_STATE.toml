@@ -18,42 +18,42 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 Required Object Forward S0 remains unaccepted/uncommitted; inherited WIP protected.
-Provider/returned-New/verdict work and all exact evidence/debts stay in SAMEcard.
-Main argv source identity/Parameter/SAME ingress snapshot now reaches final
-bindings, JSON/C/runtime; source Body Homes end before wrapper argv release.
-No synthetic New/Home/receipt/elision. SAME FinishedBindings after validate_complete;
-all lifecycle effects mandatory+recorded, all-block census/CFG lifetime verified.
-V615 ingress optfalse/true+10 driftsPASS, source-issued4JSON EXACT C execution
-inputs. CABI/OBJ/EXE10PASS including normal/argvFault/PrintFault and Home order.
-KernelV6089PASS, runtimeV610 archive6e868626. Root testfn9196 unchanged.
-Selected normal raw argv edge removed; shared compatibility callers retained.
-CLI110 exactV616 build132.858609sPASS/app149.273725s rc1/noEXE,
-binaryf732f64637c1a496fb1ca2be7bb22be54b76b0a228fae719e03dbde2f72a08ed.
-Measured real blocker HakoAllocHeap.realloc/2 MixedHandle(formal0), arity3 correct;
-final role/ABI/JSON/C typed Null/Fresh/Forward and conditional complete End absent.
-Three readonly workers mapped SAME original Mixed witness/Completion/Return
-loans -> final projection, source construction child relation -> existing
-actual/formal/store joint owner; no new MIR tag/Return issuer or side ledger.
-Source Return projection WIP; full runtime/field outcome series still closed.
-V617-620 own compile/fixture REDs corrected using original app loader/closed entry.
-CLI111 source build167.087861sPASS/app152.767664s rc1/noEXE binaryfc278bb1;
-own newgetter operand-correspondence RED, not product progress.
-V621 own nested environment-lock hang terminated with no result. V623 guard
-scope fixed build61.347331sPASS; actualapp getter test193.662248s ownRED:
-Return38 vs original borrowedCall Normal37 at realloc Body3/IfThen1/IfThen0.
-Original LOCAL Copy bridge now anchored by same source Return+Call and captured
-unique definitions; same mandatory relation map, no final-origin inference/Phi.
-V624 build64.211504sPASS not executed; V625 correct auxiliary Copy relation owner
-build53.272094sPASS; actualapp getter+7drift/optfalse/true PASS541.324304s.
-Same root binary a5c32fee;8 original exits/all3 origins checked; no rerun needed.
-BorrowedNullable V626 build68.020704sPASS but ownRED282.40s: mandatory class
-view overstates class-free NullableForwarded. Fixed to optional qualified view;
-no view permission widened. V628 build64.411602sPASS/focused running. V627 build187.427505s
-PASS/focused7PASS/headerlayoutPASS; source/C field transfer/End stillunconnected.
-No Mixed ABI/field/C acceptance or source commit yet. All source/baseline debts
-retained. First milestone unchanged mimalloc EXE/run/output/exit still unmet.
-Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
-selfcompile remain required. No newtestfn/card/guard; full evidence in SAMEcard.
+SAME card owns original source/Completion/argument/cleanup/final correspondence.
+Source-backed main argv reaches final bindings/JSON/C/runtime; source Home End
+precedes wrapper argv release. V615 optfalse/true+10driftsPASS; C10casesPASS;
+kernelV6089PASS and runtimeV610 archive6e868626. Selected normal raw argv edge
+removed; shared compatibility callers retained, no selected-only adapter left.
+Latest measured product CLI111 build167.087861sPASS/app152.767664s rc1/noEXE,
+binaryfc278bb1013ab7d158c26e0dff4e9abb4fa3251162a96865fafbdaa132ac7958.
+Its own strict newgetter Copy correspondence failure is now fixed in focused
+originalapp tests; no subsequent CLI/product progress is claimed.
+Underlying CLI110 ordinary membership frontier is HakoAllocHeap.realloc/2
+MixedHandle(formal0), arity3 correct; typed outcome/field/C consumers unconnected.
+Workers mapped SAME original witness/Completion -> mandatory FinishedBindings,
+source Return/producer/Copy/full Return census; no new MIRtag/issuer/side ledger.
+V625 Mixed originalapp correspondence PASS541.324304s. V626 own overconstraint
+required a concrete class for class-free NullableForwarded; corrected optional
+qualified view, no source-only inference/header permission promotion.
+V628 build64.411602sPASS/originalapp focused621.522589sPASS optfalse/true,
+8Mixed+8BorrowedNullable Returns and12independentdrifts; no ABI admission.
+Kernel field residence pair V627 build187.427505sPASS/focused7PASS/headerlayoutPASS;
+atomic same-slot payload+Null/Fresh/Forward, legacy overwrite/directslot loss refused.
+Source childrelation SAME Rc now rides original argument -> Emitted/FinalizedBirthActual.
+V629 own missing imports RED corrected. V631 build59.916671sPASS/focused5PASS,
+original provided-store owner checks Rc/Clone/unavailable retention/ordinal refusal.
+Root9196/kernel398 testfn unchanged. Sourceclaim issue owner remains793 lines.
+Known pageheap PrefixNotCovered Body0 RED remains exactV522/V518 baseline;
+0-match mistyped filter excluded; all debts/evidence retained in SAMEcard.
+Next: SAME return leaf/acquisition/handoff must retain outgoing borrowed-field
+support across Fresh outer and exact Callactual substitution, through outerlastuse/End.
+Original New prefix pre/post Home and ordered construction pending-formal Fault
+partition must join same actual/formal/store owner; no second Home subtraction/map.
+Mixed/Borrowed ABI, conditional completeEnd, field refinement/anchor and independent
+C lifetime/flow remain closed. No source commit or wholeapp acceptance claimed.
+First milestone unchanged mimalloc EXE/run/output/exit remains unmet; fixed11,
+selected retirement/R6R7/Loop/required authority/parser/nondelegating selfcompile owed.
+Landing classifies tmp/adapters and records actualproofs in sourcecommit before
+completed cardhistory compression. Current first999 card lines protected unchanged.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
