@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/final-source-bound-verdict-handoff"
-current_design_stop = "final-source-verdict-vs-pretransform-report"
+current_blocker_token = "required-object-forward/injected-main-argv-lifecycle"
+current_design_stop = "main-argv-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -24,17 +24,34 @@ Returned-New SAME prefix now retains Fault prior and original post-move Normal
 homes. No ownership inference or new Home/receipt; Fault consumers unchanged.
 V598 build51.941771sPASS and31 uniquePASS including exact sibling identity,
 after-affine source and full final cleanup; no added testfn/guard.
-Latest actual CLI105 exactly matches tested V598 source: build160.743612s,
-app35.050233s rc1/noEXE binary4db57b14 SAME app/FFI/env/direct route.
-Actual reaches artifact callback after mandatory source-bound final verification.
-EXE callback wrongly rejects historical source-less result.verification_result:
-realloc->release Box handle argument drift and owned-Array original slot missing.
-Both independent workers confirm original source slots pass the real final gate.
-Accepted normalization: preserve actual verify_module_with_finalized_root Result,
-propagate Err before commit/callback, lend that Result to artifact consumers,
-matching the existing document lane. Keep normal/compatibility historical report.
-Callback contract and original tests explicitly distinguish these reports; no
-fake Ok, new view field/receipt, type/carrier relaxation or Array exception.
+V600 artifact-verdict focused6PASS; canonical source-bound verdict reaches callback.
+V601 diagnostic-only build62.150387sPASS and existing physical refusal2PASS;
+zero-match filename filter excluded. Root testfn count remains9196.
+Latest actual CLI107 exactly matches tested V601 source: build145.794073s,
+app44.215741s rc1/noEXE binary527667fe SAME app/FFI/env/direct route.
+Exact physical instruction refusal: main/root_i64 bb0 index1 raw NewBox
+ArrayBox dst53 args[]. decls.rs injects declared main args using this legacy
+writer; this is wrapper argv materialization, not the workload handles source.
+Accepted mapping with two read-only workers: same original resolved Main
+identity/Parameter bindings plus SAME Rc ingress snapshot own wrapper arguments.
+Normal materialization now enters original source scope after root frame select,
+before entry adoption. ScriptArgumentsNew builds whole UTF8 Array locally before
+Normal-only owned handle publication; source Body Homes unwind before exact
+wrapper ArrayResidenceRelease suffix. No artificial source New/Home or receipt.
+Same ledger retains original source/entry/frame/Invoke/Normal/Fault/release;
+exact bindings and CFG live/absent checks reach final verifier, ABI/JSON and C.
+V607 build51.022446sPASS; empty/Unicode/NUL snapshot final JSON plus6 drift
+refusalsPASS in existing ingress test. Existing arity test is exact pre-change
+V601 baseline admission-candidate-unavailable; retain expectation debt.
+Own V602/V604 compile and V603/V605/V606 source/final mapping failures corrected;
+V605 provider4 and full document handoff1PASS. Root testfn9196 unchanged.
+C FFI buildPASS; original issued empty/text JSON->CAPI OBJ2PASS.
+Runtime focused kernel V608 build/test pending; final current source tests and
+original app must still be rerun. No argv/S0/app acceptance or Rust commit yet.
+Existing ingress test exceeded800 after extension: moved whole existing owner
+into runtime_inputs_tests leaf (parent704/leaf144); no testfn added.
+Legacy/reference default injector keeps explicit compatibility caller; installed
+normal raw NewBox injection replaced, retirement acceptance still pending.
 First milestone unchanged mimalloc EXE/run/output/exit still unmet.
 Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
 selfcompile and inherited Mixed/source/physical debts remain required.
