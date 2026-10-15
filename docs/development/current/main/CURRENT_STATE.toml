@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/provider-static-input-cohort"
-current_design_stop = "provider-static-actual-through-final-owner"
+current_blocker_token = "required-object-forward/returned-new-fault-normal-prefix"
+current_design_stop = "returned-new-original-fault-normal-projection"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -17,27 +17,27 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-Required Object Forward S0 unaccepted/uncommitted; inherited WIP protected.
-Latest canonical actual CLI102: build141.835236s/app13.775421s rc1/noEXE,
-binary816fa8b4; SAME app/FFI/env pinned in active card and app-v102 receipt.
-CLI102 source exactly matches tested V588: build63.518080s PASS;
-deduplicated84PASS+1 exact preexisting source-child NoIncoming baseline.
-Qualified terminal Calls and whole scalar input now reach the existing
-Static packet/final ABI/JSON in the extended original child positive.
-Six Integer comparison source/envelope/physical/final coordinates share
-existing owners; published-only opcode drift and Object equality coercion
-refuse. Eq/Ne require SAME original complete Integer input agreement.
-Actual first stop is now owner19 LayoutBox.class_capacity/1 Compare entry.
-Both incoming calls are constructor owner3 Body0/1 Value Argument(2),
-recorded in original inventory but pending actuals are NONE.
-Accepted worker mapping: retain SAME ProviderStaticArgumentSource in the
-existing construction plan; stage exact actuals into same scalar finisher;
-retain typed provider emission through same construction payload/final visitor.
-Do not fabricate LocalCallObservation, Return membership or Loop evidence.
-Goal remains active; first milestone unchanged mimalloc EXE/run/output/exit
-unmet. Fixed11/selected retirement/R6R7/Loop/required authority/parser and
-nondelegating selfcompile, inherited Mixed/source/physical debts remain owed.
-Detailed original contracts/evidence remain in the SAME active card.
+Required Object Forward S0 remains unaccepted/uncommitted; inherited WIP protected.
+Provider normalization retains SAME source Rc/actual/publication through the
+construction sole writer and SAME final source payload/borrowed-call visitor.
+V595 build61.602030s, deduplicated35PASS, including original provider final ABI/JSON
+and6 independent physical drift refusals. No new testfn/guard/receipt/Local facade.
+V596 shared canonical Birth owner correction + diagnostic only: build51.815459s,
+34PASS; exact original leaf/prefix refusal boundaries remain covered.
+Latest actual CLI104 matches tested V596 source exactly: build136.076196s,
+app35.753215s rc1/noEXE binarya1a605d8 SAME unchanged app/FFI/env/direct route.
+First stop HakoAllocHeap.allocateResult/1 owner34 Body3 Value returned-New.
+Original object/required-site/arity all match; Fault prior=[binding2], Normal exit=[].
+Source issuer already consumes exactly owned argument Homes on Normal only.
+Accepted normalization: SAME ResultNewHomePrefix retains Fault prior and original
+post-move Normal homes; leaf compares Normal projection with SAME Completion exit.
+Preserve original Fault unwind and exact source/witness/claim/terminal identity.
+Old owner19 Compare guard actual passage is unconfirmed; no product completion.
+First milestone unchanged mimalloc EXE/run/output/exit remains unmet.
+Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
+selfcompile and inherited Mixed/source/physical debts remain required.
+Detailed contracts/evidence and prior unfinished provider/app obligations remain
+in the SAME active card; goal active and fast mode selects the accepted source seam.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
