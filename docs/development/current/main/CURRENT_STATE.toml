@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/scalar-source-coverage"
+current_blocker_token = "required-object-forward/ordinary-membership-drift"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,42 +17,42 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted; inheritedsourceWIP protected; SAMEcard owner.
-Argvsource->bindings/JSON/C/runtime connected; V615 bothopts+10drifts/C10PASS;
-kernelV6089/runtimeV610, selectedrawargv edge retired; sharedcompat retained.
-V641 actualsourcecontext CandidateSlice/LedgerOriginal/SourceOnly built/45PASS.
-Exactclaim/commit before/afterTake; nullable exactsameowner root/indexErr retained.
-Same originalchildRc/formal/witness supports composed/rechecked; localescape refused. Shared originaldeclaration/fullinput owner used; numeric/SourceInstance guards kept.
-ConstructionChildArgument source-only; field/Birth borrowedconsumer stillowed.
-Same original Return result/ordinal/outcomes retainedinexactphysical roles/JSON. V648 originalapp Returnrole/JSON bothopts+12driftsPASS645.16s; separatefromnewclosure.
-KeepAlive metadata Rust/JSON/C no-op; C16+13+11variantsPASS, FFIe55/runtimeV610.
-V649 INLINE EndSteps sharedprojector/source+structural7PASS, onlyouterSSA rewrite.
-V650-659 BorrowedNullable formalReturn SAMErows/Copies ->existingborroweduse occurrences; independentmodule/published observe+coverage; Integerguardkept.
-Productionmodulescanner sharedwithacceptance; duplicatedfixturescanner removed. V651/652 sourcefixtureTerminalHomesUnavailable RED removed, noapprewrite. V653 longtest interruptedforfixturecoordinatefix; V654 ownvisibilitycompileRED fixed.
-V655 actualapp306.33sRED object-view: qualifiedinput viewlostbyoldglobalonlygetter. V656 same sourceclassview lent ONLY nonemptyExecutable incoming; mixedinputs join
-existing peractualclassdomain check; declared/global unchanged, passive/empty/tagged
-inferredview closed. Build57.886175sPASS/33focusedPASS. Actualapp400.52sRED now
-unproved-copy; exactformalFieldWrite materialization/finalclosure remainsunconnected.
-PhysicalEnd now SAMEsourcecleanup/FinishedBindings fullInvoke census, notopcodepermit. Rootnormal/pendingFault, retainedCallFault groups andOrdinary/Result NewFault bindings
-alllentaftertheir existingvalidators, recorded+actualfullbindingmatch; noTakenretry. Ordinary/Result verifier extractedunchanged; inverse matchesV658 preimageSHA4747e529. Bothinstruction/terminator consumers; missing/allgone/duplicates/foreignsource closed.
-CLI113 build217.253571sPASS/app158.750772s rc1 sourcecoverage exposedmissingFaultfamilies. V658 longapp286.03sRED sameEndsourcecoverage; oldrootonlylender supersededbyall3families.
-V659 build74.102101sPASS/33focusedPASS; V660 build54.467056sPASS/scalarobserver1PASS.
-Latestactual CLI114 build150.349074sPASS/app153.958952s rc1/noEXE, unchangedappSHA33d3.
-Binary5a28cd22376511238c4af7c79905ee91ec7704a59e4095339dceb501b3c96643;
-Endsourcecoverage advancedto scalar-source-coverage. FFIe55/runtimeV610 unchanged.
-CLI115 build149.721432sPASS/app162.367243s rc1/noEXE; binary144e1f4efa4a43da26292a47dd3f5c76f243f0279b3d91d9539d8dbfc612377d.
-Exactstop HakoAllocPage.allocate/1 bb184 Sub dst26 lhs21 rhs24: actual1/source0.
-V659 appoptfalse Endsource/census+3drifts passed beforeformalclosure RED402.33s:
-resizeInPlace bb249 index3 Copy dst60 src1 unproved; bothopts/fullclosure unaccepted.
-Scalarissuer LOCAL initializer rootSub/Div only; allocate FieldWrite RHS Sub is
-outside its sourceinventory. ScalarandborrowedFieldWrite share missing source/writer connection.
-Next: SAME originalassignment receiver/value loans ->soleFieldSet/LocalSSA pin rows
-->existinglifecycle/FinishedBindings ->bothclosure scans; connect RHS scalarthrough
-same scalarloan owner, without pretendingfieldwrite islocalinitializer. No finalMIR/sourceStamp/Copywhitelist.
-Mixed/BorrowedInvoke/EndJSON Cgate CLOSED; anchoredForwardfield End closed. New pre/postHome/orderedFault partition andtypedchildsupport stillowed.
-Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained. Root9196/kernel398. First milestone unchangedmimalloc unmet; fixed11/retirement/R6R7/Loop/authority/
-parser/nondelegating selfcompile owed. Sourceproofs landwithcoherentseries; tmp/
-adapters classifiedthenhistorycompressed. First999cardlines protected.
+RequiredObjectForwardS0 unaccepted; cumulative sourceWIP protected/unlanded.
+Earlier evidence/status checkpoint fec1b2c3f0; SAMEcard owner and fullgoal retained.
+Argv source/JSON/C/runtime connected; selectedrawargv retired, sharedcompat retained.
+Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth stillowed.
+Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI notcomplete.
+KeepAlive Rust/JSON/C metadata connected; FFIe55/runtimeV610 unchanged.
+ConditionalEnd SAMEsource rootnormal/pendingFault+CallFault+NewFault allfamilies
+->FinishedBindings/fullactual census connected. EndJSON/C remainsclosed.
+BorrowedNullable formalReturn closure joined; originalapp stillunproved-copy at
+resizeInPlace bb249/index3 Copy(dst60,src1), normalFieldWrite binding stillowed.
+V661-668 FieldWrite scalarRHS now SAME originalAssignment Rc/sharedHome expression
+->existing ScalarAppend/LocalSSA/FinishedBindings. NonBirth originalSubDiv nodes
+select both seed suppression/verifiedwalk, allRHS SubDiv typedI64; Div positive
+literalonly. Complete sourcefieldbatch precedesatomicinstall. No fakeinitializer.
+Nonarith oldneutral retained. EmptyBirth/Sub now refuses actualscalarproof;
+neutral coverage splitfrom fullBirth finalscalar observer, notcompatibilityclaim.
+Owncompile/participation RED661-664 corrected665; invalidspare Birth fixture666
+corrected667. V668 build62.517396sPASS/6focusedPASS, root9196unchanged.
+Bothopts simple+nested2/3 originals/SAMERc/finalmissing+operator drifts checked;
+Div0/negative/variable andBoolSub refused. OwnerREADME updated.
+CLI116 build163.327996sPASS/app147.204948s rc1/noEXE, regular --emit-exe direct
+purefirst/noreplay; appSHA33d3/FFIe55/runtimeV610 unchanged. Binaryb7be5a89.
+Frontier advanced scalar-source-coverage ->ordinary-membership-drift:
+resizeInPlace/2 sourceBorrowedNullableHandle formal0 vs signatureVoid.
+Generic finalizer mergesNull Void+formalUnknown; tagged source result absent
+from existingbodyresulttoken. Next SAMEoriginal formalReturn key/ordinal/allRc
+roots+canonicalCompletion ->shared callable resultproduct ->existingfinalizer
+retainsUnknown carrier; no publisherrepair/Voidacceptance or input/Call permission.
+Then originalFieldWrite+guard frame in sharedHomeExpressionPlan ->existing
+LifecyclePrefix/bindinggroup ->solewriter actualpinrelations+FieldSet ->same
+FinishedBindings ->bothborrowedclosure scans; no newregistry/receipt/Copywhitelist.
+AnchoredForwardfield End closed; fieldpair/Birth exactsupport/prepostHome/Fault
+partition owed. First milestone unchangedmimalloc EXE unmet; fixed11/retirement/
+R6R7/Loop/authority/parser/nondelegating selfcompile remainrequired. Sourceproofs
+landwithcoherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
+First999cardlines SHAprotected; allCargo/rustc/test/app handles terminal.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
