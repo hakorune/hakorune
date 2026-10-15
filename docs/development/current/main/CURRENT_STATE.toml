@@ -18,16 +18,14 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 unaccepted; cumulative sourceWIP protected/unlanded.
-Earlier status checkpoint714f53346d; SAMEcard owner/fullgoal retained.
+Earlier status checkpoint80c4540464; SAMEcard owner/fullgoal retained.
 Argv source/JSON/C/runtime connected; selectedrawargv retired/sharedcompat kept.
 Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth owed.
 Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI unfinished.
 KeepAlive Rust/JSON/C metadata connected; FFIe55/runtimeV610 unchanged.
 ConditionalEnd allfamilies->FinishedBindings/fullcensus connected; EndJSON/C owed.
 FieldWrite scalarRHS originalAssignment/sharedHome->ScalarAppend/LocalSSA/FinishedBindings.
-Nullable originalReturn key/formal/allRc+Completion->sharedbodytoken Unknown;
-noLOCALinputdemand/publisherrepair. Two unused scalar facades removed; V6754PASS.
-Earlier correctedfixtures/baseline evidence retainedin activecard, notacceptance.
+Nullable originalReturn+allRc+Completion->bodytoken Unknown; noLOCALdemand/repair.
 Arrayread SAME descriptorRc/residenceRc/emission->lifecyclecapture/FinishedBindings
 ->finalfieldroute; current originalprovider redemanded. No-rowowners needno
 finishing; no readloan storepermission. V676 build67.660263s/V677 build62.518666s
@@ -39,12 +37,14 @@ CLI119 build161.754987s/app165.951872s rc1/noEXE binary662fbe26; sameappSHA33d3/
 FFIe55/runtimeV610. Frontier field-get-route-drift ->array-set-unsupported.
 CLI120 diagnosticbuild152.745774s/app150.557180s rc1/noEXE binaryed07ad1a:
 seedBlocks/0 bb263/index3 Push MethodCall site0 receiver27/value29; routeexact.
-Sourcegap: NoExit proof dropsperPush originalRc/actualpriorHomes/Fault source.
-V679sourceprep126.822364s/2focusedPASS; V68093.180814s/1focusedPASS:
-actualHomes/orderedPushRc/LoopCallFault->sameSourcePlan+canonicalHomeproofRc.
-AfterTake sameRc retained; no registry/replanner/secondCompletion/emptyHomes.
-Next SAMEproof/Completion->checkedInvoke/canonicalHomeEnd order->FinishedBindings->
-function+coord issuedwrite/ABI/JSON->C exactArrayresidence +checked_append_i64.
+NoExit actualHomes/orderedPushRc/Fault+originalI64tree retained SAMEproofRc
+in SourcePlan/canonicalHomeflow afterTake; source loan joins SAMECompletion.
+V683build93.297273s/2PASS; Endhelper preserves complete sourceHome order.
+V685build86.386512s/40unique focusedPASS/root9196 unchanged; ownReds corrected.
+Sole normalizer retains originalLiteral/Binding/Add->actualoutput; existing
+ExactLexicalRead consumedonce. Freshen changes cloneprojection only, notsourceRc.
+Next actualproducer/LocalSSA pins->checkedInvoke/Endcleanup->FinishedBindings->
+function+coord issuedwrite/ABI/JSON/C indexedresidence+checked_append_i64.
 Old BorrowedTagged directset/numericguard/store arms retain separate source-use
 obligations; 2regressions abovePASS, callerzero retirement stillowed.
 Then SAME FieldWrite+guard sharedHomeframe->LifecyclePrefix/bindinggroup->real
@@ -53,7 +53,7 @@ Fieldpair/Birth exactsupport/prepostHome/Fault and EndJSON/C stillowed.
 First milestone unchangedmimalloc EXE unmet; fixed11/retirement/R6R7/Loop/
 authority/parser/nondelegating selfcompile remainrequired. Sourceproofs landwith
 coherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
-First999cardlines SHAprotected; allhandles terminal; physical/ABIJSON/C notwired.
+First999cardlines SHAprotected; allhandles terminal; actualEXE remainsCLI120/noEXE.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
