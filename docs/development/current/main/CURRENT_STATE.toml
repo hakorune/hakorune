@@ -18,7 +18,7 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 unaccepted; cumulative sourceWIP protected/unlanded.
-Earlier status checkpoint80c4540464; SAMEcard owner/fullgoal retained.
+Earlier status checkpoint52bad7c66e; SAMEcard owner/fullgoal retained.
 Argv source/JSON/C/runtime connected; selectedrawargv retired/sharedcompat kept.
 Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth owed.
 Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI unfinished.
@@ -37,14 +37,14 @@ CLI119 build161.754987s/app165.951872s rc1/noEXE binary662fbe26; sameappSHA33d3/
 FFIe55/runtimeV610. Frontier field-get-route-drift ->array-set-unsupported.
 CLI120 diagnosticbuild152.745774s/app150.557180s rc1/noEXE binaryed07ad1a:
 seedBlocks/0 bb263/index3 Push MethodCall site0 receiver27/value29; routeexact.
-NoExit actualHomes/orderedPushRc/Fault+originalI64tree retained SAMEproofRc
-in SourcePlan/canonicalHomeflow afterTake; source loan joins SAMECompletion.
-V683build93.297273s/2PASS; Endhelper preserves complete sourceHome order.
-V685build86.386512s/40unique focusedPASS/root9196 unchanged; ownReds corrected.
-Sole normalizer retains originalLiteral/Binding/Add->actualoutput; existing
-ExactLexicalRead consumedonce. Freshen changes cloneprojection only, notsourceRc.
-Next actualproducer/LocalSSA pins->checkedInvoke/Endcleanup->FinishedBindings->
-function+coord issuedwrite/ABI/JSON/C indexedresidence+checked_append_i64.
+USERPAUSE: sourceWIP protected; noCargo/rustc/test live; resumeonlyonpermission.
+SAME NoExit proof/Completion/sourceI64tree ->sole normalizer output retained.
+Freshen remap nowrequires private solefreshener maploan, not arbitraryFnMut.
+SelectedFieldPush->checkedInvoke/fullFaultEnd/sourceprefix/group WIP connected.
+ImplicitUnit source joins SAMEFieldLoop proof withoutinventedUnitCall/Completion.
+V692build59.099007sPASS; typedproviderRED optfalse beforecallback/finishing=false:
+Holder.seed/0 Phi v11 bb56 capturedinputs[] vscompleted[(bb55,v10),(bb58,v12)].
+Next solePhiwriter completion ->sameLocalSSA provenance/capture; noPhi skip.
 Old BorrowedTagged directset/numericguard/store arms retain separate source-use
 obligations; 2regressions abovePASS, callerzero retirement stillowed.
 Then SAME FieldWrite+guard sharedHomeframe->LifecyclePrefix/bindinggroup->real
@@ -53,7 +53,7 @@ Fieldpair/Birth exactsupport/prepostHome/Fault and EndJSON/C stillowed.
 First milestone unchangedmimalloc EXE unmet; fixed11/retirement/R6R7/Loop/
 authority/parser/nondelegating selfcompile remainrequired. Sourceproofs landwith
 coherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
-First999cardlines SHAprotected; allhandles terminal; actualEXE remainsCLI120/noEXE.
+First999cardlines SHAprotected; ABIJSON/C unwired; actualEXE remainsCLI120/noEXE.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
