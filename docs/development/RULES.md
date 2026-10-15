@@ -127,6 +127,7 @@ Non-claims:
 ## 9. 完了の定義
 
 - **slice closeout:** 選択ownerのpositive/negative evidence、要求guard、赤の分類、owner docsが揃う。内部sliceの契約準備や局所greenは製品成果に数えず、sourceから最終consumerへの接続と選択旧責務の退役を終えるまで本番置換seriesは未完とする。
+- 着地時に`/tmp`の証拠と退避adapterの保持・退避・廃棄を判定する。必要な検証条件・結果を着地commitへ残し、cardの完了履歴はそのcommit参照へ圧縮する。`/tmp`のpathとSHAだけを完了証拠にせず、未完の条件と必要な一時物は保持理由・退役条件を残す。
 - **MirBuilder migration complete:** 必須workstream rowが全て閉じ、実sourceからcanonical Facts/Recipe/verification、sole physical owner、publicationまで到達する。選択production callerが切替済みで、選択旧edgeが退役し、要求されたend-to-end acceptanceが記録されている。
 - 削除予定をtaskboardに残しただけではmigration完了にしない。
 - 進捗はproduction callerの切替、重複責務の解消、旧edgeの削除、実sourceのfirst-stopの変化と検証で報告する。前提契約だけが進んだ時はその旨と未達の実source条件を記し、commit/file/test数だけを根拠にしない。
