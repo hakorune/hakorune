@@ -44,5 +44,9 @@ semantic authority. Parser AST names, mutable compiler maps, callable lookup
 misses, Program JSON strings, and physical MIR types are not alternate Brand
 classifiers.
 
-Flow-sensitive mismatch checks and implicit-conversion diagnostics remain later
-verifier work; they do not weaken explicit construction or unwrap semantics.
+Stage1 already checks a bounded set of same-program Brand argument mismatches
+before Program JSON v0 lowering. This is not a general flow-sensitive guarantee
+or proof of every EXE route. Broader mismatch and implicit-conversion diagnostics
+remain later verifier work; they do not weaken explicit construction or unwrap
+semantics. Current check timing and scope are recorded in the
+[type-contract status ledger](../../development/current/main/workstreams/type-contract-status.md#check-timing-and-scope).

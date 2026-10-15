@@ -1,6 +1,6 @@
 ---
 Status: Active implementation ledger
-Date: 2026-09-06
+Date: 2026-10-16
 Scope: Mutable Language v1 type-contract activation, carrier, backend, and representation-consumer status.
 Normative-Law: docs/reference/language/types.md
 Code-Matrix: src/mir/type_contracts/guarantee_matrix.rs
@@ -26,6 +26,22 @@ All five families are rebuilt and validated by
 `semantic_refresh::refresh_and_validate_for_boundary`. Runtime-check elision is
 not active for parameter, return, or local contracts. Unsupported backends
 must reject before effects.
+
+## Check Timing and Scope
+
+Checked against the current source on 2026-10-16; no compiler execution was
+performed for this documentation audit. These are distinct checks, not a claim
+that every annotation or product EXE route has the same support.
+
+| Surface | When checked | Current scope and evidence |
+| --- | --- | --- |
+| `brand Name: Type`, constructor / unwrap | Effective declaration inventory fixes nominal identity; membership and arity precede argument evaluation. | [Brand law](../../../../reference/language/brands.md). Stage1 also checks bounded same-program argument mismatches before JSON v0 lowering ([authority](../../../../../src/stage1/program_json_v0/authority.rs), [checker](../../../../../src/stage1/program_json_v0/brand_checker.rs)); broad flow-sensitive checking and product coverage remain separate. |
+| Exact-numeric annotations, including `i64` | Local init/reassignment before publication; callee entry before binding/effects; final return outcome before caller publication; field before mutation; record construction/update before publication. | The five families above are active in the semantic/reference island ([code matrix](../../../../../src/mir/type_contracts/guarantee_matrix.rs)). Dynamic `Integer(i64)` values do not imply full exact-width arithmetic or every backend. Unsupported consumers reject before effects. |
+| `Option<T>` constructors | Stage1 checks required expected-type context, payload arity and statically known nullish payloads. The language also requires nullish `Some` rejection at construction when not known statically. | [Option law](../../../../reference/language/option.md#semantics); [local lowering](../../../../../src/stage1/program_json_v0/lowering/statements.rs) and [expression support](../../../../../src/stage1/program_json_v0/lowering/expr_support.rs). This does not activate generic payload checks at every `Option<T>` annotation site or establish EXE coverage. |
+
+An omitted annotation still means the dynamic `Any` contract. Semantic
+annotation guarantees, Stage1 source diagnostics, runtime value representation,
+and selected backend capability must be reported separately.
 
 ## Remaining Annotation Sites
 

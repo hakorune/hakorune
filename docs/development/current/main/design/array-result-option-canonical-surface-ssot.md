@@ -59,7 +59,9 @@ Rules:
 - `Array<T>` is the canonical ordinary typed collection spelling.
 - `T[]` is non-canonical compatibility / low-level static-table spelling.
 - `Vec<T>`, `List<T>`, `array<T>`, and `new Array<T>()` are not canonical.
-- `[]` needs a typed context in canonical code.
+- Unannotated literals create ordinary `AnyDefault` Arrays without an inferred
+  semantic element contract. Supported explicit `Array<T>` attaches that
+  contract; unsupported explicit annotations fail without an AnyDefault fallback.
 - `ARRAY-002A` implements the canonical typed `Array<T>` local method contract:
   `push(value)`, `get(index)`, `set(index, value)`, and `length()`.
 - `ARRAY-002B` implements direct element checks for typed `Array<T>` literal,
@@ -70,19 +72,20 @@ Rules:
   keeps `PackedArray<T>` no-fallback behavior fixed.
 - `len()` / `size()` aliases are not canonical typed `Array<T>` source.
 
-Canonical empty array:
+Canonical explicitly typed empty array:
 
 ```hako
 local ids: Array<PageId> = []
 ```
 
-Non-canonical / fail-fast until a later inference row:
+Canonical unannotated empty array (ordinary `AnyDefault`):
 
 ```hako
 local ids = []
 ```
 
-Non-empty literal inference is also deferred. Prefer:
+Homogeneous non-empty literals likewise do not infer a semantic element
+contract. State that contract explicitly when required:
 
 ```hako
 local ids: Array<i64> = [1, 2, 3]

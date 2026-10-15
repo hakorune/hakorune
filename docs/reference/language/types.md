@@ -197,10 +197,12 @@ Current live semantics are intentionally narrow:
   for real exact numeric `FieldSet` producers after optimization and before
   verification. The VM interpreter executes existing contracts at `FieldSet`
   sites and rejects non-integer, negative-unsigned, and out-of-range dynamic
-  values before mutation. Param/local verifier checks, contract
-  insertion/lowering beyond exact numeric field-write contracts, backend
-  lowering/execution of those contracts, and exact VM runtime values remain
-  deferred. Unsupported non-VM backend routes fail fast instead of silently
+  values before mutation. Parameter entry, return exit, local
+  initialization/reassignment, and record construction/update have distinct
+  boundary contracts as well; their active types and backend consumers are
+  recorded in the [type-contract status ledger](../../development/current/main/workstreams/type-contract-status.md).
+  These contracts do not require exact-width runtime value storage.
+  Unsupported backend routes fail fast instead of silently
   dropping exact numeric runtime-check contracts, exact numeric typed-object
   storage, or exact numeric operation route facts.
 - MIR numeric substrate policy now defines checked exact numeric add/sub/mul:
@@ -216,10 +218,10 @@ Current live semantics are intentionally narrow:
 
 Deferred and not accepted by this row:
 
-- param/local verifier checks, runtime-check insertion/lowering beyond exact
-  numeric field-write contracts, backend exact numeric lowering/execution,
-  exact runtime unsigned range construction, and product-backend unsigned
-  arithmetic execution
+- exact-width runtime value storage, exact runtime unsigned range construction,
+  and product-backend unsigned arithmetic execution; boundary-contract
+  activation and backend preservation are tracked separately in the status
+  ledger above
 - route-fact wiring for exact numeric params/locals/control merges
 - `u64` values outside signed i64
 - product-backend exact numeric arithmetic/compare/shift routes and wrapping /

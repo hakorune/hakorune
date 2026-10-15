@@ -12,7 +12,7 @@ Design shorthand:
 - **Everything has a boundary.**
 - **No hidden crossings.**
 
-Key boundary tools include `record`, `box`, `sync box`, `co`, `nowait`, `await`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes. Older legacy-era documents used “Everything is Box”; the current Hakorune reading is broader: boxes are one important boundary, not the only boundary.
+The language design uses `record`, `box`, `sync box`, `co`, `nowait`, `await`, `Channel<T>`, `Result<T,E>`, `brand`, and capability routes as boundary tools. Concurrency remains experimental; see [its current scope](#concurrency-experimental). Older legacy-era documents used “Everything is Box”; the current Hakorune reading is broader: boxes are one important boundary, not the only boundary.
 
 Current development truth:
 - Active lane / blocker / latest card: `docs/development/current/main/CURRENT_STATE.toml`
@@ -265,7 +265,7 @@ cargo build --release --features cranelift-jit
 <a id="philosophy"></a>
 ### 🎯 **Boundary-First Philosophy**
 
-Hakorune’s current slogan is **Small surface, strong boundaries.** The older legacy-era phrase “Everything is Box” still explains part of the culture: `box` is the identity/object boundary. The current language surface is broader and more precise:
+Hakorune’s current slogan is **Small surface, strong boundaries.** The older legacy-era phrase “Everything is Box” still explains part of the culture: `box` is the identity/object boundary. The language design describes these boundaries:
 
 - `record` is an identity-free value boundary.
 - `box` is an identity and behavior boundary.
@@ -470,21 +470,17 @@ local hero = new GameCharacter("Neko")
 hero.learnSkill("Fire Magic").learnSkill("Healing")
 ```
 
-### Modern Async/Await
-```nyash
-// Structured Future ownership. This is not an OS-thread spawn promise.
-co {
-    local task1 = nowait fetchDataFromAPI()
-    local task2 = nowait processLocalFiles()
+### Concurrency (experimental)
 
-    // Do other work while waiting
-    updateUI()
+Concurrency is outside the selfhost v1 subset. The current Rust parser accepts
+the statement `nowait name = expression` and an `await` expression. The Phase-0
+Future implementation evaluates sequentially and wraps a resolved value; it
+does not yet provide source-level parallel execution.
 
-    // Collect results
-    local apiData = await task1
-    local files = await task2
-}
-```
+See the [concurrency reference](docs/reference/concurrency/semantics.md) for the
+design, the [current implementation scope](docs/development/current/main/design/concurrency-async-pre-selfhost-ssot.md)
+for supported routes, and the [selfhost v1 boundary](docs/development/current/main/design/selfhost-language-v1-freeze-ssot.md)
+for what the compiler bootstrap requires.
 
 ### Delegation Pattern
 ```nyash

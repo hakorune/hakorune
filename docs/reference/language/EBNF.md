@@ -208,9 +208,9 @@ assign_primary:= IDENT | 'me'
 assign_tail   := '.' IDENT
                | '[' expr ']'
 compound_assign_op := '+=' | '-=' | '*=' | '/='
-                  ; C199: compound assignment is default surface sugar.
-                  ; It lowers to ordinary assignment with the corresponding
-                  ; binary operation. Plain assignment remains canonical.
+                  ; Evaluate the target Place exactly once and read it, then
+                  ; evaluate the RHS, apply the operation, and store through that
+                  ; same Place. See semantic-kernel.md; no lvalue AST cloning.
 
 ; Semantic constraints:
 ; - local declarations with '=' are single-binding only (`local x = expr`).
@@ -352,11 +352,12 @@ Notes
   expression. It must not be treated as an alias for short-circuit '&&' / '||'.
 - Unary minus has higher precedence than '*' and '/'.
 - IDENT names consist of [A-Za-z_][A-Za-z0-9_]*
-- Array literal syntax is canonical. An explicit supported `Array<T>` context
-  creates a Typed Array element contract; without one the value is an ordinary
-  `AnyDefault` Array. Homogeneous element inference is representation evidence
-  only and never creates a semantic contract.
-- Map literal is enabled when syntax sugar is on (NYASH_SYNTAX_SUGAR_LEVEL=basic|full) or when NYASH_ENABLE_MAP_LITERAL=1 is set.
+- Array literal syntax is canonical. Unannotated literals create ordinary
+  `AnyDefault` Arrays; an explicit supported `Array<T>` context creates a Typed
+  Array element contract. Unsupported explicit contracts fail rather than fall
+  back to AnyDefault. Homogeneous inference is representation evidence only.
+- Map literal syntax `%{...}` is accepted by the current Rust parser without
+  an environment gate. Parser acceptance does not establish backend support.
 - Identifier keys in map literals are out of v1 scope (string keys only): use `%{"name" => v}`.
 - Pattern matching: `match` replaces legacy `peek`. MVP supports wildcard `_`, literals, simple type patterns, fixed/variadic array heads `[hd, ..tl]`, simple map key extract `{ "k": v, .. }`, OR patterns, and guards `if`.
 - Known-enum shorthand: `Some(v)` / `None` is accepted only when the arm set resolves to a known enum declaration in the current source inventory.
@@ -431,24 +432,29 @@ me.count += delta
 array[0] += 2
 ```
 
-They are pure surface sugar for the existing assignment form:
+Their meaning is defined by the semantic kernel's
+[Evaluated Place contract](semantic-kernel.md#compound-assignment). For
+`target += rhs`, evaluation proceeds as follows:
 
-```hako
-target += rhs
+```text
+place = EvalPlace(target)
+old = ReadPlace(place)
+value = Eval(rhs)
+new = Apply(old, +, value)
+WritePlace(place, new)
 ```
 
-lowers as if the source had been written:
-
-```hako
-target = target + rhs
-```
-
-with the corresponding binary operator for `-=`, `*=`, and `/=`.
+The target receiver/index is evaluated once, and its old value is read before
+the RHS. The same Place receives the store. `-=`, `*=`, and `/=` use their
+corresponding operator. Rewriting to `target = target + rhs` is not equivalent
+when target evaluation has effects; an AST shape cannot replace this contract.
 
 Stop line:
 C199 does not add a new overflow policy, allocator-specific meaning, hidden
-atomic read-modify-write behavior, or special backend route. The canonical AST
-shape remains `Assignment { value: BinaryOp { ... } }`.
+atomic read-modify-write behavior, or special backend route. Unsupported
+Place/store routes fail as specified by the kernel. Current parser/lowering
+conformance belongs to `LANGV1-PARSER-DOC-SYNC-R0`; the historical lvalue-cloning
+AST is implementation debt, not the canonical semantic form.
 
 ### C200 Guard Else Surface
 
@@ -791,7 +797,9 @@ Rules:
 - `Array<T>` is the ordinary typed collection spelling.
 - `PackedArray<T>` requests packed residence and must fail-fast if unsupported.
 - `Option<T>` and `Result<T,E>` are enum surfaces, not exception/null sugar.
-- `[]` requires typed context in canonical code.
+- Unannotated `[]` creates an ordinary `AnyDefault` Array. Explicit supported
+  `Array<T>` attaches an element contract; unsupported explicit annotations
+  fail instead of falling back. No semantic element type is inferred.
 - `Array<T>` locals support the canonical methods `push(value)`, `get(index)`,
   `set(index, value)`, and `length()`; name/arity diagnostics are Stage1-owned.
 - Direct literal / `push` / `set` element values are checked for typed

@@ -156,7 +156,8 @@ Collections and failure values
 - `record` is not an ordinary mutable owner replacement. Use `box` for
   identity, lifecycle, methods, and DirectArray ownership; use `record` for
   identity-free state/data bundles that remain inside an accepted record lane.
-- `local xs: Array<T> = []` — typed-context Array literal; `local xs = []` fail-fasts
+- `local xs = []` — ordinary `AnyDefault` Array; an explicit supported
+  `local xs: Array<T> = []` attaches a typed element contract
 - `xs.push(v)`, `xs.get(i)`, `xs.set(i, v)`, `xs.length()` — canonical typed `Array<T>` methods
 - direct literal / `push` / `set` values are checked against typed `Array<T>` when known
 - unresolved generic element contexts such as `Array<T>` fail-fast until a later generic row

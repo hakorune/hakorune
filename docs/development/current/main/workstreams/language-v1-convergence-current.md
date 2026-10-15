@@ -1,6 +1,6 @@
 ---
 Status: Implementation parked; C-1 observation authorized separately
-Date: 2026-10-12
+Date: 2026-10-16
 Scope: Hakorune language v1 semantic convergence before selfhost migration.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -67,6 +67,43 @@ separation and proof retirement extend existing
 Selfhost source migration follows the existing
 [unified resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order).
 No duplicate taskboard, per-example card, or new verification ledger is added.
+
+## Selfhost usability audit (2026-10-16)
+
+Decision: fix stale descriptions and reuse existing tasks; no new language
+feature, implementation selection or goal resume. Three read-only workers
+checked references/source at `88001cbb1e89ddd617dca63de44138c712d45753` plus
+retained WIP. No builds or runtime probes; MirBuilder remains paused.
+
+| Finding | Judgment / existing owner | Completion evidence when selected |
+| --- | --- | --- |
+| Structured data | Record escape is restricted, with narrow typed-helper scalarization. Ordinary Box/Array/Map carriers exist; intrinsic owning Map slots are already accepted. Type/C-5 and [compiler-library backlog](../design/rust-to-hako-converter-implementation-role-ssot.md#compiler-library-completion-backlog) rows 1/4 own the gaps. | Argument/result/storage/selected-EXE support matrix by carrier. Switch scanner producer and callers together, delete delimiter packing/reparse, preserve position/Unicode/error contracts. Existing ParkedSealed gates stay; no new record ABI prerequisite. |
+| Absence | Keep Option/Result/Unit and explicit null migration in Failure/Outcome. Slot state, [internal no-match text](../design/hako-option-null-no-match-policy-ssot.md) and API search miss `-1` are different concepts. | Classify each boundary/profile before migration; no global sentinel replacement. |
+| Bool / operators | Bool and runtime short circuit already exist. Precedence drift is real: reuse `LANGV1-PARSER-PRECEDENCE-R0` and Coercion/Equality. | Dual-parser witnesses for logical/bitwise/additive/shift precedence; runtime skipped-RHS effects. Future Bool-only versus Bool+Integer truthiness remains open; no blanket 0/1 rewrite. |
+| Type annotations | Checks are partly implemented, beyond name reservation. Type row owns the [Brand/i64/Option timing table](type-contract-status.md#check-timing-and-scope). | Separate Stage1 diagnostics, reference contracts, representation and EXE capability; unsupported backends reject before effects. |
+| Home reassignment / Shared | Rebinding/replacement and Shared representation remain open; lexical assignment, share +1 and final-owner laws are decided. Existing [Home D0 tasks](../investigations/hakorune-home-ownership-task-2026-08-04.md) own these. | `OWN-FIELD-CONTAINER-DEST-D0` / `OWN-HOME-SURFACE-D0`: aliases, replacement and Fault/loop/join cases. `OWN-HOME-REPRESENTATION-D0`: layout preserving share/release/weak/affinity laws. |
+| EBNF omissions | Static box, contextual method, break/continue, `%`, binary bitwise and async need inventory synchronization. Method declarations and unary `~` already appear. | `LANGV1-PARSER-DOC-SYNC-R0`: productions, both parsers and profile witnesses; usage counts do not grant admission. Async stays outside selfhost v1. |
+| Option sugar | Match and single-payload guard express absence; Option `?` remains rejected, Result `?` separate. Rust accepts both bare None and `None()`. | Existing grammar/Failure owners keep bare `Option::None` in reference examples. Rejecting parentheses or adding sugar needs a separate decision. |
+| Concurrency | README's invalid expression-form nowait example is removed; parser statement form and sequential/resolved Future scope are documented. | H-2/C-4 owns verified user examples; `CONC-*` owns implementation. Parser/thread-substrate support is not source parallelism. |
+
+Contradictions and retirement tasks:
+
+| Drift | Disposition / existing owner |
+| --- | --- |
+| Compound assignment | EBNF/profile prose corrected to Place -> read -> RHS -> operation -> store. Kernel law is unchanged; parser/lowering convergence stays in Doc-Sync. |
+| Untyped `[]` | Four stale views corrected to unannotated AnyDefault versus explicit typed contract. Unsupported explicit annotations never fall back. This is not a new inference feature or EXE result. |
+| catch / cleanup / fini registry | Real drift; Canonical `try` is reserved. Keep registry, projections and dual-parser corpus updates together in `LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0` / `OWN-HOME-REFERENCE-CLOSEOUT0-DOC0`. No isolated registry edit. |
+| Environment gates | Map literal is already ungated; old EBNF claim removed. Semicolon, grouped assignment and legacy String byte/codepoint gates remain live. Existing Separator queue, `LANGUAGE-STAGE3-ENV-GATES-SUNSET-001` and String owner must inventory reader/profile/meaning/cutover; no blanket flag changes. |
+
+Evidence limits: `rg -l --glob '*.hako' '\.substring\(' lang/src/compiler`
+finds 135 files, including possible comments; this is neither a JSON-parser
+count nor proof of causation. Other reported counts were not reproduced.
+C-1 below remains a dated observation, not present-HEAD support.
+
+Docs checks PASS: added links/fragments, tables, immutable history reference,
+`current_state_pointer_guard.sh`, grammar projection `--check`, and
+`git diff --check`. Existing FULL-gate path selection finds no sensitive path;
+Cargo was not invoked.
 
 ## Priority Decision
 
@@ -172,30 +209,23 @@ Full detail is retained in this file at immutable commit
 [closed Script-tail card](../investigations/script-result-tail0-s0-execution-task-2026-07-25.md).
 All unfinished branches remain below.
 
-The durable function-exit queue is:
+Closed function-exit milestones: RETURN0/DRAFT-SEAL, Script-tail,
+ENTRY-RESULT-PROJECTION0-S1/S2/S3, OLD-RAW-RETIRE0-R0A/R0B, and the
+NORMAL-ENTRY D0/profile/canary/parity/cutover-D0/reference-support series.
+The Raw publication sunset is `RAW-PUBLICATION-SUNSET-001`; reference support
+closed at `6e1aa8f035` with `NORMAL-ENTRY-CANARY-SUNSET-001`.
+Detailed closed milestones remain in this file at immutable commit
+`88001cbb1e89ddd617dca63de44138c712d45753`; they do not select today's row.
+
+The remaining function-exit queue and accepted dependencies are:
 
 ```text
-FUNCTION-EXIT-F1-RETURN0-S0
-  existing completion owner + declared-result relation, exact 0/1 slice
-
--> FUNCTION-EXIT-F1-DRAFT-SEAL0-S0
-  one prepared/infallible canonical draft-seal owner for exact 0/1 exits
-
--> SCRIPT-RESULT-TAIL0-S0
-  source-owned prelude/terminal classifier; statement tails remain Unit
-  existing LinearScalar0 only; parser/grammar behavior delta zero
-  one prepared BODY exit/completion commit
-
--> ENTRY-RESULT-PROJECTION0-D0
+ENTRY-RESULT-PROJECTION0-D0
 -> ENTRY-RESULT-PROJECTION0-S0
   T2 design stop, then one macro row:
   CONTRACT0 -> ENTRY-SELECTION0 -> SOURCE-ENTRY0 -> PHYSICAL-THUNK0
   -> VM-REFERENCE0 -> EXE-AOT0 -> PARITY-G0
   source evaluation result and process status remain separate
-
--> ENTRY-RESULT-PROJECTION0-S1/S2/S3
-  typed projection consume, VM-reference consume, and exact Raw compile/VM
-  execution are closed
 
 -> RAW-BODY-RETURN-COMPAT-P0
   parked historical observation only; do not materialize a new executable
@@ -205,44 +235,11 @@ FUNCTION-EXIT-F1-RETURN0-S0
   merge the admitted canonical witness matrix into the reusable entry-result
   proof family; Legacy difference stays explicit
 
--> OLD-RAW-RETIRE0-R0A (closed)
-  PublishedShell/BuilderReadiness proofs migrated and old-only guards retired
-  before opening a new runner consumer
-
--> OLD-RAW-RETIRE0-R0B (closed)
-  delete the caller-zero old Raw source/finalizer/run_raw/evidence chain
-  before a new runner consumer
-  sunset_id = RAW-PUBLICATION-SUNSET-001
-
--> NORMAL-ENTRY-D0
-  closed by POST-S3-CLEAN-CANARY-prime-r1:
-  Canonical grammar + Raw NarrowV1 + no imports/macros/REPL
-  + VM-reference + Canonical process projection
-
--> NORMAL-ENTRY-PROFILE0-S0 (closed)
-  passive typed RawVmReferenceProductionRequestV1; default route unchanged
-
--> NORMAL-ENTRY-CANARY0-S0 (closed)
-  one early explicit `--backend raw-vm-reference` consumer; fallback zero
-  Stage-1/using/plugin/general dispatch are not entered first
-
--> NORMAL-ENTRY-CANARY-PARITY0/G0 (closed)
-  real-binary status/diagnostic/route isolation proof
-
--> NORMAL-ENTRY-CUTOVER-D0 (closed)
-  A-prime selects the existing explicit route as a supported opt-in
-  reference/conformance lane; no safe bounded normal caller exists
-
--> RAW-VM-REFERENCE-SUPPORT0-S0 (closed; commit 6e1aa8f035)
-  one consuming profile handoff, bounded diagnostic report, supported surface,
-  proof reclassification, and NORMAL-ENTRY-CANARY-SUNSET-001 closeout
-
 -> NORMAL-ENTRY-CUTOVER-D1 (accepted 2026-07-25)
-  historical C park decision; its D0 family evidence is retained below.
+  historical C park decision; D0 family evidence is in the immutable history.
 
 -> NORMAL-FILE-VM0-FAMILY-D0 (closed: NoBoundedCallerFamily)
-  six plain source-hint sites are benchmark, artifact-only, Stage-1, or legacy
-  fallback routes; none matches the fixed normal VM-reference contract.
+  no existing caller matches the fixed normal VM-reference contract
 
 -> NORMAL-FILE-VM0-FAMILY-D0-FORGE-FRONTDOOR (accepted; active after docs closeout)
   create NormalFileVmFrontDoorV1 with no legacy caller mapping. The first forge
@@ -256,35 +253,13 @@ FUNCTION-EXIT-F1-RETURN0-S0
   [Result/exit C′](../design/language-result-propagation-and-exit-transaction-ssot.md).
 
 -> NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 (closed; production caller=0)
-  -> FORGE-CONTRACT0
-  -> FORGE-SOURCE0
-  -> FORGE-HANDOFF0
-  -> FORGE-CORRESPONDENCE0
-  -> FORGE-SEMANTIC0-S0 (closed: Script source-text matrix)
-  -> FORGE-SEMANTIC0-S1 (closed: Function/Main capability boundary)
-  -> RESULT-CARRIER-NORMAL-CAPABILITY0-D0 (closed: Q1/Q2/Q3 = A)
-  -> RESULT-CARRIER-NORMAL-CAPABILITY0-S0 (closed)
-  -> FORGE-SEMANTIC0-S2 (closed)
-  -> FORGE-REUSE0-S0/S1 (closed)
-  -> FORGE-G0 (closed)
   -> NORMAL-ENTRY-CUTOVER-D2 (accepted A: explicit new caller)
-  The former SOURCE-PROFILE-D0/CORRESPONDENCE-P0/SEMANTIC-MATRIX-P0/
-  CALLER-G0 names are historical planning aliases, not a second executable
-  queue.
+  detailed forge steps and former planning aliases are closed history,
+  not a second executable queue
 
 -> NORMAL-FILE-VM0-REQUEST0-S0 (closed)
-  -> REPORT0-S0 (closed)
-  -> PARITY0-P0a (closed)
-  -> CALLER0-I0 (closed: 906592cb54; one central production selector)
-  -> PARITY0-P0b (closed: real binary status/diagnostic/feature parity)
-  -> G0 (closed: central selector/route guard)
-  -> MIRBUILDER-CORE-COMPLETE0-P0 (closed: aggregate proof guard)
-  -> NORMAL-SOURCE-PLAN0-D0 (closed: NORMAL-SOURCE-PLAN0-prime-r1)
-  -> NORMAL-SOURCE-PLAN0-S0 (closed: disconnected source-family classifier)
-  -> NORMAL-SOURCE-PLAN0-INPUT0-S0 / G0 (closed)
-  -> NORMAL-MAIN0-SOURCE0-S0 (closed: Program-owned exact Main source)
-  -> Main F1/thunk/TX0, neutral VM adapters, callable A0/R0/TX0 (closed)
-  -> NORMAL-FILE-CANONICAL-CORE0-PROFILE0-S0 (closed)
+  central selector closed at 906592cb54; report/parity/core/source-plan/
+  Main/callable/canonical-core-profile steps are in the closed history
   -> NORMAL-FILE-CANONICAL-CORE0-DISPATCH0-S0 (exact cell is in CURRENT_STATE)
   One new CLI-visible, default-off request is added; no existing caller is
   replaced, so no legacy sunset is issued in this series.
@@ -441,15 +416,11 @@ The durable laws above and all unfinished macro rows stay readable here.
 
 ### 3. LANGV1-TYPE-GUARANTEE-001
 
-Status: design accepted as 3479; exact-numeric Box field first slice complete
-as 3480; parameter-entry contract complete as 3482; return-exit design accepted
-as 3483; return-exit implementation complete as 3484; local exact-numeric
-owner/boundary consultation accepted as 3485; BindingId prerequisite complete
-as 3486; exact-numeric local semantic implementation complete as 3487; the
-representation/contract-refresh owner decision is accepted as 3488; the
-single-owner BoxShape implementation is complete as 3489. Record, static table,
-typed Array, and Weak field slices are complete through 3502; 3503 is the
-active product-backend selection stop for Weak fields.
+Status: bounded annotation/reference slices are closed through 3502; 3503
+selected Weak product-backend defer-with-failfast. Current activation and
+backend limits belong to the [status ledger](type-contract-status.md), not a
+new implementation selection here. Exact closed milestones 3479–3503 remain in
+this file at immutable commit `88001cbb1e89ddd617dca63de44138c712d45753`.
 
 Target contract:
 
@@ -476,55 +447,15 @@ Deliverables:
 6. Land boundaries in this order within the same macro row: locals and params,
    returns, Box fields, records, arrays/collections, FFI/backend preflight.
 
-Current executable queue:
+Retained implementation obligations:
 
 ```text
-T0 complete:
-  3484 exact-numeric return-exit implementation
-
-T1 complete:
-  3485 local exact-numeric contract design stop
-  inventory init/reassignment/PHI/loop/Any/proof invalidation
-  BindingId/LocalSlotId + W1 + U1 + VM-only decision accepted
-
-T2a complete:
-  3486 behavior-preserving local BindingId owner completion
-  LocalSlotId wrapper, one declaration API, CorePlan/snapshot parity
-  LocalContractWrite / contract activation = 0
-
-T2b complete:
-  3487 LocalContractWrite exact-numeric semantic implementation
-  init/reassignment + U1 + PHI/loop evidence + JSON/backend boundary
-  no broad static checker; one LocalSlotContractOwner
-
-T3 complete:
-  3488 accepts semantic_refresh as the sole refresh-and-validate owner
-  3489 routes verifier/JSON/VM/backend/tool boundaries through that owner
-  representation-only :T consumer audit and migration queue
-  remove direct storage/layout/planner authority from source annotations
-  split types.md normative semantics from implementation-status ledger
-  keep generated/current support status outside the normative type law
-
-T4 complete:
-  3490 exact-numeric annotation-island closeout audit
-  exact-numeric annotation-island closeout
-  parameter + return + Box field + local owner/exhaustiveness audit
-  shared value-check semantics, distinct boundary timing
-
-T5 complete through reference semantics:
-  3493 record construction/update contract
-  3495 readonly U16 static-table closeout
-  3497 ArrayElementWrite convergence
-  3499 typed Array exact-numeric state contract
-  3501 WeakRef value-law corrective
-  3502 WeakFieldContractOwner and VM reference consumer
-
-T6 complete:
-  3503 selects defer-with-failfast; no product backend or helper ABI selected
-  declaration-level capability rejects read-only and dynamic-only obligations
-  VM remains semantic-reference only and cannot satisfy product parity
-  stop-the-line gate repair removes the obsolete syntax-3 comment token and
-  joins naming_charter_guard to the Language v1 FULL sensitive-path gate
+semantic_refresh is the sole refresh-and-validate owner
+source annotations are semantic contracts, never direct storage/planner hints
+all active carriers require producer + owner + runtime consumer + JSON + gate
+Weak product backend/helper ABI remain unselected; reject before effects
+declaration preflight also rejects read-only and dynamic-only obligations
+VM reference completion does not satisfy product parity
 
 Queued residue after the 3503 decision:
   LANGV1-UNTYPED-FIELD-PHI-FAILFAST-CORRECTIVE-001
@@ -533,17 +464,13 @@ Queued residue after the 3503 decision:
   all active carriers covered by unsupported-backend pre-effect rejection
   no new type-family activation
 
-T5 active:
-  3491 selects record construction/update and RecordValueContractOwner
-  typed Array remains unselected without a source-owned element contract
-  3492 parameter BindingId corrective and FULL 12/12 gate are complete
-  3493 record carrier/VM/JSON/backend-gate implementation is active
-  require producer + owner + runtime consumer + JSON carrier + backend gate
-  do not open FFI/backend lowering or all-types activation implicitly
+FFI/backend lowering and all-types activation require separate selection
 ```
 
 Do not create inventory-only, fixture-only, or rerun-only numbered cards for
-T1-T5. Materialize only the currently selected design or implementation card.
+these families. Materialize only the currently selected design or implementation
+card. The obsolete T5-active description is superseded by the later closed
+record/typed-Array/Weak slices above; it is retained only in Git history.
 
 Acceptance:
 
