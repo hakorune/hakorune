@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/ordinary-membership-drift"
+current_blocker_token = "required-object-forward/field-get-route-drift"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,41 +18,40 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 unaccepted; cumulative sourceWIP protected/unlanded.
-Earlier evidence/status checkpoint fec1b2c3f0; SAMEcard owner and fullgoal retained.
-Argv source/JSON/C/runtime connected; selectedrawargv retired, sharedcompat retained.
-Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth stillowed.
-Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI notcomplete.
+Earlier status checkpoint87991c37c0; SAMEcard owner/fullgoal retained.
+Argv source/JSON/C/runtime connected; selectedrawargv retired/sharedcompat kept.
+Originaldeclaration/input/context/childRc/fullsupports joined; fieldBirth owed.
+Same originalReturn/resultordinal/outcomes retained; mixed/Borrowed ABI unfinished.
 KeepAlive Rust/JSON/C metadata connected; FFIe55/runtimeV610 unchanged.
-ConditionalEnd SAMEsource rootnormal/pendingFault+CallFault+NewFault allfamilies
-->FinishedBindings/fullactual census connected. EndJSON/C remainsclosed.
-BorrowedNullable formalReturn closure joined; originalapp stillunproved-copy at
-resizeInPlace bb249/index3 Copy(dst60,src1), normalFieldWrite binding stillowed.
-V661-668 FieldWrite scalarRHS now SAME originalAssignment Rc/sharedHome expression
-->existing ScalarAppend/LocalSSA/FinishedBindings. NonBirth originalSubDiv nodes
-select both seed suppression/verifiedwalk, allRHS SubDiv typedI64; Div positive
-literalonly. Complete sourcefieldbatch precedesatomicinstall. No fakeinitializer.
-Nonarith oldneutral retained. EmptyBirth/Sub now refuses actualscalarproof;
-neutral coverage splitfrom fullBirth finalscalar observer, notcompatibilityclaim.
-Owncompile/participation RED661-664 corrected665; invalidspare Birth fixture666
-corrected667. V668 build62.517396sPASS/6focusedPASS, root9196unchanged.
-Bothopts simple+nested2/3 originals/SAMERc/finalmissing+operator drifts checked;
-Div0/negative/variable andBoolSub refused. OwnerREADME updated.
-CLI116 build163.327996sPASS/app147.204948s rc1/noEXE, regular --emit-exe direct
-purefirst/noreplay; appSHA33d3/FFIe55/runtimeV610 unchanged. Binaryb7be5a89.
-Frontier advanced scalar-source-coverage ->ordinary-membership-drift:
-resizeInPlace/2 sourceBorrowedNullableHandle formal0 vs signatureVoid.
-Generic finalizer mergesNull Void+formalUnknown; tagged source result absent
-from existingbodyresulttoken. Next SAMEoriginal formalReturn key/ordinal/allRc
-roots+canonicalCompletion ->shared callable resultproduct ->existingfinalizer
-retainsUnknown carrier; no publisherrepair/Voidacceptance or input/Call permission.
-Then originalFieldWrite+guard frame in sharedHomeExpressionPlan ->existing
-LifecyclePrefix/bindinggroup ->solewriter actualpinrelations+FieldSet ->same
-FinishedBindings ->bothborrowedclosure scans; no newregistry/receipt/Copywhitelist.
-AnchoredForwardfield End closed; fieldpair/Birth exactsupport/prepostHome/Fault
-partition owed. First milestone unchangedmimalloc EXE unmet; fixed11/retirement/
-R6R7/Loop/authority/parser/nondelegating selfcompile remainrequired. Sourceproofs
-landwithcoherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
-First999cardlines SHAprotected; allCargo/rustc/test/app handles terminal.
+ConditionalEnd SAMEsource allfamilies->FinishedBindings/fullcensus connected;
+EndJSON/C remainsclosed. FieldWrite scalarRHS SAME originalAssignment/sharedHome
+->ScalarAppend/LocalSSA/FinishedBindings; V668 build62.517396s/6focusedPASS.
+V669-675 SAME original BorrowedFormalReturn key/formalordinal/allRc roots and
+canonicalCompletion->shared CallableResultSource/bodytoken->finalizer Unknown.
+Catalog/sourceexit checks need no LOCAL input demand; no publisher Void repair.
+Two scalar-only finalizer facades removed withcallerzero; exacttestowner split,
+root9196unchanged. V675 build64.630608s/4focusedPASS. Old localchain source-missing
+RED confirmed V599baseline; own temporarymicro fixture neverreached callback,
+removed, noacceptance. V674 actualapp optfalse481.400732s unproved-copy RED at
+resizeInPlace bb253/index3 dst74/src1. Actual Unknown+forcedVoid refusal passed
+beforeRED; originalFieldWrite receiver/valuepin closure stillowed.
+CLI117 crossed signature tofield-get-route-drift. CLI118 diagnosticbuild
+145.018656sPASS/app148.658147s rc1/noEXE, binary72093379; sameappSHA33d3/FFIe55/
+runtimeV610. Exact stop seedBlocks/0 bb261/index0 free_stack ArrayBox handle
+FieldGet slot3, carriers ExistingCallableI64. Source/physical loan nowselected:
+SAME BorrowedArray LocalFieldRead sourceRc/emission->existing lifecycle capture/
+FinishedBindings->final route, joined SAME residenceRc to validated emittedWrite
+and current originalconstructor provider. V676 build67.660263s/V677 build62.518666sPASS; 3focusedPASS.
+Old BorrowedTagged directset/numericguard/store arms retained for separate
+sourceuse/SSA/finalprojection; no readloan storepermission/carrier-only newgrant.
+Then SAME FieldWrite+guard sharedHomeframe->LifecyclePrefix/bindinggroup->real
+pinrelations+FieldSet->FinishedBindings->bothborrowedclosure scans. No registry.
+Fieldpair/Birth exactsupport/prepostHome/Fault and EndJSON/C stillowed.
+First milestone unchangedmimalloc EXE unmet; fixed11/retirement/R6R7/Loop/
+authority/parser/nondelegating selfcompile remainrequired. Sourceproofs landwith
+coherentseries; tmp/adapters classifiedthen cardhistory tocommitrefs.
+First999cardlines SHAprotected; V677 actualapp test/CLI119 build live; jobs4.
+
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
