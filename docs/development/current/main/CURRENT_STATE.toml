@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/returned-new-fault-normal-prefix"
-current_design_stop = "returned-new-original-fault-normal-projection"
+current_blocker_token = "required-object-forward/final-source-bound-verdict-handoff"
+current_design_stop = "final-source-verdict-vs-pretransform-report"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -18,26 +18,27 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 Required Object Forward S0 remains unaccepted/uncommitted; inherited WIP protected.
-Provider normalization retains SAME source Rc/actual/publication through the
-construction sole writer and SAME final source payload/borrowed-call visitor.
-V595 build61.602030s, deduplicated35PASS, including original provider final ABI/JSON
-and6 independent physical drift refusals. No new testfn/guard/receipt/Local facade.
-V596 shared canonical Birth owner correction + diagnostic only: build51.815459s,
-34PASS; exact original leaf/prefix refusal boundaries remain covered.
-Latest actual CLI104 matches tested V596 source exactly: build136.076196s,
-app35.753215s rc1/noEXE binarya1a605d8 SAME unchanged app/FFI/env/direct route.
-First stop HakoAllocHeap.allocateResult/1 owner34 Body3 Value returned-New.
-Original object/required-site/arity all match; Fault prior=[binding2], Normal exit=[].
-Source issuer already consumes exactly owned argument Homes on Normal only.
-Accepted normalization: SAME ResultNewHomePrefix retains Fault prior and original
-post-move Normal homes; leaf compares Normal projection with SAME Completion exit.
-Preserve original Fault unwind and exact source/witness/claim/terminal identity.
-Old owner19 Compare guard actual passage is unconfirmed; no product completion.
-First milestone unchanged mimalloc EXE/run/output/exit remains unmet.
+Provider source/actual/publication now shares the construction writer and final
+borrowed-call visitor; original final ABI/JSON and independent drift cases pass.
+Returned-New SAME prefix now retains Fault prior and original post-move Normal
+homes. No ownership inference or new Home/receipt; Fault consumers unchanged.
+V598 build51.941771sPASS and31 uniquePASS including exact sibling identity,
+after-affine source and full final cleanup; no added testfn/guard.
+Latest actual CLI105 exactly matches tested V598 source: build160.743612s,
+app35.050233s rc1/noEXE binary4db57b14 SAME app/FFI/env/direct route.
+Actual reaches artifact callback after mandatory source-bound final verification.
+EXE callback wrongly rejects historical source-less result.verification_result:
+realloc->release Box handle argument drift and owned-Array original slot missing.
+Both independent workers confirm original source slots pass the real final gate.
+Accepted normalization: preserve actual verify_module_with_finalized_root Result,
+propagate Err before commit/callback, lend that Result to artifact consumers,
+matching the existing document lane. Keep normal/compatibility historical report.
+Callback contract and original tests explicitly distinguish these reports; no
+fake Ok, new view field/receipt, type/carrier relaxation or Array exception.
+First milestone unchanged mimalloc EXE/run/output/exit still unmet.
 Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
 selfcompile and inherited Mixed/source/physical debts remain required.
-Detailed contracts/evidence and prior unfinished provider/app obligations remain
-in the SAME active card; goal active and fast mode selects the accepted source seam.
+Detailed evidence and unfinished acceptance remain in the SAME active card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
