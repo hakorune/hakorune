@@ -45,7 +45,10 @@ Return38 vs original borrowedCall Normal37 at realloc Body3/IfThen1/IfThen0.
 Original LOCAL Copy bridge now anchored by same source Return+Call and captured
 unique definitions; same mandatory relation map, no final-origin inference/Phi.
 V624 build64.211504sPASS not executed; V625 correct auxiliary Copy relation owner
-build53.272094sPASS; actualapp getter+7drift/optfalse/true focused running.
+build53.272094sPASS; actualapp getter+7drift/optfalse/true PASS541.324304s.
+Same root binary a5c32fee;8 original exits/all3 origins checked; no rerun needed.
+Worker identified same source pre/post-transfer Home projections and existing
+ordered construction pending-formal Fault partition to connect (no new ledger).
 No Mixed ABI/field/C acceptance or source commit yet. All source/baseline debts
 retained. First milestone unchanged mimalloc EXE/run/output/exit still unmet.
 Fixed11/selected retirement/R6R7/Loop/required authority/parser/nondelegating
