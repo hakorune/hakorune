@@ -3,8 +3,8 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/injected-main-argv-lifecycle"
-current_design_stop = "main-argv-source-to-physical-lifecycle"
+current_blocker_token = "required-object-forward/ordinary-membership-correspondence"
+current_design_stop = "final-ordinary-source-signature-correspondence"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -34,9 +34,7 @@ FinishedBindings after validate_complete, every effect mandatory and recorded.
 Only identical mapped expected release rows coalesce; actual duplicates refuse.
 C schema/flow/emit and kernel/header share source payload/Normal acquisition.
 KernelV6089PASS; runtimeV610 build164.046739sPASS immutable archive6e868626.
-Last actual CLI108 build177.159420sPASS/app15.339211s rc1/noEXE,
-binary38c4b2f02d1727604cc2dff56c77647fd37729206d6a440c8eebc4e8e9c2cfa6.
-Its own unreleased-exit RED corrected: writer now updates instruction spans
+CLI108 own unreleased-exit RED corrected: writer now updates instruction spans
 through canonical API. V611 ingress+DCE spans2PASS. V612 own optimized-body
 release-census RED corrected by existing finishing projection loan.
 V613 build78.545948sPASS expanded ingress1+DCE1PASS; source-issued unchanged
@@ -44,7 +42,11 @@ JSON->CABI/OBJ/EXE10PASS pure/body empty+text Normal/argvFault/PrintFault,
 including source Home before argv. V614 build57.799224sPASS ingress1/provider4/
 full documenthandoff1PASS. V615 build64.230233sPASS ingress1PASS including
 actual/detached duplicate release refusal,10 drifts; issued JSON4 files EXACT
-C execution inputs. CLI109 build pending; new app run still required.
+C execution inputs. CLI109 EXACT V615 build156.938154sPASS/app140.329340s
+rc1/noEXE binary8a4caa53fe0e2b36d45d63190d3498c123b236d385abedddcc1f3641424da0a2.
+Argv frontier passed; new first-stop published-lifecycle-program/ordinary-
+membership-drift. Two workers map existing source/result/signature owners;
+next diagnostic-only exact key/result/arity/signature, no admission change.
 Legacy/reference default injector retains explicit shared caller; selected
 normal raw injection replaced, retirement acceptance still being checked.
 Existing arity RED exact pre-change V601 admission-candidate-unavailable;
