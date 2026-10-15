@@ -34,8 +34,7 @@ ArrayBox dst53 args[]. decls.rs injects declared main args using this legacy
 writer; this is wrapper argv materialization, not the workload handles source.
 Accepted mapping with two read-only workers: same original resolved Main
 identity/Parameter bindings plus SAME Rc ingress snapshot own wrapper arguments.
-Normal materialization now enters original source scope after root frame select,
-before entry adoption. ScriptArgumentsNew builds whole UTF8 Array locally before
+Normal materialization enters original source scope after root frame, before adoption. ScriptArgumentsNew builds whole UTF8 Array locally before
 Normal-only owned handle publication; source Body Homes unwind before exact
 wrapper ArrayResidenceRelease suffix. No artificial source New/Home or receipt.
 Same ledger retains original source/entry/frame/Invoke/Normal/Fault/release;
@@ -45,11 +44,9 @@ refusalsPASS in existing ingress test. Existing arity test is exact pre-change
 V601 baseline admission-candidate-unavailable; retain expectation debt.
 Own V602/V604 compile and V603/V605/V606 source/final mapping failures corrected;
 V605 provider4 and full document handoff1PASS. Root testfn9196 unchanged.
-C FFI buildPASS; original issued empty/text JSON->CAPI OBJ2PASS.
-Runtime focused kernel V608 build/test pending; final current source tests and
-original app must still be rerun. No argv/S0/app acceptance or Rust commit yet.
-Existing ingress test exceeded800 after extension: moved whole existing owner
-into runtime_inputs_tests leaf (parent704/leaf144); no testfn added.
+C FFI build/issued empty+text JSON->OBJ2PASS. KernelV608 pending; final current
+source tests and original app must still be rerun. No argv/S0/app acceptance or Rust commit yet.
+Ingress test moved to runtime_inputs leaf (parent704/leaf144) for800limit; no newtestfn.
 Legacy/reference default injector keeps explicit compatibility caller; installed
 normal raw NewBox injection replaced, retirement acceptance still pending.
 First milestone unchanged mimalloc EXE/run/output/exit still unmet.
