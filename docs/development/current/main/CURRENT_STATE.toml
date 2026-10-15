@@ -1,6 +1,6 @@
 date = "2026-10-15"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "design_stop"
+work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
 current_blocker_token = "required-object-forward/provider-static-input-cohort"
@@ -30,8 +30,9 @@ refuse. Eq/Ne require SAME original complete Integer input agreement.
 Actual first stop is now owner19 LayoutBox.class_capacity/1 Compare entry.
 Both incoming calls are constructor owner3 Body0/1 Value Argument(2),
 recorded in original inventory but pending actuals are NONE.
-Internal design_stop maps existing ProviderStaticArgumentSource through
-same whole-input finisher, sole provider writer and final independent checks.
+Accepted worker mapping: retain SAME ProviderStaticArgumentSource in the
+existing construction plan; stage exact actuals into same scalar finisher;
+retain typed provider emission through same construction payload/final visitor.
 Do not fabricate LocalCallObservation, Return membership or Loop evidence.
 Goal remains active; first milestone unchanged mimalloc EXE/run/output/exit
 unmet. Fixed11/selected retirement/R6R7/Loop/required authority/parser and
@@ -40,8 +41,8 @@ Detailed original contracts/evidence remain in the SAME active card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
 parked_mirbuilder_test_inventory_retirement_task = "LEGACY-TESTS-RETIRE-R0 (landed at bcc9a6ba65; reopen only if a supported owner appears)"
