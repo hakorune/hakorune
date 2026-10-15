@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/ordinary-membership-correspondence"
+current_blocker_token = "required-object-forward/conditional-complete-end"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,43 +17,41 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted/WIPprotected; SAMEcard source-to-final owner.
-Argvconnected V615 bothopts+10drifts/C10PASS; kernelV6089/runtimeV610, rawedge retired.
-Last actual CLI111 build167.087861sPASS/app152.767664s rc1/noEXE,
-binaryfc278bb1013ab7d158c26e0dff4e9abb4fa3251162a96865fafbdaa132ac7958.
-Own Copy correspondence fixedfocused; underlyingCLI110 HakoAllocHeap.realloc/2
-MixedHandle(formal0) arity3 correct. No laterCLI/product improvement claimed.
-V628 originalapp Mixed/BorrowedNullable Returnbothopts+12driftsPASS (sourceonly).
-Kernel residence V6277PASS/headerlayoutPASS; V631 SAME childRc argumenttransport5PASS.
-OriginalFresh arguments/childRc andformal/witness supports retained; Normalrechecks.
-OldowningEnd blocksForwardfield; sourceSupport grantsnoHome/field/ABIpermission.
-ConstructionChildArgument remainsseparate fromnumericguard/generictransport;
-sharedoriginaldeclaration frame/fullinput owner andcanonicalcatalog checks retained.
-Root9196/kernel398 testfn unchanged; no newguard/card; sourceWIP unaccepted.
-V641 sourcecontext fixed; build54.452244sPASS/45focusedPASS, priorformalrelayRED
-resolved withwholebad(localh) sibling retained/refusedescape. Context CandidateSlice/
-LedgerOriginal/SourceOnly; exactclaim/commit pre/postTake, no physicalHomegrant.
-Nullable root exactsameowner/indexabsent only, indexErr/rootErr retained/tested.
-Formal direct/received relay/hop mapscallee1->caller0 independently ofctorarg0.
-Current: SAME FinalizedObjectReturnOutcome retains ORIGINALresult+outerordinal;
-physical Mixed/BorrowedNullable roles retain SAMErows instead ofdiscardingthem.
-Functionconsumer exactsourcekind/ordinal/paramlane/carrier, originrole, required
-producer/Copy bindingcardinality andReturncensus; logicalinnerordinal distinct.
-Compiledentry caller+target/Birth participation andnonnumericreturn gate connected.
-JSONReturn transports SAME bindingcoords; ABIcorroborate exactresult+outcomerows.
-V642/V643 owncompileREDS corrected; V644 build72.057809sPASS/legacyPair1PASS,
-longapp intentionallyinterrupted fororiginalresult retention (notPASS/RED).
-V645 build63.789352sPASS/legacyPair1PASS; existingoriginalapp test BOTHopts RUNNING
-session39661. Binary909c00e0b0433d3e4ac8c2a4eb2b0ddd57a3b62785143a241db0435c4cd68ed5.
-Reuse SAME livehandle, do not rebuild/testrestart whilelive; pendingnotacceptance.
-Next: finishoriginalapp role/ReturnJSON anddrift validation, then SAME resultwire
-ABI/JSON/C CallNormal/Return, typedchildfield support andcompleteconditionalEnd.
-JSON Mixed/BorrowedInvoke andObjectEndIfOwned remainCLOSED, no publicationgrant.
-PhysicalReturn rows->role/ABI/JSON/C/completeEnd plusNew pre/postHome/orderedFault
-partition stillowed. Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained.
+RequiredObjectForwardS0 unaccepted; inheritedsourceWIP protected; SAMEcard owner.
+Argvsource->bindings/JSON/C/runtime connected; V615 bothopts+10drifts/C10PASS;
+kernelV6089/runtimeV610, selectedrawargv edge retired; sharedcompat retained.
+V641 actualsourcecontext CandidateSlice/LedgerOriginal/SourceOnly built/45PASS.
+Exactclaim/commit before/afterTake; nullable exactsameowner root/indexErr retained.
+Same originalchildRc/formal/witness supports composed/rechecked; localescape refused.
+Shared originaldeclaration/fullinput owner used; numeric/SourceInstance guards kept.
+ConstructionChildArgument source-only; field/Birth borrowedconsumer stillowed.
+Verified Return rows nowretain originalresult+outerordinal inexactphysical roles;
+physical function exactcarrier/bindings/Returncensus; JSONretainsSAMEcoords/rows.
+V645 KeepAlive ownRED fixed. V647 FieldGet ownHARNESSRED fixedbysameoriginalmodule/
+finalview/receiverobject; noFieldGet whitelist. V648 build58.908212sPASS and
+hintborrowed/serializer/scope3PASS; originalapp SAME Return role/JSON bothopts+
+12drifts completed645.16sPASS. Binary7ad866469b81177cd7dc06324ba0d3f43414766a48f956be4b4837806edce7e0.
+Cflow rowtransfer extractedwithoutbehaviorchange (FFIhashsame); flow652lines.
+KeepAlive SSAhint Rust/JSON/C no-op, no ownership; C16+13+11variantsPASS128.507242s.
+FFIe55f3bc88cb124bac4d61f28970dcb6db99d93a026eb6fd71f07e1f8ffaf31c9; runtimeV610.
+Lastactual CLI112 build214.217265sPASS/app160.144368s rc1/noEXE, unchangedappSHA33d3.
+Binary5e4a5af843fbd01aa4a795c8e83073e08e4ca598e887d894cc198f6972a13fab.
+Firststop advancedrealloc membership->reallocResult/2 ObjectEndIfOwned bb517.
+CurrentWIP: INLINE ObjectEndStep ArrayField/ObjectField/ReleaseOuter retainedin
+ObjectEndIfOwned; sole steps projector sharedwithnormalEnd, unavailablechildren
+refusedbeforeMixed; onlyouterSSA rewritten. ABI childobjects retained.
+ExistingInvoke verifier nowchecksclosedbody/canonicalnonweakfield/child/reverse
+order/unique/finalOuter, NOTsourcepermission. OriginalEnd/FinishedBindings stayssole
+completenesscheck. ExistingsourceOrder/graph/structural tests extended, no newtestfn.
+V649 build127.689193sPASS; sourceOrder/cleanupgraph/Invokeverification7PASS.
+Next: selectedphysicalEnd +SAME BorrowedFormal Return module/published useclosure;
+thenABI/JSON/C CallNormal/Return outcome andconditionalfullEnd consumer.
+Mixed/BorrowedInvoke/EndJSON Cgate stillCLOSED; sourceForwardfield anchoredEnd closed.
+New pre/postHome/orderedFault partition andtypedchildsupport stillowed.
+Knownpageheap PrefixNotCovered RED pinnedV522/V518 retained. Root9196/kernel398.
 First milestone unchangedmimalloc unmet; fixed11/retirement/R6R7/Loop/authority/
-parser/nondelegating selfcompile owed. Landing commits proofs/classifies tmp,
-thencompresses history; first999cardlines protected.
+parser/nondelegating selfcompile owed. Sourceproofs landwithcoherentseries; tmp/
+adapters classifiedthenhistorycompressed. First999cardlines protected.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
