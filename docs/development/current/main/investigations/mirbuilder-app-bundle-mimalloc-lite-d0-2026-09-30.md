@@ -879,57 +879,20 @@ Reuse the exact single, never-rebound Array-get local source loan; its existing
 Array census integer_source_at boolean is not general formal-domain authority
 (loop/rebind rules differ). SAME early/late source Rc sharing remains to connect.
 
-V811 Decision, SAME Array-get→New→Birth source responsibility:
-Source authority + canonical issuer: sole preflight array_i64_field_sets is
-already built before original seed capture, borrowed unchanged, then moved into
-ledger.array_i64_fields. Existing capture_exact_get issues private immutable read
-Rc against that census. Retain ArgumentFieldArrayReadSourceV1 on SAME original
-New rows with exact local/initializer/New ordinal; one local yields one read Rc.
-Scalar Return and late New arguments borrow the SAME retained read if present;
-non-New Return reads keep their existing issuer. Delete late New recapture/cache.
-Non-authority: generic local inference, raw integer_source_at bool, type/get/opcode,
-new census copies or a new registry. No cached Conflict/Integer domain rewrite.
-Fail-fast: missing/foreign original census or New/argument identity, rebound or
-foreign local, source Rc conflict, non-I64 whole Array census and changed current
-physical census. Numeric loan rechecks SAME original New evidence; current Array
-execution/census remains mandatory in the existing late recipe/final owner.
-Smallest slice: source factory→SAME New row→numeric Birth input loan, common
-Return read reborrow→late argument/recipe→existing independent final validation.
-Focused existing composition/field-array Return positives and Bool/rebind/census/
-source-identity negatives plus unchanged M189 canonical EXE frontier are required.
-No EXE/runtime/End/source-landing or whole-goal acceptance from preparation alone.
-V811 root PASS117.207383s; composition11, shared Return/New Array read1,
-field-batch2 and original-M189 source1 PASS15. Nonzero Birth ordinal, Bool Array
-store/local-rebind veto, source loss and shared read/wrapper Rc are included.
-Worker found a blocking ownership coupling before acceptance: the first late
-adapter demanded whole borrowed transport even for unrelated scalar locals.
-Correction retains the original New source Result/Rc on the existing field
-cohort before transport selection; its passive lender survives failed sealing.
-Shared exact_get_candidate selects only original own-Me canonical Array fields;
-nonfamily locals never demand Array source, while selected missing source keeps
-its Err and cannot recapture. Existing pending test covers both boundaries.
-V811b build pending after this correction; initial test helper import errors
-need fixing after Cargo/rustc terminate. No new CLI/product acceptance yet.
-
-V811b root RED80.991275s (three test helper module paths), corrected after process
-termination. Exclusive old result→New Array read lender has caller-zero and is
-physically removed with the late recapture/cache; other Return capture is shared.
-V811c root PASS122.836817s; composition11/shared Array Return+New1/field-batch2/
-original-M189 source1/borrowed source-error1 PASS16. Includes nonfamily Local with
-unavailable source, Array preserving source Err, unsealed passive SAME Rc attach,
-foreign ordinal/census loss and original New source loss. Worker A+B re-review
-found no new blocking issue in this cohort. CLI157 build running; EXE/runtime,
-typed Nullable input, own pending regressions and full goal acceptance remain owed.
-
-CLI157 build PASS207.240151s, SHA941d7b0e2abed219d34e002344db638e36cf5c210dd64181297498c6b557871f.
-Unchanged M189 source705a535c, canonical direct EXE on same C808b/runtime808b
-RED.342121s/no artifact, Main43 Body8 Value/Rhs integer-field/source-missing.
-The page_id and block_id field checks passed; next leaf is h0.requested_size.
-Source root/CLI manifests are identical; subsequent source edit only removes
-one trailing blank line at EOF in ordinary_new_borrowed_formal_result.rs. No
-semantic edit followed those pins; no new full-suite/runtime/End acceptance.
-Keep v811c-root/cli-v157 manifests, focused records and m189-v157 receipt in the
-existing evidence base while the source series remains unlanded.
+V811 Array-get→New→Birth source preparation history is retained in commit
+1b76ed23d0 (docs checkpoint, not source landing). Continuing premises:
+sole preflight Array census issues exact read Rcs retained on SAME original New
+rows. Scalar Return and late New/recipe attachment borrow that SAME read;
+nonfamily locals never demand it. Passive original New loan survives transport
+refusal; selected missing Array source preserves its error without recapture.
+Late New recapture/cache and its exclusive old lender are physically removed.
+V811c focused16 PASS; CLI157 PASS207.240151s, binary941d7b0e. Unchanged M189
+source705a535c on C808b/runtime808b advanced past page_id/block_id, then stopped
+at requested_size source-missing (Main43 Body8 Value/Rhs), .342121s/no artifact.
+Root/CLI manifests matched; only a trailing blank line was trimmed afterward.
+All source/runtime/End/full-goal acceptance remains owed. Keep those evidence
+pins until the cumulative source series lands; Array source checks alone do not
+prove executable Array C/PlanSourcePublication Set acceptance.
 
 Worker next mapping: do not infer that usize itself causes this source-missing.
 The sole writer inventory attributes Me only; original resizeInPlace's
@@ -948,3 +911,72 @@ usize or u64's upper half cannot be NormalInteger; no i64_source relaxation or
 new unsigned-to-signed cast. Existing whole-caller/field/Fault bounds remain.
 Missing early class/source lender is internal mapping work, not external block.
 Typed Nullable full original input remains a separate required same-series gap.
+
+V812 Decision, same non-Me writer→numeric field closure responsibility:
+Source authority + canonical issuer: SAME original actual seed product projects
+SourceObject with the existing all-incoming solver. Original Forward dependencies,
+DeclaredObject conjunction, all rows/vetoes and constructor actuals are retained;
+SourceInteger/I64 and selected transport projections remain separate. No new
+solver or declaration-as-actual-class shortcut. Stable exact formal source basis
+retains SAME source domain/New census and canonical class/object; it grants no
+entry/Home/physical field permission. Final source re-demand remains source-only;
+selected field-write packets keep their own actual receiver/input/range checks.
+The sole field_value_source issuer qualifies only original UnattributedWriter
+failures. Existing successful Rcs are reused. It merges ALL original same-name
+unknown writers in observation order, never uses non-Me owner_box as targetclass,
+never rewrites a receiver as Me, and rejects any unresolved/foreign target. Birth
+constructor/store checks remain unchanged. Each qualified source and target loan
+stay together in FieldCandidates; preservation and independent writer traversal
+both re-demand the SAME original write, receiver class and current source census.
+Value expressions independently need existing signed-I64 evidence; usize/Integer
+alone remains insufficient. Add no unsigned conversion or wire/runtime kind.
+Existing composition tests cover non-Me/unsigned-declaration positive, typed or
+untyped formal, wrong incoming class, unknown writer, unrooted Forward cycle,
+SourceInteger-only usize value and source loss. Existing original facade fixture
+pins the raw requested_size UnattributedWriter error. Construction is WIP; root
+and unchanged M189 measurements remain required, no runtime/source landing claim.
+V812 worker found that a same-owner/same-class foreign formal basis could pass
+the target recheck. Basis now retains its exact issuing receiver site and both
+writer traversals require original owner/site identity. The existing composition
+case substitutes another same-class formal basis to exercise rejection. Initial
+V812 root build passed (129.134122s). Worker re-review accepts exact receiver
+identity and the substitution negative; no further blocking found. V812b root
+build PASS (72.460194s); initial focused14/15 RED was a fixture outside the
+existing NullableForwarded source-use boundary. V812c/d split qualification,
+Birth and value proof and confirmed no source Object class for that integer-
+returning writer. The positive now matches actual resizeInPlace: guarded Null
+exits and terminal formal return. No integer-return writer permission was added.
+V812f root PASS65.414445s; composition11, original facade1, opaque-use1, scalar
+batch2, shared Array Return+New1 and borrowed-source-error1 PASS17. Both typed
+and untyped positives pin original Birth+2writers, class Item and I64 values;
+same-class wrong-formal substitution, unknown/wrong target, usize value,
+rootless cycle and original source loss reject. Worker re-review has no blocking.
+An unused declared formal supplies only its legal receiver class conditionally,
+not an actual incoming object. No-incoming source agreement grants no execution;
+selected actual/class, guard and write packet checks remain mandatory later.
+CLI158 build PASS209.246925s, binary537e0d71a8528387dcda991da04b52bd6b072207496ca2f4a6adb6c93fb739dd.
+Root/CLI source manifests match and current rehash has zero drift. Unchanged
+M189 source705a535c on SAME C808b/runtime808b, canonical direct EXE RED17.555916s,
+no artifact. requested_size source refusal is crossed; new first-stop is
+callable-main/lowering ordinary-field-read/received/targets-missing. No runtime,
+End or source landing acceptance; typed Nullable full input and full goal owed.
+
+Next Decision, current received-field source consumer (same required series):
+Source authority + canonical issuer: the SAME original acquisition Call target
+moves once from lexical preparation into SourcePending/disposition/Call packet.
+issue_lexical_instance_call_dispositions consumes the preparation vector; it is
+not temporarily absent and must not be restored or cached for field reads.
+CallValidationContextV1.with_taken_original_row_v1 lends the original row from
+the current Lowering group or FinalizedRootSourceHandoff, with exact ledger,
+site and packet correspondence. Existing recheck_issuing_target_v1 owns source
+revalidation. Worker confirms this common owner mapping and full caller list.
+Non-authority: spent preparation, new registry/snapshot, receiver class alone,
+nullable or mixed descriptor without the current packet. No fallback lookup.
+Smallest next slice: thread context through field source recheck, checked pair,
+field projection and root validation callers; lowering-only facades select
+Lowering explicitly, finalized census keeps its existing Finalized context.
+Retire sole old recheck(targets) helper and unused PreparedTargets import once
+caller-zero. Preserve Numeric loan, exact receiver Copy, Invoke/Normal, Fault
+and independent final census checks. Existing received Print/field projection
+tests plus unchanged M189 first-stop and final-owner mutations are required.
+This next consumer correction is not implemented yet; no new acceptance claim.

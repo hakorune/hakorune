@@ -36,10 +36,10 @@ acceptance and full field/Home/End remain owed. C regressions do not prove it.
 CLI154 unchanged M189 now passes Main argument generation and package issuance;
 first stop is callable-main/lowering print-expression/source-unavailable.
 V807b Mixed source/input15 PASS; V809 received field/read/Print/final remains WIP.
-V810/811 original field+Array→New→Birth connected; V811c focused16 PASS. CLI157
-M189 passes page_id/block_id, stops requested_size source-missing/no EXE. Next:
-original non-Me writer attribution/I64 proof; typed Nullable full input still owed.
-No EXE or Mixed runtime/End acceptance; V808 C/runtime preparation alone passed.
+V810/811 field+Array→New→Birth and V812 non-Me writer source connected; focused17
+PASS. CLI158 unchanged M189 passes requested_size source, stops in lowering at
+received/targets-missing. Next: reborrow original target from current Call packet.
+Typed Nullable input, EXE and Mixed runtime/End owed; V808 C/runtime only prepared.
 V806 source-observation test repairs are unaccepted: omitted Static identity and
 no checked marker, consumed Loop loans checked in preissued V2 product. Latest
 focused test passes Static/Loop checks, then stale Heap definition absence RED.
