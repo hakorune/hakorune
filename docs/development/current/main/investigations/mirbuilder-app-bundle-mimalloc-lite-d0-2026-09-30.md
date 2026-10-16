@@ -932,20 +932,11 @@ retain source/build/test/EXE receipts and pinned binaries until source landing.
 V822l is current WIP; latest measured CLI167 precedes only interval hardening.
 No Cargo/rustc remains after completed builds. Active row and full goal stay open.
 
-V823 Decision (same parent→Field series; worker-confirmed complete mapping):
-Source authority/issuer: original ReturnedField seed capsules lend SAME hop
-ObjectCallSourceLoan+destination; full original incoming census and current
-roots/writer/relation alternatives rechecked before received producer observation.
-Canonical Home issuer remains issue_received_producer_local_call. Extend common
-producer INPUT/packet selection, retaining Array-only no-LOCAL observation bypass.
-Thread existing field_write_claims by reference through verified/probe callbacks;
-no ledger/Completion dependency. Field producer/consumer share original parameter
-frame/Home walk request, without broadening unrelated self calls or Array views.
-Scope: returned-field accessor, existing ingress source owner/helpers, input/entry/
-walk/packet consumers, received producer callback, tests and owner README.
-Acceptance: original source/destination/root/writer loss, Array/Nullable/packet
-regressions, real Field parent source Home, then unchanged canonical M190 EXE.
-No new registry, fake Home, class-name authority or retry; all full-goal debt stays.
+V823 original parent connection contract: **e760a8e600** (source WIP). SAME Field
+hop ObjectCallSourceLoan/destination, original census and current roots/writer/
+relation alternatives select common producer input. issue_received_producer_local_call
+remains sole Home issuer; Array-only no-LOCAL observation exemption stays exact.
+No new registry, fake Home, result class-name authority, Completion cycle or retry.
 
 V823 source/input/full focused and GDB evidence: **910d948173** (source WIP).
 Array-only callee classifier retired; source getter retained. All target errors
@@ -964,37 +955,46 @@ observation, original exact target/key/destination; full slot independently chec
 all inputs/result/Normal/End. Array expression exemption remains exact Array-only.
 Acceptance includes unrelated/nonlocal/uninitialized refusal and unchanged M190.
 
-V824a compile RED22.089681s corrected: exact original target census/owner replaces
-nonexistent observation callee getter. QualifiedObject keeps its own phase.
+V824/825 contracts and exact root/CLI/app evidence: **e760a8e600** (source WIP).
+Sibling LOCAL input→Home→packet connected; physical dispatch uses samepacket
+predicate at port and writer. Root82470.217314s/48+7 PASS; root82553.456867s/27
+PASS. CLI170144.718183s and unchanged M190 app171 RED12.845835s/no artifact.
+Native pinnedCLI4817c8fe confirms allocateResult Body1 physical writer passes;
+Main43 Body2 Init0 HakoAllocHeap.reallocResult38 lacks anchored field End.
+No-op V825a is not change evidence. Source remains unlanded, full goal open.
 
-V824b root build70.217314s PASS; 11 focused filters/48 executions all PASS
-(overlapping Field selections): sibling own Handle Homes and Ready packets,
-wrong sibling destination rejection, current writer loss, one exact demanded
-Field hop only; QualifiedObject phase, Array source, Nullable sibling,
-packet/input/slot/Field/Static/receivedHandle regressions. Native worker confirms
-original initializer law and fullslot remain sole issuers; no registry/key duplicate.
-CLI169 build157.606484s PASS; root/CLI manifests identical. Unchanged M190
-app170 direct EXE RED12.659692s/no artifact: semantic package PASSES, Main lowering
-lexical-handle/argument-class BorrowedActual at Body1 Init0 Arg0 (size8).
-CLI e4bb3637466dcfefa30692f618f2bff241ef3b62e0cb51634697a32a268378c5.
-Callback/Static/Object/Nullable/source-root extra7 PASS. Source unlanded; goal open.
+Worker exact teardown cause: reallocResult returned wrapper child relations include
+ForwardFormal0 plus Fresh/Null. reduce marks unsupported via
+requires_anchored_field_end_v1; OwnedCall propagates it. Do not delete this guard.
+At CLI170, ObjectReturnHandoff retained original supports but ObjectPacket stored
+only classwide teardown, CallReceived only release/end_children. V826 retains
+source requirements in the packet; physical anchor + conditional End remain open.
 
-V825 Decision (worker complete mapping): route Handle LOCAL with existing packet
-protocol through common object physical writer. Port and writer guard must use
-SAME ledger.uses_object_packet_protocol_v1; source.has_object_source_requirement
-alone misses Field-selected packets. Existing common writer already materializes
-BorrowedActual Integer/Read via sole argument projector, records CallReceived and
-final packet/cleanup validators. Do not extend old literal-only writer or addretry.
-Keep genuinely unselected Handle callers on existing writer until own cutover.
+V826 Decision (complete mapping worker-confirmed; same Forward field series):
+Existing all-exit result verifier retains ordered per-exit source requirements
+(SAME root/relation/witness Rc), borrowing Fresh leaf and composed OwnedCall
+supports. ObjectPacket keeps these with its existing whole incoming actual census;
+join own formal ordinal/binding/site to original Field Read or Null (no fakeformal).
+CallReceived must retain same obligations and require real packet emission plus
+parent Home/all-exit ordered cleanup before End-ready. Finishing and wire/C
+independently corroborate original actual→field relation and 0/1/2 residence End.
+Keep classwide unavailable guard; only explicitly anchored debt may instantiate.
+First internal slice retains/rechecks source requirements through packet input;
+it grants no new teardown permission. Existing result/packet tests verify source
+loss/reissue/census/formal mismatches; subsequent physical/End connection required.
+Scope: result verifier/handoff getter, packet source, tests and owner README.
 
-V825b root53.456867s/focused27 PASS; CLI170144.718183s PASS, root/CLI files equal.
-Unchanged M190 app171 canonical direct EXE RED12.845835s/no artifact, now
-callable-main/lowering ordinary-new/object-packet/teardown-unavailable; previous
-lexical-handle/argument-class is gone. CLI SHA4817c8fe4b267143bba0e470f76834d171ceb3d87adb02a82145acb0852912f4.
-Source/FFI/runtime/argv pinned app-v171-result-contract.json. Worker traces exact
-callee/return descriptor and required field anchor/End before any patch.
-Native m190-v171-teardown-worker.gdb.log confirms Main43 Body2 Init0,
-HakoAllocHeap.reallocResult/callee38; allocateResult Body1 passed common writer.
-No source acceptance/landing/runtime claimed. Source remains WIP; full goal open.
-V825a no-op build0.276445s preceded source edit after card-limit check aborted;
-it is not evidence for the V825 change. Pointer/diff guards PASS after V825b.
+V826g source checkpoint: root65.596144s PASS; 43 executions/41 unique focused
+PASS, plus existing nullable-owned physical stop1 and teardown4 PASS. All-exit
+requirements now survive result→same packet→original actual source join; missing/
+duplicate/reordered/foreign roots, dropped packet census and wrong formal/ordinal
+refuse. Null remains original actual; source joins grant no End/Ready permission.
+Intermediate a/c/f compile errors (scope/name) corrected; d/e new fixture wrongly
+required Ready, then corrected to canonical pending source rows. Existing40 green.
+No CLI rerun: physical anchor/End remains unconnected, app171 is latest measured.
+Full vertical remainder worker-confirmed: same CallReceived retains real Field
+read/Copy/Invoke/Normal and recursive parent anchor; Normal/Fault all-exit cleanup
+proves wrapper End before anchor. Existing C field dependency recursion reuses
+same ordinary call actuals; field_borrow root still needs exact received-call Normal,
+and outer-release validation must consume checked child End without weakening
+suffix checks. Existing 0/1/2 conditional child End needs no new MIR opcode/ABI.
