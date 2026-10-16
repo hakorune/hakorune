@@ -1,7 +1,7 @@
 # MirBuilder app bundle — mimalloc-lite completion D0
 
 Status: active; Required Object Forward S0 unaccepted; cumulative source WIP unlanded.
-Date: 2026-10-16
+Date: 2026-10-17
 Scope: the existing mimalloc-lite source-to-final-consumer series; no new lane.
 Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
 [final pipeline](../design/mirbuilder-final-pipeline-ssot.md),
@@ -34,17 +34,15 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 - Non-authority: MIR type/Box name, role/layout alone, opcode counts, nonnullness,
   copied witnesses, an emptied lowering pool or a convenient fixture.
 - Next acceptance connection: V803 acquired Mixed caller source/Home/actual
-  transport is under acceptance. V799 old Nullable writer retirement and
-  V800/V801 source/final consumer repair are verified pinned premises below.
-  CLI152 unchanged M189 passes original class agreement and stops at Mixed
-  arguments-missing. V805 common argument projection has 13 focused passes;
-  CLI154 passes the Main argument stop and package issuance; first stop is
-  callable-main/lowering print-expression/source-unavailable. V807b source/input
-  tests15 PASS. V809 received Print/final connection remains WIP; V810c numeric
-  field→New→Birth closure passed; V811 shares original Array reads with New and
-  Return/recipes, focused16 PASS. CLI157 passes page_id/block_id and stops at
-  requested_size source-missing; non-Me writer attribution is next. Typed Nullable
-  Print also lacks complete original input. No M189 EXE/runtime or source landing.
+  transport remains under acceptance. V799 old Nullable writer retirement,
+  V810/811 numeric field/Array→New→Birth, V812 non-Me writer attribution and
+  V813 received-read current packet checks are pinned premises below.
+  CLI161 unchanged M189 passes Main argument/package generation and Body12
+  nested field Print; first stop is Body13 heap.small_page.freeCount() source
+  demand Unselected. Stored-call receiver source currently admits Me only;
+  connect original Local-New source to that existing owner. V814 field paths have
+  focused/final and tiny-EXE proof; the series and typed Nullable input remain owed.
+  No M189 EXE/runtime or cumulative source landing.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -843,23 +841,9 @@ All source/runtime/End/full-goal acceptance remains owed. Keep those evidence
 pins until the cumulative source series lands; Array source checks alone do not
 prove executable Array C/PlanSourcePublication Set acceptance.
 
-Worker next mapping: do not infer that usize itself causes this source-missing.
-The sole writer inventory attributes Me only; original resizeInPlace's
-handle.requested_size=requested_size is a non-Me writer and vetoes that field.
-First observe its exact value_source error and candidate I64 evidence for the
-same New formal/Page.allocate/resizeInPlace value formals in the existing source
-fixture. Retain every original writer and join existing formal receiver/class/
-canonical field + Integer reach/source correspondence to the SAME inventory;
-do not drop it, rewrite it as Me, trust a declaration alone or fake a completed
-field-write frame before its phase. Existing checked_field_write_pair_v1 and
-borrowed_field_write_use_for_frame_v1 already own the late correspondence.
-FieldCandidates needs their original source prerequisites before closing.
-If ALL actuals/writers prove signed-I64 payload, preserve usize declaration and
-range checks and reuse current I64 Print/FieldGet/storage. SourceInteger-only
-usize or u64's upper half cannot be NormalInteger; no i64_source relaxation or
-new unsigned-to-signed cast. Existing whole-caller/field/Fault bounds remain.
-Missing early class/source lender is internal mapping work, not external block.
-Typed Nullable full original input remains a separate required same-series gap.
+V812's original non-Me writer mapping and intermediate investigation are retained
+at **b2a24fd4bd** (this path). Continuing source/value/writer vetoes are below;
+no unsigned-to-signed cast or relaxed usize/NormalInteger law was introduced.
 
 V812 non-Me writer source history is retained in b2a24fd4bd (docs checkpoint,
 not source landing). SAME actual seed product lends SourceObject through the
@@ -879,69 +863,135 @@ canonical direct EXE RED17.555916s/no artifact. requested_size source is crossed
 first-stop callable-main/lowering ordinary-field-read/received/targets-missing.
 Typed Nullable full input, runtime/End, source landing and full goal remain owed.
 
-V813 Decision, current received-field source consumer (same required series):
-Source authority + canonical issuer: the SAME original acquisition Call target
-moves once from lexical preparation into SourcePending/disposition/Call packet.
-issue_lexical_instance_call_dispositions consumes the preparation vector; it is
-not temporarily absent and must not be restored or cached for field reads.
-CallValidationContextV1.with_taken_original_row_v1 lends the original row from
-the current Lowering group or FinalizedRootSourceHandoff, with exact ledger,
-site and packet correspondence. Existing recheck_issuing_target_v1 owns source
-revalidation. Worker confirms this common owner mapping and full caller list.
-Non-authority: spent preparation, new registry/snapshot, receiver class alone,
-nullable or mixed descriptor without the current packet. No fallback lookup.
-Smallest next slice: thread context through field source recheck, checked pair,
-field projection and root validation callers; lowering-only facades select
-Lowering explicitly, finalized census keeps its existing Finalized context.
-Retire sole old recheck(targets) helper once caller-zero; retain source issuance
-types still used. Preserve Numeric loan, exact receiver Copy, Invoke/Normal, Fault
-and independent final census checks. Existing received Print/field projection
-tests plus unchanged M189 first-stop and final-owner mutations are required.
-V813 construction now threads current context into local field source rechecks,
-checked pair and projected validation; source-only callers select Lowering.
-The sole spent-vector recheck helper is physically removed (caller-zero);
-PreparedTargets import remains needed by the source issuance context alias.
-Existing typed Nullable Print retains its original full-input failure; existing
-alias Finalized packet identity/lowering-after-move checks remain distinct from
-received-read positive evidence. Worker re-review confirms current packet owner,
-handoff timing and shared RefCell borrows; no blocking found. Plain Bool field
-conditions still do not admit checked received reads; this slice does not expand
-that independent accepted family. V813b root PASS39.687385s; field reads4/field
-batch3/final Call visitor4/nested Call handoff1/literal Print1 PASS13. Existing
-whole-module-erasure negative now expects mandatory Main-ingress/root-missing
-before per-Call function checks, without weakening the source rejection.
-Original typed Nullable Print remains current cumulative-WIP RED at unchanged
-placement-handle-result-drift (not accepted/baseline-waived). CLI159 build pending;
-M189/runtime/End/source landing and full goal remain owed.
-CLI159 PASS147.887594s, binarybfb764a3b18fa897876d2823514dd09df0b848be5ef0b50ba2bfdf770b2521da.
-Root/CLI manifests and current rehash match. Canonical unchanged M189705a535c
-on SAME C808b/runtime808b RED34.534545s/no artifact. Spent targets error is crossed;
-new first-stop is callable-main/lowering print-expression/source-unavailable.
-Worker is locating its exact original statement before any next local patch.
+V813 decision, implementation and measurements are preserved at **0bc1ccb9dd**
+(this path; docs checkpoint, not source landing). Current CallValidationContext
+lends the SAME original acquisition target after affine preparation consumption,
+from Lowering groups or the FinalizedRootSourceHandoff. Received field and final
+census propagate that context; the old spent-vector recheck helper is removed.
+Numeric source, exact receiver Copy, Invoke/Normal/Fault and independent final
+checks stay conjunctive. V813b root PASS39.687385s; focused13 PASS. Original typed
+Nullable full-input Print remains RED placement-handle-result-drift, unaccepted.
+CLI159 PASS147.887594s, binarybfb764a3b18fa897876d2823514dd09df0b848be5ef0b50ba2bfdf770b2521da;
+matching root/CLI manifests. Unchanged M189705a535c on SAME C808b/runtime808b
+canonical direct EXE RED34.534545s/no artifact. Spent-target stop is crossed;
+new first-stop is nested Print source-unavailable, located below. Runtime/End,
+source landing and full goal remain owed.
 
-Worker mapping for the separately owed typed Nullable input (not implemented):
-existing OriginalLocalCallSourceV1/original_local_call_source_v1 proves sole LOCAL
-initializer/destination, Main caller loan, callee/key/brand and ordered actuals.
-Retain that same source loan as an optional input obligation during original
-need qualification, after Mixed/BorrowedNullable selection but before the one
-incoming scan. Result owner checks canonical NullableObject and original roots;
-no borrowed-specific formal_actual_v1, new result variant or registry is needed.
-One obligation must join incoming callee registration, observed argument lender,
-SourceInstance full-input selection, completed-original slot and packet family.
-Keep every original caller/veto/error, signature/Completion/exit/actual check.
-Later ObjectCallSourceLoan corroborates the completed target/roots. Do not embed
-a self-referential target snapshot, mark QualifiedObject, or use field completion
-as early permission: field rows exist only after co-seal. Original flag0/1 fixture
-and callee/argument/sibling/signature drift checks remain required. This mapping
-does not preempt the actual M189 Print frontier or grant runtime acceptance.
+Typed Nullable input remains separately owed; its exact read-only mapping is
+preserved at **0bc1ccb9dd** (this path). Retain the existing
+OriginalLocalCallSourceV1 as one source-input obligation BEFORE the one incoming
+scan. Join the same need/target through registration, observed arguments,
+SourceInstance selection, original completed slot and packet-family recheck.
+Preserve canonical NullableObject/roots/ordered actuals/signature/Completion;
+no borrowed-only formal_actual shortcut, QualifiedObject recast, self-reference,
+new registry or field completion as early permission. Original flag0/1 and drift
+negatives remain required. This does not preempt the actual M189 frontier.
+CLI159 exact no-inferior-call frames are also at **0bc1ccb9dd**: received field
+Print lowering passed; Body12 nested receiver was the first refusal. Latest
+CLI160/161 measurements below supersede that exact source stopping position.
 
-CLI159 no-inferior-call GDB confirmation (original argv/env, RUST_MIN_STACK16MiB,
-binary rehash unchanged): source frames Main43 Body7/8/9/10 and Body11 Then/Else
-pass; first refusal is Body12 `print("release_count=" + heap.medium_page.free_count)`.
-Thus h0/same/moved received-field Print lowering passes, not yet whole-function
-finalization/runtime/End. Body12 has nested receiver `heap.medium_page`; source
-field request currently admits only Local/Me roots and Print leaf classification
-cannot mark intermediate object fields Identity. Later frame absence follows
-prefixKnown=false, not separately measured failures. Read-only worker audits
-shared original expression path owner/materialization before next construction;
-no fake scalar Return loan, pre-staging for class discovery or new registry.
+V814 Decision, SAME required source field paths through Print/final consumers:
+Canonical source geometry is the SAME ExpressionSourcePlan Rc/node/root/parent.
+Return keeps its own facts/Completion/component wrapper. Print keeps its original
+plan/live root request, first-edge local_read_field declaration, SAME intermediate
+object-field sources and terminal closed numeric field-value loan. Extract the
+numeric value core from existing direct ExpressionFieldSource, without broadening
+that direct receiver façade. Intermediate Identity vs terminal I64 are only
+topology-derived hypotheses until the final atomic batch proves every descriptor,
+root/class/canonical parent/source Rc; failure stages nothing. No new global probe
+callback, scanner, registry, fake binding/Home/Return, AST rewrite or fallback.
+Reuse existing field progress/reserve/bind and parent output checks. Both source
+wrappers use that one physical owner; retire its Return-only structural body.
+Print must emit source-backed intermediate FieldAccess Identity and retain it in
+ordered bindings, copied dependencies, source validation and final census, while
+lexical Identity remains non-emitting. Existing owned root/alias/Me provenance is
+checked by the current pure issuer; checked-received/Array path expansion is not
+implied. Existing nested Return/Print/field batch drift negatives, independent
+final checks and unchanged M189 Body12 frontier are required. No acceptance yet.
+
+V814 root PASS107.393177s; first nested Print run exposed exact-root double
+consumption. V814b retains one SAME exact read per original root expression and
+its Copy dependencies through final projection. Object value loans recheck the
+original field name/key; path binding/census requires SAME current parent Rc.
+V814b root PASS73.348709s; field reads4/batch3/nested Return1/new source drift1/
+literal Print1/final Call visitor4 PASS14. Original full Print test remains RED:
+2-level p.child.n passes compile/verification; 3-level p.child.child.n stops at
+lexical-call-prior-home-unavailable before field emission. Worker located a
+separate provider child gate rejecting OwnedObjectFieldsNoHook; its recursive
+teardown owner already supports nested objects. Do not weaken prior-Home checks
+or count the whole test as PASS. CLI160 rebuild measures unchanged actual M189;
+no product advancement or final publication acceptance is claimed yet.
+
+V814c worker audit keeps container-class keys on SAME object/numeric value
+sources and compares every child to the original parent class at issue/recheck.
+First-edge source proof retains original parser box/object and exact New
+acquisition or entry identity/slot. Normalize existing claim→commit source lender,
+keeping the executable actual wrapper's construction gate. Original alias paths
+reuse the existing owning-edge source owner; no MIR/layout/root type inference.
+Independent final nested Print positives and sibling/base/read/Copy mutations
+are added beside the original full test, whose provider/typed-input reds remain.
+CLI160 PASS188.123038s, binaryc149897c0a8144e908b75a7ee9da534ee20c640221090ca6df9bec5ee7f7c4dd;
+root V814b and CLI source manifests match. Unchanged M189705a535c SAME C808b/
+runtime808b direct EXE RED33.543427s/no artifact. No-inferior-call GDB, identical
+argv/env +16MiB stack and unchanged binary: Body12 nested field Print passes;
+first stop Main43 Body13 original heap= Print, first scalar demand at
+heap.small_page.freeCount() is Ok(Unselected), before remaining field batch.
+Existing stored_child_source_v1 requires Me + instance entry proof; original
+Local(heap) New has no stored receiver source obligation. Next production mapping
+must join that SAME original candidate to existing stored-call source/arguments/
+physical/final owners, not infer a call target from Print field descriptors.
+No fallback or fake call. CLI160 predates V814c source-proof strengthening;
+full M189 EXE/runtime/End, source landing and full-goal acceptance remain owed.
+
+V814c compile RED80.618377s (four FieldAliasPath import paths); fixed at existing
+home_new_prefix reexport. V814d compile PASS96.145642s, focused14 PASS/2 RED:
+new independent final test exposes absent New initializer Copy provenance;
+alias source test exposes Provided field absence from all-writer class map.
+Keep both failures meaningful. Normalize existing local materialization proof:
+original variable initializer inherits SAME source chain; genuine non-variable
+initializer retains its own destination/initializer/Copy; absent initializer or
+failed variable proof never gets a substitute. Alias source keeps constructor-
+issued canonical edge facts and exact root New parser anchor, rechecking the
+existing sealed owning-edge census without demanding a different class map.
+Original Me/alias positives and foreign entry/New anchor negatives are required.
+
+V814e compile RED24.156464s: a test attempted mutable access through Rc; fixed to
+substitute a foreign opaque entry-root source in the negative, preserving ledger
+ownership. V814f compile PASS66.895456s. Focused34 PASS: nested Print source/final3
+(includes Me/alias positives, foreign root anchors and eight independent final
+field/base/read/Copy mutations), field reads4/batch3/nested Return1/literal1/final
+visitor4/local copy7/borrowed alias9/copy loan2. Original full Print test still RED
+at the unchanged 3-level provider/prior-Home gate; typed input remains owed and
+later full-test cases are unreached, not waived. CLI161 re-pins the same source.
+
+Next production Decision (worker full source→final audit): connect original
+Local-New parent authority to the existing stored-call owner for M189 Body13.
+Issue opaque root loan from SAME local candidate: caller/slot, sole original
+initializer/New site, binding/declaration, parser box-source anchor and canonical
+object; reject rebinding and same-class foreign acquisitions. Share its source
+lender with ExpressionFieldRootSource::New, retiring duplicate New recheck.
+Stored source issuance, incoming corroborate_stored_dispatch and target
+matches_receiver currently use Me-only checks; make those structural checks
+follow the SAME root obligation. Retain existing Me entry/Constructor callers.
+Reuse one incoming census, PendingStored→SelectedStored Rc, ordered arguments,
+canonical field/child/residence inventory, exact parent read/sole FieldGet and
+Invoke/Normal/Fault plus final materialize_in_context source reborrow across
+claim→commit take. Scalar result source is the callee's EXISTING original
+ScalarReturnSource (freeCount/outstandingBlocks/requestedBytes), not a new Print
+variant or fake Return; direct-forward ExistingBorrowedResult limits stay.
+Use existing stored receiver/source requirement/Print final tests for Local-New
+positive and root/field/child/site/caller/Rc/physical mutations, then unchanged
+M189 direct EXE. No new registry, source rescan or alias/nullable/Array expansion.
+
+CLI161 PASS181.684379s, binary9f5cd49f7e367b8c6b3c6f3aa00b9c9560789e23834f5db8610fc668d5929de3.
+V814f root/CLI/current source manifests match exactly. SAME C808b/runtime808b:
+unchanged M189705a535c direct EXE RED38.057226s/no artifact. GDB recheck uses SAME
+argv/env/16MiB and unchanged binary: Body12 passes, first stop remains Body13.
+Existing 2-level Print test's temporary counterpart, Leaf.n=7 and
+Parent.child=Leaf, canonical direct EXE PASS106.680258s; actual run PASS.001525s,
+stdout EXACT `n=7\nResult: 0\n`, exit0. Three functions/49 blocks/15 values pass
+V2/V4/C classification/flow/emission. EXE SHA
+b346822575c9180b7ed5b32c3d9ebc24d8d7823b7c32d6f85c8c7a4c036f277b.
+This tiny feature proof is not M189 or full-goal acceptance. Measurement overlaps
+M189; no speed comparison. Keep temporary source/EXE/receipts until source landing;
+required conditions/results are recorded here, not accepted solely by /tmp pins.
