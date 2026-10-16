@@ -896,41 +896,11 @@ Fault cleanup keeps its separate ordered owner. No child Home is issued.
 Exact Field-qualified SourceObject selection is common to issuer/projectors/
 phase guards; existing source-only forward remains passive, Nullable-qualified
 is delegation-only. Both selectors exclude Static before Instance lookup.
-V822k root52.793480s/focused49 PASS; CLI167137.854263s matches k source.
-V822l61.653065s/two focused PASS adds unknown-base interval hardening; no l CLI.
-Unchanged M190598e0edb/C816483c6e84/runtime808b2b6083aa canonical direct EXE:
-CLI165/app166 RED0.421442s Body2 source-actuals-missing; incomplete global-Nullable
-reclassification CLI166/app167 RED0.317442s sibling-source-draft was withdrawn;
-CLI16762b537df/app168 RED0.428498s Body2 source-actuals-missing/no artifact.
-These earlier refusals are not product progress; CLI164 Body7 never proved parent
-prefix coverage. Small self-LOCAL publication still fails Maker.wrap h=me.make
-placement. Late Handle-only selector experiment was withdrawn after an existing
-input regression; it needs original input request, not placement weakening.
-
-Latest read-only native GDB evidence (no inferior calls), pinned CLI16762b537df:
-- failing direct Instance source projection ← borrowed callback ← seal_i64_call_
-  arguments ← issue_lexical_i64_call ← scan_statement_flow; not by-phase lender.
-- Main43 Body0 Observe prefix_known1/Homes0; Body1 allocateResult prefix1/Homes1;
-  Body2 reallocResult prefix0/Homes1. First missing Home is alloc, before Field.
-- Body1 lexical_handle_result_call returns false twice: its bounded old family
-  requires all exact-i64 formals and construction_result_callee. allocateResult's
-  requested_size is opaque. Source factory class by itself does not select it.
-- sole install_inventoried_call_result writes Main43 binding2 at Body1 initializer;
-  its exact scan fallback immediately marks PrefixNotCovered(Body1). This is not
-  selected-producer SourceMismatch. Body2 prefix0 necessarily leaves FieldAccess,
-  never ReceivedField; no actual row can be invented from its passive capsule.
-
-Next Decision: fix the original parent acquisition/input coverage, not Field phase
-or missing-row guard. Worker maps whether the existing Field capsule acquisition
-ObjectCallSourceLoan can join the existing Array object-producer input lender,
-then input/frame/Home walk/packet consumers, preserving original roots/writers and
-all incoming checks. Keep true Array-only holder/Get consumers specialized. No
-relaxation of exact-i64 old selector, source Home fabrication or generic self
-blanket. Existing original LOCAL obligation and small publication stay open.
-Scratch: m190-v168-worker/observe-worker/handle-worker/fallback-worker GDB logs;
-retain source/build/test/EXE receipts and pinned binaries until source landing.
-V822l is current WIP; latest measured CLI167 precedes only interval hardening.
-No Cargo/rustc remains after completed builds. Active row and full goal stay open.
+V822k/l focused, CLI165–167 and exact GDB mapping: **fe1b212687**.
+Those old Body2 refusals traced missing alloc Home/whole input cohort, subsequently
+connected by V823–825. Small self-LOCAL publication still fails Maker.wrap h=me.make
+placement; do not weaken source/placement. Retain pinned source/build/test/EXE and
+GDB receipts until source landing. Current frontier and WIP remain below.
 
 V823 original parent connection contract: **e760a8e600** (source WIP). SAME Field
 hop ObjectCallSourceLoan/destination, original census and current roots/writer/
@@ -943,17 +913,9 @@ Array-only callee classifier retired; source getter retained. All target errors
 propagate before selected Nullable/Field observation. CLI168/M190 parent alloc/
 same/moved Homes real; first prefix loss Body4 invalid_size then Body7 refuses.
 
-V824 Decision (worker-confirmed; implementation/testing in progress):
-Keep exact producer source loans; normalize the two INPUT selectors (prepare
-instance actuals / selected original forward) to original producer callee cohort,
-retaining QualifiedObject priority. Field sibling Home issuer borrows existing
-batch/selected, issues its OWN object_call_source_v1 then corroborates its OWN
-original_local_object_target_source_v1 initializer/destination; recheck selecting
-Field cohort graphs/writers. No new map/target slot or Nullable loan retyping.
-Packet demand is exact producer OR Field cohort + actual Completion Handle LOCAL
-observation, original exact target/key/destination; full slot independently checks
-all inputs/result/Normal/End. Array expression exemption remains exact Array-only.
-Acceptance includes unrelated/nonlocal/uninitialized refusal and unchanged M190.
+V824 sibling contract: **e760a8e600**. Whole original input cohort preserves
+QualifiedObject priority; each sibling proves its own initializer/all roots.
+Field cohort + actual LOCAL selects packet; Array exemption stays exact.
 
 V824/825 contracts and exact root/CLI/app evidence: **e760a8e600** (source WIP).
 Sibling LOCAL input→Home→packet connected; physical dispatch uses samepacket
@@ -984,17 +946,35 @@ it grants no new teardown permission. Existing result/packet tests verify source
 loss/reissue/census/formal mismatches; subsequent physical/End connection required.
 Scope: result verifier/handoff getter, packet source, tests and owner README.
 
-V826g source checkpoint: root65.596144s PASS; 43 executions/41 unique focused
-PASS, plus existing nullable-owned physical stop1 and teardown4 PASS. All-exit
-requirements now survive result→same packet→original actual source join; missing/
-duplicate/reordered/foreign roots, dropped packet census and wrong formal/ordinal
-refuse. Null remains original actual; source joins grant no End/Ready permission.
-Intermediate a/c/f compile errors (scope/name) corrected; d/e new fixture wrongly
-required Ready, then corrected to canonical pending source rows. Existing40 green.
-No CLI rerun: physical anchor/End remains unconnected, app171 is latest measured.
-Full vertical remainder worker-confirmed: same CallReceived retains real Field
-read/Copy/Invoke/Normal and recursive parent anchor; Normal/Fault all-exit cleanup
-proves wrapper End before anchor. Existing C field dependency recursion reuses
-same ordinary call actuals; field_borrow root still needs exact received-call Normal,
-and outer-release validation must consume checked child End without weakening
-suffix checks. Existing 0/1/2 conditional child End needs no new MIR opcode/ABI.
+V826 source retention/actual join and complete evidence: **fe1b212687**
+(docs checkpoint; source WIP). g root65.596144s/focused41 unique+5 old guard
+PASS. Source-only pending actuals grant no End/Ready; latest measured app171.
+
+V827 Decision (workers mapped all consumers; same anchored field End series):
+Reducer distinguishes passive AnchoredFields from unrelated Unavailable;
+classwide descriptor() still rejects anchored templates. Same packet lends own
+Field/Null requirements, preserving original read Rc/parent acquisition and current
+writer graph. Begin records passive parents; actual Read/Copy/ConstNull binding
+precedes End-ready on same CallReceived packet Rc. Existing interval extends
+parent Normal→wrapper End. Normal/Fault cleanup orders wrapper before anchors.
+Common object LOCAL writer retains packet for lexical and entry receivers alike;
+old literal writer keeps unselected callers. Final context uses same packet.
+C received-call Normal and exact child-End discharge remain required before EXE;
+no new opcode/ABI. Scope adds local commit/physical packet helpers/existing tests.
+No fake formal, shallow End or retry. Full series and goal remain open.
+
+V827b source WIP: root61.163932s PASS; selected result/handoff/teardown/packet/
+slot/returned-source/root-order50 executions PASS, plus existing received cleanup,
+borrowed-copy boundary and child-finishing3 PASS on the same pinned binary.
+Current Field membership recheck is shared and nonmutating: missing row stays
+missing; identical foreign Rc rejects. Anchored+Null unsupported envelope refuses.
+CLI171188.289023s PASS; root/CLI source manifests identical. Pinned binary
+4631eb0db0fcff4f307bb4330c9d0b9d60bf3e89de4360adf666d1c2ef2c2058.
+Unchanged M190598e0edb/C816483c6e84/runtime808b2b6083aa canonical direct EXE
+app172 RED13.565551s exit1/no artifact: print-expression/source-unavailable.
+This advances the old teardown-unavailable refusal, not final End/C or EXE proof.
+Read-only worker maps original print source→all consumers before next patch;
+same Forward series remains open. C received root/Provided writer/cleanup-aware
+child discharge are mapped to existing owners, not implemented or accepted.
+Receipts v827b-root.*, v827-cli171.*, app-v172-result-contract.* retained until
+source landing; source WIP uncommitted, full goal remains active.

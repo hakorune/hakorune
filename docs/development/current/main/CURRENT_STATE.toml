@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/anchored-field-end"
+current_blocker_token = "required-object-forward/print-expression-source"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 unaccepted, source WIP unlanded; CLI170/M190 app171 anchored-field-end.
+RequiredObjectForwardS0 unaccepted, source WIP unlanded; CLI171/M190 app172 print-expression source.
 First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
 canonical direct EXE, run, exact existing stdout and exit0. No source landing.
 V801b whole-source compiled-entry/ABI/backend PASS both opts, including both
