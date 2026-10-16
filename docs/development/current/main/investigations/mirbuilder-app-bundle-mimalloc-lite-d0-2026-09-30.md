@@ -33,9 +33,10 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   LocalSSA relations and FinishedBindings → both independent final consumers.
 - Non-authority: MIR type/Box name, role/layout alone, opcode counts, nonnullness,
   copied witnesses, an emptied lowering pool or a convenient fixture.
-- Next acceptance connection: V799 self Nullable common packet switch/old writer
-  retirement passed focused checks; V800 child Add retention/final consumer and
-  V801 Birth Fault assertions are under acceptance below.
+- Next acceptance connection: V803 acquired Mixed caller source/Home/actual
+  transport is under acceptance. V799 old Nullable writer retirement and
+  V800/V801 source/final consumer repair are verified pinned premises below.
+  Current unchanged M189 stop is original DeclaredObject class agreement; no EXE.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -500,3 +501,224 @@ on that same binary; CLI149 rebuild then canonical fresh EXE/run are pending.
 These will re-pin final related source, not replace required fixed acceptance
 or imply cumulative source landing. Active source/test evidence retained until
 series acceptance; no source adapter was added by V799–801.
+
+Runtime reconciliation (read-only): V797 connects original Mixed/Borrowed source
+through final Rust consumers; app148 validates ALL30 C bodies and links, but its
+workload does not execute realloc/reallocResult/resizeInPlace. native39 and
+owned16 retain their distinct Array/owned Null-Fresh coverage. Remaining boxes
+therefore mean connected, REACHED runtime/outcome/Fault/independent C mutation
+acceptance owed, not missing JSON transport. Do not infer it from app stdout.
+Existing unchanged M189 mimalloc-object-return-api-proof supplies real incoming
+realloc0/1/2 and resize0/2; M190 mimalloc-result-contract-proof supplies wrapper
+Forward-field support and later reads/outer End. Reuse their existing guard
+output oracles, but SAME canonical direct emit-exe route/pins as app148; old
+VM/emit-MIR helper routes are not canonical evidence. First-stop measurement
+next; no app rewrite, new fixture, fake Main support or optional tiny-Root lane.
+Existing C call-result observer is the future runtime/negative owner; do not
+count its current owned16 as Mixed coverage. Actual first app validation runs
+continue on pinned source; source acceptance remains open.
+CLI149 build PASS165.413057s, SHA eed8da06fbd8ccf4e0bbcf24d25a8a1435491a4e1ce8bddc146a5c81a2b6e109;
+its7463 source hashes equal root v801b manifest exactly. Existing
+integration/apps/typed_object_method_min_exe.sh PASS with that CLI, FFI798,
+runtime757, RUN_TIMEOUT_SECS900: selected V4/LLVM-CAPI/EXE and expected exit30.
+Its command elapsed was not separately measured; no timing or full-suite claim.
+
+Pinned M189 first measurement RED .050279s: original Main Body2/Initializer0
+(local same=heap.realloc(h0,16)), borrowed-nullable/caller-key, no artifact.
+Pinned M190 RED .166698s: Main Body1/Initializer0 (local alloc=heap.allocateResult(8)),
+borrowed-result/source-not-i64, no artifact. Source SHA respectively
+705a535cab75360c59c8e69e666b4c0560913453539d30d3dc5bf4f635a6c7bb and
+598e0edb2fc0a60214f3f11dd91654517138ee34083528afbf35addd3cbfa9e4.
+Same direct canonical emit-exe argv/env/runtime757/FFI798; receipts m189-v149 /
+m190-v149 under evidence base. Independent workers now trace original Main
+caller/key ingress and owned wrapper result selection to final consumers;
+actual Main sources above, never app148's nonexistent Main realloc incoming,
+select this required runtime acceptance. No new key, fallback or hako rewrite.
+App149 compile and v801b whole-source bothopts verification still running;
+no code modified since those pinned source snapshots.
+App149 PASS: canonical direct compile rc0 539.602955s, run exit0 .001702s,
+raw stdout exactly same7 lines as app148. EXE SHA
+c05043feb597733618b2e135811c030816f49d3d5d54dcaa613b9a0f1c07b340.
+Original C input unchanged SHA5408d9a3c2cc87e086c4655a788d5722eb684bca98cf77a2041f595adc44d3ca;
+all30fn/2031blocks/856values pass C. V2 334.163450s/V4 2.091475s/emit.033618s/
+library.103499s, overlapping whole-source test; no speedup claim. CLI/runtime/
+FFI/app source pins above. No binary or source modified during this run.
+
+M189 full-boundary audit: original_local_call_source rejects AppMain despite
+existing BorrowedAppMainSourceLoan; normalize to same original caller, never a
+fabricated key. Beyond that first stop, MixedLocal source formal_actual,
+Home installer is_self_rooted_handle and outgoing witness composition are
+formal-only. Its caller anchor must be separated from unchanged callee roots/
+fixedordinal/Fresh class+complete End. Reuse original received_call_acquisition,
+nullable/Mixed packet/source/teardown and current Home state; class alone is
+not liveness. Chained same→moved needs original ReceivedMixed actual carried
+through allactual classifier/exact read+Copy/ABI/JSON. C ordinary actual and
+field-anchor recursion must lend existing Mixed260 readability, preserving
+conditional ownership, not numeric3 or unconditional LIVE. Keep outgoing
+Return/constructor field escapes formal-only until separately authorized;
+local borrowed anchor never becomes a dying-local Return permission.
+M190 first ownedWrapper result likewise needs complete original incoming/result
+packet, not an all_formals_exact_i64 exception or source-not-i64→None. Workers
+are resolving existing common lenders and delete-set before construction.
+
+V802 bounded construction selected: original Main caller proof in existing
+local-call result owner. Borrow ephemeral identity/key view from existing Main
+loan during issue and ledger's retained pair during recheck; one check owns
+unique original declaration/owner/slot, Static contract/arity/ordered binding.
+No new persistent source map, Main selection row, key synthesis or Home-based
+key issuance. Replace Cataloged-only caller lookup; preserve complete callee
+roots, formal-only substitution/escape and missing/foreign source refusal.
+This is source connection preparation in the SAME runtime series, not product
+success: M189 local acquisition/Mixed actual/Home/C connection remains required.
+Existing Main input identity tests and original M189 firststop are the entry
+positive/negative evidence; full runtime acceptance remains M189/M190 unmodified.
+
+V801b full unchanged source test PASS1532.750634s bothopts on binary e278…;
+whole compiled-entry/ABI/backend admission, both independent module/published
+operand scans and all existing Mixed/Borrowed/source mutations remain required.
+This and app149 re-pin the pre-V802 source only. V802 is newer unaccepted WIP.
+V802 check/root build first rounds expose mechanical API/test wiring errors
+(doc import order, parameter site index spelling, explicit None/contract args,
+immutable parameter-catalog test clone). Correct within the selected mapping;
+no production helper visibility or acceptance relaxation. Existing Main input
+identity test now checks same initial/retained loan, wrong slot/mode and foreign
+batch with no extra fixture. Focused build/results pending.
+
+V802b root build PASS111.442848s. Main source input module4PASS/1RED;
+new original/retained view +wrongslot/mode/foreign identity case PASS. Borrowed
+nullable source2 and object argument4 PASS; child relation module3PASS/3RED.
+Four broadened-filter reds stop in unused/source-only fixture package issuance:
+current_owner_loop_handoff… NoIncoming; child_relation_real_page_heap… /
+foreign_constructor… / changed_forward_formal… integer-field/source-identity.
+Record as unresolved cumulative WIP (not baseline waiver); worker audits original
+source-Facts vs executable-input demand before any fixture or predicate change.
+Source-only original fixtures and independent Rc/ordinal negatives stay.
+V802c tightens helper selection per review: exact AppMain only for selected=None;
+Some(nonCataloged) retains original refusal. Owner README table placement fixed.
+No Acquired anchor or Home permission added by this source-caller preparation.
+
+V802c root build PASS52.903125s; source Main module4PASS/1RED,
+borrowed nullable2/object argument4 PASS. Same four cumulative source REDs remain.
+Worker review selects the existing completion phase boundary for every static
+scalar family: no original ExecutableStaticScalar receipt means no completed
+cohort; once one exists, retain full incoming projection/veto/whole-cohort checks.
+This is not a NoIncoming error catch or a fabricated Main call. Source observations
+and independent same/foreign catalog comparison remain unchanged.
+Foreign constructor/changed ordinal negatives move to existing canonical
+with_source_claims_fixture/prepare_source_claims, retaining original page_heap,
+8 original relations, foreign issuance rejection0 and changed ordinal rejection7.
+Delete their now-exclusive full-package rebuild helper. Real page_heap Home
+prefix6/2 remains on the full package; its integer-field/source-identity RED is
+separate and cannot be bypassed by a source-only test seam. V802d build pending.
+
+V802d build PASS66.123842s: Main input5PASS, source child relations5PASS/1RED,
+completed static scalar cohort1PASS (existing sibling removal/foreign mutation
+refusals retained). V802e diagnostic-only build PASS38.944192s separates exact
+source Rc missing/ambiguous/name from current closure loss. The sole remaining
+full page_heap RED is integer-field/source-identity/current-closure; no source
+Rc mismatch. Audit focuses existing ground_source_results phase publication,
+not identity relaxation or fixture removal. Original prefix6/2 assertion owed.
+Main terminal7PASS on V802e with required RUST_MIN_STACK16777216. Initial
+main_terminal:: invocation lacked that stack setting and aborted on firsttest;
+no success claimed for that invocation. An earlier static_main_terminal_tests
+filter matched zero and is not evidence. CLI150 build now pins current V802e
+source for unchanged M189 firststop comparison; full Acquired anchor remains owed.
+
+Acquired anchor review: split existing Mixed loan's callee roots/fixedordinal/
+Fresh class from caller Formal vs Acquired source. Formal keeps ordered
+substitution and original composed witnesses. Acquired retains only exact
+original local-call source at sole initializer (not parent Mixed loan/Completion).
+Select from original Parameter/Local kind; never retry failed Formal as Local.
+Home joins exact acquisition, unique original Nullable/Mixed observation,
+covered call and current priorHomes both at install and subsequent use. Existing
+conditional received Home, CallFault priorHomes and complete ObjectEndIfOwned
+remain sole End owner. Outgoing Return/constructor field support still requires
+Formal; local acquisition does not authorize escape. This is one required runtime
+series, not an independent source-only product lane.
+
+CLI150 build PASS181.362704s, SHA27fe05632cd027fbbfb1f628e2ea485ac8033344d15df3dc8fd2532895078337.
+Unchanged M189 canonical direct EXE RED .042497s, same original Main local
+same=heap.realloc(h0,16), firststop advances caller-key→formal-root; no artifact.
+Runtime757/FFI798/source SHA unchanged, receipt m189-v150.json. This verifies
+Main caller source connection, not Acquired anchor/Home/runtime acceptance.
+
+The current-closure suffix does NOT establish post-seal instability: retained
+component field membership was not measured. Worker identifies owner5 as
+HakoAllocPage.allocate, original me.free_top decrement Lhs; its Birth basis is
+capacity whose original actual is LayoutBox.class_capacity(0/1). Test's string
+issuer does not expand using imports. Selected V802f test-input repair composes
+original page_heap + original LayoutBox + transitive original SizeClassBox,
+without source rewriting or fake calls; relation8 and prefix6/2 expectations
+remain identical. Source-only foreign/ordinal tests remain their separate phase.
+Do not change ground_source_results on the unproven instability hypothesis.
+
+V802f test-input-only build PASS55.938529s. Full page_heap focused remains RED,
+but original free_top/current-closure stop is gone. With original dependencies
+present, next stop is owner18 Body0Value borrowed-static/required-integer-source-unproved.
+No 8relation/prefix6/2 assertion was reached or relaxed. This is still the one
+unresolved cumulative test, not a successful full-package source acceptance.
+Worker maps unrequested static input/forwarding phase before another patch.
+Main caller source connection and three repaired tests stay covered by V802d/e;
+V802f only changes the remaining test's original dependency input composition.
+
+V803 source/ordered Home construction starts inside the same required runtime
+series, after read-only caller-anchor review. Mixed source loan separates
+callee original roots/fixedordinal/Fresh object from private Formal/Acquired
+anchor. Original Parameter/Local kind selects one path; Formal failure never
+retries Local. Acquired retains sole original initializer source and its root
+Rc census, no parent Mixed loan or Completion cycle. Formal-only outgoing
+Birth field support explicitly rejects Acquired. Existing formal composition,
+foreign snapshot and ordinal drift checks remain. Original M189 same/moved/fail
+source cases reuse unchanged app +page_heap and existing source fixture helper;
+all three prove exact prior acquisition and no caller-formal witness, with
+same-spelling foreign facts rejected. No new fixture or test function.
+Home install joins original call/declaration/binding, Nullable/Mixed role,
+covered acquisition/current priorHomes and SAME parent Mixed loan. Support
+consumption/rebinding invalidates source availability. Subsequent Mixed actual
+observer/packet/ABI/C joins are still owed; is_received_mixed_v1 is retained
+only for that next same-series connection, not current execution permission.
+V803a build PASS100.008268s; V803b PASS61.590709s. Existing full-facade source
+test (now with original M189 acquisition cases)1PASS; changed ordinal1PASS;
+borrowed nullable2PASS. Wrong home_prefix_received_call::tests filter was zero,
+not evidence; exact existing received_call_tests:: run next. Full page_heap
+source/unused static input RED above remains unresolved, not a baseline waiver.
+V803b received_call_tests5PASS (correct filter); pointer/diff checks remain required.
+V803c connects ReceivedMixed as its own passive/actual variant through current
+Home-chain observation, SAME ingress Mixed source loan, shared original
+Completion acquisition lender, source domain/entry/read/Copy and JSON
+nullable_typed_object transport. This is not ReceivedNullable/TypedHome or an
+ordinary LIVE permission. Build PASS73.080896s; focused actual26/object argument4/
+received identity5/original M189+formal source1 PASS. Parent packet/full result/
+completeEnd remain required final gates, not replaced by the class lender.
+Borrowed actual owner795 lines: considered split at760; no further growth past800.
+C803 uses the same mixed-result reader with a decreasing Mixed↔anchor budget;
+ordinary borrowed actual checks exact conditional state/Normal/fixedordinal,
+Fresh domain and recursive Forward anchor domain. Tagged uses original object
+formal, HANDLE uses original provider/class plus readability, exact null ends
+without a class. Neither edge consumes support or changes260 toLIVE.
+FFI803 build PASS6.041393s. Runtime Mixed execution/independent mutations still
+owed; existing owned16 regression and fresh CLI151/M189 measurement next.
+
+CLI151 build PASS202.925506s, SHA76213100182748b899aa43f040eb596b03629bf814c17688f2fb691b57e86dd3.
+C803 owned16 +original Normal/new/Home Faults and mutations PASS206.985156s,
+FFI SHA2bb0b89dd59b250f23a02205f93062ffd1ed8d3be0c0eb0a9b879a5001e313cb,
+runtime757 unchanged. These overlap CLI build; no speed claim/Mixed coverage.
+Read-only C review additionally requires existing canonical group.field child
+class at field-anchor recursion. C803b passes that SAME child_object_id rather
+than classless anchor permission; build PASS6.042351s, SHA
+027fa1a5e249bf6e58f0709a1082ee263a8f27851136425ab9e5685c4efd2a4b.
+CLI151 Rust source is pinned by cli-v151.source.json; external C803b separately
+by ffi-v803b.source.json. No claim that the earlier CLI manifest includes the
+later C-only tightening. C field-return6 regression running on C803b.
+Unchanged M189 canonical direct EXE RED .170363s on that pair/runtime757,
+no artifact: stop advances from Main formal-root to owner38 Body3Initializer0
+borrowed-view/declared-object-class. Parent source-class agreement is the next
+same-series join to inspect; do not relax DeclaredObject to accept a different
+class or fall back to untyped. Receipt m189-v151.json keeps original sourceSHA.
+
+C803b field-return6 execution and existing mutations PASS32.747569s with runtime757.
+The current Main/Local source, domain and C transport is newer unaccepted WIP;
+none of these regressions establishes reached Mixed outcome/End runtime evidence.
+Current original class agreement must be normalized at original_formal_seeds →
+selected_views before transport pruning, not repaired from the later ABI/source
+actual variant. Worker traces the original incoming/lender correspondence.

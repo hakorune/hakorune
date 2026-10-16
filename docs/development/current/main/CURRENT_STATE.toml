@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/final-same-series-validation"
+current_blocker_token = "required-object-forward/reached-runtime-main-ingress"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,42 +18,34 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
-V798 first milestone PASS: unchanged app148 direct EXE/run/stdout/exit0.
-Native39/actual bothopts PASS; V753 resolved; V799 Nullable retired, V801 JSON33 PASS.
-V756 shared current-owner received Birth source correspondence PASS both opts,
-including ValueId/ordinal drift, original Return/conditional End final checks.
-V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
-new runtime757 exports residence set/get. Accepted C evidence still covers Null/Fresh peers.
-Next Mixed/Borrowed outcomes + formal field support/anchor + conditional End
-must reach ABI/JSON/C without treating Forward as an owned Home.
-Required Array C execution, PlanSourcePublication Set, field Birth/full support
-and remaining real FieldWrite pins stay owed. Raw FieldIndexSet closure passed.
-If-merge normalization/pin-writer retirement landed fb512d0549; focused36 and
-both-opts strict actual consumer PASS. Source field/Return support remains WIP.
-V765b owned Return/support retention actual PASS1073.67s both opts.
-V766 strict ordinary Return C owned16/field6/stored96 PASS. V767b internal
-call-outcome companion owned16/Provided3/Unit7 PASS; Forward remains closed.
-V768 build64.169731s/focused36 + both-opts actual1 PASS1040.24s, incl wrapper
-mutations. V767c Array peer release regression fixed/Provided3+argv4 PASS.
-V769 groups keep all ordered loans; build68.142233s +actual PASS1074.29s.
-V770 shared C owner owned16/Unit7/argv4+Array-peer PASS; V774 owned16 PASS.
-V775+ borrowed0/2 schema/anchor/output/JSON connection built as unaccepted WIP;
-V776/777 new microprobe retired: root scalar-call ReturnValueNotCovered,
-outside current app entry. Actual8 stays sole source authority; borrowedC owed.
-JSON30/33 PASS,3 ownWIP reds; C776 owned16 PASS116.384666s.
-V781 Mixed ABI/JSON/C Birth+completeEnd envelope WIP; Cbuild PASS6.023752s.
-CLI139 +C owned16/field6/stored96 PASS; actual fails new scalar-kind frontier.
-V782 build83.933306s; JSON32/35 PASS,3 own cumulative WIP reds.
-V784 same checked Array Get→local→Birth receipt built; focused6 PASS.
-V785 build PASS65.933769s/actual+mutations PASS1156.055888s; no ABI type stamp.
-CLI144 build147.681373s/app474.585156s; C structural validation305.239363s.
-V791 perfunction scoped header normalization build65.912811s/cohort96+5 PASS.
-V798 declarations/native39/app EXE+run PASS; acceptance regression repair next.
-Get2/Set5+drift/Fault PASS. V786 actual RED same numeric stop; loop pin RED.
-Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
-First milestone achieved on pinned unlanded WIP; full goal remains open;
-full fixedsuite/integration/cutover/retirement/R6/R7/Loop/authority/parser/
-nondelegating selfcompile conditions remain. No fallback/workaround/new lane.
+First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
+canonical direct EXE, run, exact existing stdout and exit0. No source landing.
+V801b whole-source compiled-entry/ABI/backend PASS both opts, including both
+independent final scans and original Mixed/Borrowed mutations. Full suite owed.
+V799 self Nullable switched to the common packet; exclusive old writer and
+unwind helper physically removed. V800 child Add retention and V801 Birth Fault
+owner checks pass; existing physical JSON33/source22 PASS on that pinned source.
+V802 borrows the original Main co-seal at local-call source lookup; CLI150
+unchanged M189 stop advances caller-key to formal-root. Main input5/static
+terminal7/source identity and drift checks PASS. Four broadened source test
+reds reduced to one; remaining full page_heap prefix6/2 test lacks executable
+static input at Layout.normalize_size after original dependencies are supplied.
+V803 separates Mixed callee law from Formal/Acquired caller anchor, retaining
+sole initializer and SAME root Rc. Original M189 acquisition3/source negatives,
+actual26/object argument4/received identity5 PASS. Home/actual/read/ABI/JSON
+connection is WIP. CLI151 M189 advances to reallocResult original class
+agreement (declared-object-class); no EXE. C803 owned16 and C803b field-return6
+regressions PASS; these do not establish Mixed runtime acceptance.
+Existing M189/M190, unchanged and on canonical direct EXE, select required
+Mixed0/1/2 and Borrowed0/2 plus Forward field support, anchor and conditional End.
+Publication/body validation is not reached-runtime evidence. No fake Main call,
+.hako workaround, new registry, fallback or optional tiny Root lane.
+Required Array C execution, PlanSourcePublication Set, full field Birth/support
+and remaining real FieldWrite pins stay owed. V734/V739 source connections and
+fb512d0549 if-merge normalization remain premises, not new tasks.
+Full MIRBUILDER-FINAL-PIPELINE-v1 remains open: fixedsuite/integration,
+production cutover and retirement, R6/R7/Loop/authority/parser and nondelegating
+selfcompile. Accepted history stays in the active card and cited commits.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
