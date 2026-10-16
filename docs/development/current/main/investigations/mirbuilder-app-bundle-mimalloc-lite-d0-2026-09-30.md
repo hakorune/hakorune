@@ -41,10 +41,10 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   CLI154 passes the Main argument stop and package issuance; first stop is
   callable-main/lowering print-expression/source-unavailable. V807b source/input
   tests15 PASS. V809 received Print/final connection remains WIP; V810c numeric
-  field→New→Birth closure has15 focused passes. CLI156 advances within Main Body8
-  from h0.page_id to the next field; Array value→New source proof is still absent.
-  Typed Nullable Print also lacks complete original input. No M189 EXE/runtime
-  acceptance or source landing yet.
+  field→New→Birth closure passed; V811 shares original Array reads with New and
+  Return/recipes, focused16 PASS. CLI157 passes page_id/block_id and stops at
+  requested_size source-missing; non-Me writer attribution is next. Typed Nullable
+  Print also lacks complete original input. No M189 EXE/runtime or source landing.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -569,105 +569,31 @@ M190 first ownedWrapper result likewise needs complete original incoming/result
 packet, not an all_formals_exact_i64 exception or source-not-i64→None. Workers
 are resolving existing common lenders and delete-set before construction.
 
-V802 bounded construction selected: original Main caller proof in existing
-local-call result owner. Borrow ephemeral identity/key view from existing Main
-loan during issue and ledger's retained pair during recheck; one check owns
-unique original declaration/owner/slot, Static contract/arity/ordered binding.
-No new persistent source map, Main selection row, key synthesis or Home-based
-key issuance. Replace Cataloged-only caller lookup; preserve complete callee
-roots, formal-only substitution/escape and missing/foreign source refusal.
-This is source connection preparation in the SAME runtime series, not product
-success: M189 local acquisition/Mixed actual/Home/C connection remains required.
-Existing Main input identity tests and original M189 firststop are the entry
-positive/negative evidence; full runtime acceptance remains M189/M190 unmodified.
-
-V801b full unchanged source test PASS1532.750634s bothopts on binary e278…;
-whole compiled-entry/ABI/backend admission, both independent module/published
-operand scans and all existing Mixed/Borrowed/source mutations remain required.
-This and app149 re-pin the pre-V802 source only. V802 is newer unaccepted WIP.
-V802 check/root build first rounds expose mechanical API/test wiring errors
-(doc import order, parameter site index spelling, explicit None/contract args,
-immutable parameter-catalog test clone). Correct within the selected mapping;
-no production helper visibility or acceptance relaxation. Existing Main input
-identity test now checks same initial/retained loan, wrong slot/mode and foreign
-batch with no extra fixture. Focused build/results pending.
-
-V802b root build PASS111.442848s. Main source input module4PASS/1RED;
-new original/retained view +wrongslot/mode/foreign identity case PASS. Borrowed
-nullable source2 and object argument4 PASS; child relation module3PASS/3RED.
-Four broadened-filter reds stop in unused/source-only fixture package issuance:
-current_owner_loop_handoff… NoIncoming; child_relation_real_page_heap… /
-foreign_constructor… / changed_forward_formal… integer-field/source-identity.
-Record as unresolved cumulative WIP (not baseline waiver); worker audits original
-source-Facts vs executable-input demand before any fixture or predicate change.
-Source-only original fixtures and independent Rc/ordinal negatives stay.
-V802c tightens helper selection per review: exact AppMain only for selected=None;
-Some(nonCataloged) retains original refusal. Owner README table placement fixed.
-No Acquired anchor or Home permission added by this source-caller preparation.
-
-V802c root build PASS52.903125s; source Main module4PASS/1RED,
-borrowed nullable2/object argument4 PASS. Same four cumulative source REDs remain.
-Worker review selects the existing completion phase boundary for every static
-scalar family: no original ExecutableStaticScalar receipt means no completed
-cohort; once one exists, retain full incoming projection/veto/whole-cohort checks.
-This is not a NoIncoming error catch or a fabricated Main call. Source observations
-and independent same/foreign catalog comparison remain unchanged.
-Foreign constructor/changed ordinal negatives move to existing canonical
-with_source_claims_fixture/prepare_source_claims, retaining original page_heap,
-8 original relations, foreign issuance rejection0 and changed ordinal rejection7.
-Delete their now-exclusive full-package rebuild helper. Real page_heap Home
-prefix6/2 remains on the full package; its integer-field/source-identity RED is
-separate and cannot be bypassed by a source-only test seam. V802d build pending.
-
-V802d build PASS66.123842s: Main input5PASS, source child relations5PASS/1RED,
-completed static scalar cohort1PASS (existing sibling removal/foreign mutation
-refusals retained). V802e diagnostic-only build PASS38.944192s separates exact
-source Rc missing/ambiguous/name from current closure loss. The sole remaining
-full page_heap RED is integer-field/source-identity/current-closure; no source
-Rc mismatch. Audit focuses existing ground_source_results phase publication,
-not identity relaxation or fixture removal. Original prefix6/2 assertion owed.
-Main terminal7PASS on V802e with required RUST_MIN_STACK16777216. Initial
-main_terminal:: invocation lacked that stack setting and aborted on firsttest;
-no success claimed for that invocation. An earlier static_main_terminal_tests
-filter matched zero and is not evidence. CLI150 build now pins current V802e
-source for unchanged M189 firststop comparison; full Acquired anchor remains owed.
-
-Acquired anchor review: split existing Mixed loan's callee roots/fixedordinal/
-Fresh class from caller Formal vs Acquired source. Formal keeps ordered
-substitution and original composed witnesses. Acquired retains only exact
-original local-call source at sole initializer (not parent Mixed loan/Completion).
-Select from original Parameter/Local kind; never retry failed Formal as Local.
-Home joins exact acquisition, unique original Nullable/Mixed observation,
-covered call and current priorHomes both at install and subsequent use. Existing
-conditional received Home, CallFault priorHomes and complete ObjectEndIfOwned
-remain sole End owner. Outgoing Return/constructor field support still requires
-Formal; local acquisition does not authorize escape. This is one required runtime
-series, not an independent source-only product lane.
-
-CLI150 build PASS181.362704s, SHA27fe05632cd027fbbfb1f628e2ea485ac8033344d15df3dc8fd2532895078337.
-Unchanged M189 canonical direct EXE RED .042497s, same original Main local
-same=heap.realloc(h0,16), firststop advances caller-key→formal-root; no artifact.
-Runtime757/FFI798/source SHA unchanged, receipt m189-v150.json. This verifies
-Main caller source connection, not Acquired anchor/Home/runtime acceptance.
-
-The current-closure suffix does NOT establish post-seal instability: retained
-component field membership was not measured. Worker identifies owner5 as
-HakoAllocPage.allocate, original me.free_top decrement Lhs; its Birth basis is
-capacity whose original actual is LayoutBox.class_capacity(0/1). Test's string
-issuer does not expand using imports. Selected V802f test-input repair composes
-original page_heap + original LayoutBox + transitive original SizeClassBox,
-without source rewriting or fake calls; relation8 and prefix6/2 expectations
-remain identical. Source-only foreign/ordinal tests remain their separate phase.
-Do not change ground_source_results on the unproven instability hypothesis.
-
-V802f test-input-only build PASS55.938529s. Full page_heap focused remains RED,
-but original free_top/current-closure stop is gone. With original dependencies
-present, next stop is owner18 Body0Value borrowed-static/required-integer-source-unproved.
-No 8relation/prefix6/2 assertion was reached or relaxed. This is still the one
-unresolved cumulative test, not a successful full-package source acceptance.
-Worker maps unrequested static input/forwarding phase before another patch.
-Main caller source connection and three repaired tests stay covered by V802d/e;
-V802f only changes the remaining test's original dependency input composition.
+V802 detailed Main-source construction/build/debug history is preserved at
+**48e2ad16d2** (this path). Retain its contract: existing Main initial/retained
+loan supplies unique declaration/owner/slot/key/Static contract/ordered binding;
+AppMain is selected only for selected=None, not a failed Cataloged/nonCataloged
+lookup. No persistent Main registry, synthetic key/call or Home permission.
+Main input5 and terminal7 PASS; original identity/wrong slot/mode/foreign source
+checks stay required. CLI150 advanced unchanged M189 caller-key→formal-root,
+without EXE/runtime acceptance. V801b/app149 remain pre-V802 pinned premises:
+whole source compiled-entry/ABI/backend and both independent final scans with
+existing Mixed/Borrowed mutations PASS bothopts1532.750634s; no newer full claim.
+Completed Static scalar families require original executable receipt presence
+before whole-cohort demand; once present, all incoming/veto/signature checks stay.
+No NoIncoming catch, empty executable permission or fake Main call. Original
+foreign-constructor/changed-ordinal negatives use the existing source fixture
+seam (relation8, foreign rejection0, ordinal rejection7); exclusive full-package
+rebuild helper was removed. They do not replace the full page_heap assertion.
+Full page_heap package prefix6/2 remains RED after importing unchanged LayoutBox
+and transitive SizeClassBox: free_top field closure stop is gone; unused
+Layout.normalize_size source now refuses required-integer-source-unproved. Its
+8relation/prefix6/2 assertions remain unwaived; see later V806 current own reds.
+Acquired support keeps its original local-call initializer and current Home/
+observation/covered Call/priorHomes, while Formal keeps substitution/all roots.
+No Formal-failure retry as Acquired; local support never grants outgoing Return/
+constructor-field escape. Conditional Home, CallFault and ObjectEndIfOwned stay
+sole runtime owners. V803 below carries this same required runtime connection.
 
 V803 source/ordered Home construction starts inside the same required runtime
 series, after read-only caller-anchor review. Mixed source loan separates
@@ -916,57 +842,21 @@ the numeric field actual; Array-origin actuals remain missing. New field emissio
 final consumer code stays unaccepted WIP; own regressions, mutations, source/runtime
 and full goal acceptance remain owed.
 
-V810 construction, numeric bridge only (not acceptance): sole OriginalNewSeeds
-observation retains passive exact Me field actuals at the original ordinal;
-canonical Instance/Birth root supplies the lexical class. No expression root,
-source rewrite or new call registry is invented. FieldCandidates joins those
-keys to its SAME field-source Rcs. Its NewParameter loan retains SAME new_calls,
-exact Birth source/formal ordinal and nonempty ALL class New census, rejecting
-incomplete owners, overrides, other constructors and non-I64 actuals. Cached
-Conflict/Integer domains remain unchanged. Source Forward needs existing I64
-membership plus original corroboration; final use demands same census Rc and
-current candidate I64 agreement. Productive Birth least-grounding precedes the
-existing preservation fold; preservation rechecks dependencies against current
-fields and retained source Rcs, so a later nonnumeric writer invalidates copied
-fields too. Dependency traversal recursively re-demands their original writers.
-Worker reviewed this mapping and confirmed both productive grounding and later
-invalidation are required. Existing composition test now exercises this chain,
-Bool New/writer veto, all-New conjunction, equal foreign/erased census rejection
-and rootless self-copy. V810 root build running; no source/product acceptance.
-Typed Nullable full input and unchanged M189 CLI rerun remain owed in SAME series.
-V810 initial root RED53.722268s (loan method visibility), corrected. V810b root
-PASS106.934405s; composition11 yielded10PASS/1RED. Newly added field→New→Birth
-positive, all-New Bool/writer vetoes, census replacement and rootless-cycle
-cases all passed before the old getter-free Print negative failed at package
-integer-field/source-missing. Classified as own V809 live source demand: Bool/
-self-copy Print must now refuse before exposing a numeric component. Updated
-that negative to assert the actual refusal; positive Print and independent
-final/source mutations stay present. No baseline waiver or numeric relaxation.
-Worker code review found no blocking authority widening; its consumed-field
-projection refinement is applied (loan now lends only field-used row indices).
-V810c root build running; CLI156 and product frontier measurement still owed.
-V810c root PASS62.473339s; existing composition11 and unresolved-caller input
-veto1 PASS on that pinned binary. Numeric New chain, all-New/writer Bool refusal,
-rootless cycle and foreign/erased census checks are included in composition11.
-This is source closure preparation only; CLI156 build now running to measure
-unchanged M189 through the canonical direct EXE route with C808b/runtime808b.
-
-V810c additional field-batch2/original-M189 source1 PASS; total focused15 PASS
-on that root binary. CLI156 build PASS188.488735s, binary
-SHAa1cafc0fdd62192e487fc4969fa5f14e3babf0eb485b00498976b5026c747119.
-Canonical unchanged M189 (source705a535c), same C808b/runtime808b, direct EXE
-RED.327379s/no artifact. Main43 Body8 field leaf moves from Value/Lhs/Lhs/Lhs/Lhs/
-Rhs to Value/Lhs/Lhs/Rhs, same integer-field/source-identity/current-closure.
-The first page_id numeric source proof now closes; EXE/runtime/End still unmet.
-Evidence: cli-v156 source/build receipts and m189-v156.json/stdout/stderr in the
-existing evidence base, all binary/FFI/archive pins stable. No full-suite claim.
-Next same-owner review covers ALL Handle field inputs and Array indexed-value
-provenance together; no per-field declared-type permission or .hako adaptation.
-The separate typed Nullable original input connection remains required.
-Root V810c and CLI156 source manifests are identical; current source rehash has
-zero drift. Additional changes here are documentation only. Required runtime
-and final consumer acceptance still block source landing, so this checkpoint
-preserves the cumulative source WIP rather than accepting a partial feature.
+V810 detailed construction/debug evidence is preserved at **48e2ad16d2** (this
+path). Retained contract: SAME original New census and exact constructor/formal/
+ordinal/ALL class actuals, no cached Conflict promotion; passive Me field joins
+SAME field-source Rcs. Productive Birth least-grounding rejects rootless cycles;
+ordinary preservation and writer traversal propagate current dependency loss.
+Final use re-demands original census Rc, corroboration and forwarded I64 evidence.
+V810c root PASS62.473339s; composition11/input-veto1/field-batch2/original-M189
+source1 PASS15. Getter-free Bool/self-copy Print negatives now expect real source
+refusal after V809 activated the demand; no permission relaxation/baseline waiver.
+CLI156 PASS188.488735s, SHAa1cafc0fdd62192e487fc4969fa5f14e3babf0eb485b00498976b5026c747119.
+Same-source manifests/current rehash zero drift. Unchanged M189 canonical direct
+EXE on C808b/runtime808b RED.327379s/no artifact: Main43 Body8 field leaf advanced
+from h0.page_id to h0.block_id. Numeric source preparation only, no EXE/runtime/
+End or source landing. Own regressions/full goal and typed Nullable input remain.
+Keep the evidence base/FFI/archive pins while the full source series is unlanded.
 
 Worker next-connection mapping: new Body8/Value/Lhs/Lhs/Rhs is h0.block_id.
 Handle New arg0 page_id now closes; arg1 block_id follows its sole stable local
@@ -988,3 +878,73 @@ initializers/arithmetic Conflict. Do not open generic local inference here.
 Reuse the exact single, never-rebound Array-get local source loan; its existing
 Array census integer_source_at boolean is not general formal-domain authority
 (loop/rebind rules differ). SAME early/late source Rc sharing remains to connect.
+
+V811 Decision, SAME Array-get→New→Birth source responsibility:
+Source authority + canonical issuer: sole preflight array_i64_field_sets is
+already built before original seed capture, borrowed unchanged, then moved into
+ledger.array_i64_fields. Existing capture_exact_get issues private immutable read
+Rc against that census. Retain ArgumentFieldArrayReadSourceV1 on SAME original
+New rows with exact local/initializer/New ordinal; one local yields one read Rc.
+Scalar Return and late New arguments borrow the SAME retained read if present;
+non-New Return reads keep their existing issuer. Delete late New recapture/cache.
+Non-authority: generic local inference, raw integer_source_at bool, type/get/opcode,
+new census copies or a new registry. No cached Conflict/Integer domain rewrite.
+Fail-fast: missing/foreign original census or New/argument identity, rebound or
+foreign local, source Rc conflict, non-I64 whole Array census and changed current
+physical census. Numeric loan rechecks SAME original New evidence; current Array
+execution/census remains mandatory in the existing late recipe/final owner.
+Smallest slice: source factory→SAME New row→numeric Birth input loan, common
+Return read reborrow→late argument/recipe→existing independent final validation.
+Focused existing composition/field-array Return positives and Bool/rebind/census/
+source-identity negatives plus unchanged M189 canonical EXE frontier are required.
+No EXE/runtime/End/source-landing or whole-goal acceptance from preparation alone.
+V811 root PASS117.207383s; composition11, shared Return/New Array read1,
+field-batch2 and original-M189 source1 PASS15. Nonzero Birth ordinal, Bool Array
+store/local-rebind veto, source loss and shared read/wrapper Rc are included.
+Worker found a blocking ownership coupling before acceptance: the first late
+adapter demanded whole borrowed transport even for unrelated scalar locals.
+Correction retains the original New source Result/Rc on the existing field
+cohort before transport selection; its passive lender survives failed sealing.
+Shared exact_get_candidate selects only original own-Me canonical Array fields;
+nonfamily locals never demand Array source, while selected missing source keeps
+its Err and cannot recapture. Existing pending test covers both boundaries.
+V811b build pending after this correction; initial test helper import errors
+need fixing after Cargo/rustc terminate. No new CLI/product acceptance yet.
+
+V811b root RED80.991275s (three test helper module paths), corrected after process
+termination. Exclusive old result→New Array read lender has caller-zero and is
+physically removed with the late recapture/cache; other Return capture is shared.
+V811c root PASS122.836817s; composition11/shared Array Return+New1/field-batch2/
+original-M189 source1/borrowed source-error1 PASS16. Includes nonfamily Local with
+unavailable source, Array preserving source Err, unsealed passive SAME Rc attach,
+foreign ordinal/census loss and original New source loss. Worker A+B re-review
+found no new blocking issue in this cohort. CLI157 build running; EXE/runtime,
+typed Nullable input, own pending regressions and full goal acceptance remain owed.
+
+CLI157 build PASS207.240151s, SHA941d7b0e2abed219d34e002344db638e36cf5c210dd64181297498c6b557871f.
+Unchanged M189 source705a535c, canonical direct EXE on same C808b/runtime808b
+RED.342121s/no artifact, Main43 Body8 Value/Rhs integer-field/source-missing.
+The page_id and block_id field checks passed; next leaf is h0.requested_size.
+Source root/CLI manifests are identical; subsequent source edit only removes
+one trailing blank line at EOF in ordinary_new_borrowed_formal_result.rs. No
+semantic edit followed those pins; no new full-suite/runtime/End acceptance.
+Keep v811c-root/cli-v157 manifests, focused records and m189-v157 receipt in the
+existing evidence base while the source series remains unlanded.
+
+Worker next mapping: do not infer that usize itself causes this source-missing.
+The sole writer inventory attributes Me only; original resizeInPlace's
+handle.requested_size=requested_size is a non-Me writer and vetoes that field.
+First observe its exact value_source error and candidate I64 evidence for the
+same New formal/Page.allocate/resizeInPlace value formals in the existing source
+fixture. Retain every original writer and join existing formal receiver/class/
+canonical field + Integer reach/source correspondence to the SAME inventory;
+do not drop it, rewrite it as Me, trust a declaration alone or fake a completed
+field-write frame before its phase. Existing checked_field_write_pair_v1 and
+borrowed_field_write_use_for_frame_v1 already own the late correspondence.
+FieldCandidates needs their original source prerequisites before closing.
+If ALL actuals/writers prove signed-I64 payload, preserve usize declaration and
+range checks and reuse current I64 Print/FieldGet/storage. SourceInteger-only
+usize or u64's upper half cannot be NormalInteger; no i64_source relaxation or
+new unsigned-to-signed cast. Existing whole-caller/field/Fault bounds remain.
+Missing early class/source lender is internal mapping work, not external block.
+Typed Nullable full original input remains a separate required same-series gap.
