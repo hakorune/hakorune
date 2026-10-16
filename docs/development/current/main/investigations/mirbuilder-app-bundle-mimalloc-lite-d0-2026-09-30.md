@@ -921,65 +921,17 @@ Typed Nullable full input remains separately owed; later full-test cases were
 unreached, not waived. Latest unchanged source and tiny EXE pins follow below.
 No cumulative source landing, whole-row/goal or CI acceptance is claimed.
 
-V815 production Decision (implemented WIP; worker full source→final audit): connect original
-Local-New parent authority to the existing stored-call owner for M189 Body13.
-Issue opaque root loan from SAME local candidate: caller/slot, sole original
-initializer/New site, binding/declaration, parser box-source anchor and canonical
-object; reject rebinding and same-class foreign acquisitions. Share its source
-lender with ExpressionFieldRootSource::New, retiring duplicate New recheck.
-Stored source issuance, incoming corroborate_stored_dispatch and target
-matches_receiver used Me-only checks; make those structural checks
-follow the SAME root obligation. Retain existing Me entry/Constructor callers.
-Reuse one incoming census, PendingStored→SelectedStored Rc, ordered arguments,
-canonical field/child/residence inventory, exact parent read/sole FieldGet and
-Invoke/Normal/Fault plus final materialize_in_context source reborrow across
-claim→commit take. Scalar result source is the callee's EXISTING original
-ScalarReturnSource (freeCount/outstandingBlocks/requestedBytes), not a new Print
-variant or fake Return; direct-forward ExistingBorrowedResult limits stay.
-Use existing stored receiver/source requirement/Print final tests for Local-New
-positive and root/field/child/site/caller/Rc/physical mutations, then unchanged
-M189 direct EXE. No new registry, source rescan or alias/nullable/Array expansion.
+V815 Local-New stored-call connection and its source/final50 verification are
+preserved at **c3003843fd**, with complete M189 execution/performance closeout at
+**49c99385cf** (this path). SAME candidate acquisition/binding/declaration/parser
+anchor, original raw incoming and root/receiver/Copy final checks remain premises.
+CLI162/C816 unchanged M189 canonical EXE/run/exact output PASS. C-only iterator
+BoxShape is independently landed; identical original wire validation improved
+180.644469s→20.985720s, with identical outcomes and existing regressions PASS.
+Cumulative source/test repair stays unlanded. Keep its original captures/EXEs/
+receipts until source landing; these product pins do not close the full row.
 
-CLI161/GDB and tiny feature EXE baseline history is preserved at **b7b3e71a74**
-(this path). Retain original artifacts until cumulative source landing.
-
-V815 construction, worker reviews and classified failed checks are preserved at
-**3dc8b62621** (this path; docs checkpoint, cumulative source remains unlanded).
-Continuing Local-New stored-call contract:
-- SAME original candidate loan retains acquisition/binding/declaration, parser
-  source and canonical object; ExpressionFieldRoot::New shares its source lender.
-- Optional caller-slot/root loan is encapsulated: Constructor+Some rejects,
-  Ordinary+None owes Me, Ordinary+Some owes original Local/sole init/non-rebind.
-- Final materialization rechecks the original seed product against ALL raw
-  incoming and exact SelectedStored source, even for zero-input calls, then
-  reborrows the SAME claim→commit root. Transport projection is not authority.
-- Original receiver read and parent Copy dependencies reach final consumers.
-  Existing packet lends receiver→nested arguments→Invoke/Normal order; final
-  visitor uses existing local/terminal producer map and unique coordinates.
-- Stored caller-scalar terminal demand selects exact source Return membership,
-  never proof/Completion success. Missing/foreign body shape fails fast.
-V815f focused50, CLI162/source pins and original M189 EXE/run/output proof are
-preserved at **c3003843fd** (this path); cumulative source remains unlanded.
-M189 passes29 functions/2346 blocks/3016 rows. Typed Nullable/deeper provider/
-full M190/fixedsuite/retirement remain owed; this is not whole-row acceptance.
-
-Separate iterator BoxShape landed at **c3003843fd**. Same JSON/order/first match/
-malformed-ID/NULL and validation laws; HEAD-isolated baseline/candidate gate PASS.
-FFI816 build PASS6.147930s; exact code delta from808b is ONLY that lookup loop.
-Original Stored96 old/new validator outcomes match; new FFI passes Stored96
-compile/mutations/Normal+Fault and owned Array Get/append/End/Fault regressions.
-Inherited parser fixture lacked mandatory field_set numeric-check wire: add only
-`{kind: none}`. Both808b/816 full parser tests now PASS; keep this test repair
-with cumulative C wire changes, not the independently landed iterator.
-CLI162/C816 unchanged M189 EXE PASS459.606740s/run.001286s, exit0/exact prior output.
-EXE40160964c28341c51328a0bf0241fec956c36666d21ddefd06d2195e4109ff40;
-original wire32acafd8a48767258a53741ae16ad4d540c7c997eaf1423f17ccec61c478a4bf.
-SAME bytes, sequential direct V2 validation/no debugger:808b PASS180.644469s,
-816 PASS20.985720s, both rc0/no diagnostic. This proves only validator speed;
-original full run had debugger/profile attempts, so no raw-total speed claim.
-Retain original wire/EXEs/receipts until source landing; CLI Rust unchanged/FFI816.
-
-Current stop: required-object-forward/nullable-local-source-input.
+Prior stop: required-object-forward/nullable-local-source-input.
 CLI162/C816 unchanged M190598e0edb direct EXE RED.281593s/no artifact.
 Worker exact GDB: caller34 allocateResult Body1/Initializer0 is original
 `local handle = me.allocate(size)`, callee33 HakoAllocHeap.allocate/1. Original
@@ -997,3 +949,43 @@ caller substitution source; provider gate alone cannot close M190.
 
 CI readback: latest branch run remains historical portability failure35681768498
 at d4168473d5b (2026-09-22); no current source/iterator CI acceptance is claimed.
+
+V817 Decision (worker complete source→final mapping): attach an orthogonal opaque
+Nullable LOCAL input loan to the existing target after Mixed/Borrowed selection.
+Source authority: OriginalLocalCallSource sole initializer/nonrebind/declaration/
+receiver/key/ordered actuals, NullableObject(C), SAME nonempty Null/Fresh(C) roots.
+Keep original result requirement; reject ForwardFormal and foreign/lost roots.
+One needs→incoming census retains it. Existing SourceInstance snapshot/rebuild,
+selected input protocol/parameter frame and whole-cohort finish close its inputs.
+Home's existing SourceObject Nullable issuer gains a structurally corroborated
+self-receiver branch ONLY when this loan affirmatively selects the call; preserve
+claim-local producer law, source-only actual phase and one checked Home.
+Reuse existing object slot/opaque completed-input and original-source packet
+family; recheck SAME source/class/roots, Completion/terminal Rc, actual census,
+signature/result/teardown/take in retain AND independent final consumers.
+No result enum variant, registry, second incoming scan, I64 result relaxation or
+new finish owner. Scope: result-class call-source loan, lexical source/profile/
+incoming, instance actual/input selection, source-object Home port and existing
+object slot/entry/packet consumers, their existing tests and owner README.
+Required tests: Nullable typed0/1 and self nonzero-input, source/root/receiver/
+initializer/argument/input-family/extra incoming/Completion drift; preserve
+Mixed/BorrowedNullable/Stored regressions. Then unchanged M190 canonical EXE.
+
+V817e construction checkpoint: root build PASS62.914784s; unique focused78 PASS:
+Nullable LOCAL root/source/phase/census mutations, Qualified/Mixed/BorrowedNullable,
+whole-input13, packet11, Stored and original field/Home/Copy regressions.
+Zero-selected filters were rejected, never counted; actual named replacements PASS.
+V817a/b regressions fixed in the shared consumer: QualifiedObject preserves its
+valid Executable lender, source-only forward keeps Object phase, false Instance
+phase refuses before recursive delegation. Self acquisition compares SAME full
+completed arguments only with this loan; old empty observer law otherwise stays.
+V817d test compile failure used a private census; existing source fixture fixes it
+without widening visibility. No remaining red in selected V817e focused tests.
+CLI163 quick build PASS192.251704s; SHA9f334791e23eb9b9ed5f43e2ce4d7fc673d0f901be21b5c25c905086a9fb8c08.
+Unchanged M190598e0edb via canonical --backend mir --emit-exe/--emit-exe-nyrt,
+C816/runtime808b, stack16MiB, plugins disabled, pure-first/compat replay none:
+app-v164-result-contract RED0.274807s exit1/no EXE. Original owner34 Nullable LOCAL
+passes; next owner38 Body3/Initializer0 borrowed-view/declared-object-class.
+Current stop: required-object-forward/declared-object-source-input. Worker maps
+original declared object/field support before next patch. V817 source remains
+unlanded; complete execution, whole row/goal acceptance and full suite stay owed.
