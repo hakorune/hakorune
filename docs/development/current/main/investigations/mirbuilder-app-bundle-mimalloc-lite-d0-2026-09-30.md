@@ -38,9 +38,10 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   V800/V801 source/final consumer repair are verified pinned premises below.
   CLI152 unchanged M189 passes original class agreement and stops at Mixed
   arguments-missing. V805 common argument projection has 13 focused passes;
-  CLI153 remains at arguments-missing: no pending row or transport incoming.
-  Next: original Mixed demand → existing SourceInstance issuance and whole
-  input participation. No M189 EXE yet.
+  CLI154 passes the Main argument stop and package issuance; first stop is
+  callable-main/lowering print-expression/source-unavailable. V807b source/input
+  tests15 PASS. Original Print/result-field consumer audit is in progress;
+  no M189 EXE or reached-runtime acceptance yet.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -832,7 +833,7 @@ all-incoming census. Ledger reconstruction still requires class/Completion/Home;
 native input participation must borrow SAME original membership, with existing
 whole-owner finisher, result/conditional End and independent final validation.
 No new phase/solver, empty Main draft, widened executable marker or fake incoming.
-This next issuer-to-consumer connection is NOT implemented yet.
+This connection was not implemented at CLI153; V807 construction/evidence below supersedes that stop.
 
 V806 first test-only build RED20.939036s (filter closure reference mismatch),
 fixed mechanically. V806b build PASS62.345138s; original imported mimalloc test
@@ -874,3 +875,55 @@ not a production blocker or a green suite. Avoid more speculative expectation
 flips: remaining definition/domain expectations require original full-census and
 current entry/actual proof correspondence. Next selected implementation remains
 original Main Mixed source-request participation, not a new test-cleanup lane.
+
+V807 construction connects original Main Mixed demand to existing SourceInstance
+Observe/phase checks, fixed support ordinal/acquisition and native input selection.
+The retained Mixed source owner corroborates Nullable Fresh+Null/class or exact
+parent Mixed source/destination/object/all root Rc. Passive class uses that same
+source loan; executable reconstruction still requires existing Ledger proof.
+Existing M189 source3 test now includes wrong destination, Nullable/Mixed recast
+and foreign-parent Rc negatives. No new phase, solver or QualifiedObject grant.
+Build PASS60.081811s; original Instance snapshot1/M189 source1/input finish13 PASS.
+Worker confirms no authority hole, and identifies remaining mixed-parameter frame
+join: realloc/reallocResult have DeclaredObject+Opaque parameters. Exact original
+Mixed demand now borrows existing generic Instance parameter-frame lender (same
+implementation previously lent to Object); all source/domain/census checks stay.
+V807b root build next; source/runtime acceptance remains unproven.
+
+V807b build PASS61.155951s; original Instance snapshot1/M189 source1/input13
+PASS. CLI154 build PASS149.484552s, SHA
+19eea33afa869d456895bac9b7bfc2236bd94112f7432fd9afbc1a62ad70e300;
+all captured source hashes match root V807b exactly. Unchanged M189 canonical
+EXE RED7.209341s/no artifact on C803b/runtime757: original Main arguments stop
+is gone, package issuance passes, first stop is callable-main/lowering
+ordinary-new/local-commit/print-expression/source-unavailable. This is product
+frontier advancement, not Mixed runtime/End or whole-series acceptance.
+Worker traces original Print/received field source to its final packet consumer;
+getter names the exact first PrefixNotCovered Print, not generic prior failure.
+M190 same CLI/C/runtime RED.135606s at Main34 Body1Initializer0 unchanged
+borrowed-result/source-not-i64. No claim that the wrapper/source-return branch
+is fixed by the Mixed input connection. Full own source regressions still owed.
+
+CLI154 read-only worker pin: Main43 Body7 literal Print has its source frame;
+Body8 alloc/h0 scalar-field Print is first PrefixNotCovered, not prior release.
+Original h0 Nullable acquisition has no nonnull branch proof; current receiver
+source classifier cannot issue that field request. Mixed lacks a receiver arm
+for later same/moved prints. No Print concat/Add solver gap is established.
+The same binary/hash/argv/env and no inferior calls are pinned in
+m189-v154-worker.receipt.json/log; no checkout edits or worker Cargo.
+
+Next bounded mapping (same received-result series): retain exact Nullable
+acquisition or Mixed loan/current live chain on the existing field-read source
+Rc; original field batch joins canonical FieldRef and class. A fallible received
+read must project Normal I64 and Fault through the existing sole field writer,
+Print pending-String/prior-Home cleanup writer, same emitted source row,
+FinishedBindings and independent final/C consumers. New frame/site-aware getter
+must follow the canonical object Fault boundary; the current checked_field_get
+is explicitly nonfallible (fault_checked_object.rs) and remains for its callers.
+Do not set a nonnull stamp, map null to zero or reinterpret InvalidContract as
+source Fault. No new Print family, AST rewrite or .hako change. Pin diagnostic
+and source read plan/Invoke correspondence before constructing the checked arm.
+Acceptance must cover original M189 plus null receiver Fault/remaining teardown,
+Mixed Forward vs Fresh, foreign roots/class/field, consumed source and missing
+Normal/Fault binding or cleanup. Current source connection is unaccepted WIP;
+first milestone and all full-goal/integration/retirement conditions stay as above.
