@@ -150,9 +150,10 @@ Result: 0
   Not proven baseline. Removing that broad demand from the correspondence test
   did not discharge it. Re-evaluate at the real final bridge; coordinate and
   instruction diagnostics now exist in both final scans.
-- [ ] Rebuild canonical CLI, run unchanged mimalloc with pinned current runtime
-  and FFI, execute and compare existing suite stdout/exit. Re-pin a negative only
-  at its truthful rejected boundary. Complete required fixed acceptance.
+- [x] Pinned CLI147 + FFI798/runtime757: unchanged app148 canonical EXE,
+  execution and exact existing stdout/exit0 (V798 first milestone).
+- [ ] Complete required fixed acceptance. Re-pin a negative only at its truthful
+  rejected boundary; the first app does not replace this suite.
 - [ ] Name and retire replaced exclusive edges/adapters after their production
   caller cutover, caller-zero and required evidence in this same series.
 
@@ -684,3 +685,20 @@ writer retirement after caller-zero/verification, same existing regression
 tests/owner README. Pair.sum projected Add and Array Birth-Fault assertions
 remain owed after this slice. Retain whole unaccepted ObjectForward series and
 all remaining R6/R7/fixedsuite/Loop/authority/parser/selfcompile conditions.
+
+V798 isolated landing check: exact declaration-only patch applied to exported
+HEAD e397f161da C sources, without cumulative WIP. Initial scratch archive
+omitted lang/c-abi/include (setup failure, not product result); headers supplied
+and same C compiler command PASS. Reuse exact native39 i64 source case:
+local before=9; Array<i64>[10,20], alias, emptyArray, return30. Canonical CLI147
+with isolated C library and runtime757 produces EXE rc0 in103.006463s,
+exec exit30. C trace native1/all11blocks emitted; no compat replay. Isolated
+FFI296232cb501bfaeb0bb41f4017a9a47b7d08a38113ac6e16eb244cc2e02bb765.
+Only common declaration hunk and its three-line README contract are staged;
+all other source WIP preserved. This can land independently of source series.
+
+V797 unchanged original app source/full compiled-entry+physical ABI, original
+module/published final consumers and existing mutation obligations PASS
+1634.930994s bothopts on same root binary. v797.extra.focused.json pins
+source/binary. This closes the current expanded actual test, not all other
+source suite debts; V753 exact boundary equivalence is under read-only review.

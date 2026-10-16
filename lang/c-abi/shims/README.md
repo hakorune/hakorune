@@ -2,6 +2,9 @@
 
 This directory contains the C LLVM backend and ABI/compatibility shims.
 The backend performs physical lowering; it does not issue source meaning.
+Plain Array runtime declarations share one emitter before the native/indexed
+split, matching their shared operation writer. Unused declarations grant no
+admission; Object, owned-Array, String and Map keep their own declaration owners.
 
 ## Opaque Map target session
 

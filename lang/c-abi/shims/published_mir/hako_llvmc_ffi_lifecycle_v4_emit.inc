@@ -635,27 +635,22 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.fault.frame_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
   lv4_string_globals(f, in);
-  if (in->native) {
-    fprintf(f,
-        "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
-        "declare i32 @\"nyash.array.checked_claim_v1\"(ptr, i64, i64, i32)\n"
-        "declare i32 @\"nyash.array.checked_append_i64_v1\"(ptr, i64, i64, i64)\n"
-        "declare i32 @\"nyash.array.checked_append_bool_v1\"(ptr, i64, i64, i32)\n"
-        "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
-        "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
-        "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n"
-        "declare void @nyrt_handle_release_h(i64)\n");
-    return lv4_emit_function(f, in, abi, 0);
-  }
+  /* Plain Array operations share one external ABI in both physical profiles. */
   fprintf(f,
       "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
+      "declare i32 @\"nyash.array.checked_claim_v1\"(ptr, i64, i64, i32)\n"
+      "declare i32 @\"nyash.array.checked_append_i64_v1\"(ptr, i64, i64, i64)\n"
+      "declare i32 @\"nyash.array.checked_append_bool_v1\"(ptr, i64, i64, i32)\n"
+      "declare i32 @\"nyash.array.checked_append_f64_v1\"(ptr, i64, i64, double)\n"
+      "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
+      "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n"
+      "declare void @nyrt_handle_release_h(i64)\n");
+  if (in->native) return lv4_emit_function(f, in, abi, 0);
+  fprintf(f,
       "declare i32 @\"nyash.object.checked_new_v1\"(ptr, i32, i64, i64, ptr, i64, ptr)\n"
       "declare i64 @\"nyash.object.type_id_h\"(i64)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
-      "declare i32 @\"nyash.array.checked_set_i64_v1\"(ptr, i64, i64, i64, i64)\n"
-      "declare i64 @\"nyash.array.slot_load_hi\"(i64, i64)\n"
-      "declare void @nyrt_handle_release_h(i64)\n"
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
   lv4_map_declarations(f, in);
