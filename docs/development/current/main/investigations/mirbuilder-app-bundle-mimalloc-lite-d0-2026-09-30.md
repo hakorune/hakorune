@@ -890,79 +890,36 @@ CLI159 exact no-inferior-call frames are also at **0bc1ccb9dd**: received field
 Print lowering passed; Body12 nested receiver was the first refusal. Latest
 CLI160/161 measurements below supersede that exact source stopping position.
 
-V814 Decision, SAME required source field paths through Print/final consumers:
-Canonical source geometry is the SAME ExpressionSourcePlan Rc/node/root/parent.
-Return keeps its own facts/Completion/component wrapper. Print keeps its original
-plan/live root request, first-edge local_read_field declaration, SAME intermediate
-object-field sources and terminal closed numeric field-value loan. Extract the
-numeric value core from existing direct ExpressionFieldSource, without broadening
-that direct receiver façade. Intermediate Identity vs terminal I64 are only
-topology-derived hypotheses until the final atomic batch proves every descriptor,
-root/class/canonical parent/source Rc; failure stages nothing. No new global probe
-callback, scanner, registry, fake binding/Home/Return, AST rewrite or fallback.
-Reuse existing field progress/reserve/bind and parent output checks. Both source
-wrappers use that one physical owner; retire its Return-only structural body.
-Print must emit source-backed intermediate FieldAccess Identity and retain it in
-ordered bindings, copied dependencies, source validation and final census, while
-lexical Identity remains non-emitting. Existing owned root/alias/Me provenance is
-checked by the current pure issuer; checked-received/Array path expansion is not
-implied. Existing nested Return/Print/field batch drift negatives, independent
-final checks and unchanged M189 Body12 frontier are required. No acceptance yet.
-
-V814 root PASS107.393177s; first nested Print run exposed exact-root double
-consumption. V814b retains one SAME exact read per original root expression and
-its Copy dependencies through final projection. Object value loans recheck the
-original field name/key; path binding/census requires SAME current parent Rc.
-V814b root PASS73.348709s; field reads4/batch3/nested Return1/new source drift1/
-literal Print1/final Call visitor4 PASS14. Original full Print test remains RED:
-2-level p.child.n passes compile/verification; 3-level p.child.child.n stops at
-lexical-call-prior-home-unavailable before field emission. Worker located a
-separate provider child gate rejecting OwnedObjectFieldsNoHook; its recursive
-teardown owner already supports nested objects. Do not weaken prior-Home checks
-or count the whole test as PASS. CLI160 rebuild measures unchanged actual M189;
-no product advancement or final publication acceptance is claimed yet.
-
-V814c worker audit keeps container-class keys on SAME object/numeric value
-sources and compares every child to the original parent class at issue/recheck.
-First-edge source proof retains original parser box/object and exact New
-acquisition or entry identity/slot. Normalize existing claim→commit source lender,
-keeping the executable actual wrapper's construction gate. Original alias paths
-reuse the existing owning-edge source owner; no MIR/layout/root type inference.
-Independent final nested Print positives and sibling/base/read/Copy mutations
-are added beside the original full test, whose provider/typed-input reds remain.
-CLI160 PASS188.123038s, binaryc149897c0a8144e908b75a7ee9da534ee20c640221090ca6df9bec5ee7f7c4dd;
-root V814b and CLI source manifests match. Unchanged M189705a535c SAME C808b/
-runtime808b direct EXE RED33.543427s/no artifact. No-inferior-call GDB, identical
-argv/env +16MiB stack and unchanged binary: Body12 nested field Print passes;
-first stop Main43 Body13 original heap= Print, first scalar demand at
-heap.small_page.freeCount() is Ok(Unselected), before remaining field batch.
-Existing stored_child_source_v1 requires Me + instance entry proof; original
-Local(heap) New has no stored receiver source obligation. Next production mapping
-must join that SAME original candidate to existing stored-call source/arguments/
-physical/final owners, not infer a call target from Print field descriptors.
-No fallback or fake call. CLI160 predates V814c source-proof strengthening;
-full M189 EXE/runtime/End, source landing and full-goal acceptance remain owed.
-
-V814c compile RED80.618377s (four FieldAliasPath import paths); fixed at existing
-home_new_prefix reexport. V814d compile PASS96.145642s, focused14 PASS/2 RED:
-new independent final test exposes absent New initializer Copy provenance;
-alias source test exposes Provided field absence from all-writer class map.
-Keep both failures meaningful. Normalize existing local materialization proof:
-original variable initializer inherits SAME source chain; genuine non-variable
-initializer retains its own destination/initializer/Copy; absent initializer or
-failed variable proof never gets a substitute. Alias source keeps constructor-
-issued canonical edge facts and exact root New parser anchor, rechecking the
-existing sealed owning-edge census without demanding a different class map.
-Original Me/alias positives and foreign entry/New anchor negatives are required.
-
-V814e compile RED24.156464s: a test attempted mutable access through Rc; fixed to
-substitute a foreign opaque entry-root source in the negative, preserving ledger
-ownership. V814f compile PASS66.895456s. Focused34 PASS: nested Print source/final3
-(includes Me/alias positives, foreign root anchors and eight independent final
-field/base/read/Copy mutations), field reads4/batch3/nested Return1/literal1/final
-visitor4/local copy7/borrowed alias9/copy loan2. Original full Print test still RED
-at the unchanged 3-level provider/prior-Home gate; typed input remains owed and
-later full-test cases are unreached, not waived. CLI161 re-pins the same source.
+V814 construction, worker audits, failed checks and complete measurements are
+preserved at **e57753e302** (this path; docs checkpoint, not source landing).
+Continuing required field-path contract:
+- SAME original ExpressionSourcePlan Rc/node/root/parent geometry; Return keeps
+  its facts/Completion wrapper, Print its original live-root request. Both use
+  the existing field-read progress/reserve/bind/physical owner. No fake Return.
+- Intermediate Identity fields emit real reads and retain original object-source
+  Rcs; terminal I64 demands the SAME closed numeric value loan. Topological roles
+  are hypotheses until the whole atomic source batch proves every descriptor.
+- Source map keys preserve original field and container class. Each child checks
+  its original parent's class and SAME current parent source Rc at issue/recheck.
+- The first edge retains original parser box/object, exact New acquisition or
+  entry identity/slot; recheck joins SAME claim→commit source or original selected
+  entry/signature/receiver lane. Construction success is not passive authority.
+- Alias roots retain original prefix path, root New parser anchor and constructor-
+  issued canonical edge facts; sealed owning-edge checks remain separate. No
+  field-layout/class-string inference or checked-received/Array root expansion.
+- Consume one exact read per original root expression, reuse it along that path,
+  and retain source/value/Copy dependencies through finishing and final census.
+  Genuine non-variable initializers keep destination/initializer/Copy in the
+  existing materialization proof. Variable initializers inherit SAME chain;
+  absent initializer or failed variable proof gets no substitute/formal authority.
+V814f root PASS66.895456s; focused34 PASS: nested Print source/final3 (Me/alias
+positive, foreign anchors and eight final field/base/read/Copy mutations), field
+reads4/batch3/nested Return1/literal1/final visitor4/local copy7/borrowed alias9/
+copy loan2. Original full Print remains RED at unchanged 3-level provider/prior-
+Home gate; provider excludes OwnedObjectFieldsNoHook despite recursive teardown.
+Typed Nullable full input remains separately owed; later full-test cases were
+unreached, not waived. Latest unchanged source and tiny EXE pins follow below.
+No cumulative source landing, whole-row/goal or CI acceptance is claimed.
 
 Next production Decision (worker full source→final audit): connect original
 Local-New parent authority to the existing stored-call owner for M189 Body13.
