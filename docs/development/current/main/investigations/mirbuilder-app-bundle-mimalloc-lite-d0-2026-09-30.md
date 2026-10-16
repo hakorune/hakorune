@@ -55,33 +55,32 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 
 ## Latest unchanged product measurement
 
-CLI139: quick build **200.906711s**, direct app attempt **182.240261s**,
-**rc1, no EXE**. The previous Mixed Birth ABI refusal was passed. New first-stop:
-`published-lifecycle-physical-abi/actual-kind-unavailable`, scalar-kind,
-`HakoAllocPage.allocate/1`, Birth actual ordinal1, owner(1,26), Body13/Value,
-Local binding2 / Value30 / MirType::Unknown. Source is
-`block_id = me.free_stack.get(me.free_top)` → `new HakoAllocHandle(...block_id...)`.
-This is not Mixed runtime success: ABI fails on this independent scalar argument
-before the complete app reaches C. Keep all Borrowed/Mixed execution claims open.
+CLI143: quick build **143.011864s**, direct app **169.026962s**, **rc1, no EXE**.
+Birth numeric and retained Array ingress refusals passed. First-stop:
+`lifecycle_parameter_entry_capability_missing`, `ordinary-parameter-contract`,
+`HakoAllocHeap.realloc/2` physical slot1 (logical/JSON ordinal0 declared handle).
+Next join the original declared-formal class and closed operand-use product to
+this backend gate; no name-only or blanket Tagged permission.
+No Borrowed/Mixed runtime or complete app acceptance is claimed.
 
 ```text
 target/quick/hakorune --grammar-profile canonical --backend mir \
   --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v757> apps/mimalloc-lite/main.hako
 NYASH_DISABLE_PLUGINS=1 NYASH_LLVM_ROUTE_TRACE=1
 HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none
-HAKO_AOT_FFI_LIB=<ffi-v781/libhako_llvmc_ffi.so>
+HAKO_AOT_FFI_LIB=<ffi-v787/libhako_llvmc_ffi.so>
 ```
 
 | identity | SHA256 / source |
 | --- | --- |
 | unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI139 binary | `9e61129c60707dcbb4d38b871df14abf2df5cc890f45cd9b82c24c2d9438f8e9` |
-| FFI781 | `1f3fb9c8697630fb1737f2721c32a42c82b61394d2f627137ed7c1aa4831d18b` |
+| CLI143 binary | `239bf7ee01c138f6595867775ec4812f8aa33296992fbba40f619caf14aef56d` |
+| FFI787 | `01b9538889bf25307f45b0ea6718a2dba92a96bc5f9d87fd4ec30adfedfbde1d` |
 | runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
 
-Source manifest/run: `cli-v139.source.json`, `app-v139.json` under the evidence
-base below. Previous CLI138 result is preserved by docs checkpoint8e6784afc9.
-CLI139 build ran concurrently with owned C execution, and app with root build;
+Source manifest/run: `cli-v143.source.json`, `app-v143.json` under the evidence
+base below. Previous CLI140/141 results are retained below; earlier CLI139 is at f6f942f5d0.
+CLI143 build/app had no root actual-test overlap;
 these durations are measured results, not a speed baseline.
 
 ## Verified premises; no automatic product acceptance
@@ -587,3 +586,185 @@ array validation and both final consumers. Existing local Array connection is a
 prerequisite to this same app/Forward end-to-end acceptance, not a new feature,
 Root fixture lane or blanket dynamic scalar admission. Complete Mixed evidence
 remains open while this exact production argument is connected.
+
+
+V783 pure common-read extraction (no new local caller): CheckedFieldArrayGet
+retains the original field/index/provider/census; the existing Return descriptor
+retains all Return sites and local-origin relation. FieldArrayReadRecipe now
+borrows that SAME read Rc instead of a Scalar Return loan/index. Its lender
+still requires the original scalar source, catalog and caller. Worker caught a
+missing original InstanceBoxMethod guard; restored before successful build.
+Initial build RED81.762095s from moved imports/error formatter (own extraction
+error); corrected. V783b build PASS106.528292s; existing source tests for field
+Get contract, one-read/all-Returns, canonical root/borrowed field finishing all
+PASS (1+1+1, .01/.02/.15s). This prepares the existing sole writer; the new local
+Get→binding→Birth consumer is not yet connected. Owner read README added because
+the common read/Return responsibility boundary changed; no global docs expansion.
+
+
+V784 connects the exact production local Get prerequisite inside the same app
+series. Existing New argument_rows retain an optional SAME checked read/local
+initializer loan; a temporary issuance cache shares repeated uses without a
+parallel persistent registry. Existing Return-owned read loans are reused when
+the exact Get already belongs to result facts. The shared local_initializer
+resolver keeps never-rebound/exact declaration constraints for both consumers.
+The existing read lender moved to ordinary_new_field_array_read_recipes.rs and
+collects the same loans before/after affine take, rejecting distinct-Rc conflict.
+Raw's existing checked Get writer emits the Integer producer. The lowering state
+joins its SAME EmittedRead to original declaration/binding/value and captures
+only exact unique Copies to the actual. Existing EmittedNewArgument keeps that
+physical evidence; original and finished New validation require it and all
+FinishedBindings relation projections. The independent named-array collector
+still validates type/marker/provider/full read census. Argument structure checks
+do not grant a scalar type by themselves; ABI remains table corroboration only.
+Worker found no definitive safety gap, obligatory refusal or RefCell panic in
+this joined mapping. V784 build PASS128.904736s; focused6 PASS (field source,
+one-read/all-Returns, canonical field finishing, New-emission2, malformed rows1).
+No actual product advancement beyond CLI139 is claimed yet.
+
+V785 extends the existing unchanged-app/both-opts test with the real block_id
+read loan and independent index, original local Copy, field receiver and Birth
+operand drift refusals. The existing source handoff lends the retained finished
+New validator for these mutations; no new source/Root fixture or second checker.
+Test file778 lines: considered splitting, but keep this one existing app cohort
+for this bounded change; hard800 remains enforced and further growth requires
+extraction. V785 build/actual test and next canonical CLI remain pending. Old
+ordinary New argument paths without a read loan retain their original contract;
+a missing physical read proof for the new source loan is refused at recording.
+
+
+CLI140 (HEAD f6f942f5d0 + cumulative WIP) build PASS224.352342s; unchanged
+canonical direct EXE app rc1/no EXE186.550247s. Previous scalar Birth actual
+frontier crossed; first-stop named-array/retained-source-required. Binary
+b27897d851767312e50c721920e28ee7d99f9b757dc47e8743f0749a39269135;
+app33d3/FFI781/runtime757 unchanged. Manifest cli-v140.source.json and
+app-v140.json retain exact command/env/pins under the same scratch owner.
+V785 root build PASS65.933769s; unchanged-app/both-opts + four new physical
+read/Birth mutations still running on its pinned root binary, not PASS yet.
+
+Decision V786 after read-only top-to-consumer review: canonical direct EXE
+already retains the source view and issued ABI input; backend lifecycle ingress
+incorrectly applies module-only reject_unretained_module before validating
+retained source coverage. Replace only this edge with SAME finalized handoff
+identity plus existing complete Named Array source/physical validation. Keep
+module-only/generic refusal. C inspection also found indexed Push unconnected
+and Get/Set checking only I64 receiver shape. Normalize provider-writer checking
+and add one common field Array receiver consumer for Get/Set/Push: exact Copy
+root/field tuple/unique owned residence/unique Birth Array provider, current
+parent readability and both read/use field-stability suffixes. Include original
+field_residence_release in invalidations; owned bases retain unique completed
+Birth constraints. Borrowed receiver remains live only for its call. Push I64
+borrows without changing either edge's ownership state. No new registry,
+constructor permission from metadata, broad opcode allowlist, or fallback.
+Rust/C changes remain unaccepted WIP until focused source negatives, independent
+C regression/correspondence/Fault evidence and canonical unchanged app attempt.
+
+V785 terminal: unchanged-app/both-opts original source + four Get/local/field/
+Birth drift refusals PASS1156.055888s; binary
+2d372e9847505bb76e1dd0e425e295ce8c33dea0abe9c01be7966e41d0ce5c63.
+V786 read-only review found qualified object_view formal would always refuse
+after passing the readability predicate. Corrected to the same entry-bounded
+borrow as canonical receiver; arbitrary negative origins still refuse.
+C786b build PASS6.829773s, FFI7e67a7f43ebcbcbda334fa13f7785a91acd4f73ab24b98f421553b58b3b57a0e.
+Saved Get/Set captures both stop at physical-parser/function-body before the
+new flow consumer (0.077739/0.076025s); unclassified pending source regeneration,
+not a lifetime-consumer PASS. Existing scripts now accept an explicit runtime
+archive pin and test that an I64 index cannot replace the Array receiver.
+Root V786 build running; no source edits while Cargo alive.
+
+V786 build PASS70.638462s. Source Get/Set regeneration + numeric input-drift
+focused3 PASS (.08/.23/.02s). Saved old wire's parser failures disappear after
+unchanged source regeneration: C786b Get2 + shape/receiver negatives
+PASS13.786539s; Set5 including bounds/kind Faults + scalar receiver refusal
+PASS34.029643s. Saved wires are stale failure evidence, never repaired positives.
+C786b owned16/Fault/correspondence PASS137.002924s.
+Existing claimed_loop_push_rejects_on_unretained_plain_lane RED before any
+backend gate: field-array-append/loop-source-missing. This is an own cumulative
+WIP source/lender gap, not a clean-HEAD baseline claim or this ingress success;
+keep the expected retained-source refusal, do not weaken the test. Existing
+cloned_marker_cannot_replace_retained_source_authority PASS separately (.00s)
+proves the module-only gate still refuses source-free detection rows. Its
+receipt copied to v786-marker.focused.json because another long helper run
+had reserved the same default output label.
+V787 also normalizes Append's schema: nonnative I64 and native original
+I64/Bool/F64 share one shape/availability check; indexed versus native flow
+remain separate owners. Worker found no new definite connection blocker.
+C787 build PASS8.501488s; final C schema peer reruns +CLI141 pending.
+
+V787 Get2/shape/receiver regressions PASS57.099249s while CLI141/root actual
+run concurrently; final FFI
+01b9538889bf25307f45b0ea6718a2dba92a96bc5f9d87fd4ec30adfedfbde1d.
+Native Append shape changes preserve all old fields/primitive representations
+by direct common extraction; native runtime suite is not newly rerun here.
+Current source view→physical-input→same-handoff ingress identity is built.
+V786 unchanged-app both-opts gate/retained-source negatives remain running;
+CLI141 build and final Set execution still pending. Stable no-fallback, builder
+layer and thin-shim guards PASS; pointer/diff PASS.
+
+C787 Set5/bounds/kind Fault/receiver rejection PASS77.852261s while CLI build
+and root source test overlap. CLI141 quick build PASS155.352831s, final-source
+manifest cli-v141.source.json; app-v141 uses current FFI787/runtime757 and
+unchanged app on the canonical direct fresh-EXE command above. It is running.
+No new source changes after the successful CLI build.
+
+CLI141 terminal: build155.352831s/app192.292456s rc1/no EXE, new first-stop
+published-lifecycle/borrowed-write/entry-unclosed. Binary
+32665b34b09758a797287938e685308ba7aa5aa966fa7da2ec16a349efde8178;
+app33d3/FFI787/runtime757 unchanged. Full source manifest drift0. Retained
+Array backend entry passed, but no full-app C execution is yet established.
+Read-only audit found sole numeric capability caller classifies every Invoke
+usize store as borrowed guarded-formal write. Birth and ordinary source-owned
+writes have distinct authority. Do not widen has_borrowed_entry or bypass
+corroboration. V788 first adds diagnostic function/role/coordinate/field/value/
+entry-membership context to the existing error, without changing acceptance;
+identify the original rejected source family before selecting its common owner.
+
+V786 actual terminal RED714.270958s on optfalse at same entry-unclosed (new
+full backend demand; not a regression of the V785 source correspondence PASS).
+Worker all-writer census narrows the correction: production Invoke FieldSet is
+construction or guardedborrowed only; ordinary me.field assignment is bare
+FieldSet and already has its own numeric branch. No new normal-store packet
+family is needed. V789 selects the existing compiled Birth product/formal
+contract when present, keeping source-unannotated/I64FieldStores coverage and
+exact physical formal binding; usize additionally requires USize layout and
+the exact issued range check. Non-Birth Invoke keeps original guardedborrowed
+corroboration; no has_borrowed_entry widening. Existing ABI usize test now also
+demands the production numeric gate, keeping original contract-mutation cases.
+CLI142 diagnostic-only app runs on its pinned binary; no claim of its outcome
+before receipt. V789 is source WIP pending build/focused/runtime proof.
+
+V789 read-only review confirms all 3 producer families and unchanged per-family
+source admission; no new registry or missing current Invoke producer found.
+Root build PASS63.665730s. Existing source Birth usize numeric-gate test, old
+I64 source pair/full generic rejection/metadata negatives, guardedborrowed
+roles/guard/census negatives and physical layout-drift tests all PASS (1 each,
+.03/.02/.06/.02s; final receipt supplies exact timings). CLI143 build runs on
+this source; V786 actual failure is attributed to the just-corrected Birth
+misclassification until the next production attempt proves the actual result.
+
+CLI142 diagnostic-only terminal: build150.650609s/app177.083337s rc1/no EXE.
+Same refusal now proves exact first subject HakoAllocHandle.birth/3, index26,
+role birth_unit, block4/instruction0, canonical object0/field2, Value3, no
+borrowed entry. Source is requested_size:usize at page_heap_box.hako15, so the
+V789 Birth-family correction addresses the observed producer, not a conjectured
+ordinary-write packet. Binarydd80b25096be9a93226ab19d714712e4ce75a49f9cb6fe888c4bb426ddbbb695;
+app33d3/FFI787/runtime757. CLI143 result is still pending.
+
+CLI143 build PASS143.011864s; unchanged canonical app started with final
+FFI787/runtime757. No Cargo/root test process is alive. Root V789 focused4
+PASS; do not claim V786's full unchanged-app gate test as fixed until rerun.
+Source WIP remains unlanded.
+
+CLI143 terminal: build143.011864s/app169.026962s rc1/no EXE; Birth numeric
+misclassification passed. First-stop lifecycle_parameter_entry_capability_missing,
+ordinary-parameter-contract HakoAllocHeap.realloc/2 physical slot1. Binary
+239bf7ee01c138f6595867775ec4812f8aa33296992fbba40f619caf14aef56d;
+app33d3/FFI787/runtime757 unchanged. All processes terminal; no Cargo/rustc.
+Read-only audit: physical slot1 is logical/JSON ordinal0 handle:HakoAllocHandle,
+not me or requested_size. Tagged branch currently rejects any annotation.
+Existing compiled entry borrows canonical object_view from original source and
+both final use scans; join the original declared-formal class to that same
+source product. Do not permit an annotation or Integer wire signature alone.
+Object-view map key is PARAMETER VALUE ID, not physical or JSON ordinal; keep
+all three domains distinct. Old V753 strict-consumer deficit remains recorded;
+this new measured stop does not close or erase it.

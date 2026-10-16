@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/birth-local-array-scalar-source"
+current_blocker_token = "required-object-forward/declared-borrowed-parameter-capability"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,10 +18,8 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
-Same active owner/card and full MIRBUILDER-FINAL-PIPELINE-v1 goal.
-Latest unchanged app CLI139 build200.906711s/app182.240261s rc1/no EXE.
-Mixed Birth gate passed; new scalar actual stop Page.allocate→Handle.birth
-ordinal1 Local binding2/Value30 Unknown. binary9e611/app33d3/FFI781/runtime757.
+Latest app CLI143 rc1/no EXE: Heap.realloc physical param1 contract gate.
+Birth numeric/retained ingress passed; binary239b/app33d3/FFI787/runtime757.
 V756 shared current-owner received Birth source correspondence PASS both opts,
 including ValueId/ordinal drift, original Return/conditional End final checks.
 V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
@@ -47,7 +45,11 @@ V778–780 field groups/Return census/live anchors and Mixed state built; owned1
 V781 Mixed ABI/JSON/C Birth+completeEnd envelope WIP; Cbuild PASS6.023752s.
 CLI139 +C owned16/field6/stored96 PASS; actual fails new scalar-kind frontier.
 V782 build83.933306s; JSON32/35 PASS,3 own cumulative WIP reds.
-Next same checked Array Get issuer/writer → local → Birth actual; no ABI stamp.
+V784 same checked Array Get→local→Birth receipt built; focused6 PASS.
+V785 build PASS65.933769s/actual+mutations PASS1156.055888s; no ABI type stamp.
+CLI143 build143.011864s/app169.026962s: original declared handle param
+needs retained source-class/closed-use capability join; no blanket Tagged permit.
+Get2/Set5+drift/Fault PASS. V786 actual RED same numeric stop; loop pin RED.
 Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
 First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;
 full fixedsuite/integration/cutover/retirement/R6/R7/Loop/authority/parser/
