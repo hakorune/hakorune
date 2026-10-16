@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/birth-actual-physical-abi"
+current_blocker_token = "required-object-forward/birth-local-array-scalar-source"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,13 +19,13 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
 Same active owner/card and full MIRBUILDER-FINAL-PIPELINE-v1 goal.
-Latest unchanged app CLI138 build139.900385s/app166.589116s rc1/no EXE.
-Strict nullable-source acquisition met correct MixedObject owner38/binding3;
-not duplicate/refined Handle. binary01ccbe93/app33d3/FFI752/runtime610 pinned.
+Latest unchanged app CLI139 build200.906711s/app182.240261s rc1/no EXE.
+Mixed Birth gate passed; new scalar actual stop Page.allocate→Handle.birth
+ordinal1 Local binding2/Value30 Unknown. binary9e611/app33d3/FFI781/runtime757.
 V756 shared current-owner received Birth source correspondence PASS both opts,
 including ValueId/ordinal drift, original Return/conditional End final checks.
 V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
-new runtime757 exports residence set/get. C still admits Null/Fresh only.
+new runtime757 exports residence set/get. Accepted C evidence still covers Null/Fresh peers.
 Next Mixed/Borrowed outcomes + formal field support/anchor + conditional End
 must reach ABI/JSON/C without treating Forward as an owned Home.
 Required Array C execution, PlanSourcePublication Set, field Birth/full support
@@ -43,7 +43,11 @@ V775+ borrowed0/2 schema/anchor/output/JSON connection built as unaccepted WIP;
 V776/777 new microprobe retired: root scalar-call ReturnValueNotCovered,
 outside current app entry. Actual8 stays sole source authority; borrowedC owed.
 JSON30/33 PASS,3 ownWIP reds; C776 owned16 PASS116.384666s.
-Next grouped field dependencies +Mixed C substitution/read/completeEnd→app.
+V778–780 field groups/Return census/live anchors and Mixed state built; owned16 PASS.
+V781 Mixed ABI/JSON/C Birth+completeEnd envelope WIP; Cbuild PASS6.023752s.
+CLI139 +C owned16/field6/stored96 PASS; actual fails new scalar-kind frontier.
+V782 build83.933306s; JSON32/35 PASS,3 own cumulative WIP reds.
+Next same checked Array Get issuer/writer → local → Birth actual; no ABI stamp.
 Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
 First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;
 full fixedsuite/integration/cutover/retirement/R6/R7/Loop/authority/parser/

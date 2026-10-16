@@ -55,30 +55,34 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 
 ## Latest unchanged product measurement
 
-CLI138: quick build **139.900385s**, direct app attempt **166.589116s**,
-**rc1, no EXE**. Strict `nullable-source/acquisition` rejected the correctly
-recorded MixedObject at owner38/binding3, Body3/Initializer0; additional_calls=0,
-owner and Local declaration agree. This is the narrower consumer's incomplete
-Mixed handling, not an original observation duplication or null-guard refinement.
+CLI139: quick build **200.906711s**, direct app attempt **182.240261s**,
+**rc1, no EXE**. The previous Mixed Birth ABI refusal was passed. New first-stop:
+`published-lifecycle-physical-abi/actual-kind-unavailable`, scalar-kind,
+`HakoAllocPage.allocate/1`, Birth actual ordinal1, owner(1,26), Body13/Value,
+Local binding2 / Value30 / MirType::Unknown. Source is
+`block_id = me.free_stack.get(me.free_top)` → `new HakoAllocHandle(...block_id...)`.
+This is not Mixed runtime success: ABI fails on this independent scalar argument
+before the complete app reaches C. Keep all Borrowed/Mixed execution claims open.
 
 ```text
 target/quick/hakorune --grammar-profile canonical --backend mir \
-  --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v610> apps/mimalloc-lite/main.hako
+  --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v757> apps/mimalloc-lite/main.hako
 NYASH_DISABLE_PLUGINS=1 NYASH_LLVM_ROUTE_TRACE=1
 HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none
-HAKO_AOT_FFI_LIB=<ffi-v752/libhako_llvmc_ffi.so>
+HAKO_AOT_FFI_LIB=<ffi-v781/libhako_llvmc_ffi.so>
 ```
 
 | identity | SHA256 / source |
 | --- | --- |
 | unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI138 binary | `01ccbe935678575cbee3a2cde648b4a30781bca1b20645f02ff4ac88c5383c81` |
-| FFI752 | `0c9633f0b2d969d7abb5624fa68d055a0242d51dae6b4a235342fc8d07027b4e` |
-| runtime610 archive | `6e86862669dc11abb9874fc656e72c63725ec409329652c8fea8208fc3787e2b` |
+| CLI139 binary | `9e61129c60707dcbb4d38b871df14abf2df5cc890f45cd9b82c24c2d9438f8e9` |
+| FFI781 | `1f3fb9c8697630fb1737f2721c32a42c82b61394d2f627137ed7c1aa4831d18b` |
+| runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
 
-Source manifest/run: `cli-v138.source.json`, `app-v138.json` under the evidence
-base below. This run does not use the later C storage/runtime757 preparation.
-No newer actual app success or first-stop movement is claimed.
+Source manifest/run: `cli-v139.source.json`, `app-v139.json` under the evidence
+base below. Previous CLI138 result is preserved by docs checkpoint8e6784afc9.
+CLI139 build ran concurrently with owned C execution, and app with root build;
+these durations are measured results, not a speed baseline.
 
 ## Verified premises; no automatic product acceptance
 
@@ -104,15 +108,15 @@ No newer actual app success or first-stop movement is claimed.
   `ordinary_new_local_commit/finalized_received_birth_actual.rs` and
   `published_backend_view/physical_abi_birth_actuals.rs`; retain original result
   ordinal and exact acquisition/received packet/child Rc/finished producer.
-  ABI currently explicitly refuses `mixed-result/birth-outcome-unconnected`.
+  V781 connects the gate in WIP; complete source-issued C execution is still owed.
 - [ ] Forward field support/anchor → paired store/read/conditional child End.
   Reuse `ordinary_new_return_leaf.rs`, `ordinary_new_return_handoff.rs` and
   `ordinary_new_borrowed_formal_entry_incoming.rs`; canonical full support census
   and call-hop composition remain mandatory. Keep anchored-field End gates
   closed until the complete source-to-consumer envelope is checked.
 - [ ] Mixed/Borrowed Call JSON/C and complete ObjectEndIfOwned. Existing explicit
-  JSON refusals, payload-only Call/Return and Birth0/3 still need the same
-  Null/Fresh/Forward transport; Fresh-only move/End, Forward support retained.
+  V781 connects Null/Fresh/Forward output, residence, move and complete End in
+  WIP; independent source-issued runtime positive/negative evidence is still owed.
   Do not replace original evidence with a wire tag, role or metadata permission.
 - [ ] Array residence execution. Rust Push/Get/raw Set connections and selected
   object residence C757 are premises; broader Array C execution is still owed.
@@ -520,3 +524,66 @@ contains the retired unaccepted test, so future filtered evidence must name its
 exact manifest. Production Rust wire code is built, but no new Borrowed C
 positive or app success has been established. Only test removal/comment/owner-doc
 changes follow V777/C776; no source-admission implementation changed afterward.
+
+
+V778–779 unaccepted field-dependency consumer construction: Rust JSON now
+borrows each group's SAME canonical field/child, constructor ordinal, outer
+formal/entry, original Copies, inner Call Invoke/Normal/ordinal and optional
+Birth coordinate. Three ordinal domains remain distinct; no witness IDs or
+second source registry. C corroborates exact Provided constructor store and
+substitution, preserves all callee Return dependencies on relay, and requires
+each matching Fresh Return to retain every Mixed Birth dependency. Field reads
+follow the exact parent wrapper's dependency closure; bounded recursion checks
+the original actual's lifetime at read/End. Mixed local storage remains refused.
+Read-only review caught per-Return census and nested parent lifetime omissions;
+both fixed before V780. V778 owned16 PASS113.911744s; V779 owned16/Fault/original
+correspondence negatives PASS114.032265s, FFI0190045a71dceb1ec7a1a3adb0e48738432af07289ec9839fec11d1e58a4e707.
+
+V780 unaccepted Mixed construction reuses the existing acquired Return origin
+checker plus the same original BorrowedCall actual-anchor resolver. All Returns
+participate; OUTER fixed formal is checked after INNER actual substitution.
+Owned class describes only acquired alternatives, never Forward. Dedicated value
+kind/state260 stay outside LIVE/Home/Map/Birth domains. Copy, null compare and
+Normal projection retain support readability; ordinary Home/reclaim refuse it.
+C build PASS5.984681s; existing owned16/Fault/correspondence regressions
+PASS114.394910s, FFI836a538ca2159b29155acc2e810c539bcd2110d7ed95395352f1237994e1f423.
+
+V781 connects the existing Mixed Return/Birth/complete-End envelope as WIP:
+mandatory fixed-formal schema and guard, Normal-only payload/outcome0/1/2,
+BorrowedCall0/2 result relay, Provided residence companion, Normal-only260 move
+into Birth with Fault retention. ObjectEndIfOwned carries its original complete
+End steps; C corroborates every marked layout field in reverse order and outer
+release, then runs the existing complete End helper only for outcome1. Null0 and
+Forward2 release no children or outer storage. The old outer-only
+home_release_if_live is not generalized. Generic ownership arms stay closed to
+Mixed. Read-only worker verified the joined responsibility and fixed an omitted
+Mixed role in the existing tagged-formal membership check; membership and fixed
+Forward ordinal remain separate. C build PASS6.023752s; owned regression and
+CLI139 build running. Rust ABI/JSON gates are now connected in source, not yet
+execution-accepted. No Borrowed/Mixed C positive or unchanged app success is
+claimed. Runtime757 is unchanged; source/C WIP remains unlanded. Next canonical
+unchanged app attempt must identify the new actual first-stop before more repair.
+
+
+V782 root build PASS83.933306s, binary53b2f8e31ce2364e26285b043aeb87339a200c320eb20685c44bf74d377635ec.
+JSON35:32 PASS/3 own cumulative-WIP reds0.793s, same three named boundaries
+above (borrowed declaration, ordinary field root-exit, Array construction Fault
+cleanup expectation); not whole-module PASS or an exact clean-HEAD baseline.
+C781 owned16/Fault/correspondence PASS200.842982s concurrent with CLI build;
+fieldReturn6 PASS34.914811s; stored-child96 PASS13.518258s. These existing source
+fixtures establish peer regressions only, not Borrowed/Mixed runtime acceptance.
+Pointer, diff, no-fallback, builder-layer and thin-shim guards PASS.
+
+Decision after CLI139 first-stop read-only audit: the existing whole-Box integer
+store census already proves the free_stack Get/index. Home local flow records
+TrivialLocal(Integer), but SelectedNew argument conversion loses the scalar kind;
+more fundamentally, the existing checked FieldArrayReadRecipe is restricted to
+Scalar Return source loans and does not reach this Object Return body's local
+initializer. Do not stamp Unknown as Integer at ABI/argument use. Normalize the
+existing checked read body away from its Return-use relation, retain the SAME
+source read Rc for original initializer/binding/Birth actual, and route the
+actual Get through the existing sole checked writer, LocalSSA/finishing/named-
+array validation and both final consumers. Existing local Array connection is a
+prerequisite to this same app/Forward end-to-end acceptance, not a new feature,
+Root fixture lane or blanket dynamic scalar admission. Complete Mixed evidence
+remains open while this exact production argument is connected.
