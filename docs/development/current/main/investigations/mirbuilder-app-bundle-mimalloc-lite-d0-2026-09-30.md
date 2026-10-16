@@ -814,124 +814,35 @@ no artifact: package Main43 Body8 numeric field source-identity/current-closure.
 New source qualification activates that refusal; no product advancement beyond
 CLI154 and no new Mixed/source/runtime/End acceptance or source landing.
 
-V810 field→New→Birth construction and prior Array mapping are retained at
-48e2ad16d2/b2a24fd4bd (this card). Continuing numeric source contract: SAME
-original New census, constructor/formal/ordinal and ALL class actuals; passive
-Me field joins SAME field-source Rcs without cached Conflict promotion.
-Productive Birth least-grounding rejects rootless cycles; ordinary preservation
-and independent writer traversal propagate current dependency loss. Final use
-re-demands original census Rc, source corroboration and forwarded I64 evidence.
-V810c focused15 PASS; unchanged M189 first stop advanced page_id→block_id.
-Keep those evidence pins while source remains unlanded. Original typed Nullable
-full input is still owed; its latest concrete mapping is below. No EXE/runtime/
-End/source acceptance or whole-goal completion follows from this preparation.
+V810–V815 full source/value/writer contracts and evidence are retained at
+**94a3698050** (this card, docs checkpoint; cumulative source remains unlanded).
+Continuing requirements: SAME original New census/constructor/formal/ordinal,
+all actuals and source descriptor Rcs; productive least-grounding and independent
+writer traversal preserve source loss/conflicts. Sole Array preflight census and
+original New read Rc survive transport; late recapture/cache lender is removed.
+Non-Me writer qualification preserves all unknown observations and exact original
+writer/receiver, without granting incoming/entry/Home. Current CallValidationContext
+lends the original acquisition packet after affine moves; spent-vector helper is
+removed. Field paths retain SAME source plan/root/parser/class/parent source Rc,
+real intermediate reads, exact initializer/Copy and closed numeric leaf evidence.
+Return/Print keep their own original obligations; no fake Return or layout inference.
+V815 source/final50 and unchanged M189 canonical EXE/run/exact output PASS at
+**49c99385cf**; C816 iterator BoxShape **c3003843fd** is independently landed.
+Same-wire V2 validation180.644469s→20.985720s. Keep source captures/EXEs/receipts
+until cumulative source landing; C fixture repair remains unaccepted.
 
-V811 Array-get→New→Birth source preparation history is retained in commit
-1b76ed23d0 (docs checkpoint, not source landing). Continuing premises:
-sole preflight Array census issues exact read Rcs retained on SAME original New
-rows. Scalar Return and late New/recipe attachment borrow that SAME read;
-nonfamily locals never demand it. Passive original New loan survives transport
-refusal; selected missing Array source preserves its error without recapture.
-Late New recapture/cache and its exclusive old lender are physically removed.
-V811c focused16 PASS; CLI157 PASS207.240151s, binary941d7b0e. Unchanged M189
-source705a535c on C808b/runtime808b advanced past page_id/block_id, then stopped
-at requested_size source-missing (Main43 Body8 Value/Rhs), .342121s/no artifact.
-Root/CLI manifests matched; only a trailing blank line was trimmed afterward.
-All source/runtime/End/full-goal acceptance remains owed. Keep those evidence
-pins until the cumulative source series lands; Array source checks alone do not
-prove executable Array C/PlanSourcePublication Set acceptance.
-
-V812's original non-Me writer mapping and intermediate investigation are retained
-at **b2a24fd4bd** (this path). Continuing source/value/writer vetoes are below;
-no unsigned-to-signed cast or relaxed usize/NormalInteger law was introduced.
-
-V812 non-Me writer source history is retained in b2a24fd4bd (docs checkpoint,
-not source landing). SAME actual seed product lends SourceObject through the
-existing all-incoming solver; Forward, DeclaredObject constraints, vetoes and
-all New rows remain. The sole field-value issuer qualifies only Unattributed
-writers, includes ALL same-name unknown observations, preserves original Birth
-and successful field Rcs, and retains exact original writer/receiver-site loans.
-This basis supplies conditional legal target class only, not incoming existence,
-actual/Home/entry permission. Selected packet/guard/value-I64 checks remain.
-Source-use observation keeps its NullableForwarded boundary; source Integer-only
-usize, wrong/unknown targets, unrooted cycles and source loss remain refusals.
-V812f root PASS65.414445s; focused17 PASS, including original facade, source-error,
-Array sharing and same-class foreign receiver substitution negatives.
-CLI158 PASS209.246925s, binary537e0d71a8528387dcda991da04b52bd6b072207496ca2f4a6adb6c93fb739dd.
-Root/CLI source match; unchanged M189 source705a535c on SAME C808b/runtime808b,
-canonical direct EXE RED17.555916s/no artifact. requested_size source is crossed;
-first-stop callable-main/lowering ordinary-field-read/received/targets-missing.
-Typed Nullable full input, runtime/End, source landing and full goal remain owed.
-
-V813 decision, implementation and measurements are preserved at **0bc1ccb9dd**
-(this path; docs checkpoint, not source landing). Current CallValidationContext
-lends the SAME original acquisition target after affine preparation consumption,
-from Lowering groups or the FinalizedRootSourceHandoff. Received field and final
-census propagate that context; the old spent-vector recheck helper is removed.
-Numeric source, exact receiver Copy, Invoke/Normal/Fault and independent final
-checks stay conjunctive. V813b root PASS39.687385s; focused13 PASS. Original typed
-Nullable full-input Print remains RED placement-handle-result-drift, unaccepted.
-CLI159 PASS147.887594s, binarybfb764a3b18fa897876d2823514dd09df0b848be5ef0b50ba2bfdf770b2521da;
-matching root/CLI manifests. Unchanged M189705a535c on SAME C808b/runtime808b
-canonical direct EXE RED34.534545s/no artifact. Spent-target stop is crossed;
-new first-stop is nested Print source-unavailable, located below. Runtime/End,
-source landing and full goal remain owed.
-
-Typed Nullable input remains separately owed; its exact read-only mapping is
-preserved at **0bc1ccb9dd** (this path). Retain the existing
-OriginalLocalCallSourceV1 as one source-input obligation BEFORE the one incoming
-scan. Join the same need/target through registration, observed arguments,
-SourceInstance selection, original completed slot and packet-family recheck.
-Preserve canonical NullableObject/roots/ordered actuals/signature/Completion;
-no borrowed-only formal_actual shortcut, QualifiedObject recast, self-reference,
-new registry or field completion as early permission. Original flag0/1 and drift
-negatives remain required. This does not preempt the actual M189 frontier.
-CLI159 exact no-inferior-call frames are also at **0bc1ccb9dd**: received field
-Print lowering passed; Body12 nested receiver was the first refusal. Latest
-CLI160/161 measurements below supersede that exact source stopping position.
-
-V814 construction, worker audits, failed checks and complete measurements are
-preserved at **e57753e302** (this path; docs checkpoint, not source landing).
-Continuing required field-path contract:
-- SAME original ExpressionSourcePlan Rc/node/root/parent geometry; Return keeps
-  its facts/Completion wrapper, Print its original live-root request. Both use
-  the existing field-read progress/reserve/bind/physical owner. No fake Return.
-- Intermediate Identity fields emit real reads and retain original object-source
-  Rcs; terminal I64 demands the SAME closed numeric value loan. Topological roles
-  are hypotheses until the whole atomic source batch proves every descriptor.
-- Source map keys preserve original field and container class. Each child checks
-  its original parent's class and SAME current parent source Rc at issue/recheck.
-- The first edge retains original parser box/object, exact New acquisition or
-  entry identity/slot; recheck joins SAME claim→commit source or original selected
-  entry/signature/receiver lane. Construction success is not passive authority.
-- Alias roots retain original prefix path, root New parser anchor and constructor-
-  issued canonical edge facts; sealed owning-edge checks remain separate. No
-  field-layout/class-string inference or checked-received/Array root expansion.
-- Consume one exact read per original root expression, reuse it along that path,
-  and retain source/value/Copy dependencies through finishing and final census.
-  Genuine non-variable initializers keep destination/initializer/Copy in the
-  existing materialization proof. Variable initializers inherit SAME chain;
-  absent initializer or failed variable proof gets no substitute/formal authority.
-V814f source/final34 PASS and original 3-level provider/prior-Home RED remain
-recorded at **86d7834fe2**; later cases were unreached, not waived. Provider still
-excludes OwnedObjectFieldsNoHook. No cumulative source or whole-row acceptance.
-
-V815 original Local-New candidate/acquisition/binding/declaration/parser and raw
-incoming/root/receiver/Copy final checks remain premises; source/final50 at
-**c3003843fd**, full M189 execution/performance at **49c99385cf**. CLI162/C816
-unchanged M189 EXE/run/output PASS; independent iterator BoxShape is landed.
-Same wire validation180.644469s→20.985720s. Cumulative source/fixture repair stays
-unlanded; keep original captures/EXEs/receipts until source landing. No row close.
-
-The prior original Nullable LOCAL stop and its exact source-input mapping are
-preserved at **86d7834fe2**; the V817 contract and current first-stop follow below.
-Separate owed 3-level provider mapping uses existing OwnedFieldChildV1 and
-emit_discharge/field_discharge_chain in Array-only provider/Unit/emission/store-
-Fault consumers. Provided handle paths separately owe wrapper support/outcome and
-caller substitution source; provider gate alone cannot close M190.
-
-CI readback: latest branch run remains historical portability failure35681768498
-at d4168473d5b (2026-09-22); no current source/iterator CI acceptance is claimed.
+Separately owed original Nullable LOCAL input mapping remains at **86d7834fe2**:
+retain OriginalLocalCallSource before incoming scan; join original need/target
+through actual preparation, SourceInstance input/frame/walk and completed slot/
+packet-family recheck. Preserve NullableObject/roots/ordered actuals/signature/
+Completion; no borrowed-only shortcut, QualifiedObject recast, self-reference,
+registry or field completion as permission. flag0/1 and drift negatives required.
+Owed 3-level provider/prior-Home RED is retained at **86d7834fe2**; provider still
+excludes OwnedObjectFieldsNoHook. Existing OwnedFieldChildV1 and discharge owners
+must normalize Array-only provider/Unit/emission/store-Fault consumers. Provided
+handle paths independently owe wrapper support/outcomes and caller substitution.
+CI remains historical portability failure35681768498 at d4168473d5b (Sep22),
+not current acceptance. No cumulative row or full-goal completion is claimed.
 
 V817/V818 full contract and evidence remain at **6beb9908e2**. Source/final78
 and source/domain81 PASS preserve original LOCAL/census/all roots and SAME writer/
@@ -941,55 +852,122 @@ RED0.432691s/no artifact: owner38 class passes; current returned-field-actual,
 owner43 Main Body7 heap.release(moved.handle)→callee35 arg0. Parent wrapper Home/
 packet must be complete/live; physical Field/actual/final remain owed.
 
-V819 Get-only facade contract and V820 prefix preparation/evidence are retained
-at **ca493f48ff**. SAME Get recipe/emitted Rc/holder and independent final laws
-remain required. Get59 and V820b39 focused PASS; heavy Get publication mutation
-is still pending. Cumulative source WIP unlanded; no Field/series acceptance.
+V819/V820 facade and parent-mapping preparation/evidence: **ca493f48ff**.
+Get recipe/emitted Rc/holder identity remains mandatory. Self-only parent take
+and Nullable-only checked field pair do not fit Main definite wrapper reads.
 
-Field next Decision (read-only worker source→final confirmation): retain Returned-
-Field loan on the existing LocalFieldReadSource; explicit current roots/writer/
-original-actual recheck must precede the generic no-requirement branch. Reuse
-Local Alias(C)→take_local_field_read→complete_exact_field_read_v1→ObjectFieldGet.
-Parent lender: with_taken_packet_v1(acquisition)→original_row→borrowed_object_call_
-packet_v1→value_in_context_v1; match original destination, Handle and exact Copy.
-Self-only take_receiver_object_packet and Nullable-only checked pair do not fit.
-Require original parent in outer prior Homes; parent Normal dominates read, read
-dominates argument use, and parent End cannot precede read/call. Child adds no
-Home. Reuse source DAG/Main packet/field/finished matrices for pending, foreign
-root/field/ordinal/relation/writer, changed base/coordinates and early End.
+V821 source/input decision and evidence are retained at **94a3698050**.
+Original Field argument request now selects the shared input/frame/Home walk;
+Ready→affine take→checked Read actual and descriptor Rc/progress survive. Root
+build60.613691s and unique focused38 PASS. Physical/final Field remains owed.
 
-V821 Decision (worker-confirmed exact-use staging): ledger field owner borrows
-SAME original(call,ordinal) capsule and observed parent/acquisition/read, rechecks
-current incoming census + every hop's target/root/class Rc + complete current
-relation/witness alternatives + writers. Original immutable LOCAL/substitution/
-constructor/leaves remain from full source issuance; no second recipe/registry.
-Stage Pending descriptor via existing local-field batch/map; re-lend original Rc
-and never reset existing progress. Staging grants no Home/value. Retain original
-receiver source site. Existing Read source/actual/physical/final consumers close
-parent Handle packet, Copy, dominance/priorHomes/End; fake Print is unnecessary.
-Scope: returned-field source graph owner, existing field descriptor/map, Instance
-actual constructor/census, Read facade + existing builder/finished owner and
-owner README. Existing source/field/packet/final mutation tests; unchanged M190
-only after full connection. Reuse ca493 preparation; no seed-only closeout.
-V821 source connection uncovered a shared original-request selection gap: Field
-capsule existed but consume remained SourceInstance and no descriptor staged.
-Worker mapped input qualification, source-only entry and homes-aware walk to the
-same original parameter frame. The existing seed owner now checks owner/request
-census + call/target/mode/ordinal identity once; those three consumers borrow it.
-No all-SourceInstance expansion, forced Ready, manual test staging or Completion
-grant. Existing callee Completion/signature/full-input/cohort install stay required.
-Original Mixed-only completion selector is renamed borrowed-instance; old caller
-name retires. Field emitter/finished lifetime closure and M190 remain owed.
+V822 Decision (workers: original call source→final and Object lifetime interval):
+Source authority + canonical issuer: SAME returned-field descriptor in existing
+local-field map, original(call,ordinal) capsule/current graph/writers. Borrow
+parent Handle via current CallValidationContext's original taken packet; require
+original local destination and exactly one outer prior Home. Exact lexical read
+keeps original receiver and Copy chain. Sole complete_exact_field_read_v1 issues
+ObjectFieldGet; Read facade retains original Rc and emitted binding to final.
+Non-authority: declared class, instruction shape, new Home, new registry, AST.
+Fail-fast boundary: descriptor/source/ordinal/base drift, incomplete parent,
+missing/duplicate/reordered producers, changed argument slot, early full/partial
+End, same-slot mutation or ownership transfer before the enclosing call.
+Smallest next slice: existing returned-field map helper, Field emitted record and
+builder delegate, context-aware Read facade, existing finished Read consumer.
+Use exact finished boundary mapping and AcyclicUnanimousValueOrigins; inspect
+only paths parent Normal→outer call (terminator successors), excluding terminating
+Fault cleanup. Root ordered normal/Fault cleanup owners remain required.
+Scope includes these owners and owner README; existing source/field/packet/final
+mutation tests reused, then unchanged M190 direct EXE. No series/source landing
+or new actual EXE acceptance is claimed until the full connection is checked.
+V819 heavy Get regression terminal PASS3096.51s (51m36.51s), recovered SAME
+mapped executable11f807f4ebc13b7e matching first filter/build source. Pinned receipt
+v819a-heavy-pinned excludes later mutable-path helper filters. No restart/timeout
+inference. Long execution is unresolved test cost, separate from build time.
 
-V821j build PASS60.613691s; unique focused38 PASS. Original Main Field call now
-reaches Ready→affine take→checked Read actual. Source graph and exact descriptor
-Rc/progress, ordinal/acquisition/metadata/writer-loss negatives PASS. Earlier REDs
-were local import/Rc/test API and original input/frame/walk selection; corrected.
-No Field physical execution/M190 remeasure or series/source landing is claimed.
-Final uses local_call_for_owner (all result kinds), existing generic finished Read
-consumer and value_origin Copy resolution. Generic Invoke has no Object lifetime
-state: parent early-End interval must be checked in existing physical boundary/
-read final owner; root ordered normal/Fault cleanup owners remain mandatory.
-V819 heavy Get still runs on recovered mapped executable, SHA matches first
-filter; later mutable-path helper records are not old-source proof. Future focused
-runs use fixed binary copies. Keep pinned source/build/test receipts until landing.
+V822 construction: Read facade now retains Field descriptor Rc, exact receiver/
+Copy and sole ObjectFieldGet; value/copy/finished preserve CallValidationContext
+through affine parent packet moves. Final boundary maps parent Invoke/Normal,
+read and exact argument position; interval rejects full/partial End, same-field
+mutation and ownership transfer on paths reaching the call. Copy/unanimous Phi
+origins and repeated same-slot reads retain possible child aliases; unresolved
+reread base is not non-aliasing. Terminating Fault cleanup stays independent.
+Current map descriptor, original actual and emitted descriptor need explicit Rc
+identity; erased source metadata cannot enter declaration-only success.
+
+Original Field request was accidentally cfg(test)-only; moved to production.
+Original self LOCAL small publication still RED at Maker.wrap h=me.make placement.
+An experimental late Handle packet selector advanced to SourcePending but caused
+an existing input RED; withdrawn. Worker mapped the already-owed original LOCAL
+input obligation across source actuals/input/frame/Home walk/packet; late flow
+selection alone cannot replace it. No placement relaxation, zero-input exception,
+self blanket permission, cyclic target snapshot or new registry is authorized.
+
+Field+QualifiedObject issuer/projector disagreement is repaired: use the SAME
+exact Field selection for SourceObject construction, Instance→Object delegation
+and required-phase guards. Existing source-only forward shares that phase guard.
+Nullable-qualified is delegation-only: forcing its globally executable rows into
+passive SourceObject caused sibling-source-draft and was withdrawn. Original
+actual-sensitive forward construction remains later. Static observations, including
+errors, stay with their own owner before either selector inspects an Instance.
+
+Evidence (all source WIP unlanded; no Field/series/runtime acceptance):
+- V822a/b/c/d builds PASS82.100203/61.543114/109.945789/58.660212s; a source/map/
+  packet31 unique PASS; d focused45 PASS after late Handle experiment withdrawal.
+- V822f build52.222368s/focused47 PASS; g null-only typed fixture refused before
+  assertions. h uses original acquired child factory/guarded sink+qualified sibling;
+  real Field phase/delegation and forged/missing/poisoned-row negatives PASS.
+- V822i build38.952792s/focused81 unique PASS; j54.667975s/focused48 PASS. Rejected
+  zero-match optional filters are not green evidence. k52.793480s/focused49 PASS
+  includes old sibling-forward negatives and Static; no unclassified existing red.
+- V822l build61.653065s/two focused PASS adds non-unanimous-Phi reread invalidation
+  to existing interval test. CLI remeasure after this lifetime-only change is owed.
+- CLI165/166/167 production builds PASS210.052602/147.631552/137.854263s. k and
+  CLI167 source match; l differs only in interval source/test and is unmeasured.
+- Unchanged M190 source598e0edb, C816483c6e84/runtime808b2b6083aa, canonical
+  --grammar-profile canonical --backend mir --emit-exe ... --emit-exe-nyrt ...:
+  app-v166 CLI165f23238eb RED0.421442s/no EXE Main43 Body2 source-actuals-missing;
+  app-v167 CLI166d79f7a52 RED0.317442s/no EXE owner34 Body1 sibling-source-draft;
+  app-v168 CLI16762b537df RED0.428498s/no EXE Main43 Body2 source-actuals-missing.
+  These expose earlier preparation refusals than CLI164 Body7; no product
+  progress is claimed. CLI164 later stop did not prove its parent prefix covered.
+
+Latest read-only native GDB evidence (no inferior calls), pinned CLI16762b537df:
+- failing direct Instance source projection ← borrowed callback ← seal_i64_call_
+  arguments ← issue_lexical_i64_call ← scan_statement_flow; not by-phase lender.
+- Main43 Body0 Observe prefix_known1/Homes0; Body1 allocateResult prefix1/Homes1;
+  Body2 reallocResult prefix0/Homes1. First missing Home is alloc, before Field.
+- Body1 lexical_handle_result_call returns false twice: its bounded old family
+  requires all exact-i64 formals and construction_result_callee. allocateResult's
+  requested_size is opaque. Source factory class by itself does not select it.
+- sole install_inventoried_call_result writes Main43 binding2 at Body1 initializer;
+  its exact scan fallback immediately marks PrefixNotCovered(Body1). This is not
+  selected-producer SourceMismatch. Body2 prefix0 necessarily leaves FieldAccess,
+  never ReceivedField; no actual row can be invented from its passive capsule.
+
+Next Decision: fix the original parent acquisition/input coverage, not Field phase
+or missing-row guard. Worker maps whether the existing Field capsule acquisition
+ObjectCallSourceLoan can join the existing Array object-producer input lender,
+then input/frame/Home walk/packet consumers, preserving original roots/writers and
+all incoming checks. Keep true Array-only holder/Get consumers specialized. No
+relaxation of exact-i64 old selector, source Home fabrication or generic self
+blanket. Existing original LOCAL obligation and small publication stay open.
+Scratch: m190-v168-worker/observe-worker/handle-worker/fallback-worker GDB logs;
+retain source/build/test/EXE receipts and pinned binaries until source landing.
+V822l is current WIP; latest measured CLI167 precedes only interval hardening.
+No Cargo/rustc remains after completed builds. Active row and full goal stay open.
+
+Next bounded parent connection mapping (worker confirmed, not implemented):
+borrow SAME FieldHop local/ObjectCallSourceLoan/destination from returned-field
+source owner; ingress scans original ReturnedField seeds with full original census.
+Duplicate capsules require same target/class and ordered root Rc, not capsule
+allocation equality. Keep current graph AND writer recheck before lifecycle use.
+Reuse common producer INPUT selection in instance actual prep/forward selection,
+selected input kind, opaque lender, packet family and lexical full-slot selection/
+completed-input dispatch. Preserve QualifiedObject priority and whole callee input.
+KEEP Array-specific observation bypass in lexical_object_observation (expression
+Append has no LOCAL); Field acquisition must issue its real received Handle LOCAL
+observation/Home. No inner child Call promotion: it is not a FieldHop and still
+needs its own original local-source proof if it becomes the actual frontier.
+Original all-i64 lexical selector remains bounded. Borrow provenance; add no
+second source registry, fabricated Home or fallback after failed packet selection.
