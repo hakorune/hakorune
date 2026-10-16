@@ -850,3 +850,27 @@ Omitted marker and preissued Loop product checks passed; no whole-test PASS.
 Remaining source-vs-transport expectations are under same-test worker audit.
 These repairs and cumulative implementation remain unstaged/unaccepted; three
 other own WIP regressions above remain owed. No Cargo/rustc running after build.
+
+Docs-only checkpoint 76a5464bb5 pushed; cumulative source still WIP.
+V806d build PASS63.043628s; worker audit aligns remaining original Static
+incoming assertions with canonical static_incoming_cohort_v1 and matching final
+transport Rc/site/callee/ordered arguments, rather than obsolete target_static
+partition/two-caller count. Missing-actual negative uses that SAME canonical
+cohort; receiverRequired stays a classification positive, while refusal belongs
+to the existing scoped entry-input consumer and selected packet consumer.
+V806e build pending. Before accepting this regression, require actual-missing
+negative specificity / positive scoped entry validation; no source permission
+may be inferred from partition membership. Next production step remains the
+Mixed source request/whole-input connection recorded above.
+
+V806e RED20.295808s: scoped entry helper is private; no production visibility
+was widened. V806f test-only fix uses existing completed StaticOne actual lender
+before/after deletion (positive and missing-actual refusal), plus selected packet
+refusal; no new adapter. Build PASS52.819211s. Focused imported-source test still
+RED4.67s, now old Heap transport-definition absence at candidate_veto_tests.rs581.
+Canonical Static cohort/transport and preissued Loop product checks passed;
+last mutation assertions were not reached. Full test repair remains unaccepted,
+not a production blocker or a green suite. Avoid more speculative expectation
+flips: remaining definition/domain expectations require original full-census and
+current entry/actual proof correspondence. Next selected implementation remains
+original Main Mixed source-request participation, not a new test-cleanup lane.
