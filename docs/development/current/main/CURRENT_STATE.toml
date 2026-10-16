@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/acceptance-self-nullable-packet"
+current_blocker_token = "required-object-forward/final-same-series-validation"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -19,7 +19,7 @@ latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
 V798 first milestone PASS: unchanged app148 direct EXE/run/stdout/exit0.
-Native39 PASS; same-series acceptance: self Nullable packet + JSON3/strict debts.
+Native39/actual bothopts PASS; V753 resolved; V799 Nullable retired, V801 JSON33 PASS.
 V756 shared current-owner received Birth source correspondence PASS both opts,
 including ValueId/ordinal drift, original Return/conditional End final checks.
 V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
