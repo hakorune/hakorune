@@ -916,27 +916,15 @@ V814f source/final34 PASS and original 3-level provider/prior-Home RED remain
 recorded at **86d7834fe2**; later cases were unreached, not waived. Provider still
 excludes OwnedObjectFieldsNoHook. No cumulative source or whole-row acceptance.
 
-V815 Local-New stored-call connection and its source/final50 verification are
-preserved at **c3003843fd**, with complete M189 execution/performance closeout at
-**49c99385cf** (this path). SAME candidate acquisition/binding/declaration/parser
-anchor, original raw incoming and root/receiver/Copy final checks remain premises.
-CLI162/C816 unchanged M189 canonical EXE/run/exact output PASS. C-only iterator
-BoxShape is independently landed; identical original wire validation improved
-180.644469s→20.985720s, with identical outcomes and existing regressions PASS.
-Cumulative source/test repair stays unlanded. Keep its original captures/EXEs/
-receipts until source landing; these product pins do not close the full row.
+V815 original Local-New candidate/acquisition/binding/declaration/parser and raw
+incoming/root/receiver/Copy final checks remain premises; source/final50 at
+**c3003843fd**, full M189 execution/performance at **49c99385cf**. CLI162/C816
+unchanged M189 EXE/run/output PASS; independent iterator BoxShape is landed.
+Same wire validation180.644469s→20.985720s. Cumulative source/fixture repair stays
+unlanded; keep original captures/EXEs/receipts until source landing. No row close.
 
-Prior stop: required-object-forward/nullable-local-source-input.
-CLI162/C816 unchanged M190598e0edb direct EXE RED.281593s/no artifact.
-Worker exact GDB: caller34 allocateResult Body1/Initializer0 is original
-`local handle = me.allocate(size)`, callee33 HakoAllocHeap.allocate/1. Original
-incoming/one argument already lends; I64ResultArguments then demands scalar proof.
-Its rejection of Nullable without direct New (stored forwards+null) is correct.
-Next bounded Decision reuses 0bc1ccb9dd's OriginalLocalCallSource input obligation:
-join exact LOCAL call/Nullable result law to existing incoming/actuals and
-SourceInstance protocol, then same completed input/packet final recheck. No new
-scan/scalar relaxation/claim-local producer widening for self receivers. Preserve
-original target/roots/signature/Completion/actual identity.
+The prior original Nullable LOCAL stop and its exact source-input mapping are
+preserved at **86d7834fe2**; the V817 contract and current first-stop follow below.
 Separate owed 3-level provider mapping uses existing OwnedFieldChildV1 and
 emit_discharge/field_discharge_chain in Array-only provider/Unit/emission/store-
 Fault consumers. Provided handle paths separately owe wrapper support/outcome and
@@ -945,26 +933,20 @@ caller substitution source; provider gate alone cannot close M190.
 CI readback: latest branch run remains historical portability failure35681768498
 at d4168473d5b (2026-09-22); no current source/iterator CI acceptance is claimed.
 
-V817 Decision (worker complete source→final mapping): attach an orthogonal opaque
-Nullable LOCAL input loan to the existing target after Mixed/Borrowed selection.
-Source authority: OriginalLocalCallSource sole initializer/nonrebind/declaration/
-receiver/key/ordered actuals, NullableObject(C), SAME nonempty Null/Fresh(C) roots.
-Keep original result requirement; reject ForwardFormal and foreign/lost roots.
-One needs→incoming census retains it. Existing SourceInstance snapshot/rebuild,
-selected input protocol/parameter frame and whole-cohort finish close its inputs.
-Home's existing SourceObject Nullable issuer gains a structurally corroborated
-self-receiver branch ONLY when this loan affirmatively selects the call; preserve
-claim-local producer law, source-only actual phase and one checked Home.
-Reuse existing object slot/opaque completed-input and original-source packet
-family; recheck SAME source/class/roots, Completion/terminal Rc, actual census,
-signature/result/teardown/take in retain AND independent final consumers.
-No result enum variant, registry, second incoming scan, I64 result relaxation or
-new finish owner. Scope: result-class call-source loan, lexical source/profile/
-incoming, instance actual/input selection, source-object Home port and existing
-object slot/entry/packet consumers, their existing tests and owner README.
-Required tests: Nullable typed0/1 and self nonzero-input, source/root/receiver/
-initializer/argument/input-family/extra incoming/Completion drift; preserve
-Mixed/BorrowedNullable/Stored regressions. Then unchanged M190 canonical EXE.
+V817 input contract (full Decision/evidence at **86d7834fe2**): retain the original
+LOCAL initializer/nonrebind/declaration/receiver/key/ordered actuals and SAME
+nonempty NullableObject Null/Fresh roots as an orthogonal input loan. Preserve
+Mixed/Borrowed laws and original result requirement; no ForwardFormal widening.
+One incoming census→SourceInstance snapshot/rebuild→whole signature/Completion
+input finish; Self Home source-object observation requires the affirmative loan.
+Object slot/completed-input/packet reuse rechecks roots, actual census, terminal
+Rc, result/teardown/affine take at retain and independent final consumption.
+QualifiedObject keeps its stronger input family and valid Executable lender;
+source-only forward keeps Object phase and false Instance phase refuses.
+Self acquisition compares SAME completed arguments under the loan; old observer
+keeps its empty-argument law. No registry/extra scan/I64 relaxation/new issuer.
+Required original flag0/1/self, loss/drift/Completion and Mixed/Borrowed/Stored
+regressions remain part of the unfinished series, not a replacement for M190.
 
 V817 construction/boundary corrections and full measurements are preserved at
 **86d7834fe2** (this path). Root build PASS62.914784s; unique focused78 PASS,
@@ -997,3 +979,22 @@ actual projection/finished-read/nullable transport retain full source identity.
 Use existing child_relation, source-domain, return-leaf and read/final tests for
 all alternatives/substitution and loss/drift; then unchanged M190. BoxShape and
 new Field acceptance stay separate slices. No early seed-only closeout.
+
+V818 source/domain: SAME optional writer loan preserves original relation census;
+sole Provided Birth/full writers and constructor/assignment required. Raw-target
+LOCAL snapshot is shared; normal Local/definite Object/Provided selects first.
+All outcome/relation/witness Rc survive field/null DAG; forwarded wrappers/other
+actual shapes, rebind/Upvar/cycle refuse. Current facts/writer recheck rebuilds
+SAME loan; selection loss refuses. Fresh/Null only; no fold or execution grant.
+V818b root PASS63.994864s; unique focused81 PASS: DAG/store/foreign facts/Ctor/
+writer/absence negatives and existing input/packet/field/Home regressions.
+CLI164 build PASS212.399946s SHAa83ada1587b8f727eea85432c6461c04d5ae4429b5c351560a8f22ecbb04bb77.
+Unchanged M190598e0edb canonical --backend mir --emit-exe/--emit-exe-nyrt,
+C816/runtime808b, stack16MiB: app-v165-result-contract RED0.432691s exit1/no EXE.
+Old owner38 class stop passes; current required-object-forward/returned-field-
+actual: owner43 Main Body7 heap.release(moved.handle), callee35 release arg0.
+Next Get-only Read facade BoxShape preserves Rc/index/holder/recipe laws. Field
+acceptance closes candidate, Instance/Object rebuild, actual/entry/packet,
+canonical read, projection/finished/wire. Parent wrapper packet/Home must be
+complete/live; passive class cannot read. Source WIP unlanded; row/goal/suite and
+M190 EXE stay unaccepted. No source/domain-only closeout of this full series.
