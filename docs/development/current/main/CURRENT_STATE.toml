@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/declared-borrowed-parameter-capability"
+current_blocker_token = "required-object-forward/c-entry-child-kind-closure"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,8 +18,8 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
-Latest app CLI143 rc1/no EXE: Heap.realloc physical param1 contract gate.
-Birth numeric/retained ingress passed; binary239b/app33d3/FFI787/runtime757.
+Latest CLI145 app rc1/no EXE; raw C792 crosses all30fn/2019blocks inventory.
+Param/numeric/retained ingress passed; binary1984/app33d3/FFI787/runtime757.
 V756 shared current-owner received Birth source correspondence PASS both opts,
 including ValueId/ordinal drift, original Return/conditional End final checks.
 V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
@@ -41,14 +41,14 @@ V775+ borrowed0/2 schema/anchor/output/JSON connection built as unaccepted WIP;
 V776/777 new microprobe retired: root scalar-call ReturnValueNotCovered,
 outside current app entry. Actual8 stays sole source authority; borrowedC owed.
 JSON30/33 PASS,3 ownWIP reds; C776 owned16 PASS116.384666s.
-V778–780 field groups/Return census/live anchors and Mixed state built; owned16 PASS.
 V781 Mixed ABI/JSON/C Birth+completeEnd envelope WIP; Cbuild PASS6.023752s.
 CLI139 +C owned16/field6/stored96 PASS; actual fails new scalar-kind frontier.
 V782 build83.933306s; JSON32/35 PASS,3 own cumulative WIP reds.
 V784 same checked Array Get→local→Birth receipt built; focused6 PASS.
 V785 build PASS65.933769s/actual+mutations PASS1156.055888s; no ABI type stamp.
-CLI143 build143.011864s/app169.026962s: original declared handle param
-needs retained source-class/closed-use capability join; no blanket Tagged permit.
+CLI144 build147.681373s/app474.585156s; C structural validation305.239363s.
+V791 perfunction scoped header normalization build65.912811s/cohort96+5 PASS.
+V793 common field loan Cbuild/field6/stored96 PASS; raw app C running.
 Get2/Set5+drift/Fault PASS. V786 actual RED same numeric stop; loop pin RED.
 Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
 First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;

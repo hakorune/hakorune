@@ -55,13 +55,14 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 
 ## Latest unchanged product measurement
 
-CLI143: quick build **143.011864s**, direct app **169.026962s**, **rc1, no EXE**.
-Birth numeric and retained Array ingress refusals passed. First-stop:
-`lifecycle_parameter_entry_capability_missing`, `ordinary-parameter-contract`,
-`HakoAllocHeap.realloc/2` physical slot1 (logical/JSON ordinal0 declared handle).
-Next join the original declared-formal class and closed operand-use product to
-this backend gate; no name-only or blanket Tagged permission.
-No Borrowed/Mixed runtime or complete app acceptance is claimed.
+CLI145: quick build **150.945893s**, direct app **469.248035s**, **rc1, no EXE**.
+Original Rust source/parameter/numeric/retained ingress passed; the app reaches
+C V4 and refuses `published-lifecycle-v4/unsupported-cohort` at fi25 inventory.
+The captured original input confirms MiWorkload.run/0 has1480blocks, exceeding
+the fixed256 cap. V792 workspace/state tags cross inventory; the next stop is entry child kind
+closure. V793 shared loan validation is under test.
+C V2 structural validation299.099798s dominates this run. No speed improvement,
+Borrowed/Mixed runtime or complete app acceptance is claimed.
 
 ```text
 target/quick/hakorune --grammar-profile canonical --backend mir \
@@ -74,13 +75,13 @@ HAKO_AOT_FFI_LIB=<ffi-v787/libhako_llvmc_ffi.so>
 | identity | SHA256 / source |
 | --- | --- |
 | unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI143 binary | `239bf7ee01c138f6595867775ec4812f8aa33296992fbba40f619caf14aef56d` |
+| CLI145 binary | `19843febde87e63713655a553a9a6a8023dadd1e2bbd41f2404bed554e741d0f` |
 | FFI787 | `01b9538889bf25307f45b0ea6718a2dba92a96bc5f9d87fd4ec30adfedfbde1d` |
 | runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
 
-Source manifest/run: `cli-v143.source.json`, `app-v143.json` under the evidence
+Source manifest/run: `cli-v145.source.json`, `app-v145.json` under the evidence
 base below. Previous CLI140/141 results are retained below; earlier CLI139 is at f6f942f5d0.
-CLI143 build/app had no root actual-test overlap;
+CLI145 build/app had no root actual-test overlap;
 these durations are measured results, not a speed baseline.
 
 ## Verified premises; no automatic product acceptance
@@ -192,579 +193,200 @@ Stored-child sibling and Gates2–4 stay parked. Gate1 reallocResult315/318 reta
 `mirbuilder-result-new-site-provenance-d0-2026-10-06.md`; opaque followups retain
 `mirbuilder-app-mimalloc-opaque-formal-ingress-d0-2026-10-01.md` boundaries.
 
-## Current construction — V759 formal field support (verification pending)
+## Retained construction checkpoint — V759–V789
 
-The same completed-index leaf owner now lends the original Fresh returned-New
-support census before/after take. Mixed correspondence joins that same relation
-Rc and formal/ordinal to its original received packet; the existing borrowed
-argument owner lends its original formal entry and Copy proof. Finishing checks
-that exact parameter/carrier and captured Copy relation. No TypedHome support,
-Mixed ABI or Forward End gate is opened. Existing source-only app inventory and
-actual source table gain the corresponding formal-support/parameter-drift cases.
-Root V758 verification passed on pre-V759 sources; do not conflate them.
-Same heavy test changed from V756 979.80s to V758 723.39s; this measures test
-execution after removing redundant source proof demands, not build throughput.
-Read-only review found no concrete source/ordinal/finishing-Copy mismatch in V759;
-this is construction review, not build or runtime acceptance.
+Full implementation mapping, commands, pins, failed attempts and focused
+results are preserved at **122a2824bf** (this path); e7271fae86 owns earlier
+history. These are docs-only checkpoints, not source landing or acceptance.
+The following unfinished contracts and evidence remain live:
 
-V759 first build failed23.713030s on two own interface omissions: source-row
-lending visibility and the retained caller-ordinal accessor. Both were connected
-within the same coseal owner; V759b build PASS68.725790s. No ordinal substitution
-or source-admission rule changed to fix compilation.
+- V759–V781 extends original outgoing Return field support, ordered witness
+  groups, ABI/JSON/C substitution, borrowed0/2 and Mixed conditional complete
+  End. Same relation/witness Rc, full original terminal census and final scans
+  remain mandatory. Retain the current affine owner; publication is not incoming
+  authority. Mixed/Borrowed source-issued runtime acceptance is still owed.
+- V765/V768/V769 original app/both-opts source correspondence passed; latest
+  V769 actual1074.29s. These are preparation evidence, not canonical EXE success.
+- V782 JSON32/35 leaves three own cumulative-WIP reds: nullable_receiver_call_
+  serializes_nullable_handle_and_checked_release (borrowed-declaration/missing-
+  retained-call); ordinary_instance_function_publishes_canonical_receiver_object
+  (ordinary-field-read/root-exit-phase); owned_array_fields_release_in_reverse_
+  order_before_home_release (construction Fault expects2 releases, sees reclaim
+  plus return_fault). No whole-module PASS or exact clean-HEAD baseline claim.
+- V775–777 unaccepted tiny Borrowed fixture was physically removed, since its
+  scalar Root Return fails ReturnValueNotCovered outside this app entry. Do not
+  invent another Root fixture/lane. Failed scratch files under the evidence
+  base, v775-unaccepted-borrowed-microfixture.rs and its -c-mode.py companion,
+  stay under this series: retain for already-owed Root/fixed-suite analysis;
+  retire_when=that boundary is reconciled or its exact input is retained by its
+  real owner. They never authorize source acceptance. Existing actual8/app
+  remain the sole original-source authority for this connection.
+- V783–785 normalizes the existing checked FieldArrayRead source away from a
+  Return-only wrapper and connects same Get/read Rc → Local/Copy → Birth actual
+  through sole checked writer, LocalSSA/FinishedBindings and both final scans.
+  V785 original app/both-opts plus four Get/local/field/Birth drift negatives
+  PASS1156.055888s. No Integer type stamp at ABI or blanket dynamic permission.
+- V786–787 joins retained original handoff ingress (generic lost-handoff still
+  refuses), common C provider/read-use suffix, Array Get/Set/Append consumers
+  and shared nonnative/native schema. Get2/Set5, receiver/shape/Fault and
+  owned16 peer regressions passed on FFI787. Current ownership/source permits
+  remain distinct from wire metadata. Source `claimed_loop_push_rejects_on_
+  unretained_plain_lane` is RED at field-array-append/loop-source-missing:
+  own cumulative-WIP source-lender deficit, never a clean-HEAD baseline claim.
+- V786 extended app test demanded full backend gate and was RED714.270958s
+  optfalse at Birth numeric entry-unclosed. V789 fixes the observed producer
+  using original compiled Birth formals/physical bindings and exact USize range
+  contract, keeping guarded-borrowed and bare stores distinct. V789 focused4
+  PASS, and CLI143 crosses that stop. This does not yet establish a new PASS
+  for the full expanded app test; V753 strict-consumer debt also stays open.
+- CLI140/141/142/143 canonical unchanged app rc1/no EXE: scalar-kind → retained
+  ingress → numeric Birth → declared parameter. Latest CLI143 build143.011864s,
+  app169.026962s, first-stop HakoAllocHeap.realloc/2 physicalslot1/logical0.
+  Original source parameter ValueId, physical slot and JSON ordinal must never
+  be conflated; source declaration corroboration follows below.
 
-V759b focused10 + field-return1 PASS. Original app inventory reached and passed
-the new two-Forward same-formal/same-Rc assertions, then failed4.64s at the same
-pre-existing static-key None unwrap (now line322); whole test remains baseline
-RED, not PASS. V759b actual source/negative test PASS729.577406s both opts,
-including same original field support and caller parameter ValueId drift refusal.
+## Current construction and measured consumer frontier
 
-V760 construction is a separate behavior-preserving C slice: existing nullable
-object Birth formals receive an internal outcome argument beside the unchanged
-kind/payload. All corresponding callsites supply current Null0/Fresh1 only;
-Provided stores borrow the original formal/Copy outcome, Provider stores keep
-their Fresh law. Constructor entry and field reads still reject Forward2.
-No new external formal representation, source admission or runtime owner exists.
-Reuse V757 Provided/Unit/field/stored-child C execution and Fault negatives.
+V790 source-declaration connection WIP: qualified source re-lends the original
+catalog kind/ordinal/BindingRef/entry Value and source receiver offset. Declared
+Object additionally requires is_declared/class/canonicalobject; opaque requires
+original OpaqueHandle plus no annotation. Compiled-entry corroborator joins
+that object to the existing closed-use map keyed by parameter ValueId. Tagged
+backend branch keeps wiretype/carrier/arity/incoming checks and demands this
+same declaration correspondence, including unannotated headers (erasure refused).
+No second catalog, inferred-view permission, name-only permit or C ABI change.
+Existing 96 stored-child source cohort now demands the parameter backend gate;
+its original declared case adds wrong/erased header, ValueId, wiretype and
+receiver-role negatives. No new source fixture or test function. V790 pending.
 
-V760b C build PASS6.544666s after correcting one own format-argument count
-error (initial build RED6.165270s). Provided3 PASS24.390685s, Unit7
-PASS45.485937s, fieldReturn6 PASS38.844303s, storedChild96 PASS17.245536s;
-FFI cfbd77e0b7011a28f9225d2bdead5d0dd9184aff7fb220b4d02a0601717b81e4.
-Review found no missing Birth caller/LLVM name mismatch; no Copy admission added.
-V760d final refinement refuses a missing nullable-formal origin (-3) or tagged
-store loan instead of deriving Fresh. Build PASS6.555858s; Provided3/all selected
-Fault and mutation cases PASS23.801344s. FFI760d SHA
-c10cad74216f4d3ea142d34027a73ade5e2eebab5dab16b12b263f815df0292e.
-V760c preceding tagged-only guard build/Provided PASS is superseded by this
-explicit original-formal check. Unit/field/stored results above belong to V760b;
-only the original-formal lookup/refusal changed afterward. No new Copy admission.
+V790 build PASS64.927497s. Existing stored-child source cohort PASS20.91s
+(96 original variants/both opts plus five declared-header/Value/role negatives),
+binary/source pins in v790.focused.json. Worker found no definite safety gap,
+interface mismatch or necessary profile over-refusal. C wire/ABI is unchanged
+by this source-to-backend validation join. CLI144 build pending; app execution
+acceptance and V753 optfalse strict-consumer debt remain open.
 
-V761 unbuilt test-demand change restores the independent whole compiled-entry
-consumer after the same received-Birth positives, to diagnose the retained
-Heap.realloc optfalse forbidden-operand with exact coordinate/instruction.
-This does not change admission or classify that deficit as baseline. V759b
-PASS predates this demand and V760; retain its own manifest/results.
+CLI144 build PASS147.681373s; canonical unchanged app started with FFI787 and
+runtime757. Additional existing Generic G0 numeric parameter positive and
+declaration/carrier/contract negatives PASS (.02/.03s), same V790 root binary;
+this checks preservation of the disjoint numeric branch, not a full-suite PASS.
+No source edits after the successful CLI build; currently no Cargo/rustc.
 
-V761 also partitions the 787-line JSON owner into function/instruction transport
-(486) and its existing operation responsibility (306), before adding result
-transport. Inverse move reproduces V759b source SHA exactly; only module paths
-and helper visibility adapt. BoxShape only, with no changed rejection/admission.
-Reuse all existing physical_program_json::tests and the actual source test.
-V761 build PASS57.946779s. JSON module33:30 PASS/3 RED (.70s):
-nullable_receiver_call_serializes_nullable_handle_and_checked_release refuses
-borrowed-declaration/missing-retained-call; ordinary_instance_function_publishes_
-canonical_receiver_object refuses ordinary-field-read/root-exit-phase;
-owned_array_fields_release_in_reverse_order_before_home_release expects two
-field releases on a construction Fault but sees reclaim+return_fault only.
-Classify as own unresolved cumulative WIP cohort/expectation debts, not a module
-PASS or a claimed exact-baseline run. The first two stop before JSON; operation
-port inverse SHA proves unchanged operation bodies, not baseline acceptance.
-Retain them with existing borrowed-entry/field/Array obligations; no new lane.
+V791 behavior-preserving normalization within the same declaration owner:
+read-only audit found V790 requalified the same function's whole input for
+each tagged formal. The source getter now lends qualified entry/catalog/
+values/receiver mode in one scope for all tagged declarations. Backend gathers
+the same already-checked logicalordinal/ValueId/header requests and joins every
+result to the same closed-use view. All original row, class, binding and scope
+checks remain; duplicate requested ordinals refuse. Per-formal query API was
+removed, without cache/registry/adapter. Reuse V790's existing 96+5 acceptance.
+CLI144 remains running on V790 source/binary; its longer elapsed time alone
+does not attribute the cause or prove V791 speed improvement. V791 pending.
 
-The strict whole compiled-entry consumer exposed unanimous formal Phis from the
-original if-variable producer. Diagnosis, safety boundary, temporary diagnostic
-retirement and producer fix are landed at **fb512d0549**, together with exact
-focused36 and both-opts actual-source evidence. Its common merge replaces the
-pin-only second writer; preserved source Phi semantics and final consumer
-refusals remain. Refer to that commit for the completed V761–V764 history.
-The cumulative Mixed/field/Array source WIP is separate and remains unaccepted.
+CLI144 terminal: build147.681373s/app474.585156s rc1/no EXE. Original typed
+parameter gate passed; canonical unchanged app reaches the independent C
+consumer for the first time in this series. First-stop published-lifecycle-v4/
+unsupported-cohort; binary80e4f207dc16d2b3e749f200b09e4e6092eef1fd3dce76290b5a2d1d1ab5b085,
+app33d3/FFI787/runtime757. C measurements: structural V2 validation305.239363s,
+V4 admission.006287s, emission0; 30functions/2019blocks/2847rows, indexed
+functions26/blocks304/values534, resolves0 and flow0. V4 count increments at
+function start: first failure is fi25 inventory, before kind/producer/flow.
+Read-only audit locates fixed256blocks/4097value constraints, but no raw counts
+for fi25 yet: capture original C-boundary payload before choosing a repair.
+Do not raise limits alone: fixed workspaces and Map2+origin collide with
+Birth258/259/Mixed260/Owned513/String1024. Mixed missing from index ordinary
+role membership is a separate confirmed consumer omission, not measured first
+stop cause yet. Existing source authority, all arms and both edges remain owed.
+V791 build65.912811s/cohort96+5 PASS20.79s; G0 numeric positive/negative both
+PASS. Different first-stop workloads mean CLI144 elapsed is not a V790 param
+performance regression measurement; the C trace identifies the dominant305s.
+CLI145 build pending; capture next SAME canonical invocation's temporary JSON
+verbatim for independent C diagnosis. No repaired wire or source workaround.
 
-Next implementation mapping (read-only owner review completed): retain outgoing
-field supports on the existing FinalizedObjectReturnOutcome, extending existing
-Handle/Nullable roles without another packet enum or source registry. Reuse
-checked_callable_object_result_v1's original complete terminal census for an
-already-selected callable, including uncalled reallocResult. Direct Fresh lends
-returned_new_field_supports_v1; relay lends the SAME normal-return handoff proof
-after recheck. Retain original relation/witness Rc and exact formal/Copy/finished
-correspondence. Existing indexed object-result C owner checks those source-issued
-Return coordinates and substitutes callee formal through each actual for Call,
-relay, field read and complete End. No incoming authority comes from publication;
-outer LIVE ownership does not own Forward children. Wider TypedHome remains closed.
+V792 Decision after verbatim canonical C-boundary capture: app-v145.c-input.json
+SHA da49c9ca322aff8176960bb1d47aa04b50f61af816fcaca4052a66014cfaaa07,
+producer manifest cli-v145.source.json, FFI787/runtime757. fi25 is MiWorkload.run/0
+with1480blocks/274rows/capacity276/274distinctvalues: fixed block256 cap is the
+observed refusal. No value-duplicate/capacity repair or source rewrite is needed.
+Use checked actual-count indexed workspace, preserving one-enqueue/exact-revisit
+state+Fault, complete inventory and unique source producer checks. Private
+state alias separates Map transfer and String rank from fixed Birth/Mixed/Owned
+markers with disjoint tags; all consumers use common helpers. Count conversion,
+n²/n+1/byte overflow and allocation failure refuse. Native recursive cohort
+keeps its separate fixed depth. Borrowed predecessor suffix uses checked sized
+scratch with its special prefix/full loop visit preserved. Common ordinary
+role predicate includes already-defined Mixed across index/flow/emitter.
+No change to JSON, runtime ABI, source capability or cleanup meaning. Retain
+all old focused source/C regression/Fault and malformed-field/Return tests;
+require original app capture to pass independent C and canonical direct EXE.
+This is the same required final consumer series, not an optional backend lane.
 
-V765 construction (unaccepted): existing Handle/Nullable physical roles now
-retain the same complete original Return outcomes. A new owned-projection child
-borrows checked_callable_object_result_v1 and completed catalog/Completion/
-terminal identity; no incoming Call is invented for an uncalled selected body.
-The existing composition loop lends immediate callee→caller support pairs before
-ordinal substitution information is lost; its caller-zero wrapper was removed.
-Received-Birth kind and support projection share one validation nucleus.
-Support rows retain SAME relation/witness Rc, entry, finished Copies and exact
-Call Invoke/Normal plus Fresh outer Birth actual binding. A read-only review
-identified those latter bindings as necessary for independent post-projection
-mutation rejection; they are now retained, not replaced by an origin walk.
-New source-owner README lives beside the owned Return projection rather than
-growing the oversized inherited package README.
+V792 implemented checked actual-count indexed state/queue/scratch and dynamic
+borrowed suffix storage; private64bit disjoint tags and common ordinary-role
+membership replace the old cap/fixed indexed arrays and duplicated role lists.
+Checked value-budget arithmetic and String push refuse overflow. Native stays
+bounded256/4096; unrelated function/value limits remain. Read-only worker found
+no actionable cleanup/queue/revisit/tag/membership gap. C build PASS5.986063s;
+original captured app input plus shared owned/Map/String regressions pending.
+CLI145 terminal pins above: original input capture is diagnostic evidence only,
+not a second source authority. No EXE or series acceptance yet.
 
-V765 initial build RED79.412246s on own missing TerminalRelationV1 import; fixed
-in V765b, build pending. Current JSON/C does not yet consume field support rows;
-new ordinary Return result_origin serialization must be connected to the existing
-C schema/index checker before C acceptance. This is an explicit unfinished
-same-series consumer connection, not an accepted C regression or EXE result.
-All Mixed Birth/Forward residence gates remain closed.
+V792 shared regression evidence: owned16 plus original-return/correspondence and
+Fault negatives PASS138.751473s; indexed/native String execution/LIFO Fault and
+malformed inputs PASS; owned Array Normal/append/child-End Fault/reverse End and
+malformed lifetime inputs PASS (last two not separately timed). FFI792 SHA
+2ff3e2662ae51484bbb761456062b280858e7eae913e3e4283f267b5afa843a3,
+runtime757 unchanged. Map physical fixture initially refused abi-layout;
+identical refusal reproduced on FFI787, so this is stale synthetic schema,
+not a V792 regression. Existing field-free fixture now declares empty required
+owned_residences; FFI path is explicit. Its existing cohort adds one padded
+>256block Map transfer case, no source acceptance claim/new proof file. Map
+recheck and original app C input remain running. Original source Map Call
+regenerated by reused V791 root test: PASS1/.05s both source opts. Pointer,
+no-fallback, builder-layer, thin-shim and diff guards PASS.
 
-V765b build PASS96.506146s. JSON33 remains30 PASS/3 own cumulative WIP reds
-(the same classified borrowed-declaration, field root-exit and construction
-Fault expectation cases); leaf10/handoff11 PASS. Actual source test running.
-No field support may disappear at JSON: a nonempty retained support census now
-explicitly refuses field-support-transport-unconnected until the complete wire/C
-connection exists (post-V765b source edit, not yet built).
+V792 Map physical suite PASS: seven linked EXE30 cases including >256blocks,
+reversed document order, Call/Return transfer and existing runtime Fault/kind/
+borrow/lifetime refusals;27 malformed inputs preserve prior output. Synthetic
+schema update claims physical representation safety only. App raw C validation
+continues; no source/EXE completion claim. Successful String/OwnedArray/Map
+receipts record unmeasured durations honestly rather than estimating speed.
 
-V766 C construction: ordinary Handle/Nullable Return result_origin is now a
-required schema column. Existing object-result index checks exact source-issued
-producer, Invoke/Normal landing, ordered complete Copy chain and final Return,
-then existing class/lease laws; all function Return rows are mandatory. No
-missing-column fallback. C build PASS6.440517s; focused original16 source-issued
-owned-result execution and new missing/foreign/extra-proof negatives running.
-Synthetic physical Copy insertion with unchanged source correspondence is now
-an explicit negative; the existing original received-result fixtures retain the
-positive Copy cases. Read-only review found no coordinate/census admission hole.
-Mixed/Forward and nonempty source field-support wire transport remain closed.
+V792 raw app C terminal rc1/334.395836s, no OBJ. Inventory now covers all30
+functions/2019blocks/856values; V2 validation334.372210s, V4 .013289s,
+resolves152/flow0. Fixed workspace refusal is crossed, but kind closure fails
+at fi11 HakoAllocHeap.allocate/1 (OrdinaryNullable), Value11/block348:
+object_field_get of exact entryreceiver0/object3/field0, then Page.allocate Call.
+The sorted complete inventory independently maps resolve152 to that row.
+Read-only worker is checking entry child classification and downstream lifetime/
+argument/Return/End boundaries before the next common-owner correction.
+V792 remains unaccepted overall; no canonical EXE retry until this refusal is
+resolved. This does not erase the prior focused successes or existing debts.
 
-V766 original owned-result C execution PASS126.785509s: all16 source-issued
-typed/opaque, Direct/Received, Handle/Nullable and both-opts fixtures, every
-selected allocation/cleanup Fault, existing role/class/lease negatives and new
-missing/foreign/extra original-correspondence negatives. FFI SHA
-b8abd0f9541f5652fdef889b38aa2c9a563463b819fe1c65942895e4706d8691;
-runtime757 reused (6897c4dc...). This accepts the bounded ordinary Return
-correspondence C connection only, not Mixed/Forward/field-support transport.
+V793 Decision, same required C consumer: original entry-receiver field loan
+must not depend on the function's result kind. Sole physical authority remains
+the original object_field_get/Copy, canonical owning tuple/provider and exact
+receiver or original New root. Non-authority: ordinary role alone, negative
+origin, layout/class identity alone. Normalize all child loans to the existing
+nonowning field-borrow origin; only the true canonical receiver keeps -2.
+Shared readability checks each original edge's unique Birth provider and both
+read/use suffixes. Exact ordinary receiver terminates at entry; Birth keeps
+existing committed-field/childBirth restriction; ownedNew keeps original unique
+Birth Normal and live parent. No Home/Return/End/argument permission is issued.
+Read-only audit rejected the smaller role-only patch because it would retain
+unconditional call-live child shortcuts. Reuse stored-child96 and fieldReturn6
+source captures plus their negative lifetime/identity/slot cases, then original
+app C and canonical EXE. No new app fixture/AST rewrite/registry is required.
 
-V766 fresh fieldReturn6 PASS36.813159s and storedChild96 PASS16.122369s
-(including original negatives/Faults); source reissued by V765b existing tests,
-field2/stored2 all PASS. These are bounded regression evidence, not app EXE.
-
-V767 BoxShape construction: current internal ordinary Handle/Nullable Call
-signatures carry outcome beside payload; all caller slots and arguments join
-that same signature. Only original InvokeNormalResult reads/guards Null0/Fresh1.
-Return uses the same mandatory result_origin (Null/Fresh/OwnedCall companion).
-Existing original Copy-root projection lends that companion to Birth actuals,
-Provided stores and nullable cleanup; ordinary borrowed formals, receivers,
-field borrows and Arrays gain no fabricated outcome. External/root/runtime ABI,
-scalar/Unit/Map, source admission and Forward2 refusal remain unchanged.
-V767b C build PASS6.537870s (V767 first build6.480848s superseded before tests).
-Owned16/Provided3/Unit7 execution pending. Rust post-V765b changes also add the
-independent retained-wrapper inner Call/Birth/formal mutation cases and explicit
-nonempty-support JSON refusal; rebuild is queued after V765b test binary users
-finish. Do not overwrite that still-running binary.
-
-V765b actual-source test PASS1073.67s, both opts, 16MiB stack. The restored
-independent compiled-entry consumer and new owned Return/field-support source
-retention both pass; binary14ac9cc1163b617525b0b3620927a1bd3a415fd6776f94af3bb8838dd15705db.
-Its retained-role model precedes the post-build JSON refusal/test-only mutation
-additions. V768 rebuild now covers those additions. Do not merge these manifests.
-
-V767b Owned16/all selected Faults and original-correspondence negatives
-PASS127.886835s; Provided3 + nullable-wire/Fault/mutations PASS28.053694s;
-Unit7/Fault/mutations PASS47.261806s. FFI SHA
-453e5de585accec3a49583339de31f45af3707945ae024b0f3d11f1a8f71f50c;
-runtime757 reused. Field/stored regressions still running. These preserve the
-closed Null/Fresh cohort; source Mixed/Forward and field-support transport owed.
-
-
-V768 build PASS64.169731s; focused raw9/parity6/BindingSSA17/repair4 PASS.
-Actual source/strict whole-consumer test PASS1040.24s, both opts, 16MiB stack,
-including retained uncalled-wrapper inner Call, outer Birth and formal mutation
-refusal. Nonempty source field-support JSON still refuses explicitly.
-
-V767b fieldReturn6 PASS34.933173s, storedChild96 PASS16.073704s.
-Read-only audit found an own regression: Array/script-arguments conditional
-release entered the new object-outcome helper. V767c restores their existing
-separate indexed Array release arm. Exact same backend inputs: V766 accepts,
-V767b refuses module-write, V767c accepts (both Array and script arguments).
-No new Array outcome or retry. V767c build PASS6.531686s, FFI SHA
-7bdbd3974b49ea84414efde5f7536fd39a24a142f28f7462ac9288b4674f00b1.
-Provided3/Fault/mutations PASS25.923082s; existing argv4 source cases plus two
-explicit physical-only Array peer probes PASS23.752541s. Initial probe harness
-RED25.977710s was own temporary-directory indentation error, corrected before
-that PASS. These physical mutations do not claim new Rust source admission.
-
-V769 unaccepted BoxShape: normalize retained field support to one physical
-dependency group containing ALL ordered original witness loans. Same relation
-issuer, outer formal/ordinal, entry, Copies, Invoke/Normal, inner callee ordinal
-and optional Birth must agree; only adjacent relay rows merge. Original source
-census flattens all loans, never just representatives. The existing actual
-wrapper case demands one dependency retaining its two distinct witnesses.
-Read-only responsibility review agrees: C must verify complete physical Return
-law, formal substitution and field/read/End anchors; it does not need a second
-Rust witness-lineage registry. Existing source authority and all closed Mixed/
-Forward/field-transport gates remain. Build/focused validation pending.
-
-V769 build PASS68.142233s; read-only review found no source-order/identity or
-callsite type mismatch. The existing both-opts actual test is running with the
-one-group/two-witness assertion. No source gate has opened.
-V770 separate BoxShape centralizes existing structural ordinary-result/callee-
-role mapping for schema and indexed flow; Handle/Nullable result predicates move
-from emitter-only scope to the same early transport owner. Unknown results
-explicitly refuse; source/class/lease/conditional End permissions are unchanged.
-C build PASS6.536299s; original owned16/Unit7/argv4+Array-peer regressions running.
-
-V770 owned16/Fault/original-correspondence negatives PASS131.908847s;
-Unit7/Fault/mutations PASS47.875639s; argv4/Array-peer PASS27.984978s.
-FFI09ce7b9ed12118229263f556a324cafebbd0db2d4c18fa86b78c0a8ca80800bc;
-runtime757 unchanged. Read-only review confirms null-safe unknown refusal,
-correct include order and no old predicate callers. No source admission changed.
-BorrowedNullable is a distinct required non-owning consumer responsibility; its
-real current positive is the unchanged resizeInPlace eight-Return projection.
-The similarly named lexical nullable test is owned Null/Fresh, not that proof.
-Do not turn extracted/rewritten app JSON into source-positive evidence. Full
-app C acceptance still needs the same Mixed, field dependency and End connection.
-
-V771 unaccepted consumer construction: existing result-coordinate owner now
-shares the exact complete ordered Copy-chain checker between owned Returns and
-the fixed-formal borrowed Return law. The new borrowed child checks logical
-params[ordinal], exact nullable-source Null producer or SAME formal, all source-
-issued Copies and final Return. Every Return participates; Fresh/another formal/
-Call inference is refused for this source cohort (resizeInPlace seven Null,
-one formal). Build PASS6.507162s; owned16 regression running. Worker review found
-no correspondence/census issue. C function/call ingress and Rust JSON remain
-closed until dedicated non-owning result kind, original actual anchor, entry
-tag/domain guard, Normal-only0/2 output and no-Home flow all connect. This is
-construction inside the same required series, not Borrowed C acceptance.
-
-V771 owned16/all selected Faults/original-correspondence negatives
-PASS125.699372s, FFI15837b92e72fb3e4edbd0abe55f7bf1603d124677c08e89644117e0c6bd0cc7c.
-V772–774 unaccepted borrowed consumer construction: dedicated non-owning kind,
-exact Call fixed ordinal→actual→original Copy-root anchor, Normal/Copy/null
-comparison readability, no LIVE result slot, all other Homes ended on Return.
-Worker caught a missing independent Normal execution proof after removing LIVE:
-require SAME Invoke Normal edge and exactly one Normal predecessor (fixed).
-Output carries exactly Null0/Forward2 on Normal only; original fixed-formal
-Return guards tag/payload before output and entry guards0/3 before effects.
-Known object_view retains the existing class guard; unknown class grants none.
-Current source law remains Null/formal only, not a new borrowed Call relay cohort.
-V772 build PASS7.249559s; V773 PASS6.613938s; V774 PASS6.532727s. Latest original
-owned16 regression running. Function/Call schema, parameter profile and Rust
-JSON admission still closed: connect required ordinal transport, source-issued
-positive and independent anchor/Normal/ownership negatives before opening.
-C owner contract moved from the near-limit shims README to published_mir/README;
-parent retains its link. No new phase/card/registry or product acceptance.
-
-V769 actual-source test PASS1074.29s, both opts,16MiB stack: one physical group
-retains both original Forward witnesses, strict compiled-entry and retained-
-wrapper independent Call/Birth/formal mutation refusals all pass. Its source
-manifest predates V770+ C work and V775+ wire edits; keep identities separate.
-V774 owned16/Fault/correspondence regressions PASS126.181510s,
-FFI1371236715738f6c8eed8237b5f423d00a97d455d98abd8c8cf77b9fcf50dbf2.
-
-V775–776 unaccepted connection now adds borrowed-only required8-key function
-and4-key Call schemas, fixed logical ordinal range/carrier and exact callee
-agreement; native refuses this object cohort. Rust JSON emits the same ordinal
-and corroborates exact callee result law. Mixed/completeEnd/nonempty field
-transport remain explicitly refused. C775 build PASS6.597810s; static borrowed
-caller classification subsequently aligned with its admitted nullable profile.
-Worker found an omitted outer Rust operation match arm before build; added the
-same Borrowed result to the existing ordinary Call encoder arm.
-A new independent source/C boundary test emits original tiny object/null and
-both-opts forward-formal programs through the existing canonical harness; no
-app source or emitted JSON is repaired. The existing C call-result test owner
-adds a borrowed mode with exact original Home counts, allocation/cleanup Faults,
-mandatory ordinal/Return mutations and borrowed-release refusal. New test function
-is justified by the previously untested non-owning final C boundary, rather than
-another owned-nullable proof. V776 source/FFI build and new positives are pending;
-this code is construction, not accepted Borrowed transport or full app progress.
-
-V776 root build PASS64.025555s, FFI PASS6.573929s. New tiny source test
-RED0.03s at artifact-source-unavailable/TerminalHomesUnavailable: direct Root
-reception from an owned local is outside the proven formal-entry cohort. Own
-unaccepted fixture boundary, not baseline and not app success. Worker confirmed
-using observe(p:Item):i64 to call forward(p), null-test locally, return scalar
-aligns the actual realloc→resizeInPlace formal-entry responsibility without
-widening outgoing TypedHome or escaping the borrowed result. Main still owns
-its Item across observe. V777 makes that explicit fixture scope; no compiler
-source authority is widened to force the fixture through. Earlier direct Root
-Borrowed reception remains unproved. Existing C test uses the same source-issued
-observe body for ownership-negative mutation; full app/Mixed/field claims stay
-separate. V777 build/positive/C execution pending.
-
-V777 build PASS40.472160s; tiny formal-entry positive still RED0.03s at the same
-root TerminalHomesUnavailable. Stop speculative fixture changes; read-only
-source-owner audit identifies exact root pending-return versus all-exits-ready
-branch. This token describes root observation, not necessarily the observe body.
-JSON33 remains30 PASS/3 own cumulative WIP reds: borrowed declaration missing
-retained Call, field root-exit phase, Array construction-Fault expected releases.
-Existing borrowed_local_call_results_publish_grounded_chain_in_both_orders also
-RED0.02s at root-exit-source-missing, before JSON. Classify as own unresolved
-cumulative source WIP; no exact-baseline claim and no transport module PASS.
-The new tiny boundary/C borrowed mode is owned by this same series, not a new
-app/proof task. Retain while its exact source responsibility is diagnosed;
-retire or consolidate if the original full-app canonical C execution supplies
-all the same non-owning boundaries. Never keep it as an accepted substitute for
-the original eight-Return/app or full Mixed field/End connection.
-C776 original owned16 regression is running against the completed schema build;
-new Borrowed runtime positives/negatives cannot run until source publication
-succeeds. Latest app measurement remains CLI138 rc1/no EXE. No product stop
-movement or Borrowed execution success is implied by the source/C builds.
-
-C776 original owned16/all selected allocation+cleanup Faults/correspondence
-negatives PASS116.384666s, FFI
-ff9816b7e033a6076f6e5cbb3878e79f43bc5679a098752a490bcdf8930cf576,
-runtime757 unchanged. Script SHA74d2aaec... includes the then-unrun borrowed
-mode; its owned branch is unchanged. Do not call that borrowed execution.
-
-Decision after bounded read-only V777 diagnosis: root owner(1,4) pending object
-Return=0, all_exits_ready=0, exact source error ReturnValueNotCovered([Body(2)]),
-`return recv.observe(item)`. Same before and after finishing/artifact recheck.
-This is a distinct root scalar-call Return boundary, not borrowed0/2 C failure.
-Retire ONLY the newly introduced unaccepted tiny fixture/test module and its
-unused C borrowed mode now; do not create a Root repair lane or another fixture
-workaround. Existing historical tests and original8/app tests remain intact.
-Scratch source/C mode retained under this series owner as
-v775-unaccepted-borrowed-microfixture.rs and its -c-mode.py companion;
-reason=preserve exact failed
-experiment for the already-owed Root/fixed-suite analysis, retire_when=that
-source boundary is reconciled or its exact input is retained by its real owner.
-These are failed construction evidence, never acceptance receipts. Source8 and
-unchanged full app remain the source authority for completing borrowed/Mixed/
-field/complete-End transport together. No optional microprobe is a new prerequisite.
-Next: wire the same grouped field dependencies and Mixed conditional result
-through JSON/indexed C substitution/read/End, then canonical unchanged app EXE.
-No fallback, Root workaround, incoming permission from publication or new witness
-registry. Current source/C WIP remains unlanded; root test binary V777 still
-contains the retired unaccepted test, so future filtered evidence must name its
-exact manifest. Production Rust wire code is built, but no new Borrowed C
-positive or app success has been established. Only test removal/comment/owner-doc
-changes follow V777/C776; no source-admission implementation changed afterward.
-
-
-V778–779 unaccepted field-dependency consumer construction: Rust JSON now
-borrows each group's SAME canonical field/child, constructor ordinal, outer
-formal/entry, original Copies, inner Call Invoke/Normal/ordinal and optional
-Birth coordinate. Three ordinal domains remain distinct; no witness IDs or
-second source registry. C corroborates exact Provided constructor store and
-substitution, preserves all callee Return dependencies on relay, and requires
-each matching Fresh Return to retain every Mixed Birth dependency. Field reads
-follow the exact parent wrapper's dependency closure; bounded recursion checks
-the original actual's lifetime at read/End. Mixed local storage remains refused.
-Read-only review caught per-Return census and nested parent lifetime omissions;
-both fixed before V780. V778 owned16 PASS113.911744s; V779 owned16/Fault/original
-correspondence negatives PASS114.032265s, FFI0190045a71dceb1ec7a1a3adb0e48738432af07289ec9839fec11d1e58a4e707.
-
-V780 unaccepted Mixed construction reuses the existing acquired Return origin
-checker plus the same original BorrowedCall actual-anchor resolver. All Returns
-participate; OUTER fixed formal is checked after INNER actual substitution.
-Owned class describes only acquired alternatives, never Forward. Dedicated value
-kind/state260 stay outside LIVE/Home/Map/Birth domains. Copy, null compare and
-Normal projection retain support readability; ordinary Home/reclaim refuse it.
-C build PASS5.984681s; existing owned16/Fault/correspondence regressions
-PASS114.394910s, FFI836a538ca2159b29155acc2e810c539bcd2110d7ed95395352f1237994e1f423.
-
-V781 connects the existing Mixed Return/Birth/complete-End envelope as WIP:
-mandatory fixed-formal schema and guard, Normal-only payload/outcome0/1/2,
-BorrowedCall0/2 result relay, Provided residence companion, Normal-only260 move
-into Birth with Fault retention. ObjectEndIfOwned carries its original complete
-End steps; C corroborates every marked layout field in reverse order and outer
-release, then runs the existing complete End helper only for outcome1. Null0 and
-Forward2 release no children or outer storage. The old outer-only
-home_release_if_live is not generalized. Generic ownership arms stay closed to
-Mixed. Read-only worker verified the joined responsibility and fixed an omitted
-Mixed role in the existing tagged-formal membership check; membership and fixed
-Forward ordinal remain separate. C build PASS6.023752s; owned regression and
-CLI139 build running. Rust ABI/JSON gates are now connected in source, not yet
-execution-accepted. No Borrowed/Mixed C positive or unchanged app success is
-claimed. Runtime757 is unchanged; source/C WIP remains unlanded. Next canonical
-unchanged app attempt must identify the new actual first-stop before more repair.
-
-
-V782 root build PASS83.933306s, binary53b2f8e31ce2364e26285b043aeb87339a200c320eb20685c44bf74d377635ec.
-JSON35:32 PASS/3 own cumulative-WIP reds0.793s, same three named boundaries
-above (borrowed declaration, ordinary field root-exit, Array construction Fault
-cleanup expectation); not whole-module PASS or an exact clean-HEAD baseline.
-C781 owned16/Fault/correspondence PASS200.842982s concurrent with CLI build;
-fieldReturn6 PASS34.914811s; stored-child96 PASS13.518258s. These existing source
-fixtures establish peer regressions only, not Borrowed/Mixed runtime acceptance.
-Pointer, diff, no-fallback, builder-layer and thin-shim guards PASS.
-
-Decision after CLI139 first-stop read-only audit: the existing whole-Box integer
-store census already proves the free_stack Get/index. Home local flow records
-TrivialLocal(Integer), but SelectedNew argument conversion loses the scalar kind;
-more fundamentally, the existing checked FieldArrayReadRecipe is restricted to
-Scalar Return source loans and does not reach this Object Return body's local
-initializer. Do not stamp Unknown as Integer at ABI/argument use. Normalize the
-existing checked read body away from its Return-use relation, retain the SAME
-source read Rc for original initializer/binding/Birth actual, and route the
-actual Get through the existing sole checked writer, LocalSSA/finishing/named-
-array validation and both final consumers. Existing local Array connection is a
-prerequisite to this same app/Forward end-to-end acceptance, not a new feature,
-Root fixture lane or blanket dynamic scalar admission. Complete Mixed evidence
-remains open while this exact production argument is connected.
-
-
-V783 pure common-read extraction (no new local caller): CheckedFieldArrayGet
-retains the original field/index/provider/census; the existing Return descriptor
-retains all Return sites and local-origin relation. FieldArrayReadRecipe now
-borrows that SAME read Rc instead of a Scalar Return loan/index. Its lender
-still requires the original scalar source, catalog and caller. Worker caught a
-missing original InstanceBoxMethod guard; restored before successful build.
-Initial build RED81.762095s from moved imports/error formatter (own extraction
-error); corrected. V783b build PASS106.528292s; existing source tests for field
-Get contract, one-read/all-Returns, canonical root/borrowed field finishing all
-PASS (1+1+1, .01/.02/.15s). This prepares the existing sole writer; the new local
-Get→binding→Birth consumer is not yet connected. Owner read README added because
-the common read/Return responsibility boundary changed; no global docs expansion.
-
-
-V784 connects the exact production local Get prerequisite inside the same app
-series. Existing New argument_rows retain an optional SAME checked read/local
-initializer loan; a temporary issuance cache shares repeated uses without a
-parallel persistent registry. Existing Return-owned read loans are reused when
-the exact Get already belongs to result facts. The shared local_initializer
-resolver keeps never-rebound/exact declaration constraints for both consumers.
-The existing read lender moved to ordinary_new_field_array_read_recipes.rs and
-collects the same loans before/after affine take, rejecting distinct-Rc conflict.
-Raw's existing checked Get writer emits the Integer producer. The lowering state
-joins its SAME EmittedRead to original declaration/binding/value and captures
-only exact unique Copies to the actual. Existing EmittedNewArgument keeps that
-physical evidence; original and finished New validation require it and all
-FinishedBindings relation projections. The independent named-array collector
-still validates type/marker/provider/full read census. Argument structure checks
-do not grant a scalar type by themselves; ABI remains table corroboration only.
-Worker found no definitive safety gap, obligatory refusal or RefCell panic in
-this joined mapping. V784 build PASS128.904736s; focused6 PASS (field source,
-one-read/all-Returns, canonical field finishing, New-emission2, malformed rows1).
-No actual product advancement beyond CLI139 is claimed yet.
-
-V785 extends the existing unchanged-app/both-opts test with the real block_id
-read loan and independent index, original local Copy, field receiver and Birth
-operand drift refusals. The existing source handoff lends the retained finished
-New validator for these mutations; no new source/Root fixture or second checker.
-Test file778 lines: considered splitting, but keep this one existing app cohort
-for this bounded change; hard800 remains enforced and further growth requires
-extraction. V785 build/actual test and next canonical CLI remain pending. Old
-ordinary New argument paths without a read loan retain their original contract;
-a missing physical read proof for the new source loan is refused at recording.
-
-
-CLI140 (HEAD f6f942f5d0 + cumulative WIP) build PASS224.352342s; unchanged
-canonical direct EXE app rc1/no EXE186.550247s. Previous scalar Birth actual
-frontier crossed; first-stop named-array/retained-source-required. Binary
-b27897d851767312e50c721920e28ee7d99f9b757dc47e8743f0749a39269135;
-app33d3/FFI781/runtime757 unchanged. Manifest cli-v140.source.json and
-app-v140.json retain exact command/env/pins under the same scratch owner.
-V785 root build PASS65.933769s; unchanged-app/both-opts + four new physical
-read/Birth mutations still running on its pinned root binary, not PASS yet.
-
-Decision V786 after read-only top-to-consumer review: canonical direct EXE
-already retains the source view and issued ABI input; backend lifecycle ingress
-incorrectly applies module-only reject_unretained_module before validating
-retained source coverage. Replace only this edge with SAME finalized handoff
-identity plus existing complete Named Array source/physical validation. Keep
-module-only/generic refusal. C inspection also found indexed Push unconnected
-and Get/Set checking only I64 receiver shape. Normalize provider-writer checking
-and add one common field Array receiver consumer for Get/Set/Push: exact Copy
-root/field tuple/unique owned residence/unique Birth Array provider, current
-parent readability and both read/use field-stability suffixes. Include original
-field_residence_release in invalidations; owned bases retain unique completed
-Birth constraints. Borrowed receiver remains live only for its call. Push I64
-borrows without changing either edge's ownership state. No new registry,
-constructor permission from metadata, broad opcode allowlist, or fallback.
-Rust/C changes remain unaccepted WIP until focused source negatives, independent
-C regression/correspondence/Fault evidence and canonical unchanged app attempt.
-
-V785 terminal: unchanged-app/both-opts original source + four Get/local/field/
-Birth drift refusals PASS1156.055888s; binary
-2d372e9847505bb76e1dd0e425e295ce8c33dea0abe9c01be7966e41d0ce5c63.
-V786 read-only review found qualified object_view formal would always refuse
-after passing the readability predicate. Corrected to the same entry-bounded
-borrow as canonical receiver; arbitrary negative origins still refuse.
-C786b build PASS6.829773s, FFI7e67a7f43ebcbcbda334fa13f7785a91acd4f73ab24b98f421553b58b3b57a0e.
-Saved Get/Set captures both stop at physical-parser/function-body before the
-new flow consumer (0.077739/0.076025s); unclassified pending source regeneration,
-not a lifetime-consumer PASS. Existing scripts now accept an explicit runtime
-archive pin and test that an I64 index cannot replace the Array receiver.
-Root V786 build running; no source edits while Cargo alive.
-
-V786 build PASS70.638462s. Source Get/Set regeneration + numeric input-drift
-focused3 PASS (.08/.23/.02s). Saved old wire's parser failures disappear after
-unchanged source regeneration: C786b Get2 + shape/receiver negatives
-PASS13.786539s; Set5 including bounds/kind Faults + scalar receiver refusal
-PASS34.029643s. Saved wires are stale failure evidence, never repaired positives.
-C786b owned16/Fault/correspondence PASS137.002924s.
-Existing claimed_loop_push_rejects_on_unretained_plain_lane RED before any
-backend gate: field-array-append/loop-source-missing. This is an own cumulative
-WIP source/lender gap, not a clean-HEAD baseline claim or this ingress success;
-keep the expected retained-source refusal, do not weaken the test. Existing
-cloned_marker_cannot_replace_retained_source_authority PASS separately (.00s)
-proves the module-only gate still refuses source-free detection rows. Its
-receipt copied to v786-marker.focused.json because another long helper run
-had reserved the same default output label.
-V787 also normalizes Append's schema: nonnative I64 and native original
-I64/Bool/F64 share one shape/availability check; indexed versus native flow
-remain separate owners. Worker found no new definite connection blocker.
-C787 build PASS8.501488s; final C schema peer reruns +CLI141 pending.
-
-V787 Get2/shape/receiver regressions PASS57.099249s while CLI141/root actual
-run concurrently; final FFI
-01b9538889bf25307f45b0ea6718a2dba92a96bc5f9d87fd4ec30adfedfbde1d.
-Native Append shape changes preserve all old fields/primitive representations
-by direct common extraction; native runtime suite is not newly rerun here.
-Current source view→physical-input→same-handoff ingress identity is built.
-V786 unchanged-app both-opts gate/retained-source negatives remain running;
-CLI141 build and final Set execution still pending. Stable no-fallback, builder
-layer and thin-shim guards PASS; pointer/diff PASS.
-
-C787 Set5/bounds/kind Fault/receiver rejection PASS77.852261s while CLI build
-and root source test overlap. CLI141 quick build PASS155.352831s, final-source
-manifest cli-v141.source.json; app-v141 uses current FFI787/runtime757 and
-unchanged app on the canonical direct fresh-EXE command above. It is running.
-No new source changes after the successful CLI build.
-
-CLI141 terminal: build155.352831s/app192.292456s rc1/no EXE, new first-stop
-published-lifecycle/borrowed-write/entry-unclosed. Binary
-32665b34b09758a797287938e685308ba7aa5aa966fa7da2ec16a349efde8178;
-app33d3/FFI787/runtime757 unchanged. Full source manifest drift0. Retained
-Array backend entry passed, but no full-app C execution is yet established.
-Read-only audit found sole numeric capability caller classifies every Invoke
-usize store as borrowed guarded-formal write. Birth and ordinary source-owned
-writes have distinct authority. Do not widen has_borrowed_entry or bypass
-corroboration. V788 first adds diagnostic function/role/coordinate/field/value/
-entry-membership context to the existing error, without changing acceptance;
-identify the original rejected source family before selecting its common owner.
-
-V786 actual terminal RED714.270958s on optfalse at same entry-unclosed (new
-full backend demand; not a regression of the V785 source correspondence PASS).
-Worker all-writer census narrows the correction: production Invoke FieldSet is
-construction or guardedborrowed only; ordinary me.field assignment is bare
-FieldSet and already has its own numeric branch. No new normal-store packet
-family is needed. V789 selects the existing compiled Birth product/formal
-contract when present, keeping source-unannotated/I64FieldStores coverage and
-exact physical formal binding; usize additionally requires USize layout and
-the exact issued range check. Non-Birth Invoke keeps original guardedborrowed
-corroboration; no has_borrowed_entry widening. Existing ABI usize test now also
-demands the production numeric gate, keeping original contract-mutation cases.
-CLI142 diagnostic-only app runs on its pinned binary; no claim of its outcome
-before receipt. V789 is source WIP pending build/focused/runtime proof.
-
-V789 read-only review confirms all 3 producer families and unchanged per-family
-source admission; no new registry or missing current Invoke producer found.
-Root build PASS63.665730s. Existing source Birth usize numeric-gate test, old
-I64 source pair/full generic rejection/metadata negatives, guardedborrowed
-roles/guard/census negatives and physical layout-drift tests all PASS (1 each,
-.03/.02/.06/.02s; final receipt supplies exact timings). CLI143 build runs on
-this source; V786 actual failure is attributed to the just-corrected Birth
-misclassification until the next production attempt proves the actual result.
-
-CLI142 diagnostic-only terminal: build150.650609s/app177.083337s rc1/no EXE.
-Same refusal now proves exact first subject HakoAllocHandle.birth/3, index26,
-role birth_unit, block4/instruction0, canonical object0/field2, Value3, no
-borrowed entry. Source is requested_size:usize at page_heap_box.hako15, so the
-V789 Birth-family correction addresses the observed producer, not a conjectured
-ordinary-write packet. Binarydd80b25096be9a93226ab19d714712e4ce75a49f9cb6fe888c4bb426ddbbb695;
-app33d3/FFI787/runtime757. CLI143 result is still pending.
-
-CLI143 build PASS143.011864s; unchanged canonical app started with final
-FFI787/runtime757. No Cargo/root test process is alive. Root V789 focused4
-PASS; do not claim V786's full unchanged-app gate test as fixed until rerun.
-Source WIP remains unlanded.
-
-CLI143 terminal: build143.011864s/app169.026962s rc1/no EXE; Birth numeric
-misclassification passed. First-stop lifecycle_parameter_entry_capability_missing,
-ordinary-parameter-contract HakoAllocHeap.realloc/2 physical slot1. Binary
-239bf7ee01c138f6595867775ec4812f8aa33296992fbba40f619caf14aef56d;
-app33d3/FFI787/runtime757 unchanged. All processes terminal; no Cargo/rustc.
-Read-only audit: physical slot1 is logical/JSON ordinal0 handle:HakoAllocHandle,
-not me or requested_size. Tagged branch currently rejects any annotation.
-Existing compiled entry borrows canonical object_view from original source and
-both final use scans; join the original declared-formal class to that same
-source product. Do not permit an annotation or Integer wire signature alone.
-Object-view map key is PARAMETER VALUE ID, not physical or JSON ordinal; keep
-all three domains distinct. Old V753 strict-consumer deficit remains recorded;
-this new measured stop does not close or erase it.
+V793 C build PASS6.007161s. FieldReturn6 source-issued Normal/Fault execution
+PASS36.094181s. Stored-child96 originals compiled; first negative run RED3.26s
+only because foreign-child now refuses earlier at the provider boundary.
+Read-only review confirms no acceptance hole: update only that mutation to
+strict unsupported-cohort; missing-child retains strict receiver-object-mismatch.
+No combined-error acceptance or shape sniff. Rerun PASS14.950507s, including
+all original identity/argument/slot/lifetime refusals and both-opts real callee
+Normal/Fault cleanup. FFI793 SHA6fd137dfa336c562d18ea1c90d0a8b346a21bbd0d4072d341fe02f456db32862.
+Worker concrete review found no new Home/Return/End/argument permission or nested
+Birth expansion. Actual16 child reads all use Heap field0/1→Page providerNew
+with ordinaryreceiver, ownedHeap or Birthdirect roots; no Provided typed child.
+App C validation continues on unchanged original captured input.
