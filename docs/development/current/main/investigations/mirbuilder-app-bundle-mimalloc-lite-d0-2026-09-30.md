@@ -37,12 +37,12 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   transport remains under acceptance. V799 old Nullable writer retirement,
   V810/811 numeric field/Array→New→Birth, V812 non-Me writer attribution and
   V813 received-read current packet checks are pinned premises below.
-  CLI161 unchanged M189 passes Main argument/package generation and Body12
-  nested field Print; first stop is Body13 heap.small_page.freeCount() source
-  demand Unselected. Stored-call receiver source currently admits Me only;
-  connect original Local-New source to that existing owner. V814 field paths have
-  focused/final and tiny-EXE proof; the series and typed Nullable input remain owed.
-  No M189 EXE/runtime or cumulative source landing.
+  CLI162 unchanged M189 now passes canonical direct EXE/run/exact proof output;
+  V815f source/final50 PASS connects original Local-New stored scalar calls.
+  V814 deeper-provider and typed Nullable/full M190 conditions remain owed.
+  Current separate BoxShape removes quadratic C physical block lookup; preserve
+  the completed source→final connection and required whole-row acceptance.
+  Cumulative source WIP remains unlanded; this is not full-goal completion.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -947,54 +947,51 @@ Two-level Print counterpart direct EXE/run/exact `n=7\nResult: 0\n` PASS.
 This is not M189/full-goal acceptance. Retain temporary source/EXE/receipts until
 source landing; baseline C808b/runtime808b and command pins remain in that commit.
 
-V815 construction follows the recorded Local-New stored-call Decision. Scope:
-common passive candidate source loan; existing source/incoming/target parent
-checks; SAME selected incoming final lender; physical parent Copy dependencies;
-existing stored receiver/source/final tests and this owner README. No C/runtime
-or .hako changes. Candidate loan keeps exact acquisition/binding/declaration,
-parser source and canonical object, never construction/liveness permission.
-ExpressionFieldRoot::New uses that same loan; its duplicate source join is removed.
-StoredReceiver keeps Ordinary/Constructor origin and one optional (caller slot,
-root loan), encapsulated at the existing source owner. Constructor+Some rejects;
-Ordinary+None still owes Me; Ordinary+Some owes exact original Local/sole init/
-non-rebind/class/slot. The sole claim→commit lender now lends declaration too,
-without relaxing the executable actual wrapper's construction gate.
-Canonical stored field/child/residence, original callee ScalarReturnSource,
-Pending→Selected incoming Rc, arguments and physical Invoke/Normal/Fault remain.
-Final packet materialization always requires ledger for stored receivers, checks
-selected original incoming and reborrows root even for zero-input scalar calls;
-its parent read also contributes original Copy dependencies to final consumers.
-Independent source and final Local-New positives/substitution negatives are added
-inside existing owners. Required Me/constructor/nested-field regressions and
-unchanged M189 Body13 measurement remain owed; no new acceptance claimed.
+V815 construction, worker reviews and classified failed checks are preserved at
+**3dc8b62621** (this path; docs checkpoint, cumulative source remains unlanded).
+Continuing Local-New stored-call contract:
+- SAME original candidate loan retains acquisition/binding/declaration, parser
+  source and canonical object; ExpressionFieldRoot::New shares its source lender.
+- Optional caller-slot/root loan is encapsulated: Constructor+Some rejects,
+  Ordinary+None owes Me, Ordinary+Some owes original Local/sole init/non-rebind.
+- Final materialization rechecks the original seed product against ALL raw
+  incoming and exact SelectedStored source, even for zero-input calls, then
+  reborrows the SAME claim→commit root. Transport projection is not authority.
+- Original receiver read and parent Copy dependencies reach final consumers.
+  Existing packet lends receiver→nested arguments→Invoke/Normal order; final
+  visitor uses existing local/terminal producer map and unique coordinates.
+- Stored caller-scalar terminal demand selects exact source Return membership,
+  never proof/Completion success. Missing/foreign body shape fails fast.
+V815f root PASS57.166812s; unique focused50 PASS including source identity,
+eight final physical mutations, Stored/foreign actual/Nullable/terminal and prior
+nested-field/Copy regressions. CLI162 SAME source manifest/build PASS191.830966s,
+binary3c6e8713863282ea5d7b1014bd4dc3bf02abd16706714aa4b9db8cad63c4c096.
+Unchanged M189705a535c canonical direct EXE PASS620.850689s with SAME C808b/
+runtime808b. Actual run PASS.001171s, exit0 and EXACT existing eight proof lines
+plus `Result: 0` trailer; EXE c7acca5d463104bfaa0c7d0067ac72b6b1d05edee4a1c1ccb695e480d98617b8.
+The plugin-disabled runtime warning is harness noise under the existing README.
+Body13 is passed; V2/V4/C compilation covers29 functions/2346 blocks/3016 rows.
+V2 validation181.451622s, V4 admission2.765701s; total includes failed GDB attach
+and 5-second perf sampling, so no raw-speed comparison. Perf245 samples/lost0:
+98.37% self in physical block lookup. Keep original EXE/receipts/profiles until
+source landing; result/conditions are recorded here, not accepted solely by /tmp.
+M190/full required cohort and source landing/retirement remain unaccepted.
 
-V815 root build PASS104.714949s. Focused Local-New source/final tests select2,
-RED2 before final consumer at stored-child/result-source-missing; this is an
-unaccepted new connection, not a product regression claim. Worker review also
-found borrowed transport projection cannot prove zero-input original identity.
-Final lender now uses existing OriginalFormalSeedProduct corroboration of all
-raw incoming, then exact selected Stored source; no new census/snapshot.
-V815a build/verification is pending; scalar return source connection is under
-read-only review. M189 Body13 advancement and current source acceptance remain
-unproven. Source WIP stays unlanded.
+Separate BoxShape Decision: existing C physical block lookup repeatedly uses
+indexed access into variable-length JSON objects, making one lookup quadratic.
+Worker verified vendored yyjson: iterator preserves original order/first match,
+malformed ID skip and NULL while scanning linearly. Change only this loop in
+physical_v2; keep dominance/duplicate-ID/source/ABI/error laws unchanged. No new
+index/context/cache. Scope: that helper + owner README; existing physical parser
+positive/negative, stored-child/Fault/native Array regressions; then measured
+old/new FFI on SAME captured input before broader optimization is considered.
 
-Worker/root diagnosis: callee scalar source was already present. The old stored
-terminal trigger treated any caller-side Stored call as a caller scalar Return.
-Select that obligation by exact original direct Return membership in the SAME
-resolved input; Print/local operands keep their own consumers. Do not select by
-proof availability or Completion success. Stored local-return forwarding remains
-outside the existing direct-only contract. Adapt the existing object-arguments
-port test to lend its real input; no new test owner. V815a build PASS57.948981s,
-regressions34 PASS/Local-New2 RED at that gate. V815b compile RED: one test caller
-needed the changed input signature; repaired in V815c, verification pending.
-
-V815c source/root identity PASS; independent final mutation exposed an omitted
-stored receiver read in Print ordering/final visitor. V815d Local-New2 PASS.
-Normalize producer order in SAME packet: receiver before nested argument calls,
-Invoke/Normal after. Reuse finished local/terminal producer lookup for the read
-and include its coordinate in the existing uniqueness set. Worker confirms.
-V815f root PASS57.166812s; unique focused50 PASS including original source,
-eight final mutations, Stored/foreign actual/Nullable/terminal and prior34 cases.
-Compile signature/visibility errors repaired; zero-result filters rejected and
-rerun with actual test names. CLI162/source manifest matches V815f; CLI build
-pending. No M189 advancement, source landing or whole-series acceptance yet.
+V816 iterator FFI build PASS6.147930s. SAME original Stored96 JSON all accepted
+by old/new validators with identical outcomes. New FFI passes existing Stored96
+compile/mutation/Normal+Fault and owned Array Get/append/End/Fault regressions.
+Current cumulative C parser preartifact test RED in BOTH808b/816: valid field_set
+fixture omits required exact_numeric_runtime_check; iterator unrelated. Isolated HEAD
+baseline AND iterator-only candidate each build/preartifact positive+negative
+PASS. This independently landable BoxShape has no cumulative source dependency.
+CLI162+new FFI M189 is running; retain original wire capture for direct old/new
+parser timing. Whole command speed comparison remains unproven.

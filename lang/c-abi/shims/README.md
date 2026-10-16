@@ -643,3 +643,8 @@ Handle PHI and nullable result identity inference remain outside this admission.
 The existing call-result execution family accepts `owned` mode for the original
 sixteen typed/opaque JSON variants, exact-role/identity/landing/Return refusals,
 and allocation/cleanup Fault injection against the actual lifecycle archive.
+
+Physical V2 block lookup walks the original JSON array with its iterator.
+Variable-length block objects make repeated indexed access quadratic; the
+iterator preserves original order, first matching ID and malformed-ID refusal
+without adding an index, cached authority or changing dominance validation.

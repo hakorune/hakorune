@@ -74,10 +74,11 @@ static yyjson_val* hako_physical_blocks(yyjson_val* function) {
 
 static yyjson_val* hako_physical_block_by_id(yyjson_val* function, uint32_t wanted) {
   yyjson_val* blocks = hako_physical_blocks(function);
-  size_t i;
+  yyjson_arr_iter iter;
+  yyjson_val* block;
   if (!(blocks && yyjson_is_arr(blocks))) return NULL;
-  for (i = 0; i < yyjson_arr_size(blocks); i++) {
-    yyjson_val* block = yyjson_arr_get(blocks, i);
+  iter = yyjson_arr_iter_with(blocks);
+  while ((block = yyjson_arr_iter_next(&iter))) {
     uint32_t id;
     if (hako_physical_u32(block ? yyjson_obj_get(block, "id") : NULL, &id) && id == wanted)
       return block;
