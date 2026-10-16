@@ -912,14 +912,9 @@ Continuing required field-path contract:
   Genuine non-variable initializers keep destination/initializer/Copy in the
   existing materialization proof. Variable initializers inherit SAME chain;
   absent initializer or failed variable proof gets no substitute/formal authority.
-V814f root PASS66.895456s; focused34 PASS: nested Print source/final3 (Me/alias
-positive, foreign anchors and eight final field/base/read/Copy mutations), field
-reads4/batch3/nested Return1/literal1/final visitor4/local copy7/borrowed alias9/
-copy loan2. Original full Print remains RED at unchanged 3-level provider/prior-
-Home gate; provider excludes OwnedObjectFieldsNoHook despite recursive teardown.
-Typed Nullable full input remains separately owed; later full-test cases were
-unreached, not waived. Latest unchanged source and tiny EXE pins follow below.
-No cumulative source landing, whole-row/goal or CI acceptance is claimed.
+V814f source/final34 PASS and original 3-level provider/prior-Home RED remain
+recorded at **86d7834fe2**; later cases were unreached, not waived. Provider still
+excludes OwnedObjectFieldsNoHook. No cumulative source or whole-row acceptance.
 
 V815 Local-New stored-call connection and its source/final50 verification are
 preserved at **c3003843fd**, with complete M189 execution/performance closeout at
@@ -971,21 +966,34 @@ Required tests: Nullable typed0/1 and self nonzero-input, source/root/receiver/
 initializer/argument/input-family/extra incoming/Completion drift; preserve
 Mixed/BorrowedNullable/Stored regressions. Then unchanged M190 canonical EXE.
 
-V817e construction checkpoint: root build PASS62.914784s; unique focused78 PASS:
-Nullable LOCAL root/source/phase/census mutations, Qualified/Mixed/BorrowedNullable,
-whole-input13, packet11, Stored and original field/Home/Copy regressions.
-Zero-selected filters were rejected, never counted; actual named replacements PASS.
-V817a/b regressions fixed in the shared consumer: QualifiedObject preserves its
-valid Executable lender, source-only forward keeps Object phase, false Instance
-phase refuses before recursive delegation. Self acquisition compares SAME full
-completed arguments only with this loan; old empty observer law otherwise stays.
-V817d test compile failure used a private census; existing source fixture fixes it
-without widening visibility. No remaining red in selected V817e focused tests.
-CLI163 quick build PASS192.251704s; SHA9f334791e23eb9b9ed5f43e2ce4d7fc673d0f901be21b5c25c905086a9fb8c08.
-Unchanged M190598e0edb via canonical --backend mir --emit-exe/--emit-exe-nyrt,
-C816/runtime808b, stack16MiB, plugins disabled, pure-first/compat replay none:
-app-v164-result-contract RED0.274807s exit1/no EXE. Original owner34 Nullable LOCAL
-passes; next owner38 Body3/Initializer0 borrowed-view/declared-object-class.
-Current stop: required-object-forward/declared-object-source-input. Worker maps
-original declared object/field support before next patch. V817 source remains
-unlanded; complete execution, whole row/goal acceptance and full suite stay owed.
+V817 construction/boundary corrections and full measurements are preserved at
+**86d7834fe2** (this path). Root build PASS62.914784s; unique focused78 PASS,
+including root Rc/phase/census mutations and existing whole-input/packet/field
+regressions. CLI163 build PASS192.251704s, SHA9f334791e23eb9b9ed5f43e2ce4d7fc673d0f901be21b5c25c905086a9fb8c08.
+Unchanged M190598e0edb canonical direct EXE, C816/runtime808b, stack16MiB:
+RED0.274807s exit1/no artifact, owner34 Nullable LOCAL passed, next owner38
+Body3/Initializer0 borrowed-view/declared-object-class. Source remains unlanded;
+full row/goal, suite and complete M190 execution stay owed.
+
+Next Decision (worker exact CLI163 source→final mapping): current stop remains
+required-object-forward/declared-object-source-input. Caller38 reallocResult→
+callee37 realloc handle/binding1; Main alloc.handle/same.handle/moved.handle
+become Conflict at arg_site_binding(None). Provided store has residence only.
+Source authority + issuer: result owner's SAME SourceConstructionChildRelation
+Rc, canonical field/Birth formal/ordinal and all original wrapper call outcomes.
+Substitute ForwardFormal with THAT call's original ordered actual; follow sole
+nonrebound initializer DAG to Null/Fresh roots, retaining every relation/witness.
+Reject missing alternatives, wrong field/class/root, foreign Rc, rebind or cycle;
+no declaration-name Class seed, global-fold/SCC relaxation or Completion loan.
+Smallest bounded series: source factory→sole original seed/selected domain→
+canonical field read actual→existing entry/argument/packet→physical/final owner.
+Reuse BorrowedActual coordinates. A common read-actual facade delegates Field/Get
+to distinct existing issuers, localizing dispatch; do not disguise Field as Get.
+Preserve Get index/holder/Normal laws and Field wrapper/parent-lifetime laws.
+Connect definite Object wrapper root/terminal object field/original argument use;
+existing Nullable/Mixed Print gates and scalar path are no substitute or fake use.
+Final returned-field support/check_return_argument_relations rechecks SAME Rc;
+actual projection/finished-read/nullable transport retain full source identity.
+Use existing child_relation, source-domain, return-leaf and read/final tests for
+all alternatives/substitution and loss/drift; then unchanged M190. BoxShape and
+new Field acceptance stay separate slices. No early seed-only closeout.
