@@ -947,42 +947,54 @@ Acceptance: original source/destination/root/writer loss, Array/Nullable/packet
 regressions, real Field parent source Home, then unchanged canonical M190 EXE.
 No new registry, fake Home, class-name authority or retry; all full-goal debt stays.
 
-V823d source checkpoint (not EXE acceptance): root build53.185719s PASS;
-10 focused filters all PASS (47 executions; overlapping Field selections).
-Original parent Home and writer-loss rejection, Field source/phase, Array source
-identity, Nullable sibling, packet11/input13/slot12/field5 and Static root pass.
-The received-producer baseline test was independently RED on pinned V822l:
-Nullable owned input bypassed global/late prepared-target errors. Existing error
-propagation now precedes selected Nullable/Field observations. Test uses actual
-NullableLocal loan membership: empty New candidates do not withdraw its own
-original input; dependency-only still refuses claim-local-missing. Current class
-loss keeps each source owner's exact diagnostic. No New-only receiver narrowing.
-Worker rechecked source→Home→packet mapping: no confirmed authority/phase gap.
-V823e removes exclusive original_array_producer_callee_v1 (test-only caller moved
-to common original_object_producer_callee_v1); Array source getter and received
-non-Field dependency protocol retained for distinct callers. Root build57.483781s PASS;
-post-removal Array/received/Field/packet14 PASS. Cumulative source stays unlanded.
+V823 source/input/full focused and GDB evidence: **910d948173** (source WIP).
+Array-only callee classifier retired; source getter retained. All target errors
+propagate before selected Nullable/Field observation. CLI168/M190 parent alloc/
+same/moved Homes real; first prefix loss Body4 invalid_size then Body7 refuses.
 
-V823e CLI168 build161.330714s PASS; root/CLI source manifests identical.
-Unchanged M190 app-v169-result-contract canonical direct EXE RED0.432279s,
-exit1/no artifact: Main43 Body7 release(moved.handle),
-ordinary-new/borrowed-actual/unsupported-or-unavailable. Earlier CLI167 Body2
-source-actuals-missing no longer first-stops. This proves frontier movement only,
-not final Field publication/EXE/runtime acceptance. Original app SHA598e0edb2fc0
-unchanged; CLI SHA5f4c9afdbb148f9a1e789070874a26a84046e9b09472854d40972bd4e971fe2d.
-Source/FFI/runtime pins and full argv in app-v169-result-contract.json;
-V823e root focused + V823d broader evidence retained until source landing.
-Worker maps full original prefix/classifier participation before next patch;
-no fabricated producer/Home or source spelling workaround. Full goal stays open.
+V824 Decision (worker-confirmed; implementation/testing in progress):
+Keep exact producer source loans; normalize the two INPUT selectors (prepare
+instance actuals / selected original forward) to original producer callee cohort,
+retaining QualifiedObject priority. Field sibling Home issuer borrows existing
+batch/selected, issues its OWN object_call_source_v1 then corroborates its OWN
+original_local_object_target_source_v1 initializer/destination; recheck selecting
+Field cohort graphs/writers. No new map/target slot or Nullable loan retyping.
+Packet demand is exact producer OR Field cohort + actual Completion Handle LOCAL
+observation, original exact target/key/destination; full slot independently checks
+all inputs/result/Normal/End. Array expression exemption remains exact Array-only.
+Acceptance includes unrelated/nonlocal/uninitialized refusal and unchanged M190.
 
-CLI168 native GDB confirms parent progress (m190-v169-prefix-worker.gdb.log):
-Main Body1/2/3/4 observe prefix1, priorHomes1/2/3/4. FIRST passive fallback is
-Body4 initializer invalid_size=allocateResult(0), binding5; Body5/6 then fallback,
-Body7 prefix0/Homes4. alloc/same/moved exact Field producer Homes are now real.
-Next missing responsibility is original owning LOCAL acquisition for same-callee
-non-Field-demand siblings. Cohort membership alone must not issue their Home.
-Canonical issuers already exist: object_call_source_v1 +
-original_local_object_target_source_v1 verify each own original target, all roots,
-sole initializer/declaration/destination and descendant rebind exclusion.
-Worker checks complete input/frame/packet participation before next Decision;
-no callback-only Home patch or reuse of another hop's destination is authorized.
+V824a compile RED22.089681s corrected: exact original target census/owner replaces
+nonexistent observation callee getter. QualifiedObject keeps its own phase.
+
+V824b root build70.217314s PASS; 11 focused filters/48 executions all PASS
+(overlapping Field selections): sibling own Handle Homes and Ready packets,
+wrong sibling destination rejection, current writer loss, one exact demanded
+Field hop only; QualifiedObject phase, Array source, Nullable sibling,
+packet/input/slot/Field/Static/receivedHandle regressions. Native worker confirms
+original initializer law and fullslot remain sole issuers; no registry/key duplicate.
+CLI169 build157.606484s PASS; root/CLI manifests identical. Unchanged M190
+app170 direct EXE RED12.659692s/no artifact: semantic package PASSES, Main lowering
+lexical-handle/argument-class BorrowedActual at Body1 Init0 Arg0 (size8).
+CLI e4bb3637466dcfefa30692f618f2bff241ef3b62e0cb51634697a32a268378c5.
+Callback/Static/Object/Nullable/source-root extra7 PASS. Source unlanded; goal open.
+
+V825 Decision (worker complete mapping): route Handle LOCAL with existing packet
+protocol through common object physical writer. Port and writer guard must use
+SAME ledger.uses_object_packet_protocol_v1; source.has_object_source_requirement
+alone misses Field-selected packets. Existing common writer already materializes
+BorrowedActual Integer/Read via sole argument projector, records CallReceived and
+final packet/cleanup validators. Do not extend old literal-only writer or addretry.
+Keep genuinely unselected Handle callers on existing writer until own cutover.
+
+V825b root53.456867s/focused27 PASS; CLI170144.718183s PASS, root/CLI files equal.
+Unchanged M190 app171 canonical direct EXE RED12.845835s/no artifact, now
+callable-main/lowering ordinary-new/object-packet/teardown-unavailable; previous
+lexical-handle/argument-class is gone. CLI SHA4817c8fe4b267143bba0e470f76834d171ceb3d87adb02a82145acb0852912f4.
+Source/FFI/runtime/argv pinned app-v171-result-contract.json. Worker traces exact
+callee/return descriptor and required field anchor/End before any patch.
+Native m190-v171-teardown-worker.gdb.log confirms Main43 Body2 Init0,
+HakoAllocHeap.reallocResult/callee38; allocateResult Body1 passed common writer.
+No source acceptance/landing/runtime claimed. Source remains WIP; full goal open.
+V825a no-op build0.276445s preceded source edit after card-limit check aborted;
+it is not evidence for the V825 change. Pointer/diff guards PASS after V825b.
