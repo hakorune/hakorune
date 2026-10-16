@@ -109,7 +109,7 @@ fn seal_ssa(
 }
 
 #[test]
-fn real_loop_phi_is_defined_before_exposure_and_stays_fact_unknown() {
+fn real_loop_phi_is_defined_before_exposure_and_publishes_type_after_patch() {
     let owner = owner();
     let binding = binding(owner, 0);
     let mut builder = builder(4, vec![MirType::Bool]);
@@ -162,7 +162,7 @@ fn real_loop_phi_is_defined_before_exposure_and_stays_fact_unknown() {
             .type_ctx
             .value_types
             .get(&header_value),
-        Some(&MirType::Unknown)
+        Some(&MirType::Bool)
     );
     ssa.finish().unwrap();
     phis.commit(&mut builder).unwrap();

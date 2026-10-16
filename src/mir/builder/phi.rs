@@ -52,91 +52,9 @@ impl MirBuilder {
         else_map_end_opt: &Option<BTreeMap<String, super::ValueId>>, // Phase 25.1: BTreeMap化
         skip_var: Option<&str>,
     ) -> Result<(), String> {
-        // 📦 Phase 25.1q: Use PhiMergeHelper for unified PHI insertion
-        // 📦 Phase 57: ConservativeMerge 冗長呼び出し削除
-        //    - 以前: ここで ConservativeMerge::analyze を呼び、merge_all_vars 内でも呼んでいた（2回）
-        //    - 現在: merge_all_vars が changed_vars を返すので、1回で済む
-        use std::collections::HashSet;
-
-        // Use PhiMergeHelper for unified variable merging
         let mut helper =
             super::phi_merge::PhiMergeHelper::new(self, then_exit_block_opt, else_exit_block_opt);
-        let changed_set: HashSet<String> =
-            helper.merge_all_vars(pre_if_snapshot, then_map_end, else_map_end_opt, skip_var)?;
-
-        // Ensure pinned synthetic slots ("__pin$...") have a block-local definition at the merge,
-        // even if their values did not change across branches. This avoids undefined uses when
-        // subsequent blocks re-use pinned values without modifications.
-        for (pin_name, pre_val) in pre_if_snapshot.iter() {
-            if !pin_name.starts_with("__pin$") {
-                continue;
-            }
-            if skip_var.map(|s| s == pin_name.as_str()).unwrap_or(false) {
-                continue;
-            }
-            if changed_set.contains(pin_name) {
-                continue;
-            }
-            let then_v = then_map_end
-                .get(pin_name.as_str())
-                .copied()
-                .unwrap_or(*pre_val);
-            let else_v = else_map_end_opt
-                .as_ref()
-                .and_then(|m| m.get(pin_name.as_str()).copied())
-                .unwrap_or(*pre_val);
-            let mut inputs: Vec<(super::BasicBlockId, super::ValueId)> = Vec::new();
-            if let Some(tp) = then_exit_block_opt {
-                inputs.push((tp, then_v));
-            }
-            if let Some(ep) = else_exit_block_opt {
-                inputs.push((ep, else_v));
-            }
-            match inputs.len() {
-                0 => {}
-                1 => {
-                    let (_pred, v) = inputs[0];
-                    self.function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(pin_name.clone(), v);
-                }
-                _ => {
-                    if let Some(func) = self.function_state.current_function.as_mut() {
-                        func.update_cfg();
-                    }
-                    // Debug verification (when function and current_block available)
-                    if let (Some(func), Some(cur_bb)) = (
-                        &self.function_state.current_function,
-                        self.function_state.current_block,
-                    ) {
-                        crate::mir::phi_core::common::debug_verify_phi_inputs(
-                            func, cur_bb, &inputs,
-                        );
-                    }
-                    let merged = self.next_value_id();
-                    // SSOT: PHI insertion via phi_lifecycle
-                    if let Some(cur_bb) = self.function_state.current_block {
-                        crate::mir::builder::emission::phi_lifecycle::define_phi_final(
-                            self,
-                            cur_bb,
-                            merged,
-                            inputs,
-                            "phi:merge_modified_vars",
-                        )?;
-                    } else {
-                        return Err("[freeze:contract][phi_lifecycle/no_current_block] \
-                             tag=phi:merge_modified_vars"
-                            .to_string());
-                    }
-                    self.function_state
-                        .variable_ctx
-                        .variable_map
-                        .insert(pin_name.clone(), merged);
-                }
-            }
-        }
-        Ok(())
+        helper.merge_all_vars(pre_if_snapshot, then_map_end, else_map_end_opt, skip_var)
     }
 
     /// Merge variables from N predecessors into current merge block.

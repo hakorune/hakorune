@@ -7,7 +7,7 @@
 //! Box-First理論: PHI insertion の境界を明確にし、差し替え可能な箱として提供
 
 use super::{BasicBlockId, MirBuilder, ValueId};
-use std::collections::{BTreeMap, BTreeSet, HashSet}; // Phase 25.1: 決定性確保, Phase 58: インライン化
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 /// PHI Merge Helper - 統一PHI挿入ロジック（Conservative戦略）
 ///
@@ -164,38 +164,54 @@ impl<'a> PhiMergeHelper<'a> {
     /// * `else_map_end_opt` - Variable map at end of else-branch (None for empty else)
     /// * `skip_var` - Optional variable name to skip (already merged elsewhere)
     ///
-    /// # Returns
-    /// Ok(changed_vars) - Set of variables that were changed, for pin handling
+    /// Pins use this same merge owner; no second merge or change-set receipt
+    /// is needed after all branch variable maps have been joined.
     ///
-    /// # Phase 57-58 改善
-    ///
-    /// - Phase 57: 戻り値を `()` から `HashSet<String>` に変更
-    /// - Phase 58: ConservativeMerge::analyze をインライン化
-    ///
-    /// # Phase 58 改善
-    ///
-    /// ConservativeMerge::analyze をインライン化。
-    /// conservative.rs の struct は削除され、ロジックのみここに残る。
-    ///
-    /// ## Conservative ∘ Elimination = Minimal SSA
-    ///
-    /// - Conservative (this): correctness-first, generate all PHIs
-    /// - Elimination (future): efficiency optimization, remove unused PHIs
+    /// The same reaching value can be retained before PHI allocation only
+    /// for a complete reachable join with one dominating definition. Other
+    /// inputs keep the existing PHI completion and validation path.
     pub fn merge_all_vars(
         &mut self,
         pre_if_snapshot: &BTreeMap<String, ValueId>, // Phase 25.1: BTreeMap化
         then_map_end: &BTreeMap<String, ValueId>,    // Phase 25.1: BTreeMap化
         else_map_end_opt: &Option<BTreeMap<String, ValueId>>, // Phase 25.1: BTreeMap化
         skip_var: Option<&str>,
-    ) -> Result<HashSet<String>, String> {
-        let (def_blocks, dominators) =
-            if let Some(func) = self.builder.function_state.current_function.as_ref() {
-                (
-                    Some(crate::mir::verification::utils::compute_def_blocks(func)),
-                    Some(crate::mir::verification::utils::compute_dominators(func)),
-                )
+    ) -> Result<(), String> {
+        let merge = self.builder.function_state.current_block;
+        let (def_blocks, dominators, reusable_values) =
+            if let Some(func) = self.builder.function_state.current_function.as_mut() {
+                func.update_cfg();
+                let defs = crate::mir::verification::utils::compute_def_blocks(func);
+                let dominance = crate::mir::verification::utils::compute_dominators(func);
+                let mut reusable = BTreeSet::new();
+                if let (Some(merge), Some(then_exit), Some(else_exit)) =
+                    (merge, self.then_exit, self.else_exit)
+                {
+                    let actual: Vec<_> = func.blocks.iter().flat_map(|(pred, body)|
+                        body.out_edges().into_iter().filter_map(move |edge|
+                            (edge.target == merge).then_some(*pred))).collect();
+                    let expected = BTreeSet::from([then_exit, else_exit]);
+                    if expected.len() == 2 && actual.len() == 2
+                        && actual.into_iter().collect::<BTreeSet<_>>() == expected
+                        && dominance.is_reachable(merge)
+                        && expected.iter().all(|pred| dominance.is_reachable(*pred))
+                    {
+                        let mut counts: HashMap<ValueId, usize> = HashMap::new();
+                        for param in &func.params { *counts.entry(*param).or_default() += 1; }
+                        for body in func.blocks.values() {
+                            for row in body.all_instructions() {
+                                if let Some(dst) = row.dst_value() { *counts.entry(dst).or_default() += 1; }
+                            }
+                        }
+                        reusable.extend(defs.iter().filter_map(|(value, block)|
+                            (counts.get(value) == Some(&1) && *block != merge
+                                && dominance.is_reachable(*block)
+                                && dominance.dominates(*block, merge)).then_some(*value)));
+                    }
+                }
+                (Some(defs), Some(dominance), reusable)
             } else {
-                (None, None)
+                (None, None, BTreeSet::new())
             };
 
         // ========================================
@@ -205,37 +221,12 @@ impl<'a> PhiMergeHelper<'a> {
         // 新: 以下のロジックを直接ここに記述
 
         // 1. all_vars: 全ブランチに存在する変数のユニオン（Conservative戦略）
-        let mut all_vars = HashSet::new();
+        let mut all_vars = BTreeSet::new();
         all_vars.extend(pre_if_snapshot.keys().cloned());
         all_vars.extend(then_map_end.keys().cloned());
         if let Some(ref else_map) = else_map_end_opt {
             all_vars.extend(else_map.keys().cloned());
         }
-
-        // 2. changed_vars: 実際に変更された変数のセット
-        //    決定的順序のためBTreeSet使用
-        let mut names: BTreeSet<&str> = BTreeSet::new();
-        for k in then_map_end.keys() {
-            names.insert(k.as_str());
-        }
-        if let Some(emap) = else_map_end_opt.as_ref() {
-            for k in emap.keys() {
-                names.insert(k.as_str());
-            }
-        }
-        let mut changed_vars = HashSet::new();
-        // アルファベット順で決定的にイテレート
-        for &name in &names {
-            let pre = pre_if_snapshot.get(name);
-            let t = then_map_end.get(name);
-            let e = else_map_end_opt.as_ref().and_then(|m| m.get(name));
-            if (t.is_some() && Some(*t.unwrap()) != pre.copied())
-                || (e.is_some() && Some(*e.unwrap()) != pre.copied())
-            {
-                changed_vars.insert(name.to_string());
-            }
-        }
-        // ========================================
 
         let trace_conservative = crate::config::env::builder_conservative_phi_trace();
 
@@ -322,10 +313,16 @@ impl<'a> PhiMergeHelper<'a> {
                 }
             };
 
+            // Preserve the original branch reads, not values repaired by the
+            // sanitizer. No Phi token, type fact or source receipt is issued.
+            if then_v == else_v && raw_then_v_opt == Some(then_v)
+                && raw_else_v_opt == Some(else_v) && reusable_values.contains(&then_v)
+            {
+                self.builder.function_state.variable_ctx.variable_map.insert(name.clone(), then_v);
+                continue;
+            }
             self.merge_variable(name.clone(), then_v, else_v)?;
         }
-
-        // Phase 57: 変更された変数セットを返す（phi.rsでの冗長呼び出し削除用）
-        Ok(changed_vars)
+        Ok(())
     }
 }

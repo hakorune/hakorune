@@ -170,11 +170,8 @@ fn assert_simple_statement_if_shape(
         }
     }
 
-    let expected_predecessors = if !then_returns && !else_returns {
-        BTreeSet::from([then_bb, else_bb])
-    } else {
-        BTreeSet::new()
-    };
+    let expected_predecessors: BTreeSet<_> = [(then_bb, then_returns), (else_bb, else_returns)]
+        .into_iter().filter_map(|(block, returns)| (!returns).then_some(block)).collect();
     assert_eq!(
         function.blocks[&merge_bb].predecessors,
         expected_predecessors
@@ -187,6 +184,10 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
     let mut builder = builder("production_statement_if_explicit_else/0");
     let _scope = LexicalScopeGuard::new(&mut builder);
     super::block_stmt::build_statement(&mut builder, local("x", 0)).unwrap();
+    super::block_stmt::build_statement(&mut builder, local("stable", 7)).unwrap();
+    let stable = builder.function_state.variable_ctx.variable_map["stable"];
+    let pinned = builder.pin_to_slot(stable, "unchanged-if-argument").unwrap();
+    let pin_name = builder.function_state.pin_slot_names[&pinned].clone();
 
     let output = super::block_stmt::build_statement(
         &mut builder,
@@ -217,6 +218,7 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
             _ => None,
         });
     let x_inputs = x_inputs.expect("merge-block variable x Phi");
+    let differing_inputs = x_inputs.clone();
     assert_eq!(
         x_inputs
             .iter()
@@ -228,6 +230,25 @@ fn production_statement_if_explicit_else_publishes_merge_phis_then_facade_void()
         matches!(instruction, MirInstruction::Phi { dst, inputs, .. }
             if *dst != x_value && inputs.len() == 2)
     }));
+    assert_eq!(builder.function_state.variable_ctx.variable_map["stable"], stable);
+    assert_eq!(builder.function_state.variable_ctx.variable_map[&pin_name], pinned);
+    assert!(!merge.instructions.iter().any(|row| matches!(row,
+        MirInstruction::Phi { inputs, .. } if inputs.iter().all(|(_, value)| *value == stable)
+            || inputs.iter().all(|(_, value)| *value == pinned))));
+
+    // The common owner still joins a pin when its two source values differ.
+    let before = builder.function_state.variable_ctx.variable_map.clone();
+    let mut then_values = before.clone();
+    let mut else_values = before.clone();
+    then_values.insert(pin_name.clone(), differing_inputs.iter().find(|(bb, _)| *bb == then_bb).unwrap().1);
+    else_values.insert(pin_name.clone(), differing_inputs.iter().find(|(bb, _)| *bb == else_bb).unwrap().1);
+    crate::mir::builder::phi_merge::PhiMergeHelper::new(&mut builder, Some(then_bb), Some(else_bb))
+        .merge_all_vars(&before, &then_values, &Some(else_values), Some("x")).unwrap();
+    let joined = builder.function_state.variable_ctx.variable_map[&pin_name];
+    assert_ne!(joined, pinned);
+    assert!(builder.function_state.current_function.as_ref().unwrap().blocks[&merge_bb]
+        .instructions.iter().any(|row| matches!(row, MirInstruction::Phi { dst, inputs, .. }
+            if *dst == joined && inputs == &differing_inputs)));
 }
 
 #[test]
@@ -528,4 +549,83 @@ fn expression_if_remains_cf_if_value_route_without_statement_void() {
         |instruction| matches!(instruction, MirInstruction::Phi { dst, .. } if *dst == output)
     ));
     assert!(void_values(&builder).is_empty());
+}
+
+// Independent safety boundary: the pre-allocation alias must not erase an
+// incomplete CFG, duplicate definition, non-dominating value or self-Phi.
+#[test]
+fn if_merge_reuses_only_complete_reachable_unique_dominating_values() {
+    use crate::mir::{BasicBlock, MirType};
+    use std::collections::BTreeMap;
+    let bb = BasicBlockId::new;
+    let value = ValueId::new(8);
+    let other = ValueId::new(10);
+    for case in ["complete", "different", "duplicate_exit", "extra_pred",
+        "unreachable", "duplicate_definition", "non_dominating", "sanitized", "self_phi"] {
+        let mut builder = builder(&format!("if_merge_alias_{case}/1"));
+        {
+            let function = builder.function_state.current_function.as_mut().unwrap();
+            assert_eq!(function.entry_block, bb(0));
+            function.params = vec![value];
+            function.signature.params = vec![MirType::Integer];
+            for _ in 0..32 { function.next_value_id(); }
+            for id in 1..=4 { function.add_block(BasicBlock::new(bb(id))); }
+            function.blocks.get_mut(&bb(0)).unwrap().add_instruction(MirInstruction::Const {
+                dst: ValueId::new(9), value: ConstValue::Bool(true),
+            });
+            function.blocks.get_mut(&bb(0)).unwrap().set_terminator(if case == "unreachable" {
+                MirInstruction::Return { value: None }
+            } else {
+                MirInstruction::Branch { condition: ValueId::new(9), then_bb: bb(1), else_bb: bb(2),
+                    then_edge_args: None, else_edge_args: None }
+            });
+            for id in 1..=2 {
+                function.blocks.get_mut(&bb(id)).unwrap().set_terminator(MirInstruction::Jump {
+                    target: bb(3), edge_args: None,
+                });
+            }
+            if case == "extra_pred" {
+                function.blocks.get_mut(&bb(4)).unwrap().set_terminator(MirInstruction::Jump {
+                    target: bb(3), edge_args: None,
+                });
+            }
+            if matches!(case, "duplicate_definition" | "non_dominating") {
+                if case == "non_dominating" { function.params.clear(); function.signature.params.clear(); }
+                function.blocks.get_mut(&bb(1)).unwrap().add_instruction(MirInstruction::Const {
+                    dst: value, value: ConstValue::Integer(7),
+                });
+            }
+            if matches!(case, "different" | "sanitized") {
+                let definition = if case == "sanitized" { bb(3) } else { bb(0) };
+                function.blocks.get_mut(&definition).unwrap().add_instruction(MirInstruction::Const {
+                    dst: other, value: ConstValue::Integer(9),
+                });
+            }
+            if case == "self_phi" {
+                function.params.clear(); function.signature.params.clear();
+                function.blocks.get_mut(&bb(3)).unwrap().add_instruction(MirInstruction::Phi {
+                    dst: value, inputs: vec![(bb(1), value), (bb(2), value)], type_hint: None,
+                });
+            }
+        }
+        builder.function_state.current_block = Some(bb(3));
+        builder.function_state.type_ctx.value_types.insert(value, MirType::Integer);
+        builder.function_state.type_ctx.value_types.insert(other, MirType::Integer);
+        let before = BTreeMap::from([("kept".to_string(), value)]);
+        let mut otherwise = before.clone();
+        if matches!(case, "different" | "sanitized") { otherwise.insert("kept".into(), other); }
+        let else_exit = if case == "duplicate_exit" { bb(1) } else { bb(2) };
+        let result = crate::mir::builder::phi_merge::PhiMergeHelper::new(
+            &mut builder, Some(bb(1)), Some(else_exit),
+        ).merge_all_vars(&before, &before, &Some(otherwise), None);
+        if case == "complete" {
+            result.unwrap();
+            assert_eq!(builder.function_state.variable_ctx.variable_map.get("kept"), Some(&value));
+            assert!(builder.function_state.current_function.as_ref().unwrap().blocks[&bb(3)]
+                .instructions.is_empty());
+        } else if result.is_ok() {
+            assert_ne!(builder.function_state.variable_ctx.variable_map.get("kept"), Some(&value),
+                "{case}: an unproven original value must not bypass the existing Phi path");
+        }
+    }
 }

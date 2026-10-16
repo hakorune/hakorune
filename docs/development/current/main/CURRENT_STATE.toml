@@ -30,8 +30,17 @@ Next Mixed/Borrowed outcomes + formal field support/anchor + conditional End
 must reach ABI/JSON/C without treating Forward as an owned Home.
 Required Array C execution, PlanSourcePublication Set, field Birth/full support
 and remaining real FieldWrite pins stay owed. Raw FieldIndexSet closure passed.
-V753 Heap.realloc optfalse forbidden-operand remains independent, not baseline.
-V758 final Return census/test-cost build/cheap11 PASS; actual test running.
+V753/V761 Heap.realloc redundant-Phi deficit fixed at producer; V763 actual PASS.
+V758 final Return census/test-cost build/cheap11 + actual1 PASS723.391039s.
+V759b build68.725790s/cheap11 + both-opts actual1 PASS729.577406s.
+V760 internal Birth outcome accompaniment C Provided/Unit/field/stored PASS;
+Forward remains refused. V761 strict consumer RED318.53s at Heap.realloc/2
+Phi51=(v1,v1), bb437/index1. Diagnose exact producer/use before capture;
+consumer admission and FinishedBindings omission are unchanged.
+V763 producer normalization retires duplicate pin writer; actual PASS1028.59s,
+both opts incl strict compiled-entry. V764 build59.926230s + focused36 PASS;
+stale CFG/type test/docs corrected. Product ABI/EXE still owed. Outgoing field
+support uses existing Return owner; isolated if-merge normalization can land.
 Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
 First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;
 full fixedsuite/integration/cutover/retirement/R6/R7/Loop/authority/parser/

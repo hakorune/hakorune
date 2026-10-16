@@ -29,8 +29,10 @@ draft.
 
 SSA-M0 added one borrowed real-MIR adapter over `MirBuilder` and `PhiTxn`.
 It is mechanical only: allocation, provisional definition, exact input patch,
-dominance/reachability verification, and pending rollback. Open and patched
-PHIs both retain `MirType::Unknown`; the accepted fact-refinement set is empty.
+dominance/reachability verification, and pending rollback. Open PHIs retain
+`MirType::Unknown`. Successful patch completion delegates exact type publication
+to the canonical PHI lifecycle owner, which checks the complete logical inputs;
+the adapter does not infer types or use a PHI hint as authority.
 Every predecessor set comes from `CanonicalCfgSessionV1`, including Return
 blocks.
 

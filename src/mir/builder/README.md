@@ -1,5 +1,16 @@
 # MIR Builder (`src/mir/builder/`)
 
+## Conditional variable merge
+
+`phi_merge.rs::PhiMergeHelper::merge_all_vars` joins all branch variables,
+including pins, in deterministic order. Identical original values reuse their
+existing definition before Phi allocation only when the two reachable exits
+exactly cover the current join and one unique definition strictly dominates it.
+Sanitizer substitutions do not grant that reuse. Other inputs retain existing
+Phi completion; pins have no second merge writer. Captured source bindings and
+final consumer restrictions remain unchanged. BindingSSA and loop Phi roles
+keep their separate completion contracts.
+
 ## Root Home graph writer boundary
 
 `ordinary_new_admission/selected.rs` owns one root cleanup graph algorithm.
