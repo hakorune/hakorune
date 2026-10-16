@@ -17,43 +17,25 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 remains unaccepted; cumulative source WIP is unlanded.
-Canonical Phi completion now shares the original LocalSSA writer loans;
-source-consumed producers and dependencies survive CFG/CSE finishing.
-Field Array Push retains the same source/Completion/residence/read/packet Rc,
-checked Invoke/Fault group and final physical coordinate. V703 provider passes
-both opts with eight independent mutations refused. V704 adds required
-function/block/instruction coordinates to native and field Array write rows;
-provider emits four I64 array_append JSON operations in both opts. Native
-I64/Bool/F64 coverage remains green. C residence execution is still unwired.
-Latest unchanged mimalloc CLI138: build139.900385s/app166.589116s, rc1/no EXE;
-strict nullable-source rejects correct MixedObject owner38/binding3, not duplicate.
-binary01ccbe93/appSHA33d3/FFI0c9633f0/runtimeV610; Mixed Birth outcome owed.
-Original DeclaredFormal argument joins the finished caller source entry;
-Forwarded stays mandatory; implicit receivers/local Homes stay separate.
-Original object-view issuer now retains scalar descriptors before transfer;
-selected borrowed entries stage guarded reads in the same affine read owner.
-Passive Home neutrality and final Copy/field-use checks stay unchanged.
-Null-only missing-class negative PASS; frontier1 RED matches V599 baseline.
-Prior CLI129 reached Page.resizeInPlace/2 legacy requested_size FieldSet
-(Copy75/76); original handle.requested_size declaration is usize.
-Selected writer retains first-read Rc, pin loans, shared Invoke/Fault cleanup,
-mandatory prefix packet/seal/finishing roots.
-V734 original guard/pin/store closure now connects both final scans and
-bounded usize backend/C admission; build58.240968s/focused64 PASS.
-C new borrowed range/view probes PASS; full script known baseline RED.
-V753 full-entry optfalse RED Heap.realloc forbidden-operand;
-not proven baseline. V756 actual PASS; V757 C PASS; Mixed/anchor still owed.
-Same S0, no retry/workaround/scope expansion. C receiver/residence initialized
-at calls and child stores remains owed; keep nullable/Normal/Fault contracts.
-No fake Call/unused Birth/lease/registry or fixture workaround is authorized.
-Other S0 connections remain owed: field Birth/full support, FieldWrite real pins,
-mixed/borrowed result ABI and conditional End JSON/C. Existing argv/KeepAlive
-connections remain WIP. Source/consumer cutover and exclusive retirement are
-unaccepted; tmp/adapters must be classified and card history compressed at landing.
-First milestone is unchanged mimalloc EXE/run/output/exit, still unmet.
-Fixed suite, required integration/retirement/R6/R7/Loop/authority/parser and
-nondelegating selfcompile remain required for the full goal.
+RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
+Same active owner/card and full MIRBUILDER-FINAL-PIPELINE-v1 goal.
+Latest unchanged app CLI138 build139.900385s/app166.589116s rc1/no EXE.
+Strict nullable-source acquisition met correct MixedObject owner38/binding3;
+not duplicate/refined Handle. binary01ccbe93/app33d3/FFI752/runtime610 pinned.
+V756 shared current-owner received Birth source correspondence PASS both opts,
+including ValueId/ordinal drift, original Return/conditional End final checks.
+V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
+new runtime757 exports residence set/get. C still admits Null/Fresh only.
+Next Mixed/Borrowed outcomes + formal field support/anchor + conditional End
+must reach ABI/JSON/C without treating Forward as an owned Home.
+Required Array C execution, PlanSourcePublication Set, field Birth/full support
+and remaining real FieldWrite pins stay owed. Raw FieldIndexSet closure passed.
+V753 Heap.realloc optfalse forbidden-operand remains independent, not baseline.
+V758 final Return census/test-cost build/cheap11 PASS; actual test running.
+Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
+First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;
+full fixedsuite/integration/cutover/retirement/R6/R7/Loop/authority/parser/
+nondelegating selfcompile conditions remain. No fallback/workaround/new lane.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
