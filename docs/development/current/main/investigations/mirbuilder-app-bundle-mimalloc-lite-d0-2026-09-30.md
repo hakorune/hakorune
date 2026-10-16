@@ -40,8 +40,11 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   arguments-missing. V805 common argument projection has 13 focused passes;
   CLI154 passes the Main argument stop and package issuance; first stop is
   callable-main/lowering print-expression/source-unavailable. V807b source/input
-  tests15 PASS. Original Print/result-field consumer audit is in progress;
-  no M189 EXE or reached-runtime acceptance yet.
+  tests15 PASS. V809 received Print/final connection remains WIP; V810c numeric
+  field→New→Birth closure has15 focused passes. CLI156 advances within Main Body8
+  from h0.page_id to the next field; Array value→New source proof is still absent.
+  Typed Nullable Print also lacks complete original input. No M189 EXE/runtime
+  acceptance or source landing yet.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -872,49 +875,20 @@ Plain Array/Bool callers stay plain. Source descriptor/issuer, sole field writer
 Print/final correspondence and production physical_program acceptance are still
 unconnected/closed; original M189 last authoritative run remains CLI154 RED.
 
-V809 construction (same series, not acceptance): original unguarded received
-Nullable/Mixed field requests now retain acquisition or SAME Mixed loan/current
-live support chain. Existing field batch borrows original target/initializer,
-ObjectCallSourceLoan or all Mixed roots and canonical scalar declaration; the
-numeric whole-expression loan remains conjunctive. Existing field row keeps the
-same descriptor, ExactLexicalRead/Copy loan and checked Invoke+Normal pair.
-Print uses the sole exact field writer with its existing String/Home cleanup,
-ordered operation check and same affine field census. Before/after finishing
-use the sole binding projection; after affine move a Finalized-context lender
-borrows current retained Call packets and independently checks both bindings,
-all checked reads and enclosing prefix/Fault graph. Physical projection accepts
-FieldGet only from that lender, not its opcode. Native/unguarded Alias/Array and
-non-Print source adapters remain outside this bounded scalar Print connection.
-Initial check RED40.605659s (three import paths), fixed; root build108.327153s
-PASS, existing Print1/field-batch2/original M189 source1 PASS. V809b adds source
-Nullable Normal/Null publication cases to that same Print test, build running.
-Worker reviewed original source/root Rc, current packet/value, exact read/Copy,
-Print Normal/Fault and source census: no confirmed authority widening. Finalized
-lender and mutation/runtime verification are still required; physical connection
-above is construction only. No new M189 executable claim or source landing.
-
-V809b root build PASS67.717144s. Existing batch2/M189 source1 PASS; new received
-Print publication case RED at package issue received/original-target-missing for
-Maker.fetch flag0. Its original acquisition is not in the ingress instance source
-query; no target or permission is fabricated. Worker audits original source issuer
-participation/shared packet selection before changing that boundary. Original
-M189 CLI155 build runs to distinguish product frontier from this smaller corpus.
-
-CLI155 build PASS192.531071s, SHA127e14b91f43d883fdce592976d31e4adfb7c7320186cd86e7c8c7064e9730e9.
-Unchanged M189 source705a535c, canonical direct EXE on C808b/runtime808b RED
-.190502s/no artifact at package issue Main43 Body8 field leaf, integer-field/
-source-identity/current-closure. This is newly activated source qualification,
-not product advancement beyond CLI154. The original source field request is
-recognized but no read is published. No new first-milestone or Mixed acceptance.
-V809c canonical lexical target lookup replaces the mistaken borrowed-inventory
-lookup; exact retained field demand selects existing complete Object packet.
-Build PASS68.772200s; batch2/M189 source1 PASS, new Print RED targets-missing
-because lexical issuance temporarily owns the canonical target vector.
-V809d borrows that issuing owner's SAME target during selection; emission/final
-still recheck the retained catalog. Build PASS55.869749s, batch2/M189 source1
-PASS; new Print RED placement-handle-result-drift (no full input packet). Earlier
-original Print regression passed before adding the required new positive cases;
-its later independent negatives were not reached on these RED runs.
+V809 construction/debug history is preserved at **b00413b514** (this path).
+Retained contract: exact received acquisition/root Rc and numeric field source
+remain conjunctive; SAME field row/Copy loan owns checked Invoke+Normal; Print
+checks both bindings and original String/Home Fault cleanup; independent final
+census and physical lender reject unbound/native opcode acceptance. Source code
+is WIP, not acceptance. Builds V809/b/c/d PASS; original batch2/M189 source1 PASS.
+Added typed Nullable Print cases are RED placement-handle-result-drift after
+canonical target lookup/affine issuing-target borrow repairs. They still lack
+full original input evidence; later existing Print negatives were not reached.
+CLI155 PASS192.531071s, SHA127e14b91f43d883fdce592976d31e4adfb7c7320186cd86e7c8c7064e9730e9.
+Unchanged M189 source705a535c, canonical C808b/runtime808b direct EXE RED.190502s,
+no artifact: package Main43 Body8 numeric field source-identity/current-closure.
+New source qualification activates that refusal; no product advancement beyond
+CLI154 and no new Mixed/source/runtime/End acceptance or source landing.
 
 Worker Decision extension, SAME received-result series, next two connections:
 1. Original Nullable local acquisition input: existing raw inventory registers
@@ -937,5 +911,80 @@ Worker Decision extension, SAME received-result series, next two connections:
    conditional fields to the greatest fixed-point bases admits a rootless cycle.
    No separate solver/cache or declared-type permission. Confirm actual closure
    pins before claiming this static audit is the sole remaining app cause.
-Both mappings are unimplemented. New field emission/final consumer code remains
-unaccepted WIP; full own regressions, mutations, source/runtime and goal owed.
+The original acquisition-input mapping remains unimplemented. V810 below connects
+the numeric field actual; Array-origin actuals remain missing. New field emission/
+final consumer code stays unaccepted WIP; own regressions, mutations, source/runtime
+and full goal acceptance remain owed.
+
+V810 construction, numeric bridge only (not acceptance): sole OriginalNewSeeds
+observation retains passive exact Me field actuals at the original ordinal;
+canonical Instance/Birth root supplies the lexical class. No expression root,
+source rewrite or new call registry is invented. FieldCandidates joins those
+keys to its SAME field-source Rcs. Its NewParameter loan retains SAME new_calls,
+exact Birth source/formal ordinal and nonempty ALL class New census, rejecting
+incomplete owners, overrides, other constructors and non-I64 actuals. Cached
+Conflict/Integer domains remain unchanged. Source Forward needs existing I64
+membership plus original corroboration; final use demands same census Rc and
+current candidate I64 agreement. Productive Birth least-grounding precedes the
+existing preservation fold; preservation rechecks dependencies against current
+fields and retained source Rcs, so a later nonnumeric writer invalidates copied
+fields too. Dependency traversal recursively re-demands their original writers.
+Worker reviewed this mapping and confirmed both productive grounding and later
+invalidation are required. Existing composition test now exercises this chain,
+Bool New/writer veto, all-New conjunction, equal foreign/erased census rejection
+and rootless self-copy. V810 root build running; no source/product acceptance.
+Typed Nullable full input and unchanged M189 CLI rerun remain owed in SAME series.
+V810 initial root RED53.722268s (loan method visibility), corrected. V810b root
+PASS106.934405s; composition11 yielded10PASS/1RED. Newly added field→New→Birth
+positive, all-New Bool/writer vetoes, census replacement and rootless-cycle
+cases all passed before the old getter-free Print negative failed at package
+integer-field/source-missing. Classified as own V809 live source demand: Bool/
+self-copy Print must now refuse before exposing a numeric component. Updated
+that negative to assert the actual refusal; positive Print and independent
+final/source mutations stay present. No baseline waiver or numeric relaxation.
+Worker code review found no blocking authority widening; its consumed-field
+projection refinement is applied (loan now lends only field-used row indices).
+V810c root build running; CLI156 and product frontier measurement still owed.
+V810c root PASS62.473339s; existing composition11 and unresolved-caller input
+veto1 PASS on that pinned binary. Numeric New chain, all-New/writer Bool refusal,
+rootless cycle and foreign/erased census checks are included in composition11.
+This is source closure preparation only; CLI156 build now running to measure
+unchanged M189 through the canonical direct EXE route with C808b/runtime808b.
+
+V810c additional field-batch2/original-M189 source1 PASS; total focused15 PASS
+on that root binary. CLI156 build PASS188.488735s, binary
+SHAa1cafc0fdd62192e487fc4969fa5f14e3babf0eb485b00498976b5026c747119.
+Canonical unchanged M189 (source705a535c), same C808b/runtime808b, direct EXE
+RED.327379s/no artifact. Main43 Body8 field leaf moves from Value/Lhs/Lhs/Lhs/Lhs/
+Rhs to Value/Lhs/Lhs/Rhs, same integer-field/source-identity/current-closure.
+The first page_id numeric source proof now closes; EXE/runtime/End still unmet.
+Evidence: cli-v156 source/build receipts and m189-v156.json/stdout/stderr in the
+existing evidence base, all binary/FFI/archive pins stable. No full-suite claim.
+Next same-owner review covers ALL Handle field inputs and Array indexed-value
+provenance together; no per-field declared-type permission or .hako adaptation.
+The separate typed Nullable original input connection remains required.
+Root V810c and CLI156 source manifests are identical; current source rehash has
+zero drift. Additional changes here are documentation only. Required runtime
+and final consumer acceptance still block source landing, so this checkpoint
+preserves the cumulative source WIP rather than accepting a partial feature.
+
+Worker next-connection mapping: new Body8/Value/Lhs/Lhs/Rhs is h0.block_id.
+Handle New arg0 page_id now closes; arg1 block_id follows its sole stable local
+initializer me.free_stack.get(me.free_top). Arg2 requested_size is a formal with
+its own source Integer/I64 and resizeInPlace writer obligations still owed.
+Existing canonical Array lender is ordinary_new_field_array_read_source.rs:
+local_initializer/capture_exact_get retains Rc<CheckedFieldArrayGetSourceV1>,
+whole-box array_i64_fields census, canonical field/own-Me receiver, original
+index source, same Birth provider/source; recheck_census demands the original
+owner/field. Existing retain_argument_reads issues ArgumentFieldArrayReadSourceV1
+and the sole field-array recipe owner deduplicates the SAME source Rc by Call.
+Its current capture occurs after the Home sweep (coseal_issue.rs), too late for
+the numeric New/field fold. Next mapping must connect early retention on SAME
+New rows with late reborrow of that existing loan; do not add another Array
+classifier, accept get/opcode/ArrayBox as Integer proof, or regenerate a loan.
+This phase connection needs confirmation before construction; not acceptance.
+Scope boundary: scalar seed classification intentionally leaves unproved local
+initializers/arithmetic Conflict. Do not open generic local inference here.
+Reuse the exact single, never-rebound Array-get local source loan; its existing
+Array census integer_source_at boolean is not general formal-domain authority
+(loop/rebind rules differ). SAME early/late source Rc sharing remains to connect.
