@@ -742,139 +742,42 @@ This normalization is not yet implemented. Source runtime/field End acceptance
 and the separate unused Layout static-input/prefix6/2 RED remain owed.
 Docs-only checkpoint 9c1e7b34f8 pushed; cumulative implementation remains WIP.
 
-V804 construction: SAME original seed product retains Mixed loan + recursively
-classified exact Forward argument. Both original source scalar projections and
-selected transport lend conjunctive Fresh/anchor constraints to the existing
-whole-domain fold; no class cache, solver or late overwrite. Same inventory,
-soleinitializer/declaration/binding/argumentordinal/rootsRc and caller frame must
-agree. Direct rebind and child UpvarRebind refuse; visited binding/call chain
-prevents cycles. Existing domain test cases now include good/null/forward anchor,
-foreign/scalar/Conflict/nested foreign anchor, and class-seeded unresolved cycle.
-V804a build PASS74.660029s. Focused domain8PASS/1RED; declared scalar/foreign
-negative1PASS; invalid declared incoming propagation1RED. Both REDs stop in
-whole-package borrowed-result/source-not-i64 before pure-domain assertions;
-retain as unresolved own cumulative WIP (not baseline), alongside prefix RED.
-These fixtures contain no Mixed source result; do not relax original invalid
-class/null/Integer boundaries to repair a late whole-package test harness.
-V804b caller/Upvar stability and existing-test extension build next.
-V804b build PASS58.023510s. Existing extended domain conjunction/cycle positives
-and negatives1+1 PASS; declared scalar/foreign1 and original M189 source1 PASS.
-Existing imported mimalloc original-source test issues the full package, then
-fails a later selected-slot unwrap at candidate_veto_tests.rs322 (SizeClassBox.accepts
-membership assertion). Keep as a fourth own cumulative acceptance RED; this is
-not failure to issue the app source package, nor a whole-suite success. Its
-source-declaration vs physically-selected membership expectation needs review.
-CLI152 fresh production firststop measurement build now, no new semantics lane.
+V804–V806 detailed measurements and intermediate build/test repair history are
+preserved at **378ddaafcd** (this path). This compresses preparation history,
+not source acceptance; cumulative implementation remains WIP. Retained contracts:
 
-CLI152 build PASS165.786110s, SHA72ff30ac22645dc39f61d573e66626df5ad8b5ba12a9cfbf2e0a62e1d112c123.
-Unchanged M189 canonical direct EXE .186134s RED/no artifact on C803b/runtime757:
-original class mismatch is gone; Main43 Body2Initializer0 now refuses
-borrowed-nullable-local/mixed/arguments-missing. Source Mixed+anchor agreement
-closed; original Observe→pending actual→whole input projection is next same
-series join. Worker traces exact existing lenders before any readiness change.
-Existing imported-source inventory test now resolves Static contracts through
-SAME original declaration identity (selected Cataloged or original closed-App
-omission), checking unique owner/slot/mode/arity/ordered Parameter bindings.
-All incoming/Rc/checked source assertions and deliberate selectedNone checks
-stay. This is test repair, no production membership expansion. V804c build next.
-
-V804c test-only build PASS63.926549s. Original-source identity lookup succeeds;
-imported mimalloc test advances to uncalled SizeClassBox.accepts checked-static
-marker expectation, not source package failure. Worker checks source observation
-vs executable marker; no checked-input permission will be created for omission.
-V805 selected source responsibility: unify original-target argument projection
-for Owned/Nullable/Mixed. Mixed/Nullable used an Instance-only projector although
-Main's original Observe can stage normal Executable rows. Common object-target
-owner already validates SourceObject and normal actuals; add disjoint retained
-Instance phase delegation after its SourceObject-selection guard, borrowing the
-same context/reconstruction, then make result consumers use that common owner
-once. SourceOnly/Observed lend only ordered observations; whole input/result/
-Home/End stay mandatory. No failed-Instance→Object retry or Err/Unavailable fill.
-The old Instance projector remains shared for other source-specific callers.
-Current stop token alone did not observe the staged phase; the common-phase
-normalization does not depend on assuming that it was Executable. V805a build next.
-
-V805a build RED78.971681s was a module visibility path error; existing lexical
-re-export fixed it. V805b build PASS57.673189s. Focused original Instance source/
-phase/snapshot drift1, common object argument identity9, Nullable source2 and
-original M189 full-facade source1 PASS (13 total; v805b.focused.json). Pointer
-and diff guards PASS. Latest CLI measurement is still CLI152 arguments-missing;
-V805 runtime/EXE acceptance is unmeasured, cumulative source remains unlanded.
-
-CLI153 build PASS143.435434s, SHAca01f564d967cf845f65268b4f7859e256b34e6a4891d392ca78854ae7815fda.
-Unchanged M189 canonical EXE .187285s RED/no artifact on C803b/runtime757:
-SAME Main43 Body2Initializer0 mixed/arguments-missing. V805 is only a common
-projection normalization, not product advancement. Same-stop upstream audit is
-active: Main source → Observe → pending issuance/reconstruction → input and
-Mixed result/End. No source-only draft or executable marker may be fabricated.
-Worker confirmed V805 phase/source checks remain strict. The omitted Static
-accepts test expectation was wrong: original source-draft collection excludes
-omitted selected owners before checked-input issuance. V806 test-only repair
-retains the other three checked markers and explicitly verifies SizeClass.accepts
-selectedNone, same original declaration/contract, no draft/checked marker and
-both original CurrentOwner calls (size_to_bin/huge_bin). Existing incoming/Rc
-and veto assertions remain. Root build running; no acceptance claim yet.
-
-Same-stop worker runtime audit (CLI153, SAME original argv/env and binarySHA):
-Main Mixed common-port query has no pending row and no matching ingress.incoming;
-it exits before callee definitions/lender. Earlier SourceInstance Mixed query
-succeeds through V805, so this is upstream issuer participation, not a projector
-retry. GDB is read-only, no inferior calls; m189-v153-worker.receipt.json/log and
-projector disassembly retain offsets and pins. Existing Observe runs before
-Mixed request; prepareInstance's array/zero/producer/formal-draft selection does
-not select Main's affirmative Mixed loan. ObjectSource requires qualified-Object
-callee seeds. Do not change Mixed to QualifiedObject to bypass that boundary.
-
-Decision (same series): borrow exact original Mixed target/loan as affirmative
-source-only Instance request, shared by Observe and phase-demand checks. Fixed
-callee ordinal and caller support/acquisition must match ReceivedNullable/Mixed;
-reuse original ordered-contract validation, retain SourceInstance identity and
-all-incoming census. Ledger reconstruction still requires class/Completion/Home;
-native input participation must borrow SAME original membership, with existing
-whole-owner finisher, result/conditional End and independent final validation.
-No new phase/solver, empty Main draft, widened executable marker or fake incoming.
-This connection was not implemented at CLI153; V807 construction/evidence below supersedes that stop.
-
-V806 first test-only build RED20.939036s (filter closure reference mismatch),
-fixed mechanically. V806b build PASS62.345138s; original imported mimalloc test
-passes omitted source/marker checks and then RED4.68s at old raw-loop-cache
-expectation. Worker confirms production has moved those affine loans into the
-preissued V2 product before ledger installation; direct source issuer has no
-cache side effect. V806c test repair borrows existing take_at_function_entry_v2,
-checks SAME sourceRc/placement and consumed raw-cache absence, preserves swapped
-CallSlot/outside-loop negatives and asserts second product take refusal. No
-production cache restoration or duplicated positive Recipe construction.
-
-V806c build PASS58.955376s; focused original imported-source test RED4.66s,
-now at old CurrentOwner good_size→size_to_bin transport-absence expectation.
-Omitted marker and preissued Loop product checks passed; no whole-test PASS.
-Remaining source-vs-transport expectations are under same-test worker audit.
-These repairs and cumulative implementation remain unstaged/unaccepted; three
-other own WIP regressions above remain owed. No Cargo/rustc running after build.
-
-Docs-only checkpoint 76a5464bb5 pushed; cumulative source still WIP.
-V806d build PASS63.043628s; worker audit aligns remaining original Static
-incoming assertions with canonical static_incoming_cohort_v1 and matching final
-transport Rc/site/callee/ordered arguments, rather than obsolete target_static
-partition/two-caller count. Missing-actual negative uses that SAME canonical
-cohort; receiverRequired stays a classification positive, while refusal belongs
-to the existing scoped entry-input consumer and selected packet consumer.
-V806e build pending. Before accepting this regression, require actual-missing
-negative specificity / positive scoped entry validation; no source permission
-may be inferred from partition membership. Next production step remains the
-Mixed source request/whole-input connection recorded above.
-
-V806e RED20.295808s: scoped entry helper is private; no production visibility
-was widened. V806f test-only fix uses existing completed StaticOne actual lender
-before/after deletion (positive and missing-actual refusal), plus selected packet
-refusal; no new adapter. Build PASS52.819211s. Focused imported-source test still
-RED4.67s, now old Heap transport-definition absence at candidate_veto_tests.rs581.
-Canonical Static cohort/transport and preissued Loop product checks passed;
-last mutation assertions were not reached. Full test repair remains unaccepted,
-not a production blocker or a green suite. Avoid more speculative expectation
-flips: remaining definition/domain expectations require original full-census and
-current entry/actual proof correspondence. Next selected implementation remains
-original Main Mixed source-request participation, not a new test-cleanup lane.
+- V804 original Mixed seed retains exact loan and recursively classified Forward
+  anchor. Fresh class AND anchor constraints enter the SAME whole-domain fold
+  for SourceInteger/SourceI64/SelectedTransport. Null contributes no class.
+  Soleinitializer/binding/call/argordinal/frame/rootsRc and direct/Upvar-rebind
+  checks stay; cycles, Conflict and foreign/scalar anchors refuse. No late
+  class overwrite, separate solver or Fresh-only permission. Existing extended
+  conjunction/cycle/declared-negative and original M189 source tests passed.
+- CLI152 class stop advanced to Main43 Body2Initializer0 mixed/arguments-missing.
+  V805 unified Nullable/Mixed consumers on original-target argument projection;
+  SourceObject/SourceInstance/Executable phases retain source/snapshot checks,
+  SourceOnly vs Observed and exact Err/Unavailable refusal. No retry or new
+  execution permission. Focused13 passed; CLI153 did not advance that stop.
+- CLI153 worker GDB pinned missing Main pending row and matching transport
+  incoming; an earlier SourceInstance Mixed query succeeded. Its source hashes,
+  binary/FFI/runtime/argv, offsets and no-inferior-call receipt are in that commit.
+  Original Observe ran, but Instance array/zero/producer/formal-draft selection
+  omitted Main's affirmative Mixed request. V807 below addresses that mapping.
+- V806 imported-source regression repair remains unaccepted. Same original
+  omitted Static declaration/parameter identity is checked, no checked-input
+  marker is invented, original CurrentOwner calls stay. Loop raw loans have
+  moved into the preissued V2 product; the test checks SAME rootRc/placement,
+  one product take, missing raw rows, swapped CallSlots and outside-loop refusal.
+  Canonical Static source cohort is compared with complete final transport,
+  including SAME Rc/site/callee/ordered arguments. StaticOne input lender is
+  checked before/after missing-actual mutation, plus selected packet refusal.
+- Latest V806f build passed52.819211s, test RED4.67s at old Heap transport-
+  definition absence; final mutation assertions were not reached. Other own
+  WIP reds remain: full page_heap prefix at unused Layout.normalize_size static
+  input; pure domain and declared-domain fixtures stop in whole-package
+  Instance borrowed-result/source-not-i64 before assertions. None is baseline
+  waived or whole-suite PASS. Do not keep flipping expectations without source
+  census/entry/actual proof correspondence; production frontier stays selected.
 
 V807 construction connects original Main Mixed demand to existing SourceInstance
 Observe/phase checks, fixed support ordinal/acquisition and native input selection.
@@ -927,3 +830,74 @@ Acceptance must cover original M189 plus null receiver Fault/remaining teardown,
 Mixed Forward vs Fresh, foreign roots/class/field, consumed source and missing
 Normal/Fault binding or cleanup. Current source connection is unaccepted WIP;
 first milestone and all full-goal/integration/retirement conditions stay as above.
+
+V808 Decision: same received-result series joins the existing field batch/source
+Rc to a fallible FieldGet Normal I64/Fault operation and original Print cleanup.
+Source authority is original received acquisition/Mixed loan+live chain and
+canonical constructor FieldRef; sole issuer is existing field batch, not ABI.
+No language surface/taxonomy is added. Common Outcome kernel and checked-object
+FieldSet storage-error law apply: unavailable100, object/field mismatch101;
+profile/layout InvalidContract; current store also classifies badslot as101.
+Rust/C source/field/layout verification must reject malformed physical input.
+Existing nonfallible getter/plain provennonnull reads remain shared obligations.
+Runtime read/header/kernel docs+existing read test are first internal slice;
+source descriptor/physical Invoke/final/C connections remain in this same series.
+Do not open C schema before explicit FieldGet dispatch/result load/flow exist:
+its old default emission is release/reclaim and must never receive this operation.
+
+V808 runtime read/header and existing read test built/tested PASS219.049421s
+(build+test, not test-only speed). Same binary explicitly rerun SafeMutex and
+SingleThreadExact: 1test each PASS, zero/min/max Normal; Null/wrongtype/badslot
+Fault101/out unchanged; invalid frame/out/profile InvalidContract; prior Fault
+preserved while remaining Home releases. v808-kernel-profiles.json pins binary.
+Rust FieldGet preparation has I64 Normal/READ+Control/base rewrite and strict
+numeric nonweak field definition verification; physicalkind/JSON/reference
+collection are present, production physical_program acceptance remains CLOSED
+until SAME source/final loan is connected. cargo check PASS45.824913s.
+Root build PASS82.565792s, Invoke module8 tests PASS (the separately run field
+filter overlaps that module). New cases keep Normal-only result, missing Normal
+and Fault-side use rejection, weak/nonnumeric definitions and base remapping.
+C field_get strict5keys/indexed-only result/flow and explicit output-slot/call/
+Normal-load dispatch added, compiled PASS5.994307s (ffi-v808b). ReceivedNullable
+requires original ordinary nullable Call plus exact class+LIVE; Mixed uses depth
+and exact class/Forward anchor. Owned slot/directNull/NewBox/tagged inputs refuse.
+The existing getter/release defaults cannot receive this operation. C execution
+and source/finish/final acceptance still owed; no CLI/runtime advancement claim.
+
+V808 execution preparation: core archive build PASS180.730734s; this is NOT
+an entry archive. Initial link RED (missing main) was the helper's wrong package
+selection, not a compiler/runtime failure. Built nyash_lifecycle_kernel using the
+same compiled core PASS.678645s and pinned the real entry archive at runtime-v808b
+SHA2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c.
+C808b SHA798930caec98497736fc7a1e66b6c3104102be0517f8c2240ddd227805b183bf.
+Borrowed-ingress physical graph initially omitted mandatory Return result_origin;
+the existing negative fixture could not serve as a positive without exact Fresh/
+Null producer/Invoke/Copy coordinates. Fixed the test inputs, not the C schema.
+New received read reaches actual Rust runtime: stored37 readback and Null Fault101
+site100 with remaining Home cleanup pass; six rejections cover extra key, unknown
+field, NewBox base, missing Normal, foreign canonical class, omitted Fault cleanup.
+The remainder exposed old harness expectations: Array peer release must use its
+existing conditional transport, and tagged I64 Return already has its runtime
+kind1 guard. Worker compared identical inputs on803b/808b: both controlFalse RED,
+controlTrue PASS; tagged Return PASS and tagged-arithmetic/null-object RED on both.
+Corrected the common fixture and converted stale tagged Return rejection into
+real runtime execution; no production acceptance was relaxed. Full existing
+script received-field-v808f PASS82.390926s, including all prior runtime/negative
+cases and both producer controls. Shim/archive/input/script before-after hashes
+are identical; test script SHA7cec5a49a04c938d5cf5617b483f45c20ff87c4afc23a6a623c8268a92784cdb.
+Earlier v808d's script hashes drifted during its run, so it is diagnostic only;
+v808e has stable pins but whole script RED at the obsolete Return expectation.
+The fresh v808f run supersedes both, not a partial-output green claim.
+
+Worker source/final mapping retained in this Decision: preserve exact Nullable
+acquisition/ObjectCallSourceLoan or SAME Mixed source loan+all root Rc on the
+existing LocalFieldRead source descriptor; numeric ExpressionFieldSourceLoan
+remains independent and never supplies nonnull. Existing LocalReadProgress must
+retain checked Invoke+Normal pair, exact base/read source and same descriptor.
+Print ordered-bindings must include BOTH rows, otherwise its existing path
+validator misses the getter Fault. Reuse that validator's acquired String then
+prior Home cleanup, not a second field cleanup registry. Same field row owns
+completion/all-read census and FinishedBindings projects both original bindings.
+Plain Array/Bool callers stay plain. Source descriptor/issuer, sole field writer,
+Print/final correspondence and production physical_program acceptance are still
+unconnected/closed; original M189 last authoritative run remains CLI154 RED.
