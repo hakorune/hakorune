@@ -34,10 +34,8 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   copied witnesses, an emptied lowering pool or a convenient fixture.
 - Current connection: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
-- The independent final borrowed consumer exposed unused unanimous formal Phis
-  from the original if-variable merge. Normalize at that producer before Phi
-  allocation/capture, with complete reachable exits and unique dominating
-  original value. Keep the consumer refusal and source Phi preservation rules.
+- Completed if-merge normalization is owned by fb512d0549; preserve its source
+  Phi and independent-consumer boundaries while connecting the result transport.
 - Nullable keeps its own acquired nullable Home law. Mixed preserves Null,
   Fresh and Forward; removing its Normal obligation is not unconditional ownership.
 - Fresh moves only on Normal; Fault retains the caller obligation. Forward
@@ -260,71 +258,13 @@ PASS or a claimed exact-baseline run. The first two stop before JSON; operation
 port inverse SHA proves unchanged operation bodies, not baseline acceptance.
 Retain them with existing borrowed-entry/field/Array obligations; no new lane.
 
-V761 strict whole compiled-entry demand RED318.53s optfalse at
-Heap.realloc/2 bb437,index1: Phi dst51 inputs(bb436,v1),(bb442,v1). This is
-original-formal join, not a Compare, and remains own independent consumer debt.
-Decision: keep consumer refusal; inspect exact Phi issuer, dst users and source
-preserved/liveness loan before changing the producer. FinishedBindings has no
-ValueId-remap permission; do not turn captured Phi into Copy or waive membership.
-V762 diagnostic build PASS63.230271s (not run). V762b adds temporary cfg(test)
-Phi writer tags to the existing diagnostic-only value_origin_callers map and
-failure-only definition users/return_env. Do not enable HAKO_JOINIR_DEBUG: it
-also enables dev behavior, and this test deliberately pins default mode. No
-new flag, source classifier or admission change. The three temporary Phi tag
-writes are owned by this same series, retire_when=exact issuer diagnosed and
-producer mapping verified; remove before landing. Logs are non-authority.
-Reuse the existing actual source test; no new test fn.
-
-V762b build PASS56.754200s; diagnostic RED315.77s at same Heap.realloc join,
-now first row Phi50=(v2,v2), uses=[], return_env=[], tag phi_helpers:insert_phi.
-The old HashSet changes which invariant formal Phi appears first. Runtime caller
-census plus original source (if only, no short circuit) identifies if_form →
-merge_modified_vars → merge_all_vars → merge_variable, not BindingSSA or a loop.
-Do not claim the late dead-Phi prune sequence is diagnosed; it is unnecessary
-for the selected generation fix.
-
-V763 unbuilt BoxShape: update CFG, demand exact distinct two-exit/actual edge
-census and reachability, unique definition and strict dominance, then directly
-bind only identical ORIGINAL values; sanitizer replacements remain in the old
-Phi path. BTreeSet fixes variable order. Shared all-vars merge already owns pins;
-retire the forced pin second writer and its sole changed_vars computation/result.
-Selected producer source shrinks (50 added/125 removed before test changes).
-Builder README is in scope because this generic if merge contract changed.
-Existing raw if test now covers unchanged stable/pin and nontrivial pin Phi;
-one independent new table test covers the previously untested alias safety
-boundaries (wrong exits, extra pred, unreachable, duplicate/non-dominating/self
-definition, sanitizer substitution). No new fixture/app/proof directory.
-Reuse if raw/parity, BindingSSA, source Phi preservation and actual-source tests.
-The three test-only tag writes are physically retired now: issuer mapping is
-confirmed and their diagnostic receipt retained; no dev/debug flag was enabled.
-
-V763 build PASS69.556307s. New alias-safety table + stable/pin/distinct-Phi
-regression PASS; raw if8 PASS/1 RED, parity6 PASS, BindingSSA16 PASS/1 RED,
-source Phi repair4 PASS. Own new raw expectation mismatch: refreshed CFG now
-correctly records the sole surviving predecessor when one branch Returns; old
-helper expected an empty stale predecessor set. Expectation corrected to actual
-non-returning exits, pending rebuild. BindingSSA adapter real_loop_phi... expects
-Unknown but sees Bool, outside this merge path; retain as own cumulative WIP
-type-publication/expectation debt, not a claimed exact-baseline run or waiver.
-V763 actual whole-consumer source test is running on pre-expectation-correction
-binary; no root rebuild until that harness completes.
-
-V763 actual source test PASS1028.59s (both opts, 16MiB stack); the restored
-whole compiled-entry consumer now passes Heap.realloc's original formal uses.
-This discharges the V753/V761 unanimous-Phi operand deficit for this retained
-actual-source test, not the still-unconnected Mixed ABI or app EXE milestone.
-Root binary SHA edd8fd4d746c9abe46fb1dfaf4c3029d63541d4c4ead66c5bffc8c61903cedbc;
-manifest v763.source.json, receipt v763.focused.json. Old pin-only second writer
-and its changed-var census are physically removed; common merge owns every pin.
-
-V764 verification-only correction: the single-Return branch matrix now expects
-its exact remaining physical predecessor after update_cfg. The unrelated
-BindingSSA red was traced to accepted commit 8c8beea27a: provisional Phi stays
-Unknown, successful completion publishes exact incoming types through the
-canonical lifecycle owner. Keep the provisional Unknown and type_hint=None
-assertions; correct completed Bool expectation and stale BindingSSA README.
-No production type owner or permission changed. Rebuild/focused verification
-pending; the V763 actual-source PASS belongs to its own earlier binary.
+The strict whole compiled-entry consumer exposed unanimous formal Phis from the
+original if-variable producer. Diagnosis, safety boundary, temporary diagnostic
+retirement and producer fix are landed at **fb512d0549**, together with exact
+focused36 and both-opts actual-source evidence. Its common merge replaces the
+pin-only second writer; preserved source Phi semantics and final consumer
+refusals remain. Refer to that commit for the completed V761–V764 history.
+The cumulative Mixed/field/Array source WIP is separate and remains unaccepted.
 
 Next implementation mapping (read-only owner review completed): retain outgoing
 field supports on the existing FinalizedObjectReturnOutcome, extending existing
@@ -338,10 +278,245 @@ Return coordinates and substitutes callee formal through each actual for Call,
 relay, field read and complete End. No incoming authority comes from publication;
 outer LIVE ownership does not own Forward children. Wider TypedHome remains closed.
 
-V764 build PASS59.926230s. Focused raw9/parity6/BindingSSA17/repair4 all PASS
-(36 tests, no zero selections). The only post-V763 changes were test/README
-corrections; production normalization is the same as the both-opts actual run.
-The isolated if-merge normalization and pin-writer retirement are independently
-landable; this does not land or accept the unrelated cumulative Mixed/C/Array
-source WIP. A landing commit must carry the implementation and these validation
-conditions. Existing source-preservation, loop Phi and final consumer owners stay.
+V765 construction (unaccepted): existing Handle/Nullable physical roles now
+retain the same complete original Return outcomes. A new owned-projection child
+borrows checked_callable_object_result_v1 and completed catalog/Completion/
+terminal identity; no incoming Call is invented for an uncalled selected body.
+The existing composition loop lends immediate callee→caller support pairs before
+ordinal substitution information is lost; its caller-zero wrapper was removed.
+Received-Birth kind and support projection share one validation nucleus.
+Support rows retain SAME relation/witness Rc, entry, finished Copies and exact
+Call Invoke/Normal plus Fresh outer Birth actual binding. A read-only review
+identified those latter bindings as necessary for independent post-projection
+mutation rejection; they are now retained, not replaced by an origin walk.
+New source-owner README lives beside the owned Return projection rather than
+growing the oversized inherited package README.
+
+V765 initial build RED79.412246s on own missing TerminalRelationV1 import; fixed
+in V765b, build pending. Current JSON/C does not yet consume field support rows;
+new ordinary Return result_origin serialization must be connected to the existing
+C schema/index checker before C acceptance. This is an explicit unfinished
+same-series consumer connection, not an accepted C regression or EXE result.
+All Mixed Birth/Forward residence gates remain closed.
+
+V765b build PASS96.506146s. JSON33 remains30 PASS/3 own cumulative WIP reds
+(the same classified borrowed-declaration, field root-exit and construction
+Fault expectation cases); leaf10/handoff11 PASS. Actual source test running.
+No field support may disappear at JSON: a nonempty retained support census now
+explicitly refuses field-support-transport-unconnected until the complete wire/C
+connection exists (post-V765b source edit, not yet built).
+
+V766 C construction: ordinary Handle/Nullable Return result_origin is now a
+required schema column. Existing object-result index checks exact source-issued
+producer, Invoke/Normal landing, ordered complete Copy chain and final Return,
+then existing class/lease laws; all function Return rows are mandatory. No
+missing-column fallback. C build PASS6.440517s; focused original16 source-issued
+owned-result execution and new missing/foreign/extra-proof negatives running.
+Synthetic physical Copy insertion with unchanged source correspondence is now
+an explicit negative; the existing original received-result fixtures retain the
+positive Copy cases. Read-only review found no coordinate/census admission hole.
+Mixed/Forward and nonempty source field-support wire transport remain closed.
+
+V766 original owned-result C execution PASS126.785509s: all16 source-issued
+typed/opaque, Direct/Received, Handle/Nullable and both-opts fixtures, every
+selected allocation/cleanup Fault, existing role/class/lease negatives and new
+missing/foreign/extra original-correspondence negatives. FFI SHA
+b8abd0f9541f5652fdef889b38aa2c9a563463b819fe1c65942895e4706d8691;
+runtime757 reused (6897c4dc...). This accepts the bounded ordinary Return
+correspondence C connection only, not Mixed/Forward/field-support transport.
+
+V766 fresh fieldReturn6 PASS36.813159s and storedChild96 PASS16.122369s
+(including original negatives/Faults); source reissued by V765b existing tests,
+field2/stored2 all PASS. These are bounded regression evidence, not app EXE.
+
+V767 BoxShape construction: current internal ordinary Handle/Nullable Call
+signatures carry outcome beside payload; all caller slots and arguments join
+that same signature. Only original InvokeNormalResult reads/guards Null0/Fresh1.
+Return uses the same mandatory result_origin (Null/Fresh/OwnedCall companion).
+Existing original Copy-root projection lends that companion to Birth actuals,
+Provided stores and nullable cleanup; ordinary borrowed formals, receivers,
+field borrows and Arrays gain no fabricated outcome. External/root/runtime ABI,
+scalar/Unit/Map, source admission and Forward2 refusal remain unchanged.
+V767b C build PASS6.537870s (V767 first build6.480848s superseded before tests).
+Owned16/Provided3/Unit7 execution pending. Rust post-V765b changes also add the
+independent retained-wrapper inner Call/Birth/formal mutation cases and explicit
+nonempty-support JSON refusal; rebuild is queued after V765b test binary users
+finish. Do not overwrite that still-running binary.
+
+V765b actual-source test PASS1073.67s, both opts, 16MiB stack. The restored
+independent compiled-entry consumer and new owned Return/field-support source
+retention both pass; binary14ac9cc1163b617525b0b3620927a1bd3a415fd6776f94af3bb8838dd15705db.
+Its retained-role model precedes the post-build JSON refusal/test-only mutation
+additions. V768 rebuild now covers those additions. Do not merge these manifests.
+
+V767b Owned16/all selected Faults and original-correspondence negatives
+PASS127.886835s; Provided3 + nullable-wire/Fault/mutations PASS28.053694s;
+Unit7/Fault/mutations PASS47.261806s. FFI SHA
+453e5de585accec3a49583339de31f45af3707945ae024b0f3d11f1a8f71f50c;
+runtime757 reused. Field/stored regressions still running. These preserve the
+closed Null/Fresh cohort; source Mixed/Forward and field-support transport owed.
+
+
+V768 build PASS64.169731s; focused raw9/parity6/BindingSSA17/repair4 PASS.
+Actual source/strict whole-consumer test PASS1040.24s, both opts, 16MiB stack,
+including retained uncalled-wrapper inner Call, outer Birth and formal mutation
+refusal. Nonempty source field-support JSON still refuses explicitly.
+
+V767b fieldReturn6 PASS34.933173s, storedChild96 PASS16.073704s.
+Read-only audit found an own regression: Array/script-arguments conditional
+release entered the new object-outcome helper. V767c restores their existing
+separate indexed Array release arm. Exact same backend inputs: V766 accepts,
+V767b refuses module-write, V767c accepts (both Array and script arguments).
+No new Array outcome or retry. V767c build PASS6.531686s, FFI SHA
+7bdbd3974b49ea84414efde5f7536fd39a24a142f28f7462ac9288b4674f00b1.
+Provided3/Fault/mutations PASS25.923082s; existing argv4 source cases plus two
+explicit physical-only Array peer probes PASS23.752541s. Initial probe harness
+RED25.977710s was own temporary-directory indentation error, corrected before
+that PASS. These physical mutations do not claim new Rust source admission.
+
+V769 unaccepted BoxShape: normalize retained field support to one physical
+dependency group containing ALL ordered original witness loans. Same relation
+issuer, outer formal/ordinal, entry, Copies, Invoke/Normal, inner callee ordinal
+and optional Birth must agree; only adjacent relay rows merge. Original source
+census flattens all loans, never just representatives. The existing actual
+wrapper case demands one dependency retaining its two distinct witnesses.
+Read-only responsibility review agrees: C must verify complete physical Return
+law, formal substitution and field/read/End anchors; it does not need a second
+Rust witness-lineage registry. Existing source authority and all closed Mixed/
+Forward/field-transport gates remain. Build/focused validation pending.
+
+V769 build PASS68.142233s; read-only review found no source-order/identity or
+callsite type mismatch. The existing both-opts actual test is running with the
+one-group/two-witness assertion. No source gate has opened.
+V770 separate BoxShape centralizes existing structural ordinary-result/callee-
+role mapping for schema and indexed flow; Handle/Nullable result predicates move
+from emitter-only scope to the same early transport owner. Unknown results
+explicitly refuse; source/class/lease/conditional End permissions are unchanged.
+C build PASS6.536299s; original owned16/Unit7/argv4+Array-peer regressions running.
+
+V770 owned16/Fault/original-correspondence negatives PASS131.908847s;
+Unit7/Fault/mutations PASS47.875639s; argv4/Array-peer PASS27.984978s.
+FFI09ce7b9ed12118229263f556a324cafebbd0db2d4c18fa86b78c0a8ca80800bc;
+runtime757 unchanged. Read-only review confirms null-safe unknown refusal,
+correct include order and no old predicate callers. No source admission changed.
+BorrowedNullable is a distinct required non-owning consumer responsibility; its
+real current positive is the unchanged resizeInPlace eight-Return projection.
+The similarly named lexical nullable test is owned Null/Fresh, not that proof.
+Do not turn extracted/rewritten app JSON into source-positive evidence. Full
+app C acceptance still needs the same Mixed, field dependency and End connection.
+
+V771 unaccepted consumer construction: existing result-coordinate owner now
+shares the exact complete ordered Copy-chain checker between owned Returns and
+the fixed-formal borrowed Return law. The new borrowed child checks logical
+params[ordinal], exact nullable-source Null producer or SAME formal, all source-
+issued Copies and final Return. Every Return participates; Fresh/another formal/
+Call inference is refused for this source cohort (resizeInPlace seven Null,
+one formal). Build PASS6.507162s; owned16 regression running. Worker review found
+no correspondence/census issue. C function/call ingress and Rust JSON remain
+closed until dedicated non-owning result kind, original actual anchor, entry
+tag/domain guard, Normal-only0/2 output and no-Home flow all connect. This is
+construction inside the same required series, not Borrowed C acceptance.
+
+V771 owned16/all selected Faults/original-correspondence negatives
+PASS125.699372s, FFI15837b92e72fb3e4edbd0abe55f7bf1603d124677c08e89644117e0c6bd0cc7c.
+V772–774 unaccepted borrowed consumer construction: dedicated non-owning kind,
+exact Call fixed ordinal→actual→original Copy-root anchor, Normal/Copy/null
+comparison readability, no LIVE result slot, all other Homes ended on Return.
+Worker caught a missing independent Normal execution proof after removing LIVE:
+require SAME Invoke Normal edge and exactly one Normal predecessor (fixed).
+Output carries exactly Null0/Forward2 on Normal only; original fixed-formal
+Return guards tag/payload before output and entry guards0/3 before effects.
+Known object_view retains the existing class guard; unknown class grants none.
+Current source law remains Null/formal only, not a new borrowed Call relay cohort.
+V772 build PASS7.249559s; V773 PASS6.613938s; V774 PASS6.532727s. Latest original
+owned16 regression running. Function/Call schema, parameter profile and Rust
+JSON admission still closed: connect required ordinal transport, source-issued
+positive and independent anchor/Normal/ownership negatives before opening.
+C owner contract moved from the near-limit shims README to published_mir/README;
+parent retains its link. No new phase/card/registry or product acceptance.
+
+V769 actual-source test PASS1074.29s, both opts,16MiB stack: one physical group
+retains both original Forward witnesses, strict compiled-entry and retained-
+wrapper independent Call/Birth/formal mutation refusals all pass. Its source
+manifest predates V770+ C work and V775+ wire edits; keep identities separate.
+V774 owned16/Fault/correspondence regressions PASS126.181510s,
+FFI1371236715738f6c8eed8237b5f423d00a97d455d98abd8c8cf77b9fcf50dbf2.
+
+V775–776 unaccepted connection now adds borrowed-only required8-key function
+and4-key Call schemas, fixed logical ordinal range/carrier and exact callee
+agreement; native refuses this object cohort. Rust JSON emits the same ordinal
+and corroborates exact callee result law. Mixed/completeEnd/nonempty field
+transport remain explicitly refused. C775 build PASS6.597810s; static borrowed
+caller classification subsequently aligned with its admitted nullable profile.
+Worker found an omitted outer Rust operation match arm before build; added the
+same Borrowed result to the existing ordinary Call encoder arm.
+A new independent source/C boundary test emits original tiny object/null and
+both-opts forward-formal programs through the existing canonical harness; no
+app source or emitted JSON is repaired. The existing C call-result test owner
+adds a borrowed mode with exact original Home counts, allocation/cleanup Faults,
+mandatory ordinal/Return mutations and borrowed-release refusal. New test function
+is justified by the previously untested non-owning final C boundary, rather than
+another owned-nullable proof. V776 source/FFI build and new positives are pending;
+this code is construction, not accepted Borrowed transport or full app progress.
+
+V776 root build PASS64.025555s, FFI PASS6.573929s. New tiny source test
+RED0.03s at artifact-source-unavailable/TerminalHomesUnavailable: direct Root
+reception from an owned local is outside the proven formal-entry cohort. Own
+unaccepted fixture boundary, not baseline and not app success. Worker confirmed
+using observe(p:Item):i64 to call forward(p), null-test locally, return scalar
+aligns the actual realloc→resizeInPlace formal-entry responsibility without
+widening outgoing TypedHome or escaping the borrowed result. Main still owns
+its Item across observe. V777 makes that explicit fixture scope; no compiler
+source authority is widened to force the fixture through. Earlier direct Root
+Borrowed reception remains unproved. Existing C test uses the same source-issued
+observe body for ownership-negative mutation; full app/Mixed/field claims stay
+separate. V777 build/positive/C execution pending.
+
+V777 build PASS40.472160s; tiny formal-entry positive still RED0.03s at the same
+root TerminalHomesUnavailable. Stop speculative fixture changes; read-only
+source-owner audit identifies exact root pending-return versus all-exits-ready
+branch. This token describes root observation, not necessarily the observe body.
+JSON33 remains30 PASS/3 own cumulative WIP reds: borrowed declaration missing
+retained Call, field root-exit phase, Array construction-Fault expected releases.
+Existing borrowed_local_call_results_publish_grounded_chain_in_both_orders also
+RED0.02s at root-exit-source-missing, before JSON. Classify as own unresolved
+cumulative source WIP; no exact-baseline claim and no transport module PASS.
+The new tiny boundary/C borrowed mode is owned by this same series, not a new
+app/proof task. Retain while its exact source responsibility is diagnosed;
+retire or consolidate if the original full-app canonical C execution supplies
+all the same non-owning boundaries. Never keep it as an accepted substitute for
+the original eight-Return/app or full Mixed field/End connection.
+C776 original owned16 regression is running against the completed schema build;
+new Borrowed runtime positives/negatives cannot run until source publication
+succeeds. Latest app measurement remains CLI138 rc1/no EXE. No product stop
+movement or Borrowed execution success is implied by the source/C builds.
+
+C776 original owned16/all selected allocation+cleanup Faults/correspondence
+negatives PASS116.384666s, FFI
+ff9816b7e033a6076f6e5cbb3878e79f43bc5679a098752a490bcdf8930cf576,
+runtime757 unchanged. Script SHA74d2aaec... includes the then-unrun borrowed
+mode; its owned branch is unchanged. Do not call that borrowed execution.
+
+Decision after bounded read-only V777 diagnosis: root owner(1,4) pending object
+Return=0, all_exits_ready=0, exact source error ReturnValueNotCovered([Body(2)]),
+`return recv.observe(item)`. Same before and after finishing/artifact recheck.
+This is a distinct root scalar-call Return boundary, not borrowed0/2 C failure.
+Retire ONLY the newly introduced unaccepted tiny fixture/test module and its
+unused C borrowed mode now; do not create a Root repair lane or another fixture
+workaround. Existing historical tests and original8/app tests remain intact.
+Scratch source/C mode retained under this series owner as
+v775-unaccepted-borrowed-microfixture.rs and its -c-mode.py companion;
+reason=preserve exact failed
+experiment for the already-owed Root/fixed-suite analysis, retire_when=that
+source boundary is reconciled or its exact input is retained by its real owner.
+These are failed construction evidence, never acceptance receipts. Source8 and
+unchanged full app remain the source authority for completing borrowed/Mixed/
+field/complete-End transport together. No optional microprobe is a new prerequisite.
+Next: wire the same grouped field dependencies and Mixed conditional result
+through JSON/indexed C substitution/read/End, then canonical unchanged app EXE.
+No fallback, Root workaround, incoming permission from publication or new witness
+registry. Current source/C WIP remains unlanded; root test binary V777 still
+contains the retired unaccepted test, so future filtered evidence must name its
+exact manifest. Production Rust wire code is built, but no new Borrowed C
+positive or app success has been established. Only test removal/comment/owner-doc
+changes follow V777/C776; no source-admission implementation changed afterward.
