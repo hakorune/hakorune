@@ -940,15 +940,61 @@ Use existing stored receiver/source requirement/Print final tests for Local-New
 positive and root/field/child/site/caller/Rc/physical mutations, then unchanged
 M189 direct EXE. No new registry, source rescan or alias/nullable/Array expansion.
 
-CLI161 PASS181.684379s, binary9f5cd49f7e367b8c6b3c6f3aa00b9c9560789e23834f5db8610fc668d5929de3.
-V814f root/CLI/current source manifests match exactly. SAME C808b/runtime808b:
-unchanged M189705a535c direct EXE RED38.057226s/no artifact. GDB recheck uses SAME
-argv/env/16MiB and unchanged binary: Body12 passes, first stop remains Body13.
-Existing 2-level Print test's temporary counterpart, Leaf.n=7 and
-Parent.child=Leaf, canonical direct EXE PASS106.680258s; actual run PASS.001525s,
-stdout EXACT `n=7\nResult: 0\n`, exit0. Three functions/49 blocks/15 values pass
-V2/V4/C classification/flow/emission. EXE SHA
-b346822575c9180b7ed5b32c3d9ebc24d8d7823b7c32d6f85c8c7a4c036f277b.
-This tiny feature proof is not M189 or full-goal acceptance. Measurement overlaps
-M189; no speed comparison. Keep temporary source/EXE/receipts until source landing;
-required conditions/results are recorded here, not accepted solely by /tmp pins.
+CLI161/GDB and tiny feature EXE measurements are preserved at **b7b3e71a74**
+(this path; docs checkpoint, not source landing). Current production baseline:
+unchanged M189 direct EXE RED38.057226s/no artifact, Body12 passes/Body13 stops.
+Two-level Print counterpart direct EXE/run/exact `n=7\nResult: 0\n` PASS.
+This is not M189/full-goal acceptance. Retain temporary source/EXE/receipts until
+source landing; baseline C808b/runtime808b and command pins remain in that commit.
+
+V815 construction follows the recorded Local-New stored-call Decision. Scope:
+common passive candidate source loan; existing source/incoming/target parent
+checks; SAME selected incoming final lender; physical parent Copy dependencies;
+existing stored receiver/source/final tests and this owner README. No C/runtime
+or .hako changes. Candidate loan keeps exact acquisition/binding/declaration,
+parser source and canonical object, never construction/liveness permission.
+ExpressionFieldRoot::New uses that same loan; its duplicate source join is removed.
+StoredReceiver keeps Ordinary/Constructor origin and one optional (caller slot,
+root loan), encapsulated at the existing source owner. Constructor+Some rejects;
+Ordinary+None still owes Me; Ordinary+Some owes exact original Local/sole init/
+non-rebind/class/slot. The sole claim→commit lender now lends declaration too,
+without relaxing the executable actual wrapper's construction gate.
+Canonical stored field/child/residence, original callee ScalarReturnSource,
+Pending→Selected incoming Rc, arguments and physical Invoke/Normal/Fault remain.
+Final packet materialization always requires ledger for stored receivers, checks
+selected original incoming and reborrows root even for zero-input scalar calls;
+its parent read also contributes original Copy dependencies to final consumers.
+Independent source and final Local-New positives/substitution negatives are added
+inside existing owners. Required Me/constructor/nested-field regressions and
+unchanged M189 Body13 measurement remain owed; no new acceptance claimed.
+
+V815 root build PASS104.714949s. Focused Local-New source/final tests select2,
+RED2 before final consumer at stored-child/result-source-missing; this is an
+unaccepted new connection, not a product regression claim. Worker review also
+found borrowed transport projection cannot prove zero-input original identity.
+Final lender now uses existing OriginalFormalSeedProduct corroboration of all
+raw incoming, then exact selected Stored source; no new census/snapshot.
+V815a build/verification is pending; scalar return source connection is under
+read-only review. M189 Body13 advancement and current source acceptance remain
+unproven. Source WIP stays unlanded.
+
+Worker/root diagnosis: callee scalar source was already present. The old stored
+terminal trigger treated any caller-side Stored call as a caller scalar Return.
+Select that obligation by exact original direct Return membership in the SAME
+resolved input; Print/local operands keep their own consumers. Do not select by
+proof availability or Completion success. Stored local-return forwarding remains
+outside the existing direct-only contract. Adapt the existing object-arguments
+port test to lend its real input; no new test owner. V815a build PASS57.948981s,
+regressions34 PASS/Local-New2 RED at that gate. V815b compile RED: one test caller
+needed the changed input signature; repaired in V815c, verification pending.
+
+V815c source/root identity PASS; independent final mutation exposed an omitted
+stored receiver read in Print ordering/final visitor. V815d Local-New2 PASS.
+Normalize producer order in SAME packet: receiver before nested argument calls,
+Invoke/Normal after. Reuse finished local/terminal producer lookup for the read
+and include its coordinate in the existing uniqueness set. Worker confirms.
+V815f root PASS57.166812s; unique focused50 PASS including original source,
+eight final mutations, Stored/foreign actual/Nullable/terminal and prior34 cases.
+Compile signature/visibility errors repaired; zero-result filters rejected and
+rerun with actual test names. CLI162/source manifest matches V815f; CLI build
+pending. No M189 advancement, source landing or whole-series acceptance yet.

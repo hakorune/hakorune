@@ -37,9 +37,9 @@ CLI154 unchanged M189 now passes Main argument generation and package issuance;
 first stop is callable-main/lowering print-expression/source-unavailable.
 V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS; V813
 current packet received-read focused13 PASS, spent-vector helper removed.
-V814b focused14 PASS, full Print RED at deeper provider gate. CLI161/GDB unchanged
-M189 Body12 nested field Print passes; Body13 heap.small_page.freeCount() has no
-stored-call source. V814f source/final34 PASS; typed input/runtime/End remain owed.
+CLI161/GDB unchanged M189 Body12 nested field Print passes; Body13 stored scalar
+call is next. V815f source/final focused50 PASS: original Local-New loan, raw
+incoming, receiver read/Copy and exact Return trigger; CLI162 measurement owed.
 V806 source-observation test repairs are unaccepted: omitted Static identity and
 no checked marker, consumed Loop loans checked in preissued V2 product. Latest
 focused test passes Static/Loop checks, then stale Heap definition absence RED.
