@@ -40,7 +40,7 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   CLI162 unchanged M189 now passes canonical direct EXE/run/exact proof output;
   V815f source/final50 PASS connects original Local-New stored scalar calls.
   V814 deeper-provider and typed Nullable/full M190 conditions remain owed.
-  Current separate BoxShape removes quadratic C physical block lookup; preserve
+  Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
   Cumulative source WIP remains unlanded; this is not full-goal completion.
 - Current series: received Mixed result → exact returned-New argument and
@@ -921,14 +921,14 @@ Typed Nullable full input remains separately owed; later full-test cases were
 unreached, not waived. Latest unchanged source and tiny EXE pins follow below.
 No cumulative source landing, whole-row/goal or CI acceptance is claimed.
 
-Next production Decision (worker full source→final audit): connect original
+V815 production Decision (implemented WIP; worker full source→final audit): connect original
 Local-New parent authority to the existing stored-call owner for M189 Body13.
 Issue opaque root loan from SAME local candidate: caller/slot, sole original
 initializer/New site, binding/declaration, parser box-source anchor and canonical
 object; reject rebinding and same-class foreign acquisitions. Share its source
 lender with ExpressionFieldRootSource::New, retiring duplicate New recheck.
 Stored source issuance, incoming corroborate_stored_dispatch and target
-matches_receiver currently use Me-only checks; make those structural checks
+matches_receiver used Me-only checks; make those structural checks
 follow the SAME root obligation. Retain existing Me entry/Constructor callers.
 Reuse one incoming census, PendingStored→SelectedStored Rc, ordered arguments,
 canonical field/child/residence inventory, exact parent read/sole FieldGet and
@@ -940,12 +940,8 @@ Use existing stored receiver/source requirement/Print final tests for Local-New
 positive and root/field/child/site/caller/Rc/physical mutations, then unchanged
 M189 direct EXE. No new registry, source rescan or alias/nullable/Array expansion.
 
-CLI161/GDB and tiny feature EXE measurements are preserved at **b7b3e71a74**
-(this path; docs checkpoint, not source landing). Current production baseline:
-unchanged M189 direct EXE RED38.057226s/no artifact, Body12 passes/Body13 stops.
-Two-level Print counterpart direct EXE/run/exact `n=7\nResult: 0\n` PASS.
-This is not M189/full-goal acceptance. Retain temporary source/EXE/receipts until
-source landing; baseline C808b/runtime808b and command pins remain in that commit.
+CLI161/GDB and tiny feature EXE baseline history is preserved at **b7b3e71a74**
+(this path). Retain original artifacts until cumulative source landing.
 
 V815 construction, worker reviews and classified failed checks are preserved at
 **3dc8b62621** (this path; docs checkpoint, cumulative source remains unlanded).
@@ -962,36 +958,42 @@ Continuing Local-New stored-call contract:
   visitor uses existing local/terminal producer map and unique coordinates.
 - Stored caller-scalar terminal demand selects exact source Return membership,
   never proof/Completion success. Missing/foreign body shape fails fast.
-V815f root PASS57.166812s; unique focused50 PASS including source identity,
-eight final physical mutations, Stored/foreign actual/Nullable/terminal and prior
-nested-field/Copy regressions. CLI162 SAME source manifest/build PASS191.830966s,
-binary3c6e8713863282ea5d7b1014bd4dc3bf02abd16706714aa4b9db8cad63c4c096.
-Unchanged M189705a535c canonical direct EXE PASS620.850689s with SAME C808b/
-runtime808b. Actual run PASS.001171s, exit0 and EXACT existing eight proof lines
-plus `Result: 0` trailer; EXE c7acca5d463104bfaa0c7d0067ac72b6b1d05edee4a1c1ccb695e480d98617b8.
-The plugin-disabled runtime warning is harness noise under the existing README.
-Body13 is passed; V2/V4/C compilation covers29 functions/2346 blocks/3016 rows.
-V2 validation181.451622s, V4 admission2.765701s; total includes failed GDB attach
-and 5-second perf sampling, so no raw-speed comparison. Perf245 samples/lost0:
-98.37% self in physical block lookup. Keep original EXE/receipts/profiles until
-source landing; result/conditions are recorded here, not accepted solely by /tmp.
-M190/full required cohort and source landing/retirement remain unaccepted.
+V815f focused50, CLI162/source pins and original M189 EXE/run/output proof are
+preserved at **c3003843fd** (this path); cumulative source remains unlanded.
+M189 passes29 functions/2346 blocks/3016 rows. Typed Nullable/deeper provider/
+full M190/fixedsuite/retirement remain owed; this is not whole-row acceptance.
 
-Separate BoxShape Decision: existing C physical block lookup repeatedly uses
-indexed access into variable-length JSON objects, making one lookup quadratic.
-Worker verified vendored yyjson: iterator preserves original order/first match,
-malformed ID skip and NULL while scanning linearly. Change only this loop in
-physical_v2; keep dominance/duplicate-ID/source/ABI/error laws unchanged. No new
-index/context/cache. Scope: that helper + owner README; existing physical parser
-positive/negative, stored-child/Fault/native Array regressions; then measured
-old/new FFI on SAME captured input before broader optimization is considered.
+Separate iterator BoxShape landed at **c3003843fd**. Same JSON/order/first match/
+malformed-ID/NULL and validation laws; HEAD-isolated baseline/candidate gate PASS.
+FFI816 build PASS6.147930s; exact code delta from808b is ONLY that lookup loop.
+Original Stored96 old/new validator outcomes match; new FFI passes Stored96
+compile/mutations/Normal+Fault and owned Array Get/append/End/Fault regressions.
+Inherited parser fixture lacked mandatory field_set numeric-check wire: add only
+`{kind: none}`. Both808b/816 full parser tests now PASS; keep this test repair
+with cumulative C wire changes, not the independently landed iterator.
+CLI162/C816 unchanged M189 EXE PASS459.606740s/run.001286s, exit0/exact prior output.
+EXE40160964c28341c51328a0bf0241fec956c36666d21ddefd06d2195e4109ff40;
+original wire32acafd8a48767258a53741ae16ad4d540c7c997eaf1423f17ccec61c478a4bf.
+SAME bytes, sequential direct V2 validation/no debugger:808b PASS180.644469s,
+816 PASS20.985720s, both rc0/no diagnostic. This proves only validator speed;
+original full run had debugger/profile attempts, so no raw-total speed claim.
+Retain original wire/EXEs/receipts until source landing; CLI Rust unchanged/FFI816.
 
-V816 iterator FFI build PASS6.147930s. SAME original Stored96 JSON all accepted
-by old/new validators with identical outcomes. New FFI passes existing Stored96
-compile/mutation/Normal+Fault and owned Array Get/append/End/Fault regressions.
-Current cumulative C parser preartifact test RED in BOTH808b/816: valid field_set
-fixture omits required exact_numeric_runtime_check; iterator unrelated. Isolated HEAD
-baseline AND iterator-only candidate each build/preartifact positive+negative
-PASS. This independently landable BoxShape has no cumulative source dependency.
-CLI162+new FFI M189 is running; retain original wire capture for direct old/new
-parser timing. Whole command speed comparison remains unproven.
+Current stop: required-object-forward/nullable-local-source-input.
+CLI162/C816 unchanged M190598e0edb direct EXE RED.281593s/no artifact.
+Worker exact GDB: caller34 allocateResult Body1/Initializer0 is original
+`local handle = me.allocate(size)`, callee33 HakoAllocHeap.allocate/1. Original
+incoming/one argument already lends; I64ResultArguments then demands scalar proof.
+Its rejection of Nullable without direct New (stored forwards+null) is correct.
+Next bounded Decision reuses 0bc1ccb9dd's OriginalLocalCallSource input obligation:
+join exact LOCAL call/Nullable result law to existing incoming/actuals and
+SourceInstance protocol, then same completed input/packet final recheck. No new
+scan/scalar relaxation/claim-local producer widening for self receivers. Preserve
+original target/roots/signature/Completion/actual identity.
+Separate owed 3-level provider mapping uses existing OwnedFieldChildV1 and
+emit_discharge/field_discharge_chain in Array-only provider/Unit/emission/store-
+Fault consumers. Provided handle paths separately owe wrapper support/outcome and
+caller substitution source; provider gate alone cannot close M190.
+
+CI readback: latest branch run remains historical portability failure35681768498
+at d4168473d5b (2026-09-22); no current source/iterator CI acceptance is claimed.

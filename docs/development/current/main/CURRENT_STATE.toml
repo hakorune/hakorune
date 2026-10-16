@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/reached-runtime-main-ingress"
+current_blocker_token = "required-object-forward/nullable-local-source-input"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -37,9 +37,10 @@ CLI154 unchanged M189 now passes Main argument generation and package issuance;
 first stop is callable-main/lowering print-expression/source-unavailable.
 V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS; V813
 current packet received-read focused13 PASS, spent-vector helper removed.
-V815f source/final focused50 PASS: original Local-New loan/raw incoming/read/Copy.
-CLI162 unchanged M189 direct EXE/run/exact proof+trailer PASS; Body13 passed.
-C physical block lookup iterator/HEAD-isolated gate PASS; fresh M189 measurement pending.
+V815f source/final50 PASS. CLI162 unchanged M189 direct EXE/run/exact output PASS.
+C816 M189 repeats PASS; same-wire V2 validation180.644469s→20.985720s, iterator
+c3003843fd. M190 now stops on original Nullable LOCAL input selection (scalar
+source-not-i64); existing incoming/actuals are present. Cumulative source unlanded.
 V806 source-observation test repairs are unaccepted: omitted Static identity and
 no checked marker, consumed Loop loans checked in preissued V2 product. Latest
 focused test passes Static/Loop checks, then stale Heap definition absence RED.
