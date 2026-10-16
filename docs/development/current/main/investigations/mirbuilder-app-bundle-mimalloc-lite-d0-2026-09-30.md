@@ -845,49 +845,19 @@ source descriptor/physical Invoke/final/C connections remain in this same series
 Do not open C schema before explicit FieldGet dispatch/result load/flow exist:
 its old default emission is release/reclaim and must never receive this operation.
 
-V808 runtime read/header and existing read test built/tested PASS219.049421s
-(build+test, not test-only speed). Same binary explicitly rerun SafeMutex and
-SingleThreadExact: 1test each PASS, zero/min/max Normal; Null/wrongtype/badslot
-Fault101/out unchanged; invalid frame/out/profile InvalidContract; prior Fault
-preserved while remaining Home releases. v808-kernel-profiles.json pins binary.
-Rust FieldGet preparation has I64 Normal/READ+Control/base rewrite and strict
-numeric nonweak field definition verification; physicalkind/JSON/reference
-collection are present, production physical_program acceptance remains CLOSED
-until SAME source/final loan is connected. cargo check PASS45.824913s.
-Root build PASS82.565792s, Invoke module8 tests PASS (the separately run field
-filter overlaps that module). New cases keep Normal-only result, missing Normal
-and Fault-side use rejection, weak/nonnumeric definitions and base remapping.
-C field_get strict5keys/indexed-only result/flow and explicit output-slot/call/
-Normal-load dispatch added, compiled PASS5.994307s (ffi-v808b). ReceivedNullable
-requires original ordinary nullable Call plus exact class+LIVE; Mixed uses depth
-and exact class/Forward anchor. Owned slot/directNull/NewBox/tagged inputs refuse.
-The existing getter/release defaults cannot receive this operation. C execution
-and source/finish/final acceptance still owed; no CLI/runtime advancement claim.
-
-V808 execution preparation: core archive build PASS180.730734s; this is NOT
-an entry archive. Initial link RED (missing main) was the helper's wrong package
-selection, not a compiler/runtime failure. Built nyash_lifecycle_kernel using the
-same compiled core PASS.678645s and pinned the real entry archive at runtime-v808b
-SHA2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c.
-C808b SHA798930caec98497736fc7a1e66b6c3104102be0517f8c2240ddd227805b183bf.
-Borrowed-ingress physical graph initially omitted mandatory Return result_origin;
-the existing negative fixture could not serve as a positive without exact Fresh/
-Null producer/Invoke/Copy coordinates. Fixed the test inputs, not the C schema.
-New received read reaches actual Rust runtime: stored37 readback and Null Fault101
-site100 with remaining Home cleanup pass; six rejections cover extra key, unknown
-field, NewBox base, missing Normal, foreign canonical class, omitted Fault cleanup.
-The remainder exposed old harness expectations: Array peer release must use its
-existing conditional transport, and tagged I64 Return already has its runtime
-kind1 guard. Worker compared identical inputs on803b/808b: both controlFalse RED,
-controlTrue PASS; tagged Return PASS and tagged-arithmetic/null-object RED on both.
-Corrected the common fixture and converted stale tagged Return rejection into
-real runtime execution; no production acceptance was relaxed. Full existing
-script received-field-v808f PASS82.390926s, including all prior runtime/negative
-cases and both producer controls. Shim/archive/input/script before-after hashes
-are identical; test script SHA7cec5a49a04c938d5cf5617b483f45c20ff87c4afc23a6a623c8268a92784cdb.
-Earlier v808d's script hashes drifted during its run, so it is diagnostic only;
-v808e has stable pins but whole script RED at the obsolete Return expectation.
-The fresh v808f run supersedes both, not a partial-output green claim.
+V808 detailed runtime/Invoke/C construction and failed helper/harness diagnosis
+are preserved at **57b9a13331** (this path), without source acceptance. Retained
+premises: kernel read test PASS SafeMutex+SingleThreadExact; root Invoke module8
+PASS; FFI808b build PASS; physical borrowed-ingress full script v808f PASS82.390926s
+with stored37 readback, Null Fault101/site100 and remaining Home cleanup, six
+field/result/cleanup refusals and all prior runtime/mutation cases. Stable pins:
+C808b SHA798930caec98497736fc7a1e66b6c3104102be0517f8c2240ddd227805b183bf,
+entry runtime808b SHA2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c.
+Keep these archives/FFI/receipts while source series remains unlanded; the core-only
+archive is not an entry archive. Physical cases never establish source cutover.
+Old harness Return origins/Array peer transport/legitimate guarded tagged Return
+were corrected without relaxing production checks. Diagnostic v808d has source
+hash drift; final v808f stable run supersedes it. Source/final obligations remain.
 
 Worker source/final mapping retained in this Decision: preserve exact Nullable
 acquisition/ObjectCallSourceLoan or SAME Mixed source loan+all root Rc on the
@@ -901,3 +871,71 @@ completion/all-read census and FinishedBindings projects both original bindings.
 Plain Array/Bool callers stay plain. Source descriptor/issuer, sole field writer,
 Print/final correspondence and production physical_program acceptance are still
 unconnected/closed; original M189 last authoritative run remains CLI154 RED.
+
+V809 construction (same series, not acceptance): original unguarded received
+Nullable/Mixed field requests now retain acquisition or SAME Mixed loan/current
+live support chain. Existing field batch borrows original target/initializer,
+ObjectCallSourceLoan or all Mixed roots and canonical scalar declaration; the
+numeric whole-expression loan remains conjunctive. Existing field row keeps the
+same descriptor, ExactLexicalRead/Copy loan and checked Invoke+Normal pair.
+Print uses the sole exact field writer with its existing String/Home cleanup,
+ordered operation check and same affine field census. Before/after finishing
+use the sole binding projection; after affine move a Finalized-context lender
+borrows current retained Call packets and independently checks both bindings,
+all checked reads and enclosing prefix/Fault graph. Physical projection accepts
+FieldGet only from that lender, not its opcode. Native/unguarded Alias/Array and
+non-Print source adapters remain outside this bounded scalar Print connection.
+Initial check RED40.605659s (three import paths), fixed; root build108.327153s
+PASS, existing Print1/field-batch2/original M189 source1 PASS. V809b adds source
+Nullable Normal/Null publication cases to that same Print test, build running.
+Worker reviewed original source/root Rc, current packet/value, exact read/Copy,
+Print Normal/Fault and source census: no confirmed authority widening. Finalized
+lender and mutation/runtime verification are still required; physical connection
+above is construction only. No new M189 executable claim or source landing.
+
+V809b root build PASS67.717144s. Existing batch2/M189 source1 PASS; new received
+Print publication case RED at package issue received/original-target-missing for
+Maker.fetch flag0. Its original acquisition is not in the ingress instance source
+query; no target or permission is fabricated. Worker audits original source issuer
+participation/shared packet selection before changing that boundary. Original
+M189 CLI155 build runs to distinguish product frontier from this smaller corpus.
+
+CLI155 build PASS192.531071s, SHA127e14b91f43d883fdce592976d31e4adfb7c7320186cd86e7c8c7064e9730e9.
+Unchanged M189 source705a535c, canonical direct EXE on C808b/runtime808b RED
+.190502s/no artifact at package issue Main43 Body8 field leaf, integer-field/
+source-identity/current-closure. This is newly activated source qualification,
+not product advancement beyond CLI154. The original source field request is
+recognized but no read is published. No new first-milestone or Mixed acceptance.
+V809c canonical lexical target lookup replaces the mistaken borrowed-inventory
+lookup; exact retained field demand selects existing complete Object packet.
+Build PASS68.772200s; batch2/M189 source1 PASS, new Print RED targets-missing
+because lexical issuance temporarily owns the canonical target vector.
+V809d borrows that issuing owner's SAME target during selection; emission/final
+still recheck the retained catalog. Build PASS55.869749s, batch2/M189 source1
+PASS; new Print RED placement-handle-result-drift (no full input packet). Earlier
+original Print regression passed before adding the required new positive cases;
+its later independent negatives were not reached on these RED runs.
+
+Worker Decision extension, SAME received-result series, next two connections:
+1. Original Nullable local acquisition input: existing raw inventory registers
+   exact unique initializer/declaration/binding + SAME ObjectCallSourceLoan roots
+   for all-I64 contracts, then its sole scanner collects ALL original callers of
+   that callee. Retain demand on the same Instance row; Observe/native selection,
+   common SourceInstance input finisher and ObjectPacketSeal borrow it. No fake
+   BorrowedIncoming, empty incoming permission, standalone local argument seal,
+   QualifiedObject recast or old-protocol retry. Canonical target lookup alone
+   is preparation, not complete input evidence. Do not replace the typed positive
+   with an easier corpus or claim that its source language is invalid.
+2. Original numeric field→New formal→Birth field: Page New literal page_id →
+   Page.page_id → Handle New actual me.page_id → Handle.birth formal → Handle
+   .page_id. Current seed classifier requires local binding, so this field actual
+   becomes Conflict and Handle Birth numeric base never closes. Retain exact
+   constructor/formal ordinal/ALL New actuals from SAME new_calls Rc, join their
+   original field proofs to SAME FieldCandidates.sources Rc, and extend its
+   existing closure conjunction/revalidation. Keep cached integer seeds unchanged.
+   Productive grounding must reach literal/existing IntegerBasis; simply adding
+   conditional fields to the greatest fixed-point bases admits a rootless cycle.
+   No separate solver/cache or declared-type permission. Confirm actual closure
+   pins before claiming this static audit is the sole remaining app cause.
+Both mappings are unimplemented. New field emission/final consumer code remains
+unaccepted WIP; full own regressions, mutations, source/runtime and goal owed.
