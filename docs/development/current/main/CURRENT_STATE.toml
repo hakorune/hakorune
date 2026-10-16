@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/c-entry-child-kind-closure"
+current_blocker_token = "required-object-forward/declared-formal-pair-transport"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,8 +18,8 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; cumulative source WIP unlanded.
-Latest CLI145 app rc1/no EXE; raw C792 crosses all30fn/2019blocks inventory.
-Param/numeric/retained ingress passed; binary1984/app33d3/FFI787/runtime757.
+Latest CLI146 app rc1/no EXE; C crosses all30fn/2031blocks and856values.
+Fresh pending cleanup crossed; flow147 stops declared-formal fixed-tag transport.
 V756 shared current-owner received Birth source correspondence PASS both opts,
 including ValueId/ordinal drift, original Return/conditional End final checks.
 V757 selected atomic object residence C Provided3/Unit7/field6/stored96 PASS;
@@ -48,7 +48,7 @@ V784 same checked Array Get→local→Birth receipt built; focused6 PASS.
 V785 build PASS65.933769s/actual+mutations PASS1156.055888s; no ABI type stamp.
 CLI144 build147.681373s/app474.585156s; C structural validation305.239363s.
 V791 perfunction scoped header normalization build65.912811s/cohort96+5 PASS.
-V793 common field loan Cbuild/field6/stored96 PASS; raw app C running.
+V795c cleanup/source/instance8 PASS; V797 declared20 C PASS; CLI147 app pending.
 Get2/Set5+drift/Fault PASS. V786 actual RED same numeric stop; loop pin RED.
 Card history checkpoint e7271fae86 is docs-only; no source landing/product claim.
 First milestone unchanged mimalloc direct EXE/run/output/exit remains unmet;

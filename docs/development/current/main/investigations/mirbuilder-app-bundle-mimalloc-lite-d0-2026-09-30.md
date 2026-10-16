@@ -55,33 +55,30 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 
 ## Latest unchanged product measurement
 
-CLI145: quick build **150.945893s**, direct app **469.248035s**, **rc1, no EXE**.
-Original Rust source/parameter/numeric/retained ingress passed; the app reaches
-C V4 and refuses `published-lifecycle-v4/unsupported-cohort` at fi25 inventory.
-The captured original input confirms MiWorkload.run/0 has1480blocks, exceeding
-the fixed256 cap. V792 workspace/state tags cross inventory; the next stop is entry child kind
-closure. V793 shared loan validation is under test.
-C V2 structural validation299.099798s dominates this run. No speed improvement,
-Borrowed/Mixed runtime or complete app acceptance is claimed.
+CLI146: quick build **152.029184s**, direct app **483.901758s**, **rc1, no EXE**.
+Original Rust source ingress passed. C indexes all30fn/2031blocks/856values;
+Fresh pending cleanup now passes. Flow147/rows206 stops at realloc/2 bb438,
+original DeclaredFormal actual encoded as fixed3 instead of its borrowed pair.
+C V2 structural validation310.993510s, V4 .807650s. No speed or app acceptance.
 
 ```text
 target/quick/hakorune --grammar-profile canonical --backend mir \
   --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v757> apps/mimalloc-lite/main.hako
 NYASH_DISABLE_PLUGINS=1 NYASH_LLVM_ROUTE_TRACE=1
 HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none
-HAKO_AOT_FFI_LIB=<ffi-v787/libhako_llvmc_ffi.so>
+HAKO_AOT_FFI_LIB=<ffi-v796/libhako_llvmc_ffi.so>
 ```
 
 | identity | SHA256 / source |
 | --- | --- |
 | unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI145 binary | `19843febde87e63713655a553a9a6a8023dadd1e2bbd41f2404bed554e741d0f` |
-| FFI787 | `01b9538889bf25307f45b0ea6718a2dba92a96bc5f9d87fd4ec30adfedfbde1d` |
+| CLI146 binary | `fdc704c79627b69b75fca1a8ca1b7046e242e3e719368b5f835b762c314e5368` |
+| FFI796 | `0e37ac3a5ec8b5ef7603e39fb336113a12a4ae5b69614a2f6b1bcb396a723363` |
 | runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
 
-Source manifest/run: `cli-v145.source.json`, `app-v145.json` under the evidence
+Source manifest/run: `cli-v146.source.json`, `app-v146.json` under the evidence
 base below. Previous CLI140/141 results are retained below; earlier CLI139 is at f6f942f5d0.
-CLI145 build/app had no root actual-test overlap;
+CLI146 C validation overlapped V795c root build/focused checks;
 these durations are measured results, not a speed baseline.
 
 ## Verified premises; no automatic product acceptance
@@ -390,3 +387,236 @@ Worker concrete review found no new Home/Return/End/argument permission or neste
 Birth expansion. Actual16 child reads all use Heap field0/1→Page providerNew
 with ordinaryreceiver, ownedHeap or Birthdirect roots; no Provided typed child.
 App C validation continues on unchanged original captured input.
+
+V793 raw terminal rc1/306.062540s/noOBJ: all indexed ordinary functions now
+pass child seeding; resolves809/flow0 stops within MiWorkload kind closure.
+Raw first non-scalar Phi114–118 carry unchanged Array holder, Heap New, exact
+receiver and two Page field loans, each with identical incoming original value.
+Existing kind closure admits only I64/Bool Phi. Source if-merge semantics and
+original Phi were already preserved by fb512d0549; do not rewrite AST/JSON.
+
+V794 Decision: source remains original Phi + exact predecessor/value rows.
+Normalize physical alias identity inside the existing pervalue index, bounded
+Copy plus acyclic unanimous Phi only; kind union never issues identity. Require
+nonempty exact predecessor census, no duplicate/missing/cycle/differing root,
+and final HANDLE root-kind agreement. Keep I64/Bool scalar Phi unchanged and
+other carrier Phi closed. All existing Copy-root consumers must borrow the
+same validated original root/origin/object; flow must check current readability
+or existing owned-Array holder liveness even for unused Phi after End. No new
+Home/state, source registry, rewritten input or LLVM writer: retain phi i64.
+Read-only review confirms actual roots and current consumer/emit gaps. Reuse
+original source app plus existing stored-child/owned-result C families and their
+physical mutations for alias/lifetime refusals; no new proof app.
+
+V794 implemented original-row alias roots in existing value cells, separate
+from kind union. This structural identity is available to classification;
+seed still requires original terminal HANDLE/receiver/New/class conditions,
+and full mandatory kind closure precedes flow. Other carrier Phi stays closed.
+All old Copy-root callers now use lv4_value_alias_root; old helper/owned-result
+Copy walker removed. Phi row borrows existing object/field/Array liveness,
+without state transition; existing phi i64 emission is unchanged. Read-only
+concrete audit found no cache/cycle/scalarloop or authority gap. C build
+PASS5.970196s. Stored96 + same-receiver Copy/Phi wire witnesses, malformed
+Phi and original callee Fault/identity/lifetime negatives PASS14.825800s.
+FFI794 SHA1e1217b0639b547a3a5ad2c3ca7f3096739b5c20f34090d881350a84ee44f107.
+Owned16 suite now includes two-Copy same-root Phi Normal/Fault positive and
+strict differing-root/unused-after-End Phi refusal with preserved output.
+Initial owned run deliberately interrupted28.246258s after discovering missing
+required branch edge-args in the new physical harness; not a PASS/product red.
+Harness corrected; owned rerun and unchanged app C validation are pending.
+
+V794 owned16 + original-return/Fault/metadata cases and added same-root Phi
+Normal/Fault, differing-root and unused-after-End refusals PASS131.009003s.
+Raw C terminal311.329558s rc1/noOBJ: all856 values resolved, flow118/rows172.
+V2 validation310.463128s/V4 .858067s. BFS of original edges maps stop to fn12
+HakoAllocHeap.allocateResult/1 bb392 ReturnFault: completed result21 remains
+LIVE after prior nullable12 release at387 faults. It is the Null arm, not
+Provided-success branch400. Null/runtime-noFault pruning is no waiver: the
+published CFG's both edges remain checked. C correctly refuses the open debt.
+
+V795 Decision (read-only source and independent C audits agree): existing
+RootHomeCleanupOrder owns pending Return semantics. Direct owned Call already
+prepends complete result End to full, excluding normal/acquisition Fault;
+Received uses its existing destination Home; Borrowed/Null/scalar add none.
+Fresh destination-less Construction is missing that same fault-only connection.
+Use original terminal Construction site, SAME NewResultCommit/emitted result,
+completed Birth and original object/destruction/sealed children. Project full
+End through ordinary_new_object_end::operations_v1, then existing sole root
+cleanup graph and independent original/FinishedBindings consumers. Preserve
+New/Birth Fault reclaim separately; a completed result uses complete End.
+If result End faults, continue residual cleanup without retry. Source normal
+Homes already exclude arguments moved into completed Birth; never double-End
+those arguments after result's child teardown. No C waiver, fakeBinding,
+fakeDirectCallsource, new Home registry or .hako change. Reuse existing root
+order/graph/return-new/source app tests and physical fault/operand mutations.
+
+V795 implementation uses original Result commit directly; no new holder/enum.
+Generic fault-only prefix prepend is now shared with existing Direct Call;
+selected no-ingress Return binds Fresh only when Normal cleanup is nonempty.
+Common record/final entry hook recomputes its source plan; separate original/
+FinishedBindings producer checker remains. Worker concrete audit found no
+identity/phase/Provided-double-End or consumer-source mismatch. Build
+PASS66.353660s; Direct order3/order5/graph5 and existing joint final-consumer
+mutation test (extended original Fresh body with prior Spare) PASS.
+Initial filter spelling matched0 tests: invalid selection, never a PASS.
+Instance-value cohort6PASS2RED: intentional duplicate-Birth-store fixture is
+RetainedUnavailable and must remain diagnostic-only; V795 initially rejected it
+before that phase check. Fix preserves original Fresh checker's explicit
+RetainedUnavailable None, without End/artifact permit; proper Emitted checks
+remain. Separate Float argument refusal is borrowed-compare/integer-source-
+unproved before this fresh cleanup, an unresolved cumulative-WIP diagnostic
+expectation red, not a proven clean-HEAD baseline or a reason to relax checks.
+V795b rebuild pending; no full cohort PASS/landing or product EXE claimed.
+
+V795b build PASS38.853313s. Fresh whole final-consumer mutation test PASS .74s;
+retained-unavailable New source claim test PASS .01s, no End permit. Duplicate-
+Birth diagnostic fixture now passes the new cleanup binding but remains RED at
+IncompleteOrdinaryNewCoverage (instead of own cleanup/construction stop).
+This is another unresolved cumulative-WIP unsupported raw completion expectation,
+not a proven clean-HEAD baseline; neither red is waived and no full cohort PASS
+is claimed. V795's completed-production source/Fault mutation evidence is green;
+CLI146 required quick build is next. V753 strict optfalse and broader original
+suite/source-lender reds remain separate open obligations at eventual closeout.
+
+V796 bounded C preflight (not a claimed new measured stop): full actual30fn
+role/parameter/consumer audit identifies one remaining inherited role omission:
+borrowed_tagged_formal excludes ordinary_bool. Actual Heap.release/1 and
+Page.release/1 both need original declared-formal field reads/tagged forwarding.
+Normalize receiver-bound membership to existing lv4_is_ordinary; preserve
+staticI64/Borrowed/Mixed profile restriction, exact param representation, same
+alias root/object_view and all lifetime/Call checks. Result-specific Return/
+Mixed/Borrowed/Birth arms intentionally remain separate. No new source permit
+or hypothetical Unit-param task. CLI146 build PASS152.029184s; use current Rust
+binary plus rebuilt pinned FFI for canonical unchanged app with raw capture.
+
+V796 C build PASS6.052680s; FFI SHA
+0e37ac3a5ec8b5ef7603e39fb336113a12a4ae5b69614a2f6b1bcb396a723363.
+Initial Bool-discard C run rejected stale captured function-body input before
+V4; no JSON repair. Reissued original Rust source fixtures with current V795b
+root binary: existing borrowed statement-discard test PASS1/.42s. C rerun
+PASS12.335907s, both Bool arms/real execution and existing refusal checks.
+This does not claim the app's guarded Bool field-read/forwarding path green.
+CLI146 canonical unchanged app is running against FFI796/runtime757, with
+verbatim input capture. Capture observer's initial glob-directory race failed
+before a product result; child stopped and absence of output verified, then
+observer fixed and fresh app run started. No product failure counted for it.
+Pointer/no-fallback/builder-layer/thin-shim guards and diff check PASS.
+
+V795c regression reconciliation (read-only worker audited both source owners):
+Bool→formal integer comparison is correctly denied by original domain agreement,
+so replace stale nullable-carrier diagnostic expectation with exact integer-source-
+unproved. Duplicate-Birth-store fixture deliberately has RetainedUnavailable;
+its former successful raw completion and release-count1 conflict with the
+current artifact coverage boundary. Keep the same fixture as exact
+IncompleteOrdinaryNewCoverage negative, not an End permit or production repair.
+Existing owned_call_results_publish_original_child_handle_contracts verifies
+actual nullable→completed Birth original ordinal/value correspondence in both
+opts; original_main_and_real_children_document_handoff_survive_contraction
+checks source move-before/Normal/Fault inventories. Existing birth-handle C
+suite checks allocation/Birth/store Fault balance (its nullable wire mutation
+is not independent nullable source issuance). Preserve these separate positives.
+No clean-HEAD baseline claim; test reconciliation awaits rebuild/focused run.
+
+V795c root build PASS69.069733s (overlapped live app C validation; no speed
+baseline). Instance-value cohort now8/8 PASS .10s; existing source contraction
+move/Fault inventory PASS .33s; nullable Birth physical publication PASS .08s;
+joint independent final-consumer mutation PASS .81s. No acceptance waiver or
+new supported construction shape. Earlier two reds are reconciled expectations;
+V753/JSON3/plain-loop source-lender obligations remain open. Root binary hash
+and source manifest are in v795c.focused.json; CLI146 binary remains untouched.
+
+CLI146 verbatim C payload SHA
+fbd25f988ae14b3cb2baec922580a9d5a22bf6dd1198b7379c9f750b7dfda544,
+30fn/2031blocks. Live original temporary JSON was copied read-only after the
+observer omitted hidden .tmp dirs; corrected the scratch observer for later
+runs, without restarting/mutating this product process. Independent review:
+allocateResult21 Birth386 Normal387 release12 Normal397 Return21; Fault398
+field2 child End→390 outer21 End→389 ReturnFault, both child/outer Faults
+continue residuals. Existing construction-Fault383 reclaim21→380 release12
+retained. Finite static walk of9 completed Fresh results finds no missing outer
+End on ReturnFault. Structural audit only; live C/EXE result remains pending.
+
+V797 Decision (two independent read-only source→ABI→C reviews):
+DeclaredFormal proves original root/alias/DeclaredObject class, not fixed
+nonnull tag3. Its source issuer differs from Forwarded only in proof entry.
+Actual realloc formal1 has already-closed borrowed_kind_payload/object_view0;
+fixed3 erases original %k1. Normalize to tagged only after same original caller
+entry root/value/carrier join; nonselected i64-handle corridor retains its own
+representation. Preserve existing ABI source/finished operand validation and C
+exact formal/alias/object_view gates; no null-guard-only C permit. Reuse
+declared_and_forwarding_only_domains_publish_exact_class_layouts (direct/copy,
+null/object,bothopts), existing carrier/producer mutations and actual app.
+No new registry or proof fixture. Slice paths: existing JSON call transport,
+declared publication tests, publisher README, this card/current pointer.
+
+V797 implementation joins DeclaredFormal to same original root entry and
+caller parameter ValueId/installed BorrowedTagged carrier before tagged JSON;
+selected missing/duplicate/carrier drift refuses. Nonselected declared-handle
+transport remains3. Existing original Call/caller/callee corroboration and
+both operand scans retain authority; read-only concrete review found no gap.
+Root build PASS61.894016s. Existing declared/direct-copy×null/object×bothopts
+source/JSON and carrier/producer mutations PASS .91s; original forwarded/
+receiver/typed-forward source cases PASS .12s. Physical JSON cohort32/35 PASS
+.70s, same3 named cumulative reds. Worker preliminary classification: reverse
+Array caller Birth-Fault expectation is stale (partial cleanup now callee-owned),
+but callee obligations must be verified before changing it. Nullable fetch and
+Pair.sum sources remain legitimate and expose actual retained-call/root-phase
+deficits; never convert them to expected refusal. CLI147 build, same original
+app bothopts independent final-consumer test and declared C execution pending.
+C declared test gains existing HAKO_TEST_LIFECYCLE_ARCHIVE override to pin
+runtime757 instead of unrelated mutable target archive; no input repair.
+
+V797 review clarification: function membership does not imply every root has
+BorrowedTagged carrier (issuer replaces only selected slots). The encoder
+requires the exact original root/value/carrier join; missing selected root
+refuses rather than retrying fixed3. A mixed nonselected i64 formal has no %k
+and already fails existing C typed-live, so this issues no unsupported carrier.
+Nonselected whole-function old transport stays unchanged, without acceptance claim.
+
+V797 existing declared C suite PASS196.347264s with FFI796/runtime757:
+20 original source-issued both-opt programs, Normal and each caller/Birth
+Fault cleanup once; null retains its tag, foreign-class runtime refusal and
+15 malformed original-view/alias/release/scalar actual refusals preserved.
+CLI147 build PASS165.534475s; unchanged canonical app running against same
+FFI/runtime with corrected observer. Bothopts actual source/independent final
+consumer test remains running on immutable V797 root binary; do not overwrite.
+Broader JSON debts mapped by worker: old receiver Nullable path omits finalized
+lexical packet (needs same emit_receiver_object owner); Pair.sum child I64Add
+has root-only terminal preparation/phase responsibility (retain positive);
+Array BirthFault caller reclaim-only is intended, verify original per-store
+callee cleanup before updating stale assertion. No test retirement or waiver.
+
+Required regression repair mapping (read-only, not started/new lane):
+- Self Nullable literal source: requires_object_packet_v1 currently selects
+  self receiver only for original forwarding-input requirement. Extend its
+  existing exact result observation law (same nullable source/callee/local
+  destination/class), then checked_object_lexical_slot lends original whole
+  input/result/Completion packet and existing emit_receiver_object/group.
+  Do not fabricate an empty declaration or retry old emit_receiver_nullable;
+  retire old dedicated writer only after all affected callers switch/zero.
+- Pair.sum child I64Add: owner+exact exit relation/prepare must replace root-
+  only gate. Reuse sole selected writer; owner-indexed raw reservation and
+  completion census. Extend existing FinishedBindings I64Field protocol to
+  original two reads+Add+same Return; current child final validation omits Add.
+  Removing root gate alone would leave independent final mutation unchecked.
+- Array partial Birth cleanup: original source fault_discharge is prior
+  committed fields newest-first, inside Birth; caller is reclaim-only.
+  Preserve Normal/reverse End and exitFault assertions, inspect same issued
+  Birth per-store paths instead of assuming both children exist on every Fault.
+  Existing construction_store_fault_inventory_is_prior_committed_source_order
+  and caller_provided_object_store_seals_prior_owned_cleanup remain source laws.
+These obligations remain open; no regression-positive is converted to refusal.
+
+CLI147 original C capture at193.050147s: SHA
+5408d9a3c2cc87e086c4655a788d5722eb684bca98cf77a2041f595adc44d3ca.
+Exact realloc/2 bb438 now sends original formal1 as tagged to same target13;
+its original object_view0/receiver0/Normal442/Fault443 preserved. Live C pending.
+Self-Nullable repair census: old emit_receiver_nullable has one production
+caller (direct_call_disposition_port fallback); after full selected switch and
+acceptance, remove both (~150 duplicate lines). Keep shared record/dispatch and
+other Handle paths. Nullable observation already triggers full Home walk;
+Handle observation alone must not widen selection or invent source Home flow.
+
+CLI146→147 parsed original-payload diff: exactly6 actual kind fields change
+3→tagged (realloc4/reallocResult2); all other rows/values/edges/cleanup unchanged.
+This is a read-only input comparison, not a repaired payload or C acceptance.
