@@ -19,7 +19,8 @@ Compression creates no new card, archive, proof ledger or completion claim.
 
 The selected row remains `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`,
 `work_mode=fast`. First milestone: unchanged mimalloc canonical direct EXE,
-execution, expected output and exit. Full `MIRBUILDER-FINAL-PIPELINE-v1` remains
+execution, expected output and exit: **PASS on pinned WIP at V798/app148**.
+This is not a source landing or whole-row acceptance. Full `MIRBUILDER-FINAL-PIPELINE-v1` remains
 separate and requires its fixed suite, integration/cutover/retirement, R6/R7,
 Loop, authority, parser and nondelegating selfcompile conditions.
 
@@ -32,7 +33,9 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   LocalSSA relations and FinishedBindings → both independent final consumers.
 - Non-authority: MIR type/Box name, role/layout alone, opcode counts, nonnullness,
   copied witnesses, an emptied lowering pool or a convenient fixture.
-- Current connection: received Mixed result → exact returned-New argument and
+- Next acceptance connection: original self Nullable observation/local-flow →
+  existing full object packet → common final Call visitor; V799 below.
+- Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
   Phi and independent-consumer boundaries while connecting the result transport.
@@ -55,31 +58,50 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 
 ## Latest unchanged product measurement
 
-CLI146: quick build **152.029184s**, direct app **483.901758s**, **rc1, no EXE**.
-Original Rust source ingress passed. C indexes all30fn/2031blocks/856values;
-Fresh pending cleanup now passes. Flow147/rows206 stops at realloc/2 bb438,
-original DeclaredFormal actual encoded as fixed3 instead of its borrowed pair.
-C V2 structural validation310.993510s, V4 .807650s. No speed or app acceptance.
+**First milestone PASS on pinned cumulative WIP:** unchanged app148 canonical
+EXE generation rc0 **575.569618s**, direct execution rc0 **.001782s**, stdout
+exactly matches the existing seven-line smoke expectation below. No compat
+replay or source rewrite. Source landing/whole-series acceptance remains open.
+All30fn/2031blocks/856values passed C classification/flow/emission. V2 structural
+validation361.941263s, V4 2.083778s, emit .033693s/library .108356s. These overlap
+root/native regressions and are not a performance improvement claim.
 
 ```text
 target/quick/hakorune --grammar-profile canonical --backend mir \
   --emit-exe <fresh-output> --emit-exe-nyrt <runtime-v757> apps/mimalloc-lite/main.hako
 NYASH_DISABLE_PLUGINS=1 NYASH_LLVM_ROUTE_TRACE=1
 HAKO_BACKEND_COMPILE_RECIPE=pure-first HAKO_BACKEND_COMPAT_REPLAY=none
-HAKO_AOT_FFI_LIB=<ffi-v796/libhako_llvmc_ffi.so>
+HAKO_AOT_FFI_LIB=<ffi-v798/libhako_llvmc_ffi.so>
 ```
 
 | identity | SHA256 / source |
 | --- | --- |
 | unchanged app | `33d3e8b9a4b9bc9ce983486f1e48334c8f186f9bbd05e98774ef155fe1b3d685` |
-| CLI146 binary | `fdc704c79627b69b75fca1a8ca1b7046e242e3e719368b5f835b762c314e5368` |
-| FFI796 | `0e37ac3a5ec8b5ef7603e39fb336113a12a4ae5b69614a2f6b1bcb396a723363` |
+| CLI147 binary | `0c7bf6084d517c3cc5588b322a87d724bd3e9763613b22aba761c3e77234cb68` |
+| FFI798 | `ec0ac2127f1b2d4a8aebef80c92086c362c0b73794b1921ce15071a9d0c4ef4d` |
 | runtime757 archive | `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b` |
 
-Source manifest/run: `cli-v146.source.json`, `app-v146.json` under the evidence
+Source manifest/run: `cli-v147.source.json`, `app-v148.json` and
+`app-v148.run.receipt.json` under the evidence
 base below. Previous CLI140/141 results are retained below; earlier CLI139 is at f6f942f5d0.
-CLI146 C validation overlapped V795c root build/focused checks;
+App148 source/C validation overlapped V797 bothopts/native39 tests;
 these durations are measured results, not a speed baseline.
+
+The generated EXE SHA256 is
+`b2e83cbedc6a162ceba64b89b8a1d3a66046148e31a5c06416da924c03205be1`.
+Execution: `NYASH_DISABLE_PLUGINS=1 <fresh app148 EXE>`, clearing inherited
+HAKO_/NYASH_ overrides. stdout exact, exit0; stderr only the expected plugin-
+disabled warning. Expected source: existing `mimalloc_lite_exe.sh` (unchanged).
+
+```text
+mimalloc-lite
+small_allocs=9 frees=3 reused=3 peak=6 free=2
+medium_allocs=4 frees=1 reused=1 peak=3 free=1
+requested_bytes=360
+outstanding=9
+summary=ok
+Result: 0
+```
 
 ## Verified premises; no automatic product acceptance
 
@@ -620,3 +642,45 @@ Handle observation alone must not widen selection or invent source Home flow.
 CLI146→147 parsed original-payload diff: exactly6 actual kind fields change
 3→tagged (realloc4/reallocResult2); all other rows/values/edges/cleanup unchanged.
 This is a read-only input comparison, not a repaired payload or C acceptance.
+
+V798 Decision: existing shared plain Array operation writer also serves indexed
+object programs, but its checked append/claim declarations were native-only.
+Read-only full actual operation/external-symbol census: appendI64 four sites;
+this is the only missing actual external declaration. Move the existing eight
+Array/new/claim/append3/set/slotload/release declarations before profile split
+once and remove branch duplicates. Keep all operation/type/flow acceptance and
+other family declaration owners unchanged. No per-app opcode table, special
+case or new registry. Reuse existing native Array fixture39+malformed/runtime
+and same canonical app; indexed original app supplies real plain-field append.
+
+V798 common Array declaration emission implemented, branch duplicates removed
+(net5 emitter lines deleted; no admission change). Concrete read-only review
+confirms all8 signatures preserved exactly once, native content unchanged and
+other declaration owners untouched. C build PASS6.775969s; FFI798 SHA
+ec0ac2127f1b2d4a8aebef80c92086c362c0b73794b1921ce15071a9d0c4ef4d.
+Canonical app148 uses same CLI147+runtime757, new pinned FFI798; running.
+Existing ignored native39 source host/C/malformed/runtime test also running on
+immutable V797 root binary. Its host path hardcodes current target archive
+9f6fe986691e9e1b754b41b632d1453fe9bc6c627b21ddbd3728699723bc7dec;
+independent Python observer explicitly pins757. Receipt distinguishes them;
+this native regression does not claim same-runtime product acceptance.
+
+V798 terminal: app148 canonical compile575.569618s rc0, direct execution
+.001782s rc0/exact stdout; first milestone achieved on pinned WIP. Root source
+and FFI/runtime/app/EXE identities and exact command/output above form the
+reviewable receipt, not /tmp path+SHA alone. Keep original input, first EXE and
+run evidence until same-series landing/closeout retention decision. Native39
+existing ignored source host + C physical/runtime/malformed regression PASS
+519.883085s (two runtime pins distinguished above). Whole actual source bothopts
+independent-consumer test remains running; no full suite/source acceptance.
+
+Next same-series acceptance slice V799: preserve the legitimate self Nullable
+source positive by joining its exact original observation/local-flow to existing
+full object packet issuer and common emit_receiver_object. The Decision and
+caller census above apply; no new lane/feature or change to first milestone.
+Selected paths: ordinary_new_lexical_object_slot.rs, existing source observation/
+packet owner if needed, direct_call_disposition_port.rs and old terminal_call.rs
+writer retirement after caller-zero/verification, same existing regression
+tests/owner README. Pair.sum projected Add and Array Birth-Fault assertions
+remain owed after this slice. Retain whole unaccepted ObjectForward series and
+all remaining R6/R7/fixedsuite/Loop/authority/parser/selfcompile conditions.

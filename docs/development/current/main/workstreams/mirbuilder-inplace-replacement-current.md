@@ -26,8 +26,11 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 ## Product milestone and operational authority
 
 RULES owns operations; `CURRENT_STATE.toml` selects the row. The selected
-unchanged mimalloc-lite frontier first needs regular-route EXE/run/exit/stdout
-acceptance. Local, preparation and structural Closed rows do not prove it.
+unchanged mimalloc-lite frontier reached regular-route EXE/run/exit/stdout
+acceptance on pinned unlanded WIP at app148/V798 (2026-10-16; active card owns
+command, binary/source/FFI/runtime pins and exact output). This first milestone
+does not land source or close the series. Local/preparation rows alone never
+prove product acceptance.
 The fixed suite and final-pipeline completion conditions remain required.
 
 ## Current restart pointer
@@ -336,7 +339,7 @@ is still unresolved; the mimalloc card owns the investigation and handoff.
 
 | order / existing owner | responsibility and dependency | acceptance / retirement / unresolved boundary |
 | --- | --- | --- |
-| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` | CSTATE selects; mimalloc card retains unaccepted WIP and host-tooling consultation handoff. | Original input reconstruction and both final physical positives remain owed; focused95PASS is not app acceptance. |
+| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` | CSTATE selects; source WIP remains unaccepted/unlanded. Card records first unchanged app EXE/run/output/exit PASS (V798/app148). | Same-series independent source/consumer acceptance, regression repair and selected retirement remain owed; first milestone does not close the full pipeline. |
 | 2 [mimalloc bundle D0][app-bundle] / Gate1 | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | Same unchanged app must reach regular-route EXE/run/exit/stdout. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
 | 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest remains product acceptance; scope selection was Closed. | All existing stdout/exit/boundary expectations; failed programs stay open with storage/usize/Loop owners. Suite exclusions do not waive the later required selfhost handoff. |
 | 4 `MIR-CALL-LEGACY-READER-STOP-R0` / R6-S3 | Choose finite remaining ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |
