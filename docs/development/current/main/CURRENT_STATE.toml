@@ -35,10 +35,10 @@ source/actual identity and C owned16/field-return6 regressions PASS. Mixed runti
 acceptance and full field/Home/End remain owed. C regressions do not prove it.
 CLI154 unchanged M189 now passes Main argument generation and package issuance;
 first stop is callable-main/lowering print-expression/source-unavailable.
-V807b Mixed source/input15 PASS; V809 received field/read/Print/final remains WIP.
-V810/811 field+Array→New→Birth and V812 non-Me writer source connected; focused17
-PASS. CLI158 unchanged M189 passes requested_size source, stops in lowering at
-received/targets-missing. Next: reborrow original target from current Call packet.
+V810/811 field+Array→New→Birth and V812 non-Me source focused17 PASS. V813 uses
+current Call packet for received read checks; spent-vector helper removed.
+Focused13 PASS; typed Nullable full-input Print remains RED. CLI159/GDB unchanged
+M189 h0/same/moved field Prints pass; Body12 nested field Print is unavailable.
 Typed Nullable input, EXE and Mixed runtime/End owed; V808 C/runtime only prepared.
 V806 source-observation test repairs are unaccepted: omitted Static identity and
 no checked marker, consumed Loop loans checked in preissued V2 product. Latest
