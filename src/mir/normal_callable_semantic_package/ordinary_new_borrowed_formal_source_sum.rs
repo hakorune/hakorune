@@ -254,6 +254,7 @@ pub(super) fn resolve_original_source_sums_v1(
     source: &OriginalFormalSeedProductV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    initializer_roots: &[OriginalFormalActualSeedV1],
     expand: &mut PointExpander<'_>,
 ) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
@@ -295,6 +296,7 @@ pub(super) fn resolve_original_source_sums_v1(
     source
         .new_calls
         .visit_raw_source_seeds_v1(constructors, |formal, seed| graph.actual(formal, seed));
+    for root in initializer_roots { graph.seed(root); }
     if let Some(error) = graph.expansion_error.take() { return Err(error); }
     for (binding, node) in &graph.formals {
         graph.nodes[*node].invalid |=

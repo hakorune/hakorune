@@ -28,6 +28,7 @@ impl CheckedExpressionOperationLoanV1 {
 #[path = "home_expression_leaves.rs"]
 mod leaves;
 pub(crate) use leaves::ExpressionCallSourceV1;
+pub(super) use leaves::{prepare_expression_calls_v1, PreparedExpressionCallsV1, ExpressionLeafProfileV1};
 #[path = "home_field_write_expression.rs"]
 mod field_write_expression;
 pub(super) use field_write_expression::qualify_field_write_expression_v1;
@@ -45,7 +46,7 @@ mod initializer_expression;
 pub(crate) use initializer_expression::{qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1};
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
-pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1};
+pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, CheckedScalarReferenceV1};
 #[path = "home_print_expression.rs"]
 mod print_expression;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};
@@ -607,5 +608,30 @@ mod installation_tests {
             assert_eq!(batches, 0);
         }
 
+    }
+
+    #[test]
+    fn initializer_scope_keeps_its_original_profile_and_home_snapshot() {
+        let parsed = crate::parser::NyashParser::parse_from_string(
+            "function probe() { local prior = \"p\" + \"q\" local out = \"a\" + \"b\" return 0 }").unwrap();
+        let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+        let initializers: Vec<_> = input.function().expression_source().initializers().collect();
+        let source = crate::mir::resolved_value_profile::expression_plan::local_expression_source_plan_v1(
+            &ledger, input.body_shape(), initializers[1]).unwrap();
+        for profile in [leaves::ExpressionLeafProfileV1::Print, leaves::ExpressionLeafProfileV1::LocalInitializer] {
+            let homes = [initializers[0].binding()];
+            let prepared = leaves::prepare_expression_calls_v1::<()>(&source, profile, &Default::default(), &homes,
+                &mut |_| panic!("literal initializer has no Call")).unwrap().unwrap();
+            let mut batches = 0;
+            let frame = qualify_initializer_expression_v1::<()>(prepared, &[], &mut |_| None,
+                &mut |_, _, _| None, &mut |_| None, &mut |_| None, &mut |_| None, &mut |_| None,
+                &mut |_| true, &mut |_, _| { batches += 1; Ok(true) }).unwrap();
+            assert_eq!(frame.is_some(), profile == leaves::ExpressionLeafProfileV1::LocalInitializer);
+            assert_eq!(batches, usize::from(frame.is_some()));
+            if let Some(plan) = frame { assert_eq!(plan.initializer_frame().unwrap().prior_homes(), homes); }
+        }
     }
 }

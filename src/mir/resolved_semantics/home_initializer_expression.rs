@@ -1,6 +1,6 @@
-//! Original Text initializer purpose over the shared checked expression body.
+//! Original Local initializer purpose over the shared checked expression body.
 use super::*;
-use super::super::{BindingRefV1, LocalCallObservationV1, OwnedExprSiteV1, SourceExprSiteV1, SourceScalarKind};
+use super::super::{BindingRefV1, SourceExprSiteV1, SourceScalarKind};
 use crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1;
 use crate::mir::resolved_value_profile::{expression_plan::ExpressionPlanRootV1,
     expression_children::{ExpressionChildrenV1, ExpressionChildReachV1},
@@ -40,23 +40,29 @@ impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn entry_reads(&self) -> Vec<&InitializerTextEntryReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::InitializerEntry { read, .. } => Some(read), _ => None }).collect() }
     pub(crate) fn entry_refinements(&self) -> BTreeMap<usize, &Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::InitializerEntry { exclusion: Some(proof), .. } => Some((node, proof)), _ => None }).collect() }
     pub(crate) fn residence_reads(&self) -> Vec<&TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
-    pub(crate) fn scalar_reads(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar { binding, kind } => Some((node, (*binding, *kind))), _ => None }).collect() }
+    pub(crate) fn scalar_reads(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar(read) => Some((node, (read.binding(), read.kind()))), _ => None }).collect() }
+    pub(crate) fn is_i64(&self) -> bool { self.evaluation.root_class() == Leaf::Value(Class::I64) }
+    pub(crate) fn is_text_residence(&self) -> bool { self.evaluation.root_class() == Leaf::Value(Class::String) && self.owns_root() }
     pub(crate) fn owns_root(&self) -> bool { self.evaluation.owned_result_nodes().contains(&0) }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
 pub(crate) fn qualify_initializer_expression_v1<E>(
-    source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
+    mut prepared: super::leaves::PreparedExpressionCallsV1,
     entry_reads: &[InitializerTextEntryReadV1],
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
-    signed_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<BindingRefV1>,
+    static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::CurrentScalarReadV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
+    if !prepared.is_local_initializer() { return Ok(None); }
+    let prior_homes = prepared.prior_homes().to_vec();
+    let source = Rc::clone(prepared.source());
+    let has_core = prepared.has_core();
     let ExpressionPlanRootV1::LocalInitializer { initializer, .. } = source.root() else { return Ok(None) };
     if initializer.binding().owner() != source.owner() || source.nodes().first().map(|node| node.site()) != initializer.initializer_site() { return Ok(None); }
     let mut homes = BTreeSet::new();
@@ -64,8 +70,7 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
-    let mut seeded = BTreeMap::new();
-    let mut entry_refinements = BTreeMap::new();
+    let mut reference_proofs = BTreeMap::new();
     for read in entry_reads {
         let requirement = read.requirement();
         let refinement = entry_refinement(requirement.read(), requirement.binding(), requirement.formal().1);
@@ -74,37 +79,42 @@ pub(crate) fn qualify_initializer_expression_v1<E>(
             || entry_reference(requirement.read()) != Some((requirement.binding(), requirement.formal().1))
             || source.nodes().get(requirement.node()).is_none_or(|node| node.site() != requirement.read()
                 || !matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == requirement.binding()))
-            || seeded.insert(requirement.node(), class).is_some() { return Ok(None); }
-        if let Some(refinement) = refinement { entry_refinements.insert(requirement.node(), refinement); }
+            || !prepared.seed_reference(requirement.node(), class)
+            || reference_proofs.insert(requirement.node(), CheckedExpressionReferenceV1::InitializerEntry {
+                read: read.clone(), exclusion: refinement,
+            }).is_some() { return Ok(None); }
     }
-    let mut residence_reads = Vec::new();
-    for (node, original) in source.nodes_outside_calls() {
+    for (node, original) in source.nodes().iter().enumerate() {
+        if !prepared.is_active_reference(node) { continue; }
         let ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = original.source() else { continue };
-        let Some((current, root, acquisition)) = residence_reference(original.site()) else { continue };
-        if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
-            || (acquisition.owns_root() && !homes.contains(&root))
-            || seeded.insert(node, Leaf::Value(Class::String)).is_some() { return Ok(None); }
-        residence_reads.push(TextResidenceReadV1 { node, binding: current, root, acquisition });
+        let proof = if let Some(read) = static_reference(original.site()) {
+            CheckedExpressionReferenceV1::StaticText(read)
+        } else if let Some((current, root, acquisition)) = residence_reference(original.site()) {
+            if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
+                || !acquisition.is_text_residence() || !homes.contains(&root) { return Ok(None); }
+            CheckedExpressionReferenceV1::Residence(TextResidenceReadV1 { node, binding: current, root, acquisition })
+        } else if let Some(read) = scalar_reference(original.site()) {
+            CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Original(read))
+        } else { continue };
+        let class = match &proof {
+            CheckedExpressionReferenceV1::Scalar(read) => match read.kind() {
+                SourceScalarKind::Integer => Class::I64, SourceScalarKind::Bool => return Ok(None),
+            },
+            _ => Class::String,
+        };
+        if !proof.matches_node(&source, node) || !prepared.seed_reference(node, Leaf::Value(class))
+            || reference_proofs.insert(node, proof).is_some() { return Ok(None); }
     }
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
-        super::leaves::qualify_expression_leaves_v1(&source, super::leaves::ExpressionLeafProfileV1::LocalInitializer, &seeded,
-            &mut |site| signed_reference(site).map(|binding| (binding, SourceScalarKind::Integer)), prior_homes, &order, field_request, source_call)? else { return Ok(None) };
-    if classes[0] != Leaf::Value(Class::String) || transferred.contains(&0) { return Ok(None); }
+        super::leaves::qualify_expression_leaves_with_calls_v1::<E>(prepared,
+            &mut |_| None, &order, field_request)? else { return Ok(None) };
+    if !references.is_empty() || transferred.contains(&0) || !matches!(classes[0], Leaf::Value(Class::String | Class::I64))
+        || (classes[0] == Leaf::Value(Class::I64) && !has_core) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
-    // This purpose transfers an owned result into a local residence. Bare
-    // literals/entry aliases keep their existing non-owning initializer owner.
-    if !owned_results.contains(&0) && !cores.get(&0).is_some_and(|core| core.owns_result()) { return Ok(None); }
-    let mut reference_proofs = BTreeMap::new();
-    for (node, (binding, kind)) in references { reference_proofs.insert(node, CheckedExpressionReferenceV1::Scalar { binding, kind }); }
-    for read in residence_reads {
-        if !transferred.contains(&read.node()) && reference_proofs.insert(read.node(), CheckedExpressionReferenceV1::Residence(read)).is_some() { return Ok(None); }
-    }
-    for read in entry_reads {
-        let node = read.requirement().node();
-        if !transferred.contains(&node) && reference_proofs.insert(node, CheckedExpressionReferenceV1::InitializerEntry {
-            read: read.clone(), exclusion: entry_refinements.remove(&node),
-        }).is_some() { return Ok(None); }
-    }
+    // Owned Text transfers one root residence; I64 retains no Home. Its Text
+    // child acquisitions still belong to the SAME ordered evaluation/cleanup.
+    if classes[0] == Leaf::Value(Class::String)
+        && !owned_results.contains(&0) && !cores.get(&0).is_some_and(|core| core.owns_result()) { return Ok(None); }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
     let frame = Rc::new(CheckedInitializerExpressionFrameV1 {

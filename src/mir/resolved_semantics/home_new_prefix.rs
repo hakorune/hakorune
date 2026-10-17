@@ -161,7 +161,7 @@ pub(crate) use expression_plan::{ExpressionCallSourceV1, qualify_initializer_exp
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
-pub(crate) use local_flow::{StaticTextReadV1, FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
+pub(crate) use local_flow::{CurrentScalarReadV1, CurrentScalarProducerV1, StaticTextReadV1, FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[cfg(test)]
 pub(crate) use local_flow::assert_text_residence_identity_for_test;

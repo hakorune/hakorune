@@ -72,6 +72,7 @@ impl PrefixLocalFlow<'_> {
             .then(|| (binding, *root, Rc::clone(acquisition)))
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_initializer(&mut self, frame: Rc<CheckedInitializerExpressionFrameV1>) {
+        assert!(frame.is_text_residence(), "Text installation requires an owned Text root");
         let root = frame.binding();
         self.store(root, StoredLocal::Text { root, acquisition: frame });
     }

@@ -19,6 +19,9 @@ mod borrowed_nullable;
 mod field_alias;
 #[path = "home_prefix_field_readiness.rs"]
 mod field_readiness;
+#[path = "home_prefix_scalar.rs"]
+mod scalar;
+pub(crate) use scalar::{CurrentScalarReadV1, CurrentScalarProducerV1, SourceScalarKind};
 #[path = "home_prefix_text.rs"]
 mod text;
 pub(crate) use text::StaticTextReadV1;
@@ -56,13 +59,6 @@ impl LoopI64PreStateRequestV1 {
     pub(crate) fn proves_integer(&self, binding: BindingRefV1) -> bool {
         binding.owner() == self.owner && self.integer_bindings.contains(&binding)
     }
-}
-
-/// Source scalar class retained from an exact literal or declaration contract.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum SourceScalarKind {
-    Integer,
-    Bool,
 }
 
 #[derive(Clone)]

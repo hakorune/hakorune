@@ -1663,6 +1663,16 @@ Core children stay active; exact ordinary Call receiver/argument subtrees transf
 to their existing input owner. Preparation grants no new initializer or execution.
 
 The Local initializer has one frame and Home-plan slot plus one source selector.
-Its shared vocabulary is independent of result policy; the present qualification
-still requires an owned String root. Text residence reads retain the SAME frame
-Rc; this normalization admits no Integer initializer or physical local execution.
+Its shared vocabulary is independent of result policy. Owned Text installs a
+residence; Core-containing I64 installs a scalar and no Home. Both retain the
+SAME checked evaluation, current reads, original Call/Core scope and ordered
+child acquisition inventory. Physical Local execution remains fenced until its
+shared writer, receipt and both final source consumers are connected.
+Current scalar reads join SAME verified source flow/read/terminal alias origin
+to a signed Entry, unique original integer initializer, retained current I64
+LocalCall observation or SAME prior initializer frame, plus current Prefix
+readiness. Join/Unknown/cycles and unsupported reassignment are refused. This
+original proof shares the existing reference slot with old class obligations;
+only the original form can later be fulfilled as a physical operand.
+Existing initializer port tests live in ordinary_new_initializer_expression_tests
+under their original object-argument port fixture owner.

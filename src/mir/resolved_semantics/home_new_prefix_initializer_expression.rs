@@ -28,11 +28,30 @@ pub(super) fn observe<E>(
     }
     let Ok(ledger) = input.forest().callable_source_ledger(input.owner()) else { return Ok(false) };
     let Ok(source) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return Ok(false) };
-    if !source.nodes().first().and_then(|node| node.binary()).is_some_and(|binary|
-        binary.operator() == super::super::ResolvedBinaryOperatorV1::Add) { return Ok(false); }
+    let root_add = source.nodes().first().and_then(|node| node.binary()).is_some_and(|binary|
+        binary.operator() == super::super::ResolvedBinaryOperatorV1::Add);
+    if !root_add && !matches!(source.nodes()[0].source(), ExpressionNodeSourceV1::MethodCall) { return Ok(false); }
     let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+    // Root ordinary Calls keep their existing Local owner. Borrow an original
+    // Core receipt first, then transfer it once into the shared preparation.
+    let mut root_core = if root_add { None } else {
+        match port(&owned, BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: &source })? {
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => Some(core),
+            _ => return Ok(false),
+        }
+    };
+    let Some(prepared) = super::expression_plan::prepare_expression_calls_v1(&source,
+        super::expression_plan::ExpressionLeafProfileV1::LocalInitializer, &BTreeMap::new(), homes,
+        &mut |site| {
+            if site == &owned {
+                if let Some(core) = root_core.take() { return Ok(Some(ExpressionCallSourceV1::Core(core))); }
+            }
+            local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
+                &mut |binding| locals.field_alias_call_path(binding), port)
+        })? else { return Ok(false) };
     let mut reads = Vec::new();
-    for (_, node) in source.nodes_outside_calls() {
+    for (index, node) in source.nodes().iter().enumerate() {
+        if !prepared.is_active_reference(index) { continue; }
         if !matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) { continue; }
         let Some((binding, root)) = super::argument_expression::text_reference(input, locals, node.site()) else { continue };
         if let Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(read)) = port(&owned,
@@ -40,31 +59,36 @@ pub(super) fn observe<E>(
             reads.push(read);
         }
     }
-    let has_parent_text = source.nodes_outside_calls().any(|(index, node)| {
+    let has_parent_text = source.nodes().iter().enumerate().any(|(index, node)| {
         matches!(node.source(), ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_)))
             || reads.iter().any(|read| read.requirement().node() == index)
             || locals.text_reference(node.site()).is_some()
     });
-    if !has_parent_text { return Ok(false); }
-    let mut installation = locals.expression_installation();
-    let plan = qualify_initializer_expression_v1(std::rc::Rc::clone(&source), homes, &reads,
+    if !prepared.has_core() && !(root_add && has_parent_text) { return Ok(false); }
+    let mut installation = None;
+    let plan = qualify_initializer_expression_v1(prepared, &reads,
         &mut |site| super::argument_expression::text_reference(input, locals, site),
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
-        &mut |site| locals.signed_entry_reference(site),
+        &mut |site| locals.static_text_reference(site),
+        &mut |site| locals.current_scalar_read_v1(site, local_calls),
         &mut |site| field_read::expression_field_read_request(input, &source, site, locals),
-        &mut |site| local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
-            &mut |binding| locals.field_alias_call_path(binding), port),
-        &mut |plan| installation.approve(plan),
+        &mut |plan| {
+            let mut candidate = locals.expression_installation();
+            if !candidate.approve(plan) { return false; }
+            installation = Some(candidate);
+            true
+        },
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
     let Some(plan) = plan else { return Ok(false) };
-    let frame = std::rc::Rc::clone(plan.initializer_frame().expect("Text initializer purpose"));
+    let frame = std::rc::Rc::clone(plan.initializer_frame().expect("Local initializer purpose"));
     let calls = frame.evaluation().calls();
-    installation.commit();
+    installation.expect("approved initializer installation").commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));
     local_calls.extend_from_slice(calls);
     if frame.owns_root() { homes.push(frame.binding()); }
-    locals.install_text_initializer(frame);
+    if frame.is_i64() { locals.install_i64_call_result(frame.binding()); }
+    else { locals.install_text_initializer(frame); }
     Ok(true)
 }
 

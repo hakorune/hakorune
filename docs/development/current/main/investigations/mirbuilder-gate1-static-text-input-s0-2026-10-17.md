@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0
 
-Status: active; covered argument/owned Text initializer qualification verified; full series unaccepted.
+Status: active; covered argument/common Core initializer source qualification verified; full series unaccepted.
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
@@ -238,9 +238,9 @@ and both consumers close; no parallel interpreter/emitter or temporary adapter.
 - Both final scans/JSON/C and native positive/negative lifecycle evidence.
 - Unchanged json-stream first-stop and fixed acceptance under original expected
   output/exit; downstream storage/Loop gaps remain separate unaccepted owners.
-- Keep CLI186, Root851C, app203-205 and matched backend pins as current baseline.
-  No adapter is parked. Superseded pins may retire after stronger replacement
-  evidence; logs/manifests and implementation commits retain required evidence.
+- Current pin roles follow the latest verified construction below. Historical
+  logs/manifests remain; superseded binaries retire after stronger same-role
+  evidence. No adapter is parked.
 
 ## Verified original-method preparation
 
@@ -856,44 +856,101 @@ and557,147,640B superseded pin retirement. Keep887A/CLI232/app277/runtime877A/
 FFI876B as current matched bundle; trace source snapshots/logs retain exact
 observations. Full Text series and fixed suite/CI acceptance remain unaccepted.
 
-V888 normalization Decision (same read-only reviews): behavior-preserving
-BoxShape in2 commits before Core-I64 admission. Step1 sole Call/Core preorder
-issues consumed source-bound scope; wrappers/admission unchanged. Step2 one
-initializer frame/slot/selector vocabulary, same current owned-String policy.
-No second Scalar registry, source_call classification or runtime/source grant.
-Step2 paths: resolved_semantics/{home_expression_plan,home_expression_evaluation,
-home_argument_expression,home_bool_condition,home_print_expression,
-home_field_write_expression,home_borrowed_field_write,home_prefix_local_flow,home_prefix_text,
-home_new_prefix,home_new_prefix_scan,home_expression_leaves}.rs;
-rename home_text_initializer_expression.rs -> home_initializer_expression.rs,
-home_new_prefix_text_initializer.rs -> home_new_prefix_initializer_expression.rs.
-Package root_call_entry selector (rename text_initializer_projection.rs to
-initializer_expression_projection.rs), parent module, object_arguments_port_tests;
-Builder normal_callable_binding_materialization.rs; owner README/card.
-Reuse42filters/375 identities/14 diagnostics, stable guards and unchanged JSON
-at step2 closeout; native only if source effects change. No new mirror tests.
-V888 step1: Root888A48.725s,42filters11.962s:375distinct/361PASS/14same
-identities+diagnostics vs887A; stable guards PASS. This internal extraction commit
-is not full normalization closeout; unchanged CLI/frontier verification follows
-step2. Keep888A and prior CLI232/app277/runtime877A/FFI876B, no new adapter.
+V88873492f63e2 / V8895c620ea0b4 complete behavior-preserving2-commit
+normalization: sole consumed Call/Core scope and common initializer vocabulary.
+Those commits own Root361PASS/14identical baseline, CLI233/app278 byteexact JSON
+Body7 pending (.122847s), warnings/guards and537,646,440B pin retirement.
+No source execution grant, adapter or extra tests. Keep Root889B/CLI233 as current
+focused/frontier pins until stronger successors replace them; retain matched
+CLI232/app277/runtime877A/FFI876B native bundle (23d15d37c0 exact7/stderr/exit0).
+Logs/manifests remain historical; no current CI/full-suite green claim.
 
-V889 step2 closeout: initializer frame/slot/selector and LocalInitializer profile
-now share purpose-neutral names; old Text-specific type/slot/selector imports
-have zero callers. Original owned-String/root-Add/parent-Text admission and all
-execution fences are unchanged; no I64 initializer grant yet. Root889A failed
-on two stale namespace imports (plus dependent inference errors), corrected before
-Root889B PASS99.546s.42filters12.036s:375distinct/361PASS/14baseline identities AND
-messages identical to888A. CLI233 PASS188.544s; unchanged JSON app278 canonical
---grammar-profile canonical --backend mir --emit-exe (pure-first, no replay,
-plugins disabled,16MiB stack; matching runtime877A/FFI876B) exit1/noEXE .122847s,
-Body7Value core-expression-execution-pending byteexact vs276. Root/CLI warning
-messages unchanged. Stable pointer/root-route/layer/thin/diff guards PASS;
-existing parser/root catalog soft-size warnings remain. No new tests/adapter.
-Native not repeated for behavior-preserving normalization; retain matched
-CLI232/app277/runtime877A/FFI876B (exact7/stderr/exit0 in23d15d37c0). Root889B and
-CLI233/app278 replace focused/frontier pins; old887A/888A test binaries retired,
-logs/manifests retained. /tmp evidence owner is this card, retire remaining pins
-when stronger same-role evidence replaces them or full Text series closes.
-CI query: latest completed run35681768498 failed on historicald4168473d5;
-no present revision CI/full-suite green claim. Next: SAME initializer evaluation
-with source-backed scalar reads, physical Local handoff and both final scans.
+V890 construction scope (worker source-to-final-consumer review): add current
+scalar read loan at existing Prefix flow, nested Scalar Original/Obligation in
+SAME reference slot; original signed Entry, unique literal/retained LocalCall or
+SAME installed initializer. Prepared Call scope enumerates active Core children
+once; initializer uses these original reads, static/residence/entry proofs and
+SAME checked evaluation for Core-containing I64 or owned Text. Preserve existing
+non-Core scalar owner and all physical execution fences until Local receipt,
+common writer and BOTH source consumers close. This is source construction in
+the full Text series, not a smaller executable subset. Call-produced pos must
+also join its genuine emitted packet; source classification never substitutes.
+Paths: home_prefix_local_flow/new home_prefix_scalar, home_expression_evaluation,
+home_expression_leaves/plan, home_initializer_expression,
+home_new_prefix_initializer_expression/home_new_prefix, home_argument_expression;
+existing object_arguments_port_tests (split existing initializer test owner if
+needed at760), owner README/card. Physical integration remains the previously
+recorded Local descent/sole writer/local binding group/shared projection and
+finalized source-dependency presence, without another proof registry.
+Worker review requires binding prepared scope to its original profile/Home
+snapshot, Local-only scalar producer declarations, and canonical Core receipt
+participation in the production walk trigger. Extend paths to existing
+ordinary_new_borrowed_initializer_text_source.rs and its single call in
+ordinary_new_coseal_issue.rs; no new trigger registry. Existing initializer port
+tests moved to ordinary_new_initializer_expression_tests.rs as one child owner
+before extending contracts (old port757lines). SourceScalarKind moves to its
+existing scalar-state responsibility module, avoiding further parent growth.
+V890B genuine-walk test exposed missing source demand: canonical Core receipts
+were created only from existing incoming actual graph roots, leaving unused/local
+Core initializers without a Home-walk trigger. Worker confirmed extending SAME
+source graph with ephemeral original Local initializer demand roots. Use SAME
+checked classifier/context/point expansion and solver; graph.seed only, NEVER
+actual/formal union. Existing ordinary_core map remains sole receipt owner.
+Extend paths to ordinary_new_borrowed_formal_source_seeds.rs/source_sum.rs.
+Root-method ordinary Call dispatch regression is corrected by requiring/reusing
+one canonical Core receipt before this initializer purpose may select that root.
+
+Physical continuation (owned_write_final_scan, reused top-down review):
+CallValidationContext.with_taken_packet_v1 borrows SAME original Call from the
+current Lowering/Finalized affine pool. Generalize existing reference_reads value
+to typed producer observation, keeping one map; exact Entry/Const/Call/previous
+initializer result plus Copy dependencies are mandatory before atomic read take.
+Borrow previous initializer by SAME frame Rc from existing Local binding groups,
+analogous to with_original_field_write_v1, never another packet registry.
+Publish one group only after existing from-values CompletedLocal receipt.
+LifecyclePrefixSource and finalized has_expression_source must include initializer
+sources even after effects erase; BOTH final scans require captured dependencies
+and sealed relation_binding permission for omissions. I64 ends all Text children;
+Text transfers exact root through source-aware handoff, not merely skipped End.
+Real n still needs Text entry, start needs residence, pos needs full Text actual;
+this physical construction is no replacement for the full selected Text series.
+
+V890 verified source construction (not Text execution): SAME initializer now
+retains Core-containing I64 and owned Text, exact active reference coverage,
+original signed/literal/Call/previous-frame scalar reads and full child temporary
+inventory. Scalar installs no Home; Text residence requires owned String root.
+Old non-Core scalar owner and all physical fences remain. Original Local demand
+roots enter SAME SUM graph only via seed, not incoming/formal unions. Production
+walk trigger borrows canonical Core rows. New tests verify real retained frames,
+entry/literal/Call/computed aliases, standalone/nested Core, unsupported reassign,
+branch/Loop Join and Bool/I64 receivers; scope profile/Home snapshot is bound.
+Old initializer tests moved under same port fixture owner (port462/new owner371),
+not duplicated. Prefix parent757 lines; source-seed parent732, no hard-size growth.
+Intermediate890B had new non-Core root-call dispatch regression and missing local
+Core demand; both corrected before final890C. Root890C build70.896s;44filters
+10.715s:377distinct/363PASS/14identical baseline identities AND diagnostics vs889B.
+CLI234 PASS220.305s, root/CLI warning messages unchanged; stable pointer/root-route/
+layer/thin/diff guards PASS (only existing soft warnings). Unchanged app279 JSON
+canonical direct --emit-exe .122849s exit1/noEXE, Body7Value core-expression-
+execution-pending byteexact vs278: actual external frontier remains UNCHANGED.
+No measured new internal intField Prefix position claim. Unchanged app280
+mimalloc canonical EXE PASS132.648918s/native .001687s, original7 stdout lines,
+stderr and exit0 exact vs277. Both use canonical grammar/backend mir, pure-first,
+no replay, plugins disabled,16MiB stack, matched runtime877A/FFI876B. CLI SHA
+4ace695c6260aa40e70ee452756ad791c811fb47ae2940a8acde18db5e527c9e;
+native SHA2a6464a4151cb3b3fc052903fbb876e6d86c4fc078140c9a0bb2babeaff95fa9.
+/tmp logs/manifests/source hashes and classified attempts retained; current
+Root890C/CLI234/app279-280/runtime877A/FFI876B replace older pin roles. Superseded
+root889B/890A/890B, CLI232/233 and app277 binaries retired after these exact
+comparisons; no adapter. Retain current pins until stronger same-role evidence
+or full-series acceptance, then remove. Latest CI remains historical failed
+35681768498/d4168473d5, not present revision green. Full Text execution,
+fixed suite, required integration/cutover/retirement and finite goal stay open.
+Next is the common physical Local/read/entry/argument/cleanup/final-scan mapping
+above; do not patch source-class permission or infer Loop After to bypass it.
+Reproduce root build with RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4
+cargo quick-test-fast --no-run --message-format=json; reuse that root binary for
+V889's42 family filters plus initializer_core_i64_reads_require_original_producers_in_the_real_home_walk
+and initializer_scope_keeps_its_original_profile_and_home_snapshot. CLI build:
+RUST_MIN_STACK=16777216 CARGO_BUILD_JOBS=4 cargo build --profile quick --bin
+hakorune --message-format=json. Superseded pins removed954,374,280B this closeout.

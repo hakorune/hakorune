@@ -21,7 +21,7 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
     pub(crate) fn text_reads(&self) -> Vec<&BorrowedTextEntryReadRequirementV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::ArgumentEntry(read) => Some(read), _ => None }).collect() }
-    pub(crate) fn references(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar { binding, kind } => Some((node, (*binding, *kind))), _ => None }).collect() }
+    pub(crate) fn references(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar(read) => Some((node, (read.binding(), read.kind()))), _ => None }).collect() }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
@@ -92,7 +92,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     if core.resolver_source().is_some_and(|original| !cores.get(&0)
         .is_some_and(|retained| std::ptr::eq(retained.source(), original))) { return Ok(None); }
     let mut reference_proofs = BTreeMap::new();
-    for (node, (binding, kind)) in references { reference_proofs.insert(node, CheckedExpressionReferenceV1::Scalar { binding, kind }); }
+    for (node, (binding, kind)) in references { reference_proofs.insert(node, CheckedExpressionReferenceV1::Scalar(CheckedScalarReferenceV1::Obligation { binding, kind })); }
     for read in static_reads {
         let Some(node) = source.nodes().iter().position(|node| node.site() == read.read()) else { return Ok(None) };
         if !transferred.contains(&node) && reference_proofs.insert(node, CheckedExpressionReferenceV1::StaticText(read)).is_some() { return Ok(None); }

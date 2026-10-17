@@ -9,7 +9,7 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, LocalInitializer }
+pub(in crate::mir::resolved_semantics::home_new_prefix) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, LocalInitializer }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ExpressionCallSourceV1 {
@@ -43,16 +43,33 @@ pub(super) fn qualify_expression_leaves_v1<E>(
 
 /// Invocation-local scope from the sole original Call/Core classification.
 /// Consumed by leaf completion; no independent source, Home or physical grant.
-pub(super) struct PreparedExpressionCallsV1 {
+pub(crate) struct PreparedExpressionCallsV1 {
     source: Rc<ExpressionSourcePlanV1>,
     profile: ExpressionLeafProfileV1,
     leaves: Vec<Leaf>,
     calls: BTreeMap<usize, LocalCallObservationV1>,
     cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     transferred: BTreeSet<usize>,
+    prior_homes: Box<[crate::mir::resolved_semantics::BindingRefV1]>,
 }
 
-pub(super) fn prepare_expression_calls_v1<E>(
+impl PreparedExpressionCallsV1 {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_local_initializer(&self) -> bool { self.profile == ExpressionLeafProfileV1::LocalInitializer }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn has_core(&self) -> bool { !self.cores.is_empty() }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn is_active_reference(&self, node: usize) -> bool {
+        !self.transferred.contains(&node) && self.leaves.get(node) == Some(&Leaf::Unresolved)
+            && self.source.nodes().get(node).is_some_and(|node| matches!(node.source(), ExpressionNodeSourceV1::Reference(_)))
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn seed_reference(&mut self, node: usize, class: Leaf) -> bool {
+        if !self.is_active_reference(node) || class.value_classes().is_none() { return false; }
+        self.leaves[node] = class;
+        true
+    }
+}
+
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn prepare_expression_calls_v1<E>(
     source: &Rc<ExpressionSourcePlanV1>, profile: ExpressionLeafProfileV1,
     seeded: &BTreeMap<usize, Leaf>, prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
@@ -107,7 +124,7 @@ pub(super) fn prepare_expression_calls_v1<E>(
         leaves[index] = Leaf::Value(class);
         calls.insert(index, call);
     }
-    Ok(Some(PreparedExpressionCallsV1 { source: Rc::clone(source), profile, leaves, calls, cores, transferred }))
+    Ok(Some(PreparedExpressionCallsV1 { source: Rc::clone(source), profile, leaves, calls, cores, transferred, prior_homes: prior_homes.into() }))
 }
 
 pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
@@ -116,7 +133,7 @@ pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
-    let PreparedExpressionCallsV1 { source, profile, mut leaves, calls, cores, transferred } = prepared;
+    let PreparedExpressionCallsV1 { source, profile, mut leaves, calls, cores, transferred, prior_homes: _ } = prepared;
     let source = &source;
     let mut references = BTreeMap::new();
     let mut fields = Vec::new();

@@ -76,10 +76,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_en
 }
 
 impl PreparedBorrowedFormalIngressV1 {
-    /// Select the existing Home walk for a possible owned Text initializer.
+    /// Select the existing Home walk for an original Text/Core initializer.
     /// This is a source demand only; the qualifier still proves the whole root,
     /// current state and acquisition. Call-owned inputs are not parent leaves.
-    pub(in crate::mir::normal_callable_semantic_package) fn requires_text_initializer_walk_v1(
+    pub(in crate::mir::normal_callable_semantic_package) fn requires_initializer_expression_walk_v1(
         &self, input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> bool {
         use crate::mir::resolved_value_profile::expression_plan::{local_expression_source_plan_v1, ExpressionNodeSourceV1 as Node};
@@ -88,9 +88,11 @@ impl PreparedBorrowedFormalIngressV1 {
         input.function().expression_source().initializers().any(|initializer| {
             if initializer.initializer_site().is_some_and(|site|
                 matches!(input.function().expression_source().literal(site), Some(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)))) { return true; }
+            let Ok(plan) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return false };
+            if plan.nodes().iter().any(|node| matches!(node.source(), Node::MethodCall)
+                && self.ordinary_core_source_v1(&OwnedExprSiteV1::new(input.owner(), node.site().clone())).is_some()) { return true; }
             if !initializer.initializer_site().and_then(|site| input.function().expression_source().binary(site))
                 .is_some_and(|binary| binary.operator() == ResolvedBinaryOperatorV1::Add) { return false; }
-            let Ok(plan) = local_expression_source_plan_v1(&ledger, input.body_shape(), initializer) else { return false };
             let required = plan.nodes_outside_calls().any(|(_, leaf)| {
                 match leaf.source() {
                     Node::Literal(crate::mir::resolved_semantics::ResolvedLiteralSourceV1::String(_)) => true,

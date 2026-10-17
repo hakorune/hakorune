@@ -66,7 +66,7 @@ pub(crate) enum CheckedExpressionReferenceV1 {
         read: crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1,
         exclusion: Option<Rc<super::super::EntryNullExclusionV1>>,
     },
-    Scalar { binding: super::super::BindingRefV1, kind: super::super::SourceScalarKind },
+    Scalar(CheckedScalarReferenceV1),
 }
 impl CheckedExpressionReferenceV1 {
     pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
@@ -75,7 +75,7 @@ impl CheckedExpressionReferenceV1 {
             Self::Residence(read) => read.binding(),
             Self::ArgumentEntry(read) => read.binding(),
             Self::InitializerEntry { read, .. } => read.requirement().binding(),
-            Self::Scalar { binding, .. } => *binding,
+            Self::Scalar(read) => read.binding(),
         }
     }
     pub(crate) fn matches_node(&self, source: &Rc<ExpressionSourcePlanV1>, node: usize) -> bool {
@@ -86,12 +86,31 @@ impl CheckedExpressionReferenceV1 {
         match self {
             Self::StaticText(read) => read.read() == original.site(),
             Self::Residence(read) => read.node() == node && read.root() == read.acquisition().binding()
-                && read.acquisition().source().owner() == source.owner(),
+                && read.acquisition().source().owner() == source.owner() && read.acquisition().is_text_residence(),
             Self::ArgumentEntry(read) => Rc::ptr_eq(read.source_plan(), source) && read.node() == node && read.read() == original.site(),
             Self::InitializerEntry { read, exclusion } => Rc::ptr_eq(read.requirement().source_plan(), source)
                 && read.requirement().node() == node && read.requirement().read() == original.site()
                 && read.leaf_class(exclusion.as_deref()).is_some(),
-            Self::Scalar { .. } => true,
+            Self::Scalar(read) => read.original_read().is_none_or(|read| read.read() == original.site()),
         }
+    }
+}
+
+/// Existing class obligations and original current reads share one node slot.
+/// Only Original may later be fulfilled as a physical operand.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum CheckedScalarReferenceV1 {
+    Obligation { binding: super::super::BindingRefV1, kind: super::super::SourceScalarKind },
+    Original(super::super::CurrentScalarReadV1),
+}
+impl CheckedScalarReferenceV1 {
+    pub(crate) fn binding(&self) -> super::super::BindingRefV1 {
+        match self { Self::Obligation { binding, .. } => *binding, Self::Original(read) => read.binding() }
+    }
+    pub(crate) fn kind(&self) -> super::super::SourceScalarKind {
+        match self { Self::Obligation { kind, .. } => *kind, Self::Original(read) => read.kind() }
+    }
+    pub(crate) fn original_read(&self) -> Option<&super::super::CurrentScalarReadV1> {
+        match self { Self::Original(read) => Some(read), Self::Obligation { .. } => None }
     }
 }

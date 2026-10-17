@@ -353,7 +353,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     shape.statements().iter().any(|statement| matches!(statement,
                         crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. }))
                 });
-                let has_text_initializer = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_text_initializer_walk_v1(input));
+                let has_text_initializer = borrowed_formal_source.as_ref().is_ok_and(|source| source.requires_initializer_expression_walk_v1(input));
                 let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
                     .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
                 let seed_completion = (seed_eligible
