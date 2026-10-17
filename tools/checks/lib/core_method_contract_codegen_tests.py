@@ -175,6 +175,14 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
                         "2": "CodePointHalfOpenClamped",
                     },
                 ),
+                row(
+                    "StringBox",
+                    "indexOf",
+                    "1|2",
+                    core_op="StringIndexOf",
+                    result_kind="I64Value",
+                    semantic_law={"1": "CodePointSearchFromZero", "2": "Unprojected"},
+                ),
             ]
         )
 

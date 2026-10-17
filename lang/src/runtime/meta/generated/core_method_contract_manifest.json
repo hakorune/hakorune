@@ -274,7 +274,7 @@
       ],
       "arity": "1|2",
       "semantic_law": {
-        "1": "Unprojected",
+        "1": "CodePointSearchFromZero",
         "2": "Unprojected"
       },
       "effect": "pure_read",

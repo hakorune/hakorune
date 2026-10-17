@@ -61,6 +61,7 @@ pub(crate) enum CoreMethodSemanticLawV2 {
     Unprojected,
     CodePointCount,
     CodePointHalfOpenClamped,
+    CodePointSearchFromZero,
 }
 
 #[allow(dead_code)]
@@ -70,6 +71,7 @@ impl CoreMethodSemanticLawV2 {
             Self::Unprojected => "Unprojected",
             Self::CodePointCount => "CodePointCount",
             Self::CodePointHalfOpenClamped => "CodePointHalfOpenClamped",
+            Self::CodePointSearchFromZero => "CodePointSearchFromZero",
         }
     }
 }
@@ -296,6 +298,10 @@ mod tests {
             substring_two_ref.semantic_law_for_arity(),
             Some(CoreMethodSemanticLawV2::CodePointHalfOpenClamped)
         );
+        assert_eq!(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringIndexOf, 1)
+            .unwrap().semantic_law_for_arity(), Some(CoreMethodSemanticLawV2::CodePointSearchFromZero));
+        assert_eq!(issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringIndexOf, 2)
+            .unwrap().semantic_law_for_arity(), Some(CoreMethodSemanticLawV2::Unprojected));
     }
 
     #[test]

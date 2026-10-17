@@ -36,7 +36,14 @@ exact-arity `CoreMethodManifestRowRefV2` is the only projection boundary.
 StringLen/0          -> CodePointCount
 StringSubstring/2    -> CodePointHalfOpenClamped
 StringSubstring/1    -> Unprojected
+StringIndexOf/1      -> CodePointSearchFromZero
+StringIndexOf/2      -> Unprojected
 ```
+
+`CodePointSearchFromZero` fixes the one-argument CP search: empty needle
+returns `0`, a match returns its CP index, and a miss returns normal `-1`.
+The two-argument form is not covered by this projection. This records the
+existing CP API contract above; it does not select the legacy byte runtime.
 
 This metadata does not emit Recipe, MIR, runtime-frame, or production behavior.
 It does not change the legacy runtime toggle or authorize VM/provider parity;

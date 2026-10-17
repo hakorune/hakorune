@@ -181,7 +181,7 @@ pub(crate) const CORE_METHOD_CONTRACT_ROWS_V2: &[CoreMethodContractRowV2] = &[
         aliases: &["find"],
         arities: &[1, 2],
         semantic_law: &[
-            (1, CoreMethodSemanticLawV2::Unprojected),
+            (1, CoreMethodSemanticLawV2::CodePointSearchFromZero),
             (2, CoreMethodSemanticLawV2::Unprojected),
         ],
         op: CoreMethodOp::StringIndexOf,

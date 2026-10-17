@@ -872,73 +872,94 @@ argument/entry/current/writer/final proof connection stays in this same open ser
 backend or runtime capability tests do not close its production acceptance.
 
 
-V876 implementation and evidence (source Text series still OPEN):
-- Existing InvokeString owner now has Length:I64, Substring:OwnedString and
-  IndexOf:I64, with ordered operands and strict Text receiver/needle domains.
-  One owns_normal_result helper covers acquisition/End validation; slice bounds
-  cannot consume owned pairs. Existing tests cover producer/projection mutation.
-- Runtime reuses fixed CP operations and one Add/Substring publication function.
-  Fresh substring pairs include full/empty slices; readers acquire nothing.
-  Invalid/stale/wrong-token descriptors preserve output; registry read leases end
-  before publication. Header and all owner READMEs describe the same contract.
-- Physical ABI/JSON and both C consumers use shared String kind/result/operand
-  classification. Bounds require I64; scalar Normal projections consume their
-  marker without creating End debt. Existing String fixture/probe owners cover
-  new operations, Normal/Fault cleanup and malformed domains. No new repository
-  test/guard/profile/adapter owner or .hako workaround was introduced.
-- Read-only packet_origin_review found no serious domain, result, publication or
-  cleanup hole. owned_write_final_scan supplied the fixed-CP correction above.
+V876 landed at1ca5340111: checked CP Length/Substring/IndexOf now share the
+existing instruction/verifier/JSON/C/runtime owner. Add/Substring share fresh-pair
+publication, both C consumers share kind/result/operand classification; only
+substring acquires. Existing tests cover CP clamping/search, malformed operands,
+Normal/Fault and borrowed pointer forwarding, without a new test/guard/profile.
+Root876A PASS86.966630s, focused distinct283/pass270/baseline13 unchanged875D;
+Kernel876A linked ABI PASS1, native/indexed String matrix PASS; borrowed fixture
+literal/owned Normal/Fault all4 PASS. CLI213/app249 JSON SAME Core execution
+fence; app250 unchanged mimalloc EXE135.174449s/native0.001641s original7/exit0
+PASS. Exact build commands, manifests/hashes, source/backend alignment, all
+negative boundaries and retirement conditions are retained in that commit.
+Root/pointer/layer/thin/diff guards PASS. Latest CI remains historical failure
+35681768498/d4168473d5, no current CI/full-suite green. Keep matched pins/receipts
+until full Text series acceptance, then retire scratch including obsolete FFI876A.
+Source argument/entry/Core execution, initializer handoff, cleanup and both final
+source scans remain open; no production Text cutover/legacy retirement claimed.
 
-Reproduction uses /tmp/mirbuilder-required-forward-resume build_current.py,
-which captures complete source manifests/commands/output and jobs=4, stack16MiB.
-Root876A: cargo quick-test-fast --no-run --message-format=json PASS86.966630s.
-36 reused focused filters: distinct283/pass270/baseline13 in9.872686s; exact
-failed identities/messages match Root875D (thread IDs/plugin map order normalized).
-No new warnings. Existing String lifetime and JSON transport filters each PASS1.
-Kernel876A: cargo test --profile quick -p nyash_kernel --no-default-features
---features lifecycle-core --lib --no-run --message-format=json PASS236.618233s.
-Run pinned test binary with NYASH_STR_CP=0, filter
-checked_string_pairs_preserve_bytes_independence_and_fault_cleanup and
---test-threads=1: PASS1,397 filtered,0.002612s. Unicode CP positions, independent
-clamps/reversed-empty ranges, empty needle/miss, fresh full/empty pairs, invalid
-UTF8/stale/wrong token/reserved operands, output preservation and cleanup covered.
-Runtime876A: cargo build --profile quick -p nyash_lifecycle_kernel
---message-format=json PASS7.272173s; archive SHA256
-15e44c133e414bdeaf9437c8ffd95b03c3cceb1e25843f265745a2803a60f2db.
-FFI876B: cc -fPIC -shared -Werror=format, existing four C sources
-(hako_llvmc_ffi.c,hako_aot.c,hako_json_v1.c,yyjson.c), yyjson include,
-PASS6.830226s; shared library SHA256
-1877c0b42d2a1197aec15d27e1986e0134f7f45d61938917f534b7e12091680f.
-HAKO_TEST_FFI_DIR=.../ffi-v876b HAKO_TEST_LIFECYCLE_ARCHIVE=.../runtime-v876a/
-libnyash_lifecycle_kernel.a NYASH_STR_CP=0 python3
-lang/c-abi/tests/published_native_array_physical_test.py .../ffi-v876b-string
---checked-string: PASS, stderr empty; total wall time unmeasured. Both native and
-indexed paths run real ABI CP ops and preserve old Add/Print/End/NUL/MIN tests;
-Substring acquisition/read faults and malformed bounds/needle/End/scalar reuse
-reject or clean up at the required boundary before an invalid artifact.
-Supplemental existing borrowed_ingress fixture reused its two unchanged pointer
-forward hops and exact formal Copy. Replace its leaf Print with substring(1,3),
-length(slice),indexOf(original,"界"),print(slice/index),End(slice), then original
-store/Return. For original literal and owned "aé界z" callers, both Normal/store
-Fault runs output é界 then2 and release exactly1/2 pairs respectively. All4 PASS
-in12.122165s using real archive and existing runtime probe; no repo test duplicate.
 
-CLI213: cargo build --profile quick --bin hakorune --message-format=json
-PASS192.586672s, no new warnings; pinned binary SHA256
-bfcd10c7535981964387bbed53043414a086033d4062f9665fb7c61d9aaefe44.
-Canonical direct app command: CLI213 --grammar-profile canonical --backend mir
---emit-exe OUT --emit-exe-nyrt runtime-v876a ORIGINAL_SOURCE; clean HAKO/NYASH
-then plugins disabled, route trace1, pure-first, compat replay none, stack16MiB,
-HAKO_AOT_FFI_LIB=ffi-v876b/libhako_llvmc_ffi.so. All source manifests match.
-App249 unchanged json-stream-aggregator exits1/no artifact in0.127663s, SAME
-slot20/Body7/Value core-expression-execution-pending, stderr byte-identical247.
-App250 unchanged mimalloc-lite EXE135.174449s/native0.001641s, original7 lines
-and exit0 exact; stderr byte-identical248. EXE SHA256
-35ff4ceef9019a3cad3f78c19225e87374c410a72e83099ef9a209a936e3339a.
-These are physical/runtime capability and app regression evidence, not source
-Text acceptance. General checked argument/entry/Core emission, initializer handoff,
-complete cleanup and both final source scans remain owed as recorded above.
-Retain matched CLI/FFI/runtime/source manifests, fixture helper and receipts until
-this series acceptance; then retire scratch (including superseded FFI876A).
-No old production caller has switched; shared legacy retirement is not claimed.
-Latest observed CI35681768498 failed at historical d4168473d5, not current green.
+Next source connection Decision (read-only workers, after V876 1ca5340111):
+Core inventory belongs in SAME CheckedExpressionEvaluationV1, with original
+node/plan/ordinary Core Rc retained via common leaf qualification. No new packet
+pool: existing values/original bindings suffice for unique Core Invoke+Normal
+and operand correspondence in both final scans. Core children remain ordered
+here; only ordinary child Calls transfer their input subtrees. Length/IndexOf
+need Invoke plus projection in ordered bindings; substring joins owns_normal_result
+cleanup, not an Add-only census. Entry structural source view must be separated
+from executable incoming closure to avoid forward cycles; genuine signature/read
+joins first, all executable actuals and incoming checked at final publication.
+IndexOf correction: StringBoxTextV1/nonSuspending and TextScan's symbolic host-
+handle profile do NOT themselves authorize checked-Operand CP execution. Project
+existing language CP search semantics from the canonical CoreMethodContractBox
+exact-arity law, instead of inventing a second profile table. Extend existing
+law enum/codegen/generated rows/tests and consume the law in ordinary Core source
+issuance. Reference first, existing owner only; app .hako remains unchanged.
+This metadata closure is not runtime/source execution acceptance. Then the SAME
+source Core product can enter shared evaluation/projection; borrowed entry/read,
+finite envelopes, initializer and final closure obligations remain above.
+
+
+V877 source law connection: existing CoreMethodContractBox now issues exact
+IndexOf/1 CodePointSearchFromZero, /2 stays Unprojected. The same generator
+projects JSON/Rust; target.checked_code_point_law_v1 checks exact op/arity/law,
+parameters/result/schema/receiver/ABI/non-suspending policy. Ordinary source
+issuance requires this before publishing its receipt; no symbolic TextScan
+profile/host handle/legacy env becomes authorization. Existing source-domain
+fixtures include indexOf and invalid needle, target tests cover absent law and
+wrong arity; no new test owner. Worker reviewed the whole law/issuer change.
+Root877A cargo quick-test-fast --no-run --message-format=json PASS64.041396s;
+38 existing focused filters distinct297/pass284/baseline13 unchanged876A in
+9.415726s; no new warnings. Exact failure identities/messages retained (thread IDs
+and unordered plugin map normalization only). Generator14 tests and --check PASS.
+The outer core_method_contract_manifest_guard stops at an existing unlisted
+ordinary::issue_ordinary_source consumer; git HEAD1ca5340111 and current have
+identical issuer consumer sets, so this is baseline, not new growth or green.
+Pointer/root/layer/thin/diff guards PASS (thin files10/debt26 unchanged).
+CLI214 cargo build --profile quick --bin hakorune --message-format=json
+PASS151.997389s, no new warnings; SHA256
+7edd4bbe4c1909168a5c5a19c4b1429aa32c71093c0c2c6da5fd646e0ed73501.
+Runtime877A cargo build --profile quick -p nyash_lifecycle_kernel
+--message-format=json PASS170.334982s, no new warnings; archive SHA256
+10511dadfa2462a1e7b1ea85d7450afc154dc75f7bdc9b0e9ca5a96d231f222f.
+CLI/runtime full source manifests equal; unchanged FFI876B backend paths match.
+App251 unchanged JSON canonical direct command (same flags/env as V876, with
+CLI214/runtime877A) exits1/no artifact in0.113797s, SAME slot20/Body7/Value
+core-expression-execution-pending; stderr byte-identical249. No source execution
+fence removed. App252 unchanged mimalloc canonical direct EXE PASS132.466040s,
+native0.001554s, original7-line stdout/exit0 exact; stderr byte-identical250.
+EXE SHA256 f0a0af65feccd1136d61eeae24971a8248df5c1f5a442434e8b504255b8132b3.
+App source hashes remain the V876 originals. Keep matched CLI214/runtime877A,
+FFI876B and source/receipt pins until Text acceptance; scratch retires afterward.
+V877 closes missing source-law projection only, not Core evaluation, Text entry,
+physical actuals/initializer/final scans or whole goal. No new adapter/profile,
+source app workaround, caller cutover or shared legacy retirement is claimed.
+
+
+Finite execution normalization checked by packet_origin_review: preserve BOTH
+existing Add envelopes plus SAME SUM, original terminating-Null exclusion and
+current read. Text LHS and exact live Text|signed-I64 RHS share checked_add_v1,
+OwnedString result and Fault/End laws. One finite operand projection may adapt
+runtime tag1 to Integer descriptor and tag4 to the original borrowed Text
+descriptor, then use ONE Invoke/Normal acquisition/cleanup; no pair-merge or
+second evaluator is needed. Never collapse the retained envelopes into one
+semantic claim. Null runtime rejection cannot replace original dominance proof;
+Bool/Object/Unknown and unproved incoming remain refused. Lend this operand only
+at the position covered by those Add envelopes, not Text-only Core receivers.
+Existing BorrowedTaggedValue keeps its carrier; source SUM lends an exact closed
+entry-domain set checked by one domain owner, distinct from unmarked0..3 and
+text_view:true/4-only. All incoming and forward domain containment must close.
+This is existing finite-operation physical normalization, not String*Dynamic,
+ExactText or a new semantic profile. It joins the already-recorded entry/read,
+common expression and both-final-scan connection; no new task/card is selected.

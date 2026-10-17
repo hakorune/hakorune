@@ -48,6 +48,7 @@ static box CoreMethodContractBox {
   semantic_law_unprojected() { return "Unprojected" }
   semantic_law_code_point_count() { return "CodePointCount" }
   semantic_law_code_point_half_open_clamped() { return "CodePointHalfOpenClamped" }
+  semantic_law_code_point_search_from_zero() { return "CodePointSearchFromZero" }
 
   _law0(law) { return "0=" + law }
   _law1(law) { return "1=" + law }
@@ -329,7 +330,7 @@ static box CoreMethodContractBox {
       "indexOf",
       me._aliases1("find"),
       "1|2",
-      me._law1_2(me.semantic_law_unprojected(), me.semantic_law_unprojected()),
+      me._law1_2(me.semantic_law_code_point_search_from_zero(), me.semantic_law_unprojected()),
       me.effect_pure_read(),
       me.op_string_indexof(),
       me.result_i64_value(),

@@ -31,6 +31,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
     let target = issuer.issue(operands.manifest())
         .map_err(|error| format!("[freeze:contract][ordinary-core/target] {error:?}"))?;
+    if target.checked_code_point_law_v1().is_none() {
+        return Err("[freeze:contract][ordinary-core/semantic-law]".to_owned());
+    }
     let source = ResolverCoreMethodCallableContractIssuerV1::issue_ordinary_source(&ledger, method, target)
         .map_err(|error| format!("[freeze:contract][ordinary-core/source] {error:?}"))?;
     if !std::sync::Arc::ptr_eq(source.source(), method) { return Err(reject()); }

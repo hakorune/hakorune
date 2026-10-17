@@ -29,3 +29,12 @@ at the ABI or argument use cannot replace any of these connections.
 The current extraction preserves Return admission. Local/Birth source retention,
 physical correspondence and canonical app execution remain required before the
 new local consumer can be accepted. No separate classification map or fallback.
+
+
+Ordinary checked String source issuance consumes the exact generated CP law
+through its existing typed target: Length/0 is CodePointCount, Substring/2 is
+CodePointHalfOpenClamped, IndexOf/1 is CodePointSearchFromZero (empty=0,
+miss=normal -1). The ordinary source receipt retains that same target. ABI family
+and non-suspension do not substitute for this law; missing/mismatched laws refuse
+before source publication. Other arities remain outside this checked execution
+mapping. This does not itself activate physical argument/entry or evaluation.

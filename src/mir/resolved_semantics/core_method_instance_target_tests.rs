@@ -34,6 +34,7 @@ fn string_len_issues_exact_typed_home_target() {
         CoreMethodHomeExecutionPolicyV1::NonSuspendingNonControl
     );
     assert_eq!(target.row().arity(), 0);
+    assert_eq!(target.checked_code_point_law_v1(), Some(CoreMethodSemanticLawV2::CodePointCount));
 }
 
 #[test]
@@ -52,6 +53,25 @@ fn string_substring_specializes_union_row_to_exact_arity_two() {
         CoreMethodHomeResultRelationV1::TextToCaller
     );
     assert_eq!(target.row().arity(), 2);
+    assert_eq!(target.checked_code_point_law_v1(), Some(CoreMethodSemanticLawV2::CodePointHalfOpenClamped));
+    let index_row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringIndexOf, 1).unwrap();
+    let mut index_target = issuer.issue(index_row).unwrap();
+    assert_eq!(index_target.checked_code_point_law_v1(), Some(CoreMethodSemanticLawV2::CodePointSearchFromZero));
+    // An ABI family is not enough: a different arity or missing law cannot
+    // authorize the checked one-argument CP operation.
+    index_target.row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringIndexOf, 2).unwrap();
+    assert_eq!(index_target.checked_code_point_law_v1(), None);
+    static UNPROJECTED_SEARCH: CoreMethodContractRowV2 = CoreMethodContractRowV2 {
+        receiver_box: "StringBox", canonical: "indexOf", aliases: &[], arities: &[1],
+        semantic_law: &[(1, CoreMethodSemanticLawV2::Unprojected)], op: CoreMethodOp::StringIndexOf,
+        result_kind: CoreMethodResultKindV1::I64Value, effect: CoreMethodEffectV1::PureRead,
+        lowering_tier: CoreMethodLoweringTier::WarmDirectAbi,
+    };
+    let unprojected = CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap()
+        .issue(issue_core_method_manifest_test_row_ref(&UNPROJECTED_SEARCH, 1, false)).unwrap();
+    assert_eq!(unprojected.abi_profile(), CoreMethodHomeAbiProfileV1::StringBoxTextV1);
+    assert_eq!(unprojected.checked_code_point_law_v1(), None);
+
 }
 
 #[test]

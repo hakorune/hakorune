@@ -356,6 +356,28 @@ impl VerifiedCoreMethodInstanceTargetV1 {
     pub(crate) const fn execution_policy(&self) -> CoreMethodHomeExecutionPolicyV1 {
         self.execution_policy
     }
+
+    /// Exact generated semantics for the selected checked String operations.
+    /// ABI family and non-suspension alone cannot establish an indexing law.
+    pub(crate) fn checked_code_point_law_v1(&self) -> Option<crate::mir::core_method_result_kind::CoreMethodSemanticLawV2> {
+        use crate::mir::core_method_result_kind::CoreMethodSemanticLawV2 as Law;
+        if self.schema != CoreMethodHomeSchemaV1::StringBoxText
+            || self.receiver != CoreMethodHomeReceiverRelationV1::StringBoxReceiver
+            || self.abi_profile != CoreMethodHomeAbiProfileV1::StringBoxTextV1
+            || self.execution_policy != CoreMethodHomeExecutionPolicyV1::NonSuspendingNonControl {
+            return None;
+        }
+        let expected = match (self.row.row().op, self.row.arity(), self.parameters(), self.result) {
+            (CoreMethodOp::StringLen, 0, [], CoreMethodHomeResultRelationV1::I64ToCaller) => Law::CodePointCount,
+            (CoreMethodOp::StringSubstring, 2,
+                [CoreMethodHomeParameterRelationV1::I64Parameter, CoreMethodHomeParameterRelationV1::I64Parameter],
+                CoreMethodHomeResultRelationV1::TextToCaller) => Law::CodePointHalfOpenClamped,
+            (CoreMethodOp::StringIndexOf, 1, [CoreMethodHomeParameterRelationV1::TextParameter],
+                CoreMethodHomeResultRelationV1::I64ToCaller) => Law::CodePointSearchFromZero,
+            _ => return None,
+        };
+        (self.row.semantic_law_for_arity() == Some(expected)).then_some(expected)
+    }
 }
 
 #[cfg(test)]

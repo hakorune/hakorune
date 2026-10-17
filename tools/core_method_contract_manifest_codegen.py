@@ -83,6 +83,7 @@ SEMANTIC_LAW_RUST_VARIANTS = {
     "Unprojected": "Unprojected",
     "CodePointCount": "CodePointCount",
     "CodePointHalfOpenClamped": "CodePointHalfOpenClamped",
+    "CodePointSearchFromZero": "CodePointSearchFromZero",
 }
 SEMANTIC_LAWS = set(SEMANTIC_LAW_RUST_VARIANTS)
 
