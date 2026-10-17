@@ -141,3 +141,26 @@ Check metadata/links, pointer guard, diff and protected WIP; compiler acceptance
 and other authors' reference changes are outside this documentation registration.
 Pointer guard, metadata/links and diff checks PASS; all 21 pre-existing WIP file
 hashes remain unchanged. No new test/guard or compiler acceptance was added.
+
+## 2026-10-17 non-test growth audit: checked disposition
+
+User requested a response policy; the following is a scoped read-only check at
+ac35be25de plus the selected Text-read WIP. No deletion, archive move, history
+rewrite or compiler-row change is made by this registration.
+
+| Existing owner | Finding and bounded next action |
+|---|---|
+| H-4 generated artifacts | `tools/checks/rust_source_topology/target`1.2GiB, `tools/hako_check/tmp`1.7GiB, `__mir__.log`93MiB, `dist`106MiB are untracked/ignored. Target/tmp/log are first regeneration/active-use checks; distribution assets additionally need release/retention checks. Scoped lsof reported no matching open files, with inaccessible unrelated mount warnings, so it is not a whole-host non-use proof. These paths are on workdisk, not the root filesystem. At observation root has6.4GiB free, workdisk about1.1TiB. Deleting them would not recover root space. |
+| Existing test/guard retirement family | Measured240 hako-alloc app directories(~2.1MB),377 k2_wide_hako shell guards(~1.6MB), rather than374. `proof_apps.toml` and includes register206apps/public guards; allocator `.steps` directly select additional EXE guards. Absence from `guard_rows.toml` does not prove caller-zero. Even unregistered apps have direct guard consumers. No bulk archive set is established. Select one family, identify successor and all manifest/direct consumers, switch and verify, then retire its exclusive old assets together. |
+| H-1 active history | phase-296x exists in both `docs/development/current/main/phases/phase-296x`(~15MiB) and `docs/development/archive/phases/phase-296x`(~856KiB). Keep live contracts/links; compress completed bodies to commit references. Moving tracked text to another directory alone does not reduce repository text or history size. The reported278K lines was not remeasured here. |
+| H-3 semantic owners | The reported ncsp seven-day+49K/493files is external audit data, not a new measurement. Continue exclusive old-edge retirement at each owning series closeout, then review responsibility and duplicate owners at that family's checkpoint. Do not turn a directory-size target or broad rewrite into a new compiler-goal prerequisite. |
+| Existing test/guard retirement family | Nine `*_min_exe.sh` wrappers exist. Compare their runtime resolution, emit/run, cleanup and route checks for common-lib extraction; preserve source-specific output, expected rejection, profile and skip/fail boundaries. The reported95% similarity and retirement-metadata coverage were not independently counted. Add owner/successor/retire_when to temporary assets when their family is selected, without relabelling permanent safety evidence as temporary. |
+| History maintenance | Reported huge blobs/14generations/2.83GB remain unverified audit inputs. Gate-1-after is the proposed review point, not authorization for rewriting shared history. Measure reachability and size, prepare backup and all-ref/remote coordination before a separately approved filter-repo operation. |
+
+Read-only review reused the existing source-review worker. It corroborated
+`tools/checks/proof_apps.toml`, `tools/checks/guard_rows.toml`,
+`tools/checks/allocator/k2_wide_allocator_gate.steps` and
+`tools/checks/allocator/families/hako_alloc_production.steps`.
+The guard migration SSOT requires stable entry handling and retains unknown
+legacy callers until an explicit successor/caller-zero retirement decision.
+`Still Closed` is not evidence that a campaign is completed or unused.
