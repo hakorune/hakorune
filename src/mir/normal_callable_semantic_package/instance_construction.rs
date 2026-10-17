@@ -292,10 +292,11 @@ pub(super) fn issue_construction_source_v1(
                 return Err(U::InitializationContractMissing);
             }
             plan.completion = ConstructionCompletionV1::AllocationOnlyI64 {
-                fields: (0..fields.len()).map(|ordinal| {
-                    CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
-                        .ok_or(U::SourceRelationMissing)
-                }).collect::<Result<Vec<_>, _>>()?.into_boxed_slice(),
+                fields: field_decls.iter().enumerate().map(|(ordinal, declaration)| {
+                    let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
+                        .ok_or(U::SourceRelationMissing)?;
+                    Ok((declaration.name.as_str().into(), field))
+                }).collect::<Result<Vec<_>, U>>()?.into_boxed_slice(),
             };
         }
         return Ok(Rc::new(plan));

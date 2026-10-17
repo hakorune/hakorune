@@ -53,11 +53,17 @@ where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, 
         receiver: BindingRefV1, home: BindingRefV1, field: &str) -> Result<bool, OrdinaryNewCoSealIssueV1> {
         (self.reads)(site, receiver_site, receiver, home, field)
     }
+    fn original_writer(&mut self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        target: &SourceExprSiteV1) -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, OrdinaryNewCoSealIssueV1> {
+        let issue = || OrdinaryNewCoSealIssueV1::SourceNavigation { site: OwnedExprSiteV1::new(owner, target.clone()) };
+        let loan = self.writes.original_write_source_v1(owner, target).map_err(|_| issue())?;
+        if let Some(loan) = &loan { self.writes.recheck_original_write_source_v1(loan).map_err(|_| issue())?; }
+        Ok(loan)
+    }
     fn assignment_source(&mut self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         target: &SourceExprSiteV1) -> Result<Option<Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>>, OrdinaryNewCoSealIssueV1> {
         let issue = || OrdinaryNewCoSealIssueV1::SourceNavigation { site: OwnedExprSiteV1::new(owner, target.clone()) };
-        let Some(loan) = self.writes.original_write_source_v1(owner, target).map_err(|_| issue())? else { return Ok(None) };
-        self.writes.recheck_original_write_source_v1(&loan).map_err(|_| issue())?;
+        let Some(loan) = self.original_writer(owner, target)? else { return Ok(None) };
         loan.write().source().map(Rc::clone).map(Some).map_err(|_| issue())
     }
 }

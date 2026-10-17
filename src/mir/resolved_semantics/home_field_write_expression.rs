@@ -12,6 +12,7 @@ use super::super::SourceScalarKind;
 
 pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>,
+    require_i64: bool,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<SourceScalarKind>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
@@ -42,7 +43,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         node.binary().filter(|row| matches!(row.operator(), ResolvedBinaryOperatorV1::Subtract
             | ResolvedBinaryOperatorV1::Divide)).map(|binary| (index, binary))).collect();
     let mut operations = Vec::new();
-    if !scalar_nodes.is_empty() {
+    if require_i64 || !scalar_nodes.is_empty() {
         for (index, node) in source.nodes().iter().enumerate() {
             if leaves[index] == Leaf::Identity { continue; }
             if matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
@@ -53,6 +54,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         }
         let Some(classes) = project_expression_nodes_v1(&source, &BTreeSet::new(), |index| leaves[index])
             else { return Ok(None) };
+        if require_i64 && classes.first() != Some(&Leaf::Value(Class::I64)) { return Ok(None); }
         let indices: BTreeMap<_, _> = source.nodes().iter().enumerate().map(|(index, node)| (node.site(), index)).collect();
         for (index, binary) in scalar_nodes {
             if [binary.lhs(), binary.rhs()].iter().any(|site|

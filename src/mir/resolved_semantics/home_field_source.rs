@@ -10,6 +10,9 @@ pub(crate) trait HomeFieldSourceConsultV1<E> {
         -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>, E> { Ok(None) }
     fn scalar_field(&mut self, site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1,
         receiver: BindingRefV1, home: BindingRefV1, field: &str) -> Result<bool, E>;
+    /// Preserve the exact original writer inventory for owned LOCAL stores.
+    fn original_writer(&mut self, _owner: FunctionOwnerIdV1, _target: &SourceExprSiteV1)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::OriginalFieldWriteSourceLoanV1>, E> { Ok(None) }
     fn assignment_source(&mut self, _owner: FunctionOwnerIdV1, _target: &SourceExprSiteV1)
         -> Result<Option<Rc<ExpressionSourcePlanV1>>, E> { Ok(None) }
 }

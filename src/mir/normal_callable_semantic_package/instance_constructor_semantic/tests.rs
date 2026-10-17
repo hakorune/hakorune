@@ -312,8 +312,12 @@ fn construction_plan_retains_declaration_order_and_source_store_cutpoints() {
         let ConstructionCompletionV1::AllocationOnlyI64 { fields } = original.completion() else {
             panic!("no-Birth declared scalar source must retain allocation-only completion");
         };
-        assert_eq!(fields.iter().map(|field| field.declaration_ordinal()).collect::<Vec<_>>(), [0, 1]);
-        assert!(fields.iter().all(|field| field.object() == batch.object_for(parent).unwrap()));
+        assert_eq!(fields.iter().map(|(_, field)| field.declaration_ordinal()).collect::<Vec<_>>(), [0, 1]);
+        assert!(fields.iter().all(|(_, field)| field.object() == batch.object_for(parent).unwrap()));
+        for (name, field) in fields {
+            assert_eq!(original.allocation_only_i64_field(name), Some(*field));
+        }
+        assert!(original.allocation_only_i64_field("absent").is_none());
         assert!(original.constructor().is_none() && original.stores().is_empty() && original.steps().is_empty());
         assert_eq!(batch.construction_for(parent, 0).unwrap(),
             &Err(super::super::instance_construction::ConstructionUnavailableV1::InitializationContractMissing));

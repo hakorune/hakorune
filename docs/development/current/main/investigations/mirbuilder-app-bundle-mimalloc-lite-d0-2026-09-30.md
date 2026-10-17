@@ -270,105 +270,69 @@ consumers connect in this series. No isolated preparation green closes S0.
 Required remaining initialization, fixed acceptance, retirement and full goal
 conditions remain open. No deadline or nearest-app claim.
 
-## Constructor BoxShape validation — V839
+## Landed initialization preparation
 
-Six unchanged construction regressions now have a sibling `construction_tests`
-owner; existing test file800->539 lines. The selected two-move series also moves
-six source-definition lookup methods into existing `object_definition`, keeping
-bodies, effective visibility and callers unchanged. Birth/plan selection remains
-in the parent. Worker exact-body review PASS; no new tests or semantic admission.
+- `da029c5c36` / `ea70a42bd2`: constructor tests and existing definition lookup
+  ownership split. Exact bodies/visibility/callers preserved; V839 constructor25
+  PASS, root9213 unchanged. No semantic activation.
+- `1a29de4ce4`: explicit allocation-only completion in original construction
+  source, retained in the same no-Birth row. Both complete-plan fences stay
+  InitializationContractMissing; source-discarding wrapper physically deleted.
+  V840 build/focused27 PASS, no new tests or adapter.
+- `93129de754`: same Rc moves through New resolution/candidate -> common
+  local/result claim core -> existing Home consult -> Normal local Home.
+  Overrides unavailable; join checks original source/acquisition, consume/rebind
+  invalidates with Home state. Missing-Birth diagnostic order unchanged.
+  V841b build78.750103s, focused69PASS/0FAIL, root9213 unchanged and guards PASS.
+  V841a module-path compile error corrected; no waived red. Full source mapping,
+  commands, pins and bounded evidence remain in that implementation commit.
 
-One final-series `RUST_MIN_STACK=16777216 cargo quick-test-fast --no-run
---message-format=json` build PASS66.160698s. Pinned constructor filter
-`instance_constructor_semantic:: --test-threads=1` PASS25/0 .073404s; pre-move
-same25 PASS .075454s, names identical after module-prefix normalization. Root
-inventory9213 unchanged. This validates the final two-move series, not a separately
-compiled intermediate commit. Root-route/layer/thin-shim/pointer/diff PASS.
-Final source sizes parent684, tests539, construction_tests264, object_definition450.
-Root pin SHA cb045e990f8babc9f8daf840207079b344ef0a2eebed1ff5b56758838a9269c3;
-source/build/focused receipts `v839a-root` retained for next source comparison.
-Current CLI176/app180/app181 remain pre-move native/frontier evidence; no new
-EXE or S0 completion claim. No adapter introduced. Definition move lands as the second
-commit of this behavior-neutral series. README navigation is docs-only after
-the build; compiled Rust bytes are unchanged. Initialization connection follows.
+Current preparation pin V841b SHA5b463236a67703580dd1e7bcec8e4d813d8ebb795c3e6558fc6cde43e841af25.
+Keep V839/V840/V841 source/build/focused receipts while the following connection
+needs comparison. Existing CLI176/app180/app181 are pre-change native/frontier
+provenance, not current-source EXE evidence. No stage/full-S0 completion claim.
 
-## Allocation-only source retention — V840 preparation
+## LOCAL writer/RHS preparation — V842
 
-Worker reviewed the accepted source-to-final mapping. Current bounded preparation
-adds completion disposition to the existing construction source, retains it in
-the SAME no-Birth catalog row and deletes the sole source-discarding wrapper.
-Exact canonical nonweak i64 fields and PlainI64NoHook declaration destruction
-qualify; no caller stores issue construction/destruction facts. Both complete-plan
-qualification entrypoints keep InitializationContractMissing for allocation-only.
-Existing declaration/order, unavailable and foreign-parent/arity tests are extended;
-no new root test or publication permission. Source retention is preparation only:
-owned LOCAL writer/readiness, both final consumers/C and unchanged Pair EXE/OBJ30
-remain required. Build PASS95.387059s (`RUST_MIN_STACK=16777216 cargo
-quick-test-fast --no-run --message-format=json`, jobs4); constructor25/0
-PASS .075084s and existing claim construction/override + unavailable descriptor
-cases2/0 PASS. Root inventory9213 unchanged. Both complete-plan fences reject
-allocation-only; unsupported usize/Array/untyped and incomplete Birth stay
-unavailable. Foreign-parent/arity, original Rc/field ordinal checks PASS.
-Root-route/layer/thin-shim/pointer/diff PASS. Worker source/permission review
-found no required correction. Deleted `issue_construction_plan` has zero source
-references; the existing source issuer and same-row derived eligibility replace
-its sole caller. No adapter or second classifier added.
+Previous turn PROGRESS: source carry `93129de754`, audit task reconciliation
+`eee537fda3`; audit candidates remain unselected. Same accepted restoration
+Decision and required full initialization series, not a new lane.
+Current scope: original construction completion retains declared names with
+canonical fieldrefs; source consult retains original-writer inventory loan
+instead of projecting only an expression; existing field-write qualifier can
+require whole RHS I64 (plain/reference/Add as well as Sub/Div). Old me effect
+caller retains its existing demand. Existing constructor and installation tests
+are extended; no new test/fixture/physical writer or admission permission.
+Owner README/current card describe these contracts. Worker diff review PASS.
+Build PASS73.822772s: RUST_MIN_STACK=16777216 cargo quick-test-fast --no-run
+--message-format=json, jobs4. Focused constructor25 + existing whole-expression
+installation1 (11 RHS x batch success/failure) + original-writer identity/foreign
+inventory1 + ordinary-New23: **50PASS/0FAIL**. Root inventory9213 unchanged.
+Wrong string/Bool/null/unknown-reference RHS refuse before field staging; checked
+positive and final-batch rollback retain the same original plan. Existing effect
+caller remains unchanged. Root-route/layer/thin-shim/pointer/diff PASS.
+Source drift zero; root SHA286de9c9242f609e9237bf2530d6933568f13f7294773992c0cd7fd6de015d11.
+`v842a-root` source/build/focused receipts and pin retained until the frame/readiness
+connection no longer needs comparison. No new adapter or obsolete physical owner
+introduced; no fabricated deletion. Completed preparation history compressed to
+its real source commits above, retaining current contracts/reds and required pins.
+Latest available CI35681768498 remains historical d4168473d5 failure, not evidence
+for current source. Existing CLI176/native/frontier provenance is unchanged.
 
-Root SHA2ed77ce8382458f214a6a01627b24253dc18cc9cb324c41cca95a56c79316252,
-`v840a-root` source/build/focused and `v840a-claim` receipts retained. Rust source
-drift zero. Keep V839/preparation pins while comparing the following connection;
-current CLI176/native evidence remains pre-change, no fresh EXE claim. Latest
-available CI35681768498 is historical d4168473d5 failure, not current-SHA evidence.
-
-Next: retain this SAME source in New resolution/candidate and claim core (local
-and result), respecting overrides. Existing compatibility/emission gates stay
-closed until LOCAL readiness/final/C connection. Reuse HomeFieldSourceConsult
-and original-writer inventory, separate owned LOCAL from formal write permission;
-branch-local readiness must not use shared mutable state. Preserve original
-Normal New/Home installation, RHS-before-write and post-commit published cleanup.
-No new row or language decision. CLI176 frontier remains unaccepted.
-
-## New-to-Home original construction source connection — V841 preparation
-
-Previous turn PROGRESS: `1a29de4ce4` retained original allocation-only declaration
-source and deleted its discarding wrapper; it did not activate execution.
-Worker mapping reuses New resolution/candidate -> common claim core (both local
-and result) -> existing HomeFieldSourceConsult -> selected Normal local Home.
-Source is immutable original Rc; overrides unavailable, exact New/destination
-consult, join compares acquisition and original Rc, consume/rebind invalidates
-with the existing Home state. No readiness is invented from source retention.
-Constructor disposition resolves before new source lookup to preserve existing
-BirthConstructorMissing diagnostics for invalid nonzero-arity no-Birth input.
-Existing candidate-compatible and emission construction.is_ok gates remain closed.
-
-Scope: candidate/core/access and source claim issuance; original field consultant
-and its existing call site; Home source trait, New-local/scan, StoredLocal and its
-field-alias pattern; existing brand/result/ledger tests, owner README and this
-card. Alias-pattern change only accommodates the retained Home field. No separate
-classifier/observer/callback family, authority migration or new lane. Root build PASS78.750103s, same fast-test command/jobs4/16MiB stack as V840.
-Focused constructor25, brand ordinary-New23, claim ledger14, return-New2 and
-received-call identity/join5: **69PASS/0FAIL**, root total9213 unchanged. Existing
-local allocation-only/foreign source/override and Birth result Rc cases verify
-retention; result allocation-only/override and runtime readiness are not claimed.
-Worker source/permission/join review PASS. Root-route/layer/thin-shim/diff PASS.
-V841a E0433 was this change's wrong module path, corrected before V841b PASS;
-not baseline or a waived red. Source drift zero at verification.
-Root SHA5b463236a67703580dd1e7bcec8e4d813d8ebb795c3e6558fc6cde43e841af25;
-v841b-root source/build/focused receipts and pin retained for next comparison.
-No new test, temporary adapter, displaced physical writer or fabricated deletion.
- LOCAL original-writer/RHS/Normal readiness, both final scans,
-C and unchanged Pair EXE/OBJ30 remain required; no current frontier success claim.
-
-Next actual LOCAL store connection: retain declaration names with exact fieldrefs
-in the same allocation-only completion product, lend original writer inventory
-loan through existing consult, and carry acquisition/root/source/writer together.
-RHS must project ALL nodes to I64 even for plain/Add expressions: existing scalar
-qualifier checks whole classes only when Sub/Div is present, so it alone is not
-a LOCAL i64 proof. Read requests use prior branch-local readiness; only Normal
-successful write refines field to the latest original writer, preserving all
-store occurrences. Reuse existing expression/FieldSet/Fault owners; do not route
-LOCAL through borrowed_field_write or FormalFieldWriteReceiver/Value. Native
-and final-consumer activation stays pending this complete same-series connection.
+Next: one normalized assignment frame with common source/prior Homes and explicit
+FormalBorrowed vs OwnedLocal source/acquisition/root/field/original-writer
+payload. Keep the formal accessor filtered; common consistency/refinement and
+lifecycle occurrence coverage must preserve LOCAL, never silently omit it.
+Attach frame BEFORE installation.approve, which clones the candidate; then
+validate fields against prior readiness, commit, and refine branch-local Normal
+readiness. A successful RHS source plan alone cannot authorize FieldSet. Readiness
+must stay branch-local and expire on consume/rebind. Existing Home state is740
+lines: use a cohesive child owner before growth, not source compression.
+Owned LOCAL must never pass FormalFieldWriteReceiver/Value or borrow a formal
+permission. Both independent final consumers, physical cleanup/Normal dominance,
+matching C and unchanged Pair EXE/OBJ30 remain required before activation.
+Compatibility/emission construction.is_ok gates remain closed; no fresh EXE or
+frontier advancement claim from this preparation.
 
 ## Temporary artifact disposition
 

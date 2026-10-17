@@ -712,6 +712,14 @@ rebind discards it with the Home state. This metadata supplies no field readines
 return escape, execution or publication permission. Missing-Birth diagnostics
 retain their existing owner and source order before source lookup.
 
+Allocation-only field lookup retains names beside canonical field references in
+that same declaration source, including declaration order after renaming. The
+Home field consult lends the original writer inventory loan; its expression-only
+projection uses the same loan and recheck. LOCAL RHS preparation can demand I64
+for the whole expression, including literal/reference/Add roots; a wrong class
+rejects before installation/field staging. Existing effect-only receiver writes
+keep their prior demand. None of these preparations grants LOCAL store readiness.
+
 [Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals
 and normalized keys validate placement; work order or `(box name, key)` cannot

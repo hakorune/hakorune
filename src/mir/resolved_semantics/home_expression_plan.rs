@@ -327,6 +327,39 @@ mod installation_tests {
             &mut |plan| installation.approve(plan),
             &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
         assert_eq!(batches, 0, "duplicate source slot rejects before a field batch");
+        // LOCAL i64 demand validates the whole RHS even without Sub/Div.
+        // This is expression preparation, not LOCAL store/publication permission.
+        for (rhs, integer_reference, eligible) in [
+            ("7", false, true), ("2 + 3", false, true), ("n", true, true),
+            ("n", false, false), ("true", false, false), ("\"7\"", false, false),
+            ("\"text\" + 1", false, false), ("null", false, false),
+            ("1 - 2", false, true), ("6 / 2", false, true), ("6 / 0", false, false),
+        ] {
+            for batch_succeeds in [false, true] {
+                let parsed = crate::parser::NyashParser::parse_from_string(&format!(
+                    "function probe(p, n) {{ p.value = {rhs} return p }}")).unwrap();
+                let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+                let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+                let input = unit.root_function_input().unwrap();
+                let shape = input.body_shape().unwrap();
+                let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+                let source = crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1(
+                    &ledger, shape, &shape.assignment_sources()[0]).unwrap();
+                let flow = PrefixLocalFlow::new(input);
+                let mut installation = flow.expression_installation();
+                let mut batches = 0;
+                let plan = qualify_field_write_expression_v1::<()>(Rc::clone(&source), true,
+                    &mut |_| integer_reference.then_some(crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer),
+                    &mut |_| None, &mut |plan| installation.approve(plan),
+                    &mut |requests, _| { assert!(requests.is_empty()); batches += 1; Ok(batch_succeeds) }).unwrap();
+                assert_eq!(plan.is_some(), eligible && batch_succeeds, "RHS {rhs}");
+                assert_eq!(batches, usize::from(eligible), "reject wrong RHS before field staging");
+                if plan.is_some() { installation.commit(); } else { drop(installation); }
+                let installed = flow.expression_plans();
+                assert_eq!(installed.len(), usize::from(eligible && batch_succeeds));
+                if let Some(plan) = installed.first() { assert!(Rc::ptr_eq(plan.source(), &source)); }
+            }
+        }
         // A borrowed write retains its original assignment and allocation-order
         // snapshot. This frame alone never issues a physical store capability.
         {

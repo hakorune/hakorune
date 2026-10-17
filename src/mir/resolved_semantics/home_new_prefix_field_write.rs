@@ -47,7 +47,7 @@ pub(super) fn observe<E>(
         matches!(binary.operator(), ResolvedBinaryOperatorV1::Subtract | ResolvedBinaryOperatorV1::Divide)))
     { return Ok(true); }
     let mut installation = locals.expression_installation();
-    let plan = super::expression_plan::qualify_field_write_expression_v1(source,
+    let plan = super::expression_plan::qualify_field_write_expression_v1(source, false,
         &mut |site| match locals.observe(site) {
             Some(OrdinaryObservation::Integer(_)) => Some(SourceScalarKind::Integer),
             Some(OrdinaryObservation::Bool(_)) => Some(SourceScalarKind::Bool),

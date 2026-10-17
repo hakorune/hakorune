@@ -24,7 +24,7 @@ pub(crate) struct ConstructionChildCallSourceV1 {
 pub(crate) enum ConstructionCompletionV1 {
     InitializedFields,
     /// Exact declaration fields; none has an initial readable value.
-    AllocationOnlyI64 { fields: Box<[CanonicalFieldRefV1]> },
+    AllocationOnlyI64 { fields: Box<[(Box<str>, CanonicalFieldRefV1)]> },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -38,6 +38,12 @@ pub(crate) struct ConstructionSourceStructureV1 {
 }
 impl ConstructionSourceStructureV1 {
     pub(crate) fn completion(&self) -> &ConstructionCompletionV1 { &self.completion }
+
+    /// Resolve only within this original declaration, never a global name table.
+    pub(crate) fn allocation_only_i64_field(&self, name: &str) -> Option<CanonicalFieldRefV1> {
+        let ConstructionCompletionV1::AllocationOnlyI64 { fields } = self.completion() else { return None };
+        fields.iter().find(|(declared, _)| declared.as_ref() == name).map(|(_, field)| *field)
+    }
 
     pub(super) fn require_initialized_fields(&self) -> Result<(), ConstructionUnavailableV1> {
         match self.completion() {
