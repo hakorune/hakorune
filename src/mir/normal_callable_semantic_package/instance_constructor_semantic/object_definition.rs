@@ -1,7 +1,9 @@
 //! Declaration projection inside the existing exact ordinary-Box syntax loan.
 //! No runtime layout, constructor-body analysis or name-based source lookup.
 
-use super::{ASTNode, CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1};
+use super::{ASTNode, CanonicalObjectDefinitionV1, InstanceConstructorSemanticBatchIssueV1,
+    VerifiedInstanceConstructorSemanticBatchV1, CanonicalObjectIdV1,
+    InstanceConstructorBirthLookupErrorV1, ParserOrdinaryBoxSourceRowV1};
 use crate::mir::function::{
     ObjectDestructionDispositionV1 as Destruction,
     ObjectDestructionUnavailableV1 as DestructionUnavailable,
@@ -352,5 +354,97 @@ mod tests {
                 Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage)
             ));
         }
+    }
+}
+
+// Same-source definition loans remain in the declaration owner after transfer.
+impl VerifiedInstanceConstructorSemanticBatchV1 {
+    /// One-way projection while co-sealing New claims, before collector transfer.
+    /// `object_for` deliberately remains usable after the payload has moved.
+    pub(in crate::mir::normal_callable_semantic_package) fn destruction_for(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+    ) -> Result<
+        (
+            CanonicalObjectIdV1,
+            crate::mir::function::ObjectDestructionDispositionV1,
+        ),
+        InstanceConstructorBirthLookupErrorV1,
+    > {
+        self.with_source_object_definition(source, |object, definition| {
+            (object, definition.destruction_disposition())
+        })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn with_source_object_definition<R>(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+        consume: impl FnOnce(CanonicalObjectIdV1, &CanonicalObjectDefinitionV1) -> R,
+    ) -> Result<R, InstanceConstructorBirthLookupErrorV1> {
+        let object = self.object_for(source)?;
+        let definitions = self.object_definitions.borrow();
+        let definitions = definitions
+            .as_ref()
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionsTransferred)?;
+        let definition = definitions
+            .get(object.declaration_index() as usize)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing)?;
+        Ok(consume(object, definition))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn has_pending_object_definitions(&self) -> bool {
+        self.object_definitions.borrow().is_some()
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn take_object_definitions(&self) -> Option<Box<[CanonicalObjectDefinitionV1]>> {
+        self.object_definitions.borrow_mut().take()
+    }
+
+    pub(crate) fn object_for(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+    ) -> Result<CanonicalObjectIdV1, InstanceConstructorBirthLookupErrorV1> {
+        self.object_sources
+            .iter()
+            .find(|(own, _)| own.same_source_as(source))
+            .map(|(_, id)| *id)
+            .ok_or(InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch)
+    }
+
+    /// Source-level field lookup on the owning Box's canonical definition.
+    /// Declaration order carries the ordinal; the caller must not resolve a
+    /// field by spelling alone without this canonical reference.
+    pub(crate) fn field_declaration(
+        &self,
+        source: &ParserOrdinaryBoxSourceRowV1,
+        field: &str,
+    ) -> Result<
+        Option<(
+            hakorune_mir_defs::CanonicalFieldRefV1,
+            Option<Box<str>>,
+            bool,
+        )>,
+        InstanceConstructorBirthLookupErrorV1,
+    > {
+        self.with_source_object_definition(source, |object, definition| {
+            definition
+                .fields()
+                .iter()
+                .enumerate()
+                .find(|(_, declaration)| declaration.name == field)
+                .map(|(ordinal, declaration)| {
+                    (
+                        hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
+                            object, ordinal,
+                        )
+                        .expect("field ordinal must fit u32"),
+                        declaration
+                            .declared_type_name
+                            .as_deref()
+                            .map(Box::<str>::from),
+                        declaration.is_weak,
+                    )
+                })
+        })
     }
 }

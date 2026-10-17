@@ -690,6 +690,12 @@ FreeFunction consumption uses the published row; JSON, registry, header,
 
 ## Constructor source and Birth
 
+[Object definition](instance_constructor_semantic/object_definition.rs) owns
+canonical declaration issuance and the batch's definition/destruction/field
+lookup projections. The parent retains constructor/Birth selection; lookup
+relocation does not change source authority or transfer timing. Constructor
+regressions use sibling `tests` and `construction_tests` modules.
+
 [Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals
 and normalized keys validate placement; work order or `(box name, key)` cannot

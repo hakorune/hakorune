@@ -262,12 +262,9 @@ readiness and complete occurrence coverage remain mandatory before activation.
 Unchanged no-Birth Pair EXE/OBJ30 is required; Birth-Pair does not substitute.
 CLI176 app181 remains exit1/noEXE .021610s PrefixNotCovered Body1 until repaired.
 
-Smallest next slice: required BoxShape before semantic growth: constructor tests
-are800 lines, parent770. Move the six cohesive final construction tests to a
-sibling owner and source-definition lookup methods into existing object_definition.
-Preserve visibility/callers/bodies, no new tests or permissions; use two bounded
-commits. Pinned V837d baseline constructor25 PASS .075454s; compare after moves.
-Then retain allocation-only completion/readiness in the SAME source row, keeping
+Required BoxShape is complete: test-owner split `da029c5c36` and this
+existing-definition-owner move; V839 evidence below. No semantic admission changed.
+Smallest next slice: retain allocation-only completion/readiness in the SAME source row, keeping
 complete execution unavailable until the owned-LOCAL store/read and finishing/C
 consumers connect in this series. No isolated preparation green closes S0.
 Required remaining initialization, fixed acceptance, retirement and full goal
@@ -291,8 +288,9 @@ Final source sizes parent684, tests539, construction_tests264, object_definition
 Root pin SHA cb045e990f8babc9f8daf840207079b344ef0a2eebed1ff5b56758838a9269c3;
 source/build/focused receipts `v839a-root` retained for next source comparison.
 Current CLI176/app180/app181 remain pre-move native/frontier evidence; no new
-EXE or S0 completion claim. No adapter introduced. Definition move is the second
-commit of this behavior-neutral series; initialization connection follows.
+EXE or S0 completion claim. No adapter introduced. Definition move lands as the second
+commit of this behavior-neutral series. README navigation is docs-only after
+the build; compiled Rust bytes are unchanged. Initialization connection follows.
 
 ## Temporary artifact disposition
 
