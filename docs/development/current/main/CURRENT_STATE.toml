@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "owned-field-write/rhs-physical-consumer-pending"
+current_blocker_token = "owned-field-write/physical-consumer-pending"
 current_design_stop = "none"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -44,7 +44,9 @@ unchanged mimalloc app185 native exact7/exit0 PASS.
 V847 full RHS source recipe/common origin reaches existing packet; rootD55 PASS.
 Raw formal extraction removed, unused import fixed; warning delta zero.
 CLI180 Pair app186 RHS physical pending; mimalloc app187 native exact7/exit0 PASS.
-Next complete RHS observation/receipts, both final consumers/C/New; S0 open.
+V848 whole-RHS receipts/Normal-scope checks, rootD59 PASS; formal path preserved.
+CLI181 Pair app188 physical consumer pending; mimalloc app189 native exact7/exit0.
+Next New execution/lifecycle and both final consumers/read dominance; S0 open.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """

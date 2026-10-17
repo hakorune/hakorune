@@ -744,3 +744,24 @@ fn empty_branch_trampoline_preserves_original_return_and_complete_boundary() {
         assert!(accepted.is_err(), "unproved {case}");
     }
 }
+
+#[test]
+fn required_effect_needs_captured_recorded_and_actual_membership() {
+    let (original, mut bindings) = fixture();
+    let effect = (BasicBlockId(0), MirInstruction::Return { value: None });
+    bindings.push(effect.clone());
+    let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
+    let mut projection = boundary.project(&original).unwrap();
+    assert!(projection.required_effect_binding(&original, &effect).is_err(), "unfinished boundary lends no effect");
+    boundary.validate_complete(&original, &mut projection, &bindings).unwrap();
+    assert_eq!(projection.required_effect_binding(&original, &effect).unwrap(), effect);
+    let mut changed = original.clone();
+    changed.blocks.get_mut(&BasicBlockId(0)).unwrap().terminator =
+        Some(MirInstruction::Return { value: Some(ValueId(2)) });
+    assert!(projection.required_effect_binding(&changed, &effect).is_err());
+    projection.recorded.retain(|row| row != &effect);
+    assert!(projection.required_effect_binding(&original, &effect).is_err());
+    let foreign = (BasicBlockId(0), MirInstruction::ReturnFault { fault_frame: ValueId(1) });
+    assert!(projection.required_effect_binding(&original, &foreign).is_err());
+    assert!(projection.required_effect_binding(&original, &bindings[0]).is_err(), "dst producer uses relation_binding");
+}

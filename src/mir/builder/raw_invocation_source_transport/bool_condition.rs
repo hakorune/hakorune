@@ -9,7 +9,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn lower_whole_bool_condition_v1(&mut self, builder: &mut MirBuilder,
         frame: Rc<CheckedBoolConditionFrameV1>, condition: ASTNode,
     ) -> Result<physical::LoweredBoolConditionV1, String> {
-        if self.bool_condition_emission.is_some() || self.callable_owner_v1() != Some(frame.source().owner())
+        if self.bool_condition_emission.is_some() || self.field_write_rhs_emission.is_some() || self.callable_owner_v1() != Some(frame.source().owner())
             || self.current_source_site_v1().as_ref() != Some(frame.source().nodes()[0].site().node()) {
             return Err("[freeze:contract][bool-condition/source-scope]".into());
         }

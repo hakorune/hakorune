@@ -78,7 +78,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some([invoke.clone(), normal.clone()]))
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn expression_field_read_bindings_v1(
+    pub(in crate::mir) fn expression_field_read_bindings_v1(
         &self, site: &OwnedExprSiteV1, plan: &Rc<ExpressionSourcePlanV1>, context: CallValidationContextV1<'_>,
     ) -> Result<Vec<Binding>, String> {
         let required = self.source_field_requirement_v1(site)?

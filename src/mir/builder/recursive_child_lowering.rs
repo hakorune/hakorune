@@ -253,6 +253,8 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
         Option<Rc<RefCell<super::map_read_physical_consumer::MapReadPhysicalConsumerV1>>>,
     pub(in crate::mir::builder) bool_condition_emission:
         Option<Rc<RefCell<super::ordinary_new_admission::selected::bool_condition::BoolConditionEmissionV1>>>,
+    pub(in crate::mir::builder) field_write_rhs_emission:
+        Option<Rc<RefCell<super::raw_invocation_source_transport::FieldWriteRhsEmissionV1>>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
@@ -361,6 +363,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             ordinary_new_claim_ledger: None,
             map_read_consumer: None,
             bool_condition_emission: None,
+            field_write_rhs_emission: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
@@ -387,6 +390,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             map_read_consumer: self.map_read_consumer.clone(),
             bool_condition_emission: self.bool_condition_emission.clone(),
+            field_write_rhs_emission: self.field_write_rhs_emission.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),

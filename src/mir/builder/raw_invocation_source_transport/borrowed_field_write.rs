@@ -1,7 +1,7 @@
 //! The first original variable read transfers its receipt with its value.
 use super::*;
 use crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1 as Source;
-use crate::mir::builder::ExactLexicalReadV1;
+use crate::mir::normal_callable_semantic_package::FieldWriteValueV1;
 use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
 impl RawInvocationChildPortV1<'_, '_> {
@@ -12,21 +12,26 @@ impl RawInvocationChildPortV1<'_, '_> {
         source.validate_source(ledger)?;
         Ok(Some(source))
     }
-    pub(super) fn read_borrowed_field_write_source_v1(&self, source: &Source, receiver: bool, input: ASTNode,
-    ) -> Result<Rc<ExactLexicalReadV1>, String> {
-        let formal = source.borrowed()
-            .ok_or("[freeze:contract][owned-field-write/rhs-physical-consumer-pending]")?;
-        let (binding, _, site) = if receiver { formal.receiver() } else { formal.value() };
+    pub(super) fn read_borrowed_field_write_source_v1(&mut self, builder: &mut MirBuilder, source: &Source, receiver: bool, input: ASTNode,
+    ) -> Result<FieldWriteValueV1, String> {
+        if !receiver && source.owned_rhs().is_some() {
+            return self.lower_whole_field_write_rhs_v1(builder, source, input).map(FieldWriteValueV1::Expression);
+        }
+        let (binding, site) = if receiver { source.receiver()? } else {
+            let formal = source.borrowed().ok_or("[freeze:contract][field-write-rhs/source-origin]")?;
+            let (binding, _, site) = formal.value();
+            (binding, site.clone())
+        };
         if !matches!(input, ASTNode::Variable { .. }) || self.callable_owner_v1() != Some(site.owner())
             || self.current_source_site_v1().as_ref() != Some(site.site().node())
         { return Err("[freeze:contract][borrowed-field-write/read-source]".into()); }
         let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][borrowed-field-write/state]")?;
         let read = state.borrow_mut().read_variable_with_source_v1(site.site().node())?;
         read.value_for(site.owner(), site.site().node(), binding).map_err(|issue| issue.to_string())?;
-        Ok(Rc::new(read))
+        Ok(FieldWriteValueV1::Lexical(Rc::new(read)))
     }
     pub(super) fn emit_borrowed_field_write_source_v1(&self, builder: &mut MirBuilder,
-        source: Source, field: &str, reads: [Rc<ExactLexicalReadV1>; 2],
+        source: Source, field: &str, reads: [FieldWriteValueV1; 2],
     ) -> Result<(), String> {
         let node = self.current_source_site_v1().ok_or("[freeze:contract][borrowed-field-write/statement-site]")?;
         if self.callable_owner_v1() != Some(source.frame().source().owner())

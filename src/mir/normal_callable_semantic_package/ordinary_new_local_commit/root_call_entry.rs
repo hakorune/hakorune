@@ -786,3 +786,4 @@ pub(crate) use field_array_append_projection::EmittedFieldArrayAppendV1;
 #[path = "root_call_entry/borrowed_field_write_projection.rs"]
 mod borrowed_field_write_projection;
 pub(crate) use borrowed_field_write_projection::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
+pub(in crate::mir) use borrowed_field_write_projection::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};

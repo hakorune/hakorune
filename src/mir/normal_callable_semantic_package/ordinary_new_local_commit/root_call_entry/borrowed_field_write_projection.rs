@@ -9,11 +9,15 @@ type Binding = (BasicBlockId, MirInstruction);
 #[derive(Debug)]
 pub(crate) struct EmittedBorrowedFieldWriteV1 {
     source: FieldWriteSourceLoanV1,
-    formal_reads: [Rc<ExactLexicalReadV1>; 2],
+    receiver: Rc<ExactLexicalReadV1>,
+    value: FieldWriteValueV1,
     graph: CheckedFieldWriteGraphV1,
 }
 #[path = "checked_field_write_graph.rs"]
 mod checked_graph;
+#[path = "field_write_rhs_projection.rs"]
+mod rhs;
+pub(in crate::mir) use rhs::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
 pub(crate) use checked_graph::CheckedFieldWriteGraphV1;
 
 impl EmittedBorrowedFieldWriteV1 {
@@ -26,10 +30,10 @@ impl EmittedBorrowedFieldWriteV1 {
         self.graph.resolve_observed_binding_v1(original, completed)
     }
     pub(super) fn seal_bindings_v1(&self) -> Result<(), String> { self.graph.seal_bindings_v1() }
-    pub(crate) fn new(source: FieldWriteSourceLoanV1, reads: [Rc<ExactLexicalReadV1>; 2],
+    pub(in crate::mir) fn new(source: FieldWriteSourceLoanV1, receiver: Rc<ExactLexicalReadV1>, value: FieldWriteValueV1,
         graph: CheckedFieldWriteGraphV1, ledger: &OrdinaryNewClaimLedgerV1, function: &MirFunction,
     ) -> Result<Self, String> {
-        let packet = Self { source, formal_reads: reads, graph };
+        let packet = Self { source, receiver, value, graph };
         packet.validate_paths(CallValidationContextV1::Lowering(ledger), function, None)?;
         Ok(packet)
     }
@@ -41,15 +45,25 @@ impl EmittedBorrowedFieldWriteV1 {
     ) -> Result<(), String> {
         let ledger = context.ledger();
         self.source.validate_source(ledger)?;
-        let formal = self.source.borrowed()
-            .ok_or_else(|| freeze("owned-field-write/rhs-physical-consumer-pending"))?;
-        let owner = self.source.frame().source().owner();
-        for (index, (binding, _, site)) in [formal.receiver(), formal.value()].into_iter().enumerate() {
-            let value = self.formal_reads[index].value_for(owner, site.site().node(), binding).map_err(|issue| issue.to_string())?;
-            self.graph.validate_operand(index, value, function, finishing)?;
-        }
-        self.graph.validate_paths(ledger, function, finishing, formal.field_source().field(),
-            self.source.frame().prior_homes())
+        let (receiver, site) = self.source.receiver()?;
+        let base = self.receiver.value_for(site.owner(), site.site().node(), receiver).map_err(|issue| issue.to_string())?;
+        self.graph.validate_operand(0, base, function, finishing)?;
+        let (value, field) = match (&self.value, self.source.borrowed()) {
+            (FieldWriteValueV1::Lexical(read), Some(formal)) => {
+                let (binding, _, site) = formal.value();
+                (read.value_for(site.owner(), site.site().node(), binding).map_err(|issue| issue.to_string())?, formal.field_source().field())
+            },
+            (FieldWriteValueV1::Expression(rhs), None) => {
+                if self.source.owned_rhs().is_none_or(|original| !Rc::ptr_eq(original, rhs.recipe())) {
+                    return Err(freeze("field-write-rhs/foreign-recipe"));
+                }
+                rhs.validate(context, function, finishing)?;
+                (rhs.value(), self.source.frame().owned_local().ok_or_else(|| freeze("field-write-rhs/local-origin"))?.field())
+            },
+            _ => return Err(freeze("field-write-rhs/operand-origin")),
+        };
+        self.graph.validate_operand(1, value, function, finishing)?;
+        self.graph.validate_paths(ledger, function, finishing, field, self.source.frame().prior_homes())
     }
 }
 pub(super) fn validate_fault_inventory_v1(function: &MirFunction, landing: BasicBlockId,

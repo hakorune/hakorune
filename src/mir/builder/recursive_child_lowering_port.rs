@@ -111,12 +111,12 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         -> Result<Option<Box<dyn super::if_form::IfFormPhysicalObserverV1>>, String> { Ok(None) }
 
     fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1>, String> { Ok(None) }
-    fn read_borrowed_field_write_operand_v1(&mut self, _source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
+    fn read_borrowed_field_write_operand_v1(&mut self, _builder: &mut MirBuilder, _source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         _receiver: bool, _input: Self::ExpressionInput,
-    ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> { Err("[freeze:contract][borrowed-field-write/read-unavailable]".into()) }
+    ) -> Result<crate::mir::normal_callable_semantic_package::FieldWriteValueV1, String> { Err("[freeze:contract][borrowed-field-write/read-unavailable]".into()) }
     fn emit_borrowed_field_write_v1(&mut self, _builder: &mut MirBuilder,
         _source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
-        _field: &str, _reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+        _field: &str, _reads: [crate::mir::normal_callable_semantic_package::FieldWriteValueV1; 2],
     ) -> Result<(), String> { Err("[freeze:contract][borrowed-field-write/consumer-unavailable]".into()) }
 
     fn prepare_borrowed_array_set_v1(&mut self, _method: &str, _arity: usize)

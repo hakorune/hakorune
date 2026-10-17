@@ -83,6 +83,24 @@ impl FinishedBindings {
             fault("relation-finished-producer"), function.signature.name))
     }
 
+    /// Non-dst effects require exact captured and final recorded membership.
+    /// Mapping an instruction alone never establishes either obligation.
+    pub(in super::super) fn required_effect_binding(
+        &self, function: &MirFunction, original: &(BasicBlockId, MirInstruction),
+    ) -> Result<(BasicBlockId, MirInstruction), String> {
+        if original.1.dst_value().is_some()
+            || self.captured.iter().filter(|row| *row == original).count() != 1 {
+            return Err(fault("effect-captured-membership"));
+        }
+        let mapped = self.binding(original.0, &original.1)?.ok_or_else(|| fault("effect-removed"))?;
+        if self.recorded.iter().filter(|row| **row == mapped).count() != 1
+            || function.blocks.get(&mapped.0).is_none_or(|block|
+                block.all_instructions().filter(|row| **row == mapped.1).count() != 1) {
+            return Err(fault("effect-finished-membership"));
+        }
+        Ok(mapped)
+    }
+
     /// Check the source-issued local Copy against the same finished
     /// projection used by lifecycle bindings. A DCE omission is accepted only
     /// when the captured boundary explicitly marked that Copy removable and

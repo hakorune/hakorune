@@ -655,7 +655,7 @@ impl EmittedPrintExpressionProjectionV1 {
 
 /// Check actual instruction order along the single Normal expression path.
 /// This does not infer evaluation order from block allocation or SSA numbers.
-fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Result<(), String> {
+pub(super) fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Result<(), String> {
     let mut previous = None;
     let mut closed = std::collections::BTreeSet::new();
     for (id, instruction) in ordered {

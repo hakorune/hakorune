@@ -19,11 +19,11 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1>, String> {
         self.borrowed_field_write_source_v1()
     }
-    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
+    fn read_borrowed_field_write_operand_v1(&mut self, builder: &mut MirBuilder, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         receiver: bool, input: ASTNode,
-    ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> { self.read_borrowed_field_write_source_v1(source, receiver, input) }
+    ) -> Result<crate::mir::normal_callable_semantic_package::FieldWriteValueV1, String> { self.read_borrowed_field_write_source_v1(builder, source, receiver, input) }
     fn emit_borrowed_field_write_v1(&mut self, builder: &mut MirBuilder,
-        source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1, field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+        source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1, field: &str, reads: [crate::mir::normal_callable_semantic_package::FieldWriteValueV1; 2],
     ) -> Result<(), String> { self.emit_borrowed_field_write_source_v1(builder, source, field, reads) }
 
     fn prepare_borrowed_array_set_v1(&mut self, method: &str, arity: usize)
@@ -62,7 +62,8 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.lower_whole_bool_condition_v1(builder, frame, condition)
     }
     fn complete_ordinary_binary_expression_v1(&mut self, completed: &super::super::ops::CompletedOrdinaryBinaryV1) -> Result<(), String> {
-        self.observe_bool_binary_v1(completed)
+        self.observe_bool_binary_v1(completed)?;
+        self.observe_field_write_binary_v1(completed)
     }
     fn complete_short_circuit_expression_v1(&mut self, completed: &super::super::ops::CompletedLogicalShortCircuitV1) -> Result<(), String> {
         self.observe_bool_logical_v1(completed)
@@ -604,7 +605,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         builder: &mut MirBuilder,
         input: Self::ExpressionInput,
     ) -> Result<ValueId, String> {
-        self.lower_with_bool_condition_v1(builder, input)
+        self.lower_with_field_write_rhs_v1(builder, input)
     }
 
     fn try_lower_map_read_method_call_v1(

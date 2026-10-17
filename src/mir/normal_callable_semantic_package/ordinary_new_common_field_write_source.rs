@@ -21,6 +21,15 @@ impl FieldWriteSourceLoanV1 {
         match &self.origin { FieldWriteSourceOriginV1::FormalBorrowed(source) => source.frame(),
             FieldWriteSourceOriginV1::OwnedLocal { frame, .. } => frame }
     }
+    pub(crate) fn receiver(&self) -> Result<(BindingRefV1, crate::mir::resolved_semantics::OwnedExprSiteV1), String> {
+        if let Some(formal) = self.borrowed() {
+            let (binding, _, site) = formal.receiver();
+            return Ok((binding, site.clone()));
+        }
+        let local = self.frame().owned_local().ok_or_else(|| freeze("field-write/local-origin"))?;
+        Ok((local.root(), crate::mir::resolved_semantics::OwnedExprSiteV1::new(
+            self.frame().source().owner(), local.original().write().receiver_site().clone())))
+    }
     pub(crate) fn value_site(&self) -> crate::mir::resolved_semantics::OwnedExprSiteV1 {
         let source = self.frame().source();
         crate::mir::resolved_semantics::OwnedExprSiteV1::new(source.owner(), source.nodes()[0].site().clone())

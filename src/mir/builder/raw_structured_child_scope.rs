@@ -197,16 +197,16 @@ where
     fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1>, String> {
         self.child.prepare_borrowed_field_write_v1()
     }
-    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
+    fn read_borrowed_field_write_operand_v1(&mut self, builder: &mut MirBuilder, source: &crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
         receiver: bool, input: Self::ExpressionInput,
-    ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> {
+    ) -> Result<crate::mir::normal_callable_semantic_package::FieldWriteValueV1, String> {
         let child_source = self.next_expression()?;
         self.child.with_prepared_child_source_v1(child_source, |child|
-            child.read_borrowed_field_write_operand_v1(source, receiver, input))
+            child.read_borrowed_field_write_operand_v1(builder, source, receiver, input))
     }
     fn emit_borrowed_field_write_v1(&mut self, builder: &mut MirBuilder,
         source: crate::mir::normal_callable_semantic_package::FieldWriteSourceLoanV1,
-        field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+        field: &str, reads: [crate::mir::normal_callable_semantic_package::FieldWriteValueV1; 2],
     ) -> Result<(), String> { self.child.emit_borrowed_field_write_v1(builder, source, field, reads) }
 
     fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {

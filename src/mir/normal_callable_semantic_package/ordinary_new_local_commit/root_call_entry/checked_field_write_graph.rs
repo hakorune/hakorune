@@ -5,6 +5,7 @@ use super::*;
 #[derive(Debug)]
 pub(crate) struct CheckedFieldWriteGraphV1 {
     pins: [Rc<LocalSsaPhysicalRelationV1>; 2],
+    operand_relations: Vec<Rc<LocalSsaPhysicalRelationV1>>,
     invoke: Binding,
     continuation: Binding,
     original: Vec<Binding>,
@@ -15,7 +16,17 @@ impl CheckedFieldWriteGraphV1 {
     pub(in crate::mir) fn new(pins: [Rc<LocalSsaPhysicalRelationV1>; 2], invoke: Binding,
         continuation: Binding, original: Vec<Binding>, fault_bindings: Vec<Binding>,
     ) -> Self {
-        Self { pins, invoke, continuation, original, fault_bindings, completed: OnceCell::new() }
+        Self { pins, operand_relations: Vec::new(), invoke, continuation, original, fault_bindings, completed: OnceCell::new() }
+    }
+    pub(in crate::mir) fn with_operand_projection(mut self, prefix: Vec<Binding>, relations: Vec<Rc<LocalSsaPhysicalRelationV1>>) -> Self {
+        let mut original = prefix;
+        for relation in &relations { relation.append_observed_bindings_v1(&mut original); }
+        for row in self.original { if !original.contains(&row) { original.push(row); } }
+        let mut unique = Vec::new();
+        for row in original { if !unique.contains(&row) { unique.push(row); } }
+        self.original = unique;
+        self.operand_relations = relations;
+        self
     }
     pub(crate) fn invoke_binding(&self) -> &Binding { &self.invoke }
     pub(in crate::mir) fn pins(&self) -> &[Rc<LocalSsaPhysicalRelationV1>; 2] { &self.pins }
@@ -25,14 +36,14 @@ impl CheckedFieldWriteGraphV1 {
         Ok(())
     }
     pub(super) fn resolve_observed_binding_v1(&self, original: &Binding, completed: bool) -> Result<Binding, String> {
-        for pin in &self.pins {
+        for pin in self.pins.iter().chain(&self.operand_relations) {
             if let Some(row) = pin.resolve_observed_binding_v1(original, completed)? { return Ok(row); }
         }
         Ok(original.clone())
     }
     pub(super) fn seal_bindings_v1(&self) -> Result<(), String> {
         if self.completed.get().is_some() { return Ok(()); }
-        for pin in &self.pins { pin.require_completed_v1()?; }
+        for pin in self.pins.iter().chain(&self.operand_relations) { pin.require_completed_v1()?; }
         let mut rows = Vec::new();
         for original in &self.original {
             let row = self.resolve_observed_binding_v1(original, true)?;

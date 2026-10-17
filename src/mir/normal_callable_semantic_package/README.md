@@ -4351,3 +4351,11 @@ Raw ports and the shared packet retain this common source unchanged. The packet'
 formal exact-read evidence and final borrowed entry/null/numeric checks stay
 origin-specific; LOCAL stops explicitly at missing RHS physical support and never
 re-enters the generic setter. Owned-ready reads recheck this same source loan.
+
+Whole LOCAL RHS observations follow the existing recursive writers. Immutable
+node receipts retain exact source order, lexical reads, literal facts, field
+producers, internal LocalSSA relations and the SAME Sub/Div original append.
+Original cursor/Normal-scope census rejects unowned effects; finishing uses
+captured producer/effect membership, not stale cursor indices. The common graph
+can seal every retained operand relation. LOCAL FieldSet remains explicitly
+consumer-pending until lifecycle/New and both independent final scans connect.
