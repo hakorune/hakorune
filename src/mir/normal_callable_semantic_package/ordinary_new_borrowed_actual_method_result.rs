@@ -20,8 +20,17 @@ struct OriginalActualSourceContextV1
     claims: &'a QualifiedStaticCallClaimIndexV1,
     caller: CanonicalSameModuleCallableKeyV1,
     owner: FunctionOwnerIdV1,
+    point_premise: bool,
 }
 impl<'a> OriginalActualSourceContextV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn for_point_premise(&self) -> Self {
+        Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: true }
+    }
+    pub(super) fn for_legacy_actual(&self) -> Self {
+        Self { claims: self.claims, caller: self.caller.clone(), owner: self.owner, point_premise: false }
+    }
+    pub(super) fn is_point_premise(&self) -> bool { self.point_premise }
+
     pub(super) fn resolve(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,
@@ -144,6 +153,7 @@ impl<'a> OriginalActualSourceContextV1<'a> {
             claims,
             caller,
             owner: input.owner(),
+            point_premise: false,
         }))
     }
 

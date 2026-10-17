@@ -16,6 +16,17 @@ pub(super) enum OriginalFormalActualSeedV1 {
         source: Box<super::super::super::result_class_claim::MixedLocalCallSourceLoanV1>,
         anchor: Box<OriginalFormalActualSeedV1>,
     },
+    PointValue {
+        owner: FunctionOwnerIdV1,
+        value: Option<crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1>,
+        legacy: Box<OriginalFormalActualSeedV1>,
+    },
+    Binary {
+        owner: FunctionOwnerIdV1,
+        source: crate::mir::resolved_semantics::ResolvedBinaryExpressionSourceV1,
+        lhs: Box<OriginalFormalActualSeedV1>,
+        rhs: Box<OriginalFormalActualSeedV1>,
+    },
     Integer,
     Text,
     Other,
@@ -49,7 +60,7 @@ impl OriginalFormalActualSeedV1 {
     /// separate conjunct in the same domain fold, never an actual class seed.
     pub(super) fn project_source_object_v1(&self) -> FormalActualSeedV1 {
         match self {
-            Self::SumUnknown(legacy) => legacy.project_source_object_v1(),
+            Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => legacy.project_source_object_v1(),
             Self::Forward { origin, .. } => FormalActualSeedV1::Forward(*origin),
             Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
                 FormalActualSeedV1::Class(source.fresh_class().into()), anchor.project_source_object_v1(),
@@ -70,8 +81,8 @@ impl OriginalFormalActualSeedV1 {
             Self::SourceInteger => if current_i64 { FormalActualSeedV1::Conflict } else { FormalActualSeedV1::Integer },
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::SumUnknown(legacy) => legacy.project_source_integer_v1(current_i64),
-            Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
+            Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => legacy.project_source_integer_v1(current_i64),
+            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
         }
     }
 
@@ -89,8 +100,8 @@ impl OriginalFormalActualSeedV1 {
             Self::Integer | Self::SourceInteger => FormalActualSeedV1::Integer,
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::SumUnknown(legacy) => legacy.project_selected_v1(caller, transport_owners),
-            Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
+            Self::SumUnknown(legacy) | Self::PointValue { legacy, .. } => legacy.project_selected_v1(caller, transport_owners),
+            Self::Binary { .. } | Self::Conflict | Self::ProviderStatic(_) | Self::Text | Self::Other | Self::SourceOnly(_) | Self::MethodResult(_) => FormalActualSeedV1::Conflict,
             Self::Forward { origin, declared_constraint } => {
                 let outside = transport_owners.is_some_and(|owners| !owners.contains(&caller));
                 match (outside, declared_constraint) {
@@ -188,14 +199,23 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
     {
         return OriginalFormalActualSeedV1::Integer;
     }
+    if source_context.is_some_and(OriginalActualSourceContextV1::is_point_premise) {
+        if let Some(source) = function.expression_source().binary(site) {
+            let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+                caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);
+            return OriginalFormalActualSeedV1::Binary { owner: input.owner(), source: source.clone(),
+                lhs: Box::new(classify(source.lhs())), rhs: Box::new(classify(source.rhs())) };
+        }
+    }
     if let Some(method) = function.method_call_source_v1(site) {
         let (proof, core_operand_request) = match source_context.map(|context| context.resolve(input, method, inventory)) {
             Some(OriginalMethodResultResolutionV1::Existing { proof, operands }) => (proof, operands),
             Some(OriginalMethodResultResolutionV1::ConditionalCore(request)) => (None, Some(request)),
             _ => (None, None),
         };
+        let point_context = core_operand_request.and_then(|_| source_context.map(OriginalActualSourceContextV1::for_point_premise));
         let classify = |site: &SourceExprSiteV1| classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
-            caller, candidates, receiver, definitions, contracts, site, None, inventory, source_context, inherited);
+            caller, candidates, receiver, definitions, contracts, site, None, inventory, point_context.as_ref().or(source_context), inherited);
         let requirements = if let Some(request) = core_operand_request { request.i64_ordinals() }
             else { proof.as_ref().map(|proof| proof.callee_i64_ordinals()).unwrap_or(&[]) };
         let required_i64 = requirements.iter().map(|ordinal| {
@@ -222,6 +242,15 @@ pub(super) fn classify_original_actual_seed_with_seen_v1(
     let Some(mut binding) = arg_site_binding(input, site) else {
         return OriginalFormalActualSeedV1::Conflict;
     };
+    if let Some(context) = source_context.filter(|context| context.is_point_premise()) {
+        let legacy_context = context.for_legacy_actual();
+        let legacy = classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+            caller, candidates, receiver, definitions, contracts, site, None, inventory, Some(&legacy_context), inherited);
+        let value = function.expression_source().value_flow()
+            .filter(|flow| flow.owner() == input.owner())
+            .and_then(|flow| flow.read(site, binding));
+        return OriginalFormalActualSeedV1::PointValue { owner: input.owner(), value, legacy: Box::new(legacy) };
+    }
     if value_domain::declared_integer_seed_v1(input, contracts, binding) {
         return if contracts.iter().filter(|row| row.owner == input.owner()).flat_map(|row| &row.parameters)
             .any(|row| row.binding == binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))

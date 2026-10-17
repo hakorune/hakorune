@@ -286,7 +286,42 @@ pub(super) fn prepare_original_formal_seeds_v1(
             FormalDomainProjectionV1::SourceObject)?.0,
         new_calls: Rc::clone(&product.new_calls),
     }));
-    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors);
+    let mut expand = |owner, value| -> Result<source_sum::SourcePointExpansionV1, String> {
+        use crate::mir::resolved_semantics::source_value_flow::SourceValueOriginV1 as Origin;
+        use source_sum::SourcePointExpansionV1 as Expansion;
+        crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+            batch, constructors, owner, |context, input| -> Result<Expansion, String> {
+                let Some(origin) = input.function().expression_source().value_flow()
+                    .filter(|flow| flow.owner() == owner).and_then(|flow| flow.origin(value)) else {
+                    return Ok(Expansion::Unknown);
+                };
+                Ok(match origin {
+                    Origin::Unknown => Expansion::Unknown,
+                    Origin::Join { incoming, .. } => Expansion::Join(incoming.iter().map(|(_, value)| *value).collect()),
+                    Origin::Entry(binding) => {
+                        if value_domain::declared_integer_seed_v1(input, contracts, *binding) {
+                            let signed = contracts.iter().filter(|row| row.owner == owner).flat_map(|row| &row.parameters)
+                                .any(|row| row.binding == *binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()));
+                            Expansion::Seed(if signed { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger })
+                        } else { Expansion::Entry(*binding) }
+                    }
+                    Origin::Expression(site) => {
+                        let source_context = OriginalActualSourceContextV1::checked(context, input, batch, selected, contracts,
+                            static_claims, app_main, omitted)?.map(|context| context.for_point_premise());
+                        let slot = context.declaration_slot();
+                        let local_candidates = slot.and_then(|slot| candidates.get(&slot)).and_then(|rows| rows.as_ref().ok())
+                            .map(Vec::as_slice).unwrap_or(&[]);
+                        let receiver = slot.and_then(|slot| contracts.iter().find(|row| row.owner == owner)
+                            .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                            .and_then(|_| crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
+                                selected, batch, entry_home_loans.for_batch_slot(slot), slot)));
+                        Expansion::Seed(classify_original_actual_seed_in_scope(input, batch, selected, results, owner,
+                            local_candidates, receiver, definitions, contracts, site, None, Some(inventory), source_context.as_ref()))
+                    }
+                })
+            })?
+    };
+    let sums = source_sum::resolve_original_source_sums_v1(&product, contracts, constructors, &mut expand)?;
     for (site, operands) in &sums.core_calls {
         let receipt = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
             batch, constructors, site.owner(), |_, input|

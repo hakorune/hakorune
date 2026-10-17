@@ -4496,3 +4496,25 @@ Static source actuals may retain a Text receipt at the exact outer ordinal/site,
 with false integer evidence; projection explicitly stays execution-pending until
 argument evaluation/entry/cleanup/publication are connected. No Loop membership
 or result-representation-only execution permission is created.
+
+## Original Core point premises
+
+Core operand source requests use PointPremise mode in the same original actual
+classifier. Ordinary incoming/class/receiver/provider mappings and legacy
+projections are unchanged. The resolver's exact read-to-reaching-definition
+reference defers cycles; source preparation reborrows the original declaration
+or Birth input, and the existing SUM memoizes before expansion. Entry, source
+expression, Normal branch/Loop predecessors and Unknown all feed the same graph.
+Every discovered formal is checked against the original incoming/New census
+before the same SCC closure runs. Missing/incomplete/foreign source is unproved.
+
+A single binary transfer retains original owner/operator/ordered operand sites.
+The existing pure expression-class law supports exact signed-I64 pairs and
+Text/Text Add; unsupported reachable combinations are never dropped. Empty
+cyclic domains wait during the same fixedpoint, then fail if still ungrounded.
+A spare literal cannot ground a recursive operand. Stable declared-i64 Entry
+uses its existing declaration proof; usize remains outside SignedI64. These are
+source result classes only: catalog result representation remains independent
+of operand execution premises, and no checked operation, range/nonFault, Home,
+Loop Recipe, ABI, cleanup or publication permission follows. General
+String*Dynamic and mutable ordinary incoming domains are not selected here.

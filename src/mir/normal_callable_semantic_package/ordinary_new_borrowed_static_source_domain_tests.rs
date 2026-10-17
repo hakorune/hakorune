@@ -273,6 +273,8 @@ fn static_source_domain_never_omits_mixed_original_actuals() {
         assert!(!source.checked_static_input(p), "closed Core source cannot grant an executable entry");
     }
 
+
+
 }
 
 #[test]
@@ -773,3 +775,6 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
             Err(error) if error.contains("incoming-source-cohort")));
     }).unwrap();
 }
+
+#[path = "ordinary_new_borrowed_static_point_premise_tests.rs"]
+mod point_premise_tests;

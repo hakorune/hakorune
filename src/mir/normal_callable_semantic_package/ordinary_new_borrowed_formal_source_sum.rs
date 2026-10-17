@@ -1,6 +1,18 @@
 //! Orthogonal union of SAME original seeds; no admission or source classifier.
 use super::*;
 use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 as Rep;
+use crate::mir::resolved_semantics::source_value_flow::SourceValueRefV1;
+#[path = "ordinary_new_borrowed_formal_source_sum_binary.rs"]
+mod binary;
+use binary::SourceBinaryTransferV1;
+
+pub(super) enum SourcePointExpansionV1 {
+    Entry(BindingRefV1),
+    Join(Vec<SourceValueRefV1>),
+    Seed(OriginalFormalActualSeedV1),
+    Unknown,
+}
+type PointExpander<'a> = dyn FnMut(FunctionOwnerIdV1, SourceValueRefV1) -> Result<SourcePointExpansionV1, String> + 'a;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
@@ -68,6 +80,7 @@ struct CoreRequestNode {
 }
 #[derive(Default)]
 struct Node {
+    binary: Option<SourceBinaryTransferV1>,
     atoms: BTreeSet<SourceValueAlternativeV1>,
     union: Vec<usize>,
     required_i64: Vec<usize>,
@@ -78,16 +91,40 @@ struct Node {
 }
 impl Node {
     fn dependencies(&self) -> impl Iterator<Item = usize> + '_ {
-        self.union.iter().chain(&self.required_i64).chain(&self.required_text).copied()
+        self.union.iter().chain(&self.required_i64).chain(&self.required_text)
+            .copied().chain(self.binary.iter().flat_map(|binary| binary.operands))
     }
 }
 struct Graph<'a> {
+    points: BTreeMap<(FunctionOwnerIdV1, SourceValueRefV1), usize>,
+    expand: &'a mut PointExpander<'a>,
+    expansion_error: Option<String>,
     nodes: Vec<Node>,
     formals: BTreeMap<BindingRefV1, usize>,
     constructors: &'a crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
     core_requests: Vec<CoreRequestNode>,
 }
 impl Graph<'_> {
+    fn point(&mut self, owner: FunctionOwnerIdV1, value: SourceValueRefV1) -> usize {
+        if let Some(node) = self.points.get(&(owner, value)) { return *node; }
+        let id = self.nodes.len();
+        self.nodes.push(Node::default());
+        self.points.insert((owner, value), id);
+        let mut node = Node::default();
+        match (self.expand)(owner, value) {
+            Ok(SourcePointExpansionV1::Entry(binding)) => node.union.push(self.formal(binding)),
+            Ok(SourcePointExpansionV1::Join(incoming)) => {
+                node.invalid = incoming.is_empty();
+                for incoming in incoming { node.union.push(self.point(owner, incoming)); }
+            }
+            Ok(SourcePointExpansionV1::Seed(seed)) => node.union.push(self.seed(&seed)),
+            Ok(SourcePointExpansionV1::Unknown) => node.invalid = true,
+            Err(error) => { self.expansion_error.get_or_insert(error); node.invalid = true; }
+        }
+        self.nodes[id] = node;
+        id
+    }
+
     fn formal(&mut self, binding: BindingRefV1) -> usize {
         if let Some(node) = self.formals.get(&binding) {
             return *node;
@@ -103,6 +140,13 @@ impl Graph<'_> {
         let id = self.nodes.len();
         self.nodes.push(Node::default());
         match seed {
+            OriginalFormalActualSeedV1::PointValue { owner, value, .. } => {
+                if let Some(value) = value { row.union.push(self.point(*owner, *value)); }
+                else { row.invalid = true; }
+            }
+            OriginalFormalActualSeedV1::Binary { owner, source, lhs, rhs } => {
+                row.binary = Some(SourceBinaryTransferV1 { owner: *owner, source: source.clone(), operands: [self.seed(lhs), self.seed(rhs)] });
+            }
             OriginalFormalActualSeedV1::Text => {
                 row.atoms.insert(Value::Text);
             }
@@ -210,8 +254,10 @@ pub(super) fn resolve_original_source_sums_v1(
     source: &OriginalFormalSeedProductV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
-) -> OriginalSourceSumsV1 {
+    expand: &mut PointExpander<'_>,
+) -> Result<OriginalSourceSumsV1, String> {
     let mut graph = Graph {
+        points: BTreeMap::new(), expand, expansion_error: None,
         nodes: Vec::new(),
         formals: BTreeMap::new(),
         constructors,
@@ -249,6 +295,7 @@ pub(super) fn resolve_original_source_sums_v1(
     source
         .new_calls
         .visit_raw_source_seeds_v1(constructors, |formal, seed| graph.actual(formal, seed));
+    if let Some(error) = graph.expansion_error.take() { return Err(error); }
     for (binding, node) in &graph.formals {
         graph.nodes[*node].invalid |=
             !registered.contains(binding) || graph.nodes[*node].union.is_empty();
@@ -273,7 +320,7 @@ pub(super) fn resolve_original_source_sums_v1(
             }
         }
     }
-    OriginalSourceSumsV1 {
+    Ok(OriginalSourceSumsV1 {
         new_calls: Rc::clone(&source.new_calls),
         core_calls: core_calls.into_iter().filter_map(|(site, value)| value.map(|value| (site, Rc::new(value)))).collect(),
         values: graph
@@ -281,178 +328,12 @@ pub(super) fn resolve_original_source_sums_v1(
             .into_iter()
             .filter_map(|(binding, node)| values[node].clone().map(|value| (binding, value)))
             .collect(),
-    }
+    })
 }
 
-/// Kosaraju condensation over union AND conditional-result dependencies. Each
-/// component must be grounded independently; upstream atoms cannot rescue an
-/// empty downstream cycle. Requirements constrain values, they do not union.
-fn solve(nodes: &[Node]) -> Vec<Option<SourceValueSumV1>> {
-    fn postorder(node: usize, nodes: &[Node], seen: &mut BTreeSet<usize>, order: &mut Vec<usize>) {
-        if !seen.insert(node) {
-            return;
-        }
-        for dependency in nodes[node].dependencies() {
-            postorder(dependency, nodes, seen, order);
-        }
-        order.push(node);
-    }
-    fn assign(
-        node: usize,
-        reverse: &[Vec<usize>],
-        component: usize,
-        groups: &mut [usize],
-        members: &mut Vec<usize>,
-    ) {
-        if groups[node] != usize::MAX {
-            return;
-        }
-        groups[node] = component;
-        members.push(node);
-        for dependency in &reverse[node] {
-            assign(*dependency, reverse, component, groups, members);
-        }
-    }
-    let mut order = Vec::new();
-    let mut seen = BTreeSet::new();
-    let mut reverse = vec![Vec::new(); nodes.len()];
-    for (node, row) in nodes.iter().enumerate() {
-        for dependency in row.dependencies() {
-            reverse[dependency].push(node);
-        }
-        postorder(node, nodes, &mut seen, &mut order);
-    }
-    let mut groups = vec![usize::MAX; nodes.len()];
-    let mut components = Vec::new();
-    for node in order.into_iter().rev() {
-        if groups[node] == usize::MAX {
-            let mut members = Vec::new();
-            assign(node, &reverse, components.len(), &mut groups, &mut members);
-            components.push(members);
-        }
-    }
-    fn close(
-        component: usize,
-        components: &[Vec<usize>],
-        groups: &[usize],
-        nodes: &[Node],
-        done: &mut BTreeSet<usize>,
-        values: &mut [Option<SourceValueSumV1>],
-    ) {
-        if !done.insert(component) {
-            return;
-        }
-        let members = &components[component];
-        let mut valid = true;
-        let mut grounded = false;
-        for node in members {
-            valid &= !nodes[*node].invalid;
-            grounded |= nodes[*node].unconditional;
-            for dependency in nodes[*node]
-                .dependencies()
-                .filter(|dependency| groups[*dependency] != component)
-            {
-                close(groups[dependency], components, groups, nodes, done, values);
-                valid &= values[dependency].is_some();
-                if nodes[*node].union.contains(&dependency) {
-                    grounded |= values[dependency].is_some();
-                }
-            }
-        }
-        // A conditional output can ground only after ALL premises were
-        // independently proved outside this component. A spare literal must
-        // never justify its other, recursively assumed I64 premise.
-        grounded |= members.iter().any(|node| {
-            !nodes[*node].atoms.is_empty()
-                && nodes[*node].required_i64.iter().all(|dependency| {
-                    groups[*dependency] != component
-                        && values[*dependency]
-                            .as_ref()
-                            .is_some_and(SourceValueSumV1::signed_only)
-                })
-                && nodes[*node].required_text.iter().all(|dependency| {
-                    groups[*dependency] != component
-                        && values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only)
-                })
-        });
-        if !valid || !grounded {
-            return;
-        }
-        let mut candidate: BTreeMap<_, _> = members
-            .iter()
-            .map(|node| (*node, nodes[*node].atoms.clone()))
-            .collect();
-        loop {
-            let mut changed = false;
-            for node in members {
-                let mut union = candidate[node].clone();
-                for dependency in &nodes[*node].union {
-                    union.extend(
-                        if groups[*dependency] == component {
-                            candidate[dependency].iter()
-                        } else {
-                            values[*dependency]
-                                .as_ref()
-                                .expect("closed external dependency")
-                                .0
-                                .iter()
-                        }
-                        .cloned(),
-                    );
-                }
-                if union != candidate[node] {
-                    candidate.insert(*node, union);
-                    changed = true;
-                }
-            }
-            if !changed {
-                break;
-            }
-        }
-        for node in members {
-            let value = SourceValueSumV1(candidate[node].clone());
-            valid &= !value.0.is_empty()
-                && nodes[*node]
-                    .constraints
-                    .iter()
-                    .all(|name| value.permits_object(name));
-            valid &= nodes[*node].required_i64.iter().all(|dependency| {
-                if groups[*dependency] == component {
-                    SourceValueSumV1(candidate[dependency].clone()).signed_only()
-                } else {
-                    values[*dependency]
-                        .as_ref()
-                        .is_some_and(SourceValueSumV1::signed_only)
-                }
-            });
-            valid &= nodes[*node].required_text.iter().all(|dependency| {
-                if groups[*dependency] == component {
-                    SourceValueSumV1(candidate[dependency].clone()).text_only()
-                } else {
-                    values[*dependency].as_ref().is_some_and(SourceValueSumV1::text_only)
-                }
-            });
-        }
-        if valid {
-            for node in members {
-                values[*node] = Some(SourceValueSumV1(candidate.remove(node).unwrap()));
-            }
-        }
-    }
-    let mut values = vec![None; nodes.len()];
-    let mut done = BTreeSet::new();
-    for component in 0..components.len() {
-        close(
-            component,
-            &components,
-            &groups,
-            nodes,
-            &mut done,
-            &mut values,
-        );
-    }
-    values
-}
+#[path = "ordinary_new_borrowed_formal_source_sum_solver.rs"]
+mod solver;
+use solver::solve;
 
 #[cfg(test)]
 mod tests {
@@ -527,5 +408,32 @@ mod tests {
         nodes[3] = atom(Text);
         nodes[2] = atom(Text);
         assert!(solve(&nodes)[0].is_none(), "Text bounds are not signed I64");
+        // A binary contributes no speculative atom. External operands may
+        // ground it; a cyclic operand plus a spare literal may not.
+        let binary = |lhs, rhs| {
+            use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourceNodeSiteV1, SourcePathSegmentV1 as Path, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1};
+            let site = |roles| SourceExprSiteV1::from_node(SourceNodeSiteV1::from_segments(roles));
+            Node { binary: Some(SourceBinaryTransferV1 {
+                owner: FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap(),
+                source: ResolvedBinaryExpressionSourceV1::from_parts_for_test(
+                    site(vec![Path::Body(0)]), ResolvedBinaryOperatorV1::Add,
+                    site(vec![Path::Body(0), Path::Lhs]), site(vec![Path::Body(0), Path::Rhs])),
+                operands: [lhs, rhs],
+            }), ..Default::default() }
+        };
+        let nodes = vec![binary(1, 2), atom(Text), atom(Text)];
+        assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
+        let mut nodes = vec![Node { union: vec![1], ..Default::default() }, binary(0, 2), atom(Text)];
+        assert!(solve(&nodes)[0].is_none(), "cyclic concatenation has no initial source value");
+        nodes[0].union.push(3);
+        nodes.push(atom(Text));
+        assert!(solve(&nodes)[0].as_ref().unwrap().text_only());
+        nodes[2].atoms.insert(Other);
+        assert!(solve(&nodes)[0].is_none(), "unsupported reachable pair cannot be dropped");
+        nodes[2] = atom(SignedI64);
+        assert!(solve(&nodes)[0].is_none(), "String*Dynamic is not selected");
+        nodes[3] = atom(SignedI64);
+        assert!(solve(&nodes)[0].as_ref().unwrap().signed_only());
+
     }
 }
