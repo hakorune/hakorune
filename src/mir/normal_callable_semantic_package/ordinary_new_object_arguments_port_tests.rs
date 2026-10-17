@@ -408,3 +408,58 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
         }
     }).unwrap();
 }
+
+#[test]
+fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenance() {
+    use crate::mir::resolved_value_profile::expression_plan::{local_expression_source_plan_v1, ExpressionNodeSourceV1};
+    use crate::mir::resolved_semantics::ResolvedLexicalRefV1;
+    for (prefix, actual, sibling, accepted) in [
+        ("", "\"field\"", "", true),
+        ("local alias = key", "\"field\"", "", true),
+        ("key = other", "\"field\"", "", false),
+        ("", "null", "", false), ("", "true", "", false), ("", "7", "", false),
+        ("", "\"field\"", "second() { return Values.caller(true, \"spare\") }", false),
+        ("", "\"field\"", "relay(p) { return Values.caller(p, \"spare\") }", false),
+    ] {
+        let read_name = if prefix.contains("local alias") { "alias" } else { "key" };
+        let text = format!(r#"static box Values {{
+            caller(key, other) {{ {prefix} local needle = "x" + {read_name} return 0 }}
+            seed() {{ return Values.caller({actual}, "spare") }} {sibling}
+        }} static box Main {{ main() {{ return 0 }} }}"#);
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+        ).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger.borrowed_formal_source.as_ref().unwrap();
+        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+        package.batch().with_lowering_input(contract.batch_slot, |input| {
+            let initializer = input.function().expression_source().initializers().last().unwrap();
+            let original = input.forest().callable_source_ledger(input.owner()).unwrap();
+            let plan = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();
+            let read = plan.nodes().iter().find_map(|node| match node.source() {
+                ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding)) => Some((node.site(), *binding)), _ => None,
+            }).unwrap();
+            let site = OwnedExprSiteV1::new(input.owner(), initializer.initializer_site().unwrap().clone());
+            let mut pending = ledger.borrowed_formal_actuals.clone();
+            let before = pending.clone();
+            let mut ask = |plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, root| {
+                borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                    &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
+                    &ledger.borrowed_i64_results, &mut |_| None, &site,
+                    BorrowedCallActualRequestV1::InitializerTextEntryRead { input, plan, read: read.0, binding: read.1, root },
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap()
+            };
+            let row = ask(&plan, contract.parameters[0].binding);
+            assert_eq!(row.is_some(), accepted, "{prefix:?}/{actual}");
+            if let Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan)) = row {
+                assert!(Rc::ptr_eq(loan.requirement().source_plan(), &plan));
+                assert_eq!(loan.requirement().formal(), (0, contract.parameters[0].binding));
+                assert_eq!(Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan.clone())), ask(&plan, contract.parameters[0].binding));
+                let reissued = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();
+                assert_ne!(Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan)), ask(&reissued, contract.parameters[0].binding));
+            }
+            assert_eq!(ask(&plan, contract.parameters[1].binding).is_some(), prefix == "key = other", "only the original current entry can supply provenance");
+            assert_eq!(before, pending, "source demand does not arm execution or stage actuals");
+        }).unwrap();
+    }
+}

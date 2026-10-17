@@ -235,9 +235,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     let ExpressionPlanRootV1::CallArgument { ordinal, call, .. } = loan.plan().root() else {
         return Err(freeze("borrowed-text-entry/source-identity"));
     };
-    if call.site() != site.site() || loan.plan().owner() != site.owner()
+    if !loan.text_operand_is(read) || call.site() != site.site() || loan.plan().owner() != site.owner()
         || lend_argument_expression_source_v1(prepared, pending, site, *ordinal)?.as_ref() != Some(loan) {
         return Err(freeze("borrowed-text-entry/source-identity"));
     }
-    super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan, read, binding, root)
+    super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root)
 }

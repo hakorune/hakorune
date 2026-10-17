@@ -4583,3 +4583,16 @@ argument frame retains that Core loan, and its qualifier joins the requirement's
 SAME plan Rc/node to the exact current root. Other expression purposes must prove
 their own Text source at issuance; no Core/argument-specific proof enum or second
 entry registry is needed.
+
+Initializer Text entry reads use that same entry-requirement issuer after the
+initializer-specific lender proves the original source. The lender retains SAME
+final formal SUM Rc, SAME resolver value-flow Arc/read value and SAME initializer
+plan Rc. All original incoming alternatives must close to Text. Original alias
+read edges may lead to that formal; rebinds follow the new entry, and Unknown,
+computed values, joins or cycles remain unmet rather than choosing one path.
+Only the final formal cache is Rc-backed; the existing SUM solver and borrowed
+queries keep their responsibilities. The callback emits no executable actuals,
+Prefix installation, local residence, descriptor or End right. Initializer
+qualification and its physical/lifecycle/finalized-source consumers are still
+required before execution. Argument lender retains its own closed Core Text
+check before calling the same purpose-neutral coordinate issuer.

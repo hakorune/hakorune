@@ -711,3 +711,57 @@ and substring temporary Normal/Fault, through retained Loop Facts/Recipe and
 JoinSig's root carrier closure, into complete After. Existing Mul two-carrier,
 NoExitArray no-break and S6C membership cannot be borrowed. This refines the same
 series, without selecting a parked lane or claiming a changed actual first-stop.
+
+### Initializer source-read connection (V868, verified preparation)
+
+Scope: existing source SUM final formal cache/read loan, existing Text entry-read
+owner, original initializer lender under existing static source child, callback
+port/reexports, existing callback tests and owner README. Normalize the common
+entry requirement issuer; the initializer lender must retain SAME closed SUM Rc
+and original read-to-entry relation rather than classify syntax again. Current
+Prefix, owned local residence/handoff, evaluator and final scans remain owed.
+Read-only review confirms final formal SUM results alone need Rc; the solver
+and existing borrowed getters stay unchanged. Original aliases may follow exact
+resolver read relations; joins/unknown/nonalias/cycles remain unmet in this slice.
+Physical handoff uses the existing finalized root source visitor and finished
+binding coordinates, including source-aware per-function String verification;
+no generic End-order relaxation or new runtime opcode is selected.
+
+V868 existing production callback now serves initializer-purpose Text-read
+requests using the same purpose-neutral entry-coordinate issuer. Argument Core
+Text validation remains in its original lender before that issuer. Initializer
+loan retains SAME formal SUM Rc, original resolver flow Arc/read value and plan
+Rc. Only the final formal cache is Rc-backed; solver/borrowed queries keep their
+existing responsibility. Alias-only provenance follows original resolver edges;
+rebind selects its actual source entry, not the old variable spelling. Unknown,
+computed values, joins/cycles and any non-Text alternative issue no loan. This is
+source preparation: the covered Prefix initializer requester, final whole frame,
+current Text residence, physical evaluation/handoff and final scans remain open.
+No execution fence or parked lane changes; no new expression classifier/registry.
+
+Read-only review found and corrected a test expectation before its first run:
+after key=other, root=other is valid provenance while root=key is not. Existing
+callback test owner now covers8 source variants: direct/alias/rebind, Null/Bool/
+Integer, Text+Bool sibling and Text+unknown forwarded sibling. SAME plan repeat
+retains identity; equal reissued plans differ; wrong original entry and accidental
+pending-actual mutation are checked. No new test owner/guard/fixture app exists.
+Root868A build PASS107.912357s; B with expanded matrix/owner docs PASS60.202422s.
+RootB27 nonempty filters240 distinct cases228 PASS/SAME12 baseline identities
+and diagnostics versusac35be25de; thread IDs/unordered plugin Debug map are the
+only comparison normalization. Focused8.488522s separately from build. Existing
+Print4/String1/projection4/install1 and covered argument matrix preserve results.
+Root/layer/thin/pointer/diff guards PASS. CLI205 build PASS197.797692s; RootB/CLI/
+current compiled-source manifests match. CLI SHA0e08480d5a0f638c464a22a49648c74ba6075d3ef3cbdee7656a13edb1591cb0.
+Unchanged json app234 direct canonical EXE0.124356s exits1/no artifact at SAME
+slot20/Body7/Value core-expression-execution-pending; stderr byte-equal toapp232.
+Same canonical command/env/FFI831e/runtime808b as V867. Actual frontier did not
+advance. No native mimalloc rerun in this preparation-only slice: no evaluator,
+ABI, runtime or physical admission changed; prior V867 app233 native evidence is
+historical, not current-head acceptance. Full series/goal remain open; no current
+CI/full-suite/performance claim. Keep Root868B/CLI205/app234 records/pins and
+matching backend/prior baseline until series acceptance. A has no pinned copy;
+its build/source diagnostics stay. No temporary adapter or deletable legacy edge
+is introduced; argument-specific entry-issuer coupling is replaced by one common
+coordinate issuer with purpose-specific source validation. Next: initializer
+whole frame/current Text residence and source-bound physical handoff through
+finished bindings; then scalar pos/start/n and real scan Loop After obligations.

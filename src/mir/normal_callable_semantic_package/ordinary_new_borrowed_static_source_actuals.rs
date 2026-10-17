@@ -12,6 +12,11 @@ mod argument_source;
 pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, observed_argument_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 
+#[path = "ordinary_new_borrowed_initializer_text_source.rs"]
+mod initializer_source;
+pub(crate) use initializer_source::InitializerTextEntryReadV1;
+pub(in crate::mir::normal_callable_semantic_package) use initializer_source::lend_initializer_text_entry_read_v1;
+
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
     pub(super) source: Rc<StaticIncomingSourceV1>,

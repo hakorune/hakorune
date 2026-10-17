@@ -47,7 +47,7 @@ impl SourceValueSumV1 {
 #[derive(Debug)]
 pub(super) struct OriginalSourceSumsV1 {
     pub(super) new_calls: Rc<new_seeds::OriginalNewSeedsV1>,
-    pub(super) values: BTreeMap<BindingRefV1, SourceValueSumV1>,
+    pub(super) values: BTreeMap<BindingRefV1, Rc<SourceValueSumV1>>,
     pub(super) core_calls: BTreeMap<OwnedExprSiteV1, Rc<ClosedOriginalCoreSourceV1>>,
 }
 /// Closed source premises, not an evaluation, ABI or cleanup capability.
@@ -326,7 +326,7 @@ pub(super) fn resolve_original_source_sums_v1(
         values: graph
             .formals
             .into_iter()
-            .filter_map(|(binding, node)| values[node].clone().map(|value| (binding, value)))
+            .filter_map(|(binding, node)| values[node].clone().map(|value| (binding, Rc::new(value))))
             .collect(),
     })
 }

@@ -368,7 +368,7 @@ impl OriginalFormalSeedProductV1 {
 
     pub(super) fn source_value_sum_v1(&self, inventory: &BorrowedIncomingInventoryV1, formal: BindingRefV1) -> Option<&SourceValueSumV1> {
         self.corroborate_original_v1(inventory).then_some(())?;
-        self.source_sums.as_ref()?.values.get(&formal)
+        self.source_sums.as_ref()?.values.get(&formal).map(Rc::as_ref)
     }
     fn closed_core_source_v1(&self, inventory: &BorrowedIncomingInventoryV1, site: &OwnedExprSiteV1) -> Option<&Rc<ClosedOriginalCoreSourceV1>> {
         self.corroborate_original_v1(inventory).then_some(())?;
@@ -658,6 +658,12 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, formal: BindingRefV1,
     ) -> Option<&SourceValueSumV1> {
         self.original_formal_seeds.source_value_sum_v1(&self.source_incoming, formal)
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn lend_source_value_sum_v1(
+        &self, formal: BindingRefV1,
+    ) -> Option<Rc<SourceValueSumV1>> {
+        self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
+        self.original_formal_seeds.source_sums.as_ref()?.values.get(&formal).map(Rc::clone)
     }
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn closed_core_source_v1(
         &self, site: &OwnedExprSiteV1,

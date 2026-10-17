@@ -1,6 +1,5 @@
 //! Required source Text read, fulfilled only by a later finished borrowed entry.
 use super::*;
-use crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -25,15 +24,14 @@ impl BorrowedTextEntryReadRequirementV1 {
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_text_entry_read_requirement_v1(
     contracts: &[crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1],
-    source: &ArgumentExpressionSourceLoanV1, read: &SourceExprSiteV1,
+    plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, read: &SourceExprSiteV1,
     binding: BindingRefV1, root: BindingRefV1,
 ) -> Result<BorrowedTextEntryReadRequirementV1, String> {
     let reject = || freeze("borrowed-text-entry/source-identity");
-    if binding.owner() != source.plan().owner() || root.owner() != binding.owner()
-        || !source.text_operand_is(read) {
+    if binding.owner() != plan.owner() || root.owner() != binding.owner() {
         return Err(reject());
     }
-    let node = source.plan().nodes().iter().position(|node| node.site() == read
+    let node = plan.nodes().iter().position(|node| node.site() == read
         && matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(original)) if *original == binding)).ok_or_else(reject)?;
     let mut matching = contracts.iter().filter(|row| row.owner == binding.owner());
     let declaration = matching.next().ok_or_else(reject)?;
@@ -42,7 +40,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_text_entry_read_re
     let formal = formals.next().ok_or_else(reject)?;
     if formals.next().is_some() || !matches!(formal.kind, CallableParameterContractKindV1::OpaqueHandle)
         || declaration.parameters.get(formal.ordinal as usize).is_none_or(|row| row.binding != root) { return Err(reject()); }
-    Ok(BorrowedTextEntryReadRequirementV1 { source_plan: Rc::clone(source.plan()), node, read: read.clone(), binding,
+    Ok(BorrowedTextEntryReadRequirementV1 { source_plan: Rc::clone(plan), node, read: read.clone(), binding,
         formal: root, ordinal: formal.ordinal, batch_slot: declaration.batch_slot,
         mode: declaration.mode, kind: formal.kind.clone() })
 }
