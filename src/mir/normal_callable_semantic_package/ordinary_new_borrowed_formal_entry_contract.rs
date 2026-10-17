@@ -13,6 +13,7 @@ pub(super) struct BorrowedEntryStructureV1<'a> {
 enum EntryStructureEvidenceV1<'a> {
     Uses(BorrowedEntryOwnerViewV1<'a>),
     FiniteText {
+        uses: Rc<super::super::borrowed_formal_uses::OriginalFormalUseSourceV1>,
         incoming: Box<[&'a super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1]>,
         domains: BTreeMap<BindingRefV1, Rc<super::super::borrowed_formal_source::SourceValueSumV1>>,
     },
@@ -179,6 +180,8 @@ impl OrdinaryNewClaimLedgerV1 {
             || source.source_incoming.sum_vetoed_owners_v1().contains(&owner) {
             return Err(freeze("borrowed-entry/finite-source-contract"));
         }
+        let uses = Rc::clone(source.original_formal_uses_v1(owner)?);
+        if !uses.matches_contract(contract) { return Err(freeze("borrowed-entry/original-use-contract")); }
         let mut domains = BTreeMap::new();
         for (formal, sum) in borrowed.iter().zip(sums) {
             let sum = sum.ok_or_else(|| freeze("borrowed-entry/finite-domain-unclosed"))?;
@@ -223,7 +226,7 @@ impl OrdinaryNewClaimLedgerV1 {
         Ok(Some(BorrowedEntryStructureV1 {
             owner, source,
             formals: borrowed.iter().map(|row| (row.ordinal, row.binding)).collect(),
-            evidence: EntryStructureEvidenceV1::FiniteText { incoming, domains },
+            evidence: EntryStructureEvidenceV1::FiniteText { uses, incoming, domains },
         }))
     }
 
@@ -258,13 +261,14 @@ impl BorrowedEntryStructureV1<'_> {
     pub(super) fn check_finite_entry_values_v1(
         &self, rows: &[(u32, BindingRefV1, crate::mir::ValueId)],
     ) -> Result<(), String> {
-        let EntryStructureEvidenceV1::FiniteText { incoming, domains } = &self.evidence else {
+        let EntryStructureEvidenceV1::FiniteText { uses, incoming, domains } = &self.evidence else {
             return Err(freeze("borrowed-entry/finite-structure-required"));
         };
         if rows.len() != self.formals.len()
             || rows.iter().zip(self.formals.iter()).any(|((ordinal, binding, _), formal)| (*ordinal, *binding) != *formal)
             || rows.iter().map(|(_, _, value)| *value).collect::<BTreeSet<_>>().len() != rows.len()
             || domains.len() != rows.len() || incoming.is_empty()
+            || uses.roots().keys().copied().collect::<BTreeSet<_>>() != rows.iter().map(|(_, binding, _)| *binding).collect()
             || rows.iter().any(|(_, binding, _)| !domains.contains_key(binding)) {
             return Err(freeze("borrowed-entry/finite-entry-values-identity"));
         }

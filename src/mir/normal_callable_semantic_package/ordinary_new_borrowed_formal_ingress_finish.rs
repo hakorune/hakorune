@@ -106,6 +106,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         BTreeSet<OwnedExprSiteV1>,
         BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+        BTreeMap<FunctionOwnerIdV1, Rc<OriginalFormalUseSourceV1>>,
     ),
     static_arguments: BTreeMap<
         (OwnedExprSiteV1, u32),
@@ -113,7 +114,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     >,
     original_inventory: Result<source_seeds::OriginalBorrowedFormalSourceV1, String>,
 ) -> Result<PreparedBorrowedFormalIngressV1, String> {
-    let (_ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = drafts;
+    let (_ordinary_callers, definitions, dominated_view_sites, guarded_actuals, originals) = drafts;
     let mut transport_owners: BTreeSet<_> = contracts
         .iter()
         .filter(|row| {
@@ -127,7 +128,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         })
         .map(|row| row.owner)
         .collect();
-    let source_seeds::OriginalBorrowedFormalSourceV1 { mut inventory, seeds: original_formal_seeds, mut array_sources } = original_inventory?;
+    let source_seeds::OriginalBorrowedFormalSourceV1 { mut inventory, seeds: mut original_formal_seeds, mut array_sources } = original_inventory?;
+    // Join the source products once before exposing the prepared ingress.
+    original_formal_seeds.original_uses = Some(originals);
     inventory
         .finish_selected_calls_v1(&calls)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;

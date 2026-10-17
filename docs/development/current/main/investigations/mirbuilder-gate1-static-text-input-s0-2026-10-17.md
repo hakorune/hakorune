@@ -939,61 +939,62 @@ Executable closure still requires actual products, forward containment and BOTH
 final scans. JSON markers read only the verified image domain. No extra carrier,
 registry, cycle solver or generic-tagged permission for finite Text domains.
 
-V879 construction scope: existing borrowed entry/owner view/values, source census
-and source SUM lender, source-scope/entry read consumers, existing entry tests and
-owner README. Extract declaration/incoming correspondence from executable actual
-closure into entry_contract child (parent was794 lines). Existing final source
-API still calls actual closure; no SelectedTagged substitution or readiness grant.
-Text source uses lacking a legacy draft require the SAME source-flow/use census,
-not an empty fabricated draft; worker checking exact mapping before activation.
+V879 landed6b64fc17e5: original finite Text entry structure separated from
+executable actual/use closure; source-scope and real param correspondence use
+that structure, no fabricated numeric draft. Parent794->701 lines; old pre-entry
+facade test-only, finalized APIs stay live. Root879D344 distinct/330PASS/14same
+(13common plus independently reproduced guarded receiver baseline), no new
+warnings. CLI217177.567022s; app255 JSON SAME .123975s; app256 unchanged mimalloc
+EXE132.109013s/native.001557s exact7/exit0/stdout+stderr. That commit retains
+commands/provenance, corrected test setup and all negative/source census cases.
+Matched pins kept; obsolete attempt binaries1,863,680,104 bytes removed with
+current hash/baseline checks, logs/receipts retained. Full Text series stays open.
 
-Worker Decision refinement: legacy borrowed-use drafts reject original Core
-receiver/Text Add uses, so they cannot be required to construct a source Text
-entry. Entry structure uses original declaration/parameter identity, full source
-census and SAME closed SUM instead. No fabricated empty draft or UnsupportedUse
-success. Original read/alias/Loop census must still join SAME current frames and
-all physical reads/Copies in both final scans before publication; structural
-mapping does not claim those uses closed. Existing completed source API refuses.
-V878 retirement: four superseded root878D/E/F/F.extra binary copies removed
-(1,064,776,896 bytes); latest root878G SHA verified against focused receipt and
-baseline13 equality before deletion. All logs/manifests/receipts, latest root/CLI,
-matched runtime/FFI and historical877 baseline retained until Text acceptance.
+V880 Decision (packet_origin_review): one original formal-use source product
+owns contract/reads/flow/aliases/rebind/capture obligations before legacy draft
+classification; successful drafts alone keep old admission. Same canonical refs
+feed classifier passes, source-only/omitted declarations retain originals.
+Existing original seed product owns these Rc loans, without another registration
+API/scan. Argument/initializer Text read requirements retain SAME original/read
+identity; finite structural entry requires that original. No use completion or
+physical Text permission from this. All original reads must still match current
+frames/physical reads/Copies in BOTH final consumers; unknown/escape/uncovered
+use refuses. Source/runtime execution fences remain until those connections close.
+Paths: borrowed formal uses + child source census, source draft collector/finish/
+seed ownership, entry contract/read requirement, Argument/initializer source
+lenders, existing use/source/port tests, owner README/card. No .hako edit or new
+semantic profile/fixture/test/guard. Canonical source identity stays fatal; legacy
+classifier errors are retained errors, never successful empty drafts.
 
-Next execution mapping (same worker): retain original contract/formal/read/flow/
-alias and rebind/capture obligations in existing BorrowedFormalSourceProductV1
-before numeric draft failure. One canonical variable_refs list also feeds current
-classifier passes; do not rescan in prepare_original_formal_seeds or fabricate a
-successful draft. Preserve original source registration beyond legacy callers.
-Those obligations must match SAME frames and every physical read/Copy in BOTH
-final scans. Unknown/escape/uncovered use remains refusal. Unused ledger pre-entry
-facade becomes test-only; finalized source APIs remain live. No new runtime
-adapter, test method, fixture or guard.
-
-V879 verification in progress: root879A build PASS78.970386s, but first focused
-run omitted required16MiB stack and aborted; not a code failure/green. Correct
-stack rerun preserved common297/284/13; its new test attempted AllSource then an
-excluded ClosedApp key, both invalid for this still-unaccepted input. Replaced
-that setup with original contract-level structural tests (no executable fixture
-claim), preserving existing real entry/carrier/scope tests. B fixture-private
-import error corrected without broadening test-module visibility; C build
-PASS59.766054s, test-only facade and no unused import. Root879D build PASS62.827943s, no new warnings.
-
-Root879D:41 existing filters, distinct344/pass330/baseline14 in10.596814s. Old root878G pinned binary independently reran the
-newly selected entry/carrier/scope filters:20PASS/1baseline +24PASS +3PASS.
-All14 failure identities/diagnostics match that combined pre-change baseline;
-13 are prior common failures, one is guarded_receiver_packet_never_retries_old_
-protocol_after_guard_loss (not newly introduced). Structural Text/finite cases,
-empty/ordinal drift, removed/duplicate incoming and unfinished-use refusal PASS.
-Real existing entry/carrier/scope tests PASS; no executable Text claim. Worker
-final review found no permission hole. CLI217 cargo build --profile quick --bin hakorune --message-format=json PASS177.567022s,
-no new warnings; SHA1b070a30429f5174f14154a4993e550122f99791970db07aee99eecdcc47a64c.
-App255 original JSON SAME slot20/Body7 Value Core fence, exit1/no artifact,
-0.123975s, stderr byte-identical253. Canonical --backend mir --emit-exe plus
---emit-exe-nyrt runtime877A, FFI876B, clean env/plugins-disabled/pure-first/
-no-replay/16MiB; all current source hashes and compiler-only runtime delta match.
-App256 unchanged mimalloc canonical EXE PASS132.109013s; native0.001557s,
-original7/exit0/stdout+stderr exact254. Root/pointer/layer/thin/diff guards PASS.
-CI still historical failed
-35681768498/d4168473d5, no current CI/full-suite green.
-V879 superseded A/A.extra/C copied binaries also retired (798,903,208 bytes)
-after latest D hash and unchanged baseline14 verified; all logs/receipts retained.
+V880 construction: SAME original use Rc/read index now travels in Argument and
+initializer requirements; finite structural entry requires its matching original
+contract. Legacy classifiers reuse canonical reads/initializers/rebind/capture
+and still reject unsupported uses. Omitted opaque owners retain source products
+without a legacy admitted draft. Worker caught/fixed owner coverage projection
+(zeroarg/ExactI64-only source owners are not opaque use owners) and an accidental
+alias_entry_origin restriction: raw loans retain Join/unknown points without
+claiming alias/current/Loop rights. Classifier identity errors remain fatal.
+Root880A build134.592075s PASS, superseded before tests by these fixes;
+Root880B cargo quick-test-fast --no-run --message-format=json PASS72.912023s,
+no new warnings.42 existing filters distinct375/pass361/baseline14; identities
+and diagnostics match879D plus its pinned independent use-family31PASS baseline.
+Focused runtime10.878975s; required stack16MiB/jobs4, no new test methods.
+Existing unsupported/rebind/capture tests verify raw obligations survive refusal;
+port/finite/initializer tests verify same-source lending and no execution grant.
+Root/pointer/layer/thin/diff guards PASS. CLI218 quick bin build PASS216.465773s,
+no new warnings; SHAa07f5945dc2f515d7d01150b88f2e72b2997c4603054bd644e6489225f7971e1.
+App257 original JSON SAME slot20/Body7 Value Core fence, exit1/no artifact,
+.123180s, stderr byte-identical255. App258 unchanged mimalloc EXE133.903054s/
+native.001548s PASS, original7/exit0/stdout+stderr exact256; matched pins retained.
+Same canonical --backend mir --emit-exe/--emit-exe-nyrt runtime877A, FFI876B,
+clean-env/plugins-disabled/pure-first/no-replay/16MiB recipe. Current source
+manifests match; only compiler paths differ from pinned runtime, C/ABI unchanged.
+Latest CI35681768498/d4168473d5 remains historical failed, not current green.
+Next execution (owned_write_final_scan): normalize purpose-held reference proofs
+into one SAME-evaluation node view. Static keeps definition+current exact read;
+residence borrows SAME acquisition/handoff pair; entry fulfillment joins original
+read, actual param/carrier, exact read/Copy. Prepare all refs/field roots before
+one read commit. Typed borrowed domain distinguishes Text-only from finite Add
+RHS; finite C adapts tag1 to existing integer descriptor and tag4 to Text, others
+refuse. Keep original Null exclusion/Loop proofs, both source-aware final scans
+and strict source-less verification; no new packet pool or scalar descriptor ID.

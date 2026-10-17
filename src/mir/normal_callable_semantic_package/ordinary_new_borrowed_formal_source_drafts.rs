@@ -20,6 +20,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
         BTreeSet<OwnedExprSiteV1>,
         BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+        BTreeMap<FunctionOwnerIdV1, Rc<OriginalFormalUseSourceV1>>,
     ),
     String,
 > {
@@ -33,6 +34,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         .map(|row| row.owner())
         .collect();
     let mut definitions = BTreeMap::new();
+    let mut originals = BTreeMap::new();
     let mut dominated_view_sites = BTreeSet::new();
     let mut guarded_actuals = BTreeMap::new();
     let mut seen = BTreeSet::new();
@@ -40,14 +42,23 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         if !seen.insert(contract.owner) {
             return Err(freeze("borrowed-formal/duplicate-source-contract"));
         }
-        if !ordinary_callers.contains(&contract.owner)
-            || !contract
+        if !contract
                 .parameters
                 .iter()
                 .any(|formal| formal.kind.is_ordinary_borrowed_handle())
         {
             continue;
         }
+        if !matches!(contract.mode, CallableParameterDeclarationModeV1::InstanceBoxMethod
+            | CallableParameterDeclarationModeV1::StaticBoxMethod) { continue; }
+        let original = batch.with_lowering_input(contract.batch_slot, |input|
+            OriginalFormalUseSourceV1::issue(input, contract))
+            .map_err(|_| freeze("borrowed-formal/batch-loan"))?
+            .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/source-identity")))?;
+        originals.insert(contract.owner, Rc::clone(&original));
+        // Source coverage includes omitted declarations; only the existing
+        // selected callers may issue a legacy admitted draft.
+        if !ordinary_callers.contains(&contract.owner) { continue; }
         let receiver = match contract.mode {
             CallableParameterDeclarationModeV1::InstanceBoxMethod =>
                 crate::mir::normal_callable_semantic_package::ordinary_new_coseal::entry_receiver_box_proof(
@@ -79,7 +90,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             Some(BorrowedFormalSourceUseContextV1 { key, results, writes }),
                         _ => None,
                     });
-                draft_borrowed_formal_source_product_with_origins_v1(
+                classify_original_formal_uses_v1(
                     input,
                     contract,
                     instance_constructors,
@@ -103,12 +114,15 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             },
                         )
                         .as_ref(),
-                    source_context.as_ref(),
+                    source_context.as_ref(), Rc::clone(&original),
                 )
             })
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;
         let draft = match draft {
             Ok(product) => {
+                if !Rc::ptr_eq(&product.original, &original) {
+                    return Err(freeze("borrowed-formal/original-use-identity"));
+                }
                 for (key, fact) in product.guarded_actuals {
                     if guarded_actuals.insert(key, fact).is_some() {
                         return Err(freeze("borrowed-formal/duplicate-guarded-actual"));
@@ -153,6 +167,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         definitions,
         dominated_view_sites,
         guarded_actuals,
+        originals,
     ))
 }
 

@@ -119,10 +119,18 @@ fn copies_preserve_actual_binding_and_formal_origin_without_selecting_forward_ta
 
 #[test]
 fn opaque_subexpression_is_not_a_direct_argument_forward() {
-    assert!(matches!(
-        draft("local value = me.sink(p + 1) return 0"),
-        Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
-    ));
+    with_source_product("local value = me.sink(p + 1) return 0", |_| {}, |input, product| {
+        let product = product.unwrap();
+        assert!(matches!(product.draft, Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))));
+        let original = &product.original;
+        assert_eq!(original.reads().map(|(site, reference)| (site.clone(), *reference)).collect::<Vec<_>>(),
+            input.function().variable_refs().map(|(site, reference)| (site.clone(), *reference)).collect::<Vec<_>>());
+        let formal = *original.roots().keys().next().unwrap();
+        let (site, _) = original.reads().find(|(_, reference)| **reference == ResolvedLexicalRefV1::Local(formal)).unwrap();
+        let read = original.lend_read(site, formal, formal).unwrap();
+        assert_eq!(read, original.lend_read(site, formal, formal).unwrap());
+        assert!(read.matches(site, formal, formal), "raw read survives unsupported numeric use, without execution permission");
+    });
 }
 
 #[path = "ordinary_new_borrowed_formal_use_source_effect_tests.rs"]
@@ -131,10 +139,11 @@ mod source_effect_tests;
 #[test]
 fn formal_or_copy_rebinding_rejects_even_when_the_copy_is_unread() {
     for body in ["p = 0 return 0", "local a = p a = 0 return 0"] {
-        assert!(
-            matches!(draft(body), Err(BorrowedFormalUseDraftErrorV1::Rebound(_))),
-            "rebind: {body}"
-        );
+        with_source_product(body, |_| {}, |_, product| {
+            let product = product.unwrap();
+            assert!(matches!(product.draft, Err(BorrowedFormalUseDraftErrorV1::Rebound(_))), "rebind: {body}");
+            assert!(!product.original.assignments().is_empty(), "the unfinished mutation must remain in the source census");
+        });
     }
 }
 
@@ -154,10 +163,11 @@ fn descendant_capture_reads_and_writes_are_not_ignored_formal_uses() {
         "local a = p local closure = fn() { return a } return 0",
         "local closure = fn() { local inner = fn() { p = 1 return 0 } return 0 } return 0",
     ] {
-        assert!(
-            matches!(draft(body), Err(BorrowedFormalUseDraftErrorV1::Captured(_))),
-            "capture: {body}"
-        );
+        with_source_product(body, |_| {}, |_, product| {
+            let product = product.unwrap();
+            assert!(matches!(product.draft, Err(BorrowedFormalUseDraftErrorV1::Captured(_))), "capture: {body}");
+            assert!(!product.original.captures().is_empty(), "descendant captures must remain independently visible");
+        });
     }
 }
 

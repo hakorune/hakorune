@@ -400,6 +400,7 @@ pub(super) fn join_borrowed_forward_uses_v1(
 
 #[derive(Debug)]
 pub(super) struct BorrowedFormalSourceProductV1 {
+    pub(super) original: Rc<OriginalFormalUseSourceV1>,
     pub(super) draft: Result<BorrowedFormalUsesDraftV1, BorrowedFormalUseDraftErrorV1>,
     pub(super) guarded_actuals: BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
 }
@@ -428,50 +429,55 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
     )
 }
 
+#[path = "ordinary_new_borrowed_formal_use_original.rs"]
+mod original_uses;
+pub(super) use original_uses::{OriginalFormalUseSourceV1, OriginalFormalReadLoanV1};
+
+#[cfg(test)]
 pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, contract: &OwnedCallableParameterContractDeclarationV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    static_operands: Option<&StaticOperandContextV1<'_>>,
+    source_uses: Option<&BorrowedFormalSourceUseContextV1<'_>>,
+) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
+    let original = OriginalFormalUseSourceV1::issue(input, contract)?;
+    classify_original_formal_uses_v1(input, contract, constructors, receiver, static_operands, source_uses, original)
+}
+
+pub(super) fn classify_original_formal_uses_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, contract: &OwnedCallableParameterContractDeclarationV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    static_operands: Option<&StaticOperandContextV1<'_>>,
+    source_uses: Option<&BorrowedFormalSourceUseContextV1<'_>>,
+    original: Rc<OriginalFormalUseSourceV1>,
+) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
+    match classify_borrowed_formal_source_product_v1(input, contract, constructors, receiver, static_operands, source_uses, Rc::clone(&original)) {
+        Ok(product) => Ok(product),
+        Err(BorrowedFormalUseDraftErrorV1::SourceIdentity) => Err(BorrowedFormalUseDraftErrorV1::SourceIdentity),
+        Err(error) => Ok(BorrowedFormalSourceProductV1 { original, draft: Err(error), guarded_actuals: BTreeMap::new() }),
+    }
+}
+
+fn classify_borrowed_formal_source_product_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     static_operands: Option<&StaticOperandContextV1<'_>>,
     source_uses: Option<&BorrowedFormalSourceUseContextV1<'_>>,
+    original: Rc<OriginalFormalUseSourceV1>,
 ) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
-    if input.owner() != contract.owner
-        || function.owner() != contract.owner
-        || function
-            .declaration_sites()
-            .filter(|site| matches!(site, SourceBindingSiteV1::Parameter { .. }))
-            .count()
-            != contract.parameters.len()
-    {
-        return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
-    }
-    let mut origins = BTreeMap::new();
-    for (index, formal) in contract.parameters.iter().enumerate() {
-        if formal.ordinal as usize != index
-            || formal.binding.owner() != contract.owner
-            || function.declaration_binding(&SourceBindingSiteV1::Parameter {
-                index: formal.ordinal,
-            }) != Some(formal.binding)
-            || !matches!(function.binding(formal.binding).map(|row| row.kind()),
-                Some(BindingKindV1::Parameter { index }) if index == formal.ordinal)
-        {
-            return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
-        }
-        if formal.kind.is_ordinary_borrowed_handle() {
-            if origins.insert(formal.binding, formal.binding).is_some() {
-                return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
-            }
-        }
-    }
+    let mut origins = original.roots().clone();
 
     // Discover direct aliases to a fixed point, independent of declaration
     // iteration order. Each pass adds a finite sealed binding or terminates.
     let mut copies = BTreeMap::<SourceExprSiteV1, BindingRefV1>::new();
     loop {
         let before = origins.len();
-        for initializer in function.expression_source().initializers() {
+        for initializer in original.initializers() {
             let Some(site) = initializer.initializer_site() else {
                 continue;
             };
@@ -488,9 +494,7 @@ pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
                     function.binding(destination).map(|row| row.kind()),
                     Some(BindingKindV1::Local { .. })
                 )
-                || function
-                    .expression_source()
-                    .initializers()
+                || original.initializers().iter()
                     .filter(|row| row.binding() == destination)
                     .count()
                     != 1
@@ -518,29 +522,16 @@ pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
         }
     }
 
-    for (_, target) in function.assignment_targets() {
+    for (_, target) in original.assignments() {
         if let ResolvedAssignmentTargetV1::BindingRebind(binding) = target {
             if origins.contains_key(binding) {
                 return Err(BorrowedFormalUseDraftErrorV1::Rebound(*binding));
             }
         }
     }
-    // Captures live in descendant semantic owners, not this function's read
-    // inventory. Check the complete forest, including non-function owners.
-    for (_, owner) in input.forest().semantic_owners() {
-        for (_, target) in owner.assignment_targets() {
-            if let ResolvedAssignmentTargetV1::UpvarRebind(upvar) = target {
-                if origins.contains_key(&upvar.source()) {
-                    return Err(BorrowedFormalUseDraftErrorV1::Captured(upvar.source()));
-                }
-            }
-        }
-        for (_, reference) in owner.variable_refs() {
-            if let ResolvedLexicalRefV1::Upvar(upvar) = reference {
-                if origins.contains_key(&upvar.source()) {
-                    return Err(BorrowedFormalUseDraftErrorV1::Captured(upvar.source()));
-                }
-            }
+    for (_, binding, _) in original.captures() {
+        if origins.contains_key(binding) {
+            return Err(BorrowedFormalUseDraftErrorV1::Captured(*binding));
         }
     }
 
@@ -566,7 +557,7 @@ pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
     let mut checked_compares = BTreeMap::new();
     let mut integer_guards: BTreeMap<BindingRefV1, Vec<Rc<guarded_actual::CheckedIntegerGuardV1>>> =
         BTreeMap::new();
-    for (site, reference) in function.variable_refs() {
+    for (site, reference) in original.reads() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
             continue;
         };
@@ -618,7 +609,7 @@ pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
     let mut uses = Vec::new();
     let mut unsupported = None;
     let mut guarded_actuals = BTreeMap::new();
-    for (site, reference) in function.variable_refs() {
+    for (site, reference) in original.reads() {
         let ResolvedLexicalRefV1::Local(binding) = reference else {
             continue;
         };
@@ -747,6 +738,7 @@ pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
         }),
     };
     Ok(BorrowedFormalSourceProductV1 {
+        original,
         draft,
         guarded_actuals,
     })

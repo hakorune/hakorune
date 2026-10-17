@@ -322,7 +322,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
         sum.alternatives().len() == 1 && sum.alternatives().contains(&super::super::super::borrowed_formal_source::SourceValueAlternativeV1::Text)) {
         return Err(freeze("borrowed-text-entry/source-domain-unclosed"));
     }
-    super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root)
+    super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root,
+        prepared.original_formal_read_v1(site.owner(), read, binding, root)?)
 }
 
 

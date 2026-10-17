@@ -41,6 +41,8 @@ struct OriginalCallSeedsV1 {
 
 #[derive(Debug)]
 pub(super) struct OriginalFormalSeedProductV1 {
+    pub(super) original_uses: Option<BTreeMap<FunctionOwnerIdV1, Rc<OriginalFormalUseSourceV1>>>,
+    original_use_owners: BTreeSet<FunctionOwnerIdV1>,
     rows: Box<[OriginalCallSeedsV1]>,
     owners: BTreeSet<FunctionOwnerIdV1>,
     source_owners: BTreeSet<FunctionOwnerIdV1>,
@@ -257,6 +259,11 @@ pub(super) fn prepare_original_formal_seeds_v1(
     });
     match observed { Ok(result) => result?, Err(_) => new_calls.missing_owner() }
     let mut product = OriginalFormalSeedProductV1 {
+        original_uses: None,
+        original_use_owners: contracts.iter().filter(|row|
+            matches!(row.mode, CallableParameterDeclarationModeV1::StaticBoxMethod | CallableParameterDeclarationModeV1::InstanceBoxMethod)
+                && row.parameters.iter().any(|formal| formal.kind.is_ordinary_borrowed_handle()))
+            .map(|row| row.owner).collect(),
         rows: rows.into_boxed_slice(),
         owners: inventory.registered_owners_v1().clone(),
         source_owners: inventory.source_registered_owners_v1().clone(),
@@ -675,5 +682,28 @@ impl PreparedBorrowedFormalIngressV1 {
     ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>> {
         self.original_formal_seeds.corroborate_original_v1(&self.source_incoming).then_some(())?;
         self.original_formal_seeds.ordinary_core.get(site)
+    }
+}
+
+impl PreparedBorrowedFormalIngressV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_formal_uses_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> Result<&Rc<OriginalFormalUseSourceV1>, String> {
+        if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
+            return Err(freeze("borrowed-use/original-census-drift"));
+        }
+        let originals = self.original_formal_seeds.original_uses.as_ref()
+            .ok_or_else(|| freeze("borrowed-use/original-source-unjoined"))?;
+        if originals.keys().copied().collect::<BTreeSet<_>>() != self.original_formal_seeds.original_use_owners
+            || !self.source_incoming.source_registered_owners_v1().contains(&owner) {
+            return Err(freeze("borrowed-use/original-owner-coverage"));
+        }
+        originals.get(&owner).ok_or_else(|| freeze("borrowed-use/original-owner-missing"))
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn original_formal_read_v1(
+        &self, owner: FunctionOwnerIdV1, site: &SourceExprSiteV1, binding: BindingRefV1, formal: BindingRefV1,
+    ) -> Result<OriginalFormalReadLoanV1, String> {
+        self.original_formal_uses_v1(owner)?.lend_read(site, binding, formal)
+            .ok_or_else(|| freeze("borrowed-use/original-read-unproved"))
     }
 }

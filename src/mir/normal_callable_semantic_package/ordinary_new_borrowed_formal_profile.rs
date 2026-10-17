@@ -153,7 +153,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         constructors,
         Some((callable_result_classes, field_write_claims)),
     );
-    let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = match drafts {
+    let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals, originals) = match drafts {
         Ok(rows) => rows,
         Err(error) => {
             return Ok((
@@ -464,6 +464,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 definitions,
                 dominated_view_sites,
                 guarded_actuals,
+                originals,
             ),
             static_arguments,
             original_inventory,

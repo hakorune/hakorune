@@ -423,3 +423,13 @@ projection grants no read, object view, Text marker or executable actual. The
 completed entry API still refuses until original use coverage, actual products
 and both final scans close. Entry staging never substitutes SelectedTagged for
 that unfinished responsibility; original read/alias/Loop obligations remain.
+
+Original borrowed-formal use products retain canonical read sites, the SAME
+value-flow Arc, initializer/alias definitions and mutation/capture obligations
+before legacy use classification. Rejected drafts remain rejected; their source
+obligations survive. The original seed product owns the per-owner Rc snapshots,
+including opaque source-only declarations omitted from physical selection.
+Argument/initializer read requirements retain the same snapshot/read index.
+These are raw membership loans: Loop/alias/current proofs remain with their
+existing owners, and both final consumers must still close every expected read
+and physical use before a Text entry or actual can execute.

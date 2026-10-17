@@ -70,7 +70,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_en
         return Ok(None);
     }
     let requirement = super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(
-        contracts, plan, read, binding, root)?;
+        contracts, plan, read, binding, root,
+        prepared.original_formal_read_v1(input.owner(), read, binding, root)?)?;
     Ok(Some(InitializerTextEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value }))
 }
 
