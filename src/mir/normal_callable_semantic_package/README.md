@@ -2205,7 +2205,12 @@ rows; readiness/corroboration remain outside the facts. A source scalar loan kee
 the exact original target and SAME facts Rc. Every demand rechecks current result
 row, original incoming target, sealed scalar class, full nonempty same-owner return
 coordinates, exact dependencies and the SAME grounding fold. Missing/error/replaced
-facts refuse; equivalent copied facts cannot replace original identity. This loan
+facts refuse; equivalent copied facts cannot replace original identity. One immutable
+scalar validation scan shares its lazy grounding fold across its original loans;
+all per-loan target/Return/dependency/Rc checks still run. The fold borrows the
+same ingress/result cohort, is private to the scan and is discarded afterwards.
+No anchors means no grounding or new ingress demand; later scans recheck current
+rows. This loan
 lends neither contract corroboration nor execution permission. A separate complete
 agreement demand rechecks that SAME loan, every original dependency edge and current
 callee declaration/Completion against all original returns. Issuance and demand

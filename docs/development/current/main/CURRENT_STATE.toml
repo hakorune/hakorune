@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/current-source-acceptance"
+current_blocker_token = "required-object-forward/remaining-required-connections"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -17,7 +17,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 remains unaccepted; coordinated source-to-C unit landed.
+RequiredObjectForwardS0 remains unaccepted; source-to-C landed244c8d3f5e.
 Additive runtime32 boundary landed8a2d2974a8; Fault34/typed-object33 PASS on
 both primary and isolated HEAD+32 source; Array53 PASS. Old runtime ABI retained.
 Rust producer/C schema now land together with required numeric-check/Return-origin.
@@ -28,7 +28,7 @@ Array-only provider discharge writer/walker replaced by existing typed owners.
 V832a independent actual both-opts PASS3339.060297s; no restart.
 V834 scopes repeated grounding to one immutable scan; focused3/actual594.146438s PASS.
 CLI175 M190 app178 and unchanged mimalloc-lite app179 native exact output/exit0 PASS.
-V834 scalar BoxShape remains a separately validated follow-up to this source unit.
+V834 scalar BoxShape lands separately; same per-loan source/refusal checks.
 V835 fixed11 PASS4/FAIL7, same named stops; three EXE positives plus one marker.
 Bounded LOCAL object Array and field I64 residence native PASS on unchanged app179.
 PlanSourcePublication Set, full FieldWrite/initialization, remaining retirement

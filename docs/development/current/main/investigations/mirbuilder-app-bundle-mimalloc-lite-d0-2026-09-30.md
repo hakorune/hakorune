@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0
 
-Status: active; Required Object Forward S0 unaccepted; source-to-C unit landed.
+Status: active; Required Object Forward S0 unaccepted; source-to-C and scan normalization landed.
 Date: 2026-10-17
 Scope: the existing mimalloc-lite source-to-final-consumer series; no new lane.
 Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
@@ -44,7 +44,7 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
   Runtime prerequisites landed at8a2d2974a8; source-to-C unit lands here.
-  V834 immutable-scan BoxShape remains a separately validated follow-up.
+  V834 immutable-scan BoxShape lands separately after the source connection.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -82,8 +82,8 @@ Array residence; this is bounded two-cohort native evidence, not all Array shape
 V835 fixed11 exit1/333.949828s: same4PASS/7FAIL and same named stops as V832.
 Only three real EXE positives; fourth PASS is an empty marker. Negatives fail
 before their expected generic-Invoke boundary; canonical app179 is separately PASS.
-V834 scalar owner/README currently differ from the source unit by BoxShape only;
-follow-up landing retains its own exact tested version. Full S0/goal remain open.
+Source connection landed at **244c8d3f5e**; V834 BoxShape lands separately here
+with its exact tested scalar owner/README. Full S0/goal remain open.
 
 ## Previous unchanged product measurement — CLI174 / app176
 
@@ -968,7 +968,7 @@ all original source/final/mutation checks retained, separate TMPDIR for traces.
 Prior actual PASS3339.060297s; observed elapsed reduction, not a controlled speed
 benchmark (different concurrent builds). Current binary b3c1817d0ab518f2def34f9c044e6b8982edafaa6c6e204247a9c10cacc684eb,
 manifest v834b-root.source.json, v834c-actual.receipt.json. Source/README remain
-part of coordinated Rust/C WIP; no new fixture or acceptance widening.
+a separate BoxShape landing after244c8d3f5e; no new fixture or wider admission.
 
 V835 coordinated source landing Decision (worker source-to-final review):
 Original leaf/input/Completion/field support → finalized outcomes → physical
@@ -986,3 +986,7 @@ shared packet and typed discharge owners remain. Current CLI175 app178/179 PASS,
 actual594s PASS and fixed11 same4/7 recorded above; full series remains open.
 Retain current CLI175/C831e/runtime808b/root pins and original source wire until
 required followups close. No missing Array/Plan/FieldWrite support is fabricated.
+
+V834 scan normalization lands separately after **244c8d3f5e**. The changed
+scalar owner/README match the594s actual and CLI175 native source manifests;
+only three other empty EOF-line trims differ. No persistent cache or new test.
