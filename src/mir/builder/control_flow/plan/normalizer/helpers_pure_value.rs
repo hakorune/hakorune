@@ -380,6 +380,7 @@ mod tests {
         assert!(matches!(
             effects.as_slice(),
             [CoreEffectPlan::FieldGet {
+                source: _,
                 dst,
                 base,
                 field,

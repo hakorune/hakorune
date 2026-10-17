@@ -124,6 +124,13 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     ) -> Result<Option<crate::mir::resolved_semantics::OwnedExprSiteV1>, String>
     where Self: 'input { Ok(None) }
 
+    /// Select the existing field-index Set requirement before child descent.
+    /// Physical emission independently reborrows the same original source.
+    fn exact_source_borrowed_array_set<'input>(
+        &self, _input: &Self::ExprInput<'input>, _method: &str, _arity: usize,
+    ) -> Result<bool, String>
+    where Self: 'input { Ok(false) }
+
     /// Retain one real variable read rather than reconstructing its provenance
     /// from the eventual ValueId. The returned read is consumed exactly once.
     fn exact_source_variable_read<'input>(

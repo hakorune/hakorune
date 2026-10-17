@@ -87,7 +87,7 @@ impl BuilderInstallTokenV1 {
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]
-pub(in crate::mir) use brand_catalog_tests::issue_with_brand_catalog as issue_source_package_fixture_v1;
+pub(in crate::mir) use brand_catalog_tests::{issue_with_brand_catalog as issue_source_package_fixture_v1, STORED_BORROWED_LOCAL_SOURCE};
 #[cfg(test)]
 mod ordinary_new_bin_size_words_tests;
 #[cfg(test)]

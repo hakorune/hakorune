@@ -9,7 +9,8 @@ Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
 
 ## Current position and history
 
-Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`, fast.
+Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`.
+Mode: design_stop for remaining required initialization; V837 Plan connection verified.
 Full prior card, decisions, original-source contracts, red classifications,
 commands, pins and preparation evidence are preserved in this path at
 **244c8d3f5e** and **fbc57efa14**. These are implementation commits, not just
@@ -81,7 +82,7 @@ shared typed discharge. No depth gate or unwinding refusal was weakened.
   Native app179 validates these two bounded cohorts. Independent physical
   Normal/Fault/negative and runtime tests complement, never replace, source proof.
 - Raw FieldIndexSet V739 and guarded usize FieldWrite V734 stay verified premises;
-  they do not close PlanSourcePublication Set or all LOCAL initialization.
+  they do not close all LOCAL initialization; Plan Set connection is below.
 
 No all-Array-family or every-Mixed-runtime-Fault-injection claim is made.
 Straight-line generic Push, share and unsupported container mutations are not
@@ -134,17 +135,83 @@ v834c-actual and v835-field-interval receipts retained with commands/output.
 Three trailing empty EOF lines removed at source landing; exact byte-only delta
 recorded. No token/source authority change. V836 pure module moves follow below.
 
+## V837 Plan field/read → Set connection Decision
+
+Previous goal turn: no progress (status-only); current-first revalidated clean
+769279d0fb and pointer PASS. Read-only worker confirms the missing production
+connection: Plan FieldGet drops its original locator and SourcePublication does
+not consume the selected Set loan. Both independent final consumers already
+require the same original reads and all three operand relations.
+Source authority + canonical issuer: existing original OwnedExprSite, affine
+local field-read row and BorrowedArraySetSourceLoan; no new classifier.
+Non-authority: planned destination, spelling, MIR type and opcode shape.
+Fail-fast boundary: missing required/duplicate field row, receiver drift,
+wrong Set shape and absent original operand relation remain refusals.
+Smallest next slice: retain FieldGet locator before descent; lend a caller-
+allocated destination to the existing sole field-read transaction, so its
+original read is the Plan value (no fabricated Copy relation or new relation
+algebra). Connect located Set to the existing recorded Array writer and share
+the raw/Plan operand completion owner. Preserve receiver-before-arguments for
+the selected source-owned call. Extend existing source/Plan and publication
+regressions, preserving independent final consumers and unchanged app source.
+Non-claims: this is the existing S0 obligation; full initialization, fixed-suite
+failures and full goal completion remain open. No Cargo live at entry.
+
+Implementation: FieldGet retains the exact original locator through freshening;
+SourcePublication consumes the original affine local read and uses the common
+field writer's allocated-destination input. Source-owned Set selects before
+children, shares receiver/index/value order in both positions, then the sole
+recorded Array write and common raw/Plan three-operand completion transaction.
+The raw-only duplicate completion body was removed; shared/unselected callers
+remain. Selected read/Set effects return from this owner, with no legacy retry.
+No extra Copy algebra, source classifier, runtime ABI or .hako edit.
+
+V837d root build PASS53.569057s; focused27 PASS. The new independent missing
+connection test reuses the existing stored-nullable source constant through
+real package/entry/field-read preparation and source declaration registration:
+statement/value positions, exact receiver/index locators and physical original
+read destinations, original Set census, replay refusal, wrong method, occupied
+destination and receiver drift. Existing static-publication4, normalizer5,
+pure-value14, stored-nullable1, Set-view final publication/mutations1 and field
+descriptor identity1 also PASS. Root total9213 (one independently missing case).
+This local Plan test does not claim full guard/final-consumer validation by
+itself; existing Set-view publication and unchanged native app are separate.
+V837a compile E0369 in test snapshot corrected; b/c REDs were incomplete test
+entry setup (missing staged reads, then missing source declarations/physical
+method parameters). D uses the existing production preparation APIs; no refusal
+was relaxed. Preserve logs/manifests; superseded binaries may retire after D
+and canonical native validation. CLI176 build PASS172.282976s; same C831e/
+runtime808b and original mimalloc-lite SHA33d3e8b9...: canonical app180 EXE
+PASS128.194057s/native .001438s, exact existing7/exit0. No compat replay;
+only known plugin-disabled warning. CLI SHA4c6b1d87182b2279d35077b118e30229e9d39bd8d5cd75cf9dbf02f1f4643f16;
+EXE SHA323cfb44688436888aa9e0acdeceb0ec37b4ebe38984b99f8554fcb5511bdae6.
+Current source manifest drift is zero; root pin SHA5baa244b3449c25f219d051094b466de6824ba0fbc28ed20940d29941557a2f4.
+Commands/outputs/pins stay in v837d-root.focused, v837-cli176 and app-v180
+build/run receipts. No new M190 or full-suite green claim. Source/route/layer/
+thin-shim/pointer/diff checks PASS; touched-source audit all <800 (expression
+port779 retains its trait responsibility; no compression to evade the limit).
+Retired two superseded B/C root binaries after matching their receipt SHAs;
+logs/manifests/current D pin retained. v837-cleanup records reclaimed bytes.
+
 ## Remaining required same-series work
 
-- [ ] PlanSourcePublication Set: retain exact original FieldGet locator before
+- [x] PlanSourcePublication Set connection (V837): retain exact original FieldGet locator before
   Plan descent; connect the SAME affine read/LocalSSA owner to the sole recorded
-  Set writer/census at the source-aware Loop/Plan emission port.
+  Set writer/census at the source-aware Loop/Plan emission port. Full S0 remains
+  unaccepted; next required construction/FieldWrite profile is below.
 - [ ] Required field Birth/full support and remaining actual FieldWrite/
   initialization pins; reuse V734/V739, do not invent fields or zero-fill proof.
   Typed-newbox Pair has no Birth: current NoBirthZero requires fieldless class,
   causing InitializationContractMissing, and LOCAL pair writes lack selected
   prefix coverage. This is a compiler profile gap, not invalid source. Keep the
   unchanged positive, no fabricated Birth or conversion into a negative.
+  Read-only V837 follow-up confirms fixed positive ownership in final-pipeline
+  SSOT (fixed-suite1399+, historical i64 Pair EXE exit30 at2023+). Existing
+  constructor-lifecycle SSOT498+ accepts fieldless NoBirthZero/fully initialized
+  Birth, with no accepted partial-storage/late-LOCAL-initialization execution
+  profile. Resolve that bounded owner contract before code: same declaration/
+  New identity, exact original stores and Completion, read/escape/Fault boundary;
+  never infer initial values from zeroed C storage or caller syntax guesses.
 - [ ] Required fixed acceptance; retarget a negative only at its truthful
   rejected boundary. First app/native success does not replace this suite.
 - [ ] Remaining named production cutover and exclusive-edge/adapter retirement;
@@ -196,6 +263,26 @@ v836a-root.focused.json, v836-baseline.receipt.json and v836-red-classification.
 New focused build is pinned; preserve current native/source evidence
 as pre-move provenance. Pure moves use existing raw-loop/moved-test/field-read
 regressions; do not rerun expensive native tests without a new concern.
+
+## Next required owner decision
+
+Same S0 series remains open; Plan's selected generic read/Set edges have been
+replaced, shared raw arms retained. Next mode is design_stop for the existing
+required initialization/FieldWrite obligation, not a new feature or parked lane.
+Current CLI176 app181 replay of unchanged typed-newbox remains exit1/no EXE,
+.021610s, PrefixNotCovered Body1 (same prior stop). This is unaccepted evidence,
+not a negative success or a whole-suite rerun.
+Source authority + canonical issuer: existing instance_constructor_semantic
+object_for/construction_for from the same Box declaration, original resolver
+assignment inventory and Completion. Non-authority: C allocation zeroes,
+caller syntax guesses, invented Birth or class-from-use.
+Fail-fast boundary: current constructor contract lacks the required nonempty
+no-Birth initialization execution profile; LOCAL writes also lack coverage.
+Smallest next slice: resolve the profile against existing lifecycle/publication
+rules in the constructor owner before code, including exact field readiness,
+read/escape/control and outer storage Normal/Fault cleanup. Worker partial-slot
+proposal is investigation input, not an accepted permission to publish incomplete
+objects. Preserve fixed Pair positive/exit30 and all remaining S0/full goal duties.
 
 ## Temporary artifact disposition
 

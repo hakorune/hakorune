@@ -3,7 +3,6 @@ use super::*;
 use crate::mir::builder::CompletedArrayElementWriteV1;
 use crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, SourceExprSiteV1};
-use crate::mir::MirInstruction;
 
 impl RawInvocationChildPortV1<'_, '_> {
     pub(super) fn borrowed_array_set_source_v1(&self, method: &str, arity: usize)
@@ -26,20 +25,8 @@ impl RawInvocationChildPortV1<'_, '_> {
             || self.current_source_site_v1().as_ref() != Some(source.call().site().node()) {
             return Err("[freeze:contract][borrowed-set/call-source-drift]".into());
         }
-        let MirInstruction::ArrayElementWrite { receiver, index: Some(index), value, .. } = write.original().1
-            else { return Err("[freeze:contract][borrowed-set/write-shape]".into()) };
-        let function = builder.function_state.current_function.as_ref()
-            .ok_or("[freeze:contract][borrowed-set/function-missing]")?;
-        let correspondence = &mut builder.function_state.local_ssa_correspondence;
-        let mut relations = Vec::new();
-        for (child, operand) in children.into_iter().zip([receiver, index, value]) {
-            let relation = correspondence.loan(function, child, operand)
-                .ok_or("[freeze:contract][borrowed-set/operand-relation]")?;
-            correspondence.require_member(&relation)?;
-            relations.push(relation);
-        }
-        self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][borrowed-set/ledger-missing]")?
-            .record_borrowed_array_set_v1(source, write, relations.try_into()
-                .map_err(|_| "[freeze:contract][borrowed-set/operand-cardinality]")?, function)
+        builder.complete_borrowed_array_set_v1(
+            self.ordinary_new_claim_ledger.as_ref().ok_or("[freeze:contract][borrowed-set/ledger-missing]")?,
+            source, children, write)
     }
 }

@@ -293,6 +293,7 @@ impl super::PlanLowerer {
                 })?;
             }
             CoreEffectPlan::FieldGet {
+                source: _,
                 dst,
                 base,
                 field,

@@ -622,3 +622,11 @@ include!("brand_catalog_mixed_result_class_tests.rs");
 #[path = "brand_catalog_construction_fault_tests.rs"]
 mod construction_fault_tests;
 include!("brand_catalog_array_i64_tests.rs");
+
+pub(in crate::mir) const STORED_BORROWED_LOCAL_SOURCE: &str = "box Item { value: i64 birth() { me.value = 5 } }
+        box Leaf { flag: i64 birth() { me.flag = 0 }
+            maybe(p: Item) { if p == null { return null } return p } }
+        box Parent { child: Leaf birth() { me.child = new Leaf() }
+            run(p: Item) { local same = me.child.maybe(p) return 0 } }
+        static box Main { main() { local parent = new Parent() local item = new Item()
+            return parent.run(item) } }";

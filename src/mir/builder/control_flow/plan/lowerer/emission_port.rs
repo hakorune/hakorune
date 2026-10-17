@@ -82,6 +82,46 @@ impl CorePlanEffectEmissionPortV1<'_> {
                 }
             }
             Self::SourcePublication(ledger) => {
+                let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned();
+                if let (Some(source_ledger), CoreEffectPlan::FieldGet { source: Some(site), dst, base, .. }) =
+                    (source_ledger.as_ref(), effect) {
+                    if ledger.borrow().owner() != site.owner() {
+                        return Err("[freeze:contract][ordinary-field-read/plan-owner]".into());
+                    }
+                    if let Some((expected, source)) = source_ledger.take_local_field_read(site, |binding|
+                        ledger.borrow().value_for_exact_binding(site.owner(), binding)
+                            .map_err(|error| format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}")))? {
+                        if expected != *base {
+                            return Err("[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into());
+                        }
+                        builder.complete_exact_field_read_with_destination_v1(*base, source.field(), site,
+                            source_ledger, crate::mir::builder::fields::PreparedExactFieldReadClaimV1::Local(source), Some(*dst))?;
+                        return Ok(());
+                    }
+                }
+                if let (Some(source_ledger), CoreEffectPlan::MethodCall {
+                    source: CoreCallSourceV1::LocatedMethodCall(site), dst, object, method, args, ..
+                }) = (source_ledger.as_ref(), effect) {
+                    let owner = ledger.borrow().owner();
+                    let call = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+                    if let Some(source) = source_ledger.borrowed_array_set_source_at_v1(owner, &call)? {
+                        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, args.len())
+                            != Some(crate::boxes::array::ArrayMethodId::Set) {
+                            return Err("[freeze:contract][borrowed-set/call-shape]".into());
+                        }
+                        let [index, value] = args.as_slice() else {
+                            return Err("[freeze:contract][borrowed-set/call-shape]".into());
+                        };
+                        let receiver = crate::mir::builder::ssa::local::try_ensure(builder, *object,
+                            crate::mir::builder::ssa::local::LocalKind::Recv)?;
+                        let arguments = [*index, *value].into_iter()
+                            .map(|value| crate::mir::builder::ssa::local::try_arg(builder, value))
+                            .collect::<Result<Vec<_>, _>>()?;
+                        let write = builder.try_emit_known_array_method_write_recorded_v1(*dst, receiver, method, &arguments)?
+                            .ok_or("[freeze:contract][borrowed-set/write-missing]")?;
+                        return builder.complete_borrowed_array_set_v1(source_ledger, source, [*object, *index, *value], write);
+                    }
+                }
                 if let CoreEffectPlan::NamedArrayPush { source, receiver, value, argument, emission } = effect {
                     if !emission.is_field_residence_v1()? { return PlanLowerer::emit_raw_effect(builder, effect); }
                     let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned()
@@ -545,3 +585,7 @@ mod tests {
         let _ = builder;
     }
 }
+
+#[cfg(test)]
+#[path = "source_publication_tests.rs"]
+mod source_publication_tests;

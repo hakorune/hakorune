@@ -217,6 +217,7 @@ fn lower_value_ast_accepts_me_field_access() {
     assert!(matches!(
         effects.as_slice(),
         [super::CoreEffectPlan::FieldGet {
+            source: _,
             dst,
             base,
             field,

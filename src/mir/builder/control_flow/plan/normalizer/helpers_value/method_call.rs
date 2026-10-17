@@ -7,6 +7,34 @@ use super::*;
 use crate::ast::{ASTNode, LiteralValue};
 
 impl super::super::PlanNormalizer {
+    /// Both expression and statement calls preserve the selected original
+    /// Set's receiver/index/value order before the shared physical writer.
+    pub(in crate::mir::builder) fn lower_borrowed_array_set_input<'input, P>(
+        port: &P, input: &P::ExprInput<'input>, method: &str, arity: usize,
+        dst: Option<ValueId>, builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<Option<Vec<CoreEffectPlan>>, String>
+    where P: LoopPlanExpressionPortV1 + 'input {
+        if !port.exact_source_borrowed_array_set(input, method, arity)? { return Ok(None); }
+        let source = port.call_source(input).map_err(|error| error.render())?;
+        if !matches!(source, crate::mir::builder::control_flow::plan::CoreCallSourceV1::LocatedMethodCall(_)) {
+            return Err("[freeze:contract][borrowed-set/plan-source-missing]".into());
+        }
+        let receiver = port.child_expr(input, ExprChildRoleV1::Receiver).map_err(|error| error.render())?;
+        let (object, mut effects) = Self::lower_value_input(port, receiver, builder, phi_bindings)?;
+        let mut args = Vec::with_capacity(arity);
+        for ordinal in 0..arity {
+            let child = port.child_expr(input, ExprChildRoleV1::CallArgument(ordinal as u32))
+                .map_err(|error| error.render())?;
+            let (value, mut child_effects) = Self::lower_value_input(port, child, builder, phi_bindings)?;
+            effects.append(&mut child_effects);
+            args.push(value);
+        }
+        effects.push(CoreEffectPlan::MethodCall { source, dst, object, method: method.to_owned(), args,
+            effects: EffectMask::PURE.add(Effect::Io) });
+        Ok(Some(effects))
+    }
+
     pub(in crate::mir::builder) fn lower_method_call_value_input<'input, P>(
         port: &P,
         input: &P::ExprInput<'input>,
@@ -19,6 +47,14 @@ impl super::super::PlanNormalizer {
     where
         P: LoopPlanExpressionPortV1 + 'input,
     {
+        if port.exact_source_borrowed_array_set(input, method, arguments.len())? {
+            let dst = builder.next_value_id();
+            let effects = Self::lower_borrowed_array_set_input(port, input, method, arguments.len(),
+                Some(dst), builder, phi_bindings)?
+                .ok_or("[freeze:contract][borrowed-set/selection-drift]")?;
+            builder.function_state.type_ctx.set_type(dst, MirType::Void);
+            return Ok((dst, effects));
+        }
         let exact_source_call = port
             .exact_source_method_call(input, method, arguments.len() as u32)
             .map_err(|error| format!("[normalizer] {error}"))?;

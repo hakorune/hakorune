@@ -95,6 +95,8 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
 
     /// Canonical field read on a known base value
     FieldGet {
+        /// Original source identity; never reconstructed from physical values.
+        source: Option<crate::mir::resolved_semantics::OwnedExprSiteV1>,
         dst: ValueId,
         base: ValueId,
         field: String,

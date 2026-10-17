@@ -171,6 +171,8 @@ where
     else {
         return Err(format!("{error_prefix}: expected method call"));
     };
+    if let Some(effects) = PlanNormalizer::lower_borrowed_array_set_input(port, &input, method,
+        arguments.len(), None, builder, phi_bindings)? { return Ok(effects); }
     let exact_statement =
         port.exact_source_statement_call(&input, method, arguments.len() as u32)?;
     let source = port.call_source(&input).map_err(|error| error.render())?;

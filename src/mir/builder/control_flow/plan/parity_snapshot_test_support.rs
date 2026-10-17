@@ -423,6 +423,7 @@ fn normalize_effect(effect: &CoreEffectPlan) -> Result<NormalizedEffectV1, &'sta
             payload_type: payload_type.clone(),
         },
         CoreEffectPlan::FieldGet {
+            source: _,
             dst,
             base,
             field,

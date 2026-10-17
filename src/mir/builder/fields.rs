@@ -162,9 +162,16 @@ impl super::MirBuilder {
         &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
         ty: crate::mir::MirType,
     ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        self.append_exact_object_field_read_with_destination_v1(base, field, ty, None)
+    }
+
+    fn append_exact_object_field_read_with_destination_v1(
+        &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        ty: crate::mir::MirType, destination: Option<ValueId>,
+    ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
         let block = self.function_state.current_block
             .ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-        let dst = self.next_value_id();
+        let dst = destination.unwrap_or_else(|| self.next_value_id());
         let instruction = crate::mir::MirInstruction::ObjectFieldGet { dst, base, field };
         self.emit_instruction(instruction.clone())?;
         self.function_state.type_ctx.value_types.insert(dst, ty.clone());
@@ -210,6 +217,25 @@ impl super::MirBuilder {
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
         claim: PreparedExactFieldReadClaimV1,
     ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        self.complete_exact_field_read_with_destination_v1(base, field, site, ledger, claim, None)
+    }
+
+    /// Plan destinations are allocations, not source/type authority. The same
+    /// source transaction and sole append owner serve both raw and Plan calls.
+    pub(in crate::mir::builder) fn complete_exact_field_read_with_destination_v1(
+        &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+        claim: PreparedExactFieldReadClaimV1, destination: Option<ValueId>,
+    ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        if let Some(dst) = destination {
+            let function = self.function_state.current_function.as_ref()
+                .ok_or("[freeze:contract][ordinary-field-read/no-function]")?;
+            if function.params.contains(&dst) || function.blocks.values().any(|block|
+                block.all_instructions().any(|instruction| instruction.dst_value() == Some(dst))) {
+                return Err("[freeze:contract][ordinary-field-read/destination-already-defined]".into());
+            }
+        }
         if matches!(&claim, PreparedExactFieldReadClaimV1::Local(source) if source.requires_checked_field_read_v1()) {
             return Err("[freeze:contract][ordinary-field-read/checked-fault-context-missing]".into());
         }
@@ -235,7 +261,7 @@ impl super::MirBuilder {
                     return Err("[freeze:contract][ordinary-field-read/array-source-drift]".into());
                 }
                 let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-                let dst = self.build_field_access_from_value(base, field_name.to_owned())?;
+                let dst = self.build_field_access_from_value_with_destination_v1(base, field_name.to_owned(), destination)?;
                 let mut emitted = self.function_state.current_function.as_ref().and_then(|f| f.blocks.get(&block))
                     .into_iter().flat_map(|b| b.all_instructions()).filter(|instruction|
                         matches!(instruction, crate::mir::MirInstruction::FieldGet { dst: actual, .. } if *actual == dst));
@@ -245,7 +271,7 @@ impl super::MirBuilder {
                 return Ok((dst, (block, instruction)));
             }
         }
-        let (dst, binding) = self.append_exact_object_field_read_v1(base, field, ty)?;
+        let (dst, binding) = self.append_exact_object_field_read_with_destination_v1(base, field, ty, destination)?;
         match claim {
             PreparedExactFieldReadClaimV1::Terminal => ledger.record_terminal_field_read(site, binding.0, dst, base, field)?,
             PreparedExactFieldReadClaimV1::Local(source) => ledger.record_local_field_read(site, binding.0, dst, base, field, &source)?,
@@ -385,6 +411,12 @@ impl super::MirBuilder {
         object_value: ValueId,
         field: String,
     ) -> Result<ValueId, String> {
+        self.build_field_access_from_value_with_destination_v1(object_value, field, None)
+    }
+
+    fn build_field_access_from_value_with_destination_v1(
+        &mut self, object_value: ValueId, field: String, destination: Option<ValueId>,
+    ) -> Result<ValueId, String> {
         let region = self.current_fastmem_region();
         let receiver_box_name = self
             .function_state
@@ -403,7 +435,7 @@ impl super::MirBuilder {
                     field_result_origin.as_deref(),
                 );
             lifecycle.reserve_site(self, region, object_value)?;
-            let field_val = self.next_value_id();
+            let field_val = destination.unwrap_or_else(|| self.next_value_id());
             lifecycle.reserve_declared_type(self, field_val);
             self.emit_fastmem_memop(
                 region,
@@ -424,7 +456,7 @@ impl super::MirBuilder {
             field_result_origin.as_deref(),
         )
         .map_err(|error| error.to_string())?;
-        let field_val = self.next_value_id();
+        let field_val = destination.unwrap_or_else(|| self.next_value_id());
         self.emit_instruction(crate::mir::MirInstruction::FieldGet {
             dst: field_val,
             base: object_value,

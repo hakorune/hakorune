@@ -52,3 +52,17 @@ Retired:
   feature pipelines, not a test-only normalizer shelf.
 - simple_while_coreloop_builder.rs: removed; simple-while expansion belongs in
   generic loop skeleton/features or a documented FlowPlanner row.
+
+Source-publication field-index Set boundary:
+- The production callable source port retains the original `OwnedExprSiteV1`
+  on each FieldGet before descending into its receiver. Freshening remaps only
+  physical operands/destinations and preserves that source identity.
+- Selected borrowed field-index Set calls lower receiver, index, then value in
+  both statement and value positions. Selection borrows the existing original
+  requirement; spelling and planned types grant no permission.
+- SourcePublication consumes the same affine field-read row as raw lowering.
+  The existing sole field writer accepts the Plan's unbound destination and
+  records that exact original read; the claim still determines field and type.
+- Raw and Plan Set completion share the Array owner's three operand relations
+  and ledger record. Both independent final consumers keep checking original
+  read/guard/write coverage. Checked reads without a Fault context still refuse.

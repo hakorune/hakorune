@@ -242,6 +242,7 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *payload = payload.map(|value| remap_value_id(value_map, value));
         }
         CoreEffectPlan::FieldGet {
+            source: _,
             dst,
             base,
             field: _,

@@ -74,6 +74,7 @@ impl super::super::PlanNormalizer {
                 }
             }
             ASTNode::FieldAccess { field, .. } => {
+                let source = port.exact_source_expression_site(&input)?;
                 let object = port
                     .child_expr(&input, ExprChildRoleV1::Receiver)
                     .map_err(|error| error.render())?;
@@ -82,6 +83,7 @@ impl super::super::PlanNormalizer {
                 let declared_type = Self::declared_field_type_for_base(builder, object_id, field);
                 let result_id = Self::allocate_field_result(builder, &declared_type);
                 effects.push(CoreEffectPlan::FieldGet {
+                    source,
                     dst: result_id,
                     base: object_id,
                     field: field.clone(),

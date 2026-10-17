@@ -17,6 +17,29 @@ impl CompletedArrayElementWriteV1 {
 }
 
 impl MirBuilder {
+    /// Raw and Plan calls join the same three original children to the sole
+    /// Array writer observation. No physical value grants source permission.
+    pub(in crate::mir::builder) fn complete_borrowed_array_set_v1(
+        &mut self, ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+        source: crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1,
+        children: [ValueId; 3], write: CompletedArrayElementWriteV1,
+    ) -> Result<(), String> {
+        let MirInstruction::ArrayElementWrite { receiver, index: Some(index), value, .. } = write.original().1
+            else { return Err("[freeze:contract][borrowed-set/write-shape]".into()) };
+        let function = self.function_state.current_function.as_ref()
+            .ok_or("[freeze:contract][borrowed-set/function-missing]")?;
+        let correspondence = &mut self.function_state.local_ssa_correspondence;
+        let mut relations = Vec::new();
+        for (child, operand) in children.into_iter().zip([receiver, index, value]) {
+            let relation = correspondence.loan(function, child, operand)
+                .ok_or("[freeze:contract][borrowed-set/operand-relation]")?;
+            correspondence.require_member(&relation)?;
+            relations.push(relation);
+        }
+        ledger.record_borrowed_array_set_v1(source, write, relations.try_into()
+                .map_err(|_| "[freeze:contract][borrowed-set/operand-cardinality]")?, function)
+    }
+
     pub(super) fn emit_array_element_write(
         &mut self,
         dst: Option<ValueId>,

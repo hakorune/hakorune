@@ -400,6 +400,21 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         Ok(Some(OwnedExprSiteV1::new(self.ledger.borrow().owner(), SourceExprSiteV1::from_node(site))))
     }
 
+    fn exact_source_borrowed_array_set<'input>(
+        &self, input: &Self::ExprInput<'input>, method: &str, arity: usize,
+    ) -> Result<bool, String>
+    where Self: 'input {
+        let Some(site) = self.exact_source_expression_site(input)? else { return Ok(false) };
+        let state = self.ledger.borrow();
+        let Some(ledger) = state.ordinary_new_claim_ledger() else { return Ok(false) };
+        let selected = ledger.borrowed_array_set_source_at_v1(state.owner(), &site)?.is_some();
+        if selected && crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
+            != Some(crate::boxes::array::ArrayMethodId::Set) {
+            return Err("[freeze:contract][borrowed-set/call-shape]".into());
+        }
+        Ok(selected)
+    }
+
     fn exact_source_variable_read<'input>(
         &self, input: &Self::ExprInput<'input>,
     ) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalReadV1>, String>

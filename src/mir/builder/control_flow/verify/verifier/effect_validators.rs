@@ -212,6 +212,7 @@ pub(super) fn verify_effect(
             }
         }
         CoreEffectPlan::FieldGet {
+            source: _,
             dst,
             base,
             field,

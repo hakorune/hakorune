@@ -1,10 +1,10 @@
 date = "2026-10-17"
 development_branch_ssot = "codex/birth-definition-publication"
-work_mode = "fast"
+work_mode = "design_stop"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/remaining-required-connections"
-current_design_stop = "mixed-result-source-to-physical-lifecycle"
+current_blocker_token = "required-initialization/execution-profile-unavailable"
+current_design_stop = "required-local-field-initialization-profile"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "MirBuilder unified selfhost resume"
@@ -32,14 +32,16 @@ V834 scalar BoxShape landedfbc57efa14; same per-loan source/refusal checks.
 V836 four hard-stop files split; build PASS, focused27PASS/3 confirmed baseline RED.
 V835 fixed11 PASS4/FAIL7, same named stops; three EXE positives plus one marker.
 Bounded LOCAL object Array and field I64 residence native PASS on unchanged app179.
-PlanSourcePublication Set, full FieldWrite/initialization, remaining retirement
-and fixed acceptance remain owed.
+V837 Plan FieldGet/Set connects original affine reads to the sole recorded writer;
+raw/Plan operand completion unified, focused27 PASS; CLI176 app180 native exact7 PASS.
+Typed-newbox app181 still PrefixNotCovered Body1; next resolve existing required
+initialization profile before code. Full FieldWrite, retirement/fixed acceptance owed.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """
 next_design_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
-next_execution_card = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
+next_execution_card = "none (resolve required initialization execution profile)"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 active_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-build-link-time-measurement-d0-2026-10-08.md"
 repo_hygiene_punchlist = "docs/development/current/main/investigations/repo-hygiene-audit-punchlist-2026-09-15.md"
