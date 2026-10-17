@@ -374,12 +374,13 @@ A single first-stop does not prove binary-trees is closest to completion.
 Required storage/String/Loop decisions belong to these current source stops,
 not after Gate2. Keep existing `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` reopen
 conditions; allocator-stress TextSourceMissing and binary-trees nullable-input
-stay with their source/Loop owners. Pair initialization is an additional live
-contract gap; the feedback's three labels are not a complete blocker inventory.
+stay with their source/Loop owners. Pair allocation-only semantics are resolved
+in `cac87926f6`; the live gap is implementation of initialization/readiness through the final consumers. The
+feedback's three labels are not a complete blocker inventory.
 
 | Selection point | Existing task owner | Concrete completion |
 | --- | --- | --- |
-| Current S0 | [app card][app-bundle] | Required initialization/FieldWrite source through both final consumers/native, fixed acceptance and selected retirement; no date promise |
+| Current S0, in order | [app card][app-bundle] | Finish the already selected behavior-neutral constructor split with existing regressions; connect accepted allocation-only source/readiness and LOCAL FieldWrite through both final consumers/C; unchanged no-Birth Pair EXE/OBJ exit30, required fixed acceptance and selected retirement. These are internal steps of S0, not new lanes or a completion-date promise. |
 | Owning structure boundary | [structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md#2026-10-17-semantic-package-and-packet-follow-up) / H-3 | One ncsp responsibility or packet dispatch owner; behavior-neutral caller-preserving split, no directory-wide prerequisite |
 | Constructor closeout reopen | [cleanup owner][cleanup-owner], `SEMANTIC-PACKAGE-README-CAPSULE-R0` | Concise issuer/consumer/module entry, completed narrative compressed to commit references |
 | Selected independent test family | [TG owner](../investigations/test-guard-responsibility-retirement-task-2026-10-08.md) | TG-0 measure -> TG-1 share -> TG-2 caller switch and exclusive old asset deletion; preserve distinct safety evidence |

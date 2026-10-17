@@ -165,13 +165,12 @@ manifests retained (v837-cleanup). No new adapter was introduced.
   causing InitializationContractMissing, and LOCAL pair writes lack selected
   prefix coverage. This is a compiler profile gap, not invalid source. Keep the
   unchanged positive, no fabricated Birth or conversion into a negative.
-  Read-only V837 follow-up confirms fixed positive ownership in final-pipeline
-  SSOT (fixed-suite1399+, historical i64 Pair EXE exit30 at2023+). Existing
-  constructor-lifecycle SSOT498+ accepts fieldless NoBirthZero/fully initialized
-  Birth, with no accepted partial-storage/late-LOCAL-initialization execution
-  profile. Resolve that bounded owner contract before code: same declaration/
-  New identity, exact original stores and Completion, read/escape/Fault boundary;
-  never infer initial values from zeroed C storage or caller syntax guesses.
+  The bounded restoration Decision is resolved in `cac87926f6` and below:
+  the existing allocation-only typed-i64 positive retains its original New/Home
+  publication point. The remaining task is source/readiness -> owned LOCAL
+  stores/reads -> both final consumers -> C, not another language decision.
+  Keep the same declaration/New identity, exact original stores and Completion,
+  read/escape/Fault boundary; never infer initial values from zeroed C storage.
 - [ ] Required fixed acceptance; retarget a negative only at its truthful
   rejected boundary. First app/native success does not replace this suite.
 - [ ] Remaining named production cutover and exclusive-edge/adapter retirement;
