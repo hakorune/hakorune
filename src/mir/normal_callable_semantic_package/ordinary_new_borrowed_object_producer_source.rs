@@ -16,7 +16,7 @@ impl PreparedBorrowedFormalIngressV1 {
         &self, target: &LexicalInstanceCallSourceTargetV1,
     ) -> Result<Option<(&ObjectCallSourceLoanV1, BindingRefV1)>, String> {
         let mut found = None;
-        for row in self.original_formal_seeds.rows.iter() {
+        for row in self.original_formal_seeds.rows.iter().filter(|row| row.legacy) {
             for seed in row.seeds.iter() {
                 let OriginalFormalActualSeedV1::ReturnedField(capsule) = seed else { continue; };
                 for (loan, destination) in capsule.acquisition_sources_v1() {
@@ -43,7 +43,7 @@ impl PreparedBorrowedFormalIngressV1 {
     ) -> Result<Option<(&ObjectCallSourceLoanV1, BindingRefV1)>, String> {
         let source = self.original_field_producer_source_v1(target)?;
         if source.is_none() { return Ok(None); }
-        for row in self.original_formal_seeds.rows.iter() {
+        for row in self.original_formal_seeds.rows.iter().filter(|row| row.legacy) {
             for seed in row.seeds.iter() {
                 let OriginalFormalActualSeedV1::ReturnedField(capsule) = seed else { continue; };
                 if !capsule.acquisition_sources_v1().any(|(loan, _)| loan.source().call_site() == target.call_site()) {

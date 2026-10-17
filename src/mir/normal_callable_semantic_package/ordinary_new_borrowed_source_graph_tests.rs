@@ -198,7 +198,7 @@ fn object_source_inventory_preserves_unresolved_outside_and_global_vetoes() {
     outside.observations.clear();
     outside
         .observations
-        .push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
+        .push_legacy((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
     assert!(outside.vetoed_owners().contains(&rows[0].callee));
     assert_eq!(
         outside.project(&owners).unwrap_err(),
@@ -247,8 +247,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
     assert_eq!(inventory.owners.len(), 2);
     assert_eq!(inventory.exact_rows().count(), 1);
     assert!(inventory
-        .observations
-        .iter()
+        .legacy_observations()
         .any(|(_, row)| matches!(row, Err(BorrowedIncomingDraftErrorV1::NoIncoming(_)))));
     assert!(inventory.project(&inventory.owners).is_err());
     let final_owners = source.definitions.keys().copied().collect();
@@ -287,7 +286,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
         assert!(inventory.owners.contains(&row.callee));
         assert!(!inventory.source_vetoed_owners_v1().contains(&row.callee));
         assert_eq!(inventory.vetoed_owners().contains(&row.callee), !unit_candidate);
-        assert!(inventory.observations.iter().all(|(_, observed)| !matches!(observed,
+        assert!(inventory.legacy_observations().all(|(_, observed)| !matches!(observed,
             Err(BorrowedIncomingDraftErrorV1::NoIncoming(owner)) if owner == &row.callee)));
         assert!(!package.batch().declarations().any(|declaration| declaration.owner() == row.call.owner()));
         assert_eq!(constructor.construction().is_ok(), unit_candidate);
@@ -414,8 +413,7 @@ fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
         .unwrap();
     let original = &source.source_incoming;
     let owner = original
-        .observations
-        .iter()
+        .legacy_observations()
         .find_map(|(owner, row)| {
             matches!(row, Err(BorrowedIncomingDraftErrorV1::NoIncoming(_)))
                 .then_some(*owner)
@@ -425,6 +423,7 @@ fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
     let call = source.incoming[0].clone();
     for mutation in 0..9 {
         let mut inventory = BorrowedIncomingInventoryV1 {
+            source_owners: original.source_owners.clone(),
             owners: original.owners.clone(),
             unsupported_static_spelling: Default::default(),
             unsupported_static_context: Default::default(),
@@ -435,20 +434,20 @@ fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
             0 => {}
             1 => inventory
                 .observations
-                .retain(|(label, _)| *label != Some(owner)),
-            2 => inventory.observations.push((
+                .retain(|row| row.original.0 != Some(owner)),
+            2 => inventory.observations.push_legacy((
                 Some(owner),
                 Err(BorrowedIncomingDraftErrorV1::NoIncoming(owner)),
             )),
             3 => {
                 let row = inventory
                     .observations
-                    .iter_mut()
+                    .iter_mut().map(|row| &mut row.original)
                     .find(|(label, _)| *label == Some(owner))
                     .unwrap();
                 row.1 = Err(BorrowedIncomingDraftErrorV1::NoIncoming(call.callee));
             }
-            4 => inventory.observations.push((
+            4 => inventory.observations.push_legacy((
                 Some(owner),
                 Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(
                     call.call.clone(),
@@ -456,16 +455,16 @@ fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
             )),
             5 => inventory
                 .observations
-                .push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))),
+                .push_legacy((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))),
             6 => {
                 inventory.owners.remove(&owner);
             }
             7 => {
                 let mut real = call.clone();
                 real.callee = owner;
-                inventory.observations.push((Some(owner), Ok(real)));
+                inventory.observations.push_legacy((Some(owner), Ok(real)));
             }
-            8 => inventory.observations.push((
+            8 => inventory.observations.push_legacy((
                 Some(owner),
                 Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(
                     call.call.clone(),
@@ -514,12 +513,13 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
         let inventory = BorrowedIncomingInventoryV1 {
             unsupported_static_spelling: Default::default(),
             unsupported_static_context: Default::default(),
+            source_owners: owners.clone(),
             owners: owners.clone(),
             static_observations: BTreeMap::new(),
-            observations: vec![
+            observations: test_observations(vec![
                 (Some(row.callee), Ok(row.clone())),
                 (Some(row.callee), Err(error.clone())),
-            ],
+            ]),
         };
         assert_eq!(inventory.project(&owners).unwrap_err(), error);
         assert!(inventory.project(&Default::default()).unwrap().is_empty());
@@ -527,9 +527,10 @@ fn source_graph_selected_callee_keeps_every_caller_veto_and_global_batch_fault()
     let inventory = BorrowedIncomingInventoryV1 {
         unsupported_static_spelling: Default::default(),
         unsupported_static_context: Default::default(),
+        source_owners: owners.clone(),
         owners: owners.clone(),
         static_observations: BTreeMap::new(),
-        observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],
+        observations: test_observations(vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))]),
     };
     assert_eq!(inventory.vetoed_owners(), inventory.owners);
     for selected in [owners, Default::default()] {
@@ -681,7 +682,7 @@ fn source_graph_original_scan_retains_one_exact_caller_and_missing_sibling_veto(
     )
     .unwrap();
     assert_eq!(inventory.exact_rows().count(), 1);
-    assert!(inventory.observations.iter().any(|(owner, observation)| *owner == Some(omitted.callee) && matches!(observation, Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(site)) if site == &omitted.call)));
+    assert!(inventory.legacy_observations().any(|(owner, observation)| *owner == Some(omitted.callee) && matches!(observation, Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(site)) if site == &omitted.call)));
     assert_eq!(
         inventory
             .project(&source.definitions.keys().copied().collect())
@@ -709,9 +710,10 @@ fn source_graph_partial_scan_preserves_global_loan_fault_before_orphan_check() {
     let mut inventory = BorrowedIncomingInventoryV1 {
         unsupported_static_spelling: Default::default(),
         unsupported_static_context: Default::default(),
+        source_owners: Default::default(),
         owners: Default::default(),
         static_observations: BTreeMap::new(),
-        observations: vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))],
+        observations: test_observations(vec![(None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))]),
     };
     inventory
         .corroborate_scan_completeness(&Default::default(), Some(&context), true)
@@ -761,4 +763,14 @@ fn source_graph_final_instance_correspondence_rejects_owned_source_mutation() {
         .corroborate_source_targets(&prepared)
         .unwrap_err()
         .contains("final-incoming-drift"));
+}
+
+fn test_observations(rows: Vec<(Option<FunctionOwnerIdV1>, Result<BorrowedIncomingCallDraftV1, BorrowedIncomingDraftErrorV1>)>) -> Vec<inventory::IncomingObservationV1> {
+    rows.into_iter().map(Into::into).collect()
+}
+trait LegacyObservationTestPushV1 {
+    fn push_legacy(&mut self, row: (Option<FunctionOwnerIdV1>, Result<BorrowedIncomingCallDraftV1, BorrowedIncomingDraftErrorV1>));
+}
+impl LegacyObservationTestPushV1 for Vec<inventory::IncomingObservationV1> {
+    fn push_legacy(&mut self, row: (Option<FunctionOwnerIdV1>, Result<BorrowedIncomingCallDraftV1, BorrowedIncomingDraftErrorV1>)) { self.push(row.into()); }
 }

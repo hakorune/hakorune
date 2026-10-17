@@ -10,6 +10,7 @@ use crate::mir::resolved_semantics::{
     ResolvedMethodCallReceiverSourceV1, VerifiedResolvedMethodCallSourceV1,
 };
 use std::rc::Rc;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 
 pub(super) type StaticIncomingObservationV1 = Result<Rc<StaticIncomingSourceV1>, String>;
 
@@ -34,6 +35,7 @@ impl StaticIncomingContextV1<'_> {
         site: &OwnedExprSiteV1,
         source: &VerifiedResolvedMethodCallSourceV1,
         input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+        omitted: &BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
         selected: &super::super::super::VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         operand_retained: Option<&Rc<StaticIncomingSourceV1>>,
@@ -84,15 +86,15 @@ impl StaticIncomingContextV1<'_> {
                 contract.batch_slot,
                 main.is_some(),
                 main.map(|main| main.catalog_key()),
-            )
+            ).or_else(|| omitted.get(&input.owner()).cloned())
             .ok_or_else(|| freeze("borrowed-static/caller-key-unavailable"))?;
             let loan = self
                 .claims
-                .incoming_source(&key, site, source, selected, contracts, self.main)?
+                .incoming_source_in_census(&key, site, source, selected, contracts, omitted, self.main)?
                 .ok_or_else(|| freeze("borrowed-static/claim-unavailable"))?;
                 loan
             } else {
-                self.claims.incoming_source(caller, site, source, selected, contracts, self.main)?
+                self.claims.incoming_source_in_census(caller, site, source, selected, contracts, omitted, self.main)?
                     .ok_or_else(|| freeze("borrowed-static/claim-unavailable"))?
             };
             let original_method = input.function().method_call_source_v1(site.site())

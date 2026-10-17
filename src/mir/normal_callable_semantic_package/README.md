@@ -40,6 +40,19 @@ checks, so source membership does not issue an Integer view or entry. Context,
 spelling, unknown receiver and whole-incoming vetoes remain. The source SUM and
 Text physical entry/cleanup/publication are still separate required connections.
 
+The original incoming collector now registers canonical Static source contracts
+independently of borrowed-use/transport readiness. Its one observation store
+records source-only, legacy-only or shared participation. Original source SUM
+preparation sees omitted callers and unsupported-use incoming; existing
+Integer/Object/selected projection and returned-field consumers retain their
+legacy participation. Empty-declaration sentinels and global failures preserve
+scope independently. The existing source co-seal retains each omitted owner's
+canonical key, rather than discarding it into a set; that identity never selects
+an executable caller. Source rows are classified once and retained by the same
+original seed product, with both participation/registration/veto snapshots.
+No Text domain, runtime entry, cleanup or publication permission follows from
+this expanded census. Missing producer/class/domain evidence remains unresolved.
+
 ## Borrowed entry owner routing
 
 `ordinary_new_borrowed_formal_entry.rs` lends source/parameter projections and
@@ -4441,3 +4454,10 @@ canonical row identity before delegating to the existing Array/read issuer; a
 structurally equal reissued row cannot lend the original read. Existing source
 phase equality remains structural and cannot replace this identity check. Text
 actual transport and its lifetime/entry/publication closure remain unaccepted.
+
+Source incoming also visits nested semantic owners in the SAME collector using
+the original forest input loans. A nested owner has no fabricated declaration
+or Birth caller key: its calls remain scoped Unknown obligations, retaining
+the SAME canonical method Arc and ordered actuals. Source-refusal corroboration
+checks scope, owner, diagnostic and original Arc identity, including duplicate
+loss under an unchanged veto set. Legacy executable projections remain root-only.

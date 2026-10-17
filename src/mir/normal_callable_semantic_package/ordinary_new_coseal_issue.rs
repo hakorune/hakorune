@@ -70,7 +70,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
+    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     app_main_source: Option<&crate::mir::builder::AppMainCatalogCoSealV1>,
     direct_call_loans: Option<&super::super::direct_call_loan::DirectCallDispositionLoansV1>,
     parameter_contracts: &[super::super::model::OwnedCallableParameterContractDeclarationV1],

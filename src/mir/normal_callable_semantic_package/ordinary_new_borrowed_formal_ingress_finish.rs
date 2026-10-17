@@ -7,7 +7,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted: &BTreeSet<FunctionOwnerIdV1>,
+    omitted: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     calls: &BTreeMap<OwnedExprSiteV1, &LexicalInstanceCallSourceTargetV1>,
     ordinary_callers: &BTreeSet<FunctionOwnerIdV1>,

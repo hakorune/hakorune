@@ -94,7 +94,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
+    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     static_call_claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,

@@ -335,6 +335,30 @@ impl QualifiedStaticCallClaimIndexV1 {
         contracts: &'a [OwnedCallableParameterContractDeclarationV1],
         app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
     ) -> Result<Option<StaticIncomingSourceLoanV1<'a>>, String> {
+        self.incoming_source_in_census(
+            caller_source,
+            site,
+            source,
+            selected,
+            contracts,
+            &std::collections::BTreeMap::new(),
+            app_main,
+        )
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn incoming_source_in_census<
+        'a,
+        'caller,
+    >(
+        &'a self,
+        caller_source: impl Into<StaticIncomingCallerSourceV1<'caller>>,
+        site: &'a OwnedExprSiteV1,
+        source: &'a VerifiedResolvedMethodCallSourceV1,
+        selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        contracts: &'a [OwnedCallableParameterContractDeclarationV1],
+        omitted: &std::collections::BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>,
+        app_main: Option<&crate::mir::normal_callable_semantic_package::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
+    ) -> Result<Option<StaticIncomingSourceLoanV1<'a>>, String> {
         if !self.catalog_brand.is_same(selected.catalog_brand()) {
             return Err("[freeze:contract][borrowed-static/incoming-source-cohort]".into());
         }
@@ -387,6 +411,7 @@ impl QualifiedStaticCallClaimIndexV1 {
                         main.is_some(),
                         main.map(|main| main.catalog_key()),
                     )
+                    .or_else(|| omitted.get(&site.owner()).cloned())
                     .as_ref()
                         != Some(&caller)
                 {
@@ -416,9 +441,20 @@ impl QualifiedStaticCallClaimIndexV1 {
                 return Err(reject());
             }
         }
-        let slot = selected
-            .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(target.clone()))
-            .ok_or_else(reject)?;
+        let slot =
+            match selected.batch_slot(&SelectedNormalCallableKeyV1::Cataloged(target.clone())) {
+                Some(slot) => slot,
+                None => {
+                    let mut owners = omitted.iter().filter(|(_, key)| *key == target);
+                    let (owner, _) = owners.next().ok_or_else(reject)?;
+                    let mut rows = contracts.iter().filter(|row| row.owner == *owner);
+                    let row = rows.next().ok_or_else(reject)?;
+                    if owners.next().is_some() || rows.next().is_some() {
+                        return Err(reject());
+                    }
+                    row.batch_slot
+                }
+            };
         let mut matches = contracts.iter().filter(|row| row.batch_slot == slot);
         let contract = matches.next().ok_or_else(reject)?;
         if matches.next().is_some()

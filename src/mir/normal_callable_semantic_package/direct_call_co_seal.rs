@@ -3,10 +3,10 @@
 //! This module owns only the existing validation helper. It issues no semantic
 //! product and does not create a second direct-call authority.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::{
-    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_semantic_batch::{
@@ -25,7 +25,7 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
     catalog: &VerifiedSourceBackedSameModuleCallableCatalogV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-) -> Result<BTreeSet<FunctionOwnerIdV1>, ResolvedCallableSemanticBatchIssueV1> {
+) -> Result<BTreeMap<FunctionOwnerIdV1, CanonicalSameModuleCallableKeyV1>, ResolvedCallableSemanticBatchIssueV1> {
     let declaration_catalog = catalog.catalog();
     if !declaration_catalog
         .brand()
@@ -36,7 +36,7 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
     }
 
     let mut owned_sites = BTreeSet::new();
-    let mut omitted_callers = BTreeSet::new();
+    let mut omitted_callers = BTreeMap::new();
     let app_main_identity = declaration_catalog
         .source_backed_app_main()
         .map(|main| main.parser_identity());
@@ -55,7 +55,7 @@ pub(super) fn validate_cataloged_source_co_seal_v1(
                 || selected.key_for_batch_slot(slot).is_some()
                 || declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod
                 || declaration.parameter_count() != omitted.arity()
-                || !omitted_callers.insert(declaration.owner())
+                || omitted_callers.insert(declaration.owner(), omitted.clone()).is_some()
             {
                 return Err(ResolvedCallableSemanticBatchIssueV1::UnissuedDirectCallObservation);
             }

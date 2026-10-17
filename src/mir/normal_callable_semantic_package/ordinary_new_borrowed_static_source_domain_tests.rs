@@ -201,11 +201,104 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
             (if passive_source { 2 } else { 0 }, false)
         );
         assert_eq!(source.source_definition_for(p.owner()).is_some(), passive_source);
+        assert!(source.source_incoming.source_registered_owners_v1().contains(&p.owner()));
+        assert_eq!(source.source_incoming.source_rows_v1().filter(|row| row.callee == p.owner()).count(), 2,
+            "unsupported use/transport cannot erase original source incoming");
         // Original 7/8 inputs retain their source agreement independently of
         // Bool/Text result class. That class still forbids the I64 executable
         // cohort; source input agreement cannot fabricate an entry or result.
         assert!(!source.contains_definition_for_test(p.owner()));
     }
+    // Nested declaration/Birth callers remain explicit unknowns, with the
+    // SAME resolver row and ordered actuals; they cannot enter legacy ABI rows.
+    for program in [
+        SOURCE.replace("pick(p) { return 0 }", "pick(p) { return 0 } unused() { local nested = fn() { local n = Layout.pick(99) return 0 } return 0 }"),
+        format!("box Outer {{ birth() {{ local nested = fn() {{ local n = Layout.pick(99) return 0 }} }} }} {}",
+            SOURCE),
+    ] {
+        let package = package(&program);
+        let source = ingress(&package);
+        let owner = formal(&package, "Layout", "pick").owner();
+        let census = &source.source_incoming;
+        let unknown = census.observations.iter().find(|row|
+            row.scope == inventory::IncomingObservationScopeV1::SourceOnly
+                && row.original.0 == Some(owner)
+                && matches!(row.original.1, Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(_))))
+            .expect("nested caller must not vanish");
+        let method = unknown.method_source.as_ref().expect("unknown retains actuals");
+        assert_eq!(method.selector(), "pick");
+        assert_eq!(method.arguments().len(), 1);
+        assert_eq!(method.arguments()[0].ordinal(), 0);
+        let mut matched = false;
+        for declaration in package.batch().declarations() {
+            package.batch().with_lowering_input(declaration.batch_slot(), |root| {
+                if root.forest().owner(method.owner()).is_some() {
+                    package.batch().with_owner_lowering_input(declaration.batch_slot(), method.owner(), |nested| {
+                        assert!(std::sync::Arc::ptr_eq(method, nested.function().method_call_source_v1(method.site()).unwrap()));
+                        matched = true;
+                    }).unwrap();
+                }
+            }).unwrap();
+        }
+        for birth in package.instance_constructors.rows() {
+            if birth.forest().owner(method.owner()).is_some() {
+                let nested = birth.lowering_input_for_owner(package.batch().source_ast(), method.owner()).unwrap();
+                assert!(std::sync::Arc::ptr_eq(method, nested.function().method_call_source_v1(method.site()).unwrap()));
+                matched = true;
+            }
+        }
+        assert!(matched, "method Arc belongs to original nested forest");
+        assert_eq!(census.exact_rows().filter(|row| row.callee == owner).count(), 2);
+        assert!(census.sum_vetoed_owners_v1().contains(&owner));
+        assert!(!census.vetoed_owners().contains(&owner));
+        let receipt = census.source_refusals_v1();
+        assert!(census.corroborates_refusals_v1(&receipt));
+        let mut mutated = BorrowedIncomingInventoryV1 {
+            owners: census.owners.clone(), source_owners: census.source_owners.clone(),
+            unsupported_static_spelling: census.unsupported_static_spelling.clone(),
+            unsupported_static_context: census.unsupported_static_context.clone(),
+            static_observations: census.static_observations.clone(), observations: census.observations.clone(),
+        };
+        let position = mutated.observations.iter().position(|row|
+            row.method_source.as_ref().is_some_and(|row| std::sync::Arc::ptr_eq(row, method))).unwrap();
+        mutated.observations[position].method_source = census.observations.iter()
+            .filter_map(|row| row.method_source.as_ref()).find(|row| !std::sync::Arc::ptr_eq(row, method)).cloned();
+        assert!(!mutated.corroborates_refusals_v1(&receipt), "same error cannot hide foreign source Arc");
+        mutated.observations[position] = unknown.clone();
+        mutated.observations.push(unknown.clone());
+        let duplicate_receipt = mutated.source_refusals_v1();
+        mutated.observations.pop();
+        assert_eq!(mutated.sum_vetoed_owners_v1(), census.sum_vetoed_owners_v1());
+        assert!(!mutated.corroborates_refusals_v1(&duplicate_receipt), "unchanged veto cannot hide a lost unknown");
+    }
+    // A source-only caller and legacy empty declaration are independent views
+    // of the SAME observation store. Global errors preserve their scope too.
+    let package = package(SOURCE);
+    let row = ingress(&package).source_incoming.exact_rows().next().unwrap().clone();
+    let owners = BTreeSet::from([row.callee]);
+    use inventory::{IncomingObservationScopeV1 as Scope, IncomingObservationV1 as Observation};
+    let mut census = BorrowedIncomingInventoryV1 {
+        owners: owners.clone(), source_owners: owners.clone(),
+        unsupported_static_spelling: Default::default(), unsupported_static_context: Default::default(),
+        static_observations: BTreeMap::new(),
+        observations: vec![
+            Observation::new(Scope::LegacyOnly, Some(row.callee), Err(BorrowedIncomingDraftErrorV1::NoIncoming(row.callee))),
+            Observation::new(Scope::SourceOnly, Some(row.callee), Ok(row)),
+        ],
+    };
+    let owner = *owners.first().unwrap();
+    assert!(census.project_declaration_v1(owner).unwrap().is_empty());
+    assert_eq!(census.exact_rows().count(), 0);
+    assert_eq!(census.source_rows_v1().count(), 1);
+    assert!(census.sum_vetoed_owners_v1().is_empty());
+    census.observations.push(Observation::new(Scope::SourceOnly, None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
+    assert!(census.project(&Default::default()).unwrap().is_empty());
+    assert_eq!(census.sum_vetoed_owners_v1(), owners);
+    census.observations.pop();
+    census.observations.push(Observation::new(Scope::LegacyOnly, None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
+    assert_eq!(census.project(&Default::default()).unwrap_err(), BorrowedIncomingDraftErrorV1::BatchLoan);
+    assert!(census.sum_vetoed_owners_v1().is_empty());
+
 }
 
 fn raw_target(package: &Package) -> BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1> {
@@ -345,6 +438,25 @@ fn static_source_domain_rejects_foreign_owner_ordinal_and_mode_contracts() {
 
 #[test]
 fn static_source_domain_proven_instance_namespace_does_not_poison_static_agreement() {
+    // An omitted caller still contributes its original Static source edge;
+    // the same selector/arity on an Instance owner is another namespace.
+    for (instance_call, target_selected) in [("", false), ("local n = recv.pick(7)", true)] {
+    let text = "box Transport { pick(p) { return 0 } } static box Other { pick(p) { return 0 } } static box Layout { unused() { local n = Other.pick(99) return 0 } } static box Main { main() { local recv = new Transport() INSTANCE_CALL return 0 } }".replace("INSTANCE_CALL", instance_call);
+    let omitted = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+        &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,
+    ).unwrap();
+    let incoming = &ingress(&omitted).source_incoming;
+    let row = incoming.source_rows_v1().find(|row| row.source.target().owner() == "Other")
+        .expect("retain omitted caller's target despite Instance homonym");
+    let unused = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::static_box_method("Layout", "unused", 0));
+    assert!(omitted.selected.batch_slot(&unused).is_none());
+    assert_eq!(omitted.selected.batch_slot(&crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(row.source.target().clone())).is_some(), target_selected);
+    assert!(incoming.exact_rows().all(|legacy| legacy.call != row.call));
+    let instance_owner = omitted.parameter_contracts.iter().find(|row|
+        row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && row.parameters.len() == 1).unwrap().owner;
+    assert!(!incoming.sum_vetoed_owners_v1().contains(&instance_owner));
+    }
     let package = package("box Transport { pick(p) { local k = Layout.other(p) return 0 } } static box Layout { other(q) { return 0 } pick(p) { return 0 } } static box Main { main() { local recv = new Transport() local a = recv.pick(true) local b = Layout.pick(7) return 0 } }");
     let source = ingress(&package);
     let p = formal(&package, "Layout", "pick");
@@ -530,7 +642,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
         both.batch().with_lowering_input(declaration.batch_slot(), |input| {
             for (site, call) in input.function().method_calls() {
                 let site = OwnedExprSiteV1::new(input.owner(), site.clone());
-                let observed = context.observe(declaration.batch_slot(), &site, call, input,
+                let observed = context.observe(declaration.batch_slot(), &site, call, input, &BTreeMap::new(),
                     &both.selected, &both.parameter_contracts, None).unwrap();
                 match call.receiver() {
                     ResolvedMethodCallReceiverSourceV1::Lexical(_) => assert!(observed.is_none()),

@@ -300,7 +300,7 @@ pub(in crate::mir::normal_callable_semantic_package) use incoming::exact_bool_va
 #[cfg(test)]
 pub(super) use incoming::inventory_borrowed_incoming_calls_v1;
 pub(super) use incoming::{
-    inventory_borrowed_incoming_with_stored_dispatch_v1, BorrowedIncomingInventoryV1,
+    inventory_borrowed_incoming_with_stored_dispatch_v1, BorrowedIncomingInventoryV1, SourceIncomingRefusalsV1,
     StaticIncomingContextV1,
 };
 

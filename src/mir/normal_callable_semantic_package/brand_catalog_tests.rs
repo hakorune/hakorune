@@ -1,39 +1,9 @@
-use crate::mir::builder::NormalRootExecutionConsumerV1;
 use crate::mir::instruction::InvokeCallResultKind;
-use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
-pub(in crate::mir) fn issue_with_brand_catalog(
-    source: &str,
-) -> Result<
-    super::VerifiedNormalCallableSemanticPackageV1,
-    super::NormalCallableSemanticPackageIssueV1,
-> {
-    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-        source,
-        ParserBuildConfig::default(),
-    )
-    .expect("normal callable source");
-    let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        crate::r#macro::transform_normal_callable_program_v1(parsed)
-            .expect("exact callable transform")
-    });
-    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
-        panic!("fixture must remain source-backed")
-    };
-    let catalog = crate::analysis::brand_program_declaration_catalog::
-        issue_brand_program_declaration_catalog_v1(source.ast())
-        .expect("brand catalog");
-    let source = NormalRootExecutionConsumerV1::consume_once(source)
-        .expect("root execution")
-        .into_consumed_source();
-    let mut resolver = FunctionSemanticResolverSessionV1::new(93).unwrap();
-    super::issue_normal_callable_semantic_package_with_brand_catalog_v1(
-        &mut resolver,
-        source,
-        Some(&catalog),
-    )
-}
+#[path = "brand_catalog_test_support.rs"]
+mod fixture;
+pub(in crate::mir) use fixture::{issue_with_brand_catalog, issue_with_brand_catalog_selection};
 
 #[test]
 fn ordinary_new_claims_match_exact_local_initializers_without_effect_discovery() {

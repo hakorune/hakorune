@@ -187,7 +187,7 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
             .unwrap();
             let brands = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(batch.source_ast()).unwrap();
             let inventory = prepare_original_incoming_v1(
-                Some(&brands), batch, selected, &BTreeSet::new(), parameters, &calls, &drafts.0, &drafts.1,
+                Some(&brands), batch, selected, &BTreeMap::new(), parameters, &calls, &drafts.0, &drafts.1,
                 None, &BTreeMap::new(), main, None, constructors,
                 &entry, &BTreeMap::new(), &classes, &drafts.3, &BTreeMap::new(),
             );

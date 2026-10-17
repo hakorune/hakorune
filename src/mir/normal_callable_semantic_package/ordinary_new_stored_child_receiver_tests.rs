@@ -236,7 +236,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
         inventory_borrowed_incoming_with_stored_dispatch_v1(
             package.batch(),
             &package.selected,
-            &BTreeSet::new(),
+            &BTreeMap::new(),
             &source.definitions,
             &package.parameter_contracts,
             &calls,

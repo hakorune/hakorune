@@ -589,7 +589,7 @@ pub(super) fn prepare_source_preflight_v1(
     brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
-    omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
+    omitted_static_callers: &BTreeMap<FunctionOwnerIdV1, crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     parameter_contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
     static_call_claims: &super::super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,

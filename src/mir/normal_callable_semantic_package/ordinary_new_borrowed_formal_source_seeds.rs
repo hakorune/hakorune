@@ -31,6 +31,7 @@ struct SourceObjectDomainV1 {
 #[derive(Debug)]
 struct OriginalCallSeedsV1 {
     incoming: BorrowedIncomingCallDraftV1,
+    legacy: bool,
     seeds: Box<[OriginalFormalActualSeedV1]>,
 }
 
@@ -38,6 +39,9 @@ struct OriginalCallSeedsV1 {
 pub(super) struct OriginalFormalSeedProductV1 {
     rows: Box<[OriginalCallSeedsV1]>,
     owners: BTreeSet<FunctionOwnerIdV1>,
+    source_owners: BTreeSet<FunctionOwnerIdV1>,
+    sum_vetoes: BTreeSet<FunctionOwnerIdV1>,
+    source_refusals: SourceIncomingRefusalsV1,
     source_vetoes: BTreeSet<FunctionOwnerIdV1>,
     definition_owners: BTreeSet<FunctionOwnerIdV1>,
     source_integers: Option<SourceIntegerDomainV1>,
@@ -146,7 +150,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
 ) -> Result<OriginalFormalSeedProductV1, String> {
     let mut rows = Vec::new();
     let mut seen = BTreeSet::new();
-    for call in inventory.exact_rows() {
+    for (call, legacy) in inventory.source_rows_with_legacy_v1() {
         if !seen.insert(call.call.clone()) {
             return Err(freeze("borrowed-view/duplicate-original-call"));
         }
@@ -182,7 +186,7 @@ pub(super) fn prepare_original_formal_seeds_v1(
                         guarded.get(&(call.call.clone(), *ordinal)).map(|fact| (fact, &call.call, *ordinal)), Some(inventory)))
                 }).collect::<Result<Vec<_>, String>>()
             })??;
-        rows.push(OriginalCallSeedsV1 { incoming: call.clone(), seeds: seeds.into_boxed_slice() });
+        rows.push(OriginalCallSeedsV1 { incoming: call.clone(), legacy, seeds: seeds.into_boxed_slice() });
     }
     let mut new_calls = new_seeds::OriginalNewSeedsV1::default();
     for declaration in batch.declarations() {
@@ -233,6 +237,9 @@ pub(super) fn prepare_original_formal_seeds_v1(
     let mut product = OriginalFormalSeedProductV1 {
         rows: rows.into_boxed_slice(),
         owners: inventory.registered_owners_v1().clone(),
+        source_owners: inventory.source_registered_owners_v1().clone(),
+        sum_vetoes: inventory.sum_vetoed_owners_v1(),
+        source_refusals: inventory.source_refusals_v1(),
         source_vetoes: inventory.source_vetoed_owners_v1(),
         definition_owners: definitions.keys().copied().collect(),
         source_integers: None,
@@ -268,15 +275,18 @@ impl OriginalFormalSeedProductV1 {
             || !self.new_calls.retained_provider_sources_match()
             || inventory.registered_owners_v1() != &self.owners
             || inventory.source_vetoed_owners_v1() != self.source_vetoes
-            || inventory.exact_rows().count() != self.rows.len()
+            || inventory.source_rows_v1().count() != self.rows.len()
+            || inventory.source_registered_owners_v1() != &self.source_owners
+            || inventory.sum_vetoed_owners_v1() != self.sum_vetoes
+            || !inventory.corroborates_refusals_v1(&self.source_refusals)
         { return false; }
         let mut current = BTreeMap::new();
-        for call in inventory.exact_rows() {
-            if current.insert(call.call.clone(), call).is_some() { return false; }
+        for (call, legacy) in inventory.source_rows_with_legacy_v1() {
+            if current.insert(call.call.clone(), (call, legacy)).is_some() { return false; }
         }
         self.rows.iter().all(|row| {
-            let Some(call) = current.get(&row.incoming.call) else { return false; };
-            call.callee == row.incoming.callee
+            let Some((call, legacy)) = current.get(&row.incoming.call) else { return false; };
+            *legacy == row.legacy && call.callee == row.incoming.callee
                 && call.arguments == row.incoming.arguments
                 && call.source.same_original_source_v1(&row.incoming.source)
                 && row.seeds.len() == call.arguments.len()
@@ -338,7 +348,7 @@ impl OriginalFormalSeedProductV1 {
                 }
             }
         }
-        for row in &self.rows {
+        for row in self.rows.iter().filter(|row| row.legacy) {
             let caller = row.incoming.call.owner();
             for ((_, site, formal), raw) in row.incoming.arguments.iter().zip(row.seeds.iter()) {
                 let seed = match projection {
@@ -379,7 +389,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn original_returned_field_input_request_v1(
         &self, owner: FunctionOwnerIdV1,
     ) -> Result<Option<OwnedExprSiteV1>, String> {
-        let mut rows = self.original_formal_seeds.rows.iter().filter(|row| row.incoming.callee == owner
+        let mut rows = self.original_formal_seeds.rows.iter().filter(|row| row.legacy && row.incoming.callee == owner
             && row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::ReturnedField(_))));
         let Some(first) = rows.next() else { return Ok(None); };
         if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
@@ -534,7 +544,7 @@ impl PreparedBorrowedFormalIngressV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn returned_field_argument_selected_v1(
         &self, call: &OwnedExprSiteV1,
     ) -> bool {
-        self.original_formal_seeds.rows.iter().any(|row| &row.incoming.call == call
+        self.original_formal_seeds.rows.iter().filter(|row| row.legacy).any(|row| &row.incoming.call == call
             && row.seeds.iter().any(|seed| matches!(seed, OriginalFormalActualSeedV1::ReturnedField(_))))
     }
 
@@ -544,7 +554,7 @@ impl PreparedBorrowedFormalIngressV1 {
         if !self.original_formal_seeds.corroborate_original_v1(&self.source_incoming) {
             return Err(freeze("returned-field/original-incoming-census-drift"));
         }
-        let mut rows = self.original_formal_seeds.rows.iter().filter(|row| &row.incoming.call == call);
+        let mut rows = self.original_formal_seeds.rows.iter().filter(|row| row.legacy && &row.incoming.call == call);
         let Some(row) = rows.next() else { return Ok(None); };
         if rows.next().is_some() { return Err(freeze("returned-field/original-call-duplicate")); }
         for ((actual_ordinal, site, _), seed) in row.incoming.arguments.iter().zip(row.seeds.iter()) {
