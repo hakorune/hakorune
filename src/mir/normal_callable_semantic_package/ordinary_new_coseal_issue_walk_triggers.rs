@@ -132,3 +132,34 @@ pub(super) fn plain_main_integer_result_v1(
             .ordered_capture_demands(input.owner())
             .is_empty()
 }
+
+/// Original Instance input and borrowed LOCAL results require the same full walk.
+/// No finished input or physical entry is used to choose its own prerequisites.
+pub(super) fn has_original_borrowed_walk_v1(
+    source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    catalog: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+    targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    let local = targets.as_ref().is_ok_and(|rows| {
+        rows.iter()
+            .filter_map(|row| row.as_ref().ok()?.as_ref())
+            .any(|target| {
+                target.call_site().owner() == owner
+                    && target.borrowed_nullable_local_source().is_some()
+            })
+    });
+    let Ok(source) = source else {
+        return Ok(local);
+    };
+    // The original Unit return demand needs the same complete source Home
+    // walk even for an otherwise empty body or a bare Return. Plain control
+    // Completion alone does not supply an exit's cleanup obligations.
+    let unit = source.requires_unit_return_walk_v1(owner);
+    super::super::lexical_instance_call::original_borrowed_instance_input_completion_needed_v1(
+        source, catalog, owner,
+    )
+        .map(|input| input || local || unit || source.requires_named_array_holder_walk_v1(owner)
+            || source.borrowed_formal_return_target_v1(owner))
+    .map_err(|(site, issue)| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site, issue })
+}

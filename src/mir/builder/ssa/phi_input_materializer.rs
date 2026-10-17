@@ -21,4 +21,4 @@ mod remat_fact_tests;
 mod test_support;
 
 pub(in crate::mir::builder) use edge_rematerialization::for_pred;
-pub(in crate::mir::builder) use function_repair::materialize_all_phi_inputs;
+pub(in crate::mir::builder) use function_repair::{materialize_all_phi_inputs, materialize_all_phi_inputs_with_source_v1};

@@ -24,7 +24,15 @@ pub(crate) struct SourceConstructionChildRelationV1 {
     formal_ordinal: u32,
     actual: OwnedExprSiteV1,
     witnesses: Box<[Rc<ResultOriginWitnessV1>]>,
+    store: crate::mir::resolved_semantics::ResolvedAssignmentSourceV1,
+    store_source: Result<Option<super::super::field_write_claim::OriginalFieldWriteSourceLoanV1>, &'static str>,
 }
+// This source-issued immutable product has identity equality. Structurally
+// equal facts from another issuance never replace the original relation loan.
+impl PartialEq for SourceConstructionChildRelationV1 {
+    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+}
+impl Eq for SourceConstructionChildRelationV1 {}
 impl SourceConstructionChildRelationV1 {
     pub(crate) fn outer(&self) -> &OwnedExprSiteV1 {
         &self.outer
@@ -52,6 +60,24 @@ impl SourceConstructionChildRelationV1 {
     }
     pub(crate) fn witnesses(&self) -> &[Rc<ResultOriginWitnessV1>] {
         &self.witnesses
+    }
+
+    pub(crate) fn original_field_name_v1(&self) -> Result<&str, &'static str> {
+        Ok(self.store_source.as_ref().map_err(|issue| *issue)?
+            .as_ref().ok_or("returned-field/store-source-missing")?.write().field())
+    }
+
+    /// Exact immutable Provided residence; separate from the child's value class.
+    pub(crate) fn provided_field_source_v1(
+        &self, owner_box: &str,
+    ) -> Result<&super::super::field_write_claim::OriginalFieldWriteSourceLoanV1, &'static str> {
+        let source = self.store_source.as_ref().map_err(|issue| *issue)?
+            .as_ref().ok_or("returned-field/store-source-missing")?;
+        if !source.corroborates_sole_provided_birth_v1(owner_box, &self.constructor_source,
+            self.constructor_owner, &self.store) {
+            return Err("returned-field/store-source-incomplete");
+        }
+        Ok(source)
     }
 }
 
@@ -228,6 +254,8 @@ fn join_outer(
             formal_ordinal: formal.ordinal(),
             actual,
             witnesses: witnesses.into_boxed_slice(),
+            store: store.assignment().clone(),
+            store_source: fields.original_write_source_v1(*owner, store.assignment().target_site()),
         });
     }
     result
@@ -284,7 +312,12 @@ fn actual_witnesses(
                 );
             }
             BindingKindV1::Local { .. } => {
-                resolve_forward_local(binding, function, shape, caller, batch, selected, fields)?
+                let call =
+                    OwnedExprSiteV1::new(input.owner(), sole_initializer_site(function, binding)?);
+                let source = facts
+                    .original_local_call_source_v1(batch, selected, fields, &call, binding, parameters, None)
+                    .ok()??;
+                return source.compose_at_v1(actual, facts, batch, parameters).ok();
             }
             _ => return None,
         }
@@ -316,7 +349,7 @@ fn actual_witnesses(
     source.compose(facts.outcomes(&key)?, parameters, slot)
 }
 
-fn class_agrees(
+pub(super) fn class_agrees(
     origin: &ResultValueOriginV1,
     child: CanonicalObjectIdV1,
     input: ResolvedFunctionLoweringInputV1<'_>,

@@ -65,6 +65,21 @@ matching owner, declaration, destination and result role, including its original
 arguments and prior Fault homes. This lends source identity only; it grants no
 callee Completion, returned Home, transfer or physical execution capability.
 
+Mixed local results retain `MixedLocalCallSourceLoanV1` on their dedicated
+observation and `ReceivedMixed` local state. The caller anchor is either an
+original formal or an exact original local-call acquisition. Local acquisition
+retains its source/root identity, never a formal substitution or a Completion.
+Installation joins that same prior Nullable/Mixed observation, covered call and
+current Home sequence; a Mixed parent must retain its SAME source loan.
+Support consumption/rebinding invalidates later borrowed uses. The passive
+actual observer lends ReceivedMixed only while that support chain stays live;
+source class and executable packet permission remain the package's responsibility. Observation stays BoundValue after non-Null
+narrowing; owning-only received-call and direct-New getters do not accept it.
+`home_new_prefix_mixed_call.rs` adds the conditional obligation at the original
+position in the same Home sequence. Its source loan alone cannot discharge that
+position: Normal must distinguish Fresh acquisition from Forward support and
+Null, and the complete End must run only for the Fresh outcome.
+
 ## Map source shape
 
 The existing body-shape issuer retains Map literal keys in source order,
@@ -1509,6 +1524,19 @@ each exit separately. Any missing product, mismatched owner/site or I64
 prestate, unsupported body, or unobserved call leaves the Loop uncovered.
 Home never issues a second Recipe or physical permission.
 
+Checked Print frames retain the exact pre-statement owned-Home list even when
+there are no calls or String temporaries; every nested real call must carry the
+same list. Foreign or duplicate Homes and call/context drift refuse before the
+field batch. Expression installation holds the existing shared inventory's
+mutable borrow, approves the SAME immutable source/frame before that batch, and
+commits only after batch success. Dropping the scoped installation publishes
+nothing; branch clones share the one inventory and cannot claim duplicate slots.
+The production Home walk now installs these frames through this same scoped
+transaction. Original Print statement membership selects that walk even for
+literal or Integer roots with no construction or call. Qualification still
+grants no execution by itself: the statement consumer must consume the SAME
+frame, field and call loans and verify its physical/final correspondence.
+
 
 Declared-instance effect rows correspond to original call uses, while callable
 syntax rows correspond to declarations. Repeated calls may share one canonical
@@ -1516,3 +1544,19 @@ target, so the issuer does not compare those two counts. Every call still
 requires exactly one matching original target syntax, rejects missing/duplicate
 or non-instance syntax, and retains its own caller/site identity and Query or
 Opaque effect. No guessed target or effect is supplied for a missing definition.
+
+Whole Bool If conditions reuse the original expression plan and shared leaf
+qualification, then the same atomic Home installation used by Print. Supported
+logical roots retain exact scalar Call loans, primitive local references,
+comparison contracts, field requests and conditional reach. Applicability is
+decided before demands; unselected source profiles keep their existing owners; refusal after selection never retries an
+older profile. Their lifecycle prefix is mandatory even without calls. This
+source installation alone grants no physical control or final publication.
+
+A return-position New retains both outcome projections in its original
+ResultNewHomePrefix. Fault prior Homes are captured before argument moves;
+Normal Homes are captured after the existing source-selected owned arguments
+are consumed. Only Local/Handle/BoundValue bindings already in the original
+Home set move. Scalar or borrowed values do not acquire ownership from their
+kind. Returned-leaf corroboration compares the Normal projection with the same
+Completion exit, while physical Fault preparation keeps the prior projection.

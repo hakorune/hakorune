@@ -11,12 +11,13 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV.pop('V4_PROBE_CLASS_DRIFT', None)
 WRAPS = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-         'object.checked_field_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
+         'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
 
 def checked(argv):

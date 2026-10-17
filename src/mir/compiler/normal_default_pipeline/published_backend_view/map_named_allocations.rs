@@ -35,7 +35,8 @@ impl<'m> MapBodyIndex<'m> {
         crate::mir::normal_callable_semantic_package::validate_named_array_coverage(module, rows)?;
         for row in rows {
             let function = row.validate(module)?;
-            let key = match &row.marker().allocation {
+            let Some(marker) = row.marker() else { continue };
+            let key = match &marker.allocation {
                 NamedArrayAllocationRefV1::LocalValue(allocation) => (function, *allocation),
                 NamedArrayAllocationRefV1::FieldResidence {
                     provider_caller,

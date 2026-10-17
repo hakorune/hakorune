@@ -672,6 +672,9 @@ pub struct FunctionMetadata {
     /// Detection only: source authority remains in the finalized artifact handoff.
     pub(crate) named_array_write_obligations:
         Vec<crate::mir::named_array_obligation::NamedArrayWriteMarkerV1>,
+    /// Detection only; source authority is retained in the finalized handoff.
+    pub(crate) named_array_read_obligations:
+        Vec<crate::mir::named_array_obligation::NamedArrayReadMarkerV1>,
     /// Birth-side `me.<field> = new ArrayBox()` provider recordings keyed by
     /// the exact assignment value site. The provider function carries them;
     /// a field-resident write obligation claims each entry exactly once.

@@ -344,7 +344,16 @@ fn object_packet_current_input_errors_precede_wrong_result() {
 
 #[test]
 fn object_packet_current_arguments_and_terminal_index_must_match_seal() {
-    let mut package = package(false, false, false, false);
+    let package = self::package(false, false, false, false);
+    let mut row = take(&package);
+    let seal = row.object_packet.as_mut().unwrap();
+    let saved = std::mem::take(&mut seal.field_supports);
+    assert!(!saved.is_empty(), "even support-free Fresh exits retain original census");
+    assert!(package.ordinary_new_claim_ledger.borrowed_call_actuals_v1(&row)
+        .unwrap_err().contains("field-support-source-drift"));
+    row.object_packet.as_mut().unwrap().field_supports = saved;
+    package.ordinary_new_claim_ledger.borrowed_call_actuals_v1(&row).unwrap();
+    let mut package = self::package(false, false, false, false);
     let row = take(&package);
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
     let current = ledger
@@ -522,14 +531,36 @@ fn object_packet_opaque_original_raw_duplicate_refuses_unchanged_final_incoming(
 
 #[test]
 fn object_packet_unqualified_nested_producer_lends_completed_zero_inputs() {
-    for expression in ["local item = me.relay()", "me.relay()"] {
+    for expression in ["local item = me.relay()", "me.relay()", "local arr = new ArrayBox() arr.push(me.make(7)) me.consume(arr.get(0))", "local arr = new ArrayBox() arr.push(me.make(0)) me.consume(arr.get(0))", "local arr = new ArrayBox() arr.push(me.make(7)) Sink.consume(arr.get(0))"] {
         let source = "box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { return me.make(7) } ignored() { CANDIDATE return 0 } } static box Main { main() { return 0 } }".replace("CANDIDATE", expression);
+        let array = expression.contains("ArrayBox");
+        let static_array = expression.contains("Sink.consume");
+        let nonnull = expression.contains("make(0)");
+        let source = if array { source.replace("ignored()", "consume(value) { if value == null { return 0 } return 1 } ignored()") } else { source };
+        let source = if static_array { format!("{source} static box Sink {{ consume(value) {{ if value == null {{ return 0 }} return 1 }} }}") }
+            else if array { source.replace("relay() { return me.make(7) } ", "") } else { source };
+        let source = if nonnull { source.replace("if size > 0 { return new Token() } return null", "return new Token()") } else { source };
         let package = issue_with_brand_catalog(&source).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
+        if static_array {
+            let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            let call = ingress.source_incoming.exact_rows().find(|call|
+                call.source.target().namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+                    && call.source.target().name() == "consume").unwrap();
+            let read = OwnedExprSiteV1::new(call.call.owner(), call.arguments[0].1.clone());
+            let loan = ingress.array_element_source_v1(&read).unwrap().unwrap();
+            assert_eq!(loan.producers().len(), 1, "preserve the original Static Get source without granting execution");
+            let producer = &loan.producers()[0].1;
+            assert!(std::ptr::eq(ingress.original_array_producer_source_v1(producer.source()).unwrap().unwrap(), producer));
+            continue;
+        }
         let site = ledger.lexical_instance_calls.borrow().iter()
             .find_map(|(site, slot)| match slot {
                 LexicalInstanceCallDispositionSlotV1::Ready(row)
-                    if row.source_target().object_producer_dependencies().is_some() =>
+                    if if array {
+                        ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+                            .original_array_producer_source_v1(row.source_target()).unwrap().is_some()
+                    } else { row.source_target().object_producer_dependencies().is_some() } =>
                 { Some(site.clone()) }
                 _ => None,
             });
@@ -540,15 +571,76 @@ fn object_packet_unqualified_nested_producer_lends_completed_zero_inputs() {
             assert!(site.is_none());
             continue;
         }
-        let site = site.expect("original local zero-input producer packet");
+        let site = site.expect("original source-selected producer packet");
         let row = ledger.take_lexical_instance_call(site.owner(), site.site())
             .unwrap().unwrap();
         assert!(row.source_target().object_return_sources().is_none());
-        assert_eq!(row.result(), Some(InvokeCallResultKind::NullableHandle));
-        assert!(ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap().is_empty());
+        if array {
+            assert!(row.source_target().object_producer_dependencies().is_none(),
+                "original Append source must select the leaf without forging a Return dependency");
+            let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            assert!(!ingress.source_incoming.has_object_input_callee_v1(row.source_target()));
+            assert_eq!(ledger.checked_object_slot_observation_v1(row.source_target(), None).unwrap(), Some(false));
+            let wrong = if nonnull { InvokeCallResultKind::NullableHandle } else { InvokeCallResultKind::Handle };
+            assert!(ledger.checked_object_slot_observation_v1(row.source_target(), Some(wrong))
+                .unwrap_err().contains("array-result-observation"));
+            assert!(matches!(ledger.selected_original_instance_input_kind_v1(ingress, row.source_target().callee_owner()).unwrap(),
+                Some(super::super::super::borrowed_formal_actuals::object_input_finish::OriginalInstanceInputKindV1::SourceInstance)));
+        }
+        let result = if nonnull { InvokeCallResultKind::Handle } else { InvokeCallResultKind::NullableHandle };
+        assert_eq!(row.result(), Some(result));
+        assert!(ledger.borrowed_call_actuals_v1(&row).unwrap().unwrap().is_empty(),
+            "literal I64 actuals do not create borrowed-handle payloads");
         let packet = ledger.borrowed_object_call_packet_v1(&row).unwrap();
-        assert!(packet.arguments().is_empty());
-        assert_eq!(packet.result(), InvokeCallResultKind::NullableHandle);
+        assert_eq!(packet.arguments().len(), usize::from(array));
+        assert_eq!(packet.result(), result);
         assert!(packet.teardown().owned_children().is_none());
+    }
+}
+
+#[test]
+fn object_packet_field_support_joins_original_callee_formal_and_actual_storage() {
+    let package = issue_with_brand_catalog("box Token {} box Holder { child: Token birth(child) { me.child = child } }
+        box Maker { make(marker: i64, h: Token) { return new Holder(h) }
+            relay(h: Token) { return me.make(7, h) }
+            nullRelay() { return me.make(7, null) } }
+        static box Main { main() { return 0 } }").unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let targets: Vec<_> = ledger.lexical_instance_calls.borrow().values().filter_map(|slot| match slot {
+        LexicalInstanceCallDispositionSlotV1::Ready(row) if row.target().name() == "make" => Some(row.source_target().clone()),
+        LexicalInstanceCallDispositionSlotV1::SourcePending(source) if source.target().name() == "make" => Some(source.clone()),
+        _ => None,
+    }).collect();
+    assert_eq!(targets.len(), 2, "formal and Null inputs retain same callee census");
+    for target in targets {
+        let actuals = ledger.borrowed_formal_actuals[target.call_site()].as_ref().unwrap().opaque_actuals.as_ref();
+        let checked = ledger.checked_object_callee_source_v1(&target, &package.result_contracts).unwrap().unwrap();
+        let visit_actuals = |actuals: &[PreparedBorrowedFormalActualV1], visit: &mut dyn FnMut(
+            &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::completion_index::ObjectReturnFieldSupportV1,
+            &PreparedBorrowedFormalActualV1) -> Result<(), String>| {
+            crate::mir::normal_callable_semantic_package::ordinary_new_coseal::completion_index::ObjectCallFieldSupportRequirementV1::visit_actuals_v1(
+                &checked.field_supports, &target, actuals, visit)
+        };
+        let mut seen = 0;
+        visit_actuals(actuals, &mut |requirement, actual| {
+            assert_eq!(requirement.ordinal, 1, "callee ordinal is not caller formal zero");
+            assert!(std::ptr::eq(actual, &actuals[0]), "borrow original actual storage");
+            seen += 1;
+            Ok(())
+        }).unwrap();
+        assert!(seen > 0);
+        assert!(checked.teardown.descriptor().is_none(), "source join alone cannot grant anchored End");
+        assert!(visit_actuals(&[], &mut |_, _| Ok(())).is_err());
+        let mut changed = actuals.to_vec();
+        changed.push(changed[0].clone());
+        assert!(visit_actuals(&changed, &mut |_, _| Ok(())).is_err());
+        changed = actuals.to_vec();
+        changed[0].ordinal = 0;
+        assert!(visit_actuals(&changed, &mut |_, _| Ok(())).is_err());
+        changed = actuals.to_vec();
+        changed[0].formal = ledger.original_parameter_contracts.as_ref().unwrap().iter()
+            .find(|contract| contract.owner == target.callee_owner()).unwrap().parameters[0].binding;
+        assert!(visit_actuals(&changed, &mut |_, _| Ok(())).is_err());
+
     }
 }

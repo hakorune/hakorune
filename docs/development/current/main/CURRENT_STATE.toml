@@ -17,19 +17,22 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
-RequiredObjectForwardS0 remains unaccepted; Rust/C source WIP remains unlanded.
+RequiredObjectForwardS0 remains unaccepted; coordinated source-to-C unit landed.
 Additive runtime32 boundary landed8a2d2974a8; Fault34/typed-object33 PASS on
 both primary and isolated HEAD+32 source; Array53 PASS. Old runtime ABI retained.
-C alone cannot land: HEAD Rust lacks required numeric-check/Return-origin columns.
+Rust producer/C schema now land together with required numeric-check/Return-origin.
 CLI174/C831e/runtime808b unchanged M190 app176 canonical EXE/run/exact11/exit0 PASS
 (compile484.178246s, native .001699s). First mimalloc-lite milestone remains PASS.
 V832 three-hop New-provider source/publication/native and six runtime Faults PASS;
 Array-only provider discharge writer/walker replaced by existing typed owners.
 V832a independent actual both-opts PASS3339.060297s; no restart.
-V834 scopes repeated grounding to one immutable scan; focused3 PASS, actual live.
-Fixed11 suite PASS4/FAIL7; only three are direct EXE positives, fourth is a marker.
-Required Array C, PlanSourcePublication Set, full FieldWrite/initialization,
-coordinated Rust/C cutover/retirement and fixed acceptance remain owed.
+V834 scopes repeated grounding to one immutable scan; focused3/actual594.146438s PASS.
+CLI175 M190 app178 and unchanged mimalloc-lite app179 native exact output/exit0 PASS.
+V834 scalar BoxShape remains a separately validated follow-up to this source unit.
+V835 fixed11 PASS4/FAIL7, same named stops; three EXE positives plus one marker.
+Bounded LOCAL object Array and field I64 residence native PASS on unchanged app179.
+PlanSourcePublication Set, full FieldWrite/initialization, remaining retirement
+and fixed acceptance remain owed.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """

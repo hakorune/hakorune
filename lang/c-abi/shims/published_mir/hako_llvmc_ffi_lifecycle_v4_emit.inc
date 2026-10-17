@@ -1,3 +1,42 @@
+/* Shared pair transport for ordinary borrows and Normal-only Birth moves. */
+static void lv4_emit_nullable_actual_tags(FILE* f, yyjson_val* args, uint32_t b) {
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          yyjson_val* arg = yyjson_arr_get(args, i);
+          uint32_t value = lv4_u(arg, "value");
+          if (lv4_is(arg, "kind", "nullable_typed_object"))
+            fprintf(f,
+                "  %%nol%u_%u_%zu = icmp ne i64 %%v%u, 0\n"
+                "  %%nok%u_%u_%zu = select i1 %%nol%u_%u_%zu, i32 3, i32 0\n",
+                value, b, i, value, value, b, i, value, b, i);
+        }
+
+}
+static int lv4_emit_pair_actual(FILE* f, yyjson_val* arg, uint32_t b, size_t i) {
+  uint32_t value = lv4_u(arg, "value");
+  yyjson_val* tag = yyjson_obj_get(arg, "kind");
+  if (yyjson_is_uint(tag))
+    fprintf(f, ", i32 %u, i64 %%v%u", (uint32_t)yyjson_get_uint(tag), value);
+  else if (lv4_is(arg, "kind", "tagged"))
+    fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+  else if (lv4_is(arg, "kind", "nullable_typed_object"))
+    fprintf(f, ", i32 %%nok%u_%u_%zu, i64 %%v%u", value, b, i, value);
+  else return 0;
+  return 1;
+}
+
+/* Shared bare/Invoke usize check. The caller owns the exact Fault edge. */
+static void lv4_emit_usize_field_range(FILE* f, uint32_t b, size_t ri,
+    uint32_t fstored, unsigned long long site, const char* fault_label) {
+          fprintf(f,
+              "  %%rc%u_%zu = icmp slt i64 %%v%u, 0\n"
+              "  br i1 %%rc%u_%zu, label %%rcf%u_%zu, label %%fst%u_%zu\nrcf%u_%zu:\n"
+              "  %%rcs%u_%zu = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 0)\n"
+              "  %%rco%u_%zu = icmp eq i32 %%rcs%u_%zu, 1\n"
+              "  br i1 %%rco%u_%zu, label %%%s, label %%invalid\nfst%u_%zu:\n",
+              b, ri, fstored, b, ri, b, ri, b, ri, b, ri, b, ri,
+              NYRT_FAULT_REASON_FIELD_RANGE_V1, site, fstored, b, ri, b, ri, b, ri, fault_label, b, ri);
+}
+
 /* A physical edge owns one LLVM predecessor even when its implementation
  * expands into several status/cleanup blocks. Native admission has no PHIs. */
 static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
@@ -16,7 +55,10 @@ static int lv4_edge_label(char label[64], const hako_lv4_input* in, size_t fi,
 
 #include "hako_llvmc_ffi_lifecycle_v4_map_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_string_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_script_arguments_emit.inc"
 
+#include "hako_llvmc_ffi_lifecycle_v4_object_result_emit.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_object_residence_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_teardown_emit.inc"
 #include "hako_llvmc_ffi_lifecycle_v4_owned_array_emit.inc"
 
@@ -31,21 +73,23 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* params = yyjson_obj_get(fn, "params");
   int birth = lv4_is(fn, "role", "birth_unit");
+  int ordinary_unit = lv4_is(fn, "role", "ordinary_unit");
   int ordinary_map = lv4_is(fn, "role", "ordinary_map");
-  int ordinary = lv4_is(fn, "role", "ordinary_i64") || ordinary_map ||
-      lv4_is(fn, "role", "ordinary_handle") ||
-      lv4_is(fn, "role", "ordinary_nullable_handle");
+  int ordinary = lv4_is_ordinary(fn);
   if (birth) {
     fprintf(f, "define internal i32 @hako_lifecycle_birth_%zu(ptr %%frame", fi);
     fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
     for (size_t i = 0; i < yyjson_arr_size(params); i++) {
       uint32_t value = lv4_u(yyjson_arr_get(params, i), "value");
       fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
+      if (lv4_is(yyjson_arr_get(params, i), "representation", "nullable_kind_payload_v1"))
+        fprintf(f, ", i32 %%o%u", value);
     }
     fprintf(f, ") {\nstart:\n");
   } else if (ordinary) {
-    fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame, ptr %%%s", fi,
-        ordinary_map ? "out_map" : "out_i64");
+    fprintf(f, "define internal i32 @hako_lifecycle_ordinary_%zu(ptr %%frame", fi);
+    if (!ordinary_unit) fprintf(f, ", ptr %%%s", ordinary_map ? "out_map" : "out_i64");
+    if (hako_physical_object_result_role(fn)) fprintf(f, ", ptr %%out_outcome");
     if (yyjson_is_uint(yyjson_obj_get(fn, "receiver")))
       fprintf(f, ", i64 %%v%u", lv4_u(fn, "receiver"));
     for (size_t i = 0; i < yyjson_arr_size(params); i++) {
@@ -73,19 +117,23 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       in->measurement->v4_emit_rows += yyjson_arr_size(rows);
     }
     yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-    if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")))
+    if (op && (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "script_arguments_new")))
       fprintf(f, "  %%new%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (op && lv4_is(op, "kind", "field_get"))
+      fprintf(f, "  %%field_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "field_residence_release"))
       fprintf(f, "  %%fr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "object_field_release"))
-      fprintf(f, "  %%ofr_read%u = alloca i64, align 8\n", lv4_u(block, "id"));
+      fprintf(f, "  %%ofr_read%u = alloca { i64, i32, i32 }, align 8\n", lv4_u(block, "id"));
     /* A nested i64 call writes through a caller-local slot; the callee's
        own %%out_i64 remains reserved for this function's result. A birth
        caller's sealed provider-argument calls are ExactI64 only — the
        flow arm already closed every other result kind. */
     if ((ordinary || birth) && lv4_is(op, "kind", "ordinary_call") &&
-        !lv4_is(op, "result", "map"))
+        !lv4_is(op, "result", "map") && !lv4_is(op, "result", "unit"))
       fprintf(f, "  %%call_out%u = alloca i64, align 8\n", lv4_u(block, "id"));
+    if (hako_physical_object_result_call(op))
+      fprintf(f, "  %%call_outcome%u = alloca i32, align 4\n", lv4_u(block, "id"));
     if (op && lv4_is(op, "kind", "array_owned_get"))
       fprintf(f, "  %%owned_get%u = alloca i64, align 8\n", lv4_u(block, "id"));
     lv4_map_alloca(f, op, lv4_u(block, "id"), session);
@@ -93,26 +141,14 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
       yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
       if (lv4_is(ins, "op", "object_field_get"))
-        fprintf(f, "  %%read%u = alloca i64, align 8\n", lv4_u(ins, "dst"));
+        fprintf(f, "  %%read%u = alloca { i64, i32, i32 }, align 8\n", lv4_u(ins, "dst"));
     }
   }
   if (birth) for (size_t i = 0; i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
     uint32_t v = lv4_u(param, "value");
     if (lv4_is(param, "representation", "nullable_kind_payload_v1")) {
-      /* Nullable object formal: (0,0) is Void, (3,nonzero) a live handle.
-         Malformed pairs — null tag with a payload, object tag with zero —
-         never reach the slot. */
-      fprintf(f,
-          "  %%arg_null%u = icmp eq i32 %%k%u, 0\n"
-          "  %%arg_zero%u = icmp eq i64 %%v%u, 0\n"
-          "  %%arg_nulok%u = and i1 %%arg_null%u, %%arg_zero%u\n"
-          "  %%arg_obj%u = icmp eq i32 %%k%u, 3\n"
-          "  %%arg_live%u = icmp ne i64 %%v%u, 0\n"
-          "  %%arg_objok%u = and i1 %%arg_obj%u, %%arg_live%u\n"
-          "  %%arg_ok%u = or i1 %%arg_nulok%u, %%arg_objok%u\n"
-          "  br i1 %%arg_ok%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
-          v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v);
+      lv4_emit_object_residence_parameter_guard(f, v);
       continue;
     }
     fprintf(f,
@@ -148,6 +184,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           "  %%arg_class%u = icmp eq i64 %%arg_type%u, %u\n"
           "  br i1 %%arg_class%u, label %%arg_next%u, label %%invalid\narg_next%u:\n",
           v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,v,runtime_type,v,v,v);
+      continue;
+    }
+    if ((lv4_is(fn, "role", "ordinary_borrowed_nullable_handle") ||
+        lv4_is(fn, "role", "ordinary_mixed_handle")) &&
+        i == lv4_u(fn, "result_formal_ordinal")) {
+      lv4_emit_borrowed_result_formal_guard(f, v);
       continue;
     }
     /* Nonzero supplements the closed incoming/live proof; it is not that
@@ -190,6 +232,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%init = call i32 @\"nyash.fault.frame_init_v1\"(ptr %%frame)\n"
             "  %%init_ok = icmp eq i32 %%init, 0\n"
             "  br i1 %%init_ok, label %%step%u_%zu, label %%init_failed\nstep%u_%zu:\n", b, ri, b, ri);
+      } else if (lv4_is(ins, "op", "keep_alive")) {
+        /* MIR optimization metadata only: emit no LLVM or runtime retain. */
       } else if (lv4_is(ins, "op", "const_i64")) {
         yyjson_val* value = yyjson_obj_get(ins, "value");
         int64_t n = yyjson_is_sint(value) ? yyjson_get_sint(value) : (int64_t)yyjson_get_uint(value);
@@ -270,7 +314,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%nul%u = icmp %s i32 %%k%u, 0\n"
               "  %%v%u = zext i1 %%nul%u to i64\n", dst,
               yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
-        else if (carrier->kind == LV4_HANDLE)
+        else if (carrier->kind == LV4_HANDLE || carrier->kind == LV4_BORROWED_OBJECT || carrier->kind == LV4_MIXED_OBJECT)
           fprintf(f, "  %%nul%u = icmp %s i64 %%v%u, 0\n"
               "  %%v%u = zext i1 %%nul%u to i64\n", dst,
               yyjson_get_str(yyjson_obj_get(ins, "predicate")), carrier->id, dst, dst);
@@ -314,7 +358,9 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else if (kind == LV4_I64 && (lv4_is(producer_op, "kind", "map_checked_get") ||
             lv4_is(producer_op, "kind", "map_array_length")))
           fprintf(f, "  %%v%u = load i64, ptr %%get_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
-        else if ((kind == LV4_I64 || kind == LV4_HANDLE) &&
+        else if (producer_op && lv4_is(producer_op, "kind", "field_get"))
+          fprintf(f, "  %%v%u = load i64, ptr %%field_read%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
+        else if ((kind == LV4_I64 || kind == LV4_BOOL || kind == LV4_HANDLE || kind == LV4_BORROWED_OBJECT || kind == LV4_MIXED_OBJECT) &&
             producer_op && lv4_is(producer_op, "kind", "ordinary_call")) {
           /* A nullable call result lands in the same i64 out-slot as a
              scalar one; the handle-or-sentinel distinction is carried by
@@ -323,6 +369,8 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             fprintf(f, "  %%v%u = load i64, ptr %%call_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
           else
             fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
+          if (hako_physical_object_result_call(producer_op))
+            lv4_emit_object_result_normal(f, producer_op, lv4_u(ins, "invoke_block"), dst);
         }
         else if (kind == LV4_I64 && fi)
           fprintf(f, "  %%v%u = load i64, ptr %%call_out%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
@@ -330,6 +378,14 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           fprintf(f, "  %%v%u = load i64, ptr %%ordinary_out, align 8\n", dst);
         else fprintf(f, "  %%v%u = load i64, ptr %%new%u, align 8\n", dst, lv4_u(ins, "invoke_block"));
       } else if (lv4_is(ins, "op", "object_field_get")) {
+        if (lv4_object_residence(in, lv4_u(ins, "object_id"), lv4_u(ins, "field_ordinal"))) {
+          char base[32], out[32];
+          snprintf(base, sizeof(base), "%%v%u", lv4_u(ins, "base"));
+          snprintf(out, sizeof(out), "read%u", dst);
+          if (!lv4_emit_object_residence_read(f, in, lv4_u(ins, "object_id"),
+              lv4_u(ins, "field_ordinal"), base, out, "invalid")) return 0;
+          fprintf(f, "  %%v%u = load i64, ptr %%read%u, align 8\n", dst, dst);
+        } else {
         fprintf(f,
             "  %%get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%read%u)\n"
             "  %%get_ok%u = icmp eq i32 %%get%u, 0\n"
@@ -337,6 +393,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             "  %%v%u = load i64, ptr %%read%u, align 8\n",
             dst, in->profile, lv4_u(ins, "base"), (long long)lv4_type_id(in, ins), lv4_slot(in, ins), dst,
             dst, dst, dst, b, ri, b, ri, dst, dst);
+        }
       } else if (lv4_is(ins, "op", "field_set")) {
         yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
         unsigned long long site =
@@ -346,14 +403,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           /* usize write lane: the i64 lane is in range exactly when it is
              non-negative. The emitted branch is the range authority's own
              lowering; a negative value is a semantic Fault at this row. */
-          fprintf(f,
-              "  %%rc%u_%zu = icmp slt i64 %%v%u, 0\n"
-              "  br i1 %%rc%u_%zu, label %%rcf%u_%zu, label %%fst%u_%zu\nrcf%u_%zu:\n"
-              "  %%rcs%u_%zu = call i32 @\"nyash.fault.record_static_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 0)\n"
-              "  %%rco%u_%zu = icmp eq i32 %%rcs%u_%zu, 1\n"
-              "  br i1 %%rco%u_%zu, label %%fault, label %%invalid\nfst%u_%zu:\n",
-              b, ri, fstored, b, ri, b, ri, b, ri, b, ri, b, ri,
-              NYRT_FAULT_REASON_FIELD_RANGE_V1, site, fstored, b, ri, b, ri, b, ri, b, ri);
+          lv4_emit_usize_field_range(f, b, ri, fstored, site, "fault");
         fprintf(f,
             "  %%set%u_%zu = call i32 @\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n"
             "  switch i32 %%set%u_%zu, label %%invalid [ i32 0, label %%sd%u_%zu i32 1, label %%fault ]\nsd%u_%zu:\n",
@@ -395,7 +445,7 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
     } else if (lv4_is(term, "op", "return_fault")) {
       fprintf(f, "  br label %%fault\n");
     } else if (lv4_is(term, "op", "return")) {
-      lv4_emit_return(f, in, fn, term, b, birth, ordinary_map, ordinary);
+      if (!lv4_emit_return(f, in, fn, term, b, birth, ordinary_map, ordinary)) return 0;
     } else {
       yyjson_val* op = yyjson_obj_get(term, "operation");
       unsigned long long site = yyjson_get_uint(yyjson_obj_get(op, "site"));
@@ -418,25 +468,20 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
             b,value,b,b,b,b,b,NYRT_FAULT_REASON_FIELD_TYPE_MISMATCH_V1,site,
             b,fault_label,b);
       }
+      if (lv4_is(op, "kind", "field_set") &&
+          lv4_is(yyjson_obj_get(op, "exact_numeric_runtime_check"), "kind", "dynamic_integer_range"))
+        lv4_emit_usize_field_range(f, b, yyjson_get_uint(yyjson_obj_get(yyjson_obj_get(block, "terminator"), "index")),
+            lv4_u(op, "value"), site, fault_label);
       if (lv4_is(op, "kind", "array_append") && lv4_is(op, "representation", "bool"))
         fprintf(f, "  %%bool%u = trunc i64 %%v%u to i32\n", b, lv4_u(op, "value"));
       if (lv4_is(op, "kind", "ordinary_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
-        /* A nullable typed-object actual selects its wire kind before the
-           call line: a live payload lends tag 3, the Void sentinel lends
-           tag 0. The payload lane passes through unchanged in both
-           states — the callee's own prologue re-proves the pair. */
-        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
-          yyjson_val* arg = yyjson_arr_get(args, i);
-          uint32_t value = lv4_u(arg, "value");
-          if (lv4_is(arg, "kind", "nullable_typed_object"))
-            fprintf(f,
-                "  %%nol%u_%u_%zu = icmp ne i64 %%v%u, 0\n"
-                "  %%nok%u_%u_%zu = select i1 %%nol%u_%u_%zu, i32 3, i32 0\n",
-                value, b, i, value, value, b, i, value, b, i);
-        }
-        if (lv4_is(op, "result", "map"))
+        lv4_emit_nullable_actual_tags(f, args, b);
+        if (lv4_is(op, "result", "unit"))
+          fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame",
+              b, lv4_u(call, "target"));
+        else if (lv4_is(op, "result", "map"))
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%map%u",
               b, lv4_u(call, "target"), b);
         else if (ordinary || birth)
@@ -445,24 +490,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         else
           fprintf(f, "  %%status%u = call i32 @hako_lifecycle_ordinary_%u(ptr %%frame, ptr %%ordinary_out",
               b, lv4_u(call, "target"));
+        if (hako_physical_object_result_call(op)) fprintf(f, ", ptr %%call_outcome%u", b);
         if (yyjson_is_uint(yyjson_obj_get(call, "receiver")))
           fprintf(f, ", i64 %%v%u", lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
-          yyjson_val* tag = yyjson_obj_get(arg, "kind");
-          uint32_t value = lv4_u(arg, "value");
-          if (yyjson_is_uint(tag)) {
-            fprintf(f, ", i32 %u, i64 %%v%u", (uint32_t)yyjson_get_uint(tag), value);
-            continue;
-          }
-          if (lv4_is(arg, "kind", "tagged")) {
-            fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
-            continue;
-          }
-          if (lv4_is(arg, "kind", "nullable_typed_object")) {
-            fprintf(f, ", i32 %%nok%u_%u_%zu, i64 %%v%u", value, b, i, value);
-            continue;
-          }
+          if (lv4_emit_pair_actual(f, arg, b, i)) continue;
           /* A "map" actual is the caller's borrowed storage pointer; the
              callee's "map" formal receives it as `ptr`. */
           fprintf(f, lv4_is(arg, "kind", "map") ? ", ptr %%v%u" : ", i64 %%v%u",
@@ -474,11 +507,35 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
          the kernel when the wire value is the Void sentinel (i64 0); only a
          live handle reaches the release call, and its status still drives
          the normal/fault landing. */
-      if (lv4_is(op, "kind", "home_release_if_live"))
+      if (lv4_is(op, "kind", "object_end_if_owned")) {
+        char outcome[64];
+        snprintf(outcome, sizeof(outcome), "end_outcome%u", b);
+        if (!lv4_emit_object_value_outcome(f, in, fn, lv4_u(op, "value"), outcome)) return 0;
         fprintf(f,
-            "  %%live%u = icmp ne i64 %%v%u, 0\n"
-            "  br i1 %%live%u, label %%checked_rel%u, label %%%s\nchecked_rel%u:\n",
-            b, lv4_u(op, "value"), b, b, normal_label, b);
+            "  %%end_owned%u = icmp eq i32 %%end_outcome%u, 1\n"
+            "  br i1 %%end_owned%u, label %%complete_end%u, label %%%s\ncomplete_end%u:\n"
+            "  %%status%u = call i32 @hako_lifecycle_end_%u(ptr %%frame, i64 %%v%u, i64 %llu)\n"
+            "  switch i32 %%status%u, label %%invalid [ i32 0, label %%%s i32 1, label %%%s ]\n",
+            b,b, b,b,normal_label,b, b,lv4_u(op, "object_id"),lv4_u(op, "value"),site,
+            b,normal_label,fault_label);
+        continue;
+      }
+      if (lv4_is(op, "kind", "home_release_if_live")) {
+        hako_lv4_function_index* index = &in->index[fi];
+        hako_lv4_value* value = lv4_index_value(index, lv4_u(op, "value"));
+        if (lv4_birth_array_value(index, value) || lv4_script_arguments_root(index, lv4_u(op, "value"))) {
+          /* Existing intrinsic Array leases keep their separate transport;
+             this shared release opcode does not turn them into objects. */
+          fprintf(f, "  %%live%u = icmp ne i64 %%v%u, 0\n", b, lv4_u(op, "value"));
+        } else {
+          char outcome[64];
+          snprintf(outcome, sizeof(outcome), "release_outcome%u", b);
+          if (!lv4_emit_object_value_outcome(f, in, fn, lv4_u(op, "value"), outcome)) return 0;
+          fprintf(f, "  %%live%u = icmp eq i32 %%release_outcome%u, 1\n", b, b);
+        }
+        fprintf(f, "  br i1 %%live%u, label %%checked_rel%u, label %%%s\nchecked_rel%u:\n",
+            b, b, normal_label, b);
+      }
       if (lv4_is(op, "kind", "field_residence_release")) {
         /* Owned ArrayBox field residence: read the zero-initialized slot,
            release the child only when it carries a live handle, then land
@@ -503,15 +560,14 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "object_field_release")) {
         /* The admitted child End owns contents and outer Home together.
            Root home_release remains outer-only after explicit field cleanup. */
-        fprintf(f,
-            "  %%ofr_get%u = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%v%u, i64 %lld, i64 %d, ptr %%ofr_read%u)\n"
-            "  %%ofr_ok%u = icmp eq i32 %%ofr_get%u, 0\n"
-            "  br i1 %%ofr_ok%u, label %%ofr_step%u, label %%invalid\nofr_step%u:\n",
-            b, in->profile, lv4_u(op, "base"), (long long)lv4_type_id(in, op),
-            lv4_slot(in, op), b, b, b, b, b, b);
+        char base[32], out[32];
+        snprintf(base, sizeof(base), "%%v%u", lv4_u(op, "base"));
+        snprintf(out, sizeof(out), "ofr_read%u", b);
+        if (!lv4_emit_object_residence_read(f, in, lv4_u(op, "object_id"),
+            lv4_u(op, "field_ordinal"), base, out, "invalid")) return 0;
         fprintf(f,
             "  %%ofr_val%u = load i64, ptr %%ofr_read%u, align 8\n"
-            "  %%ofr_live%u = icmp ne i64 %%ofr_val%u, 0\n"
+            "  %%ofr_live%u = icmp eq i32 %%ofr_read%u_outcome, 1\n"
             "  br i1 %%ofr_live%u, label %%ofr_rel%u, label %%ofr_done%u\nofr_rel%u:\n",
             b, b, b, b, b, b, b, b);
         fprintf(f,
@@ -525,6 +581,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
       if (lv4_is(op, "kind", "birth_call")) {
         yyjson_val* call = yyjson_obj_get(op, "call");
         yyjson_val* args = yyjson_obj_get(call, "args");
+        lv4_emit_nullable_actual_tags(f, args, b);
+        yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
+        yyjson_val* formals = yyjson_obj_get(callee, "params");
+        for (size_t i = 0; i < yyjson_arr_size(args); i++) {
+          if (!lv4_is(yyjson_arr_get(formals, i), "representation", "nullable_kind_payload_v1")) continue;
+          char outcome[64];
+          snprintf(outcome, sizeof(outcome), "birth_outcome%u_%zu", b, i);
+          if (!lv4_emit_object_value_outcome(f, in, fn, lv4_u(yyjson_arr_get(args, i), "value"), outcome)) return 0;
+        }
         /* A dominated `new`-argument view spells "tagged": the caller
            proves the lent Integer lane (kind==1) at this exact call edge —
            any other kind is a semantic Fault at the use site, uniform with
@@ -539,9 +604,15 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
                 value, b, i, value, value, b, i, value, b, i, value, b, i);
         }
       }
+      if (lv4_is(op, "kind", "object_field_set") &&
+          lv4_object_residence(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal")) &&
+          !lv4_emit_object_residence_outcome(f, in, fn, op, b)) return 0;
       fprintf(f, "  %%status%u = call i32 ", b);
       if (lv4_owned_array_kind(op)) {
         lv4_owned_array_emit_call(f, op, b, site);
+      } else if (lv4_is(op, "kind", "script_arguments_new")) {
+        fprintf(f, "@\"nyash.array.checked_script_arguments_new_v1\"(ptr %%frame, i64 %llu, ptr @argv_%zu_%u, i64 %zu, ptr %%new%u)\n",
+            site, fi, b, yyjson_arr_size(yyjson_obj_get(op, "values")), b);
       } else if (lv4_is(op, "kind", "array_new")) {
         fprintf(f, "@\"nyash.array.checked_new_v1\"(ptr %%frame, i64 %llu, ptr %%new%u)\n", site, b);
       } else if (lv4_is(op, "kind", "array_claim")) {
@@ -561,18 +632,20 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
         fprintf(f, "@hako_lifecycle_birth_%u(ptr %%frame, i64 %%v%u", lv4_u(call, "target"), lv4_u(call, "receiver"));
         for (size_t i = 0; i < yyjson_arr_size(args); i++) {
           yyjson_val* arg = yyjson_arr_get(args, i);
-          uint32_t value = lv4_u(arg, "value");
-          if (lv4_is(arg, "kind", "tagged")) {
-            fprintf(f, ", i32 %%k%u, i64 %%v%u", value, value);
-            continue;
-          }
-          fprintf(f, ", i32 %u, i64 %%v%u", lv4_u(arg, "kind"), value);
+          if (!lv4_emit_pair_actual(f, arg, b, i)) return 0;
+          yyjson_val* callee = yyjson_arr_get(in->functions, lv4_u(call, "target"));
+          if (lv4_is(yyjson_arr_get(yyjson_obj_get(callee, "params"), i),
+              "representation", "nullable_kind_payload_v1"))
+            fprintf(f, ", i32 %%birth_outcome%u_%zu", b, i);
         }
         fprintf(f, ")\n");
       } else if (lv4_is(op, "kind", "new_box")) {
         fprintf(f, "@\"nyash.object.checked_new_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %lld, ptr @hako_lifecycle_layout_%u, i64 %u, ptr %%new%u)\n",
             in->profile, site, (long long)lv4_type_id(in, op), lv4_u(op, "object_id"),
             lv4_u(lv4_layout(in, lv4_u(op, "object_id")), "field_count"), b);
+      } else if (lv4_is(op, "kind", "field_get")) {
+        fprintf(f, "@\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, ptr %%field_read%u)\n",
+            in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), b);
       } else if (lv4_is(op, "kind", "field_set")) {
         fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
@@ -588,8 +661,12 @@ static int lv4_emit_function(FILE* f, const hako_lv4_input* in,
           continue;
         }
       } else if (lv4_is(op, "kind", "object_field_set")) {
+        if (lv4_object_residence(in, lv4_u(op, "object_id"), lv4_u(op, "field_ordinal"))) {
+          if (!lv4_emit_object_residence_store(f, in, op, b, site)) return 0;
+        } else {
         fprintf(f, "@\"nyash.object.checked_field_set_v1\"(ptr %%frame, i32 %u, i64 %llu, i64 %%v%u, i64 %lld, i64 %d, i64 %%v%u)\n",
             in->profile, site, lv4_u(op, "base"), (long long)lv4_type_id(in, op), lv4_slot(in, op), lv4_u(op, "value"));
+        }
         /* The child lease moves into the slot only on Normal; a faulted
            store lands on the op's own fault edge where the MIR discharge
            chain — sealed residence releases newest-first, then the
@@ -635,6 +712,7 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i32 @\"nyash.fault.frame_dispose_v1\"(ptr)\n"
       "declare i32 @\"nyash.fault.report_final_v1\"(ptr)\n");
   lv4_string_globals(f, in);
+  lv4_script_arguments_globals(f, in);
   /* Plain Array operations share one external ABI in both physical profiles. */
   fprintf(f,
       "declare i32 @\"nyash.array.checked_new_v1\"(ptr, i64, ptr)\n"
@@ -651,6 +729,9 @@ static int lv4_emit(FILE* f, const hako_lv4_input* in,
       "declare i64 @\"nyash.object.type_id_h\"(i64)\n"
       "declare i32 @\"nyash.object.checked_field_set_v1\"(ptr, i32, i64, i64, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.checked_field_get_i64_v1\"(i32, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.object.checked_field_get_fallible_i64_v1\"(ptr, i32, i64, i64, i64, i64, ptr)\n"
+      "declare i32 @\"nyash.object.checked_residence_set_v1\"(ptr, i32, i64, i64, i64, i64, i64, i64, i32)\n"
+      "declare i32 @\"nyash.object.checked_residence_get_v1\"(i32, i64, i64, i64, i64, ptr)\n"
       "declare i32 @\"nyash.object.home_release_plain_i64_v1\"(ptr, i32, i64, i64, i64)\n"
       "declare i32 @\"nyash.object.reclaim_unpublished_v1\"(ptr, i32, i64, i64, i64)\n");
   lv4_map_declarations(f, in);

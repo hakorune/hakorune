@@ -142,6 +142,19 @@ fn current_formal_values_v1(builder: &MirBuilder) -> Result<Vec<ValueId>, String
 
 /// Optional consumer of already-allocated callable entry values.
 pub(in crate::mir::builder) trait CallableBindingMaterializationPortV1 {
+    fn callable_result_owner_v1(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, String> {
+        Ok(None)
+    }
+    fn prepare_callable_result_source_v1(
+        &self,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>, String> {
+        Ok(None)
+    }
+    fn prepare_implicit_callable_end_v1(
+        &self,
+    ) -> Result<Option<super::port_aware_function_draft_impl::ImplicitCallableEndV1>, String> {
+        Ok(None)
+    }
     fn adopt_callable_entry_values_v1(
         &mut self,
         builder: &mut MirBuilder,

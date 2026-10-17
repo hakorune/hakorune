@@ -59,6 +59,14 @@ mod stored_child_receiver_tests;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LexicalCallSourceResultRequirementV1 {
     ExistingBorrowedResult,
+    /// Passive original field Return request, retained even if proof fails.
+    ScalarReturnSource(borrowed_formal_result::original::OriginalReturnSourceLoanV1),
+    /// Original parameterless statement demand; source is not execution proof.
+    UnitDiscardSource(borrowed_formal_result::original::OriginalReturnSourceLoanV1),
+    /// Original borrowed LOCAL identity; never an owning Object requirement.
+    BorrowedNullableLocal(Box<super::result_class_claim::BorrowedNullableLocalSourceLoanV1>),
+    /// All original Fresh/Forward/Null outcomes; no owning-only permission.
+    MixedLocal(Box<super::result_class_claim::MixedLocalCallSourceLoanV1>),
     ObjectProducerDependency(Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>),
     ObjectReturnSource {
         qualifications: Box<[super::result_class_claim::ObjectReturnCallQualificationV1]>,
@@ -81,6 +89,7 @@ pub(crate) struct LexicalInstanceCallSourceTargetV1 {
     callee_owner: FunctionOwnerIdV1,
     /// Exact non-receiver argument sites in source order.
     argument_sites: Box<[SourceExprSiteV1]>,
+    owning_object_input: Option<std::rc::Rc<super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
     result_requirement: LexicalCallSourceResultRequirementV1,
 }
 
@@ -89,15 +98,33 @@ pub(crate) struct LexicalInstanceCallDispositionRowV1 {
     source: LexicalInstanceCallSourceTargetV1,
     // Outcome authorization remains on the final affine disposition only.
     result: Option<InvokeCallResultKind>,
+    // Exact result facts retained by the original scalar terminal, not a new ABI grant.
+    scalar_result: Option<BorrowedScalarResultSourceLoanV1>,
+    unit_completion: Option<std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>>,
+    borrowed_completion: Option<std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>>,
     object_packet: Option<object_slot::ObjectPacketSealV1>,
+    mixed_result: Option<std::rc::Rc<super::completion_index::VerifiedMixedCallResultV1>>,
 }
 
 impl LexicalCallSourceResultRequirementV1 {
+    pub(crate) fn mixed_local_source(&self) -> Option<&super::result_class_claim::MixedLocalCallSourceLoanV1> {
+        if let Self::MixedLocal(loan) = self { Some(loan) } else { None }
+    }
     pub(crate) fn has_object_source_requirement(&self) -> bool {
-        !matches!(
+        matches!(
             self,
-            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_)
+                | LexicalCallSourceResultRequirementV1::ObjectReturnSource { .. }
         )
+    }
+
+    pub(crate) fn borrowed_nullable_local_source(
+        &self,
+    ) -> Option<&super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
+        match self {
+            LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(loan) => Some(loan),
+            _ => None,
+        }
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
@@ -117,15 +144,43 @@ impl LexicalCallSourceResultRequirementV1 {
                 Some(qualifications)
             }
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
+            | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+            | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+            | LexicalCallSourceResultRequirementV1::MixedLocal(_)
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
         }
     }
-
 }
 
 impl LexicalInstanceCallSourceTargetV1 {
+    pub(crate) fn owning_object_local_input_v1(&self) -> Option<&super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
+        self.owning_object_input.as_deref()
+    }
+
+    pub(crate) fn mixed_local_source(&self) -> Option<&super::result_class_claim::MixedLocalCallSourceLoanV1> {
+        self.result_requirement.mixed_local_source()
+    }
+    pub(crate) fn is_unit_discard_source_v1(&self) -> bool {
+        matches!(self.result_requirement, LexicalCallSourceResultRequirementV1::UnitDiscardSource(_))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn uses_existing_borrowed_result_v1(
+        &self,
+    ) -> bool {
+        matches!(
+            self.result_requirement,
+            LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+        )
+    }
     pub(crate) fn has_object_source_requirement(&self) -> bool {
         self.result_requirement.has_object_source_requirement()
+    }
+    pub(crate) fn borrowed_nullable_local_source(
+        &self,
+    ) -> Option<&super::result_class_claim::BorrowedNullableLocalSourceLoanV1> {
+        self.result_requirement.borrowed_nullable_local_source()
     }
     pub(in crate::mir::normal_callable_semantic_package) fn object_producer_dependencies(
         &self,
@@ -146,6 +201,10 @@ impl LexicalInstanceCallSourceTargetV1 {
                 forwards.as_deref()
             }
             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
+            | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+            | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+            | LexicalCallSourceResultRequirementV1::MixedLocal(_)
             | LexicalCallSourceResultRequirementV1::ObjectProducerDependency(_) => None,
         }
     }
@@ -212,9 +271,7 @@ impl LexicalInstanceCallSourceTargetV1 {
                 input.body_shape().is_some_and(|shape| {
                     matches!(shape.expression_shape(call.receiver_site()),
                         Some(BodyExpressionShapeV1::FieldAccess { object, .. }) if object == parent_site)
-                    && matches!(shape.expression_shape(parent_site),
-                        Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
-                            if binding == parent_binding && binding.owner() == input.owner())
+                    && source::stored_parent_matches_v1(input, parent_site, *parent_binding)
                 })
             }
         }
@@ -274,6 +331,9 @@ impl LexicalInstanceCallDispositionRowV1 {
     pub(crate) const fn result(&self) -> Option<InvokeCallResultKind> {
         self.result
     }
+    pub(crate) fn scalar_result_source_v1(&self) -> Option<&BorrowedScalarResultSourceLoanV1> {
+        self.scalar_result.as_ref()
+    }
 }
 
 #[derive(Debug)]
@@ -285,6 +345,11 @@ pub(crate) enum LexicalInstanceCallDispositionSlotV1 {
 
 #[path = "ordinary_new_lexical_object_slot.rs"]
 mod object_slot;
+#[path = "ordinary_new_lexical_borrowed_result.rs"]
+mod borrowed_result;
+#[path = "ordinary_new_lexical_mixed_result.rs"]
+mod mixed_result;
+pub(super) use object_slot::has_original_forwarding_receiver_input_source_v1;
 
 /// One callee-side call site whose lexical receiver still needs a class.
 struct LexicalInstanceCallNeedV1 {
@@ -312,7 +377,11 @@ mod provenance;
 
 #[path = "ordinary_new_lexical_instance_call_source.rs"]
 mod source;
-pub(super) use source::{PreparedLexicalInstanceCallSourceTargetsV1, StoredReceiverSourceV1};
+pub(in crate::mir::normal_callable_semantic_package) use source::{StoredReceiverSourceOriginV1, StoredReceiverSourceV1, original_lexical_target_at_v1};
+pub(super) use source::{
+    prepare_lexical_source_targets_v1, PreparedLexicalInstanceCallSourceTargetsV1,
+    PreparedSourceCallNeedV1,
+};
 
 #[path = "ordinary_new_borrowed_static_argument.rs"]
 mod borrowed_static_argument;
@@ -325,24 +394,40 @@ mod borrowed_formal_source;
 
 #[path = "ordinary_new_borrowed_formal_actuals.rs"]
 mod borrowed_formal_actuals;
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_actuals::recheck_pending_array_source_actuals_v1;
 
 #[path = "ordinary_new_borrowed_formal_result.rs"]
 mod borrowed_formal_result;
-pub(super) use borrowed_formal_result::BorrowedI64ResultSourceV1;
+pub(crate) use borrowed_formal_result::ResultPathFieldSourceLoanV1;
+pub(super) use borrowed_formal_result::{
+    required_scalar_source_walk_v1, source_scalar_result_arguments_v1, BorrowedI64ResultSourceV1,
+};
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::BorrowedResultCohortV1;
+pub(crate) use borrowed_formal_result::{
+    BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1,
+};
+
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::{lend_integer_field_v1, IntegerFieldSourceLoanV1};
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::{ExpressionFieldSourceLoanV1, ClosedNumericFieldSourceLoanV1, ExpressionObjectFieldSourceLoanV1};
 
 #[path = "ordinary_new_borrowed_formal_profile.rs"]
 mod profile;
 pub(super) use profile::prepare_borrowed_profile_v1;
+#[path = "ordinary_new_borrowed_nullable_local_arguments.rs"]
+mod borrowed_nullable_local_arguments;
+pub(super) use borrowed_nullable_local_arguments::arguments_v1 as borrowed_nullable_local_arguments_v1;
+pub(super) use borrowed_nullable_local_arguments::mixed_arguments_v1 as mixed_local_arguments_v1;
 
 #[path = "ordinary_new_borrowed_formal_entry.rs"]
 mod borrowed_formal_entry;
 pub(super) use borrowed_formal_actuals::{
     corroborate_received_object_receiver_v1, issue_original_static_forwarded_actual_v1,
-    prepare_borrowed_call_actuals_v1, project_pending_borrowed_i64_arguments_v1,
+    prepare_borrowed_call_actuals_v1, project_current_owner_loop_scalar_source_v1,
+    project_pending_borrowed_i64_arguments_v1,
     project_pending_current_owner_static_source_arguments_v1,
-    project_current_owner_loop_scalar_source_v1,
     project_pending_i64_result_arguments_v1, project_pending_instance_source_arguments_v1,
     project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
+    project_pending_object_target_arguments_v1,
     received_producer_arguments_v1, reject_borrowed_actuals_for_owner_v1,
     stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
     VerifiedStaticForwardedActualV1,
@@ -357,12 +442,19 @@ pub(in crate::mir) use borrowed_formal_entry::BorrowedCompareMaterializationV1;
 pub(crate) use borrowed_formal_entry::BorrowedCompareSourceLoanV1;
 pub(super) use borrowed_formal_entry::BorrowedOrdinaryEntryPhysicalV1;
 pub(in crate::mir) use borrowed_formal_entry::BorrowedOrdinaryEntrySourceRefV1;
+pub(crate) use borrowed_formal_entry::field_write_source::BorrowedFieldWriteSourceLoanV1;
+pub(in crate::mir) use borrowed_formal_entry::array_set_source::BorrowedArraySetSourceLoanV1;
+pub(crate) use borrowed_formal_uses::DeclaredArrayFieldReadSourceV1;
 pub(in crate::mir) use borrowed_formal_entry::{
     BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
 };
 #[cfg(test)]
 pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;
+pub(crate) use borrowed_formal_source::NamedArrayHolderSourceLoanV1;
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
 pub(super) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;
+
+pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_result::source_unit_discard_v1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Join lexical receiver provenance to selected `InstanceBoxMethod`
@@ -399,7 +491,12 @@ impl OrdinaryNewClaimLedgerV1 {
             let target = source.target().clone();
             let call_site = source.call_site().clone();
             let callee_owner = source.callee_owner();
-            if source.has_object_source_requirement() {
+            let borrowed_nullable = source.borrowed_nullable_local_source().is_some();
+            let mixed = source.mixed_local_source().is_some();
+            if borrowed_nullable || mixed || self.requires_object_packet_v1(&source)? {
+                if borrowed_nullable || mixed {
+                    self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                }
                 if self
                     .lexical_instance_calls
                     .borrow_mut()
@@ -448,9 +545,46 @@ impl OrdinaryNewClaimLedgerV1 {
             // claim and an unannotated declared result — its mixed
             // null/construction exits never classify to one scalar kind.
             // Any half-sealed edge freezes.
-            let callee_result = super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
-                self.terminal_relations_for_owner(callee_owner).into_iter(),
-            );
+            if source.is_unit_discard_source_v1() {
+                self.issue_unit_discard_v1(source, results)?;
+                continue;
+            }
+            // Canonical Completion owns the absence of a value result.
+            // Never let an empty terminal set manufacture an I64 projection
+            // for a Unit source used in a receiving/value context.
+            if self.completion_for_owner(callee_owner).is_some_and(|completion| !completion.returns_value()) {
+                return Err(freeze("lexical-instance-call/unit-value-use"));
+            }
+            let source_bool = self
+                .borrowed_i64_results
+                .get(&callee_owner)
+                .and_then(|row| row.as_ref().ok())
+                .is_some_and(|row| {
+                    row.class == borrowed_formal_result::BorrowedResultClassV1::Bool
+                });
+            let retained_scalar = self.retained_terminal_scalar_result_v1(&source)?;
+            let callee_result = if source_bool {
+                retained_scalar.as_ref().filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
+                    .map(|_| InvokeCallResultKind::Bool)
+            } else {
+                super::super::direct_call_loan::lifecycle::uniform_call_result_kind(
+                    self.terminal_relations_for_owner(callee_owner).into_iter(),
+                )
+            };
+            if callee_result == Some(InvokeCallResultKind::Bool) {
+                let loan = retained_scalar.as_ref()
+                    .filter(|loan| loan.kind() == crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool)
+                    .ok_or_else(|| freeze("lexical-instance-call/terminal-scalar-source-missing"))?;
+                borrowed_formal_result::corroborate_source_scalar_result_loan_v1(
+                    self.borrowed_formal_source
+                        .as_ref()
+                        .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
+                    &self.borrowed_i64_results,
+                    loan,
+                    &source,
+                    results,
+                )?;
+            }
             let handle_observation = self.handle_call_source(&call_site).is_some();
             let scalar_observation = self.lexical_i64_call_source(&call_site).is_some();
             let nullable_observation = self.nullable_call_source(&call_site).is_some();
@@ -465,19 +599,31 @@ impl OrdinaryNewClaimLedgerV1 {
                     Some(InvokeCallResultKind::Handle)
                 }
                 (true, ..) => return Err(freeze("lexical-instance-call/handle-result-mismatch")),
-                // The observation owes the lifecycle lane: route the site
-                // so the emitter's binding-group expectation covers it.
-                // A `me.<name>` row is coverage-only — its emission stays
-                // with the sealed receiver-call lane, never this binding
-                // group inventory.
-                (false, true, Some(InvokeCallResultKind::I64)) => {
-                    if !source.is_self_receiver() {
-                        self.record_lifecycle_local_call_site(
-                            call_site.owner(),
-                            call_site.clone(),
-                        );
+                // The existing routing set also owns source-scalar
+                // self calls. Other self receiver protocols keep their owner.
+                (false, true, Some(kind @ (InvokeCallResultKind::I64 | InvokeCallResultKind::Bool))) => {
+                    let self_scalar = source.is_self_receiver()
+                        && self.lexical_i64_call_source(&call_site)
+                            .and_then(|observation| observation.borrowed_scalar())
+                            .is_some_and(|loan| loan.source() == &source
+                                && retained_scalar.as_ref() == Some(loan)
+                                && match loan.kind() {
+                                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => kind == InvokeCallResultKind::I64,
+                                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => kind == InvokeCallResultKind::Bool,
+                                });
+                    if self_scalar {
+                        borrowed_formal_result::corroborate_source_scalar_result_loan_v1(
+                            self.borrowed_formal_source.as_ref()
+                                .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
+                            &self.borrowed_i64_results,
+                            retained_scalar.as_ref().expect("checked same scalar loan"),
+                            &source, results,
+                        )?;
                     }
-                    Some(InvokeCallResultKind::I64)
+                    if !source.is_self_receiver() || self_scalar {
+                        self.record_lifecycle_local_call_site(call_site.owner(), call_site.clone());
+                    }
+                    Some(kind)
                 }
                 (false, true, _) => {
                     return Err(freeze("lexical-instance-call/i64-result-mismatch"))
@@ -516,6 +662,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 (false, false, other) => other,
             };
+            let scalar_result = retained_scalar;
             let mut rows = self.lexical_instance_calls.borrow_mut();
             if rows
                 .insert(
@@ -524,7 +671,10 @@ impl OrdinaryNewClaimLedgerV1 {
                         LexicalInstanceCallDispositionRowV1 {
                             source,
                             result,
-                            object_packet: None,
+                            scalar_result,
+                            unit_completion: None,
+                            borrowed_completion: None,
+                            object_packet: None, mixed_result: None,
                         },
                     ),
                 )
@@ -559,6 +709,12 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &SourceExprSiteV1,
     ) -> Result<Option<LexicalInstanceCallDispositionRowV1>, String> {
         let key = OwnedExprSiteV1::new(owner, site.clone());
+        {
+            let rows = self.lexical_instance_calls.borrow();
+            if let Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) = rows.get(&key) {
+                if row.source_target().mixed_local_source().is_some() { self.corroborate_mixed_call_v1(row)?; }
+            }
+        }
         let mut rows = self.lexical_instance_calls.borrow_mut();
         let Some(slot) = rows.get_mut(&key) else {
             return Ok(None);
@@ -571,6 +727,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 source.target(),
                 source.callee_owner()
             ));
+        }
+        if let LexicalInstanceCallDispositionSlotV1::Ready(row) = slot {
+            if row.result() == Some(InvokeCallResultKind::Unit) { self.corroborate_unit_discard_v1(row)?; }
+            if row.source_target().borrowed_nullable_local_source().is_some() { self.corroborate_borrowed_nullable_call_v1(row)?; }
         }
         match std::mem::replace(slot, LexicalInstanceCallDispositionSlotV1::Taken) {
             LexicalInstanceCallDispositionSlotV1::Ready(row) => Ok(Some(row)),
@@ -627,5 +787,7 @@ mod source_requirement_tests;
 #[path = "ordinary_new_borrowed_app_main_source.rs"]
 mod app_main_source;
 pub(in crate::mir::normal_callable_semantic_package) use app_main_source::{
-    borrow_app_main_source_v1, BorrowedAppMainSourceLoanV1,
+    borrow_app_main_source_v1, AppMainSourceRefV1, BorrowedAppMainSourceLoanV1,
 };
+
+pub(super) use borrowed_formal_entry::original_borrowed_instance_input_completion_needed_v1;

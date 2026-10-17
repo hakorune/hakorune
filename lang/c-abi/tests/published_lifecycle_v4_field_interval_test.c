@@ -1,0 +1,67 @@
+/* Physical interval contract only; no source, Home or whole-flow admission. */
+#include "../shims/hako_llvmc_ffi.c"
+#include <assert.h>
+
+static int interval(const char* release, const char* left, const char* right,
+    const char* finish, int discharged) {
+  char json[8192];
+  int size = snprintf(json, sizeof(json),
+      "{\"entry\":0,\"blocks\":["
+      "{\"id\":0,\"instructions\":[],\"terminator\":{\"instruction\":{}},\"edges\":[{\"target\":1}]},"
+      "{\"id\":1,\"instructions\":[],\"terminator\":{\"instruction\":%s},\"edges\":[{\"target\":2},{\"target\":3}]},"
+      "{\"id\":2,\"instructions\":[],\"terminator\":{\"instruction\":%s},\"edges\":[{\"target\":4}]},"
+      "{\"id\":3,\"instructions\":[],\"terminator\":{\"instruction\":%s},\"edges\":[{\"target\":4}]},"
+      "{\"id\":4,\"instructions\":[],\"terminator\":{\"instruction\":%s},\"edges\":[]}]}",
+      release, left, right, finish);
+  assert(size > 0 && (size_t)size < sizeof(json));
+  yyjson_doc* doc = yyjson_read(json, (size_t)size, 0);
+  assert(doc);
+  hako_lv4_function_index fn = {0};
+  hako_lv4_block blocks[5];
+  hako_lv4_value parent = {0};
+  fn.function = yyjson_doc_get_root(doc); fn.blocks = blocks; fn.block_count = 5;
+  /* Physical identity for same-path comparison; this test issues no lease. */
+  parent.id = 1; parent.kind = LV4_HANDLE;
+  fn.values = &parent; fn.value_count = 1;
+  for (size_t i = 0; i < 5; i++) {
+    blocks[i].id = (uint32_t)i; blocks[i].ordinal = i;
+    blocks[i].block = yyjson_arr_get(yyjson_obj_get(fn.function, "blocks"), i);
+  }
+  int valid = discharged ? lv4_field_dependency_discharged(&fn, 4, 0, &parent, 7, 3, 11) :
+      lv4_field_borrow_suffix(&fn, 4, 0, &parent, 7, 3);
+  yyjson_doc_free(doc);
+  return valid;
+}
+
+#define END "{\"op\":\"invoke\",\"operation\":{\"kind\":\"object_field_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":11}}"
+#define EMPTY "{}"
+
+int main(void) {
+  /* One predecessor End discharges both its Normal and Fault landings. */
+  assert(interval(END, EMPTY, EMPTY, EMPTY, 1));
+  assert(!interval(END, EMPTY, EMPTY, EMPTY, 0));
+  assert(interval(EMPTY, EMPTY, EMPTY, EMPTY, 0));
+  assert(!interval(EMPTY, EMPTY, EMPTY, EMPTY, 1));
+  /* Independent diamonds: both alternatives owe one End. A block-only
+   * visited set must not collapse the missing-End alternative. */
+  assert(interval(EMPTY, END, END, EMPTY, 1));
+  assert(!interval(EMPTY, END, EMPTY, EMPTY, 1));
+  assert(!interval(EMPTY, EMPTY, END, EMPTY, 1));
+  assert(!interval(END, END, END, EMPTY, 1));
+  assert(!interval(END, END, EMPTY, EMPTY, 1));
+  /* The current consumer's own terminator cannot pay its prior obligation. */
+  assert(!interval(EMPTY, EMPTY, EMPTY, END, 1));
+  const char* invalid[] = {
+    "{\"operation\":{\"kind\":\"object_field_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":12}}",
+    "{\"operation\":{\"kind\":\"object_field_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":4,\"child_object_id\":11}}",
+    "{\"operation\":{\"kind\":\"object_field_release\",\"base\":2,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":11}}",
+    "{\"operation\":{\"kind\":\"field_residence_release\",\"base\":1,\"object_id\":7,\"field_ordinal\":3}}",
+    "{\"operation\":{\"kind\":\"object_field_set\",\"base\":1,\"object_id\":7,\"field_ordinal\":3,\"child_object_id\":11}}",
+  };
+  for (size_t i = 0; i < sizeof(invalid) / sizeof(*invalid); i++)
+    assert(!interval(invalid[i], EMPTY, EMPTY, EMPTY, 1));
+  /* A different slot's End is legal, but cannot replace this slot's End. */
+  assert(interval(END, invalid[1], invalid[1], EMPTY, 1));
+  puts("field intervals: strict read and exact per-path Normal/Fault discharge PASS");
+  return 0;
+}

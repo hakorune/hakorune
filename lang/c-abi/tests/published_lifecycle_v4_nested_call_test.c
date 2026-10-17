@@ -290,6 +290,50 @@ int main(void) {
   assert(fopen(output_path, "rb") == NULL);
   free(birth_map);
 
+
+  /* Independent ABI fixture: Bool keeps its role through nested call/return,
+     including an unused root result. This is not source admission evidence. */
+  char* bool_nested = replace_once(nested,
+      "\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}}],\"terminator\":{\"index\":1,\"instruction\":{\"op\":\"return\",\"value\":2}",
+      "\"op\":\"invoke_normal_result\",\"invoke_block\":0,\"dst\":2}},{\"index\":1,\"instruction\":{\"op\":\"const_i64\",\"dst\":3,\"value\":7}}],\"terminator\":{\"index\":2,\"instruction\":{\"op\":\"return\",\"value\":3}");
+  for (int call = 0; call < 2; call++) {
+    char* next = replace_once(bool_nested, "ordinary_i64", "ordinary_bool");
+    free(bool_nested); bool_nested = next;
+    next = replace_once(bool_nested, "\"result\":\"i64\"", "\"result\":\"bool\"");
+    free(bool_nested); bool_nested = next;
+  }
+  char* bool_leaf = replace_once(bool_nested,
+      "\"op\":\"const_i64\",\"dst\":2,\"value\":7",
+      "\"op\":\"const_bool\",\"dst\":2,\"value\":true");
+  free(bool_nested); bool_nested = bool_leaf;
+  for (int boolean = 0; boolean < 2; boolean++) {
+    char* input = boolean ? replace_once(bool_nested, "\"value\":true", "\"value\":true")
+        : replace_once(bool_nested, "\"value\":true", "\"value\":false");
+    error = NULL;
+    int bool_rc = compile(&session, input, &error);
+    if (bool_rc != 0) fprintf(stderr, "Bool fixture: %s\n", error ? error : "missing diagnostic");
+    assert(bool_rc == 0);
+    assert(error == NULL);
+    free(input);
+  }
+  char* wrong_bool = replace_once(bool_nested,
+      "\"op\":\"const_bool\",\"dst\":2,\"value\":true",
+      "\"op\":\"const_i64\",\"dst\":2,\"value\":1");
+  error = NULL;
+  assert(compile(&session, wrong_bool, &error) != 0);
+  assert(error != NULL);
+  free(error);
+  free(wrong_bool);
+  assert(fopen(output_path, "rb") == NULL);
+  char* wrong_role = replace_once(bool_nested, "ordinary_bool", "ordinary_i64");
+  error = NULL;
+  assert(compile(&session, wrong_role, &error) != 0);
+  assert(error != NULL);
+  free(error);
+  free(wrong_role);
+  assert(fopen(output_path, "rb") == NULL);
+  free(bool_nested);
+
   remove(input_path);
   return 0;
 }

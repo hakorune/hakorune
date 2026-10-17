@@ -288,5 +288,6 @@ where
         }
     }
     port.complete_binary_expression_v1(&completed)?;
+    port.observe_borrowed_field_write_guard_binary_v1(builder, (left, right), &completed)?;
     Ok(completed.value())
 }

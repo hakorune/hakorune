@@ -167,7 +167,9 @@ pub(super) fn rematerialize_for_pred(
         ));
     };
 
-    if def_bb == pred {
+    // A value already valid on this edge needs no new producer. This also
+    // preserves source-retained Phi inputs across checked-call continuations.
+    if def_bb == pred || dominates_pred {
         remat_ctx.remember(value, value);
         return Ok(value);
     }

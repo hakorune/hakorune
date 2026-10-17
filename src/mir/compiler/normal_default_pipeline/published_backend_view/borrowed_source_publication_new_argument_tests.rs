@@ -13,7 +13,7 @@ fn nonliteral_i64_birth_actuals_publish_integer_payload_tag() {
             static box Main { main() { local s = new Store() return s.check(1) } }";
         MirCompiler::with_options(false)
             .compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                 let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -78,7 +78,7 @@ fn dominated_new_argument_view_publishes_tagged_birth_actual() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -236,7 +236,7 @@ fn undominated_new_argument_view_still_rejects() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input()
                         .map(|_| ())
                 })
@@ -276,7 +276,7 @@ fn borrowed_nullable_result_lexical_call_publishes_checked_release() {
             static box Main { main() { local s = new Store() local h = s.check(5) return 0 } }";
         MirCompiler::with_options(false)
             .compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                 let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -368,7 +368,7 @@ fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
             (
                 "bool-return",
                 "check(p) { return true }",
-                "source-not-i64",
+                "artifact-source-unavailable",
             ),
         ] {
             let text = format!(
@@ -378,7 +378,7 @@ fn borrowed_nullable_result_rejects_mixed_and_unproved_returns() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input()
                         .map(|_| ())
                 })
@@ -419,7 +419,7 @@ fn borrowed_nullable_result_frontiers_stay_fail_closed() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input()
                         .map(|_| ())
                 })
@@ -458,7 +458,7 @@ fn nullable_field_read_publishes_guarded_object_field_get() {
             );
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -561,7 +561,7 @@ fn nullable_field_read_stays_fail_closed() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input()
                         .map(|_| ())
                 })
@@ -594,13 +594,50 @@ fn nonscalar_birth_actuals_still_reject() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input()
                         .map(|_| ())
                 })
                 .err()
                 .unwrap_or_else(|| panic!("{label}: unexpectedly admitted"));
             assert!(error.contains("actual-kind-unavailable"), "{label}: {error}");
+        }
+    });
+}
+
+/// A borrowed child comes from the original returned wrapper, without its own
+/// Home. Both physical optimization modes must preserve its exact argument use.
+#[test]
+fn returned_wrapper_field_argument_reaches_published_call() {
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let text = "box Token {} box Wrapper { child: Token birth(child) { me.child = child } }
+            box Maker { make() { return new Token() }
+                wrap() { local h = me.make() return new Wrapper(h) }
+                consume(h) { if h == null { return 0 } return 1 } }
+            static box Main { main() { local maker = new Maker()
+                local w = maker.wrap() maker.consume(w.child) return 0 } }";
+        for optimize in [false, true] {
+            MirCompiler::with_options(optimize).compile_normal_with_published(
+                request(text), |view, verification| -> Result<(), String> {
+                    require_artifact_verification(verification);
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
+                    let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                    let main = json["functions"].as_array().unwrap().iter()
+                        .find(|row| row["name"] == "main").unwrap();
+                    let instructions: Vec<_> = main["blocks"].as_array().unwrap().iter()
+                        .flat_map(|block| block["instructions"].as_array().unwrap().iter()
+                            .chain(std::iter::once(&block["terminator"]["instruction"])))
+                        .map(|row| row.get("instruction").unwrap_or(row)).collect();
+                    let reads: Vec<_> = instructions.iter().filter(|row| row["op"] == "object_field_get").collect();
+                    assert_eq!(reads.len(), 1, "{wire}");
+                    let child = &reads[0]["dst"];
+                    assert!(instructions.iter().any(|row| row["operation"]["kind"] == "ordinary_call"
+                        && row["operation"]["call"]["args"].as_array().is_some_and(|args|
+                            args.iter().any(|arg| arg.get("value").unwrap_or(arg) == child))), "{wire}");
+                    Ok(())
+                }).unwrap_or_else(|issue| panic!("optimize={optimize}: {issue}"));
         }
     });
 }

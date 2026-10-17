@@ -5,14 +5,20 @@ use super::{
 };
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum BorrowedCallActualRequestV1<'a> {
+    NamedArrayHolderInitializer(super::BindingRefV1),
+    NamedArrayAppendStatement(super::BindingRefV1),
     Observe(&'a [BorrowedCallActualCandidateV1]),
     ScalarArguments,
     I64ResultArguments,
+    SourceScalarResultArguments,
+    SourceUnitDiscardArguments,
     ReceivedObjectArguments(
         crate::mir::resolved_semantics::BindingRefV1,
         super::LocalCallResultClassV1,
     ),
     ReceivedHandleArguments(crate::mir::resolved_semantics::BindingRefV1),
+    BorrowedNullableLocalArguments(crate::mir::resolved_semantics::BindingRefV1),
+    MixedLocalArguments(crate::mir::resolved_semantics::BindingRefV1),
     ObjectArguments(
         &'a crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1,
         Option<crate::mir::resolved_semantics::BindingRefV1>,
@@ -22,6 +28,25 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
+    MixedLocalSource {
+        loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
+    NamedArrayHolderSource(
+        crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1,
+    ),
+    /// Original nullable borrow and argument observation only, never a Home.
+    BorrowedNullableLocalSource {
+        loan: crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
+    /// SAME sealed result source and original arguments; no execution permission.
+    SourceScalarResult {
+        loan: crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
+        arguments: Box<[LocalCallArgumentV1]>,
+    },
+    /// Original zero-argument Unit statement demand, never executable actuals.
+    SourceUnitDiscard { source: crate::mir::normal_callable_semantic_package::LexicalInstanceCallSourceTargetV1 },
     Scalar(Box<[LocalCallArgumentV1]>),
     StaticSource(Box<[LocalCallArgumentV1]>),
     /// Original Instance arguments only; cannot seal an executable call.

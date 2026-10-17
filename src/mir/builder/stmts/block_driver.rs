@@ -12,6 +12,12 @@ use crate::mir::ValueId;
 pub(in crate::mir::builder) trait LegacyBlockDescentPortV1 {
     fn len(&self) -> usize;
 
+    /// The located source owner may finish its real body before scope close.
+    /// Reference and nested callers keep the existing fallthrough behavior.
+    fn finish_fallthrough(&mut self, _builder: &mut MirBuilder, _end: usize) -> Result<(), String> {
+        Ok(())
+    }
+
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,
@@ -81,6 +87,9 @@ where
             Some(value) => value,
             None => crate::mir::builder::emission::constant::emit_void(builder)?,
         };
+        if index == total && !builder.is_current_block_terminated() {
+            port.finish_fallthrough(builder, total)?;
+        }
         if !builder.is_current_block_terminated() {
             builder.hint_scope_leave(scope_id);
         }

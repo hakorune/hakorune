@@ -23,35 +23,82 @@ fn fresh(
 
 #[test]
 fn exact_fresh_leaf_corroborates_without_consuming_claim_or_sibling_home() {
-    let package = package();
-    let (key, witness) = fresh(&package);
-    let ledger = &package.ordinary_new_claim_ledger;
-    let claims = ledger.result_claims.borrow();
-    let original = &claims[witness.site()];
-    let teardown = ObjectReturnTeardownDescriptorV1::from_exact_claim(original);
-    assert_eq!(original.home_prefix().unwrap().prior_homes().len(), 1);
-    let original_count = claims.len();
-    drop(claims);
-    for _ in 0..2 {
+    for (text, fault_count, normal_count, relation_count) in [
+        ("box Token {} static box Work { make(args) { local sibling = new Token() return new Token() } } static box Main { main() { return 0 } }", 1, 1, 0),
+        ("box Token {} box Wrap { child: Token birth(child) { me.child = child } } static box Work { make(args) { local sibling = new Token() local child = new Token() return new Wrap(child) } } static box Main { main() { return 0 } }", 2, 1, 0),
+        ("box Token {} box Wrap { n: i64 birth(n) { me.n = n } } static box Work { make(args) { local sibling = new Token() local n = 7 return new Wrap(n) } } static box Main { main() { return 0 } }", 1, 1, 0),
+        ("box Token {} box Wrap { flag: i64 child: Token birth(flag, child) { me.flag = flag me.child = child } } static box Work { make(args) { local sibling = new Token() return new Wrap(1, null) } } static box Main { main() { return 0 } }", 1, 1, 1),
+        ("box Token {} box Wrap { child: Token birth(child) { me.child = child } } static box Work { make(args: Token) { local sibling = new Token() return new Wrap(args) } } static box Main { main() { return 0 } }", 1, 1, 1),
+    ] {
+        let package = issue_with_brand_catalog(text).unwrap();
+        let (key, witness) = fresh(&package);
+        let ledger = &package.ordinary_new_claim_ledger;
+        let claims = ledger.result_claims.borrow();
+        let original = &claims[witness.site()];
+        let teardown = ObjectReturnTeardownDescriptorV1::from_exact_claim(original);
+        let arguments = original.core.argument_rows.as_ref().unwrap().clone();
+        assert_eq!(arguments.iter().map(|argument| argument.child_relations().len()).sum::<usize>(),
+            relation_count, "nonempty source loans are required for the erasure negative");
+        assert_eq!(original.home_prefix().unwrap().prior_homes().len(), fault_count);
+        assert_eq!(original.home_prefix().unwrap().normal_homes().len(), normal_count);
+        let expected_normal = original.home_prefix().unwrap().prior_homes()[fault_count - normal_count..].to_vec();
+        assert_eq!(original.home_prefix().unwrap().normal_homes(), expected_normal.as_slice(),
+            "the original sibling remains; the moved child cannot replace it");
+        let original_count = claims.len();
+        drop(claims);
+        for _ in 0..2 {
+            assert_eq!(
+                ledger
+                    .checked_object_return_leaf_v1(&key, &witness)
+                    .unwrap(),
+                Some(VerifiedObjectReturnLeafV1::Fresh {
+                    site: witness.site().clone(),
+                    teardown: teardown.clone(),
+                    arguments: arguments.clone(),
+                })
+            );
+        }
+        if arguments.iter().any(|argument| !argument.child_relations().is_empty()) {
+            let mut claims = ledger.result_claims.borrow_mut();
+            let rows = claims.get_mut(witness.site()).unwrap().core.argument_rows.as_mut().unwrap();
+            let index = rows.iter().position(|argument| !argument.child_relations().is_empty()).unwrap();
+            let original = rows[index].clone();
+            rows[index].retain_child_relations(Box::new([]));
+            drop(claims);
+            assert!(ledger.checked_object_return_leaf_v1(&key, &witness).unwrap_err()
+                .contains("leaf-child-relation-identity"), "erased loan cannot erase the original relation");
+            ledger.result_claims.borrow_mut().get_mut(witness.site()).unwrap()
+                .core.argument_rows.as_mut().unwrap()[index] = original;
+            assert!(ledger.checked_object_return_leaf_v1(&key, &witness).unwrap().is_some());
+        }
+        let leaf = ledger.checked_object_return_leaf_v1(&key, &witness).unwrap().unwrap();
+        let supports = ledger.object_return_leaf_supports_v1(&leaf).unwrap();
+        assert_eq!(supports.len(), usize::from(text.contains("args: Token")));
+        assert_eq!(leaf.requires_anchored_field_end_v1(), !supports.is_empty());
+        let end_requires_residence = !supports.is_empty();
+        for support in supports {
+            assert_eq!(support.ordinal, 0);
+            assert_eq!(support.formal.owner(), witness.site().owner());
+            assert!(arguments.iter().flat_map(|row| row.child_relations()).any(|relation|
+                Rc::ptr_eq(relation, &support.relation)
+                    && relation.witnesses().iter().any(|witness| Rc::ptr_eq(witness, &support.witness))));
+        }
+        let end = super::super::return_handoff::reduce_object_return_teardown_v1(&[
+            super::super::return_handoff::VerifiedObjectReturnAlternativeV1::Leaf(leaf),
+        ]).unwrap();
+        assert_eq!(end.descriptor().is_none(), end_requires_residence,
+            "source-supported child cannot activate owning-only teardown");
+        assert_eq!(ledger.result_claims.borrow().len(), original_count);
         assert_eq!(
-            ledger
-                .checked_object_return_leaf_v1(&key, &witness)
-                .unwrap(),
-            Some(VerifiedObjectReturnLeafV1::Fresh {
-                site: witness.site().clone(),
-                teardown: teardown.clone()
-            })
+            ledger.result_claims.borrow()[witness.site()]
+                .home_prefix()
+                .unwrap()
+                .prior_homes()
+                .len(),
+            fault_count
         );
+        assert_eq!(ledger.result_claims.borrow()[witness.site()].home_prefix().unwrap().normal_homes(), expected_normal.as_slice());
     }
-    assert_eq!(ledger.result_claims.borrow().len(), original_count);
-    assert_eq!(
-        ledger.result_claims.borrow()[witness.site()]
-            .home_prefix()
-            .unwrap()
-            .prior_homes()
-            .len(),
-        1
-    );
 }
 
 #[test]

@@ -148,11 +148,13 @@ fn static_execution_scope_refuses_removed_original_incoming() {
 }
 
 fn scoped_object_package(
+    guarded: bool,
 ) -> crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1 {
+    let guard = if guarded { "p <= 0" } else { "1 <= 0" };
     let text = format!(
         "{TEXT} box Token {{}} box Maker {{
         make(p) {{ if p <= 0 {{ return null }} return new Token() }}
-        relay(p) {{ if p <= 0 {{ return new Token() }} local item = me.make(p) return new Token() }}
+        relay(p) {{ if {guard} {{ return new Token() }} local item = me.make(p) return new Token() }}
         qualified() {{ return me.make(7) }}
     }}"
     );
@@ -163,28 +165,27 @@ fn scoped_object_package(
 }
 
 #[test]
-fn static_execution_scope_does_not_promote_unrelated_object_input() {
-    for mutation in 0..7 {
-        let mut package = scoped_object_package();
-        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-        let source = ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        let passive = source
+fn static_execution_scope_preserves_unrelated_object_source_integrity() {
+    for guarded in [false, true] {
+        for mutation in 0..7 {
+            let mut package = scoped_object_package(guarded);
+            let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+            let source = ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            let passive = source
             .incoming
             .iter()
             .find(|call| {
-                ledger.borrowed_formal_actuals[&call.call]
-                    .as_ref()
-                    .unwrap()
-                    .require_executable_v1()
-                    .is_err_and(|issue| issue.contains("source-only-object-actuals"))
+                call.source.instance().is_some_and(|target| {
+                    super::super::super::super::borrowed_formal_actuals::selected_source_only_object_forward_v1(source, target)
+                })
             })
-            .expect("unrelated Object input remains source-only");
-        let selected = source
+            .expect("unrelated original Object input");
+            let selected = source
             .incoming
             .iter()
             .find(|call| {
@@ -194,136 +195,151 @@ fn static_execution_scope_does_not_promote_unrelated_object_input() {
                 )
             })
             .expect("selected Static original");
-        assert_ne!(selected.callee, passive.callee);
-        let owner = selected.callee;
-        let passive_site = passive.call.clone();
-        let passive_argument = passive.arguments[0].clone();
-        let passive_root = *source.source_only_definitions[&passive.call.owner()]
-            .origins
-            .values()
-            .next()
-            .expect("original caller formal");
-        let executable_site = selected.call.clone();
-        if mutation == 0 {
-            ledger
-                .checked_borrowed_entry_incoming_core_v1(source, owner, true)
-                .unwrap();
-            let super::super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
+            assert_ne!(selected.callee, passive.callee);
+            let owner = selected.callee;
+            let passive_site = passive.call.clone();
+            let passive_argument = passive.arguments[0].clone();
+            let passive_root = *source.source_only_definitions[&passive.call.owner()]
+                .origins
+                .values()
+                .next()
+                .expect("original caller formal");
+            let executable_site = selected.call.clone();
+            if mutation == 0 {
+                ledger
+                    .checked_borrowed_entry_incoming_core_v1(source, owner, true)
+                    .unwrap();
+                let super::super::super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(
                 original,
             ) = &selected.source
             else {
                 unreachable!()
             };
-            assert!(ledger
-                .borrowed_static_packet_actuals_v1(original)
-                .unwrap()
-                .is_some());
-            assert!(ledger
-                .checked_borrowed_entry_incoming_core_v1(source, passive.callee, true)
-                .unwrap_err()
-                .contains("source-only-object-actuals"));
-            assert!(ledger
-                .checked_borrowed_entry_incoming(source, owner)
-                .unwrap_err()
-                .contains("source-only-object-actuals"));
-            assert!(ledger.borrowed_formal_actuals[&passive_site]
-                .as_ref()
-                .unwrap()
-                .require_executable_v1()
-                .is_err());
-            continue;
-        }
-        match mutation {
-            1 => {
-                ledger.borrowed_formal_actuals.remove(&passive_site);
-            }
-            2 => {
-                ledger
-                    .borrowed_formal_actuals
-                    .insert(passive_site.clone(), Err("unrelated-source-refusal".into()));
-            }
-            3 => {
-                let mut fabricated = ledger.borrowed_formal_actuals[&executable_site]
-                    .clone()
+                assert!(ledger
+                    .borrowed_static_packet_actuals_v1(original)
+                    .unwrap()
+                    .is_some());
+                let calls: Vec<_> = source.incoming.iter().collect();
+                let execution = ledger
+                    .checked_static_execution_owners_v1(source, owner, &calls)
                     .unwrap();
-                let (ordinal, site, formal) = &passive_argument;
-                fabricated.opaque_actuals = Box::new([super::super::super::super::borrowed_formal_actuals::PreparedBorrowedFormalActualV1 {
+                assert!(!execution.contains(&passive.callee));
+                assert!(!execution.contains(&passive.call.owner()));
+                let actuals = ledger.borrowed_formal_actuals[&passive_site]
+                    .as_ref()
+                    .unwrap();
+                if guarded {
+                    actuals.require_executable_v1().unwrap();
+                    assert!(super::super::super::super::borrowed_formal_actuals::revalidate_guarded_object_incoming_v1(
+                    source, &package.parameter_contracts, passive, actuals,
+                    None,
+                ).unwrap());
+                } else {
+                    assert!(ledger
+                        .checked_borrowed_entry_incoming_core_v1(source, passive.callee, true)
+                        .unwrap_err()
+                        .contains("source-only-object-actuals"));
+                    assert!(ledger
+                        .checked_borrowed_entry_incoming(source, owner)
+                        .unwrap_err()
+                        .contains("source-only-object-actuals"));
+                    assert!(actuals.require_executable_v1().is_err());
+                }
+                continue;
+            }
+            match mutation {
+                1 => {
+                    ledger.borrowed_formal_actuals.remove(&passive_site);
+                }
+                2 => {
+                    ledger
+                        .borrowed_formal_actuals
+                        .insert(passive_site.clone(), Err("unrelated-source-refusal".into()));
+                }
+                3 => {
+                    let mut fabricated = ledger.borrowed_formal_actuals[&executable_site]
+                        .clone()
+                        .unwrap();
+                    let (ordinal, site, formal) = &passive_argument;
+                    fabricated.opaque_actuals = Box::new([super::super::super::super::borrowed_formal_actuals::PreparedBorrowedFormalActualV1 {
                     ordinal: *ordinal, site: site.clone(), formal: *formal,
                     source: BorrowedFormalActualSourceV1::Forwarded {
                         binding: passive_root, formal: passive_root,
                     },
                 }]);
-                fabricated.ordered_arguments = Box::new([
+                    fabricated.ordered_arguments = Box::new([
                     crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::BorrowedActual {
                         ordinal: *ordinal, site: site.clone(),
                     },
                 ]);
-                ledger
-                    .borrowed_formal_actuals
-                    .insert(passive_site.clone(), Ok(fabricated));
-            }
-            4 => {
-                let rows = ledger
-                    .borrowed_formal_actuals
-                    .get_mut(&passive_site)
-                    .unwrap()
-                    .as_mut()
-                    .unwrap();
-                rows.ordered_arguments[0] =
+                    ledger
+                        .borrowed_formal_actuals
+                        .insert(passive_site.clone(), Ok(fabricated));
+                }
+                4 => {
+                    let rows = ledger
+                        .borrowed_formal_actuals
+                        .get_mut(&passive_site)
+                        .unwrap()
+                        .as_mut()
+                        .unwrap();
+                    rows.ordered_arguments[0] =
                     crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1::Integer(
                         99,
                     );
-            }
-            5 => {
-                let donor = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+                }
+                5 => {
+                    let donor = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
                     "box Wrap { v: i64 birth(v) { me.v = v } } box Door { birth() {} probe(p): i64 { if p == null { return 0 } return p.v } bridge(h: Wrap): i64 { local recv = new Door() local out = recv.probe(h) return 0 } } static box Main { main() { local recv = new Door() local out = recv.bridge(null) return 0 } }"
                 ).expect("existing declared Object view fixture");
-                let donor_source = donor
-                    .ordinary_new_claim_ledger
-                    .borrowed_formal_source
-                    .as_ref()
-                    .unwrap()
-                    .as_ref()
-                    .unwrap();
-                let view = donor_source.object_views.values().next().unwrap().clone();
-                ledger
-                    .borrowed_formal_source
-                    .as_mut()
-                    .unwrap()
-                    .as_mut()
-                    .unwrap()
-                    .object_views
-                    .insert(passive_argument.2, view);
+                    let donor_source = donor
+                        .ordinary_new_claim_ledger
+                        .borrowed_formal_source
+                        .as_ref()
+                        .unwrap()
+                        .as_ref()
+                        .unwrap();
+                    let view = donor_source.object_views.values().next().unwrap().clone();
+                    ledger
+                        .borrowed_formal_source
+                        .as_mut()
+                        .unwrap()
+                        .as_mut()
+                        .unwrap()
+                        .object_views
+                        .insert(passive_argument.2, view);
+                }
+                6 => {
+                    ledger.original_parameter_contracts = None;
+                }
+                _ => unreachable!(),
             }
-            6 => {
-                ledger.original_parameter_contracts = None;
-            }
-            _ => unreachable!(),
+            let source = ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            let error = ledger
+                .checked_borrowed_entry_incoming_core_v1(source, owner, true)
+                .unwrap_err();
+            let expected = match mutation {
+                1 => "actuals-missing",
+                2 => "unrelated-source-refusal",
+                3 => "source-phase-drift",
+                4 if guarded => "reconstructed-input-drift",
+                4 => "source-snapshot-drift",
+                5 => "object-view-drift",
+                6 => "original-catalog-missing",
+                _ => unreachable!(),
+            };
+            assert!(error.contains(expected), "mutation {mutation}: {error}");
+            ledger.lifecycle_local_call_sites.borrow_mut().clear();
+            assert!(ledger.co_seal_static_local_routes_v1().is_err());
+            assert!(
+                ledger.lifecycle_local_call_sites.borrow().is_empty(),
+                "partial route mutation {mutation}"
+            );
         }
-        let source = ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        let error = ledger
-            .checked_borrowed_entry_incoming_core_v1(source, owner, true)
-            .unwrap_err();
-        let expected = match mutation {
-            1 => "actuals-missing",
-            2 => "unrelated-source-refusal",
-            3 => "source-phase-drift",
-            4 => "source-snapshot-drift",
-            5 => "object-view-drift",
-            6 => "original-catalog-missing",
-            _ => unreachable!(),
-        };
-        assert!(error.contains(expected), "mutation {mutation}: {error}");
-        ledger.lifecycle_local_call_sites.borrow_mut().clear();
-        assert!(ledger.co_seal_static_local_routes_v1().is_err());
-        assert!(
-            ledger.lifecycle_local_call_sites.borrow().is_empty(),
-            "partial route mutation {mutation}"
-        );
     }
 }

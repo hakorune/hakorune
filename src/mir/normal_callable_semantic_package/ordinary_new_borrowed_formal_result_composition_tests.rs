@@ -18,7 +18,6 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
     assert!(issue("return 7", "local out = recv.leaf(p) return out").is_ok());
     for (leaf, body) in [
         ("return 7", "local out = recv.leaf(p) out = 8 return out"),
-        ("return true", "local out = recv.leaf(p) return out"),
         ("return null", "local out = recv.leaf(p) return out"),
         (
             "if p == null { return null } return new Transport()",
@@ -40,6 +39,329 @@ fn call_result_source_rejects_rebind_non_i64_and_ungrounded_cycles() {
             .expect("selected source result is unproven");
         assert!(error.contains("borrowed-result/"), "{leaf}/{body}: {error}");
     }
+    for (birth, update, actual, expected) in [
+        ("me.n = capacity", "me.n = me.n + step", "0", true),
+        ("me.n = 0", "me.n = me.n - step", "true", true),
+        ("me.n = capacity", "me.n = me.n + step", "true", false),
+        ("me.n = me.n", "me.n = me.n + step", "0", false),
+        ("me.n = 0", "me.n = true", "0", false),
+        ("me.n = 0", "step = true me.n = step", "0", false),
+    ] {
+        let text = format!("box Counter {{ n: i64 birth(capacity) {{ {birth} }}
+            bump(step: i64) {{ {update} return 0 }} read() {{ return me.n }} }}
+            static box Main {{ main() {{ local c = new Counter({actual}) return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text)
+            .expect("original counter field/result source cohort");
+        let owner = package.parameter_contracts.iter().find(|row|
+            matches!(package.selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Counter" && key.name() == "read"))
+            .unwrap().owner;
+        let result = package.ordinary_new_claim_ledger.borrowed_i64_results.get(&owner);
+        assert_eq!(result.is_some_and(|result| result.is_ok()), expected, "{birth}/{update}/{actual}: {result:?}");
+        if let Some(Ok(proof)) = result {
+            assert_eq!(proof.class, BorrowedResultClassV1::I64);
+            proof.require_source_sealed_v1().unwrap();
+            assert_eq!(proof.expressions.len(), 1);
+            assert!(proof.field_component.as_ref().unwrap().permits(&proof.expressions[0]));
+        }
+    }
+
+    // Original field → New actual → Birth formal shares the same closure.
+    // Every New and every later writer remains conjunctive; no cyclic base.
+    for (seed, update, extra, expected) in [
+        ("7", "", "", true),
+        ("7", "me.n = me.n + 1", "", true),
+        ("true", "", "", false),
+        ("7", "me.n = true", "", false),
+        ("7", "", "local bad = new Handle(true)", false),
+        ("7", "", "local peer = new Handle(me.n)", true),
+    ] {
+        let text = format!("box Handle {{ n: i64 birth(value) {{ me.n = value }} read() {{ return me.n }} }}
+            box Page {{ n: i64 birth(value) {{ me.n = value }}
+                update() {{ {update} return 0 }}
+                make() {{ local h = new Handle(me.n) {extra} return 0 }} }}
+            static box Main {{ main() {{ local p = new Page({seed}) return 0 }} }}");
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == "Handle" && key.name() == "read")).unwrap().owner;
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let results = &ledger.borrowed_i64_results;
+        assert_eq!(results[&owner].is_ok(), expected, "{seed}/{update}/{extra}: {:?}", results[&owner]);
+        if expected {
+            let component = results[&owner].as_ref().unwrap().field_component.as_ref().unwrap();
+            let field = &component.original.sources[&("Handle".into(), "n".into())];
+            let ingress = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+            recheck_field_source_v1(results, ingress, component, field, "n").unwrap();
+            for erase in [false, true] {
+                ingress.with_replaced_original_new_evidence_for_test(erase, |ingress| {
+                    assert!(recheck_field_source_v1(results, ingress, component, field, "n").is_err(),
+                        "equal foreign or erased New census cannot reuse the field closure");
+                });
+            }
+            recheck_field_source_v1(results, ingress, component, field, "n").unwrap();
+        }
+    }
+    let cycle = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Handle { n: i64 birth(value) { me.n = value }
+         clone() { local h = new Handle(me.n) return 0 } read() { return me.n } }
+         static box Main { main() { return 0 } }").unwrap();
+    let context = cycle.ordinary_new_claim_ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();
+    assert!(!context.grounded_bases(None).contains(&("Handle".into(), "n".into())),
+        "a sole self-copy New actual has no productive numeric root");
+
+    // Array-get locals use the existing exact read issuer, not generic local
+    // inference. Nonzero Birth ordinal, all stores and local stability matter.
+    for (stored, update, expected) in [("7", "", true), ("true", "", false), ("7", "value = true", false)] {
+        let text = format!("box Handle {{ n: i64 birth(ignored, value) {{ me.n = value }} read() {{ return me.n }} }}
+            box Page {{ values: ArrayBox = new ArrayBox() birth() {{ }}
+                seed() {{ me.values.set(0, {stored}) return 0 }}
+                make() {{ local value = me.values.get(0) {update} local h = new Handle(true, value) return 0 }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == "Handle" && key.name() == "read")).unwrap().owner;
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let results = &ledger.borrowed_i64_results;
+        assert_eq!(results[&owner].is_ok(), expected, "Array={stored}/{update}: {:?}", results[&owner]);
+        if expected {
+            let component = results[&owner].as_ref().unwrap().field_component.as_ref().unwrap();
+            let field = &component.original.sources[&("Handle".into(), "n".into())];
+            let ingress = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+            recheck_field_source_v1(results, ingress, component, field, "n").unwrap();
+            ingress.with_replaced_original_new_evidence_for_test(true, |ingress| {
+                assert!(recheck_field_source_v1(results, ingress, component, field, "n").is_err());
+            });
+        }
+    }
+
+    // Non-Me writes keep their original source; class agreement and signed
+    // value evidence are separate conjuncts, even for a usize declaration.
+    // Nullable forwarding matches the original resizeInPlace source cohort.
+    for (receiver_type, value_type, actual, extra, expected) in [
+        ("", "", "item", "", true),
+        (": Item", "", "item", "", true),
+        (": Item", ": usize", "item", "", false),
+        (": Item", "", "other", "", false),
+        ("", "", "item", "unknown(q) { q.n = true return 0 }", false),
+        ("", "", "item", "cycle(q, v) { if q == null { return 0 } if v <= 0 { return 0 } q.n = v local w = new Writer() return w.cycle(q, v) }", false),
+    ] {
+        let text = format!("box Item {{ n: usize birth(n) {{ me.n = n }} read() {{ return me.n }} }}
+            box Other {{ n: usize birth() {{ me.n = 0 }} }}
+            box Writer {{ birth() {{ }} write(p{receiver_type}, q{receiver_type}, value{value_type}) {{
+                if p == null {{ return null }} if q == null {{ return null }} if value <= 0 {{ return null }}
+                p.n = value q.n = value return p }} {extra} }}
+            static box Main {{ main() {{ local item = new Item(3) local other = new Other()
+                local writer = new Writer() local ignored = writer.write({actual}, item, 7) return 0 }} }}");
+        let issued = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text);
+        let mut package = match issued {
+            Ok(package) => package,
+            Err(issue) => { assert!(!expected, "{receiver_type}/{value_type}/{actual}: {issue:?}"); continue; }
+        };
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Item" && key.name() == "read")).unwrap().owner;
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let results = &ledger.borrowed_i64_results;
+        if expected {
+            let context = results.field_candidates.as_ref().unwrap();
+            let key = ("Item".into(), "n".into());
+            let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+            let contract = package.parameter_contracts.iter().find(|row| matches!(
+                package.selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.owner() == "Writer" && key.name() == "write")).unwrap();
+            for parameter in &contract.parameters[..2] {
+                assert_eq!(ingress.original_object_class_for_test(parameter.binding), Some("Item"));
+            }
+            assert_eq!(context.sources[&key].writers().count(), 3, "Birth and both original formal writers");
+            assert!(context.bases.contains(&key), "original New supplies a productive Birth");
+            for writer in context.writers[&key].iter().filter(|writer| writer.birth.is_none()) {
+                assert_eq!(writer.expression.class(&BTreeSet::new(), &BTreeMap::new()), Some(BorrowedResultClassV1::I64), "non-Me value not I64: {writer:?}");
+            }
+        }
+        assert_eq!(results[&owner].is_ok(), expected, "{receiver_type}/{value_type}/{actual}/{extra}: {:?}", results[&owner]);
+        if expected {
+            let component = results[&owner].as_ref().unwrap().field_component.as_ref().unwrap();
+            let field = &component.original.sources[&("Item".into(), "n".into())];
+            assert_eq!(field.declared_type_name(), Some("usize"));
+            assert!(field.writers().enumerate().any(|(ordinal, writer)| !writer.is_attributed() && field.needs_formal_target(ordinal)),
+                "conditional formal source is not rewritten as Me");
+            let ingress = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+            let context = &component.original;
+            let key = ("Item".into(), "n".into());
+            let mut targets = context.writers[&key].iter().filter(|writer| writer.target.is_some());
+            let first = targets.next().unwrap();
+            let second = targets.next().unwrap();
+            assert_ne!(first.target.as_ref().unwrap().receiver.binding(), second.target.as_ref().unwrap().receiver.binding());
+            let swapped = FieldWriterV1 { ordinal: first.ordinal, expression: Rc::clone(&first.expression), birth: None,
+                target: Some(FormalFieldWriterTargetV1 { original: first.target.as_ref().unwrap().original.clone(),
+                    receiver: second.target.as_ref().unwrap().receiver.clone() }) };
+            assert!(!context.target_ready(&key, &swapped, Some(ingress)), "same-class formal cannot replace the original writer receiver");
+            recheck_field_source_v1(results, ingress, component, field, "n").unwrap();
+            ingress.with_replaced_original_new_evidence_for_test(true, |ingress| {
+                assert!(recheck_field_source_v1(results, ingress, component, field, "n").is_err());
+            });
+        }
+    }
+
+    // A copied Birth value survives later changes to its original field.
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Counter { a: i64 b: i64 birth() { me.a = 1 me.b = me.a }
+         alter() { me.a = true return 0 } read() { return me.b } }
+         static box Main { main() { local c = new Counter() return 0 } }").unwrap();
+    let owner = package.parameter_contracts.iter().find(|row|
+        matches!(package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;
+    package.ordinary_new_claim_ledger.borrowed_i64_results[&owner].as_ref().unwrap().require_source_i64_v1().unwrap();
+
+    let mut foreign_sources = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
+    let foreign = foreign_sources.remove(&owner).unwrap().unwrap().unwrap();
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let component = Rc::clone(ledger.borrowed_i64_results.field_component.as_ref().unwrap().as_ref().unwrap());
+    ledger.borrowed_i64_results.require_field_component_v1(&component).unwrap();
+    let retained = std::mem::replace(&mut ledger.borrowed_i64_results.field_component, Ok(None));
+    assert!(ledger.borrowed_i64_results.require_field_component_v1(&component).unwrap_err().contains("field-component-unsealed"));
+    ledger.borrowed_i64_results.field_component = Err("test/cohort-ingress-refused".into());
+    assert_eq!(ledger.borrowed_i64_results.require_field_component_v1(&component).unwrap_err(), "test/cohort-ingress-refused");
+    ledger.borrowed_i64_results.field_component = retained;
+    let original = std::mem::replace(&mut ledger.borrowed_i64_results.field_candidates, Err("test/original-cohort-lost".into()));
+    assert_eq!(ledger.borrowed_i64_results.require_field_component_v1(&component).unwrap_err(), "test/original-cohort-lost");
+    ledger.borrowed_i64_results.field_candidates = original;
+    let proof = ledger.borrowed_i64_results.get_mut(&owner).unwrap().as_mut().unwrap();
+    let expressions = proof.expressions.clone();
+    proof.source_facts_mut_for_test().expressions = Box::new([]);
+    assert!(proof.require_source_sealed_v1().unwrap_err().contains("original-return-plan-identity"));
+    proof.source_facts_mut_for_test().expressions = expressions;
+    proof.source_facts_mut_for_test().original_return = Some(foreign);
+    assert!(proof.require_source_sealed_v1().unwrap_err().contains("original-return-plan-identity"));
+    for body in ["if true { return me.n } return", "return me.n"] {
+        let text = format!("box Counter {{ n: i64 birth() {{ me.n = true }} read() {{ {body} }} }}
+            static box Main {{ main() {{ local c = new Counter() return 0 }} }}");
+        let issued = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text);
+        if body.contains("if true") {
+            assert!(format!("{:?}", issued.unwrap_err()).contains("ReturnClassificationInvariant"),
+                "mixed bare/value Return is already refused by the earlier physical header");
+            continue;
+        }
+        let package = issued.unwrap();
+        let owner = package.parameter_contracts.iter().find(|row|
+            matches!(package.selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;
+        let originals = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
+        assert!(originals[&owner].as_ref().unwrap().is_some(), "passive field requirement survives invalid result/Completion");
+        assert!(package.ordinary_new_claim_ledger.borrowed_i64_results[&owner].is_err());
+    }
+
+    for operand in [false, true] {
+        let read = if operand { "return me.n < me.seed()" } else { "return me.n" };
+        let text = format!("box Counter {{ n: i64 m: i64 birth() {{ me.n = 0 me.m = 0 }}
+            seed() {{ return 7 }} alter() {{ me.m = me.seed() return 0 }}
+            bump() {{ me.n = me.m return 0 }} read() {{ {read} }} }}
+            static box Main {{ main() {{ local c = new Counter() return 0 }} }}");
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let named = |name: &str| package.parameter_contracts.iter().find(|row|
+            matches!(package.selected.key_for_batch_slot(row.batch_slot),
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == name)).unwrap().owner;
+        let read_owner = named("read");
+        let seed_owner = named("seed");
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let proof = ledger.borrowed_i64_results[&read_owner].as_ref().unwrap();
+        assert_eq!(proof.class, if operand { BorrowedResultClassV1::Bool } else { BorrowedResultClassV1::I64 });
+        let edges = source_dependencies_v1(proof, ingress).unwrap();
+        assert!(edges.iter().any(|(target, role)| target.callee_owner() == seed_owner && *role == SourceDependencyRoleV1::FieldWriter));
+        assert_eq!(edges.iter().any(|(_, role)| *role == SourceDependencyRoleV1::ExpressionOperand), operand);
+        assert!(grounded_source_results_with_ingress_v1(&ledger.borrowed_i64_results, ingress).contains(&read_owner));
+        let field_leaf = if !operand {
+            let expression = &proof.expressions[0];
+            let receiver = proof.original_return.as_ref().unwrap().receiver();
+            let site = expression.plan().nodes()[0].site().clone();
+            let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+                BodyExpressionShapeV1::FieldAccess { object, .. }) = expression.plan().nodes()[0].source() else { panic!("original field") };
+            let source = Rc::clone(&proof.field_component.as_ref().unwrap().original.sources[&("Counter".into(), "n".into())]);
+            let owned = OwnedExprSiteV1::new(read_owner, site);
+            let loan = super::super::expression_field::ExpressionFieldSourceLoanV1::issue(
+                &ledger.borrowed_i64_results, ingress, Rc::clone(expression.plan()), source,
+                &owned, object, receiver, receiver, "n").unwrap();
+            Some((loan, Rc::clone(expression.plan()), owned, object.clone(), receiver))
+        } else { None };
+        ledger.borrowed_i64_results.insert(seed_owner, Err(freeze("test/lost-field-writer-callee")));
+        let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        assert!(!grounded_source_results_with_ingress_v1(&ledger.borrowed_i64_results, ingress).contains(&read_owner));
+        if let Some((loan, plan, site, object, receiver)) = field_leaf {
+            assert!(loan.recheck(&ledger.borrowed_i64_results, ingress, &plan,
+                &site, &object, receiver, receiver, loan.field()).is_err(),
+                "standalone field source must re-demand the lost writer callee");
+        }
+    }
+
+    // Original field context exists without any getter or successful result row.
+    for (birth, expected) in [("me.n = 0", true), ("me.n = true", false), ("me.n = me.n", false)] {
+        let text = format!("box Counter {{ n: i64 birth() {{ {birth} }} }}
+            static box Main {{ main() {{ local c = new Counter() print(\"n=\" + c.n) return 0 }} }}");
+        let issued = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text);
+        if !expected {
+            assert!(format!("{:?}", issued.err().expect("nonnumeric Print must refuse source qualification"))
+                .contains("integer-field/source-missing"), "{birth}");
+            continue;
+        }
+        let package = issued.unwrap();
+        let cohort = &package.ordinary_new_claim_ledger.borrowed_i64_results;
+        let context = cohort.field_candidates.as_ref().expect("original field obligations retained");
+        let component = cohort.field_component.as_ref().unwrap().as_ref().expect("single cohort closure");
+        assert!(Rc::ptr_eq(context, &component.original));
+        assert_eq!(component.fields.contains(&("Counter".into(), "n".into())), expected, "{birth}");
+        let empty = BorrowedResultCohortV1::prepared(BTreeMap::new(), Rc::clone(context));
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let (plan, foreign_plan, site, object, receiver) = package.batch().declarations().find_map(|declaration| {
+            package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                let shape = input.body_shape()?;
+                let statement = shape.statements().iter().find(|row| matches!(row,
+                    crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. }))?;
+                let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+                let prepare = || crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                    &ledger, shape, statement.site()).unwrap().unwrap();
+                let plan = prepare();
+                let (site, object) = plan.nodes().iter().find_map(|node| match node.source() {
+                    crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+                        BodyExpressionShapeV1::FieldAccess { object, .. }) => Some((node.site().clone(), object.clone())),
+                    _ => None,
+                }).unwrap();
+                let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(&object)
+                    else { panic!("original local receiver") };
+                Some((plan, prepare(), OwnedExprSiteV1::new(input.owner(), site), object, receiver))
+            }).unwrap()
+        }).expect("original getter-free Print expression");
+        let staged = package.ordinary_new_claim_ledger.field_reads.borrow().len();
+        let leaf = context.sources.get(&("Counter".into(), "n".into())).map(|source|
+            super::super::expression_field::ExpressionFieldSourceLoanV1::issue(
+                cohort, ingress, Rc::clone(&plan), Rc::clone(source), &site, &object, receiver, receiver, "n"));
+        assert_eq!(leaf.as_ref().is_some_and(Result::is_ok), expected, "getter-free Print field: {birth}");
+        if let Some(Ok(leaf)) = leaf {
+            assert!(leaf.matches_declaration(leaf.field(), Some("i64")));
+            assert!(!leaf.matches_declaration(leaf.field(), None));
+            assert!(!leaf.matches_declaration(leaf.field(), Some("usize")));
+            leaf.recheck(cohort, ingress, &plan, &site, &object, receiver, receiver, leaf.field()).unwrap();
+            assert!(leaf.recheck(cohort, ingress, &foreign_plan, &site, &object, receiver, receiver, leaf.field())
+                .unwrap_err().contains("integer-field/source-identity"));
+        }
+        assert_eq!(package.ordinary_new_claim_ledger.field_reads.borrow().len(), staged,
+            "source-only leaf preparation never publishes a partial frame/read");
+        let (_, recomputed) = grounded_with_fields_v1(&empty, Some(ingress));
+        let recomputed = recomputed.unwrap();
+        assert_eq!(recomputed.fields.contains(&("Counter".into(), "n".into())), expected,
+            "field authority cannot depend on successful result rows");
+        assert!(cohort.require_field_component_v1(&recomputed).unwrap_err().contains("field-component-identity"),
+            "equal recomputed fields do not replace the SAME retained component");
+        let refused = pending::seal_pending_results_v1(empty, &package.parameter_contracts,
+            &Err("test/original-ingress-refused".into()), package.batch(), package.instance_constructors());
+        assert!(Rc::ptr_eq(context, refused.field_candidates.as_ref().unwrap()));
+        assert_eq!(refused.field_component.as_ref().unwrap_err(), "test/original-ingress-refused");
+    }
+
 }
 
 #[test]
@@ -97,12 +419,12 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
             .unwrap();
         let callee = proof.dependencies[0].callee_owner();
         match change {
-            0 => proof.dependencies[0].target_batch_slot += 1,
+            0 => proof.source_facts_mut_for_test().dependencies[0].target_batch_slot += 1,
             1 => {
-                proof.dependencies[0].argument_sites[0] =
+                proof.source_facts_mut_for_test().dependencies[0].argument_sites[0] =
                     proof.dependencies[0].receiver_site.clone()
             }
-            2 => proof.dependencies[0].callee_owner = caller,
+            2 => proof.source_facts_mut_for_test().dependencies[0].callee_owner = caller,
             3 => {
                 let leaf = ledger
                     .borrowed_i64_results
@@ -110,7 +432,7 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
                     .unwrap()
                     .as_mut()
                     .unwrap();
-                leaf.returns[0] = original[0]
+                leaf.source_facts_mut_for_test().returns[0] = original[0]
                     .as_ref()
                     .unwrap()
                     .as_ref()
@@ -142,7 +464,6 @@ fn composed_result_corroboration_rejects_foreign_dependencies_and_propagates_cal
 fn direct_call_result_source_rejects_non_i64_and_ungrounded_cycles() {
     assert!(issue("return 7", "return recv.leaf(p)").is_ok());
     for (leaf, body) in [
-        ("return true", "return recv.leaf(p)"),
         ("return null", "return recv.leaf(p)"),
         ("return", "return recv.leaf(p)"),
         (
@@ -192,7 +513,7 @@ fn direct_call_result_source_retains_terminal_relations_for_declared_borrows() {
             static box Main {{ main() {{ local recv = new Transport() local item = new Item() return recv.wrap(item) }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
-        for (owner, proof) in &ledger.borrowed_i64_results {
+        for (owner, proof) in ledger.borrowed_i64_results.iter() {
             if proof.as_ref().unwrap().dependencies.is_empty() {
                 continue;
             }
@@ -212,6 +533,212 @@ fn direct_call_result_source_retains_terminal_relations_for_declared_borrows() {
                 flow.all_exits_ready(),
                 "annotated={annotated} owner={owner:?} flow={flow:?}"
             );
+        }
+    }
+}
+
+#[test]
+fn bool_source_composition_keeps_exact_class_without_i64_or_invoke_permission() {
+    for body in [
+        "local out = recv.leaf(p) return out",
+        "return recv.leaf(p)",
+        "if p == null { return false } return recv.leaf(p)",
+    ] {
+        let package = issue("return true", body).expect("original Bool source chain");
+        let ledger = &package.ordinary_new_claim_ledger;
+        assert_eq!(ledger.borrowed_i64_results.len(), 3);
+        for proof in ledger.borrowed_i64_results.values() {
+            let proof = proof.as_ref().expect("grounded original Bool returns");
+            assert_eq!(proof.class, BorrowedResultClassV1::Bool);
+            proof.require_source_sealed_v1().unwrap();
+            assert!(
+                proof.require_source_i64_v1().is_err(),
+                "Bool never acquires I64 source law"
+            );
+        }
+        for slot in ledger.lexical_instance_calls.borrow().values() {
+            if let LexicalInstanceCallDispositionSlotV1::Ready(row) = slot {
+                assert_eq!(
+                    row.result(),
+                    None,
+                    "source Bool has no executable Invoke ABI yet"
+                );
+                assert!(ledger.borrowed_call_actuals_v1(row).is_err());
+            }
+        }
+    }
+}
+
+#[test]
+fn source_scalar_composition_refuses_mixed_direct_and_call_classes() {
+    for (leaf, body) in [
+        (
+            "return true",
+            "if p == null { return 0 } return recv.leaf(p)",
+        ),
+        (
+            "return 7",
+            "if p == null { return false } return recv.leaf(p)",
+        ),
+    ] {
+        let error = issue(leaf, body)
+            .err()
+            .expect("mixed scalar source refuses");
+        assert!(error.contains("borrowed-result/"), "{error}");
+    }
+}
+
+#[test]
+fn provider_static_original_base_keeps_source_evidence_through_ready() {
+    for suffix in ["", "me.child.seed()"] {
+    for (body, expected) in [
+        ("if kind == 0 { return 8 } if kind == 1 { return 4 } return 0", true),
+        ("return true", false),
+    ] {
+        let text = format!("static box Layout {{ capacity(kind) {{ {body} }} }}
+            box Page {{ n: i64 birth(capacity) {{ me.n = capacity }} read() {{ return me.n }} seed() {{ return 0 }} }}
+            box Parent {{ child: Page = new Page(Layout.capacity(0)) birth() {{ {suffix} }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text)
+            .unwrap_or_else(|issue| panic!("{body}: {issue:?}"));
+        if !suffix.is_empty() && expected {
+            let parent = package.instance_constructors().rows().iter().find(|row| row.box_name() == "Parent").unwrap();
+            assert!(matches!(parent.construction(), Err(crate::mir::normal_callable_semantic_package::ConstructionUnavailableV1::BodyCoverageUnsupported)));
+        }
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let context = ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();
+        let parameter = context.writers.get(&("Page".into(), "n".into())).and_then(|rows|
+            rows.iter().find_map(|row| match row.birth { Some(BirthBaseV1::Parameter(basis)) => Some(basis), _ => None }));
+        assert_eq!(parameter.is_some(), expected, "{body}");
+        if let Some(basis) = parameter {
+            assert!(basis.i64_source());
+            let source = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+            assert!(basis.ready(source));
+            for erase_rows in [false, true] {
+                source.with_replaced_original_new_evidence_for_test(erase_rows, |source| {
+                    assert!(!source.candidate_integer_agreement(basis.binding()));
+                    assert!(!source.candidate_i64_source_agreement(basis.binding()));
+                    assert!(!basis.ready(source), "cached basis survived removed provider evidence");
+                });
+                assert!(basis.ready(source), "restored SAME evidence remains valid");
+            }
+        }
+    }
+    }
+}
+
+#[test]
+fn original_return_field_requests_keep_nested_expression_plans_before_qualification() {
+    for (body, requested) in [
+        ("return me.child.n", true),
+        ("return me.child.n + me.child.n", true),
+        ("if true { return me.child.n + 1 } return me.child.n", true),
+        ("return 1 + 2", false),
+        ("local other = new Leaf() return other.n", false),
+    ] {
+        // A Bool Birth store deliberately prevents numeric qualification.
+        // Passive original source requests must survive that refusal.
+        let text = format!("box Leaf {{ n: i64 birth() {{ me.n = true }} }}
+            box Parent {{ child: Leaf = new Leaf() birth() {{ }} read() {{ {body} }} }}
+            static box Main {{ main() {{ return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let contract = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == "Parent" && key.name() == "read")).unwrap();
+        let originals = original::prepare_original_returns_v1(package.batch(), &package.selected, &package.parameter_contracts);
+        let loan = originals[&contract.owner].as_ref().unwrap();
+        assert_eq!(loan.is_some(), requested, "{body}");
+        if let Some(loan) = loan {
+            assert_eq!(loan.field_plans().count(), if body.contains("if true") { 2 } else { 1 });
+            for plan in loan.field_plans() {
+                assert!(Rc::ptr_eq(loan.plan(plan.nodes()[0].site()).unwrap(), plan));
+            }
+            assert!(package.ordinary_new_claim_ledger.borrowed_i64_results[&contract.owner].is_err(),
+                "passive source request cannot grant numeric result: {body}");
+        }
+    }
+}
+
+#[test]
+fn original_field_request_rejects_lost_retained_return_before_lending() {
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Counter { n: i64 birth() { me.n = 0 } read() { return me.n } }
+         static box Main { main() { local c = new Counter() return 0 } }").unwrap();
+    let contract = package.parameter_contracts.iter().find(|row| matches!(
+        package.selected.key_for_batch_slot(row.batch_slot),
+        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().clone();
+    let mut results = std::mem::take(&mut Rc::get_mut(&mut package.ordinary_new_claim_ledger)
+        .unwrap().borrowed_i64_results);
+    let proof = results[&contract.owner].as_ref().unwrap();
+    let receiver = proof.original_return.as_ref().unwrap().receiver();
+    let site = OwnedExprSiteV1::new(contract.owner, proof.expressions[0].plan().nodes()[0].site().clone());
+    let crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Shape(
+        BodyExpressionShapeV1::FieldAccess { object, .. }) = proof.expressions[0].plan().nodes()[0].source()
+        else { panic!("original field") };
+    let object = object.clone();
+    for erase in [false, true] {
+        if erase {
+            results.get_mut(&contract.owner).unwrap().as_mut().unwrap()
+                .source_facts_mut_for_test().original_return = None;
+        }
+        let loan = package.batch().with_lowering_input(contract.batch_slot, |input| {
+            let class = package.batch().ordinary_box_coverage().row_for("Counter").unwrap().unwrap();
+            super::super::integer_field::lend_integer_field_v1(&results,
+                package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap(),
+                input, package.instance_constructors(), Some((receiver, class)),
+                &site, &object, receiver, receiver, "n")
+        }).unwrap();
+        if erase {
+            assert!(loan.unwrap_err().contains("integer-field/original-return-missing"));
+        } else { assert!(loan.unwrap().is_some()); }
+    }
+}
+
+#[test]
+fn nested_result_fields_keep_object_identity_separate_from_numeric_writers() {
+    for (birth, extra, returned, expected) in [
+        ("0", "", "me.child.n + me.child.n", true),
+        ("0", "me.child.seed()", "me.child.n + me.child.n", true),
+        ("true", "", "me.child.n + me.child.n", false),
+        ("0", "", "me.child + 1", false),
+    ] {
+        let text = format!("box Leaf {{ n: i64 birth() {{ me.n = {birth} }} seed() {{ return 0 }} }}
+            box Parent {{ child: Leaf = new Leaf() birth() {{ {extra} }}
+                read() {{ return {returned} }} }}
+            static box Main {{ main() {{ local leaf = new Leaf() return 0 }} }}");
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+        let owner = package.parameter_contracts.iter().find(|row| matches!(
+            package.selected.key_for_batch_slot(row.batch_slot),
+            Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                if key.owner() == "Parent" && key.name() == "read")).unwrap().owner;
+        let context = package.ordinary_new_claim_ledger.borrowed_i64_results.field_candidates.as_ref().unwrap();
+        let original_objects = context.object_sources();
+        assert!(Rc::ptr_eq(original_objects, package.ordinary_new_claim_ledger.field_write_claims.object_sources()));
+        assert!(original_objects[&("Parent".into(), "child".into())].field().is_some());
+        if !extra.is_empty() {
+            assert!(package.instance_constructors().rows().iter().find(|row| row.box_name() == "Parent")
+                .unwrap().construction().is_err(), "source class is independent of whole Birth admission");
+        }
+        let result = &package.ordinary_new_claim_ledger.borrowed_i64_results[&owner];
+        assert_eq!(result.is_ok(), expected, "{birth}/{extra}: {result:?}");
+        if expected {
+            let proof = result.as_ref().unwrap();
+            proof.require_source_i64_v1().unwrap();
+            let expression = &proof.expressions[0];
+            assert_eq!(expression.fields().cloned().collect::<BTreeSet<_>>(),
+                BTreeSet::from([("Leaf".into(), "n".into())]));
+            assert!(!proof.field_component.as_ref().unwrap().fields.contains(&("Parent".into(), "child".into())),
+                "intermediate object Identity must never enter numeric closure");
+            assert!(expression.fields_match(context.sources(), original_objects));
+            let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&text).unwrap();
+            assert!(!expression.fields_match(context.sources(),
+                foreign.ordinary_new_claim_ledger.field_write_claims.object_sources()),
+                "equal-shaped foreign object source cannot replace original proof");
+            let mut erased = original_objects.as_ref().clone();
+            erased.remove(&("Parent".into(), "child".into()));
+            assert!(!expression.fields_match(context.sources(), &Rc::new(erased)),
+                "an erased original object edge cannot retain numeric result credit");
         }
     }
 }

@@ -89,6 +89,12 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
     type StatementInput;
     type ExpressionInput;
 
+    /// Observe the sole short-circuit writer after conditional RHS descent.
+    /// Unarmed compatibility ports issue no source correspondence.
+    fn complete_short_circuit_expression_v1(
+        &mut self, _completed: &super::ops::CompletedLogicalShortCircuitV1,
+    ) -> Result<(), String> { Ok(()) }
+
     /// Observe the sole ordinary Binary completion after ordered child descent.
     /// Compatibility ports stay unarmed; this tuple alone grants no source proof.
     fn complete_ordinary_binary_expression_v1(
@@ -96,6 +102,53 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         _completed: &super::ops::CompletedOrdinaryBinaryV1,
     ) -> Result<(), String> {
         Ok(())
+    }
+
+    fn observe_borrowed_field_write_guard_binary_v1(&mut self, _builder: &mut MirBuilder,
+        _children: (ValueId, ValueId), _completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> { Ok(()) }
+    fn prepare_borrowed_field_write_guard_observer_v1(&mut self)
+        -> Result<Option<Box<dyn super::if_form::IfFormPhysicalObserverV1>>, String> { Ok(None) }
+
+    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1>, String> { Ok(None) }
+    fn read_borrowed_field_write_operand_v1(&mut self, _source: &crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+        _receiver: bool, _input: Self::ExpressionInput,
+    ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> { Err("[freeze:contract][borrowed-field-write/read-unavailable]".into()) }
+    fn emit_borrowed_field_write_v1(&mut self, _builder: &mut MirBuilder,
+        _source: crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+        _field: &str, _reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+    ) -> Result<(), String> { Err("[freeze:contract][borrowed-field-write/consumer-unavailable]".into()) }
+
+    fn prepare_borrowed_array_set_v1(&mut self, _method: &str, _arity: usize)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1>, String> { Ok(None) }
+    fn complete_borrowed_array_set_v1(&mut self, _builder: &mut MirBuilder,
+        _source: crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1,
+        _children: [ValueId; 3], _write: crate::mir::builder::CompletedArrayElementWriteV1,
+    ) -> Result<(), String> { Err("[freeze:contract][borrowed-set/completion-unavailable]".into()) }
+
+    fn prepare_field_array_read_v1(&mut self, _method: &str, _arity: usize) -> Result<Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>>, String> { Ok(None) }
+    fn complete_field_array_read_v1(&mut self, _recipe: std::rc::Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, _read: crate::mir::ArrayReadSiteId, _receiver: ValueId, _index: ValueId, _dst: ValueId) -> Result<(), String> {
+        Err("[freeze:contract][named-array/read-consumer-unavailable]".into())
+    }
+
+    fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
+        Ok(None)
+    }
+    fn lower_checked_bool_condition_v1(&mut self, _builder: &mut MirBuilder,
+        _frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>,
+        _condition: Self::ExpressionInput,
+    ) -> Result<super::ordinary_new_admission::selected::bool_condition::LoweredBoolConditionV1, String> {
+        Err("[freeze:contract][bool-condition/consumer-unavailable]".into())
+    }
+
+    /// Selected whole Print is checked before preparing/evaluating any child.
+    fn prepare_checked_print_expression_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>>, String> {
+        Ok(None)
+    }
+    fn lower_checked_print_value_v1(&mut self, _builder: &mut MirBuilder,
+        _frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+    ) -> Result<ValueId, String> {
+        Err("[freeze:contract][print-expression/consumer-unavailable]".into())
     }
 
     fn prepare_ordinary_scalar_source_v1(

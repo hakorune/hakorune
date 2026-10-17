@@ -17,6 +17,36 @@ use super::recursive_child_lowering::{
 };
 
 impl CallableBindingMaterializationPortV1 for RawInvocationChildPortV1<'_, '_> {
+    fn callable_result_owner_v1(&self) -> Result<Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>, String> {
+        let owner = self.callable_owner_v1();
+        if self.ordinary_new_claim_ledger.is_some() && owner.is_none() {
+            return Err(freeze("result-source-owner-missing"));
+        }
+        Ok(owner)
+    }
+    fn prepare_callable_result_source_v1(
+        &self,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>, String> {
+        let Some(owner) = self.callable_result_owner_v1()? else { return Ok(None); };
+        let ledger = self.ordinary_new_claim_ledger.as_ref()
+            .ok_or_else(|| freeze("result-source-ledger-missing"))?;
+        let source = ledger.callable_result_source_v1(owner)?;
+        if let Some(scalar) = source.as_ref().and_then(|source| source.scalar()) { ledger.stage_result_field_paths_v1(scalar)?; }
+        Ok(source)
+    }
+    fn prepare_implicit_callable_end_v1(
+        &self,
+    ) -> Result<Option<super::port_aware_function_draft_impl::ImplicitCallableEndV1>, String> {
+        let Some(owner) = self.callable_result_owner_v1()? else { return Ok(None); };
+        let ledger = self.ordinary_new_claim_ledger.as_ref()
+            .ok_or_else(|| freeze("implicit-end-ledger-missing"))?;
+        let Some(completion) = ledger.implicit_unit_completion_source_v1(owner)? else { return Ok(None); };
+        let state = self.callable_ledger.as_ref()
+            .ok_or_else(|| freeze("implicit-end-state-missing"))?;
+        super::port_aware_function_draft_impl::ImplicitCallableEndV1::new(
+            owner, completion, ledger.clone(), state.clone(),
+        ).map(Some)
+    }
     fn adopt_callable_entry_values_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -168,7 +198,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         // arguments, nested slots, containment) stay unadmitted here.
         match claims.map_flow(&owned)?.destination() {
             MapDestinationV1::LocalBinding(_) => {
-                let relation = state.map_initializer(&site)?;
+                let relation = state.expression_initializer(&site)?;
                 crate::mir::builder::ordinary_new_admission::selected::map::emit(
                     builder, &mut state, &claims, &owned, &relation,
                 )

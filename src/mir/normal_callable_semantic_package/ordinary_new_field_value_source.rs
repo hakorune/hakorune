@@ -36,6 +36,7 @@ pub(crate) struct DeclaredFieldValueSourceV1 {
     declared_type_name: Option<Box<str>>,
     writers: Box<[usize]>,
     birth_stores: Box<[Option<BirthStoreSourceRefV1>]>,
+    qualified_writers: BTreeSet<usize>,
 }
 impl DeclaredFieldValueSourceV1 {
     pub(crate) fn field(&self) -> CanonicalFieldRefV1 { self.field }
@@ -45,6 +46,13 @@ impl DeclaredFieldValueSourceV1 {
     }
     pub(crate) fn same_inventory(&self, claims: &OrdinaryNewFieldWriteClaimsV1) -> bool {
         Rc::ptr_eq(&self.inventory, &claims.writers)
+    }
+
+    pub(crate) fn needs_formal_target(&self, ordinal: usize) -> bool {
+        self.writers.get(ordinal).is_some_and(|index| self.qualified_writers.contains(index))
+    }
+    pub(crate) fn corroborates_writer(&self, ordinal: usize, source: &OriginalFieldWriteSourceLoanV1) -> bool {
+        Rc::ptr_eq(&self.inventory, &source.inventory) && self.writers.get(ordinal) == Some(&source.index)
     }
 
     /// Return the SAME constructor's store after independently checking its
@@ -95,7 +103,7 @@ pub(super) fn issue_value_sources_v1(
         }
     }
     fields.into_iter().map(|((class, name), writers)| {
-        let source = issue_one(inventory, coverage, constructors, &class, &name, writers);
+        let source = issue_one(inventory, coverage, constructors, &class, &name, writers, &BTreeMap::new());
         ((class, name), source.map(Rc::new))
     }).collect()
 }
@@ -107,11 +115,15 @@ fn issue_one(
     class: &str,
     name: &str,
     writers: Vec<usize>,
+    qualified: &BTreeMap<usize, crate::mir::resolved_semantics::BindingRefV1>,
 ) -> Result<DeclaredFieldValueSourceV1, FieldValueSourceIssueV1> {
     use FieldValueSourceIssueV1 as Issue;
     if inventory.opaque { return Err(Issue::HiddenWriters); }
     if inventory.value_incomplete { return Err(Issue::IncompleteWriterInventory); }
-    if inventory.unattributed_fields.contains(name) { return Err(Issue::UnattributedWriter); }
+    if inventory.unattributed_fields.contains(name) && (qualified.is_empty()
+        || inventory.writes.iter().enumerate().any(|(index, write)| write.field() == name
+            && (!write.is_attributed() || write.owner_box().is_none()) && !qualified.contains_key(&index)))
+    { return Err(Issue::UnattributedWriter); }
     let box_source = coverage.row_for(class).map_err(|_| Issue::Declaration)?
         .ok_or(Issue::Declaration)?;
     let first = &inventory.writes[*writers.first().ok_or(Issue::MissingWriter)?];
@@ -122,9 +134,11 @@ fn issue_one(
     let mut birth_stores = Vec::new();
     for index in &writers {
         let write = &inventory.writes[*index];
-        if !write.is_attributed() || write.receiver().is_none()
-            || write.owner_box() != Some(class) || write.field() != name
-        { return Err(Issue::UnattributedWriter); }
+        let attributed = match qualified.get(index) {
+            Some(binding) => !write.in_birth() && !write.is_attributed() && binding.owner() == write.owner(),
+            None => write.is_attributed() && write.receiver().is_some() && write.owner_box() == Some(class),
+        };
+        if !attributed || write.field() != name { return Err(Issue::UnattributedWriter); }
         let plan = write.source().map_err(|_| Issue::OriginalPlan)?;
         if plan.owner() != write.owner()
             || plan.root().statement() != write.assignment().statement_site()
@@ -168,5 +182,52 @@ fn issue_one(
     Ok(DeclaredFieldValueSourceV1 {
         inventory: Rc::clone(inventory), field, declared_type_name: declared.map(Into::into),
         writers: writers.into_boxed_slice(), birth_stores: birth_stores.into_boxed_slice(),
+        qualified_writers: qualified.keys().copied().collect(),
     })
+}
+
+impl OrdinaryNewFieldWriteClaimsV1 {
+    /// Qualify only the deferred formal-target writers on the SAME inventory.
+    /// Successful original sources are never reissued. All unknown same-name
+    /// observations participate; a single failed target preserves the refusal.
+    pub(crate) fn qualify_unattributed_value_source_v1<T>(
+        &self, class: &str, name: &str,
+        coverage: &ParserOrdinaryBoxSourceCoverageV1,
+        constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+        mut target: impl FnMut(&OriginalFieldWriteSourceLoanV1, CanonicalFieldRefV1)
+            -> Result<(crate::mir::resolved_semantics::BindingRefV1, T), String>,
+    ) -> Result<(Rc<DeclaredFieldValueSourceV1>, Box<[(usize, T)]>), String> {
+        let fail = |issue: FieldValueSourceIssueV1| format!("field-value/source/{issue:?}");
+        if !matches!(self.value_source(class, name), Some(Err(FieldValueSourceIssueV1::UnattributedWriter))) {
+            return Err("field-value/source/not-deferred-target".into());
+        }
+        if self.writers.opaque { return Err(fail(FieldValueSourceIssueV1::HiddenWriters)); }
+        if self.writers.value_incomplete { return Err(fail(FieldValueSourceIssueV1::IncompleteWriterInventory)); }
+        let mut writers: Vec<_> = self.writers.writes.iter().enumerate().filter(|(_, write)|
+            write.field() == name && ((write.is_attributed() && write.owner_box() == Some(class))
+                || !write.is_attributed() || write.owner_box().is_none())).map(|(index, _)| index).collect();
+        writers.sort_unstable();
+        writers.dedup();
+        let first = writers.iter().map(|index| &self.writers.writes[*index])
+            .find(|write| write.is_attributed() && write.owner_box() == Some(class))
+            .ok_or_else(|| fail(FieldValueSourceIssueV1::MissingWriter))?;
+        let box_source = coverage.row_for(class).ok().flatten().ok_or_else(|| fail(FieldValueSourceIssueV1::Declaration))?;
+        let (field, _) = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::source_declared_field(
+            constructors, box_source, &OwnedExprSiteV1::new(first.owner(), first.assignment().target_site().clone()), name)
+            .map_err(|_| fail(FieldValueSourceIssueV1::Declaration))?.ok_or_else(|| fail(FieldValueSourceIssueV1::Declaration))?;
+        let mut qualified = BTreeMap::new();
+        let mut targets = Vec::new();
+        for (ordinal, index) in writers.iter().enumerate() {
+            let write = &self.writers.writes[*index];
+            if write.is_attributed() && write.owner_box() == Some(class) { continue; }
+            if write.in_birth() { return Err(fail(FieldValueSourceIssueV1::UnattributedWriter)); }
+            let original = OriginalFieldWriteSourceLoanV1 { inventory: Rc::clone(&self.writers), index: *index };
+            self.recheck_original_write_source_v1(&original).map_err(str::to_owned)?;
+            let (binding, proof) = target(&original, field)?;
+            qualified.insert(*index, binding);
+            targets.push((ordinal, proof));
+        }
+        let source = issue_one(&self.writers, coverage, constructors, class, name, writers, &qualified).map_err(fail)?;
+        Ok((Rc::new(source), targets.into_boxed_slice()))
+    }
 }

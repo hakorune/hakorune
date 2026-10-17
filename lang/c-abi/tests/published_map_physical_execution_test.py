@@ -76,8 +76,13 @@ class Graph:
             return value
 
 
-def program(keys):
+def program(keys, padding=0):
     graph = Graph()
+    for _ in range(padding):
+        next_block = graph.block()
+        graph.term(graph.current, dict(op="jump", target=next_block["id"], args=None))
+        graph.current["edges"] = [dict(target=next_block["id"], args=None)]
+        graph.current = next_block
     outer = []
     for i in range(len(keys)):
         value = graph.invoke(dict(kind="new_box", object_id=i), list(reversed(outer)), True)
@@ -96,7 +101,7 @@ def program(keys):
     graph.term(graph.current, dict(op="return", value=1))
     return dict(schema="hako.published-lifecycle-physical-program.v2", storage_profile=1,
                 fault_abi_version=1, process_result_site=graph.site,
-        layouts=[dict(object_id=i, runtime_type_id=900+i, field_count=0, fields=[])
+        layouts=[dict(object_id=i, runtime_type_id=900+i, field_count=0, fields=[], owned_residences=[])
                  for i in range(len(keys))],
         functions=[dict(name="main", role="root_i64", entry=0, params=[], receiver=None,
                                 receiver_object=None, blocks=graph.blocks)])
@@ -294,10 +299,11 @@ def borrowed_array_program():
 
 with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
     work = Path(directory)
+    library_dir = Path(os.environ.get("HAKO_TEST_FFI_DIR", ROOT / "target/release"))
     driver, obj, exe = [work / name for name in ("driver", "map.o", "map")]
     checked(["cc", "-DHAKO_TEST_RUNTIME_DESCRIPTOR", TESTS / "published_lifecycle_v4_driver.c",
-             "-L" + str(ROOT / "target/release"), "-lhako_llvmc_ffi", ARCHIVE,
-             "-Wl,-rpath," + str(ROOT / "target/release"), "-ldl", "-lpthread", "-lm", "-o", driver])
+             "-L" + str(library_dir), "-lhako_llvmc_ffi", ARCHIVE,
+             "-Wl,-rpath," + str(library_dir), "-ldl", "-lpthread", "-lm", "-o", driver])
     main = work / "main.c"
     main.write_text("extern long ny_main(void); int main(void) { return (int)ny_main(); }\n")
     env = dict(os.environ, NYASH_NYRT_SILENT_RESULT="1", HAKO_NYRT_PLUGIN_HOST="off")
@@ -319,13 +325,15 @@ with tempfile.TemporaryDirectory(prefix="hako map physical ") as directory:
         assert marker in result.stderr, (marker, result.stderr)
         return result
 
-    for keys in [[], ["a"], ["a", "b"], ["a", "a"], ["a\x00b", "a\x00b"], ["", "01"]]:
-        data = program(keys)
+    # Padding puts the Map transfer beyond the former256-block/state domain.
+    for keys, padding in [([], 0), (["a"], 0), (["a", "b"], 0), (["a", "a"], 0),
+                          (["a\x00b", "a\x00b"], 0), (["", "01"], 0), (["a"], 255)]:
+        data = program(keys, padding)
         compile_input(data)
         checked(["cc", main, obj, ARCHIVE, "-ldl", "-lpthread", "-lm", "-o", exe])
         result = run([exe], env=env)
         assert result.returncode == 30, (keys, result.returncode, result.stderr)
-    print("six Map physical programs -> actual descriptor/OBJ/linked EXE30")
+    print("seven Map physical programs, including large CFG -> actual descriptor/OBJ/linked EXE30")
 
     # Block IDs and document ordinals are distinct coordinates. Exercise the
     # index with the entry and result-origin blocks out of numeric order.

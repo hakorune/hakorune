@@ -13,7 +13,7 @@ typedef struct {
 
 enum {
   LV4_BAD, LV4_I64, LV4_HANDLE, LV4_FRAME, LV4_UNIT, LV4_TEXT, LV4_BOOL,
-  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW, LV4_OWNED_STRING, LV4_ARRAY_BORROW
+  LV4_F64, LV4_TAGGED, LV4_MAP, LV4_KEY, LV4_OUTCOME, LV4_MAP_VIEW, LV4_TEXT_VIEW, LV4_OWNED_STRING, LV4_ARRAY_BORROW, LV4_BORROWED_OBJECT, LV4_MIXED_OBJECT
 };
 
 static uint32_t lv4_u(yyjson_val* object, const char* key) {
@@ -22,6 +22,13 @@ static uint32_t lv4_u(yyjson_val* object, const char* key) {
 static int lv4_is(yyjson_val* object, const char* key, const char* text) {
   return hako_physical_string(yyjson_obj_get(object, key), text);
 }
+static int lv4_is_ordinary(yyjson_val* function) {
+  return lv4_is(function, "role", "ordinary_unit") || lv4_is(function, "role", "ordinary_bool") ||
+      lv4_is(function, "role", "ordinary_i64") || lv4_is(function, "role", "ordinary_map") ||
+      lv4_is(function, "role", "ordinary_handle") || lv4_is(function, "role", "ordinary_nullable_handle") ||
+      lv4_is(function, "role", "ordinary_borrowed_nullable_handle") || lv4_is(function, "role", "ordinary_mixed_handle");
+}
+#include "hako_llvmc_ffi_lifecycle_v4_state.inc"
 static yyjson_val* lv4_term(yyjson_val* block) {
   return yyjson_obj_get(yyjson_obj_get(block, "terminator"), "instruction");
 }
@@ -67,21 +74,18 @@ static int lv4_type(yyjson_val* fn, uint32_t value, size_t budget) {
 }
 static size_t lv4_value_budget(yyjson_val* fn) {
   yyjson_val* blocks = hako_physical_blocks(fn);
-  size_t count = yyjson_arr_size(yyjson_obj_get(fn, "params")) + 1;
-  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++)
-    count += yyjson_arr_size(yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions"));
+  size_t count = yyjson_arr_size(yyjson_obj_get(fn, "params"));
+  if (count == SIZE_MAX) return SIZE_MAX;
+  count++;
+  for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
+    size_t rows = yyjson_arr_size(yyjson_obj_get(yyjson_arr_get(blocks, bi), "instructions"));
+    if (rows > SIZE_MAX - count) return SIZE_MAX;
+    count += rows;
+  }
   return count;
 }
 
 #include "hako_llvmc_ffi_lifecycle_v4_index.inc"
-/* Existing per-origin state also carries String acquisition rank. Distinct
- * from live Array/Object state and Map transfer tags (at most 258). */
-enum { LV4_STRING_RANK_BASE = 1024 };
-static uint16_t lv4_string_top(const uint16_t* state, size_t count) {
-  uint16_t top = LV4_STRING_RANK_BASE;
-  for (size_t i = 0; i < count; i++) if (state[i] > top) top = state[i];
-  return top;
-}
 #include "hako_llvmc_ffi_lifecycle_v4_native_admission.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_flow.inc"

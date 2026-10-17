@@ -16,7 +16,79 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_formal_result_composition.rs"]
 mod composition;
+#[path = "ordinary_new_borrowed_formal_result_expression.rs"]
+mod expression;
+pub(crate) use expression::ResultPathFieldSourceLoanV1;
+#[path = "ordinary_new_borrowed_formal_result_original.rs"]
+pub(super) mod original;
+#[path = "ordinary_new_borrowed_formal_result_unit.rs"]
+mod unit;
+pub(in crate::mir::normal_callable_semantic_package) use unit::source_unit_discard_v1;
 pub(super) use composition::grounded_source_results_v1;
+
+#[path = "ordinary_new_borrowed_formal_result_scalar_loan.rs"]
+mod scalar_loan;
+pub(in crate::mir::normal_callable_semantic_package) use scalar_loan::{
+    issue_source_scalar_result_loan_v1, lend_source_scalar_result_arguments_v1, source_scalar_result_arguments_v1, required_scalar_source_walk_v1,
+    validate_source_scalar_result_loan_v1, corroborate_source_scalar_result_loan_v1,
+};
+
+pub(crate) use scalar_loan::{BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1};
+
+#[path = "ordinary_new_callable_result_source.rs"]
+mod callable_result_source;
+pub(crate) use callable_result_source::CallableResultSourceV1;
+
+#[path = "ordinary_new_borrowed_expression_field_source.rs"]
+mod expression_field;
+
+#[path = "ordinary_new_borrowed_field_integer_source.rs"]
+mod integer_field;
+pub(in crate::mir::normal_callable_semantic_package) use integer_field::{lend_integer_field_v1, IntegerFieldSourceLoanV1};
+pub(in crate::mir::normal_callable_semantic_package) use expression_field::{ExpressionFieldSourceLoanV1, ClosedNumericFieldSourceLoanV1, ExpressionObjectFieldSourceLoanV1};
+
+/// One original source cohort: field obligations survive absent/failed getters.
+/// Map access borrows result rows; it cannot replace the retained source context.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedResultCohortV1 {
+    rows: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+    field_candidates: Result<Rc<composition::FieldCandidatesV1>, String>,
+    field_component: Result<Option<Rc<composition::ClosedFieldComponentV1>>, String>,
+}
+impl Default for BorrowedResultCohortV1 {
+    fn default() -> Self {
+        Self::unavailable(freeze("borrowed-result/original-cohort-unprepared"))
+    }
+}
+impl BorrowedResultCohortV1 {
+    pub(super) fn unavailable(issue: String) -> Self {
+        Self { rows: BTreeMap::new(), field_candidates: Err(issue.clone()), field_component: Err(issue) }
+    }
+    fn require_field_component_v1(
+        &self, component: &Rc<composition::ClosedFieldComponentV1>,
+    ) -> Result<(), String> {
+        let original = self.field_candidates.as_ref().map_err(Clone::clone)?;
+        let retained = self.field_component.as_ref().map_err(Clone::clone)?.as_ref()
+            .ok_or_else(|| freeze("borrowed-result/field-component-unsealed"))?;
+        if !Rc::ptr_eq(retained, component) || !component.belongs_to(original) {
+            return Err(freeze("borrowed-result/field-component-identity"));
+        }
+        Ok(())
+    }
+    fn prepared(
+        rows: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+        field_candidates: Rc<composition::FieldCandidatesV1>,
+    ) -> Self {
+        Self { rows, field_candidates: Ok(field_candidates), field_component: Ok(None) }
+    }
+}
+impl std::ops::Deref for BorrowedResultCohortV1 {
+    type Target = BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>;
+    fn deref(&self) -> &Self::Target { &self.rows }
+}
+impl std::ops::DerefMut for BorrowedResultCohortV1 {
+    fn deref_mut(&mut self) -> &mut Self::Target { &mut self.rows }
+}
 
 /// The sole result class a borrowed callee's uniform return sites prove.
 /// `I64` includes original guarded scalar/operation Normal results; `Nullable` is
@@ -27,22 +99,85 @@ pub(super) use composition::grounded_source_results_v1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum BorrowedResultClassV1 {
     I64,
+    Bool,
+    /// Pending calls have no scalar class until all original dependencies ground.
+    UnresolvedScalar,
     Nullable,
+}
+
+#[derive(Debug, Clone)]
+pub(in crate::mir::normal_callable_semantic_package) struct BorrowedResultSourceFactsV1 {
+    pub(super) returns: Box<[OwnedExprSiteV1]>,
+    pub(super) class: BorrowedResultClassV1,
+    fixed_class: BorrowedResultClassV1,
+    original_return: Option<original::OriginalReturnSourceLoanV1>,
+    expressions: Box<[Rc<expression::ResultExpressionSourceV1>]>,
+    field_candidates: Option<Rc<composition::FieldCandidatesV1>>,
+    field_component: Option<Rc<composition::ClosedFieldComponentV1>>,
+    parameterless_instance: Option<(FunctionOwnerIdV1, u32, CanonicalSameModuleCallableKeyV1)>,
+    dependencies: Box<[LexicalInstanceCallSourceTargetV1]>,
+    multiplications: Box<[Rc<BorrowedMulSourceV1>]>,
+    field_array_reads: Box<[Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>]>,
 }
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedI64ResultSourceV1 {
-    pub(super) returns: Box<[OwnedExprSiteV1]>,
-    pub(super) class: BorrowedResultClassV1,
+    source_facts: Rc<BorrowedResultSourceFactsV1>,
     pub(super) contract_corroborated: bool,
-    /// Original call rows, never result permission inferred from an annotation.
-    dependencies: Box<[LexicalInstanceCallSourceTargetV1]>,
-    /// SAME returned operation products; conditional Normal class, not input agreement.
-    multiplications: Box<[Rc<BorrowedMulSourceV1>]>,
     phase: pending::BorrowedResultSourcePhaseV1,
+}
+impl std::ops::Deref for BorrowedI64ResultSourceV1 {
+    type Target = BorrowedResultSourceFactsV1;
+    fn deref(&self) -> &Self::Target {
+        &self.source_facts
+    }
 }
 
 impl BorrowedI64ResultSourceV1 {
+    fn verify_original_return_v1(&self) -> Result<(), String> {
+        if let Some(original) = &self.original_return {
+            if original.is_unit_candidate_v1() { return Err(freeze("borrowed-result/unit-is-not-scalar")); }
+            if original.field_plans().filter(|plan| plan.nodes().first().is_some_and(|node|
+                self.returns.contains(&OwnedExprSiteV1::new(plan.owner(), node.site().clone()))))
+                .any(|plan| !self.expressions.iter().any(|expression| Rc::ptr_eq(plan, expression.plan())))
+                || self.expressions.iter().any(|expression| expression.plan().nodes().first().is_none_or(|node|
+                    original.plan(node.site()).is_none_or(|plan| !Rc::ptr_eq(plan, expression.plan()))))
+            { return Err(freeze("borrowed-result/original-return-plan-identity")); }
+        }
+        Ok(())
+    }
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn matches_original_return_v1(&self, original: &original::OriginalReturnSourceLoanV1) -> bool {
+        self.original_return.as_ref() == Some(original) && self.verify_original_return_v1().is_ok()
+    }
+    fn pending_source_facts_mut_v1(&mut self) -> Result<&mut BorrowedResultSourceFactsV1, String> {
+        if !matches!(
+            self.phase,
+            pending::BorrowedResultSourcePhaseV1::Pending { .. } | pending::BorrowedResultSourcePhaseV1::IngressVerified
+        ) {
+            return Err(freeze("borrowed-result/source-already-sealed"));
+        }
+        Rc::get_mut(&mut self.source_facts)
+            .ok_or_else(|| freeze("borrowed-result/pending-facts-shared"))
+    }
+    #[cfg(test)]
+    pub(in crate::mir::normal_callable_semantic_package) fn source_facts_mut_for_test(
+        &mut self,
+    ) -> &mut BorrowedResultSourceFactsV1 {
+        Rc::make_mut(&mut self.source_facts)
+    }
+    pub(in crate::mir::normal_callable_semantic_package) fn require_source_scalar_v1(
+        &self,
+    ) -> Result<(), String> {
+        self.require_source_sealed_v1()?;
+        if !matches!(
+            self.class,
+            BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool
+        ) {
+            return Err(freeze("borrowed-result/source-not-scalar"));
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn require_source_i64_v1(
         &self,
     ) -> Result<(), String> {
@@ -56,9 +191,22 @@ impl BorrowedI64ResultSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn require_source_sealed_v1(
         &self,
     ) -> Result<(), String> {
+        self.verify_original_return_v1()?;
         match self.phase {
-            pending::BorrowedResultSourcePhaseV1::SourceSealed => Ok(()),
-            pending::BorrowedResultSourcePhaseV1::Pending { .. } => {
+            pending::BorrowedResultSourcePhaseV1::SourceSealed
+                if self.class != BorrowedResultClassV1::UnresolvedScalar =>
+            {
+                for expression in &self.expressions {
+                    if expression.uses_fields() && self.field_component.as_ref().is_none_or(|component| !component.permits(expression)) {
+                        return Err(freeze("borrowed-result/field-component-unsealed"));
+                    }
+                }
+                Ok(())
+            }
+            pending::BorrowedResultSourcePhaseV1::SourceSealed => {
+                Err(freeze("borrowed-result/source-class-unresolved"))
+            }
+            pending::BorrowedResultSourcePhaseV1::Pending { .. } | pending::BorrowedResultSourcePhaseV1::IngressVerified => {
                 Err(freeze("borrowed-result/source-not-sealed"))
             }
         }
@@ -71,12 +219,57 @@ pub(super) use pending::collect_observed_forward_identities_v1;
 pub(in crate::mir::normal_callable_semantic_package) use pending::ForwardIdentityV1;
 pub(super) use pending::{prepare_pending_results_v1, seal_pending_results_v1, stored_eligible_v1};
 
+/// Complete declaration/Completion agreement for the SAME original result facts.
+/// Both issuance and retained-loan demand use this check; cached readiness alone
+/// cannot make an erased, foreign or duplicate return set complete.
+fn source_result_contract_agrees_v1(
+    proof: &BorrowedI64ResultSourceV1,
+    source: &LexicalInstanceCallSourceTargetV1,
+    results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
+    nullable_claim: bool,
+) -> bool {
+    results.row(source.target_batch_slot()).is_some_and(|row| {
+        let borrowed = row.borrow();
+        let completion = borrowed.completion();
+        // The declaration must agree with the retained source class. Unannotated
+        // is not Void, and class agreement never grants executable permission.
+        let result_agrees = match proof.class {
+            BorrowedResultClassV1::I64 => borrowed.declared_result_agrees_with_i64_source(),
+            BorrowedResultClassV1::Bool => borrowed.declared_result_agrees_with_bool_source(),
+            BorrowedResultClassV1::UnresolvedScalar => false,
+            BorrowedResultClassV1::Nullable => {
+                row.result().is_none()
+                    && nullable_claim
+            }
+        };
+        row.owner() == source.callee_owner()
+            && source_result_completion_agrees_v1(proof, source.callee_owner(), completion)
+            && result_agrees
+    })
+}
+
+fn source_result_completion_agrees_v1(
+    proof: &BorrowedI64ResultSourceV1,
+    owner: FunctionOwnerIdV1,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+) -> bool {
+    let expected: BTreeSet<_> = proof.returns.iter().cloned().collect();
+    let observed: BTreeSet<_> = completion.explicit_sites().iter().map(|exit| {
+        let value = crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
+            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value).expr();
+        OwnedExprSiteV1::new(completion.owner(), value)
+    }).collect();
+    completion.owner() == owner && completion.returns_value() && !expected.is_empty()
+        && expected.len() == proof.returns.len()
+        && observed.len() == completion.explicit_sites().len() && observed == expected
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn install_borrowed_formal_preparation_v1(
         &mut self,
         source: Result<PreparedBorrowedFormalIngressV1, String>,
         mut actuals: PendingBorrowedFormalActualsV1,
-        results: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+        results: BorrowedResultCohortV1,
     ) {
         super::borrowed_formal_actuals::finish_borrowed_call_actuals_v1(&source, &mut actuals);
         self.borrowed_i64_results = results;
@@ -102,9 +295,9 @@ impl OrdinaryNewClaimLedgerV1 {
         // Revalidate the complete retained set, including an erased set. The
         // canonical target owns this proof; never infer its owner from a return.
         let mul_issue = match self.borrowed_formal_source.as_ref() {
-            Some(Ok(ingress)) => pending::mul_result::verify_mul_returns(
-                source.callee_owner(), proof, ingress,
-            ),
+            Some(Ok(ingress)) => {
+                pending::mul_result::verify_mul_returns(source.callee_owner(), proof, ingress)
+            }
             Some(Err(issue)) => Err(issue.clone()),
             None => Err(freeze("borrowed-result/mul-source-missing")),
         };
@@ -112,50 +305,14 @@ impl OrdinaryNewClaimLedgerV1 {
             *pending = Err(issue);
             return;
         }
-        let expected: BTreeSet<_> = proof.returns.iter().cloned().collect();
-        let class = proof.class;
-        let agrees = results.row(source.target_batch_slot()).is_some_and(|row| {
-            let borrowed = row.borrow();
-            let completion = borrowed.completion();
-            let observed: BTreeSet<_> = completion
-                .explicit_sites()
-                .iter()
-                .map(|exit| {
-                    let value =
-                        crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node())
-                            .child(crate::mir::resolved_semantics::SourcePathSegmentV1::Value)
-                            .expr();
-                    OwnedExprSiteV1::new(completion.owner(), value)
-                })
-                .collect();
-            // The declared result contract must agree with the class the
-            // source sites already proved: an exact `i64` annotation for
-            // the scalar lane, or an unannotated declaration whose complete
-            // source-I64 return set already proved the same class — the
-            // declaration stays Unannotated and the executable I64 is this
-            // borrowed projection, never a manufactured annotation. `Void`
-            // also reports `result() == None` and does not acquire the
-            // permission. The nullable lane keeps its unannotated declaration
-            // plus the sealed `NullableObject` claim.
-            let result_agrees = match class {
-                BorrowedResultClassV1::I64 => borrowed.declared_result_agrees_with_i64_source(),
-                BorrowedResultClassV1::Nullable => {
-                    row.result().is_none()
-                        && matches!(
-                            self.callable_result_classes.get(source.target()),
-                            Some(
-                                crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)
-                            )
-                        )
-                }
-            };
-            row.owner() == source.callee_owner()
-                && completion.owner() == source.callee_owner()
-                && completion.returns_value()
-                && expected.len() == proof.returns.len()
-                && observed == expected
-                && result_agrees
-        });
+        let agrees = source_result_contract_agrees_v1(
+            proof,
+            source,
+            results,
+            matches!(self.callable_result_classes.get(source.target()), Some(
+                crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(_)
+            )),
+        );
         if agrees {
             proof.contract_corroborated = true;
         } else {
@@ -183,7 +340,9 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        if !terminal
+        // A retained scalar result loan selects the same exact input protocol
+        // even when the original completed argument census is empty.
+        if terminal.source_scalar().is_none() && !terminal
             .arguments()
             .iter()
             .any(|arg| matches!(arg, TerminalCallArgumentV1::Lexical(_)))
@@ -220,7 +379,33 @@ impl OrdinaryNewClaimLedgerV1 {
             .root_flow()
             .and_then(|flow| flow.exit_row(exit).and_then(Result::ok))
             .ok_or_else(|| freeze("borrowed-terminal/home-row-missing"))?;
-        if !self.validate_borrowed_terminal_arguments_v1(&site, &arguments, homes.homes())? {
+        if let Some(loan) = terminal.source_scalar() {
+            let source = self
+                .borrowed_formal_source
+                .as_ref()
+                .ok_or_else(|| freeze("borrowed-terminal/source-missing"))?;
+            validate_source_scalar_result_loan_v1(
+                source,
+                &self.borrowed_i64_results,
+                loan,
+                loan.source(),
+            )?;
+            let contracts = self
+                .original_parameter_contracts
+                .as_deref()
+                .ok_or_else(|| freeze("borrowed-terminal/catalog-missing"))?;
+            let expected = lend_source_scalar_result_arguments_v1(
+                source,
+                &self.borrowed_formal_actuals,
+                contracts,
+                &self.borrowed_i64_results,
+                loan,
+                Some(self),
+            )?;
+            if expected.as_ref() != arguments.as_ref() {
+                return Err(freeze("borrowed-terminal/source-scalar-arguments"));
+            }
+        } else if !self.validate_borrowed_terminal_arguments_v1(&site, &arguments, homes.homes())? {
             return Err(freeze("borrowed-terminal/incoming-missing"));
         }
         Ok(Some(arguments))
@@ -314,6 +499,64 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
+    /// Borrow the original terminal's SAME scalar loan, never reconstruct its kind.
+    /// The local consumer borrows the original observation's result law;
+    /// Bool requires the SAME dedicated source loan, never a row-kind guess.
+    pub(crate) fn checked_local_scalar_call_result_v1(
+        &self, row: &LexicalInstanceCallDispositionRowV1,
+    ) -> Result<InvokeCallResultKind, String> {
+        use crate::mir::resolved_semantics::home_new_prefix::{LocalCallResultClassV1, SourceScalarKind};
+        let observation = self.lexical_i64_call_source(row.call_site())
+            .ok_or_else(|| freeze("lexical-scalar/observation-missing"))?;
+        let expected = match observation.result() {
+            LocalCallResultClassV1::I64 => InvokeCallResultKind::I64,
+            LocalCallResultClassV1::Bool => InvokeCallResultKind::Bool,
+            _ => return Err(freeze("lexical-scalar/observation-kind")),
+        };
+        if observation.owner() != row.call_site().owner() || row.result() != Some(expected) {
+            return Err(freeze("lexical-scalar/result-drift"));
+        }
+        match (observation.borrowed_scalar(), row.scalar_result_source_v1()) {
+            (None, None) if expected == InvokeCallResultKind::I64 => {},
+            (Some(original), Some(retained)) if original == retained => {
+                let kind = match original.kind() { SourceScalarKind::Integer => InvokeCallResultKind::I64,
+                    SourceScalarKind::Bool => InvokeCallResultKind::Bool };
+                if kind != expected || original.source() != row.source_target()
+                    || self.retained_terminal_scalar_result_v1(row.source_target())?.as_ref() != Some(original)
+                    || !self.borrowed_i64_results.get(&row.callee_owner()).and_then(|proof| proof.as_ref().ok())
+                        .is_some_and(|proof| proof.contract_corroborated) {
+                    return Err(freeze("lexical-scalar/source-drift"));
+                }
+            },
+            _ => return Err(freeze("lexical-scalar/source-missing-or-drift")),
+        }
+        Ok(expected)
+    }
+
+    pub(super) fn retained_terminal_scalar_result_v1(
+        &self,
+        source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<BorrowedScalarResultSourceLoanV1>, String> {
+        let mut loans = self.call_relations_for_owner(source.call_site().owner())
+            .into_iter()
+            .filter(|terminal| terminal.call_site() == source.call_site().site())
+            .filter_map(|terminal| terminal.source_scalar())
+            .chain(self.completion_for_owner(source.call_site().owner())
+                .and_then(|completion| completion.cleanup().root_flow()).into_iter()
+                .flat_map(|flow| flow.local_calls()).filter(|call| call.site() == source.call_site())
+                .filter_map(|call| call.borrowed_scalar()));
+        let Some(loan) = loans.next() else { return Ok(None); };
+        if loans.next().is_some() {
+            return Err(freeze("lexical-instance-call/terminal-scalar-source-duplicate"));
+        }
+        validate_source_scalar_result_loan_v1(
+            self.borrowed_formal_source.as_ref()
+                .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
+            &self.borrowed_i64_results, loan, source,
+        )?;
+        Ok(Some(loan.clone()))
+    }
+
     pub(super) fn corroborate_terminal_lexical_result_v1(
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
@@ -324,6 +567,23 @@ impl OrdinaryNewClaimLedgerV1 {
                 .as_ref()
                 .map_err(Clone::clone)?
                 .require_source_sealed_v1()?;
+            let proof = proof.as_ref().map_err(Clone::clone)?;
+            if matches!(proof.class, BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool)
+                && (!proof.contract_corroborated
+                    || !source_result_contract_agrees_v1(proof, source, results, false))
+            {
+                return Err(freeze("lexical-instance-call/terminal-result-mismatch"));
+            }
+            if proof.class == BorrowedResultClassV1::Bool {
+                let loan = self.retained_terminal_scalar_result_v1(source)?
+                    .ok_or_else(|| freeze("lexical-instance-call/terminal-scalar-source-missing"))?;
+                corroborate_source_scalar_result_loan_v1(
+                    self.borrowed_formal_source.as_ref()
+                        .ok_or_else(|| freeze("scalar-loan/source-missing"))?,
+                    &self.borrowed_i64_results, &loan, source, results,
+                )?;
+                return Ok(());
+            }
         }
         if results.row(source.target_batch_slot()).is_some_and(|row| {
             let borrowed = row.borrow();
@@ -365,13 +625,21 @@ impl OrdinaryNewClaimLedgerV1 {
         fn check(
             site: &OwnedExprSiteV1,
             arguments: &[LocalCallArgumentV1],
+            scalar: Option<&BorrowedScalarResultSourceLoanV1>,
             rows: &BTreeMap<OwnedExprSiteV1, LexicalInstanceCallDispositionSlotV1>,
         ) -> Result<(), String> {
             let Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) = rows.get(site) else {
                 return Err(freeze("lexical-instance-call/terminal-disposition-missing"));
             };
+            let expected = scalar.map_or(crate::mir::instruction::InvokeCallResultKind::I64,
+                |loan| match loan.kind() {
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => crate::mir::instruction::InvokeCallResultKind::I64,
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => crate::mir::instruction::InvokeCallResultKind::Bool,
+                });
             if row.call_site() != site
-                || row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64)
+                || row.scalar_result_source_v1() != scalar
+                || scalar.is_some_and(|loan| loan.source() != row.source_target())
+                || row.result() != Some(expected)
                 || row.argument_sites().len() != arguments.len()
                 || row.target().arity() as usize != arguments.len()
             {
@@ -384,7 +652,7 @@ impl OrdinaryNewClaimLedgerV1 {
                             "lexical-instance-call/terminal-nested-source-mismatch",
                         ));
                     }
-                    check(inner.site(), inner.arguments(), rows)?;
+                    check(inner.site(), inner.arguments(), None, rows)?;
                 }
             }
             Ok(())
@@ -403,7 +671,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let TerminalRelationV1::Call(terminal) = relation else {
                 continue;
             };
-            if !terminal
+            if terminal.source_scalar().is_none() && !terminal
                 .arguments()
                 .iter()
                 .any(|argument| matches!(argument, TerminalCallArgumentV1::Lexical(_)))
@@ -421,6 +689,7 @@ impl OrdinaryNewClaimLedgerV1 {
             check(
                 &OwnedExprSiteV1::new(terminal.owner(), terminal.call_site().clone()),
                 &arguments,
+                terminal.source_scalar(),
                 &rows,
             )?;
         }
@@ -445,7 +714,9 @@ impl OrdinaryNewClaimLedgerV1 {
         if source.legacy_terminal().is_some() {
             // Preserve the existing input-before-result failure order.
             self.borrowed_call_actuals_v1(&row)?;
-            if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
+            if source.legacy_terminal().is_some_and(|terminal| terminal.source_scalar().is_some()) {
+                source.corroborate_row(&row)?;
+            } else if row.result() != Some(crate::mir::instruction::InvokeCallResultKind::I64) {
                 return Err(freeze("borrowed-terminal/result-not-i64"));
             }
         } else {

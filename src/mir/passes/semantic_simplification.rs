@@ -21,12 +21,41 @@ pub(in crate::mir) fn apply_with_required_roots(
 ) -> OptimizationStats {
     let mut stats = OptimizationStats::new();
 
-    stats.cfg_simplified += crate::mir::passes::simplify_cfg::simplify(module);
+    // The same source-consumed roots also constrain producer replacement.
+    // Borrow their physical dependency closure before any CFG/CSE rewrite;
+    // this grants no source permission and is not a second source census.
+    let preserved = producer_dependency_closure(module, roots);
+    stats.cfg_simplified += crate::mir::passes::simplify_cfg::simplify_with_preserved_producers(module, &preserved);
     stats.dead_code_eliminated +=
         crate::mir::passes::dce::eliminate_dead_code_with_required_roots(module, roots);
-    stats.cse_eliminated += crate::mir::passes::cse::eliminate_common_subexpressions(module);
+    stats.cse_eliminated += crate::mir::passes::cse::eliminate_with_preserved_producers(module, &preserved);
 
     stats
+}
+
+/// Physical liveness dependencies of already-validated source producers.
+/// Following operands preserves their identities; it never proves semantics.
+fn producer_dependency_closure(
+    module: &MirModule,
+    roots: &crate::mir::passes::dce::RequiredLivenessRoots,
+) -> crate::mir::passes::dce::RequiredLivenessRoots {
+    let mut preserved = roots.clone();
+    for (name, required) in &mut preserved {
+        let Some(function) = module.functions.get(name) else { continue };
+        let mut operands = std::collections::BTreeMap::new();
+        for row in function.blocks.values().flat_map(|block| block.all_instructions()) {
+            if let Some(dst) = row.dst_value() {
+                operands.entry(dst).or_insert_with(Vec::new).extend(row.used_values());
+            }
+        }
+        let mut pending: Vec<_> = required.iter().copied().collect();
+        while let Some(value) = pending.pop() {
+            for operand in operands.get(&value).into_iter().flatten() {
+                if required.insert(*operand) { pending.push(*operand); }
+            }
+        }
+    }
+    preserved
 }
 
 #[cfg(test)]
@@ -142,6 +171,15 @@ mod tests {
             .value_types
             .insert(ValueId(5), MirType::Bool);
         module.add_function(function);
+
+        let mut preserved = module.clone();
+        let roots = std::collections::BTreeMap::from([("main".to_owned(),
+            std::collections::BTreeSet::from([ValueId(4)]))]);
+        let protected_stats = crate::test_support::with_env_var("NYASH_LLVM_FAST_INT", "1", ||
+            apply_with_required_roots(&mut preserved, &roots));
+        assert_eq!(protected_stats.cse_eliminated, 0);
+        assert!(preserved.functions["main"].blocks.values().flat_map(|b| b.all_instructions())
+            .any(|row| matches!(row, MirInstruction::BinOp { dst: ValueId(4), .. })));
 
         let stats =
             crate::test_support::with_env_var("NYASH_LLVM_FAST_INT", "1", || apply(&mut module));

@@ -8,15 +8,30 @@ use std::collections::HashMap;
 
 /// Run CSE across the module. Returns the number of eliminated expressions.
 pub fn eliminate_common_subexpressions(module: &mut MirModule) -> usize {
+    eliminate_with_preserved_producers(module, &Default::default())
+}
+
+pub(in crate::mir) fn eliminate_with_preserved_producers(
+    module: &mut MirModule,
+    preserved: &crate::mir::passes::dce::RequiredLivenessRoots,
+) -> usize {
     let mut eliminated = 0usize;
+    let empty = std::collections::BTreeSet::new();
     let fast_int = std::env::var("NYASH_LLVM_FAST_INT").ok().as_deref() == Some("1");
-    for (_name, func) in module.functions.iter_mut() {
-        eliminated += cse_in_function(func, fast_int);
+    for (name, func) in module.functions.iter_mut() {
+        eliminated += cse_preserving_producers(func, fast_int, preserved.get(name).unwrap_or(&empty));
     }
     eliminated
 }
 
+#[cfg(test)]
 fn cse_in_function(function: &mut MirFunction, fast_int: bool) -> usize {
+    cse_preserving_producers(function, fast_int, &Default::default())
+}
+
+fn cse_preserving_producers(function: &mut MirFunction, fast_int: bool,
+    preserved: &std::collections::BTreeSet<ValueId>,
+) -> usize {
     let mut eliminated = 0usize;
 
     // Helper: check if both operands are numeric (Integer/Float) via value type hints
@@ -35,6 +50,8 @@ fn cse_in_function(function: &mut MirFunction, fast_int: bool) -> usize {
                 // Conservative invalidation: side effects may change object fields.
                 field_get_map.clear();
             }
+
+            if inst.dst_value().is_some_and(|dst| preserved.contains(&dst)) { continue; }
 
             if let MirInstruction::FieldGet {
                 dst, base, field, ..

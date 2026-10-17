@@ -2,6 +2,40 @@
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Existing source New claims already cloned initial eligibility. Update
+    /// both families before any physical take, retaining all other core products.
+    pub(in crate::mir::normal_callable_semantic_package) fn install_late_constructor_plan_v1(
+        &mut self,
+        row: &VerifiedInstanceConstructorSemanticRowV1,
+        plan: &crate::mir::normal_callable_semantic_package::instance_construction::ConstructionPlanV1,
+    ) -> Result<(), String> {
+        if !self.local_commits.get_mut().is_empty() { return Err("[freeze:contract][constructor-unit/late-after-take]".into()); }
+        let matches = |core: &OrdinaryNewClaimCoreV1| -> Result<bool, String> {
+            if !core.box_source.same_source_as(row.box_source_v1())
+                || core.construction != Err(ConstructionUnavailableV1::BodyCoverageUnsupported) { return Ok(false); }
+            let OrdinaryNewConstructorDispositionV1::Birth(birth) = &core.constructor else {
+                return Err("[freeze:contract][constructor-unit/new-birth-missing]".into());
+            };
+            if !birth.source_id().same_as(row.source_id())
+                || row.published_birth_key() != Some(birth.target_ref())
+                || core.object != row.object() || core.arity != row.source_arity() as usize
+                || core.class.as_ref() != row.box_name() || plan.object() != core.object {
+                return Err("[freeze:contract][constructor-unit/new-source-drift]".into());
+            }
+            Ok(true)
+        };
+        // Preflight both maps before either mutates.
+        for claim in self.claims.get_mut().values() { matches(&claim.core)?; }
+        for claim in self.result_claims.get_mut().values() { matches(&claim.core)?; }
+        for claim in self.claims.get_mut().values_mut() {
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
+        }
+        for claim in self.result_claims.get_mut().values_mut() {
+            if matches(&claim.core)? { claim.core.construction = Ok(plan.clone()); }
+        }
+        Ok(())
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn retain_original_parameter_contracts_v1(
         &mut self,
         contracts: &Rc<[super::super::model::OwnedCallableParameterContractDeclarationV1]>,
@@ -142,8 +176,11 @@ impl OrdinaryNewClaimLedgerV1 {
             ),
             ordinary_box_names,
             original_parameter_contracts: None,
+            original_instance_input_issuance: None,
+            array_holder_lifecycles: RefCell::new(BTreeMap::new()),
             local_commits: RefCell::new(BTreeMap::new()),
             root_validation: RefCell::new(local_commit::RootNewValidation::Unregistered),
+            main_arguments: RefCell::new(None),
             child_physical_validation: RefCell::new(BTreeMap::new()),
             root_exits: RefCell::new(BTreeMap::new()),
             root_local_call_bindings: RefCell::new(BTreeMap::new()),
@@ -153,7 +190,7 @@ impl OrdinaryNewClaimLedgerV1 {
             root_instance_calls: RefCell::new(BTreeMap::new()),
             lexical_source_targets: None,
             borrowed_formal_source: None,
-            variable_bound_mul_product: BTreeMap::new(),
+            selected_loop_products: BTreeMap::new(),
             loop_static_source_loans: RefCell::new(BTreeMap::new()),
             loop_static_body_scalar_sources: RefCell::new(BTreeMap::new()),
             selected_loop_body_packets: RefCell::new(BTreeMap::new()),
@@ -167,7 +204,7 @@ impl OrdinaryNewClaimLedgerV1 {
             loop_static_packet_sources: RefCell::new(BTreeMap::new()),
             borrowed_static_source_sites: None,
             borrowed_formal_actuals: BTreeMap::new(),
-            borrowed_i64_results: BTreeMap::new(),
+            borrowed_i64_results: lexical_instance_call::BorrowedResultCohortV1::default(),
             borrowed_entry_values: RefCell::new(BTreeMap::new()),
             scalar_operation_appends: RefCell::new(BTreeMap::new()),
             scalar_operation_consumers: RefCell::new(BTreeMap::new()),
@@ -187,8 +224,8 @@ impl OrdinaryNewClaimLedgerV1 {
             terminal_relation: Rc::new(BTreeMap::new()),
             terminal_relation_index: BTreeMap::new(),
             normal_return_dispositions: None,
-            terminal_integer_literal_value: RefCell::new(BTreeMap::new()),
-            terminal_integer_literal_values: RefCell::new(BTreeMap::new()),
+            terminal_scalar_literal_value: RefCell::new(BTreeMap::new()),
+            terminal_scalar_literal_values: RefCell::new(BTreeMap::new()),
             terminal_i64_field_value: RefCell::new(BTreeMap::new()),
             terminal_i64_field_values: RefCell::new(BTreeMap::new()),
             terminal_result_progress: RefCell::new(BTreeMap::new()),
@@ -461,7 +498,7 @@ impl OrdinaryNewClaimLedgerV1 {
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
     ) -> Result<bool, String> {
-        if self.root_owner() != Some(owner) {
+        if self.root_owner() != Some(owner) && self.unit_completion_source_v1(owner)?.is_none() {
             return Ok(false);
         }
         let stmt_site = SourceStmtSiteV1::from_node(site.clone());

@@ -18,7 +18,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
@@ -53,7 +54,7 @@ with tempfile.TemporaryDirectory(prefix='hako dominated set ') as directory:
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64',
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']
     for suffix, expected, faulted in CASES:
         path = DIRECTORY / ('hako-issued-set-view-' + suffix + '.json')
@@ -76,4 +77,14 @@ with tempfile.TemporaryDirectory(prefix='hako dominated set ') as directory:
         else:
             assert 'FAULT ' not in run.stdout, (suffix, run.stdout)
         print(suffix, 'dominated set view executes; kernel owns bounds and kind!=1 faults')
-    print('3 checked-compare inputs execute unchanged; set-site bounds and kind!=1 fault')
+    data = json.loads((DIRECTORY / 'hako-issued-set-view-ok.json').read_text())
+    callee = next(f for f in data['functions'] if f['name'] == 'Store.check/1')
+    write = next(r['instruction'] for b in callee['blocks'] for r in b['instructions']
+                 if r['instruction']['op'] == 'array_set')
+    write['array'] = write['index']
+    bad = work / 'integer-is-not-array.json'
+    bad.write_text(json.dumps(data))
+    obj.unlink(missing_ok=True)
+    result = subprocess.run([driver, bad, obj], env=ENV, capture_output=True, text=True)
+    assert result.returncode != 0 and not obj.exists(), (result.stdout, result.stderr)
+    print('5 original set inputs execute; scalar receiver drift refuses')

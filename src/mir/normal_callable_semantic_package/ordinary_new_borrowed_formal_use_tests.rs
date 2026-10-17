@@ -125,23 +125,8 @@ fn opaque_subexpression_is_not_a_direct_argument_forward() {
     ));
 }
 
-#[test]
-fn opaque_return_receiver_condition_and_store_are_not_transport_uses() {
-    for body in [
-        "return p",
-        "local value = p.sink(0) return 0",
-        "if p { return 1 } return 0",
-        "me.value = p return 0",
-    ] {
-        assert!(
-            matches!(
-                draft(body),
-                Err(BorrowedFormalUseDraftErrorV1::UnsupportedUse(_))
-            ),
-            "unsupported use: {body}"
-        );
-    }
-}
+#[path = "ordinary_new_borrowed_formal_use_source_effect_tests.rs"]
+mod source_effect_tests;
 
 #[test]
 fn formal_or_copy_rebinding_rejects_even_when_the_copy_is_unread() {
@@ -241,8 +226,8 @@ fn checked_compare_admits_direct_if_greater_with_integer_or_origin_sibling() {
 fn checked_compare_rejects_outside_if_wrong_operator_and_unproved_sibling() {
     for body in [
         "local b = p > 5 return 0",
-        "if p >= 5 { return 1 } return 0",
-        "if p < 5 { return 1 } return 0",
+        "if p >= false { return 1 } return 0",
+        "if p < null { return 1 } return 0",
         "if p > true { return 1 } return 0",
         "local n = 5 if p > n { return 1 } return 0",
         "loop(p > 5) { return 1 } return 0",
@@ -301,13 +286,19 @@ fn null_compare_admits_direct_if_equal_with_null_sibling() {
 /// outside the admitted null-equality profile.
 #[test]
 fn null_compare_rejects_wrong_operator_sibling_and_position() {
+    for body in ["if p == 0 { return 1 } return 0",
+        "local q = p if p == q { return 1 } return 0"] {
+        let numeric = draft(body).unwrap();
+        assert!(numeric.uses.iter().any(|row| matches!(row.kind,
+            BorrowedFormalUseDraftKindV1::CompareOperand { .. })));
+        assert!(!numeric.uses.iter().any(|row| matches!(row.kind,
+            BorrowedFormalUseDraftKindV1::NullCompareOperand { .. })));
+    }
     for body in [
         "if p != null { return 1 } return 0",
-        "if p == 0 { return 1 } return 0",
         "if p == false { return 1 } return 0",
         "local b = p == null return 0",
         "loop(p == null) { return 1 } return 0",
-        "local q = p if p == q { return 1 } return 0",
     ] {
         assert!(
             matches!(
@@ -344,7 +335,7 @@ fn add_operand_rejects_unguarded_undominated_and_unproved_sibling_uses() {
         "local t = p + 1 if p > 5 { return 1 } return t",
         "if p > 5 { local t = p + 1 return t } return 0",
         "if p > 5 { return 1 } else { local t = p + 1 return t } return 0",
-        "if p >= 5 { return 1 } local t = p + 1 return t",
+        "if p >= false { return 1 } local t = p + 1 return t",
         "if p > true { return 1 } local t = p + 1 return t",
         "if p > 5 { return 1 } local t = p - 1 return t",
         "if p > 5 { return 1 } local t = p + true return t",
@@ -513,7 +504,7 @@ fn new_argument_rejects_unguarded_and_inside_arm_uses() {
         "local h = new Child(p, 0) if p > 5 { return 1 } return 0",
         "local h = new Child(p, 0) return 0",
         "if p > 5 { local h = new Child(p, 0) return 1 } return 0",
-        "if p >= 5 { return 1 } local h = new Child(p, 0) return 0",
+        "if p >= false { return 1 } local h = new Child(p, 0) return 0",
     ] {
         assert!(
             matches!(
@@ -523,6 +514,27 @@ fn new_argument_rejects_unguarded_and_inside_arm_uses() {
             "rejected new-argument use: {body}"
         );
     }
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Token {} box Holder { child: Token birth(child) { me.child = child } } box Maker { make(h: Token) { return new Holder(h) } relay(h: Token) { return me.make(h) } bad() { local h = new Token() return me.make(h) } } static box Main { main() { return 0 } }"
+    ).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "make", 1);
+    let owner = ledger.callable_result_classes.outcomes(&key).unwrap()[0].site().owner();
+    let draft = source.source_definition_for(owner).unwrap();
+    assert!(!source.definitions.contains_key(&owner), "source child borrow is not generic transport");
+    let mut source_children = 0;
+    for row in &draft.uses {
+        let BorrowedFormalUseDraftKindV1::ConstructionChildArgument { relations } = &row.kind else { continue; };
+        for relation in relations {
+            assert_eq!(relation.actual(), &row.site);
+            assert!(ledger.callable_result_classes.construction_child_relation_loans()
+                .any(|original| Rc::ptr_eq(original, relation)));
+            source_children += 1;
+        }
+    }
+    assert_eq!(source_children, 1, "the complete source-only draft retains SAME child relation");
+
 }
 
 fn forwarding_package(

@@ -17,7 +17,8 @@ TESTS = ROOT / 'lang/c-abi/tests'
 layout = json.loads(Path(sys.argv[1]).read_text())['layouts'][0]
 OBJECT = layout['object_id']
 FIELD = layout['fields'][0]['declaration_ordinal']
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 
 
@@ -77,7 +78,7 @@ def graph(kind, payload=1):
         block(0, [{'op': 'fault_frame_enter', 'dst': 1, 'mode': 'borrowed'},
                   {'op': 'const_i64', 'dst': 2, 'value': 7}],
               invoke({'kind': 'field_set', 'object_id': OBJECT, 'field_ordinal': FIELD,
-                      'base': 0, 'value': 2, 'site': 77}, 1, 2), (1, 2)),
+                      'base': 0, 'value': 2, 'site': 77, 'exact_numeric_runtime_check': {'kind': 'none'}}, 1, 2), (1, 2)),
         block(1, [], {'op': 'return', 'value': 2}), block(2, [], fault)])
     return {'schema': 'hako.published-lifecycle-physical-program.v2',
             'fault_abi_version': 1, 'storage_profile': 1, 'process_result_site': 99,
@@ -107,7 +108,9 @@ def other_handle_graph(nullable):
             block(0, [{'op': 'fault_frame_enter', 'dst': 1, 'mode': 'borrowed'}],
                   invoke({'kind': 'new_box', 'object_id': 0, 'site': 92}, 1, 2), (1, 2)),
             block(1, [{'op': 'invoke_normal_result', 'invoke_block': 0, 'dst': 2}],
-                  {'op': 'return', 'value': 2}),
+                  {'op': 'return', 'value': 2, 'result_origin': {
+                      'kind': 'fresh', 'producer': {'block': 1, 'index': 0},
+                      'invoke': {'block': 0, 'index': 1}, 'copies': []}}),
             block(2, [], {'op': 'return_fault', 'fault_frame': 1})]))
         data['functions'][3]['receiver_object'] = 0
     root['blocks'][0]['terminator']['instruction']['normal'] = 7
@@ -119,7 +122,9 @@ def other_handle_graph(nullable):
     root['blocks'][1]['terminator']['index'] = 1
     root['blocks'][1]['terminator']['instruction']['fault'] = 9
     root['blocks'][1]['edges'][1]['target'] = 9
-    release = {'kind': 'home_release_if_live' if nullable else 'home_release',
+    # Intrinsic Array leases use the shared conditional-release transport;
+    # they carry no ordinary object's exact layout identity.
+    release = {'kind': 'home_release_if_live',
                'object_id': 0, 'value': 10, 'site': 89}
     root['blocks'][3]['terminator']['instruction'] = invoke(copy.deepcopy(release), 8, 5)
     root['blocks'][3]['edges'] = [{'target': 8, 'args': None}, {'target': 5, 'args': None}]
@@ -130,13 +135,52 @@ def other_handle_graph(nullable):
     return data
 
 
+def received_field_read_graph(null_result):
+    """Same Nullable receipt; a runtime Null is a checked source Fault."""
+    data = other_handle_graph(True)
+    root = data['functions'][0]
+    root['blocks'][1]['terminator']['instruction']['operation'] = {
+        'kind': 'field_get', 'object_id': 0, 'field_ordinal': FIELD, 'base': 10, 'site': 100}
+    if null_result:
+        nullable = data['functions'][3]
+        fault = {'op': 'return_fault', 'fault_frame': 1}
+        nullable['blocks'] = [
+            block(0, [{'op': 'fault_frame_enter', 'dst': 1, 'mode': 'borrowed'},
+                      {'op': 'const_bool', 'dst': 4, 'value': True}],
+                  {'op': 'branch', 'condition': 4, 'then': 3, 'else': 4, 'then_args': None, 'else_args': None}, (3, 4)),
+            block(1, [{'op': 'invoke_normal_result', 'invoke_block': 4, 'dst': 2}],
+                  {'op': 'return', 'value': 2, 'result_origin': {
+                      'kind': 'fresh', 'producer': {'block': 1, 'index': 0},
+                      'invoke': {'block': 4, 'index': 0}, 'copies': []}}),
+            block(2, [], fault),
+            block(3, [{'op': 'const_null', 'dst': 3}], {'op': 'return', 'value': 3,
+                'result_origin': {'kind': 'null', 'producer': {'block': 3, 'index': 0}, 'copies': []}}),
+            block(4, [], invoke({'kind': 'new_box', 'object_id': 0, 'site': 92}, 1, 2), (1, 2)),
+        ]
+    # A nonzero stored value distinguishes the getter's output from a default
+    # allocation slot. Store failure still discharges the callee's fresh Home.
+    nullable = data['functions'][3]
+    fresh = next(row for row in nullable['blocks'] if row['id'] == 1)
+    returned = fresh['terminator']['instruction']
+    fresh['instructions'].append({'index': 1, 'instruction': {'op': 'const_i64', 'dst': 5, 'value': 37}})
+    fresh['terminator'] = {'index': 2, 'instruction': invoke({
+        'kind': 'field_set', 'object_id': 0, 'field_ordinal': FIELD,
+        'base': 2, 'value': 5, 'site': 93, 'exact_numeric_runtime_check': {'kind': 'none'}}, 5, 6)}
+    fresh['edges'] = [{'target': 5, 'args': None}, {'target': 6, 'args': None}]
+    nullable['blocks'].extend([
+        block(5, [], returned),
+        block(6, [], invoke({'kind': 'home_release', 'object_id': 0, 'value': 2, 'site': 94}, 2, 2), (2, 2)),
+    ])
+    return data
+
+
 with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     work = Path(directory)
     driver, obj, exe = [work / name for name in ('driver', 'borrowed.o', 'borrowed')]
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
     def compile_input(data, accepted=True):
         path = work / 'input.json'
@@ -152,6 +196,45 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             assert obj.read_bytes() == marker
         assert not list(work.glob('borrowed.o.*'))
 
+    for null_result in [False, True]:
+        data = received_field_read_graph(null_result)
+        compile_input(data)
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+        assert result.returncode == (70 if null_result else 37), (null_result, result)
+        counts = '1 0 1 0 1 1' if null_result else '1 1 2 0 0 1'
+        assert 'COUNTS ' + counts + '\n' in result.stdout, (null_result, result.stdout, result.stderr)
+        if null_result:
+            assert 'FAULT 101 100 0 0 HOME 1 RECLAIM 0\n' in result.stdout, result.stdout
+        else:
+            assert 'FAULT ' not in result.stdout, result.stdout
+        print('received nullable field', null_result, 'Normal/Fault and remaining cleanup PASS')
+    for mutation in ['extra-key', 'field', 'new-base', 'missing-normal', 'foreign-class', 'fault-cleanup']:
+        data = received_field_read_graph(False)
+        op = data['functions'][0]['blocks'][1]['terminator']['instruction']['operation']
+        if mutation == 'extra-key':
+            op['value'] = 10
+        elif mutation == 'field':
+            op['field_ordinal'] = 999
+        elif mutation == 'new-base':
+            op['base'] = 2
+        elif mutation == 'missing-normal':
+            data['functions'][0]['blocks'][3]['instructions'] = []
+            data['functions'][0]['blocks'][3]['terminator']['index'] = 0
+        elif mutation == 'foreign-class':
+            foreign = copy.deepcopy(data['layouts'][0])
+            foreign.update(object_id=1, runtime_type_id=2)
+            data['layouts'].append(foreign)
+            op['object_id'] = 1
+        else:
+            skipped = next(row for row in data['functions'][0]['blocks'] if row['id'] == 9)
+            skipped['terminator'] = {'index': 0, 'instruction': {'op': 'jump', 'target': 5, 'args': None}}
+            skipped['edges'] = [{'target': 5, 'args': None}]
+        compile_input(data, False)
+        print('reject received field', mutation)
+
     for kind, payload in [(1, 0), (1, -7), (1, 1), (2, 0), (2, 1), (3, 1)]:
         compile_input(graph(kind, payload))
         checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
@@ -166,6 +249,83 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
             if mode == 'fault-first':
                 assert 'FAULT 101 77 7 0 HOME 1 RECLAIM 0\n' in result.stdout, result
         print('borrowed kind/payload', kind, payload, 'Normal/Fault cleanup once')
+
+    # Physical range policy is carried by the issued check. This probes the
+    # Invoke Fault edge and absence of store, independently of source cutover.
+    for stored in [0, 7, -7]:
+        data = graph(1)
+        leaf = data['functions'][2]
+        leaf['blocks'][0]['instructions'][1]['instruction']['value'] = stored
+        op = leaf['blocks'][0]['terminator']['instruction']['operation']
+        op['exact_numeric_runtime_check'] = {'kind': 'dynamic_integer_range', 'declared_type': 'usize'}
+        compile_input(data)
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+        assert result.returncode == (70 if stored < 0 else stored), result
+        assert 'COUNTS ' + ('1 0 1 0 1 1' if stored < 0 else '1 1 1 0 0 1') + '\n' in result.stdout, result
+        if stored < 0:
+            assert 'FAULT 113 77 -7 0 HOME 1 RECLAIM 0\n' in result.stdout, result
+        print('Invoke usize range', stored, 'store or exact Fault cleanup once')
+    for check in [None, {'kind': 'unknown'}, {'kind': 'dynamic_integer_range', 'declared_type': 'i64'},
+                  {'kind': 'none', 'declared_type': 'usize'}]:
+        data = graph(1)
+        op = data['functions'][2]['blocks'][0]['terminator']['instruction']['operation']
+        if check is None:
+            del op['exact_numeric_runtime_check']
+        else:
+            op['exact_numeric_runtime_check'] = check
+        compile_input(data, False)
+    print('Invoke range schema rejects missing and malformed checks')
+
+    # Two original tagged formals: object-view base and Integer payload.
+    # Explicit physical policy only; this does not establish source admission.
+    for stored in [0, 7, -7]:
+        data = graph(3)
+        root, forward, leaf = data['functions']
+        root_block = root['blocks'][1]
+        root_block['instructions'].append({'index': 2, 'instruction': {'op': 'const_i64', 'dst': 12, 'value': stored}})
+        root_block['terminator']['index'] = 3
+        root_block['terminator']['instruction']['operation']['call']['args'].append({'kind': 1, 'value': 12})
+        for fn in [forward, leaf]:
+            fn['params'][0]['object_view'] = OBJECT
+            fn['params'].append({'value': 6, 'representation': 'borrowed_kind_payload_v1', 'object_view': None})
+        forwarding = forward['blocks'][0]
+        forwarding['instructions'].append({'index': 2, 'instruction': {'op': 'copy', 'dst': 7, 'src': 6}})
+        forwarding['terminator']['index'] = 3
+        forwarding['terminator']['instruction']['operation']['call']['args'].append({'kind': 'tagged', 'value': 7})
+        op = leaf['blocks'][0]['terminator']['instruction']['operation']
+        op.update(base=3, value=6, exact_numeric_runtime_check={'kind': 'dynamic_integer_range', 'declared_type': 'usize'})
+        compile_input(data)
+        checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+                 *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+                 '-lpthread', '-ldl', '-lm', '-o', exe])
+        result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+        assert result.returncode == (70 if stored < 0 else 7), result
+        assert 'COUNTS ' + ('1 0 1 0 1 1' if stored < 0 else '1 1 1 0 0 1') + '\n' in result.stdout, result
+        if stored < 0:
+            assert 'FAULT 113 77 -7 0 HOME 1 RECLAIM 0\n' in result.stdout, result
+        for broken in ['missing-object-view', 'unchecked-tagged-store']:
+            mutated = copy.deepcopy(data)
+            if broken == 'missing-object-view':
+                mutated['functions'][2]['params'][0]['object_view'] = None
+            else:
+                mutated['functions'][2]['blocks'][0]['terminator']['instruction']['operation']['exact_numeric_runtime_check'] = {'kind': 'none'}
+            compile_input(mutated, False)
+        print('borrowed usize receiver/value', stored, 'exact store/Fault and closed views')
+
+    # I64 Return already accepts an original tagged formal behind its runtime
+    # tag1 guard. Keep this as execution coverage, not an obsolete rejection.
+    tagged_return = graph(1, 7)
+    tagged_return['functions'][2]['blocks'][1]['terminator']['instruction']['value'] = 3
+    compile_input(tagged_return)
+    checked(['cc', obj, TESTS / 'published_lifecycle_v4_runtime_probe.c', ARCHIVE,
+             *['-Wl,--wrap=nyash.' + name + '_v1' for name in wraps],
+             '-lpthread', '-ldl', '-lm', '-o', exe])
+    result = subprocess.run([str(exe)], env=dict(ENV, V4_PROBE_MODE='normal'), capture_output=True, text=True)
+    assert result.returncode == 7 and 'COUNTS 1 1 1 0 0 1\n' in result.stdout, result
+    print('borrowed I64 Return keeps its runtime tag1 guard')
 
     receiver_actual = graph(3)
     forwarded = receiver_actual['functions'][1]['blocks'][0]['terminator']['instruction']['operation']['call']['args'][0]
@@ -202,9 +362,6 @@ with tempfile.TemporaryDirectory(prefix='hako borrowed ABI ') as directory:
     data = graph(1)
     data['functions'][2]['blocks'][0]['terminator']['instruction']['operation']['value'] = 3
     mutations['tagged-store'] = data
-    data = graph(1)
-    data['functions'][2]['blocks'][1]['terminator']['instruction']['value'] = 3
-    mutations['tagged-return'] = data
     data = graph(1)
     rows = data['functions'][1]['blocks'][0]['instructions']
     rows[1]['instruction'] = {'op': 'add', 'dst': 4, 'lhs': 3, 'rhs': 3}

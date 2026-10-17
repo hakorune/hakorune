@@ -331,10 +331,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         std::slice::from_ref(contract),
                         &call.call,
                         &staged.candidates,
-                        &[],
+                        object_source::ObjectActualHomeSourceV1::Candidates(&[]),
                         None,
                         &mut |_| None,
                         Some(finish),
+                        None,
+                        &mut |_, _, _| Ok(None),
                     )?
                     .ok_or_else(|| freeze("static-zero/constructor-unavailable"))?;
                     if regenerated.ordered_arguments != actuals.ordered_arguments {

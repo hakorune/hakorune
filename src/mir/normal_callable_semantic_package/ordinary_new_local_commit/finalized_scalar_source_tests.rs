@@ -247,5 +247,78 @@ fn original_scalar_append_observer_retains_three_source_operations() {
                 )
                 .unwrap();
         }
+        // Field assignments retain the original writer's Assignment plan;
+        // neither a fake Local initializer nor a second arithmetic writer.
+        for optimize in [false, true] {
+          for (writes, expected) in [
+            ("me.value = me.value - 1 me.value = me.value / 2", 2),
+            ("me.value = (me.value - 1) + 2 me.value = (me.value / 2) - 1", 3),
+          ] {
+            let text = format!("box Counter {{ value: usize birth() {{ me.value = 8 }} tick(): i64 {{ me.value = 8 {writes} return 0 }} }} static box Main {{ main() {{ local counter = new Counter() local out = counter.tick() return 0 }} }}");
+            let request = scalar_field_request(&text);
+            MirCompiler::with_options(optimize).compile_normal_with_published(request,
+                |view, verification| -> Result<(), String> {
+                    assert!(verification.is_ok());
+                    let source = view.retained_root_source().unwrap();
+                    let mut count = 0;
+                    source.visit_scalar_operation_originals_v1(|row| {
+                        let proof = row.source();
+                        assert!(proof.initializer().is_none());
+                        let crate::mir::resolved_value_profile::expression_plan::ExpressionPlanRootV1::Assignment { assignment } = proof.plan().root()
+                            else { panic!("original assignment root"); };
+                        let writer = source.ledger.field_write_claims.original_write_source_v1(
+                            proof.owner(), assignment.target_site(),
+                        ).map_err(str::to_owned)?.unwrap();
+                        assert!(std::rc::Rc::ptr_eq(proof.plan(), writer.write().source().unwrap()));
+                        count += 1;
+                        Ok(())
+                    })?;
+                    assert_eq!(count, expected);
+                    let mut finished = 0;
+                    source.visit_finished_scalar_operations_v1(view.module(), |_, _, _| { finished += 1; Ok(()) })?;
+                    assert_eq!(finished, count);
+                    for mutation in ["missing", "operator"] {
+                        let mut changed = view.module().clone();
+                        let function = changed.functions.get_mut("Counter.tick/0").unwrap();
+                        for block in function.blocks.values_mut() {
+                            if mutation == "missing" {
+                                block.instructions.retain(|row| !matches!(row, MirInstruction::BinOp { op: crate::mir::BinaryOp::Sub | crate::mir::BinaryOp::Div, .. }));
+                            } else {
+                                for row in &mut block.instructions {
+                                    if let MirInstruction::BinOp { op, .. } = row {
+                                        if *op == crate::mir::BinaryOp::Sub { *op = crate::mir::BinaryOp::Add; }
+                                    }
+                                }
+                            }
+                        }
+                        assert!(source.visit_finished_scalar_operations_v1(&changed, |_, _, _| Ok(())).is_err(), "field RHS {mutation}");
+                    }
+                    Ok(())
+                }).unwrap_or_else(|issue| panic!("field RHS opt{optimize}: {issue}"));
+          }
+        }
+        for write in [
+            "me.value = me.value / 0",
+            "me.value = me.value / -1",
+            "local divisor = 2 me.value = me.value / divisor",
+            "me.value = true - 1",
+        ] {
+            let text = format!("box Counter {{ value: usize birth() {{ me.value = 8 }} tick(): i64 {{ {write} return 0 }} }} static box Main {{ main() {{ local counter = new Counter() local out = counter.tick() return 0 }} }}");
+            let result = MirCompiler::with_options(false).compile_normal_with_published(
+                scalar_field_request(&text), |_, _| -> Result<(), String> {
+                    panic!("unqualified field RHS reached publication: {write}");
+                });
+            assert!(result.is_err(), "unqualified field RHS: {write}");
+        }
     });
+}
+
+fn scalar_field_request(text: &str) -> crate::mir::NormalCompileRequestV1 {
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        text, crate::parser::ParserBuildConfig::default(),
+    ).unwrap();
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap()
+        else { panic!("source-backed"); };
+    crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, std::collections::HashMap::new())
 }

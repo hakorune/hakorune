@@ -17,10 +17,36 @@ use super::normal_callable_binding_materialization_port::{
 };
 use super::raw_expression_dispatch::RawExpressionDispatchPortV1;
 
+#[path = "port_aware_function_draft_impl/implicit_end.rs"]
+mod implicit_end;
+pub(in crate::mir::builder) use implicit_end::ImplicitCallableEndV1;
+
 /// Body completion token which deliberately contains no header loan.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PortAwarePreparedDraftBodyV1 {
     returns_value: bool,
+    result_source: Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>,
+    implicit_end: Option<ImplicitCallableEndV1>,
+    source_owner: Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>,
+}
+
+impl PortAwarePreparedDraftBodyV1 {
+    fn validate_result_owner_v1(&self) -> Result<(), String> {
+        if self.result_source.as_ref().is_some_and(|loan| Some(loan.owner()) != self.source_owner) {
+            return Err("[freeze:contract][callable-scalar/body-owner-mismatch]".into());
+        }
+        if self.implicit_end.as_ref().is_some_and(|end|
+            Some(end.owner()) != self.source_owner || self.returns_value) {
+            return Err("[freeze:contract][implicit-exit/body-owner-mismatch]".into());
+        }
+        Ok(())
+    }
+
+    fn with_implicit_end_v1(mut self, end: Option<ImplicitCallableEndV1>) -> Result<Self, String> {
+        self.implicit_end = end;
+        self.validate_result_owner_v1()?;
+        Ok(self)
+    }
 }
 
 #[cfg(test)]
@@ -32,15 +58,22 @@ impl PortAwarePreparedDraftBodyV1 {
 
 pub(in crate::mir::builder) fn prepare_port_aware_draft_body_completion_v1(
     builder: &MirBuilder,
+    result_source: Option<crate::mir::normal_callable_semantic_package::CallableResultSourceV1>,
+    source_owner: Option<crate::mir::resolved_semantics::FunctionOwnerIdV1>,
 ) -> Result<PortAwarePreparedDraftBodyV1, String> {
     let function = builder
         .function_state
         .current_function
         .as_ref()
         .ok_or_else(|| "[freeze:contract][headerport/no_current_function]".to_owned())?;
-    Ok(PortAwarePreparedDraftBodyV1 {
-        returns_value: !matches!(function.signature.return_type, MirType::Void),
-    })
+    let prepared = PortAwarePreparedDraftBodyV1 {
+        returns_value: result_source.is_some() || !matches!(function.signature.return_type, MirType::Void),
+        result_source,
+        implicit_end: None,
+        source_owner,
+    };
+    prepared.validate_result_owner_v1()?;
+    Ok(prepared)
 }
 
 impl MirBuilder {
@@ -73,10 +106,12 @@ impl MirBuilder {
                 parameter_count: params.len(),
             },
         )?;
+        let result_source = port.prepare_callable_result_source_v1()?;
         run_function_body_step_tree_guard_v1(self, &body, &self.current_function_name_for_port()?)?;
         let _ = port.lower_body(self, body)?;
         port.complete_construction_stores_v1(self)?;
-        prepare_port_aware_draft_body_completion_v1(self)
+        prepare_port_aware_draft_body_completion_v1(self, result_source, port.callable_result_owner_v1()?)?
+            .with_implicit_end_v1(port.prepare_implicit_callable_end_v1()?)
     }
 
     /// Port-aware instance draft sibling.  The body keeps the same recursive
@@ -115,6 +150,7 @@ impl MirBuilder {
                 parameter_count: prepared.explicit_parameter_count(),
             },
         )?;
+        let result_source = port.prepare_callable_result_source_v1()?;
         run_function_body_step_tree_guard_v1(
             self,
             prepared.body(),
@@ -122,7 +158,8 @@ impl MirBuilder {
         )?;
         let _ = port.lower_body(self, prepared.into_body())?;
         port.complete_construction_stores_v1(self)?;
-        prepare_port_aware_draft_body_completion_v1(self)
+        prepare_port_aware_draft_body_completion_v1(self, result_source, port.callable_result_owner_v1()?)?
+            .with_implicit_end_v1(port.prepare_implicit_callable_end_v1()?)
     }
 
     /// Port-aware finalizer entrypoint; the header loan is explicit and short.
@@ -131,7 +168,8 @@ impl MirBuilder {
         prepared: PortAwarePreparedDraftBodyV1,
         headers: &LoweringHeaderPortV1<'_>,
     ) -> Result<MirFunction, String> {
-        self.finalize_function_draft_with_lookup(prepared.returns_value, Some(headers))
+        prepared.validate_result_owner_v1()?;
+        self.finalize_function_draft_with_body_sources_v1(prepared.returns_value, Some(headers), prepared.result_source.as_ref(), prepared.implicit_end.as_ref())
     }
 
     /// Complete an ordinary Legacy callable through the existing finalizer
@@ -140,7 +178,8 @@ impl MirBuilder {
         &mut self,
         prepared: PortAwarePreparedDraftBodyV1,
     ) -> Result<MirFunction, String> {
-        self.finalize_function_draft(prepared.returns_value)
+        prepared.validate_result_owner_v1()?;
+        self.finalize_function_draft_with_sources_v1(prepared.returns_value, prepared.result_source.as_ref(), prepared.implicit_end.as_ref())
     }
 
     fn current_function_name_for_port(&self) -> Result<String, String> {

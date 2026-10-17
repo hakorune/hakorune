@@ -44,7 +44,7 @@ fn borrowed_original_source_publishes_all_continuations_and_closed_domains() {
                 };
                 let text = format!("box Transport {{ flag: i64 birth() {{ me.flag = 0 }} probe(p): i64 {{ local scratch = new Transport() return 7 }} wrap(q: i64): i64 {{ return q }} }} static box Main {{ main() {{ local recv = new Transport() {prefix} {continuation} }} }}");
                 MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -75,21 +75,28 @@ fn borrowed_original_source_publishes_all_continuations_and_closed_domains() {
 fn borrowed_original_forwarded_copy_and_entry_receiver_publish_without_producer_drift() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-        for (suffix, prefix, argument, kind) in [
+        for (suffix, prefix, argument, kind, formal, actual) in [
             (
                 "forwarded",
                 "local alias = q",
                 "alias",
-                serde_json::json!("tagged"),
+                serde_json::json!("tagged"), "q", "true",
             ),
-            ("entry-receiver", "", "me", serde_json::json!(3)),
+            ("entry-receiver", "", "me", serde_json::json!(3), "q", "true"),
+            // The original formal forwards its tagged carrier even with a class constraint.
+            ("typed-forward", "local alias = q", "alias", serde_json::json!("tagged"), "q: Transport", "recv"),
         ] {
-            let text = format!("box Transport {{ flag: i64 birth() {{ me.flag = 0 }} probe(p): i64 {{ local scratch = new Transport() return 7 }} forward(q): i64 {{ {prefix} local recv = new Transport() local out = recv.probe({argument}) return 7 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.forward(true) return 7 }} }}");
+            let text = format!("box Transport {{ flag: i64 birth() {{ me.flag = 0 }} probe(p): i64 {{ local scratch = new Transport() return 7 }} forward({formal}): i64 {{ {prefix} local recv = new Transport() local out = recv.probe({argument}) return 7 }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.forward({actual}) return 7 }} }}");
             MirCompiler::with_options(false)
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
+                        if suffix == "typed-forward" {
+                            let historical = crate::mir::MirVerifier::new_strict().verify_module(view.module())
+                                .expect_err("source-less verification lacks the original typed actual loan");
+                            assert!(historical.iter().any(|error| error.to_string().contains("call-argument-type-drift")));
+                        }
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -104,7 +111,7 @@ fn borrowed_original_forwarded_copy_and_entry_receiver_publish_without_producer_
                             .unwrap();
                         assert!(forward["blocks"].as_array().unwrap().iter().any(|b| b
                             ["terminator"]["instruction"]["operation"]["call"]["args"][0]["kind"]
-                            == kind));
+                            == kind), "{suffix}: original argument kind {kind}");
                         reject_erased_carriers(&input);
                         assert!(
                             reject_changed_producers(&input) > 0,
@@ -199,20 +206,11 @@ fn reject_changed_producers(
     copies
 }
 
-/// Preserve the existing historical report; final strict verification is a
-/// separate mandatory gate before this callback can publish any ABI input.
-fn classify_pretransform_report(
+/// Publication receives the actual mandatory final source-bound verdict.
+fn require_artifact_verification(
     report: &Result<(), Vec<crate::mir::verification_types::VerificationError>>,
 ) {
-    if let Err(errors) = report {
-        assert!(!errors.is_empty());
-        assert!(
-            errors.iter().all(|error| error
-                .to_string()
-                .contains("[freeze:contract][mir/invoke/call-argument-type-drift]")),
-            "unexpected pretransform failure: {errors:?}"
-        );
-    }
+    assert!(report.is_ok(), "final artifact verification: {report:?}");
 }
 
 /// The borrowed tagged carrier keeps its physical identity while the
@@ -267,7 +265,7 @@ fn checked_compare_view_publishes_from_original_source() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -340,7 +338,7 @@ fn dominated_add_view_publishes_from_original_source() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -498,7 +496,7 @@ fn dominated_set_view_publishes_from_original_source() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -682,3 +680,6 @@ mod compare_literal_tests;
 
 #[path = "borrowed_source_publication_compare_le_tests.rs"]
 mod compare_le_tests;
+
+#[path = "borrowed_source_publication_guarded_declaration_tests.rs"]
+mod guarded_declaration_tests;

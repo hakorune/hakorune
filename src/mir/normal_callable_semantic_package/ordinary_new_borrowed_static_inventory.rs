@@ -28,15 +28,16 @@ struct StaticIncomingContextV1
 }
 
 impl StaticIncomingContextV1<'_> {
-    pub(super) fn observe(
+    pub(super) fn observe<'caller>(
         &self,
-        caller_batch_slot: u32,
+        caller: impl Into<crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'caller>>,
         site: &OwnedExprSiteV1,
         source: &VerifiedResolvedMethodCallSourceV1,
         selected: &super::super::super::VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         operand_retained: Option<&Rc<StaticIncomingSourceV1>>,
     ) -> Result<Option<StaticIncomingObservationV1>, BorrowedIncomingDraftErrorV1> {
+        let caller = caller.into();
         let mut existing = self
             .arguments
             .range((site.clone(), 0)..=(site.clone(), u32::MAX))
@@ -68,6 +69,7 @@ impl StaticIncomingContextV1<'_> {
         let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
         let contract = callers.next();
         let observation = (|| {
+            let loan = if let Some(caller_batch_slot) = caller.declaration_slot() {
             let contract = contract.ok_or_else(|| freeze("borrowed-static/caller-contract"))?;
             if callers.next().is_some() {
                 return Err(freeze("borrowed-static/duplicate-caller-contract"));
@@ -87,6 +89,11 @@ impl StaticIncomingContextV1<'_> {
                 .claims
                 .incoming_source(&key, site, source, selected, contracts, self.main)?
                 .ok_or_else(|| freeze("borrowed-static/claim-unavailable"))?;
+                loan
+            } else {
+                self.claims.incoming_source(caller, site, source, selected, contracts, self.main)?
+                    .ok_or_else(|| freeze("borrowed-static/claim-unavailable"))?
+            };
             match retained {
                 Some(retained) if loan.corroborates_retained(retained) => Ok(Rc::clone(retained)),
                 Some(_) => Err(freeze("borrowed-static/retained-source-identity")),

@@ -10,6 +10,7 @@ pub(crate) enum BorrowedCallActualValueV1 {
     Null,
     Scalar(BindingRefV1, SourceScalarKind),
     ReceivedNullable(BindingRefV1),
+    ReceivedMixed(BindingRefV1),
     Home {
         binding: BindingRefV1,
         root: BindingRefV1,
@@ -20,6 +21,15 @@ pub(crate) enum BorrowedCallActualValueV1 {
         root: BindingRefV1,
     },
     Binding(BindingRefV1),
+    /// Exact original MethodCall membership; no result class or execution proof.
+    MethodCall,
+    /// Original field spelling, without a live parent or execution proof.
+    FieldAccess,
+    /// The prefix still owns this exact definite received-call binding.
+    ReceivedField {
+        parent: BindingRefV1,
+        acquisition: OwnedExprSiteV1,
+    },
     Unknown,
 }
 
@@ -50,7 +60,10 @@ pub(crate) fn borrowed_actual_source_atom_v1(
                 Some(ResolvedLexicalRefV1::Local(binding)) => {
                     Some(BorrowedCallActualValueV1::Binding(binding))
                 }
-                _ => None,
+                _ => input.function().method_call(site).map(|_| BorrowedCallActualValueV1::MethodCall)
+                    .or_else(|| matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
+                        Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
+                        .then_some(BorrowedCallActualValueV1::FieldAccess)),
             }),
     }
 }
@@ -60,6 +73,7 @@ fn observe_one_borrowed_call_actuals(
     site: &OwnedExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
+    prior_homes: &[BindingRefV1],
 ) -> Option<Vec<BorrowedCallActualCandidateV1>> {
     if site.owner() != input.owner() {
         return None;
@@ -74,6 +88,20 @@ fn observe_one_borrowed_call_actuals(
             .map(|argument| {
                 let site = argument.site();
                 let value = match borrowed_actual_source_atom_v1(input, site) {
+                    Some(BorrowedCallActualValueV1::FieldAccess) => {
+                        let received = prefix_known.then(|| {
+                            let crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. } =
+                                input.body_shape()?.expression_shape(site)? else { return None; };
+                            let ResolvedLexicalRefV1::Local(parent) = input.function().variable_ref(object)?
+                                else { return None; };
+                            if !prior_homes.contains(&parent) { return None; }
+                            let (acquisition, nullable) = locals.received_call_acquisition(parent)?;
+                            (!nullable).then(|| BorrowedCallActualValueV1::ReceivedField {
+                                parent, acquisition: acquisition.clone(),
+                            })
+                        }).flatten();
+                        received.unwrap_or(BorrowedCallActualValueV1::FieldAccess)
+                    }
                     Some(BorrowedCallActualValueV1::Binding(_)) => {
                         if !prefix_known {
                             // An uncovered path proves no flow state, but
@@ -145,6 +173,11 @@ fn observe_one_borrowed_call_actuals(
                                     {
                                         BorrowedCallActualValueV1::ReceivedNullable(binding)
                                     }
+                                    Some(OrdinaryObservation::BoundValue(actual))
+                                        if actual == binding && locals.is_received_mixed_v1(binding) =>
+                                    {
+                                        BorrowedCallActualValueV1::ReceivedMixed(binding)
+                                    }
                                     _ => BorrowedCallActualValueV1::Binding(binding),
                                 },
                                 _ => BorrowedCallActualValueV1::Unknown,
@@ -172,6 +205,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
     site: &OwnedExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
+    prior_homes: &[BindingRefV1],
 ) -> Vec<(OwnedExprSiteV1, Vec<BorrowedCallActualCandidateV1>)> {
     if site.owner() != input.owner() {
         return Vec::new();
@@ -181,7 +215,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn observe_borrowed_call
     while let Some((site, children_observed)) = pending.pop() {
         if children_observed {
             if let Some(actuals) =
-                observe_one_borrowed_call_actuals(input, &site, locals, prefix_known)
+                observe_one_borrowed_call_actuals(input, &site, locals, prefix_known, prior_homes)
             {
                 observed.push((site, actuals));
             }
@@ -217,4 +251,39 @@ pub(super) fn contains_borrowed_actual_v1(arguments: &[super::LocalCallArgumentV
         }
         _ => false,
     })
+}
+
+/// Retain the scanner's original direct statement-call basis without changing
+/// its selected roots or inventing an expression/Home observation.
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn stage_statement_actuals<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
+    locals: &PrefixLocalFlow<'_>, prefix_known: bool, prior_homes: &[BindingRefV1],
+    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<(), E> {
+    let call_root = match statement.node() {
+            crate::ast::ASTNode::Return { value: Some(_), .. } => input
+                .source()
+                .child_expr_from_stmt(&statement, crate::mir::resolved_semantics::ExprChildRoleV1::ReturnValue)
+                .ok()
+                .map(|expr| expr.site().clone()),
+            crate::ast::ASTNode::MethodCall { .. } => {
+                Some(SourceExprSiteV1::from_node(statement.site().node().clone()))
+            }
+            _ => None,
+        };
+        if let Some(site) = call_root {
+            let owned = OwnedExprSiteV1::new(input.owner(), site);
+            for (call_site, actuals) in observe_borrowed_call_actuals(
+                input,
+                &owned,
+                locals,
+                prefix_known,
+                prior_homes,
+            ) {
+                port(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+            }
+        }
+    Ok(())
 }

@@ -12,50 +12,16 @@ pub(in crate::mir::builder) fn emit(
     // The passed affine row must match the original Direct proof before leases
     // or argument instructions are consumed. Missing Object proof never retries I64.
     let direct = ledger.checked_direct_object_return_row_v1(owner, exit, &row)?;
-    let legacy_arguments;
-    let (source, result, class) = match direct.as_ref() {
-        Some(view) => (view.arguments(), view.result(), Some(view.class())),
-        None => {
-            if row.result() != Some(InvokeCallResultKind::I64) {
-                return Err(freeze("lexical-terminal/result-not-i64"));
-            }
-            legacy_arguments = ledger
-                .borrowed_terminal_arguments_v1(owner, exit)?
-                .ok_or_else(|| freeze("lexical-terminal/arguments-missing"))?;
-            (legacy_arguments.as_ref(), InvokeCallResultKind::I64, None)
-        }
-    };
+    let terminal = ledger.verified_terminal_call_source_v1(owner, exit)?
+        .ok_or_else(|| freeze("lexical-terminal/source-missing"))?;
+    terminal.corroborate_row(&row)?;
+    let source = terminal.lexical_arguments()
+        .ok_or_else(|| freeze("lexical-terminal/arguments-missing"))?;
+    let result = terminal.result();
+    let class = direct.as_ref().map(|view| view.class());
     let mut arguments = Vec::new();
-    let stored = row.source_target().stored_receiver();
-    let (site, binding) = match stored {
-        Some((binding, site, _, _)) => (site, binding),
-        None => (row.receiver_site(), row.receiver_binding()?),
-    };
-    let receiver = state
-        .take_exact_lexical_read(owner, site.node(), binding)
-        .map_err(|error| error.to_string())?;
-    let field_read = if let Some((_, site, field, _)) = stored {
-        let base = receiver
-            .value_for(owner, site.node(), binding)
-            .map_err(|error| error.to_string())?;
-        let block = builder
-            .function_state
-            .current_block
-            .ok_or_else(|| freeze("no-block"))?;
-        let dst = builder.next_value_id();
-        let instruction = MirInstruction::ObjectFieldGet { dst, base, field };
-        builder.emit_instruction(instruction.clone())?;
-        builder
-            .function_state
-            .type_ctx
-            .value_types
-            .insert(dst, MirType::Box(row.target().owner().into()));
-        let read = (block, instruction);
-        arguments.push(read.clone());
-        Some(read)
-    } else {
-        None
-    };
+    let (receiver, field_read) = lexical_receiver::prepare(
+        builder, state, owner, &row, &mut arguments)?;
     let mut prepared = lexical_i64::prepare_arguments(
         builder,
         state,

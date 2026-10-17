@@ -3,6 +3,10 @@
 use std::collections::BTreeSet;
 use std::rc::Rc;
 
+#[path = "expression_field_path.rs"]
+mod field_path;
+pub(crate) use field_path::OriginalExpressionFieldPathV1;
+
 use super::expression_children::{
     expression_children_v1, ExpressionChildIssueV1, ExpressionChildrenV1,
 };
@@ -25,6 +29,11 @@ pub(crate) enum ExpressionPlanRootV1 {
     Assignment {
         assignment: ResolvedAssignmentSourceV1,
     },
+    IfCondition {
+        statement: SourceStmtSiteV1,
+        condition: SourceExprSiteV1,
+        bundle: crate::mir::resolved_semantics::ResolvedIfRegionBundleV1,
+    },
     Statement {
         statement: SourceStmtSiteV1,
         role: StatementExpressionRoleV1,
@@ -35,7 +44,8 @@ pub(crate) enum ExpressionPlanRootV1 {
 impl ExpressionPlanRootV1 {
     pub(crate) fn statement(&self) -> &SourceStmtSiteV1 {
         match self {
-            Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. } => {
+            Self::LocalInitializer { statement, .. } | Self::Statement { statement, .. }
+            | Self::IfCondition { statement, .. } => {
                 statement
             }
             Self::Assignment { assignment } => assignment.statement_site(),
@@ -44,7 +54,7 @@ impl ExpressionPlanRootV1 {
     pub(crate) fn initializer(&self) -> Option<&ResolvedInitializerRelationV1> {
         match self {
             Self::LocalInitializer { initializer, .. } => Some(initializer),
-            Self::Statement { .. } | Self::Assignment { .. } => None,
+            Self::Statement { .. } | Self::Assignment { .. } | Self::IfCondition { .. } => None,
         }
     }
 }
@@ -106,6 +116,78 @@ impl ExpressionSourcePlanV1 {
     }
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
+    }
+    /// Children precede their parent in declared LHS/RHS/argument order.
+    /// This is structural order only: conditional child reach remains on the
+    /// SAME plan and must never be promoted into eager execution permission.
+    pub(crate) fn ordered_postorder_v1(&self) -> Result<Vec<usize>, ExpressionChildIssueV1> {
+        use ExpressionChildIssueV1 as Issue;
+        if self.nodes.is_empty() { return Err(Issue::MissingSource); }
+        let indices: std::collections::BTreeMap<_, _> = self.nodes.iter().enumerate()
+            .map(|(index, node)| (node.site().clone(), index)).collect();
+        if indices.len() != self.nodes.len() { return Err(Issue::ChildIdentity); }
+        let mut pending = vec![(0, false)];
+        let mut seen = BTreeSet::new();
+        let mut ordered = Vec::with_capacity(self.nodes.len());
+        while let Some((index, finishing)) = pending.pop() {
+            if finishing { ordered.push(index); continue; }
+            if !seen.insert(index) { return Err(Issue::ChildIdentity); }
+            let ExpressionChildrenV1::Known(children) = self.nodes[index].children()
+                else { return Err(Issue::MissingSource); };
+            pending.push((index, true));
+            for child in children.iter().rev() {
+                pending.push((*indices.get(&child.site).ok_or(Issue::ChildIdentity)?, false));
+            }
+        }
+        if ordered.len() != self.nodes.len() { return Err(Issue::ChildIdentity); }
+        Ok(ordered)
+    }
+
+    /// Exact root-to-leaf original field nodes. This is source structure only:
+    /// each edge still needs its own class, declaration and live-root proof.
+    pub(crate) fn field_path_v1(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<(crate::mir::resolved_semantics::BindingRefV1, Vec<usize>)> {
+        let mut current = site;
+        let mut fields = Vec::new();
+        loop {
+            let (index, node) = self.nodes.iter().enumerate()
+                .find(|(_, node)| node.site() == current)?;
+            match node.source() {
+                ExpressionNodeSourceV1::Shape(BodyExpressionShapeV1::FieldAccess { object, .. }) => {
+                    let expected = SourcePathV1::from_node(current.node())
+                        .child(SourcePathSegmentV1::Receiver).expr();
+                    let ExpressionChildrenV1::Known(children) = node.children() else { return None; };
+                    if object != &expected || children.len() != 1
+                        || children[0].role != SourcePathSegmentV1::Receiver
+                        || children[0].site != *object || fields.contains(&index)
+                    { return None; }
+                    fields.push(index);
+                    current = object;
+                }
+                ExpressionNodeSourceV1::Reference(ResolvedLexicalRefV1::Local(binding))
+                | ExpressionNodeSourceV1::Shape(BodyExpressionShapeV1::Me {
+                    receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), ..
+                }) if binding.owner() == self.owner && !fields.is_empty() => {
+                    fields.reverse();
+                    return Some((*binding, fields));
+                }
+                _ => return None,
+            }
+        }
+    }
+
+    /// The existing direct-read adapter retains its one-edge restriction.
+    /// A nested path never gains direct receiver/Home permission here.
+    pub(crate) fn field_read_node_v1(
+        &self, site: &SourceExprSiteV1, receiver_site: &SourceExprSiteV1,
+        receiver: crate::mir::resolved_semantics::BindingRefV1, name: &str,
+    ) -> Option<usize> {
+        let (root, fields) = self.field_path_v1(site)?;
+        let [index] = fields.as_slice() else { return None; };
+        let ExpressionNodeSourceV1::Shape(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
+            self.nodes[*index].source() else { return None; };
+        (root == receiver && object == receiver_site && field.as_ref() == name).then_some(*index)
     }
     pub(crate) fn has_opaque_obligations(&self) -> bool {
         self.nodes
@@ -202,6 +284,37 @@ pub(crate) fn statement_expression_source_plan_v1(
         root.value,
     )
     .map(Some)
+}
+
+/// The resolver's exact If bundle owns this root; the shared builder retains
+/// every original child and conditional reach without granting execution.
+pub(crate) fn condition_expression_source_plan_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+) -> Result<Rc<ExpressionSourcePlanV1>, ExpressionChildIssueV1> {
+    use ExpressionChildIssueV1 as Issue;
+    let bundle = *input.function().if_region_bundle(statement).map_err(|_| Issue::MissingSource)?;
+    let condition = SourcePathV1::from_node(statement.node())
+        .child(SourcePathSegmentV1::IfCondition).expr();
+    let exact = input.function().with_if_region_for_condition(&condition, |row|
+        row.site() == statement && row.bundle() == bundle).map_err(|_| Issue::MissingSource)?;
+    let shape = input.body_shape().ok_or(Issue::MissingSource)?;
+    let ledger = input.forest().callable_source_ledger(input.owner()).map_err(|_| Issue::ForeignOwner)?;
+    if !exact || shape.owner() != input.owner() || ledger.owner() != input.owner() {
+        return Err(Issue::ForeignOwner);
+    }
+    let inventory = ledger.source_site_inventory();
+    if !inventory.contains_statement(statement) || !inventory.contains_expression(&condition) {
+        return Err(Issue::MissingSource);
+    }
+    let mut relations = shape.relations().iter().filter(|row|
+        row.parent() == statement.node() && row.role() == &SourcePathSegmentV1::IfCondition);
+    if relations.next().is_none_or(|row| row.child() != &condition) || relations.next().is_some() {
+        return Err(Issue::ChildIdentity);
+    }
+    build_plan(&ledger, Some(shape), ExpressionPlanRootV1::IfCondition {
+        statement: statement.clone(), condition: condition.clone(), bundle,
+    }, &condition)
 }
 
 fn build_plan(

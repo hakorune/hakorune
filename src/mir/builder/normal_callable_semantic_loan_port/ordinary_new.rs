@@ -2,6 +2,15 @@
 use super::*;
 
 impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
+    fn try_emit_unit_discard(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<bool, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.try_emit_unit_discard(builder, method, arity)
+    }
+
+    fn try_emit_owned_array_append(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<bool, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.try_emit_owned_array_append(builder, method, arity)
+    }
     fn prepare_terminal_field_read(
         &mut self,
         object: crate::ast::ASTNode,
@@ -44,12 +53,17 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         self.inner.emit_terminal_map_get_return(builder)
     }
 
-    fn emit_terminal_integer_literal_return(
+    fn emit_terminal_scalar_literal_return(
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<Option<ValueId>, String> {
         self.check_new_ledger_identity()?;
-        self.inner.emit_terminal_integer_literal_return(builder)
+        self.inner.emit_terminal_scalar_literal_return(builder)
+    }
+
+    fn complete_terminal_scalar_literal_return(&mut self, builder: &MirBuilder) -> Result<(), String> {
+        self.check_new_ledger_identity()?;
+        self.inner.complete_terminal_scalar_literal_return(builder)
     }
 
     fn emit_root_home_exit(
@@ -80,6 +94,21 @@ impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
     ) -> Result<ValueId, String> {
         self.check_new_ledger_identity()?;
         self.inner.emit_ordinary_new_claim(builder, claim)
+    }
+
+    fn prepare_owned_array_construction(
+        &mut self, class: &str, argument_count: usize, field_count: usize,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1>, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.prepare_owned_array_construction(class, argument_count, field_count)
+    }
+
+    fn emit_owned_array_construction(
+        &mut self, builder: &mut MirBuilder,
+        source: crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1,
+    ) -> Result<ValueId, String> {
+        self.check_new_ledger_identity()?;
+        self.inner.emit_owned_array_construction(builder, source)
     }
 
     fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {

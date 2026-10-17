@@ -71,7 +71,7 @@ fn emit_object(
         InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle
     ) || (entry.is_none()
         && result_kind == InvokeCallResultKind::Handle
-        && !row.source_target().has_object_source_requirement())
+        && !ledger.uses_object_packet_protocol_v1(&row)?)
     {
         return Err(freeze("lexical-nullable/result-mismatch"));
     }
@@ -88,7 +88,7 @@ fn emit_object(
     {
         return Err(freeze("lexical-nullable/receiver-home-missing"));
     }
-    let object_packet = if row.source_target().has_object_source_requirement() {
+    let object_packet = if ledger.uses_object_packet_protocol_v1(&row)? {
         Some(ledger.borrowed_object_call_packet_v1(&row)?)
     } else {
         None
@@ -197,9 +197,10 @@ fn emit_object(
         builder, call, result_kind, frame, normal_landing, fault_landing,
         result, result_type,
     )?;
+    let uses_packet = object_packet.is_some();
     let emitted = EmittedCall::new(row, prepared, invoke, projection);
-    bindings.push(emitted.outer_bindings().0.clone());
-    bindings.push(emitted.outer_bindings().1.clone());
+    bindings.push(emitted.invoke_binding().clone());
+    bindings.push(emitted.outer_bindings()?.1.clone());
     // The binding group is the finalized-call inventory — the exit
     // cleanup claims it in source order exactly like the scalar lane —
     // while the `CallReceived` commit owns the received Home and the
@@ -210,8 +211,8 @@ fn emit_object(
         bindings.clone(),
         emitted,
     )?;
-    if borrowed_receiver {
-        ledger.record_receiver_object_call_emission_v1(&owned_site, result, bindings, packet)?;
+    if uses_packet {
+        ledger.record_object_packet_call_emission_v1(&owned_site, result, bindings, packet)?;
     } else {
         ledger.record_handle_call_emission(&owned_site, result, bindings)?;
     }

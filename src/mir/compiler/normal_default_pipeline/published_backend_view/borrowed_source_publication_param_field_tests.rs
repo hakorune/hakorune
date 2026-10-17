@@ -46,7 +46,7 @@ fn guarded_formal_field_read_publishes_object_view() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -146,10 +146,9 @@ fn guarded_formal_field_read_publishes_object_view() {
                 )
                 .unwrap_or_else(|error| panic!("{label}: {error}"));
         }
-        // A `null`-only caller gives the formal no object-class claim: no
-        // view is minted, so the callee stays on the bounded sibling lane —
-        // the read is unclaimed and the legacy `FieldGet` projection fails
-        // closed on its physical `unproved-copy` arm.
+        // A null-only opaque caller gives no class view. Once the original
+        // borrowed entry demands its guarded read, reject missing source
+        // class before emission; a legacy read never supplies that evidence.
         let text = "box Handle { page_id: i64 block_id: i64 birth(pid, bid) { me.page_id = pid me.block_id = bid } } \
             box Store { limit: i64 birth() { me.limit = 10 } \
             check(p) { if p > me.limit { return null } return new Handle(p, 3) } \
@@ -157,12 +156,12 @@ fn guarded_formal_field_read_publishes_object_view() {
             static box Main { main() { local s = new Store() local h = s.check(5) return s.release(null) } }";
         let error = MirCompiler::with_options(false)
             .compile_normal_with_published(request(text), |view, verification| {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 view.issue_lifecycle_physical_abi_input().map(|_| ())
             })
             .err()
             .unwrap_or_else(|| panic!("null-actual: unexpectedly admitted"));
-        assert!(error.contains("unproved-copy"), "null-actual: {error}");
+        assert!(error.contains("ordinary-field-read/borrowed-entry-object-view-missing"), "null-actual: {error}");
     });
 }
 
@@ -285,7 +284,7 @@ fn parameter_field_frontiers_stay_fail_closed() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input().map(|_| ())
                 })
                 .err()
@@ -303,7 +302,7 @@ fn parameter_field_frontiers_stay_fail_closed() {
             static box Main { main() { local s = new Store() local o = s.check(5) return s.release(o) } }";
         let error = MirCompiler::with_options(false)
             .compile_normal_with_published(request(text), |view, verification| {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 view.issue_lifecycle_physical_abi_input().map(|_| ())
             })
             .err()

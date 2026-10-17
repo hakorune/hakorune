@@ -361,8 +361,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             "Other.main/0".into(),
             &module,
             &std::collections::BTreeSet::new(),
-            None,
-        )
+            None, Vec::new())
         .unwrap_err();
     assert!(foreign_root.contains("artifact-root-finished-identity"));
     let handoff = ledger
@@ -370,8 +369,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             "Main.main/0".into(),
             &module,
             &std::collections::BTreeSet::new(),
-            None,
-        )
+            None, Vec::new())
         .unwrap();
     let root = handoff
         .root_source()
@@ -400,8 +398,7 @@ fn source_terminal_call_payload_moves_into_final_root_handoff() {
             "Main.main/0".into(),
             &module,
             &std::collections::BTreeSet::new(),
-            None,
-        )
+            None, Vec::new())
         .expect_err("a finalized Call payload cannot be taken twice");
     assert!(
         duplicate.contains("artifact-root-already-finalized"),

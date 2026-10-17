@@ -10,7 +10,7 @@ use crate::mir::{EdgeArgs, ValueId};
 use std::collections::BTreeMap;
 
 /// Remap a plan with block ID and ValueId freshening
-pub(crate) fn remap_plan(
+pub(super) fn remap_plan(
     builder: &mut MirBuilder,
     block_map: &mut BTreeMap<BasicBlockId, BasicBlockId>,
     value_map: &BTreeMap<ValueId, ValueId>,
@@ -214,10 +214,11 @@ fn remap_effect_in_place(value_map: &BTreeMap<ValueId, ValueId>, effect: &mut Co
             *args = remap_value_ids(value_map, args);
         }
         CoreEffectPlan::NamedArrayPush {
-            receiver, value, ..
+            receiver, value, argument, ..
         } => {
             *receiver = remap_value_id(value_map, *receiver);
             *value = remap_value_id(value_map, *value);
+            if let Some(argument) = argument { argument.remap(&super::FresheningValuesV1(value_map)); }
         }
         CoreEffectPlan::MapLiteralEntryWrite {
             receiver,

@@ -524,14 +524,21 @@ fn final_terminal_result_gate_refuses_real_unit_float_missing_and_foreign_contra
         floating(q: i64) { local m = %{"k" => 1} return 1.5 }
     }
     static box Main { main() { local recv = new Probe() recv.unit(1) recv.floating(1) return 0 } }"#;
-    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
+    // Keep the original Unit call: without the zero-argument discard source
+    // it must fail before any scalar result row is manufactured.
+    let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(text)
+        .err().expect("original nonselected Unit use must fail at issuance");
+    assert!(format!("{error:?}").contains("lexical-instance-call/unit-value-use"), "{error:?}");
+    // The same Float declaration/call can independently reach the late gate.
+    let float_source = text.replace("recv.unit(1) ", "");
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&float_source).unwrap();
     let ledger = &package.ordinary_new_claim_ledger;
     let slots = ledger.lexical_instance_calls.borrow();
-    for name in ["unit", "floating"] {
+    {
         let source = slots
             .values()
             .find_map(|slot| match slot {
-                LexicalInstanceCallDispositionSlotV1::Ready(row) if row.target().name() == name => {
+                LexicalInstanceCallDispositionSlotV1::Ready(row) if row.target().name() == "floating" => {
                     Some(row.source_target())
                 }
                 _ => None,
@@ -544,18 +551,9 @@ fn final_terminal_result_gate_refuses_real_unit_float_missing_and_foreign_contra
             .borrow();
         assert_eq!(contract.owner(), source.callee_owner());
         assert!(contract.result().is_none());
-        if name == "unit" {
-            assert!(matches!(
-                contract.sole_terminal_relation(),
-                Some(TerminalRelationV1::Unit(_))
-            ));
-            assert!(!contract.completion().returns_value());
-        } else {
-            assert!(
-                matches!(contract.sole_terminal_relation(), Some(TerminalRelationV1::Value(value)) if value.returned() == &TerminalReturnedSourceV1::FloatLiteral)
-            );
-            assert!(contract.completion().returns_value());
-        }
+        assert!(matches!(contract.sole_terminal_relation(), Some(TerminalRelationV1::Value(value))
+            if value.returned() == &TerminalReturnedSourceV1::FloatLiteral));
+        assert!(contract.completion().returns_value());
         assert!(ledger
             .corroborate_terminal_lexical_result_v1(source, &package.result_contracts)
             .unwrap_err()

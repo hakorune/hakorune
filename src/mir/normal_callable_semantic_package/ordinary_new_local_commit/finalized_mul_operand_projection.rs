@@ -1,4 +1,5 @@
 //! Original nonview Mul operands close through the same finished source owner.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::{
     BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
@@ -76,21 +77,11 @@ impl FinalizedRootSourceHandoffV1 {
         if site.owner() != owner {
             return Err(freeze("borrowed-mul/call-owner"));
         }
-        let mut groups = self
-            .local_calls
-            .get(&owner)
-            .into_iter()
-            .flatten()
-            .filter(|group| group.site() == site);
-        let group = groups
-            .next()
-            .ok_or_else(|| freeze("borrowed-mul/call-group-missing"))?;
-        if groups.next().is_some() {
-            return Err(freeze("borrowed-mul/call-group-duplicate"));
-        }
-        let packet = group
-            .lexical()
-            .ok_or_else(|| freeze("borrowed-mul/call-packet-missing"))?;
+        let mut packets = self.local_calls.get(&owner).into_iter().flatten()
+            .flat_map(|group| group.lexical_packets().map(move |packet| (group, packet)))
+            .filter(|(_, packet)| packet.call_site() == site);
+        let (group, packet) = packets.next().ok_or_else(|| freeze("borrowed-mul/call-group-missing"))?;
+        if packets.next().is_some() { return Err(freeze("borrowed-mul/call-group-duplicate")); }
         let CallPacketSourceLoanV1::Static {
             original,
             observation,
@@ -108,11 +99,11 @@ impl FinalizedRootSourceHandoffV1 {
             .ok_or_else(|| freeze("borrowed-mul/call-observation-missing"))?;
         if current != observation
             || !current.arguments().is_empty()
-            || packet.value_with_ledger(owner, current.arguments(), &self.ledger)? != child
+            || packet.value_in_context_v1(owner, current.arguments(), CallValidationContextV1::Finalized(self))? != child
         {
             return Err(freeze("borrowed-mul/call-observation-drift"));
         }
-        let (invoke, normal) = packet.outer_bindings();
+        let (invoke, normal) = packet.outer_bindings()?;
         // Invoke has no dst; its existing call loan checks retained membership
         // and recorded projection, including the original Fault landing/frame.
         self.finished_local_call_producer_v1(owner, group.site(), site, invoke, function)?;

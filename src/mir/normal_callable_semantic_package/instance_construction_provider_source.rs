@@ -7,7 +7,7 @@ use crate::mir::normal_callable_semantic_package::{
     OrdinaryNewTrivialArgumentV1 as Argument, QualifiedStaticCallArgumentKindV1 as Actual,
 };
 use crate::mir::resolved_semantics::{
-    BodyExpressionShapeV1, BodyMeReceiverV1, OwnedExprSiteV1, ResolvedAssignmentFormV1,
+    BodyExpressionShapeV1, BodyMeReceiverV1, OwnedExprSiteV1, SourceExprSiteV1, ResolvedAssignmentFormV1,
     ResolvedAssignmentSourceV1, ResolvedAssignmentTargetV1, ResolvedLiteralSourceV1 as Literal,
     ResolvedMethodCallReceiverSourceV1, ResolvedNewExpressionSourceV1,
 };
@@ -15,7 +15,7 @@ use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalSameModuleCallableKeyV1};
 use std::rc::Rc;
 
 #[derive(Debug)]
-pub(in crate::mir::normal_callable_semantic_package) struct ProviderStaticArgumentSourceV1 {
+pub(crate) struct ProviderStaticArgumentSourceV1 {
     catalog: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     constructor: ConstructorSourceIdV1,
     caller: CanonicalSameModuleCallableKeyV1,
@@ -26,7 +26,71 @@ pub(in crate::mir::normal_callable_semantic_package) struct ProviderStaticArgume
     provider_arguments: Rc<[Argument]>,
 }
 
+// Equality means the original immutable issuer row, never a reconstructed tuple.
+impl PartialEq for ProviderStaticArgumentSourceV1 {
+    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+}
+impl Eq for ProviderStaticArgumentSourceV1 {}
+
+/// Read-only transport of the original source and its checked argument plan.
+/// The ledger remains the sole actual/input authority.
+#[derive(Debug)]
+pub(crate) struct PreparedProviderStaticArgumentV1 {
+    pub(in crate::mir::normal_callable_semantic_package) source: Rc<ProviderStaticArgumentSourceV1>,
+    pub(in crate::mir::normal_callable_semantic_package) incoming: Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1>,
+    pub(in crate::mir::normal_callable_semantic_package) arguments: Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>,
+}
+
+impl PreparedProviderStaticArgumentV1 {
+    pub(crate) fn original_source(&self) -> &Rc<ProviderStaticArgumentSourceV1> { &self.source }
+    pub(crate) fn incoming(&self) -> &Rc<crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1> { &self.incoming }
+    pub(crate) fn arguments(&self) -> &[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1] { &self.arguments }
+}
+
 impl ProviderStaticArgumentSourceV1 {
+    /// Borrow the already sealed source tuple; never classify an actual again.
+    pub(in crate::mir::normal_callable_semantic_package) fn original_call_v1(
+        &self,
+    ) -> Option<(&CanonicalSameModuleCallableKeyV1, OwnedExprSiteV1,
+        &CanonicalSameModuleCallableKeyV1, &[Actual])> {
+        let Kind::QualifiedStaticCall { target, arguments } = self.argument.kind() else {
+            return None;
+        };
+        Some((&self.caller, OwnedExprSiteV1::new(self.argument.owner(), self.argument.site().clone()),
+            target, arguments))
+    }
+    pub(crate) fn corroborates_publication_v1(
+        &self,
+        handoff: &crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+    ) -> bool {
+        let Some((caller, site, target, literals)) = self.original_call_v1() else { return false; };
+        self.catalog.identity() == handoff.catalog_identity()
+            && caller == handoff.caller() && site.site() == handoff.site()
+            && target == handoff.target()
+            && matches!(handoff.representation(),
+                crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1::ExactI64)
+            && handoff.required_callee_i64_arguments().iter().all(|ordinal|
+                matches!(literals.get(*ordinal as usize), Some(Actual::Integer(_))))
+    }
+
+    pub(crate) fn matches_argument_v1(&self, argument: &Argument) -> bool {
+        self.argument == *argument && self.tuple_matches()
+    }
+
+    /// Check the existing construction plan against this exact source row.
+    pub(crate) fn matches_store_v1(
+        &self,
+        field: CanonicalFieldRefV1,
+        site: &SourceExprSiteV1,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        arguments: &[Argument],
+    ) -> bool {
+        self.field == field && self.original.site() == site && &self.caller == caller
+            && self.provider_arguments.as_ref() == arguments && self.tuple_matches()
+            && self.matches_original(self.argument.new_site(), &self.original,
+                self.argument.ordinal() as usize)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn matches_original(
         &self,
         site: &OwnedExprSiteV1,
@@ -279,6 +343,28 @@ pub(super) fn issue_provider_static_sources_v1(
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    /// Same retained source rows, checked before lending to the input owner.
+    pub(in crate::mir::normal_callable_semantic_package) fn provider_static_sources_v1(
+        &self,
+        claims: &QualifiedStaticCallClaimIndexV1,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+    ) -> Result<Vec<Rc<ProviderStaticArgumentSourceV1>>, String> {
+        let reject = || "[freeze:contract][provider-static/source-identity]".to_owned();
+        if !claims.catalog_brand().is_same(selected.catalog_brand()) { return Err(reject()); }
+        let mut sources = Vec::new();
+        let mut sites = std::collections::BTreeSet::new();
+        for row in self.rows() {
+            for source in row.provider_static_arguments.iter() {
+                let (_, call, _, _) = source.original_call_v1().ok_or_else(reject)?;
+                if !source.same_catalog(claims) || !source.matches_constructor(self)
+                    || !sites.insert(call) {
+                    return Err(reject());
+                }
+                sources.push(Rc::clone(source));
+            }
+        }
+        Ok(sources)
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn provider_static_argument_source_v1(
         &self,
         input: ResolvedFunctionLoweringInputV1<'_>,

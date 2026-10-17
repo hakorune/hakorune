@@ -31,6 +31,7 @@ struct ShortCircuitInputV1 {
 
 struct RecordingShortCircuitPortV1 {
     events: RefCell<Vec<EventV1>>,
+    completed: Option<super::CompletedLogicalShortCircuitV1>,
     left_value: bool,
     right_value: bool,
     fail_syntax: bool,
@@ -44,6 +45,7 @@ impl RecordingShortCircuitPortV1 {
     fn accepting(left_value: bool, right_value: bool) -> Self {
         Self {
             events: RefCell::new(Vec::new()),
+            completed: None,
             left_value,
             right_value,
             fail_syntax: false,
@@ -63,6 +65,13 @@ impl RecursiveChildLoweringPortV1 for RecordingShortCircuitPortV1 {
     type BodyInput = ();
     type StatementInput = ();
     type ExpressionInput = ExpressionInputV1;
+
+    fn complete_short_circuit_expression_v1(
+        &mut self, completed: &super::CompletedLogicalShortCircuitV1,
+    ) -> Result<(), String> {
+        assert!(self.completed.replace(completed.clone()).is_none());
+        Ok(())
+    }
 
     fn lower_body(
         &mut self,
@@ -198,9 +207,11 @@ fn logical_driver_requests_left_before_rhs_and_rhs_only_in_eval_block() {
 fn and_and_or_share_the_existing_short_circuit_completion() {
     for operator in [BinaryOperator::And, BinaryOperator::Or] {
         let mut builder = builder(&format!("sc0_operator/{operator}"));
+        let carry = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
+        builder.function_state.variable_ctx.variable_map.insert("carry".to_owned(), carry);
         let mut port = RecordingShortCircuitPortV1::accepting(false, true);
 
-        let result = drive(&mut builder, &mut port, operator).unwrap();
+        let result = drive(&mut builder, &mut port, operator.clone()).unwrap();
 
         assert_eq!(
             builder.function_state.type_ctx.value_types.get(&result),
@@ -211,8 +222,38 @@ fn and_and_or_share_the_existing_short_circuit_completion() {
                 .iter()
                 .filter(|instruction| matches!(instruction, MirInstruction::Phi { .. }))
                 .count(),
-            1
+            2
         );
+        let completed = port.completed.as_ref().expect("same sole writer completion");
+        assert_eq!(completed.operator(), &operator);
+        assert_eq!(completed.value(), result);
+        assert_ne!(completed.operands().0, completed.operands().1);
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let (lhs_condition, rhs_condition) = completed.conditions();
+        let (lhs_branch, rhs_branch) = completed.branches();
+        let is_and = operator == BinaryOperator::And;
+        let skip = completed.paths()[0].0;
+        assert!(matches!(function.blocks[&lhs_branch].terminator.as_ref(),
+            Some(MirInstruction::Branch { condition, then_bb, else_bb, .. })
+                if *condition == lhs_condition
+                    && (*then_bb, *else_bb) == if is_and { (completed.rhs_entry(), skip) }
+                        else { (skip, completed.rhs_entry()) }));
+        assert!(matches!(function.blocks[&rhs_branch].terminator.as_ref(),
+            Some(MirInstruction::Branch { condition, then_bb, else_bb, .. })
+                if *condition == rhs_condition
+                    && (*then_bb, *else_bb) == (completed.paths()[1].0, completed.paths()[2].0)));
+        assert!(completed.bindings().iter().all(|(id, row)|
+            function.blocks[id].all_instructions().any(|actual| actual == row)));
+        let merge = &function.blocks[&completed.merge()];
+        assert!(matches!(&merge.instructions[0], MirInstruction::Phi { dst, inputs, .. }
+            if *dst == result && inputs.iter().copied().eq(completed.paths().iter().copied())));
+        assert_eq!(completed.bindings().iter().filter(|(id, row)| *id == completed.merge()
+            && matches!(row, MirInstruction::Phi { .. })).count(), 2,
+            "retain result Phi and every actual variable-carrier Phi");
+        // The LHS/RHS literal producers belong to the child expression owners.
+        let operands = completed.operands();
+        assert!(!completed.bindings().iter().any(|(_, row)|
+            row.dst_value().is_some_and(|dst| dst == operands.0 || dst == operands.1)));
     }
 }
 

@@ -36,7 +36,7 @@ pub(crate) struct VerifiedCallableResultContractCohortV1 {
     rows: Box<[VerifiedCallableResultContractRowV1]>,
     named_array_emissions: Box<[super::EmittedNamedArrayRequirementV1]>,
     completed_context: Option<(
-        super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        std::rc::Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
         std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
     )>,
 }
@@ -63,6 +63,25 @@ pub(crate) struct CallableResultContractRefV1<'a> {
     result: Option<ExactTrivialScalarAbiV1>,
     completion: &'a VerifiedFunctionCompletionV1,
     terminal_relations: &'a BTreeMap<SourceStmtSiteV1, TerminalRelationV1>,
+}
+
+pub(super) fn declared_i64_source_agrees_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> bool {
+    match (result, completion.function_exit_contract().declared_result()) {
+        (Some(ExactTrivialScalarAbiV1::I64), DeclaredFunctionResultContractV1::Annotated(name)) =>
+            ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
+        (None, DeclaredFunctionResultContractV1::Unannotated) => true,
+        _ => false,
+    }
+}
+pub(super) fn declared_bool_source_agrees_v1(
+    result: Option<ExactTrivialScalarAbiV1>,
+    completion: &VerifiedFunctionCompletionV1,
+) -> bool {
+    result.is_none() && matches!(completion.function_exit_contract().declared_result(),
+        DeclaredFunctionResultContractV1::Unannotated)
 }
 
 impl VerifiedCallableResultContractCohortV1 {
@@ -177,27 +196,13 @@ impl<'a> CallableResultContractRefV1<'a> {
     /// This is declaration agreement only; the caller must retain its original
     /// complete source/result proof. None alone never proves I64 or excludes Unit.
     pub(super) fn declared_result_agrees_with_i64_source(&self) -> bool {
-        match (
-            self.result,
-            self.completion.function_exit_contract().declared_result(),
-        ) {
-            (
-                Some(ExactTrivialScalarAbiV1::I64),
-                DeclaredFunctionResultContractV1::Annotated(name),
-            ) => ExactTrivialScalarAbiV1::classify(name) == Some(ExactTrivialScalarAbiV1::I64),
-            (None, DeclaredFunctionResultContractV1::Unannotated) => true,
-            _ => false,
-        }
+        declared_i64_source_agrees_v1(self.result, self.completion)
     }
 
     /// Agreement with the independent ExactBool source result. An absent
     /// annotation alone never proves Bool or activates its physical ABI.
     pub(super) fn declared_result_agrees_with_bool_source(&self) -> bool {
-        self.result.is_none()
-            && matches!(
-                self.completion.function_exit_contract().declared_result(),
-                DeclaredFunctionResultContractV1::Unannotated
-            )
+        declared_bool_source_agrees_v1(self.result, self.completion)
     }
 
     #[cfg(test)]
@@ -457,7 +462,7 @@ impl VerifiedCallableResultContractCohortV1 {
     /// correspondence, never reissues source meaning or infers absent rows.
     pub(super) fn retain_completed_context(
         mut self,
-        selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        selected: std::rc::Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
         parameters: std::rc::Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>,
     ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
         use super::NormalCallableSemanticPackageInstallIssueV1 as Issue;
@@ -513,6 +518,24 @@ impl VerifiedCallableResultContractCohortV1 {
         self.row(selected.batch_slot(key)?).map(|row| row.borrow())
     }
 
+    /// Borrow the original selected key; no physical-name reconstruction.
+    pub(in crate::mir::normal_callable_semantic_package) fn completed_key_for_owner_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&SelectedNormalCallableKeyV1> {
+        let (selected, _) = self.completed_context.as_ref()?;
+        let mut matching = self.rows.iter().filter(|row| row.owner == owner);
+        let row = matching.next()?;
+        if matching.next().is_some()
+            || !selected
+                .identity_for_batch_slot(row.batch_slot)
+                .is_some_and(|identity| identity.same_as(&row.identity))
+        {
+            return None;
+        }
+        selected.key_for_batch_slot(row.batch_slot)
+    }
+
     /// Resolve an already-selected catalog key to its invocation-local owner.
     /// This is a correspondence lookup for physical caller attribution; it
     /// does not issue or reconstruct a source key.
@@ -548,10 +571,19 @@ impl VerifiedCallableResultContractCohortV1 {
     pub(super) fn retain_named_array_emissions(
         mut self,
         rows: Box<[super::EmittedNamedArrayRequirementV1]>,
+        ledger: &super::OrdinaryNewClaimLedgerV1,
     ) -> Result<Self, super::NormalCallableSemanticPackageInstallIssueV1> {
         for row in &rows {
             let key = SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
-            if self.completed_result(&key).map(|contract| contract.owner()) != Some(row.owner()) {
+            let agrees = match self.completed_result(&key) {
+                Some(contract) => contract.owner() == row.owner(),
+                None if matches!(row, super::EmittedNamedArrayRequirementV1::OwnedHolder(_)) => {
+                    self.corroborates_root_array_caller_v1(ledger, row.owner(), row.caller())
+                        .map_err(|issue| super::NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(issue.into()))?
+                }
+                None => false,
+            };
+            if !agrees {
                 return Err(
                     super::NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
                         "named-array-completed-owner-mismatch".into(),
@@ -561,6 +593,17 @@ impl VerifiedCallableResultContractCohortV1 {
         }
         self.named_array_emissions = rows;
         Ok(self)
+    }
+
+    /// Root correspondence borrows the original package context; it never
+    /// supplies a selected-child result contract or physical completion.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_root_array_caller_v1(
+        &self, ledger: &super::OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+        caller: &CanonicalSameModuleCallableKeyV1,
+    ) -> Result<bool, String> {
+        let (selected, contracts) = self.completed_context.as_ref()
+            .ok_or("[freeze:contract][named-array/completed-context-missing]")?;
+        Ok(ledger.checked_root_array_holder_caller_v1(owner, selected, contracts)? == Some(caller))
     }
 
     pub(crate) fn named_array_emissions(&self) -> &[super::EmittedNamedArrayRequirementV1] {

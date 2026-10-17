@@ -1,8 +1,11 @@
 //! Caller-prefix Home availability, issued from one resolved source loan.
-//!
 //! A successful prefix describes Normal-path installations, not runtime
 //! cleanup readiness. Construction/argument unwind remains a required
 //! dependency; unknown prefix meaning never becomes an empty Home list.
+
+#[path = "home_field_source.rs"]
+mod field_source;
+pub(crate) use field_source::{HomeFieldSourceConsultV1, NoScalarFieldSourceV1};
 
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
@@ -18,6 +21,7 @@ use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 /// source-only view of the same Static V2 product consumed after Home.
 pub(crate) enum SelectedLoopHomeLoanV1 {
     VariableAccumAfter(VerifiedLoopHomeAfterLoanV1),
+    NoExitArrayAfter(std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>),
     StaticI64Search(crate::mir::builder::VerifiedStaticI64LoopHomeSourceV2),
 }
 use crate::mir::normal_callable_semantic_package::ObjectReturnCallQualificationV1;
@@ -29,6 +33,20 @@ use std::collections::{BTreeMap, BTreeSet};
 /// Exact source-use request; this port consults original evidence only.
 #[derive(Clone, Copy)]
 pub(crate) enum BorrowedViewUseRequestV1<'a> {
+    FormalFieldWriteReceiver {
+        target: &'a SourceExprSiteV1,
+        binding: BindingRefV1,
+        root: BindingRefV1,
+    },
+    FormalFieldWriteValue {
+        target: &'a SourceExprSiteV1,
+    },
+    ArrayElementFieldIndexValue {
+        call: &'a SourceExprSiteV1,
+        index: &'a SourceExprSiteV1,
+        binding: BindingRefV1,
+        root: BindingRefV1,
+    },
     Operand,
     CheckedCompareOperand {
         binary: &'a OwnedExprSiteV1,
@@ -39,6 +57,13 @@ pub(crate) enum BorrowedViewUseRequestV1<'a> {
     IntegerReturn {
         exit: &'a SourceStmtSiteV1,
         binding: BindingRefV1,
+    },
+    IntegerFieldArrayReturn {
+        exit: &'a SourceStmtSiteV1,
+    },
+    IntegerNestedFieldReturn {
+        exit: &'a SourceStmtSiteV1,
+        receiver: BindingRefV1,
     },
     IntegerMulReturn {
         exit: &'a SourceStmtSiteV1,
@@ -103,17 +128,21 @@ impl CallerNewHomePrefixV1 {
 /// Destination-less prefix facts for a return-position `new`. The fresh
 /// object's ownership transfers to the caller at the Return edge, so this
 /// prefix carries no destination binding and no local installation — only
-/// the live prior Homes (still this frame's exit obligation), the outward
-/// fault continuation the construction unwinds through, and the covered
-/// statement inventory at the terminal point.
+/// the prior Homes used on Fault and the remaining Homes after Normal argument
+/// moves, the outward fault continuation, and the covered statement inventory.
+/// Both outcome projections come from the same original terminal walk.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ResultNewHomePrefixV1 {
     prior_homes: Box<[BindingRefV1]>,
+    normal_homes: Box<[BindingRefV1]>,
     outward_fault: NewFaultContinuationV1,
     covered_statements: Box<[SourceStmtSiteV1]>,
 }
 
 impl ResultNewHomePrefixV1 {
+    pub(crate) fn normal_homes(&self) -> &[BindingRefV1] {
+        &self.normal_homes
+    }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] {
         &self.prior_homes
     }
@@ -128,16 +157,16 @@ impl ResultNewHomePrefixV1 {
 
 #[path = "home_expression_plan.rs"]
 mod expression_plan;
-pub(crate) use expression_plan::{ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{CheckedBorrowedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
-pub(crate) use local_flow::{LoopI64PreStateRequestV1, SourceScalarKind};
+pub(crate) use local_flow::{FieldAliasPathV1, LoopI64PreStateRequestV1, SourceScalarKind};
 use local_flow::{OrdinaryObservation, PrefixLocalFlow};
 #[path = "home_local_call_flow.rs"]
 mod local_call_flow;
 pub(crate) use local_call_flow::{
-    borrowed_actual_source_atom_v1, ArgumentCallObservationV1, BorrowedCallActualCandidateV1,
+    issue_source_scalar_expression_call, borrowed_actual_source_atom_v1, ArgumentCallObservationV1, BorrowedCallActualCandidateV1,
     BorrowedCallActualValueV1, LocalCallArgumentV1, LocalCallObservationV1, LocalCallResultClassV1,
     QualifiedStaticCallClaimV1,
 };
@@ -152,7 +181,7 @@ mod map_flow;
 mod terminal_relation;
 pub(crate) use map_flow::{
     ArrayElementSource, MapDestinationV1, MapEntryBorrowKindV1, MapEntryStoreClassV1, MapHomeEntry,
-    MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeFlow,
+    LifecyclePrefixSourceV1, MapHomeFlow, MapHomeObservation, MapValueSource, RootHomeExitV1, RootHomeExitKeyV1, RootHomeFlow,
 };
 pub(crate) use terminal_relation::issue_terminal_integer_literal_return_from_completion_v1;
 use terminal_relation::{
@@ -189,7 +218,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(None),
         &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _| Ok(false),
+        &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
         &mut |_, _, _, _, _| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane.
         &mut |_, _, _, _, _| Ok(false),
@@ -221,18 +250,27 @@ mod field_call;
 mod field_read;
 #[path = "home_new_prefix_scalar_expression.rs"]
 mod scalar_expression;
-pub(crate) use field_read::{LocalFieldReadRequestV1, LocalFieldReadResultV1};
+pub(crate) use field_read::{BorrowedArrayFieldSourceV1, LocalFieldReadDemandV1, LocalFieldReadRequestV1, LocalFieldReadResultV1, ReceivedFieldReadRequestV1};
 pub(in crate::mir) use scalar_expression::contains_static_eq_lhs_source_v1;
 #[path = "home_new_prefix_field_write.rs"]
 mod field_write;
 #[path = "home_terminal_object_return.rs"]
 mod object_return;
 pub(crate) use object_return::{ObjectReturnAcquisitionV1, TerminalObjectReturnObligationV1};
+#[path = "home_new_prefix_named_array.rs"]
+mod named_array;
+pub(crate) use named_array::NamedArrayHomeObservationV1;
 
 #[path = "home_new_prefix_new_local.rs"]
 mod new_local;
 #[path = "home_new_prefix_scan.rs"]
 mod scan;
+#[path = "home_new_prefix_mixed_call.rs"]
+mod mixed_call;
+#[path = "home_new_prefix_condition.rs"]
+mod condition;
+#[path = "home_new_prefix_print.rs"]
+mod print;
 #[path = "home_new_prefix_search_loop.rs"]
 mod search_loop;
 #[path = "home_new_prefix_terminal.rs"]
@@ -290,13 +328,7 @@ pub(crate) fn scan_new_home_flow<E>(
     // The issuer's receiver-side scalar-field proof for `me.<field>` reads
     // inside a self-rooted field-write RHS — a separate contract from the
     // argument-position `i64` proof.
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     // The issuer's receiver-side container-field proof for `me.<field>`
     // receivers of builtin container calls — a separate contract from
     // both scalar proofs.
@@ -333,7 +365,7 @@ pub(crate) fn scan_new_home_flow<E>(
     // predicate alone decides the field declaration and result class.
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
@@ -402,11 +434,12 @@ pub(crate) fn scan_new_home_flow<E>(
                 .map(|site| (site.clone(), Err(HomePrefixUnavailableV1::SourceMismatch)))
                 .collect(),
             RootHomeFlow {
+                named_arrays: Vec::new(),
                 exits: exit_homes
                     .into_iter()
-                    .map(|(site, _)| (site, Err(HomePrefixUnavailableV1::SourceMismatch)))
+                    .map(|(site, _)| (RootHomeExitKeyV1::Explicit(site), Err(HomePrefixUnavailableV1::SourceMismatch)))
+                    .chain(uncovered_implicit_exit.then_some((RootHomeExitKeyV1::ImplicitBodyEnd, Err(HomePrefixUnavailableV1::SourceMismatch))))
                     .collect(),
-                uncovered_implicit_exit,
                 maps,
                 local_calls,
                 expression_plans: Vec::new(),
@@ -433,7 +466,7 @@ pub(crate) fn scan_new_home_flow<E>(
     let mut covered_statements = Vec::new();
     let mut selected_seen = Vec::new();
     let exit_set: BTreeSet<SourceStmtSiteV1> = exit_sites.iter().cloned().collect();
-    scan_statement_flow(
+    let terminated = scan_statement_flow(
         input,
         &body,
         &exit_set,
@@ -472,6 +505,15 @@ pub(crate) fn scan_new_home_flow<E>(
         loop_prestate,
         object_return,
     )?;
+    // Capture exactly the same path state at the original body boundary.
+    // A failed walk retains its failure; an empty Home list is not assumed.
+    let implicit_exit = uncovered_implicit_exit.then(|| {
+        let end = u32::try_from(body.statements().len()).map_err(|_| HomePrefixUnavailableV1::SourceMismatch)?;
+        if terminated { return Err(HomePrefixUnavailableV1::TerminalNotCovered); }
+        if let Some(issue) = &unavailable { return Err(issue.clone()); }
+        Ok(RootHomeExitV1::implicit_from_live_v1(body.site().clone(), end, &homes,
+            path_calls.iter().cloned().collect(), covered_statements.clone().into_boxed_slice()))
+    });
     // Statements after the terminal are never walked; their sealed map
     // literals still owe loop1 one row each — issue Unavailable rows.
     map_descendant_flow::issue_unobserved_descendants(input, &mut maps);
@@ -495,8 +537,9 @@ pub(crate) fn scan_new_home_flow<E>(
     Ok((
         results,
         RootHomeFlow {
-            exits: exit_homes,
-            uncovered_implicit_exit,
+            named_arrays: locals.named_array_observations(),
+            exits: exit_homes.into_iter().map(|(site, row)| (RootHomeExitKeyV1::Explicit(site), row))
+                .chain(implicit_exit.map(|row| (RootHomeExitKeyV1::ImplicitBodyEnd, row))).collect(),
             maps,
             local_calls,
             expression_plans: locals.expression_plans(),

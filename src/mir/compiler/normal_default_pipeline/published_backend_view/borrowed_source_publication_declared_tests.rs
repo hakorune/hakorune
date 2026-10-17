@@ -44,7 +44,7 @@ fn declared_and_forwarding_only_domains_publish_exact_class_layouts() {
                 for optimize in [false, true] {
                     MirCompiler::with_options(optimize).compile_normal_with_published(
                         request(&text), |view, verification| -> Result<(), String> {
-                            classify_pretransform_report(verification);
+                            require_artifact_verification(verification);
                             // Resolve the expected fixture declaration from the original
                             // canonical table, never from the transported view itself.
                             let expected_object = view.module().canonical_object_definitions()
@@ -74,6 +74,14 @@ fn declared_and_forwarding_only_domains_publish_exact_class_layouts() {
                                 let reader = json["functions"].as_array().unwrap().iter()
                                     .find(|f| f["name"] == "Transport.read/1").unwrap();
                                 assert_eq!(reader["params"][0]["object_view"], object);
+                                let forwarded: Vec<_> = bridge["blocks"].as_array().unwrap().iter()
+                                    .filter_map(|block| {
+                                        let op = &block["terminator"]["instruction"]["operation"];
+                                        (op["kind"] == "ordinary_call").then_some(op)
+                                    }).collect();
+                                assert_eq!(forwarded.len(), 1);
+                                assert_eq!(forwarded[0]["call"]["args"][0]["kind"], "tagged",
+                                    "{shape}/{domain}: preserve the original nullable formal pair");
                             }
                             if shape == "ignored" && domain == "null" {
                                 for block in json["functions"].as_array().unwrap().iter()

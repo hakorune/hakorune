@@ -11,6 +11,7 @@ use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::{field_write_claim, result_class_claim};
 use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, OwnedExprSiteV1, ResolvedAssignmentTargetV1,
     ResolvedLexicalRefV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1,
@@ -18,9 +19,15 @@ use crate::mir::resolved_semantics::{
 
 #[path = "ordinary_new_borrowed_formal_use_array_element.rs"]
 mod array_element;
+pub(super) use array_element::GuardedFormalFieldIndexV1;
+pub(crate) use array_element::DeclaredArrayFieldReadSourceV1;
 
 #[path = "ordinary_new_borrowed_formal_use_field_read.rs"]
 mod field_read;
+
+#[path = "ordinary_new_borrowed_formal_use_source_effects.rs"]
+mod source_effects;
+pub(super) use source_effects::BorrowedFormalSourceUseContextV1;
 
 #[path = "ordinary_new_borrowed_formal_use_new_argument.rs"]
 mod new_argument;
@@ -35,7 +42,7 @@ pub(super) use operands::compare_operand_kind;
 
 #[path = "ordinary_new_borrowed_guarded_actual.rs"]
 mod guarded_actual;
-pub(super) use guarded_actual::BorrowedGuardedActualV1;
+pub(super) use guarded_actual::{BorrowedGuardedActualV1, CheckedIntegerOperandReachV1};
 
 #[path = "ordinary_new_borrowed_mul_source.rs"]
 mod mul_source;
@@ -102,6 +109,23 @@ impl BorrowedCompareSourceV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum BorrowedFormalUseDraftKindV1 {
+    /// Exact returned-New child borrow; no numeric guard or field permission.
+    ConstructionChildArgument {
+        relations: Box<[Rc<result_class_claim::SourceConstructionChildRelationV1>]>,
+    },
+    BorrowedFormalReturn {
+        exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
+        source: Box<result_class_claim::BorrowedFormalReturnSourceLoanV1>,
+    },
+    FieldWriteReceiver {
+        source: field_write_claim::OriginalFieldWriteSourceLoanV1,
+        // Original guard requirement; only Home branch reach proves non-null.
+        guard: SourceNodeSiteV1,
+    },
+    FieldWriteValue {
+        source: field_write_claim::OriginalFieldWriteSourceLoanV1,
+        reach: guarded_actual::CheckedIntegerOperandReachV1,
+    },
     Copy {
         destination: BindingRefV1,
     },
@@ -144,6 +168,13 @@ pub(super) enum BorrowedFormalUseDraftKindV1 {
     /// operand use; the receiver and index never carry the lent view.
     ArrayElementValue {
         call: OwnedExprSiteV1,
+    },
+    /// Deferred exact formal-field index and checked value; class stays with Home.
+    ArrayElementFieldIndexValue {
+        call: OwnedExprSiteV1,
+        index: Rc<array_element::GuardedFormalFieldIndexV1>,
+        receiver: Rc<DeclaredArrayFieldReadSourceV1>,
+        reach: guarded_actual::CheckedIntegerOperandReachV1,
     },
     /// One argument position of a `new <Child>(...)` construction dominated
     /// by an admitted checked compare of the same formal. The (new site,
@@ -384,12 +415,26 @@ pub(super) fn draft_borrowed_formal_uses_v1(
     draft_borrowed_formal_source_product_v1(input, contract, constructors, receiver, None)?.draft
 }
 
+#[cfg(test)]
 pub(super) fn draft_borrowed_formal_source_product_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     contract: &OwnedCallableParameterContractDeclarationV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     static_operands: Option<&StaticOperandContextV1<'_>>,
+) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
+    draft_borrowed_formal_source_product_with_origins_v1(
+        input, contract, constructors, receiver, static_operands, None,
+    )
+}
+
+pub(super) fn draft_borrowed_formal_source_product_with_origins_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    contract: &OwnedCallableParameterContractDeclarationV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    static_operands: Option<&StaticOperandContextV1<'_>>,
+    source_uses: Option<&BorrowedFormalSourceUseContextV1<'_>>,
 ) -> Result<BorrowedFormalSourceProductV1, BorrowedFormalUseDraftErrorV1> {
     let function = input.function();
     if input.owner() != contract.owner
@@ -629,6 +674,7 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
                         &compare_guards,
                         call,
                         site,
+                        &origins, &null_guards, &integer_guards, *binding, source_uses,
                     )?
                 } else {
                     None
@@ -640,6 +686,9 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
                     });
                 }
             }
+        }
+        if kind.is_none() {
+            kind = new_argument::construction_child_argument_kind_v1(input, contract, source_uses, formal, *binding, site)?;
         }
         if kind.is_none() && numeric_origins.contains_key(binding) {
             kind = new_argument::new_argument_kind(input, formal, &compare_guards, site)?;
@@ -667,6 +716,11 @@ pub(super) fn draft_borrowed_formal_source_product_v1(
                     .iter()
                     .find_map(|guard| guard.return_kind(input, formal, *binding, site))
             });
+        }
+        if kind.is_none() {
+            kind = source_effects::source_effect_kind_v1(
+                input, contract, source_uses, formal, *binding, site, &null_guards, &integer_guards,
+            )?;
         }
         if kind.is_none() {
             kind = null_compare_operand_kind(input, site)?;

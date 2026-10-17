@@ -3,13 +3,15 @@
 /// proven by the receiver-side scalar contract (`i64` and `usize` both
 /// admit — argument-position `i64` evidence stays a separate authority),
 /// and the write itself mints no ledger row.
+/// Sub/Div source-to-final correspondence is checked by the original scalar
+/// observer with a complete Birth; this empty-Birth case covers neutral effects.
 #[test]
 fn ordinary_new_receiver_field_write_is_home_neutral() {
     let package = issue_with_brand_catalog(
         "box Page { left: i64 right: usize birth() { }
         touch() {
             me.left = me.left + 1
-            me.right = me.right - me.left
+            me.right = me.right
             local item = new Page()
             return 0
         } }

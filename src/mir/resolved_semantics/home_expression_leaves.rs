@@ -1,0 +1,114 @@
+//! Shared leaf qualification of one original whole-expression source plan.
+//! Calls own their exact receiver/actual subtrees; fields remain batch obligations.
+use super::*;
+use super::super::{LocalCallObservationV1, LocalCallResultClassV1, OwnedExprSiteV1, SourceExprSiteV1};
+use crate::mir::resolved_value_profile::{
+    expression_class::ExpressionValueClassV1 as Class,
+    expression_projection::{project_expression_nodes_v1, ExpressionLeafClassV1 as Leaf},
+};
+use std::collections::{BTreeMap, BTreeSet};
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition }
+
+pub(super) struct QualifiedExpressionLeavesV1 {
+    pub(super) classes: Vec<Leaf>,
+    pub(super) calls: BTreeMap<usize, LocalCallObservationV1>,
+    pub(super) fields: Vec<LocalFieldReadRequestV1>,
+    pub(super) transferred: BTreeSet<usize>,
+    pub(super) references: BTreeMap<usize, (crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+}
+
+pub(super) fn qualify_expression_leaves_v1<E>(
+    source: &Rc<ExpressionSourcePlanV1>,
+    profile: ExpressionLeafProfileV1,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+    prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    order: &[usize],
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
+    let statement = source.root().statement();
+    let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
+    let mut transferred = BTreeSet::new();
+    let mut calls = BTreeMap::new();
+    let mut references = BTreeMap::new();
+    // Preorder discovers each call's real whole-input scope before descendants.
+    // Those exact argument subtrees remain owned by the call/input recipe;
+    // the enclosing frame must not emit them or acquire their owners twice.
+    for (index, node) in source.nodes().iter().enumerate() {
+        if transferred.contains(&index) || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) { continue; }
+        let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
+        let Some(call) = source_call(&site)? else { return Ok(None) };
+        let Some(loan) = call.borrowed_scalar() else { return Ok(None) };
+        let (result, class) = match loan.kind() {
+            super::super::SourceScalarKind::Integer => (LocalCallResultClassV1::I64, Class::I64),
+            super::super::SourceScalarKind::Bool if profile == ExpressionLeafProfileV1::BoolCondition =>
+                (LocalCallResultClassV1::Bool, Class::Bool),
+            _ => return Ok(None),
+        };
+        if call.owner() != source.owner() || call.statement() != statement || call.site() != &site
+            || !call.is_expression_value() || call.result() != result
+            || loan.source().call_site() != &site
+            || call.prior_homes() != prior_homes
+            || call.arguments().len() != loan.source().argument_sites().len()
+        { return Ok(None); }
+        let Some(receiver) = source.nodes().iter().position(|node| node.site() == loan.source().receiver_site())
+            else { return Ok(None) };
+        leaves[receiver] = Leaf::Identity;
+        for argument in std::iter::once(loan.source().receiver_site()).chain(loan.source().argument_sites().iter()) {
+            if !source.nodes().iter().any(|node| node.site() == argument) { return Ok(None); }
+            for (child, node) in source.nodes().iter().enumerate() {
+                if node.site().node().segments().starts_with(argument.node().segments()) { transferred.insert(child); }
+            }
+        }
+        leaves[index] = Leaf::Value(class);
+        calls.insert(index, call);
+    }
+    let mut fields = Vec::new();
+    // Establish borrowed receiver roles before postorder reaches their Local
+    // reference leaves. A receiver is not an Integer/Bool operand use.
+    for &index in order {
+        if transferred.contains(&index) { continue; }
+        let node = &source.nodes()[index];
+        if matches!(node.source(), ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
+                let Some(request) = field_request(node.site()) else { return Ok(None) };
+                if request.node_in_plan(source) != Some(index) { return Ok(None); }
+                let Some(receiver) = source.nodes().iter().position(|node| node.site() == &request.receiver_site)
+                    else { return Ok(None) };
+                leaves[receiver] = Leaf::Identity;
+                leaves[index] = if request.path.as_ref().is_some_and(|path| path.is_intermediate()) {
+                    Leaf::Identity
+                } else { Leaf::Value(Class::I64) };
+                fields.push(request);
+        }
+    }
+    for &index in order {
+        if transferred.contains(&index) { continue; }
+        let node = &source.nodes()[index];
+        match node.source() {
+            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
+            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
+                if profile == ExpressionLeafProfileV1::Print => {},
+            ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
+                if profile == ExpressionLeafProfileV1::BoolCondition => {},
+            ExpressionNodeSourceV1::Literal(_) => return Ok(None),
+            ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},
+            ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
+                if profile == ExpressionLeafProfileV1::BoolCondition && leaves[index] != Leaf::Identity => {
+                let Some((original, kind)) = scalar_reference(node.site()) else { return Ok(None) };
+                if original != *binding || binding.owner() != source.owner() { return Ok(None); }
+                leaves[index] = Leaf::Value(match kind {
+                    super::super::SourceScalarKind::Integer => Class::I64,
+                    super::super::SourceScalarKind::Bool => Class::Bool,
+                });
+                references.insert(index, (original, kind));
+            }
+            _ => {},
+        }
+    }
+    let Some(classes) = project_expression_nodes_v1(&source, &transferred, |index| leaves[index])
+        else { return Ok(None) };
+    Ok(Some(QualifiedExpressionLeavesV1 { classes, calls, fields, transferred, references }))
+}

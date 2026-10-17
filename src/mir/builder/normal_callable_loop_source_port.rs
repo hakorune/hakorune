@@ -391,6 +391,26 @@ impl LoopPlanExpressionPortV1 for CallableLoopSourceExpressionPortV1<'_> {
         ))
     }
 
+    fn exact_source_expression_site<'input>(
+        &self, input: &Self::ExprInput<'input>,
+    ) -> Result<Option<OwnedExprSiteV1>, String>
+    where Self: 'input {
+        let Some(source) = Self::source_of_expr(input) else { return Ok(None) };
+        let site = Self::exact_site(Some(source))?;
+        Ok(Some(OwnedExprSiteV1::new(self.ledger.borrow().owner(), SourceExprSiteV1::from_node(site))))
+    }
+
+    fn exact_source_variable_read<'input>(
+        &self, input: &Self::ExprInput<'input>,
+    ) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalReadV1>, String>
+    where Self: 'input {
+        if !matches!(self.expr_syntax(input), ASTNode::Variable { .. } | ASTNode::Me { .. } | ASTNode::This { .. }) {
+            return Ok(None);
+        }
+        let site = Self::exact_site(Self::source_of_expr(input))?;
+        self.ledger.borrow_mut().read_variable_with_source_v1(&site).map(Some)
+    }
+
     fn exact_source_variable_value<'input>(
         &self,
         input: &Self::ExprInput<'input>,

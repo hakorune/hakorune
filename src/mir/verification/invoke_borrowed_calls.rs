@@ -124,13 +124,45 @@ pub(super) fn original_call_slots(
             Ok(())
         },
     )?;
+    for symbol in selected.difference(&callees) {
+        let mut keys = module
+            .canonical_callable_definitions
+            .iter()
+            .filter(|(_, name)| name.as_str() == symbol.as_str());
+        let (key, _) = keys
+            .next()
+            .ok_or_else(|| "borrowed-declaration/canonical-key-missing".to_owned())?;
+        if keys.next().is_some()
+            || key.namespace()
+                != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+        {
+            return Err("borrowed-declaration/canonical-key".into());
+        }
+        let owner = root
+            .callables()
+            .and_then(|rows| rows.owner_for_canonical_key(key))
+            .ok_or_else(|| "borrowed-declaration/owner-missing".to_owned())?;
+        let function = module
+            .functions
+            .get(symbol)
+            .ok_or_else(|| "borrowed-declaration/function-missing".to_owned())?;
+        source.borrowed_declaration_for_function_v1(owner, key, function)?;
+    }
+    // Declarations contribute only owner coverage, never fabricated call slots.
+    callees.extend(selected.iter().cloned());
     if callees != selected || incoming != original {
         return Err(format!(
-            "borrowed-source-incoming-coverage: missing-callees={:?}, extra-callees={:?}, missing-sites={:?}, extra-sites={:?}",
+            "borrowed-source-incoming-coverage: missing-callees={:?}, extra-callees={:?}, missing-sites={:?}, extra-sites={:?}, missing-callers={:?}",
             selected.difference(&callees).collect::<Vec<_>>(),
             callees.difference(&selected).collect::<Vec<_>>(),
             incoming.difference(&original).collect::<Vec<_>>(),
             original.difference(&incoming).collect::<Vec<_>>(),
+            incoming.difference(&original).map(|site| (
+                site,
+                module.canonical_callable_definitions.keys().filter(|key|
+                    root.callables().and_then(|rows| rows.owner_for_canonical_key(key)) == Some(site.owner())
+                ).collect::<Vec<_>>(),
+            )).collect::<Vec<_>>(),
         ));
     }
     Ok(loans)

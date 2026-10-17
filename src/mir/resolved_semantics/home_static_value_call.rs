@@ -40,6 +40,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_static_i64_valu
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
+        borrowed_scalar: None, unit_source: None,
+        borrowed_nullable: None, mixed: None, field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),
         site: owned,
@@ -60,6 +62,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
     site: &SourceExprSiteV1,
     prior_homes: &[BindingRefV1],
     locals: &PrefixLocalFlow<'_>,
+    prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     borrowed_arguments: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -98,7 +101,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn issue_current_owner_i
         return Ok(None);
     }
     if !claim.is_qualified_terminal() {
-        for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, true) {
+        for (call_site, actuals) in observe_borrowed_call_actuals(input, &owned, locals, prefix_known, prior_homes) {
             borrowed_arguments(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
         }
     }
@@ -190,6 +193,8 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn project_current_owner
         return Ok(None);
     }
     Ok(Some(LocalCallObservationV1 {
+        borrowed_scalar: None, unit_source: None,
+        borrowed_nullable: None, mixed: None, field_alias: None,
         owner: input.owner(),
         statement: statement.clone(),
         site: owned,

@@ -65,7 +65,7 @@ impl FinalizedRootSourceHandoffV1 {
                     bindings,
                     entry: RootHomeExitEntry::Plain { .. },
                     ..
-                }) = exits.get(&(owner, exit.clone()))
+                }) = exits.get(&(owner, exit.clone().into()))
                 else {
                     return Err(freeze("borrowed-return/original-exit-missing"));
                 };

@@ -14,7 +14,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 DIRECTORY = Path(sys.argv[1])
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off',
            V4_PROBE_MODE='normal')
@@ -44,7 +45,8 @@ def owned_slot_mutant(base, flavor):
         for b in fn['blocks'] for r in b['instructions']])
     scalar = {'op': 'const_i64', 'dst': value, 'value': 0}
     store = {'kind': 'field_set', 'base': read['base'], 'object_id': read['object_id'],
-        'field_ordinal': read['field_ordinal'], 'value': value, 'site': 777777}
+        'field_ordinal': read['field_ordinal'], 'value': value, 'site': 777777,
+        'exact_numeric_runtime_check': {'kind': 'none'}}
     if flavor == 'scalar-row':
         block['instructions'][pos:pos] = [{'instruction': scalar}, {'instruction':
             dict(store, op='field_set', exact_numeric_runtime_check={'kind': 'none'})}]
@@ -89,6 +91,7 @@ def owned_slot_mutant(base, flavor):
         failed = fault
         if flavor != 'array-field':
             store = dict(store, kind='object_field_set', child_object_id=child if array else foreign)
+            store.pop('exact_numeric_runtime_check')
             cleanup = new_id + 2
             failed = cleanup
             normal_jump, fault_jump = cleanup + 1, cleanup + 2
@@ -137,26 +140,48 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
                     for row in block['instructions']
                     if row['instruction']['op'] == 'object_field_get')
 
-    # A valid wire Copy checks producer-root traversal independently of the
-    # unchanged source inputs above; it is not another source acceptance.
-    data = copy.deepcopy(base)
-    function = parent(data)
-    block = next(b for b in function['blocks'] if
-                 any(row['instruction']['op'] == 'object_field_get' for row in b['instructions']))
-    read = receiver_read(function)
-    alias = max(row['instruction'].get('dst', 0) for b in function['blocks']
-                for row in b['instructions']) + 1
-    position = next(i for i, row in enumerate(block['instructions']) if row['instruction'] is read)
-    block['instructions'].insert(position, {'instruction': {'op': 'copy', 'dst': alias,
-                                                           'src': function['receiver']}})
-    read['base'] = alias
-    for i, row in enumerate(block['instructions']):
-        row['index'] = i
-    block['terminator']['index'] = len(block['instructions'])
-    copy_path = work / 'copy-root.json'
-    copy_path.write_text(json.dumps(data))
-    checked([driver, copy_path, obj], env=ENV)
-    print('exact borrowed receiver Copy root admitted (wire witness)')
+    # Physical alias witnesses are independent of unchanged source acceptance.
+    for kind in ('copy', 'phi'):
+        data = copy.deepcopy(base)
+        function = parent(data)
+        block = next(b for b in function['blocks'] if
+                     any(row['instruction']['op'] == 'object_field_get' for row in b['instructions']))
+        read = receiver_read(function)
+        alias = max(row['instruction'].get('dst', 0) for b in function['blocks']
+                    for row in b['instructions']) + 1
+        position = next(i for i, row in enumerate(block['instructions']) if row['instruction'] is read)
+        instruction = {'op': 'copy', 'dst': alias, 'src': function['receiver']}
+        if kind == 'phi':
+            # Keep the frame at entry, before a distinct Phi landing.
+            assert block['id'] == function['entry']
+            frame = block['instructions'].pop(0)
+            assert frame['instruction']['op'] == 'fault_frame_enter'
+            entry = max(b['id'] for b in function['blocks']) + 1
+            function['blocks'].append({'id': entry, 'instructions': [frame],
+                'terminator': {'index': 1, 'instruction': {'op': 'jump', 'target': block['id'], 'args': None}},
+                'edges': [{'target': block['id'], 'args': None}]})
+            function['entry'] = entry
+            instruction = {'op': 'phi', 'dst': alias,
+                           'inputs': [{'block': entry, 'value': function['receiver']}]}
+            position = 0
+        block['instructions'].insert(position, {'instruction': instruction})
+        read['base'] = alias
+        for i, row in enumerate(block['instructions']): row['index'] = i
+        block['terminator']['index'] = len(block['instructions'])
+        path = work / (kind + '-root.json')
+        path.write_text(json.dumps(data))
+        checked([driver, path, obj], env=ENV)
+        print('exact borrowed receiver', kind, 'root admitted (wire witness)')
+        if kind == 'phi':
+            for malformed in ('missing', 'duplicate', 'foreign', 'cycle'):
+                bad = copy.deepcopy(data)
+                phi = next(r['instruction'] for b in parent(bad)['blocks']
+                           for r in b['instructions'] if r['instruction']['op'] == 'phi')
+                if malformed == 'missing': phi['inputs'] = []
+                elif malformed == 'duplicate': phi['inputs'] *= 2
+                elif malformed == 'foreign': phi['inputs'][0]['value'] = 999999
+                else: phi['inputs'][0]['value'] = alias
+                reject(bad, 'published-lifecycle-physical-parser/')
 
     data = copy.deepcopy(base)
     function = parent(data)
@@ -181,7 +206,11 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
             row = next(row for row in layout['owned_object_residences']
                        if row['field_ordinal'] == ordinal)
             row['child_object_id'] = function['params'][0]['object_view']
-        reject(data, 'published-lifecycle-v4/receiver-object-mismatch')
+        # A foreign tuple now fails the original provider correspondence at
+        # FieldGet, before Call receiver matching. Missing child stays scalar
+        # and still reaches the receiver mismatch boundary.
+        reason = 'unsupported-cohort' if malformed == 'foreign-child' else 'receiver-object-mismatch'
+        reject(data, 'published-lifecycle-v4/' + reason)
 
     # Receiver borrowing does not authorize argument-carrier handoff.
     # Corroborate the unused formal's class so foreign class is not the cause.
@@ -284,7 +313,7 @@ with tempfile.TemporaryDirectory(prefix='hako stored child receiver ') as direct
         reject(data, 'published-lifecycle-v4/unsupported-cohort')
 
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64',
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']
     for optimize in ('false', 'true'):
         path = DIRECTORY / ('hako-issued-stored-child-callee-fault-opt' + optimize + '.json')

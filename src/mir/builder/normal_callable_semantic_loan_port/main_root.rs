@@ -137,6 +137,8 @@ pub(super) fn lower_app_main_root_body_v1(
     adapter: &mut NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>,
     builder: &mut MirBuilder,
     expected_identity: &CallableDeclarationIdentityV1,
+    parameters: &[String],
+    runtime_inputs: Option<&crate::mir::builder::NormalRuntimeInputSnapshotV1>,
     body: Vec<ASTNode>,
 ) -> Result<ValueId, String> {
     let catalog_key = {
@@ -164,6 +166,7 @@ pub(super) fn lower_app_main_root_body_v1(
     let inner = &mut *adapter.inner;
     let qualified_relation = &mut adapter.qualified_main_relation;
     let ordinary_new_claim_ledger = adapter.package.ordinary_new_claim_ledger();
+    let owned_array_source = adapter.package.owned_array_lifecycle_source_v1();
     let named_array_emissions = adapter.package.named_array_emission_collector();
     let core_method_calls = adapter.package.take_source_core_method_calls(
         &crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(catalog_key.clone()),
@@ -185,6 +188,7 @@ pub(super) fn lower_app_main_root_body_v1(
                 identity.method_source_observation().cloned(),
                 Some(Rc::clone(&named_array_emissions)),
                 Rc::clone(&ordinary_new_claim_ledger),
+                Some(owned_array_source),
                 None,
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
@@ -227,6 +231,21 @@ pub(super) fn lower_app_main_root_body_v1(
                         // adopt the published values.
                         let declared_parameter_names =
                             declared_parameter_names_v1(input)?;
+                        if declared_parameter_names.as_ref() != parameters {
+                            return Err("[freeze:contract][main-arguments/declared-parameters]".into());
+                        }
+                        let runtime = runtime_inputs.ok_or_else(||
+                            "[freeze:contract][main-arguments/runtime-snapshot-missing]".to_owned())?;
+                        let frame = if declared_parameter_names.iter().any(|name| name == "args") {
+                            let state = inner.callable_ledger.as_ref().ok_or_else(||
+                                "[freeze:contract][main-arguments/ledger-missing]".to_owned())?;
+                            state.borrow_mut().borrow_fault_frame(builder)?;
+                            Some(state.borrow().fault_frame_binding(builder.function_state.current_function.as_ref()
+                                .ok_or_else(|| "[freeze:contract][main-arguments/function-missing]".to_owned())?)?)
+                        } else { None };
+                        let mut main_arguments = crate::mir::builder::MainArgumentsEmissionV1::emit(
+                            builder, input, expected_identity, runtime, frame,
+                        )?;
                         let arity0 = declared_parameter_names.is_empty();
                         inner.adopt_callable_entry_values_v1(
                             builder,
@@ -238,6 +257,9 @@ pub(super) fn lower_app_main_root_body_v1(
                                 }
                             },
                         )?;
+                        main_arguments.corroborate_adoption(builder,
+                            &inner.callable_ledger.as_ref().ok_or_else(||
+                                "[freeze:contract][main-arguments/ledger-missing]".to_owned())?.borrow())?;
                         // The canonical qualified-methods route only serves
                         // arity-0 mains with qualified (unbound-receiver)
                         // calls; `main(args)` and lexical receiver calls like
@@ -289,6 +311,9 @@ pub(super) fn lower_app_main_root_body_v1(
                             inner.lower_body(builder, body)?
                         };
                         inner.complete_construction_stores_v1(builder)?;
+                        main_arguments.finish(builder.function_state.current_function.as_mut()
+                            .ok_or_else(|| "[freeze:contract][main-arguments/function-missing]".to_owned())?)?;
+                        ordinary_new_claim_ledger.retain_main_arguments_v1(main_arguments)?;
                         Ok(value)
                     })
                 },

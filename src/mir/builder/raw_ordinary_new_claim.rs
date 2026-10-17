@@ -8,6 +8,12 @@ mod terminal_call;
 mod result_claim_trace;
 
 pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
+    fn try_emit_unit_discard(&mut self, _builder: &mut crate::mir::MirBuilder, _method: &str, _arity: usize)
+        -> Result<bool, String> { Ok(false) }
+
+    fn try_emit_owned_array_append(
+        &mut self, _builder: &mut crate::mir::MirBuilder, _method: &str, _arity: usize,
+    ) -> Result<bool, String> { Ok(false) }
     fn emit_terminal_i64_call_exit(
         &mut self,
         _builder: &mut crate::mir::MirBuilder,
@@ -32,12 +38,16 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
     ) -> Result<Option<crate::mir::ValueId>, String> {
         Ok(None)
     }
-    fn emit_terminal_integer_literal_return(
+    fn emit_terminal_scalar_literal_return(
         &mut self,
         _builder: &mut crate::mir::MirBuilder,
     ) -> Result<Option<crate::mir::ValueId>, String> {
         Ok(None)
     }
+
+    fn complete_terminal_scalar_literal_return(
+        &mut self, _builder: &crate::mir::MirBuilder,
+    ) -> Result<(), String> { Ok(()) }
 
     fn emit_terminal_i64_field_return(
         &mut self,
@@ -109,6 +119,17 @@ pub(in crate::mir::builder) trait RawOrdinaryNewClaimPortV1 {
         _claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<crate::mir::ValueId, String> {
         Err("[freeze:contract][raw-ordinary-new/no-physical-owner]".into())
+    }
+
+    fn prepare_owned_array_construction(
+        &mut self, _class: &str, _argument_count: usize, _field_count: usize,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1>, String> { Ok(None) }
+
+    fn emit_owned_array_construction(
+        &mut self, _builder: &mut crate::mir::MirBuilder,
+        _source: crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        Err("[freeze:contract][owned-array/no-physical-owner]".into())
     }
 
     fn validate_named_array_construction_route(&self, _named_route: bool) -> Result<(), String> {

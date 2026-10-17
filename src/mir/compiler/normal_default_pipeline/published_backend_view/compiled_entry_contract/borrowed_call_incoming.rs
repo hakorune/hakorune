@@ -7,6 +7,8 @@ use crate::mir::MirModule;
 #[path = "borrowed_call_uses.rs"]
 mod borrowed_uses;
 #[cfg(test)]
+pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) use borrowed_uses::verify_original_formal_return;
+#[cfg(test)]
 pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) use borrowed_uses::projection_fixture;
 
 pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn verify_borrowed_call_incoming<
@@ -110,18 +112,9 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 // its call sites may carry — scalar transport or the
                 // checked-release object transport. `Map` roles remain
                 // unadmitted on the borrowed lane.
-                let expected = match callee.role() {
-                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. } => {
-                        InvokeCallResultKind::I64
-                    }
-                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. } => {
-                        InvokeCallResultKind::Handle
-                    }
-                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. } => {
-                        InvokeCallResultKind::NullableHandle
-                    }
-                    _ => return Err(fault("borrowed-incoming/result-mismatch")),
-                };
+                let expected = callee.role().ordinary_result()
+                    .filter(|result| *result != InvokeCallResultKind::Map)
+                    .ok_or_else(|| fault("borrowed-incoming/result-mismatch"))?;
                 if *result != expected {
                     return Err(fault("borrowed-incoming/result-mismatch"));
                 }
@@ -152,7 +145,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 return Ok(());
             }
             let Some(callee) = callee else {
-                source.borrowed_finalized_call_actuals_v1(packet)?
+                source
+                    .borrowed_finalized_call_actuals_v1(packet)?
                     .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
                 return Err(fault("borrowed-incoming/callee-carrier-missing"));
             };
@@ -200,14 +194,23 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
                 }
                 incoming.insert(target.call_site().clone());
             }
-            let actuals = source.borrowed_finalized_call_actuals_v1(packet)?
+            let actuals = source
+                .borrowed_finalized_call_actuals_v1(packet)?
                 .ok_or_else(|| fault("borrowed-incoming/actuals-missing"))?;
             // Source use admissions are function obligations; incoming actuals
             // and their entry correspondence remain checked on every call.
             if first_entry {
                 uses.entry(source, row.callee_owner(), callee_function)?;
             }
-            uses.call(caller, (block, index), actuals, copies)?;
+            let caller_owner = row.call_site().owner();
+            let caller_entry = if source.has_borrowed_ordinary_entry_v1(caller_owner) {
+                source.borrowed_ordinary_entry_source_for_function_v1(caller_owner, caller)?;
+                source.borrowed_ordinary_entry_values_v1(caller_owner)?
+            } else {
+                Box::new([])
+            };
+            uses.call(caller, (block, index), actuals, copies, &caller_entry)?;
+            uses.guarded_call(row.call_site(), caller, (block, index), actuals)?;
             original.insert(row.call_site().clone());
             let mut callers = program
                 .functions()
@@ -232,6 +235,36 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
             Ok(())
         },
     )?;
+    // A complete-empty declaration has no packet and no physical call coordinate.
+    // Resolve its original owner independently; real incoming coverage stays exact.
+    for (key, callee) in &callees {
+        if owners.contains_key(*key) {
+            continue;
+        }
+        if key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || !callee.role().has_receiver()
+            || module.canonical_callable_definition_symbol(key) != Some(callee.name())
+        {
+            return Err(fault("borrowed-incoming/declaration-target"));
+        }
+        let owner = program
+            .handoff()
+            .callables()
+            .and_then(|callables| callables.owner_for_canonical_key(key))
+            .ok_or_else(|| fault("borrowed-incoming/declaration-owner"))?;
+        let function = module
+            .functions
+            .get(callee.name())
+            .ok_or_else(|| fault("borrowed-incoming/callee-function-missing"))?;
+        source.borrowed_declaration_for_function_v1(owner, key, function)?;
+        if callee.params() != function.params.as_slice()
+            || callee.param_carriers() != function.metadata.physical_param_carriers.as_deref()
+        {
+            return Err(fault("borrowed-incoming/declaration-projection"));
+        }
+        uses.entry(source, owner, function)?;
+        owners.insert((*key).clone(), owner);
+    }
     if owners.len() != callees.len()
         || incoming != original
         || witnessed.keys().copied().collect::<BTreeSet<_>>() != physical.keys().copied().collect()

@@ -578,7 +578,9 @@ impl MirCompiler {
     /// Consume the final module synchronously, without publishing mutable MIR
     /// to an artifact caller. The generic view still rejects lifecycle rows;
     /// source eligibility and their physical consumer must land before opening
-    /// that admission. A callback failure aborts instead of retrying compilation.
+    /// that admission. The callback receives the source-bound final verification
+    /// result for this same module. MirCompileResult's pre-transform report remains
+    /// the normal/compatibility result contract. A callback failure aborts.
     pub(crate) fn compile_normal_with_published<R>(
         &mut self,
         request: NormalCompileRequestV1,
@@ -611,33 +613,8 @@ impl MirCompiler {
                             "[freeze:contract][published-mir-backend-object] UnsupportedBeforeObject: canonical call family has no selected-C consumer".to_owned(),
                         );
                         }
-                        super::MirVerifier::new_strict()
-                            .verify_module_with_finalized_root(
-                                &result.module,
-                                retained_root.as_ref(),
-                            )
-                            .map_err(|errors| {
-                                errors
-                                    .iter()
-                                    .map(ToString::to_string)
-                                    .collect::<Vec<_>>()
-                                    .join("; ")
-                            })?;
                     }
-                    PublishedStaticMethodRouteV1::CanonicalTyped => {
-                        super::MirVerifier::new_strict()
-                            .verify_module_with_finalized_root(
-                                &result.module,
-                                retained_root.as_ref(),
-                            )
-                            .map_err(|errors| {
-                                errors
-                                    .iter()
-                                    .map(ToString::to_string)
-                                    .collect::<Vec<_>>()
-                                    .join("; ")
-                            })?;
-                    }
+                    PublishedStaticMethodRouteV1::CanonicalTyped => {}
                     PublishedStaticMethodRouteV1::ExplicitCompatibility => {
                         crate::mir::named_array_obligation::reject_unretained_module(
                             &result.module,
@@ -651,6 +628,14 @@ impl MirCompiler {
                         ));
                     }
                 }
+                // The artifact callback consumes the same source-bound final
+                // verdict that gates publication. The compile result keeps its
+                // separate historical pre-transform report for normal callers.
+                let artifact_verification = super::MirVerifier::new_strict()
+                    .verify_module_with_finalized_root(&result.module, retained_root.as_ref());
+                artifact_verification.as_ref().map_err(|errors| {
+                    errors.iter().map(ToString::to_string).collect::<Vec<_>>().join("; ")
+                })?;
                 let prepared = session
                     .prepare_external_commit()
                     .map_err(|error| error.to_string())?;
@@ -672,7 +657,7 @@ impl MirCompiler {
                     Some(profile) => lifecycle_admission::admit_lifecycle(view, profile)?,
                     None => view,
                 };
-                let output = consume(&view, &result.verification_result)?;
+                let output = consume(&view, &artifact_verification)?;
                 Ok((prepared, NormalPublishedCompileOutcome::Consumed(output)))
             },
         )

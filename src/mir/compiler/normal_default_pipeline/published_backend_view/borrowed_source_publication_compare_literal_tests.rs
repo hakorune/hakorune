@@ -13,7 +13,7 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
             };
             let text = format!("box Counter {{ limit: i64 birth() {{ me.limit = 10 }} check(requested): i64 {{ {alias} if {condition} {{ return 7 }} return 3 }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15) }} }}");
             MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let handoff = view.retained_handoff.unwrap();
                 let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
                     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter", "check", 1));
@@ -38,7 +38,23 @@ fn borrowed_literal_original_source_records_exact_compare_child_only() {
                 assert_eq!(function.blocks.values().flat_map(|block| block.instructions.iter())
                     .filter(|instruction| matches!(instruction, crate::mir::MirInstruction::Compare { .. }))
                     .count(), 1, "one original checked execution, reused Bool");
-                view.issue_lifecycle_physical_abi_input()?;
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                for (fi, published) in input.program().functions().iter().enumerate() {
+                    if published.name() != "Counter.check/1" { continue; }
+                    for (bi, block) in published.blocks().iter().enumerate() {
+                        for (ri, row) in block.instructions().iter().enumerate() {
+                            let crate::mir::MirInstruction::Compare { dst, lhs, rhs, .. } = row.instruction() else { continue };
+                            let changed = crate::mir::MirInstruction::Compare {
+                                dst: *dst, op: crate::mir::CompareOp::Ne, lhs: *lhs, rhs: *rhs,
+                            };
+                            let mut program = input.program().clone();
+                            program.functions[fi].blocks[bi].instructions[ri].instruction = &changed;
+                            let error = super::super::super::compiled_entry_contract::verify_borrowed_call_incoming(
+                                &program, view.module()).unwrap_err();
+                            assert!(error.contains("published-compare-instruction"), "{error}");
+                        }
+                    }
+                }
                 let mut comparisons = 0;
                 source.with_borrowed_ordinary_compares_v1(owner, function, |loan, children, original| {
                     assert_eq!(loan.owner(), owner);
@@ -91,7 +107,7 @@ fn borrowed_compare_two_formals_share_one_original_append_in_both_orders() {
         for condition in ["p > q", "q > p"] {
             let text = format!("box Counter {{ birth() {{}} check(p,q): i64 {{ if {condition} {{ return 7 }} return 3 }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15,10) }} }}");
             MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(),String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let handoff=view.retained_handoff.unwrap();
                 let key=crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
                     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter","check",2));
@@ -130,7 +146,7 @@ fn borrowed_compare_shared_carriers_keep_each_source_operand_use() {
         ] {
             let text = format!("box Counter {{ birth() {{}} check(p): i64 {{ {body} }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15) }} }}");
             MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let handoff = view.retained_handoff.unwrap();
                 let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
                     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter", "check", 1));

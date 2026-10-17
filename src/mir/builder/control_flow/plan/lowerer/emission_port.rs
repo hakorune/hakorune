@@ -82,6 +82,20 @@ impl CorePlanEffectEmissionPortV1<'_> {
                 }
             }
             Self::SourcePublication(ledger) => {
+                if let CoreEffectPlan::NamedArrayPush { source, receiver, value, argument, emission } = effect {
+                    if !emission.is_field_residence_v1()? { return PlanLowerer::emit_raw_effect(builder, effect); }
+                    let source_ledger = ledger.borrow().ordinary_new_claim_ledger().cloned()
+                        .ok_or_else(|| "[freeze:contract][field-array-append/ledger-missing]".to_string())?;
+                    let (loan, receiver_read) = emission.field_append_source_v1(&source_ledger)?;
+                    {
+                        if !matches!(source, CoreCallSourceV1::LocatedMethodCall(site) if site == loan.site().site()) {
+                            return Err("[freeze:contract][field-array-append/call-source]".into());
+                        }
+                        let argument = argument.as_ref().ok_or_else(|| "[freeze:contract][field-array-append/argument-source]".to_string())?;
+                        return crate::mir::builder::ordinary_new_admission::selected::field_array_append::emit(
+                            builder, &mut ledger.borrow_mut(), &source_ledger, loan, receiver_read, *receiver, *value, argument, emission);
+                    }
+                }
                 let Some(source) = call_source(effect) else {
                     return PlanLowerer::emit_raw_effect(builder, effect);
                 };

@@ -11,6 +11,10 @@ pub(in crate::mir) struct LocalProvenanceV1 {
 }
 
 impl LocalProvenanceV1 {
+    pub(in crate::mir) fn original_copy_dependencies_v1(&self, result: ValueId)
+        -> Result<&[(BasicBlockId, MirInstruction)], String> {
+        self.loan_copies(self.root, self.root_value, result)
+    }
     pub(super) fn matches(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.root == binding && self.root_value == value
     }
@@ -89,11 +93,22 @@ impl MaterializedValuesV1 {
         if entry.value != row.initializer() {
             return None;
         }
-        let mut proof = entry.provenance.clone().unwrap_or(LocalProvenanceV1 {
+        let proof = entry.provenance.clone().unwrap_or(LocalProvenanceV1 {
             root: source,
             root_value: entry.value,
             copies: Vec::new(),
         });
+        Self::append_local_copy(proof, row)
+    }
+
+    pub(super) fn initializer_provenance(
+        binding: BindingRefV1, row: &CompletedLocalBindingV1,
+    ) -> Option<LocalProvenanceV1> {
+        Self::append_local_copy(LocalProvenanceV1 { root: binding,
+            root_value: row.initializer(), copies: Vec::new() }, row)
+    }
+
+    fn append_local_copy(mut proof: LocalProvenanceV1, row: &CompletedLocalBindingV1) -> Option<LocalProvenanceV1> {
         match row.copy() {
             Some(copy) => proof.copies.push(copy.clone()),
             None if row.local() == row.initializer() => {}

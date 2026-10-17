@@ -30,7 +30,7 @@ impl StaticI64CallClaimV1 {
         }
     }
 
-    /// Original AppMain declaration and direct ReturnValue issue membership.
+    /// Original canonical caller and exact ReturnValue issue membership.
     /// A finished incoming cohort is still required for physical emission.
     pub(crate) fn qualified_terminal(
         site: OwnedExprSiteV1,

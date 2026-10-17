@@ -66,6 +66,42 @@ const LESS_DYNAMIC_I64: VerifiedDynamicOperatorExecutionEnvelopeV1 =
         None,
     );
 
+const EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Equal,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
+const NOT_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::NotEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
+const LESS_NORMAL_INTEGER_NORMAL_INTEGER: VerifiedDynamicOperatorExecutionEnvelopeV1 =
+    VerifiedDynamicOperatorExecutionEnvelopeV1::sealed(
+        DynamicOperatorDomainV1::new(
+            DynamicOperatorFamilyV1::Less,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ),
+        DynamicOperatorNormalResultV1::TrivialBool,
+        DynamicOperatorSuspensionV1::MaySuspend,
+        None,
+    );
+
 /// The checked compare lends a Normal-Integer operand view: both operands
 /// must prove the logical signed-integer class, and a fault arrives before
 /// any result without operand mutation or rebind.
@@ -187,6 +223,21 @@ pub(crate) const fn issue_dynamic_operator_execution_envelope_v1(
             DynamicOperatorValueClassV1::Dynamic,
             DynamicOperatorValueClassV1::I64,
         ) => Ok(&LESS_DYNAMIC_I64),
+        (
+            DynamicOperatorFamilyV1::Equal,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::NotEqual,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&NOT_EQUAL_NORMAL_INTEGER_NORMAL_INTEGER),
+        (
+            DynamicOperatorFamilyV1::Less,
+            DynamicOperatorValueClassV1::NormalInteger,
+            DynamicOperatorValueClassV1::NormalInteger,
+        ) => Ok(&LESS_NORMAL_INTEGER_NORMAL_INTEGER),
         (
             DynamicOperatorFamilyV1::Greater,
             DynamicOperatorValueClassV1::NormalInteger,

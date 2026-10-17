@@ -266,12 +266,25 @@ impl<'a> StaticIncomingSourceLoanV1<'a> {
     }
 }
 
+/// Borrowed caller provenance for the same static source lender.
+/// Declaration keys retain their existing contract check; Birth needs its row.
+pub(in crate::mir::normal_callable_semantic_package) enum StaticIncomingCallerSourceV1<'a> {
+    Declaration(&'a CanonicalSameModuleCallableKeyV1),
+    Constructor(super::super::original_call_source::OriginalCallSourceCallerV1<'a>),
+}
+impl<'a> From<&'a CanonicalSameModuleCallableKeyV1> for StaticIncomingCallerSourceV1<'a> {
+    fn from(key: &'a CanonicalSameModuleCallableKeyV1) -> Self { Self::Declaration(key) }
+}
+impl<'a> From<super::super::original_call_source::OriginalCallSourceCallerV1<'a>> for StaticIncomingCallerSourceV1<'a> {
+    fn from(caller: super::super::original_call_source::OriginalCallSourceCallerV1<'a>) -> Self { Self::Constructor(caller) }
+}
+
 impl QualifiedStaticCallClaimIndexV1 {
     /// The caller supplies the original resolved call from the existing source
     /// visit. This lends the same target row; it neither scans nor resolves it.
-    pub(in crate::mir::normal_callable_semantic_package) fn incoming_source<'a>(
+    pub(in crate::mir::normal_callable_semantic_package) fn incoming_source<'a, 'caller>(
         &'a self,
-        caller: &CanonicalSameModuleCallableKeyV1,
+        caller_source: impl Into<StaticIncomingCallerSourceV1<'caller>>,
         site: &'a OwnedExprSiteV1,
         source: &'a VerifiedResolvedMethodCallSourceV1,
         selected: &super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
@@ -281,10 +294,16 @@ impl QualifiedStaticCallClaimIndexV1 {
         if !self.catalog_brand.is_same(selected.catalog_brand()) {
             return Err("[freeze:contract][borrowed-static/incoming-source-cohort]".into());
         }
-        let (route, target) = if let Some((claim, target)) = self.claim_target(caller, site.site())
+        let caller_source = caller_source.into();
+        let caller = match caller_source {
+            StaticIncomingCallerSourceV1::Declaration(key) => key.clone(),
+            StaticIncomingCallerSourceV1::Constructor(original) => original.constructor_key_for_call(site, source)?
+                .ok_or("[freeze:contract][borrowed-static/constructor-caller-required]")?.clone(),
+        };
+        let (route, target) = if let Some((claim, target)) = self.claim_target(&caller, site.site())
         {
             (StaticIncomingRouteV1::Qualified(claim.clone()), target)
-        } else if let Some(row) = self.current_owner_source(caller, site.site()) {
+        } else if let Some(row) = self.current_owner_source(&caller, site.site()) {
             (
                 StaticIncomingRouteV1::CurrentOwner(row.clone()),
                 row.route().target(),
@@ -293,24 +312,27 @@ impl QualifiedStaticCallClaimIndexV1 {
             return Ok(None);
         };
         let reject = || "[freeze:contract][borrowed-static/incoming-source-identity]".to_owned();
-        let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
-        let caller_contract = callers.next().ok_or_else(reject)?;
-        let main = app_main.filter(|main| main.matches_contract(caller_contract));
-        if callers.next().is_some()
-            || super::caller_key_for_function(
-                selected,
-                caller_contract.batch_slot,
-                main.is_some(),
-                main.map(|main| main.catalog_key()),
-            )
-            .as_ref()
-                != Some(caller)
-        {
-            return Err(reject());
-        }
+        let caller_contract = if matches!(caller_source, StaticIncomingCallerSourceV1::Declaration(_)) {
+            let mut callers = contracts.iter().filter(|row| row.owner == site.owner());
+            let caller_contract = callers.next().ok_or_else(reject)?;
+            let main = app_main.filter(|main| main.matches_contract(caller_contract));
+            if callers.next().is_some()
+                || super::caller_key_for_function(
+                    selected,
+                    caller_contract.batch_slot,
+                    main.is_some(),
+                    main.map(|main| main.catalog_key()),
+                )
+                .as_ref()
+                    != Some(&caller)
+            {
+                return Err(reject());
+            }
+            Some(caller_contract)
+        } else { None };
         if let StaticIncomingRouteV1::CurrentOwner(row) = &route {
             if caller.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
-                || caller_contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
+                || caller_contract.is_none_or(|contract| contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod)
                 || caller.owner() != target.owner()
                 || row.route().receiver() != crate::mir::source_call_target::CurrentOwnerStaticReceiverV1::CanonicalMe
             { return Err(reject()); }

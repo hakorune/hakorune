@@ -13,7 +13,34 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
     func: &mut MirFunction,
     context: &str,
 ) -> Result<usize, String> {
-    let mut changed = prune_unused_phi_instructions(func);
+    materialize_with_preserved_phis(func, context, &[])
+}
+
+pub(in crate::mir::builder) fn materialize_all_phi_inputs_with_source_v1(
+    func: &mut MirFunction, context: &str, root_key: &str,
+    source: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+) -> Result<usize, String> {
+    let preserved = match source {
+        Some(source) => source.original_source_phis_for_repair_v1(func, root_key)?,
+        None => Vec::new(),
+    };
+    materialize_with_preserved_phis(func, context, &preserved)
+}
+
+fn materialize_with_preserved_phis(
+    func: &mut MirFunction, context: &str, preserved: &[(BasicBlockId, MirInstruction)],
+) -> Result<usize, String> {
+    let validate = |func: &MirFunction| -> Result<(), String> {
+        for (id, row) in preserved {
+            if !matches!(row, MirInstruction::Phi { .. }) || func.blocks.get(id)
+                .is_none_or(|block| block.instructions.iter().filter(|actual| *actual == row).count() != 1) {
+                return Err(format!("[freeze:contract][ssa/phi_input/source-phi-drift] context={context} original={row:?}"));
+            }
+        }
+        Ok(())
+    };
+    validate(func)?;
+    let mut changed = prune_unused_phi_instructions(func, preserved);
     let analysis = PhiInputMaterializationAnalysis::new(func);
     changed += complete_missing_self_carried_phi_inputs_with_analysis(func, &analysis);
     let mut work = Vec::new();
@@ -60,10 +87,11 @@ pub(in crate::mir::builder) fn materialize_all_phi_inputs(
         changed += 1;
     }
 
+    validate(func)?;
     Ok(changed)
 }
 
-fn prune_unused_phi_instructions(func: &mut MirFunction) -> usize {
+fn prune_unused_phi_instructions(func: &mut MirFunction, preserved: &[(BasicBlockId, MirInstruction)]) -> usize {
     let mut used = HashSet::new();
     for block in func.blocks.values() {
         for inst in block.all_instructions() {
@@ -80,7 +108,7 @@ fn prune_unused_phi_instructions(func: &mut MirFunction) -> usize {
             let MirInstruction::Phi { dst, .. } = inst else {
                 continue;
             };
-            if !used.contains(dst) {
+            if !used.contains(dst) && !preserved.iter().any(|(id, row)| *id == block.id && row == inst) {
                 remove_indices.push(idx);
             }
         }

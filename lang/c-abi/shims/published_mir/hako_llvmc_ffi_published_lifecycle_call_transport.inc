@@ -16,6 +16,11 @@ static int hako_physical_call_args(yyjson_val* function, yyjson_val* callee,
        so any other representation is ABI drift, never a silent rewrap. */
     {
       const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+      if (arg_kind && !strcmp(arg_kind, "nullable_typed_object")) {
+        if (!hako_physical_string(yyjson_obj_get(param, "representation"),
+            "nullable_kind_payload_v1")) return 0;
+        continue;
+      }
       if (arg_kind && !strcmp(arg_kind, "tagged")) {
         if (!hako_physical_string(yyjson_obj_get(param, "representation"),
             "kind_payload_v1")) return 0;

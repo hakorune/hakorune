@@ -8,7 +8,7 @@ fn producers<'a>(
     result: &mut Vec<(&'a OwnedExprSiteV1, &'a Binding)>,
 ) {
     result.push((packet.call_site(), &packet.invoke));
-    result.push((packet.call_site(), &packet.projection));
+    result.push((packet.call_site(), packet.projection.value().unwrap()));
     for argument in &packet.prepared.arguments {
         match argument {
             LexicalCallArgumentProjectionV1::Integer(binding) => {
@@ -275,7 +275,9 @@ fn finalized_call_visitor_rejects_duplicate_source_and_changed_finished_function
             .unwrap_err();
         assert!(
             error.contains(if mutation == 1 {
-                "function-missing"
+                // Erasing the whole module also erases the original Main
+                // ingress, which is checked before individual Call functions.
+                "main-arguments/root-missing"
             } else {
                 "producer-missing"
             }),

@@ -4,6 +4,18 @@ use crate::mir::{
     MirInstruction, MirType,
 };
 
+/// Physical write observation from the sole Array write emitter.
+/// This carries no source, receiver class or borrowed-value permission.
+#[derive(Debug)]
+pub(in crate::mir) struct CompletedArrayElementWriteV1 {
+    site: ArrayWriteSiteId,
+    original: (crate::mir::BasicBlockId, MirInstruction),
+}
+impl CompletedArrayElementWriteV1 {
+    pub(in crate::mir) fn site(&self) -> ArrayWriteSiteId { self.site }
+    pub(in crate::mir) fn original(&self) -> &(crate::mir::BasicBlockId, MirInstruction) { &self.original }
+}
+
 impl MirBuilder {
     pub(super) fn emit_array_element_write(
         &mut self,
@@ -14,10 +26,20 @@ impl MirBuilder {
         index: Option<ValueId>,
         value: ValueId,
     ) -> Result<ArrayWriteSiteId, String> {
+        self.emit_array_element_write_recorded_v1(dst, kind, producer, receiver, index, value)
+            .map(|completed| completed.site())
+    }
+
+    pub(in crate::mir::builder) fn emit_array_element_write_recorded_v1(
+        &mut self, dst: Option<ValueId>, kind: ArrayElementWriteKind,
+        producer: ArrayWriteProducerKind, receiver: ValueId, index: Option<ValueId>, value: ValueId,
+    ) -> Result<CompletedArrayElementWriteV1, String> {
         let site_id = self.next_array_write_site_id();
         let instruction = crate::mir::array_element_write::instruction(
             site_id, dst, kind, producer, receiver, index, value,
         )?;
+        let block = self.function_state.current_block.ok_or("No current basic block")?;
+        let original = (block, instruction.clone());
         self.emit_instruction(instruction)?;
         if let Some(dst) = dst {
             self.function_state
@@ -28,7 +50,7 @@ impl MirBuilder {
                 function.metadata.value_types.insert(dst, MirType::Void);
             }
         }
-        Ok(site_id)
+        Ok(CompletedArrayElementWriteV1 { site: site_id, original })
     }
 
     pub(super) fn try_emit_known_array_method_write(
@@ -38,10 +60,17 @@ impl MirBuilder {
         method: &str,
         args: &[ValueId],
     ) -> Result<bool, String> {
+        self.try_emit_known_array_method_write_recorded_v1(dst, receiver, method, args)
+            .map(|completed| completed.is_some())
+    }
+
+    pub(in crate::mir::builder) fn try_emit_known_array_method_write_recorded_v1(
+        &mut self, dst: Option<ValueId>, receiver: ValueId, method: &str, args: &[ValueId],
+    ) -> Result<Option<CompletedArrayElementWriteV1>, String> {
         let Some(method_id) =
             crate::boxes::array::ArrayMethodId::from_name_and_arity(method, args.len())
         else {
-            return Ok(false);
+            return Ok(None);
         };
         let (kind, index, value) = match method_id {
             crate::boxes::array::ArrayMethodId::Push => {
@@ -53,9 +82,9 @@ impl MirBuilder {
             crate::boxes::array::ArrayMethodId::Insert => {
                 (ArrayElementWriteKind::Insert, Some(args[0]), args[1])
             }
-            _ => return Ok(false),
+            _ => return Ok(None),
         };
-        self.emit_array_element_write(
+        let completed = self.emit_array_element_write_recorded_v1(
             dst,
             kind,
             ArrayWriteProducerKind::MethodCall,
@@ -63,7 +92,17 @@ impl MirBuilder {
             index,
             value,
         )?;
-        Ok(true)
+        Ok(Some(completed))
+    }
+
+    pub(in crate::mir::builder) fn emit_checked_field_array_read_v1(&mut self, recipe: &crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1, receiver: ValueId, index: ValueId, dst: ValueId) -> Result<ArrayReadSiteId, String> {
+        if self.function_state.type_ctx.value_types.get(&index) != Some(&MirType::Integer) { return Err(crate::mir::named_array_obligation::fault("read-index-type")); }
+        let read = self.emit_array_element_read(Some(dst), receiver, index)?;
+        self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
+        let function = self.function_state.current_function.as_mut().ok_or_else(|| crate::mir::named_array_obligation::fault("read-function-missing"))?;
+        function.metadata.value_types.insert(dst, MirType::Integer);
+        function.metadata.named_array_read_obligations.push(crate::mir::named_array_obligation::NamedArrayReadMarkerV1 { owner: recipe.owner(), read, receiver, index, dst });
+        Ok(read)
     }
 
     pub(super) fn emit_array_element_read(

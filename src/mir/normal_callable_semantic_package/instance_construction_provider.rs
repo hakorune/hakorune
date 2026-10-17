@@ -1,6 +1,7 @@
 //! Provider RHS admission borrowed by the sole construction-plan issuer.
 //! Preserve source-order actual checks and caller-key failure precedence.
 use super::{ConstructionStoreRhsV1, ConstructionUnavailableV1, ProviderConstructionChildV1};
+use super::super::{OwnedFieldChildKindV1, OwnedFieldChildV1};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
@@ -41,14 +42,14 @@ pub(super) fn issue_provider_rhs_v1(
         [crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentV1],
     > = Box::new([]);
     let mut owned_fields = Vec::new();
+    let mut static_sources = Vec::new();
     if crate::runtime::CoreBoxId::from_name(class).is_none() {
         // A user-class provider constructs its child through the
         // canonical Birth path: exact membership resolves the
         // child object, and the child can never be the parent
-        // itself. The admitted child bound is one level of
-        // owned `ArrayBox` fields — the in-flight teardown then
-        // discharges each sealed residence before the child
-        // storage; deeper nesting stays unsupported.
+        // itself. The typed declared inventory is corroborated against the
+        // existing sealed residence inventory before physical emission;
+        // declarations alone never authorize teardown.
         let mut resolved = objects
             .iter()
             .filter_map(|(own, id)| (own.name() == class).then_some((own, *id)));
@@ -65,6 +66,7 @@ pub(super) fn issue_provider_rhs_v1(
                 Some(
                     crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook
                         | crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+                        | crate::mir::function::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook
                 )
             )
         {
@@ -92,22 +94,24 @@ pub(super) fn issue_provider_rhs_v1(
         } else {
             return Err(U::FieldContractUnsupported);
         };
-        if child_disposition
-            == Some(crate::mir::function::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook)
-        {
-            for (ordinal, field) in child_definition
-                .expect("child definition checked above")
-                .fields()
-                .iter()
-                .enumerate()
-            {
-                if field.declared_type_name.as_deref() == Some("ArrayBox") {
-                    owned_fields.push(
-                        CanonicalFieldRefV1::from_declaration_ordinal(child, ordinal)
-                            .ok_or(U::SourceRelationMissing)?,
-                    );
-                }
+        for (ordinal, field) in child_definition.ok_or(U::SourceRelationMissing)?.fields().iter().enumerate() {
+            let declared = field.declared_type_name.as_deref().ok_or(U::FieldContractUnsupported)?;
+            if crate::mir::declared_type_storage::exact_numeric_storage_for_declared_type(declared).is_some() {
+                continue;
             }
+            let kind = if declared == "ArrayBox" {
+                OwnedFieldChildKindV1::Array
+            } else {
+                let mut matches = objects.iter().filter(|(source, _)| source.name() == declared);
+                let (_, object) = matches.next().ok_or(U::FieldContractUnsupported)?;
+                if matches.next().is_some() { return Err(U::SourceRelationMissing); }
+                OwnedFieldChildKindV1::Object(*object)
+            };
+            owned_fields.push(OwnedFieldChildV1 {
+                field: CanonicalFieldRefV1::from_declaration_ordinal(child, ordinal)
+                    .ok_or(U::SourceRelationMissing)?,
+                kind,
+            });
         }
         let new_site = OwnedExprSiteV1::new(input.owner(), site.clone());
         let mut sealed = Vec::with_capacity(construction.arguments().len());
@@ -132,10 +136,12 @@ pub(super) fn issue_provider_rhs_v1(
                     let Some((caller_key, sources)) = provider_static_sources else {
                         return Err(U::FieldContractUnsupported);
                     };
-                    let mut kinds = sources.iter().filter_map(|source|
-                        source.construction_argument(caller_key, *input, construction, arg_ordinal));
-                    let kind = kinds.next().ok_or(U::FieldContractUnsupported)?;
-                    if kinds.next().is_some() { return Err(U::SourceRelationMissing); }
+                    let mut matches = sources.iter().filter_map(|source|
+                        source.construction_argument(caller_key, *input, construction, arg_ordinal)
+                            .map(|kind| (source, kind)));
+                    let (source, kind) = matches.next().ok_or(U::FieldContractUnsupported)?;
+                    if matches.next().is_some() { return Err(U::SourceRelationMissing); }
+                    static_sources.push(std::rc::Rc::clone(source));
                     let call = function.method_call(arg_site).ok_or(U::SourceRelationMissing)?;
                     expressions.insert(call.receiver_site().clone());
                     expressions.extend(call.arguments().iter().map(|argument| argument.site().clone()));
@@ -162,6 +168,7 @@ pub(super) fn issue_provider_rhs_v1(
         class: class.into(),
         object,
         arguments,
+        static_sources: static_sources.into_boxed_slice(),
         owned_fields: owned_fields.into_boxed_slice(),
         caller: provider_static_sources
             .map(|(caller, _)| caller.clone())

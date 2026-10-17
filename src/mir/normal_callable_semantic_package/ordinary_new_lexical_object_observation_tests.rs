@@ -4,12 +4,18 @@ use std::rc::Rc;
 
 #[test]
 fn object_slot_indexed_caller_missing_or_refused_cannot_use_root_copy() {
+    for array in [false, true] {
     for rejected in [false, true] {
-        let mut package = issue_with_brand_catalog("box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { return me.make(7) } ignored() { local item = me.relay() return 0 } } static box Main { main() { return 0 } }").unwrap();
+        let source = if array {
+            "box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } consume(value) { if value == null { return 0 } return 1 } ignored() { local arr = new ArrayBox() arr.push(me.make(7)) me.consume(arr.get(0)) return 0 } } static box Main { main() { return 0 } }"
+        } else {
+            "box Token {} box Maker { make(size: i64) { if size > 0 { return new Token() } return null } relay() { return me.make(7) } ignored() { local item = me.relay() return 0 } } static box Main { main() { return 0 } }"
+        };
+        let mut package = issue_with_brand_catalog(source).unwrap();
         let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
         let mut slots = ledger.lexical_instance_calls.borrow_mut();
         let (site, slot) = slots.iter_mut().find(|(_, slot)| matches!(slot,
-            LexicalInstanceCallDispositionSlotV1::Ready(row) if row.source.object_producer_dependencies().is_some())).unwrap();
+            LexicalInstanceCallDispositionSlotV1::Ready(row) if if array { row.source.target().name() == "make" } else { row.source.object_producer_dependencies().is_some() })).unwrap();
         let site = site.clone();
         let LexicalInstanceCallDispositionSlotV1::Ready(row) = slot else {
             panic!("ready")
@@ -35,6 +41,7 @@ fn object_slot_indexed_caller_missing_or_refused_cannot_use_root_copy() {
             ledger.lexical_instance_calls.borrow().get(&site),
             Some(LexicalInstanceCallDispositionSlotV1::SourcePending(_))
         ));
+    }
     }
 }
 

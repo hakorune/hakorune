@@ -336,6 +336,7 @@ fn provided_parameter_object_store_seals_and_prepares() {
         );
         site.clone()
     };
+    ledger.check_argument_child_relation_loans_for_test(&site);
     let claim = ledger
         .try_take_result(&site, "Wrap", 2)
         .expect("result take")

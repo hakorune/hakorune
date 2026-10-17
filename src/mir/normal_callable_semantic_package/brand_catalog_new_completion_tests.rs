@@ -234,11 +234,11 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     );
     assert!(origins
         .iter()
-        .all(|origin| origin.exit().node() == &exit_site));
+        .all(|origin| origin.exit().explicit_site().expect("original explicit return").node() == &exit_site));
     let exit_id = crate::mir::BasicBlockId::new(50);
     let result = ValueId(300);
     let literal = ledger
-        .prepare_terminal_integer_literal_return(sites[0].owner(), &exit_site)
+        .prepare_terminal_scalar_literal_return(sites[0].owner(), &exit_site)
         .unwrap()
         .expect("source return literal");
     let exit = crate::mir::MirInstruction::Return {
@@ -247,10 +247,10 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
     let mut exit_block = crate::mir::BasicBlock::new(exit_id);
     exit_block.add_instruction(crate::mir::MirInstruction::Const {
         dst: result,
-        value: crate::mir::ConstValue::Integer(literal),
+        value: literal,
     });
     ledger
-        .record_terminal_integer_literal_return(sites[0].owner(), &exit_site, result)
+        .record_terminal_scalar_literal_return(sites[0].owner(), &exit_site, result)
         .unwrap();
     exit_block.set_terminator(exit.clone());
     physical.add_block(exit_block);
@@ -320,6 +320,8 @@ fn ordinary_new_home_prefix_retains_order_and_requires_prior_installation() {
             edge_args: None,
         });
     bindings.push((entry_id, entry_jump));
+    ledger.record_terminal_literal_producer_v1(sites[0].owner(), &exit_stmt_site,
+        (entry_id, physical.blocks[&entry_id].instructions[0].clone()), &physical).unwrap();
     ledger.check_pending_nonempty_home_order_for_test(
         sites[0].owner(),
         &exit_stmt_site,

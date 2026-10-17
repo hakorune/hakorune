@@ -163,12 +163,21 @@ impl MirBuilder {
         &mut self,
         returns_value: bool,
     ) -> Result<MirFunction, String> {
+        self.finalize_function_draft_with_sources_v1(returns_value, None, None)
+    }
+
+    pub(in crate::mir::builder) fn finalize_function_draft_with_sources_v1(
+        &mut self,
+        returns_value: bool,
+        result_source: Option<&crate::mir::normal_callable_semantic_package::CallableResultSourceV1>,
+        implicit_end: Option<&super::super::port_aware_function_draft_impl::ImplicitCallableEndV1>,
+    ) -> Result<MirFunction, String> {
         let module = self.current_module.take();
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             let lookup = module.as_ref().map(|module| {
                 module as &dyn super::super::function_signature_lookup::FunctionSignatureLookupV1
             });
-            self.finalize_function_draft_with_lookup(returns_value, lookup)
+            self.finalize_function_draft_with_body_sources_v1(returns_value, lookup, result_source, implicit_end)
         }));
         self.current_module = module;
         match result {
@@ -186,15 +195,27 @@ impl MirBuilder {
         returns_value: bool,
         lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
     ) -> Result<MirFunction, String> {
+        self.finalize_function_draft_with_body_sources_v1(returns_value, lookup, None, None)
+    }
+
+    pub(in crate::mir::builder) fn finalize_function_draft_with_body_sources_v1(
+        &mut self,
+        returns_value: bool,
+        lookup: Option<&dyn super::super::function_signature_lookup::FunctionSignatureLookupV1>,
+        result_source: Option<&crate::mir::normal_callable_semantic_package::CallableResultSourceV1>,
+        implicit_end: Option<&super::super::port_aware_function_draft_impl::ImplicitCallableEndV1>,
+    ) -> Result<MirFunction, String> {
+        if let Some(end) = implicit_end { end.validate_finalized_body_v1(self)?; }
         // Void return追加（必要な場合）
         if !returns_value {
             if let Some(ref mut f) = self.function_state.current_function {
                 if let Some(block) = f.get_block(self.function_state.current_block.unwrap()) {
                     if !block.is_terminated() {
+                        if implicit_end.is_some() {
+                            return Err("[freeze:contract][implicit-exit/unconsumed]".into());
+                        }
                         let void_val = crate::mir::builder::emission::constant::emit_void(self)?;
-                        self.emit_instruction(MirInstruction::Return {
-                            value: Some(void_val),
-                        })?;
+                        self.emit_instruction(MirInstruction::Return { value: Some(void_val) })?;
                     }
                 }
             }
@@ -252,7 +273,32 @@ impl MirBuilder {
 
         // 型推論
         if let Some(ref mut f) = self.function_state.current_function {
-            if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
+            if let Some(source) = result_source.and_then(|source| source.borrowed_nullable()) {
+                source.validate_function(f)?;
+                // The original identity result has no concrete class. Preserve
+                // its tagged carrier instead of re-inferring Null as Unit.
+                f.signature.return_type = MirType::Unknown;
+            } else if let Some(source) = result_source.and_then(|source| source.scalar()) {
+                let expected = match source.kind() {
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => MirType::Integer,
+                    crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => MirType::Bool,
+                };
+                let values = f.blocks.values().flat_map(|block| block.instructions.iter().chain(block.terminator.iter()))
+                    .filter_map(|instruction| match instruction {
+                        MirInstruction::Return { value } => Some(*value), _ => None,
+                    }).collect::<Vec<_>>();
+                if values.is_empty() || source.returns().is_empty()
+                    || source.completion().owner() != source.owner()
+                    || values.iter().any(|value| value.is_none_or(|value|
+                        self.function_state.type_ctx.value_types.get(&value) != Some(&expected)))
+                {
+                    return Err(format!("[freeze:contract][callable-scalar/return-type-mismatch] owner={:?} fn={} expected={expected:?} returns={:?}",
+                        source.owner(), f.signature.name, values.iter().map(|value|
+                            (*value, value.and_then(|value| self.function_state.type_ctx.value_types.get(&value))))
+                            .collect::<Vec<_>>()));
+                }
+                f.signature.return_type = expected;
+            } else if returns_value && matches!(f.signature.return_type, MirType::Void | MirType::Unknown)
             {
                 // `f.blocks` is a HashMap: iteration order is
                 // nondeterministic. Collect every Return operand in a

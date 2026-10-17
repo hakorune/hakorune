@@ -314,7 +314,7 @@ fn formal_projection_missing_duplicate_and_foreign_bindings_are_unavailable() {
                     &mut |_| Ok(false),
                     &mut |_| Ok(None),
                     &mut |_, _, _, _, _| Ok(false),
-                    &mut |_, _, _, _, _| Ok(false),
+                    &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
                     &mut |_, _, _, _, _| Ok(false),
                     &mut |_, _, _, _, _| Ok(false),
                     &mut |_, _, _, _, _| Ok(false),

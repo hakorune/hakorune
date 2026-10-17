@@ -1,5 +1,6 @@
 //! Physical corroboration of the original ordered lexical call tree.
 //! This root Call entry owner never classifies source or issues affine rows.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalBindingReadReceiptV1;
 use crate::mir::builder::ExactLexicalReadV1;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
@@ -14,6 +15,9 @@ use super::super::physical_boundary::FinishedBindings;
 
 #[path = "call_packet_source.rs"]
 mod call_packet_source;
+#[path = "lexical_normal_projection.rs"]
+mod normal_projection;
+use normal_projection::NormalCallProjectionV1;
 pub(crate) use call_packet_source::PreparedStaticTerminalPacketV1;
 pub(in crate::mir) use call_packet_source::{CallPacketSourceLoanV1, CallPacketSourceV1};
 
@@ -72,6 +76,12 @@ pub(in crate::mir) enum LexicalCallArgumentProjectionV1 {
         formal: crate::mir::resolved_semantics::BindingRefV1,
         binding: Binding,
     },
+    BorrowedReadArgument {
+        ordinal: u32,
+        site: crate::mir::resolved_semantics::SourceExprSiteV1,
+        formal: crate::mir::resolved_semantics::BindingRefV1,
+        read: crate::mir::normal_callable_semantic_package::EmittedReadArgumentV1,
+    },
     BorrowedRead {
         ordinal: u32,
         site: crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -107,7 +117,7 @@ pub(crate) struct EmittedLexicalCallProjectionV1 {
     row: CallPacketSourceV1,
     prepared: PreparedLexicalCallProjectionV1,
     invoke: Binding,
-    projection: Binding,
+    projection: NormalCallProjectionV1,
 }
 
 /// A checked physical packet held inside the unfinished caller. Only the
@@ -128,18 +138,18 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
 
     pub(in crate::mir) fn into_local_group_parts(
         self,
-    ) -> (
+    ) -> Result<(
         crate::mir::resolved_semantics::OwnedExprSiteV1,
         Vec<(BasicBlockId, MirInstruction)>,
         EmittedLexicalCallProjectionV1,
-    ) {
+    ), String> {
         let site = self.packet.call_site().clone();
         let bindings = vec![
             self.packet.invoke.clone(),
-            self.packet.projection.clone(),
+            self.packet.projection.value()?.clone(),
             self.fault,
         ];
-        (site, bindings, self.packet)
+        Ok((site, bindings, self.packet))
     }
 
     pub(in crate::mir) fn new(
@@ -181,7 +191,7 @@ impl PreparedSelectedStaticLoopCallProjectionV1 {
                 }],
             },
             invoke,
-            projection,
+            projection: NormalCallProjectionV1::Value(projection),
         };
         packet.value_with_ledger(read.owner(), &source, ledger)?;
         Ok(Self { packet, fault })
@@ -209,6 +219,9 @@ impl PreparedLexicalCallProjectionV1 {
                 }
                 LexicalCallArgumentProjectionV1::BorrowedLiteral { binding, .. } => {
                     require_recorded(bindings, binding, finishing)?;
+                }
+                LexicalCallArgumentProjectionV1::BorrowedReadArgument { read, .. } => {
+                    for binding in read.bindings() { require_recorded(bindings, binding, finishing)?; }
                 }
                 LexicalCallArgumentProjectionV1::BorrowedRead { .. } => {}
                 LexicalCallArgumentProjectionV1::SelectedCanonicalRead { .. } => {}
@@ -292,6 +305,14 @@ impl PreparedLexicalCallProjectionV1 {
         source: &[LocalCallArgumentV1],
         ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
     ) -> Result<MirCall, String> {
+        self.materialize_in_context(owner, row, source, ledger.map(CallValidationContextV1::Lowering))
+    }
+
+    pub(in crate::mir) fn materialize_in_context(
+        &self, owner: FunctionOwnerIdV1, row: CallPacketSourceLoanV1<'_>,
+        source: &[LocalCallArgumentV1], context: Option<CallValidationContextV1<'_>>,
+    ) -> Result<MirCall, String> {
+        let ledger = context.map(CallValidationContextV1::ledger);
         if row.call_site().owner() != owner
             || self.arguments.len() != source.len()
             || source.len() != row.argument_sites().len()
@@ -334,6 +355,10 @@ impl PreparedLexicalCallProjectionV1 {
                 )
             }
             CallPacketSourceLoanV1::Instance(instance) => {
+                if instance.source_target().stored_receiver().is_some() {
+                    ledger.ok_or_else(|| freeze("stored-child/source-ledger-missing"))?
+                        .recheck_stored_local_new_parent_v1(instance.source_target())?;
+                }
                 let receiver = match (&self.receiver, instance.source_target().stored_receiver()) {
                     (LexicalReceiverProjectionV1::Lexical(read), None) => read
                         .value_for(
@@ -372,6 +397,11 @@ impl PreparedLexicalCallProjectionV1 {
                     }
                     _ => return Err(freeze("lexical-terminal/receiver-arm-drift")),
                 };
+                if let Some(ledger) = ledger {
+                    if let Some(observation) = ledger.lexical_i64_call_source(instance.call_site()) {
+                        ledger.checked_field_alias_receiver_v1(instance, observation, Some(receiver))?;
+                    }
+                }
                 crate::mir::definitions::Callee::SameModuleInstance {
                     key: instance.target().clone(),
                     receiver,
@@ -408,7 +438,7 @@ impl PreparedLexicalCallProjectionV1 {
                     && inner.site().site() == site
                     && emitted.call_site() == inner.site() =>
                 {
-                    emitted.value_using(owner, inner.arguments(), ledger)?
+                    emitted.value_using(owner, inner.arguments(), context)?
                 }
                 (
                     projection,
@@ -422,7 +452,7 @@ impl PreparedLexicalCallProjectionV1 {
                     row,
                     *ordinal,
                     original,
-                    ledger.ok_or_else(|| freeze("lexical-i64/borrowed-lender-missing"))?,
+                    context.ok_or_else(|| freeze("lexical-i64/borrowed-lender-missing"))?,
                 )?,
                 _ => return Err(freeze("lexical-i64/argument-projection-drift")),
             };
@@ -437,16 +467,26 @@ impl EmittedLexicalCallProjectionV1 {
         &self,
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
+        self.copy_dependencies_in_context(CallValidationContextV1::Lowering(ledger))
+    }
+
+    pub(in crate::mir) fn copy_dependencies_in_context(
+        &self, context: CallValidationContextV1<'_>,
+    ) -> Result<Vec<(crate::mir::resolved_semantics::OwnedExprSiteV1, Binding)>, String> {
         let mut dependencies = Vec::new();
+        if let LexicalReceiverProjectionV1::StoredChild { parent, .. } = &self.prepared.receiver {
+            dependencies.extend(parent.original_copy_dependencies_v1()?.iter()
+                .map(|copy| (self.row.loan().call_site().clone(), copy.clone())));
+        }
         for argument in &self.prepared.arguments {
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
-                dependencies.extend(inner.copy_dependencies(ledger)?);
+                dependencies.extend(inner.copy_dependencies_in_context(context)?);
             } else {
-                for copy in borrowed_projection::copies(
+                for copy in borrowed_projection::copies_in_context(
                     argument,
                     self.row.loan().call_site().owner(),
                     self.row.loan(),
-                    ledger,
+                    context,
                 )? {
                     dependencies.push((self.row.loan().call_site().clone(), copy.clone()));
                 }
@@ -455,8 +495,11 @@ impl EmittedLexicalCallProjectionV1 {
         Ok(dependencies)
     }
 
-    pub(in crate::mir) fn outer_bindings(&self) -> (&Binding, &Binding) {
-        (&self.invoke, &self.projection)
+    pub(in crate::mir) fn invoke_binding(&self) -> &Binding { &self.invoke }
+
+    /// Value consumers must explicitly reject a Unit normal continuation.
+    pub(in crate::mir) fn outer_bindings(&self) -> Result<(&Binding, &Binding), String> {
+        Ok((&self.invoke, self.projection.value()?))
     }
 
     pub(in crate::mir) fn original_source(&self) -> CallPacketSourceLoanV1<'_> {
@@ -475,9 +518,14 @@ impl EmittedLexicalCallProjectionV1 {
         source: &[LocalCallArgumentV1],
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<MirCall, String> {
-        self.value_with_ledger(owner, source, ledger)?;
-        self.prepared
-            .materialize_using(owner, self.row.loan(), source, Some(ledger))
+        self.call_in_context(owner, source, CallValidationContextV1::Lowering(ledger))
+    }
+
+    pub(in crate::mir) fn call_in_context(
+        &self, owner: FunctionOwnerIdV1, source: &[LocalCallArgumentV1], context: CallValidationContextV1<'_>,
+    ) -> Result<MirCall, String> {
+        self.normal_result_using(owner, source, Some(context))?;
+        self.prepared.materialize_in_context(owner, self.row.loan(), source, Some(context))
     }
 
     /// Walk the original ordered tree against its sealed source, in evaluation
@@ -489,13 +537,20 @@ impl EmittedLexicalCallProjectionV1 {
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
         visit: &mut impl FnMut(&Self, &[LocalCallArgumentV1]) -> Result<(), String>,
     ) -> Result<(), String> {
-        self.call_with_ledger(owner, source, ledger)?;
+        self.visit_original_nodes_in_context_v1(owner, source, CallValidationContextV1::Lowering(ledger), visit)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn visit_original_nodes_in_context_v1(
+        &self, owner: FunctionOwnerIdV1, source: &[LocalCallArgumentV1], context: CallValidationContextV1<'_>,
+        visit: &mut impl FnMut(&Self, &[LocalCallArgumentV1]) -> Result<(), String>,
+    ) -> Result<(), String> {
+        self.call_in_context(owner, source, context)?;
         for (argument, original) in self.prepared.arguments.iter().zip(source) {
             if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
                 let LocalCallArgumentV1::CallResult(original) = original else {
                     return Err(freeze("lexical-i64/nested-source-missing"));
                 };
-                inner.visit_original_nodes_v1(owner, original.arguments(), ledger, visit)?;
+                inner.visit_original_nodes_in_context_v1(owner, original.arguments(), context, visit)?;
             }
         }
         visit(self, source)
@@ -509,7 +564,7 @@ impl EmittedLexicalCallProjectionV1 {
     ) -> bool {
         if self.row.loan().call_site() == site
             && (&self.invoke == binding
-                || &self.projection == binding
+                || matches!(&self.projection, NormalCallProjectionV1::Value(original) if original == binding)
                 || matches!(&self.prepared.receiver,
                     LexicalReceiverProjectionV1::StoredChild { read, .. } if read == binding)
                 || self.prepared.arguments.iter().any(|argument| {
@@ -517,6 +572,8 @@ impl EmittedLexicalCallProjectionV1 {
                         if original == binding)
                         || matches!(argument, LexicalCallArgumentProjectionV1::BorrowedLiteral { binding: original, .. }
                             if original == binding)
+                        || matches!(argument, LexicalCallArgumentProjectionV1::BorrowedReadArgument { read, .. }
+                            if read.producer_bindings().any(|original| original == binding))
                 }))
         {
             return true;
@@ -531,7 +588,7 @@ impl EmittedLexicalCallProjectionV1 {
         self.row.loan().call_site()
     }
 
-    pub(in crate::mir::normal_callable_semantic_package) fn stored_receiver_read_v1(
+    pub(in crate::mir) fn stored_receiver_read_v1(
         &self,
     ) -> Option<&Binding> {
         match &self.prepared.receiver {
@@ -552,7 +609,7 @@ impl EmittedLexicalCallProjectionV1 {
         finishing: Option<&FinishedBindings>,
     ) -> Result<(), String> {
         require_recorded(bindings, &self.invoke, finishing)?;
-        require_recorded(bindings, &self.projection, finishing)?;
+        self.validate_normal_recorded(bindings, finishing)?;
         self.prepared
             .validate_recorded_projected(bindings, finishing)
     }
@@ -567,7 +624,7 @@ impl EmittedLexicalCallProjectionV1 {
             row: CallPacketSourceV1::instance(row),
             prepared,
             invoke,
-            projection,
+            projection: NormalCallProjectionV1::Value(projection),
         }
     }
 
@@ -581,7 +638,7 @@ impl EmittedLexicalCallProjectionV1 {
             row,
             prepared,
             invoke,
-            projection,
+            projection: NormalCallProjectionV1::Value(projection),
         }
     }
 
@@ -601,7 +658,7 @@ impl EmittedLexicalCallProjectionV1 {
                 arguments,
             },
             invoke,
-            projection,
+            projection: NormalCallProjectionV1::Value(projection),
         };
         let CallPacketSourceLoanV1::Static { observation, .. } = packet.row.loan() else {
             unreachable!("static source constructor");
@@ -624,45 +681,10 @@ impl EmittedLexicalCallProjectionV1 {
         source: &[LocalCallArgumentV1],
         ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
     ) -> Result<ValueId, String> {
-        self.value_using(owner, source, Some(ledger))
+        self.value_using(owner, source, Some(CallValidationContextV1::Lowering(ledger)))
     }
 
-    fn value_using(
-        &self,
-        owner: FunctionOwnerIdV1,
-        source: &[LocalCallArgumentV1],
-        ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
-    ) -> Result<ValueId, String> {
-        let expected = self
-            .prepared
-            .materialize_using(owner, self.row.loan(), source, ledger)?;
-        let MirInstruction::Invoke {
-            operation:
-                InvokeOperation::Call {
-                    call,
-                    result: emitted_result,
-                },
-            normal_landing,
-            ..
-        } = &self.invoke.1
-        else {
-            return Err(freeze("lexical-i64/nested-invoke-shape"));
-        };
-        let MirInstruction::InvokeNormalResult { invoke_block, dst } = &self.projection.1 else {
-            return Err(freeze("lexical-i64/nested-projection-shape"));
-        };
-        // The disposition row names the one result contract this packet may
-        // carry — `I64` for the scalar lane, `NullableHandle` for the
-        // checked-release nullable lane. Anything else is producer drift.
-        if self.row.loan().result() != Some(*emitted_result)
-            || *call != expected
-            || *invoke_block != self.invoke.0
-            || *normal_landing != self.projection.0
-        {
-            return Err(freeze("lexical-i64/nested-producer-drift"));
-        }
-        Ok(*dst)
-    }
+
 }
 
 fn require_recorded(
@@ -704,6 +726,9 @@ mod local_group_tests;
 
 #[path = "borrowed_projection.rs"]
 mod borrowed_projection;
+
+#[path = "finished_read_arguments.rs"]
+mod finished_read_arguments;
 
 #[cfg(test)]
 #[path = "borrowed_projection_tests.rs"]

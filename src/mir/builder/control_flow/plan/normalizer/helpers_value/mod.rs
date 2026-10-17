@@ -33,3 +33,8 @@ impl super::PlanNormalizer {
 mod lower;
 mod method_call;
 mod variant;
+
+mod source_output;
+pub(in crate::mir::builder) use source_output::{NormalizedSourceValueV1, SourceValueProjectionV1};
+
+pub(in crate::mir) use source_output::ObservedSourceValueV1;

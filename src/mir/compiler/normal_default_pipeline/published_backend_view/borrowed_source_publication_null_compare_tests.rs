@@ -26,7 +26,7 @@ fn null_compare_publishes_the_dedicated_physical_row() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -122,7 +122,7 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -234,10 +234,8 @@ fn me_object_field_read_publishes_object_get_and_null_compare() {
     });
 }
 
-/// `!=`, non-null siblings and formal-vs-formal equality stay outside the
-/// admitted null-equality envelope: the used opaque formal fails the
-/// unchanged artifact boundary — the same stop that every unadmitted
-/// opaque use already takes — and no dedicated row is ever minted.
+/// Integer equality has its own original comparison proof. Null inequality
+/// and Bool siblings remain outside both admitted source envelopes.
 #[test]
 fn non_null_equalities_stay_fail_closed_before_publication() {
     crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -253,12 +251,31 @@ fn non_null_equalities_stay_fail_closed_before_publication() {
                  check(handle) {{ {prefix}if {condition} {{ return 7 }} return 3 }} }} \
                  static box Main {{ main() {{ local s = new Store() return s.check(5) }} }}"
             );
-            let error = MirCompiler::with_options(false)
+            let integer = matches!(suffix, "zero" | "formal");
+            let outcome = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
+                    if integer {
+                        let handoff = view.retained_handoff.unwrap();
+                        let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
+                            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Store", "check", 1));
+                        let owner = handoff.callables().unwrap().completed_result(&key).unwrap().owner();
+                        let mut count = 0;
+                        handoff.root_source().unwrap().with_borrowed_ordinary_compares_v1(
+                            owner, &view.module().functions["Store.check/1"], |loan, _, _| {
+                                assert_eq!(loan.operator(), crate::mir::CompareOp::Eq);
+                                count += 1;
+                                Ok(())
+                            })?;
+                        assert_eq!(count, 1, "original Integer source, not a null equality");
+                    }
                     view.issue_lifecycle_physical_abi_input().map(|_| ())
-                })
-                .err()
+                });
+            if integer {
+                outcome.unwrap_or_else(|error| panic!("{suffix}: {error}"));
+                continue;
+            }
+            let error = outcome.err()
                 .unwrap_or_else(|| panic!("{suffix}: unexpectedly admitted"));
             assert!(
                 error.contains("artifact-source-unavailable"),

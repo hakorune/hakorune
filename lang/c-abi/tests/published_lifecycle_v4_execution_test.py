@@ -47,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix="hako v4 execution ") as directory:
              "-L" + str(work), "-lhako_llvmc_ffi_test",
              "-Wl,-rpath," + str(work), "-o", driver])
     wraps = ["fault.frame_init", "fault.frame_dispose", "fault.report_final",
-             "object.checked_field_set", "object.home_release_plain_i64", "object.reclaim_unpublished"]
+             "object.checked_field_set", "object.checked_residence_set", "object.home_release_plain_i64", "object.reclaim_unpublished"]
 
     def compile_input(data, expected=True, custom_env=None):
         path = work / "input.json"

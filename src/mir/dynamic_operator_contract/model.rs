@@ -9,6 +9,7 @@ pub(crate) enum DynamicOperatorFamilyV1 {
     GreaterEqual,
     LessEqual,
     Equal,
+    NotEqual,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

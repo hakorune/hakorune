@@ -15,6 +15,12 @@ mod terminal_field_projection_tests;
 mod terminal_literal_storage_tests;
 
 impl OrdinaryNewClaimLedgerV1 {
+    pub(super) fn seal_physical_observations_v1(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+        for group in self.root_local_call_bindings.borrow().get(&owner).into_iter().flatten() {
+            group.seal_physical_observations_v1()?;
+        }
+        Ok(())
+    }
     /// Called on the exact physical root after all module finalization passes.
     /// Script-only packages never register a callable root; an empty New set
     /// does not erase a registered root's validation obligation.
@@ -32,6 +38,8 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("duplicate-root-validation"));
             }
         };
+        self.seal_physical_observations_v1(owner)?;
+        self.main_arguments_bindings_v1(function)?;
         self.validate_root_body(owner, function, None)?;
         let observation = self.finalized_root_observation(owner);
         self.validate_root_cleanup_shape(owner, function)?;
@@ -79,9 +87,10 @@ impl OrdinaryNewClaimLedgerV1 {
             let bindings = self.lifecycle_bindings(owner)?;
             let mut projection = boundary.project(function)?;
             self.validate_new_emissions_projected(owner, function, Some(&projection))?;
-            self.validate_field_reads(owner, function)?;
-            self.validate_terminal_integer_literal_return(owner, function)?;
+            self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| projection.binding(binding.0, &binding.1))?;
+            self.validate_terminal_scalar_literal_return_projected(owner, function, Some(&projection))?;
             self.validate_terminal_i64_field_return_projected(owner, function, Some(&projection))?;
+            self.validate_terminal_i64_add_return_projected(owner, function, Some(&projection))?;
             self.validate_root_home_exit(owner, function, Some(&projection))?;
             boundary.validate_complete(function, &mut projection, &bindings)?;
             self.verify_finished_scalar_operations_v1(owner, function, |original| {
@@ -168,11 +177,22 @@ impl OrdinaryNewClaimLedgerV1 {
         self.validate_new_emissions_projected(owner, function, projection)?;
         self.validate_terminal_unit_return(owner, function)?;
         self.validate_root_home_exit(owner, function, projection)?;
-        self.validate_field_reads(owner, function)?;
-        self.validate_terminal_i64_add_return(owner, function)?;
-        self.validate_terminal_integer_literal_return(owner, function)?;
+        self.validate_field_reads_with_projection_v1(owner, function, CallValidationContextV1::Lowering(self), |binding| match projection {
+            Some(projection) => projection.binding(binding.0, &binding.1), None => Ok(Some(binding.clone())),
+        })?;
+        self.validate_terminal_i64_add_return_projected(owner, function, projection)?;
+        self.validate_terminal_scalar_literal_return_projected(owner, function, projection)?;
         self.validate_terminal_i64_field_return_projected(owner, function, projection)?;
         Ok(())
+    }
+
+    pub(super) fn validate_terminal_i64_add_return_projected(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_terminal_i64_add_return(owner, function, |block, instruction| {
+            super::physical_boundary::check_binding(function, projection, block, instruction)
+        })
     }
 
     /// The same canonical boundary checker owns draft and finished read positions.
@@ -223,6 +243,14 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut projection = boundary.project(function)?;
         self.validate_root_body(owner, function, Some(&projection))?;
         boundary.validate_complete(function, &mut projection, &bindings)?;
+        self.main_arguments_projected_bindings_v1(function, |original| {
+            let mapped = projection.binding(original.0, &original.1)?
+                .ok_or_else(|| freeze("main-arguments/mandatory-binding-removed"))?;
+            if !projection.recorded().contains(&mapped) {
+                return Err(freeze("main-arguments/mandatory-binding-unrecorded"));
+            }
+            Ok(mapped)
+        })?;
         self.verify_finished_scalar_operations_v1(owner, function, |original| {
             projection.relation_binding(function, original)
         })?;
@@ -309,41 +337,61 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    pub(super) fn validate_terminal_integer_literal_return(
+    pub(super) fn validate_terminal_scalar_literal_return(
         &self,
         owner: FunctionOwnerIdV1,
         function: &MirFunction,
     ) -> Result<(), String> {
-        let relations: Vec<&TerminalIntegerLiteralReturnV1> = self
-            .terminal_relations_for_owner(owner)
-            .into_iter()
+        self.validate_terminal_scalar_literal_return_projected(owner, function, None)
+    }
+
+    fn validate_terminal_scalar_literal_return_projected(
+        &self, owner: FunctionOwnerIdV1, function: &MirFunction,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        let relations: Vec<_> = self.terminal_relations_for_owner(owner).into_iter()
             .filter_map(|relation| match relation {
-                TerminalRelationV1::IntegerLiteral(row) => Some(row),
+                TerminalRelationV1::IntegerLiteral(row) => Some((row.return_site(), crate::mir::ConstValue::Integer(row.value()))),
+                TerminalRelationV1::BoolLiteral(row) => Some((row.return_site(), crate::mir::ConstValue::Bool(row.value()))),
                 _ => None,
-            })
-            .collect();
+            }).collect();
         if relations.is_empty() {
             return Ok(());
         }
-        for relation in relations {
-            let site = relation.return_site();
+        for (site, literal) in relations {
             let value = if self.terminal_scalar_uses_child_storage(owner, site) {
-                self.terminal_integer_literal_values
+                self.terminal_scalar_literal_values
                     .borrow()
                     .get(&(owner, site.clone()))
-                    .copied()
+                    .cloned()
             } else {
-                self.terminal_integer_literal_value
+                self.terminal_scalar_literal_value
                     .borrow()
                     .get(site)
-                    .copied()
+                    .cloned()
             };
             let Some(value) = value else {
                 return Err(freeze("literal-unconsumed"));
             };
-            let exact = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Const { dst, value: crate::mir::ConstValue::Integer(actual) } if *dst == value && *actual == relation.value()));
-            let returned = function.blocks.values().flat_map(|block| block.all_instructions()).any(|instruction| matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value));
-            if !(exact && returned) {
+            let emission = value;
+            let value = emission.value;
+            let producer = emission.producer.as_ref().ok_or_else(|| freeze("literal-producer-unconsumed"))?;
+            let returned_binding = emission.returned.as_ref().ok_or_else(|| freeze("literal-return-unconsumed"))?;
+            for original in [producer, returned_binding] {
+                let binding = match projection {
+                    Some(projection) => projection.binding(original.0, &original.1)?
+                        .ok_or_else(|| freeze("literal-physical-drift"))?,
+                    None => original.clone(),
+                };
+                if !function.blocks.get(&binding.0).is_some_and(|block|
+                    block.all_instructions().filter(|actual| *actual == &binding.1).count() == 1)
+                { return Err(freeze("literal-physical-drift")); }
+            }
+            let exact = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|instruction|
+                matches!(instruction, MirInstruction::Const { dst, value: actual } if *dst == value && actual == &literal)).count();
+            let returned = function.blocks.values().flat_map(|block| block.all_instructions()).filter(|instruction|
+                matches!(instruction, MirInstruction::Return { value: Some(actual) } if *actual == value)).count();
+            if exact != 1 || returned != 1 {
                 return Err(freeze("literal-physical-drift"));
             }
         }
@@ -492,7 +540,7 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         owner: FunctionOwnerIdV1,
     ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
-        let mut result = Vec::new();
+        let mut result = self.main_arguments_original_bindings_v1(owner);
         for row in self
             .local_commits
             .borrow()
@@ -501,6 +549,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             let bindings = match row {
                 LocalCommitV1::Map(map) => map.checked_bindings()?,
+                LocalCommitV1::OwnedArray(row) => row.checked_bindings()?,
                 LocalCommitV1::CallReceived(row) => row.checked_bindings()?,
                 LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
                     match row.new_emission().expect("new row carries emission") {
@@ -525,6 +574,9 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 result.extend_from_slice(bindings);
                 entry.append_bindings(&mut result);
+                if let Some((_, original)) = &order.implicit_void {
+                    result.push(original.clone());
+                }
                 if let Some(original) = order.null_return_binding() {
                     result.push(original.clone());
                 }
@@ -540,9 +592,18 @@ impl OrdinaryNewClaimLedgerV1 {
                 result.extend_from_slice(bindings);
             }
         }
+        self.visit_array_field_read_originals_v1(owner, |_, _, binding| {
+            if !result.contains(binding) { result.push(binding.clone()); }
+            Ok(())
+        })?;
+        result.extend(self.original_borrowed_field_write_guard_bindings_v1(owner)?);
+        result.extend(self.original_borrowed_array_set_bindings_v1(owner)?);
         result.extend(self.borrowed_compare_bindings_v1(owner)?);
         result.extend(self.borrowed_mul_bindings_v1(owner)?);
         result.extend(self.scalar_operation_bindings_v1(owner)?);
+        for binding in self.terminal_i64_add_bindings_v1(owner)? {
+            if !result.contains(&binding) { result.push(binding); }
+        }
         result.extend(
             self.selected_loop_body_packets
                 .borrow()
@@ -550,6 +611,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 .filter(|packet| packet.source_site().owner() == owner)
                 .flat_map(|packet| packet.lifecycle_bindings().iter().cloned()),
         );
+        for relation in self.terminal_relations_for_owner(owner) {
+            if !matches!(relation, TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_)) {
+                continue;
+            }
+            let site = relation.return_site();
+            let literal = if self.terminal_scalar_uses_child_storage(owner, site) {
+                self.terminal_scalar_literal_values.borrow().get(&(owner, site.clone())).cloned()
+            } else {
+                self.terminal_scalar_literal_value.borrow().get(site).cloned()
+            };
+            if let Some(literal) = literal {
+                for binding in [literal.producer, literal.returned].into_iter().flatten() {
+                    if !result.contains(&binding) { result.push(binding); }
+                }
+            }
+        }
         Ok(result)
     }
 

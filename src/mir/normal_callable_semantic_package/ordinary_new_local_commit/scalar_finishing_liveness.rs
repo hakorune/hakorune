@@ -23,6 +23,13 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             self.lend_scalar_roots(module, symbol, *owner, boundary, &mut roots)?;
         }
+        if let Some(function) = module.functions.get(root_symbol) {
+            for (_, instruction) in self.main_arguments_bindings_v1(function)? {
+                if let Some(dst) = instruction.dst_value() {
+                    roots.entry(root_symbol.to_owned()).or_default().insert(dst);
+                }
+            }
+        }
         Ok(roots)
     }
 
@@ -44,10 +51,21 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut bindings = self.scalar_operation_bindings_v1(owner)?;
         bindings.extend(self.borrowed_mul_bindings_v1(owner)?);
         bindings.extend(self.borrowed_compare_bindings_v1(owner)?);
-        roots.insert(
-            symbol.to_owned(),
-            validated_roots(function, boundary, bindings)?,
-        );
+        let mut required = validated_roots(function, boundary, bindings)?;
+        // This same source packet consumes its complete original prefix,
+        // including auxiliary Const/Copy producers. Lend those exact values to
+        // the existing DCE owner rather than inventing an omission permission.
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_condition_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_field_array_append_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_borrowed_field_write_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_borrowed_field_write_guard_bindings_v1(owner)?, true)?);
+        required.extend(validated_roots_with_auxiliary(function, boundary,
+            self.original_borrowed_array_set_bindings_v1(owner)?, true)?);
+        roots.insert(symbol.to_owned(), required);
         Ok(())
     }
 }
@@ -57,10 +75,19 @@ fn validated_roots(
     boundary: &super::super::physical_boundary::PhysicalBoundary,
     originals: Vec<(BasicBlockId, MirInstruction)>,
 ) -> Result<BTreeSet<ValueId>, String> {
+    validated_roots_with_auxiliary(function, boundary, originals, false)
+}
+
+fn validated_roots_with_auxiliary(
+    function: &MirFunction,
+    boundary: &super::super::physical_boundary::PhysicalBoundary,
+    originals: Vec<(BasicBlockId, MirInstruction)>,
+    include_auxiliary: bool,
+) -> Result<BTreeSet<ValueId>, String> {
     let projection = boundary.project(function)?;
     let mut bindings = BTreeMap::new();
     for original in originals {
-        if matches!(
+        if !include_auxiliary && matches!(
             original.1,
             MirInstruction::Const { .. } | MirInstruction::Copy { .. }
         ) {
@@ -127,11 +154,20 @@ mod tests {
             validated_roots(
                 &function,
                 &boundary,
-                vec![literal, original.clone(), original.clone()]
+                vec![literal.clone(), original.clone(), original.clone()]
             )
             .unwrap(),
             BTreeSet::from([ValueId(2)])
         );
+        assert_eq!(validated_roots_with_auxiliary(&function, &boundary,
+            vec![literal.clone(), original.clone()], true).unwrap(),
+            BTreeSet::from([ValueId(1), ValueId(2)]));
+        let mut foreign_literal = literal.clone();
+        if let MirInstruction::Const { value, .. } = &mut foreign_literal.1 { *value = ConstValue::Integer(9); }
+        assert!(validated_roots_with_auxiliary(&function, &boundary, vec![foreign_literal], true).is_err());
+        let mut missing_literal = function.clone();
+        missing_literal.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.remove(0);
+        assert!(validated_roots_with_auxiliary(&missing_literal, &boundary, vec![literal], true).is_err());
         let mut foreign = original.clone();
         if let MirInstruction::BinOp { op, .. } = &mut foreign.1 {
             *op = BinaryOp::Add;

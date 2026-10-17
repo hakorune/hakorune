@@ -146,48 +146,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn construction_result_call
         .unwrap_or(false)
 }
 
-/// The callee's own terminal relation is the sole result-class evidence:
-/// a Map-source `return` yields a `Map` call result, a `return new`
-/// construction yields a `Handle` call result (the caller receives the
-/// transferred object as an owned Home), and every other admitted
-/// relation stays `I64`. An `OpaqueCall` terminal proves no result class —
-/// the callee cannot publish an Invoke result kind until its return value
-/// is decomposed. Declared annotations never decide this.
-pub(in crate::mir::normal_callable_semantic_package) fn call_result_kind(
-    terminal_relation: Option<&TerminalRelationV1>,
-) -> Option<InvokeCallResultKind> {
-    match terminal_relation {
-        Some(TerminalRelationV1::OpaqueCall(_)) => None,
-        Some(TerminalRelationV1::Value(row)) => match row.returned() {
-            TerminalReturnedSourceV1::Construction(_) => Some(InvokeCallResultKind::Handle),
-            TerminalReturnedSourceV1::MapLiteral(_) | TerminalReturnedSourceV1::MapLocal(_) => {
-                Some(InvokeCallResultKind::Map)
-            }
-            _ => Some(InvokeCallResultKind::I64),
-        },
-        _ => Some(InvokeCallResultKind::I64),
-    }
-}
+#[path = "direct_call_result.rs"]
+mod result;
+pub(in crate::mir::normal_callable_semantic_package) use result::{call_result_kind, uniform_call_result_kind};
 
-/// A callee with several exits publishes one result kind only when every
-/// retained exit relation classifies to the same kind — the caller cannot
-/// observe which `return` executed, so a mixed-exit callee has no single
-/// kind. An empty relation set keeps the prior `I64` answer.
-pub(in crate::mir::normal_callable_semantic_package) fn uniform_call_result_kind<'a>(
-    relations: impl IntoIterator<Item = &'a TerminalRelationV1>,
-) -> Option<InvokeCallResultKind> {
-    let mut kind = None;
-    for relation in relations {
-        let row = call_result_kind(Some(relation))?;
-        match kind {
-            None => kind = Some(row),
-            Some(existing) if existing == row => {}
-            Some(_) => return None,
-        }
-    }
-    // An empty relation set keeps the prior `I64` answer.
-    kind.or_else(|| call_result_kind(None))
-}
 
 /// Co-seal one caller→callee borrowed-Map argument edge. The caller's
 /// sealed `%{...}` actual, the callee's `Map` formal ABI and contract
@@ -200,8 +162,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn uniform_call_result_kind
 /// self-rooted parameter, and `OpaqueHandle` formals are not direct-call
 /// catalogable, so no package-install caller can build a borrowed-entry
 /// argument literal today. The undertaking admits the verified shape;
-/// this gate keeps the unproven edge closed until a catalogable borrow
-/// source exists.
+/// this gate keeps the unproven edge closed until a catalogable borrow/// source exists.
 fn map_argument_edge(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     parameters: &[OwnedCallableParameterContractDeclarationV1],

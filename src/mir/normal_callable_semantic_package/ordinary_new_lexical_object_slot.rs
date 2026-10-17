@@ -20,6 +20,73 @@ mod packet_seal;
 pub(super) use packet_seal::ObjectPacketSealV1;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Retained full-slot membership survives consumption; demand still rechecks
+    /// the original source and inputs, never retrying the older protocol.
+    pub(crate) fn uses_object_packet_protocol_v1(
+        &self,
+        row: &LexicalInstanceCallDispositionRowV1,
+    ) -> Result<bool, String> {
+        Ok(row.object_packet.is_some() || self.requires_object_packet_v1(row.source_target())?)
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn has_original_owning_object_input_v1(
+        &self, ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        let selected = ingress.original_owning_object_input_callee_v1(target)?;
+        for incoming in ingress.source_incoming.exact_rows().filter(|row| row.callee == target.callee_owner()) {
+            if let Some(loan) = ingress.original_owning_object_input_source_v1(incoming.source.require_instance()?)? {
+                self.callable_result_classes.recheck_owning_object_local_input_roots_v1(loan).map_err(freeze)?;
+            }
+        }
+        Ok(selected)
+    }
+
+    /// Select the existing packet protocol from original source obligations.
+    /// Guarded sibling input does not import another caller's result qualification;
+    /// full-slot result/Completion/teardown and actual regeneration stay mandatory.
+    pub(crate) fn requires_object_packet_v1(
+        &self,
+        target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        if target.borrowed_nullable_local_source().is_some() || target.mixed_local_source().is_some() {
+            return Ok(false);
+        }
+        if target.has_object_source_requirement() {
+            return Ok(true);
+        }
+        if self.has_received_field_packet_source_v1(target)? { return Ok(true); }
+        if self.has_original_receiver_nullable_packet_source_v1(target)? {
+            return Ok(true);
+        }
+        let Some(Ok(source)) = &self.borrowed_formal_source else {
+            return Ok(false);
+        };
+        if self.has_original_owning_object_input_v1(source, target)? { return Ok(true); }
+        if source.original_object_producer_source_v1(target)?.is_some() {
+            source.recheck_field_producer_source_v1(target, &self.callable_result_classes, &self.field_write_claims)?;
+            return Ok(true);
+        }
+        if source.recheck_field_producer_callee_v1(target, &self.callable_result_classes, &self.field_write_claims)? {
+            if let Some(observation) = self.handle_call_source(target.call_site()) {
+                if observation.owner() != target.call_site().owner()
+                    || source.object_source_target_at_v1(target.call_site())? != Some(target)
+                    || observation.local_binding().is_none_or(|(_, destination)| destination.owner() != target.call_site().owner()) {
+                    return Err(freeze("field-local/original-observation-drift"));
+                }
+                return Ok(true);
+            }
+        }
+        if !target.is_self_receiver() {
+            return Ok(false);
+        }
+        has_original_forwarding_receiver_input_source_v1(
+            source,
+            self.original_parameter_contracts.as_deref(),
+            target.call_site().owner(),
+            &mut |original| original == target,
+        )
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn finish_object_lexical_slots_v1(
         &mut self,
         selected: &VerifiedSelectedCallableBatchMapV1,
@@ -43,11 +110,13 @@ impl OrdinaryNewClaimLedgerV1 {
             if site != source.call_site() {
                 return Err(freeze("lexical-object/slot-source"));
             }
-            if let Some((kind, route, teardown)) = self
+            if source.borrowed_nullable_local_source().is_some() || source.mixed_local_source().is_some() { continue; }
+            if let Some((kind, route, teardown, field_supports)) = self
                 .checked_object_lexical_slot_v1(source, selected, contracts, signatures, results)?
             {
-                let packet = ObjectPacketSealV1::retain(self, source, kind, teardown)?;
-                upgrades.push((site.clone(), source.clone(), kind, route, packet));
+                if let Some(packet) = ObjectPacketSealV1::retain(self, source, kind, teardown, field_supports)? {
+                    upgrades.push((site.clone(), source.clone(), kind, route, packet));
+                }
             }
         }
         // Recheck every original cell before changing any cell or route inventory.
@@ -68,7 +137,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 LexicalInstanceCallDispositionSlotV1::Ready(LexicalInstanceCallDispositionRowV1 {
                     source,
                     result: Some(kind),
-                    object_packet: Some(packet),
+                    scalar_result: None,
+                    unit_completion: None,
+                    borrowed_completion: None,
+                    object_packet: Some(packet), mixed_result: None,
                 }),
             );
         }
@@ -91,6 +163,7 @@ impl OrdinaryNewClaimLedgerV1 {
             InvokeCallResultKind,
             bool,
             ObjectReturnTeardownAvailabilityV1,
+            Box<[super::super::completion_index::ObjectCallFieldSupportRequirementV1]>,
         )>,
         String,
     > {
@@ -202,14 +275,16 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(None);
             };
             let ingress = ingress.as_ref().map_err(Clone::clone)?;
-            if !ingress.definitions.contains_key(&contract.owner) {
+            if !ingress.definitions.contains_key(&contract.owner)
+                && !(self.has_original_object_source_input_v1(ingress, source)?
+                    && self.selected_original_instance_input_kind_v1(ingress, contract.owner)?.is_some()) {
                 return Ok(None);
             }
         }
-        let result = self.checked_object_callee_result_with_teardown_v1(source, results)?;
+        let result = self.checked_object_callee_source_v1(source, results)?;
         missing |= result.is_none();
         let observation = self
-            .checked_object_slot_observation_v1(source, result.as_ref().map(|(kind, _)| *kind))?;
+            .checked_object_slot_observation_v1(source, result.as_ref().map(|source| source.kind))?;
         missing |= observation.is_none();
         if let Some(qualifications) = source.object_return_sources() {
             for loan in qualifications {
@@ -244,6 +319,15 @@ impl OrdinaryNewClaimLedgerV1 {
             .any(|formal| formal.kind.is_ordinary_borrowed_handle())
         {
             self.checked_completed_opaque_object_target_arguments_v1(source, contract)?
+        } else if {
+            let ingress = self.borrowed_formal_source.as_ref()
+                .ok_or_else(|| freeze("object-input/original-ingress-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            self.has_original_object_source_input_v1(ingress, source)?
+        } {
+            self.checked_completed_original_instance_target_arguments_v1(
+                source, selected, contracts, signatures,
+            )?
         } else {
             self.checked_completed_typed_object_target_arguments_v1(
                 source, selected, contracts, signatures,
@@ -260,15 +344,15 @@ impl OrdinaryNewClaimLedgerV1 {
         } else {
             result
                 .zip(observation)
-                .map(|((kind, teardown), route)| (kind, route, teardown))
+                .map(|(source, route)| (source.kind, route, source.teardown, source.field_supports))
         })
     }
 }
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Membership comes from the original incoming source requirement, even
-    /// after the affine Ready row has been consumed. ExistingBorrowedResult
-    /// keeps its older receiver protocol; an Object failure never retries it.
+    /// after the affine Ready row has been consumed. The original guarded/mixed
+    /// forwarding frame joins this protocol; an Object failure never retries it.
     pub(crate) fn take_receiver_object_packet_v1(
         &self,
         owner: FunctionOwnerIdV1,
@@ -276,12 +360,17 @@ impl OrdinaryNewClaimLedgerV1 {
         key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     ) -> Result<Option<LexicalInstanceCallDispositionRowV1>, String> {
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        // A selected borrower cannot retry the owning receiver protocol or raw
+        // emission. The shared affine take preserves its exact pending source.
+        let borrowed_pending = matches!(self.lexical_instance_calls.borrow().get(&owned),
+            Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source))
+                if source.borrowed_nullable_local_source().is_some());
+        if borrowed_pending { return self.take_lexical_instance_call(owner, site); }
         let object_slot = match self.lexical_instance_calls.borrow().get(&owned) {
-            Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source)) => {
-                source.has_object_source_requirement()
-            }
+            Some(LexicalInstanceCallDispositionSlotV1::SourcePending(_)) => true,
             Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) => {
-                row.source_target().has_object_source_requirement()
+                row.object_packet.is_some()
+                    || self.requires_object_packet_v1(row.source_target())?
             }
             Some(LexicalInstanceCallDispositionSlotV1::Taken) => true,
             None => false,
@@ -300,19 +389,20 @@ impl OrdinaryNewClaimLedgerV1 {
         if matching.next().is_some() {
             return Err(freeze("receiver-object/source-duplicate"));
         }
-        let original = incoming
-            .and_then(|call| call.source.instance())
-            .filter(|source| source.has_object_source_requirement());
+        let original = incoming.and_then(|call| call.source.instance());
+        let original = match original {
+            Some(source) if self.requires_object_packet_v1(source)? => Some(source),
+            _ => None,
+        };
         let Some(original) = original else {
             let slots = self.lexical_instance_calls.borrow();
             return match slots.get(&owned) {
-                Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source))
-                    if source.has_object_source_requirement() =>
-                {
+                Some(LexicalInstanceCallDispositionSlotV1::SourcePending(_)) => {
                     Err(freeze("receiver-object/source-missing"))
                 }
                 Some(LexicalInstanceCallDispositionSlotV1::Ready(row))
-                    if row.source_target().has_object_source_requirement() =>
+                    if row.object_packet.is_some()
+                        || self.requires_object_packet_v1(row.source_target())? =>
                 {
                     Err(freeze("receiver-object/source-missing"))
                 }
@@ -351,3 +441,45 @@ impl OrdinaryNewClaimLedgerV1 {
 #[cfg(test)]
 #[path = "ordinary_new_lexical_object_slot_tests.rs"]
 mod tests;
+
+/// Query the original qualified self-input obligations before Completion or packet
+/// issuance. The callback selects a source target, never executable authority.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn has_original_forwarding_receiver_input_source_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    catalog: Option<&[OwnedCallableParameterContractDeclarationV1]>,
+    owner: FunctionOwnerIdV1,
+    select: &mut impl FnMut(&LexicalInstanceCallSourceTargetV1) -> bool,
+) -> Result<bool, String> {
+    let Some(draft) =
+        borrowed_formal_entry::checked_forwarding_instance_source_v1(source, catalog, owner)?
+    else {
+        return Ok(false);
+    };
+    for usage in &draft.uses {
+        let borrowed_formal_uses::BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, ordinal } =
+            &usage.kind
+        else {
+            continue;
+        };
+        let mut rows = source
+            .source_incoming
+            .exact_rows()
+            .filter(|row| row.call == *call);
+        let original = rows
+            .next()
+            .ok_or_else(|| freeze("receiver-object/guarded-source-missing"))?;
+        if rows.next().is_some() || original.call.owner() != owner
+            || original.source.argument_sites().get(*ordinal as usize) != Some(usage.site.site())
+            || original.arguments.iter().filter(|(index, site, formal)|
+                index == ordinal && site == usage.site.site() && formal.owner() == original.callee).count() != 1
+        {
+            return Err(freeze("receiver-object/guarded-source-identity"));
+        }
+        let Some(target) = original.source.instance() else { continue; };
+        if target.is_self_receiver()
+            && source.source_incoming.has_object_input_callee_v1(target) && select(target) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}

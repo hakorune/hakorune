@@ -14,6 +14,16 @@ use collector::collect_definition_value_ids;
 use remapper::remap_plan;
 use verifier::{find_remap_mismatch, find_unremapped_value_id};
 
+/// Borrow the canonical map issued by this sole freshener. Only this module
+/// and its private remapper can construct the loan; callers cannot substitute
+/// an arbitrary Variable-to-Value mapping into source output projections.
+pub(in crate::mir::builder::control_flow::plan::normalizer) struct FresheningValuesV1<'a>(&'a BTreeMap<ValueId, ValueId>);
+impl FresheningValuesV1<'_> {
+    pub(in crate::mir::builder::control_flow::plan::normalizer) fn project(&self, value: ValueId) -> ValueId {
+        utils::remap_value_id(self.0, value)
+    }
+}
+
 pub(super) struct FreshenedPlans {
     pub(super) plans: Vec<LoweredRecipe>,
     pub(super) value_map: BTreeMap<ValueId, ValueId>,

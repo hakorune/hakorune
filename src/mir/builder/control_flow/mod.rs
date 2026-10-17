@@ -120,11 +120,18 @@ impl super::MirBuilder {
         use crate::mir::builder::if_form::IfBranchKindV1;
         use crate::mir::builder::recursive_child_lowering::drive_legacy_expression_v1;
 
-        let condition_value = drive_legacy_expression_v1(self, port, condition)?;
+        let checked = port.prepare_checked_bool_condition_v1()?;
+        let (condition_value, mut checked) = match checked {
+            Some(frame) => {
+                let lowered = port.lower_checked_bool_condition_v1(self, frame, condition)?;
+                (lowered.value(), Some(lowered))
+            },
+            None => (drive_legacy_expression_v1(self, port, condition)?, None),
+        };
         let has_explicit_else = else_branch.is_some();
         let mut then_branch = Some(then_branch);
         let mut else_branch = else_branch;
-        self.lower_if_form_with_condition_value_and_branch_lowerer(
+        self.lower_if_form_with_physical_observer_v1(
             condition_value,
             None,
             has_explicit_else,
@@ -144,6 +151,7 @@ impl super::MirBuilder {
                         .ok_or_else(|| "[if-form/raw-else-demanded-without-input]".to_string())?,
                 ),
             },
+            checked.as_mut().map(|lowered| lowered.observer()),
         )
     }
 }

@@ -136,7 +136,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             // reads (`validate_field_reads` ran for each of them inside
             // `validate`), so they own `ObjectFieldGet` the same way the
             // retained root does.
-            let exact_read_owners: BTreeSet<_> = child_symbols.iter().cloned().collect();
+            let mut exact_read_owners: BTreeSet<_> = child_symbols.iter().cloned().collect();
             covered.extend(child_symbols);
             if let Some(key) = &retained_root {
                 covered.insert(key.clone());
@@ -149,7 +149,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 }
             }
             let mut birth_keys = BTreeSet::new();
-            for (key, validation) in self.construction {
+            for (key, validation) in &self.construction {
                 if key.namespace()
                     != hakorune_mir_defs::SameModuleCallableNamespaceV1::BirthConstructor
                     || !birth_keys.insert(key.clone())
@@ -172,10 +172,10 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                 if definition.signature.name != symbol {
                     return Err(fault("birth-function-symbol-drift"));
                 }
-                if has_exact_field_read(definition) {
-                    return Err(fault("unowned-exact-field-read"));
-                }
                 validation.validate_artifact_after_compiler_finishing(definition)?;
+                // The construction owner just corroborated every exact read
+                // against its retained original Call packet; role alone grants none.
+                if has_exact_field_read(definition) { exact_read_owners.insert(symbol.to_owned()); }
             }
             for key in module.canonical_callable_definitions.keys() {
                 if key.namespace()
@@ -196,7 +196,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
                     return Err(fault("uncovered-lifecycle-function"));
                 }
             }
-            seal_root_handoff(root_validation, module, &birth_keys, callables)
+            seal_root_handoff(root_validation, module, &birth_keys, callables, self.construction)
         };
         (self.session, self.module, validate)
     }
@@ -224,8 +224,8 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             let callables = self.callables;
             let mut root_validation = self.root_validation;
             let birth_keys =
-                finish_document_inputs(&mut root_validation, module, self.construction)?;
-            seal_root_handoff(root_validation, module, &birth_keys, callables)
+                finish_document_inputs(&mut root_validation, module, &self.construction)?;
+            seal_root_handoff(root_validation, module, &birth_keys, callables, self.construction)
         };
         (self.session, self.module, validate)
     }
@@ -235,7 +235,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
 fn finish_document_inputs(
     root: &mut RootValidation,
     module: &crate::mir::MirModule,
-    construction: RetainedConstructionDrafts,
+    construction: &RetainedConstructionDrafts,
 ) -> Result<BTreeSet<hakorune_mir_defs::CanonicalSameModuleCallableKeyV1>, String> {
     root.validate(module, false)?;
     let mut keys = BTreeSet::new();
@@ -275,7 +275,7 @@ impl CompletedNormalDefaultRootCatalogLifecycleV1 {
             crate::mir::passes::simplify_cfg::simplify(&mut self.module);
         }
         let keys =
-            finish_document_inputs(&mut self.root_validation, &self.module, self.construction)?;
+            finish_document_inputs(&mut self.root_validation, &self.module, &self.construction)?;
         let RootValidation::OrdinaryNew { key, ledger } = self.root_validation else {
             panic!("ordinary document fixture");
         };
@@ -291,6 +291,7 @@ fn seal_root_handoff(
     mut callables: Option<
         crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
     >,
+    construction: RetainedConstructionDrafts,
 ) -> Result<Option<crate::mir::finalized_root_handoff::FinalizedRootHandoffV1>, String> {
     use crate::mir::finalized_root_handoff::{
         validate_named_array_handoff_inputs, FinalizedRootHandoffV1,
@@ -298,26 +299,34 @@ fn seal_root_handoff(
     let (key, array) = match root {
         RootValidation::OrdinaryNew { key, ledger } => {
             return ledger
-                .seal_finalized_root_birth_handoff(key, module, birth_keys, callables)
+                .seal_finalized_root_birth_handoff(key, module, birth_keys, callables, construction)
                 .map(Some);
         }
         RootValidation::Script { key, entry, source } => {
+            if construction.iter().any(|(_, row)| row.has_provider_calls_v1()) {
+                return Err(fault("provider-call-root-source-missing"));
+            }
             validate_named_array_handoff_inputs(
                 module,
                 callables.as_ref(),
                 callables
                     .as_ref()
                     .map_or(&[][..], |cohort| cohort.named_array_emissions()),
+                &mut |_, _| Ok(false),
             )?;
             (Some(key), source.into_array_artifact(entry)?)
         }
         RootValidation::Absent => {
+            if construction.iter().any(|(_, row)| row.has_provider_calls_v1()) {
+                return Err(fault("provider-call-root-source-missing"));
+            }
             validate_named_array_handoff_inputs(
                 module,
                 callables.as_ref(),
                 callables
                     .as_ref()
                     .map_or(&[][..], |cohort| cohort.named_array_emissions()),
+                &mut |_, _| Ok(false),
             )?;
             (None, None)
         }

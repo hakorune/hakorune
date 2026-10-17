@@ -5,39 +5,42 @@ use crate::mir::resolved_semantics::ResolvedBinaryOperatorV1;
 
 #[test]
 fn checked_compare_source_keeps_ordered_literal_child_and_alias() {
-    for (body, literal_on_left) in [
-        ("if p > 5 { return 1 } return 0", false),
-        ("if 5 > p { return 1 } return 0", true),
-        ("local q = p if q > 5 { return 1 } return 0", false),
-    ] {
-        let draft = draft(body).expect("existing admitted Greater");
-        let row = draft
-            .uses
-            .iter()
-            .find(|row| {
-                matches!(
-                    row.kind,
-                    BorrowedFormalUseDraftKindV1::CompareOperand { .. }
-                )
-            })
-            .unwrap();
-        let BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } = &row.kind else {
-            unreachable!()
-        };
-        assert_eq!(source.operator, ResolvedBinaryOperatorV1::Greater);
-        assert_ne!(source.left, source.right);
-        assert_eq!(source.left.owner(), binary.owner());
-        assert_eq!(source.right.owner(), binary.owner());
-        let (literal_site, literal_value) = source.integer_literal.as_ref().unwrap();
-        assert_eq!(*literal_value, 5);
-        let (expected_literal, expected_formal) = if literal_on_left {
-            (&source.left, &source.right)
-        } else {
-            (&source.right, &source.left)
-        };
-        assert_eq!(literal_site, expected_literal);
-        assert_eq!(&row.site, expected_formal);
-        assert_ne!(literal_site, &row.site);
+    for (operator, expected) in [("==", ResolvedBinaryOperatorV1::Equal), ("!=", ResolvedBinaryOperatorV1::NotEqual), ("<", ResolvedBinaryOperatorV1::Less), (">", ResolvedBinaryOperatorV1::Greater), ("<=", ResolvedBinaryOperatorV1::LessEqual), (">=", ResolvedBinaryOperatorV1::GreaterEqual)] {
+        for (body, literal_on_left) in [
+            ("if p > 5 { return 1 } return 0", false),
+            ("if 5 > p { return 1 } return 0", true),
+            ("local q = p if q > 5 { return 1 } return 0", false),
+        ] {
+            let body = body.replace('>', operator);
+            let draft = draft(&body).expect("original checked Integer comparison");
+            let row = draft
+                .uses
+                .iter()
+                .find(|row| {
+                    matches!(
+                        row.kind,
+                        BorrowedFormalUseDraftKindV1::CompareOperand { .. }
+                    )
+                })
+                .unwrap();
+            let BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } = &row.kind else {
+                unreachable!()
+            };
+            assert_eq!(source.operator, expected);
+            assert_ne!(source.left, source.right);
+            assert_eq!(source.left.owner(), binary.owner());
+            assert_eq!(source.right.owner(), binary.owner());
+            let (literal_site, literal_value) = source.integer_literal.as_ref().unwrap();
+            assert_eq!(*literal_value, 5);
+            let (expected_literal, expected_formal) = if literal_on_left {
+                (&source.left, &source.right)
+            } else {
+                (&source.right, &source.left)
+            };
+            assert_eq!(literal_site, expected_literal);
+            assert_eq!(&row.site, expected_formal);
+            assert_ne!(literal_site, &row.site);
+        }
     }
 }
 
@@ -92,8 +95,8 @@ fn checked_compare_source_retention_does_not_expand_acceptance() {
         "if p <= true { return 1 } return 0",
         "if p <= null { return 1 } return 0",
         "local result = p <= 0 return 0",
-        "if p < 0 { return 1 } return 0",
-        "if p >= 0 { return 1 } return 0",
+        "if p < true { return 1 } return 0",
+        "if p >= null { return 1 } return 0",
         "if p > true { return 1 } return 0",
         "if p > null { return 1 } return 0",
         "local result = p > 0 return 0",

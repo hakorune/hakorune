@@ -44,6 +44,10 @@ pub(super) fn field_read_operand_kind(
     if matching.next().is_some() {
         return Ok(None);
     }
+    // A FieldAccess used as an assignment target belongs to the write owner.
+    if input.function().assignment_target(access).is_some() {
+        return Ok(None);
+    }
     let dominated = null_guards
         .get(&formal)
         .into_iter()

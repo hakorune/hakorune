@@ -27,7 +27,10 @@ impl VerifiedTerminalCallSourceV1<'_> {
     pub(crate) fn result(&self) -> InvokeCallResultKind {
         match self {
             Self::Direct(view) => view.result(),
-            Self::Legacy { .. } => InvokeCallResultKind::I64,
+            Self::Legacy { terminal, .. } => match terminal.scalar_kind() {
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer => InvokeCallResultKind::I64,
+                crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool => InvokeCallResultKind::Bool,
+            },
         }
     }
     pub(crate) fn lexical_arguments(&self) -> Option<&[LocalCallArgumentV1]> {
@@ -50,6 +53,14 @@ impl VerifiedTerminalCallSourceV1<'_> {
     ) -> Result<(), String> {
         if row.call_site().site() != self.call_site() || row.result() != Some(self.result()) {
             return Err(freeze("row-identity"));
+        }
+        if let Self::Legacy { terminal, .. } = self {
+            let loan = terminal.source_scalar();
+            if loan != row.scalar_result_source_v1()
+                || loan.is_some_and(|loan| loan.source() != row.source_target())
+            {
+                return Err(freeze("scalar-source-identity"));
+            }
         }
         if let Self::Direct(view) = self {
             if row.source_target() != view.target() {

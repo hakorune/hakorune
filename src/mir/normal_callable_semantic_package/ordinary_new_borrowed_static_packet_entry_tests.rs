@@ -13,16 +13,16 @@ fn package() -> crate::mir::normal_callable_semantic_package::VerifiedNormalCall
 fn real_bin_size_if_condition_uses_checked_formal_source_for_home() {
     use crate::mir::resolved_semantics::SourcePathSegmentV1 as Segment;
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
-    let unsupported = original.replacen(
+    let greater_equal = original.replacen(
         "if bin > me.max_regular_bin()",
         "if bin >= me.max_regular_bin()",
         1,
     );
-    assert_ne!(original, unsupported);
+    assert_ne!(original, greater_equal);
     let mut outcomes = Vec::new();
     for (name, source) in [
         ("original", original),
-        ("unsupported-compare", unsupported.as_str()),
+        ("greater-equal", greater_equal.as_str()),
     ] {
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
             .unwrap();
@@ -82,7 +82,7 @@ fn real_bin_size_if_condition_uses_checked_formal_source_for_home() {
         outcomes,
         [
             ("original", true, true, true),
-            ("unsupported-compare", false, false, true),
+            ("greater-equal", true, true, true),
         ]
     );
 }

@@ -5,7 +5,7 @@ use crate::mir::resolved_semantics::{BindingRefV1, OwnedExprSiteV1};
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) struct ResultFormalSubstitutionV1 {
     pub(crate) argument_site: OwnedExprSiteV1,
     pub(crate) binding: BindingRefV1,

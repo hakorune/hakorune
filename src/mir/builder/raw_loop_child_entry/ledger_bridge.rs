@@ -39,3 +39,19 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         )
     }
 }
+
+/// The existing semantic ledger owns the affine source-planner transport.
+pub(super) fn take_preissued_source_plan_v1(
+    ledger: Option<&Rc<RefCell<CallableSemanticLoweringState>>>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    site: Option<&crate::mir::resolved_semantics::SourceNodeSiteV1>,
+) -> Result<Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>, String> {
+    match (ledger, site) {
+        (Some(ledger), Some(site)) => match ledger.borrow().ordinary_new_claim_ledger() {
+            Some(claims) => claims.take_preissued_loop_source_plan_v1(owner,
+                &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone())),
+            None => Ok(None),
+        },
+        _ => Ok(None),
+    }
+}

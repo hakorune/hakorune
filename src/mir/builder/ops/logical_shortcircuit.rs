@@ -39,6 +39,59 @@ use crate::mir::loop_api::LoopBuilderApi; // for current_block()
 use crate::mir::MirType;
 use std::collections::BTreeMap;
 
+/// Physical observations from this sole CFG writer. This is not source
+/// authority: a consumer must pair it with its exact original logical node.
+#[derive(Debug, Clone)]
+pub(in crate::mir) struct CompletedLogicalShortCircuitV1 {
+    operator: BinaryOperator,
+    lhs: ValueId,
+    pinned_lhs: ValueId,
+    rhs: ValueId,
+    result: ValueId,
+    lhs_condition: ValueId,
+    rhs_condition: ValueId,
+    lhs_branch: crate::mir::BasicBlockId,
+    rhs_branch: crate::mir::BasicBlockId,
+    rhs_entry: crate::mir::BasicBlockId,
+    merge: crate::mir::BasicBlockId,
+    paths: [(crate::mir::BasicBlockId, ValueId); 3],
+    bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+}
+impl CompletedLogicalShortCircuitV1 {
+    pub(in crate::mir) fn operator(&self) -> &BinaryOperator { &self.operator }
+    pub(in crate::mir) fn pinned_lhs(&self) -> ValueId { self.pinned_lhs }
+    pub(in crate::mir) fn operands(&self) -> (ValueId, ValueId) { (self.lhs, self.rhs) }
+    pub(in crate::mir) fn value(&self) -> ValueId { self.result }
+    pub(in crate::mir) fn conditions(&self) -> (ValueId, ValueId) { (self.lhs_condition, self.rhs_condition) }
+    pub(in crate::mir) fn branches(&self) -> (crate::mir::BasicBlockId, crate::mir::BasicBlockId) { (self.lhs_branch, self.rhs_branch) }
+    pub(in crate::mir) fn rhs_entry(&self) -> crate::mir::BasicBlockId { self.rhs_entry }
+    pub(in crate::mir) fn merge(&self) -> crate::mir::BasicBlockId { self.merge }
+    pub(in crate::mir) fn paths(&self) -> &[(crate::mir::BasicBlockId, ValueId); 3] { &self.paths }
+    pub(in crate::mir) fn bindings(&self) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] { &self.bindings }
+}
+
+/// Delimit only this writer's actual append. Child expression instructions
+/// belong to their own source packets and are never swept into this record.
+fn append_cursor(builder: &MirBuilder) -> Result<(crate::mir::BasicBlockId, usize), String> {
+    let id = builder.current_block()?;
+    let block = builder.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&id))
+        .ok_or_else(|| "[freeze:contract][logical-shortcircuit/missing-block]".to_owned())?;
+    if block.terminator.is_some() { return Err("[freeze:contract][logical-shortcircuit/closed-append]".into()); }
+    Ok((id, block.instructions.len()))
+}
+fn retain_append(
+    builder: &MirBuilder, cursor: (crate::mir::BasicBlockId, usize),
+    bindings: &mut Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+) -> Result<(), String> {
+    if builder.current_block()? != cursor.0 { return Err("[freeze:contract][logical-shortcircuit/append-block-drift]".into()); }
+    let block = builder.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&cursor.0))
+        .ok_or_else(|| "[freeze:contract][logical-shortcircuit/missing-block]".to_owned())?;
+    let suffix = block.instructions.get(cursor.1..)
+        .ok_or_else(|| "[freeze:contract][logical-shortcircuit/append-truncated]".to_owned())?;
+    bindings.extend(suffix.iter().chain(block.terminator.iter()).cloned().map(|row| (cursor.0, row)));
+    Ok(())
+}
+
 /// Lower logical && / || with proper short-circuit semantics.
 ///
 /// **Result**: Bool value (PHI of 3 paths)
@@ -72,6 +125,20 @@ pub(in crate::mir::builder) fn build_logical_shortcircuit_after_lhs_v1<LowerRhs>
 where
     LowerRhs: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
 {
+    build_logical_shortcircuit_after_lhs_recorded_v1(builder, operator, lhs_val0, lower_rhs)
+        .map(|completed| completed.value())
+}
+
+pub(in crate::mir::builder) fn build_logical_shortcircuit_after_lhs_recorded_v1<LowerRhs>(
+    builder: &mut MirBuilder, operator: BinaryOperator, lhs_val0: ValueId, lower_rhs: LowerRhs,
+) -> Result<CompletedLogicalShortCircuitV1, String>
+where LowerRhs: FnOnce(&mut MirBuilder) -> Result<ValueId, String>,
+{
+    if !matches!(operator, BinaryOperator::And | BinaryOperator::Or) {
+        return Err("[freeze:contract][logical-shortcircuit/operator]".into());
+    }
+    let mut bindings = Vec::new();
+    let lhs_cursor = append_cursor(builder)?;
     let is_and = matches!(operator, BinaryOperator::And);
 
     // Evaluate LHS only once and pin to a slot so it can be reused safely across blocks
@@ -102,6 +169,7 @@ where
         else_target,
     )?;
     let pre_branch_bb = builder.current_block()?;
+    retain_append(builder, lhs_cursor, &mut bindings)?;
 
     // The LHS pin is an expression-local branch condition, not an outer local.
     // Keep the SSA value for the already-emitted branch, but do not let the
@@ -119,6 +187,7 @@ where
 
     // ---- SKIP branch (short-circuit path) ----
     builder.start_new_block(skip_block)?;
+    let skip_cursor = append_cursor(builder)?;
     builder.hint_scope_enter(0);
     crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
         builder,
@@ -131,10 +200,12 @@ where
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let skip_exit = builder.current_block()?;
+    retain_append(builder, skip_cursor, &mut bindings)?;
     let skip_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- EVAL RHS branch ----
     builder.start_new_block(eval_rhs_block)?;
+    let rhs_entry_cursor = append_cursor(builder)?;
     builder.hint_scope_enter(0);
     crate::mir::builder::emission::phi::materialize_vars_single_pred_at_entry(
         builder,
@@ -143,7 +214,9 @@ where
         "shortcircuit/eval_rhs",
     )?;
     // Evaluate RHS and branch on its truthiness
+    retain_append(builder, rhs_entry_cursor, &mut bindings)?;
     let rhs_val = lower_rhs(builder)?;
+    let rhs_cursor = append_cursor(builder)?;
     let mut rhs_cond = super::super::ssa::local::try_cond(builder, rhs_val)?;
     crate::mir::builder::ssa::local::finalize_branch_cond(builder, &mut rhs_cond)?;
     crate::mir::builder::emission::branch::emit_conditional(
@@ -152,32 +225,45 @@ where
         rhs_true_block,
         rhs_false_block,
     )?;
+    retain_append(builder, rhs_cursor, &mut bindings)?;
+    let rhs_branch = builder.current_block()?;
     // Capture var_map after RHS evaluation (shared by rhs_true/rhs_false)
     let rhs_eval_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- RHS TRUE path → merge ----
     builder.start_new_block(rhs_true_block)?;
+    let true_cursor = append_cursor(builder)?;
     builder.function_state.variable_ctx.variable_map = rhs_eval_var_map.clone();
     let rhs_true_value = crate::mir::builder::emission::constant::emit_bool(builder, true)?;
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let rhs_true_exit = builder.current_block()?;
+    retain_append(builder, true_cursor, &mut bindings)?;
     let rhs_true_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- RHS FALSE path → merge ----
     builder.start_new_block(rhs_false_block)?;
+    let false_cursor = append_cursor(builder)?;
     builder.function_state.variable_ctx.variable_map = rhs_eval_var_map.clone();
     let rhs_false_value = crate::mir::builder::emission::constant::emit_bool(builder, false)?;
     builder.hint_scope_leave(0);
     crate::mir::builder::emission::branch::emit_jump(builder, merge_block)?;
     let rhs_false_exit = builder.current_block()?;
+    retain_append(builder, false_cursor, &mut bindings)?;
     let rhs_false_var_map = builder.function_state.variable_ctx.variable_map.clone();
 
     // ---- MERGE (3-predecessor) ----
     builder.suppress_next_entry_pin_copy();
     builder.start_new_block(merge_block)?;
+    let merge_cursor = append_cursor(builder)?;
     builder.push_if_merge(merge_block);
 
+    // PHI construction may append edge Copies to these exact three source
+    // exits. Retain only that writer's append window, including no child work.
+    let predecessor_cursors = [skip_exit, rhs_true_exit, rhs_false_exit].map(|id| {
+        let block = &builder.function_state.current_function.as_ref().expect("active function").blocks[&id];
+        (id, block.instructions.len(), block.terminator.clone())
+    });
     // Result PHI: 3 inputs (skip, rhs_true, rhs_false)
     let result_inputs: Vec<(crate::mir::BasicBlockId, ValueId)> = vec![
         (skip_exit, skip_value),
@@ -209,7 +295,26 @@ where
     }
 
     builder.pop_if_merge();
-    Ok(result_val)
+    for (id, start, terminal) in predecessor_cursors {
+        let block = &builder.function_state.current_function.as_ref()
+            .ok_or("[freeze:contract][logical-shortcircuit/merge-function]")?.blocks[&id];
+        if block.terminator != terminal {
+            return Err("[freeze:contract][logical-shortcircuit/merge-exit-drift]".into());
+        }
+        let appended = block.instructions.get(start..)
+            .ok_or("[freeze:contract][logical-shortcircuit/merge-exit-truncated]")?;
+        let terminal_index = bindings.iter().position(|(block_id, row)| *block_id == id && Some(row) == terminal.as_ref())
+            .ok_or("[freeze:contract][logical-shortcircuit/merge-exit-record]")?;
+        bindings.splice(terminal_index..terminal_index, appended.iter().cloned().map(|row| (id, row)));
+    }
+    retain_append(builder, merge_cursor, &mut bindings)?;
+    Ok(CompletedLogicalShortCircuitV1 {
+        operator, lhs: lhs_val0, pinned_lhs: lhs_val, rhs: rhs_val, result: result_val,
+        lhs_condition: lhs_cond, rhs_condition: rhs_cond,
+        lhs_branch: pre_branch_bb, rhs_branch, rhs_entry: eval_rhs_block, merge: merge_block,
+        paths: [(skip_exit, skip_value), (rhs_true_exit, rhs_true_value), (rhs_false_exit, rhs_false_value)],
+        bindings,
+    })
 }
 
 #[cfg(test)]

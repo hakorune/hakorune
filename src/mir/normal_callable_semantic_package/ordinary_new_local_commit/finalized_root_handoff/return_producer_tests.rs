@@ -73,7 +73,7 @@ pub(super) fn received_return_joint_drift_and_missing_producer() {
                     let exits = ledger.root_exits.borrow();
                     let RootHomeExitProgress::Emitted {
                         entry, bindings, ..
-                    } = &exits[&(owner, exit.clone())]
+                    } = &exits[&(owner, exit.clone().into())]
                     else {
                         panic!("Received exit")
                     };
@@ -89,7 +89,7 @@ pub(super) fn received_return_joint_drift_and_missing_producer() {
                         let (block, old) = {
                             let mut exits = ledger.root_exits.borrow_mut();
                             let RootHomeExitProgress::Emitted { bindings, .. } =
-                                exits.get_mut(&(owner, exit.clone())).unwrap()
+                                exits.get_mut(&(owner, exit.clone().into())).unwrap()
                             else {
                                 panic!("Received exit")
                             };
@@ -123,7 +123,7 @@ pub(super) fn received_return_joint_drift_and_missing_producer() {
                         let exits = ledger.root_exits.borrow();
                         let RootHomeExitProgress::Emitted {
                             entry, bindings, ..
-                        } = &exits[&(owner, exit.clone())]
+                        } = &exits[&(owner, exit.clone().into())]
                         else {
                             panic!("Received exit")
                         };
@@ -188,7 +188,7 @@ pub(super) fn received_return_joint_drift_and_missing_producer() {
                         let exits = ledger.root_exits.borrow();
                         let RootHomeExitProgress::Emitted {
                             entry, bindings, ..
-                        } = &exits[&(owner, exit.clone())]
+                        } = &exits[&(owner, exit.clone().into())]
                         else {
                             panic!("Received exit")
                         };
@@ -230,7 +230,7 @@ pub(super) fn received_return_joint_drift_and_missing_producer() {
                 let corrupted = snapshot(&ledger);
                 assert!(
                     ledger
-                        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+                        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
                         .is_err(),
                     "root={root},nullable={nullable},failure={failure}"
                 );
@@ -268,7 +268,7 @@ pub(super) fn null_return_joint_drift_and_missing_finished_binding() {
             .unwrap();
         let (symbol, original) = {
             let exits = ledger.root_exits.borrow();
-            let RootHomeExitProgress::Emitted { order, .. } = &exits[&(owner, exit.clone())] else {
+            let RootHomeExitProgress::Emitted { order, .. } = &exits[&(owner, exit.clone().into())] else {
                 panic!("original Null exit")
             };
             let original = order.null_return_binding().unwrap().clone();
@@ -302,7 +302,7 @@ pub(super) fn null_return_joint_drift_and_missing_finished_binding() {
             let (block, old) = {
                 let mut exits = ledger.root_exits.borrow_mut();
                 let RootHomeExitProgress::Emitted { bindings, .. } =
-                    exits.get_mut(&(owner, exit)).unwrap()
+                    exits.get_mut(&(owner, exit.into())).unwrap()
                 else {
                     panic!("Null Emitted")
                 };
@@ -339,7 +339,7 @@ pub(super) fn null_return_joint_drift_and_missing_finished_binding() {
         let before = snapshot(&ledger);
         assert!(
             ledger
-                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
                 .is_err(),
             "missing_binding={missing_binding}"
         );
@@ -355,7 +355,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
     for failure in 0..3 {
         let text = source(false, false, false, false).replacen(
             "return new Token()",
-            "if size > 0 { return new Token() } return new Token()",
+            "local spare = new Spare() if size > 0 { return new Token() } return new Token()",
             1,
         );
         let (key, mut module, ledger, keys, cohort) = completed(&text)
@@ -394,11 +394,20 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
             results.push(result);
             let stored = ledger.root_exits.borrow();
             let RootHomeExitProgress::Emitted {
-                entry, bindings, ..
-            } = &stored[&(owner, exit.clone())]
+                entry, bindings, order, ..
+            } = &stored[&(owner, exit.clone().into())]
             else {
                 panic!("Fresh exit");
             };
+            assert_eq!(order.normal().len(), 1, "prior Home ends before transfer");
+            let pending = order.fault_after_normal_step(0).unwrap();
+            assert_eq!(pending.len(), 1, "cleanup Fault retains only the pending result");
+            assert!(matches!(pending[0].subject(),
+                super::super::super::root_home::RootHomeReleaseSubjectV1::DirectResult { site: original } if original == site));
+            assert!(matches!(pending[0].operation(),
+                InvokeOperation::HomeRelease { value, .. } if *value == result));
+            assert!(order.normal().iter().chain(order.acquisition_fault().iter()).all(|origin|
+                !matches!(origin.operation(), InvokeOperation::HomeRelease { value, .. } if *value == result)));
             assert!(ledger
                 .validate_fresh_return_producer_v1(owner, exit, entry, bindings, None, None, None)
                 .unwrap()
@@ -417,7 +426,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
                 let stored = ledger.root_exits.borrow();
                 let RootHomeExitProgress::Emitted {
                     entry, bindings, ..
-                } = &stored[&(owner, exits[0].0.clone())]
+                } = &stored[&(owner, exits[0].0.clone().into())]
                 else {
                     unreachable!()
                 };
@@ -490,7 +499,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
             let stored = ledger.root_exits.borrow();
             let RootHomeExitProgress::Emitted {
                 entry, bindings, ..
-            } = &stored[&(owner, exits[0].0.clone())]
+            } = &stored[&(owner, exits[0].0.clone().into())]
             else {
                 unreachable!()
             };
@@ -520,7 +529,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
                 };
                 let mut stored = ledger.root_exits.borrow_mut();
                 let RootHomeExitProgress::Emitted { bindings, .. } =
-                    stored.get_mut(&(owner, exits[i].0.clone())).unwrap()
+                    stored.get_mut(&(owner, (exits[i].0.clone()).into())).unwrap()
                 else {
                     unreachable!()
                 };
@@ -548,7 +557,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
             let stored = ledger.root_exits.borrow();
             let RootHomeExitProgress::Emitted {
                 entry, bindings, ..
-            } = &stored[&(owner, exits[0].0.clone())]
+            } = &stored[&(owner, exits[0].0.clone().into())]
             else {
                 unreachable!()
             };
@@ -567,7 +576,7 @@ pub(super) fn fresh_return_exact_exit_and_finished_producer() {
         }
         let corrupted = snapshot(&ledger);
         assert!(ledger
-            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
             .is_err());
         assert_eq!(
             snapshot(&ledger),

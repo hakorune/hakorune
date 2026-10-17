@@ -1,8 +1,9 @@
 //! One source/result preparation: Pending eligibility precedes stored receiver issuance.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::super::OrdinaryNewCoSealIssueV1;
 use super::borrowed_formal_result::{
     grounded_source_results_v1, prepare_pending_results_v1, seal_pending_results_v1,
-    stored_eligible_v1, BorrowedI64ResultSourceV1,
+    stored_eligible_v1,
 };
 use super::borrowed_formal_source::{
     collect_borrowed_source_drafts_v1, finish_ingress_from_drafts_v1, prepare_original_incoming_v1,
@@ -13,8 +14,84 @@ use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterC
 use crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "ordinary_new_borrowed_stored_nullable_source.rs"]
+mod stored_nullable;
+
+fn attach_owning_object_local_input_v1(
+    need: &mut PreparedSourceCallNeedV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>,
+) -> Result<(), String> {
+    let reference = need.reference();
+    if !matches!(facts.get(&reference.target), Some(super::super::result_class_claim::OrdinaryNewResultClassV1::Object(_)
+        | super::super::result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))) {
+        return Ok(());
+    }
+    let destination = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+        batch, constructors, reference.call_site.owner(), |_, input| {
+            let mut rows = input.function().expression_source().initializers()
+                .filter(|row| row.initializer_site() == Some(reference.call_site.site()));
+            let destination = rows.next().map(|row| row.binding());
+            if rows.next().is_some() { return Err(freeze("nullable-input/initializer-not-unique")); }
+            Ok(destination)
+        })??;
+    let Some(destination) = destination else { return Ok(()); };
+    let loan = facts.owning_object_local_input_source_v1(batch, selected, fields, contracts,
+        &reference.call_site, destination, app_main.map(|main| main.caller_source_ref_v1()))
+        .map_err(freeze)?.ok_or_else(|| freeze("nullable-input/source-missing"))?;
+    if loan.key() != &reference.target || loan.callee_owner() != reference.callee_owner
+        || loan.receiver() != Some(&reference.receiver_site) {
+        return Err(freeze("nullable-input/original-target"));
+    }
+    need.set_owning_object_input_v1(std::rc::Rc::new(loan));
+    Ok(())
+}
+
+fn original_mixed_local_loan_v1(
+    need: &PreparedSourceCallNeedV1,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    facts: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+ app_main: Option<&BorrowedAppMainSourceLoanV1<'_>>) -> Result<Option<super::super::result_class_claim::MixedLocalCallSourceLoanV1>, String> {
+    use super::super::result_class_claim::ResultValueOriginV1;
+    let reference = need.reference();
+    let Some(exits) = facts.outcomes(&reference.target) else { return Ok(None); };
+    if facts.get(&reference.target).is_some()
+        || !exits.iter().flat_map(|row| row.witnesses()).any(|root| matches!(root.origin(), ResultValueOriginV1::Fresh(_)))
+        || !exits.iter().flat_map(|row| row.witnesses()).any(|root| matches!(root.origin(), ResultValueOriginV1::ForwardFormal { .. }))
+    { return Ok(None); }
+    let destination = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+        batch, constructors, reference.call_site.owner(), |context, input| {
+            let original = input.function().method_call(reference.call_site.site())
+                .ok_or_else(|| freeze("mixed-local/method-source"))?;
+            context.constructor_key_for_call(&reference.call_site, original)?;
+            let mut rows = input.function().expression_source().initializers()
+                .filter(|row| row.initializer_site() == Some(reference.call_site.site()));
+            let destination = rows.next().map(|row| row.binding());
+            if rows.next().is_some() { return Err(freeze("mixed-local/initializer-not-unique")); }
+            Ok(destination)
+        })??;
+    let Some(destination) = destination else { return Ok(None); };
+    let loan = facts.mixed_local_call_source_v1(batch, selected, constructors, fields, contracts,
+        &reference.call_site, destination, app_main.map(|main| main.caller_source_ref_v1())).map_err(freeze)?
+        .ok_or_else(|| freeze("mixed-local/source-missing"))?;
+    if loan.key() != &reference.target || loan.callee_owner() != reference.callee_owner
+        || loan.receiver() != &reference.receiver_site
+    { return Err(freeze("mixed-local/target-identity")); }
+    Ok(Some(loan))
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile_v1(
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
@@ -38,7 +115,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
     probe: &mut impl FnMut(
-        u32,
+        crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'_>,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     ) -> Result<Option<StoredReceiverSourceV1>, String>,
@@ -51,11 +128,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         PreparedLexicalInstanceCallSourceTargetsV1,
         Result<PreparedBorrowedFormalIngressV1, String>,
         Result<BTreeSet<OwnedExprSiteV1>, String>,
-        BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+        BorrowedResultCohortV1,
     ),
     OrdinaryNewCoSealIssueV1,
 > {
-    let mut needs = source::prepare_lexical_source_targets_v1(
+    let mut needs = prepare_lexical_source_targets_v1(
         batch,
         selected,
         new_classes,
@@ -63,6 +140,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         field_write_claims,
         callable_result_classes,
         probe,
+        Some(constructors),
     );
     let drafts = collect_borrowed_source_drafts_v1(
         batch,
@@ -73,6 +151,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         dynamic_slot,
         entry_home_loans,
         constructors,
+        Some((callable_result_classes, field_write_claims)),
     );
     let (ordinary_callers, definitions, dominated_view_sites, guarded_actuals) = match drafts {
         Ok(rows) => rows,
@@ -80,11 +159,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             return Ok((
                 Err(error.clone()),
                 Err(error.clone()),
-                Err(error),
-                BTreeMap::new(),
+                Err(error.clone()),
+                BorrowedResultCohortV1::unavailable(error),
             ))
         }
     };
+    let original_returns = super::borrowed_formal_result::original::prepare_original_returns_v1(batch, selected, contracts);
     // Attach original terminal qualifications before the one incoming inventory.
     // Missing forward drafts remain explicit; they never become an empty proof.
     if let Ok(rows) = &mut needs {
@@ -93,6 +173,37 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 continue;
             };
             let reference = need.reference();
+            if let Some(loan) = original_mixed_local_loan_v1(need, batch, constructors, selected,
+                contracts, field_write_claims, callable_result_classes, app_main)
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: reference.call_site.clone(), issue,
+                })? {
+                need.set_result_requirement(LexicalCallSourceResultRequirementV1::MixedLocal(Box::new(loan)));
+                continue;
+            }
+            if let Some(loan) = stored_nullable::original_local_loan_v1(
+                need,
+                batch,
+                constructors,
+                selected,
+                contracts,
+                field_write_claims,
+                callable_result_classes,
+             app_main.map(|main| main.caller_source_ref_v1()))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                site: reference.call_site.clone(),
+                issue,
+            })? {
+                need.set_result_requirement(
+                    LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(Box::new(loan)),
+                );
+                continue;
+            }
+            attach_owning_object_local_input_v1(need, batch, constructors, selected, contracts,
+                field_write_claims, callable_result_classes, app_main)
+                .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                    site: reference.call_site.clone(), issue,
+                })?;
             let qualifications = callable_result_classes
                 .qualifications_for_call(&reference.call_site, &reference.target);
             if qualifications.is_empty() {
@@ -104,6 +215,27 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                             dependencies,
                         ),
                     );
+                } else if let Some(original) = original_returns.get(&reference.callee_owner) {
+                    if let Some(original) = original.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                        site: reference.call_site.clone(), issue: issue.clone(),
+                    })? {
+                        if !original.matches(&reference) { return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                            site: reference.call_site.clone(), issue: "original-return/target-identity".into(),
+                        }); }
+                        if original.is_unit_candidate_v1() {
+                            let discard = crate::mir::normal_callable_semantic_package::original_call_source::with_original_source_input_v1(
+                                batch, constructors, reference.call_site.owner(), |_, input| {
+                                    input.body_shape().is_some_and(|shape| shape.statements().iter().any(|statement|
+                                        matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::SequenceItem { site }
+                                            if site.node() == reference.call_site.site().node())))
+                                }).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                    site: reference.call_site.clone(), issue,
+                                })?;
+                            if discard { need.set_result_requirement(LexicalCallSourceResultRequirementV1::UnitDiscardSource(original.clone())); }
+                        } else {
+                            need.set_result_requirement(LexicalCallSourceResultRequirementV1::ScalarReturnSource(original.clone()));
+                        }
+                    }
                 }
                 continue;
             }
@@ -134,8 +266,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             return Ok((
                 Err(error.clone()),
                 Err(error.clone()),
-                Err(error),
-                BTreeMap::new(),
+                Err(error.clone()),
+                BorrowedResultCohortV1::unavailable(error),
             ))
         }
     };
@@ -156,10 +288,10 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             }
         }
         prepare_original_incoming_v1(
-            batch, selected, omitted_static_callers, contracts, &lexical_calls,
+            brands, batch, selected, omitted_static_callers, contracts, &lexical_calls,
             &ordinary_callers, &definitions, Some(static_call_claims), &static_arguments,
             app_main, Some(&needs), constructors,
-            entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals,
+            entry_home_loans, local_candidates, callable_result_classes, &guarded_actuals, array_i64_fields,
         )
     })();
     let pending = prepare_pending_results_v1(
@@ -171,6 +303,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
         constructors,
         callable_result_classes,
         array_i64_fields,
+        &original_inventory, field_write_claims, original_returns,
     );
     let grounded = grounded_source_results_v1(&pending);
     let targets: PreparedLexicalInstanceCallSourceTargetsV1 = match &needs {
@@ -183,7 +316,66 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                     Ok(None) => Ok(None),
                     Ok(Some(need)) => {
                         if need.stored().is_some() {
-                            let eligible = match need.result_requirement() {
+                            let eligible = if let Some(loan) = need.owning_object_input_v1() {
+                                callable_result_classes.recheck_owning_object_local_input_roots_v1(loan)
+                                    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                        site: need.reference().call_site, issue: freeze(issue),
+                                    })?;
+                                true
+                            } else { match need.result_requirement() {
+                                LexicalCallSourceResultRequirementV1::MixedLocal(loan) => {
+                                    callable_result_classes.recheck_mixed_local_source_v1(batch, selected, constructors,
+                                        field_write_claims, contracts, loan, app_main.map(|main| main.caller_source_ref_v1())).map_err(|issue|
+                                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                            site: need.reference().call_site, issue: issue.into(),
+                                        })?;
+                                    true
+                                }
+                                LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(
+                                    loan,
+                                ) => {
+                                    stored_nullable::recheck_original_local_loan_v1(
+                                        need,
+                                        loan,
+                                        batch,
+                                        selected,
+                                        contracts,
+                                        field_write_claims,
+                                        callable_result_classes,
+                                     app_main.map(|main| main.caller_source_ref_v1()))
+                                    .map_err(|issue| {
+                                        OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                            site: need.reference().call_site,
+                                            issue,
+                                        }
+                                    })?;
+                                    true
+                                }
+                                LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) => {
+                                    let reference = need.reference();
+                                    let proof = pending.get(&reference.callee_owner).ok_or_else(|| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                        site: reference.call_site.clone(), issue: "original-return/result-missing".into(),
+                                    })?.as_ref().map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                        site: reference.call_site.clone(), issue: issue.clone(),
+                                    })?;
+                                    if !original.matches(&reference) || !proof.matches_original_return_v1(original)
+                                        || !grounded.contains(&reference.callee_owner) || proof.class != super::borrowed_formal_result::BorrowedResultClassV1::I64
+                                    { return Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+                                        site: reference.call_site, issue: "original-return/source-unproven".into(),
+                                    }); }
+                                    true
+                                }
+                                LexicalCallSourceResultRequirementV1::UnitDiscardSource(original) => {
+                                    let reference = need.reference();
+                                    let constructor = need.stored().is_some_and(|receiver|
+                                        matches!(receiver.origin, super::source::StoredReceiverSourceOriginV1::Constructor(_)));
+                                    let declarations: Vec<_> = contracts.iter().filter(|row| row.owner == reference.callee_owner).collect();
+                                    constructor && original.is_unit_candidate_v1() && original.matches(&reference)
+                                        && reference.target.arity() == 0 && reference.argument_sites.is_empty()
+                                        && declarations.len() == 1 && declarations[0].parameters.is_empty()
+                                        && declarations[0].batch_slot == reference.target_batch_slot
+                                        && declarations[0].mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+                                },
                                 LexicalCallSourceResultRequirementV1::ExistingBorrowedResult => {
                                     stored_eligible_v1(
                                         need,
@@ -207,7 +399,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                         issue,
                                     }
                                 })?,
-                            };
+                            }};
                             if !eligible {
                                 targets.push(Ok(None));
                                 continue;
@@ -219,6 +411,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                 reference,
                                 receiver,
                                 result_requirement,
+                                owning_object_input,
                             } => {
                                 let receiver = issue_eligible_receiver_v1(
                                     &reference.call_site,
@@ -233,6 +426,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                                     target_batch_slot: reference.target_batch_slot,
                                     callee_owner: reference.callee_owner,
                                     argument_sites: reference.argument_sites.clone(),
+                                    owning_object_input: owning_object_input.clone(),
                                     result_requirement: result_requirement.clone(),
                                 }))
                             }
@@ -254,6 +448,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
             }
         }
         finish_ingress_from_drafts_v1(
+        brands,
             batch,
             selected,
             contracts,
@@ -297,7 +492,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_profile
                 .flat_map(|cohort| cohort.sites().cloned()),
         );
     }
-    let results = seal_pending_results_v1(pending, &ingress, batch, constructors);
+    let results = seal_pending_results_v1(pending, contracts, &ingress, batch, constructors);
     Ok((targets, ingress, static_source_sites, results))
 }
 
@@ -433,7 +628,11 @@ fn stored_object_source_eligible_v1(
                 return Err(freeze("stored-child/object-source-dependency-identity"));
             }
         }
-        LexicalCallSourceResultRequirementV1::ExistingBorrowedResult => {
+        LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+        | LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+        | LexicalCallSourceResultRequirementV1::UnitDiscardSource(_)
+        | LexicalCallSourceResultRequirementV1::BorrowedNullableLocal(_)
+        | LexicalCallSourceResultRequirementV1::MixedLocal(_) => {
             return Err(freeze("stored-child/object-source-requirement"))
         }
     }

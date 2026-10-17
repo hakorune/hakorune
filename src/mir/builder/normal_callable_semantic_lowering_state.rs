@@ -97,6 +97,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_source_core_method_calls: BTreeSet<crate::mir::resolved_semantics::SourceExprSiteV1>,
     source_loop_bridge: Option<source_loop_bridge::CallableLoopSourceBridgeV1>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
+    named_array_reads: Vec<crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1>,
     named_array_writes:
         Vec<crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1>,
     /// Birth-side provider sites claimed by field-resident named-array
@@ -388,7 +389,11 @@ impl CallableSemanticLoweringState {
             let source = relation
                 .initializer_site()
                 .and_then(|initializer| self.variables.get(initializer.node()).copied());
-            let provenance = source.and_then(|source| self.values.local_provenance(source, row));
+            let provenance = match source {
+                Some(source) => self.values.local_provenance(source, row),
+                None if relation.initializer_site().is_some() => materialized_values::MaterializedValuesV1::initializer_provenance(*binding, row),
+                None => None,
+            };
             if matches!(&self.borrowed_entry_formals, Some(Ok(Some(_)))) {
                 let formal = self.ordinary_new_claim_ledger.as_ref()
                     .ok_or_else(|| freeze("borrowed-alias/source-ledger-missing"))?
@@ -400,6 +405,10 @@ impl CallableSemanticLoweringState {
                         borrowed_reuse.insert(*binding, formal);
                     }
                 }
+            }
+            if let Some(ledger) = &self.ordinary_new_claim_ledger {
+                ledger.record_field_alias_local_v1(self.owner, &relation,
+                    row.initializer(), row.local(), row.copy())?;
             }
             self.insert_value(*binding, row.local())?;
             self.values.attach_provenance(*binding, provenance);

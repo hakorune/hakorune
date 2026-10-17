@@ -48,6 +48,12 @@ where
         field,
         value,
     } = prepared;
+    if let Some(source) = port.prepare_borrowed_field_write_v1()? {
+        let receiver = port.read_borrowed_field_write_operand_v1(&source, true, object)?;
+        let value = port.read_borrowed_field_write_operand_v1(&source, false, value)?;
+        port.emit_borrowed_field_write_v1(builder, source, &field, [receiver, value])?;
+        return crate::mir::builder::emission::constant::emit_void(builder);
+    }
     let object_value = drive_legacy_expression_v1(builder, port, object)?;
     let object_value = builder.local_field_base(object_value);
     builder.build_field_assignment_from_value_with_port_v1(port, object_value, field, value)

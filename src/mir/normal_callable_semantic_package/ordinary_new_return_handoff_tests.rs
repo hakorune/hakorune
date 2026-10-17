@@ -26,9 +26,16 @@ fn terminal(
     package: &VerifiedNormalCallableSemanticPackageV1,
     method: &str,
 ) -> TerminalValueReturnV1 {
+    terminal_with_arity(package, method, 0)
+}
+fn terminal_with_arity(
+    package: &VerifiedNormalCallableSemanticPackageV1,
+    method: &str,
+    arity: u32,
+) -> TerminalValueReturnV1 {
     let ledger = &package.ordinary_new_claim_ledger;
     let key = hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
-        "Maker", method, 0,
+        "Maker", method, arity,
     );
     let owner = ledger.callable_result_classes.outcomes(&key).unwrap()[0]
         .site()
@@ -79,6 +86,58 @@ fn completed_object_handoff_joins_typed_and_opaque_direct_received_original_leav
                 .validate_no_pending_object_returns_v1()
                 .is_err());
         }
+    }
+    for received in [false, true] {
+        let relay = if received {
+            "local result = me.make(7, h) return result"
+        } else {
+            "return me.make(7, h)"
+        };
+        let package = issue_with_brand_catalog(&format!("box Token {{}} box Holder {{ child: Token birth(child) {{ me.child = child }} }} box Maker {{ make(marker: i64, h: Token) {{ return new Holder(h) }} relay(h: Token) {{ {relay} }} hop(h: Token) {{ return me.relay(h) }} bad() {{ local h = new Token() return me.make(7, h) }} }} static box Main {{ main() {{ return 0 }} }}")).unwrap();
+        for method in ["relay", "hop"] {
+            let value = terminal_with_arity(&package, method, 1);
+            let proof = match check(&package, &value).unwrap() {
+                ObjectReturnHandoffAvailabilityV1::Verified(proof) => proof,
+                unavailable => {
+                    panic!("original formal support relay: {unavailable:?}; terminal={value:?}")
+                }
+            };
+            assert!(
+                matches!(
+                    proof.teardown(),
+                    ObjectReturnTeardownAvailabilityV1::AnchoredFields { .. }
+                ),
+                "source support cannot activate the old owning-only End"
+            );
+            assert_eq!(proof.supports.len(), 1);
+            let nullable_anchor = [
+                VerifiedObjectReturnAlternativeV1::Call(Rc::clone(&proof)),
+                VerifiedObjectReturnAlternativeV1::Leaf(VerifiedObjectReturnLeafV1::Null),
+            ];
+            assert!(matches!(super::teardown::reduce(&nullable_anchor).unwrap(),
+                ObjectReturnTeardownAvailabilityV1::Unavailable {
+                    descriptor: Some(_), nullable: true, unsupported: true,
+                }), "anchored support cannot admit an unsupported nullable-owned layout");
+            assert_eq!(proof.supports[0].formal.owner(), value.owner());
+            assert_eq!(proof.supports[0].ordinal, 0);
+            let ledger = &package.ordinary_new_claim_ledger;
+            let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+                .object_source_target_at_v1(proof.acquisition().original().qualification().call()).unwrap().unwrap();
+            let checked = ledger.checked_object_callee_source_v1(source, &package.result_contracts).unwrap().unwrap();
+            assert!(checked.teardown.descriptor().is_none(), "retained supports grant no classwide End");
+            let requirements: Vec<_> = checked.field_supports.iter().flat_map(|row| row.supports_v1()).collect();
+            assert!(!requirements.is_empty(), "direct and relayed Forward supports survive result projection");
+            assert!(requirements.iter().all(|row| row.formal.owner() == source.callee_owner()));
+            ledger.recheck_object_call_field_support_requirements_v1(source, &checked.field_supports).unwrap();
+
+        }
+        let bad = terminal(&package, "bad");
+        assert!(matches!(
+            check(&package, &bad).unwrap(),
+            ObjectReturnHandoffAvailabilityV1::Unavailable(
+                ObjectReturnHandoffUnavailableV1::FieldSupport
+            )
+        ));
     }
 }
 

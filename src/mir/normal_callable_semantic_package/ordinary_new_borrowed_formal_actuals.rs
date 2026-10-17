@@ -1,5 +1,6 @@
 //! Source/domain/liveness join of the existing borrowed ingress preparation.
 //! Pending actuals do not arm LocalCallObservation or a physical signature.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
@@ -14,6 +15,8 @@ mod model;
 use model::BorrowedCallActualEvidencePhaseV1;
 pub(in crate::mir::normal_callable_semantic_package) use model::PreparedBorrowedCallActualsV1;
 pub(crate) use model::{BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1};
+pub(in crate::mir::normal_callable_semantic_package) use instance_source::recheck_pending_array_source_actuals_v1;
+pub(super) use instance_source::{revalidate_passive_instance_incoming_v1, revalidate_passive_instance_incoming_with_array_context_v1};
 
 #[path = "ordinary_new_borrowed_static_bool_entry_finish.rs"]
 mod static_bool_entry_finish;
@@ -35,6 +38,7 @@ pub(super) fn revalidate_passive_object_incoming_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
     rows: &PreparedBorrowedCallActualsV1,
+    ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
 ) -> Result<bool, String> {
     if call.source.instance().is_none()
         && !matches!(
@@ -52,18 +56,33 @@ pub(super) fn revalidate_passive_object_incoming_v1(
         .next()
         .ok_or_else(|| freeze("borrowed-object/source-row-missing"))?;
     if let Some(target) = original.source.instance() {
-        if object_source::selected_source_only_object_forward_v1(ingress, target)
+        if object_source::selected_original_object_phase_v1(ingress, target.call_site())?
             && !matches!(
                 rows.phase,
                 BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+                    | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
             )
         {
             return Err(freeze("borrowed-object/source-phase-drift"));
         }
     }
+    if originals.next().is_some()
+        || original.call != call.call
+        || original.callee != call.callee
+        || original.arguments != call.arguments
+        || original.source.require_instance()? != call.source.require_instance()?
+    {
+        return Err(freeze("borrowed-object/source-actual-identity"));
+    }
+    if let BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) = &rows.phase {
+        object_source::recheck_object_source_actuals_v1(
+            ingress, contracts, original, rows, identity,
+            ledger,
+        )?;
+        return Ok(false);
+    }
     let BorrowedCallActualEvidencePhaseV1::SourceObject(identity) = &rows.phase else {
-        if originals.next().is_some()
-            || original.callee != call.callee
+        if original.callee != call.callee
             || original.arguments != call.arguments
             || original.source.require_instance()? != call.source.require_instance()?
         {
@@ -71,8 +90,7 @@ pub(super) fn revalidate_passive_object_incoming_v1(
         }
         return Ok(false);
     };
-    if originals.next().is_some()
-        || original.call != call.call
+    if original.call != call.call
         || original.callee != call.callee
         || original.arguments != call.arguments
         || original.source.require_instance()? != call.source.require_instance()?
@@ -85,7 +103,7 @@ pub(super) fn revalidate_passive_object_incoming_v1(
     if call
         .arguments
         .iter()
-        .any(|(_, _, formal)| ingress.object_views.contains_key(formal))
+        .any(|(_, _, formal)| ingress.formal_object_view(*formal).is_some())
     {
         return Err(freeze("borrowed-entry/object-view-drift"));
     }
@@ -115,6 +133,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let prepared = prepared.as_ref().map_err(Clone::clone)?;
+    if object_source::selected_returned_field_input_v1(prepared, call)? {
+        return object_source::prepare_object_source_actuals_v1(prepared, contracts, call, actuals);
+    }
     if let Some(rows) =
         instance_source::prepare_instance_source_actuals_v1(prepared, contracts, call, actuals)?
     {
@@ -122,6 +143,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
     }
     let mut incoming = prepared.incoming.iter().filter(|row| &row.call == call);
     let Some(incoming_row) = incoming.next() else {
+        if let Some(original) = prepared.scalar_qualified_source_call_v1(call)? {
+            // The same source row and constructor issue only the argument
+            // proof. Whole-cohort entry/Completion/packet checks stay later.
+            return construct_borrowed_call_actuals_v1(
+                prepared, original, contracts, call, actuals, object_source::ObjectActualHomeSourceV1::Candidates(candidates), receiver,
+                nullable_class, None, None, &mut |_, _, _| Ok(None),
+            );
+        }
         if let Some(actuals) =
             static_source::prepare_static_source_actuals_v1(prepared, contracts, call, actuals)?
         {
@@ -150,92 +179,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_call_ac
         contracts,
         call,
         actuals,
-        candidates,
+        object_source::ObjectActualHomeSourceV1::Candidates(candidates),
         receiver,
         nullable_class,
         None,
+        None,
+        &mut |_, _, _| Ok(None),
     )
-}
-
-/// Select before execution construction when an exact source forward has no
-/// final caller definition. Entry receivers and declared objects keep their law.
-fn needs_original_object_forward_source_v1(
-    prepared: &PreparedBorrowedFormalIngressV1,
-    incoming: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
-    call: &OwnedExprSiteV1,
-    actuals: &[BorrowedCallActualCandidateV1],
-) -> Result<bool, String> {
-    let Some(target) = incoming.source.instance() else {
-        return Ok(false);
-    };
-    if !prepared.source_incoming.has_object_input_callee_v1(target)
-        || prepared.definitions.contains_key(&call.owner())
-    {
-        return Ok(false);
-    }
-    let Some(forwards) = target.object_source_forwards() else {
-        // A sibling can share the callee's original Object input demand without
-        // owning an Object-return qualification. Keep its input nonexecuting.
-        return Ok(prepared
-            .source_only_definitions
-            .get(&call.owner())
-            .is_some_and(|draft| {
-                actuals.iter().any(|actual| {
-                    matches!(actual.value,
-                BorrowedCallActualValueV1::SelfRooted { binding, .. }
-                    if draft.origins.contains_key(&binding))
-                })
-            }));
-    };
-    let mut source_only = false;
-    for actual in actuals {
-        let matching: Vec<_> = forwards
-            .iter()
-            .filter(|row| row.ordinal() == actual.ordinal)
-            .collect();
-        let [forward] = matching.as_slice() else {
-            if matching.is_empty() {
-                continue;
-            }
-            return Err(freeze("borrowed-object/forward-source-identity"));
-        };
-        let BorrowedCallActualValueV1::SelfRooted { binding, root } = actual.value else {
-            return Err(freeze("borrowed-object/forward-source-identity"));
-        };
-        if forward.call() != call
-            || forward.target() != target.target()
-            || forward.site().site() != &actual.site
-            || forward.binding() != binding
-            || forward.source_formal() != root
-            || !incoming.arguments.iter().any(|(ordinal, site, formal)| {
-                *ordinal == actual.ordinal
-                    && *site == actual.site
-                    && *formal == forward.callee_formal()
-            })
-        {
-            return Err(freeze("borrowed-object/forward-source-identity"));
-        }
-        source_only = true;
-    }
-    if source_only {
-        let mut originals = prepared
-            .source_incoming
-            .exact_rows()
-            .filter(|row| &row.call == call);
-        let original = originals
-            .next()
-            .ok_or_else(|| freeze("borrowed-object/source-row-missing"))?;
-        if originals.next().is_some()
-            || original.source.require_instance()? != target
-            || original.callee != incoming.callee
-            || original.arguments != incoming.arguments
-            || incoming.call != *call
-            || target.call_site() != call
-        {
-            return Err(freeze("borrowed-object/source-actual-identity"));
-        }
-    }
-    Ok(source_only)
 }
 
 /// Construct from an original incoming row after the caller has selected it.
@@ -247,10 +197,12 @@ fn construct_borrowed_call_actuals_v1(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     call: &OwnedExprSiteV1,
     actuals: &[BorrowedCallActualCandidateV1],
-    candidates: &[super::super::candidate::OrdinaryNewCandidate],
+    homes: object_source::ObjectActualHomeSourceV1<'_>,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
     nullable_class: &mut impl FnMut(BindingRefV1) -> Option<Box<str>>,
     static_zero: Option<static_input_finish::StaticZeroInputFinishV1>,
+    guarded_definition: Option<&super::borrowed_formal_uses::BorrowedFormalUsesDraftV1>,
+    array_read: &mut dyn FnMut(u32, &SourceExprSiteV1, BindingRefV1) -> Result<Option<crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1>, String>,
 ) -> Result<Option<PreparedBorrowedCallActualsV1>, String> {
     let mut callee_contracts = contracts
         .iter()
@@ -352,18 +304,45 @@ fn construct_borrowed_call_actuals_v1(
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
+            BorrowedCallActualValueV1::MethodCall | BorrowedCallActualValueV1::ReceivedField { .. } => {
+                let source = array_read(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
+                if source.site().owner() != call.owner() || source.site().site() != site {
+                    return Err(freeze("borrowed-actual/array-read-source-drift"));
+                }
+                BorrowedFormalActualSourceV1::Read(source)
+            }
             BorrowedCallActualValueV1::ReceivedNullable(binding)
                 if binding.owner() == call.owner() =>
             {
                 // The sealed `NullableObject` claim is the sole class
                 // authority — a fake, foreign, or unclaimed producer can
                 // never mint the nullable typed-object actual.
-                let class = nullable_class(*binding)
-                    .ok_or_else(|| freeze("borrowed-actual/nullable-class-unavailable"))?;
+                let class = match homes {
+                    object_source::ObjectActualHomeSourceV1::Ledger(ledger) => {
+                        let Some(class) = ledger.borrowed_nullable_actual_class_v1(*binding)? else { return Ok(None); };
+                        class
+                    }
+                    _ => nullable_class(*binding).ok_or_else(|| freeze("borrowed-actual/nullable-class-unavailable"))?,
+                };
                 BorrowedFormalActualSourceV1::ReceivedNullable {
                     binding: *binding,
                     class,
                 }
+            }
+            BorrowedCallActualValueV1::ReceivedMixed(binding) if binding.owner() == call.owner() => {
+                let original = prepared.mixed_received_actual_source_v1(*binding)?
+                    .ok_or_else(|| freeze("borrowed-actual/mixed-source-unavailable"))?;
+                let class: Box<str> = match homes {
+                    object_source::ObjectActualHomeSourceV1::Ledger(ledger) => {
+                        let Some(class) = ledger.borrowed_mixed_actual_class_v1(*binding)? else { return Ok(None); };
+                        class
+                    }
+                    _ => original.fresh_class().into(),
+                };
+                if class.as_ref() != original.fresh_class() {
+                    return Err(freeze("borrowed-actual/mixed-class-drift"));
+                }
+                BorrowedFormalActualSourceV1::ReceivedMixed { binding: *binding, class }
             }
             BorrowedCallActualValueV1::Scalar(binding, kind) if binding.owner() == call.owner() => {
                 BorrowedFormalActualSourceV1::Scalar {
@@ -376,25 +355,12 @@ fn construct_borrowed_call_actuals_v1(
                 root,
                 acquisition,
             } => {
-                let mut matching = candidates
-                    .iter()
-                    .filter(|row| &row.site == acquisition && row.destination == *root);
-                let candidate = matching
-                    .next()
-                    .ok_or_else(|| freeze("borrowed-actual/home-source"))?;
-                if matching.next().is_some()
-                    || binding.owner() != call.owner()
-                    || root.owner() != call.owner()
-                    || acquisition.owner() != call.owner()
-                    || !candidate.construction.is_ok()
-                {
-                    return Err(freeze("borrowed-actual/home-domain"));
-                }
+                let Some(class) = homes.home_class(call, *binding, *root, acquisition)? else { return Ok(None); };
                 BorrowedFormalActualSourceV1::TypedHome {
                     binding: *binding,
                     root: *root,
                     acquisition: acquisition.clone(),
-                    class: candidate.class.clone(),
+                    class,
                 }
             }
             BorrowedCallActualValueV1::SelfRooted { binding, root } => {
@@ -419,48 +385,55 @@ fn construct_borrowed_call_actuals_v1(
                         binding: *binding,
                         formal: *formal_origin,
                     }
-                } else {
-                    // A declared-object formal is an entry-stable source
-                    // too — the caller's own sealed parameter contract
-                    // names its class; `origins`/`forwards` cover only
-                    // ordinary-borrowed formals.
-                    if let Some(class) = contracts
-                        .iter()
-                        .find(|row| row.owner == call.owner())
-                        .and_then(|row| {
-                            row.parameters
-                                .iter()
-                                .find(|formal| formal.binding == *binding)
-                        })
-                        .and_then(|formal| match &formal.kind {
-                            CallableParameterContractKindV1::DeclaredObject(class) => {
-                                Some(class.clone())
-                            }
-                            _ => None,
-                        })
-                    {
-                        if binding.owner() != call.owner() || root.owner() != call.owner() {
-                            return Err(freeze("borrowed-actual/entry-source"));
-                        }
-                        BorrowedFormalActualSourceV1::DeclaredFormal {
-                            binding: *binding,
-                            root: *root,
-                            class: class.as_ref().into(),
-                        }
-                    } else {
-                        let (entry, class) =
-                            receiver.ok_or_else(|| freeze("borrowed-actual/entry-domain"))?;
-                        if *root != entry
-                            || binding.owner() != call.owner()
-                            || entry.owner() != call.owner()
+                } else if let Some(class) = instance_source::declared_source_actual_class_v1(
+                    prepared, contracts, call, *binding, *root,
+                )? {
+                    BorrowedFormalActualSourceV1::DeclaredFormal {
+                        binding: *binding,
+                        root: *root,
+                        class,
+                    }
+                } else if let Some(draft) =
+                    guarded_definition.filter(|draft| draft.origins.get(binding) == Some(root))
+                {
+                    let selected = !prepared.guarded_actuals.contains_key(&(call.clone(), *ordinal))
+                        && prepared.original_mixed_tagged_forward_v1(
+                        contracts, call, *ordinal, site, *binding, *root,
+                    )?.is_some_and(|original| std::ptr::eq(original, draft));
+                    if !selected {
+                        let fact = prepared
+                            .guarded_actuals
+                            .get(&(call.clone(), *ordinal))
+                            .ok_or_else(|| freeze("borrowed-guarded/actual-guard-missing"))?;
+                        let mut uses = draft.uses.iter().filter(|row| row.site.site() == site);
+                        let row = uses
+                            .next()
+                            .ok_or_else(|| freeze("borrowed-guarded/actual-use-missing"))?;
+                        if uses.next().is_some()
+                            || row.binding != *binding
+                            || row.formal != *root
+                            || !fact.matches_draft_argument(row, call, *ordinal, draft)
                         {
-                            return Err(freeze("borrowed-actual/entry-source"));
+                            return Err(freeze("borrowed-guarded/actual-use-identity"));
                         }
-                        BorrowedFormalActualSourceV1::EntryReceiver {
-                            binding: *binding,
-                            root: entry,
-                            class: class.name().into(),
-                        }
+                    }
+                    BorrowedFormalActualSourceV1::Forwarded {
+                        binding: *binding,
+                        formal: *root,
+                    }
+                } else {
+                    let (entry, class) =
+                        receiver.ok_or_else(|| freeze("borrowed-actual/entry-domain"))?;
+                    if *root != entry
+                        || binding.owner() != call.owner()
+                        || entry.owner() != call.owner()
+                    {
+                        return Err(freeze("borrowed-actual/entry-source"));
+                    }
+                    BorrowedFormalActualSourceV1::EntryReceiver {
+                        binding: *binding,
+                        root: entry,
+                        class: class.name().into(),
                     }
                 }
             }
@@ -471,9 +444,12 @@ fn construct_borrowed_call_actuals_v1(
         {
             let class = match &source {
                 BorrowedFormalActualSourceV1::Null => None,
+                BorrowedFormalActualSourceV1::Read(loan) => Some(loan.class()),
                 BorrowedFormalActualSourceV1::TypedHome { class, .. }
                 | BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
-                | BorrowedFormalActualSourceV1::ReceivedNullable { class, .. } => {
+                | BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
+                | BorrowedFormalActualSourceV1::ReceivedMixed { class, .. }
+                | BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
                     Some(class.as_ref())
                 }
                 BorrowedFormalActualSourceV1::Forwarded { formal, .. } => Some(
@@ -584,13 +560,46 @@ pub(super) fn lend_pending_borrowed_arguments_v1<'a>(
     Ok(Some((call, arguments)))
 }
 
+/// Same original argument row, selected by its retained phase, never by retry.
+/// This lends only source argument observation; result/entry authority is separate.
+pub(in crate::mir::normal_callable_semantic_package) fn project_pending_instance_arguments_by_phase_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    actuals: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    target: &LexicalInstanceCallSourceTargetV1,
+    array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+) -> Result<Box<[LocalCallArgumentV1]>, String> {
+    let site = target.call_site();
+    let row = actuals
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-instance/source-actuals-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    use BorrowedCallActualEvidencePhaseV1 as Phase;
+    match &row.phase {
+        Phase::SourceInstance(_)
+        | Phase::ExecutableSourceInstance(_)
+        | Phase::SourceObject(_)
+        | Phase::ExecutableSourceObject(_) => {
+            instance_source::project_pending_instance_source_arguments_with_array_context_v1(source, actuals, contracts, site, array_ledger)?
+                .ok_or_else(|| freeze("borrowed-instance/source-actuals-missing"))
+        }
+        Phase::Executable => {
+            let (incoming, arguments) = lend_pending_borrowed_arguments_v1(source, actuals, site)?
+                .ok_or_else(|| freeze("borrowed-instance/source-actuals-missing"))?;
+            if incoming.source.require_instance()? != target {
+                return Err(freeze("borrowed-instance/source-identity"));
+            }
+            Ok(arguments.into())
+        }
+        _ => Err(freeze("borrowed-instance/source-phase-drift")),
+    }
+}
+
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_result_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
-    results: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
-    >,
+    results: &BorrowedResultCohortV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     let arguments = project_pending_borrowed_i64_arguments_v1(source, actuals, results, site)?;
@@ -617,10 +626,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_i64_resu
 pub(in crate::mir::normal_callable_semantic_package) fn project_pending_borrowed_i64_arguments_v1(
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     actuals: &PendingBorrowedFormalActualsV1,
-    results: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<super::borrowed_formal_result::BorrowedI64ResultSourceV1, String>,
-    >,
+    results: &BorrowedResultCohortV1,
     site: &OwnedExprSiteV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     let Some((call, arguments)) = lend_pending_borrowed_arguments_v1(source, actuals, site)? else {
@@ -706,10 +712,13 @@ mod source_atom_tests;
 mod object_arguments;
 pub(in crate::mir::normal_callable_semantic_package) use object_arguments::{
     corroborate_received_object_receiver_v1, project_pending_object_arguments_v1,
+    project_pending_object_target_arguments_v1,
 };
 
 #[path = "ordinary_new_borrowed_object_source_actuals.rs"]
 mod object_source;
+use object_source::needs_original_object_forward_source_v1;
+pub(super) use object_source::selected_source_only_object_forward_v1;
 
 enum TypedInputClosureV1 {
     Pending,
@@ -723,7 +732,7 @@ mod static_input_finish;
 mod static_one_input_finish;
 
 #[path = "ordinary_new_borrowed_object_input_finish.rs"]
-mod object_input_finish;
+pub(super) mod object_input_finish;
 
 #[path = "ordinary_new_received_producer_arguments.rs"]
 mod received_producer;
@@ -732,3 +741,59 @@ pub(in crate::mir::normal_callable_semantic_package) use received_producer::rece
 #[path = "ordinary_new_borrowed_instance_source_actuals.rs"]
 mod instance_source;
 pub(in crate::mir::normal_callable_semantic_package) use instance_source::project_pending_instance_source_arguments_v1;
+
+/// Exact reconstructed guarded source edge for the original reverse dependency graph.
+pub(super) fn revalidate_guarded_object_incoming_v1(
+    source: &PreparedBorrowedFormalIngressV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    rows: &PreparedBorrowedCallActualsV1,
+    ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+) -> Result<bool, String> {
+    if !matches!(
+        rows.phase,
+        BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
+    ) {
+        return Ok(false);
+    }
+    if call.source.instance().is_none() {
+        return Err(freeze("borrowed-guarded/noninstance-source"));
+    }
+    revalidate_passive_object_incoming_v1(source, contracts, call, rows,
+        ledger,
+    )?;
+    let BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) = &rows.phase else {
+        unreachable!()
+    };
+    Ok(object_source::contains_guarded_object_forward_v1(
+        source, call, identity,
+    ))
+}
+
+#[path = "ordinary_new_borrowed_instance_input_finish.rs"]
+mod instance_input_finish;
+pub(super) use instance_input_finish::recheck_finished_instance_input_v1;
+
+/// A finished original Instance input lends only its exact guarded reverse edge.
+pub(super) fn revalidate_guarded_instance_incoming_v1(
+    ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    source: &PreparedBorrowedFormalIngressV1,
+    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    call: &super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    rows: &PreparedBorrowedCallActualsV1,
+) -> Result<bool, String> {
+    if !matches!(
+        rows.phase,
+        BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+    ) {
+        return Ok(false);
+    }
+    recheck_finished_instance_input_v1(ledger, source, catalog, call, rows)?;
+    Ok(rows.opaque_actuals.iter().any(|actual| {
+        matches!(actual.source,
+        BorrowedFormalActualSourceV1::Forwarded { binding, formal }
+            if source.source_only_definitions.get(&call.call.owner())
+                .is_some_and(|draft| draft.origins.get(&binding) == Some(&formal))
+                && source.guarded_actuals.contains_key(&(call.call.clone(), actual.ordinal)))
+    }))
+}

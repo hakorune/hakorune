@@ -78,12 +78,12 @@ impl BorrowedCompareMaterializationV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Borrow the existing definition; source-only transport still requires
-    /// the same completed incoming cohort before any Compare loan is issued.
+    /// Borrow the original entry-qualified definition; execution inputs and
+    /// recorded entry correspondence remain separate mandatory demand gates.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_borrowed_compare_definition_v1<
         'a,
     >(
-        &self,
+        &'a self,
         source: &'a PreparedBorrowedFormalIngressV1,
         owner: FunctionOwnerIdV1,
     ) -> Result<
@@ -102,6 +102,11 @@ impl OrdinaryNewClaimLedgerV1 {
             .any(|row| matches!(row.kind, Use::CompareOperand { .. }))
         {
             return Ok(None);
+        }
+        if let Some(view) = self.checked_source_instance_input_entry_v1(source, owner)? {
+            // The SAME original source frame qualifies body and operation use.
+            // Input execution/Completion is demanded by their later consumers.
+            return Ok(Some(view.definition));
         }
         if self
             .checked_completed_static_scalar_cohort_v1(source, owner)?
@@ -159,18 +164,35 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let definition = self
             .checked_borrowed_compare_definition_v1(source, owner)?
-            .ok_or_else(|| freeze("borrowed-compare/source-only-entry"))?;
+            .ok_or_else(|| format!("{}: owner={owner:?} site={site:?} incoming={:?}",
+                freeze("borrowed-compare/source-only-entry"),
+                source.source_incoming.exact_rows().filter(|row| row.callee == owner)
+                    .map(|row| (&row.call, row.source.target(),
+                        self.borrowed_formal_actuals.get(&row.call)
+                            .map(|actual| actual.as_ref().map(|actual| actual.require_executable_v1().is_ok()))))
+                    .collect::<Vec<_>>()))?;
         let mut selected: Option<BorrowedCompareSourceLoanV1> = None;
         let mut witnesses = Vec::new();
         for row in &definition.uses {
-            let Use::CompareOperand { binary, source } = &row.kind else {
+            let Use::CompareOperand { binary, source: comparison } = &row.kind else {
                 continue;
             };
             if binary != site {
                 continue;
             }
-            let (source_operator, left, right, envelope) = source.comparison_parts();
+            let (source_operator, left, right, envelope) = comparison.comparison_parts();
+            // Equality also admits Object identity in the language. The
+            // Integer envelope may be lent only for the complete original
+            // Integer domain, never merely because a sibling is an origin.
+            if matches!(source_operator, Operator::Equal | Operator::NotEqual)
+                && !source.candidate_integer_agreement(row.formal) {
+                return Err(freeze("borrowed-compare/integer-source-unproved"));
+            }
             let (expected, family) = match source_operator {
+                Operator::Equal => (CompareOp::Eq, Family::Equal),
+                Operator::NotEqual => (CompareOp::Ne, Family::NotEqual),
+                Operator::Less => (CompareOp::Lt, Family::Less),
+                Operator::GreaterEqual => (CompareOp::Ge, Family::GreaterEqual),
                 Operator::Greater => (CompareOp::Gt, Family::Greater),
                 Operator::LessEqual => (CompareOp::Le, Family::LessEqual),
                 _ => return Err(freeze("borrowed-compare/source-operator")),

@@ -5,7 +5,7 @@ use crate::parser::NyashParser;
 
 fn unit() -> VerifiedResolvedSourceUnitV1 {
     let parsed = NyashParser::parse_from_string(
-        "function probe(token) { local first = token.make() local second = token.make() local number = 7 return first }",
+        "function probe(token) { local first = token.make() local second = token.make() local number = 7 token.consume(first.child) return first }",
     ).unwrap();
     let ASTNode::Program { statements, .. } = parsed else {
         panic!("Program")
@@ -52,6 +52,27 @@ fn received_call_identity_preserves_both_classes_without_direct_new_home() {
     assert!(flow.home_acquisition(rows[0].0).is_none());
     assert!(flow.home_acquisition(rows[1].0).is_none());
     assert!(flow.direct_available_home(rows[0].1.site()).is_none());
+
+    // A field argument needs the original definite parent in the actual
+    // pre-call Home set; the source spelling cannot repair missing liveness.
+    use super::super::local_call_flow::BorrowedCallActualValueV1 as Actual;
+    let call = input.function().method_calls().find(|(_, call)| call.selector() == "consume").unwrap().0;
+    let call = OwnedExprSiteV1::new(input.owner(), call.clone());
+    let observe = |flow: &PrefixLocalFlow<'_>, known, homes: &[BindingRefV1]| {
+        let rows = super::super::local_call_flow::observe_borrowed_call_actuals(input, &call, flow, known, homes);
+        rows.into_iter().find(|(site, _)| site == &call).unwrap().1[0].value.clone()
+    };
+    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::ReceivedField {
+        parent: rows[0].0, acquisition: rows[0].1.clone(),
+    });
+    for (known, homes) in [(false, vec![rows[0].0]), (true, vec![]), (true, vec![rows[1].0])] {
+        assert_eq!(observe(&flow, known, &homes), Actual::FieldAccess);
+    }
+    flow.install_received_nullable(rows[0].0, &rows[0].1);
+    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::FieldAccess);
+    flow.install_received_handle(rows[0].0, &rows[0].1);
+    flow.consume_home(rows[0].0);
+    assert_eq!(observe(&flow, true, &[rows[0].0]), Actual::FieldAccess);
 }
 
 #[test]

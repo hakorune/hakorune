@@ -38,7 +38,7 @@ pub(super) fn mixed_fresh_null_abi_preserves_source_and_physical_producers() {
                         };
                         let RootHomeExitProgress::Emitted {
                             entry, bindings, ..
-                        } = &exits[&(owner, exit.clone())]
+                        } = &exits[&(owner, exit.clone().into())]
                         else {
                             panic!("original Fresh Root exit");
                         };
@@ -53,7 +53,7 @@ pub(super) fn mixed_fresh_null_abi_preserves_source_and_physical_producers() {
                     .unwrap()
             };
             let mut handoff = ledger
-                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
                 .unwrap();
             assert_eq!(
                 ledger
@@ -172,7 +172,7 @@ pub(super) fn mixed_fresh_null_abi_preserves_source_and_physical_producers() {
                     let original = {
                         let exits = ledger.root_exits.borrow();
                         let RootHomeExitProgress::Emitted { bindings, .. } =
-                            &exits[&(owner, target.clone())]
+                            &exits[&(owner, target.clone().into())]
                         else {
                             panic!("retained Plain Root exit");
                         };
@@ -205,7 +205,7 @@ pub(super) fn mixed_fresh_null_abi_preserves_source_and_physical_producers() {
                     if failure >= 6 {
                         let mut exits = ledger.root_exits.borrow_mut();
                         let RootHomeExitProgress::Emitted { bindings, .. } =
-                            exits.get_mut(&(owner, target)).unwrap()
+                            exits.get_mut(&(owner, target.into())).unwrap()
                         else {
                             unreachable!()
                         };

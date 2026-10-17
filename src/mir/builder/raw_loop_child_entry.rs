@@ -495,7 +495,8 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 source_target_probe,
                 call_free,
             )?;
-        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence) {
+        let retained = ledger_bridge::take_preissued_source_plan_v1(callable_ledger, owner, parent_source.site())?;
+        match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload, variable_accum_recurrence, retained) {
             CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product) => {
                 #[cfg(test)]
                 test_route_observation::record_variable_accum();

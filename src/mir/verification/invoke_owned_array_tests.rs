@@ -186,6 +186,54 @@ fn owned_array_normal_and_fault_paths_preserve_holder_and_candidate_lifetimes() 
     assert!(result.is_ok(), "{result:?}");
     assert_eq!(check(&good), Ok(()));
     assert_eq!(check_source_uses(&good, |_, _, _| false), Ok(()));
+    // A Phi transports the same holder, never a new lease or element borrow.
+    let mut joined = good.clone();
+    let fork = joined.get_block_mut(BasicBlockId(1003)).unwrap();
+    fork.add_instruction(MirInstruction::Const { dst: ValueId(50), value: ConstValue::Bool(true) });
+    fork.set_terminator(MirInstruction::Branch {
+        condition: ValueId(50), then_bb: BasicBlockId(200), else_bb: BasicBlockId(201),
+        then_edge_args: None, else_edge_args: None,
+    });
+    for id in [200, 201] {
+        let mut block = BasicBlock::new(BasicBlockId(id));
+        block.set_terminator(MirInstruction::Jump { target: BasicBlockId(4), edge_args: None });
+        joined.add_block(block);
+    }
+    joined.get_block_mut(BasicBlockId(0)).unwrap().add_instruction(MirInstruction::Const {
+        dst: ValueId(51), value: ConstValue::Null,
+    });
+    joined.get_block_mut(BasicBlockId(4)).unwrap().add_instruction(MirInstruction::Phi {
+        dst: ValueId(40),
+        inputs: vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(201), ValueId(10))],
+        type_hint: None,
+    });
+    if let Some(MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(Op::Get { array, .. }), .. }) =
+        &mut joined.get_block_mut(BasicBlockId(4)).unwrap().terminator
+    { *array = ValueId(40); } else { panic!("original Get missing"); }
+    assert_eq!(super::super::check_function(&joined), Ok(()));
+    assert_eq!(check(&joined), Ok(()));
+    assert_eq!(check_source_uses(&joined, |_, _, _| false), Ok(()));
+    for inputs in [
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(201), ValueId(20))],
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(201), ValueId(1))],
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(201), ValueId(51))],
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(201), ValueId(40))],
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(200), ValueId(10))],
+        vec![(BasicBlockId(200), ValueId(10))],
+        vec![(BasicBlockId(200), ValueId(10)), (BasicBlockId(202), ValueId(10))],
+    ] {
+        let mut invalid = joined.clone();
+        let MirInstruction::Phi { inputs: actual, .. } =
+            &mut invalid.get_block_mut(BasicBlockId(4)).unwrap().instructions[0]
+        else { panic!("original holder Phi missing"); };
+        *actual = inputs;
+        assert!(check(&invalid).is_err(), "invalid holder Phi was accepted");
+    }
+    let mut ended_phi = joined.clone();
+    ended_phi.get_block_mut(BasicBlockId(6)).unwrap().add_instruction(MirInstruction::Copy {
+        dst: ValueId(41), src: ValueId(40),
+    });
+    assert_eq!(check(&ended_phi), Err("owned-array-holder-not-live"));
     let mut missing_candidate_cleanup = good.clone();
     missing_candidate_cleanup
         .get_block_mut(BasicBlockId(93))

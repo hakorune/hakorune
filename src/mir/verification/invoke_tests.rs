@@ -111,6 +111,50 @@ fn allocation_identity_requires_definition_and_is_not_a_value_operand() {
     };
     let errors = MirVerifier::new().verify_module(&module).unwrap_err();
     assert!(format!("{errors:?}").contains("object-definition-missing"));
+    // Structural End body and SSA projection only, not source ownership.
+    use crate::mir::function::{ObjectDestructionDispositionV1 as D, UserBoxFieldDecl};
+    use crate::mir::instruction::ObjectEndStepV1 as Step;
+    use hakorune_mir_defs::CanonicalFieldRefV1;
+    let root = CanonicalObjectIdV1::from_declaration_index(0).unwrap();
+    let child = CanonicalObjectIdV1::from_declaration_index(1).unwrap();
+    let field = |ordinal| CanonicalFieldRefV1::from_declaration_ordinal(root, ordinal).unwrap();
+    let mut end_module = MirModule::new("end_structure".into());
+    end_module.install_object_definitions_preflighted(vec![
+        CanonicalObjectDefinitionV1::from_source_declaration("Owner".into(), vec![
+            UserBoxFieldDecl { name: "items".into(), declared_type_name: Some("ArrayBox".into()), is_weak: false },
+            UserBoxFieldDecl { name: "child".into(), declared_type_name: Some("Child".into()), is_weak: false },
+            UserBoxFieldDecl { name: "weak".into(), declared_type_name: Some("ArrayBox".into()), is_weak: true },
+        ].into_boxed_slice(), Ok(()), D::OwnedObjectFieldsNoHook),
+        CanonicalObjectDefinitionV1::from_source_declaration("Child".into(), Box::new([]), Ok(()), D::PlainI64NoHook),
+    ].into_boxed_slice());
+    end_module.metadata.canonical_object_membership = Some(std::collections::BTreeMap::from([("Owner".into(), root), ("Child".into(), child)]));
+    let body = vec![Step::ObjectField { field: field(1), child }, Step::ArrayField { field: field(0) }, Step::ReleaseOuter];
+    for (steps, valid) in [
+        (body.clone(), true), (vec![], false),
+        (vec![Step::ArrayField { field: field(0) }, Step::ObjectField { field: field(1), child }, Step::ReleaseOuter], false),
+        (vec![Step::ReleaseOuter, Step::ReleaseOuter], false),
+        (vec![Step::ArrayField { field: field(0) }], false),
+        (vec![Step::ArrayField { field: field(0) }, Step::ArrayField { field: field(0) }, Step::ReleaseOuter], false),
+        (vec![Step::ArrayField { field: field(2) }, Step::ReleaseOuter], false),
+        (vec![Step::ArrayField { field: field(1) }, Step::ReleaseOuter], false),
+        (vec![Step::ObjectField { field: field(1), child: root }, Step::ReleaseOuter], false),
+    ] {
+        let mut function = allocation_invoke_function();
+        let Some(MirInstruction::Invoke { operation, .. }) = &mut function.blocks.get_mut(&BasicBlockId(1)).unwrap().terminator else { unreachable!() };
+        *operation = InvokeOperation::ObjectEndIfOwned { object: root, value: ValueId(1), end: steps.into_boxed_slice() };
+        let before = operation.clone();
+        assert_eq!(operation.used_values(), vec![ValueId(1)]);
+        operation.rewrite_values(|value| *value = ValueId(7));
+        let InvokeOperation::ObjectEndIfOwned { object: after_object, value: after_value, end: after_end } = &*operation else { unreachable!() };
+        let InvokeOperation::ObjectEndIfOwned { end: original_end, .. } = before else { unreachable!() };
+        assert_eq!((*after_object, *after_value, after_end.as_ref()), (root, ValueId(7), original_end.as_ref()));
+        operation.rewrite_values(|value| *value = ValueId(1));
+        function.blocks.get_mut(&BasicBlockId(2)).unwrap().instructions.clear();
+        let mut candidate = end_module.clone(); candidate.add_function(function);
+        let checked = MirVerifier::new().verify_module(&candidate);
+        if valid { checked.unwrap(); }
+        else { assert!(format!("{:?}", checked.unwrap_err()).contains("conditional-object-end-invalid")); }
+    }
 }
 
 #[test]
@@ -164,6 +208,38 @@ fn exact_field_store_is_unit_and_requires_published_definition() {
     module.add_function(function);
     let errors = MirVerifier::new().verify_module(&module).unwrap_err();
     assert!(format!("{errors:?}").contains("field-definition-missing"));
+
+    // The fallible read shares the structural Fault kernel, but its source
+    // value exists solely on Normal and is independent of the input base.
+    let mut read = allocation_invoke_function();
+    let MirInstruction::Invoke { operation, .. } = read.blocks.get_mut(&BasicBlockId::new(1))
+        .unwrap().terminator.as_mut().unwrap() else { unreachable!() };
+    *operation = InvokeOperation::FieldGet { field, base: ValueId::new(1) };
+    assert_eq!(operation.normal_result_kind(), Some(crate::mir::instruction::InvokeNormalResultKind::I64));
+    assert_eq!(operation.used_values(), vec![ValueId::new(1)]);
+    assert_eq!(operation.effects(), crate::mir::EffectMask::READ.add(crate::mir::Effect::Control));
+    let mut rewritten = operation.clone();
+    rewritten.rewrite_values(|value| *value = ValueId::new(9));
+    assert_eq!(rewritten.used_values(), vec![ValueId::new(9)]);
+    super::check_function(&read).unwrap();
+    let mut missing_normal = read.clone();
+    missing_normal.blocks.get_mut(&BasicBlockId::new(2)).unwrap().instructions.clear();
+    assert!(format!("{:?}", super::check_function(&missing_normal).unwrap_err()).contains("normal-result-count"));
+    let mut escaped = read.clone();
+    escaped.blocks.get_mut(&BasicBlockId::new(3)).unwrap().add_instruction(
+        MirInstruction::Copy { dst: ValueId::new(9), src: ValueId::new(2) });
+    assert!(super::check_function(&escaped).is_err(), "Fault cannot use the Normal read result");
+    for (declared_type_name, is_weak, accepted) in [("i64", false, true), ("i64", true, false), ("String", false, false)] {
+        use crate::mir::function::{CanonicalObjectDefinitionV1, ObjectDestructionDispositionV1, UserBoxFieldDecl};
+        let mut module = MirModule::new("field_read_structure".into());
+        module.install_object_definitions_preflighted(vec![CanonicalObjectDefinitionV1::from_source_declaration(
+            "Owner".into(), vec![UserBoxFieldDecl { name: "n".into(), declared_type_name: Some(declared_type_name.into()), is_weak }].into_boxed_slice(),
+            Ok(()), ObjectDestructionDispositionV1::PlainI64NoHook,
+        )].into_boxed_slice());
+        module.add_function(read.clone());
+        let result = MirVerifier::new().verify_module(&module);
+        assert_eq!(result.is_ok(), accepted, "field read {declared_type_name}/weak={is_weak}: {result:?}");
+    }
 }
 
 #[test]

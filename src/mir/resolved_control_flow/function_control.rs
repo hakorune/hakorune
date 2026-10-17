@@ -10,6 +10,10 @@ use crate::mir::resolved_semantics::{
 
 use super::cleanup::ResolvedCleanupObligationsV1;
 
+#[path = "loop_call_fault.rs"]
+mod loop_call_fault;
+pub(crate) use loop_call_fault::{issue_loop_call_fault_continuation_v1, LoopCallFaultContinuationV1};
+
 /// Conditional outward propagation from an exact direct-local New. This is
 /// neither a Normal Return nor an empty cleanup contract: evaluation-frame
 /// unwind and caller Home discharge must precede this continuation.
@@ -393,6 +397,14 @@ impl VerifiedFunctionCompletionV1 {
         }
     }
 
+    pub(crate) fn attach_root_home_flow(&mut self, flow: crate::mir::resolved_semantics::home_new_prefix::RootHomeFlow) {
+        match self {
+            Self::ExplicitReturn(row) => row.cleanup.attach_root_flow(flow),
+            Self::ExplicitReturns(row) => row.cleanup.attach_root_flow(flow),
+            Self::ExplicitUnitSetWithImplicitEnd(row) => row.cleanup.attach_root_flow(flow),
+            Self::ImplicitVoid(row) => row.cleanup.attach_root_flow(flow),
+        }
+    }
     pub(crate) fn cleanup(&self) -> &ResolvedCleanupObligationsV1 {
         match self {
             Self::ExplicitReturn(contract) => &contract.cleanup,

@@ -1,18 +1,62 @@
 //! Retain original exit obligations across the existing affine root progress.
 //! Sequence membership uses exact source origins, never emitted MIR discovery.
 use super::{freeze, RootHomeReleaseOriginV1};
+use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct RootHomeCleanupOrderV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) implicit_void: Option<(
+        std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+        (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+    )>,
     pub(super) null_return: Option<super::null_return::TerminalNullReturnProducerV1>,
     direct: Option<(
         super::super::super::completion_index::DirectRootCleanupSourceV1,
+        Option<crate::mir::ValueId>,
+    )>,
+    scalar: Option<(
+        super::SourceStmtSiteV1,
+        crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
         Option<crate::mir::ValueId>,
     )>,
     full: Box<[RootHomeReleaseOriginV1]>,
     normal: Box<[usize]>,
     acquisition_fault: Box<[usize]>,
 }
+/// Expand complete installed End plans in the original caller-supplied order.
+/// No exit identity is invented for a Call Fault; unavailable never becomes empty.
+pub(in crate::mir::normal_callable_semantic_package) fn source_home_end_plans_v1(
+    rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
+    homes: &[super::BindingRefV1],
+) -> Result<Option<Vec<(super::BindingRefV1, super::RootHomeReleaseSubjectV1, crate::mir::instruction::InvokeOperation)>>, String> {
+    for (index, binding) in homes.iter().enumerate() {
+        if homes[..index].contains(binding) { return Err(freeze("root-cleanup-order/duplicate-home")); }
+    }
+    let mut result = Vec::new();
+    let mut available = true;
+    for binding in homes {
+        let home = super::installed_home(rows, *binding).map_err(|error| match error {
+            super::HomeLookupError::Missing => freeze("root-home-not-installed"),
+            super::HomeLookupError::Duplicate => freeze("duplicate-root-home"),
+        })?;
+        if let super::LocalCommitV1::CallReceived(row) = home {
+            if let Some(parents) = &row.field_support_parents {
+                for parent in parents.iter() {
+                    if homes.iter().filter(|binding| *binding == parent).count() != 1
+                        || homes.iter().position(|binding| binding == parent)
+                            <= homes.iter().position(|candidate| candidate == binding) {
+                        return Err(freeze("field-end/anchor-cleanup-order"));
+                    }
+                }
+            }
+        }
+        available &= home.end_available();
+        if !home.end_available() { continue; }
+        result.extend(home.end_plan().into_vec().into_iter().map(|(subject, operation)| (*binding, subject, operation)));
+    }
+    Ok(available.then_some(result))
+}
+
 impl RootHomeCleanupOrderV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn ordinary(
         full: Vec<RootHomeReleaseOriginV1>,
@@ -26,6 +70,14 @@ impl RootHomeCleanupOrderV1 {
         exit: &super::SourceStmtSiteV1,
         full_homes: &[super::BindingRefV1],
         normal_homes: &[super::BindingRefV1],
+    ) -> Result<Option<Self>, String> {
+        Self::from_home_end_plans_for_exit(rows, &RootHomeExitKeyV1::Explicit(exit.clone()), full_homes, normal_homes)
+    }
+
+    pub(super) fn from_home_end_plans_for_exit(
+        rows: &std::collections::BTreeMap<super::OwnedExprSiteV1, super::LocalCommitV1>,
+        exit: &RootHomeExitKeyV1,
+        full_homes: &[super::BindingRefV1], normal_homes: &[super::BindingRefV1],
     ) -> Result<Option<Self>, String> {
         for (index, binding) in full_homes.iter().enumerate() {
             if full_homes[..index].contains(binding) {
@@ -43,33 +95,21 @@ impl RootHomeCleanupOrderV1 {
             }
             previous = Some(index);
         }
-        let mut full = Vec::new();
-        let mut normal = Vec::new();
-        let mut available = true;
-        for binding in full_homes {
-            let home = super::installed_home(rows, *binding).map_err(|error| match error {
-                super::HomeLookupError::Missing => freeze("root-home-not-installed"),
-                super::HomeLookupError::Duplicate => freeze("duplicate-root-home"),
-            })?;
-            let end_available = home.end_available();
-            available &= end_available;
-            if !end_available {
-                continue;
-            }
-            for (subject, operation) in home.end_plan().into_vec() {
-                let origin = RootHomeReleaseOriginV1 {
-                    subject,
-                    exit: exit.clone(),
-                    operation,
-                };
-                if normal_homes.contains(binding) {
-                    normal.push(origin.clone());
+        for row in rows.values() {
+            if let super::LocalCommitV1::CallReceived(row) = row {
+                if full_homes.contains(&row.binding) && !normal_homes.contains(&row.binding)
+                    && row.field_support_parents.as_ref().is_some_and(|parents| parents.iter().any(|parent| normal_homes.contains(parent))) {
+                    return Err(freeze("field-end/escaping-local-anchor"));
                 }
-                full.push(origin);
             }
         }
-        if !available {
-            return Ok(None);
+        let mut full = Vec::new();
+        let mut normal = Vec::new();
+        let Some(plans) = source_home_end_plans_v1(rows, full_homes)? else { return Ok(None) };
+        for (binding, subject, operation) in plans {
+            let origin = RootHomeReleaseOriginV1 { subject, exit: exit.clone(), operation };
+            if normal_homes.contains(&binding) { normal.push(origin.clone()); }
+            full.push(origin);
         }
         Self::from_sequences(full.clone(), &normal, &full).map(Some)
     }
@@ -111,7 +151,9 @@ impl RootHomeCleanupOrderV1 {
         let acquisition_fault = indices(acquisition_fault)?;
         Ok(Self {
             direct: None,
+            scalar: None,
             null_return: None,
+            implicit_void: None,
             full: full.into_boxed_slice(),
             normal,
             acquisition_fault,
@@ -126,6 +168,7 @@ impl RootHomeCleanupOrderV1 {
             .direct
             .as_ref()
             .is_some_and(|(_, value)| value.is_some())
+            || self.scalar.as_ref().is_some_and(|(_, _, value)| value.is_some())
         {
             return Err(freeze("direct-result-arguments-after-bind"));
         }
@@ -137,8 +180,39 @@ impl RootHomeCleanupOrderV1 {
         acquisition_fault.extend(self.acquisition_fault());
         let mut next = Self::from_sequences(full, &normal, &acquisition_fault)?;
         next.direct = self.direct.take();
+        next.scalar = self.scalar.take();
         next.null_return = self.null_return.take();
+        next.implicit_void = self.implicit_void.take();
         *self = next;
+        Ok(())
+    }
+
+    /// A completed pending Return result transfers only after prior cleanup.
+    /// Its End belongs to later Fault residuals, never Normal/acquisition.
+    pub(super) fn prepend_fault_only_result(
+        &mut self,
+        prefix: Vec<RootHomeReleaseOriginV1>,
+    ) -> Result<(), String> {
+        if prefix.is_empty() { return Err(freeze("result-cleanup/empty-plan")); }
+        let mut full = prefix;
+        full.extend_from_slice(&self.full);
+        let mut next = Self::from_sequences(full, &self.normal(), &self.acquisition_fault())?;
+        next.direct = self.direct.take();
+        next.scalar = self.scalar.take();
+        next.null_return = self.null_return.take();
+        next.implicit_void = self.implicit_void.take();
+        *self = next;
+        Ok(())
+    }
+
+    pub(super) fn validate_fault_only_result(
+        &self,
+        expected: &[RootHomeReleaseOriginV1],
+    ) -> Result<(), String> {
+        if expected.is_empty() || !self.full.starts_with(expected)
+            || self.normal().iter().chain(self.acquisition_fault().iter()).any(|origin|
+                expected.iter().any(|pending| pending.subject() == origin.subject()))
+        { return Err(freeze("result-cleanup/order-drift")); }
         Ok(())
     }
 

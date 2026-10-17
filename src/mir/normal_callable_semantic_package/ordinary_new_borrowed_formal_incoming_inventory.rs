@@ -1,4 +1,5 @@
-//! One original incoming inventory, then its checked selected projection.
+//! One retained source incoming inventory and its checked selected projection.
+//! Pending source rows count as real incoming, never as executable receivers.
 use super::*;
 
 #[derive(Debug)]
@@ -167,6 +168,50 @@ impl BorrowedIncomingInventoryV1 {
                 .map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(row.call.clone()))?;
         }
         Ok(())
+    }
+
+    /// Declaration-only view of the SAME registered completed scan. A clean
+    /// NoIncoming sentinel binds a declaration, never executable incoming.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project_declaration_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Box<[BorrowedIncomingCallDraftV1]>, BorrowedIncomingDraftErrorV1> {
+        if !self.owners.contains(&owner) {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        // Preserve every global scan failure before considering an empty owner.
+        if !self.project(&Default::default())?.is_empty() {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        let rows: Vec<_> = self
+            .observations
+            .iter()
+            .filter(|(label, _)| *label == Some(owner))
+            .collect();
+        let empty = rows
+            .iter()
+            .any(|(_, row)| matches!(row, Err(BorrowedIncomingDraftErrorV1::NoIncoming(_))));
+        if empty {
+            for (_, row) in &rows {
+                if let Err(error) = row {
+                    if !matches!(error, BorrowedIncomingDraftErrorV1::NoIncoming(_)) {
+                        return Err(error.clone());
+                    }
+                }
+            }
+            if rows.len() != 1
+                || !matches!(&rows[0].1,
+                Err(BorrowedIncomingDraftErrorV1::NoIncoming(observed)) if *observed == owner)
+            {
+                return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+            }
+            return Ok(Box::new([]));
+        }
+        // Lost observations cannot be reconstructed into a clean empty scan.
+        if rows.is_empty() {
+            return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+        }
+        self.project(&std::collections::BTreeSet::from([owner]))
     }
 
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn project(

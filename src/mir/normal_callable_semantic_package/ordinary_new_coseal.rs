@@ -7,6 +7,7 @@
 
 use super::instance_construction::{ConstructionEligibilityV1, ConstructionUnavailableV1};
 use crate::mir::function::ObjectDestructionDispositionV1;
+use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
 use std::{
     cell::RefCell,
@@ -60,7 +61,10 @@ impl PreparedStaticTerminalRootRouteV1<'_> {
             .position(|site| site == &self.site)
             .expect("preflighted terminal route remains installed");
         let removed = sites.remove(index);
-        assert_eq!(removed, self.site, "preflighted terminal route remains exact");
+        assert_eq!(
+            removed, self.site,
+            "preflighted terminal route remains exact"
+        );
     }
 }
 
@@ -69,7 +73,7 @@ mod claim_access;
 #[path = "ordinary_new_arguments.rs"]
 mod ordinary_new_arguments;
 pub(crate) use ordinary_new_arguments::{
-    OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
+    ArgumentFieldArrayReadSourceV1, OrdinaryNewTrivialArgumentKindV1, OrdinaryNewTrivialArgumentV1,
     QualifiedStaticCallArgumentKindV1,
 };
 #[path = "ordinary_new_object_end.rs"]
@@ -106,42 +110,54 @@ pub(crate) use terminal_map_get_return::PreparedTerminalMapGetReturnV1;
 mod birth_abi_handoff;
 #[path = "ordinary_new_candidate.rs"]
 mod candidate;
+pub(in crate::mir::normal_callable_semantic_package) use candidate::LocalNewRootSourceV1;
 #[path = "ordinary_new_lexical_instance_call.rs"]
 mod lexical_instance_call;
-#[path = "ordinary_new_loop_static_source_loan.rs"]
-mod loop_static_source_loan;
-#[path = "ordinary_new_loop_static_preissue.rs"]
-mod loop_static_preissue;
+pub(crate) use lexical_instance_call::ResultPathFieldSourceLoanV1;
+pub(crate) use lexical_instance_call::LexicalInstanceCallSourceTargetV1;
+#[cfg(test)]
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::{StoredReceiverSourceV1, StoredReceiverSourceOriginV1};
 #[path = "ordinary_new_loop_static_body_actual.rs"]
 mod loop_static_body_actual;
+#[path = "ordinary_new_loop_static_preissue.rs"]
+mod loop_static_preissue;
+#[path = "ordinary_new_loop_static_source_loan.rs"]
+mod loop_static_source_loan;
 #[path = "ordinary_new_static_home_effect.rs"]
 mod static_home_effect;
-#[path = "ordinary_new_static_loop_tagged_entry.rs"]
-mod static_loop_tagged_entry;
-#[path = "ordinary_new_static_loop_result.rs"]
-mod static_loop_result;
 #[path = "ordinary_new_static_loop_packet_source.rs"]
 mod static_loop_packet_source;
-pub(in crate::mir) use loop_static_source_loan::{LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1};
+#[path = "ordinary_new_static_loop_result.rs"]
+mod static_loop_result;
+#[path = "ordinary_new_static_loop_tagged_entry.rs"]
+mod static_loop_tagged_entry;
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
+pub(crate) use lexical_instance_call::NamedArrayHolderSourceLoanV1;
+pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::ArrayHolderLifecycleRecipeV1;
+pub(crate) use local_commit::EmittedOwnedArrayReadV1;
+pub(crate) use local_commit::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
+pub(crate) use local_commit::PendingChildPhysicalValidationV1;
+pub(crate) use local_commit::PendingRootHomeExitV1;
+pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
+pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
+pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
+pub(crate) use local_commit::PreparedRootHomeOrderV1;
+pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
+pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
+pub(in crate::mir) use local_commit::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
+pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
+pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
 pub(in crate::mir) use loop_static_body_actual::{
     PreparedLoopStaticBodyDetachedPacketV1, VerifiedLoopStaticBodyPrepacketV1,
     VerifiedLoopStaticBodyScalarSourceV1,
 };
-pub(crate) use loop_static_body_actual::PreparedLoopStaticBodyRetentionV1;
-pub(crate) use local_commit::PreparedRootLexicalCallBindingGroupV1;
-pub(crate) use local_commit::{RootHomeFaultSequencesV1, RootHomeReleaseOriginV1};
-pub(crate) use local_commit::PreparedRootHomeGraphPlanV1;
-pub(crate) use local_commit::PreparedRootHomeOrderV1;
-pub(crate) use local_commit::PendingRootHomeExitV1;
-pub(crate) use local_commit::PendingSelectedStaticLoopViewV1;
-pub(crate) use local_commit::PendingChildPhysicalValidationV1;
-pub(in crate::mir) use local_commit::PendingStaticCallProjectionV1;
-pub(crate) use local_commit::PreparedStaticTerminalPacketV1;
+pub(in crate::mir) use loop_static_source_loan::{
+    LoopEntryStaticI64SourceLoanV1, LoopStaticSourceCallLoanV1, LoopTailStaticI64SourceLoanV1,
+};
 pub(in crate::mir) use static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1;
-pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
-pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
 pub(in crate::mir) use static_loop_packet_source::VerifiedStaticLoopPacketSourceV1;
-pub(in crate::mir::normal_callable_semantic_package) use lexical_instance_call::BorrowedAppMainSourceLoanV1;
+pub(in crate::mir) use static_loop_result::VerifiedStaticLoopI64ResultSourceV1;
+pub(in crate::mir) use static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1;
 #[path = "ordinary_new_local_commit.rs"]
 mod local_commit;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareCarrierOperandLoanV1;
@@ -149,7 +165,7 @@ pub(crate) use lexical_instance_call::BorrowedCompareIntegerLiteralLoanV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareIntegerLiteralMaterializationV1;
 pub(in crate::mir) use lexical_instance_call::BorrowedCompareMaterializationV1;
 pub(crate) use lexical_instance_call::BorrowedCompareSourceLoanV1;
-pub(crate) use lexical_instance_call::LexicalInstanceCallDispositionRowV1;
+pub(crate) use lexical_instance_call::{LexicalInstanceCallDispositionRowV1, BorrowedScalarResultSourceLoanV1, CallableScalarResultSourceLoanV1, CallableResultSourceV1};
 pub(in crate::mir) use lexical_instance_call::{
     BorrowedFormalActualSourceV1, PreparedBorrowedFormalActualV1,
 };
@@ -163,9 +179,13 @@ pub(crate) use receiver_call_observation::ReceiverCallClassObservationV1;
 mod result_class_claim;
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::verified_value_return_sites;
 pub(crate) use result_class_claim::{
-    ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1, ResultExitOriginV1,
-    ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
+    BorrowedNullableLocalSourceLoanV1, MixedLocalCallSourceLoanV1, ObjectReturnCallQualificationV1, OrdinaryNewResultClassV1,
+    ResultExitOriginV1, ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
 };
+#[path = "ordinary_new_field_array_read_source.rs"]
+mod field_array_read_source;
+pub(crate) use field_array_read_source::CheckedFieldArrayGetSourceV1;
+
 #[path = "array_i64_fields.rs"]
 mod array_i64_fields;
 #[path = "ordinary_new_root_instance_call.rs"]
@@ -310,7 +330,8 @@ pub(crate) enum OrdinaryNewClaimTakeErrorV1 {
 pub(crate) struct OrdinaryNewClaimLedgerV1 {
     claims: RefCell<BTreeMap<OwnedExprSiteV1, OrdinaryNewAdmissionClaimV1>>,
     scalar_operation_appends: RefCell<BTreeMap<OwnedExprSiteV1, Rc<OriginalScalarAppendV1>>>,
-    scalar_operation_consumers: RefCell<BTreeMap<FunctionOwnerIdV1, Vec<scalar_operations::ScalarConsumerObservationV1>>>,
+    scalar_operation_consumers:
+        RefCell<BTreeMap<FunctionOwnerIdV1, Vec<scalar_operations::ScalarConsumerObservationV1>>>,
     // Return-position `new` claims keyed by the exact `new` site — the
     // bounded transfer-to-caller family inside this same ledger, not a
     // parallel issuer.
@@ -319,21 +340,29 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     // Borrow the package's single immutable catalog; never reissue parameters.
     original_parameter_contracts:
         Option<Rc<[super::model::OwnedCallableParameterContractDeclarationV1]>>,
+    // Shared immutable original issuance, never copied signature rows or receipts.
+    original_instance_input_issuance: Option<(
+        Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
+        Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
+    )>,
+    // Package-owned obligations; never stored back in source/Completion.
+    array_holder_lifecycles: RefCell<BTreeMap<BindingRefV1, Rc<lexical_instance_call::ArrayHolderLifecycleRecipeV1>>>,
     local_commits: RefCell<BTreeMap<OwnedExprSiteV1, local_commit::LocalCommitV1>>,
     root_validation: RefCell<local_commit::RootNewValidation>,
+    main_arguments: RefCell<Option<Rc<crate::mir::builder::MainArgumentsEmissionV1>>>,
     child_physical_validation:
         RefCell<BTreeMap<FunctionOwnerIdV1, local_commit::ChildPhysicalValidation>>,
     // One exit progress row per (owner, source exit statement site): a
     // function with several `return` statements carries independent evidence
     // and one exit's row can never satisfy another.
     root_exits: RefCell<
-        BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), local_commit::RootHomeExitProgress>,
+        BTreeMap<(FunctionOwnerIdV1, RootHomeExitKeyV1), local_commit::RootHomeExitProgress>,
     >,
     // Physical bindings for the bounded source-local Call prefix. These are
     // consumed by the existing root Call entry; they do not issue a target or
     // create a second lifecycle owner.
     root_local_call_bindings:
-        RefCell<BTreeMap<FunctionOwnerIdV1, Vec<local_commit::RootLocalCallBindingGroupV1>>>,
+        RefCell<BTreeMap<FunctionOwnerIdV1, Vec<local_commit::RootLifecyclePrefixBindingGroupV1>>>,
     /// Canonical LoopCond after roles. These permit exact
     /// PHI capture but issue no lifecycle or Loop authority here.
     loop_cond_after_roles: RefCell<
@@ -370,29 +399,73 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
         Option<Result<lexical_instance_call::PreparedBorrowedFormalIngressV1, String>>,
     // One source-bound product or refusal per Loop site. Home and raw entry
     // cannot consume it until their separate verified loan slices.
-    variable_bound_mul_product: coseal_issue::SelectedLoopProductV1,
-    loop_static_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>>>,
-    loop_static_body_scalar_sources: RefCell<BTreeMap<(SourceStmtSiteV1, OwnedExprSiteV1), Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>>>,
+    selected_loop_products: coseal_issue::SelectedLoopProductV1,
+    loop_static_source_loans: RefCell<
+        BTreeMap<
+            (SourceStmtSiteV1, OwnedExprSiteV1),
+            Result<loop_static_source_loan::LoopStaticSourceCallLoanV1, String>,
+        >,
+    >,
+    loop_static_body_scalar_sources: RefCell<
+        BTreeMap<
+            (SourceStmtSiteV1, OwnedExprSiteV1),
+            Result<loop_static_body_actual::VerifiedLoopStaticBodyScalarSourceV1, String>,
+        >,
+    >,
     // The selected body call has no Home local-call observation. Its own
     // source/physical packet enters only after successful collector admission.
-    selected_loop_body_packets: RefCell<BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>>,
+    selected_loop_body_packets: RefCell<
+        BTreeMap<OwnedExprSiteV1, loop_static_body_actual::PreparedLoopStaticBodyDetachedPacketV1>,
+    >,
     loop_static_source_loop_sites: BTreeSet<(FunctionOwnerIdV1, SourceStmtSiteV1)>,
-    preissued_static_i64_products: RefCell<BTreeMap<FunctionOwnerIdV1, Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>>>,
-    loop_entry_static_i64_source_loans: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>>>,
-    loop_tail_static_i64_source_loans: RefCell<BTreeMap<SourceStmtSiteV1, Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>>>,
-    loop_static_home_neutral: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>>>,
-    loop_static_tagged_entry: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>>>,
-    loop_static_i64_results: RefCell<BTreeMap<SourceStmtSiteV1, Result<static_loop_result::VerifiedStaticLoopI64ResultSourceV1, String>>>,
-    loop_static_packet_sources: RefCell<BTreeMap<(SourceStmtSiteV1, SourceBindingSiteV1), Result<static_loop_packet_source::VerifiedStaticLoopPacketSourceV1, String>>>,
+    preissued_static_i64_products: RefCell<
+        BTreeMap<
+            FunctionOwnerIdV1,
+            Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
+        >,
+    >,
+    loop_entry_static_i64_source_loans: RefCell<
+        BTreeMap<
+            (SourceStmtSiteV1, SourceBindingSiteV1),
+            Result<loop_static_source_loan::LoopEntryStaticI64SourceLoanV1, String>,
+        >,
+    >,
+    loop_tail_static_i64_source_loans: RefCell<
+        BTreeMap<
+            SourceStmtSiteV1,
+            Result<loop_static_source_loan::LoopTailStaticI64SourceLoanV1, String>,
+        >,
+    >,
+    loop_static_home_neutral: RefCell<
+        BTreeMap<
+            SourceStmtSiteV1,
+            Result<static_home_effect::VerifiedClosedStaticLoopHomeNeutralV1, String>,
+        >,
+    >,
+    loop_static_tagged_entry: RefCell<
+        BTreeMap<
+            (SourceStmtSiteV1, SourceBindingSiteV1),
+            Result<static_loop_tagged_entry::VerifiedStaticLoopTaggedEntrySourceV1, String>,
+        >,
+    >,
+    loop_static_i64_results: RefCell<
+        BTreeMap<
+            SourceStmtSiteV1,
+            Result<static_loop_result::VerifiedStaticLoopI64ResultSourceV1, String>,
+        >,
+    >,
+    loop_static_packet_sources: RefCell<
+        BTreeMap<
+            (SourceStmtSiteV1, SourceBindingSiteV1),
+            Result<static_loop_packet_source::VerifiedStaticLoopPacketSourceV1, String>,
+        >,
+    >,
     // The existing source dispatch projection retains per-site error scope.
     borrowed_static_source_sites: Option<Result<BTreeSet<OwnedExprSiteV1>, String>>,
     borrowed_formal_actuals: lexical_instance_call::PendingBorrowedFormalActualsV1,
     // Existing formal values joined to the borrowed source projection. This
     // correspondence does not install a carrier or authorize a backend.
-    borrowed_i64_results: BTreeMap<
-        FunctionOwnerIdV1,
-        Result<lexical_instance_call::BorrowedI64ResultSourceV1, String>,
-    >,
+    borrowed_i64_results: lexical_instance_call::BorrowedResultCohortV1,
     borrowed_entry_values: RefCell<
         BTreeMap<FunctionOwnerIdV1, lexical_instance_call::BorrowedOrdinaryEntryPhysicalV1>,
     >,
@@ -467,9 +540,9 @@ pub(crate) struct OrdinaryNewClaimLedgerV1 {
     >,
     terminal_relation_index:
         BTreeMap<FunctionOwnerIdV1, Rc<BTreeMap<SourceStmtSiteV1, TerminalRelationV1>>>,
-    terminal_integer_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
-    terminal_integer_literal_values:
-        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
+    terminal_scalar_literal_value: RefCell<BTreeMap<SourceStmtSiteV1, terminal_access::TerminalScalarLiteralEmissionV1>>,
+    terminal_scalar_literal_values:
+        RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), terminal_access::TerminalScalarLiteralEmissionV1>>,
     terminal_i64_field_value: RefCell<BTreeMap<SourceStmtSiteV1, crate::mir::ValueId>>,
     terminal_i64_field_values:
         RefCell<BTreeMap<(FunctionOwnerIdV1, SourceStmtSiteV1), crate::mir::ValueId>>,
@@ -572,6 +645,7 @@ pub(crate) enum OrdinaryNewCoSealIssueV1 {
     ArgumentFieldReadMissing {
         site: OwnedExprSiteV1,
     },
+    FieldArrayArgumentSource { site: OwnedExprSiteV1, detail: Box<str> },
     AppMainIdentityMissing,
     AppMainIdentityDuplicate,
 }
@@ -589,9 +663,25 @@ mod tests;
 pub(in crate::mir) use local_commit::{
     CallPacketSourceLoanV1, CallPacketSourceV1, EmittedLexicalCallProjectionV1,
     FinalizedLexicalCallContextV1, LexicalCallArgumentProjectionV1,
-    PreparedLexicalCallProjectionV1,
-    PreparedSelectedStaticLoopCallProjectionV1,
+    PreparedLexicalCallProjectionV1, PreparedSelectedStaticLoopCallProjectionV1,
 };
 
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use result_class_claim::source_result_facts_for_test;
+
+pub(crate) use local_commit::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
+
+pub(crate) use local_commit::EmittedOwnedArrayHolderV1;
+
+pub(in crate::mir) use local_commit::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+
+pub(in crate::mir) use local_commit::CallValidationContextV1;
+
+#[path = "ordinary_new_main_arguments.rs"]
+mod main_arguments;
+
+pub(crate) use lexical_instance_call::BorrowedFieldWriteSourceLoanV1;
+pub(in crate::mir) use lexical_instance_call::BorrowedArraySetSourceLoanV1;
+pub(crate) use lexical_instance_call::DeclaredArrayFieldReadSourceV1;
+
+pub(crate) use local_commit::EmittedBorrowedFieldWriteV1;

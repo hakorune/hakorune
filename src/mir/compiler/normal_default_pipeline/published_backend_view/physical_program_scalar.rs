@@ -81,8 +81,15 @@ pub(super) fn validate_selected_scalar_operations(
         }
         Ok(())
     })?;
-    if actual.len() != expected.len() || actual.iter().any(|binding| !expected.contains(binding)) {
-        return Err(fault("scalar-source-coverage"));
+    if actual.len() != expected.len()
+        || actual.iter().any(|binding| !expected.contains(binding))
+        || expected.iter().any(|binding| !actual.contains(binding))
+    {
+        return Err(format!("{} function={} actual={} source={} unexpected={:?} missing={:?}",
+            fault("scalar-source-coverage"), function.signature.name,
+            actual.len(), expected.len(),
+            actual.iter().find(|binding| !expected.contains(binding)),
+            expected.iter().find(|binding| !actual.contains(binding))));
     }
     Ok(expected)
 }

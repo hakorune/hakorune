@@ -19,7 +19,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[3]
 TESTS = ROOT / 'lang/c-abi/tests'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+    ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 ENV.pop('V4_PROBE_FAULT_AT', None)
 ENV['V4_PROBE_MODE'] = 'normal'
@@ -59,7 +60,7 @@ with tempfile.TemporaryDirectory(prefix='hako routed get ') as directory:
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64',
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']
     for suffix, expected in CASES:
         path = DIRECTORY / ('hako-issued-get-view-' + suffix + '.json')
@@ -81,6 +82,7 @@ with tempfile.TemporaryDirectory(prefix='hako routed get ') as directory:
     for label, mutate in [
         ('dst-null', lambda get: get.__setitem__('dst', None)),
         ('extra-site', lambda get: get.__setitem__('site', 0)),
+        ('integer-is-not-array', lambda get: get.__setitem__('array', get['index'])),
     ]:
         data, get = get_row(ok_path)
         mutate(get)

@@ -16,6 +16,12 @@ This directory owns MIR verifier checks that run from
 
 ## Invoke Call result contract
 
+Instance `BorrowedNullableHandle` and `MixedHandle` structurally require the
+instance namespace, exact logical arity and a bounded original formal ordinal.
+Both use the existing sole Normal projection and shared CFG/SSA checks.
+This grants no source result/Home/Forward support or outcome ABI permission;
+the original final Call source and artifact consumers still prove those roles.
+
 `InvokeOperation::Call` carries explicit physical `Unit` or `I64` result kind.
 Function verification admits Birth/Unit and same-module static/I64 pairs only;
 the latter also checks exact structural arity. Embedded destinations are
@@ -74,6 +80,13 @@ semantic_contracts:
 ```
 
 ## Module Check Groups
+
+Owned-Array holder identity uses the opt-in `value_origin` query for Copies and
+acyclic unanimous Phis. Every Phi must cover its exact real predecessor domain
+once and resolve all inputs to one uniquely defined holder. The same root feeds
+allocation, uses and End liveness checks; a Phi creates no resource. Element
+borrows, candidates and indices retain their existing Copy-only policy. Original
+source/physical correspondence remains independently required before publication.
 
 ```text
 module_contracts:

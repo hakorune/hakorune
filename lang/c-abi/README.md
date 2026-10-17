@@ -315,6 +315,13 @@ Lifecycle invocation ownership
   replaces v1; it checks structure/SSA, then V4 checks type and cohort coverage.
   Parser success alone does not prove executable input. Receiver is explicit,
   Birth formals use kind/payload lanes, and Bool constants keep their own kind.
+- Ordinary Bool lifecycle results pair `"result":"bool"` with `ordinary_bool`
+  and the independent `LV4_BOOL` value kind. Native status/out-slot ABI uses i64
+  storage for 0/1, preserving Bool semantics; Integer or tagged payload Return is
+  rejected. A scalar Normal result creates no owned storage lease. Instance
+  borrowed formals keep their receiver/domain checks. The existing nested-call
+  ABI fixture verifies Bool calls/returns and rejects result/role drift. Physical
+  ABI support alone grants no source or package admission.
 - Indexed V4 admission and emission share one invocation-owned function/block/
   value/layout index. The earlier fixed Pair function/layout counts are removed;
   supplied Birth targets and exact object layouts select physical calls. Map,
@@ -670,3 +677,38 @@ exercise real runtime release and injected append/child-End Faults, including
 pending-candidate primary/suppressed cleanup. They do not prove source Recipe,
 compiler admission, root Home/final correspondence, or app acceptance; those
 connections remain required before source execution gates can open.
+
+## Ordinary Unit physical calls
+
+The `ordinary_unit` role uses the same receiver, borrowed frame, ordered actuals
+and Fault status as other ordinary calls. Its LLVM ABI returns status `i32`
+without a result pointer, load/store, result carrier or Normal lease. The wire
+call result is `unit`; `InvokeNormalResult` is rejected. Normal Return accepts
+a genuine bare null Return or an available `const_unit`, after all owned leases
+are discharged. It does not use Birth completion semantics.
+
+The existing Rust borrowed-formal discard fixture writes six unchanged source
+outputs to `/tmp/hako-issued-borrowed-unit-{0..5}.json`. Execute these with:
+
+```bash
+HAKO_TEST_LIFECYCLE_ARCHIVE=target/quick/libnyash_lifecycle_kernel.a \
+  python3 lang/c-abi/tests/published_lifecycle_v4_borrowed_source_execution_test.py /tmp --unit-only
+```
+
+This checks actual effects, allocation/release accounting, callee Print/New/Home
+Fault cleanup and role/result/value/projection refusals. The runtime archive must
+match the selected runtime source. Constructor committed-field and borrowed-self
+source admission remain separate obligations; this ABI support grants neither.
+
+The indexed physical cohort also supports checked received-object scalar
+`field_get`: exactly `kind`, `object_id`, `field_ordinal`, `base`, and `site`.
+Its Normal result is I64; Fault retains the receiver and follows the supplied
+cleanup graph. The field must be an unreserved I64 slot. Nullable Call receipts
+require the same known object and live acquisition; Mixed receipts additionally
+require their original support ordinal and live Forward anchor. NewBox, direct
+Null, tagged values, and the native no-layout cohort cannot supply this read.
+Emission calls `nyash.object.checked_field_get_fallible_i64_v1` and loads the
+out-slot only on Normal. The independent borrowed-ingress execution family
+checks the real lifecycle archive, nonzero readback, null Fault, remaining Home
+cleanup, and malformed field/result/cleanup rejection. This physical support
+does not establish compiler source admission or finalized source correspondence.

@@ -81,32 +81,99 @@ fn same_module_free_function_i64_call_uses_source_arity_contract() {
 }
 
 #[test]
-fn same_module_instance_i64_call_uses_receiver_and_source_arity_contract() {
+fn same_module_instance_call_preserves_result_class_and_source_arity() {
+    for (result_kind, normal_kind) in [
+        (ResultKind::I64, InvokeNormalResultKind::I64),
+        (ResultKind::Bool, InvokeNormalResultKind::Bool),
+        (ResultKind::BorrowedNullableHandle { formal_ordinal: 0 }, InvokeNormalResultKind::BorrowedNullableHandle),
+        (ResultKind::MixedHandle { formal_ordinal: 0 }, InvokeNormalResultKind::MixedHandle),
+    ] {
+        let mut function = call_function();
+        let MirInstruction::Invoke {
+            operation: InvokeOperation::Call { call, result },
+            ..
+        } = function
+            .blocks
+            .get_mut(&BasicBlockId::new(1))
+            .unwrap()
+            .terminator
+            .as_mut()
+            .unwrap()
+        else {
+            unreachable!()
+        };
+        *result = result_kind;
+        call.callee = Callee::SameModuleInstance {
+            key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
+                "Worker", "run", 1,
+            ),
+            receiver: ValueId::new(1),
+        };
+        assert_eq!(result_kind, *result);
+        MirVerifier::new().verify_function(&function).unwrap();
+        let MirInstruction::Invoke { operation, .. } = function.blocks[&BasicBlockId::new(1)]
+            .terminator
+            .as_ref()
+            .unwrap()
+        else {
+            unreachable!()
+        };
+        assert_eq!(operation.normal_result_kind(), Some(normal_kind));
+        if matches!(result_kind, ResultKind::BorrowedNullableHandle { .. } | ResultKind::MixedHandle { .. }) {
+            for invalid in [1, u32::MAX].map(|formal_ordinal| match result_kind {
+                ResultKind::BorrowedNullableHandle { .. } => ResultKind::BorrowedNullableHandle { formal_ordinal },
+                ResultKind::MixedHandle { .. } => ResultKind::MixedHandle { formal_ordinal },
+                _ => unreachable!(),
+            }) {
+                let mut changed = function.clone();
+                if let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { result, .. }, .. }) = changed.blocks.get_mut(&BasicBlockId::new(1)).unwrap().terminator.as_mut() {
+                    *result = invalid;
+                }
+                assert!(MirVerifier::new().verify_function(&changed).is_err(), "foreign formal ordinal must refuse");
+            }
+            let mut changed = call_function();
+            if let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { result, .. }, .. }) = changed.blocks.get_mut(&BasicBlockId::new(1)).unwrap().terminator.as_mut() {
+                *result = result_kind;
+            }
+            assert!(MirVerifier::new().verify_function(&changed).is_err(), "unconnected Static borrow result must refuse");
+            let mut changed = function.clone();
+            if let Some(MirInstruction::Invoke { operation: InvokeOperation::Call { call, .. }, .. }) = changed.blocks
+                .get_mut(&BasicBlockId::new(1)).unwrap().terminator.as_mut() {
+                call.callee = Callee::SameModuleInstance {
+                    key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::static_box_method("Worker", "run", 1),
+                    receiver: ValueId::new(1),
+                };
+            }
+            assert!(MirVerifier::new().verify_function(&changed).is_err(), "foreign target namespace must refuse");
+        }
+        function
+            .blocks
+            .get_mut(&BasicBlockId::new(2))
+            .unwrap()
+            .instructions
+            .clear();
+        assert!(
+            MirVerifier::new().verify_function(&function).is_err(),
+            "scalar result must retain its unique Normal projection"
+        );
+    }
+    // Unit has a real Normal edge but owns no Normal result projection.
     let mut function = call_function();
-    let MirInstruction::Invoke {
-        operation:
-            InvokeOperation::Call {
-                call,
-                result: ResultKind::I64,
-            },
-        ..
-    } = function
-        .blocks
-        .get_mut(&BasicBlockId::new(1))
-        .unwrap()
-        .terminator
-        .as_mut()
-        .unwrap()
-    else {
-        unreachable!()
-    };
+    let MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. } =
+        function.blocks.get_mut(&BasicBlockId::new(1)).unwrap().terminator.as_mut().unwrap()
+        else { unreachable!() };
+    *result = ResultKind::Unit;
     call.callee = Callee::SameModuleInstance {
-        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
-            "Worker", "run", 1,
-        ),
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Worker", "run", 1),
         receiver: ValueId::new(1),
     };
+    assert!(MirVerifier::new().verify_function(&function).is_err(), "Unit cannot retain a value projection");
+    let normal = function.blocks.get_mut(&BasicBlockId::new(2)).unwrap();
+    normal.instructions.clear();
+    normal.instruction_spans.clear();
+    normal.terminator = Some(MirInstruction::Return { value: None });
     MirVerifier::new().verify_function(&function).unwrap();
+
 }
 
 #[test]

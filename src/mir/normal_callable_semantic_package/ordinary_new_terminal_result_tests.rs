@@ -1,5 +1,7 @@
+use crate::mir::resolved_semantics::OwnedExprSiteV1;
+
 #[test]
-fn root_instance_call_uses_selected_result_contract() {
+fn lexical_instance_return_uses_selected_result_contract() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64
         birth(left, right) { me.left = left me.right = right }
@@ -10,12 +12,17 @@ fn root_instance_call_uses_selected_result_contract() {
     )
     .expect("annotated instance result must be source-admitted");
     let ledger = &package.ordinary_new_claim_ledger;
-    assert!(ledger.root_instance_call_expected(ledger.root_completion_for_test().owner()));
-    assert!(!ledger.root_instance_call_is_empty());
+    let owner = ledger.root_completion_for_test().owner();
+    assert!(!ledger.root_instance_call_expected(owner));
+    assert!(ledger.root_instance_call_is_empty());
+    let terminal = ledger.call_source_completion().unwrap().1;
+    let source = terminal.source_scalar().expect("original source scalar result");
+    assert_ne!(source.source().callee_owner(), owner);
+    assert!(ledger.borrowed_terminal_arguments_v1(owner, terminal.return_site()).unwrap().is_some());
 }
 
 #[test]
-fn root_instance_call_retains_initializer_and_claim_object_identity() {
+fn lexical_instance_return_retains_initializer_and_claim_object_identity() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Pair { left: i64 right: i64
         birth(left, right) { me.left = left me.right = right }
@@ -34,17 +41,26 @@ fn root_instance_call_retains_initializer_and_claim_object_identity() {
         .1
         .call_site()
         .clone();
-    let row = ledger
-        .take_root_instance_call(owner, &call_site)
-        .expect("take source row")
-        .expect("instance call row");
+    let terminal = ledger.call_source_completion().unwrap().1;
+    let row = ledger.take_borrowed_lexical_call_for_return_v1(owner, terminal.return_site())
+        .expect("take same original lexical row").expect("instance call row");
+    assert_eq!(row.call_site().site(), &call_site);
+    assert_eq!(row.scalar_result_source_v1(), terminal.source_scalar());
+    assert_eq!(row.result(), Some(crate::mir::instruction::InvokeCallResultKind::I64));
+    let receiver = row.receiver_binding().unwrap();
+    let declaration = package.batch().declarations().find(|row| row.owner() == owner).unwrap();
+    let initializers = package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+        input.function().expression_source().initializers()
+            .map(|row| (row.binding(), row.initializer_site().cloned())).collect::<Vec<_>>()
+    }).unwrap();
+    assert_eq!(initializers.len(), 2, "retain both same-class original locals");
+    assert_eq!(initializers[1].0, receiver, "return uses second receiver");
+    let initializer = OwnedExprSiteV1::new(owner, initializers[1].1.clone().unwrap());
     let claims = ledger.pending_claims_for_test();
-    let claim = claims
-        .get(row.receiver_initializer())
-        .expect("initializer claim remains source-owned");
-    assert_eq!(row.receiver_initializer().owner(), owner);
-    assert_eq!(row.receiver_binding().owner(), owner);
-    assert_eq!(row.receiver_object(), claim.object());
+    let claim = claims.get(&initializer).expect("same original second initializer claim");
+    assert_eq!(receiver.owner(), owner);
+    assert_eq!(row.target().owner(), claim.class());
+    assert_ne!(claims.get(&OwnedExprSiteV1::new(owner, initializers[0].1.clone().unwrap())).unwrap().site(), claim.site());
 }
 
 #[test]
@@ -142,7 +158,7 @@ fn root_instance_call_rejects_emitted_receiver_mutation() {
 }
 
 #[test]
-fn root_instance_call_without_result_contract_stays_unavailable() {
+fn unannotated_instance_return_retains_source_scalar_without_duplicate_root_row() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }
         box Pair { left: i64 right: i64
@@ -153,9 +169,12 @@ fn root_instance_call_without_result_contract_stays_unavailable() {
         return pair.sum() }
         helper() { local page = new Page() local m = %{\"v\" => 1} return 30 } }",
     )
-    .expect("missing result contract is an unavailable source shape");
+    .expect("unannotated source scalar remains semantically proved");
     let ledger = &package.ordinary_new_claim_ledger;
-    assert!(ledger.root_instance_call_expected(ledger.root_completion_for_test().owner()));
+    assert!(!ledger.root_instance_call_expected(ledger.root_completion_for_test().owner()));
+    let terminal = ledger.call_source_completion().unwrap().1;
+    assert!(terminal.source_scalar().is_some());
+    assert!(ledger.borrowed_terminal_arguments_v1(terminal.owner(), terminal.return_site()).unwrap().is_some());
     let child_owner = package
         .batch()
         .declarations()
@@ -257,14 +276,13 @@ fn unreleasable_root_call_receiver_passes_finishing_but_not_the_seal() {
             "Main.main/0".into(),
             &module,
             &std::collections::BTreeSet::new(),
-            None,
-        )
+            None, Vec::new())
         .expect_err("document sealing stays the sole rejection authority");
     assert!(error.contains("root-call-entry-unavailable"), "{error}");
 }
 
 #[test]
-fn root_instance_call_without_result_contract_is_owner_scoped_in_inverse_order() {
+fn unannotated_instance_return_is_owner_scoped_in_inverse_order() {
     let package = super::super::brand_catalog_tests::issue_with_brand_catalog(
         "box Page { birth() { } }
         box Pair { left: i64 right: i64
@@ -274,10 +292,14 @@ fn root_instance_call_without_result_contract_is_owner_scoped_in_inverse_order()
         helper() { local page = new Page() local m = %{\"v\" => 1} return 30 }
         main() { local pair = new Pair(10, 20) return pair.sum() } }",
     )
-    .expect("inverse declaration order keeps the missing result contract unavailable");
+    .expect("inverse declaration order retains original scalar source");
     let ledger = &package.ordinary_new_claim_ledger;
     let root_owner = ledger.root_completion_for_test().owner();
-    assert!(ledger.root_instance_call_expected(root_owner));
+    assert!(!ledger.root_instance_call_expected(root_owner));
+    let terminal = ledger.call_source_completion().unwrap().1;
+    assert_eq!(terminal.owner(), root_owner);
+    assert!(terminal.source_scalar().is_some());
+    assert!(ledger.borrowed_terminal_arguments_v1(root_owner, terminal.return_site()).unwrap().is_some());
     let child_owner = package
         .batch()
         .declarations()
@@ -436,10 +458,10 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
     assert_eq!(relation.value(), 30);
     assert_eq!(completion.explicit_site(), Some(relation.return_site()));
     let value = ledger
-        .prepare_terminal_integer_literal_return(owner, relation.return_site().node())
+        .prepare_terminal_scalar_literal_return(owner, relation.return_site().node())
         .unwrap()
         .expect("owner-indexed literal consumer");
-    assert_eq!(value, 30);
+    assert_eq!(value, crate::mir::ConstValue::Integer(30));
     let foreign_owner = package
         .batch()
         .declarations()
@@ -447,11 +469,11 @@ fn ordinary_child_literal_relation_is_borrowed_by_owner() {
         .expect("app main owner")
         .owner();
     assert!(ledger
-        .prepare_terminal_integer_literal_return(foreign_owner, relation.return_site().node())
+        .prepare_terminal_scalar_literal_return(foreign_owner, relation.return_site().node())
         .unwrap()
         .is_none());
     ledger
-        .record_terminal_integer_literal_return(
+        .record_terminal_scalar_literal_return(
             owner,
             relation.return_site().node(),
             crate::mir::ValueId(900),
@@ -512,6 +534,8 @@ fn ordinary_child_field_relation_is_retained_by_owner() {
 #[test]
 fn child_and_root_add_field_reads_merge_in_declaration_order() {
     for methods in [
+        "main() { local pair = new Pair(10, 20) return pair.left + pair.right } helper(value: i64): i64 { local pair = new Pair(value, 20) return pair.left + pair.right }",
+        "helper(value: i64): i64 { local pair = new Pair(value, 20) return pair.left + pair.right } main() { local pair = new Pair(10, 20) return pair.left + pair.right }",
         r#"main() { local pair = new Pair(10, 20) local m = %{"root" => 1} return pair.left + pair.right }
            helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }"#,
         r#"helper(value: i64): i64 { local pair = new Pair(value, 20) local m = %{"child" => value} return pair.left + pair.right }
@@ -766,6 +790,6 @@ fn owned_field_receiver_home_seals_call_entry_and_residence_release() {
         .functions
         .insert(function.signature.name.clone(), function);
     ledger
-        .seal_finalized_root_birth_handoff("Main.main/1".into(), &module, &birth_keys, None)
+        .seal_finalized_root_birth_handoff("Main.main/1".into(), &module, &birth_keys, None, Vec::new())
         .unwrap_or_else(|e| panic!("seal must accept the owned-field Call entry: {e}"));
 }

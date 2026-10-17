@@ -41,11 +41,30 @@ type FieldValueSourcesV1 = BTreeMap<
     (Box<str>, Box<str>), Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>,
 >;
 
+/// The original all-writer class proof, distinct from numeric value/whole-Birth
+/// eligibility. Every consumer shares this row; declaration alone is not class.
+#[derive(Debug)]
+pub(crate) struct ObjectFieldClassSourceV1 {
+    inventory: Rc<OriginalFieldWriterInventoryV1>,
+    class: Box<str>,
+    declaration: Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>,
+}
+impl ObjectFieldClassSourceV1 {
+    pub(crate) fn class(&self) -> &str { &self.class }
+    pub(crate) fn field(&self) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
+        if self.inventory.opaque || self.inventory.value_incomplete { return None; }
+        let (field, declared) = self.declaration.as_ref()?;
+        (declared.as_deref() == Some(self.class())).then_some(*field)
+    }
+}
+pub(crate) type ObjectFieldClassSourcesV1 =
+    Rc<BTreeMap<(Box<str>, Box<str>), Rc<ObjectFieldClassSourceV1>>>;
+
 /// The same sealed writer inventory owns the object-class projection and
 /// pending original RHS needs. Retaining a plan grants no numeric value class.
 #[derive(Debug, Default)]
 pub(crate) struct OrdinaryNewFieldWriteClaimsV1 {
-    object_classes: BTreeMap<(Box<str>, Box<str>), Box<str>>,
+    object_classes: ObjectFieldClassSourcesV1,
     writers: Rc<OriginalFieldWriterInventoryV1>,
     value_sources: FieldValueSourcesV1,
 }
@@ -58,15 +77,82 @@ struct OriginalFieldWriterInventoryV1 {
     opaque: bool,
     value_incomplete: bool,
 }
-impl OrdinaryNewFieldWriteClaimsV1 {
-    pub(crate) fn get(&self, key: &(Box<str>, Box<str>)) -> Option<&Box<str>> {
-        self.object_classes.get(key)
+
+/// Loan of one original writer, without attributing its receiver or field class.
+#[derive(Debug, Clone)]
+pub(crate) struct OriginalFieldWriteSourceLoanV1 {
+    inventory: Rc<OriginalFieldWriterInventoryV1>,
+    index: usize,
+}
+impl PartialEq for OriginalFieldWriteSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.inventory, &other.inventory) && self.index == other.index
     }
+}
+impl Eq for OriginalFieldWriteSourceLoanV1 {}
+impl OriginalFieldWriteSourceLoanV1 {
+    pub(crate) fn write(&self) -> &ObservedFieldWriteV1 {
+        &self.inventory.writes[self.index]
+    }
+
+    /// A closed original writer census, not an actual child-class or Home proof.
+    pub(crate) fn corroborates_sole_provided_birth_v1(
+        &self,
+        owner_box: &str,
+        constructor: &ConstructorSourceIdV1,
+        owner: FunctionOwnerIdV1,
+        assignment: &ResolvedAssignmentSourceV1,
+    ) -> bool {
+        let write = self.write();
+        if self.inventory.opaque || self.inventory.value_incomplete
+            || self.inventory.unattributed_fields.contains(write.field())
+            || !write.is_attributed() || write.owner_box() != Some(owner_box)
+            || write.owner() != owner || write.assignment() != assignment
+            || !write.birth_source().is_some_and(|source| source.same_as(constructor))
+            || !matches!(write.object_store, ObservedFieldStoreV1::Provided)
+            || write.source().is_err() {
+            return false;
+        }
+        let mut writers = self.inventory.writes.iter().enumerate().filter(|(_, row)|
+            row.owner_box() == Some(owner_box) && row.field() == write.field());
+        writers.next().is_some_and(|(index, _)| index == self.index) && writers.next().is_none()
+    }
+}
+impl OrdinaryNewFieldWriteClaimsV1 {
+    pub(crate) fn original_write_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        target: &SourceExprSiteV1,
+    ) -> Result<Option<OriginalFieldWriteSourceLoanV1>, &'static str> {
+        let mut rows = self.writers.writes.iter().enumerate().filter(|(_, row)|
+            row.owner() == owner && row.assignment().target_site() == target);
+        let Some((index, row)) = rows.next() else { return Ok(None); };
+        if rows.next().is_some() { return Err("field-write/source-duplicate"); }
+        row.source().map_err(|_| "field-write/source-plan")?;
+        Ok(Some(OriginalFieldWriteSourceLoanV1 { inventory: self.writers.clone(), index }))
+    }
+
+    pub(crate) fn recheck_original_write_source_v1(
+        &self, loan: &OriginalFieldWriteSourceLoanV1,
+    ) -> Result<(), &'static str> {
+        if !Rc::ptr_eq(&self.writers, &loan.inventory)
+            || loan.index >= self.writers.writes.len()
+        { return Err("field-write/source-inventory"); }
+        loan.write().source().map_err(|_| "field-write/source-plan")?;
+        Ok(())
+    }
+    pub(crate) fn get(&self, key: &(Box<str>, Box<str>)) -> Option<&Box<str>> {
+        self.object_classes.get(key).map(|source| &source.class)
+    }
+    pub(crate) fn object_sources(&self) -> &ObjectFieldClassSourcesV1 { &self.object_classes }
     pub(crate) fn writes(&self) -> &[ObservedFieldWriteV1] {
         &self.writers.writes
     }
     pub(crate) fn value_source(&self, class: &str, field: &str) -> Option<&Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>> {
         self.value_sources.get(&(class.into(), field.into()))
+    }
+    pub(crate) fn value_sources(&self) -> impl Iterator<Item = (&str, &str, &Result<Rc<DeclaredFieldValueSourceV1>, FieldValueSourceIssueV1>)> {
+        self.value_sources.iter().map(|((class, name), source)| (class.as_ref(), name.as_ref(), source))
     }
     /// Missing function inventory and unknown receivers remain explicit vetoes
     /// for every later typed consumer, including when no object claim exists.
@@ -336,12 +422,20 @@ impl OrdinaryNewFieldWriteClaimDraftV1 {
                 object_classes.insert((owner_box, field), class.clone());
             }
         }
+        let writers = Rc::new(OriginalFieldWriterInventoryV1 {
+            writes: self.writes.into_boxed_slice(), unattributed_fields, opaque: self.opaque, value_incomplete,
+        });
+        let object_classes = Rc::new(object_classes.into_iter().map(|(key, class)| {
+            let declaration = ordinary_box_coverage.row_for(&key.0).ok().flatten()
+                .and_then(|source| writers.writes.iter()
+                    .find(|write| write.owner_box() == Some(key.0.as_ref()) && write.field() == key.1.as_ref())
+                    .and_then(|write| super::source_declared_field(constructors, source,
+                        &crate::mir::resolved_semantics::OwnedExprSiteV1::new(write.owner(), write.assignment().target_site().clone()),
+                        &key.1).ok().flatten()));
+            (key, Rc::new(ObjectFieldClassSourceV1 { inventory: Rc::clone(&writers), class, declaration }))
+        }).collect());
         let mut claims = OrdinaryNewFieldWriteClaimsV1 {
-            object_classes,
-            writers: Rc::new(OriginalFieldWriterInventoryV1 {
-                writes: self.writes.into_boxed_slice(), unattributed_fields, opaque: self.opaque, value_incomplete,
-            }),
-            value_sources: BTreeMap::new(),
+            object_classes, writers, value_sources: BTreeMap::new(),
         };
         claims.value_sources = value_source::issue_value_sources_v1(
             &claims.writers, ordinary_box_coverage, constructors,

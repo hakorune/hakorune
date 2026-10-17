@@ -33,6 +33,7 @@ pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
     class: String,
     route: PreparedRawNewExpressionRouteV1,
     ordinary_claim: Option<OrdinaryNewClaimTakeV1>,
+    owned_array: Option<crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1>,
     ordinary_birth_recipe:
         Option<crate::mir::normal_callable_semantic_package::VerifiedOrdinaryNewBirthRecipeV1>,
     selected_ordinary_claim: bool,
@@ -97,6 +98,7 @@ impl PreparedRawNewExpressionV1 {
             class,
             route,
             ordinary_claim: None,
+            owned_array: None,
             ordinary_birth_recipe: None,
             selected_ordinary_claim: false,
             field_initializers,
@@ -119,6 +121,11 @@ impl PreparedRawNewExpressionV1 {
         let PreparedRawNewExpressionRouteV1::Ordinary { arguments } = &self.route else {
             return Ok(());
         };
+        self.owned_array = port.prepare_owned_array_construction(&self.class, arguments.len(), self.field_initializers.len())?;
+        if self.owned_array.is_some() {
+            self.selected_ordinary_claim = true;
+            return Ok(());
+        }
         let claim = port.try_take_ordinary_new_claim(&self.class, arguments.len())?;
         if claim
             .as_ref()
@@ -183,6 +190,7 @@ impl MirBuilder {
             class,
             route,
             ordinary_claim,
+            owned_array,
             ordinary_birth_recipe,
             selected_ordinary_claim,
             field_initializers,
@@ -234,6 +242,9 @@ impl MirBuilder {
                     .value_types
                     .insert(dst, super::MirType::Integer);
                 dst
+            }
+            PreparedRawNewExpressionRouteV1::Ordinary { .. } if owned_array.is_some() => {
+                port.emit_owned_array_construction(self, owned_array.expect("selected Array construction"))?
             }
             PreparedRawNewExpressionRouteV1::Ordinary { arguments: _ }
                 if selected_ordinary_claim =>

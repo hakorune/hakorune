@@ -4,12 +4,30 @@ use super::*;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
 use crate::mir::normal_callable_semantic_package::PreparedStaticTerminalRootRouteV1;
 use std::rc::Rc;
+use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
 
 impl OrdinaryNewClaimLedgerV1 {
     /// Bridge the completed original scalar cohort to its ordered packet actuals.
     fn checked_static_scalar_packet_actuals_v1(
         &self,
         original: &Rc<StaticIncomingSourceV1>,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        self.with_checked_static_scalar_packet_actuals_v1(original, |arguments, _| {
+            let Some(observation) = self.local_call_for_owner(
+                original.call_site().owner(), original.call_site().site(),
+            ) else { return Ok(false); };
+            if observation.arguments() != arguments {
+                return Err(freeze("static-scalar/packet-ordered-arguments-drift"));
+            }
+            Ok(true)
+        })
+    }
+
+    fn with_checked_static_scalar_packet_actuals_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        corroborate: impl FnOnce(&[LocalCallArgumentV1], &[PreparedBorrowedFormalActualV1])
+            -> Result<bool, String>,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
         let Some(Ok(source)) = self.borrowed_formal_source.as_ref() else {
             return Ok(None);
@@ -36,15 +54,82 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         rows.require_executable_v1()?;
         let arguments = rows.ordered_arguments_for_v1(call)?;
-        let Some(observation) =
-            self.local_call_for_owner(original.call_site().owner(), original.call_site().site())
-        else {
+        if !corroborate(arguments, rows.opaque_actuals.as_ref())? {
             return Ok(None);
-        };
-        if observation.arguments() != arguments {
-            return Err(freeze("static-scalar/packet-ordered-arguments-drift"));
         }
         Ok(Some(rows.opaque_actuals.as_ref()))
+    }
+
+    /// A provider borrows the same scalar nucleus using its own original
+    /// constructor source. It never passes through the Local observation owner.
+    pub(crate) fn prepare_provider_static_packet_v1(
+        &self,
+        provider: &Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1>, String> {
+        let Some(prepared) = self.borrowed_formal_source.as_ref() else { return Ok(None); };
+        let source = prepared.as_ref().map_err(Clone::clone)?;
+        let (caller, site, target, literals) = provider.original_call_v1()
+            .ok_or_else(|| freeze("provider-static/call-source-missing"))?;
+        source.corroborate_original_provider_static_source_v1(provider)?;
+        if source.scalar_qualified_source_call_v1(&site)?.is_none() { return Ok(None); }
+        let original = source.source_incoming.static_observations().get(&site)
+            .ok_or_else(|| freeze("provider-static/incoming-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        self.verify_original_static_packet_source_v1(original)?;
+        if original.caller() != caller || original.target() != target
+            || original.call_site() != &site || !original.is_qualified()
+            || original.argument_sites().len() != literals.len() {
+            return Err(freeze("provider-static/packet-source-drift"));
+        }
+        let mut ordered = None;
+        self.with_checked_static_scalar_packet_actuals_v1(original, |arguments, actuals| {
+            if arguments.len() != literals.len() {
+                return Err(freeze("provider-static/packet-arity"));
+            }
+            for (ordinal, (argument, literal)) in arguments.iter().zip(literals).enumerate() {
+                use crate::mir::normal_callable_semantic_package::QualifiedStaticCallArgumentKindV1 as Literal;
+                let valid = match argument {
+                    LocalCallArgumentV1::Integer(value) => matches!(literal, Literal::Integer(expected) if value == expected),
+                    LocalCallArgumentV1::Bool(value) => matches!(literal, Literal::Bool(expected) if value == expected),
+                    LocalCallArgumentV1::BorrowedActual { ordinal: index, site } => {
+                        *index as usize == ordinal && original.argument_sites().get(ordinal) == Some(site)
+                            && actuals.iter().filter(|actual| actual.ordinal == *index).count() == 1
+                            && actuals.iter().any(|actual| actual.ordinal == *index && &actual.site == site
+                                && original.parameters().get(ordinal).is_some_and(|formal| formal.binding == actual.formal)
+                                && match (&actual.source, literal) {
+                                    (BorrowedFormalActualSourceV1::Integer(value), Literal::Integer(expected)) => value == expected,
+                                    (BorrowedFormalActualSourceV1::Bool(value), Literal::Bool(expected)) => value == expected,
+                                    _ => false,
+                                })
+                    }
+                    _ => false,
+                };
+                if !valid { return Err(freeze("provider-static/packet-actual-drift")); }
+            }
+            ordered = Some(arguments.to_vec().into_boxed_slice());
+            Ok(true)
+        })?.ok_or_else(|| freeze("provider-static/whole-input-unready"))?;
+        Ok(Some(crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1 {
+            source: Rc::clone(provider), incoming: Rc::clone(original),
+            arguments: ordered.ok_or_else(|| freeze("provider-static/ordered-arguments-missing"))?,
+        }))
+    }
+
+    pub(crate) fn borrowed_provider_packet_actuals_v1(
+        &self,
+        packet: &crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1,
+    ) -> Result<&[PreparedBorrowedFormalActualV1], String> {
+        let checked = self.prepare_provider_static_packet_v1(packet.original_source())?
+            .ok_or_else(|| freeze("provider-static/final-source-unavailable"))?;
+        if !Rc::ptr_eq(checked.incoming(), packet.incoming())
+            || checked.arguments() != packet.arguments() {
+            return Err(freeze("provider-static/final-source-drift"));
+        }
+        // The preceding original-source lender checked these same immutable rows.
+        let rows = self.borrowed_formal_actuals.get(packet.incoming().call_site())
+            .ok_or_else(|| freeze("provider-static/final-actuals-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        Ok(rows.opaque_actuals.as_ref())
     }
 
     /// Only a cohort with an original CurrentOwner zero-input source selects
@@ -459,6 +544,11 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(rows) = self.checked_static_tagged_packet_actuals_v1(original)? {
             return Ok(Some(rows));
         }
+        if original.is_qualified() {
+            if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
+                return Ok(Some(rows));
+            }
+        }
         if original.is_current_owner_i64_source_v1() && original.argument_sites().len() == 1 {
             if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
                 return Ok(Some(rows));
@@ -489,6 +579,26 @@ impl OrdinaryNewClaimLedgerV1 {
                 .map_err(Clone::clone)?;
             return Ok(Some(rows.opaque_actuals.as_ref()));
         }
+        self.with_qualified_static_packet_actuals_v1(original, |arguments| {
+            let observation = self
+                .local_call_for_owner(original.call_site().owner(), original.call_site().site())
+                .ok_or_else(|| freeze("borrowed-static/local-source-missing"))?;
+            if observation.arguments() != arguments {
+                return Err(freeze("borrowed-static/ordered-arguments-drift"));
+            }
+            Ok(())
+        }).map(Some)
+    }
+
+    /// Join the one immutable qualified source, its whole incoming cohort and
+    /// executable ordered actuals before a continuation corroborates its own
+    /// source representation. Local observations remain a caller obligation;
+    /// this lender neither creates one nor grants result/physical permission.
+    fn with_qualified_static_packet_actuals_v1(
+        &self,
+        original: &Rc<StaticIncomingSourceV1>,
+        corroborate_arguments: impl FnOnce(&[LocalCallArgumentV1]) -> Result<(), String>,
+    ) -> Result<&[PreparedBorrowedFormalActualV1], String> {
         original.require_qualified()?;
         let source = self
             .borrowed_formal_source
@@ -534,13 +644,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .map_err(Clone::clone)?;
         rows.require_executable_v1()?;
         let arguments = rows.ordered_arguments_for_v1(call)?;
-        let observation = self
-            .local_call_for_owner(call.call.owner(), call.call.site())
-            .ok_or_else(|| freeze("borrowed-static/local-source-missing"))?;
-        if observation.arguments() != arguments {
-            return Err(freeze("borrowed-static/ordered-arguments-drift"));
-        }
-        Ok(Some(rows.opaque_actuals.as_ref()))
+        corroborate_arguments(&arguments)?;
+        Ok(rows.opaque_actuals.as_ref())
     }
 }
 

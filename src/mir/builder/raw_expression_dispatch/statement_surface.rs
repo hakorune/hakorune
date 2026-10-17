@@ -651,7 +651,7 @@ where
         if let Some(value) = port.emit_terminal_i64_add_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
-        if let Some(value) = port.emit_terminal_integer_literal_return(builder)? {
+        if let Some(value) = port.emit_terminal_scalar_literal_return(builder)? {
             return port.emit_root_home_exit(builder, value);
         }
         if let Some(value) = port.emit_terminal_i64_field_return(builder)? {
@@ -679,16 +679,16 @@ where
     }
     match &statement {
         ASTNode::Return { value: Some(_), .. } => {
-            if let Some(value) = port.emit_terminal_integer_literal_return(builder)? {
+            if let Some(value) = port.emit_terminal_scalar_literal_return(builder)? {
                 // The sealed helper emitted `Const literal` and consumed the
                 // relation — the generic path still owes the physical Return:
                 // `prepare_root_home_exit` answers all-or-nothing per
                 // function, so an unready sibling exit leaves this site on
                 // the generic lane where a yielded `Lowered` value inside a
                 // branch would silently merge instead of returning.
-                return crate::mir::builder::stmts::return_stmt::emit_return_from_value(
-                    builder, value,
-                );
+                let emitted = crate::mir::builder::stmts::return_stmt::emit_return_from_value(builder, value)?;
+                port.complete_terminal_scalar_literal_return(builder)?;
+                return Ok(emitted);
             }
             let input = RawLegacyValueReturnInputV1::new(statement);
             drive_value_return_statement_v1(builder, port, input, |builder, port, input| {

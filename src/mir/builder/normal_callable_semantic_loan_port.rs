@@ -151,6 +151,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         };
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let owned_array_source = self.package.owned_array_lifecycle_source_v1();
         let named_array_emissions = self.package.named_array_emission_collector();
         Ok(self
             .package
@@ -164,6 +165,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                         core_method_calls,
                         Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
+                        Some(owned_array_source),
                         Some(loop_break_take),
                         execute,
                     )

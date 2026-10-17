@@ -17,18 +17,27 @@ impl OrdinaryNewClaimLedgerV1 {
             calls.extend(cohort.incoming.iter());
         } else if source.source_only_definitions.contains_key(&owner) {
             if let Some(view) = &owner_view {
+                calls.retain(|call| call.callee != owner);
                 calls.extend(view.incoming.iter().copied());
             }
+        }
+        if scoped_static {
+            calls = self.original_static_execution_calls_v1(source, owner, calls)?;
         }
         let execution = scoped_static
             .then(|| self.checked_static_execution_owners_v1(source, owner, &calls))
             .transpose()?;
         for call in calls {
-            let definition = source.definitions.get(&call.callee).or_else(|| {
-                (call.callee == owner)
-                    .then(|| owner_view.as_ref().map(|view| view.definition))
-                    .flatten()
-            });
+            let definition = if let Some(definition) = source.definitions.get(&call.callee) {
+                Some(definition)
+            } else if call.callee == owner {
+                owner_view.as_ref().map(|view| view.definition)
+            } else if scoped_static {
+                self.checked_mixed_instance_entry_v1(source, call.callee)?
+                    .map(|view| view.definition)
+            } else {
+                None
+            };
             let Some(definition) = definition else {
                 return Err(freeze("borrowed-entry/incoming-identity"));
             };
@@ -67,41 +76,41 @@ impl OrdinaryNewClaimLedgerV1 {
                     .ok_or_else(|| freeze("borrowed-static/original-catalog-missing"))?;
                 if super::super::borrowed_formal_actuals::revalidate_passive_object_incoming_v1(
                     source, contracts, call, actuals,
+                    Some(self),
+                )? || super::super::borrowed_formal_actuals::revalidate_passive_instance_incoming_with_array_context_v1(
+                    source, contracts, call, actuals, &self.callable_result_classes, Some(self),
                 )? {
                     continue;
                 }
             }
-            actuals.ordered_arguments_for_entry_v1(call)?;
-            let actuals = &actuals.opaque_actuals;
-            for actual in actuals.iter() {
-                if definition.origins.get(&actual.formal) != Some(&actual.formal) {
-                    return Err(freeze("borrowed-entry/actuals-identity"));
-                }
-                // A minted object view binds every incoming actual to one
-                // agreed class — a sealed actual naming a different class
-                // (or no class at all) is drift, never a second authority.
-                if let Some(view) = source.object_views.get(&actual.formal) {
-                    let agrees = match &actual.source {
-                        super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
-                        | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
-                        | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
-                        | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
-                            class.as_ref() == view.class()
-                        }
-                        super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Null => true,
-                        super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
-                            source
-                                .object_views
-                                .get(formal)
-                                .is_some_and(|origin| origin.class() == view.class())
-                        }
-                        _ => false,
-                    };
-                    if !agrees {
-                        return Err(freeze("borrowed-entry/object-view-drift"));
-                    }
-                }
+            if call.source.instance().is_some_and(|target| {
+                super::super::borrowed_formal_actuals::selected_source_only_object_forward_v1(
+                    source, target,
+                )
+            }) {
+                let catalog = self
+                    .original_parameter_contracts
+                    .as_deref()
+                    .ok_or_else(|| freeze("borrowed-guarded/original-catalog-missing"))?;
+                super::super::borrowed_formal_actuals::revalidate_passive_object_incoming_v1(
+                    source, catalog, call, actuals,
+                    Some(self),
+                )?;
             }
+            actuals
+                .ordered_arguments_for_entry_v1(call)
+                .map_err(|issue| {
+                    if actuals.is_source_only_object_v1() {
+                        let detail = self
+                            .typed_object_input_completion_diagnostic_v1(call.callee)
+                            .unwrap_or_else(|issue| issue);
+                        format!("{issue}; object-input: {detail}")
+                    } else {
+                        issue
+                    }
+                })?;
+            let actuals = &actuals.opaque_actuals;
+            self.check_entry_actual_domains_v1(source, definition, actuals)?;
             if call.callee == owner {
                 incoming.push((&call.call, actuals.as_ref()));
             }
@@ -110,5 +119,145 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("borrowed-entry/incoming-missing"));
         }
         Ok(incoming.into_boxed_slice())
+    }
+
+    pub(super) fn check_entry_actual_domains_v1(
+        &self,
+        source: &PreparedBorrowedFormalIngressV1,
+        definition: &super::super::borrowed_formal_uses::BorrowedFormalUsesDraftV1,
+        actuals: &[PreparedBorrowedFormalActualV1],
+    ) -> Result<(), String> {
+        for actual in actuals.iter() {
+            if definition.origins.get(&actual.formal) != Some(&actual.formal) {
+                return Err(freeze("borrowed-entry/actuals-identity"));
+            }
+            // A minted object view binds every incoming actual to one
+            // agreed class — a sealed actual naming a different class
+            // (or no class at all) is drift, never a second authority.
+            if let Some(view) = source.source_object_view_v1(actual.formal)? {
+                let agrees = match &actual.source {
+                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Read(loan) => loan.class() == view.class(),
+                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedNullable { class, .. }
+                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::ReceivedMixed { class, .. }
+                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::TypedHome { class, .. }
+                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::EntryReceiver { class, .. }
+                    | super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::DeclaredFormal { class, .. } => {
+                        class.as_ref() == view.class()
+                    }
+                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Null => true,
+                    super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
+                        source
+                            .object_views
+                            .get(formal)
+                            .is_some_and(|origin| origin.class() == view.class())
+                    }
+                    _ => false,
+                };
+                if !agrees {
+                    return Err(freeze("borrowed-entry/object-view-drift"));
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+
+impl OrdinaryNewClaimLedgerV1 {
+    /// Observe the SAME source-checked substitution while the immediate callee
+    /// ordinal is still available. A composed outer ordinal cannot replace it.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn compose_object_return_field_supports_with_v1(
+        &self,
+        acquisition: &super::super::super::completion_index::VerifiedObjectReturnSourceAcquisitionV1,
+        required: &[super::super::super::completion_index::ObjectReturnFieldSupportV1],
+        mut visit: impl FnMut(&super::super::super::completion_index::ObjectReturnFieldSupportV1,
+            &super::super::super::completion_index::ObjectReturnFieldSupportV1) -> Result<(), String>,
+    ) -> Result<Option<Box<[super::super::super::completion_index::ObjectReturnFieldSupportV1]>>, String> {
+        use super::super::borrowed_formal_actuals::BorrowedFormalActualSourceV1 as Source;
+        use crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1;
+        if required.is_empty() { return Ok(Some(Box::new([]))); }
+        let loan = acquisition.original().qualification();
+        let source = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| freeze("object-return/support-source"))?.as_ref().map_err(Clone::clone)?;
+        let target = source.object_source_target_at_v1(loan.call())?
+            .ok_or_else(|| freeze("object-return/support-target"))?;
+        let mut calls = source.source_incoming.exact_rows().filter(|call| &call.call == loan.call());
+        let call = calls.next().ok_or_else(|| freeze("object-return/support-incoming"))?;
+        if calls.next().is_some() || call.source.require_instance()? != target
+            || call.callee != target.callee_owner() || target.target() != loan.key()
+        { return Err(freeze("object-return/support-target")); }
+        let Some(actuals) = self.borrowed_formal_actuals.get(loan.call()) else { return Ok(None); };
+        let actuals = actuals.as_ref().map_err(Clone::clone)?;
+        if actuals.ordered_arguments_for_v1(call)? != acquisition.arguments() {
+            return Err(freeze("object-return/support-argument-snapshot"));
+        }
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("object-return/support-catalog"))?;
+        let mut callers = catalog.iter().filter(|row| row.owner == loan.call().owner());
+        let caller = callers.next().ok_or_else(|| freeze("object-return/support-caller"))?;
+        if callers.next().is_some() { return Err(freeze("object-return/support-caller")); }
+        let mut callees = catalog.iter().filter(|row| row.owner == target.callee_owner());
+        let callee = callees.next().ok_or_else(|| freeze("object-return/support-callee"))?;
+        if callees.next().is_some() || callee.batch_slot != target.target_batch_slot() {
+            return Err(freeze("object-return/support-callee"));
+        }
+        let mut composed = Vec::new();
+        let mut missing = false;
+        for support in required {
+            let mut parameters = callee.parameters.iter().filter(|row| row.ordinal == support.ordinal);
+            let parameter = parameters.next().ok_or_else(|| freeze("object-return/support-callee-formal"))?;
+            if parameters.next().is_some() || parameter.binding != support.formal
+                || support.formal.owner() != target.callee_owner()
+            { return Err(freeze("object-return/support-callee-formal")); }
+            let mut matching = actuals.opaque_actuals.iter().filter(|row| row.ordinal == support.ordinal);
+            let actual = matching.next().ok_or_else(|| freeze("object-return/support-actual"))?;
+            if matching.next().is_some() || actual.formal != support.formal
+                || target.argument_sites().get(support.ordinal as usize) != Some(&actual.site)
+                || !matches!(acquisition.arguments().get(support.ordinal as usize),
+                    Some(LocalCallArgumentV1::BorrowedActual { ordinal, site })
+                    if *ordinal == support.ordinal && site == &actual.site)
+            { return Err(freeze("object-return/support-actual-identity")); }
+            let (binding, root, declared) = match &actual.source {
+                Source::Null => continue,
+                Source::Forwarded { binding, formal } => (*binding, *formal, None),
+                Source::DeclaredFormal { binding, root, class } => (*binding, *root, Some(class)),
+                // Local acquisitions, receiver and Array reads require an
+                // explicit outgoing support role. BorrowForCall is insufficient.
+                // In particular, a dying local Home cannot support an escape.
+                _ => { missing = true; continue; },
+            };
+            if root.owner() != caller.owner || binding.owner() != caller.owner {
+                return Err(freeze("object-return/support-caller-root"));
+            }
+            if binding != root && !source.definitions.get(&caller.owner)
+                .or_else(|| source.source_only_definitions.get(&caller.owner))
+                .is_some_and(|definition| definition.origins.get(&binding) == Some(&root))
+            { return Err(freeze("object-return/support-caller-origin")); }
+            let mut parameters = caller.parameters.iter().filter(|row| row.binding == root);
+            let parameter = parameters.next().ok_or_else(|| freeze("object-return/support-caller-formal"))?;
+            if parameters.next().is_some() || caller.parameters.iter()
+                .filter(|row| row.ordinal == parameter.ordinal).count() != 1
+                || !matches!(parameter.kind, CallableParameterContractKindV1::OpaqueHandle
+                    | CallableParameterContractKindV1::DeclaredObject(_))
+            { return Err(freeze("object-return/support-caller-formal")); }
+            if let Some(class) = declared {
+                if !matches!(&parameter.kind, CallableParameterContractKindV1::DeclaredObject(name) if name == class) {
+                    return Err(freeze("object-return/support-declared-class"));
+                }
+            }
+            // An admitted/declared view is a constraint only. An untyped
+            // caller formal remains class-free; this never mints its view.
+            let view = source.formal_object_view(root).or(source.source_object_view_v1(root)?
+                .filter(|view| view.is_declared()));
+            if view.is_some_and(|view| view.object() != support.relation.child()) {
+                return Err(freeze("object-return/support-object"));
+            }
+            let mut output = support.clone();
+            output.formal = root;
+            output.ordinal = parameter.ordinal;
+            visit(support, &output)?;
+            composed.push(output);
+        }
+        Ok(if missing { None } else { Some(composed.into_boxed_slice()) })
     }
 }

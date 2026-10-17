@@ -66,7 +66,7 @@ fn emitted(port: &NamedArrayWriteEmissionPortV1) -> EmittedNamedArrayRequirement
 }
 
 fn module(row: &EmittedNamedArrayRequirementV1) -> MirModule {
-    let marker = row.marker();
+    let marker = row.marker().expect("write fixture retains a write observation");
     let crate::mir::named_array_obligation::NamedArrayAllocationRefV1::LocalValue(
         allocation,
     ) = marker.allocation
@@ -216,7 +216,7 @@ fn two_source_writes_share_one_exact_construction() {
         emitted_rows.push(port.take_completed().unwrap());
     }
     let mut physical = module(&emitted_rows[0]);
-    let second = emitted_rows[1].marker();
+    let second = emitted_rows[1].marker().expect("write fixture retains a write observation");
     let function = physical.functions.values_mut().next().unwrap();
     function
         .blocks

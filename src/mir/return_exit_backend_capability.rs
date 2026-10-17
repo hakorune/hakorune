@@ -48,7 +48,7 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
     input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<(), String> {
     for physical in input.program().functions() {
-        let (symbol, map_result) = match physical.role() {
+        let (symbol, non_numeric_result) = match physical.role() {
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::Root { .. } => (physical.name(), false),
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { key, .. } => (module
                 .canonical_callable_definition_symbol(key)
@@ -56,10 +56,16 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { key, .. } => (module
                 .canonical_callable_definition_symbol(key)
                 .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?, true),
+            crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { key, .. }
+            | crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { key, .. } => (module
+                .canonical_callable_definition_symbol(key)
+                .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?, true),
             // A selected handle-result function likewise returns no i64
             // contract — the owned object rides the Handle ABI.
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { key, .. }
-            | crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { key, .. } => (module
+            | crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { key, .. }
+            | crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle { key, .. }
+            | crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { key, .. } => (module
                 .canonical_callable_definition_symbol(key)
                 .ok_or_else(|| format!("{} reason=ordinary-definition-missing", LIFECYCLE_RETURN_EXIT_CAPABILITY_MISSING_TAG))?, true),
             crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { .. } => continue,
@@ -73,7 +79,7 @@ pub(crate) fn enforce_lifecycle_return_exit_backend_supported(
         validate_return_exit_contract(function)?;
         // A numeric return contract belongs to the i64 ABI only; a selected
         // Map function must carry no numeric contract at all.
-        let contract_drift = if map_result {
+        let contract_drift = if non_numeric_result {
             function.metadata.return_exit_contract.is_some()
         } else {
             function

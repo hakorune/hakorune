@@ -45,7 +45,8 @@ fn construction_store_fault_inventory_is_prior_committed_source_order() {
 fn caller_provided_object_store_seals_prior_owned_cleanup() {
     let package = issue_with_brand_catalog(
         "box Inner { value: i64 = 0 birth() { } }
-         box Holder { inner: Inner marker: i64
+         box Holder { left: Inner = new Inner() right: ArrayBox = new ArrayBox()
+             inner: Inner marker: i64
              birth(inner) { me.inner = inner me.marker = 1 } }
          static box Main { main() {
              local inner = new Inner() local holder = new Holder(inner) return 0
@@ -58,15 +59,25 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
         .find(|claim| claim.class() == "Holder")
         .expect("Holder source claim");
     let plan = claim.construction().as_ref().unwrap();
-    assert_eq!(plan.stores().len(), 2);
-    assert!(plan.stores()[0].fault_discharge().is_empty());
-    assert!(matches!(
-        plan.stores()[0].rhs(),
-        super::super::ConstructionStoreRhsV1::Parameter { .. }
-    ));
-    let [owned] = plan.stores()[1].fault_discharge() else {
-        panic!("prior Provided residence must be discharged")
-    };
-    assert_eq!(owned.field, plan.stores()[0].field());
-    assert!(matches!(owned.kind, OwnedFieldChildKindV1::Object(_)));
+    assert_eq!(plan.stores().len(), 4);
+    for (store, expected) in plan.stores().iter().zip([vec![], vec![0], vec![1, 0], vec![1, 0]]) {
+        assert_eq!(store.fault_discharge().iter().map(|child|
+            child.field.declaration_ordinal()).collect::<Vec<_>>(), expected);
+    }
+    assert!(matches!(plan.stores()[2].rhs(),
+        super::super::ConstructionStoreRhsV1::Parameter { provided: Some(_), .. }));
+    let children = claim.children().expect("Normal parent End keeps all residences");
+    assert_eq!(children.iter().map(|child| child.field.declaration_ordinal())
+        .collect::<Vec<_>>(), vec![0, 1, 2]);
+    let duplicated = issue_with_brand_catalog(
+        "box Inner { value: i64 = 0 birth() { } }
+         box Holder { left: Inner right: Inner
+             birth(inner) { me.left = inner me.right = inner } }
+         static box Main { main() { local inner = new Inner()
+             local holder = new Holder(inner) return 0 } }",
+    ).unwrap();
+    assert!(duplicated.ordinary_new_claim_ledger.pending_claims_for_test().values()
+        .find(|claim| claim.class() == "Holder").unwrap().construction().is_err(),
+        "one provided Home cannot become two owning fields");
+
 }

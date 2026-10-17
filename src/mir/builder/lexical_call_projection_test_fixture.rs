@@ -379,8 +379,7 @@ fn artifact_fixture_checked(
                 root_key,
                 &module,
                 &std::collections::BTreeSet::new(),
-                None,
-            )
+                None, Vec::new())
             .unwrap_err();
         assert!(
             second.contains("artifact-root-already-finalized"),

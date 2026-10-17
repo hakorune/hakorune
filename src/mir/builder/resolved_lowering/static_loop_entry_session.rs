@@ -289,7 +289,7 @@ pub(in crate::mir::builder) fn prepare_selected_static_loop_entry_v1<'builder, '
             Ok(prepared) => prepared,
             Err(rejected) => return Err(rejected.into_discarded_error().to_string()),
         };
-        let (site, bindings, packet) = entry_packet.into_local_group_parts();
+        let (site, bindings, packet) = entry_packet.into_local_group_parts()?;
         let entry_group = match claims.prepare_root_lexical_call_bindings(
             input.owner(),
             site,

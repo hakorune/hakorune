@@ -137,6 +137,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                     &mut |_, _| Ok(None),
                     statement.site(),
                     homes,
+                    unavailable.is_none(),
                     static_call,
                     &mut |_, _| Ok(false),
                     borrowed_actuals,
@@ -391,21 +392,9 @@ pub(super) fn observe_terminal_statement<'a, E>(
                             }
                         }
                         None => {
-                            let checked_return = match input.function().variable_ref(value.site()) {
-                                Some(ResolvedLexicalRefV1::Local(binding)) => view_use(
-                                    &OwnedExprSiteV1::new(input.owner(), value.site().clone()),
-                                    BorrowedViewUseRequestV1::IntegerReturn {
-                                        exit: statement.site(),
-                                        binding,
-                                    },
-                                )?,
-                                _ => false,
-                            };
-                            let scalar = if checked_return {
-                                Some(ReturnScalar::Integer)
-                            } else {
-                                return_scalar(input, value.site(), &locals, field_is_integer)?
-                            };
+                            let scalar = scalar_expression::observe_terminal_scalar_source(
+                                input, value.site(), statement.site(), locals, view_use, field_is_integer,
+                            )?;
                             match scalar {
                                 Some(ReturnScalar::I64Add { site, field_reads }) => {
                                     relation = Some(TerminalRelationV1::I64Add(
@@ -601,20 +590,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                             }
                                                                         }
                                                                     }
-                                                                    let result_prefix = match &*unavailable {
-                                                            Some(issue) => Err(issue.clone()),
-                                                            None => issue_result_new_fault_continuation_v1(input, owned)
-                                                                .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
-                                                                .map(|outward_fault| ResultNewHomePrefixV1 {
-                                                                    prior_homes: homes.iter().rev().copied().collect(),
-                                                                    outward_fault,
-                                                                    covered_statements: covered_statements.clone().into_boxed_slice(),
-                                                                }),
-                                                        };
-                                                                    result_prefixes.insert(
-                                                                        owned.clone(),
-                                                                        result_prefix,
-                                                                    );
+                                                                    let prior_homes = homes.iter().rev().copied().collect();
                                                                     // The arg
                                                                     // move
                                                                     // completes
@@ -635,6 +611,21 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                                                         });
                                                                         locals.consume_home(moved);
                                                                     }
+                                                                    let result_prefix = match &*unavailable {
+                                                            Some(issue) => Err(issue.clone()),
+                                                            None => issue_result_new_fault_continuation_v1(input, owned)
+                                                                .map_err(|_| HomePrefixUnavailableV1::SourceMismatch)
+                                                                .map(|outward_fault| ResultNewHomePrefixV1 {
+                                                                    prior_homes,
+                                                                    normal_homes: homes.iter().rev().copied().collect(),
+                                                                    outward_fault,
+                                                                    covered_statements: covered_statements.clone().into_boxed_slice(),
+                                                                }),
+                                                        };
+                                                                    result_prefixes.insert(
+                                                                        owned.clone(),
+                                                                        result_prefix,
+                                                                    );
                                                                 }
                                                                 _ => {
                                                                     unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
@@ -737,9 +728,10 @@ pub(super) fn observe_terminal_statement<'a, E>(
         // Exit-boundary obligation: every surviving caller-owned Home is
         // released here, newest first, together with the local-call sites
         // evaluation on this exit's path could have covered.
-        None => Ok(RootHomeExitV1::issue(
-            homes.iter().rev().copied().collect(),
+        None => Ok(RootHomeExitV1::from_live_v1(
+            homes,
             path_calls.iter().cloned().collect(),
+            covered_statements.clone().into_boxed_slice(),
         )),
     };
     if homes_row.is_err() {

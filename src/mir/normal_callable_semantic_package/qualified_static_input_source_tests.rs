@@ -112,6 +112,18 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
     .unwrap()
     .unwrap();
     assert_eq!(source.caller(), main.catalog_key());
+    let caller = package.parameter_contracts.iter().find(|row| main.matches_contract(row)).unwrap();
+    for view in [main.caller_source_ref_v1(), package.ordinary_new_claim_ledger.app_main_caller_source_ref_v1().unwrap()] {
+        assert_eq!(view.checked_caller_key(package.batch(), &package.parameter_contracts,
+            caller.owner, caller.batch_slot).unwrap(), main.catalog_key());
+        assert!(view.checked_caller_key(package.batch(), &package.parameter_contracts,
+            caller.owner, u32::MAX).unwrap_err().contains("app-main-identity"));
+        let mut changed = mutable_catalog(&package.parameter_contracts);
+        changed.iter_mut().find(|row| row.owner == caller.owner).unwrap().mode =
+            crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod;
+        assert!(view.checked_caller_key(package.batch(), &changed, caller.owner, caller.batch_slot)
+            .unwrap_err().contains("app-main-contract"));
+    }
     assert!(package
         .selected
         .batch_slot(&SelectedNormalCallableKeyV1::Cataloged(
@@ -135,6 +147,11 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
         .unwrap_err()
         .contains("incoming-source-identity"));
     let foreign = issue(MAIN);
+    let foreign_view = borrow_app_main_source_v1(foreign.batch(),
+        foreign.catalog.catalog().source_backed_app_main()).unwrap().unwrap();
+    assert!(foreign_view.caller_source_ref_v1().checked_caller_key(package.batch(),
+        &package.parameter_contracts, caller.owner, caller.batch_slot)
+        .unwrap_err().contains("app-main-identity"));
     let foreign_main = borrow_app_main_source_v1(
         package.batch(),
         foreign.catalog.catalog().source_backed_app_main(),

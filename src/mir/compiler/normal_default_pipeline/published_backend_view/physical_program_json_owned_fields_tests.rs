@@ -139,8 +139,8 @@ fn owned_array_fields_release_in_reverse_order_before_home_release() {
                         ["field_residence_release", "home_release", "return_fault"]
                     );
                     assert_eq!(fault_ordinals.as_slice(), [Some(1), None, None]);
-                    // Birth-fault edge: children first (reverse order), then
-                    // the unpublished storage reclaim.
+                    // Birth discharges its own committed child prefix. The
+                    // caller owns only the unpublished outer storage reclaim.
                     let birth_fault = walk(
                         &blocks,
                         birth["terminator"]["instruction"]["fault"]
@@ -151,16 +151,38 @@ fn owned_array_fields_release_in_reverse_order_before_home_release() {
                         .iter()
                         .map(|(kind, ..)| kind.as_str())
                         .collect();
-                    assert_eq!(
-                        birth_fault_kinds.as_slice(),
-                        [
-                            "field_residence_release",
-                            "field_residence_release",
-                            "reclaim_unpublished",
-                            "return_fault",
-                        ],
-                        "construction fault releases children before storage"
-                    );
+                    assert_eq!(birth_fault_kinds.as_slice(), ["reclaim_unpublished", "return_fault"]);
+                    let target = birth["terminator"]["instruction"]["operation"]["call"]["target"]
+                        .as_u64().expect("same issued Birth target");
+                    let callee = &functions[target as usize];
+                    let birth_blocks: std::collections::BTreeMap<u64, &serde_json::Value> =
+                        callee["blocks"].as_array().unwrap().iter()
+                            .map(|block| (block["id"].as_u64().unwrap(), block)).collect();
+                    // Follow the same Birth's successful construction order;
+                    // inspect every allocation/store Fault before its commit.
+                    let entry = callee["entry"].as_u64().expect("Birth entry");
+                    let construction = walk(&birth_blocks, entry);
+                    let steps: Vec<_> = construction.iter()
+                        .map(|(kind, ordinal, ..)| (kind.as_str(), *ordinal)).collect();
+                    assert_eq!(steps, vec![("field_set", Some(0)), ("array_new", None),
+                        ("field_set", Some(1)), ("array_new", None),
+                        ("field_set", Some(2)), ("return", None)]);
+                    for (index, (_, _, _, fault)) in construction.iter().take(5).enumerate() {
+                        let path = walk(&birth_blocks, fault.expect("original construction Fault"));
+                        let actual: Vec<_> = path.iter()
+                            .map(|(kind, ordinal, ..)| (kind.as_str(), *ordinal)).collect();
+                        let expected = if index < 3 {
+                            vec![("return_fault", None)]
+                        } else {
+                            vec![("field_residence_release", Some(1)), ("return_fault", None)]
+                        };
+                        assert_eq!(actual, expected, "Birth step {index}: only prior committed fields end");
+                        for (_, _, operand, _) in &path {
+                            if let Some(operand) = operand {
+                                assert_eq!(Some(*operand), callee["receiver"].as_u64());
+                            }
+                        }
+                    }
                     Ok(())
                 },
             )

@@ -1,13 +1,42 @@
 //! Physical formal correspondence retained by the original ordinary ledger.
 use super::*;
+
+impl BorrowedOrdinaryEntrySourceRefV1<'_> {
+    /// The already qualified entry lends global agreement or its original
+    /// declared class. A source-only inferred view additionally requires the
+    /// nonempty executable incoming already checked by the same entry owner.
+    /// Passive/SelectedTagged declarations grant no inferred view.
+    pub(crate) fn formal_object_view(
+        &self,
+        formal: BindingRefV1,
+    ) -> Result<Option<&super::super::borrowed_formal_source::BorrowedFormalObjectViewV1>, String> {
+        if !self.formals.iter().any(|(_, binding)| *binding == formal) {
+            return Err(freeze("borrowed-entry/object-view-formal"));
+        }
+        if let Some(view) = self.source.formal_object_view(formal) {
+            return Ok(Some(view));
+        }
+        let executable = matches!(&self.incoming,
+            BorrowedEntryActualsV1::Executable(rows) if !rows.is_empty());
+        Ok(self.source.source_object_view_v1(formal)?
+            .filter(|view| view.is_declared() || executable))
+    }
+}
 use crate::mir::ValueId;
 
 type EntryValues = Box<[(u32, BindingRefV1, ValueId)]>;
+
+#[path = "ordinary_new_borrowed_field_write_guards.rs"]
+mod field_write_guards;
+#[path = "ordinary_new_borrowed_array_set_physical.rs"]
+mod array_set_physical;
 
 /// Physical observations of this already-selected entry, not source products.
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedOrdinaryEntryPhysicalV1 {
     pub(in crate::mir::normal_callable_semantic_package) values: Result<EntryValues, String>,
+    array_sets: BTreeMap<OwnedExprSiteV1, array_set_physical::ArraySetObservationV1>,
+    write_guards: BTreeMap<crate::mir::resolved_semantics::SourceNodeSiteV1, field_write_guards::GuardObservationV1>,
     aliases:
         BTreeMap<BindingRefV1, std::rc::Rc<alias_materialization::BorrowedAliasMaterializationV1>>,
     comparisons:
@@ -86,15 +115,20 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        Ok(rows
-            .iter()
-            .filter_map(|(_, binding, _)| {
-                source
-                    .formal_object_view(*binding)
-                    .filter(|view| view.is_declared())
-                    .map(|view| (*binding, view.class()))
-            })
-            .collect())
+        let original_declared_source = self.checked_mixed_instance_entry_v1(source, owner)?.is_some()
+            || self.checked_borrowed_result_instance_entry_v1(source, owner)?.is_some();
+        let mut classes = BTreeMap::new();
+        for (_, binding, _) in rows {
+            let view = if original_declared_source {
+                source.source_object_view_v1(*binding)?
+            } else {
+                source.formal_object_view(*binding)
+            };
+            if let Some(view) = view.filter(|view| view.is_declared()) {
+                classes.insert(*binding, view.class());
+            }
+        }
+        Ok(classes)
     }
 
     pub(crate) fn record_borrowed_ordinary_entry_values_v1(
@@ -111,6 +145,8 @@ impl OrdinaryNewClaimLedgerV1 {
             owner,
             BorrowedOrdinaryEntryPhysicalV1 {
                 values,
+                write_guards: BTreeMap::new(),
+                array_sets: BTreeMap::new(),
                 aliases: BTreeMap::new(),
                 comparisons: BTreeMap::new(),
                 multiplications: BTreeMap::new(),
@@ -149,9 +185,44 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
                 .as_ref()
                 .map_err(Clone::clone)?;
-            let view = self.checked_entry_owner_view_v1(source, owner)?
+            let view = self
+                .checked_entry_owner_view_v1(source, owner)?
                 .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
             let definition = view.definition;
+            if self
+                .checked_guarded_instance_definition_v1(source, owner)?
+                .is_some()
+            {
+                let parameters: Vec<_> = rows
+                    .iter()
+                    .map(|(ordinal, binding, _)| {
+                        (
+                            *ordinal,
+                            *binding,
+                            CallableParameterContractKindV1::OpaqueHandle,
+                        )
+                    })
+                    .collect();
+                self.check_original_entry_parameters_v1(owner, &parameters)?;
+            }
+            if view.mixed {
+                let catalog = self
+                    .original_parameter_contracts
+                    .as_deref()
+                    .ok_or_else(|| freeze("mixed-entry/catalog-missing"))?;
+                let contract = catalog
+                    .iter()
+                    .find(|row| row.owner == owner)
+                    .ok_or_else(|| freeze("mixed-entry/contract-missing"))?;
+                let parameters: Vec<_> = rows
+                    .iter()
+                    .zip(&contract.parameters)
+                    .map(|((ordinal, binding, _), formal)| {
+                        (*ordinal, *binding, formal.kind.clone())
+                    })
+                    .collect();
+                self.check_original_entry_parameters_v1(owner, &parameters)?;
+            }
             let roots: BTreeSet<_> = definition.origins.values().copied().collect();
             if roots != rows.iter().map(|(_, binding, _)| *binding).collect()
                 || rows.len() != roots.len()

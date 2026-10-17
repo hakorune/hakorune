@@ -241,6 +241,14 @@ fn simplifies_constant_branch_to_jump_from_constant_compare() {
     function.update_cfg();
     module.add_function(function);
 
+    let mut preserved = module.clone();
+    let roots = std::collections::BTreeMap::from([("main".to_owned(),
+        std::collections::BTreeSet::from([ValueId(3)]))]);
+    crate::mir::passes::simplify_cfg::simplify_with_preserved_producers(&mut preserved, &roots);
+    let entry = &preserved.functions["main"].blocks[&BasicBlockId(0)];
+    assert!(matches!(entry.instructions[2], MirInstruction::Compare { dst: ValueId(3), .. }));
+    assert!(matches!(entry.terminator, Some(MirInstruction::Branch { condition: ValueId(3), .. })));
+
     let simplified = simplify(&mut module);
     assert!(simplified >= 1);
 

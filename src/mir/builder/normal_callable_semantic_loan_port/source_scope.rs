@@ -26,6 +26,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         crate::mir::normal_callable_semantic_package::NamedArrayEmissionCollectorV1,
     >,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
+    owned_array_source: Option<crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'_>>,
     loop_break_take: Option<LoopBreakSourcePackageTakeHandle<'_>>,
     execute: impl FnOnce(
         &mut RawInvocationChildPortV1<'_, 'collector>,
@@ -46,7 +47,12 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
     };
     let borrowed_entry = ordinary_new_claim_ledger
         .borrowed_ordinary_entry_source_v1(&input)
-        .map(|row| row.map(|row| row.formals().into()));
+        .and_then(|row| {
+            if let Some(entry) = &row {
+                ordinary_new_claim_ledger.stage_borrowed_entry_field_reads_v1(entry, &input)?;
+            }
+            Ok(row.map(|entry| entry.formals().into()))
+        });
     let owner = input.source().owner();
     use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
     use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
@@ -68,6 +74,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         input.method_source_observation().cloned(),
         Some(named_array_emissions),
         ordinary_new_claim_ledger,
+        owned_array_source,
         loop_break_take
             .map(|take| take.take_for_owner(input.source().owner()))
             .transpose()?,
@@ -102,6 +109,7 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
         Rc<crate::mir::normal_callable_semantic_package::NamedArrayEmissionCollectorV1>,
     >,
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
+    owned_array_source: Option<crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'_>>,
     loop_break_source: Option<LoopBreakSourcePackageLoanV1>,
     execute: impl FnOnce(
         &mut RawInvocationChildPortV1<'_, 'collector>,
@@ -121,16 +129,21 @@ pub(super) fn with_callable_source_scope<'port, 'collector, 'source, R>(
     scoped_inner.semantic_ledger = None;
     scoped_inner.callable_ledger = Some(state.clone());
     scoped_inner.source_input = Some(input);
-    scoped_inner.ordinary_new_claim_ledger = Some(ordinary_new_claim_ledger);
+    if let Some(source) = owned_array_source {
+        source.require_same_ledger_v1(&ordinary_new_claim_ledger)?;
+    }
+    scoped_inner.owned_array_source = owned_array_source;
+    scoped_inner.ordinary_new_claim_ledger = Some(Rc::clone(&ordinary_new_claim_ledger));
     let result = scoped_inner
         .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
     drop(scoped_inner);
     match result {
         Ok(value) => {
-            let rows = Rc::try_unwrap(state)
+            let mut rows = Rc::try_unwrap(state)
                 .map_err(|_| "[freeze:contract][mir/callable-semantic/ledger-loan]".to_owned())?
                 .into_inner()
                 .finish_with_named_arrays()?;
+            rows.extend(ordinary_new_claim_ledger.capture_owned_array_holders_v1(input.owner())?);
             match named_array_emissions {
                 Some(collector) => collector.hand_back(rows)?,
                 None if rows.is_empty() => {}

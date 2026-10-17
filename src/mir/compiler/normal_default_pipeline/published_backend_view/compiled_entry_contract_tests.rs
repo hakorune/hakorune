@@ -372,7 +372,7 @@ fn original_object_root_result_refuses_process_entry_category() {
     let (completed, original) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
     let (key, module, ledger, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
     assert!(std::rc::Rc::ptr_eq(&original, &ledger));
-    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort).unwrap();
+    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
     let result = handoff.root_result(&module).unwrap().unwrap();
     assert!(matches!(result, crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::ObjectReturn {
         kind: crate::mir::instruction::InvokeCallResultKind::Handle, ..

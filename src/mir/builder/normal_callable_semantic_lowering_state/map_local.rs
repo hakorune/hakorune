@@ -5,7 +5,7 @@ use crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1;
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedInitializerRelationV1};
 
 impl CallableSemanticLoweringState {
-    pub(in crate::mir::builder) fn map_initializer(
+    pub(in crate::mir::builder) fn expression_initializer(
         &self,
         site: &SourceNodeSiteV1,
     ) -> Result<ResolvedInitializerRelationV1, String> {
@@ -15,9 +15,9 @@ impl CallableSemanticLoweringState {
             .filter(|row| row.initializer_site().is_some_and(|s| s.node() == site));
         let row = rows
             .next()
-            .ok_or_else(|| freeze("map-initializer-missing"))?;
+            .ok_or_else(|| freeze("expression-initializer-missing"))?;
         if rows.next().is_some() {
-            return Err(freeze("map-initializer-duplicate"));
+            return Err(freeze("expression-initializer-duplicate"));
         }
         Ok(row.clone())
     }
@@ -34,19 +34,26 @@ impl CallableSemanticLoweringState {
             return Ok(LocalValuePlacement::Copy);
         };
         let owned = OwnedExprSiteV1::new(self.owner, site.clone());
-        let reuse = if ledger.has_map_source(&owned) {
+        let reuse = if ledger.has_owned_array_construction(&owned) {
+            if !ledger.owned_array_initializer_matches(&owned, binding, value) {
+                return Err(freeze("placement-owned-array-result-drift"));
+            }
+            true
+        } else if ledger.has_map_source(&owned) {
             if !ledger.map_initializer_matches(&owned, binding, value) {
                 return Err(freeze("placement-map-result-drift"));
             }
             true
         } else if ledger.handle_call_source(&owned).is_some()
             || ledger.nullable_call_source(&owned).is_some()
+            || ledger.mixed_call_source_v1(&owned).is_some()
         {
-            // A received call-result value installs the invoke result
-            // itself — the caller owns that value (checked, for the
-            // nullable arm), no Copy.
+            // Install the same sealed received result without a Copy.
+            // Its source contract retains definite, nullable or conditional
+            // ownership; local placement grants no additional Home.
             if !ledger.call_received_initializer_matches(&owned, binding, value) {
-                return Err(freeze("placement-handle-result-drift"));
+                return Err(format!("{} site={owned:?} binding={binding:?} value={value:?}",
+                    freeze("placement-handle-result-drift")));
             }
             true
         } else if let Some(reference) = self.variables.get(site.node()) {

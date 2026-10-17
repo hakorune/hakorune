@@ -56,7 +56,7 @@ impl From<ModuleLoweringPortChildErrorV1> for CallableMainCompatibilityLoweringE
 /// The normal route owns one ingress snapshot; explicit raw compatibility
 /// intentionally retains its existing lower-side environment contract.
 pub(super) enum StaticMainScriptArgsSourceV1<'snapshot> {
-    NormalSnapshot(&'snapshot [String]),
+    NormalSnapshot(&'snapshot NormalRuntimeInputSnapshotV1),
     LegacyEnvironment,
 }
 
@@ -87,7 +87,7 @@ impl super::MirBuilder {
                 .is_required()
                 .then(|| materialization.target())
                 .flatten(),
-            StaticMainScriptArgsSourceV1::NormalSnapshot(runtime_inputs.script_args()),
+            StaticMainScriptArgsSourceV1::NormalSnapshot(runtime_inputs),
         )
     }
 
@@ -302,14 +302,60 @@ impl super::MirBuilder {
             // Initialize local variables for Main.main() parameters
             // Note: These are local variables in the wrapper main() function, NOT parameters
             let saved_var_map = std::mem::take(&mut self.function_state.variable_ctx.variable_map);
+            let normal_runtime_inputs = match &script_args_source {
+                StaticMainScriptArgsSourceV1::NormalSnapshot(snapshot) => Some(*snapshot),
+                StaticMainScriptArgsSourceV1::LegacyEnvironment => None,
+            };
             let script_args = match script_args_source {
                 StaticMainScriptArgsSourceV1::NormalSnapshot(args) => {
-                    std::borrow::Cow::Borrowed(args)
+                    std::borrow::Cow::Borrowed(args.script_args())
                 }
                 StaticMainScriptArgsSourceV1::LegacyEnvironment => {
                     std::borrow::Cow::Owned(collect_script_args_from_env().unwrap_or_default())
                 }
             };
+            if root_identity.is_none() || normal_runtime_inputs.is_none() {
+                self.materialize_legacy_main_parameters_v1(&params, &script_args)?;
+            }
+            // Phase 200-C: Store fn_body_ast for inline main() lowering
+            if !self.comp_ctx.quiet_internal_logs {
+                let ring0 = crate::runtime::get_global_ring0();
+                ring0.log.debug(&format!(
+                    "[decls/fn_body_ast] Storing fn_body_ast with {} nodes for inline main()",
+                    body.len()
+                ));
+            }
+            self.function_state.compilation.fn_body_ast = Some(body.clone());
+            self.function_state.compilation.fn_declaration_ast = declaration.clone();
+            self.set_current_function_runes(&attrs);
+            self.set_current_function_declared_capability_uses(&uses);
+
+            // Lower statements in order to preserve def→use.  The installed
+            // source-backed App Main root gets one exact body-scope hook;
+            // raw compatibility keeps the existing generic body route.
+            let lowered = match root_identity {
+                Some(identity) => port.lower_app_main_root_body_v1(self, identity, &params, normal_runtime_inputs, body.clone()),
+                None => port.lower_body(self, body.clone()),
+            };
+
+            // Phase 200-C: Clear fn_body_ast after main() lowering
+            self.function_state.compilation.fn_body_ast = None;
+            self.function_state.compilation.fn_declaration_ast = None;
+            self.function_state.compilation.resolved_loop_source_unit = None;
+
+            self.function_state.variable_ctx.variable_map = saved_var_map;
+            lowered.map_err(CallableMainCompatibilityLoweringErrorV1::from)
+        })();
+        // Restore static box context
+        self.comp_ctx.current_static_box = saved_static;
+        out
+    }
+
+    /// Explicit compatibility retains the existing argv injector; the installed
+    /// normal source adapter owns its entry resource inside the source scope.
+    pub(super) fn materialize_legacy_main_parameters_v1(
+        &mut self, params: &[String], script_args: &[String],
+    ) -> Result<(), String> {
             for p in params.iter() {
                 // Allocate a value ID using the current function's value generator
                 // This creates a local variable, not a parameter
@@ -361,38 +407,7 @@ impl super::MirBuilder {
                     reg.ensure_slot(p, ty);
                 }
             }
-            // Phase 200-C: Store fn_body_ast for inline main() lowering
-            if !self.comp_ctx.quiet_internal_logs {
-                let ring0 = crate::runtime::get_global_ring0();
-                ring0.log.debug(&format!(
-                    "[decls/fn_body_ast] Storing fn_body_ast with {} nodes for inline main()",
-                    body.len()
-                ));
-            }
-            self.function_state.compilation.fn_body_ast = Some(body.clone());
-            self.function_state.compilation.fn_declaration_ast = declaration.clone();
-            self.set_current_function_runes(&attrs);
-            self.set_current_function_declared_capability_uses(&uses);
-
-            // Lower statements in order to preserve def→use.  The installed
-            // source-backed App Main root gets one exact body-scope hook;
-            // raw compatibility keeps the existing generic body route.
-            let lowered = match root_identity {
-                Some(identity) => port.lower_app_main_root_body_v1(self, identity, body.clone()),
-                None => port.lower_body(self, body.clone()),
-            };
-
-            // Phase 200-C: Clear fn_body_ast after main() lowering
-            self.function_state.compilation.fn_body_ast = None;
-            self.function_state.compilation.fn_declaration_ast = None;
-            self.function_state.compilation.resolved_loop_source_unit = None;
-
-            self.function_state.variable_ctx.variable_map = saved_var_map;
-            lowered.map_err(CallableMainCompatibilityLoweringErrorV1::from)
-        })();
-        // Restore static box context
-        self.comp_ctx.current_static_box = saved_static;
-        out
+        Ok(())
     }
 
     fn seal_normal_callable_main_materialization_admission_v1(

@@ -1,10 +1,13 @@
 /* Borrowed physical indexes, owned by one V4 invocation. No source classification. */
+enum { LV4_OWNED_FIELD_BORROW = -4 }; /* Non-owning, distinct from nullable formal -3. */
+
 typedef struct {
   uint32_t id, object_id;
   yyjson_val* instruction;
   yyjson_val* definition_block;
   int kind, origin, object_id_set;
-  size_t kind_parent;
+  size_t kind_parent, alias_root;
+  unsigned char alias_state, seed_state;
 } hako_lv4_value;
 
 typedef struct {
@@ -73,17 +76,30 @@ static hako_lv4_block* lv4_index_block(hako_lv4_function_index* fn, uint32_t id)
   hako_lv4_block key = {0}; key.id = id;
   return bsearch(&key, fn->blocks, fn->block_count, sizeof(key), lv4_block_compare);
 }
+#include "hako_llvmc_ffi_lifecycle_v4_indexed_alias.inc"
+static int lv4_canonical_receiver(hako_lv4_function_index* fn, const hako_lv4_value* value) {
+  return value && value->kind == LV4_HANDLE && value->origin == -2 &&
+      value->object_id_set && fn->receiver_object_set &&
+      value->object_id == fn->receiver_object &&
+      yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) &&
+      value->id == lv4_u(fn->function, "receiver") &&
+      (lv4_is_ordinary(fn->function) || lv4_is(fn->function, "role", "birth_unit"));
+}
 static int lv4_operation_result(yyjson_val* op) {
+  if (lv4_is(op, "kind", "field_get")) return LV4_I64;
   if (lv4_is(op, "kind", "array_owned_get")) return LV4_ARRAY_BORROW;
   if (lv4_is(op, "kind", "string_add")) return LV4_OWNED_STRING;
-  if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new")) return LV4_HANDLE;
+  if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "array_new") || lv4_is(op, "kind", "script_arguments_new")) return LV4_HANDLE;
   if (lv4_is(op, "kind", "ordinary_call"))
     /* A nullable call result occupies a handle lease slot: it carries a
        live object or the Void sentinel and owns the caller one checked
        release. */
-    return lv4_is(op, "result", "map") ? LV4_MAP
+    return lv4_is(op, "result", "bool") ? LV4_BOOL
+        : lv4_is(op, "result", "map") ? LV4_MAP
+        : lv4_is(op, "result", "borrowed_nullable_handle") ? LV4_BORROWED_OBJECT
+        : lv4_is(op, "result", "mixed_handle") ? LV4_MIXED_OBJECT
         : (lv4_is(op, "result", "handle") || lv4_is(op, "result", "nullable_handle"))
-            ? LV4_HANDLE : LV4_I64;
+            ? LV4_HANDLE : lv4_is(op, "result", "i64") ? LV4_I64 : LV4_BAD;
   if (lv4_is(op, "kind", "map_new")) return LV4_MAP;
   if (lv4_is(op, "kind", "map_prepare_key")) return LV4_KEY;
   if (lv4_is(op, "kind", "map_install_indexed") || lv4_is(op, "kind", "map_install_value") ||
@@ -98,12 +114,14 @@ static int lv4_operation_result(yyjson_val* op) {
 
 /* A source-owned child read borrows the canonical tuple and original receiver.
  * Scalar field reads keep their existing lane; no opcode sibling issues class. */
-static hako_lv4_value* lv4_borrowed_copy_root(hako_lv4_function_index* fn,
-    hako_lv4_value* value);
+
+static int lv4_index_seed(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value);
+static int lv4_owned_value_object(const hako_lv4_input* in,
+    hako_lv4_function_index* fn, hako_lv4_value* value, int allow_nullable);
 
 static int lv4_child_field_object(const hako_lv4_input* in,
-    hako_lv4_function_index* fn, yyjson_val* ins, uint32_t* child) {
-  if (!lv4_is(fn->function, "role", "ordinary_i64")) return -1;
+    hako_lv4_function_index* fn, yyjson_val* ins, uint32_t* child, int* origin) {
   uint32_t object_id = lv4_u(ins, "object_id"), ordinal = lv4_u(ins, "field_ordinal");
   yyjson_val* rows = yyjson_obj_get(lv4_layout(in, object_id), "owned_object_residences");
   int found = 0;
@@ -111,13 +129,30 @@ static int lv4_child_field_object(const hako_lv4_input* in,
     yyjson_val* row = yyjson_arr_get(rows, i);
     if (lv4_u(row, "field_ordinal") != ordinal) continue;
     uint32_t object = lv4_u(row, "child_object_id");
-    hako_lv4_value* root = lv4_borrowed_copy_root(fn,
+    hako_lv4_value* root = lv4_value_alias_root(fn,
         lv4_index_value(fn, lv4_u(ins, "base")));
-    if (found || !lv4_layout(in, object) || !root ||
-        !fn->receiver_object_set || root->kind != LV4_HANDLE || root->origin != -2 ||
-        !yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) ||
-        root->id != lv4_u(fn->function, "receiver") ||
-        root->object_id != fn->receiver_object || object_id != fn->receiver_object) return 0;
+    if (found || !lv4_layout(in, object) || !root || !lv4_index_seed(in, fn, root) ||
+        root->kind != LV4_HANDLE) return 0;
+    if (root->origin >= 0 && !lv4_owned_value_object(in, fn, root, 0)) return 0;
+    if (!root->object_id_set || root->object_id != object_id) return 0;
+    if (root->origin == -2) {
+      /* Birth classifies an owning-edge loan only. Its Normal commit and
+         child Birth must still be checked at both read and call by flow. */
+      if (!lv4_canonical_receiver(fn, root)) return 0;
+      *origin = LV4_OWNED_FIELD_BORROW;
+    } else {
+      /* Classification is not liveness. The read-only flow lender later
+         proves the original New/Birth Normal and every owning edge. */
+      hako_lv4_value* owner = root;
+      for (size_t depth = 0; owner && owner->origin == LV4_OWNED_FIELD_BORROW; depth++) {
+        if (depth >= fn->value_count || !lv4_is(owner->instruction, "op", "object_field_get")) return 0;
+        owner = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(owner->instruction, "base")));
+      }
+      if (!lv4_canonical_receiver(fn, owner)) {
+        if (!lv4_owned_value_object(in, fn, owner, 0)) return 0;
+      }
+      *origin = LV4_OWNED_FIELD_BORROW;
+    }
     *child = object; found = 1;
   }
   return found ? 1 : -1;
@@ -126,18 +161,21 @@ static int lv4_child_field_object(const hako_lv4_input* in,
 static int lv4_index_seed(const hako_lv4_input* in,
     hako_lv4_function_index* fn, hako_lv4_value* value) {
   yyjson_val* ins = value->instruction;
-  if (value->kind != LV4_BAD) return 1;
+  if (value->seed_state == 2) return 1;
+  if (value->seed_state == 1) return 0;
+  value->seed_state = 1;
+  if (value->kind != LV4_BAD) { value->seed_state = 2; return 1; }
   if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "add") ||
       lv4_is(ins, "op", "mul") || lv4_is(ins, "op", "sub") ||
       lv4_is(ins, "op", "div") ||
       lv4_is(ins, "op", "array_get"))
     value->kind = LV4_I64;
   else if (lv4_is(ins, "op", "object_field_get")) {
-    uint32_t child;
-    int sealed = lv4_child_field_object(in, fn, ins, &child);
+    uint32_t child; int origin = -1;
+    int sealed = lv4_child_field_object(in, fn, ins, &child, &origin);
     if (!sealed) return 0;
     if (sealed > 0) {
-      value->kind = LV4_HANDLE; value->origin = -2; value->object_id = child;
+      value->kind = LV4_HANDLE; value->origin = origin; value->object_id = child;
       value->object_id_set = 1;
     } else value->kind = LV4_I64;
   }
@@ -161,7 +199,9 @@ static int lv4_index_seed(const hako_lv4_input* in,
       value->object_id = lv4_u(op, "object_id"); value->object_id_set = 1;
     }
   }
-  return value->kind != LV4_BAD || lv4_is(ins, "op", "copy") || lv4_is(ins, "op", "phi");
+  int valid = value->kind != LV4_BAD || lv4_is(ins, "op", "copy") || lv4_is(ins, "op", "phi");
+  if (valid) value->seed_state = 2;
+  return valid;
 }
 
 static size_t lv4_kind_root(hako_lv4_function_index* fn, size_t index) {
@@ -206,25 +246,26 @@ static int lv4_index_kinds(const hako_lv4_input* in, hako_lv4_function_index* fn
     hako_lv4_value* value = &fn->values[i];
     value->kind = fn->values[lv4_kind_root(fn, i)].kind;
     if (value->kind == LV4_BAD) return 0;
-    if (lv4_is(value->instruction, "op", "phi") &&
-        value->kind != LV4_I64 && value->kind != LV4_BOOL) return 0;
   }
-  /* Equality determines kind only. Resource identity follows the exact Copy
-   * source chain, never a PHI component or an arithmetic use. */
   for (size_t i = 0; i < fn->value_count; i++) {
     hako_lv4_value* value = &fn->values[i];
-    if (!lv4_is(value->instruction, "op", "copy")) continue;
+    if (!lv4_is(value->instruction, "op", "phi") ||
+        value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
+    hako_lv4_value* root = lv4_value_alias_root(fn, value);
+    if (value->kind != LV4_HANDLE || !root || root == value || root->kind != LV4_HANDLE) return 0;
+  }
+  /* Kind equality grants no identity. Only original Copy and unanimous
+   * HANDLE Phi paths lend the independently checked producer's provenance. */
+  for (size_t i = 0; i < fn->value_count; i++) {
+    hako_lv4_value* value = &fn->values[i];
+    if (!lv4_is(value->instruction, "op", "copy") &&
+        !(value->kind == LV4_HANDLE && lv4_is(value->instruction, "op", "phi"))) continue;
     if (value->kind == LV4_MAP || value->kind == LV4_KEY || value->kind == LV4_OUTCOME ||
         value->kind == LV4_MAP_VIEW || value->kind == LV4_TEXT_VIEW || value->kind == LV4_OWNED_STRING)
       return 0;
     if (value->kind == LV4_I64 || value->kind == LV4_BOOL) continue;
-    hako_lv4_value* source = value;
-    size_t steps = 0;
-    while (lv4_is(source->instruction, "op", "copy")) {
-      if (++steps > fn->value_count) return 0;
-      source = lv4_index_value(fn, lv4_u(source->instruction, "src"));
-      if (!source) return 0;
-    }
+    hako_lv4_value* source = lv4_value_alias_root(fn, value);
+    if (!source || source->kind != value->kind) return 0;
     value->origin = source->origin;
     value->object_id = source->object_id;
     value->object_id_set = source->object_id_set;
@@ -270,18 +311,17 @@ static int lv4_index_open(hako_lv4_input* in) {
     hako_lv4_function_index* fn = &in->index[fi];
     yyjson_val* body = yyjson_arr_get(in->functions, fi);
     int birth = lv4_is(body, "role", "birth_unit");
-    int ordinary = lv4_is(body, "role", "ordinary_i64") ||
-        lv4_is(body, "role", "ordinary_map") ||
-        lv4_is(body, "role", "ordinary_handle") ||
-        lv4_is(body, "role", "ordinary_nullable_handle");
+    int ordinary = lv4_is_ordinary(body);
     int ordinary_receiver = ordinary && yyjson_is_uint(yyjson_obj_get(body, "receiver"));
     yyjson_val* blocks = hako_physical_blocks(body);
     yyjson_val* params = yyjson_obj_get(body, "params");
-    size_t capacity = lv4_value_budget(body) + 1;
+    size_t capacity = lv4_value_budget(body);
+    if (capacity == SIZE_MAX) return 0;
+    capacity++;
     fn->function = body; fn->block_count = yyjson_arr_size(blocks);
-    if (!fn->block_count || fn->block_count > 256 || capacity > 4097) return 0;
-    fn->values = calloc(capacity, sizeof(*fn->values));
-    fn->blocks = calloc(fn->block_count, sizeof(*fn->blocks));
+    if (!fn->block_count || fn->block_count > INT_MAX || capacity > 4097) return 0;
+    fn->values = lv4_checked_calloc(capacity, sizeof(*fn->values));
+    fn->blocks = lv4_checked_calloc(fn->block_count, sizeof(*fn->blocks));
     if (!fn->values || !fn->blocks) return 0;
     if (in->measurement) in->measurement->v4_index_blocks += fn->block_count;
     if (birth || ordinary_receiver) {
@@ -335,9 +375,8 @@ static int lv4_index_open(hako_lv4_input* in) {
       if (fn->values[i-1].id == fn->values[i].id) return 0;
     for (size_t i = 1; i < fn->block_count; i++)
       if (fn->blocks[i-1].id == fn->blocks[i].id) return 0;
-    if (!lv4_index_kinds(in, fn)) return 0;
   }
-  return lv4_index_owned_results(in);
+  return 1;
 }
 
 static int lv4_input_type(const hako_lv4_input* in, yyjson_val* fn, uint32_t value) {

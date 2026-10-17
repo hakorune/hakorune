@@ -382,6 +382,54 @@ fn if_driver_demands_condition_then_and_else_in_exact_order() {
         .iter()
         .any(|term| matches!(term, MirInstruction::Branch { .. })));
     assert_eq!(builder.recursion_depth, 0);
+    // The armed observation uses the same IfForm writer, with pending identity
+    // visible before branch bodies and the actual Branch only after emission.
+    use crate::mir::builder::if_form::{IfConditionMaterializationV1, IfFormPhysicalObserverV1};
+    struct Observer {
+        pending: Option<std::rc::Rc<IfConditionMaterializationV1>>,
+        phase: std::rc::Rc<std::cell::Cell<u8>>,
+    }
+    impl IfFormPhysicalObserverV1 for Observer {
+        fn before_branches(&mut self, function: &crate::mir::MirFunction,
+            pending: std::rc::Rc<IfConditionMaterializationV1>) -> Result<(), String> {
+            assert!(self.pending.is_none());
+            assert!(function.blocks[&pending.block()].terminator.is_none());
+            pending.relation().verify(function)?;
+            assert_eq!(pending.relation().values(), pending.values());
+            assert_ne!(pending.arms().0, pending.arms().1);
+            assert_ne!(pending.merge(), pending.block());
+            assert!(pending.bindings().iter().all(|(id, row)|
+                function.blocks[id].instructions.contains(row)));
+            self.pending = Some(pending);
+            self.phase.set(1);
+            Ok(())
+        }
+        fn emitted_branch(&mut self, function: &crate::mir::MirFunction,
+            pending: &std::rc::Rc<IfConditionMaterializationV1>,
+            branch: (BasicBlockId, MirInstruction)) -> Result<(), String> {
+            assert!(std::rc::Rc::ptr_eq(self.pending.as_ref().unwrap(), pending));
+            assert_eq!(self.phase.get(), 1);
+            assert_eq!(branch.0, pending.block());
+            assert_eq!(function.blocks[&branch.0].terminator.as_ref(), Some(&branch.1));
+            assert!(matches!(branch.1, MirInstruction::Branch { condition, then_bb, else_bb,
+                then_edge_args: Some(ref then_args), else_edge_args: Some(ref else_args) }
+                if condition == pending.values().1 && (then_bb, else_bb) == pending.arms()
+                    && then_args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+                    && else_args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+                    && then_args.values.is_empty() && else_args.values.is_empty()));
+            self.phase.set(2);
+            Ok(())
+        }
+    }
+    let mut observed = crate::mir::builder::MirBuilder::new();
+    observed.enter_function_for_test("if_same_writer_observer".to_owned());
+    let condition = crate::mir::builder::emission::constant::emit_bool(&mut observed, true).unwrap();
+    let phase = std::rc::Rc::new(std::cell::Cell::new(0));
+    let mut observer = Observer { pending: None, phase: phase.clone() };
+    observed.lower_if_form_with_physical_observer_v1(condition, None, true,
+        |builder, _| { assert_eq!(phase.get(), 1);
+            crate::mir::builder::emission::constant::emit_integer(builder, 1) }, Some(&mut observer)).unwrap();
+    assert_eq!(phase.get(), 2);
 }
 
 #[test]

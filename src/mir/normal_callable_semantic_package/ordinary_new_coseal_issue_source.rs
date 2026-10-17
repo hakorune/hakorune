@@ -1,5 +1,6 @@
 //! Source-claim preparation and assembly for the ordinary-New cohort.
 //! This private move preserves source loans, claim order and failure boundaries.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::super::coseal_helpers::is_direct_local_initializer;
 use super::super::BirthAbiHandoffV1;
 use super::*;
@@ -8,6 +9,14 @@ use crate::mir::resolved_semantics::home_new_prefix::{
     CallerNewHomePrefixV1, ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::resolved_semantics::BindingKindV1;
+
+#[path = "ordinary_new_argument_child_relations.rs"]
+mod argument_relations;
+pub(super) use argument_relations::install_result_classes_with_argument_loans_v1;
+
+#[path = "ordinary_new_named_array_source_selection.rs"]
+mod named_array_selection;
+pub(super) use named_array_selection::select_failed_array_initializer_v1;
 
 #[path = "ordinary_new_source_claim_preparation.rs"]
 mod preparation;
@@ -344,12 +353,14 @@ pub(super) fn collect_birth_site_index_v1(
 
 #[path = "ordinary_new_coseal_issue_source_field_batch.rs"]
 mod field_batch;
-pub(super) use field_batch::{prove_local_field_read_batch, stage_local_field_read_batch};
+pub(super) use field_batch::prove_local_field_read_batch;
+pub(in crate::mir::normal_callable_semantic_package) use field_batch::stage_local_field_read_batch;
+pub(in crate::mir::normal_callable_semantic_package) use field_batch::source_formal_class_v1;
 
 #[path = "ordinary_new_coseal_issue_source_owned_children.rs"]
 mod owned_children;
 use owned_children::{owned_field_children_of, seal_provider_owned_children_v1};
-pub(super) use owned_children::{stored_child_receiver_v1, stored_child_source_v1};
+pub(super) use owned_children::{stored_child_receiver_v1, stored_child_source_v1, stored_constructor_child_source_v1};
 
 #[cfg(test)]
 #[path = "ordinary_new_field_batch_tests.rs"]
@@ -368,12 +379,52 @@ pub(super) fn dominated_view_use_consult_v1<'a>(
         String,
     >,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+    results: &'a BorrowedResultCohortV1,
+    census: &'a BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    constructors: &'a VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &'a crate::parser::ParserOrdinaryBoxSourceCoverageV1,
 ) -> impl FnMut(
     &OwnedExprSiteV1,
     crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1<'_>,
 ) -> Result<bool, OrdinaryNewCoSealIssueV1>
        + 'a {
     move |site: &OwnedExprSiteV1, request| {
+        if let crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1::FormalFieldWriteReceiver { target, root, .. } = request {
+            let ingress = borrowed_formal_source.as_ref().map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue: issue.clone() })?;
+            if !ingress.consult_view_use_v1(input, site, request).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })? {
+                return Ok(false);
+            }
+            let class = ingress.source_object_view_v1(root).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue })?;
+            let Some(class) = class else { return Ok(false); };
+            let Some(box_source) = coverage.rows().iter().find(|row| row.name() == class.class()) else {
+                return Ok(false);
+            };
+            let Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { field, .. }) =
+                input.body_shape().and_then(|shape| shape.expression_shape(target)) else {
+                    return Ok(false);
+                };
+            return terminal_home::source_declared_field(constructors, box_source,
+                &OwnedExprSiteV1::new(input.owner(), target.clone()), field)
+                .map(|field| field.is_some_and(|(_, kind)| kind.as_deref()
+                    .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name)));
+        }
+        if let crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1::IntegerNestedFieldReturn { exit, receiver } = request {
+            return match borrowed_formal_source {
+                Ok(ingress) => results.checked_nested_field_return_v1(ingress, input, site, exit, receiver),
+                Err(_) => Ok(false),
+            }.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+        }
+        if let crate::mir::resolved_semantics::home_new_prefix::BorrowedViewUseRequestV1::IntegerFieldArrayReturn { exit } = request {
+            return match results.get(&input.owner()) {
+                Some(Ok(proof)) => proof.checked_field_array_return_v1(input, site, exit, census),
+                // No retained read product selects this conditional source consult.
+                // Other result families keep their original Return classifier.
+                Some(Err(_)) | None => Ok(false),
+            }.map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+        }
         let source = match borrowed_formal_source {
             Ok(source) => source,
             Err(issue) if matches!(request,
@@ -427,6 +478,8 @@ pub(super) fn formal_i64_index_consult_v1<'a>(
 /// Run the source-only readiness/actual probe with the verified walk's same
 /// source predicates. Readiness and Completion selection remain in the issuer.
 pub(super) fn probe_source_home_prefixes_v1(
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
+    source_core_calls: Option<&super::super::super::core_method_source::SourceCoreMethodCallRowsV1>,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     new_sites: &BTreeMap<OwnedExprSiteV1, BindingRefV1>,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
@@ -447,10 +500,7 @@ pub(super) fn probe_source_home_prefixes_v1(
     >,
     static_source_sites: &Result<BTreeSet<OwnedExprSiteV1>, String>,
     lexical_source_targets: &super::super::lexical_instance_call::PreparedLexicalInstanceCallSourceTargetsV1,
-    borrowed_i64_results: &BTreeMap<
-        FunctionOwnerIdV1,
-        Result<super::super::lexical_instance_call::BorrowedI64ResultSourceV1, String>,
-    >,
+    borrowed_i64_results: &BorrowedResultCohortV1,
     local_static_call: &mut impl FnMut(
         &OwnedExprSiteV1,
     ) -> Result<
@@ -458,6 +508,7 @@ pub(super) fn probe_source_home_prefixes_v1(
         OrdinaryNewCoSealIssueV1,
     >,
     receiver_rows: &BTreeMap<OwnedExprSiteV1, super::super::ReceiverCallClassObservationV1>,
+    field_write_claims: &field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 ) -> Result<
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     OrdinaryNewCoSealIssueV1,
@@ -494,51 +545,10 @@ pub(super) fn probe_source_home_prefixes_v1(
             ))
         },
         local_static_call,
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
-            let field = terminal_home::initialized_integer_field(
-                instance_constructors,
-                &candidates,
-                home,
-                name,
-            )?;
-            match field {
-                Some(_) => Ok(true),
-                None => match super::lexical::nullable_received_result_class(
-                    selected,
-                    batch,
-                    callable_result_classes,
-                    &candidates,
-                    input,
-                    home,
-                ) {
-                    Some(class) => terminal_home::nullable_result_integer_field(
-                        instance_constructors,
-                        batch.ordinary_box_coverage(),
-                        &class,
-                        site,
-                        name,
-                    )
-                    .map(|field| field.is_some()),
-                    // A guarded borrowed formal names its class through
-                    // the co-sealed object view; the declared `i64`
-                    // contract is unchanged.
-                    None => match borrowed_formal_source
-                        .as_ref()
-                        .ok()
-                        .and_then(|source| source.formal_object_view(home))
-                    {
-                        Some(view) => terminal_home::nullable_result_integer_field(
-                            instance_constructors,
-                            batch.ordinary_box_coverage(),
-                            view.class(),
-                            site,
-                            name,
-                        )
-                        .map(|field| field.is_some()),
-                        None => Ok(false),
-                    },
-                },
-            }
+        &mut |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver: BindingRefV1, home, name| {
+            super::integer_fields::consult_v1(input, selected, batch, instance_constructors, &candidates,
+                callable_result_classes, borrowed_formal_source, borrowed_i64_results, receiver_proof,
+                site, receiver_site, receiver, home, name).map(|field| field.is_some())
         },
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::argument_integer_field(
@@ -551,7 +561,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             )
             .map(|field| field.is_some())
         },
-        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+        &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name: &str| {
             terminal_home::receiver_scalar_field(
                 instance_constructors,
                 receiver_proof,
@@ -574,21 +584,9 @@ pub(super) fn probe_source_home_prefixes_v1(
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             // The probe shares the verified lane's sealed census — the
             // declared `ArrayBox` type alone admits nothing.
-            let Some((_, box_source)) = receiver_proof else {
-                return Ok(false);
-            };
-            let Some(proven) = array_i64_field_sets.get(box_source.name()) else {
-                return Ok(false);
-            };
-            terminal_home::receiver_array_i64_field(
-                instance_constructors,
-                receiver_proof,
-                site,
-                home,
-                name,
-                proven,
+            terminal_home::receiver_array_i64_field_from_census_v1(
+                instance_constructors, receiver_proof, array_i64_field_sets, site, home, name,
             )
-            .map(|field| field.is_some())
         },
         // The probe shares the verified lane's `formal.<field>` index
         // proof — same consult factory, same sealed authority.
@@ -600,36 +598,36 @@ pub(super) fn probe_source_home_prefixes_v1(
         // The probe shares the verified lane's local
         // field-read membership — no staging here; the
         // verified walk owns the ledger rows.
-        &mut |requests, scalar_only| {
+        &mut |requests, demand| {
             prove_local_field_read_batch(
                 instance_constructors,
                 &candidates,
                 batch.ordinary_box_coverage(),
-                receiver_proof,
+                receiver_proof, entry_home,
+                source_core_calls,
                 requests,
-                scalar_only,
+                demand,
+                borrowed_i64_results,
+                borrowed_formal_source,
                 &mut |home| {
                     super::lexical::nullable_received_result_class(
                         selected,
                         batch,
                         callable_result_classes,
                         &candidates,
-                        input,
+                        input, receiver_proof,
                         home,
                     )
                 },
-                &mut |home| {
-                    borrowed_formal_source
-                        .as_ref()
-                        .ok()
-                        .and_then(|source| source.formal_object_view(home))
-                        .map(|view| view.class().into())
-                },
+                &mut |home| source_formal_class_v1(borrowed_formal_source, home), Some((batch, selected, callable_result_classes, lexical_source_targets, field_write_claims)),
             )
             .map(|rows| rows.map(|rows| rows.into_iter().map(|(_, row)| row.source.result().clone()).collect()))
         },
         &mut |site, actuals| {
-            borrowed_call_arguments_callback_v1(
+            if borrowed_formal_source.is_err() && !select_failed_array_initializer_v1(
+                input, batch, brands, lexical_source_targets, site, actuals,
+            )? { return Ok(None); }
+            borrowed_call_arguments_callback_v1(batch, selected,
                 lexical_source_targets,
                 parameter_contracts,
                 candidates,
@@ -644,22 +642,67 @@ pub(super) fn probe_source_home_prefixes_v1(
                         batch,
                         callable_result_classes,
                         &candidates,
-                        input,
+                        input, receiver_proof,
                         binding,
                     )
                 },
                 site,
                 actuals,
                 callable_result_classes,
-                receiver_rows,
+                receiver_rows, field_write_claims,
             )
         },
-        &mut dominated_view_use_consult_v1(borrowed_formal_source, input),
+        &mut dominated_view_use_consult_v1(borrowed_formal_source, input, borrowed_i64_results, array_i64_field_sets, instance_constructors, batch.ordinary_box_coverage()),
         &mut |site| Ok(callable_result_classes.object_return_qualification(site)),
     )
 }
 
 /// Query the existing sealed observations; issue no new class or completion.
+pub(super) fn has_receiver_home_call_v1(
+    owner: FunctionOwnerIdV1,
+    observations: &BTreeMap<
+        OwnedExprSiteV1,
+        receiver_call_observation::ReceiverCallClassObservationV1,
+    >,
+    source: &Result<super::super::lexical_instance_call::PreparedBorrowedFormalIngressV1, String>,
+    contracts: &[super::super::super::model::OwnedCallableParameterContractDeclarationV1],
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    if has_nullable_receiver_call_v1(owner, observations) {
+        return Ok(true);
+    }
+    let Some((site, _)) = observations.iter().find(|(site, row)| {
+        site.owner() == owner
+            && matches!(
+                row.class(),
+                result_class_claim::OrdinaryNewResultClassV1::Object(_)
+            )
+    }) else {
+        return Ok(false);
+    };
+    let Ok(source) = source else {
+        return Ok(false);
+    };
+    super::super::lexical_instance_call::has_original_forwarding_receiver_input_source_v1(
+        source,
+        Some(contracts),
+        owner,
+        &mut |target| {
+            observations.get(target.call_site()).is_some_and(|row| {
+                row.callee() == target.target()
+                    && matches!(
+                        row.class(),
+                        result_class_claim::OrdinaryNewResultClassV1::Object(_)
+                    )
+            })
+        },
+    )
+    .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress {
+        site: site.clone(),
+        issue,
+    })
+}
+
+/// Nullable observations retain their existing homes-aware source walk.
 pub(super) fn has_nullable_receiver_call_v1(
     owner: FunctionOwnerIdV1,
     receiver_call_observations: &BTreeMap<
@@ -695,3 +738,7 @@ pub(super) fn ordinary_candidate_compatible_v1(
     Ok(candidate.construction.is_ok()
         && candidate.destruction == ObjectDestructionDispositionV1::PlainI64NoHook)
 }
+
+#[path = "ordinary_new_coseal_field_source.rs"]
+mod field_source;
+pub(super) use field_source::{scalar_fields_with_original_writes, requires_field_scalar_walk_v1};

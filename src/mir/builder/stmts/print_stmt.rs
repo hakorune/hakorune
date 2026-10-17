@@ -180,10 +180,14 @@ where
         ExpressionInput = ASTNode,
     >,
 {
+    let checked = port.prepare_checked_print_expression_v1()?;
     let prepared = PreparedRawPrintV1::prepare(statement)?;
     let value_source = prepared.prepare_value_source_v1(port)?;
     let mut scoped = RawStructuredChildScopePortV1::new(port, vec![value_source], Vec::new());
-    let value = lower_prepared_raw_print_with_port_v1(builder, &mut scoped, prepared)?;
+    let value = match checked {
+        Some(frame) => scoped.lower_checked_print_value_v1(builder, frame)?,
+        None => lower_prepared_raw_print_with_port_v1(builder, &mut scoped, prepared)?,
+    };
     scoped.complete_exact_demands_v1()?;
     Ok(value)
 }

@@ -25,6 +25,8 @@ mod projection;
 
 #[path = "physical_program_scalar.rs"]
 mod scalar;
+#[path = "physical_program_object_end.rs"]
+mod object_end;
 
 #[path = "physical_program_call_helpers.rs"]
 mod call_helpers;
@@ -34,6 +36,7 @@ mod field_ref;
 mod object_identity;
 pub(crate) use call_helpers::{ordinary_call_receiver, ordinary_callable_key};
 use field_ref::prepare_field_ref;
+use crate::mir::normal_callable_semantic_package::FinalizedObjectReturnOutcomeV1;
 
 /// One exact selected function in the physical lifecycle program.
 #[derive(Debug, Clone)]
@@ -44,7 +47,16 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     BirthUnit {
         abi: crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1,
     },
+    OrdinaryUnit {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
     OrdinaryI64 {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+    },
+    /// Exact Bool result, independent of integer machine storage.
+    OrdinaryBool {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
     },
@@ -58,6 +70,7 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     OrdinaryHandle {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
+        returns: Box<[FinalizedObjectReturnOutcomeV1]>,
     },
     /// Caller-owned nullable object result (`NullableObject` claim): the
     /// wire value is a live handle or the null sentinel, and the caller
@@ -65,6 +78,20 @@ pub(crate) enum PublishedLifecyclePhysicalFunctionRoleV1 {
     OrdinaryNullableHandle {
         key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
         receiver_object: Option<CanonicalObjectIdV1>,
+        returns: Box<[FinalizedObjectReturnOutcomeV1]>,
+    },
+    /// Original checked Return rows, retained through the final consumer.
+    OrdinaryMixedHandle {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+        formal_ordinal: u32,
+        returns: Box<[FinalizedObjectReturnOutcomeV1]>,
+    },
+    OrdinaryBorrowedNullableHandle {
+        key: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        receiver_object: Option<CanonicalObjectIdV1>,
+        formal_ordinal: u32,
+        returns: Box<[FinalizedObjectReturnOutcomeV1]>,
     },
 }
 
@@ -80,10 +107,14 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
                 ..
             } => "root_unit",
             Self::BirthUnit { .. } => "birth_unit",
+            Self::OrdinaryUnit { .. } => "ordinary_unit",
             Self::OrdinaryI64 { .. } => "ordinary_i64",
+            Self::OrdinaryBool { .. } => "ordinary_bool",
             Self::OrdinaryMap { .. } => "ordinary_map",
             Self::OrdinaryHandle { .. } => "ordinary_handle",
             Self::OrdinaryNullableHandle { .. } => "ordinary_nullable_handle",
+            Self::OrdinaryMixedHandle { .. } => "ordinary_mixed_handle",
+            Self::OrdinaryBorrowedNullableHandle { .. } => "ordinary_borrowed_nullable_handle",
         }
     }
 
@@ -93,10 +124,14 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         match self {
             Self::BirthUnit { abi } => Some(abi.target()),
             Self::Root { .. }
+            | Self::OrdinaryUnit { .. }
             | Self::OrdinaryI64 { .. }
+            | Self::OrdinaryBool { .. }
             | Self::OrdinaryMap { .. }
             | Self::OrdinaryHandle { .. }
-            | Self::OrdinaryNullableHandle { .. } => None,
+            | Self::OrdinaryNullableHandle { .. }
+            | Self::OrdinaryMixedHandle { .. }
+            | Self::OrdinaryBorrowedNullableHandle { .. } => None,
         }
     }
 
@@ -104,17 +139,39 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
         &self,
     ) -> Option<&hakorune_mir_defs::CanonicalSameModuleCallableKeyV1> {
         match self {
-            Self::OrdinaryI64 { key, .. }
+            Self::OrdinaryUnit { key, .. }
+            | Self::OrdinaryI64 { key, .. }
+            | Self::OrdinaryBool { key, .. }
             | Self::OrdinaryMap { key, .. }
             | Self::OrdinaryHandle { key, .. }
-            | Self::OrdinaryNullableHandle { key, .. } => Some(key),
+            | Self::OrdinaryNullableHandle { key, .. }
+            | Self::OrdinaryMixedHandle { key, .. }
+            | Self::OrdinaryBorrowedNullableHandle { key, .. } => Some(key),
+            Self::Root { .. } | Self::BirthUnit { .. } => None,
+        }
+    }
+
+    pub(crate) const fn ordinary_result(&self) -> Option<InvokeCallResultKind> {
+        match self {
+            Self::OrdinaryUnit { .. } => Some(InvokeCallResultKind::Unit),
+            Self::OrdinaryI64 { .. } => Some(InvokeCallResultKind::I64),
+            Self::OrdinaryBool { .. } => Some(InvokeCallResultKind::Bool),
+            Self::OrdinaryMap { .. } => Some(InvokeCallResultKind::Map),
+            Self::OrdinaryHandle { .. } => Some(InvokeCallResultKind::Handle),
+            Self::OrdinaryNullableHandle { .. } => Some(InvokeCallResultKind::NullableHandle),
+            Self::OrdinaryMixedHandle { formal_ordinal, .. } => Some(InvokeCallResultKind::MixedHandle { formal_ordinal: *formal_ordinal }),
+            Self::OrdinaryBorrowedNullableHandle { formal_ordinal, .. } => Some(InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal: *formal_ordinal }),
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
 
     pub(crate) const fn receiver_object(&self) -> Option<CanonicalObjectIdV1> {
         match self {
-            Self::OrdinaryI64 {
+            Self::OrdinaryUnit { receiver_object, .. }
+            | Self::OrdinaryI64 {
+                receiver_object, ..
+            }
+            | Self::OrdinaryBool {
                 receiver_object, ..
             }
             | Self::OrdinaryMap {
@@ -125,7 +182,9 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
             }
             | Self::OrdinaryNullableHandle {
                 receiver_object, ..
-            } => *receiver_object,
+            }
+            | Self::OrdinaryMixedHandle { receiver_object, .. }
+            | Self::OrdinaryBorrowedNullableHandle { receiver_object, .. } => *receiver_object,
             Self::Root { .. } | Self::BirthUnit { .. } => None,
         }
     }
@@ -133,13 +192,27 @@ impl PublishedLifecyclePhysicalFunctionRoleV1 {
     pub(crate) fn has_receiver(&self) -> bool {
         match self {
             Self::BirthUnit { .. } => true,
-            Self::OrdinaryI64 { key, .. }
+            Self::OrdinaryUnit { key, .. }
+            | Self::OrdinaryI64 { key, .. }
+            | Self::OrdinaryBool { key, .. }
             | Self::OrdinaryMap { key, .. }
             | Self::OrdinaryHandle { key, .. }
-            | Self::OrdinaryNullableHandle { key, .. } => {
+            | Self::OrdinaryNullableHandle { key, .. }
+            | Self::OrdinaryMixedHandle { key, .. }
+            | Self::OrdinaryBorrowedNullableHandle { key, .. } => {
                 key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
             }
             Self::Root { .. } => false,
+        }
+    }
+
+    pub(crate) fn object_return_outcomes(&self) -> Option<&[FinalizedObjectReturnOutcomeV1]> {
+        match self {
+            Self::OrdinaryHandle { returns, .. }
+            | Self::OrdinaryNullableHandle { returns, .. }
+            | Self::OrdinaryMixedHandle { returns, .. }
+            | Self::OrdinaryBorrowedNullableHandle { returns, .. } => Some(returns),
+            _ => None,
         }
     }
 
@@ -306,6 +379,18 @@ pub(super) struct OrdinaryCallSite {
     pub(super) result: InvokeCallResultKind,
 }
 
+/// One physical classification shared by selection, exact coverage and ABI.
+/// Birth retains its own source/ABI owner even though its result is also Unit.
+pub(in crate::mir::compiler::normal_default_pipeline) fn ordinary_call_site_v1(
+    instruction: &MirInstruction,
+) -> Option<(&MirCall, InvokeCallResultKind)> {
+    match instruction {
+        MirInstruction::Invoke { operation: InvokeOperation::Call { call, result }, .. }
+            if !matches!(&call.callee, Callee::BirthConstructor { .. }) => Some((call, *result)),
+        _ => None,
+    }
+}
+
 fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite>, String> {
     let mut calls = Vec::new();
     let mut block_ids: Vec<_> = function.blocks.keys().copied().collect();
@@ -316,28 +401,14 @@ fn collect_ordinary_calls(function: &MirFunction) -> Result<Vec<OrdinaryCallSite
             .get(&block_id)
             .ok_or_else(|| fault("function-block-membership"))?;
         for instruction in block.all_instructions() {
-            let MirInstruction::Invoke {
-                operation:
-                    InvokeOperation::Call {
-                        call,
-                        result:
-                            result @ (InvokeCallResultKind::I64
-                            | InvokeCallResultKind::Map
-                            | InvokeCallResultKind::Handle
-                            | InvokeCallResultKind::NullableHandle),
-                    },
-                ..
-            } = instruction
-            else {
-                continue;
-            };
+            let Some((call, result)) = ordinary_call_site_v1(instruction) else { continue; };
             ordinary_callable_key(&call.callee)?;
             if call.dst.is_some() {
                 return Err(fault("ordinary-destination"));
             }
             calls.push(OrdinaryCallSite {
                 call: call.clone(),
-                result: *result,
+                result,
             });
         }
     }
@@ -353,6 +424,28 @@ pub(super) fn issue_function<'module>(
     issue_function_with_module(None, function, role, script, ordinary_calls, None)
 }
 
+/// The same final consumer checks retained source outcomes against the complete
+/// current Return inventory. It never reissues an original source projection.
+pub(super) fn validate_object_return_census(
+    function: &MirFunction, role: &PublishedLifecyclePhysicalFunctionRoleV1,
+) -> Result<(), String> {
+    if let Some(returns) = role.object_return_outcomes() {
+        let key = role.ordinary_target().expect("object result role retains original key");
+        if key.mir_symbol_projection() != function.signature.name
+            || key.arity() as usize + usize::from(role.has_receiver()) != function.params.len()
+        { return Err(fault("object-return/function-identity")); }
+        let mut expected = BTreeSet::new();
+        for row in returns {
+            row.validate_physical_function_v1(function, role.ordinary_result().unwrap(), role.has_receiver())?;
+            if !expected.insert(row.returned().0) { return Err(fault("object-return/duplicate")); }
+        }
+        let actual: BTreeSet<_> = function.blocks.iter().filter_map(|(id, block)|
+            matches!(block.terminator, Some(MirInstruction::Return { .. })).then_some(*id)).collect();
+        if expected.is_empty() || expected != actual { return Err(fault("object-return/census")); }
+    }
+    Ok(())
+}
+
 fn issue_function_with_module<'module>(
     module: Option<&'module MirModule>,
     function: &'module MirFunction,
@@ -361,8 +454,51 @@ fn issue_function_with_module<'module>(
     ordinary_calls: &[OrdinaryCallSite],
     selected_view: Option<&PublishedMirBackendView<'module>>,
 ) -> Result<PublishedLifecyclePhysicalFunctionV1<'module>, String> {
+    validate_object_return_census(function, &role)?;
+    let source_field_reads = field_ref::source_array_reads(module, function, selected_view, &role)?;
+    let received_field_reads = field_ref::source_received_reads(module, function, selected_view, &role)?;
+    let received_field_binding = |block: BasicBlockId, instruction: &MirInstruction|
+        received_field_reads.iter().any(|(id, original)| *id == block && original == instruction);
+    let field_appends = match (module, selected_view) {
+        (Some(module), Some(view)) => {
+            if !std::ptr::eq(module, view.module()) { return Err(fault("field-append/view-membership")); }
+            match view.retained_root_source() {
+                Some(source) => source.finished_field_array_appends_v1(module, function, view.validated_named_arrays()?)?,
+                None => Vec::new(),
+            }
+        }
+        _ => Vec::new(),
+    };
+    let end_bindings = object_end::bindings(module, function, selected_view)?;
+    let source_end_binding = |block, instruction: &MirInstruction| end_bindings
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
     let scalar_bindings =
         scalar::validate_selected_scalar_operations(module, function, selected_view)?;
+    let main_argument_bindings = match (module, selected_view.and_then(|view| view.retained_root_source())) {
+        (Some(module), Some(source)) => source.main_arguments_bindings_v1(module, function)?,
+        _ => Vec::new(),
+    };
+    let main_argument_binding = |block, instruction: &MirInstruction| main_argument_bindings
+        .iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction);
+    // Borrow the source-checked full-holder image, never admit Array from
+    // its instruction shape or runtime descriptor alone.
+    let mut owned_array_bindings = Vec::new();
+    if let Some(view) = selected_view {
+        for row in view.validated_named_arrays()? {
+            if let crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::OwnedHolder(holder) = row {
+                if holder.finished_symbol_v1()? == function.signature.name {
+                    owned_array_bindings.push(holder.finished_bindings_v1()?);
+                }
+            }
+        }
+    }
+    let source_array_binding = |block: BasicBlockId, instruction: &MirInstruction| {
+        field_appends.iter().any(|(bound_block, bound)| *bound_block == block && bound == instruction)
+            || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(_), .. }
+            | MirInstruction::ArrayResidenceRelease { .. })
+            && owned_array_bindings.iter().flat_map(|rows| rows.iter())
+                .any(|(bound_block, bound)| *bound_block == block && bound == instruction)
+    };
     let mut ids: Vec<_> = function.blocks.keys().copied().collect();
     ids.sort();
     if ids.is_empty() || !function.blocks.contains_key(&function.entry_block) {
@@ -407,15 +543,24 @@ fn issue_function_with_module<'module>(
                             && route.result_value() == *dst
                     });
                 if !routed {
-                    return Err(fault("array-set-unsupported"));
+                    let candidates: Vec<_> = function.metadata.generic_method_routes.iter()
+                        .filter(|route| route.array_write_site_id() == Some(*site_id)
+                            || (route.block() == block.id && route.instruction_index() == index))
+                        .collect();
+                    return Err(format!("{} function={} role={} block={:?} index={index} instruction={instruction:?} routes={candidates:?}",
+                        fault("array-set-unsupported"), function.signature.name, role.wire_name(), block.id));
                 }
             }
-            let field_ref = prepare_field_ref(module, function, block.id, index, instruction)?;
-            if !scalar_bindings
+            let field_ref = prepare_field_ref(module, function, block.id, index, instruction, &source_field_reads)?;
+            if !source_end_binding(id, instruction) && !main_argument_binding(id, instruction) && !source_array_binding(id, instruction) && !scalar_bindings
                 .iter()
                 .any(|(bound_block, bound)| *bound_block == id && bound == instruction)
             {
-                validate_instruction_with_context(field_ref, instruction, script, ordinary_calls)?;
+                validate_instruction_with_context(field_ref, instruction, script, ordinary_calls, received_field_binding(id, instruction))
+                    .map_err(|error| format!(
+                        "{error} function={} role={} block={:?} instruction_index={index} instruction={instruction:?}",
+                        function.signature.name, role.wire_name(), block.id,
+                    ))?;
             }
             instructions.push(PublishedLifecyclePhysicalInstructionRefV1 {
                 index: as_u32(index, "instruction-index")?,
@@ -425,13 +570,19 @@ fn issue_function_with_module<'module>(
         }
         let terminator_index = block.instructions.len();
         let terminator_field_ref =
-            prepare_field_ref(module, function, block.id, terminator_index, terminator)?;
-        validate_instruction_with_context(
-            terminator_field_ref,
-            terminator,
-            script,
-            ordinary_calls,
-        )?;
+            prepare_field_ref(module, function, block.id, terminator_index, terminator, &source_field_reads)?;
+        if !source_end_binding(id, terminator) && !main_argument_binding(id, terminator) && !source_array_binding(id, terminator) {
+            validate_instruction_with_context(
+                terminator_field_ref,
+                terminator,
+                script,
+                ordinary_calls,
+                received_field_binding(id, terminator),
+            ).map_err(|error| format!(
+                "{error} function={} role={} block={:?} instruction_index={terminator_index} instruction={terminator:?}",
+                function.signature.name, role.wire_name(), block.id,
+            ))?;
+        }
         let terminator_index = as_u32(terminator_index, "terminator-index")?;
         let edges = block
             .out_edges()
@@ -461,24 +612,7 @@ fn issue_function_with_module<'module>(
                 .copied()
                 .chain(std::iter::once(block.terminator()))
         })
-        .filter_map(|row| {
-            let MirInstruction::Invoke {
-                operation:
-                    InvokeOperation::Call {
-                        call,
-                        result:
-                            result @ (InvokeCallResultKind::I64
-                            | InvokeCallResultKind::Map
-                            | InvokeCallResultKind::Handle
-                            | InvokeCallResultKind::NullableHandle),
-                    },
-                ..
-            } = row.instruction()
-            else {
-                return None;
-            };
-            Some((call, *result))
-        })
+        .filter_map(|row| ordinary_call_site_v1(row.instruction()))
         .collect::<Vec<_>>();
     let mut consumed = vec![false; ordinary_rows.len()];
     for expected in ordinary_calls {
@@ -514,7 +648,7 @@ fn validate_instruction(
     script: bool,
     ordinary_calls: &[OrdinaryCallSite],
 ) -> Result<(), String> {
-    validate_instruction_with_context(None, instruction, script, ordinary_calls)
+    validate_instruction_with_context(None, instruction, script, ordinary_calls, false)
 }
 
 fn validate_instruction_with_context(
@@ -522,6 +656,7 @@ fn validate_instruction_with_context(
     instruction: &MirInstruction,
     script: bool,
     ordinary_calls: &[OrdinaryCallSite],
+    received_field: bool,
 ) -> Result<(), String> {
     if script {
         return if matches!(
@@ -550,25 +685,12 @@ fn validate_instruction_with_context(
             Err(fault("script-instruction-unsupported"))
         };
     }
-    let ordinary = matches!(
-        instruction,
-        MirInstruction::Invoke {
-            operation: InvokeOperation::Call {
-                call,
-                result:
-                    result @ (InvokeCallResultKind::I64
-                    | InvokeCallResultKind::Map
-                    | InvokeCallResultKind::Handle
-                    | InvokeCallResultKind::NullableHandle),
-            },
-            ..
-        } if ordinary_calls
-            .iter()
-            .any(|expected| expected.call == *call && expected.result == *result)
-    );
+    let ordinary = ordinary_call_site_v1(instruction).is_some_and(|(call, result)|
+        ordinary_calls.iter().any(|expected| expected.call == *call && expected.result == result));
     let field_get = matches!(instruction, MirInstruction::FieldGet { .. }) && field_ref.is_some();
     let field_set = matches!(instruction, MirInstruction::FieldSet { .. }) && field_ref.is_some();
     let supported = ordinary
+        || received_field && matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::FieldGet { .. }, .. })
         || field_get
         || field_set
         || matches!(
@@ -586,6 +708,7 @@ fn validate_instruction_with_context(
             } | MirInstruction::Compare { .. }
                 | MirInstruction::Copy { .. }
                 | MirInstruction::Phi { .. }
+                | MirInstruction::KeepAlive { .. }
                 | MirInstruction::ObjectFieldGet { .. }
                 | MirInstruction::Invoke {
                     operation: InvokeOperation::Map(_)

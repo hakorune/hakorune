@@ -12,6 +12,8 @@ mod map;
 mod string;
 #[path = "invoke_owned_array.rs"]
 mod owned_array;
+#[path = "invoke_object_end.rs"]
+mod object_end;
 use crate::mir::verification_types::VerificationError;
 use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction};
 
@@ -119,6 +121,7 @@ pub(super) fn check_module_with_source(
                         | InvokeOperation::NewBox { object }
                         | InvokeOperation::HomeRelease { object, .. }
                         | InvokeOperation::HomeReleaseIfLive { object, .. }
+                        | InvokeOperation::ObjectEndIfOwned { object, .. }
                         | InvokeOperation::ReclaimUnpublished { object, .. }
                             if module.canonical_object_definition(*object).is_none() =>
                         {
@@ -130,6 +133,11 @@ pub(super) fn check_module_with_source(
                                     == crate::mir::function::ObjectDestructionDispositionV1::PlainI64NoHook) =>
                         {
                             errors.push(error(*id, "home-destruction-unavailable"));
+                        }
+                        InvokeOperation::ObjectEndIfOwned { object, end, .. }
+                            if !object_end::check(module, *object, end) =>
+                        {
+                            errors.push(error(*id, "conditional-object-end-invalid"));
                         }
                         // A Home release is admissible for plain objects and
                         // for owned-field objects — the field children are
@@ -211,6 +219,13 @@ pub(super) fn check_module_with_source(
                                     })) =>
                         {
                             errors.push(error(*id, "object-field-release-invalid"));
+                        }
+                        InvokeOperation::FieldGet { field, .. }
+                            if !module.canonical_field_definition(*field).is_some_and(|definition|
+                                !definition.is_weak && definition.declared_type_name.as_deref().is_some_and(
+                                    crate::mir::numeric_substrate::is_numeric_integer_type_name)) =>
+                        {
+                            errors.push(error(*id, "field-read-definition-invalid"));
                         }
                         InvokeOperation::FieldSet { field, .. }
                             if module.canonical_field_definition(*field).is_none() =>
@@ -364,6 +379,11 @@ fn check_function_inner(
                 };
                 let valid = match (&call.callee, result) {
                     (Callee::BirthConstructor { .. }, ResultKind::Unit) => true,
+                    (Callee::SameModuleInstance { key, .. }, ResultKind::BorrowedNullableHandle { formal_ordinal }
+                        | ResultKind::MixedHandle { formal_ordinal }) => {
+                        key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod
+                            && key.arity() as usize == call.args.len() && *formal_ordinal < key.arity()
+                    },
                     (
                         Callee::Global(
                             target @ Global::SameModule(SameModule::StaticBoxMethod { .. }),
@@ -382,7 +402,9 @@ fn check_function_inner(
                         .is_some_and(|arity| arity as usize == call.args.len()),
                     (
                         Callee::SameModuleInstance { key, .. },
-                        ResultKind::I64
+                        ResultKind::Unit
+                        | ResultKind::I64
+                        | ResultKind::Bool
                         | ResultKind::Map
                         | ResultKind::Handle
                         | ResultKind::NullableHandle,

@@ -28,8 +28,26 @@ pub(crate) enum LoopProductUnavailableV1 {
 
 pub(crate) type SelectedLoopProductV1 = BTreeMap<
     (FunctionOwnerIdV1, SourceStmtSiteV1),
-    Result<VerifiedVariableBoundMulRecipeProductV1, LoopProductUnavailableV1>,
+    Result<SelectedLoopProductRowV1, LoopProductUnavailableV1>,
 >;
+
+/// One existing source-product row, with affine physical consumption on the
+/// preissued generic arm. This adds no parallel source registry.
+#[derive(Debug)]
+pub(crate) enum SelectedLoopProductRowV1 {
+    VariableBoundMul(VerifiedVariableBoundMulRecipeProductV1),
+    SourcePlan(RetainedSourceLoopProductV1),
+}
+#[derive(Debug)]
+pub(crate) struct RetainedSourceLoopProductV1 {
+    plan: std::cell::RefCell<Option<Result<crate::mir::builder::PreissuedCallableLoopSourcePlanV1, String>>>,
+    home: std::cell::OnceCell<std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>>,
+}
+impl SelectedLoopProductRowV1 {
+    fn home_after_loan(&self) -> Option<VerifiedLoopHomeAfterLoanV1> {
+        match self { Self::VariableBoundMul(row) => row.home_after_loan(), Self::SourcePlan(_) => None }
+    }
+}
 
 pub(super) fn retain_selected_loop_product_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
@@ -87,7 +105,7 @@ pub(super) fn retain_selected_loop_product_v1(
     })();
     match rows.entry(key) {
         std::collections::btree_map::Entry::Vacant(slot) => {
-            slot.insert(candidate).as_ref().ok()?.home_after_loan()
+            slot.insert(candidate.map(SelectedLoopProductRowV1::VariableBoundMul)).as_ref().ok()?.home_after_loan()
         }
         std::collections::btree_map::Entry::Occupied(mut slot) => {
             let _ = slot.insert(Err(LoopProductUnavailableV1::Duplicate));
@@ -105,6 +123,8 @@ pub(super) fn issue_selected_home_loop_loan_v1(
         Result<crate::mir::builder::StaticI64LoopFunctionEntryV2, String>,
     >,
     variable_rows: &mut SelectedLoopProductV1,
+    source_core_calls: Option<&crate::mir::normal_callable_semantic_package::core_method_source::SourceCoreMethodCallRowsV1>,
+    policy: crate::mir::builder::LoopFactsPolicyFrameV1,
 ) -> Option<crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1> {
     use crate::mir::resolved_semantics::home_new_prefix::SelectedLoopHomeLoanV1;
     if static_sites.contains(&(prestate.owner(), prestate.site().clone())) {
@@ -118,6 +138,31 @@ pub(super) fn issue_selected_home_loop_loan_v1(
             return None;
         }
         return Some(SelectedLoopHomeLoanV1::StaticI64Search(source));
+    }
+    if source_core_calls.is_some_and(|rows| rows.values().any(|row|
+        row.contract().owner() == prestate.owner() && row.contract().loop_site() == prestate.site()
+            && row.contract().named_array_requirement().and_then(|row| row.residence()).is_some())) {
+        let key = (prestate.owner(), prestate.site().clone());
+        match variable_rows.entry(key) {
+            std::collections::btree_map::Entry::Vacant(slot) => {
+                let plan = crate::mir::builder::issue_preissued_callable_loop_source_plan_v1(input, prestate.site(), policy);
+                slot.insert(Ok(SelectedLoopProductRowV1::SourcePlan(RetainedSourceLoopProductV1 {
+                    plan: std::cell::RefCell::new(Some(plan)), home: std::cell::OnceCell::new(),
+                })));
+            }
+            std::collections::btree_map::Entry::Occupied(_) => {}
+        }
+        let Some(Ok(SelectedLoopProductRowV1::SourcePlan(slot))) = variable_rows.get(&(prestate.owner(), prestate.site().clone())) else { return None; };
+        let contracts = || source_core_calls.into_iter().flat_map(|rows| rows.values()).map(|row| row.contract());
+        if let Some(home) = slot.home.get() {
+            return (home.matches_prestate(&prestate) && home.recheck_source(input, contracts()))
+                .then(|| SelectedLoopHomeLoanV1::NoExitArrayAfter(std::rc::Rc::clone(home)));
+        }
+        let retained = slot.plan.borrow();
+        let plan = retained.as_ref()?.as_ref().ok()?;
+        let home = std::rc::Rc::new(plan.prove_array_home_after(input, &prestate, contracts())?);
+        slot.home.set(std::rc::Rc::clone(&home)).ok()?;
+        return Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(home));
     }
     retain_selected_loop_product_v1(input, prestate, variable_rows)
         .map(SelectedLoopHomeLoanV1::VariableAccumAfter)
@@ -164,4 +209,37 @@ pub(super) fn retain_static_i64_search_early_return_v1(
             claims.result_for_key(caller),
             Some(VerifiedCallableResultDispositionV1::ExactI64 { .. })
         )
+}
+
+impl super::OrdinaryNewClaimLedgerV1 {
+    /// Borrow the SAME source/Home proof before or after affine Recipe take.
+    pub(in crate::mir) fn no_exit_array_home_source_v1(
+        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+    ) -> Option<&std::rc::Rc<crate::mir::builder::VerifiedNoExitArrayHomeAfterV1>> {
+        match self.selected_loop_products.get(&(owner, site.clone())) {
+            Some(Ok(SelectedLoopProductRowV1::SourcePlan(row))) => row.home.get(),
+            _ => None,
+        }
+    }
+
+    pub(in crate::mir) fn take_preissued_loop_source_plan_v1(
+        &self, owner: FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+    ) -> Result<Option<crate::mir::builder::PreissuedCallableLoopSourcePlanV1>, String> {
+        match self.selected_loop_products.get(&(owner, site.clone())) {
+            Some(Ok(SelectedLoopProductRowV1::SourcePlan(slot))) => slot.plan.borrow_mut().take()
+                .ok_or_else(|| "[freeze:contract][preissued-loop/already-taken]".to_owned())?
+                .map(Some),
+            _ => Ok(None),
+        }
+    }
+}
+
+impl super::OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir) fn validate_preissued_loop_consumption_v1(&self, owner: FunctionOwnerIdV1) -> Result<(), String> {
+        if self.selected_loop_products.iter().any(|((source_owner, _), row)| *source_owner == owner
+            && matches!(row, Ok(SelectedLoopProductRowV1::SourcePlan(slot)) if slot.plan.borrow().is_some())) {
+            return Err("[freeze:contract][preissued-loop/unconsumed]".into());
+        }
+        Ok(())
+    }
 }

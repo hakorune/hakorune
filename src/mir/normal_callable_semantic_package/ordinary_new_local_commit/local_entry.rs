@@ -6,31 +6,32 @@ pub(in crate::mir::normal_callable_semantic_package) enum LocalCommitV1 {
     Ordinary(NewLocalCommitV1),
     Result(NewResultCommitV1),
     Map(MapLocalProgress),
+    OwnedArray(OwnedArrayLocalProgress),
     CallReceived(CallReceivedCommitV1),
 }
 impl LocalCommitV1 {
     pub(super) fn ordinary(&self) -> Option<&NewLocalCommitV1> {
         match self {
             Self::Ordinary(row) => Some(row),
-            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn ordinary_mut(&mut self) -> Option<&mut NewLocalCommitV1> {
         match self {
             Self::Ordinary(row) => Some(row),
-            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Result(_) | Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn result(&self) -> Option<&NewResultCommitV1> {
         match self {
             Self::Result(row) => Some(row),
-            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn result_mut(&mut self) -> Option<&mut NewResultCommitV1> {
         match self {
             Self::Result(row) => Some(row),
-            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Ordinary(_) | Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     /// Shared emission-state access for ordinary and result rows — the
@@ -40,14 +41,14 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.emission),
             Self::Result(row) => Some(&row.emission),
-            Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn new_emission_mut(&mut self) -> Option<&mut NewEmissionProgress> {
         match self {
             Self::Ordinary(row) => Some(&mut row.emission),
             Self::Result(row) => Some(&mut row.emission),
-            Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn new_box_source(
@@ -56,10 +57,10 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.box_source),
             Self::Result(row) => Some(&row.box_source),
-            Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
-    pub(super) fn new_argument_rows(
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn new_argument_rows(
         &self,
     ) -> Option<
         &Result<
@@ -70,7 +71,7 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.argument_rows),
             Self::Result(row) => Some(&row.argument_rows),
-            Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn new_children(
@@ -79,7 +80,7 @@ impl LocalCommitV1 {
         match self {
             Self::Ordinary(row) => Some(&row.children),
             Self::Result(row) => Some(&row.children),
-            Self::Map(_) | Self::CallReceived(_) => None,
+            Self::Map(_) | Self::CallReceived(_) | Self::OwnedArray(_) => None,
         }
     }
     pub(super) fn binding(&self) -> Option<BindingRefV1> {
@@ -89,6 +90,7 @@ impl LocalCommitV1 {
             Self::Result(_) => None,
             Self::Map(row) => row.binding,
             Self::CallReceived(row) => Some(row.binding),
+            Self::OwnedArray(row) => Some(row.binding()),
         }
     }
     pub(super) fn owner(&self) -> FunctionOwnerIdV1 {
@@ -97,6 +99,7 @@ impl LocalCommitV1 {
             Self::Result(row) => row.site.owner(),
             Self::Map(row) => row.owner,
             Self::CallReceived(row) => row.owner,
+            Self::OwnedArray(row) => row.owner(),
         }
     }
     pub(super) fn declaration(&self) -> Option<&SourceBindingSiteV1> {
@@ -105,6 +108,7 @@ impl LocalCommitV1 {
             Self::Result(_) => None,
             Self::Map(row) => row.declaration.as_ref(),
             Self::CallReceived(row) => Some(&row.declaration),
+            Self::OwnedArray(row) => Some(row.declaration()),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn is_complete(&self) -> bool {
@@ -113,6 +117,7 @@ impl LocalCommitV1 {
             Self::Result(row) => row.is_complete(),
             Self::Map(row) => row.is_complete(),
             Self::CallReceived(row) => row.is_complete(),
+            Self::OwnedArray(row) => row.is_complete(),
         }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn installs(
@@ -123,6 +128,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.installs(binding),
             Self::Result(_) => false,
             Self::Map(row) => row.binding == Some(binding) && row.local().is_some(),
+            Self::OwnedArray(row) => row.binding() == binding && row.local().is_some(),
             Self::CallReceived(row) => {
                 row.binding == binding && row.local().is_some()
             }
@@ -142,9 +148,10 @@ impl LocalCommitV1 {
             Self::Result(_) => None,
             Self::Map(row) => row.local(),
             Self::CallReceived(row) => row.local(),
+            Self::OwnedArray(row) => row.local(),
         }
     }
-    pub(super) fn ordinary_object(&self) -> Option<CanonicalObjectIdV1> {
+    pub(in crate::mir::normal_callable_semantic_package) fn ordinary_object(&self) -> Option<CanonicalObjectIdV1> {
         self.ordinary().map(NewLocalCommitV1::object)
     }
     pub(super) fn initializer(&self) -> Option<ValueId> {
@@ -153,6 +160,7 @@ impl LocalCommitV1 {
             Self::Result(_) => None,
             Self::Map(row) => row.initializer(),
             Self::CallReceived(row) => row.initializer(),
+            Self::OwnedArray(row) => row.initializer(),
         }
     }
     pub(super) fn install(&mut self, local: ValueId) {
@@ -164,9 +172,10 @@ impl LocalCommitV1 {
             }
             Self::Map(row) => row.install(local),
             Self::CallReceived(row) => row.install(local),
+            Self::OwnedArray(row) => row.install(local),
         }
     }
-    pub(super) fn end_available(&self) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn end_available(&self) -> bool {
         match self {
             Self::Ordinary(row) => {
                 let destruction_ok = match row.destruction {
@@ -186,11 +195,14 @@ impl LocalCommitV1 {
             // returned object.
             Self::Result(_) => false,
             Self::Map(row) => row.local().is_some(),
+            Self::OwnedArray(row) => row.local().is_some(),
             // The caller received an owned handle; it owes one release.
             // `Some(None)` children mean an owned object without residence
             // proof — never releasable here.
             Self::CallReceived(row) => {
                 row.local().is_some() && !matches!(row.end_children, Some(None))
+                    && (row.field_support_parents.is_none() || matches!(row.progress,
+                        CallReceivedProgress::Emitted { packet: Some(_), .. }))
             }
         }
     }
@@ -214,6 +226,7 @@ impl LocalCommitV1 {
                 )])
             }
             Self::CallReceived(row) => row.end_plan(),
+            Self::OwnedArray(row) => row.end_plan(),
         }
     }
     /// The emitted operations alone — fault-unwind chains and map prefixes
@@ -238,6 +251,7 @@ impl LocalCommitV1 {
             Self::Ordinary(row) => row.construction(),
             Self::Result(row) => row.construction(),
             Self::Map(_) => panic!("map row has no construction eligibility"),
+            Self::OwnedArray(_) => panic!("owned Array row has no ordinary construction eligibility"),
             Self::CallReceived(_) => {
                 panic!("call-received row has no construction eligibility")
             }

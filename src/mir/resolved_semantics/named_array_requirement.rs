@@ -27,18 +27,17 @@ pub(crate) enum NamedArrayRequirementIssueV1 {
     ForeignTextSource,
 }
 
-/// Must survive lowering until the actual backend discharges this requirement.
-/// Owning this row alone does not authorize a physical Array representation.
+/// Exact original named construction identity, not a provider capability.
+/// Both write and read source consumers borrow this same issuer; operation,
+/// element ownership and physical representation remain separate requirements.
 #[derive(Debug)]
-pub(crate) struct NamedArrayConstructionRequirementV1 {
+pub(crate) struct NamedArrayConstructionSourceV1 {
     owner: FunctionOwnerIdV1,
     construction: SourceExprSiteV1,
     binding: BindingRefV1,
-    call: SourceExprSiteV1,
-    argument: SourceExprSiteV1,
 }
 
-impl NamedArrayConstructionRequirementV1 {
+impl NamedArrayConstructionSourceV1 {
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
@@ -48,19 +47,12 @@ impl NamedArrayConstructionRequirementV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.binding
     }
-    pub(crate) fn call(&self) -> &SourceExprSiteV1 {
-        &self.call
-    }
-    pub(crate) fn argument(&self) -> &SourceExprSiteV1 {
-        &self.argument
-    }
 
     pub(crate) fn issue(
         ledger: &CallableSemanticSourceLedgerView<'_>,
         call: &VerifiedResolvedMethodCallSourceV1,
         ordinary: &ParserOrdinaryBoxSourceCoverageV1,
         brands: &VerifiedBrandProgramDeclarationCatalogV1,
-        text_source: Option<&VerifiedResolverCoreMethodCallableContractV1>,
     ) -> Result<Self, NamedArrayRequirementIssueV1> {
         use NamedArrayRequirementIssueV1 as E;
         if call.owner() != ledger.owner()
@@ -113,6 +105,49 @@ impl NamedArrayConstructionRequirementV1 {
         if ledger.assignment_targets().any(|(_, target)| matches!(target, ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)) {
             return Err(E::ReassignedReceiver);
         }
+        Ok(Self {
+            owner: ledger.owner(),
+            construction: construction_site.clone(),
+            binding,
+        })
+    }
+}
+
+/// Must survive lowering until the actual backend discharges this requirement.
+/// Owning this row alone does not authorize a physical Array representation.
+#[derive(Debug)]
+pub(crate) struct NamedArrayConstructionRequirementV1 {
+    source: NamedArrayConstructionSourceV1,
+    call: SourceExprSiteV1,
+    argument: SourceExprSiteV1,
+}
+
+impl NamedArrayConstructionRequirementV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.owner()
+    }
+    pub(crate) fn construction(&self) -> &SourceExprSiteV1 {
+        self.source.construction()
+    }
+    pub(crate) fn binding(&self) -> BindingRefV1 {
+        self.source.binding()
+    }
+    pub(crate) fn call(&self) -> &SourceExprSiteV1 {
+        &self.call
+    }
+    pub(crate) fn argument(&self) -> &SourceExprSiteV1 {
+        &self.argument
+    }
+
+    pub(crate) fn issue(
+        ledger: &CallableSemanticSourceLedgerView<'_>,
+        call: &VerifiedResolvedMethodCallSourceV1,
+        ordinary: &ParserOrdinaryBoxSourceCoverageV1,
+        brands: &VerifiedBrandProgramDeclarationCatalogV1,
+        text_source: Option<&VerifiedResolverCoreMethodCallableContractV1>,
+    ) -> Result<Self, NamedArrayRequirementIssueV1> {
+        use NamedArrayRequirementIssueV1 as E;
+        let source = NamedArrayConstructionSourceV1::issue(ledger, call, ordinary, brands)?;
         if !ledger
             .source_site_inventory()
             .contains_statement(&SourceStmtSiteV1::from_node(call.site().node().clone()))
@@ -139,9 +174,7 @@ impl NamedArrayConstructionRequirementV1 {
             }
         }
         Ok(Self {
-            owner: ledger.owner(),
-            construction: construction_site.clone(),
-            binding,
+            source,
             call: call.site().clone(),
             argument: argument.site().clone(),
         })

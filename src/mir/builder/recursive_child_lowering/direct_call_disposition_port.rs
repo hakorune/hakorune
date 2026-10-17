@@ -1,5 +1,51 @@
 //! Direct-call disposition port: one authority for scope-checked emission.
 use super::*;
+use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1 as InstanceRow;
+
+impl RawInvocationChildPortV1<'_, '_> {
+    pub(in crate::mir::builder) fn consume_lexical_self_receiver_locator_v1(
+        &self,
+        row: &crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1,
+    ) -> Result<(), String> {
+        self.lexical_self_receiver_locator_consumer_v1()?(row)
+    }
+
+    /// Capture the existing source scope before the emitter mutably borrows
+    /// callable state. The callback never reads that state or the receiver.
+    pub(in crate::mir::builder) fn lexical_self_receiver_locator_consumer_v1(
+        &self,
+    ) -> Result<impl Fn(&InstanceRow) -> Result<(), String> + '_, String> {
+        let owner = self.callable_owner_v1()
+            .ok_or("[freeze:contract][terminal-call/owner-missing]")?;
+        let locator = self.declared_instance_locator;
+        Ok(move |row: &InstanceRow| {
+            if row.source_target().is_self_receiver() {
+                // Source-selected emission bypasses generic method descent.
+                // Consume its original locator without reading the receiver twice.
+                let locator = locator.as_ref()
+                    .ok_or("[freeze:contract][terminal-call/receiver-locator-missing]")?;
+                locator
+                    .take_exact_relation(row.call_site(), |relation| {
+                        if relation.caller_owner() != owner
+                            || relation.call_site() != row.call_site().site()
+                            || relation.receiver_site() != row.receiver_site()
+                            || relation.receiver_binding() != row.receiver_binding()?
+                            || relation.target_key() != row.target()
+                        {
+                            return Err(
+                                "[freeze:contract][terminal-call/receiver-locator-drift]".into()
+                            );
+                        }
+                        Ok(())
+                    })
+                    .map_err(|error| {
+                        format!("[freeze:contract][terminal-call/receiver-locator/{error:?}]")
+                    })?;
+            }
+            Ok(())
+        })
+    }
+}
 
 impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn take_direct_call_disposition_v1(
@@ -129,11 +175,18 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         };
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone());
         let owned = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
+        // The same source census also retains Static lifecycle calls. Their
+        // exact source belongs to the existing Static publication owner;
+        // absence of an Instance slot alone never authorizes another route.
+        if ledger.selected_static_local_source_v1(&owned)?.is_some() { return Ok(None); }
+        if !ledger.is_lifecycle_local_call_site_v1(&owned)? { return Ok(None); }
         let handle = ledger.handle_call_source(&owned).is_some();
         let scalar = ledger.lexical_i64_call_source(&owned).is_some();
         let nullable = ledger.nullable_call_source(&owned).is_some();
-        if !handle && !scalar && !nullable {
-            return Ok(None);
+        let borrowed = ledger.borrowed_nullable_call_source_v1(&owned).is_some();
+        let mixed = ledger.mixed_call_source_v1(&owned).is_some();
+        if !handle && !scalar && !nullable && !borrowed && !mixed {
+            return Err("[freeze:contract][lexical-instance-call/observation-missing]".into());
         }
         // The caller-side scan sealed a local-call observation at this
         // site: the disposition row must exist, agree on the selector, and
@@ -144,22 +197,27 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         if row.target().name() != method {
             return Err("[freeze:contract][lexical-instance-call/target-mismatch]".to_owned());
         }
-        let expected = if handle {
+        let expected = if mixed {
+            ledger.corroborate_mixed_call_v1(&row)?
+        } else if borrowed {
+            ledger.corroborate_borrowed_nullable_call_v1(&row)?
+        } else if handle {
             crate::mir::instruction::InvokeCallResultKind::Handle
         } else if nullable {
             crate::mir::instruction::InvokeCallResultKind::NullableHandle
         } else {
-            crate::mir::instruction::InvokeCallResultKind::I64
+            ledger.checked_local_scalar_call_result_v1(&row)?
         };
         if row.result() != Some(expected) {
             return Err("[freeze:contract][lexical-instance-call/result-mismatch]".to_owned());
         }
+        self.consume_lexical_self_receiver_locator_v1(&row)?;
         let state = self
             .callable_ledger
             .as_ref()
             .ok_or_else(|| "[freeze:contract][lexical-instance-call/state-missing]".to_owned())?;
         let mut state = state.borrow_mut();
-        let value = if nullable || (handle && row.source_target().has_object_source_requirement()) {
+        let value = if nullable || (handle && ledger.uses_object_packet_protocol_v1(&row)?) {
             crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_local_lexical_object(
                 builder,
                 &mut state,
@@ -190,11 +248,9 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
         Ok(Some(value))
     }
 
-    /// Emit one `me.m(..)` receiver call the caller-side scan sealed as a
-    /// `Nullable` local call. Sealed membership without the matching
-    /// package observation, a target/destination disagreement, or a failed
-    /// emission contract freezes — the generic canonical-instance path
-    /// must never silently consume a nullable observation.
+    /// Emit a source-selected `me.m(..)` object call through the common
+    /// lexical object packet. Selected Nullable membership without its
+    /// complete packet freezes before the generic instance path.
     fn emit_receiver_nullable_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -230,24 +286,10 @@ impl DirectCallDispositionPortV1 for RawInvocationChildPortV1<'_, '_> {
             )?;
             return Ok(Some(value));
         }
-        if ledger.nullable_call_source(&owned).is_none() {
-            return Ok(None);
+        if ledger.nullable_call_source(&owned).is_some() {
+            return Err("[freeze:contract][receiver-object/packet-unavailable]".to_owned());
         }
-        let state = self
-            .callable_ledger
-            .as_ref()
-            .ok_or_else(|| "[freeze:contract][nullable-receiver/state-missing]".to_owned())?;
-        let value =
-            crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_receiver_nullable(
-                builder,
-                &mut state.borrow_mut(),
-                ledger,
-                owner,
-                &site,
-                key,
-                receiver,
-            )?;
-        Ok(Some(value))
+        Ok(None)
     }
 
     fn validate_current_call_argument_site_v1(

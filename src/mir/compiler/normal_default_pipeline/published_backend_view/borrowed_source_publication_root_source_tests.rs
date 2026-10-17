@@ -43,7 +43,7 @@ fn bound_i64_returns_publish_through_root_source() {
             );
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -94,7 +94,7 @@ fn bound_i64_returns_publish_through_root_source() {
             static box Main { main() { local s = new Store() local r = s.release(5) return r } }";
         MirCompiler::with_options(false)
             .compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                 let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -139,7 +139,7 @@ fn unproven_bound_returns_stay_fail_closed() {
             );
             let error = MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input().map(|_| ())
                 })
                 .err()
@@ -152,7 +152,7 @@ fn unproven_bound_returns_stay_fail_closed() {
             .compile_normal_with_published(
                 request("static box Main { main() { local x = 5 return x } }"),
                 |view, verification| {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     view.issue_lifecycle_physical_abi_input().map(|_| ())
                 },
             )

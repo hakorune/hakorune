@@ -70,6 +70,7 @@ pub(super) fn fixture() -> (FunctionUses, MirFunction, MirInstruction) {
             .enumerate()
             .map(|(index, original)| (original.clone(), (BasicBlockId(0), index)))
             .collect::<Vec<_>>(),
+        &entry,
     )
     .unwrap();
     let instruction = MirInstruction::Invoke {
@@ -103,42 +104,21 @@ pub(super) fn verify(state: &mut FunctionUses, function: &MirFunction) -> Result
         .map(|((block, _, ordinal), formal)| ((*block, index, *ordinal), *formal))
         .collect();
     let tracked = state.tracked()?;
-    let mut definitions = Scan::default();
-    let mut successors: BTreeMap<BasicBlockId, Vec<BasicBlockId>> = BTreeMap::new();
-    let mut indexed = Vec::new();
-    for (block, row) in &function.blocks {
-        successors
-            .entry(*block)
-            .or_default()
-            .extend(row.successors.iter().copied());
-        for (index, instruction) in row.all_instructions().enumerate() {
-            indexed.push(((*block, index), instruction));
-        }
-    }
-    let views = state.scan_views(&tracked, &indexed)?;
-    let dominates = |from: BasicBlockId, to: BasicBlockId| {
-        path_dominates(function.entry_block, &successors, from, to)
-    };
-    for (coordinate, instruction) in &indexed {
-        state.instruction(
-            &tracked,
-            &views,
-            *coordinate,
-            instruction,
-            &mut definitions,
-            &dominates,
-        )?;
-    }
-    state.definitions(&tracked, &function.params, &definitions)
+    state.verify_module(&tracked, function)
 }
 
 #[test]
 fn borrowed_use_original_forwarded_copy_and_exact_call_position_pass() {
-    let (mut state, function, _) = fixture();
+    let (mut state, mut function, _) = fixture();
     verify(&mut state, &function).unwrap();
     assert_eq!(state.roots.len(), 1);
     assert_eq!(state.copies.len(), 1);
     assert_eq!(state.arguments.len(), 1);
+    let values = state.roots.keys().chain(state.copies.keys()).copied().collect();
+    function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions
+        .push(MirInstruction::KeepAlive { values });
+    verify(&mut state, &function).unwrap();
+    assert_eq!((state.roots.len(), state.copies.len(), state.arguments.len()), (1, 1, 1));
 }
 
 #[test]

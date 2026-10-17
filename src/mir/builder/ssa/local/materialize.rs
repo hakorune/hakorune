@@ -553,6 +553,7 @@ fn materialize_local_inner_v1(
                 let mut rhs_local = rhs;
                 finalize_compare(builder, &mut lhs_local, &mut rhs_local)
                     .map_err(LocalSsaMaterializationErrorV1::Contract)?;
+                ordered_operands = Some(vec![(lhs, lhs_local), (rhs, rhs_local)]);
                 builder.emit_instruction(MirInstruction::Compare {
                     dst: loc,
                     op,

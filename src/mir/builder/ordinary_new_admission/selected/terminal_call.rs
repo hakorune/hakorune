@@ -3,6 +3,11 @@
 use super::*;
 #[path = "terminal_call/lexical_i64.rs"]
 mod lexical_i64;
+#[path = "terminal_call/lexical_receiver.rs"]
+mod lexical_receiver;
+#[path = "terminal_call/lexical_object_expression.rs"]
+mod lexical_object_expression;
+pub(in crate::mir::builder) use lexical_object_expression::emit as emit_object_expression;
 use crate::mir::definitions::MirCall;
 use crate::mir::normal_callable_semantic_package::{
     DirectCallDispositionRowV1, LexicalInstanceCallDispositionRowV1, RootCallDispositionV1,
@@ -10,7 +15,7 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 pub(in crate::mir::builder) use lexical_i64::prepare_arguments as prepare_lexical_arguments;
-pub(in crate::mir::builder) use lexical_i64::{emit_local_lexical_i64, emit_local_lexical_source};
+pub(in crate::mir::builder) use lexical_i64::{emit_constructor_unit, emit_unit_discard, emit_expression_call, emit_bool_condition_call, emit_local_lexical_i64, emit_local_lexical_source};
 #[path = "terminal_call/static_return.rs"]
 mod static_return;
 pub(in crate::mir::builder) use static_return::emit as emit_static_return;
@@ -49,6 +54,7 @@ impl Source {
 
 fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirType, String> {
     match result {
+        InvokeCallResultKind::Unit => Err(freeze("unit-call-has-no-value")),
         InvokeCallResultKind::Map => Ok(MirType::Box("MapBox".to_string())),
         InvokeCallResultKind::Handle => class
             .map(|class| MirType::Box(class.to_string()))
@@ -59,7 +65,10 @@ fn result_type(result: InvokeCallResultKind, class: Option<&str>) -> Result<MirT
         InvokeCallResultKind::NullableHandle => class
             .map(|class| MirType::Box(class.to_string()))
             .ok_or_else(|| freeze("nullable-result-class-missing")),
-        _ => Ok(MirType::Integer),
+        InvokeCallResultKind::BorrowedNullableHandle { .. } => Ok(MirType::Unknown),
+        InvokeCallResultKind::MixedHandle { .. } => Ok(MirType::Unknown),
+        InvokeCallResultKind::I64 => Ok(MirType::Integer),
+        InvokeCallResultKind::Bool => Ok(MirType::Bool),
     }
 }
 
@@ -80,6 +89,21 @@ fn emit_call_normal(
     ((BasicBlockId, MirInstruction), (BasicBlockId, MirInstruction)),
     String,
 > {
+    if result_kind == InvokeCallResultKind::Unit { return Err(freeze("unit-call-has-no-value")); }
+    let invoke = emit_call_normal_start(builder, call, result_kind, frame, normal_landing, fault_landing)?;
+    let origin = invoke.0;
+    let projection = MirInstruction::InvokeNormalResult { invoke_block: origin, dst: result };
+    builder.emit_instruction(projection.clone())?;
+    builder.function_state.type_ctx.value_types.insert(result, carrier);
+    Ok((invoke, (normal_landing, projection)))
+}
+
+/// The one actual Call and Normal edge, shared by value and Unit continuations.
+/// Unit callers stop here: no result ID, carrier or projection is fabricated.
+fn emit_call_normal_start(
+    builder: &mut MirBuilder, call: MirCall, result_kind: InvokeCallResultKind,
+    frame: ValueId, normal_landing: BasicBlockId, fault_landing: BasicBlockId,
+) -> Result<(BasicBlockId, MirInstruction), String> {
     let origin = builder.function_state.current_block.ok_or_else(|| freeze("no-block"))?;
     let invoke = MirInstruction::Invoke {
         operation: InvokeOperation::Call { call, result: result_kind },
@@ -89,10 +113,7 @@ fn emit_call_normal(
     };
     builder.emit_instruction(invoke.clone())?;
     builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult { invoke_block: origin, dst: result };
-    builder.emit_instruction(projection.clone())?;
-    builder.function_state.type_ctx.value_types.insert(result, carrier);
-    Ok(((origin, invoke), (normal_landing, projection)))
+    Ok((origin, invoke))
 }
 
 pub(in crate::mir::builder) fn emit(
@@ -464,153 +485,6 @@ pub(in crate::mir::builder) fn emit_local_lexical(
     builder.function_state.type_ctx.value_types.insert(
         result,
         result_type(InvokeCallResultKind::Handle, Some(result_class))?,
-    );
-    bindings.push((origin, invoke));
-    bindings.push((normal_landing, projection));
-    ledger.record_handle_call_emission(&owned_site, result, bindings)?;
-    Ok(result)
-}
-
-/// Emit one source-issued `local x = me.m(..)` receiver call whose sealed
-/// package observation carries the callee's `NullableObject` claim. The
-/// flow row is sole membership, the observation row is the sole typed
-/// argument/callee authority, and the `me` receiver arrives already
-/// materialized from the declared-instance ingress — this lane never
-/// re-lowers an expression or falls back to the generic call. The result
-/// binds a nullable handle: the caller's exit owes `HomeReleaseIfLive`,
-/// never an unconditional release.
-pub(in crate::mir::builder) fn emit_receiver_nullable(
-    builder: &mut MirBuilder,
-    state: &mut CallableSemanticLoweringState,
-    ledger: &OrdinaryNewClaimLedgerV1,
-    owner: FunctionOwnerIdV1,
-    site: &crate::mir::resolved_semantics::SourceExprSiteV1,
-    key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
-    receiver: ValueId,
-) -> Result<ValueId, String> {
-    let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, site.clone());
-    let relation = ledger
-        .nullable_call_source(&owned_site)
-        .ok_or_else(|| freeze("nullable-call-source-missing"))?;
-    // The flow row proves membership; the observation row is the sealed
-    // evidence that minted it. One without the other is a half-sealed
-    // edge — freeze, never infer.
-    let observation = ledger
-        .receiver_call_observation(&owned_site)
-        .ok_or_else(|| freeze("nullable-observation-missing"))?;
-    let class = match observation.class() {
-        crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1::NullableObject(
-            class,
-        ) => class.clone(),
-        _ => return Err(freeze("nullable-class-drift")),
-    };
-    let (_, destination) = relation
-        .local_binding()
-        .ok_or_else(|| freeze("nullable-call-destination-drift"))?;
-    if observation.callee() != key || observation.destination() != destination {
-        return Err(freeze("nullable-target-drift"));
-    }
-    if observation.arguments().len() != key.arity() as usize {
-        return Err(freeze("nullable-arity-mismatch"));
-    }
-    ledger.begin_nullable_call_emission(&owned_site, key)?;
-    let unwind = ledger.nullable_call_prior_home_unwind(&owned_site)?;
-    let frame = state.borrow_fault_frame(builder)?;
-    let origin = builder
-        .function_state
-        .current_block
-        .ok_or_else(|| freeze("no-block"))?;
-    let normal_landing = builder.next_block_id();
-    let outward = builder.next_block_id();
-    let result = builder.next_value_id();
-    let mut bindings = vec![fault_frame_binding(builder, state, frame)?];
-    append_block(
-        builder,
-        outward,
-        MirInstruction::ReturnFault { fault_frame: frame },
-        &mut bindings,
-    )?;
-    // The call's fault path unwinds the prior Homes exactly like every
-    // other lifecycle call — the received nullable does not exist yet.
-    let fault_landing = cleanup_chain(builder, frame, unwind, outward, &mut bindings)?;
-    let mut arguments = Vec::with_capacity(observation.arguments().len());
-    for argument in observation.arguments() {
-        use crate::mir::resolved_semantics::home_new_prefix::SelectedNewArgumentKindV1;
-        let value = match argument.kind() {
-            SelectedNewArgumentKindV1::Integer(literal) => {
-                crate::mir::builder::emission::constant::emit_integer(builder, *literal)?
-            }
-            SelectedNewArgumentKindV1::Local { binding } => {
-                let value = state
-                    .take_exact_lexical_value(owner, argument.site().node(), *binding)
-                    .map_err(|error| format!("[freeze:contract][nullable-argument/{error:?}]"))?;
-                // The sealed scalar call-edge rule (`check_call_edge`)
-                // admits a recorded `Integer`/`Unknown` carrier — or an
-                // unrecorded slot — and rejects every recorded concrete
-                // non-i64 carrier; the recorded type is corroboration,
-                // never a re-classification of the binding.
-                match builder.function_state.type_ctx.value_types.get(&value) {
-                    None | Some(MirType::Integer) | Some(MirType::Unknown) => {}
-                    Some(other) => {
-                        return Err(format!(
-                            "[freeze:contract][ordinary-new/emission/nullable-argument-carrier] carrier={other:?}"
-                        ))
-                    }
-                }
-                value
-            }
-            SelectedNewArgumentKindV1::Handle { binding } => {
-                let value = state
-                    .take_exact_lexical_value(owner, argument.site().node(), *binding)
-                    .map_err(|error| format!("[freeze:contract][nullable-argument/{error:?}]"))?;
-                // A `Handle` arg is the contract issuer's `DeclaredObject`
-                // formal: the object occupies the same scalar wire slot,
-                // so a corroborating `Box` publication is consistent —
-                // the class itself stays with the issuer's contract.
-                match builder.function_state.type_ctx.value_types.get(&value) {
-                    None | Some(MirType::Integer) | Some(MirType::Unknown)
-                    | Some(MirType::Box(_)) => {}
-                    Some(other) => {
-                        return Err(format!(
-                            "[freeze:contract][ordinary-new/emission/nullable-argument-carrier] carrier={other:?}"
-                        ))
-                    }
-                }
-                value
-            }
-            // Bool/Null literal arguments stay unadmitted — their const
-            // carriers record concrete non-i64 types the sealed scalar
-            // edge corroborates as drift, never a guessed lane.
-            _ => return Err(freeze("nullable-argument-carrier")),
-        };
-        arguments.push(value);
-    }
-    let invoke = MirInstruction::Invoke {
-        operation: InvokeOperation::Call {
-            call: MirCall::new(
-                None,
-                crate::mir::definitions::Callee::SameModuleInstance {
-                    key: key.clone(),
-                    receiver,
-                },
-                arguments,
-            ),
-            result: InvokeCallResultKind::NullableHandle,
-        },
-        fault_frame: frame,
-        normal_landing,
-        fault_landing,
-    };
-    builder.emit_instruction(invoke.clone())?;
-    builder.start_new_block(normal_landing)?;
-    let projection = MirInstruction::InvokeNormalResult {
-        invoke_block: origin,
-        dst: result,
-    };
-    builder.emit_instruction(projection.clone())?;
-    builder.function_state.type_ctx.value_types.insert(
-        result,
-        result_type(InvokeCallResultKind::NullableHandle, Some(class.as_ref()))?,
     );
     bindings.push((origin, invoke));
     bindings.push((normal_landing, projection));

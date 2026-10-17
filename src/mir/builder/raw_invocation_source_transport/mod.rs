@@ -38,6 +38,10 @@ use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 mod child_lowering_impl;
+mod bool_condition;
+mod borrowed_field_write;
+mod borrowed_array_set;
+mod borrowed_field_write_guard;
 mod context;
 mod lineage;
 mod script_scope;

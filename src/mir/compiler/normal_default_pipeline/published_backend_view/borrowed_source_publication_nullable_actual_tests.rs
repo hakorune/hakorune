@@ -79,7 +79,7 @@ fn null_and_nullable_actuals_publish_their_wire_forms() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(
@@ -167,7 +167,7 @@ fn non_null_domains_keep_their_own_tags() {
                 .compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(

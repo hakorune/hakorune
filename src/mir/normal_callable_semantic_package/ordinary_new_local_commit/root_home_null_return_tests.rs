@@ -45,7 +45,7 @@ fn original_null_loan_append_and_unselected_boundaries() {
         let (ledger, site, exit) = source();
         if state != 0 {
             ledger.root_exits.borrow_mut().insert(
-                (site.owner(), exit),
+                (site.owner(), exit.into()),
                 if state == 1 {
                     RootHomeExitProgress::Unprepared
                 } else {
@@ -131,7 +131,7 @@ fn original_null_loan_append_and_unselected_boundaries() {
             assert_eq!(snapshot(&ledger), before);
         } else {
             let exits = ledger.root_exits.borrow();
-            let RootHomeExitProgress::Prepared(order) = &exits[&(site.owner(), exit.clone())]
+            let RootHomeExitProgress::Prepared(order) = &exits[&(site.owner(), exit.clone().into())]
             else {
                 panic!("prepared original")
             };

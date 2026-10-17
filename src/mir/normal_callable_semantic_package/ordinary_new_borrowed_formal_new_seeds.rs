@@ -6,7 +6,25 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{ResolvedNewExpressionSourceV1, SourceBindingSiteV1};
 use crate::parser::{ConstructorSourceIdV1, ConstructorSourceKindV1};
 
+#[path = "ordinary_new_borrowed_formal_new_field_source.rs"]
+mod field_source;
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) use field_source::OriginalNewI64InputsLoanV1;
+pub(in crate::mir::normal_callable_semantic_package) use field_source::OriginalNewSourceLoanV1;
+
+/// Passive source operand, captured at the sole original New census. Numeric
+/// qualification joins this key to the existing field owner later.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct OriginalNewFieldActualV1 {
+    site: SourceExprSiteV1,
+    object: SourceExprSiteV1,
+    receiver: BindingRefV1,
+    class: Box<str>,
+    field: Box<str>,
+}
+
+
 #[derive(Debug)]
+#[cfg_attr(test, derive(Clone))]
 enum OriginalNewBirthV1 {
     Birth {
         source: ConstructorSourceIdV1,
@@ -19,19 +37,31 @@ enum OriginalNewBirthV1 {
 }
 
 #[derive(Debug)]
+#[cfg_attr(test, derive(Clone))]
 struct OriginalNewCallSeedsV1 {
     site: OwnedExprSiteV1,
     original: ResolvedNewExpressionSourceV1,
     birth: OriginalNewBirthV1,
     seeds: Box<[OriginalFormalActualSeedV1]>,
+    fields: Box<[Option<OriginalNewFieldActualV1>]>,
+    array_reads: Box<[Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ArgumentFieldArrayReadSourceV1>>]>,
 }
 
 #[derive(Debug, Default)]
+#[cfg_attr(test, derive(Clone))]
 pub(super) struct OriginalNewSeedsV1 {
     rows: Vec<OriginalNewCallSeedsV1>,
     incomplete: bool,
 }
 impl OriginalNewSeedsV1 {
+    /// Field-base evidence must retain all original construction obligations.
+    /// Override typing is not supplied by the constructor-argument projection.
+    pub(super) fn field_bases_available(&self, class: &str) -> bool {
+        !self.incomplete && self.rows.iter().filter(|row| row.original.class() == class).all(|row|
+            matches!(row.birth, OriginalNewBirthV1::Birth { .. } | OriginalNewBirthV1::NoBirth)
+                && row.original.field_initializers().is_empty())
+    }
+
     pub(super) fn missing_owner(&mut self) { self.incomplete = true; }
 
     pub(super) fn observe(
@@ -39,9 +69,18 @@ impl OriginalNewSeedsV1 {
         input: ResolvedFunctionLoweringInputV1<'_>,
         batch: &VerifiedResolvedCallableSemanticBatchV1,
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        claims: Option<&crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1>,
+        selected: &VerifiedSelectedCallableBatchMapV1,
+        array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
         mut classify: impl FnMut(&SourceExprSiteV1) -> OriginalFormalActualSeedV1,
-    ) {
+    ) -> Result<(), String> {
         if input.body_shape().is_none() { self.incomplete = true; }
+        let mut original_array_locals = BTreeMap::new();
+        let caller = batch.declarations().find(|row| row.owner() == input.owner())
+            .and_then(|row| match selected.key_for_batch_slot(row.batch_slot()) {
+                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) => Some(key),
+                _ => None,
+            });
         for original in input.function().expression_source().constructions() {
             let site = OwnedExprSiteV1::new(input.owner(), original.site().clone());
             if self.rows.iter().any(|row| row.site == site) { self.incomplete = true; }
@@ -73,11 +112,92 @@ impl OriginalNewSeedsV1 {
                 Ok(None) => OriginalNewBirthV1::OutsideOrdinary,
                 Err(_) => OriginalNewBirthV1::Unavailable,
             };
+            let owner_class = batch.declarations().find(|row| row.owner() == input.owner())
+                .and_then(|row| match selected.key_for_batch_slot(row.batch_slot()) {
+                    Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                        if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => Some(key.owner()),
+                    _ => None,
+                }).or_else(|| constructors.rows().iter().find(|row|
+                    row.kind() == ConstructorSourceKindV1::Birth && row.forest().roots() == [input.owner()])
+                    .map(|row| row.box_name()));
+            let fields = original.arguments().iter().map(|site| {
+                use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1, BindingKindV1, ResolvedLexicalRefV1};
+                let BodyExpressionShapeV1::FieldAccess { object, field, .. } = input.body_shape()?.expression_shape(site)? else { return None; };
+                let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else { return None; };
+                if receiver.owner() != input.owner() || input.function().binding(receiver)?.kind() != BindingKindV1::Receiver
+                    || !matches!(input.body_shape()?.expression_shape(object), Some(BodyExpressionShapeV1::Me {
+                        receiver: BodyMeReceiverV1::Lexical(binding), .. }) if *binding == receiver)
+                { return None; }
+                Some(OriginalNewFieldActualV1 { site: site.clone(), object: object.clone(), receiver,
+                    class: owner_class?.into(), field: field.clone() })
+            }).collect();
+            let mut array_reads = Vec::with_capacity(original.arguments().len());
+            for site in original.arguments() {
+                let binding = arg_site_binding(input, site);
+                let read = if let (Some(binding), Some(caller)) = (binding, caller) {
+                    if !original_array_locals.contains_key(&binding) {
+                        let read = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_array_read_source::capture_local_get(
+                            input, caller, binding, selected, batch, constructors, array_i64_fields)?;
+                        original_array_locals.insert(binding, read);
+                    }
+                    original_array_locals.get(&binding).cloned().flatten()
+                } else { None };
+                array_reads.push(read);
+            }
+            let mut seeds = Vec::with_capacity(original.arguments().len());
+            for (ordinal, argument) in original.arguments().iter().enumerate() {
+                let retained = claims.map(|claims| constructors.provider_static_argument_source_v1(
+                    input, original, ordinal, claims, selected)).transpose()?.flatten();
+                seeds.push(match retained {
+                    Some(loan) => {
+                        if !loan.same_catalog(claims.expect("source lender requires index")) {
+                            return Err(freeze("provider-static/source-catalog"));
+                        }
+                        OriginalFormalActualSeedV1::ProviderStatic(loan)
+                    }
+                    None => classify(argument),
+                });
+            }
             self.rows.push(OriginalNewCallSeedsV1 {
-                site, original: original.clone(), birth,
-                seeds: original.arguments().iter().map(&mut classify).collect(),
+                site, original: original.clone(), birth, seeds: seeds.into_boxed_slice(), fields,
+                array_reads: array_reads.into_boxed_slice(),
             });
         }
+        Ok(())
+    }
+
+    pub(super) fn corroborate_provider_source_v1(
+        &self,
+        provider: &std::rc::Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
+    ) -> Result<(), String> {
+        let mut matching = self.rows.iter().flat_map(|row| row.seeds.iter().enumerate()
+            .filter_map(move |(ordinal, seed)| match seed {
+                OriginalFormalActualSeedV1::ProviderStatic(held)
+                    if std::rc::Rc::ptr_eq(held, provider) => Some((row, ordinal)),
+                _ => None,
+            }));
+        let Some((row, ordinal)) = matching.next() else {
+            return Err(freeze("provider-static/original-new-source-missing"));
+        };
+        if matching.next().is_some() || !provider.matches_original(&row.site, &row.original, ordinal) {
+            return Err(freeze("provider-static/original-new-source-drift"));
+        }
+        Ok(())
+    }
+
+    pub(super) fn retained_provider_sources_match(&self) -> bool {
+        self.rows.iter().all(|row| row.seeds.len() == row.original.arguments().len()
+            && row.seeds.iter().enumerate().all(|(ordinal, seed)| match seed {
+                OriginalFormalActualSeedV1::ProviderStatic(loan) => loan.matches_original(&row.site, &row.original, ordinal),
+                _ => true,
+            }))
+    }
+
+    pub(super) fn current_provider_sources_match(&self, constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1) -> bool {
+        self.retained_provider_sources_match() && self.rows.iter().flat_map(|row| row.seeds.iter()).all(|seed| match seed {
+            OriginalFormalActualSeedV1::ProviderStatic(loan) => loan.matches_constructor(constructors),
+            _ => true,
+        })
     }
 
     /// Join all original actuals, including failures, in the existing domain
@@ -87,6 +207,7 @@ impl OriginalNewSeedsV1 {
         constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
         seeds: &mut BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>>,
         current_i64: bool,
+        objects: bool,
     ) {
         let mut incoming: BTreeMap<BindingRefV1, Vec<FormalActualSeedV1>> = constructors.rows().iter()
             .filter(|row| row.kind() == ConstructorSourceKindV1::Birth)
@@ -105,8 +226,15 @@ impl OriginalNewSeedsV1 {
                     if !exact || row.seeds.len() != row.original.arguments().len()
                         || row.seeds.len() != formals.len()
                     { vetoes.insert(row.original.class()); continue; }
-                    for (formal, seed) in formals.iter().zip(row.seeds.iter()) {
-                        incoming.entry(*formal).or_default().push(seed.project_source_integer_v1(current_i64));
+                    for (ordinal, (formal, seed)) in formals.iter().zip(row.seeds.iter()).enumerate() {
+                        let seed = match seed {
+                            OriginalFormalActualSeedV1::ProviderStatic(loan)
+                                if loan.matches_original(&row.site, &row.original, ordinal)
+                                    && loan.matches_constructor(constructors) => FormalActualSeedV1::Integer,
+                            _ if objects => seed.project_source_object_v1(),
+                            _ => seed.project_source_integer_v1(current_i64),
+                        };
+                        incoming.entry(*formal).or_default().push(seed);
                     }
                 }
                 OriginalNewBirthV1::Unavailable => { vetoes.insert(row.original.class()); }
@@ -148,5 +276,21 @@ pub(super) fn stable_constructor_formal_v1(
         { return None; }
         if formals.iter().any(|formal| formal.binding() == binding) { return Some(binding); }
         binding = alias_source_binding(input, binding)?;
+    }
+}
+
+#[cfg(test)]
+impl OriginalNewSeedsV1 {
+    pub(super) fn corrupted_provider_evidence_for_test(&self, erase_rows: bool) -> Self {
+        let mut changed = self.clone();
+        if erase_rows { changed.rows.clear(); }
+        else {
+            for seed in changed.rows.iter_mut().flat_map(|row| row.seeds.iter_mut()) {
+                if matches!(seed, OriginalFormalActualSeedV1::ProviderStatic(_)) {
+                    *seed = OriginalFormalActualSeedV1::Conflict;
+                }
+            }
+        }
+        changed
     }
 }

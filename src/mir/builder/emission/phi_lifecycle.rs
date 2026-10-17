@@ -291,6 +291,9 @@ pub(in crate::mir::builder) fn define_provisional_phi(
     dst: ValueId,
     tag: &str,
 ) -> Result<(), String> {
+    let function = builder.function_state.current_function.as_ref()
+        .ok_or_else(|| format!("[freeze:contract][phi_lifecycle/define_no_function] tag={tag}"))?;
+    let physical = builder.function_state.local_ssa_correspondence.prepare_provisional_phi_v1(function, block, dst)?;
     let span = builder.metadata_ctx.current_span();
     let origin_caller = if crate::config::env::joinir_dev::debug_enabled() {
         builder.record_value_origin_caller(dst, std::panic::Location::caller());
@@ -325,6 +328,8 @@ pub(in crate::mir::builder) fn define_provisional_phi(
     // This ensures dst is Defined (in def_blocks) before body instructions are emitted
     insert_phi_at_head_spanned(func, block, dst, vec![], span)
         .map_err(|e| format!("{e} op=define_provisional_phi tag={tag}"))?;
+
+    builder.function_state.local_ssa_correspondence.commit_provisional_phi_v1(physical);
 
     Ok(())
 }
@@ -624,6 +629,13 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
         builder, block, dst, &inputs, type_hint,
     )?;
     inputs = prepared_completion.logical_inputs().to_vec();
+    let physical_patch = builder.function_state.local_ssa_correspondence.prepare_phi_patch_v1(
+        builder.function_state.current_function.as_ref().ok_or_else(||
+            format!("[freeze:contract][phi_lifecycle/patch_no_function] tag={tag}"))?,
+        (block, crate::mir::MirInstruction::Phi {
+            dst, inputs: inputs.clone(), type_hint: prepared_completion.draft().type_hint().cloned(),
+        }),
+    )?;
 
     if crate::config::env::joinir_dev::debug_enabled() {
         let mut detail = format!(" inputs={}", inputs.len());
@@ -655,6 +667,7 @@ pub(in crate::mir::builder) fn patch_phi_inputs(
         builder,
         prepared_completion.after_instruction_commit(),
     );
+    if let Some(patch) = physical_patch { patch.commit(); }
     Ok(())
 }
 
@@ -748,5 +761,6 @@ pub(in crate::mir::builder) fn rollback_provisional_phi(
         ));
     }
 
+    if removed { builder.function_state.local_ssa_correspondence.rollback_phi_v1(dst); }
     Ok(removed)
 }

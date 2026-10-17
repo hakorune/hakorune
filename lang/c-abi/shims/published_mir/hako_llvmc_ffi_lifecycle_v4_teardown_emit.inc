@@ -14,7 +14,7 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
       id);
   fprintf(f, "  %%td_status = alloca i32, align 4\n  store i32 0, ptr %%td_status, align 4\n");
   for (size_t i = 0; i < na + no; i++)
-    fprintf(f, "  %%td_read%zu = alloca i64, align 8\n", i);
+    fprintf(f, "  %%td_read%zu = alloca { i64, i32, i32 }, align 8\n", i);
   /* Newest-first across both mark lists: each walks declaration order,
      so the merge picks the larger pending ordinal — the same reverse
      declaration order `end_plan` emits. */
@@ -48,14 +48,12 @@ static int lv4_emit_end(FILE* f, const hako_lv4_input* in, uint32_t id,
     yyjson_val* child = lv4_layout(in, child_id);
     int slot = lv4_layout_slot(layout, ordinal);
     if (!child || slot < 0) return 0;
-    fprintf(f,
-        "  %%td_get%zu = call i32 @\"nyash.object.checked_field_get_i64_v1\"(i32 %u, i64 %%handle, i64 %lld, i64 %d, ptr %%td_read%zu)\n"
-        "  %%td_ok%zu = icmp eq i32 %%td_get%zu, 0\n"
-        "  br i1 %%td_ok%zu, label %%td_step%zu, label %%bad\ntd_step%zu:\n",
-        mi, in->profile, type, slot, mi, mi, mi, mi, mi, mi);
+    char out[32];
+    snprintf(out, sizeof(out), "td_read%zu", mi);
+    if (!lv4_emit_object_residence_read(f, in, id, ordinal, "%handle", out, "bad")) return 0;
     fprintf(f,
         "  %%td_val%zu = load i64, ptr %%td_read%zu, align 8\n"
-        "  %%td_live%zu = icmp ne i64 %%td_val%zu, 0\n"
+        "  %%td_live%zu = icmp eq i32 %%td_read%zu_outcome, 1\n"
         "  br i1 %%td_live%zu, label %%td_chain%zu, label %%td_done%zu\ntd_chain%zu:\n",
         mi, mi, mi, mi, mi, mi, mi, mi);
     fprintf(f,

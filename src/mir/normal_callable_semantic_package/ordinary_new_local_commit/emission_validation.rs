@@ -2,6 +2,8 @@
 
 use super::*;
 use crate::mir::instruction::InvokeCallResultKind;
+#[path = "ordinary_new_emission_row.rs"]
+mod ordinary_row;
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(crate) fn validate_new_emissions(
@@ -37,233 +39,30 @@ impl OrdinaryNewClaimLedgerV1 {
         projection: Option<&super::physical_boundary::FinishedBindings>,
         pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
     ) -> Result<(), String> {
+        let intervals = super::read_argument::IntervalViewV1::new(function);
         for (site, row) in self
             .local_commits
             .borrow()
             .iter()
             .filter(|(_, row)| row.owner() == owner)
         {
-            let (row_object, row_birth_target, row_construction, row_argument_rows) = match row {
-                LocalCommitV1::Ordinary(row) => (
-                    row.object,
-                    &row.birth_target,
-                    &row.construction,
-                    &row.argument_rows,
-                ),
-                LocalCommitV1::Result(row) => (
-                    row.object,
-                    &row.birth_target,
-                    &row.construction,
-                    &row.argument_rows,
-                ),
+            match row {
+                LocalCommitV1::OwnedArray(_) => {
+                    self.validate_owned_array_construction(site, function, projection)?;
+                    continue;
+                }
                 LocalCommitV1::Map(_) => {
                     self.validate_map_emission(site, function, projection)?;
                     continue;
                 }
                 LocalCommitV1::CallReceived(_) => {
-                    self.validate_call_received_emission(site, function, projection, pending)?;
+                    self.validate_call_received_emission_with_intervals_v1(site, &intervals, projection, pending,
+                        CallValidationContextV1::Lowering(self))?;
                     continue;
                 }
-            };
-            let row_emission = match row {
-                LocalCommitV1::Ordinary(row) => &row.emission,
-                LocalCommitV1::Result(row) => &row.emission,
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => {
-                    unreachable!("map and call-received rows returned above")
-                }
-            };
-            match row_emission {
-                NewEmissionProgress::RetainedUnavailable { .. } => {}
-                NewEmissionProgress::Emitted {
-                    result,
-                    arguments,
-                    reclaim,
-                    bindings,
-                    ..
-                } => {
-                    if let LocalCommitV1::Result(_) = row {
-                        // Result exit contract: the emitted object identity
-                        // reaches `Return { value }` exactly once — this is
-                        // the transfer edge the claim stands for.
-                        let returns = function
-                            .blocks
-                            .values()
-                            .flat_map(|block| block.all_instructions())
-                            .filter(|instruction| {
-                                matches!(
-                                    instruction,
-                                    MirInstruction::Return {
-                                        value: Some(value),
-                                        ..
-                                    } if value == result
-                                )
-                            })
-                            .count();
-                        if returns != 1 {
-                            return Err(freeze("result-return-drift"));
-                        }
-                    } else {
-                        let local = row_emission
-                            .local()
-                            .ok_or_else(|| freeze("emission-local-result-drift"))?;
-                        let copy_valid = match projection {
-                            Some(projection) => {
-                                projection.check_source_local_copy(function, local, *result)?
-                            }
-                            None => {
-                                let mut copies = function
-                                    .blocks
-                                    .values()
-                                    .flat_map(|block| block.all_instructions())
-                                    .filter(|instruction| {
-                                        matches!(instruction, MirInstruction::Copy { dst, .. } if *dst == local)
-                                    });
-                                matches!(copies.next(), Some(MirInstruction::Copy { src, .. }) if src == result)
-                                    && copies.next().is_none()
-                            }
-                        };
-                        if !copy_valid {
-                            return Err(freeze("emission-local-copy-drift"));
-                        }
-                    }
-                    let source_arguments = row_argument_rows
-                        .as_ref()
-                        .map_err(|_| freeze("argument-source-unavailable"))?;
-                    if source_arguments.len() != arguments.len() {
-                        return Err(freeze("argument-count-drift"));
-                    }
-                    for (index, emitted) in arguments.iter().enumerate() {
-                        let source = &emitted.source;
-                        if source.owner() != owner
-                            || source.new_site() != site
-                            || source.ordinal()
-                                != u32::try_from(index)
-                                    .map_err(|_| freeze("argument-ordinal-overflow"))?
-                        {
-                            return Err(freeze("argument-source-drift"));
-                        }
-                        self.validate_argument_definition(function, source, emitted.value)?;
-                    }
-                    let expected_reclaim = match (row_birth_target, row_construction) {
-                        (None, Ok(plan)) if plan.constructor().is_none() => None,
-                        (Some(_), Ok(plan)) => {
-                            let (constructor_source, constructor_owner) = plan
-                                .constructor()
-                                .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;
-                            if !plan.reclaims_unpublished_outer_storage()
-                                || plan.object() != row_object
-                            {
-                                return Err(freeze("reclaim-origin-source-drift"));
-                            }
-                            Some((constructor_source, constructor_owner))
-                        }
-                        _ => return Err(freeze("reclaim-origin-source-drift")),
-                    };
-                    match (expected_reclaim, reclaim) {
-                        (None, None) => {}
-                        (Some((constructor_source, constructor_owner)), Some(emitted)) => {
-                            if emitted.origin.site != *site
-                                || emitted.origin.object != row_object
-                                || !emitted
-                                    .origin
-                                    .constructor_source
-                                    .same_as(constructor_source)
-                                || emitted.origin.constructor_owner != *constructor_owner
-                            {
-                                return Err(freeze("reclaim-origin-source-drift"));
-                            }
-                            if !matches!(
-                                emitted.instruction,
-                                MirInstruction::Invoke {
-                                    operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
-                                        object,
-                                        value,
-                                    },
-                                    ..
-                                } if object == emitted.origin.object && value == *result
-                            ) {
-                                return Err(freeze("reclaim-origin-operation-drift"));
-                            }
-                            let matching = function
-                                .blocks
-                                .values()
-                                .flat_map(|block| block.all_instructions())
-                                .filter(|actual| matches!(
-                                    actual,
-                                    MirInstruction::Invoke {
-                                        operation: crate::mir::instruction::InvokeOperation::ReclaimUnpublished {
-                                            object,
-                                            value,
-                                        },
-                                        ..
-                                    } if *object == emitted.origin.object && *value == *result
-                                ))
-                                .count();
-                            if matching != 1 {
-                                return Err(freeze(if matching == 0 {
-                                    "reclaim-origin-operation-drift"
-                                } else {
-                                    "reclaim-origin-duplicate"
-                                }));
-                            }
-                            if !super::physical_boundary::check_binding(
-                                function,
-                                projection,
-                                emitted.block,
-                                &emitted.instruction,
-                            )? {
-                                return Err(freeze("reclaim-origin-binding-drift"));
-                            }
-                            // These selected New bindings may reclaim storage,
-                            // but never repeat Birth's field-residence discharge.
-                            if bindings.iter().any(|(_, instruction)| matches!(instruction,
-                                MirInstruction::Invoke {
-                                    operation: crate::mir::instruction::InvokeOperation::OwnedFieldResidenceRelease { base, .. }
-                                        | crate::mir::instruction::InvokeOperation::OwnedObjectFieldRelease { base, .. },
-                                    ..
-                                } if base == result))
-                            {
-                                return Err(freeze("reclaim-duplicate-field-cleanup"));
-                            }
-                        }
-                        _ => return Err(freeze("reclaim-origin-presence-drift")),
-                    }
-                    let birth_calls = function
-                        .blocks
-                        .values()
-                        .flat_map(|block| block.all_instructions())
-                        .filter(|instruction| matches!(
-                            instruction,
-                            MirInstruction::Invoke {
-                                operation: crate::mir::instruction::InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
-                                ..
-                            } if matches!(&call.callee,
-                                crate::mir::Callee::BirthConstructor { receiver, .. } if receiver == result)
-                                && call.args
-                                    == arguments
-                                        .iter()
-                                        .map(|argument| argument.value)
-                                        .collect::<Vec<_>>()
-                        ))
-                        .count();
-                    let expected_birth_calls = usize::from(row_birth_target.is_some());
-                    if birth_calls != expected_birth_calls {
-                        return Err(freeze("argument-call-drift"));
-                    }
-                    for (block, expected) in bindings {
-                        if !super::physical_boundary::check_binding(
-                            function, projection, *block, expected,
-                        )? {
-                            return Err(format!(
-                                "{} function={} source={site:?} block={block:?} binding={expected:?}",
-                                freeze("emission-binding-drift"),
-                                function.signature.name,
-                            ));
-                        }
-                    }
-                }
-                _ => return Err(freeze("emission-residual")),
+                LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {}
             }
+            self.validate_ordinary_new_row_emission_projected(owner, site, row, function, projection)?;
         }
         Ok(())
     }
@@ -274,13 +73,24 @@ impl OrdinaryNewClaimLedgerV1 {
     /// definite `Handle` result owes one unconditional `HomeRelease`, while
     /// a `Nullable` result may carry the `Void` sentinel and owes exactly
     /// one checked `HomeReleaseIfLive` — never an unconditional release.
-    fn validate_call_received_emission(
-        &self,
-        site: &OwnedExprSiteV1,
-        function: &MirFunction,
+    pub(super) fn validate_call_received_emission_in_context_v1(
+        &self, site: &OwnedExprSiteV1, function: &MirFunction,
         projection: Option<&super::physical_boundary::FinishedBindings>,
         pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
+        context: CallValidationContextV1<'_>,
     ) -> Result<(), String> {
+        let intervals = super::read_argument::IntervalViewV1::new(function);
+        self.validate_call_received_emission_with_intervals_v1(site, &intervals, projection, pending, context)
+    }
+
+    fn validate_call_received_emission_with_intervals_v1(
+        &self, site: &OwnedExprSiteV1, intervals: &super::read_argument::IntervalViewV1<'_>,
+        projection: Option<&super::physical_boundary::FinishedBindings>,
+        pending: Option<&super::PendingSelectedStaticLoopViewV1<'_, '_>>,
+        context: CallValidationContextV1<'_>,
+    ) -> Result<(), String> {
+        let function = intervals.function();
+        context.require_ledger(self)?;
         let rows = self.local_commits.borrow();
         let Some(LocalCommitV1::CallReceived(row)) = rows.get(site) else {
             return Err(freeze("handle-progress-missing"));
@@ -298,13 +108,20 @@ impl OrdinaryNewClaimLedgerV1 {
             if packet.call_site() != site {
                 return Err(freeze("receiver-object/record-source-drift"));
             }
-            let arguments = self.receiver_object_packet_arguments_v1(packet.original_row()?)?;
-            if packet.value_with_ledger(site.owner(), arguments, self)? != *result {
+            let arguments = if matches!(row.release, CallReceivedReleaseV1::Mixed { .. }) {
+                self.checked_mixed_received_packet_in_context_v1(site, row, packet, context)?
+            } else {
+                self.object_packet_arguments_v1(packet.original_row()?)?
+            };
+            if packet.value_in_context_v1(site.owner(), arguments, context)? != *result {
                 return Err(freeze("receiver-object/record-result-drift"));
             }
             packet.validate_recorded(bindings)?;
             Some(arguments)
         } else {
+            if matches!(row.release, CallReceivedReleaseV1::Mixed { .. }) {
+                return Err(freeze("mixed-call/record-packet-missing"));
+            }
             if self.receiver_call_observation(site).is_some()
                 && self
                     .lifecycle_local_call_sites
@@ -322,6 +139,11 @@ impl OrdinaryNewClaimLedgerV1 {
         // observation — the expected arity comes from whichever authority
         // sealed the class.
         let (call_destination, expected_arity) = match row.release {
+            CallReceivedReleaseV1::Mixed { .. } => {
+                let observation = self.mixed_call_source_v1(site).ok_or_else(|| freeze("mixed-call/observation-missing"))?;
+                (observation.local_binding().ok_or_else(|| freeze("mixed-call/destination-missing"))?.1,
+                    packet_arguments.ok_or_else(|| freeze("mixed-call/record-packet-missing"))?.len())
+            }
             CallReceivedReleaseV1::Handle => {
                 let call = self
                     .handle_call_source(site)
@@ -363,6 +185,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let expected_result_kind = match row.release {
             CallReceivedReleaseV1::Handle => InvokeCallResultKind::Handle,
             CallReceivedReleaseV1::Nullable => InvokeCallResultKind::NullableHandle,
+            CallReceivedReleaseV1::Mixed { formal_ordinal } => InvokeCallResultKind::MixedHandle { formal_ordinal },
         };
         if row.binding != call_destination || row.local().is_none() {
             return Err(freeze("handle-local-incomplete"));
@@ -404,11 +227,27 @@ impl OrdinaryNewClaimLedgerV1 {
         if matches!(row.end_children, Some(None)) {
             return Err(freeze("handle-release-unproven"));
         }
+        if let Some(packet) = packet {
+            let operations: Vec<_> = row.end_plan().into_vec().into_iter().map(|(_, operation)| operation).collect();
+            let mut ends = Vec::new();
+            for (id, block) in &function.blocks {
+                for instruction in block.all_instructions() {
+                    if matches!(instruction, MirInstruction::Invoke { operation, .. } if operations.contains(operation)) {
+                        ends.push((*id, instruction.clone()));
+                    }
+                }
+            }
+            if !matches!(row.release, CallReceivedReleaseV1::Mixed { .. })
+                && packet.validate_received_field_support_v1(context, Some((intervals, projection, &ends)))? != row.field_support_parents {
+                return Err(freeze("field-end/final-support-drift"));
+            }
+        } else if row.field_support_parents.is_some() { return Err(freeze("field-end/packet-missing")); }
         // The binding owes every operation of its sealed teardown plan —
         // owned field residences then the Home release — once per exit
         // where it stays live, plus once per recorded fault-unwind chain
         // that discharges it. The owed count comes from recorded
         // emissions — never from recounting MIR shape.
+        let shared_received = self.shared_received_call_sites_v1(row.owner, context, projection)?;
         for (_, operation) in row.end_plan().iter() {
             let actual = function
                 .blocks
@@ -425,30 +264,10 @@ impl OrdinaryNewClaimLedgerV1 {
                 })
                 .count();
             let mut owed = 0usize;
-            for ((exit_owner, _), progress) in self.root_exits.borrow().iter() {
-                if *exit_owner != row.owner {
-                    continue;
-                }
-                if let RootHomeExitProgress::Emitted { bindings, .. } = progress {
-                    // The recorded exit bindings carry the clean release
-                    // and its pending-Fault twin — a Call/MapGet ingress
-                    // retries every operation on Fault, while a Plain exit
-                    // keeps the last link clean-only. Count recorded
-                    // emissions, never origins.
-                    owed += bindings
-                        .iter()
-                        .filter(|(_, emitted)| {
-                            matches!(
-                                emitted,
-                                MirInstruction::Invoke {
-                                    operation: emitted,
-                                    ..
-                                } if emitted == operation
-                            )
-                        })
-                        .count();
-                }
-            }
+            context.visit_exit_bindings_v1(row.owner, |bindings| {
+                owed += bindings.iter().filter(|(_, emitted)| matches!(emitted,
+                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count();
+            })?;
             if let Some(view) = pending {
                 owed += view
                     .roots()
@@ -467,8 +286,9 @@ impl OrdinaryNewClaimLedgerV1 {
                     .count();
             }
             owed += rows
-                .values()
-                .flat_map(|other| match other {
+                .iter()
+                .filter(|(site, other)| other.owner() == row.owner && !shared_received.contains(site))
+                .flat_map(|(_, other)| match other {
                     LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_) => {
                         match other.new_emission() {
                             Some(NewEmissionProgress::Emitted { bindings, .. }) => {
@@ -482,6 +302,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         _ => &[],
                     },
                     LocalCommitV1::Map(other) => other.emitted_bindings(),
+                    LocalCommitV1::OwnedArray(other) => other.emitted_bindings(),
                 })
                 .filter(|(_, instruction)| {
                     matches!(
@@ -497,24 +318,10 @@ impl OrdinaryNewClaimLedgerV1 {
             // discharges the binding exactly like a commit row's own
             // emitted unwind — both are recorded emissions, never
             // recounts of MIR shape.
-            owed += self
-                .root_local_call_bindings
-                .borrow()
-                .get(&row.owner)
-                .map(Vec::as_slice)
-                .unwrap_or(&[])
-                .iter()
+            owed += context.with_local_call_groups_v1(row.owner, |groups| Ok(groups.iter()
                 .flat_map(|group| group.bindings())
-                .filter(|(_, instruction)| {
-                    matches!(
-                        instruction,
-                        MirInstruction::Invoke {
-                            operation: emitted,
-                            ..
-                        } if emitted == operation
-                    )
-                })
-                .count();
+                .filter(|(_, instruction)| matches!(instruction,
+                    MirInstruction::Invoke { operation: emitted, .. } if emitted == operation)).count()))?;
             // A release of the wrong shape is just as fatal as a missing
             // one: unconditional `HomeRelease` on a `Void`-carrying value
             // would release the sentinel, and an extra field-residence op
@@ -524,6 +331,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     match row.release {
                         CallReceivedReleaseV1::Handle => "handle-release-missing",
                         CallReceivedReleaseV1::Nullable => "nullable-release-missing",
+                        CallReceivedReleaseV1::Mixed { .. } => "mixed-release-missing",
                     }
                 } else {
                     "handle-release-shape-drift"

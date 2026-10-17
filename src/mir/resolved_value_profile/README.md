@@ -66,11 +66,28 @@ reborrow original operator/call facts rather than infer them from node tags.
 Ordered child reach remains attached to each parent. Field/Call nodes are
 unresolved lender needs; opaque scope/prelude/tail obligations are retained.
 This structure alone grants neither value classes nor executable coverage.
+The same plan's `field_path_v1` lends original field-node indices in root-to-leaf
+order, checking each Receiver edge/site and the final lexical root's owner.
+Calls and arithmetic cannot supply that root. Class, canonical declaration,
+root liveness and value proofs remain separate. The existing direct-read
+adapter requires exactly one edge; nested syntax grants no direct-read credit.
+`ordered_postorder_v1` preserves declared child order (LHS before RHS,
+arguments in source order) before each parent; it validates one complete tree
+and refuses opaque/missing children. The class projection uses this shared
+structural walk. Conditional reach remains on the SAME original child rows;
+postorder grants no permission to evaluate a guarded child eagerly.
 Assignment roots retain the original sealed target/RHS/form row, owner and both
 canonical source sites; they use the same ordered node builder. Assignments do
 not have a statement-to-Value relation. Compound RHS structure is retained as
 Compound and grants no stored-value class without its evaluated-place/operator
 contract; it is never silently treated as a Plain store.
+Statement If conditions use a separate `IfCondition` root from the same plan
+builder. Its factory checks the original function's sealed If bundle, exact
+condition child relation, owner and source inventories. The resolver records
+that relation while resolving the original statement. AND/OR retain their
+conditional RHS reach; a missing or non-If site cannot become a condition root.
+This is source structure only, without a Bool/Home/physical execution grant.
+
 
 The existing Home owner holds the same source plan and stable qualified
 operation loans in its one expression-plan collection. The current Local
@@ -234,3 +251,19 @@ mixed result classes, unproven call tails, and unknown expressions. Core-method 
 body closure, JoinSig, physical PHI construction, and production route
 selection remain owned by later slices. No result class is inferred from MIR
 or from a callable name.
+
+`expression_projection.rs` projects the SAME original plan using the shared
+binary-class transfer and caller-qualified leaf requirements. Every ordered
+child remains an obligation, including receiver identity and call arguments;
+an unresolved child cannot disappear under a known parent class. Identity is
+not an Integer operand. This projection grants no current-I64 result producer,
+checked Normal/range, Home ownership, executable signature, or physical MIR.
+
+The same pure fold also exposes per-node classes to checked statement frames.
+An explicit transferred-node set preserves call-owned input structure as Identity;
+its consumer must separately retain and verify the exact whole-input source loan.
+Every node still passes the original Known-child/postorder checks; transfer does
+not hide opaque or missing children. The original result-class API uses an empty
+transfer set and retains its existing laws. Node classes alone do not authorize
+a checked operation or ownership: the statement owner must supply producer facts,
+operator envelopes and the complete Normal/Fault/End frame correspondence.

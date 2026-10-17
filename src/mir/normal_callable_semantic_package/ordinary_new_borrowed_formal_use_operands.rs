@@ -19,7 +19,7 @@ use crate::mir::resolved_semantics::{
 
 use super::{BorrowedCompareSourceV1, BorrowedFormalUseDraftErrorV1, BorrowedFormalUseDraftKindV1};
 
-/// `site` is a checked-compare operand of a `>` or `<=` binary only when the binary
+/// `site` is a checked Integer comparison operand only when the binary
 /// is a direct `if` condition and the sibling operand proves the
 /// Normal-Integer class: an Integer literal, another borrowed view operand,
 /// or `me.<field>` whose declaration the entry-receiver proof resolves to a
@@ -49,6 +49,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         return Ok(None);
     }
     let family = match binary.operator() {
+        ResolvedBinaryOperatorV1::Equal => crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Equal,
+        ResolvedBinaryOperatorV1::NotEqual => crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::NotEqual,
+        ResolvedBinaryOperatorV1::Less => crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Less,
+        ResolvedBinaryOperatorV1::GreaterEqual => crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::GreaterEqual,
         ResolvedBinaryOperatorV1::Greater => {
             crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater
         }

@@ -29,7 +29,7 @@ fn unannotated_borrowed_i64_result_publishes_call_forms() {
             );
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -107,7 +107,7 @@ fn unannotated_borrowed_i64_result_publishes_call_forms() {
             );
             MirCompiler::with_options(false)
                 .compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let input = view.issue_lifecycle_physical_abi_input()?;
                     let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                     let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -152,7 +152,7 @@ fn static_direct_return_records_one_root_invoke() {
         let text = "static box Layout { word() { return 8 } relay() { return me.word() } } static box Main { main() { return 0 } }";
         MirCompiler::with_options(false)
             .compile_normal_for_mir_json(request(text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let relay = &view.module().functions["Layout.relay/0"];
                 let instructions: Vec<_> = relay.blocks.values()
                     .flat_map(|block| block.instructions.iter().chain(block.terminator.iter()))

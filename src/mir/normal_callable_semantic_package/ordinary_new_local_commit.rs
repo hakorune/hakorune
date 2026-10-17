@@ -79,7 +79,11 @@ use progress::{EmittedLocalProgress, NewEmissionProgress, UnavailableLocalProgre
 pub(crate) struct EmittedNewArgumentV1 {
     source: super::OrdinaryNewTrivialArgumentV1,
     value: ValueId,
+    field_array_read: Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>,
 }
+
+#[path = "ordinary_new_local_commit/argument_field_array_read.rs"]
+mod argument_field_array_read;
 
 impl EmittedNewArgumentV1 {
     pub(crate) fn source(&self) -> &super::OrdinaryNewTrivialArgumentV1 {
@@ -192,6 +196,18 @@ mod result_new_source;
 mod map;
 use map::MapLocalProgress;
 
+#[path = "ordinary_new_local_commit/owned_array_read.rs"]
+mod owned_array_read;
+pub(crate) use owned_array_read::EmittedOwnedArrayReadV1;
+#[path = "ordinary_new_local_commit/read_argument.rs"]
+mod read_argument;
+pub(crate) use read_argument::{ReadActualSourceLoanV1, EmittedReadArgumentV1};
+
+#[path = "ordinary_new_local_commit/owned_array.rs"]
+mod owned_array;
+pub(crate) use owned_array::EmittedOwnedArrayHolderV1;
+use owned_array::OwnedArrayLocalProgress;
+
 #[path = "ordinary_new_local_commit/local_entry.rs"]
 mod local_entry;
 pub(super) use local_entry::LocalCommitV1;
@@ -222,13 +238,18 @@ pub(crate) struct FinalizedRootSourceHandoffV1 {
     >,
     // Original local prefix groups from every selected owner. The same
     // packet can be shared with sibling exit entries; its Taken rows are not copied.
-    local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLocalCallBindingGroupV1>>,
+    local_calls: std::collections::BTreeMap<FunctionOwnerIdV1, Vec<RootLifecyclePrefixBindingGroupV1>>,
     // The selected LoopBody source packet has no Home local-call observation.
     loop_body_calls: std::collections::BTreeMap<OwnedExprSiteV1, super::PreparedLoopStaticBodyDetachedPacketV1>,
+    construction: crate::mir::builder::RetainedConstructionDrafts,
 }
 
 #[path = "ordinary_new_local_commit/finalized_source_projection.rs"]
 mod finalized_source_projection;
+pub(in crate::mir) use finalized_source_projection::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
+
+#[path = "ordinary_new_local_commit/finalized_callable_participants.rs"]
+mod finalized_callable_participants;
 
 #[path = "ordinary_new_local_commit/finalized_root_result.rs"]
 mod finalized_root_result;
@@ -243,12 +264,18 @@ pub(in crate::mir) use finalized_lexical_call_visit::FinalizedLexicalCallContext
 
 #[path = "ordinary_new_local_commit/finalized_borrowed_call_visit.rs"]
 mod finalized_borrowed_call_visit;
+#[path = "ordinary_new_local_commit/finalized_object_return_field_support.rs"]
+mod finalized_object_return_field_support;
+use finalized_object_return_field_support::FinalizedObjectReturnFieldSupportV1;
+
+#[path = "ordinary_new_local_commit/finalized_received_birth_actual.rs"]
+mod finalized_received_birth_actual;
 pub(in crate::mir) use finalized_borrowed_call_visit::FinalizedBorrowedCallPacketV1;
 
 impl FinalizedRootSourceHandoffV1 {
     pub(in crate::mir) fn local_call_binding_groups(
         &self,
-    ) -> impl Iterator<Item = (FunctionOwnerIdV1, &RootLocalCallBindingGroupV1)> {
+    ) -> impl Iterator<Item = (FunctionOwnerIdV1, &RootLifecyclePrefixBindingGroupV1)> {
         self.local_calls
             .iter()
             .flat_map(|(owner, groups)| groups.iter().map(move |group| (*owner, group)))
@@ -543,7 +570,7 @@ impl OrdinaryNewClaimLedgerV1 {
             let emission = match row {
                 LocalCommitV1::Ordinary(row) => Some(&row.emission),
                 LocalCommitV1::Result(row) => Some(&row.emission),
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => None,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) => None,
             };
             emission.is_some_and(|emission| {
                 matches!(emission, NewEmissionProgress::RetainedUnavailable { .. })
@@ -614,7 +641,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
             if row.initializer() != Some(*initializer)
                 || (matches!(row, LocalCommitV1::Ordinary(_)) && initializer == local)
-                || (matches!(row, LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_))
+                || (matches!(row, LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_))
                     && initializer != local)
             {
                 return Err(freeze("local-initializer-mismatch"));
@@ -649,10 +676,15 @@ pub(crate) use emission_prepare::PendingChildPhysicalValidationV1;
 mod emission_validation;
 #[path = "ordinary_new_local_commit/handle_call.rs"]
 mod handle_call;
+#[path = "ordinary_new_local_commit/mixed_call.rs"]
+mod mixed_call;
 #[path = "ordinary_new_local_commit/reclaim.rs"]
 mod reclaim;
 #[path = "ordinary_new_local_commit/root_cleanup_graph.rs"]
 mod root_cleanup_graph;
+#[path = "ordinary_new_local_commit/call_validation_context.rs"]
+mod call_validation_context;
+pub(in crate::mir) use call_validation_context::CallValidationContextV1;
 #[path = "ordinary_new_local_commit/root_home.rs"]
 mod root_home;
 #[path = "ordinary_new_local_commit/root_validation.rs"]
@@ -676,8 +708,13 @@ pub(in crate::mir) use root_home::{
     PreparedSelectedStaticLoopCallProjectionV1,
 };
 
-pub(crate) use root_home::RootLocalCallBindingGroupV1;
+pub(crate) use root_home::RootLifecyclePrefixBindingGroupV1;
+pub(crate) use root_home::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 #[cfg(test)]
 #[path = "ordinary_new_local_commit/root_return_construction_tests.rs"]
 mod root_return_construction_tests;
+
+pub(in crate::mir) use root_home::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+
+pub(crate) use root_home::EmittedBorrowedFieldWriteV1;

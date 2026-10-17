@@ -56,3 +56,49 @@ pub(super) fn new_argument_kind(
         ordinal,
     }))
 }
+
+
+/// Source-only nonowning child use. The existing constructor relation issuer
+/// already joined the returned New, Birth parameter and canonical field store.
+/// This does not activate a store, borrowed ABI, or an owning move.
+pub(super) fn construction_child_argument_kind_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    contract: &super::OwnedCallableParameterContractDeclarationV1,
+    context: Option<&super::BorrowedFormalSourceUseContextV1<'_>>,
+    formal: BindingRefV1,
+    binding: BindingRefV1,
+    site: &SourceExprSiteV1,
+) -> Result<Option<BorrowedFormalUseDraftKindV1>, BorrowedFormalUseDraftErrorV1> {
+    use super::result_class_claim::{ResultValueOriginV1, ResultWitnessStepV1};
+    use std::rc::Rc;
+    let Some(context) = context else { return Ok(None); };
+    let relations: Vec<_> = context.results.construction_child_relation_loans()
+        .filter(|relation| relation.actual().owner() == input.owner() && relation.actual().site() == site)
+        .collect();
+    if relations.is_empty() { return Ok(None); }
+    let mut parameters = contract.parameters.iter().filter(|row| row.binding == formal);
+    let parameter = parameters.next().ok_or(BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+    if parameters.next().is_some() || contract.owner != input.owner() || binding != formal
+        || !matches!(parameter.kind, super::CallableParameterContractKindV1::DeclaredObject(_))
+    { return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity); }
+    for relation in &relations {
+        let mut constructions = input.function().expression_source().constructions()
+            .filter(|row| row.site() == relation.outer().site());
+        let construction = constructions.next().ok_or(BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
+        if constructions.next().is_some() || relation.outer().owner() != input.owner()
+            || construction.arguments().get(relation.formal_ordinal() as usize) != Some(site)
+            || relation.witnesses().len() != 2
+            || relation.witnesses().iter().any(|witness| witness.site() != relation.actual()
+                || !matches!(witness.step(), ResultWitnessStepV1::Formal { binding: source, ordinal }
+                    if *source == formal && *ordinal == parameter.ordinal))
+            || relation.witnesses().iter().filter(|witness|
+                matches!(witness.origin(), ResultValueOriginV1::Null)).count() != 1
+            || relation.witnesses().iter().filter(|witness|
+                matches!(witness.origin(), ResultValueOriginV1::ForwardFormal { ordinal }
+                    if *ordinal == parameter.ordinal)).count() != 1
+        { return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity); }
+    }
+    Ok(Some(BorrowedFormalUseDraftKindV1::ConstructionChildArgument {
+        relations: relations.into_iter().map(Rc::clone).collect(),
+    }))
+}

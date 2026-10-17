@@ -100,7 +100,7 @@ impl OrdinaryNewClaimLedgerV1 {
             return Err(freeze("received-return/producer-identity"));
         }
         if let Some(packet) = retained_packet {
-            if packet.outer_bindings().1 != producer {
+            if packet.outer_bindings()?.1 != producer {
                 return Err(freeze("received-return/packet-producer"));
             }
         }

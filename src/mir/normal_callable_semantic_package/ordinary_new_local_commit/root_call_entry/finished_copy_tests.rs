@@ -1,6 +1,6 @@
 //! Real child Forwarded source and synthetic physical finishing; ABI remains closed.
 use super::super::super::super::physical_boundary::PhysicalBoundary;
-use super::super::super::super::RootLocalCallBindingGroupV1;
+use super::super::super::super::RootLifecyclePrefixBindingGroupV1;
 use super::super::super::{RootHomeExitEntry, RootHomeExitProgress};
 use super::terminal_tests::function;
 use super::*;
@@ -69,14 +69,14 @@ fn fixture_with_continuation(copy_block: BasicBlockId, discard: bool) -> Fixture
             .unwrap()
             .add_instruction(copy.clone());
     }
-    let group = RootLocalCallBindingGroupV1::new(
+    let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.clone()],
+        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
     ledger.root_exits.borrow_mut().insert(
-        (packet.call_site().owner(), exit.clone()),
+        (packet.call_site().owner(), exit.clone().into()),
         RootHomeExitProgress::Emitted {
             order: super::super::RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap(),
             origins: vec![],
@@ -189,7 +189,7 @@ fn source_forwarded_copy_survives_block_contraction_and_original_packet_rebind()
         let RootHomeExitProgress::Emitted {
             entry: RootHomeExitEntry::Plain { local_bindings },
             ..
-        } = exits.get_mut(&(owner, exit.clone())).unwrap()
+        } = exits.get_mut(&(owner, exit.clone().into())).unwrap()
         else {
             panic!("Plain child exit");
         };
@@ -262,9 +262,9 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
             projection,
         },
     );
-    let group = RootLocalCallBindingGroupV1::new(
+    let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.clone()],
+        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
@@ -276,6 +276,7 @@ fn finalized_call_visitor_lends_original_borrowed_discard_with_synthetic_physica
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
         loop_body_calls: Default::default(),
+        construction: Vec::new(),
     };
     let child_symbol = physical.signature.name.clone();
     let mut module = crate::mir::MirModule::new("borrowed-discard-loan".into());
@@ -355,9 +356,9 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
     let (ledger, _, packet, _, _) = fixture();
     let owner = ledger.root_owner().unwrap();
     assert_ne!(owner, packet.call_site().owner());
-    let group = RootLocalCallBindingGroupV1::new(
+    let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
-        vec![packet.invoke.clone(), packet.projection.clone()],
+        vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()],
         Some(Rc::clone(&packet)),
     )
     .unwrap();
@@ -369,6 +370,7 @@ fn empty_terminal_root_source_keeps_verified_owner_without_abi() {
         call_entries: Default::default(),
         local_calls: [(owner, vec![group])].into(),
         loop_body_calls: Default::default(),
+        construction: Vec::new(),
     };
     assert_eq!(source.owner(), owner);
     assert!(source.result_abi(&crate::mir::MirModule::new("empty".into())).unwrap().is_none());

@@ -3,6 +3,23 @@ use super::*;
 
 #[test]
 fn borrowed_use_checked_compare_counts_each_physical_operand_occurrence() {
+    for op in [CompareOp::Eq, CompareOp::Ne, CompareOp::Lt, CompareOp::Gt, CompareOp::Le, CompareOp::Ge] {
+        let (mut state, mut function, view, formal) = compare_fixture();
+        let block = function.blocks.get_mut(&BasicBlockId(0)).unwrap();
+        let index = block.instructions.len();
+        block.instructions.push(MirInstruction::Compare {
+            dst: ValueId(701), op, lhs: view, rhs: ValueId(800),
+        });
+        let coordinate = (BasicBlockId(0), index);
+        state.compare_coordinates = Some([(formal, BTreeSet::from([(coordinate, 0)]))].into());
+        verify(&mut state, &function).unwrap();
+        state.compare_coordinates = Some([(formal, BTreeSet::from([(coordinate, 1)]))].into());
+        assert!(verify(&mut state, &function).unwrap_err().contains("compare-coverage"));
+        if !matches!(op, CompareOp::Gt | CompareOp::Le) {
+            state.compare_coordinates = Some(BTreeMap::new());
+            assert!(verify(&mut state, &function).is_err(), "missing Integer source coordinate");
+        }
+    }
     // Reusing a carrier does not grant a second source execution.
     let (mut state, mut function, view, formal) = compare_fixture();
     for (index, dst) in [(0usize, ValueId(701)), (1, ValueId(702))] {

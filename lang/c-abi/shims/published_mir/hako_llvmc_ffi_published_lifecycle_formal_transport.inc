@@ -37,21 +37,30 @@ static int hako_physical_params(yyjson_val* fn, yyjson_val* layouts) {
           !hako_physical_layout_has_object(layouts, object)))) return 0;
     } else if (!hako_physical_exact_keys(param, keys, 2)) return 0;
     if (!hako_physical_u32(yyjson_obj_get(param, "value"), NULL)) return 0;
-    if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
+    if (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_unit") ||
+        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") ||
+        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_map") ||
         hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") ||
-        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) {
+        hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle") ||
+        (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
+              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) {
       /* "map" marks a borrowed checked-map storage pointer (MapBox formal). */
       if (!hako_physical_string(yyjson_obj_get(param, "representation"), "i64") &&
           !hako_physical_string(yyjson_obj_get(param, "representation"), "map")) {
         /* The selected internal carrier uses the same pair transport. Static
            I64 has no receiver; nullable-handle keeps its instance boundary.
            The ordinary prologue revalidates the exact pair either way. */
-        if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+        if ((!hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_bool") &&
+             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
              !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_handle") &&
-             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle")) ||
+             !hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_nullable_handle") &&
+             !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
+              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) ||
             (!yyjson_is_uint(yyjson_obj_get(fn, "receiver")) &&
-             !(hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") &&
+             !((hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_i64") ||
+                (hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_borrowed_nullable_handle") ||
+              hako_physical_string(yyjson_obj_get(fn, "role"), "ordinary_mixed_handle"))) &&
                yyjson_is_null(yyjson_obj_get(fn, "receiver")) &&
                yyjson_is_null(yyjson_obj_get(fn, "receiver_object")))) ||
             !hako_physical_string(yyjson_obj_get(param, "representation"), "borrowed_kind_payload_v1")) return 0;

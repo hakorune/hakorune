@@ -432,10 +432,77 @@ through the existing callable-state observer before it emits Unit
 not re-lower assignment target or RHS AST. Unavailable construction retains its existing publication/backend fence;
 it is not a retry after selected emission. The state validates actual emitted
 bindings/frame role before preparation and after finalization, rejects extra Invoke/frame/Fault-return sites, and forbids Unit construction result carriers. The existing completed-root owner also owns artifact-only source eligibility and module-wide coverage in `normal_default_root_final_validation.rs`; diagnostic success is not permission. Exact App Main source entry selects RootOwned, not direct-call presence.
+The same construction state retains the plan's original typed Store/Call steps
+and one consumption cursor. Install corroborates the Store subsequence against
+all exact assignment sites; default and explicit scalar stores to the same field
+remain separate steps. Take and emission require the next original Store, and
+only actual Emitted progress advances the cursor. Completion requires complete
+step consumption and every store emitted; final validation independently checks
+step/store bijection and source-ordered Normal-to-next-entry linkage (including
+provider allocation entry). Existing per-store and Fault checks remain owners.
+Source-selected zero-argument Unit child calls now use that same step cursor
+and the shared affine Call emitter. The actual committed provider field lends
+the receiver; the original source step supplies reverse partial-field Fault
+cleanup. Final validation checks every retained Call, exact field read, Normal
+edge and discharge binding. Late qualification updates the same constructor row
+and both New claim cores by original Birth source identity; Stores after opaque
+Calls remain unavailable so scalar folding cannot cross them. This is unfinished:
+constructor packets still need final participant/ABI/C transport, and early caller
+facts must be issued after dependencies qualify rather than repaired afterward.
+The actual original constructor publication probe remains red; the unchanged app
+now passes the Unit implicit Home-flow and original cleanup graph checks.
+CLI73 exposed nested scalar Return typing; CLI75 crosses that boundary after
+the source path connection below, then stops in a local Call result-kind check.
+Constructor final transport and unchanged app execution remain unfinished.
 Numeric checks use the existing refresh owner and published field definition,
 not receiver-origin/name recovery. Selected Pair cleanup and typed-C execution
 are verified through actual OBJ/EXE callers; unsupported source/formal/result
 families retain their own pre-artifact fences.
+
+Borrowed field-resident Array aliases lend the same original named-Array
+requirement to the selected Home walk. They acquire no Home. Their source-selected
+read reuses the existing typed Array `FieldGet` emitter with the exact previously
+resolved base and source field name; the ledger retains the actual instruction.
+Ordinary-object `ObjectFieldGet` remains unavailable for Array residence. Source
+Rc identity, recorded base/name/type and final read census remain checked. This
+connection alone does not authorize an entire source loop or complete Unit/Birth C ABI.
+The existing selected Loop product now retains the same original planner result
+before Home, lending exact NoExitBody Recipe/effect/Integer/root proof and moving
+that same result once into the existing raw LoopCond physical owner. Captured
+policy, source membership, owner and frame must match; no replanning or fallback.
+The original Mul product shares the existing enum/map. Final owner validation
+requires consumption. Source tests cover multiple pushes per alias, zero trips,
+preserved Homes and unsupported effects; these do not claim final app acceptance.
+Cleanup's Plain ingress is the original source continuation, so its prefix may
+contain the existing Loop after-Phi. Root graph checks retain terminal equality,
+topology and source release order; cleanup-created nodes still forbid Phi. The
+existing Loop role/PhysicalBoundary owns exact prefix and final drift checks;
+structural ingress acceptance grants no physical permission without that proof.
+
+The same function-owned LocalSSA index lends provisional Phi observations.
+Only the successful Phi lifecycle writer completes their physical definitions,
+once; duplicate definition/completion rejects before mutation and rollback
+invalidates outstanding pending loans. Field-Array argument/pin observations
+retain those same loans. After function lowering, the original packet and its
+shared lifecycle groups seal one completed binding census before PhysicalBoundary
+capture. No final-MIR reconstruction or relaxed equality is used. Physical Phi
+completion alone grants no source/type contract or CFG readiness.
+
+The finalized field-loop packet also lends its original validation participant
+to the existing callable participant map, independently of executable Call
+coordinates. Canonical catalog/key, Completion identity, sealed packet and
+finished bindings remain mandatory. An uncalled implicit-Unit method uses its
+original implicit Home end and the existing final cleanup consumer; it creates
+no Call or Unit-call source. This membership alone does not supply physical
+instruction projection, JSON or native execution permission.
+
+Nested scalar Return field paths use the same retained result expression and
+original object/numeric writer sources. The existing field progress map reserves
+before evaluating each receiver once and binds outer reads to the actual recorded
+immediate-parent result. The shared exact-field append records Box/Integer types;
+Add propagation and final Return checks stay independent. Missing selected source
+rows fail before dynamic dispatch, and the final census requires every original
+path node. Generic field type metadata grants no nested-path authority.
 
 ### Raw ordinary-`New` source claim consumer (D2c)
 
@@ -695,7 +762,16 @@ ordinary Call rows retain caller function, block and instruction coordinates;
 these coordinates locate instructions, but do not grant borrowed-use authority.
 
 The final source visitor reads the original local pool once and the root/child
-Return entries separately. It joins each original nested node to the same
+Return entries separately. Local packet walkers share one argument lender:
+Object packets lend their original sealed executable inputs; other Instance
+packets lend their exact completion observation, and Static packets their
+original observation. Flow-only Object observations cannot stand in for inputs.
+The stored-receiver read census and owned-array holder use this same lender;
+source/argument cardinality and finished instruction checks remain mandatory.
+Structured child scopes forward the same lexical and Static lifecycle hooks
+with their original source context. They cannot replace a selected packet with
+the trait's unavailable default and send it through ordinary member descent.
+It joins each original nested node to the same
 owner's finished symbol and unique actual Invoke; sibling exit-prefix views
 are not independent calls. Before ordinary-result filtering, compiled entry
 checks every Call to a selected borrowed callee against these original nodes,
@@ -1824,7 +1900,45 @@ suffixes, dedicated Normal/Fault landings and the pending-Fault terminal. Root
 callers retain their Return endpoint and original Home origin correspondence;
 plain roots do not create an unused acquisition-fault chain. A body expression
 must supply its own verified continuation and source/frame correspondence before
-using this same writer. This factoring alone does not activate source Print.
+using this same writer. The retained Print expression driver now supplies that
+correspondence: it delegates exact field append/record, arithmetic and lexical
+calls to their existing owners, emits the checked String/Print graph, and
+commits one whole-expression packet. Nested calls prepend the frame's acquired
+String Ends to the existing Home Fault unwind. The raw statement port checks
+the original frame before child evaluation, consumes its exact PrintValue
+demand once, and emits genuine Unit outside Continue. This is the canonical
+normal-callable path; the explicit raw Linear profile retains its own entry.
+
+The existing required-liveness owner also borrows the same sealed condition
+prefix by original owner/frame identity. It verifies every retained producer
+against the captured boundary before adding its dst to the existing DCE roots,
+including source-consumed Const/Copy. Older scalar omission policy is unchanged.
+
+Draft PHI repair borrows source-consumed condition Phi tuples from the same
+owner's retained groups, using only existing root/child physical locators.
+Its prune step retains those tuples and verifies them before and after repair;
+missing/reordered inputs remain errors. Context-free repair keeps its policy.
+
+LocalSSA records exact Compare operator and ordered operand observations at
+its existing materialization writer. The sole pin writer records its real Copy
+before slot redirection; slot names alone never establish value correspondence.
+These physical loans grant no source/type authority and final checks retain
+only the captured finisher's existing Const/Copy removal policy.
+
+Whole Bool conditions borrow the same Call/Normal writer through a primitive
+expression prefix, retaining each actual packet in the enclosing condition.
+The original If frame scopes the existing raw recursive expression descent;
+exact reference/field reads are consumed once, and RHS lowering stays inside
+the existing short-circuit closure. A genuine entry Jump bounds this source
+scope. Both raw If entry adapters use the same optional IfForm observer:
+before branch descent it registers a fixed prefix in the existing group pool;
+the actual later Branch consumes the sole seal lease on that same packet.
+Every final group, source handoff and Call visitor requires the seal. Home
+Fault unwind remains the shared Call writer's responsibility. Source node
+traces and exact producer/SSA/control tuples determine the approved inventory;
+a graph traversal checks coverage only, and never grants source permission.
+
+
 
 
 Lexical I64 and Object/Nullable result wrappers share the private
@@ -1855,3 +1969,117 @@ selection; the writer only emits the supplied operation and exact projection.
 The pending owned-Array construction uses the same writer, with its own original
 source recipe and separate unclaimed-storage cleanup; its full lifecycle remains
 unaccepted until Append/Get/Home/final consumers close.
+
+The selected owned-Array Append borrows its exact original receiver before its
+candidate. `terminal_call/lexical_object_expression` uses the shared Call/Normal
+writer and the SAME Taken Object packet for original arguments and complete
+cancellation. `selected/owned_array` owns the Unit Append, transfer continuation
+and Fault ordering, registering one source prefix in the existing pool. The raw
+port checks source membership before syntax corroboration and refuses a missing
+source scope; the syntax spelling alone never selects this lifecycle.
+
+Source-selected lexical I64 self calls share the normal local-call emitter only
+when the existing co-sealed lifecycle routing set selects the exact site. The
+original scalar loan, target, arguments and prior Homes must agree; the borrowed
+entry receiver does not acquire a Home. Terminal and lexical shortcuts consume
+the original declared-instance locator through one shared exact-relation check.
+Receiver-owned Nullable/Object and Bool self routes retain their existing owner.
+The unchanged four-case focused program reaches final strict verification and
+physical ABI issuance; full app/S0 acceptance remains required.
+
+The shared lexical Call emitter also carries source-qualified Bool results when
+the semantic package's checked local scalar lender corroborates the same original
+observation, target and result loan. It emits the actual Bool Value and Normal
+projection through the existing Call writer and result-type mapping. Unit remains
+status-only with no result projection. Receiver Homes, ordered arguments and Fault
+cleanup retain their existing owners; no Bool-to-I64 conversion or alternate
+emitter is introduced. Source selection and final publication remain independent
+obligations, including the unfinished constructor packet handoff.
+
+Provider argument Calls stay with the construction sole writer. Before effects,
+it joins the retained original provider source with the same completed input plan
+and takes the existing result-publication handoff. Its emitted row retains exact
+Const/Invoke/Normal bindings and the original argument ordinal. Construction
+validation compares the full source argument census, exact target/ordered tuple,
+Normal-to-Birth use and the shared Fault cleanup chain. Finalization moves the
+same construction state into the source handoff instead of discarding it after
+validation; no new source receipt or parallel physical writer is introduced.
+
+### Main wrapper arguments
+
+`normal_callable_semantic_loan_port/main_root.rs` joins the original AppMain
+identity, resolved Parameter bindings and the same immutable runtime snapshot
+inside the selected source scope. `normal_main_arguments.rs` owns that wrapper
+resource and entry adoption; it does not manufacture a source-local New/Home.
+`ScriptArgumentsNew` builds the complete UTF-8 snapshot before publishing a
+Normal Array handle, including a real empty Array. Body Homes unwind before
+the wrapper's exact `ArrayResidenceRelease` suffix on every later exit; the
+allocation Fault owns no Array. The same ledger retains full bindings through
+finishing, final verification and physical publication. Only transport and
+teardown are admitted by this wrapper; source operations borrowing argv need
+their own source consumer and remain fail-closed when unconnected. No runtime
+environment reread, numeric Array claim or owned-object descriptor supplies
+permission. Explicit compatibility keeps `decls.rs`'s legacy parameter injector.
+
+Field-Array append lends its same sealed source/argument/pin inventory to the
+existing source-Phi repair and required-liveness owners, with source and owner
+identity checked before lending. Auxiliary producers stay live because this
+packet consumes them; no new omission permission is inferred. Edge
+rematerialization reuses every producer already dominating the predecessor,
+including pure producers, and still materializes eligible sibling-path values.
+
+The existing source-consumed finishing roots also constrain semantic
+simplification. One physical operand dependency closure is borrowed before
+CFG/CSE rewriting: its producers are not replaced by constants, copies, or
+trivial-Phi substitutions. Required branch conditions keep their edges;
+block-only correspondence and unrelated optimizations retain their existing
+rules. Empty requirements keep the generic optimizer policy. This is a
+physical preservation obligation, never new source or backend authority.
+
+Final physical field-Array append admission borrows only the original sealed
+lifecycle group through its same finished projection and named-array residence
+emission. The dst-less Invoke uses block/landing projection, exact recorded
+membership and one final coordinate; no opcode allowlist issues permission.
+This does not by itself grant JSON/C execution or alter bare Set admission.
+
+Compiled-entry Array writes now retain a required function/block/instruction
+coordinate for native literals and original field Push packets alike. The
+source lender issues the bounded I64 field obligation; final MIR only locates
+its exact row. JSON rechecks that coordinate, site and operands with each
+lane's exact producer shape before using the existing array_append schema.
+C parent-residence validation remains independently required.
+
+Declared caller-formal call actuals join the same original finished caller entry
+values before borrowed operand closure. The source actual lends its class/root;
+the selected source entry lends borrowed membership. Forwarded actuals retain
+their mandatory argument obligations. Implicit receivers and owned local Homes
+are not formal origins; both final scans retain exact ordinal/copy/guard checks.
+
+Selected borrowed entries stage their original guarded field-read uses in the
+existing local/expression read owner before lowering. The original class owner
+retains immutable scalar descriptors before canonical definitions transfer;
+selected entries borrow those same descriptors with their class/guard/binding
+proof. Passive Home neutrality and its unique-name integer census remain
+separate and confer no canonical field permission. Get/set argument descent
+consumes the same staged descriptors; no legacy read or Copy exception is added.
+
+Borrowed scalar field-write construction retains the original Plain assignment
+and the Home walk allocation-order live set in one shared expression frame.
+The original receiver/value guards remain separate required source evidence;
+this frame alone grants no FieldSet, Copy, or cleanup permission. Checked
+Invoke/pin/publication wiring remains required before production acceptance.
+
+Borrowed field-write source preparation now joins the original receiver/value
+pair, guards and held canonical scalar descriptor with the same Completion and
+Home frame Rc. Source-at selection uses its original statement, after entry
+values are recorded; a selected source error must not retry generic FieldSet.
+Invoke emission, pin loans, Fault cleanup and independent final use validation
+remain required before this preparation can claim production acceptance.
+
+Selected borrowed scalar field assignments now use the existing exact child
+source queue and first-read lexical receipts, with no second variable take.
+The shared Invoke/cleanup writer emits canonical FieldSet, real receiver/value
+pin loans, Unit Normal continuation and prior-Home Fault unwind. The original
+prefix packet remains mandatory through seal, Phi repair and finishing liveness.
+Final borrowed-use consumer and C admission remain separate required connections;
+selected source failure never retries the shared generic FieldSet writer.

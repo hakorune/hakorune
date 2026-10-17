@@ -32,7 +32,7 @@ pub(super) fn encode_parameters(
                             (Some(crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1::BorrowedTaggedValue), _) => {
                                 let input = abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?;
                                 corroborate_function(function, ordinal, input)?;
-                                if !input.entry().ordinary_calls().iter().any(|row| row.function_index() == ordinal && row.borrowed_actuals().is_some()) {
+                                if !input.entry().has_borrowed_entry(ordinal) {
                                     return Err(fault("borrowed-carrier-source-missing"));
                                 }
                                 "borrowed_kind_payload_v1"
@@ -128,6 +128,9 @@ pub(super) fn encode_ordinary_call(
     let callee = functions
         .get(*target as usize)
         .ok_or_else(|| fault("ordinary-target-missing"))?;
+    if callee.role().ordinary_result() != Some(result_kind) {
+        return Err(fault("ordinary-result-role-correspondence"));
+    }
     let offset = usize::from(callee.role().has_receiver());
     let selected = callee
         .param_carriers()
@@ -167,7 +170,10 @@ pub(super) fn encode_ordinary_call(
         if carrier == Some(&Carrier::BorrowedTaggedValue) {
             let proof = proof.ok_or_else(|| fault("borrowed-carrier-ordinal-missing"))?;
             consumed += 1;
-            let kind = encode_borrowed_actual_kind(&proof.source);
+            let kind = encode_borrowed_call_actual_kind(
+                &proof.source, caller, caller_function_index,
+                abi_input.ok_or_else(|| fault("borrowed-carrier-activation-missing"))?,
+            )?;
             return Ok(json!({"kind": kind, "value": value.0}));
         }
         if proof.is_some() { return Err(fault("borrowed-carrier-ordinal-unselected")); }
@@ -192,16 +198,25 @@ pub(super) fn encode_ordinary_call(
             "dst": Value::Null,
         }),
     };
-    Ok(json!({
+    let mut wire = json!({
         "kind": "ordinary_call",
         "call": call,
         "result": match result_kind {
+            InvokeCallResultKind::BorrowedNullableHandle { .. } => "borrowed_nullable_handle",
+            InvokeCallResultKind::MixedHandle { .. } => "mixed_handle",
+            InvokeCallResultKind::Bool => "bool",
             InvokeCallResultKind::Map => "map",
             InvokeCallResultKind::Handle => "handle",
             InvokeCallResultKind::NullableHandle => "nullable_handle",
-            _ => "i64",
+            InvokeCallResultKind::I64 => "i64",
+            InvokeCallResultKind::Unit => "unit",
         },
-    }))
+    });
+    if let InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal }
+        | InvokeCallResultKind::MixedHandle { formal_ordinal } = result_kind {
+        wire["result_formal_ordinal"] = json!(formal_ordinal);
+    }
+    Ok(wire)
 }
 
 pub(super) fn encode_birth_call(
@@ -251,15 +266,10 @@ pub(super) fn encode_birth_call(
             // the sealed source kind selects (0,0) for `null` or
             // (3,payload) for an owned handle move — the flow layer
             // admits the live lease and discharges it at the call edge.
-            if input.object_birth_actual(argument.source().new_site(), argument.source().ordinal())
-            {
-                use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
-                let kind = match argument.source().kind() {
-                    Kind::Null => 0,
-                    Kind::Handle { .. } => 3,
-                    _ => return Err(fault("actual-kind-unavailable")),
-                };
-                return Ok(json!({ "kind": kind, "value": argument.value().0 }));
+            if let Some(transport) = input.object_birth_actual(
+                argument.source().new_site(), argument.source().ordinal(),
+            ) {
+                return Ok(json!({ "kind": transport.wire_kind(), "value": argument.value().0 }));
             }
             Ok(
                 json!({ "kind": super::super::physical_abi::scalar_actual_kind(
@@ -283,13 +293,7 @@ pub(super) fn verify_borrowed_projection(
             .param_carriers()
             .is_some_and(|rows| rows.contains(&Carrier::BorrowedTaggedValue))
     });
-    let original = input.is_some_and(|input| {
-        input
-            .entry()
-            .ordinary_calls()
-            .iter()
-            .any(|row| row.borrowed_actuals().is_some())
-    });
+    let original = input.is_some_and(|input| input.entry().has_borrowed_entries());
     if !current && !original {
         return Ok(());
     }
@@ -319,6 +323,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     }
     if function.name() != original.name()
         || function.role().wire_name() != original.role().wire_name()
+        || function.role().ordinary_result() != original.role().ordinary_result()
+        || function.role().object_return_outcomes() != original.role().object_return_outcomes()
         || function.role().ordinary_target() != original.role().ordinary_target()
         || function.role().birth_target() != original.role().birth_target()
         || function.role().receiver_object() != original.role().receiver_object()
@@ -353,6 +359,36 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
     Ok(())
 }
 
+/// Class authority alone does not select a physical pair. Borrow the original
+/// caller entry and its installed carrier before preserving the incoming tag.
+fn encode_borrowed_call_actual_kind(
+    source: &Source,
+    caller: &PublishedLifecyclePhysicalFunctionV1<'_>,
+    caller_index: u32,
+    input: &PublishedLifecyclePhysicalAbiInputV1<'_>,
+) -> Result<Value, String> {
+    if let Source::DeclaredFormal { root, .. } = source {
+        if input.entry().has_borrowed_entry(caller_index) {
+            let original = input.program().handoff().root_source()
+                .ok_or_else(|| fault("borrowed-declared/source-missing"))?;
+            let entries = original.borrowed_ordinary_entry_values_v1(root.owner())?;
+            let mut matches = entries.iter().filter(|(_, formal, _)| formal == root);
+            let (_, _, value) = matches.next()
+                .ok_or_else(|| fault("borrowed-declared/entry-missing"))?;
+            if matches.next().is_some() {
+                return Err(fault("borrowed-declared/entry-duplicate"));
+            }
+            let index = caller.params().iter().position(|param| param == value)
+                .ok_or_else(|| fault("borrowed-declared/parameter-missing"))?;
+            if caller.param_carriers().and_then(|rows| rows.get(index))
+                != Some(&Carrier::BorrowedTaggedValue)
+            { return Err(fault("borrowed-declared/carrier-drift")); }
+            return Ok(json!("tagged"));
+        }
+    }
+    Ok(encode_borrowed_actual_kind(source))
+}
+
 fn encode_borrowed_actual_kind(source: &Source) -> Value {
     match source {
         // The exact `null` literal spells tag 0; the `value` field still
@@ -371,7 +407,7 @@ fn encode_borrowed_actual_kind(source: &Source) -> Value {
         Source::TypedHome { .. }
         | Source::EntryReceiver { .. }
         | Source::DeclaredFormal { .. } => json!(3),
-        Source::ReceivedNullable { .. } => json!("nullable_typed_object"),
+        Source::ReceivedNullable { .. } | Source::ReceivedMixed { .. } | Source::Read(_) => json!("nullable_typed_object"),
         Source::Forwarded { .. } => json!("tagged"),
     }
 }

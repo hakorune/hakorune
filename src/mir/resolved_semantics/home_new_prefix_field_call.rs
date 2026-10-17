@@ -60,13 +60,7 @@ fn proven_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(shape) = input.body_shape() else {
@@ -103,6 +97,24 @@ fn proven_field_call<E>(
         return Ok(None);
     };
     for argument in call.arguments() {
+        if call.selector() == "set" && call.arity() == 2 && argument.ordinal() == 1 {
+            if let Some(index) = call.arguments().first() {
+                if let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) = shape.expression_shape(index.site()) {
+                    if let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(object) {
+                        if let Some(root) = locals.field_home(object) {
+                            if view_use(&OwnedExprSiteV1::new(input.owner(), argument.site().clone()),
+                                BorrowedViewUseRequestV1::ArrayElementFieldIndexValue {
+                                    call: call_site, index: index.site(), binding, root,
+                                })? {
+                                if !formal_i64_field(&OwnedExprSiteV1::new(input.owner(), index.site().clone()),
+                                    object, binding, root, field)? { return Ok(None); }
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         if !argument_subtree_neutral(
             input,
             shape,
@@ -142,7 +154,7 @@ fn proven_field_call<E>(
             return Ok(false);
         };
         if let Some(home) = field_write::self_rooted_me(shape, object, locals) {
-            return scalar_field(
+            return scalar_field.scalar_field(
                 &OwnedExprSiteV1::new(input.owner(), site.clone()),
                 object,
                 home,
@@ -200,13 +212,7 @@ fn argument_subtree_neutral<E>(
     root: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
     homes: &[BindingRefV1],
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     formal_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -235,6 +241,21 @@ fn argument_subtree_neutral<E>(
             _ => None,
         })
         .collect();
+    // A formal field receiver is part of that exact proved read, not a
+    // second scalar Operand use. Keep the issuer predicate as the sole authority.
+    let mut proven_formal_receivers = std::collections::BTreeSet::new();
+    for expression in &subtree {
+        if let BodyExpressionShapeV1::FieldAccess { site, object, field } = expression {
+            if let Some(BodyExpressionShapeV1::Variable {
+                resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding), ..
+            }) = shape.expression_shape(object) {
+                if formal_i64_field(&OwnedExprSiteV1::new(input.owner(), site.clone()),
+                    object, *binding, *binding, field)? {
+                    proven_formal_receivers.insert(object);
+                }
+            }
+        }
+    }
     for expression in subtree {
         match expression {
             BodyExpressionShapeV1::MapLiteral { .. }
@@ -255,6 +276,7 @@ fn argument_subtree_neutral<E>(
                 // admits a dominated-view value use at this exact site —
                 // the issuer's predicate is the consult, the draft stays
                 // the sole admission authority.
+                _ if proven_formal_receivers.contains(site) => {}
                 _ => {
                     if !view_use(
                         &OwnedExprSiteV1::new(input.owner(), site.clone()),
@@ -275,7 +297,7 @@ fn argument_subtree_neutral<E>(
                 field,
             } => {
                 if let Some(home) = field_write::self_rooted_me(shape, object, locals) {
-                    if !scalar_field(
+                    if !scalar_field.scalar_field(
                         &OwnedExprSiteV1::new(input.owner(), site.clone()),
                         object,
                         home,
@@ -289,20 +311,7 @@ fn argument_subtree_neutral<E>(
                 // `formal.<field>` reads are neutral only when the issuer
                 // proves the parameter binding and the unique integer
                 // declaration — a proven-i64 read yields a scalar.
-                let Some(BodyExpressionShapeV1::Variable {
-                    resolved: crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding),
-                    ..
-                }) = shape.expression_shape(object)
-                else {
-                    return Ok(false);
-                };
-                if !formal_i64_field(
-                    &OwnedExprSiteV1::new(input.owner(), site.clone()),
-                    object,
-                    *binding,
-                    *binding,
-                    field,
-                )? {
+                if !proven_formal_receivers.contains(object) {
                     return Ok(false);
                 }
             }
@@ -356,13 +365,7 @@ pub(super) fn observe_statement_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<bool, E> {
     if !matches!(statement.node(), ASTNode::MethodCall { .. }) {
@@ -414,13 +417,7 @@ pub(super) fn observe_local_field_call<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
 ) -> Result<Option<CoreMethodResultKindV1>, E> {
     let Some(kind) = proven_field_call(

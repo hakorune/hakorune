@@ -97,6 +97,11 @@ fn installed_ordinary_loan_borrows_all_actual_domains_without_reclassifying_form
     } static box Main { main() { return 0 } }";
     let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source).unwrap();
     let (owner, parameters) = target(&package);
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    assert!(ledger.original_instance_input_kind_v1(ingress, owner).unwrap().is_some());
+    assert!(ledger.selected_instance_input_protocol_v1(ingress, owner).unwrap().is_none());
+    assert!(!ledger.original_instance_input_requires_reconstruction_v1(ingress, owner).unwrap());
     let declaration = package
         .parameter_contracts
         .iter()
@@ -753,3 +758,6 @@ fn static_entry_loan_requires_original_successful_completion() {
             .unwrap();
     }
 }
+
+#[path = "ordinary_new_borrowed_guarded_declaration_tests.rs"]
+mod guarded_declaration_tests;

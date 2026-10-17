@@ -288,7 +288,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
     selected: &'index super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     contracts: &'index [super::model::OwnedCallableParameterContractDeclarationV1],
     app_main: Option<&'index super::ordinary_new_coseal::BorrowedAppMainSourceLoanV1<'_>>,
-) -> (
+) -> Result<(
     impl FnMut(
             &crate::mir::resolved_semantics::OwnedExprSiteV1,
         ) -> Result<
@@ -296,26 +296,24 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
             super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1,
         > + 'index,
     bool,
-) {
+), super::ordinary_new_coseal::OrdinaryNewCoSealIssueV1> {
     let has_current_owner_i64_source = caller_key.as_ref().is_some_and(|key| {
         claims.current_owner_rows.keys().any(|(caller, site)| {
             caller == key && claims.current_owner_i64_source(caller, site).is_some()
         })
     });
-    let has_main_terminal = input.function().method_calls().any(|(site, _)| {
-        claim_for_source_site_v1(
-            claims,
-            caller_key.as_ref(),
-            &input,
+    let mut has_qualified_terminal_source = false;
+    for (site, _) in input.function().method_calls() {
+        if claim_for_source_site_v1(
+            claims, caller_key.as_ref(), &input,
             &crate::mir::resolved_semantics::OwnedExprSiteV1::new(input.owner(), site.clone()),
-            selected,
-            contracts,
-            app_main,
-        )
-        .is_ok_and(|row| row.is_some_and(|claim| claim.is_qualified_terminal()))
-    });
-    (
-        move |site| {
+            selected, contracts, app_main,
+        )?.is_some_and(|claim| claim.is_qualified_terminal()) {
+            has_qualified_terminal_source = true;
+        }
+    }
+    Ok((
+        move |site: &crate::mir::resolved_semantics::OwnedExprSiteV1| {
             claim_for_source_site_v1(
                 claims,
                 caller_key.as_ref(),
@@ -326,8 +324,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn local_static_call_predic
                 app_main,
             )
         },
-        has_current_owner_i64_source || has_main_terminal,
-    )
+        has_current_owner_i64_source || has_qualified_terminal_source,
+    ))
 }
 
 /// Issue the Home walk's exact site claim through a reusable source port.
@@ -346,23 +344,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn claim_for_source_site_v1
         return Ok(None);
     };
     if let Some(claim) = claims.claim(key, site.site()) {
-        use crate::mir::resolved_semantics::SourcePathSegmentV1 as Segment;
-        let main = app_main.is_some_and(|main| {
-            contracts.iter().any(|row| {
-                row.owner == input.owner()
-                    && main.matches_contract(row)
-                    && main.catalog_key() == key
-            })
-        });
-        if main
-            && site.owner() == input.owner()
-            && matches!(
-                site.site().node().segments(),
-                [Segment::Body(_), Segment::Value]
-            )
-            && input.body_shape().is_some_and(|shape| shape.statements().iter().any(|row|
-                matches!(row, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(value), .. }
-                    if value == site.site())))
+        if site.owner() == input.owner()
+            && input.body_shape().is_some_and(|shape| shape.return_value_sites().any(|value| value == site.site()))
         {
             if let Some(call) = input.function().method_call(site.site()) {
                 let original = claims.incoming_source(key, site, call, selected, contracts, app_main)

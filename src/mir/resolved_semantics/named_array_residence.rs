@@ -67,6 +67,8 @@ pub(crate) struct NamedArrayFieldResidenceRequirementV1 {
     provider_caller: CanonicalSameModuleCallableKeyV1,
     provider_site: SourceExprSiteV1,
     binding: BindingRefV1,
+    field_site: SourceExprSiteV1,
+    field_name: Box<str>,
     call: SourceExprSiteV1,
     argument: SourceExprSiteV1,
 }
@@ -87,6 +89,8 @@ impl NamedArrayFieldResidenceRequirementV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 {
         self.binding
     }
+    pub(crate) fn field_site(&self) -> &SourceExprSiteV1 { &self.field_site }
+    pub(crate) fn field_name(&self) -> &str { &self.field_name }
     pub(crate) fn call(&self) -> &SourceExprSiteV1 {
         &self.call
     }
@@ -102,7 +106,7 @@ impl NamedArrayFieldResidenceRequirementV1 {
 #[derive(Debug)]
 pub(crate) enum NamedArrayRequirementV1 {
     Construction(super::NamedArrayConstructionRequirementV1),
-    FieldResidence(NamedArrayFieldResidenceRequirementV1),
+    FieldResidence(std::rc::Rc<NamedArrayFieldResidenceRequirementV1>),
 }
 
 impl NamedArrayRequirementV1 {
@@ -293,6 +297,8 @@ pub(crate) fn seal_field_residence_requirement(
         provider_caller,
         provider_site,
         binding: claim.binding,
+        field_site: claim.field_site.clone(),
+        field_name: claim.field_name.clone(),
         call: claim.call.clone(),
         argument: claim.argument.clone(),
     }

@@ -116,7 +116,7 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                 let child_owner = child.owner();
                 assert_ne!(Some(child_owner), ledger.root_owner());
                 let handoff = ledger
-                    .seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort)
+                    .seal_finalized_root_birth_handoff(key.clone(), &module, &keys, cohort, Vec::new())
                     .unwrap_or_else(|error| panic!("{label}: {error}"));
                 let expected_kind = if nullable {
                     crate::mir::instruction::InvokeCallResultKind::NullableHandle
@@ -187,7 +187,7 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
                     .validate_finalized_root_cleanup_v1(&module)
                     .unwrap();
                 assert!(ledger
-                    .seal_finalized_root_birth_handoff(key, &module, &keys, None)
+                    .seal_finalized_root_birth_handoff(key, &module, &keys, None, Vec::new())
                     .unwrap_err()
                     .contains("artifact-root-already-finalized"));
                 assert!(ledger
@@ -200,6 +200,27 @@ fn original_main_and_real_children_document_handoff_survive_contraction() {
             }
         }
     }
+    // The returned child moves only on Normal; the same committed source must
+    // still corroborate after result claims have moved into local commits.
+    let text = "box Token {} box Wrap { child: Token birth(child) { me.child = child } }
+        box Maker { make() { local sibling = new Token() local child = new Token() return new Wrap(child) } }
+        static box Main { main() { local maker = new Maker() return maker.make() } }";
+    let (completed, ledger) = crate::mir::builder::lexical_call_projection_document_completion_fixture(text);
+    let (key, module, same, keys, cohort) = completed.document_preflight_parts_for_test(true).unwrap();
+    assert!(Rc::ptr_eq(&ledger, &same));
+    let target = CanonicalSameModuleCallableKeyV1::instance_box_method("Maker", "make", 0);
+    let witness = Rc::clone(&ledger.callable_result_classes.outcomes(&target).unwrap()[0].witnesses()[0]);
+    assert!(!ledger.result_claims.borrow().contains_key(witness.site()));
+    ledger.with_result_new_source_v1(witness.site(), |source| {
+        let prefix = source.prefix.as_ref().unwrap();
+        assert_eq!(prefix.prior_homes().len(), 2, "Fault retains the owned child and sibling");
+        assert_eq!(prefix.normal_homes().len(), 1, "Normal retains only the sibling");
+        assert_eq!(prefix.normal_homes(), &prefix.prior_homes()[1..], "the exact sibling binding survives");
+        Ok(())
+    }).unwrap().unwrap();
+    assert!(ledger.checked_object_return_leaf_v1(&target, &witness).unwrap().is_some());
+    let handoff = ledger.seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new()).unwrap();
+    handoff.root_source().unwrap().validate_finalized_root_cleanup_v1(&module).unwrap();
 }
 
 #[test]
@@ -256,11 +277,11 @@ fn late_child_entry_or_projection_failure_leaves_root_calls_and_local_pool_uncon
                 );
             } else {
                 let exit = ledger.completion_for_owner(owner).unwrap().explicit_sites()[0].clone();
-                ledger.root_exits.borrow_mut().remove(&(owner, exit));
+                ledger.root_exits.borrow_mut().remove(&(owner, exit.into()));
             }
             let before = snapshot(&ledger);
             assert!(ledger
-                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+                .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
                 .is_err());
             assert_eq!(snapshot(&ledger), before);
             assert!(matches!(
@@ -291,7 +312,7 @@ fn late_birth_and_identity_failures_precede_root_batch_take() {
         }
         let before = snapshot(&ledger);
         let error = ledger
-            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
             .unwrap_err();
         assert!(
             error.contains(match failure {
@@ -332,7 +353,7 @@ fn received_source_missing_and_unregistered_exit_fail_before_move() {
         }
         let before = snapshot(&ledger);
         let error = ledger
-            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+            .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
             .unwrap_err();
         assert!(
             error.contains(if foreign {
@@ -359,7 +380,7 @@ fn joint_mir_and_recorded_fault_omission_is_rejected_before_take() {
         let mut exits = ledger.root_exits.borrow_mut();
         let RootHomeExitProgress::Emitted {
             entry, bindings, ..
-        } = exits.get_mut(&(owner, exit)).unwrap()
+        } = exits.get_mut(&(owner, exit.into())).unwrap()
         else {
             panic!("original Emitted Root");
         };
@@ -393,7 +414,7 @@ fn joint_mir_and_recorded_fault_omission_is_rejected_before_take() {
     });
     let before = snapshot(&ledger);
     assert!(ledger
-        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort)
+        .seal_finalized_root_birth_handoff(key, &module, &keys, cohort, Vec::new())
         .is_err());
     assert_eq!(
         snapshot(&ledger),
@@ -418,12 +439,12 @@ fn named_array_owner_and_coverage_are_checked_on_borrowed_original_rows() {
     let count = rows.len();
     let before = snapshot(&ledger);
     let checker = crate::mir::finalized_root_handoff::validate_named_array_handoff_inputs;
-    checker(&module, Some(&cohort), rows).unwrap();
-    assert!(checker(&module, None, rows)
+    checker(&module, Some(&cohort), rows, &mut |_, _| Ok(false)).unwrap();
+    assert!(checker(&module, None, rows, &mut |_, _| Ok(false))
         .unwrap_err()
         .contains("handoff-source-owner-mismatch"));
     let mut missing = module.clone();
-    let marker = rows[0].marker();
+    let marker = rows[0].marker().expect("write fixture retains a write observation");
     let symbol = missing
         .canonical_callable_definition_symbol(rows[0].caller())
         .unwrap()
@@ -435,12 +456,12 @@ fn named_array_owner_and_coverage_are_checked_on_borrowed_original_rows() {
         .metadata
         .named_array_write_obligations
         .retain(|row| row.write != marker.write);
-    assert!(checker(&missing, Some(&cohort), rows).is_err());
+    assert!(checker(&missing, Some(&cohort), rows, &mut |_, _| Ok(false)).is_err());
     assert_eq!(cohort.named_array_emissions().as_ptr(), pointer);
     assert_eq!(cohort.named_array_emissions().len(), count);
     assert_eq!(snapshot(&ledger), before);
     let error = ledger
-        .seal_finalized_root_birth_handoff(key, &missing, &keys, Some(cohort))
+        .seal_finalized_root_birth_handoff(key, &missing, &keys, Some(cohort), Vec::new())
         .unwrap_err();
     assert!(error.contains("named-array"), "{error}");
     assert_eq!(snapshot(&ledger), before);

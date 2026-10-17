@@ -23,6 +23,58 @@ impl PartialEq for StaticSourceActualIdentityV1 {
 }
 impl Eq for StaticSourceActualIdentityV1 {}
 
+impl OrdinaryNewClaimLedgerV1 {
+    /// Original constructor provider arguments use the same ordinary actual
+    /// issuer. No Home observation, terminal membership or input finish is made.
+    pub(in crate::mir::normal_callable_semantic_package) fn stage_provider_static_actuals_v1(
+        &mut self,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+    ) -> Result<(), String> {
+        let sources = constructors.provider_static_sources_v1(claims, selected)?;
+        for provider in sources {
+            let (caller, site, target, literals) = provider.original_call_v1()
+                .ok_or_else(|| freeze("provider-static/call-source-missing"))?;
+            let Some(prepared) = self.borrowed_formal_source.as_ref() else { continue };
+            let source = prepared.as_ref().map_err(Clone::clone)?;
+            // Eligibility selects only the original whole-input family. An
+            // unrelated provider keeps its existing source owner and refusal.
+            if source.scalar_qualified_source_call_v1(&site)?.is_none() { continue; }
+            let original = source.source_incoming.static_observations().get(&site)
+                .ok_or_else(|| freeze("provider-static/incoming-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            if original.caller() != caller || original.call_site() != &site
+                || original.target() != target || !original.is_qualified()
+                || !original.catalog_brand().is_same(claims.catalog_brand())
+                || original.argument_sites().len() != literals.len()
+                || literals.len() != target.arity() as usize {
+                return Err(freeze("provider-static/incoming-source-drift"));
+            }
+            let candidates: Vec<_> = original.argument_sites().iter().zip(literals).enumerate()
+                .map(|(ordinal, (site, literal))| BorrowedCallActualCandidateV1 {
+                    ordinal: ordinal as u32,
+                    site: site.clone(),
+                    value: match literal {
+                        crate::mir::normal_callable_semantic_package::QualifiedStaticCallArgumentKindV1::Integer(value) => BorrowedCallActualValueV1::Integer(*value),
+                        crate::mir::normal_callable_semantic_package::QualifiedStaticCallArgumentKindV1::Bool(value) => BorrowedCallActualValueV1::Bool(*value),
+                    },
+                }).collect();
+            let rows = prepare_borrowed_call_actuals_v1(
+                prepared, contracts, &site, &candidates,
+                &[], None, &mut |_| None,
+            )?;
+            if rows.is_none() { return Err(freeze("provider-static/actuals-missing")); }
+            stage_borrowed_call_actuals_v1(&mut self.borrowed_formal_actuals, &site, Ok(rows));
+            self.borrowed_formal_actuals.get(&site)
+                .ok_or_else(|| freeze("provider-static/actuals-unstaged"))?
+                .as_ref().map_err(Clone::clone)?;
+        }
+        Ok(())
+    }
+}
+
 pub(super) fn prepare_static_source_actuals_v1(
     prepared: &PreparedBorrowedFormalIngressV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -44,7 +96,7 @@ pub(super) fn prepare_static_source_actuals_v1(
             source.is_zeroarg_i64_v1()
                 || source.is_current_owner_i64_source_v1()
                 || source.is_current_owner_bool_source_v1()
-                || prepared.is_main_static_terminal_source_v1(source)
+                || prepared.is_static_terminal_source_v1(source)
         });
     if !opaque_source && !original_source {
         return Ok(None);
@@ -182,7 +234,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_static_s
     claim: &QualifiedStaticCallClaimV1,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
     project_pending_static_source_arguments_for_route_v1(
-        source,
+        source.as_ref().map_err(Clone::clone)?,
         pending,
         site,
         claim.required_i64_arguments(),
@@ -217,7 +269,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_pending_current_
     if !pending.contains_key(site) {
         return Ok(None);
     }
-    project_pending_static_source_arguments_for_route_v1(source, pending, site, required, true)
+    project_pending_static_source_arguments_for_route_v1(prepared, pending, site, required, true)
 }
 
 /// The original source candidate for one selected loop-body scalar actual.
@@ -246,39 +298,94 @@ pub(in crate::mir::normal_callable_semantic_package) fn project_current_owner_lo
         .ok_or_else(reject)?
         .as_ref()
         .map_err(Clone::clone)?;
-    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &row.phase else {
-        return Err(reject());
-    };
-    let [candidate] = identity.candidates.as_ref() else {
-        return Err(reject());
-    };
-    let BorrowedCallActualValueV1::Scalar(binding, SourceScalarKind::Integer) = &candidate.value
-    else {
-        return Err(reject());
-    };
-    if candidate.ordinal != 0
-        || &candidate.site != argument_site
-        || identity.integer_evidence.as_ref() != [true]
-        || identity.source.call_site() != site
-        || identity.source.argument_sites() != [candidate.site.clone()]
-    {
+    let (original, binding, original_site) =
+        super::static_scalar_input_finish::original_scalar_source_v1(row)?.ok_or_else(reject)?;
+    let prepared = source.as_ref().map_err(Clone::clone)?;
+    let retained = prepared
+        .source_incoming
+        .static_observations()
+        .get(site)
+        .ok_or_else(reject)?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if !Rc::ptr_eq(original, retained) || original_site != argument_site {
         return Err(reject());
     }
-    Ok(Some((
-        Rc::clone(&identity.source),
-        *binding,
-        candidate.site.clone(),
-    )))
+    Ok(Some((Rc::clone(original), binding, original_site.clone())))
 }
 
-fn project_pending_static_source_arguments_for_route_v1(
-    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+/// Shared argument proof for one already-issued Qualified row. Membership is
+/// lent separately by the unchanged transport or the whole original cohort.
+pub(super) fn checked_executable_qualified_arguments_v1<'a>(
+    prepared: &PreparedBorrowedFormalIngressV1,
+    call: &super::super::borrowed_formal_uses::BorrowedIncomingCallDraftV1,
+    rows: &'a PreparedBorrowedCallActualsV1,
+    required_i64_arguments: &[u32],
+) -> Result<&'a [LocalCallArgumentV1], String> {
+    if !matches!(rows.phase, BorrowedCallActualEvidencePhaseV1::Executable) {
+        return Err(freeze("borrowed-static/executable-phase-required"));
+    }
+    let site = &call.call;
+    let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
+        &call.source
+    else {
+        return Err(freeze("borrowed-static/executable-source-kind"));
+    };
+    original.require_qualified()?;
+    let retained = prepared
+        .source_incoming
+        .static_observations()
+        .get(site)
+        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    if !Rc::ptr_eq(original, retained)
+        || original.call_site() != site
+        || original.callee_owner() != call.callee
+        || required_i64_arguments != original.required_i64_arguments()
+    {
+        return Err(freeze("borrowed-static/executable-source-identity"));
+    }
+    let arguments = rows.ordered_arguments_for_v1(call)?;
+    for ordinal in required_i64_arguments {
+        let integer = match arguments.get(*ordinal as usize) {
+            Some(LocalCallArgumentV1::Integer(_) | LocalCallArgumentV1::Scalar(_)) => true,
+            Some(LocalCallArgumentV1::BorrowedActual { ordinal, .. }) => rows
+                .opaque_actuals
+                .iter()
+                .find(|actual| actual.ordinal == *ordinal)
+                .is_some_and(|actual| match &actual.source {
+                    BorrowedFormalActualSourceV1::Integer(_) => true,
+                    BorrowedFormalActualSourceV1::Scalar {
+                        kind: SourceScalarKind::Integer,
+                        ..
+                    } => true,
+                    BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
+                        prepared.candidate_integer_agreement(*formal)
+                    }
+                    _ => false,
+                }),
+            _ => false,
+        };
+        if !integer {
+            return Err(freeze("borrowed-static/required-integer-source-unproved"));
+        }
+    }
+    Ok(arguments)
+}
+
+pub(super) fn project_pending_static_source_arguments_for_route_v1(
+    prepared: &PreparedBorrowedFormalIngressV1,
     pending: &PendingBorrowedFormalActualsV1,
     site: &OwnedExprSiteV1,
     required_i64_arguments: &[u32],
     current_owner: bool,
 ) -> Result<Option<Box<[LocalCallArgumentV1]>>, String> {
-    let prepared = source.as_ref().map_err(Clone::clone)?;
+    let source_qualified = if current_owner {
+        None
+    } else {
+        prepared.scalar_qualified_source_call_v1(site)?
+    };
     let has_source_fact = prepared
         .static_arguments
         .keys()
@@ -296,11 +403,12 @@ fn project_pending_static_source_arguments_for_route_v1(
         .get(site)
         .and_then(|row| row.as_ref().ok());
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());
-    let has_main_terminal_source = !current_owner
-        && retained.is_some_and(|row| prepared.is_main_static_terminal_source_v1(row));
+    let has_static_terminal_source = !current_owner
+        && retained.is_some_and(|row| prepared.is_static_terminal_source_v1(row));
     if !has_source_fact
         && !has_final_static
-        && !has_main_terminal_source
+        && !has_static_terminal_source
+        && source_qualified.is_none()
         && !(current_owner && has_current_owner_source)
     {
         return Ok(None);
@@ -328,55 +436,20 @@ fn project_pending_static_source_arguments_for_route_v1(
         let mut incoming = prepared.incoming.iter().filter(|row| &row.call == site);
         let call = incoming
             .next()
+            .or(source_qualified)
             .ok_or_else(|| freeze("borrowed-static/executable-incoming-missing"))?;
-        let super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
-            &call.source
-        else {
-            return Err(freeze("borrowed-static/executable-source-kind"));
-        };
-        original.require_qualified()?;
-        let retained = prepared
-            .source_incoming
-            .static_observations()
-            .get(site)
-            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
-        if incoming.next().is_some()
-            || !Rc::ptr_eq(original, retained)
-            || original.call_site() != site
-            || required_i64_arguments != original.required_i64_arguments()
-        {
+        if incoming.next().is_some() {
             return Err(freeze("borrowed-static/executable-source-identity"));
         }
-        let arguments = rows.ordered_arguments_for_v1(call)?;
-        for ordinal in required_i64_arguments {
-            let integer = match arguments.get(*ordinal as usize) {
-                Some(LocalCallArgumentV1::Integer(_) | LocalCallArgumentV1::Scalar(_)) => true,
-                Some(LocalCallArgumentV1::BorrowedActual { ordinal, .. }) => rows
-                    .opaque_actuals
-                    .iter()
-                    .find(|actual| actual.ordinal == *ordinal)
-                    .is_some_and(|actual| match &actual.source {
-                        BorrowedFormalActualSourceV1::Integer(_) => true,
-                        BorrowedFormalActualSourceV1::Scalar {
-                            kind: SourceScalarKind::Integer,
-                            ..
-                        } => true,
-                        BorrowedFormalActualSourceV1::Forwarded { formal, .. } => {
-                            prepared.candidate_integer_agreement(*formal)
-                        }
-                        _ => false,
-                    }),
-                _ => false,
-            };
-            if !integer {
-                return Err(freeze("borrowed-static/required-integer-source-unproved"));
-            }
-        }
-        return Ok(Some(arguments.into()));
+        return checked_executable_qualified_arguments_v1(
+            prepared,
+            call,
+            rows,
+            required_i64_arguments,
+        )
+        .map(|arguments| Some(arguments.into()));
     }
-    if !has_source_fact && !current_owner && !has_main_terminal_source {
+    if !has_source_fact && !current_owner && !has_static_terminal_source && source_qualified.is_none() {
         return Err(freeze("borrowed-static/source-fact-required"));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(finish) = &rows.phase {
@@ -432,41 +505,22 @@ fn project_pending_static_source_arguments_for_route_v1(
             .map(|rows| Some(rows.into()));
     }
     if let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(proof) = &rows.phase {
-        if !current_owner {
-            return Err(freeze("borrowed-static/scalar-current-owner-required"));
+        if !current_owner && !has_static_terminal_source && source_qualified.is_none() {
+            return Err(freeze("borrowed-static/scalar-source-required"));
         }
         let original =
             retained.ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?;
-        if required_i64_arguments != [0] || original.required_i64_arguments() != [0] {
+        if required_i64_arguments != original.required_i64_arguments()
+            || !(required_i64_arguments == [0] || required_i64_arguments.is_empty()) {
             return Err(freeze("borrowed-static/scalar-required-integer-drift"));
         }
-        let cohort = prepared.static_incoming_cohort_v1(original)?;
-        if cohort.is_empty() {
-            return Err(freeze("borrowed-static/scalar-cohort-empty"));
-        }
-        for sibling in &cohort {
-            let actual = pending
-                .get(sibling.call_site())
-                .ok_or_else(|| freeze("borrowed-static/scalar-sibling-missing"))?
-                .as_ref()
-                .map_err(Clone::clone)?;
-            let BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(sibling_proof) =
-                &actual.phase
-            else {
-                return Err(freeze("borrowed-static/scalar-sibling-unfinished"));
-            };
-            if !sibling_proof.corroborates(sibling, &proof.completion)
-                || actual.opaque_actuals.len() != 1
-                || actual.opaque_actuals[0].ordinal != 0
-                || actual.opaque_actuals[0].site != sibling.argument_sites()[0]
-                || actual.opaque_actuals[0].formal != sibling.parameters()[0].binding
-                || !matches!(&actual.opaque_actuals[0].source,
-                    BorrowedFormalActualSourceV1::Scalar { binding, kind: SourceScalarKind::Integer }
-                        if *binding == sibling_proof.binding)
-            {
-                return Err(freeze("borrowed-static/scalar-sibling-drift"));
-            }
-        }
+        super::static_scalar_input_finish::checked_ready_scalar_rows_v1(
+            prepared,
+            pending,
+            original,
+            &proof.completion,
+        )?
+        .ok_or_else(|| freeze("borrowed-static/scalar-sibling-unfinished"))?;
         let mut matching = prepared
             .source_incoming
             .exact_rows()

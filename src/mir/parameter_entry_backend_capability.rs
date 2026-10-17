@@ -189,6 +189,7 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
             ));
         }
         let mut contracts = target.metadata.parameter_entry_contracts.iter();
+        let mut borrowed_declarations = Vec::new();
         for (explicit_index, (declaration, ty)) in target
             .metadata
             .declared_param_decls
@@ -200,7 +201,6 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
             let formal_index = explicit_index + receiver_offset;
             if tagged_slots.contains(&formal_index) {
                 if declaration.implicit_receiver
-                    || declaration.declared_type_name.is_some()
                     || !matches!(ty, MirType::Unknown | MirType::Integer)
                     || carriers.len() != target.params.len()
                 {
@@ -209,6 +209,8 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                         LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
                     ));
                 }
+                borrowed_declarations.push((explicit_index as u32, target.params[formal_index],
+                    declaration.declared_type_name.as_deref()));
                 continue;
             }
             if carriers.get(formal_index) == Some(&Carrier::CheckedMapStorage) {
@@ -249,8 +251,34 @@ pub(crate) fn enforce_lifecycle_parameter_entry_backend_supported(
                 LIFECYCLE_PARAMETER_ENTRY_CAPABILITY_MISSING_TAG
             ));
         }
+        if !borrowed_declarations.is_empty() {
+            input.entry().corroborate_borrowed_parameters_v1(module,
+                function_index as u32, &borrowed_declarations)?;
+        }
     }
     Ok(())
+}
+
+#[cfg(test)]
+pub(crate) fn assert_declared_parameter_drift_rejected(
+    module: &MirModule,
+    input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
+    symbol: &str,
+) {
+    for mutation in 0..5 {
+        let mut changed = module.clone();
+        let function = changed.functions.get_mut(symbol).unwrap();
+        match mutation {
+            0 => function.metadata.declared_param_decls[1].declared_type_name = Some("ForeignBox".into()),
+            1 => function.metadata.declared_param_decls[1].declared_type_name = None,
+            2 => function.params[1] = crate::mir::ValueId(99991),
+            3 => function.signature.params[1] = MirType::Bool,
+            4 => function.metadata.declared_param_decls[1].implicit_receiver = true,
+            _ => unreachable!(),
+        }
+        assert!(enforce_lifecycle_parameter_entry_backend_supported(&changed, input).is_err(),
+            "original declared parameter drift{mutation}");
+    }
 }
 
 #[cfg(test)]

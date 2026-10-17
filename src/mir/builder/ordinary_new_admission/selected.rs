@@ -4,10 +4,18 @@ use crate::mir::instruction::InvokeCallResultKind;
 mod arguments;
 #[path = "selected/invoke_operation.rs"]
 mod invoke_operation;
+#[path = "selected/owned_array.rs"]
+pub(in crate::mir::builder) mod owned_array;
+#[path = "selected/read_argument.rs"]
+pub(in crate::mir::builder) mod read_argument;
 #[path = "selected/map.rs"]
 pub(in crate::mir::builder) mod map;
 #[path = "selected/root_graph.rs"]
 pub(in crate::mir::builder) mod root_graph;
+#[path = "selected/bool_condition.rs"]
+pub(in crate::mir::builder) mod bool_condition;
+#[path = "selected/print_expression.rs"]
+pub(in crate::mir::builder) mod print_expression;
 #[path = "selected/terminal_call.rs"]
 pub(in crate::mir::builder) mod terminal_call;
 use crate::mir::builder::function_fault_frame::FunctionFaultFrameV1;
@@ -128,6 +136,12 @@ fn emit_selected_new(
 ) -> Result<ValueId, String> {
     let arguments =
         arguments::materialize_arguments(builder, state, ledger, &site, arity, argument_rows)?;
+    let field_array_reads = argument_rows.iter().zip(&arguments).map(|(source, value)| {
+        source.field_array_read().map(|read| {
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("argument-read-function-missing"))?;
+            state.field_array_read_argument_v1(read, function, *value)
+        }).transpose()
+    }).collect::<Result<Vec<_>, String>>()?;
     let (prior, reclaim_origin) = ledger.begin_new_emission(&site)?;
     let frame = state.borrow_fault_frame(builder)?;
     let result = builder.next_value_id();
@@ -227,7 +241,7 @@ fn emit_selected_new(
         bindings.push((normal, birth));
         builder.start_new_block(after_birth)?;
     }
-    ledger.record_new_emission(&site, result, arguments, reclaim, bindings)?;
+    ledger.record_new_emission_with_field_array_reads(&site, result, arguments, field_array_reads, reclaim, bindings)?;
     Ok(result)
 }
 
@@ -306,6 +320,8 @@ fn emit_root_home_exit_payload(
     let operations = ledger.begin_root_home_exit(owner, site)?;
     if let Some(RootExitIngress::Call(call)) = &ingress {
         ledger.bind_root_direct_result_v1(owner, site, statement_result, call.result)?;
+    } else if ingress.is_none() && return_value.is_some() {
+        ledger.bind_root_fresh_result_v1(owner, site, statement_result)?;
     }
     let fault_sequences = ledger.root_home_fault_sequences(owner, site)?;
     let ingress_operation = match &ingress {
@@ -371,6 +387,24 @@ fn emit_root_home_exit_payload(
         _ => return Err(freeze("root-ingress-graph-mismatch")),
     }
     Ok(statement_result)
+}
+
+/// Implicit source end uses the same graph writer and the body's existing frame.
+pub(in crate::mir::builder) fn emit_implicit_root_home_exit_v1(
+    builder: &mut MirBuilder, state: &mut CallableSemanticLoweringState,
+    ledger: &OrdinaryNewClaimLedgerV1, owner: FunctionOwnerIdV1,
+    completion: std::rc::Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+    producer: (BasicBlockId, MirInstruction), value: ValueId,
+) -> Result<(), String> {
+    use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
+    ledger.prepare_implicit_root_home_exit_v1(owner, &completion)?;
+    let exit = RootHomeExitKeyV1::ImplicitBodyEnd;
+    let operations = ledger.begin_root_home_exit_for_key_v1(owner, &exit)?;
+    let faults = ledger.root_home_fault_sequences_for_exit_v1(owner, &exit)?;
+    let emission = emit_root_graph_v1(builder, state, &mut RawRootGraphWriterV1,
+        operations, faults, Some(value), value, None)?;
+    ledger.record_implicit_root_home_exit_v1(owner, completion, producer,
+        emission.origins, emission.bindings)
 }
 
 /// Sole root Home graph algorithm for raw and canonical writer ports. Source
@@ -648,3 +682,9 @@ fn fault_frame_binding_with_port(
     }
     Ok((function.entry_block, definition))
 }
+
+#[path = "selected/field_array_append.rs"]
+pub(in crate::mir::builder) mod field_array_append;
+
+#[path = "selected/borrowed_field_write.rs"]
+pub(in crate::mir::builder) mod borrowed_field_write;

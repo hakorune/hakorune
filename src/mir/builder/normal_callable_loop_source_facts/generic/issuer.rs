@@ -10,6 +10,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
         variable_accum_recurrence: Option<
             crate::mir::loop_recipe_contract::VerifiedVariableAccumRecurrenceRecipeProductV1,
         >,
+        retained: Option<PreissuedCallableLoopSourcePlanV1>,
     ) -> CallableGenericLoopSourceFactsDispositionV1<'source> {
         let PreparedCallableGenericLoopSourceFactsPayloadV1 {
             parent_source,
@@ -41,34 +42,21 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             return CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error);
         }
 
-        let planner_input =
-            CallableLoopFactsPlannerInputV1::new(&condition, &body, policy, function_name, debug);
-        let outcome = match single_planner::try_build_source_outcome(planner_input) {
-            Ok(outcome) => outcome,
-            Err(error) => {
-                return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(
-                    error.into_boxed_str(),
-                )
-            }
+        let planned = match retained {
+            Some(retained) => parent_source.site().ok_or_else(|| "[freeze:contract][preissued-loop/parent-missing]".to_owned())
+                .and_then(|site| retained.into_planned(owner, site, function_origin, source_kind, policy)),
+            None => PlannedSourceLoopV1::issue(&condition, &body, policy, function_name, debug),
         };
-        let Some(facts) = outcome.facts.as_ref() else {
+        let PlannedSourceLoopV1 { outcome, selection } = match planned {
+            Ok(planned) => planned,
+            Err(error) => return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error.into_boxed_str()),
+        };
+        let Some(selection) = selection else {
             return match variable_accum_recurrence {
-                Some(product) => {
-                    CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(
-                        product,
-                    )
-                }
+                Some(product) => CallableGenericLoopSourceFactsDispositionV1::VariableAccumRecurrenceReady(product),
                 None => CallableGenericLoopSourceFactsDispositionV1::FactsAbsent,
             };
         };
-
-        // Data-only route match. This is not a scheduler: it records which
-        // retained family predicates the canonical facts report so the
-        // callable arms can demand exact exclusivity. A suppressed route's
-        // suppressor is itself matched, so `matched == [route]` holds exactly
-        // when the route is the sole surviving candidate — identical to the
-        // retired ordered selection's raw-execution check.
-        let selection = CallableLoopRouteMatchV1::issue(facts);
         if let Some(product) = variable_accum_recurrence {
             if !selection.matched_routes().is_empty() {
                 return CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(

@@ -23,23 +23,7 @@ fn owned_object_layout_keeps_ignored_null_only_declared_parent() {
                     .compile_normal_with_published(
                         request(&text),
                         |view, verification| -> Result<(), String> {
-                            // The existing pretransform Document report still uses scalar
-                            // formal types for the already-sealed borrowed carrier. Keep
-                            // only this exact reference observation; ABI admission below
-                            // must corroborate the original null/class view independently.
-                            if let Err(errors) = verification {
-                                assert_eq!(errors.len(), 1, "{errors:?}");
-                                let error = errors[0].to_string();
-                                assert!(
-                                    error.contains("[mir/invoke/call-argument-type-drift]")
-                                        && error.contains(
-                                            "caller=main callee=Transport.probe/1 argument=0"
-                                        )
-                                        && error.contains("actual=Some(Void) formal=Integer")
-                                        && error.contains("carrier=Some(BorrowedTaggedValue)"),
-                                    "{error}"
-                                );
-                            }
+                            assert!(verification.is_ok(), "final artifact verification: {verification:?}");
                             let input = view.issue_lifecycle_physical_abi_input()?;
                             let wire = emit_lifecycle_physical_abi_json(&input)?;
                             let json: serde_json::Value = serde_json::from_str(&wire).unwrap();

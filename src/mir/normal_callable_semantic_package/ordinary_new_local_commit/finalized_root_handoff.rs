@@ -18,6 +18,7 @@ impl OrdinaryNewClaimLedgerV1 {
         mut callables: Option<
             crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
         >,
+        construction: crate::mir::builder::RetainedConstructionDrafts,
     ) -> Result<FinalizedRootHandoffV1, String> {
         let (validated_owner, symbol, projection) = match &*self.root_validation.borrow() {
             RootNewValidation::FinishingChecked {
@@ -71,7 +72,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 TerminalRelationV1::IntegerLiteral(relation) => {
                     if relation.owner() != owner
                         || !self
-                            .terminal_integer_literal_value
+                            .terminal_scalar_literal_value
                             .borrow()
                             .contains_key(relation.return_site())
                     {
@@ -110,12 +111,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
             }
         }
-        if self
-            .terminal_relation
-            .values()
-            .any(|terminal| matches!(terminal, TerminalRelationV1::I64Add(_)))
-            && !self.terminal_result_complete()
-        {
+        if !self.terminal_result_complete() {
             return Err(freeze("artifact-root-result-unavailable"));
         }
         if self
@@ -158,7 +154,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         &row.emission,
                     )
                 }
-                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) => continue,
+                LocalCommitV1::Map(_) | LocalCommitV1::CallReceived(_) | LocalCommitV1::OwnedArray(_) => continue,
             };
             let Some(key) = birth_target else {
                 if birth_abi.is_some() {
@@ -268,12 +264,19 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Err(freeze("artifact-birth-abi-duplicate-drift"));
             }
         }
+        self.require_sealed_condition_groups_v1()?;
         let has_lexical_local_calls = self
             .root_local_call_bindings
             .borrow()
             .values()
             .flatten()
-            .any(|group| group.lexical().is_some());
+            .any(|group| group.lexical_packets().next().is_some());
+        // The immutable frame, rather than emitted calls, keeps even a literal
+        // Print in the source handoff when both packet and MIR are erased.
+        let has_expression_source = self.completion_index.values().chain(self.root_completion.iter())
+            .filter_map(|row| row.as_ref().ok())
+            .filter_map(|completion| completion.cleanup().root_flow())
+            .any(|flow| flow.expression_plans().iter().any(|plan| plan.print_frame().is_some() || plan.condition_frame().is_some() || plan.borrowed_field_write_frame().is_some()));
         let has_selected_loop_body_calls = !self.selected_loop_body_packets.borrow().is_empty();
         // The source loan follows verified main identity plus retained
         // source evidence — a terminal relation is only one inventory.
@@ -281,11 +284,13 @@ impl OrdinaryNewClaimLedgerV1 {
         // real source evidence, so presence derives from their union,
         // never from the terminal map alone. An actually-empty terminal
         // map is legitimate transport data.
-        let needs_source =
+        let needs_source = self.main_arguments.borrow().is_some() ||
             !self.terminal_relation.is_empty()
                 || !actuals.is_empty()
                 || has_lexical_local_calls
-                || has_selected_loop_body_calls;
+                || has_expression_source
+                || has_selected_loop_body_calls
+                || construction.iter().any(|(_, row)| row.has_provider_calls_v1());
         if needs_source && self.app_main_catalog_key.is_none() {
             return Err(freeze("artifact-root-catalog-key-unavailable"));
         }
@@ -302,11 +307,34 @@ impl OrdinaryNewClaimLedgerV1 {
         let named_rows = callables
             .as_ref()
             .map_or(&[][..], |cohort| cohort.named_array_emissions());
+        for row in named_rows {
+            if let crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::OwnedHolder(holder) = row {
+                let project = |symbol: &str, projection: &physical_boundary::FinishedBindings| {
+                    let function = module.functions.get(symbol).ok_or_else(|| freeze("owned-holder/final-function-missing"))?;
+                    holder.project_final_v1(self, function, projection)
+                };
+                // This is preflight, before the affine finalization below.
+                // The root's FinishingChecked projection was demanded above;
+                // children lend their existing FinishingChecked projections.
+                if holder.owner() == owner { project(&symbol, &projection)?; }
+                else { self.with_finished_child_projection(holder.owner(), project)?; }
+            }
+        }
         crate::mir::finalized_root_handoff::validate_named_array_handoff_inputs(
             module,
             callables.as_ref(),
             named_rows,
+            &mut |requested, caller| {
+                if requested != owner { return Ok(false); }
+                match callables.as_ref() {
+                    Some(cohort) => cohort.corroborates_root_array_caller_v1(self, requested, caller),
+                    None => Ok(false),
+                }
+            },
         )?;
+        if identity.is_none() && construction.iter().any(|(_, row)| row.has_provider_calls_v1()) {
+            return Err(freeze("provider-call/root-source-missing"));
+        }
         // All semantic, source, Birth, identity and coverage checks precede this batch.
         // No fallible input check or external callback occurs after its first move.
         let call_entries = self.take_finalized_root_calls(owner, &call_sites)?;
@@ -322,6 +350,7 @@ impl OrdinaryNewClaimLedgerV1 {
             call_entries,
             local_calls: std::mem::take(&mut *self.root_local_call_bindings.borrow_mut()),
             loop_body_calls: std::mem::take(&mut *self.selected_loop_body_packets.borrow_mut()),
+            construction,
         });
         let birth_actuals = actuals.into_boxed_slice();
         *self.root_validation.borrow_mut() = RootNewValidation::ArtifactFinalized {
@@ -353,6 +382,13 @@ impl OrdinaryNewClaimLedgerV1 {
 
 #[cfg(test)]
 impl FinalizedBirthActualsV1 {
+    pub(crate) fn with_argument_value_for_test(&self, ordinal: u32, value: ValueId) -> Self {
+        let mut actual = self.clone();
+        actual.arguments.iter_mut().find(|argument| argument.source.ordinal() == ordinal)
+            .expect("original actual ordinal").value = value;
+        actual
+    }
+
     /// Corrupt only caller identity on an original zero-argument provider receipt.
     pub(crate) fn with_foreign_provider_owner_for_test(&self, owner: FunctionOwnerIdV1) -> Self {
         assert!(self.destination.is_none() && self.arguments.is_empty());
@@ -360,5 +396,19 @@ impl FinalizedBirthActualsV1 {
         let mut actual = self.clone();
         actual.site = OwnedExprSiteV1::new(owner, self.site.site().clone());
         actual
+    }
+}
+
+impl FinalizedRootSourceHandoffV1 {
+    pub(in crate::mir) fn corroborates_root_array_caller_v1(
+        &self, cohort: &crate::mir::normal_callable_semantic_package::VerifiedCallableResultContractCohortV1,
+        owner: FunctionOwnerIdV1, caller: &CanonicalSameModuleCallableKeyV1,
+    ) -> Result<bool, String> {
+        if owner != self.owner { return Ok(false); }
+        if !self.ledger.app_main_identity.as_ref()
+            .is_some_and(|identity| identity.same_as(&self.app_main_identity)) {
+            return Err(freeze("owned-holder/root-source-identity"));
+        }
+        cohort.corroborates_root_array_caller_v1(&self.ledger, owner, caller)
     }
 }

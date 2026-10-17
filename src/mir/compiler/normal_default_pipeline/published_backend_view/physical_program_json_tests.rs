@@ -139,8 +139,7 @@ fn user_object_provider_physical_json_publishes_birth_chain() {
 /// the nullable pair lane: the formal spells `nullable_kind_payload_v1`,
 /// the caller's actual carries kind 0 over the `const_null` value, and
 /// the provided store emits `object_field_set` with a
-/// `home_release_if_live` fault tail — the Void sentinel skips the
-/// release, never a plain `home_release`.
+/// Fault leaves the provided Home with the caller until Birth Normal.
 #[test]
 fn nullable_birth_actual_publishes_nullable_pair_lane() {
     use crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1;
@@ -203,8 +202,8 @@ fn nullable_birth_actual_publishes_nullable_pair_lane() {
                 };
                 assert_eq!(kinds("object_field_set"), 1, "provided store: {json}");
                 assert_eq!(
-                    kinds("home_release_if_live"), 1,
-                    "nullable fault tail: {json}"
+                    kinds("home_release_if_live"), 0,
+                    "provided Home remains caller-owned on Fault: {json}"
                 );
                 assert_eq!(kinds("home_release"), 0, "no plain release: {json}");
                 let caller = functions
@@ -276,16 +275,26 @@ fn nullable_birth_actual_rejects_lane_mismatched_pairs() {
 /// An owned `Handle` actual into the same `ObjectFieldStores` formal
 /// moves its lease through the nullable pair lane: the caller's actual
 /// spells kind 3 over the live handle value, never a borrowed rewrap —
-/// the callee's provided store and `home_release_if_live` tail are
+/// the callee's provided store and caller-owned Fault cleanup are
 /// unchanged from the null pair.
 #[test]
 fn nullable_birth_handle_actual_publishes_move_pair() {
     use crate::mir::normal_callable_semantic_package::BirthFormalUseCoverageV1;
     crate::runtime::ring0::ensure_global_ring0_initialized();
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        for shape in ["only", "before", "after"] {
+        let fixture = include_str!("../../../../../apps/nullable-birth-handle-actual-min/main.hako");
+        let source = if shape == "only" { fixture.to_string() } else {
+            let body = if shape == "before" { "me.marker = 1 me.inner = inner" }
+                else { "me.inner = inner me.marker = 1" };
+            format!("box Inner {{ value: i64 = 0 birth() {{ }} }}
+                box Holder {{ inner: Inner marker: i64 birth(inner) {{ {body} }} }}
+                static box Main {{ main() {{ local inner = new Inner()
+                    local holder = new Holder(inner) return 0 }} }}")
+        };
         let mut compiler = MirCompiler::with_options(false);
         compiler.compile_normal_with_published(
-            request(include_str!("../../../../../apps/nullable-birth-handle-actual-min/main.hako")),
+            request(&source),
             |view, verification| -> Result<(), String> {
                 assert!(verification.is_ok(), "{verification:?}");
                 let entry = view.issue_lifecycle_compiled_entry_contract()?;
@@ -311,6 +320,7 @@ fn nullable_birth_handle_actual_publishes_move_pair() {
                 assert_eq!(object_formals.len(), 1, "one object-field formal");
                 let input = view.issue_lifecycle_physical_abi_input()?;
                 let json = emit_lifecycle_physical_abi_json(&input)?;
+                std::fs::write(format!("/tmp/hako-issued-birth-handle-actual-{shape}.json"), &json).unwrap();
                 let decoded: serde_json::Value = serde_json::from_str(&json).unwrap();
                 let functions = decoded["functions"].as_array().unwrap();
                 let caller = functions
@@ -339,6 +349,8 @@ fn nullable_birth_handle_actual_publishes_move_pair() {
                 Ok(())
             },
         ).unwrap();
+        }
+
     });
 }
 
@@ -470,6 +482,14 @@ fn serializer_preserves_signed_compare_predicates() {
 
 #[test]
 fn serializer_rejects_nonissued_instruction_vocabulary() {
+    // Existing MIR hints retain exact SSA uses, including empty/duplicate
+    // operands. Runtime ownership is independently checked by the consumer.
+    for values in [vec![], vec![ValueId::new(3), ValueId::new(3), ValueId::new(8)]] {
+        let row = MirInstruction::KeepAlive { values: values.clone() };
+        assert_eq!(encode_instruction(None, &row, &BTreeMap::new(), 0, None,
+            None, &BTreeMap::new(), None).unwrap(),
+            json!({ "op": "keep_alive", "values": values.iter().map(|value| value.0).collect::<Vec<_>>() }));
+    }
     let instruction = MirInstruction::Const {
         dst: ValueId::new(0),
         value: ConstValue::Float(1.0),
@@ -552,11 +572,12 @@ fn ordinary_instance_function_publishes_canonical_receiver_object() {
                                 .chain(std::iter::once(block.terminator()))
                         })
                         .find_map(|row| {
-                            matches!(row.instruction(), MirInstruction::FieldGet { .. })
-                                .then_some(row.field_ref())
+                            match row.instruction() {
+                                MirInstruction::ObjectFieldGet { field, .. } => Some(*field),
+                                _ => None,
+                            }
                         })
-                        .flatten()
-                        .ok_or_else(|| "ordinary method prepared FieldGet missing".to_owned())?;
+                        .ok_or_else(|| "ordinary method canonical ObjectFieldGet missing".to_owned())?;
                     let layout_field = input
                         .layouts()
                         .iter()

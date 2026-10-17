@@ -21,6 +21,14 @@ fn ordered_projection_uses_exact_scalar_and_original_nested_result() {
         2,
         "arity follows ordinals, not recorded instruction count"
     );
+    let invoke = (BasicBlockId(1), MirInstruction::Invoke {
+        operation: InvokeOperation::Call { call, result: InvokeCallResultKind::Unit },
+        fault_frame: ValueId(5), normal_landing: BasicBlockId(2), fault_landing: BasicBlockId(3),
+    });
+    assert!(EmittedLexicalCallProjectionV1::from_unit_source(
+        CallPacketSourceV1::instance(row), prepared, invoke, BasicBlockId(2),
+    ).unwrap_err().contains("unit-call/normal-source-drift"),
+        "a physical Unit opcode cannot upgrade the original value result authority");
 }
 
 #[test]
@@ -51,7 +59,7 @@ fn ordered_projection_refuses_swapped_arguments_and_foreign_receiver_read() {
 
 #[test]
 fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
-    for mutation in 0..3 {
+    for mutation in 0..4 {
         let (mut prepared, row, source) = lexical_call_projection_test_fixture();
         let LexicalCallArgumentProjectionV1::CallResult(inner) = &mut prepared.arguments[1] else {
             panic!("nested");
@@ -67,7 +75,15 @@ fn ordered_projection_refuses_nested_target_landing_and_literal_drift() {
                 };
                 call.args[0] = ValueId(999);
             }
-            1 => inner.projection.0 = BasicBlockId(999),
+            1 => inner.projection.value_mut().unwrap().0 = BasicBlockId(999),
+            2 => {
+                let value_projection = inner.projection.value().unwrap().clone();
+                inner.projection = NormalCallProjectionV1::Unit { normal_landing: BasicBlockId(7) };
+                assert!(inner.projection.value().unwrap_err().contains("unit-call-has-no-value"));
+                assert!(inner.validate_normal_recorded(&[inner.invoke.clone()], None).is_ok());
+                assert!(inner.validate_normal_recorded(&[inner.invoke.clone(), value_projection], None)
+                    .unwrap_err().contains("unit-call/unexpected-value-projection"));
+            }
             _ => {
                 let LexicalCallArgumentProjectionV1::Integer((
                     _,

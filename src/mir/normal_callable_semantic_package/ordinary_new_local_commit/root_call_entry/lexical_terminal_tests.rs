@@ -105,7 +105,7 @@ pub(super) fn function(
         &frame,
         &jump,
         &packet.invoke,
-        &packet.projection,
+        packet.projection.value().unwrap(),
         &normal,
         &fault,
     ]) {
@@ -142,7 +142,7 @@ fn record(
 ) {
     let owner = packet.call_site().owner();
     ledger.root_exits.borrow_mut().insert(
-        (owner, exit.clone()),
+        (owner, exit.clone().into()),
         RootHomeExitProgress::Emitting(
             super::super::RootHomeCleanupOrderV1::ordinary(Vec::new()).unwrap(),
         ),
@@ -154,7 +154,7 @@ fn record(
             RootCallDispositionV1::Lexical(Rc::clone(&packet)),
             arguments,
             packet.invoke.clone(),
-            packet.projection.clone(),
+            packet.projection.value().unwrap().clone(),
             frame,
             vec![],
             cleanup,
@@ -207,7 +207,7 @@ fn lexical_return_refuses_foreign_exit_lender_and_changed_original_producer() {
         let owner = packet.call_site().owner();
         let mut packet = Rc::try_unwrap(packet).unwrap();
         match mutation {
-            0 => packet.projection.0 = BasicBlockId(99),
+            0 => packet.projection.value_mut().unwrap().0 = BasicBlockId(99),
             1 => {
                 let MirInstruction::Invoke {
                     operation: InvokeOperation::Call { call, .. },
@@ -252,7 +252,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     let bindings: Vec<_> = arguments
         .iter()
         .chain(cleanup.iter())
-        .chain([&frame, &packet.invoke, &packet.projection])
+        .chain([&frame, &packet.invoke, packet.projection.value().unwrap()])
         .cloned()
         .collect();
     let boundary = PhysicalBoundary::capture(&original, &bindings).unwrap();
@@ -321,6 +321,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
         loop_body_calls: Default::default(),
+        construction: Vec::new(),
     };
     let mut module = crate::mir::MirModule::new("final-root-cleanup".into());
     module
@@ -348,7 +349,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     let retained_order = ledger
         .root_exits
         .borrow_mut()
-        .remove(&(owner, exit.clone()))
+        .remove(&(owner, (exit.clone()).into()))
         .unwrap();
     assert!(source
         .validate_finalized_root_cleanup_v1(&module)
@@ -357,7 +358,7 @@ fn lexical_return_finished_lender_preserves_original_coordinates_after_rebind() 
     ledger
         .root_exits
         .borrow_mut()
-        .insert((owner, exit.clone()), retained_order);
+        .insert((owner, (exit.clone()).into()), retained_order);
     let coordinate = source
         .finished_terminal_call_producer_v1(
             owner,
@@ -413,7 +414,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
     let bindings: Vec<_> = arguments
         .iter()
         .chain(cleanup.iter())
-        .chain([&frame, &packet.invoke, &packet.projection])
+        .chain([&frame, &packet.invoke, packet.projection.value().unwrap()])
         .cloned()
         .collect();
     let boundary = PhysicalBoundary::capture(&physical, &bindings).unwrap();
@@ -446,6 +447,7 @@ fn finalized_call_visitor_lends_original_return_and_demands_actual_function() {
         call_entries: [(exit.clone(), (entry, cleanup))].into(),
         local_calls: Default::default(),
         loop_body_calls: Default::default(),
+        construction: Vec::new(),
     };
     let mut module = crate::mir::MirModule::new("return-loan".into());
     module
@@ -507,7 +509,7 @@ fn borrowed_terminal_call_frame_role_stays_bound_to_original_root_owner() {
         row: RootCallDispositionV1::Lexical(Rc::clone(&packet)),
         arguments,
         invoke: packet.invoke.clone(),
-        projection: packet.projection.clone(),
+        projection: packet.projection.value().unwrap().clone(),
         frame,
     };
     ledger

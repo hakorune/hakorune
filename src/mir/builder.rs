@@ -11,6 +11,7 @@ use super::{
 pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::CoreContext;
 mod array_element_write;
+pub(in crate::mir) use array_element_write::CompletedArrayElementWriteV1;
 mod assignment_lowering;
 mod brand_constructor_lowering_projection;
 mod builder_build;
@@ -52,6 +53,7 @@ pub(in crate::mir) use normal_callable_loop_source_facts::{
     VerifiedStaticI64LoopSemanticV2,
 };
 mod normal_callable_loop_source_port; // source-aware callable-loop expression capability
+pub(in crate::mir) use normal_callable_loop_source_facts::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1, VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 mod normal_callable_loop_source_route; // callable source-owned LoopCond route token
 mod normal_callable_package_bridge; // Builder-private package install boundary
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
@@ -145,6 +147,7 @@ mod normal_instance_constructor_admission;
 mod normal_instance_constructor_demand_loan;
 mod normal_instance_constructor_semantic_scope;
 mod normal_root_execution;
+mod normal_main_arguments;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_composite_partition;
 mod normal_script_direct_static_lookup;
@@ -208,6 +211,7 @@ pub(in crate::mir) use normal_root_execution::{
     NormalRootExecutionConsumerV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
+pub(in crate::mir) use normal_main_arguments::MainArgumentsEmissionV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
 pub(in crate::mir) use raw_source_projection::{
     OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
@@ -500,6 +504,7 @@ mod field_facts; // Field/property receiver facts and declared-type helpers
 mod field_receiver_provenance; // Bounded current-receiver Copy/Phi proof; one field-fact consumer
 mod fields; // field access/assignment lowering split
 mod if_form;
+pub(in crate::mir) use if_form::IfConditionMaterializationV1;
 mod indexing; // indexing expression/assignment lowering
 mod raw_lambda_capture_lifecycle; // consuming raw Lambda capture/publication lifecycle
 mod raw_lambda_closure_emission; // source-neutral NewClosure/body publication terminal
@@ -692,3 +697,9 @@ pub(in crate::mir) use lexical_call_projection_test_fixture::borrowed_fixture as
 
 #[cfg(test)]
 pub(in crate::mir) use lexical_call_projection_test_fixture::forwarded_fixture as lexical_call_projection_forwarded_fixture;
+
+pub(in crate::mir) use normal_callable_semantic_lowering_state::construction::{
+    RetainedConstructionDrafts, RetainedConstructionValidation, ProviderCallArgEmission,
+};
+
+pub(in crate::mir) use control_flow::plan::ObservedSourceValueV1;

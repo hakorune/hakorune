@@ -1,0 +1,504 @@
+//! Lend the sole sealed result facts, never an executable call disposition.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
+use super::*;
+use super::composition::{source_dependencies_v1, grounded_source_results_with_ingress_v1, SourceDependencyRoleV1};
+use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
+
+#[derive(Debug, Clone)]
+pub(crate) struct BorrowedScalarResultSourceLoanV1 {
+    source: LexicalInstanceCallSourceTargetV1,
+    facts: Rc<BorrowedResultSourceFactsV1>,
+}
+
+impl PartialEq for BorrowedScalarResultSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.source == other.source && Rc::ptr_eq(&self.facts, &other.facts)
+    }
+}
+impl Eq for BorrowedScalarResultSourceLoanV1 {}
+
+impl BorrowedScalarResultSourceLoanV1 {
+    pub(crate) fn source(&self) -> &LexicalInstanceCallSourceTargetV1 {
+        &self.source
+    }
+
+    pub(crate) fn kind(&self) -> SourceScalarKind {
+        // Issuance admits precisely these two classes. Facts are immutable once
+        // sealed; readiness and executable corroboration live outside this Rc.
+        match self.facts.class {
+            BorrowedResultClassV1::I64 => SourceScalarKind::Integer,
+            BorrowedResultClassV1::Bool => SourceScalarKind::Bool,
+            _ => unreachable!("sealed scalar loan class"),
+        }
+    }
+}
+
+type ResultSources = BorrowedResultCohortV1;
+
+fn exact_original_target(
+    ingress: &PreparedBorrowedFormalIngressV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<(), String> {
+    let mut originals = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| &row.call == target.call_site());
+    let original = originals
+        .next()
+        .ok_or_else(|| freeze("scalar-loan/original-missing"))?;
+    if originals.next().is_some()
+        || original.callee != target.callee_owner()
+        || original.source.require_instance()? != target
+    {
+        return Err(freeze("scalar-loan/original-identity"));
+    }
+    Ok(())
+}
+
+fn demand_source<'a>(
+    ingress: &PreparedBorrowedFormalIngressV1,
+    results: &'a ResultSources,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<&'a BorrowedI64ResultSourceV1, String> {
+    exact_original_target(ingress, target)?;
+    let proof = results
+        .get(&target.callee_owner())
+        .ok_or_else(|| freeze("scalar-loan/result-missing"))?
+        .as_ref()
+        .map_err(Clone::clone)?;
+    proof.require_source_scalar_v1()?;
+    if let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) = &target.result_requirement {
+        if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target))
+            || !proof.matches_original_return_v1(original)
+        { return Err(freeze("scalar-loan/original-return-source")); }
+    }
+    if proof.returns.is_empty()
+        || proof
+            .returns
+            .iter()
+            .any(|site| site.owner() != target.callee_owner())
+        || proof.returns.iter().collect::<BTreeSet<_>>().len() != proof.returns.len()
+        || !grounded_source_results_with_ingress_v1(results, ingress).contains(&target.callee_owner())
+    {
+        return Err(freeze("scalar-loan/result-coverage"));
+    }
+    source_dependencies_v1(proof, ingress)?;
+    Ok(proof)
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn issue_source_scalar_result_loan_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    results: &ResultSources,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<BorrowedScalarResultSourceLoanV1, String> {
+    let ingress = source.as_ref().map_err(Clone::clone)?;
+    let proof = demand_source(ingress, results, target)?;
+    Ok(BorrowedScalarResultSourceLoanV1 {
+        source: target.clone(),
+        facts: Rc::clone(&proof.source_facts),
+    })
+}
+
+pub(in crate::mir::normal_callable_semantic_package) fn validate_source_scalar_result_loan_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    results: &ResultSources,
+    loan: &BorrowedScalarResultSourceLoanV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<(), String> {
+    if loan.source() != target {
+        return Err(freeze("scalar-loan/target-drift"));
+    }
+    let proof = demand_source(source.as_ref().map_err(Clone::clone)?, results, target)?;
+    if !Rc::ptr_eq(&loan.facts, &proof.source_facts) {
+        return Err(freeze("scalar-loan/result-identity"));
+    }
+    Ok(())
+}
+
+/// Result agreement after co-seal, distinct from source issuance and execution.
+/// Re-demand the retained Rc and every original dependency before consulting the
+/// complete declaration/Completion row. This grants no input or ABI permission.
+pub(in crate::mir::normal_callable_semantic_package) fn corroborate_source_scalar_result_loan_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    results: &ResultSources,
+    loan: &BorrowedScalarResultSourceLoanV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+    contracts: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
+) -> Result<(), String> {
+    validate_source_scalar_result_loan_v1(source, results, loan, target)?;
+    let mut pending = vec![target];
+    let mut seen = BTreeSet::new();
+    while let Some(current) = pending.pop() {
+        // Every edge keeps its original target even when two calls share a callee.
+        let proof = demand_source(source.as_ref().map_err(Clone::clone)?, results, current)?;
+        if !seen.insert(current.callee_owner()) {
+            continue;
+        }
+        if !proof.contract_corroborated
+            || !source_result_contract_agrees_v1(proof, current, contracts, false)
+        {
+            return Err(freeze("scalar-loan/result-contract-mismatch"));
+        }
+        pending.extend(source_dependencies_v1(proof, source.as_ref().map_err(Clone::clone)?)?.into_iter().map(|(target, _)| target));
+    }
+    Ok(())
+}
+
+fn source_scalar_seed_target_v1(
+    ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+    results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<bool, String> {
+    if !target.uses_existing_borrowed_result_v1() { return Ok(false); }
+    if let super::super::LexicalCallSourceResultRequirementV1::ScalarReturnSource(original) = &target.result_requirement {
+        if !original.matches(&super::super::source::CallTargetReferenceV1::from_target(target)) {
+            return Err(freeze("scalar-loan/original-return-target"));
+        }
+        return Ok(true);
+    }
+    let existing_member = target.stored_receiver().is_some()
+        || ingress.source_only_definitions.contains_key(&target.call_site().owner());
+    if !existing_member {
+        // Affirmative other-result families keep their own issuer. Do not
+        // select a generic ClaimLocal call merely because it returns scalar.
+        if classes.outcomes(target.target()).is_some()
+            || results.get(&target.callee_owner()).is_some_and(|proof|
+                proof.as_ref().is_ok_and(|proof| proof.class == BorrowedResultClassV1::Nullable))
+        { return Ok(false); }
+        if !ingress.original_array_argument_source_v1(target)? { return Ok(false); }
+    }
+    // Affirmative original non-scalar facts select their own issuer before demand.
+    // Absence/Err of selected scalar evidence is never an unselection predicate.
+    if classes.outcomes(target.target()).is_some() {
+        let roots = classes.checked_original_source_roots_v1(target.target(), target.callee_owner())
+            .map_err(|issue| freeze(&format!("scalar-loan/non-scalar/{issue}")))?;
+        if roots.is_empty() { return Err(freeze("scalar-loan/non-scalar/empty")); }
+        return Ok(false);
+    }
+    if let Some(Ok(proof)) = results.get(&target.callee_owner()) {
+        if proof.class == BorrowedResultClassV1::Nullable {
+            proof.require_source_sealed_v1()?;
+            return Ok(false);
+        }
+    }
+    Ok(true)
+}
+
+/// Follow only retained scalar Return dependencies to an original family seed.
+/// No seedless cycle or unrelated call/discard makes a scalar family member.
+fn selected_source_scalar_target_v1(
+    ingress: &PreparedBorrowedFormalIngressV1, target: &LexicalInstanceCallSourceTargetV1,
+    results: &ResultSources, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<bool, String> {
+    if source_scalar_seed_target_v1(ingress, target, results, classes)? {
+        return Ok(true);
+    }
+    if !target.uses_existing_borrowed_result_v1()
+        || classes.outcomes(target.target()).is_some()
+        || results.get(&target.callee_owner()).is_some_and(|proof|
+            proof.as_ref().is_ok_and(|proof| proof.class == BorrowedResultClassV1::Nullable))
+    { return Ok(false); }
+    let grounded = grounded_source_results_with_ingress_v1(results, ingress);
+    let mut pending = vec![target.callee_owner()];
+    let mut seen = BTreeSet::new();
+    while let Some(owner) = pending.pop() {
+        if !seen.insert(owner) { continue; }
+        let Some(Ok(proof)) = results.get(&owner) else { continue; };
+        if !matches!(proof.class, BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool) { continue; }
+        if proof.returns.is_empty() || proof.returns.iter().any(|site| site.owner() != owner)
+            || proof.returns.iter().collect::<BTreeSet<_>>().len() != proof.returns.len()
+        { return Err(freeze("scalar-loan/result-coverage")); }
+        let dependencies = source_dependencies_v1(proof, ingress)?;
+        if !grounded.contains(&owner) { continue; }
+        for (dependency, role) in dependencies {
+            if role == SourceDependencyRoleV1::FieldWriter { continue; }
+            // Full original target equality precedes owner traversal/dedup.
+            if source_scalar_seed_target_v1(ingress, dependency, results, classes)? {
+                return Ok(true);
+            }
+            if dependency.uses_existing_borrowed_result_v1()
+                && classes.outcomes(dependency.target()).is_none()
+            { pending.push(dependency.callee_owner()); }
+        }
+    }
+    Ok(false)
+}
+
+/// Select the existing full Home walk from original scalar calls before Completion.
+/// This lends no empty cleanup, input, signature or executable result permission.
+pub(in crate::mir::normal_callable_semantic_package) fn required_scalar_source_walk_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>, results: &ResultSources,
+    owner: FunctionOwnerIdV1, classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<bool, (OwnedExprSiteV1, String)> {
+    let Ok(ingress) = source else { return Ok(false); };
+    let mut pending = Vec::new();
+    for original in ingress.source_incoming.exact_rows() {
+        if let Some(target) = original.source.instance() {
+            if selected_source_scalar_target_v1(ingress, target, results, classes)
+                .map_err(|issue| (target.call_site().clone(), issue))?
+                && match results.get(&target.callee_owner()) {
+                    Some(Ok(proof)) => matches!(proof.class, BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool | BorrowedResultClassV1::UnresolvedScalar),
+                    Some(Err(_)) | None => target.callee_owner() == owner,
+                }
+            { pending.push(target); }
+        }
+    }
+    let mut seen = BTreeSet::new();
+    let mut required = false;
+    while let Some(target) = pending.pop() {
+        // Every edge is checked before deduplicating callee traversal.
+        let proof = demand_source(ingress, results, target).map_err(|issue| (target.call_site().clone(), issue))?;
+        required |= target.callee_owner() == owner;
+        if seen.insert(target.callee_owner()) {
+            pending.extend(source_dependencies_v1(proof, ingress)
+                .map_err(|issue| (target.call_site().clone(), issue))?.into_iter()
+                .filter(|(_, role)| *role != SourceDependencyRoleV1::FieldWriter).map(|(target, _)| target));
+        }
+    }
+    Ok(required)
+}
+
+/// Dedicated source demand, outside owning Object and nullable-LOCAL protocols.
+/// Selected source absence/errors must never become an old-I64 retry.
+pub(in crate::mir::normal_callable_semantic_package) fn source_scalar_result_arguments_v1(
+    targets: &super::super::PreparedLexicalInstanceCallSourceTargetsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    results: &ResultSources,
+    site: &OwnedExprSiteV1,
+    classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1>, String>
+{
+    let mut matching = Vec::new();
+    for row in targets.as_ref().map_err(Clone::clone)? {
+        if let Some(target) = row.as_ref().map_err(Clone::clone)? {
+            if target.call_site() == site {
+                matching.push(target);
+            }
+        }
+    }
+    let ingress = match source {
+        Ok(ingress) => ingress,
+        Err(_) if matching.is_empty() => return Ok(None),
+        Err(issue) => return Err(issue.clone()),
+    };
+    let mut originals = ingress
+        .source_incoming
+        .exact_rows()
+        .filter(|row| &row.call == site);
+    let original = originals.next();
+    if originals.next().is_some() {
+        return Err(freeze("scalar-loan/original-identity"));
+    }
+    let target = original.and_then(|row| row.source.instance());
+    let selected = target.map(|target| selected_source_scalar_target_v1(ingress, target, results, classes))
+        .transpose()?.unwrap_or(false);
+    let mut prepared_selected = false;
+    for target in &matching {
+        prepared_selected |= selected_source_scalar_target_v1(ingress, target, results, classes)?;
+    }
+    if !selected && !prepared_selected {
+        return Ok(None);
+    }
+    let target = target.ok_or_else(|| freeze("scalar-loan/original-missing"))?;
+    let [prepared] = matching.as_slice() else {
+        return Err(freeze("scalar-loan/prepared-target-missing-or-duplicate"));
+    };
+    if *prepared != target {
+        return Err(freeze("scalar-loan/target-drift"));
+    }
+    let loan = issue_source_scalar_result_loan_v1(source, results, target)?;
+    let arguments =
+        lend_source_scalar_result_arguments_v1(source, pending, contracts, results, &loan, None)?;
+    Ok(Some(crate::mir::resolved_semantics::home_new_prefix::BorrowedCallArgumentsV1::SourceScalarResult { loan, arguments }))
+}
+
+/// Re-demand this loan and the SAME argument row without rebuilding a target list.
+pub(in crate::mir::normal_callable_semantic_package) fn lend_source_scalar_result_arguments_v1(
+    source: &Result<PreparedBorrowedFormalIngressV1, String>,
+    pending: &PendingBorrowedFormalActualsV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    results: &ResultSources,
+    loan: &BorrowedScalarResultSourceLoanV1,
+    array_ledger: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+) -> Result<Box<[crate::mir::resolved_semantics::home_new_prefix::LocalCallArgumentV1]>, String> {
+    validate_source_scalar_result_loan_v1(source, results, loan, loan.source())?;
+    super::super::borrowed_formal_actuals::project_pending_instance_arguments_by_phase_v1(
+        source,
+        pending,
+        contracts,
+        loan.source(),
+        array_ledger,
+    )
+}
+
+/// Function-owned projection of the SAME source result, without a fabricated call.
+/// The body token retains this loan; it grants no input, Home or executable ABI.
+#[derive(Debug)]
+pub(crate) struct CallableScalarResultSourceLoanV1 {
+    owner: FunctionOwnerIdV1,
+    pub(super) facts: Rc<BorrowedResultSourceFactsV1>,
+    pub(super) completion: Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
+}
+impl CallableScalarResultSourceLoanV1 {
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 { self.owner }
+    pub(crate) fn kind(&self) -> SourceScalarKind {
+        match self.facts.class {
+            BorrowedResultClassV1::I64 => SourceScalarKind::Integer,
+            BorrowedResultClassV1::Bool => SourceScalarKind::Bool,
+            _ => unreachable!("issued callable scalar source"),
+        }
+    }
+    pub(crate) fn returns(&self) -> &[OwnedExprSiteV1] { &self.facts.returns }
+    pub(crate) fn field_array_reads(&self) -> &[Rc<pending::field_array_read::CheckedFieldArrayReadSourceV1>] { &self.facts.field_array_reads }
+    pub(crate) fn same_facts(&self, other: &Self) -> bool {
+        self.owner == other.owner && Rc::ptr_eq(&self.facts, &other.facts)
+            && Rc::ptr_eq(&self.completion, &other.completion)
+    }
+    pub(crate) fn completion(&self) -> &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1 {
+        &self.completion
+    }
+}
+impl OrdinaryNewClaimLedgerV1 {
+    fn validate_callable_scalar_anchor_v1(
+        &self,
+        loan: &BorrowedScalarResultSourceLoanV1,
+        site: &OwnedExprSiteV1,
+    ) -> Result<(), String> {
+        let source = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| freeze("callable-scalar/source-missing"))?;
+        let ingress = source.as_ref().map_err(Clone::clone)?;
+        let mut originals = ingress.source_incoming.exact_rows().filter(|row| &row.call == site);
+        let original = originals.next().ok_or_else(|| freeze("callable-scalar/anchor-missing"))?;
+        if originals.next().is_some() { return Err(freeze("callable-scalar/anchor-duplicate")); }
+        validate_source_scalar_result_loan_v1(source, &self.borrowed_i64_results, loan,
+            original.source.require_instance()?)
+    }
+
+    /// Original scalar terminal/Discard membership selects this responsibility.
+    /// Other result owners and their errors are not implicit scalar candidates.
+    pub(in crate::mir::normal_callable_semantic_package) fn callable_scalar_result_participant_v1(&self, owner: FunctionOwnerIdV1) -> Result<bool, String> {
+        let mut participants = BTreeSet::new();
+        let mut pending = Vec::new();
+        for relation in self.terminal_relation.values()
+            .filter(|row| !self.terminal_relation_index.contains_key(&row.owner()))
+            .chain(self.terminal_relation_index.values().flat_map(|index| index.values()))
+        {
+            if let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(terminal) = relation {
+                if let Some(loan) = terminal.source_scalar() {
+                    self.validate_callable_scalar_anchor_v1(loan,
+                        &OwnedExprSiteV1::new(terminal.owner(), terminal.call_site().clone()))?;
+                    participants.insert(terminal.owner());
+                    participants.insert(loan.source.callee_owner());
+                    pending.push((loan.source.callee_owner(), loan.facts.as_ref()));
+                    if let Some(Ok(proof)) = self.borrowed_i64_results.get(&terminal.owner()) {
+                        pending.push((terminal.owner(), proof.source_facts.as_ref()));
+                    }
+                }
+            }
+        }
+        for completion in self.completion_index.values().filter_map(|row| row.as_ref().ok())
+            .chain(self.root_completion.as_ref().and_then(|row| row.as_ref().ok())
+                .filter(|row| !self.completion_index.contains_key(&row.owner())))
+        {
+            if let Some(flow) = completion.cleanup().root_flow() {
+                for call in flow.local_calls() {
+                    if let Some(loan) = call.borrowed_scalar() {
+                        self.validate_callable_scalar_anchor_v1(loan, call.site())?;
+                        participants.insert(loan.source.callee_owner());
+                        pending.push((loan.source.callee_owner(), loan.facts.as_ref()));
+                    }
+                }
+            }
+        }
+        if pending.is_empty() && !participants.contains(&owner) { return Ok(false); }
+        let ingress = self.borrowed_formal_source.as_ref().ok_or_else(|| freeze("callable-scalar/source-missing"))?.as_ref().map_err(Clone::clone)?;
+        let mut seen = BTreeSet::new();
+        while let Some((current, facts)) = pending.pop() {
+            if !seen.insert(current) { continue; }
+            for (dependency, role) in source_dependencies_v1(facts, ingress)? {
+                if role == SourceDependencyRoleV1::FieldWriter { continue; }
+                participants.insert(dependency.callee_owner());
+                if let Some(Ok(proof)) = self.borrowed_i64_results.get(&dependency.callee_owner()) {
+                    pending.push((dependency.callee_owner(), proof.source_facts.as_ref()));
+                }
+            }
+        }
+        if !participants.contains(&owner) { return Ok(false); }
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
+        let mut contracts = catalog.iter().filter(|row| row.owner == owner);
+        let contract = contracts.next().ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
+        if contracts.next().is_some() { return Err(freeze("callable-scalar/contract-duplicate")); }
+        Ok(contract.mode == crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod)
+    }
+
+    pub(crate) fn callable_scalar_result_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Option<CallableScalarResultSourceLoanV1>, String> {
+        if !self.callable_scalar_result_participant_v1(owner)? { return Ok(None); }
+        let proof = self.borrowed_i64_results.get(&owner)
+            .ok_or_else(|| freeze("callable-scalar/result-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        proof.require_source_scalar_v1()?;
+        let ingress = self.borrowed_formal_source.as_ref()
+            .ok_or_else(|| freeze("callable-scalar/source-missing"))?
+            .as_ref().map_err(Clone::clone)?;
+        let catalog = self.original_parameter_contracts.as_deref()
+            .ok_or_else(|| freeze("callable-scalar/catalog-missing"))?;
+        let grounded = grounded_source_results_with_ingress_v1(&self.borrowed_i64_results, ingress);
+        let mut pending = vec![(owner, None)];
+        let mut seen = BTreeSet::new();
+        while let Some((current, expected)) = pending.pop() {
+            let edge_proof = self.borrowed_i64_results.get(&current).and_then(|row| row.as_ref().ok())
+                .ok_or_else(|| freeze("callable-scalar/dependency-missing"))?;
+            if expected.is_some_and(|expected| edge_proof.class != expected) { return Err(freeze("callable-scalar/result-contract-mismatch")); }
+            if !seen.insert(current) { continue; }
+            let current_proof = self.borrowed_i64_results.get(&current)
+                .ok_or_else(|| freeze("callable-scalar/dependency-missing"))?
+                .as_ref().map_err(Clone::clone)?;
+            current_proof.require_source_scalar_v1()?;
+            let completion = self.completion_source_for_owner_v1(current)
+                .ok_or_else(|| freeze("callable-scalar/completion-missing"))?;
+            let mut contracts = catalog.iter().filter(|row| row.owner == current);
+            let contract = contracts.next()
+                .ok_or_else(|| freeze("callable-scalar/contract-missing"))?;
+            if contracts.next().is_some() {
+                return Err(freeze("callable-scalar/contract-duplicate"));
+            }
+            if let Some((original_owner, batch_slot, key)) = &current_proof.parameterless_instance {
+                if *original_owner != current || *batch_slot != contract.batch_slot
+                    || !contract.parameters.is_empty()
+                    || contract.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::InstanceBoxMethod
+                    || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                    || key.arity() != 0
+                { return Err(freeze("callable-scalar/parameterless-source-drift")); }
+            }
+            let result = crate::mir::normal_callable_semantic_package::result_contract::validate_result(
+                completion, current, contract.batch_slot,
+            ).map_err(|issue| format!("{}: {issue:?}", freeze("callable-scalar/declaration")))?;
+            let agrees = match current_proof.class {
+                BorrowedResultClassV1::I64 => crate::mir::normal_callable_semantic_package::result_contract::declared_i64_source_agrees_v1(result, completion),
+                BorrowedResultClassV1::Bool => crate::mir::normal_callable_semantic_package::result_contract::declared_bool_source_agrees_v1(result, completion),
+                _ => false,
+            };
+            pending::mul_result::verify_mul_returns(current, current_proof, ingress)?;
+            for read in &current_proof.field_array_reads {
+                read.recheck_census(current, &current_proof.returns, &self.array_i64_fields)?;
+            }
+            if !grounded.contains(&current)
+                || !source_result_completion_agrees_v1(current_proof, current, completion) || !agrees
+            {
+                return Err(freeze("callable-scalar/result-contract-mismatch"));
+            }
+            for (dependency, role) in source_dependencies_v1(current_proof, ingress)? {
+                pending.push((dependency.callee_owner(), (role == SourceDependencyRoleV1::ForwardReturn).then_some(current_proof.class)));
+            }
+        }
+        Ok(Some(CallableScalarResultSourceLoanV1 {
+            owner, facts: Rc::clone(&proof.source_facts),
+            completion: Rc::clone(self.completion_source_for_owner_v1(owner).unwrap()),
+        }))
+    }
+}

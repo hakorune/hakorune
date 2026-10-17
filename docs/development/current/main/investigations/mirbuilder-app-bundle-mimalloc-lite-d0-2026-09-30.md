@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0
 
-Status: active; Required Object Forward S0 unaccepted; Rust/C source WIP unlanded.
+Status: active; Required Object Forward S0 unaccepted; source-to-C unit landed.
 Date: 2026-10-17
 Scope: the existing mimalloc-lite source-to-final-consumer series; no new lane.
 Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
@@ -43,7 +43,8 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   source/publication/native PASS; independent final acceptance/landing remain owed.
   Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
-  Runtime prerequisites landed at8a2d2974a8; Rust/C WIP remains unlanded.
+  Runtime prerequisites landed at8a2d2974a8; source-to-C unit lands here.
+  V834 immutable-scan BoxShape remains a separately validated follow-up.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -65,7 +66,26 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 - No AST rewrite, .hako workaround, fallback, legacy retry, second Builder or
   competing source/classification registry. Extend the existing result contract.
 
-## Latest unchanged product measurement — CLI174 / app176
+## Current source acceptance and native repin — CLI175
+
+V834 actual both-opts PASS594.146438s; original V832a source PASS3339.060297s.
+Same test/checks, different concurrent builds: elapsed observations, not a benchmark.
+CLI175 build PASS200.620625s. CLI175/C831e/runtime808b unchanged canonical
+`--grammar-profile canonical --backend mir --emit-exe ... --emit-exe-nyrt ...`:
+- app179 mimalloc-lite compile153.819668s, native.001858s, exact existing7/exit0.
+- app178 M190 compile404.371506s, native.001769s, exact existing11/exit0.
+Both have only the known plugin-disabled warning; pure-first/no compat replay.
+CLI pin79e9ae5273009d1c59a819132f934f6837ee61a8d18ceb85344aabdbab985fe9;
+source/FFI/runtime identities and unchanged-source commands are retained below.
+App179 includes source-owned LOCAL object Array13 appends/4 reads and field I64
+Array residence; this is bounded two-cohort native evidence, not all Array shapes.
+V835 fixed11 exit1/333.949828s: same4PASS/7FAIL and same named stops as V832.
+Only three real EXE positives; fourth PASS is an empty marker. Negatives fail
+before their expected generic-Invoke boundary; canonical app179 is separately PASS.
+V834 scalar owner/README currently differ from the source unit by BoxShape only;
+follow-up landing retains its own exact tested version. Full S0/goal remain open.
+
+## Previous unchanged product measurement — CLI174 / app176
 
 Current V832 source repin: CLI174/C831e/runtime808b unchanged M190 direct
 canonical EXE **PASS484.178246s**, native **PASS .001699s**, stdout exactly the
@@ -132,22 +152,23 @@ Keep original wire, manifests and binaries until source landing and C closeout.
 
 ## Remaining same-series connections
 
-- [ ] Mixed received Birth actual → ABI/JSON/C. Use
-  `ordinary_new_local_commit/finalized_received_birth_actual.rs` and
-  `published_backend_view/physical_abi_birth_actuals.rs`; retain original result
-  ordinal and exact acquisition/received packet/child Rc/finished producer.
-  V781 connects the gate in WIP; complete source-issued C execution is still owed.
-- [ ] Forward field support/anchor → paired store/read/conditional child End.
-  Reuse `ordinary_new_return_leaf.rs`, `ordinary_new_return_handoff.rs` and
-  `ordinary_new_borrowed_formal_entry_incoming.rs`; canonical full support census
-  and call-hop composition remain mandatory. Keep anchored-field End gates
-  closed until the complete source-to-consumer envelope is checked.
-- [ ] Mixed/Borrowed Call JSON/C and complete ObjectEndIfOwned. Existing explicit
-  V781 connects Null/Fresh/Forward output, residence, move and complete End in
-  WIP; independent source-issued runtime positive/negative evidence is still owed.
-  Do not replace original evidence with a wire tag, role or metadata permission.
-- [ ] Array residence execution. Rust Push/Get/raw Set connections and selected
-  object residence C757 are premises; broader Array C execution is still owed.
+- [x] Bounded WIP Mixed received Birth actual → ABI/JSON/C: unchanged M190
+  app175/176 canonical EXE/run/exact output reaches replacement → HandleResult
+  Birth, paired field residence and reads. Keep exact result ordinal, acquisition,
+  received packet/child Rc and finished producer. Source landing remains owed.
+- [x] Bounded WIP Forward field support → paired store/read/conditional child End:
+  same M190 Forward reuse, nested scalar reads and cleanup PASS; original-wire
+  wrong-formal/missing-End/raw-nullable negatives and early-parent-End refuse.
+  Full canonical support census/call-hop composition remains mandatory.
+- [x] Bounded WIP Mixed/Borrowed Call JSON/C and ObjectEndIfOwned: M189 app162/163
+  native, current M190 app175/176 and V832 actual both-opts source/End mutations
+  PASS. Original outcomes/anchors retain authority. No claim that every Mixed
+  runtime Fault cutpoint was injected; owned16/field-return6 cover their cohorts.
+  These connection results do not close S0, source landing or later obligations.
+- [x] Bounded LOCAL object-slot and field I64 Array residence execution:
+  current source-issued unchanged app179 native PASS plus retained source/final
+  same-Rc/all-binding checks and independent physical/runtime tests. No all-family
+  or all-Fault-injection claim. Plan Set remains its separate obligation below.
 - [ ] PlanSourcePublication Set. Retain exact FieldGet source locator before
   Plan descent; connect the same affine read/LocalSSA owner and sole recorded
   Set writer/census at the existing source-aware Loop/Plan emission port.
@@ -186,8 +207,10 @@ acceptance. Original runtime757 atomic residence evidence is preserved there.
 - Historical confirmed ArrayGet/code-test and full borrowed-ingress baseline reds
   remain documented in e7271fae86; no full-suite PASS is claimed here.
 
-Preserve all cumulative WIP, including inherited unrelated ownership.md changes.
-No source landing/S0 acceptance is implied by this card or docs commits.
+Current source-to-C unit lands with this card; V834 BoxShape follows separately.
+Inherited Named Array reference53 lines published unchanged at **1ac39278c6**.
+Older WIP/unlanded entries describe their checkpoints, not current landing status.
+No full S0/goal acceptance is implied.
 At landing, retain needed commands/results in the implementation commit and
 compress completed history to that commit, not /tmp+SHA alone. Review temporary
 receipts/build outputs, `v751-unlanded-received-birth-source.rs` and adapters:
@@ -346,49 +369,16 @@ component before repairing its existing mapping. Both independent workers
 confirmed selector law; this is an implementation join defect, not new design.
 Completed V790–798 history compressed to8508d9d37d with live laws/debts retained.
 
-V799a diagnostic build PASS52.515786s, exact source reproduction RED .02s:
-callee/destination/class/ordinal/sites all match; receiver Home flow_arity0.
-Original home_receiver_local_call issuer intentionally emits empty arguments;
-it owns Home/cleanup, not actual authority. Remove only false Home-arity
-comparison, preserve original receiver argument/site and full packet checks.
-This is a confirmed join correction, no class gate removal or refusal waiver.
-Proper object-slot test module is lexical_instance_call::object_slot::tests.
-
-V799b build PASS38.648260s. Original nullable JSON positive PASS .05s;
-receiver observation PASS .02s; objectslot11/12, instance5/8. Remaining
-SourcePending raw fixtures use init{v}, unlike JSON's declared v:i64. Worker
-confirmed independent canonical object/destruction issuers require declared
-field type (Unavailable(FieldType)); brand source tests already pin this.
-Raw/Omitted is not a type/End permit. Preserve both original untyped fixtures
-as source-unavailable variants and same typed/untyped caller argument positives
-with declared-field variants in one existing test (retire one duplicated fn).
-Keep original packet/source pending after input removal in the old legacy-
-preservation test; never restore its obsolete Ready/no-ingress assumption.
-Duplicate-Birth-store negative now declares its unrelated field types to isolate
-the existing repeated-store refusal, not hide an untyped field failure; original
-untyped fixtures remain above and independent brand laws still required. No
-.hako application change, inferred layout or expanded untyped admission.
-
-V799c pre-retirement build PASS66.338338s; nullable JSON1 (.06s), instance7
-(.11s, including both original unavailable and declared-field caller variants),
-objectslot12 (.09s), unavailable-descriptor source1 (.01s), receiver observation1
-(.02s) PASS. Pointer/diff and route/layer/thin-shim guards PASS. This establishes
-selected switch evidence; whole source series remains unaccepted.
-V799d removes the sole old receiver-nullable fallback and its dedicated writer
-plus exclusive prior-home unwind helper. Common packet emission and its original
-Call/binding-group/conditional End own the selected edge. Missing selected packet
-fails receiver-object/packet-unavailable, never generic retry. Shared lexical
-nullable begin/record and nonselected callers stay. Original names' source census
-is zero after deletion; post-deletion focused validation pending.
-V799d post-retirement build PASS58.763186s; same focused1+7+12+1+1 all PASS.
-Physical JSON parent-module filter is33 tests (31PASS/2RED), not35: nested layout
-submodule is outside this exact filter. Remaining named reds are Pair.sum child
-I64Add root-exit-phase and owned Array caller Birth-fault obsolete expectation;
-nullable positive now passes after retirement. Route/layer/thin-shim/diff PASS.
-Read-only worker confirms deleted writer/helper have no other consumers and
-common packet retains the same source/prior-Homes/conditional End plus final
-bindings. No whole-series/source landing claim. /tmp V799 manifests retained
-until cumulative acceptance; sole app milestone remains app148 pinned evidence.
+V799 receiver-nullable source join, typed/untyped fixture classification and
+pre/post-retirement evidence: **41ccb2f719** (this path). Source stays WIP.
+Home receiver carries cleanup, not full actual arity; original packet owns actuals.
+Untyped/Raw fields remain source-unavailable, never inferred class/End permission;
+canonical declared variants retain their positive source/input responsibilities.
+Selected packet now owns Call/group/conditional End; old writer and exclusive
+prior-home helper removed, no retry after receiver-object/packet-unavailable.
+Shared lexical begin/record and nonselected callers remain. Post-removal focused
+22 PASS; then-existing physical Pair/Array reds were handled by later slices.
+Current JSON33/terminal22 evidence and exact retired-symbol census are below.
 
 V800 same-series remaining Pair.sum mapping: original owner+explicit exit replaces
 root-only preparation; retain exact read reservation. Existing terminal-result
@@ -857,25 +847,14 @@ connected by V823–825. Small self-LOCAL publication still fails Maker.wrap h=m
 placement; do not weaken source/placement. Retain pinned source/build/test/EXE and
 GDB receipts until source landing. Current frontier and WIP remain below.
 
-V823–827 original parent/sibling input, packet support and anchored Field cleanup
-contracts/evidence: **e760a8e600**, **910d948173**, **fe1b212687**, **af4e4649e1**.
-These are docs checkpoints; source remains WIP. Same original roots/current writers,
-QualifiedObject priority and exact actual/formal joins remain mandatory. Passive
-AnchoredFields grants no End; descriptor() remains closed. CLI171/app172 reached
-Main43 Body10 Print source-unavailable, before final/C publication. Full goal open.
-
-V828 original Received→nested Print and owning LOCAL input contracts/evidence:
-**6db78387d5**, **fa6d0cb155**. Source remains unlanded. Same original acquisition,
-initializer/current target/full root Rc; no New/non-null/class-from-use shortcut.
-Each path hop keeps nullability; nullable child uses existing checked scalar
-Normal/Fault and final census. Canonical owning LOCAL input issues before incoming/
-Observe: Handle all-Fresh/nonempty, Nullable Fresh/Null, no Mixed/Borrowed/Forward.
-Affine Pending/Ready/Taken lender borrows current Lowering/Finalized owner. Late
-received-input classifier retired; QualifiedObject priority and Array-only
-exemption remain exact. Root828g56.546037s/focused66 executions PASS; aggregate
-Print RED only at pinned V827b three-hop New prior-home baseline. Independent
-Handle/Provided Print publication and final base/Normal/Fault/raw substitutions
-PASS. Actual M190 C frontier follows below; no source landing or full-goal claim.
+V823–828 source/input/packet/field cleanup and Print contracts/evidence:
+**41ccb2f719** and its referenced checkpoints; source stays WIP. Same original
+roots/acquisition/current targets/full root Rc and exact actual/formal joins;
+QualifiedObject priority, Array-only exemption and per-hop nullability remain.
+Passive AnchoredFields grants no End. Owning LOCAL input admits exact Handle
+all-Fresh/nonempty or Nullable Fresh/Null; no Mixed/Borrowed/Forward. Affine
+Pending/Ready/Taken borrows current Lowering/Finalized owner; late received-input
+classifier retired. V827b deeper-provider baseline was fixed by V832 below.
 
 V829 source-interval BoxShape contract and verification: **68981c01b7**.
 Source stays WIP. Same borrowed function/packet/context; transient origin and
@@ -980,13 +959,30 @@ persistent cache, source/Home permission, new classifier or acceptance expansion
 Lazy initialization preserves anchors-absent Ok(false), target/source error order
 and short-circuit refusal. Existing source/result/retained-loss/dependency tests
 plus current actual acceptance remain required; no new redundant fixture.
-V834a build RED91.991126s: one remaining old helper caller (E0425), corrected.
-V834b root build PASS95.460835s. Existing scalar identity, qualified retained-loss
-and composed dependency tests3 PASS (.055866/.027874/.054154s incl process).
-Root-route/thin-shim/pointer/diff PASS; worker confirms no input interior mutation
-and same edge-before-dedup/error order. No acceptance widening/new test added.
-Changed-source default-stack run terminated exit-6/5.885892s (stack overflow),
-not PASS. Same binary now runs with the card's existing16MiB condition (V753),
-PID799336/session67424; separate TMPDIR preserves original traces. Binary b3c1817d0ab518f2def34f9c044e6b8982edafaa6c6e204247a9c10cacc684eb;
-manifest v834b-root.source.json, run v834c-actual.started/receipt.json. No speed
-claim until terminal; changed scalar owner/README remain part of Rust/C WIP.
+V834a build RED91.991126s (missed helper caller/E0425), corrected; V834b root
+build PASS95.460835s. Existing scalar identity/qualified-loss/dependency3 PASS.
+Root-route/thin-shim/pointer/diff PASS; worker finds no input interior mutator.
+Default-stack run terminal exit-6/5.885892s, retained as non-PASS. Same pinned
+binary with existing16MiB condition: actual both-opts **PASS594.146438s**, exit0;
+all original source/final/mutation checks retained, separate TMPDIR for traces.
+Prior actual PASS3339.060297s; observed elapsed reduction, not a controlled speed
+benchmark (different concurrent builds). Current binary b3c1817d0ab518f2def34f9c044e6b8982edafaa6c6e204247a9c10cacc684eb,
+manifest v834b-root.source.json, v834c-actual.receipt.json. Source/README remain
+part of coordinated Rust/C WIP; no new fixture or acceptance widening.
+
+V835 coordinated source landing Decision (worker source-to-final review):
+Original leaf/input/Completion/field support → finalized outcomes → physical
+role/ABI → JSON columns → C index/flow/emitter must land as one source unit.
+Candidate638 explicit source/C paths match builds. V834 scalar owner/README are
+staged at exact V832a SHA256-verified contents for separate BoxShape review;
+Other candidate bytes match CLI175/C831e apart from three empty EOF-line trims
+found by staged diff-check; exact byte-only cleanup is retained in landing proof.
+Runtime dependency is8a2d2974a8; Array reference-first publication is1ac39278c6.
+No foreign source dependency identified; no .hako rewrite or compatibility retry.
+C interval unit build7.650422s/run.001259s PASS; current layer/route/thin-shim/
+pointer/diff PASS. V799 old receiver-nullable writer/exclusive unwind and V832
+Array-only residence_chain/store-Fault walker have zero exact code references;
+shared packet and typed discharge owners remain. Current CLI175 app178/179 PASS,
+actual594s PASS and fixed11 same4/7 recorded above; full series remains open.
+Retain current CLI175/C831e/runtime808b/root pins and original source wire until
+required followups close. No missing Array/Plan/FieldWrite support is fabricated.

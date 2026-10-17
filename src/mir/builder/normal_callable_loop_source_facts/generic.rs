@@ -22,6 +22,14 @@ use crate::mir::builder::raw_loop_child_entry::PreparedCallableGenericLoopSource
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
+#[path = "generic/planner.rs"]
+mod planner;
+pub(in crate::mir) use planner::{issue_preissued_callable_loop_source_plan_v1, PreissuedCallableLoopSourcePlanV1};
+use planner::PlannedSourceLoopV1;
+pub(super) use planner::corroborate_loop_cond_recipe_source;
+#[path = "generic/home_after.rs"]
+mod home_after;
+pub(in crate::mir) use home_after::{VerifiedNoExitArrayHomeAfterV1, VerifiedNoExitIntegerExpressionV1};
 use super::loop_cond;
 use super::loop_cond::CallableLoopCondSourceFactsV1;
 #[allow(unused_imports)]

@@ -164,11 +164,70 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn complete_short_circuit_expression_v1(
+        &mut self, completed: &super::ops::CompletedLogicalShortCircuitV1,
+    ) -> Result<(), String> {
+        self.child.complete_short_circuit_expression_v1(completed)
+    }
+
     fn complete_ordinary_binary_expression_v1(
         &mut self,
         completed: &super::ops::CompletedOrdinaryBinaryV1,
     ) -> Result<(), String> {
         self.child.complete_ordinary_binary_expression_v1(completed)
+    }
+
+    fn observe_borrowed_field_write_guard_binary_v1(&mut self, builder: &mut MirBuilder,
+        children: (ValueId, ValueId), completed: &super::ops::CompletedOrdinaryBinaryV1,
+    ) -> Result<(), String> { self.child.observe_borrowed_field_write_guard_binary_v1(builder, children, completed) }
+    fn prepare_borrowed_field_write_guard_observer_v1(&mut self)
+        -> Result<Option<Box<dyn super::if_form::IfFormPhysicalObserverV1>>, String> {
+        self.child.prepare_borrowed_field_write_guard_observer_v1()
+    }
+
+    fn prepare_borrowed_array_set_v1(&mut self, method: &str, arity: usize)
+        -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1>, String> {
+        self.child.prepare_borrowed_array_set_v1(method, arity)
+    }
+    fn complete_borrowed_array_set_v1(&mut self, builder: &mut MirBuilder,
+        source: crate::mir::normal_callable_semantic_package::BorrowedArraySetSourceLoanV1,
+        children: [ValueId; 3], write: crate::mir::builder::CompletedArrayElementWriteV1,
+    ) -> Result<(), String> { self.child.complete_borrowed_array_set_v1(builder, source, children, write) }
+
+    fn prepare_borrowed_field_write_v1(&mut self) -> Result<Option<crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1>, String> {
+        self.child.prepare_borrowed_field_write_v1()
+    }
+    fn read_borrowed_field_write_operand_v1(&mut self, source: &crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+        receiver: bool, input: Self::ExpressionInput,
+    ) -> Result<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>, String> {
+        let child_source = self.next_expression()?;
+        self.child.with_prepared_child_source_v1(child_source, |child|
+            child.read_borrowed_field_write_operand_v1(source, receiver, input))
+    }
+    fn emit_borrowed_field_write_v1(&mut self, builder: &mut MirBuilder,
+        source: crate::mir::normal_callable_semantic_package::BorrowedFieldWriteSourceLoanV1,
+        field: &str, reads: [std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>; 2],
+    ) -> Result<(), String> { self.child.emit_borrowed_field_write_v1(builder, source, field, reads) }
+
+    fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
+        self.child.prepare_checked_bool_condition_v1()
+    }
+    fn lower_checked_bool_condition_v1(&mut self, builder: &mut MirBuilder,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>, condition: ASTNode,
+    ) -> Result<super::ordinary_new_admission::selected::bool_condition::LoweredBoolConditionV1, String> {
+        let source = self.next_expression()?;
+        self.child.with_prepared_child_source_v1(source, |child|
+            child.lower_checked_bool_condition_v1(builder, frame, condition))
+    }
+
+    fn prepare_checked_print_expression_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>>, String> {
+        self.child.prepare_checked_print_expression_v1()
+    }
+    fn lower_checked_print_value_v1(&mut self, builder: &mut MirBuilder,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+    ) -> Result<ValueId, String> {
+        let source = self.next_expression()?;
+        self.child.with_prepared_child_source_v1(source, |child| child.lower_checked_print_value_v1(builder, frame))
     }
 
     fn prepare_ordinary_scalar_source_v1(
@@ -426,6 +485,24 @@ where
             .emit_local_lifecycle_call_v1(builder, row, arguments)
     }
 
+    fn emit_local_static_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        owner: &str,
+        method: &str,
+        arity: usize,
+    ) -> Result<Option<ValueId>, String> {
+        self.child.emit_local_static_lifecycle_call_v1(builder, owner, method, arity)
+    }
+
+    fn emit_local_lexical_lifecycle_call_v1(
+        &mut self,
+        builder: &mut MirBuilder,
+        method: &str,
+    ) -> Result<Option<ValueId>, String> {
+        self.child.emit_local_lexical_lifecycle_call_v1(builder, method)
+    }
+
     fn emit_receiver_nullable_lifecycle_call_v1(
         &mut self,
         builder: &mut MirBuilder,
@@ -534,11 +611,15 @@ where
         self.child.emit_terminal_map_get_return(builder)
     }
 
-    fn emit_terminal_integer_literal_return(
+    fn emit_terminal_scalar_literal_return(
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<Option<ValueId>, String> {
-        self.child.emit_terminal_integer_literal_return(builder)
+        self.child.emit_terminal_scalar_literal_return(builder)
+    }
+
+    fn complete_terminal_scalar_literal_return(&mut self, builder: &MirBuilder) -> Result<(), String> {
+        self.child.complete_terminal_scalar_literal_return(builder)
     }
 
     fn emit_root_home_exit(
@@ -592,6 +673,27 @@ where
         claim: crate::mir::normal_callable_semantic_package::OrdinaryNewResultClaimV1,
     ) -> Result<ValueId, String> {
         self.child.emit_result_new_claim(builder, claim)
+    }
+
+    fn try_emit_unit_discard(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<bool, String> {
+        self.child.try_emit_unit_discard(builder, method, arity)
+    }
+
+    fn try_emit_owned_array_append(&mut self, builder: &mut MirBuilder, method: &str, arity: usize) -> Result<bool, String> {
+        self.child.try_emit_owned_array_append(builder, method, arity)
+    }
+
+    fn prepare_owned_array_construction(
+        &mut self, class: &str, argument_count: usize, field_count: usize,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1>, String> {
+        self.child.prepare_owned_array_construction(class, argument_count, field_count)
+    }
+
+    fn emit_owned_array_construction(
+        &mut self, builder: &mut MirBuilder,
+        source: crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1,
+    ) -> Result<ValueId, String> {
+        self.child.emit_owned_array_construction(builder, source)
     }
 
     fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
@@ -674,44 +776,5 @@ where
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{PreparedRawChildSourceV1, RawStructuredChildScopePortV1};
-
-    #[test]
-    fn exact_demand_terminal_rejects_unconsumed_receipts() {
-        let mut child = ();
-        assert!(
-            RawStructuredChildScopePortV1::new(&mut child, Vec::new(), Vec::new())
-                .complete_exact_demands_v1()
-                .is_ok()
-        );
-
-        let error = RawStructuredChildScopePortV1::new(
-            &mut child,
-            Vec::new(),
-            vec![PreparedRawChildSourceV1::Preserve],
-        )
-        .complete_exact_demands_v1()
-        .unwrap_err();
-        assert_eq!(
-            error,
-            "[freeze:contract][raw-structured/unconsumed-demands] expressions=0 bodies=1"
-        );
-    }
-
-    #[test]
-    fn failed_child_error_is_not_masked_by_later_expression_demand() {
-        let mut child = ();
-        let error = RawStructuredChildScopePortV1::new(
-            &mut child,
-            vec![
-                PreparedRawChildSourceV1::Preserve,
-                PreparedRawChildSourceV1::Preserve,
-            ],
-            Vec::new(),
-        )
-        .complete_after_result_v1::<()>(Err("[primary-child-error]".to_owned()))
-        .unwrap_err();
-        assert_eq!(error, "[primary-child-error]");
-    }
-}
+#[path = "raw_structured_child_scope_tests.rs"]
+mod tests;

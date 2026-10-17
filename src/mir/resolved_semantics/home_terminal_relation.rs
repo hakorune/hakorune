@@ -629,6 +629,8 @@ pub(crate) struct TerminalI64CallReturnV1 {
     return_site: SourceStmtSiteV1,
     call_site: SourceExprSiteV1,
     arguments: Box<[TerminalCallArgumentV1]>,
+    source_scalar:
+        Option<crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1>,
 }
 impl TerminalI64CallReturnV1 {
     pub(super) const fn issue(
@@ -642,7 +644,39 @@ impl TerminalI64CallReturnV1 {
             return_site,
             call_site,
             arguments,
+            source_scalar: None,
         }
+    }
+    pub(super) fn issue_source_scalar(
+        owner: FunctionOwnerIdV1,
+        return_site: SourceStmtSiteV1,
+        call_site: SourceExprSiteV1,
+        arguments: Box<[TerminalCallArgumentV1]>,
+        loan: crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1,
+    ) -> Self {
+        assert_eq!(
+            loan.source().call_site(),
+            &super::OwnedExprSiteV1::new(owner, call_site.clone())
+        );
+        Self {
+            owner,
+            return_site,
+            call_site,
+            arguments,
+            source_scalar: Some(loan),
+        }
+    }
+    pub(crate) fn source_scalar(
+        &self,
+    ) -> Option<&crate::mir::normal_callable_semantic_package::BorrowedScalarResultSourceLoanV1>
+    {
+        self.source_scalar.as_ref()
+    }
+    pub(crate) fn scalar_kind(&self) -> super::local_flow::SourceScalarKind {
+        self.source_scalar
+            .as_ref()
+            .map(|loan| loan.kind())
+            .unwrap_or(super::local_flow::SourceScalarKind::Integer)
     }
     pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner

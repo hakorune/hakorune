@@ -12,6 +12,14 @@ use crate::mir::normal_callable_semantic_package::{
 use crate::mir::{Callee, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "compiled_entry_contract/array_writes.rs"]
+mod array_writes;
+
+#[path = "compiled_entry_contract/borrowed_field_write.rs"]
+mod borrowed_field_write;
+#[path = "compiled_entry_contract/borrowed_parameter.rs"]
+mod borrowed_parameter;
+
 #[path = "compiled_entry_contract/root_result.rs"]
 mod root_result;
 pub(super) use root_result::root_result_category;
@@ -27,6 +35,8 @@ pub(super) use borrowed_call_incoming::corroborate_final_call;
 #[cfg(test)]
 pub(super) use borrowed_call_incoming::projection_fixture as borrowed_projection_test_fixture;
 pub(super) use borrowed_call_incoming::verify_borrowed_call_incoming;
+#[cfg(test)]
+pub(super) use borrowed_call_incoming::verify_original_formal_return;
 
 use super::{
     physical_program::{
@@ -203,6 +213,9 @@ pub(crate) enum CompiledEntryArrayValueKindV1 {
 
 #[derive(Debug, Clone)]
 pub(crate) struct CompiledEntryArrayWriteV1 {
+    pub(crate) function_index: u32,
+    pub(crate) block: crate::mir::BasicBlockId,
+    pub(crate) instruction_index: u32,
     pub(crate) site: crate::mir::ArrayWriteSiteId,
     pub(crate) array: ValueId,
     pub(crate) value: ValueId,
@@ -219,9 +232,8 @@ pub(crate) struct CompiledEntryContractV1<'module> {
     cleanup: Box<[CompiledEntryCleanupCoordinateV1]>,
     array_claims: Box<[CompiledEntryArrayClaimV1<'module>]>,
     array_writes: Box<[CompiledEntryArrayWriteV1]>,
-    /// Sealed formal object views by callee: `function index -> param
-    /// value -> canonical object declaration index`. The param row's
-    /// `object_view` key carries exactly this number.
+    /// Entries closed by the same borrowed-use verifier: function index ->
+    /// formal object views. An empty inner map still retains entry admission.
     borrowed_object_views: BTreeMap<u32, BTreeMap<u32, u32>>,
 }
 
@@ -258,6 +270,12 @@ impl<'module> CompiledEntryContractV1<'module> {
             .get(&function)
             .and_then(|views| views.get(&param).copied())
     }
+    pub(crate) fn has_borrowed_entry(&self, function: u32) -> bool {
+        self.borrowed_object_views.contains_key(&function)
+    }
+    pub(crate) fn has_borrowed_entries(&self) -> bool {
+        !self.borrowed_object_views.is_empty()
+    }
 }
 
 impl<'module> PublishedMirBackendView<'module> {
@@ -277,10 +295,9 @@ impl<'module> PublishedMirBackendView<'module> {
             // Ordinary calls are per-caller rows: every caller-capable
             // function (root and ordinary alike) carries its own edges, and
             // the caller's program index is part of the row identity. A
-            // BirthUnit joins as a caller only for the qualified-static
-            // provider-argument lane — its sealed claims are `ExactI64`, so
-            // a birth caller carrying any other result kind is census
-            // drift, never a new capability.
+            // Birth callers keep qualified-static provider I64 claims. Unit
+            // additionally requires the same retained constructor Call packet
+            // and complete source/Normal/Fault/coordinate correspondence.
             let mut program_ordinary_calls = Vec::new();
             for (index, function) in program.functions().iter().enumerate() {
                 let birth_caller = matches!(
@@ -291,10 +308,14 @@ impl<'module> PublishedMirBackendView<'module> {
                     && !matches!(
                         function.role(),
                         PublishedLifecyclePhysicalFunctionRoleV1::Root { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
                             | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle { .. }
+                            | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { .. }
                     )
                 {
                     continue;
@@ -309,30 +330,27 @@ impl<'module> PublishedMirBackendView<'module> {
                         .chain(std::iter::once(block.terminator()))
                         .map(move |row| (block.id(), row))
                 }) {
-                    let MirInstruction::Invoke {
-                        operation:
-                            InvokeOperation::Call {
-                                call,
-                                result:
-                                    result @ (InvokeCallResultKind::I64
-                                    | InvokeCallResultKind::Map
-                                    | InvokeCallResultKind::Handle
-                                    | InvokeCallResultKind::NullableHandle),
-                            },
-                        ..
-                    } = row.instruction()
-                    else {
-                        continue;
-                    };
-                    if birth_caller && *result != InvokeCallResultKind::I64 {
-                        return Err(fault("compiled-entry-birth-call-result"));
+                    let Some((call, result)) = super::physical_program::ordinary_call_site_v1(row.instruction())
+                        else { continue; };
+                    if birth_caller && result != InvokeCallResultKind::I64 {
+                        let context = || format!("{} caller={} function_index={} block={:?} instruction={} callee={:?} result={:?}",
+                            fault("compiled-entry-birth-call-result"), function.name(), index,
+                            block_id, row.index(), call.callee, result);
+                        if result != InvokeCallResultKind::Unit { return Err(context()); }
+                        let PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role()
+                            else { return Err(context()) };
+                        let source = program.handoff().root_source().ok_or_else(context)?;
+                        let caller = self.module.functions.get(function.name()).ok_or_else(context)?;
+                        source.corroborate_constructor_unit_call_v1(self.module, abi.target(), caller,
+                            (block_id, row.index() as usize), row.instruction())
+                            .map_err(|issue| format!("{} source={issue}", context()))?;
                     }
                     program_ordinary_calls.push((
                         caller_function_index,
                         block_id,
                         row.index(),
                         call.clone(),
-                        *result,
+                        result,
                     ));
                 }
             }
@@ -390,10 +408,14 @@ impl<'module> PublishedMirBackendView<'module> {
                         });
                         birth_functions.push((physical_index, function));
                     }
-                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
                     | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
-                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. } => {
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle { .. }
+                    | PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle { .. } => {
                         let key = function
                             .role()
                             .ordinary_target()
@@ -426,24 +448,8 @@ impl<'module> PublishedMirBackendView<'module> {
                 let receiver = super::physical_program::ordinary_call_receiver(&call.callee)?;
                 let expected_arity = call.args.len() + usize::from(receiver.is_some());
                 if function.params().len() != expected_arity
-                    || !matches!(
-                        (result, function.role()),
-                        (
-                            InvokeCallResultKind::I64,
-                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 { .. }
-                        ) | (
-                            InvokeCallResultKind::Map,
-                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMap { .. }
-                        ) | (
-                            InvokeCallResultKind::Handle,
-                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle { .. }
-                        ) | (
-                            InvokeCallResultKind::NullableHandle,
-                            PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
-                                ..
-                            }
-                        ) if function.role().ordinary_target() == Some(&key)
-                    )
+                    || function.role().ordinary_result() != Some(result)
+                    || function.role().ordinary_target() != Some(&key)
                 {
                     return Err(fault("compiled-entry-ordinary-arity"));
                 }
@@ -465,9 +471,11 @@ impl<'module> PublishedMirBackendView<'module> {
             if !borrowed_actuals.is_empty() {
                 return Err(fault("borrowed-incoming/unconsumed-coordinate"));
             }
-            if referenced_ordinary_keys.len() != ordinary_function_indices.len() {
-                return Err(fault("compiled-entry-ordinary-unissued"));
-            }
+            self.verify_ordinary_function_membership_v1(
+                &program,
+                &referenced_ordinary_keys,
+                &ordinary_function_indices,
+            )?;
             let birth_calls = if program.is_native_array() {
                 Vec::new()
             } else {
@@ -486,42 +494,7 @@ impl<'module> PublishedMirBackendView<'module> {
                 cleanup,
             )
         };
-        let mut array_claims = Vec::new();
-        let mut array_writes = Vec::new();
-        if let Some(script) = program.handoff().script_array() {
-            for (array, contract_id, spec) in script.claims() {
-                array_claims.push(CompiledEntryArrayClaimV1 {
-                    array,
-                    contract_id,
-                    spec,
-                });
-            }
-            for (site, array, value, definition) in script.writes() {
-                use crate::mir::ConstValue;
-                let MirInstruction::Const {
-                    dst,
-                    value: constant,
-                } = definition
-                else {
-                    return Err(fault("compiled-entry-array-definition"));
-                };
-                if *dst != value {
-                    return Err(fault("compiled-entry-array-value"));
-                }
-                let kind = match constant {
-                    ConstValue::Integer(_) => CompiledEntryArrayValueKindV1::I64,
-                    ConstValue::Bool(_) => CompiledEntryArrayValueKindV1::Bool,
-                    ConstValue::Float(_) => CompiledEntryArrayValueKindV1::F64,
-                    _ => return Err(fault("compiled-entry-array-representation")),
-                };
-                array_writes.push(CompiledEntryArrayWriteV1 {
-                    site,
-                    array,
-                    value,
-                    kind,
-                });
-            }
-        }
+        let (array_claims, array_writes) = array_writes::issue(self, &program)?;
         Ok(CompiledEntryContractV1 {
             program,
             root_result,
@@ -761,3 +734,6 @@ fn fault(detail: &str) -> String {
 #[cfg(test)]
 #[path = "compiled_entry_contract_tests.rs"]
 mod tests;
+
+#[path = "compiled_entry_contract/ordinary_participants.rs"]
+mod ordinary_participants;

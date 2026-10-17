@@ -50,6 +50,8 @@ use super::{
 
 pub(in crate::mir) use loop_break_source::LoopBreakSourcePackageTakeHandle;
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
+mod owned_array;
+pub(crate) use owned_array::{OwnedArrayLifecycleSourceLoanV1, OwnedArrayAppendSourceLoanV1, OwnedArrayReadSourceLoanV1, PreparedOwnedArrayConstructionV1};
 pub(crate) use types::PreparedNormalCallableSemanticPackageInstallV1;
 pub(in crate::mir) use types::SelectedCallableSemanticRefV1;
 
@@ -116,10 +118,10 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
-    selected: VerifiedSelectedCallableBatchMapV1,
+    selected: Rc<VerifiedSelectedCallableBatchMapV1>,
     parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
     result_contracts: VerifiedCallableResultContractCohortV1,
-    physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
+    physical_signature: Rc<VerifiedCallablePhysicalSignatureCohortV1>,
     declared_instance_call_locators:
         super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
@@ -138,8 +140,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
             >,
         >,
     >,
-    named_array_field_providers:
-        RefCell<super::core_method_source::NamedArrayFieldProviderTableV1>,
+    named_array_field_providers: RefCell<super::core_method_source::NamedArrayFieldProviderTableV1>,
     app_main_qualified_receiver_catalog:
         RefCell<Option<super::model::VerifiedQualifiedReceiverCatalogRelationV1>>,
     app_main_qualified_receiver_catalog_taken: Cell<bool>,
@@ -443,7 +444,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
     pub(crate) fn commit(self) -> InstalledNormalCallableSemanticPackageV1 {
         let VerifiedNormalCallableSemanticPackageV1 {
             #[cfg(test)]
-            source_static_claims_for_test: _,
+                source_static_claims_for_test: _,
             root_execution,
             catalog,
             batch,
@@ -463,7 +464,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             loop_break_source,
             declared_instance_call_locators,
             source_core_method_calls,
-            named_array_field_providers,
+            mut named_array_field_providers,
             app_main_qualified_receiver_catalog,
         } = self.package;
         match root_execution {
@@ -471,7 +472,12 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             NormalRootExecutionPackageStateV1::MovedToLowering => {}
         }
         let named_array_emissions = Rc::new(
-            super::NamedArrayEmissionCollectorV1::from_source_rows(&source_core_method_calls),
+            super::NamedArrayEmissionCollectorV1::from_source_rows(&source_core_method_calls)
+                .with_field_reads(ordinary_new_claim_ledger.field_array_read_recipes_v1().and_then(|recipes| {
+                    ordinary_new_claim_ledger.stage_field_array_index_reads_v1(&recipes)?;
+                    Ok(recipes)
+                }), &mut named_array_field_providers)
+                .with_owned_holders(ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&result_contracts)),
         );
         let catalog_brand = catalog.catalog().brand().clone();
         self.context
@@ -567,6 +573,13 @@ impl InstalledNormalCallableSemanticPackageV1 {
         if !self.lowering_completed.get() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::LoweringNotCompleted);
         }
+        self.named_array_emissions.recheck_reads(self.ordinary_new_claim_ledger.field_array_read_recipes_v1()
+            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
+            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
+        self.named_array_emissions.recheck_owned_holders(
+            self.ordinary_new_claim_ledger.owned_array_lifecycle_recipes_v1(&self.result_contracts)
+                .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?)
+            .map_err(|error| NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(error.into()))?;
         let rows = Rc::try_unwrap(self.named_array_emissions)
             .map_err(|_| {
                 NormalCallableSemanticPackageInstallIssueV1::CoreMethodSource(
@@ -579,7 +592,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             })?;
         self.result_contracts
             .retain_completed_context(self.selected, self.parameter_contracts)?
-            .retain_named_array_emissions(rows)
+            .retain_named_array_emissions(rows, &self.ordinary_new_claim_ledger)
     }
 
     pub(in crate::mir) fn with_declared_instance_call_locators<R>(

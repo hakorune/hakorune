@@ -71,10 +71,8 @@ impl OrdinaryNewClaimLedgerV1 {
         if object_selected && !construction_ready {
             return Err(freeze("artifact-object-return-source-unavailable"));
         }
-        let all_exits_ready = completion
-            .cleanup()
-            .root_flow()
-            .is_some_and(|flow| flow.all_exits_ready());
+        let all_exits_ready = self.root_home_flow_ready_v1(completion)?;
+        self.validate_implicit_root_progress_v1(owner, function, Some(projection))?;
         let mut calls = BTreeSet::new();
         let exits = self.root_exits.borrow();
         // Enumerate the source first: iterating physical rows would hide a missing sibling.
@@ -106,7 +104,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 calls.insert(exit.clone());
             }
             let selected = owned.is_some() || call_required;
-            let progress = exits.get(&(owner, exit.clone()));
+            let progress = exits.get(&(owner, exit.clone().into()));
             let Some(RootHomeExitProgress::Emitted {
                 order,
                 origins,
@@ -163,6 +161,13 @@ impl OrdinaryNewClaimLedgerV1 {
             )?;
         }
         for ((actual, exit), progress) in exits.iter().filter(|((actual, _), _)| *actual == owner) {
+            let Some(exit) = exit.explicit_site() else {
+                if completion.implicit_body_end().is_none()
+                    || !matches!(progress, RootHomeExitProgress::Emitted { entry: RootHomeExitEntry::Plain { .. }, .. }) {
+                    return Err(freeze("artifact-call-terminal-drift"));
+                }
+                continue; // The canonical source-end and full cleanup were checked above.
+            };
             if *actual != owner || !completion.explicit_sites().contains(exit) {
                 return Err(freeze("artifact-call-terminal-drift"));
             }

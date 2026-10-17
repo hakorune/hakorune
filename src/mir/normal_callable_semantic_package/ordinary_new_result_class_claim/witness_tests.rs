@@ -132,7 +132,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_result_facts_for_
     })
 }
 
-fn with_source_claims_fixture<R>(
+pub(in crate::mir::normal_callable_semantic_package) fn with_source_claims_fixture<R>(
     source: &str,
     test: impl FnOnce(
         &VerifiedResolvedCallableSemanticBatchV1,

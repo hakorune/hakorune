@@ -61,6 +61,8 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
     function.add_block(fault_block);
     let site = SourcePathV1::function_body().node();
     let mut state = ConstructionState::Selected {
+        steps: vec![ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()))].into_boxed_slice(),
+        next_step: 1, calls: Vec::new(),
         stores: BTreeMap::from([(
             site.clone(),
             SelectedConstructionStore {
@@ -85,6 +87,33 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         completed: true,
     };
     state.validate_bindings(&function).unwrap();
+    // The same sole validator rejects the retired Provided release tail.
+    let child = hakorune_mir_defs::CanonicalObjectIdV1::from_declaration_index(1).unwrap();
+    if let ConstructionState::Selected { stores, .. } = &mut state {
+        stores.get_mut(&site).unwrap().rhs = ConstructionStoreRhsV1::Parameter {
+            site: crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site.clone()),
+            binding: receiver_binding, provided: Some(child),
+        };
+    }
+    let mut provided = function.clone();
+    provided.blocks.get_mut(&origin).unwrap().set_terminator(MirInstruction::Invoke {
+        operation: InvokeOperation::ObjectFieldSet { field, base, value, child },
+        fault_frame: frame, normal_landing: normal, fault_landing: landing,
+    });
+    state.validate_bindings(&provided).unwrap();
+    for operation in [InvokeOperation::HomeReleaseIfLive { object: child, value },
+                      InvokeOperation::OwnedObjectFieldRelease { field, base, child }] {
+        let mut drift = provided.clone();
+        let tail = BasicBlockId::new(77);
+        let mut block = BasicBlock::new(tail);
+        block.set_terminator(MirInstruction::Invoke { operation, fault_frame: frame,
+            normal_landing: landing, fault_landing: landing });
+        drift.add_block(block);
+        assert!(state.validate_bindings(&drift).is_err(), "extra Provided release must reject");
+    }
+    if let ConstructionState::Selected { stores, .. } = &mut state {
+        stores.get_mut(&site).unwrap().rhs = ConstructionStoreRhsV1::LiteralI64(7);
+    }
     let mut literal_drift = function.clone();
     literal_drift.blocks.get_mut(&origin).unwrap().instructions[0] = MirInstruction::Const {
         dst: value,
@@ -167,6 +196,55 @@ fn completed_store_bindings_reject_finalizer_drift_and_residuals() {
         }
         assert!(state.validate_bindings(&changed).is_err(), "drift {case}");
     }
+    // Physical-only two-step witness: exact source order, including two
+    // writes to the SAME field (default followed by explicit overwrite).
+    let second_site = SourcePathV1::function_body().child(SourcePathSegmentV1::Body(1)).node();
+    let second_normal = BasicBlockId::new(3);
+    let mut pair = function.clone();
+    let mut second_block = BasicBlock::new(normal);
+    let second_value = ValueId::new(3);
+    second_block.add_instruction(MirInstruction::Const { dst: second_value, value: ConstValue::Integer(9) });
+    second_block.set_terminator(MirInstruction::Invoke {
+        operation: InvokeOperation::FieldSet { field, base, value: second_value },
+        fault_frame: frame, normal_landing: second_normal, fault_landing: landing,
+    });
+    pair.add_block(second_block);
+    let original_step = ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site.clone()));
+    let second_step = ConstructionSourceStepV1::Store(crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(second_site.clone()));
+    if let ConstructionState::Selected { steps, next_step, stores, .. } = &mut state {
+        let original = stores.get(&site).unwrap();
+        let second = SelectedConstructionStore {
+            field, receiver_site: original.receiver_site.clone(), receiver_binding,
+            rhs: ConstructionStoreRhsV1::LiteralI64(9), fault_discharge: Box::new([]), me_reads: Box::new([]),
+            progress: StoreProgress::Emitted {
+                block: normal, normal: second_normal, base, value: second_value, provider: None,
+                provider_child: None, discharge: landing,
+            },
+        };
+        stores.insert(second_site.clone(), second);
+        *steps = vec![original_step.clone(), second_step.clone()].into_boxed_slice();
+        *next_step = 2;
+    }
+    state.validate_bindings(&pair).unwrap();
+    state.finish().unwrap();
+    if let ConstructionState::Selected { steps, .. } = &mut state { steps.swap(0, 1); }
+    assert!(state.validate_bindings(&pair).unwrap_err().contains("physical-step-order-drift"));
+    if let ConstructionState::Selected { steps, next_step, completed, .. } = &mut state {
+        steps.swap(0, 1); *next_step = 0; *completed = false;
+    }
+    assert!(state.require_next_store(&second_site).unwrap_err().contains("step-order-or-kind"));
+    if let ConstructionState::Selected { next_step, completed, .. } = &mut state { *next_step = 1; *completed = true; }
+    assert!(state.finish().unwrap_err().contains("step-residual"));
+    if let ConstructionState::Selected { steps, next_step, .. } = &mut state { *steps = Box::new([]); *next_step = 0; }
+    assert!(state.validate_bindings(&pair).unwrap_err().contains("step-store-coverage"));
+    assert!(state.finish().unwrap_err().contains("step-store-coverage"));
+    if let ConstructionState::Selected { steps, next_step, .. } = &mut state {
+        *steps = vec![original_step.clone(), original_step.clone()].into_boxed_slice(); *next_step = 2;
+    }
+    assert!(state.validate_bindings(&pair).unwrap_err().contains("step-store-coverage"));
+    if let ConstructionState::Selected { steps, next_step, stores, .. } = &mut state {
+        stores.remove(&second_site); *steps = vec![original_step].into_boxed_slice(); *next_step = 1;
+    }
     let ConstructionState::Selected {
         stores, completed, ..
     } = &mut state
@@ -190,6 +268,7 @@ impl RetainedConstructionValidation {
         Self {
             owner: owners.issue().unwrap(),
             construction: ConstructionState::Selected {
+                steps: Box::new([]), next_step: 0, calls: Vec::new(),
                 stores: BTreeMap::new(),
                 frame: None,
                 completed: true,
@@ -219,6 +298,7 @@ fn artifact_requires_completed_source_construction() {
         ConstructionState::Transferred,
         ConstructionState::RetainedUnavailable(ConstructionUnavailableV1::BodyCoverageUnsupported),
         ConstructionState::Selected {
+            steps: Box::new([]), next_step: 0, calls: Vec::new(),
             stores: BTreeMap::new(),
             frame: None,
             completed: false,

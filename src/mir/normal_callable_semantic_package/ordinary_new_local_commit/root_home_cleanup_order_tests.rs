@@ -25,9 +25,9 @@ fn origin(index: u32) -> RootHomeReleaseOriginV1 {
             ),
             ordinal: index,
         },
-        exit: SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        exit: (SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
             SourcePathSegmentV1::Body(8),
-        ])),
+        ]))).into(),
         operation: InvokeOperation::Map(MapInvokeOperation::End {
             map: ValueId(index),
         }),
@@ -83,15 +83,15 @@ fn root_cleanup_order_rejects_duplicate_foreign_and_reordered_origins() {
             .unwrap_err()
             .contains("foreign-origin")
     );
-    let mut foreign_exit = full[1].clone();
-    foreign_exit.exit = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
-        SourcePathSegmentV1::Body(9),
-    ]));
-    assert!(
-        RootHomeCleanupOrderV1::ordinary(vec![full[0].clone(), foreign_exit])
-            .unwrap_err()
-            .contains("foreign-exit")
-    );
+    for exit in [
+        SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![SourcePathSegmentV1::Body(9)])).into(),
+        super::RootHomeExitKeyV1::ImplicitBodyEnd,
+    ] {
+        let mut foreign_exit = full[1].clone();
+        foreign_exit.exit = exit;
+        assert!(RootHomeCleanupOrderV1::ordinary(vec![full[0].clone(), foreign_exit])
+            .unwrap_err().contains("foreign-exit"));
+    }
 }
 #[test]
 fn root_cleanup_order_argument_prefix_preserves_both_original_sequences_atomically() {
@@ -213,6 +213,25 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
                 .collect();
             assert_eq!(ordinals, [1, 0]);
         }
+        // This source Call Fault has no root exit key. The shared expansion
+        // follows exactly the supplied order, including each complete child End.
+        let input = [projection.fault_homes()[1], projection.fault_homes()[0]];
+        let call_fault = source_home_end_plans_v1(&rows, &input).unwrap().unwrap();
+        assert_eq!(call_fault.len(), 2 * plan_len);
+        for (index, binding) in input.iter().enumerate() {
+            let part = &call_fault[index * plan_len..(index + 1) * plan_len];
+            assert!(part.iter().all(|(home, subject, _)| home == binding && match subject {
+                RootHomeReleaseSubjectV1::Binding(actual)
+                | RootHomeReleaseSubjectV1::FieldResidence { binding: actual, .. } => actual == binding,
+                _ => false,
+            }));
+            if owned {
+                let fields: Vec<_> = part.iter().filter_map(|(_, subject, _)| match subject {
+                    RootHomeReleaseSubjectV1::FieldResidence { field, .. } => Some(field.declaration_ordinal()), _ => None,
+                }).collect();
+                assert_eq!(fields, [1, 0], "complete child order inside each source Home");
+            }
+        }
         let full = projection.fault_homes();
         for (f, n, error) in [
             (vec![full[0], full[0]], vec![], "duplicate-home"),
@@ -245,6 +264,26 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
         else {
             panic!("received")
         };
+        // Structural End-plan check only: this installed fixture does not
+        // issue a mixed source/Call seal. Even with child residences, the
+        // conditional outcome guards the whole End rather than its outer
+        // release alone.
+        let original_release = home.release;
+        home.release = super::super::super::call_received::CallReceivedReleaseV1::Mixed { formal_ordinal: 0 };
+        let conditional = home.end_plan();
+        let [(RootHomeReleaseSubjectV1::Binding(binding),
+            crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { object, value, end })] = conditional.as_ref()
+            else { panic!("one conditional envelope for the entire End"); };
+        assert_eq!((*binding, *object, *value), (home.binding, home.object, home.local().unwrap()));
+        use crate::mir::instruction::ObjectEndStepV1 as Step;
+        if owned {
+            assert!(matches!(end.as_ref(), [Step::ArrayField { field: second }, Step::ArrayField { field: first }, Step::ReleaseOuter]
+                if second.object() == home.object && first.object() == home.object
+                    && second.declaration_ordinal() == 1 && first.declaration_ordinal() == 0));
+        } else {
+            assert_eq!(end.as_ref(), &[Step::ReleaseOuter]);
+        }
+        home.release = original_release;
         home.end_children = Some(None);
         assert!(RootHomeCleanupOrderV1::from_home_end_plans(
             &rows,
@@ -278,6 +317,7 @@ fn root_cleanup_order_expands_original_received_homes_and_preserves_fault_only_h
             object: original.object,
             release: original.release,
             end_children: original.end_children.clone(),
+            field_support_parents: original.field_support_parents.clone(),
             progress: CallReceivedProgress::Emitted {
                 result: original.local().unwrap(),
                 bindings: vec![],

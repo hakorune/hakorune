@@ -6,7 +6,9 @@ use crate::mir::instruction::{
     InvokeCallResultKind, InvokeOperation, OwnedArrayInvokeOperation as Op,
     OwnedArraySlotDescriptorV1 as Descriptor,
 };
-use crate::mir::value_origin::{build_value_def_map, resolve_value_origin, ValueDefMap};
+use crate::mir::value_origin::{
+    build_value_def_map, resolve_value_origin, AcyclicUnanimousValueOrigins, ValueDefMap,
+};
 use crate::mir::{BasicBlockId, ConstValue, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -20,6 +22,7 @@ struct State {
 struct Inventory<'a> {
     function: &'a MirFunction,
     defs: ValueDefMap,
+    identities: AcyclicUnanimousValueOrigins,
     arrays: BTreeSet<ValueId>,
     candidates: BTreeMap<ValueId, BTreeSet<ValueId>>,
     candidate_objects: BTreeMap<ValueId, hakorune_mir_defs::CanonicalObjectIdV1>,
@@ -28,6 +31,9 @@ struct Inventory<'a> {
 }
 impl<'a> Inventory<'a> {
     fn origin(&self, value: ValueId) -> ValueId {
+        if let Some(root) = self.identities.origin(value).filter(|root| self.arrays.contains(root)) {
+            return root;
+        }
         resolve_value_origin(self.function, &self.defs, value)
     }
     fn definition(&self, value: ValueId) -> Option<&'a MirInstruction> {
@@ -76,6 +82,7 @@ impl<'a> Inventory<'a> {
         let mut row = Self {
             function,
             defs: build_value_def_map(function),
+            identities: AcyclicUnanimousValueOrigins::new(function),
             arrays: BTreeSet::new(),
             candidates: BTreeMap::new(),
             candidate_objects: BTreeMap::new(),
@@ -99,7 +106,8 @@ impl<'a> Inventory<'a> {
             else {
                 continue;
             };
-            let array = row.origin(operation.array());
+            let array = row.identities.origin(operation.array())
+                .ok_or("owned-array-holder-identity")?;
             if !matches!(
                 row.producer(array),
                 Some(InvokeOperation::IntrinsicArrayNew)
@@ -217,9 +225,19 @@ impl<'a> Inventory<'a> {
                     return Err("owned-array-holder-not-live");
                 }
                 let allowed = matches!(instruction, MirInstruction::Copy { src, .. } if *src == value)
+                    || matches!(instruction, MirInstruction::Phi { dst, .. }
+                        if self.identities.origin(*dst) == Some(root))
                     || matches!(instruction, MirInstruction::Invoke { operation: InvokeOperation::OwnedArray(op), .. } if op.array() == value)
                     || matches!(instruction, MirInstruction::ArrayResidenceRelease { value: released } if *released == value && state.outer.contains(&root));
                 if !allowed {
+                    if crate::config::env::builder_mir_compile_trace() {
+                        let site = self.function.blocks.iter().find_map(|(id, block)|
+                            block.all_instructions().enumerate().find_map(|(index, row)|
+                                std::ptr::eq(row, instruction).then_some((*id, index))));
+                        crate::runtime::get_global_ring0().log.debug(&format!(
+                            "[owned-array/holder-use] function={} site={site:?} root=%{} instruction={instruction:?}",
+                            self.function.signature.name, root.0));
+                    }
                     return Err("owned-array-holder-escape");
                 }
             }

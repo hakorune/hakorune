@@ -101,6 +101,23 @@ impl super::PlanNormalizer {
     where
         P: LoopPlanExpressionPortV1 + 'input,
     {
+        Self::lower_binop_input_with_source_outputs(port, input, builder, phi_bindings)
+            .map(|(lhs, op, rhs, effects, _)| (lhs, op, rhs, effects))
+    }
+
+    #[track_caller]
+    pub(in crate::mir::builder) fn lower_binop_input_with_source_outputs<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, BinaryOp, ValueId, Vec<CoreEffectPlan>, Option<(
+        std::rc::Rc<super::helpers_value::NormalizedSourceValueV1>,
+        std::rc::Rc<super::helpers_value::NormalizedSourceValueV1>,
+    )>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
         use crate::ast::{ASTNode, BinaryOperator, LiteralValue};
 
         let ast = port.expr_syntax(&input);
@@ -140,10 +157,10 @@ impl super::PlanNormalizer {
                         ..
                     }
                 );
-                let (lhs, mut lhs_consts) =
-                    Self::lower_value_input(port, left, builder, phi_bindings)?;
-                let (rhs, rhs_consts) =
-                    Self::lower_value_input(port, right, builder, phi_bindings)?;
+                let (lhs, mut lhs_consts, left_output) =
+                    Self::lower_value_input_with_source_output(port, left, builder, phi_bindings)?;
+                let (rhs, rhs_consts, right_output) =
+                    Self::lower_value_input_with_source_output(port, right, builder, phi_bindings)?;
 
                 lhs_consts.extend(rhs_consts);
 
@@ -207,7 +224,7 @@ impl super::PlanNormalizer {
                     }
                 }
 
-                Ok((lhs, op, rhs, lhs_consts))
+                Ok((lhs, op, rhs, lhs_consts, left_output.zip(right_output)))
             }
             _ => Err(format!("[normalizer] Expected BinOp, got: {:?}", ast)),
         }

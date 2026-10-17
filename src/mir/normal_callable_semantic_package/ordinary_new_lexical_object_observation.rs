@@ -1,10 +1,60 @@
 //! Original indexed caller observations corroborate slot result and route only.
 use super::*;
+use crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1;
 use crate::mir::resolved_semantics::home_new_prefix::{
     LocalCallObservationV1, LocalCallResultClassV1,
 };
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// The local flow and original receiver observation select full packet
+    /// demand. They grant neither callee input nor result/teardown permission.
+    pub(super) fn has_original_receiver_nullable_packet_source_v1(
+        &self,
+        target: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<bool, String> {
+        if !target.is_self_receiver() {
+            return Ok(false);
+        }
+        let Some(flow) = self.nullable_call_source(target.call_site()) else {
+            return Ok(false);
+        };
+        let observation = self
+            .receiver_call_observation(target.call_site())
+            .ok_or_else(|| freeze("receiver-object/observation-missing"))?;
+        let Some((_, destination)) = flow.local_binding() else {
+            return Err(freeze("receiver-object/local-destination-missing"));
+        };
+        let class_matches = matches!(observation.class(),
+            OrdinaryNewResultClassV1::NullableObject(class)
+                if self.nullable_result_class(target.target()) == Some(class.as_ref()));
+        if observation.callee() != target.target()
+            || observation.destination() != destination
+            || !class_matches
+            || observation.arguments().len() != target.argument_sites().len()
+            || observation
+                .arguments()
+                .iter()
+                .zip(target.argument_sites())
+                .enumerate()
+                .any(|(ordinal, (argument, site))| {
+                    argument.ordinal() as usize != ordinal || argument.site() != site
+                })
+        {
+            return Err(format!(
+                "{} callee={} destination={} class={:?}/{:?} arguments={:?}/{:?} flow_arity={}",
+                freeze("receiver-object/original-local-source-drift"),
+                observation.callee() == target.target(),
+                observation.destination() == destination,
+                observation.class(),
+                self.nullable_result_class(target.target()),
+                observation.arguments(),
+                target.argument_sites(),
+                flow.arguments().len(),
+            ));
+        }
+        Ok(true)
+    }
+
     pub(super) fn checked_object_slot_observation_v1(
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
@@ -18,6 +68,30 @@ impl OrdinaryNewClaimLedgerV1 {
         })?;
         if completion.owner() != source.call_site().owner() {
             return Err(freeze("lexical-object/caller-completion-owner"));
+        }
+        // An original Append candidate is an expression acquisition, not a
+        // LOCAL/Return observation. Its source loan corroborates result class
+        // without inventing a binding, Home or local-call route. The packet
+        // still owes complete callee input/Normal/End and the real consumer
+        // must later bind caller cleanup before physical materialization.
+        if let Some(Ok(ingress)) = &self.borrowed_formal_source {
+            if let Some(producer) = ingress.original_array_producer_source_v1(source)? {
+                self.callable_result_classes
+                    .recheck_object_call_roots_v1(source, producer)
+                    .map_err(|issue| freeze(&format!("lexical-object/array-source/{issue}")))?;
+                use crate::mir::normal_callable_semantic_package::OrdinaryNewResultClassV1;
+                let expected = match producer.result_class() {
+                    OrdinaryNewResultClassV1::Object(_) => InvokeCallResultKind::Handle,
+                    OrdinaryNewResultClassV1::NullableObject(_) => {
+                        InvokeCallResultKind::NullableHandle
+                    }
+                    _ => return Err(freeze("lexical-object/array-source-result")),
+                };
+                if result.is_some_and(|kind| kind != expected) {
+                    return Err(freeze("lexical-object/array-result-observation"));
+                }
+                return Ok(Some(false));
+            }
         }
         let Some(flow) = completion.cleanup().root_flow() else {
             return Ok(None);

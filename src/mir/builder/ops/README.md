@@ -69,7 +69,12 @@ zero.
 first, and gives the existing `logical_shortcircuit.rs` owner one deferred RHS closure.
 That owner invokes the closure only after entering the eval-RHS block. Branch
 layout, variable snapshots, PHIs, result type, and diagnostics remain in the
-existing owner.
+existing owner. Its recorded completion retains the actual condition
+materializations, both Branches, three result paths, result Phi and every
+variable-carrier Phi from that same writer. Child expression instructions
+remain with their source owners. The completion alone grants no source frame,
+Home, control permission or final publication; those consumers must retain the
+exact original logical node and conditional reach.
 
 SC0-P0 retains the pre-I0 raw orchestration only as one `#[cfg(test)]`
 reference. Fresh selected/reference Builders compare result or error, ordered

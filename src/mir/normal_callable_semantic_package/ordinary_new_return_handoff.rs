@@ -2,14 +2,14 @@
 //! This receipt precedes Normal projection and independent physical validation.
 use super::super::{result_class_claim, OrdinaryNewClaimLedgerV1};
 use super::return_acquisition::VerifiedObjectReturnSourceAcquisitionV1;
-use super::return_leaf::VerifiedObjectReturnLeafV1;
+use super::return_leaf::{ObjectReturnFieldSupportV1, VerifiedObjectReturnLeafV1};
 use crate::mir::normal_callable_semantic_package::{
     model::OwnedCallableParameterContractDeclarationV1,
     physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
     selected_mapping::VerifiedSelectedCallableBatchMapV1,
 };
 use crate::mir::resolved_semantics::home_new_prefix::{
-    TerminalReturnedSourceV1, TerminalValueReturnV1,
+    TerminalRelationV1, TerminalReturnedSourceV1, TerminalValueReturnV1,
 };
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceStmtSiteV1};
 use result_class_claim::ResultWitnessStepV1;
@@ -21,6 +21,7 @@ pub(super) struct VerifiedObjectReturnHandoffV1 {
     acquisition: VerifiedObjectReturnSourceAcquisitionV1,
     alternatives: Box<[VerifiedObjectReturnAlternativeV1]>,
     teardown: ObjectReturnTeardownAvailabilityV1,
+    supports: Box<[ObjectReturnFieldSupportV1]>,
 }
 #[derive(Debug)]
 pub(super) enum VerifiedObjectReturnAlternativeV1 {
@@ -37,6 +38,10 @@ impl VerifiedObjectReturnHandoffV1 {
         &self.teardown
     }
 
+    pub(super) fn field_supports_v1(&self) -> &[ObjectReturnFieldSupportV1] {
+        &self.supports
+    }
+
     pub(super) fn acquisition(&self) -> &VerifiedObjectReturnSourceAcquisitionV1 {
         &self.acquisition
     }
@@ -47,6 +52,7 @@ impl VerifiedObjectReturnHandoffV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ObjectReturnHandoffUnavailableV1 {
     Acquisition,
+    FieldSupport,
     BorrowedOrigin,
     CalleeCompletion,
     Leaf,
@@ -68,6 +74,71 @@ pub(super) struct ObjectReturnHandoffMemoV1 {
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    fn object_return_handoff_supports_v1(
+        &self,
+        acquisition: &VerifiedObjectReturnSourceAcquisitionV1,
+        alternatives: &[VerifiedObjectReturnAlternativeV1],
+    ) -> Result<Option<Box<[ObjectReturnFieldSupportV1]>>, String> {
+        self.object_return_handoff_supports_with_v1(acquisition, alternatives, |_, _| Ok(()))
+    }
+
+    fn object_return_handoff_supports_with_v1(
+        &self,
+        acquisition: &VerifiedObjectReturnSourceAcquisitionV1,
+        alternatives: &[VerifiedObjectReturnAlternativeV1],
+        visit: impl FnMut(&ObjectReturnFieldSupportV1, &ObjectReturnFieldSupportV1) -> Result<(), String>,
+    ) -> Result<Option<Box<[ObjectReturnFieldSupportV1]>>, String> {
+        let mut required = Vec::new();
+        let mut missing = false;
+        for alternative in alternatives {
+            match alternative {
+                VerifiedObjectReturnAlternativeV1::Leaf(leaf) => {
+                    required.extend(self.object_return_leaf_supports_v1(leaf)?);
+                }
+                VerifiedObjectReturnAlternativeV1::Call(child) => {
+                    missing |= !self.recheck_object_return_field_supports_v1(child)?;
+                    required.extend(child.supports.iter().cloned());
+                }
+            }
+        }
+        let composed = self.compose_object_return_field_supports_with_v1(acquisition, &required, visit)?;
+        Ok(if missing { None } else { composed })
+    }
+
+    pub(super) fn recheck_object_return_field_supports_v1(
+        &self,
+        proof: &VerifiedObjectReturnHandoffV1,
+    ) -> Result<bool, String> {
+        let Some(current) = self.object_return_handoff_supports_v1(&proof.acquisition, &proof.alternatives)? else {
+            return Ok(false);
+        };
+        if current != proof.supports { return Err(freeze("handoff-field-support-drift")); }
+        Ok(true)
+    }
+
+    /// Borrow every original call-hop support pair from the SAME retained
+    /// Normal proof. The observer cannot mint a missing support or own a Home.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn visit_return_field_support_substitutions_v1(
+        &self, owner: FunctionOwnerIdV1, exit: &SourceStmtSiteV1,
+        visit: impl FnMut(&ObjectReturnFieldSupportV1, &ObjectReturnFieldSupportV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        let Some(super::normal_return::NormalReturnDispositionV1::Verified { proof }) =
+            self.normal_return_dispositions.as_ref().and_then(|rows| rows.get(&(owner, exit.clone())))
+        else { return Err(freeze("field-support/original-normal-proof")); };
+        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
+        else { return Err(freeze("field-support/original-terminal")); };
+        let TerminalReturnedSourceV1::OwnedCall(original) = terminal.returned()
+        else { return Err(freeze("field-support/original-call")); };
+        if terminal.owner() != owner || terminal.return_site() != exit
+            || proof.acquisition.original() != original.as_ref()
+            || self.normal_exit_projection_v1(owner, exit)?.is_none()
+        { return Err(freeze("field-support/original-acquisition")); }
+        let current = self.object_return_handoff_supports_with_v1(&proof.acquisition, &proof.alternatives, visit)?
+            .ok_or_else(|| freeze("field-support/unavailable"))?;
+        if current != proof.supports { return Err(freeze("field-support/retained-census")); }
+        Ok(())
+    }
+
     pub(super) fn checked_object_return_handoff_v1(
         &self,
         value: &TerminalValueReturnV1,
@@ -187,9 +258,13 @@ impl OrdinaryNewClaimLedgerV1 {
             if let Some(reason) = missing {
                 return Ok(Unavailable(reason));
             }
+            let Some(supports) = self.object_return_handoff_supports_v1(&acquisition, &alternatives)? else {
+                return Ok(Unavailable(ObjectReturnHandoffUnavailableV1::FieldSupport));
+            };
             let teardown = teardown::reduce(&alternatives)?;
             Ok(Verified(Rc::new(VerifiedObjectReturnHandoffV1 {
                 teardown,
+                supports,
                 acquisition,
                 alternatives: alternatives.into_boxed_slice(),
             })))

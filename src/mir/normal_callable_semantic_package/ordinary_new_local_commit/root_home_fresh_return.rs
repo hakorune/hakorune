@@ -3,6 +3,92 @@ use super::super::physical_boundary::FinishedBindings;
 use super::*;
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Lend the original completed Construction's End; do not install a Home.
+    fn completed_fresh_return_cleanup(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<Option<(ValueId, Vec<RootHomeReleaseOriginV1>)>, String> {
+        let Some(TerminalRelationV1::Value(terminal)) = self.terminal_relation_for_owner_at(owner, exit)
+        else { return Ok(None) };
+        let TerminalReturnedSourceV1::Construction(site) = terminal.returned()
+        else { return Ok(None) };
+        if terminal.owner() != owner || terminal.return_site() != exit
+            || site != &OwnedExprSiteV1::new(owner, terminal.value_site().clone())
+        { return Err(freeze("fresh-result-cleanup/source")); }
+        let rows = self.local_commits.borrow();
+        let Some(LocalCommitV1::Result(row)) = rows.get(site)
+        else { return Err(freeze("fresh-result-cleanup/commit")) };
+        // Preserve diagnostic-only construction unavailability. It issues no
+        // End plan or artifact permission, as in the producer checker below.
+        if matches!(row.emission, NewEmissionProgress::RetainedUnavailable { .. }) {
+            return Ok(None);
+        }
+        if &row.site != site || !matches!(&row.construction, Ok(plan) if plan.object() == row.object)
+            || row.home_prefix.is_err() || row.argument_rows.is_err()
+        { return Err(freeze("fresh-result-cleanup/construction")); }
+        let NewEmissionProgress::Emitted { result, progress, .. } = &row.emission
+        else { return Err(freeze("fresh-result-cleanup/not-emitted")) };
+        if !matches!(progress, EmittedLocalProgress::ExpressionCompleted)
+            && !matches!(progress, EmittedLocalProgress::Checked { local } if local == result)
+        { return Err(freeze("fresh-result-cleanup/not-completed")); }
+        let children = match row.destruction {
+            super::super::super::ObjectDestructionDispositionV1::PlainI64NoHook => &[][..],
+            super::super::super::ObjectDestructionDispositionV1::OwnedArrayFieldsNoHook
+            | super::super::super::ObjectDestructionDispositionV1::OwnedObjectFieldsNoHook =>
+                row.children.as_deref().ok_or_else(|| freeze("fresh-result-cleanup/children"))?,
+            super::super::super::ObjectDestructionDispositionV1::Unavailable(_) =>
+                return Err(freeze("fresh-result-cleanup/destruction")),
+        };
+        let origins = super::super::super::object_end::operations_v1(row.object, false, children, *result)
+            .map(|(field, operation)| RootHomeReleaseOriginV1 {
+                subject: match field {
+                    Some(field) => RootHomeReleaseSubjectV1::DirectResultField { site: site.clone(), field },
+                    None => RootHomeReleaseSubjectV1::DirectResult { site: site.clone() },
+                },
+                operation,
+                exit: exit.clone().into(),
+            }).collect();
+        Ok(Some((*result, origins)))
+    }
+
+    pub(crate) fn bind_root_fresh_result_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        value: ValueId,
+    ) -> Result<(), String> {
+        let mut exits = self.root_exits.borrow_mut();
+        let Some(RootHomeExitProgress::Emitting(order)) = exits.get_mut(&(owner, exit.clone().into()))
+        else { return Err(freeze("fresh-result-cleanup/not-emitting")) };
+        // Without a Normal cleanup step there is no later cleanup Fault.
+        if order.normal().is_empty() { return Ok(()) }
+        let Some((original, origins)) = self.completed_fresh_return_cleanup(owner, exit)?
+        else { return Ok(()) };
+        if original != value { return Err(freeze("fresh-result-cleanup/value")); }
+        order.prepend_fault_only_result(origins)
+    }
+}
+
+impl RootHomeCleanupOrderV1 {
+    pub(super) fn validate_fresh_result_cleanup(
+        &self,
+        ledger: &OrdinaryNewClaimLedgerV1,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+        entry: &RootHomeExitEntry,
+    ) -> Result<(), String> {
+        if self.normal().is_empty() { return Ok(()) }
+        let Some((_, origins)) = ledger.completed_fresh_return_cleanup(owner, exit)?
+        else { return Ok(()) };
+        if !matches!(entry, RootHomeExitEntry::Plain { .. }) {
+            return Err(freeze("fresh-result-cleanup/entry"));
+        }
+        self.validate_fault_only_result(&origins)
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_fresh_return_producer_v1(
         &self,
         owner: FunctionOwnerIdV1,

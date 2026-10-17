@@ -271,6 +271,9 @@ fn module_contains_no_partial_or_physical_authority() {
 #[test]
 fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract() {
     for family in [
+        DynamicOperatorFamilyV1::Equal,
+        DynamicOperatorFamilyV1::NotEqual,
+        DynamicOperatorFamilyV1::Less,
         DynamicOperatorFamilyV1::Greater,
         DynamicOperatorFamilyV1::GreaterEqual,
         DynamicOperatorFamilyV1::LessEqual,
@@ -316,20 +319,39 @@ fn checked_integer_comparisons_preserve_complete_borrowed_normal_fault_contract(
 }
 
 #[test]
-fn inclusive_integer_comparisons_refuse_every_other_operand_domain() {
+fn checked_integer_comparisons_refuse_every_other_operand_domain() {
     let classes = [
         DynamicOperatorValueClassV1::Dynamic,
+        DynamicOperatorValueClassV1::String,
         DynamicOperatorValueClassV1::I64,
         DynamicOperatorValueClassV1::NormalInteger,
         DynamicOperatorValueClassV1::Null,
     ];
     for family in [
+        DynamicOperatorFamilyV1::Equal,
+        DynamicOperatorFamilyV1::NotEqual,
+        DynamicOperatorFamilyV1::Less,
+        DynamicOperatorFamilyV1::Greater,
         DynamicOperatorFamilyV1::GreaterEqual,
         DynamicOperatorFamilyV1::LessEqual,
     ] {
         for left in classes {
             for right in classes {
                 if left == DynamicOperatorValueClassV1::NormalInteger && right == left {
+                    continue;
+                }
+                // Retain the independently supported Dynamic domains. They
+                // never grant the checked NormalInteger operand view.
+                if (family == DynamicOperatorFamilyV1::Equal
+                    && matches!((left, right),
+                        (DynamicOperatorValueClassV1::Dynamic, DynamicOperatorValueClassV1::Null)
+                        | (DynamicOperatorValueClassV1::Null, DynamicOperatorValueClassV1::Dynamic)))
+                    || (family == DynamicOperatorFamilyV1::Less
+                        && left == DynamicOperatorValueClassV1::Dynamic
+                        && matches!(right, DynamicOperatorValueClassV1::Dynamic | DynamicOperatorValueClassV1::I64))
+                {
+                    assert_ne!(issue(family, left, right).unwrap().domain().left(),
+                        DynamicOperatorValueClassV1::NormalInteger);
                     continue;
                 }
                 assert_eq!(

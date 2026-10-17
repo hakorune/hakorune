@@ -21,10 +21,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     proof: &BorrowedI64ResultSourceV1,
     source: &PreparedBorrowedFormalIngressV1,
 ) -> Result<(), String> {
-    let draft = source
-        .definitions
-        .get(&owner)
-        .ok_or_else(|| freeze("borrowed-result/mul-entry-owner"))?;
+    let Some(draft) = source.definitions.get(&owner) else {
+        // The same result producer checked the original parameter census and
+        // retained this declaration; no borrowed Mul product can be issued there.
+        if proof.parameterless_instance.as_ref().is_some_and(|(original_owner, _, key)|
+            *original_owner == owner && key.arity() == 0
+                && key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod)
+            && proof.multiplications.is_empty()
+        { return Ok(()); }
+        return Err(freeze("borrowed-result/mul-entry-owner"));
+    };
     let expected: BTreeSet<_> = draft
         .uses
         .iter()

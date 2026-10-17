@@ -7,6 +7,14 @@
 use super::*;
 use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourceStmtSiteV1};
 
+/// One original literal emission, completed only by the actual Return owner.
+#[derive(Debug, Clone, PartialEq)]
+pub(super) struct TerminalScalarLiteralEmissionV1 {
+    pub(super) value: crate::mir::ValueId,
+    pub(super) producer: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+    pub(super) returned: Option<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn root_owner(
         &self,
@@ -258,11 +266,11 @@ impl OrdinaryNewClaimLedgerV1 {
             && self
                 .terminal_relation
                 .iter()
-                .filter(|(_, relation)| matches!(relation, TerminalRelationV1::IntegerLiteral(_)))
+                .filter(|(_, relation)| matches!(relation, TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_)))
                 .all(|(site, _)| {
-                    self.terminal_integer_literal_value
+                    self.terminal_scalar_literal_value
                         .borrow()
-                        .contains_key(site)
+                        .get(site).is_some_and(|row| row.producer.is_some() && row.returned.is_some())
                 })
             && self
                 .terminal_relation_index
@@ -274,12 +282,12 @@ impl OrdinaryNewClaimLedgerV1 {
                         .map(move |(site, relation)| (owner, site, relation))
                 })
                 .filter(|(_, _, relation)| {
-                    matches!(relation, TerminalRelationV1::IntegerLiteral(_))
+                    matches!(relation, TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_))
                 })
                 .all(|(owner, site, _)| {
-                    self.terminal_integer_literal_values
+                    self.terminal_scalar_literal_values
                         .borrow()
-                        .contains_key(&(*owner, site.clone()))
+                        .get(&(*owner, site.clone())).is_some_and(|row| row.producer.is_some() && row.returned.is_some())
                 })
             && self.terminal_i64_field_return_complete()
             && self.root_instance_call_is_empty()
@@ -393,16 +401,19 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    pub(crate) fn prepare_terminal_integer_literal_return(
+    pub(crate) fn prepare_terminal_scalar_literal_return(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
-    ) -> Result<Option<i64>, String> {
+    ) -> Result<Option<crate::mir::ConstValue>, String> {
         let stmt_site = SourceStmtSiteV1::from_node(site.clone());
-        let Some(TerminalRelationV1::IntegerLiteral(relation)) =
-            self.terminal_relation_for_owner_at(owner, &stmt_site)
-        else {
+        let Some(relation) = self.terminal_relation_for_owner_at(owner, &stmt_site) else {
             return Ok(None);
+        };
+        let literal = match relation {
+            TerminalRelationV1::IntegerLiteral(row) => crate::mir::ConstValue::Integer(row.value()),
+            TerminalRelationV1::BoolLiteral(row) => crate::mir::ConstValue::Bool(row.value()),
+            _ => return Ok(None),
         };
         let Some(completion) = self.completion_for_owner(owner) else {
             return Err("[freeze:contract][ordinary-new/literal-completion-missing]".into());
@@ -411,21 +422,21 @@ impl OrdinaryNewClaimLedgerV1 {
             || completion.owner() != owner
             || !completion.explicit_sites().contains(&stmt_site)
             || if self.terminal_scalar_uses_child_storage(owner, &stmt_site) {
-                self.terminal_integer_literal_values
+                self.terminal_scalar_literal_values
                     .borrow()
                     .contains_key(&(owner, stmt_site.clone()))
             } else {
-                self.terminal_integer_literal_value
+                self.terminal_scalar_literal_value
                     .borrow()
                     .contains_key(&stmt_site)
             }
         {
             return Err("[freeze:contract][ordinary-new/literal-source-drift]".into());
         }
-        Ok(Some(relation.value()))
+        Ok(Some(literal))
     }
 
-    pub(crate) fn record_terminal_integer_literal_return(
+    pub(crate) fn record_terminal_scalar_literal_return(
         &self,
         owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
         site: &SourceNodeSiteV1,
@@ -434,26 +445,21 @@ impl OrdinaryNewClaimLedgerV1 {
         let stmt_site = SourceStmtSiteV1::from_node(site.clone());
         if !matches!(
             self.terminal_relation_for_owner_at(owner, &stmt_site),
-            Some(TerminalRelationV1::IntegerLiteral(_))
+            Some(TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_))
         ) {
             return Err("[freeze:contract][ordinary-new/literal-duplicate]".into());
         }
+        use std::collections::btree_map::Entry;
         if self.terminal_scalar_uses_child_storage(owner, &stmt_site) {
-            if self
-                .terminal_integer_literal_values
-                .borrow_mut()
-                .insert((owner, stmt_site), value)
-                .is_some()
-            {
-                return Err("[freeze:contract][ordinary-new/literal-duplicate]".into());
+            match self.terminal_scalar_literal_values.borrow_mut().entry((owner, stmt_site)) {
+                Entry::Vacant(row) => { row.insert(TerminalScalarLiteralEmissionV1 { value, producer: None, returned: None }); }
+                Entry::Occupied(_) => return Err("[freeze:contract][ordinary-new/literal-duplicate]".into()),
             }
-        } else if self
-            .terminal_integer_literal_value
-            .borrow_mut()
-            .insert(stmt_site, value)
-            .is_some()
-        {
-            return Err("[freeze:contract][ordinary-new/literal-duplicate]".into());
+        } else {
+            match self.terminal_scalar_literal_value.borrow_mut().entry(stmt_site) {
+                Entry::Vacant(row) => { row.insert(TerminalScalarLiteralEmissionV1 { value, producer: None, returned: None }); }
+                Entry::Occupied(_) => return Err("[freeze:contract][ordinary-new/literal-duplicate]".into()),
+            }
         }
         Ok(())
     }
@@ -500,3 +506,60 @@ mod object_return_source_tests;
 #[cfg(test)]
 #[path = "ordinary_new_terminal_storage_tests.rs"]
 mod storage_tests;
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(crate) fn record_terminal_literal_producer_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1, binding: (crate::mir::BasicBlockId, crate::mir::MirInstruction),
+        function: &crate::mir::MirFunction,
+    ) -> Result<(), String> {
+        let literal = match self.terminal_relation_for_owner_at(owner, site) {
+            Some(TerminalRelationV1::IntegerLiteral(row)) => crate::mir::ConstValue::Integer(row.value()),
+            Some(TerminalRelationV1::BoolLiteral(row)) => crate::mir::ConstValue::Bool(row.value()),
+            _ => return Err("[freeze:contract][ordinary-new/literal-source-drift]".into()),
+        };
+        if !function.blocks.get(&binding.0).is_some_and(|block|
+            block.all_instructions().filter(|actual| *actual == &binding.1).count() == 1)
+        { return Err("[freeze:contract][ordinary-new/literal-producer-missing]".into()); }
+        self.with_terminal_literal_emission_v1(owner, site, |row| {
+            if row.producer.is_some() || !matches!(&binding.1,
+                crate::mir::MirInstruction::Const { dst, value } if *dst == row.value && *value == literal)
+            { return Err("[freeze:contract][ordinary-new/literal-producer-drift]".into()); }
+            row.producer = Some(binding);
+            Ok(())
+        })
+    }
+
+    pub(crate) fn complete_terminal_literal_return_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        site: &SourceStmtSiteV1, bindings: &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)],
+    ) -> Result<(), String> {
+        self.with_terminal_literal_emission_v1(owner, site, |row| {
+            let mut returns = bindings.iter().filter(|(_, instruction)| matches!(instruction, crate::mir::MirInstruction::Return { .. }));
+            let returned = returns.next().ok_or("[freeze:contract][ordinary-new/literal-return-missing]")?;
+            if row.producer.is_none() || row.returned.is_some() || returns.next().is_some()
+                || !matches!(returned.1, crate::mir::MirInstruction::Return { value: Some(value) } if value == row.value)
+            { return Err("[freeze:contract][ordinary-new/literal-return-drift]".into()); }
+            row.returned = Some(returned.clone());
+            Ok(())
+        })
+    }
+
+    fn with_terminal_literal_emission_v1(
+        &self, owner: crate::mir::resolved_semantics::FunctionOwnerIdV1, site: &SourceStmtSiteV1,
+        operation: impl FnOnce(&mut TerminalScalarLiteralEmissionV1) -> Result<(), String>,
+    ) -> Result<(), String> {
+        if !self.terminal_relation_for_owner_at(owner, site).is_some_and(|relation|
+            relation.owner() == owner && matches!(relation, TerminalRelationV1::IntegerLiteral(_) | TerminalRelationV1::BoolLiteral(_)))
+            || !self.completion_for_owner(owner).is_some_and(|completion|
+                completion.owner() == owner && completion.explicit_sites().contains(site))
+        { return Err("[freeze:contract][ordinary-new/literal-source-drift]".into()); }
+        if self.terminal_scalar_uses_child_storage(owner, site) {
+            let mut rows = self.terminal_scalar_literal_values.borrow_mut();
+            operation(rows.get_mut(&(owner, site.clone())).ok_or("[freeze:contract][ordinary-new/literal-unconsumed]")?)
+        } else {
+            let mut rows = self.terminal_scalar_literal_value.borrow_mut();
+            operation(rows.get_mut(site).ok_or("[freeze:contract][ordinary-new/literal-unconsumed]")?)
+        }
+    }
+}

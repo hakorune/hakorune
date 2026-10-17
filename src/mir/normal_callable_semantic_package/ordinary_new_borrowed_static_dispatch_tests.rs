@@ -55,7 +55,7 @@ fn static_dispatch_preserves_selected_error_and_unselected_literal_scope() {
             &sibling_claim
         };
         let mut pending = BTreeMap::new();
-        let result = borrowed_call_arguments_callback_v1(
+        let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
             &Ok(Vec::new()),
             &package.parameter_contracts,
             &[],
@@ -63,12 +63,12 @@ fn static_dispatch_preserves_selected_error_and_unselected_literal_scope() {
             source,
             selection,
             &mut pending,
-            &BTreeMap::new(),
+            &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1::default(),
             &mut |_| None,
             site,
             BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
             &package.ordinary_new_claim_ledger.callable_result_classes,
-            &package.ordinary_new_claim_ledger.receiver_call_observations,
+            &package.ordinary_new_claim_ledger.receiver_call_observations, &package.ordinary_new_claim_ledger.field_write_claims,
         );
         assert!(pending.is_empty());
         result
@@ -129,7 +129,7 @@ fn static_dispatch_selected_missing_fact_cannot_fall_back() {
         .as_ref()
         .unwrap();
     assert!(missing.as_ref().unwrap().static_arguments.is_empty());
-    let result = borrowed_call_arguments_callback_v1(
+    let result = borrowed_call_arguments_callback_v1(package.batch(), &package.selected,
         &Ok(Vec::new()),
         &package.parameter_contracts,
         &[],
@@ -137,12 +137,12 @@ fn static_dispatch_selected_missing_fact_cannot_fall_back() {
         missing,
         &Ok(BTreeSet::from([site.clone()])),
         &mut BTreeMap::new(),
-        &BTreeMap::new(),
+        &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1::default(),
         &mut |_| None,
         &site,
         BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(&claim),
         &package.ordinary_new_claim_ledger.callable_result_classes,
-        &package.ordinary_new_claim_ledger.receiver_call_observations,
+        &package.ordinary_new_claim_ledger.receiver_call_observations, &package.ordinary_new_claim_ledger.field_write_claims,
     );
     assert!(
         matches!(result, Err(OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { issue, .. }) if issue.contains("source-selection-identity"))

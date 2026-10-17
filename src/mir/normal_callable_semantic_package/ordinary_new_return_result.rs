@@ -15,7 +15,90 @@ use crate::mir::resolved_control_flow::DeclaredFunctionResultContractV1;
 use crate::mir::resolved_semantics::home_new_prefix::TerminalReturnedSourceV1;
 use std::rc::Rc;
 
+/// One original result census occurrence, including Null/Fresh with no supports.
+/// A Call occurrence borrows its whole conditional handoff requirements; the
+/// root is an identity token, never permission to prune those requirements.
+#[derive(Debug, Clone)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct ObjectCallFieldSupportRequirementV1 {
+    root: Rc<super::super::result_class_claim::ResultOriginWitnessV1>,
+    exit: crate::mir::resolved_semantics::SourceStmtSiteV1,
+    supports: Box<[super::return_leaf::ObjectReturnFieldSupportV1]>,
+}
+impl ObjectCallFieldSupportRequirementV1 {
+    /// Join requirements to this call's original actual storage, without
+    /// changing its source kind or issuing an executable/lifetime permission.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn visit_actuals_v1(
+        requirements: &[Self],
+        target: &LexicalInstanceCallSourceTargetV1,
+        actuals: &[super::super::lexical_instance_call::PreparedBorrowedFormalActualV1],
+        mut visit: impl FnMut(
+            &super::return_leaf::ObjectReturnFieldSupportV1,
+            &super::super::lexical_instance_call::PreparedBorrowedFormalActualV1,
+        ) -> Result<(), String>,
+    ) -> Result<(), String> {
+        for requirement in requirements.iter().flat_map(|group| group.supports_v1()) {
+            let mut matching = actuals.iter().filter(|actual| actual.ordinal == requirement.ordinal);
+            let actual = matching.next().ok_or_else(|| freeze("object-packet/field-support-actual-missing"))?;
+            if matching.next().is_some() || actual.formal != requirement.formal
+                || requirement.formal.owner() != target.callee_owner()
+                || target.argument_sites().get(requirement.ordinal as usize) != Some(&actual.site) {
+                return Err(freeze("object-packet/field-support-actual-identity"));
+            }
+            visit(requirement, actual)?;
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn supports_v1(&self) -> &[super::return_leaf::ObjectReturnFieldSupportV1] {
+        &self.supports
+    }
+}
+impl PartialEq for ObjectCallFieldSupportRequirementV1 {
+    fn eq(&self, other: &Self) -> bool {
+        Rc::ptr_eq(&self.root, &other.root) && self.exit == other.exit && self.supports == other.supports
+    }
+}
+impl Eq for ObjectCallFieldSupportRequirementV1 {}
+
+/// Existing full-result proof with its original, ordered field support census.
+#[derive(Debug)]
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct CheckedObjectCalleeSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) kind: InvokeCallResultKind,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) teardown: ObjectReturnTeardownAvailabilityV1,
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) field_supports: Box<[ObjectCallFieldSupportRequirementV1]>,
+}
+
 impl OrdinaryNewClaimLedgerV1 {
+    /// Array producer demand uses the same full result/Normal/End owner.
+    /// The immutable source loan is rechecked before any capability is observed.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn checked_array_producer_teardown_v1(
+        &self,
+        producer: &super::super::result_class_claim::ObjectCallSourceLoanV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<Option<super::return_leaf::ObjectReturnTeardownDescriptorV1>, String> {
+        let target = producer.source();
+        self.callable_result_classes.recheck_object_call_roots_v1(target, producer)
+            .map_err(|issue| freeze(issue))?;
+        let Some((kind, teardown)) = self.checked_object_callee_result_with_teardown_v1(target, results)? else {
+            return Ok(None);
+        };
+        let nullable = match producer.result_class() {
+            OrdinaryNewResultClassV1::Object(_) => false,
+            OrdinaryNewResultClassV1::NullableObject(_) => true,
+            _ => return Err(freeze("array-producer-class")),
+        };
+        if kind != if nullable { InvokeCallResultKind::NullableHandle } else { InvokeCallResultKind::Handle } {
+            return Err(freeze("array-producer-kind"));
+        }
+        let Some((descriptor, observed_nullable)) = teardown.descriptor() else {
+            return Err(freeze("array-producer-end-unavailable"));
+        };
+        if observed_nullable != nullable {
+            return Err(freeze("array-producer-nullability"));
+        }
+        Ok(Some(descriptor.clone()))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn checked_object_callee_result_v1(
         &self,
         source: &LexicalInstanceCallSourceTargetV1,
@@ -31,6 +114,15 @@ impl OrdinaryNewClaimLedgerV1 {
         source: &LexicalInstanceCallSourceTargetV1,
         results: &VerifiedCallableResultContractCohortV1,
     ) -> Result<Option<(InvokeCallResultKind, ObjectReturnTeardownAvailabilityV1)>, String> {
+        self.checked_object_callee_source_v1(source, results)
+            .map(|checked| checked.map(|source| (source.kind, source.teardown)))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn checked_object_callee_source_v1(
+        &self,
+        source: &LexicalInstanceCallSourceTargetV1,
+        results: &VerifiedCallableResultContractCohortV1,
+    ) -> Result<Option<CheckedObjectCalleeSourceV1>, String> {
         let row = results.row(source.target_batch_slot());
         if row.is_some_and(|row| row.owner() != source.callee_owner()) {
             return Err(freeze("cohort-owner"));
@@ -101,21 +193,37 @@ impl OrdinaryNewClaimLedgerV1 {
                     .is_none();
             }
         }
+        let Some((alternatives, field_supports)) = self.checked_object_callee_ancestry_v1(source)? else {
+            return Ok(None);
+        };
+        if missing { return Ok(None); }
+        let teardown = reduce_object_return_teardown_v1(&alternatives)?;
+        Ok(Some(CheckedObjectCalleeSourceV1 { kind, teardown, field_supports }))
+    }
+
+    fn checked_object_callee_ancestry_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<(Vec<VerifiedObjectReturnAlternativeV1>, Box<[ObjectCallFieldSupportRequirementV1]>)>, String> {
         let Some(exits) = self.checked_completed_object_callee_target_exits_v1(source)? else {
             return Ok(None);
         };
         let mut alternatives = Vec::new();
+        let mut field_supports = Vec::new();
+        let mut missing = false;
         for (witness, value) in exits.iter() {
+            let mut supports = Vec::new();
             match witness.step() {
                 ResultWitnessStepV1::FreshConstruction | ResultWitnessStepV1::NullLiteral => {
                     match self.checked_object_return_leaf_v1(source.target(), witness)? {
                         None => missing = true,
                         Some(VerifiedObjectReturnLeafV1::Null)
-                            if kind != InvokeCallResultKind::NullableHandle =>
+                            if !matches!(self.callable_result_classes.get(source.target()),
+                                Some(OrdinaryNewResultClassV1::NullableObject(_))) =>
                         {
                             return Err(freeze("null-result-kind"))
                         }
                         Some(leaf) => {
+                            supports.extend(self.object_return_leaf_supports_v1(&leaf)?);
                             alternatives.push(VerifiedObjectReturnAlternativeV1::Leaf(leaf))
                         }
                     }
@@ -140,6 +248,8 @@ impl OrdinaryNewClaimLedgerV1 {
                         Some(NormalReturnDispositionV1::Verified { proof })
                             if proof.acquisition().original() == original.as_ref() =>
                         {
+                            missing |= !self.recheck_object_return_field_supports_v1(proof)?;
+                            supports.extend_from_slice(proof.field_supports_v1());
                             alternatives
                                 .push(VerifiedObjectReturnAlternativeV1::Call(Rc::clone(proof)));
                         }
@@ -151,6 +261,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 }
                 ResultWitnessStepV1::Formal { .. } => missing = true,
             }
+            field_supports.push(ObjectCallFieldSupportRequirementV1 {
+                root: Rc::clone(witness), exit: value.return_site().clone(), supports: supports.into_boxed_slice(),
+            });
             missing |= self
                 .normal_exit_projection_v1(value.owner(), value.return_site())?
                 .is_none();
@@ -158,8 +271,17 @@ impl OrdinaryNewClaimLedgerV1 {
         if missing {
             return Ok(None);
         }
-        let teardown = reduce_object_return_teardown_v1(&alternatives)?;
-        Ok(Some((kind, teardown)))
+        Ok(Some((alternatives, field_supports.into_boxed_slice())))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn recheck_object_call_field_support_requirements_v1(
+        &self, source: &LexicalInstanceCallSourceTargetV1,
+        saved: &[ObjectCallFieldSupportRequirementV1],
+    ) -> Result<(), String> {
+        let (_, current) = self.checked_object_callee_ancestry_v1(source)?
+            .ok_or_else(|| freeze("field-support-source-unavailable"))?;
+        if current.as_ref() != saved { return Err(freeze("field-support-source-drift")); }
+        Ok(())
     }
 }
 fn freeze(reason: &str) -> String {

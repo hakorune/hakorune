@@ -238,6 +238,16 @@ impl OrdinaryNewClaimLedgerV1 {
         reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
         bindings: Vec<(BasicBlockId, MirInstruction)>,
     ) -> Result<(), String> {
+        let reads = (0..arguments.len()).map(|_| None).collect();
+        self.record_new_emission_with_field_array_reads(site, result, arguments, reads, reclaim, bindings)
+    }
+
+    pub(crate) fn record_new_emission_with_field_array_reads(
+        &self, site: &OwnedExprSiteV1, result: ValueId, arguments: Vec<ValueId>,
+        reads: Vec<Option<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1>>,
+        reclaim: Option<(ReclaimUnpublishedOriginV1, BasicBlockId, MirInstruction)>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<(), String> {
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get_mut(site)
@@ -248,7 +258,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref()
             .map_err(|_| freeze("argument-source-unavailable"))?
             .to_vec();
-        if source_arguments.len() != arguments.len() {
+        if source_arguments.len() != arguments.len() || reads.len() != arguments.len() {
             return Err(freeze("argument-count-drift"));
         }
         let emission = row
@@ -260,9 +270,16 @@ impl OrdinaryNewClaimLedgerV1 {
         let arguments = source_arguments
             .iter()
             .cloned()
-            .zip(arguments)
-            .map(|(source, value)| EmittedNewArgumentV1 { source, value })
-            .collect();
+            .zip(arguments).zip(reads)
+            .map(|((source, value), field_array_read)| {
+                match (source.field_array_read(), &field_array_read) {
+                    (None, None) => {},
+                    (Some(original), Some(read)) if read.matches(original, value) => {},
+                    _ => return Err(freeze("argument-read-record-drift")),
+                }
+                Ok(EmittedNewArgumentV1 { source, value, field_array_read })
+            })
+            .collect::<Result<_, String>>()?;
         *emission = NewEmissionProgress::Emitted {
             result,
             arguments,
@@ -301,7 +318,8 @@ impl OrdinaryNewClaimLedgerV1 {
             {
                 return Err(freeze("provider-birth-argument-drift"));
             }
-            emitted.push(EmittedNewArgumentV1 { source, value });
+            if source.field_array_read().is_some() { return Err(freeze("provider-argument-read-unconnected")); }
+            emitted.push(EmittedNewArgumentV1 { source, value, field_array_read: None });
         }
         self.provider_births.borrow_mut().push(ProviderBirthRecordV1 {
             site,
@@ -329,6 +347,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 LocalCommitV1::Ordinary(row) => row.emission.mark_checked(),
                 LocalCommitV1::Result(row) => row.emission.mark_result_checked(),
                 LocalCommitV1::Map(row) => row.mark_checked(),
+                LocalCommitV1::OwnedArray(row) => row.mark_checked(),
                 LocalCommitV1::CallReceived(row) => row.mark_checked(),
             }
         }
@@ -373,14 +392,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if self.child_physical_validation.borrow().contains_key(&owner) {
             return Err(freeze("duplicate-child-physical-validation"));
         }
+        self.seal_physical_observations_v1(owner)?;
         if let Some(view) = pending {
             self.validate_new_emissions_with_pending(owner, function, view)?;
         } else {
             self.validate_new_emissions(owner, function)?;
         }
         self.validate_field_reads(owner, function)?;
-        self.validate_terminal_integer_literal_return(owner, function)?;
+        self.validate_terminal_scalar_literal_return(owner, function)?;
         self.validate_terminal_i64_field_return_projected(owner, function, None)?;
+        self.validate_terminal_i64_add_return_projected(owner, function, None)?;
         let (bindings, selected_body_block) = if let Some(view) = pending {
             self.validate_root_home_exit_with_pending(owner, function, None, view)?;
             self.validate_root_cleanup_shape_with_pending(owner, function, view)?;

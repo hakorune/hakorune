@@ -179,3 +179,60 @@ fn legacy_completion_preserves_port_aware_instance_draft_contract() {
         assert_function_parity(&legacy_draft, &lookup_draft);
     }
 }
+
+#[test]
+fn source_result_finalizer_checks_every_return_operand_without_first_type_default() {
+    use crate::mir::{BasicBlock, ConstValue, EffectMask, ValueId};
+    use crate::mir::function::{FunctionSignature, MirFunction};
+    for is_bool in [false, true] {
+        let body = if is_bool { "return true" } else { "return 7" };
+        let package = crate::mir::normal_callable_semantic_package::issue_source_package_fixture_v1(
+            &format!("box Item {{ value: i64 birth() {{ me.value = 1 }} }} box Probe {{ flag: i64 birth() {{ me.flag = 0 }} leaf(p) {{ {body} }} bridge(h: Item, p) {{ if p <= 0 {{ return 0 }} local kept = new Probe() me.leaf(p) return 0 }} }} static box Main {{ main() {{ return 0 }} }}")
+        ).unwrap();
+        let ledger = package.ordinary_new_claim_ledger_for_test();
+        let kind = if is_bool {
+            crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool
+        } else { crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer };
+        let loan = package.batch().declarations()
+            .filter(|declaration| declaration.parameter_count() == 1)
+            .filter_map(|declaration| ledger.callable_scalar_result_source_v1(declaration.owner()).unwrap())
+            .find(|loan| loan.kind() == kind).unwrap_or_else(|| panic!("original source scalar participant {kind:?}"));
+        let flow = loan.completion().cleanup().root_flow().expect("original full callee Home walk");
+        assert!(flow.all_exits_ready());
+        for exit in loan.completion().explicit_sites() {
+            assert!(flow.exit_row(exit).unwrap().unwrap().homes().is_empty(), "pure literal callee Homes");
+        }
+        let expected = if is_bool { MirType::Bool } else { MirType::Integer };
+        let source = crate::mir::normal_callable_semantic_package::CallableResultSourceV1::Scalar(loan);
+        for change in 0..4 {
+            // Independent unpublished physical type fixture, not source-exit or
+            // executable-input acceptance. The result loan comes from real source.
+            let mut function = MirFunction::new(FunctionSignature {
+                name: "scalar-finalization-fixture".into(), params: Vec::new(),
+                return_type: MirType::Unknown, effects: EffectMask::PURE,
+            }, BasicBlockId(0));
+            let mut builder = MirBuilder::new();
+            for index in 0..2 {
+                let value = function.next_value_id();
+                let mut block = BasicBlock::new(BasicBlockId(index));
+                let correct = !(change == 1 && index == 1);
+                let constant = if is_bool == correct { ConstValue::Bool(true) } else { ConstValue::Integer(7) };
+                builder.function_state.type_ctx.value_types.insert(value,
+                    if matches!(constant, ConstValue::Bool(_)) { MirType::Bool } else { MirType::Integer });
+                block.add_instruction(MirInstruction::Const { dst: value, value: constant });
+                block.add_instruction(MirInstruction::Return { value: if index == 1 && change == 2 {
+                    None
+                } else if index == 1 && change == 3 { Some(ValueId(99)) } else { Some(value) } });
+                function.blocks.insert(block.id, block);
+            }
+            builder.function_state.current_function = Some(function);
+            builder.function_state.current_block = Some(BasicBlockId(0));
+            let finalized = builder.finalize_function_draft_with_body_sources_v1(true, None, Some(&source), None);
+            if change == 0 {
+                assert_eq!(finalized.unwrap().signature.return_type, expected);
+            } else {
+                assert!(finalized.unwrap_err().contains("callable-scalar/return-type-mismatch"));
+            }
+        }
+    }
+}

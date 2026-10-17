@@ -5,8 +5,8 @@
 //! `HomeFlowBranchDivergent` — never a union, never an empty substitution.
 //! Only a verified `ResolvedIfRegionBundleV1` admits the walk; any other `If`
 //! keeps `PrefixNotCovered`.
-use super::*;
 use super::SelectedLoopHomeLoanV1;
+use super::*;
 use crate::mir::resolved_semantics::{
     BodyChildRoleV1, BodyExpressionShapeV1, ResolvedBinaryOperatorV1, ResolvedLexicalRefV1,
     ResolvedLiteralSourceV1,
@@ -64,13 +64,7 @@ fn walk_branch<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -94,7 +88,7 @@ fn walk_branch<'a, E>(
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -168,6 +162,7 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
     statement: &crate::mir::compiler::located::LocatedStmtV1<'_>,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
+    homes: &[BindingRefV1],
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -178,6 +173,7 @@ pub(super) fn stage_unobserved_statement_actuals<E>(
         statement.site().node(),
         locals,
         prefix_known,
+        homes,
         borrowed_actuals,
     )
 }
@@ -190,6 +186,7 @@ fn stage_subtree_call_actuals<E>(
     site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
     locals: &PrefixLocalFlow<'_>,
     prefix_known: bool,
+    homes: &[BindingRefV1],
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
         BorrowedCallActualRequestV1<'_>,
@@ -209,7 +206,7 @@ fn stage_subtree_call_actuals<E>(
     }) {
         let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
         for (call_site, actuals) in
-            local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known)
+            local_call_flow::observe_borrowed_call_actuals(input, &owned, locals, prefix_known, homes)
         {
             borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
         }
@@ -283,13 +280,7 @@ pub(super) fn observe_if_statement<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -313,7 +304,7 @@ pub(super) fn observe_if_statement<'a, E>(
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -347,6 +338,7 @@ pub(super) fn observe_if_statement<'a, E>(
             condition.site().node(),
             locals,
             prefix_known,
+            homes,
             borrowed_actuals,
         )?;
     }
@@ -364,6 +356,7 @@ pub(super) fn observe_if_statement<'a, E>(
                 statement,
                 locals,
                 prefix_known,
+                homes,
                 borrowed_actuals,
             )?;
             return Ok(false);
@@ -400,6 +393,7 @@ pub(super) fn observe_if_statement<'a, E>(
             statement,
             locals,
             prefix_known,
+            homes,
             borrowed_actuals,
         )?;
         return Ok(false);
@@ -411,7 +405,36 @@ pub(super) fn observe_if_statement<'a, E>(
         unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
         return Ok(false);
     };
-    if scalar_expression::contains_source_request(
+    let whole_condition = super::condition::observe(input, statement.site(), locals, homes,
+        prefix_known, local_calls, path_calls, local_field_read, borrowed_actuals)?;
+    if matches!(whole_condition, super::condition::ConditionInstallationV1::Refused) {
+        unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+        stage_unobserved_statement_actuals(input, statement, locals, prefix_known, homes, borrowed_actuals)?;
+        return Ok(false);
+    }
+    let whole_selected = matches!(whole_condition, super::condition::ConditionInstallationV1::Installed);
+    let condition_call = if whole_selected {
+        local_call_flow::SourceScalarConditionCallV1::Unselected
+    } else {
+        local_call_flow::issue_source_scalar_condition_call_v1(
+        input, statement.site(), &OwnedExprSiteV1::new(input.owner(), condition.site().clone()), homes,
+        &mut |binding| locals.field_alias_call_path(binding), borrowed_actuals,
+    )?
+    };
+    let condition_selected = whole_selected || match condition_call {
+        local_call_flow::SourceScalarConditionCallV1::Ready(observation) => {
+            path_calls.insert(observation.site().clone());
+            local_calls.push(observation);
+            true
+        }
+        local_call_flow::SourceScalarConditionCallV1::Refused => {
+            unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+            stage_unobserved_statement_actuals(input, statement, locals, prefix_known, homes, borrowed_actuals)?;
+            return Ok(false);
+        }
+        local_call_flow::SourceScalarConditionCallV1::Unselected => false,
+    };
+    if !condition_selected && scalar_expression::contains_source_request(
         input,
         condition.site(),
         locals,
@@ -426,6 +449,7 @@ pub(super) fn observe_if_statement<'a, E>(
             local_field_read,
             statement.site(),
             homes,
+            prefix_known,
             local_static_call,
             &mut |operand, binary| {
                 view_use(
@@ -446,6 +470,7 @@ pub(super) fn observe_if_statement<'a, E>(
                 statement,
                 locals,
                 prefix_known,
+                homes,
                 borrowed_actuals,
             )?;
             return Ok(false);
@@ -455,15 +480,21 @@ pub(super) fn observe_if_statement<'a, E>(
 
     let base_covered = covered_statements.len();
     let base_selected = selected_seen.len();
+    let nullable_guard = null_guarded_local(input.function(), condition.site());
     let fork = |locals: &PrefixLocalFlow<'a>,
                 homes: &Vec<BindingRefV1>,
                 covered: &Vec<SourceStmtSiteV1>,
                 seen: &Vec<OwnedExprSiteV1>,
                 calls: &BTreeSet<OwnedExprSiteV1>,
-                issue: &Option<HomePrefixUnavailableV1>|
+                issue: &Option<HomePrefixUnavailableV1>,
+                nonnull: Option<BindingRefV1>|
      -> BranchPath<'a> {
+        let mut branch_locals = locals.clone();
+        if let Some(binding) = nonnull {
+            branch_locals.mark_borrowed_nullable_nonnull(binding);
+        }
         BranchPath {
-            locals: locals.clone(),
+            locals: branch_locals,
             homes: homes.clone(),
             covered: covered.clone(),
             selected_seen: seen.clone(),
@@ -492,6 +523,9 @@ pub(super) fn observe_if_statement<'a, E>(
             selected_seen,
             path_calls,
             unavailable,
+            nullable_guard
+                .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::NotEqual))
+                .map(|(binding, _)| binding),
         ),
         field_is_integer,
         map_compatible,
@@ -534,6 +568,9 @@ pub(super) fn observe_if_statement<'a, E>(
                 selected_seen,
                 path_calls,
                 unavailable,
+                nullable_guard
+                    .filter(|(_, operator)| matches!(operator, ResolvedBinaryOperatorV1::Equal))
+                    .map(|(binding, _)| binding),
             ),
             field_is_integer,
             map_compatible,

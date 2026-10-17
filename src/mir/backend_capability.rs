@@ -18,8 +18,8 @@ pub(crate) fn enforce_published_lifecycle_backend_supported(
     view: &crate::mir::function::PublishedMirBackendView<'_>,
     input: &crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalAbiInputV1<'_>,
 ) -> Result<(), String> {
-    crate::mir::named_array_obligation::reject_unretained_module(view.module())?;
     validate_published_ingress(view)?;
+    view.validate_lifecycle_input_handoff(input)?;
     crate::mir::ownership_backend_capability::enforce(view.module(), "ny-llvmc-obj")?;
     crate::mir::exact_numeric_backend_capability::enforce_lifecycle_input(view.module(), input)?;
     enforce_before_typed_array_backend_supported_without_parameter_entry_or_return_exit(

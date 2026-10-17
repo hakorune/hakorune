@@ -27,6 +27,11 @@ pub(in crate::mir::builder) enum PreparedExactFieldReadClaimV1 {
 }
 
 enum PreparedRawFieldReadRouteV1 {
+    ResultPath {
+        object: ASTNode,
+        site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    },
     ExactObject {
         object: ASTNode,
         base: ValueId,
@@ -61,6 +66,10 @@ enum PreparedRawFieldReadRouteV1 {
 }
 
 impl PreparedRawFieldReadV1 {
+    pub(in crate::mir::builder) fn result_path(object: ASTNode,
+        site: crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ledger: std::rc::Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
+    ) -> Self { Self { route: PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } } }
     pub(in crate::mir::builder) fn exact_object(
         object: ASTNode,
         base: ValueId,
@@ -140,12 +149,110 @@ impl PreparedRawFieldReadV1 {
         matches!(
             self.route,
             PreparedRawFieldReadRouteV1::Dynamic { .. }
+                | PreparedRawFieldReadRouteV1::ResultPath { .. }
                 | PreparedRawFieldReadRouteV1::ExactObject { .. }
         )
     }
 }
 
 impl super::MirBuilder {
+    /// Sole exact-object field append. Call/field source owners supply the
+    /// already-qualified field and representation; this never selects a field.
+    pub(in crate::mir::builder) fn append_exact_object_field_read_v1(
+        &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        ty: crate::mir::MirType,
+    ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        let block = self.function_state.current_block
+            .ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
+        let dst = self.next_value_id();
+        let instruction = crate::mir::MirInstruction::ObjectFieldGet { dst, base, field };
+        self.emit_instruction(instruction.clone())?;
+        self.function_state.type_ctx.value_types.insert(dst, ty.clone());
+        if let Some(function) = self.function_state.current_function.as_mut() {
+            function.metadata.value_types.insert(dst, ty);
+        }
+        Ok((dst, (block, instruction)))
+    }
+
+    /// Sole checked received-field append. The caller supplies the enclosing
+    /// source-owned Fault cleanup; this writer never infers receiver authority.
+    pub(in crate::mir::builder) fn append_checked_received_field_read_v1(
+        &mut self, base: ValueId,
+        source: &crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1,
+        fault_frame: ValueId, normal: crate::mir::BasicBlockId, fault: crate::mir::BasicBlockId,
+    ) -> Result<(ValueId, [(crate::mir::BasicBlockId, crate::mir::MirInstruction); 2]), String> {
+        use crate::mir::{MirInstruction, MirType};
+        if !source.requires_checked_field_read_v1() || normal == fault {
+            return Err("[freeze:contract][ordinary-field-read/checked-source-missing]".into());
+        }
+        let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
+        let invoke = MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::FieldGet { field: source.field(), base },
+            fault_frame, normal_landing: normal, fault_landing: fault,
+        };
+        self.emit_instruction(invoke.clone())?;
+        self.start_new_block(normal)?;
+        let dst = self.next_value_id();
+        let projection = MirInstruction::InvokeNormalResult { invoke_block: block, dst };
+        self.emit_instruction(projection.clone())?;
+        self.function_state.type_ctx.value_types.insert(dst, MirType::Integer);
+        if let Some(function) = self.function_state.current_function.as_mut() {
+            function.metadata.value_types.insert(dst, MirType::Integer);
+        }
+        Ok((dst, [(block, invoke), (normal, projection)]))
+    }
+
+    /// Both raw FieldAccess and a retained expression consume this same
+    /// append/type/record transaction, preserving the original affine row.
+    pub(in crate::mir::builder) fn complete_exact_field_read_v1(
+        &mut self, base: ValueId, field: hakorune_mir_defs::CanonicalFieldRefV1,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+        claim: PreparedExactFieldReadClaimV1,
+    ) -> Result<(ValueId, (crate::mir::BasicBlockId, crate::mir::MirInstruction)), String> {
+        if matches!(&claim, PreparedExactFieldReadClaimV1::Local(source) if source.requires_checked_field_read_v1()) {
+            return Err("[freeze:contract][ordinary-field-read/checked-fault-context-missing]".into());
+        }
+        let ty = match &claim {
+            PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
+            PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(_)
+                | crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(_) => crate::mir::MirType::Box("ArrayBox".into()),
+            },
+        };
+        if let PreparedExactFieldReadClaimV1::Local(source) = &claim {
+            let array_field = match source.result() {
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::BorrowedArray(array) =>
+                    Some((array.requirement.owner(), array.requirement.field_site(), array.requirement.field_name())),
+                crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(array) =>
+                    Some((array.site().owner(), array.site().site(), array.name())),
+                _ => None,
+            };
+            if let Some((owner, source_site, field_name)) = array_field {
+                if source.field() != field || source_site != site.site() || owner != site.owner() {
+                    return Err("[freeze:contract][ordinary-field-read/array-source-drift]".into());
+                }
+                let block = self.function_state.current_block.ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
+                let dst = self.build_field_access_from_value(base, field_name.to_owned())?;
+                let mut emitted = self.function_state.current_function.as_ref().and_then(|f| f.blocks.get(&block))
+                    .into_iter().flat_map(|b| b.all_instructions()).filter(|instruction|
+                        matches!(instruction, crate::mir::MirInstruction::FieldGet { dst: actual, .. } if *actual == dst));
+                let instruction = emitted.next().cloned().ok_or("[freeze:contract][ordinary-field-read/array-emission-missing]")?;
+                if emitted.next().is_some() { return Err("[freeze:contract][ordinary-field-read/array-emission-duplicate]".into()); }
+                ledger.record_local_field_read_binding(site, block, instruction.clone(), source)?;
+                return Ok((dst, (block, instruction)));
+            }
+        }
+        let (dst, binding) = self.append_exact_object_field_read_v1(base, field, ty)?;
+        match claim {
+            PreparedExactFieldReadClaimV1::Terminal => ledger.record_terminal_field_read(site, binding.0, dst, base, field)?,
+            PreparedExactFieldReadClaimV1::Local(source) => ledger.record_local_field_read(site, binding.0, dst, base, field, &source)?,
+        }
+        Ok((dst, binding))
+    }
+
     pub(in crate::mir::builder) fn lower_prepared_raw_field_read_with_port_v1<Port>(
         &mut self,
         port: &mut Port,
@@ -155,6 +262,12 @@ impl super::MirBuilder {
         Port: RawAstChildLoweringPortV1,
     {
         match prepared.route {
+            PreparedRawFieldReadRouteV1::ResultPath { object, site, ledger } => {
+                let base = drive_legacy_expression_v1(self, port, object)?;
+                let source = ledger.bind_result_path_receiver_v1(&site, base)?;
+                self.complete_exact_field_read_v1(base, source.field(), &site, &ledger,
+                    PreparedExactFieldReadClaimV1::Local(source)).map(|(value, _)| value)
+            }
             PreparedRawFieldReadRouteV1::ExactObject {
                 object,
                 base,
@@ -169,33 +282,8 @@ impl super::MirBuilder {
                         "[freeze:contract][ordinary-field-read/receiver-value-mismatch]".into(),
                     );
                 }
-                let block = self
-                    .function_state
-                    .current_block
-                    .ok_or("[freeze:contract][ordinary-field-read/no-block]")?;
-                let dst = self.next_value_id();
-                self.emit_instruction(crate::mir::MirInstruction::ObjectFieldGet {
-                    dst,
-                    base,
-                    field,
-                })?;
-                let ty = match &claim {
-                    PreparedExactFieldReadClaimV1::Terminal => crate::mir::MirType::Integer,
-                    PreparedExactFieldReadClaimV1::Local(source) => match source.result() {
-                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar => crate::mir::MirType::Integer,
-                        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Alias(class) => crate::mir::MirType::Box(class.to_string()),
-                    },
-                };
-                self.function_state.type_ctx.value_types.insert(dst, ty);
-                match claim {
-                    PreparedExactFieldReadClaimV1::Terminal => {
-                        ledger.record_terminal_field_read(&site, block, dst, base, field)?;
-                    }
-                    PreparedExactFieldReadClaimV1::Local(source) => {
-                        ledger.record_local_field_read(&site, block, dst, base, field, &source)?;
-                    }
-                }
-                Ok(dst)
+                self.complete_exact_field_read_v1(base, field, &site, &ledger, claim)
+                    .map(|(value, _)| value)
             }
             PreparedRawFieldReadRouteV1::ExistingRecord { value, field } => {
                 self.lower_prepared_record_field_read_from_value(value, &field)
@@ -402,6 +490,7 @@ mod tests {
 
     fn prepared_route(builder: &MirBuilder, object: ASTNode) -> &'static str {
         match PreparedRawFieldReadV1::prepare(builder, object, "value".to_string()).route {
+            PreparedRawFieldReadRouteV1::ResultPath { .. } => panic!("compatibility preparation cannot select source path"),
             PreparedRawFieldReadRouteV1::ExactObject { .. } => {
                 panic!("compatibility preparation must not issue an exact object field read")
             }

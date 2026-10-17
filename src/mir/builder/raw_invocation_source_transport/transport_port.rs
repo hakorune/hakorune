@@ -12,6 +12,9 @@ pub(in crate::mir::builder) trait RawSourceTransportPortV1 {
     ) -> R;
 
     fn current_source_context_v1(&self) -> Option<RawInvocationSourceContextV1>;
+
+    fn finish_source_body_v1(&mut self, _builder: &mut MirBuilder,
+        _source: &RawInvocationSourceContextV1, _end: usize) -> Result<(), String> { Ok(()) }
 }
 
 impl RawSourceTransportPortV1 for RawInvocationChildPortV1<'_, '_> {
@@ -25,6 +28,18 @@ impl RawSourceTransportPortV1 for RawInvocationChildPortV1<'_, '_> {
         let result = execute(self, node);
         self.active_source = parent;
         result
+    }
+
+    fn finish_source_body_v1(&mut self, builder: &mut MirBuilder,
+        source: &RawInvocationSourceContextV1, end: usize) -> Result<(), String> {
+        if !matches!(source, RawInvocationSourceContextV1::Located {
+            site, body_kind: Some(SourceBodyKindV1::Function), ..
+        } if site == &crate::mir::resolved_semantics::SourcePathV1::function_body().node()) {
+            return Ok(());
+        }
+        let Some(completion) = crate::mir::builder::normal_callable_binding_materialization_port::CallableBindingMaterializationPortV1::prepare_implicit_callable_end_v1(self)?
+            else { return Ok(()); };
+        completion.emit_source_body_end_v1(builder, source, end)
     }
 
     fn current_source_context_v1(&self) -> Option<RawInvocationSourceContextV1> {

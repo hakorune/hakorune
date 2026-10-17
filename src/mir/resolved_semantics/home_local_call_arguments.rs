@@ -53,10 +53,15 @@ pub(super) fn seal_lexical_i64_arguments_at<E>(
         return Ok(borrowed_arguments(site, request)?
             .and_then(|row| match row {
                 BorrowedCallArgumentsV1::Scalar(arguments) => Some(arguments),
-                BorrowedCallArgumentsV1::SourceInstance(_)
+                BorrowedCallArgumentsV1::NamedArrayHolderSource(_)
+                | BorrowedCallArgumentsV1::SourceInstance(_)
                 | BorrowedCallArgumentsV1::StaticSource(_)
                 | BorrowedCallArgumentsV1::HandleSource(_)
                 | BorrowedCallArgumentsV1::SourceObject { .. }
+                | BorrowedCallArgumentsV1::SourceUnitDiscard { .. }
+                | BorrowedCallArgumentsV1::SourceScalarResult { .. }
+                | BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. }
+                | BorrowedCallArgumentsV1::MixedLocalSource { .. }
                 | BorrowedCallArgumentsV1::Object { .. } => None,
             })
             .filter(|arguments| super::borrowed_actuals::contains_borrowed_actual_v1(arguments))
@@ -97,10 +102,15 @@ fn seal_i64_call_arguments<E>(
     let owned = OwnedExprSiteV1::new(input.owner(), call.site().clone());
     match borrowed_arguments(&owned, request)? {
         Some(BorrowedCallArgumentsV1::Scalar(arguments)) => return Ok(Some(arguments.into_vec())),
-        Some(BorrowedCallArgumentsV1::SourceInstance(_))
+        Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
+        | Some(BorrowedCallArgumentsV1::SourceInstance(_))
         | Some(BorrowedCallArgumentsV1::StaticSource(_))
         | Some(BorrowedCallArgumentsV1::HandleSource(_))
         | Some(BorrowedCallArgumentsV1::SourceObject { .. })
+        | Some(BorrowedCallArgumentsV1::SourceUnitDiscard { .. })
+        | Some(BorrowedCallArgumentsV1::SourceScalarResult { .. })
+        | Some(BorrowedCallArgumentsV1::BorrowedNullableLocalSource { .. })
+            | Some(BorrowedCallArgumentsV1::MixedLocalSource { .. })
         | Some(BorrowedCallArgumentsV1::Object { .. }) => return Ok(None),
         None => {}
     }

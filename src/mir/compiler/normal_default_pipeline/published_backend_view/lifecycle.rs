@@ -124,6 +124,21 @@ impl<'module> PublishedMirBackendView<'module> {
         self.retained_root
     }
 
+    /// The lifecycle gate consumes the same affine source handoff as its
+    /// already-issued physical input. Module equality cannot replace this loan.
+    pub(crate) fn validate_lifecycle_input_handoff(
+        &self,
+        input: &super::PublishedLifecyclePhysicalAbiInputV1<'_>,
+    ) -> Result<(), String> {
+        if self.retained_handoff.is_some_and(|handoff|
+            std::ptr::eq(handoff, input.program().handoff()))
+        {
+            Ok(())
+        } else {
+            Err(fault("foreign-input-handoff"))
+        }
+    }
+
     pub(crate) fn retained_birth_abi(
         &self,
     ) -> Option<&'module [crate::mir::normal_callable_semantic_package::BirthAbiHandoffV1]> {
@@ -212,3 +227,27 @@ mod profile_tests;
 #[cfg(test)]
 #[path = "script_artifact_tests.rs"]
 mod script_artifact_tests;
+
+impl PublishedMirBackendView<'_> {
+    /// Same retained source/catalog correspondence for admission and projection.
+    pub(in crate::mir::compiler::normal_default_pipeline) fn retained_borrowed_participants_v1(
+        &self,
+    ) -> Result<
+        std::collections::BTreeMap<
+            hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+            crate::mir::instruction::InvokeCallResultKind,
+        >,
+        String,
+    > {
+        let Some(handoff) = self.retained_handoff else {
+            return Ok(std::collections::BTreeMap::new());
+        };
+        let Some(source) = handoff.root_source() else {
+            return Ok(std::collections::BTreeMap::new());
+        };
+        let callables = handoff
+            .callables()
+            .ok_or_else(|| fault("callable-contracts-missing"))?;
+        source.borrowed_callable_participants_v1(self.module(), callables)
+    }
+}

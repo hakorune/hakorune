@@ -43,10 +43,10 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(relation) = self.terminal_i64_add_return_for_owner_at(owner, &stmt_site) else {
             return Ok(None);
         };
-        if self.root_owner() != Some(owner) {
-            return Err(fault("non-root-owner-unsupported"));
-        }
-        if relation.owner() != owner {
+        let completion = self.completion_for_owner(owner)
+            .ok_or_else(|| fault("completion-missing"))?;
+        if relation.owner() != owner || completion.owner() != owner
+            || !completion.explicit_sites().contains(&stmt_site) {
             return Err(fault("return-site-mismatch"));
         }
         if self
@@ -175,10 +175,9 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     /// A raw field read must not reenter the receiver the terminal Add
-    /// reserved. Only the root map is consulted — child-owner I64Add rows
-    /// never reach this raw lowering port.
+    /// reserved at the same owner and exact exit, including child owners.
     pub(crate) fn terminal_result_blocks_raw_field_read(&self, site: &OwnedExprSiteV1) -> bool {
-        self.terminal_relation.values().any(|relation| {
+        self.terminal_relations_for_owner(site.owner()).into_iter().any(|relation| {
             matches!(relation, TerminalRelationV1::I64Add(row)
                 if row.field_reads().contains(site)
                     && !self
@@ -188,11 +187,12 @@ impl OrdinaryNewClaimLedgerV1 {
         })
     }
 
-    /// Every retained root I64Add exit must reach Completed — a multi-exit
+    /// Every retained I64Add exit must reach Completed — a multi-exit
     /// function cannot leave one `return a.f + b.f` unprepared.
     pub(super) fn terminal_result_complete(&self) -> bool {
         self.terminal_relation
             .values()
+            .chain(self.terminal_relation_index.values().flat_map(|rows| rows.values()))
             .filter_map(|relation| match relation {
                 TerminalRelationV1::I64Add(row) => Some((row.owner(), row.return_site().clone())),
                 _ => None,
@@ -205,10 +205,32 @@ impl OrdinaryNewClaimLedgerV1 {
             })
     }
 
+    pub(super) fn terminal_i64_add_bindings_v1(
+        &self, owner: FunctionOwnerIdV1,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        let progress = self.terminal_result_progress.borrow();
+        let reads = self.field_reads.borrow();
+        let mut bindings = Vec::new();
+        for relation in self.terminal_relations_for_owner(owner) {
+            let TerminalRelationV1::I64Add(row) = relation else { continue };
+            let Some(Progress::Completed { block, instruction, .. }) =
+                progress.get(&(owner, row.return_site().clone()))
+            else { return Err(fault("unconsumed")) };
+            for site in row.field_reads() {
+                let Some(field_reads::FieldRead { progress: field_reads::Progress::Emitted(block, instruction), .. }) = reads.get(site)
+                else { return Err(fault("field-read-not-emitted")) };
+                bindings.push((*block, instruction.clone()));
+            }
+            bindings.push((*block, instruction.clone()));
+        }
+        Ok(bindings)
+    }
+
     pub(super) fn validate_terminal_i64_add_return(
         &self,
         owner: FunctionOwnerIdV1,
-        function: &MirFunction,
+        _function: &MirFunction,
+        mut check_binding: impl FnMut(BasicBlockId, &MirInstruction) -> Result<bool, String>,
     ) -> Result<(), String> {
         let reads = self.field_reads.borrow();
         let progress = self.terminal_result_progress.borrow();
@@ -244,27 +266,36 @@ impl OrdinaryNewClaimLedgerV1 {
                 let Some(row) = reads.get(site) else {
                     return Err(fault("field-read-missing"));
                 };
-                let field_reads::Progress::Emitted(_, MirInstruction::ObjectFieldGet { dst, .. }) =
-                    row.progress
+                let field_reads::Progress::Emitted(read_block, read @ MirInstruction::ObjectFieldGet { dst, .. }) =
+                    &row.progress
                 else {
                     return Err(fault("field-read-not-emitted"));
                 };
-                operands.push(dst);
+                if !check_binding(*read_block, read)? {
+                    return Err(fault("field-read-binding-drift"));
+                }
+                operands.push(*dst);
             }
             if [*lhs, *rhs] != [operands[0], operands[1]] {
                 return Err(fault("add-operand-drift"));
             }
-            if !function
-                .blocks
-                .get(block)
-                .is_some_and(|row| row.all_instructions().any(|actual| actual == instruction))
-            {
+            if !check_binding(*block, instruction)? {
                 return Err(fault("add-binding-drift"));
             }
-            if !function.blocks.values().any(|block| block.all_instructions().any(|instruction|
-                matches!(instruction, MirInstruction::Return { value: Some(value) } if *value == *result)))
-            {
+            let exits = self.root_exits.borrow();
+            let Some(local_commit::RootHomeExitProgress::Emitted { bindings, .. }) =
+                exits.get(&(owner, relation.return_site().clone().into()))
+            else { return Err(fault("return-missing")) };
+            let mut returns = bindings.iter().filter(|(_, instruction)|
+                matches!(instruction, MirInstruction::Return { .. }));
+            let Some((return_block, returned)) = returns.next() else {
                 return Err(fault("return-missing"));
+            };
+            if returns.next().is_some()
+                || !matches!(returned, MirInstruction::Return { value: Some(value) } if value == result)
+                || !check_binding(*return_block, returned)?
+            {
+                return Err(fault("return-binding-drift"));
             }
         }
         Ok(())

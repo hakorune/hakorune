@@ -31,21 +31,30 @@ use self::flow::{
 };
 
 pub fn simplify(module: &mut MirModule) -> usize {
-    let mut simplified = 0usize;
-    for function in module.functions.values_mut() {
-        simplified += simplify_function(function);
+    simplify_with_preserved_producers(module, &Default::default())
+}
+
+/// Preserve exact source-consumed producers while allowing block projection.
+pub(in crate::mir) fn simplify_with_preserved_producers(
+    module: &mut MirModule,
+    preserved: &crate::mir::passes::dce::RequiredLivenessRoots,
+) -> usize {
+    let mut simplified = 0;
+    let empty = std::collections::BTreeSet::new();
+    for (name, function) in &mut module.functions {
+        simplified += simplify_function(function, preserved.get(name).unwrap_or(&empty));
     }
     simplified
 }
 
-fn simplify_function(function: &mut MirFunction) -> usize {
+fn simplify_function(function: &mut MirFunction, preserved: &std::collections::BTreeSet<ValueId>) -> usize {
     let mut simplified = 0usize;
 
     loop {
         let mut changed = false;
 
         function.update_cfg();
-        while let Some((block_id, inst_idx, value)) = find_constant_compare_fold(function) {
+        while let Some((block_id, inst_idx, value)) = find_constant_compare_fold(function, preserved) {
             fold_constant_compare(function, block_id, inst_idx, value);
             simplified += 1;
             changed = true;
@@ -56,7 +65,7 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             let reachable_blocks =
                 crate::mir::verification::utils::compute_reachable_blocks(function);
             let Some((block_id, target, edge_args)) =
-                find_constant_branch_fold(function, &reachable_blocks)
+                find_constant_branch_fold(function, &reachable_blocks, preserved)
             else {
                 break;
             };
@@ -91,7 +100,7 @@ fn simplify_function(function: &mut MirFunction) -> usize {
             let reachable_blocks =
                 crate::mir::verification::utils::compute_reachable_blocks(function);
             let Some((pred_id, middle_id)) =
-                find_single_predecessor_jump_merge(function, &reachable_blocks)
+                find_single_predecessor_jump_merge(function, &reachable_blocks, preserved)
             else {
                 break;
             };
@@ -111,6 +120,7 @@ fn simplify_function(function: &mut MirFunction) -> usize {
 fn find_constant_branch_fold(
     function: &MirFunction,
     reachable_blocks: &HashSet<BasicBlockId>,
+    preserved: &std::collections::BTreeSet<ValueId>,
 ) -> Option<(BasicBlockId, BasicBlockId, Option<crate::mir::EdgeArgs>)> {
     let def_map = build_value_def_map(function);
 
@@ -131,6 +141,7 @@ fn find_constant_branch_fold(
             continue;
         };
 
+        if preserved.contains(condition) { continue; }
         let Some(condition_value) = const_bool_value(function, &def_map, *condition) else {
             continue;
         };
@@ -149,15 +160,16 @@ fn find_constant_branch_fold(
     None
 }
 
-fn find_constant_compare_fold(function: &MirFunction) -> Option<(BasicBlockId, usize, bool)> {
+fn find_constant_compare_fold(function: &MirFunction, preserved: &std::collections::BTreeSet<ValueId>) -> Option<(BasicBlockId, usize, bool)> {
     let def_map = build_value_def_map(function);
 
     for block_id in function.block_ids() {
         let block = function.blocks.get(&block_id)?;
         for (inst_idx, instruction) in block.instructions.iter().enumerate() {
-            let MirInstruction::Compare { op, lhs, rhs, .. } = instruction else {
+            let MirInstruction::Compare { dst, op, lhs, rhs } = instruction else {
                 continue;
             };
+            if preserved.contains(dst) { continue; }
             let Some(value) = compare_to_bool_const(function, &def_map, *op, *lhs, *rhs) else {
                 continue;
             };

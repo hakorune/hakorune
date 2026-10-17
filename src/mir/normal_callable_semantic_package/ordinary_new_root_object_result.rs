@@ -1,4 +1,4 @@
-//! Borrowed whole-Root object result evidence; grants no physical ABI permission.
+//! Borrowed whole-callable object result evidence; no physical ABI permission.
 use super::super::{result_class_claim, OrdinaryNewClaimLedgerV1};
 use super::normal_return::NormalReturnDispositionV1;
 use crate::mir::instruction::InvokeCallResultKind;
@@ -24,15 +24,12 @@ impl OrdinaryNewClaimLedgerV1 {
         let Some(key) = &self.app_main_catalog_key else {
             return Ok(None);
         };
-        let (class, kind) = match self.callable_result_classes.get(key) {
-            Some(OrdinaryNewResultClassV1::Object(class)) => {
-                (class.as_ref(), InvokeCallResultKind::Handle)
-            }
-            Some(OrdinaryNewResultClassV1::NullableObject(class)) => {
-                (class.as_ref(), InvokeCallResultKind::NullableHandle)
-            }
-            _ => return Ok(None),
-        };
+        if !matches!(
+            self.callable_result_classes.get(key),
+            Some(OrdinaryNewResultClassV1::Object(_) | OrdinaryNewResultClassV1::NullableObject(_))
+        ) {
+            return Ok(None);
+        }
         let Some(root) = &self.root_completion else {
             return Ok(None);
         };
@@ -56,6 +53,37 @@ impl OrdinaryNewClaimLedgerV1 {
         if !Rc::ptr_eq(table, &self.terminal_relation) {
             return Err(freeze("terminal-table-identity"));
         }
+        self.checked_callable_object_result_v1(key, owner)
+    }
+
+    /// Same source algorithm, lent for an original selected callable owner.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_callable_object_result_v1(
+        &self,
+        key: &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        owner: FunctionOwnerIdV1,
+    ) -> Result<Option<RootObjectResultDescriptorV1<'_>>, String> {
+        let (class, kind) = match self.callable_result_classes.get(key) {
+            Some(OrdinaryNewResultClassV1::Object(class)) => {
+                (class.as_ref(), InvokeCallResultKind::Handle)
+            }
+            Some(OrdinaryNewResultClassV1::NullableObject(class)) => {
+                (class.as_ref(), InvokeCallResultKind::NullableHandle)
+            }
+            _ => return Ok(None),
+        };
+        let Some(root) = self.completion_index.get(&owner) else {
+            return Ok(None);
+        };
+        let root = root
+            .as_ref()
+            .map_err(|issue| format!("{}: {issue:?}", freeze("indexed-completion")))?;
+        if root.owner() != owner {
+            return Err(freeze("completion-identity"));
+        }
+        self.validate_object_return_disposition_exits_v1(owner, root.explicit_sites())?;
+        let Some(table) = self.terminal_relation_index.get(&owner) else {
+            return Ok(None);
+        };
         let outcomes = self
             .callable_result_classes
             .outcomes(key)

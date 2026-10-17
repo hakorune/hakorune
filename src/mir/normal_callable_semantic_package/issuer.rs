@@ -277,7 +277,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
                 |error| NormalCallableSemanticPackageIssueV1::SourceBackedCatalog { _error: error },
             )?;
     }
-    let instance_constructors = issue_instance_constructor_semantic_batch_v1(
+    let mut instance_constructors = issue_instance_constructor_semantic_batch_v1(
         resolver,
         source.source(),
         brand_catalog,
@@ -312,8 +312,11 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         .map_err(|error| NormalCallableSemanticPackageIssueV1::Batch { _error: error })?;
     let loop_break_source = issue_loop_break_source_package_v1(&batch, loop_policy)
         .map_err(|error| NormalCallableSemanticPackageIssueV1::LoopBreakSource { _error: error })?;
-    let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
-        .map_err(|error| NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error })?;
+    let selected = std::rc::Rc::new(
+        issue_selected_callable_batch_map_v1(&catalog, &batch).map_err(|error| {
+            NormalCallableSemanticPackageIssueV1::SelectedMapping { _error: error }
+        })?,
+    );
     let (source_core_method_calls, named_array_field_providers) = match brand_catalog {
         Some(brands) => issue_source_core_method_calls_with_named_arrays_v1(
             &catalog,
@@ -487,6 +490,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         }
     };
     let (mut ordinary_new_claim_ledger, mut completion_seeds) = issue_ordinary_source_cohort_v1(
+        brand_catalog,
         &batch,
         &selected,
         &omitted_static_callers,
@@ -497,6 +501,8 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &mut dynamic,
         &instance_constructors,
         &static_claim_index,
+        &source_core_method_calls,
+        loop_policy,
     )
     .map_err(|error| match error {
         OrdinaryNewCoSealIssueV1::CompletionSeed(error) => {
@@ -552,6 +558,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         }
     }
     let physical_header = issue_callable_physical_header_from_result_contract_v1(&result_contracts);
+    ordinary_new_claim_ledger.stage_provider_static_actuals_v1(
+        &instance_constructors, &static_claim_index, &selected, &parameter_contracts,
+    ).map_err(|_error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error })?;
     let physical_signature = object_input_finish::issue_signature_and_finish_inputs_v1(
         catalog.catalog().brand().clone(),
         &batch,
@@ -599,6 +608,9 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_selection_v1(
         &result_contracts,
         &mut ordinary_new_claim_ledger,
     )?;
+
+    instance_constructors.finish_ordered_unit_plans_v1(&mut ordinary_new_claim_ledger)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         #[cfg(test)]

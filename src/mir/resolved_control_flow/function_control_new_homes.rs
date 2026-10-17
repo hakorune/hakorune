@@ -52,7 +52,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         &mut |_| Ok(None),
         &std::collections::BTreeSet::new(),
         &mut |_, _, _, _, _| Ok(false),
-        &mut |_, _, _, _, _| Ok(false),
+        &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
         &mut |_, _, _, _, _| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane.
         &mut |_, _, _, _, _| Ok(false),
@@ -136,13 +136,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         crate::mir::resolved_semantics::BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<E>,
     container_field: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         &crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -169,7 +163,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1],
-        bool,
+        crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadDemandV1,
     ) -> Result<
         Option<Vec<crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1>>,
         E,
@@ -269,14 +263,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
             loop_prestate,
             object_return,
         )?;
-    match &mut completion {
-        VerifiedFunctionCompletionV1::ExplicitReturn(row) => row.cleanup.attach_root_flow(homes),
-        VerifiedFunctionCompletionV1::ExplicitReturns(row) => row.cleanup.attach_root_flow(homes),
-        VerifiedFunctionCompletionV1::ExplicitUnitSetWithImplicitEnd(row) => {
-            row.cleanup.attach_root_flow(homes)
-        }
-        VerifiedFunctionCompletionV1::ImplicitVoid(row) => row.cleanup.attach_root_flow(homes),
-    }
+    completion.attach_root_home_flow(homes);
     Ok(Ok((
         completion,
         prefixes,

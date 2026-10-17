@@ -9,6 +9,14 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
     entry: &RootHomeExitEntry,
     expected_kind: crate::mir::instruction::InvokeCallResultKind,
 ) -> Result<(), String> {
+    validate_original_with_wrapper(function, bindings, entry, expected_kind, &[])
+}
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_original_with_wrapper(
+    function: &MirFunction, bindings: &Bindings, entry: &RootHomeExitEntry,
+    expected_kind: crate::mir::instruction::InvokeCallResultKind,
+    wrapper_suffix: &[(BasicBlockId, MirInstruction)],
+) -> Result<(), String> {
     let nodes = collect_nodes(bindings)?;
     let (starts, plain_entry, projected_result) = match entry {
         RootHomeExitEntry::Plain { .. } => {
@@ -51,10 +59,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
             .get(id)
             .ok_or_else(|| fault("ordered-structure/missing-node"))?;
         if block.terminator.as_ref() != Some(*terminal)
-            || block
+            // Plain ingress is the original source continuation: its prefix
+            // belongs to the source/Loop owner, not this cleanup DAG. The shared
+            // PhysicalBoundary independently verifies its exact source Phi role.
+            || (Some(*id) != plain_entry && block
                 .instructions
                 .iter()
-                .any(|i| matches!(i, MirInstruction::Phi { .. }))
+                .any(|i| matches!(i, MirInstruction::Phi { .. })))
         {
             return Err(fault("ordered-structure/original-node"));
         }
@@ -63,7 +74,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_
                 .filter(|(base, _)| *base == *id)
                 .map(|(_, i)| std::slice::from_ref(i))
                 .unwrap_or(&[]);
-            if block.instructions != expected {
+            let suffix = wrapper_suffix.iter().filter(|(block, _)| block == id)
+                .map(|(_, instruction)| instruction).collect::<Vec<_>>();
+            if suffix.len() > 1 || block.instructions.iter().collect::<Vec<_>>()
+                != expected.iter().chain(suffix.into_iter()).collect::<Vec<_>>() {
                 return Err(fault("ordered-structure/instructions"));
             }
         }

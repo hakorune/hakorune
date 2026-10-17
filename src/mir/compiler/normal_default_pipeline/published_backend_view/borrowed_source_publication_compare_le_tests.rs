@@ -6,7 +6,7 @@ fn current_owner_forwarded_i64_emits_one_physical_static_packet() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let text = "static box SizeClassBox { normalize_size(size) { if size <= 0 { return 1 } return size } size_to_bin(size) { local n = me.normalize_size(size) return 0 } } static box Main { main() { local n = SizeClassBox.size_to_bin(7) return n } }";
         MirCompiler::with_options(false).compile_normal_with_published(request(text), |view, verification| -> Result<(), String> {
-            classify_pretransform_report(verification);
+            require_artifact_verification(verification);
             let input = view.issue_lifecycle_physical_abi_input()?;
             let wire = crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
             let document: serde_json::Value = serde_json::from_str(&wire).map_err(|error| error.to_string())?;
@@ -40,7 +40,7 @@ fn borrowed_less_equal_publishes_both_sides_shared_carrier_and_original_alias() 
             };
             let text = format!("box Counter {{ birth() {{}} check(p): i64 {{ {prefix} if {condition} {{ return 7 }} return 3 }} }} static box Main {{ main() {{ local c = new Counter() return c.check(15) }} }}");
             MirCompiler::with_options(false).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                classify_pretransform_report(verification);
+                require_artifact_verification(verification);
                 let handoff = view.retained_handoff.unwrap();
                 let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
                     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter", "check", 1));
@@ -102,7 +102,7 @@ fn borrowed_less_equal_normal_consumers_require_executed_dominating_guard() {
                 let result = MirCompiler::with_options(false).compile_normal_with_published(
                     request(&text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         view.issue_lifecycle_physical_abi_input()?;
                         Ok(())
                     },
@@ -148,7 +148,7 @@ fn borrowed_checked_integer_return_publishes_original_exit_and_compare() {
             ] {
                 let text = format!("box Counter {{ birth() {{}} check({parameters}): i64 {{ {body} }} }} static box Main {{ main() {{ local c = new Counter() return c.check({arguments}) }} }}");
                 MirCompiler::with_options(optimize).compile_normal_with_published(request(&text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let handoff = view.retained_handoff.unwrap();
                     let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(
                         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method("Counter", "check", arity));

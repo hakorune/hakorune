@@ -12,13 +12,13 @@ static int lv4_native_origin(yyjson_val* fn, uint32_t value, size_t budget) {
 }
 
 static int lv4_native_live(yyjson_val* fn, uint32_t value,
-    const uint16_t* state, size_t budget) {
+    const hako_lv4_state* state, size_t budget) {
   int origin = lv4_native_origin(fn, value, budget);
   return origin >= 0 && state[origin] != 0;
 }
 
 static int lv4_string_native_operand(yyjson_val* fn, yyjson_val* operand,
-    const uint16_t* state, size_t budget) {
+    const hako_lv4_state* state, size_t budget) {
   if (lv4_is(operand, "kind", "static_text")) return 1;
   uint32_t value = lv4_u(operand, "value");
   int kind = lv4_type(fn, value, budget);
@@ -27,14 +27,14 @@ static int lv4_string_native_operand(yyjson_val* fn, yyjson_val* operand,
   return kind == LV4_OWNED_STRING && origin >= 0 && state[origin] > LV4_STRING_RANK_BASE;
 }
 
-static int lv4_native_flow(yyjson_val* fn, size_t bi, const uint16_t* incoming,
-    int faulted, uint16_t* saved, signed char* faults, unsigned char* active,
+static int lv4_native_flow(yyjson_val* fn, size_t bi, const hako_lv4_state* incoming,
+    int faulted, hako_lv4_state* saved, signed char* faults, unsigned char* active,
     size_t count, size_t budget) {
   yyjson_val* blocks = hako_physical_blocks(fn);
   yyjson_val* block = yyjson_arr_get(blocks, bi);
   yyjson_val* rows = yyjson_obj_get(block, "instructions");
   yyjson_val* term = lv4_term(block);
-  uint16_t state[256], normal[256];
+  hako_lv4_state state[256], normal[256];
   if (active[bi]) return 0;
   memcpy(state, incoming, count * sizeof(*state));
   /* A Fault path can only release, never claim/append. Claim failure and append
@@ -94,7 +94,7 @@ static int lv4_native_flow(yyjson_val* fn, size_t bi, const uint16_t* incoming,
       int add = lv4_is(op, "kind", "string_add");
       if (state[bi] || !lv4_string_native_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state, budget) ||
           (add && !lv4_string_native_operand(fn, yyjson_obj_get(op, "right"), state, budget))) return 0;
-      if (add) normal[bi] = lv4_string_top(state, count) + 1;
+      if (add && !lv4_string_push(state, count, &normal[bi])) return 0;
     } else if (lv4_is(op, "kind", "array_new")) {
       if (state[bi]) return 0;
       normal[bi] = 1;
@@ -130,7 +130,7 @@ static int lv4_native_admit(hako_lv4_input* in) {
   yyjson_val* blocks = hako_physical_blocks(fn);
   size_t count = yyjson_arr_size(blocks), budget = lv4_value_budget(fn);
   size_t entry = count, frames = 0;
-  uint16_t initial[256] = {0};
+  hako_lv4_state initial[256] = {0};
   unsigned char active[256] = {0};
   signed char faults[256];
   if (yyjson_arr_size(in->functions) != 1 || !count || count > 256 || budget > 4096) return 0;
@@ -155,7 +155,7 @@ static int lv4_native_admit(hako_lv4_input* in) {
     if (results != 1) return 0;
   }
   if (frames != 1 || entry == count) return 0;
-  uint16_t* saved = calloc(count * count, sizeof(*saved));
+  hako_lv4_state* saved = calloc(count * count, sizeof(*saved));
   if (!saved) return 0;
   int valid = lv4_native_flow(fn, entry, initial, 0, saved, faults, active, count, budget);
   for (size_t bi = 0; valid && bi < count; bi++) if (faults[bi] < 0) valid = 0;

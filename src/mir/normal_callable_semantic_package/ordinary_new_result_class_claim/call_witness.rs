@@ -1,4 +1,5 @@
 //! Shared source-call identity and witness composition; no Home or pending policy.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::AppMainSourceRefV1;
 use super::{
     parameter_contract, ResultActualSourceV1, ResultExitOriginV1, ResultFormalSubstitutionV1,
     ResultOriginWitnessV1, ResultValueOriginV1, ResultWitnessStepV1,
@@ -8,6 +9,229 @@ use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterC
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 use hakorune_mir_defs::CanonicalSameModuleCallableKeyV1;
 use std::rc::Rc;
+
+/// The original local initializer edge, shared by nullable borrowing and
+/// construction-child provenance. This does not classify ownership or issue Home.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(super) struct OriginalLocalCallSourceV1 {
+    pub(super) declaration: crate::mir::resolved_semantics::SourceBindingSiteV1,
+    pub(super) receiver: Option<crate::mir::resolved_semantics::SourceExprSiteV1>,
+    pub(super) key: CanonicalSameModuleCallableKeyV1,
+    pub(super) callee_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    pub(super) caller_slot: u32,
+    pub(super) actuals: Box<[ResultActualSourceV1]>,
+    pub(super) call: OwnedExprSiteV1,
+}
+
+impl OriginalLocalCallSourceV1 {
+    pub(super) fn formal_actual_v1(
+        &self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        ordinal: u32,
+    ) -> Result<(super::BindingRefV1, u32), &'static str> {
+        let root = self
+            .actuals
+            .get(ordinal as usize)
+            .and_then(|row| row.binding)
+            .ok_or("borrowed-nullable/actual-root")?;
+        let mut contracts = parameters
+            .iter()
+            .filter(|row| row.batch_slot == self.caller_slot);
+        let contract = contracts
+            .next()
+            .ok_or("borrowed-nullable/caller-contract")?;
+        if contracts.next().is_some() || contract.owner != self.call.owner() {
+            return Err("borrowed-nullable/caller-contract");
+        }
+        let mut matching = contract.parameters.iter().filter(|row| row.binding == root);
+        let parameter = matching.next().ok_or("borrowed-nullable/formal-root")?;
+        if matching.next().is_some() {
+            return Err("borrowed-nullable/formal-root");
+        }
+        if contract.parameters.iter().filter(|row| row.ordinal == parameter.ordinal).count() != 1 {
+            return Err("borrowed-nullable/formal-root");
+        }
+        let exact = batch
+            .with_lowering_input(self.caller_slot, |input| {
+                root.owner() == self.call.owner()
+                    && matches!(input.function().binding(root).map(|row| row.kind()),
+                    Some(super::BindingKindV1::Parameter { index }) if index == parameter.ordinal)
+                    && matches!(
+                        parameter.kind,
+                        CallableParameterContractKindV1::DeclaredObject(_)
+                            | CallableParameterContractKindV1::OpaqueHandle
+                    )
+            })
+            .map_err(|_| "borrowed-nullable/caller-input")?;
+        if !exact {
+            return Err("borrowed-nullable/formal-root");
+        }
+        Ok((root, parameter.ordinal))
+    }
+
+    /// Preserve every original root, including formal-derived Null, without
+    /// projecting a mixed result into the legacy owning/borrowed class enum.
+    pub(super) fn compose_at_v1(
+        &self,
+        output: &OwnedExprSiteV1,
+        facts: &super::OrdinaryNewResultClassClaimsV1,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+    ) -> Result<Vec<Rc<ResultOriginWitnessV1>>, &'static str> {
+        let roots = facts.checked_original_source_roots_v1(&self.key, self.callee_owner)?;
+        if roots.is_empty() {
+            return Err("borrowed-nullable/callee-roots-empty");
+        }
+        for root in roots {
+            if let Some(ordinal) = root.formal_ordinal() {
+                self.formal_actual_v1(batch, parameters, ordinal)?;
+            }
+        }
+        CallWitnessSourceV1::verify(output, &self.call, &self.key, &self.actuals)
+            .and_then(|source| {
+                source.compose(facts.outcomes(&self.key)?, parameters, self.caller_slot)
+            })
+            .ok_or("borrowed-nullable/substitution")
+    }
+}
+
+impl super::OrdinaryNewResultClassClaimsV1 {
+    pub(super) fn original_local_call_source_v1(
+        &self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        fields: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+        call: &OwnedExprSiteV1,
+        destination: super::BindingRefV1,
+        parameters: &[OwnedCallableParameterContractDeclarationV1],
+        app_main: Option<AppMainSourceRefV1<'_>>,
+    ) -> Result<Option<OriginalLocalCallSourceV1>, &'static str> {
+        if destination.owner() != call.owner() {
+            return Err("borrowed-nullable/destination-owner");
+        }
+        let mut declarations = batch
+            .declarations()
+            .filter(|row| row.owner() == call.owner());
+        let declaration = declarations
+            .next()
+            .ok_or("borrowed-nullable/caller-missing")?;
+        if declarations.next().is_some() {
+            return Err("borrowed-nullable/caller-not-unique");
+        }
+        let slot = declaration.batch_slot();
+        let caller_key = match selected.key_for_batch_slot(slot) {
+            Some(super::SelectedNormalCallableKeyV1::Cataloged(key)) => key,
+            None => app_main.ok_or("borrowed-nullable/caller-key")?
+                .checked_caller_key(batch, parameters, call.owner(), slot)?,
+            Some(_) => return Err("borrowed-nullable/caller-key"),
+        };
+        batch
+            .with_lowering_input(slot, |input| {
+                let function = input.function();
+                let declaration = original_local_declaration_v1(input, call, destination)?;
+                let shape = input.body_shape().ok_or("borrowed-nullable/body-shape")?;
+                let Some((key, actuals)) = super::resolve_call_key(
+                    call.site(),
+                    function,
+                    shape,
+                    caller_key,
+                    batch,
+                    selected,
+                    fields,
+                ) else {
+                    return Ok(None);
+                };
+                // Missing source outcomes select no result edge. Demand a
+                // cataloged callee only after the source owner has a product.
+                if self.outcomes(&key).is_none() {
+                    return Ok(None);
+                }
+                let receiver = function
+                    .method_call(call.site())
+                    .map(|method| method.receiver_site().clone());
+                let callee_slot = selected
+                    .batch_slot(&super::SelectedNormalCallableKeyV1::Cataloged(key.clone()))
+                    .ok_or("borrowed-nullable/callee-key")?;
+                let mut callees = batch
+                    .declarations()
+                    .filter(|row| row.batch_slot() == callee_slot);
+                let callee_owner = callees
+                    .next()
+                    .ok_or("borrowed-nullable/callee-owner")?
+                    .owner();
+                if callees.next().is_some()
+                    || callee_owner.compilation_brand() != call.owner().compilation_brand()
+                {
+                    return Err("borrowed-nullable/callee-owner");
+                }
+                Ok(Some(OriginalLocalCallSourceV1 {
+                    declaration,
+                    receiver,
+                    key,
+                    callee_owner,
+                    caller_slot: slot,
+                    actuals,
+                    call: call.clone(),
+                }))
+            })
+            .map_err(|_| "borrowed-nullable/caller-input")?
+    }
+
+    /// Borrow the already checked raw target without resolving its key again.
+    /// This input source grants no result, Home or completed wrapper support.
+    pub(super) fn original_local_object_target_source_v1(
+        &self,
+        batch: &super::VerifiedResolvedCallableSemanticBatchV1,
+        selected: &crate::mir::normal_callable_semantic_package::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+        target: &super::super::lexical_instance_call::LexicalInstanceCallSourceTargetV1,
+        destination: super::BindingRefV1,
+        loan: &super::ObjectCallSourceLoanV1,
+    ) -> Result<OriginalLocalCallSourceV1, &'static str> {
+        self.recheck_object_call_source_v1(batch, selected, target, loan)?;
+        let call = target.call_site();
+        let mut callers = batch.declarations().filter(|row| row.owner() == call.owner());
+        let caller = callers.next().ok_or("returned-field/caller-missing")?;
+        if callers.next().is_some() { return Err("returned-field/caller-ambiguous"); }
+        batch.with_lowering_input(caller.batch_slot(), |input| {
+            let declaration = original_local_declaration_v1(input, call, destination)?;
+            if input.forest().semantic_owners().any(|(_, function)|
+                function.assignment_targets().any(|(_, target)| matches!(target,
+                    super::ResolvedAssignmentTargetV1::UpvarRebind(upvar) if upvar.source() == destination))) {
+                return Err("returned-field/local-upvar-rebind");
+            }
+            Ok(OriginalLocalCallSourceV1 {
+                declaration, receiver: Some(target.receiver_site().clone()),
+                key: target.target().clone(), callee_owner: target.callee_owner(),
+                caller_slot: caller.batch_slot(),
+                actuals: super::call_actual_bindings(target.argument_sites(), input.function()),
+                call: call.clone(),
+            })
+        }).map_err(|_| "returned-field/caller-input")?
+    }
+
+}
+
+/// Shared LOCAL spelling law. The owning returned-field DAG also rejects
+/// descendant UpvarRebinds before lending its immutable acquisition.
+pub(super) fn original_local_declaration_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &OwnedExprSiteV1,
+    destination: super::BindingRefV1,
+) -> Result<crate::mir::resolved_semantics::SourceBindingSiteV1, &'static str> {
+    let function = input.function();
+    if destination.owner() != input.owner() || call.owner() != input.owner()
+        || !matches!(function.binding(destination).map(|row| row.kind()), Some(super::BindingKindV1::Local { .. }))
+        || super::sole_initializer_site(function, destination).as_ref() != Some(call.site()) {
+        return Err("borrowed-nullable/local-initializer");
+    }
+    let initializer = function.expression_source().initializers().find(|row| row.binding() == destination)
+        .ok_or("borrowed-nullable/local-declaration")?;
+    if function.declaration_binding(initializer.declaration_site()) != Some(destination) {
+        return Err("borrowed-nullable/local-declaration");
+    }
+    Ok(initializer.declaration_site().clone())
+}
 
 /// Ephemeral corroboration of existing source edges, not an admission receipt.
 pub(super) struct CallWitnessSourceV1<'a> {

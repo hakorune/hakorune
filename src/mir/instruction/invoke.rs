@@ -4,6 +4,19 @@
 use crate::mir::definitions::MirCall;
 use crate::mir::{Effect, EffectMask, ValueId};
 
+/// The source-approved complete End body, in execution order. Only the
+/// enclosing operation carries an SSA value; these steps issue no ownership.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ObjectEndStepV1 {
+    ArrayField { field: hakorune_mir_defs::CanonicalFieldRefV1 },
+    ObjectField {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        child: hakorune_mir_defs::CanonicalObjectIdV1,
+    },
+    ReleaseOuter,
+}
+
+
 #[path = "invoke_map.rs"]
 mod map;
 #[path = "invoke_owned_array.rs"]
@@ -42,6 +55,8 @@ pub enum FaultFrameMode {
 pub enum InvokeCallResultKind {
     Unit,
     I64,
+    /// Exact source Bool; machine storage does not grant Integer semantics.
+    Bool,
     /// The callee transfers a live checked-Map lease into caller-owned storage.
     Map,
     /// The callee transfers an owned object across the Return edge; the
@@ -53,6 +68,12 @@ pub enum InvokeCallResultKind {
     /// object when non-null and owes a checked release — never the
     /// unconditional `Handle` contract.
     NullableHandle,
+    /// Null or the original argument at this logical (non-receiver) ordinal.
+    /// The caller retains ownership; this result creates no Home or lease.
+    BorrowedNullableHandle { formal_ordinal: u32 },
+    /// Same Normal value carries a source-issued Null/Fresh/Forward outcome.
+    /// Non-null does not establish ownership; Forward borrows this actual.
+    MixedHandle { formal_ordinal: u32 },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -68,6 +89,9 @@ pub enum InvokeOperation {
     },
     /// Intrinsic Array allocation; one value exists only on Normal.
     IntrinsicArrayNew,
+    /// Compiler-owned Main entry adapter. All immutable UTF-8 arguments are
+    /// constructed before Normal publishes one owned Array residence.
+    ScriptArgumentsNew { values: Box<[String]> },
     /// Checked non-host Map lifecycle; source obligations come from Completion.
     Map(MapInvokeOperation),
     /// Checked expression String operations; never an Object handle lane.
@@ -84,6 +108,11 @@ pub enum InvokeOperation {
         receiver: ValueId,
         index: Option<ValueId>,
         value: ValueId,
+    },
+    /// Exact received-object scalar field; I64 only on Normal, no value on Fault.
+    FieldGet {
+        field: hakorune_mir_defs::CanonicalFieldRefV1,
+        base: ValueId,
     },
     /// Exact declaration field; Unit on Normal, no mutation on Fault.
     FieldSet {
@@ -111,6 +140,13 @@ pub enum InvokeOperation {
     HomeReleaseIfLive {
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         value: ValueId,
+    },
+    /// Complete End, including all children, only for the SAME value's Fresh
+    /// outcome. Null/Forward consume no owned storage or supporting anchor.
+    ObjectEndIfOwned {
+        object: hakorune_mir_defs::CanonicalObjectIdV1,
+        value: ValueId,
+        end: Box<[ObjectEndStepV1]>,
     },
     /// Reclaim only incomplete outer storage; never invoke the parent's fini.
     ReclaimUnpublished {
@@ -140,7 +176,8 @@ pub enum InvokeOperation {
 impl InvokeOperation {
     pub fn normal_result_kind(&self) -> Option<InvokeNormalResultKind> {
         match self {
-            Self::NewBox { .. } | Self::IntrinsicArrayNew => Some(InvokeNormalResultKind::Handle),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => Some(InvokeNormalResultKind::Handle),
+            Self::FieldGet { .. } => Some(InvokeNormalResultKind::I64),
             Self::Map(operation) => operation.normal_result_kind(),
             Self::String(operation) => operation.normal_result_kind(),
             Self::OwnedArray(operation) => operation.normal_result_kind(),
@@ -148,6 +185,10 @@ impl InvokeOperation {
                 result: InvokeCallResultKind::I64,
                 ..
             } => Some(InvokeNormalResultKind::I64),
+            Self::Call {
+                result: InvokeCallResultKind::Bool,
+                ..
+            } => Some(InvokeNormalResultKind::Bool),
             Self::Call {
                 result: InvokeCallResultKind::Map,
                 ..
@@ -161,6 +202,13 @@ impl InvokeOperation {
                 ..
             } => Some(InvokeNormalResultKind::NullableHandle),
             Self::Call {
+                result: InvokeCallResultKind::BorrowedNullableHandle { .. },
+                ..
+            } => Some(InvokeNormalResultKind::BorrowedNullableHandle),
+            Self::Call { result: InvokeCallResultKind::MixedHandle { .. }, .. } => {
+                Some(InvokeNormalResultKind::MixedHandle)
+            }
+            Self::Call {
                 result: InvokeCallResultKind::Unit,
                 ..
             }
@@ -170,6 +218,7 @@ impl InvokeOperation {
             | Self::ArrayElementWrite { .. }
             | Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
+            | Self::ObjectEndIfOwned { .. }
             | Self::ReclaimUnpublished { .. }
             | Self::OwnedFieldResidenceRelease { .. }
             | Self::OwnedObjectFieldRelease { .. } => None,
@@ -182,13 +231,15 @@ impl InvokeOperation {
             Self::String(operation) => operation.effects(),
             Self::OwnedArray(operation) => operation.effects(),
             Self::Call { call, .. } => call.effects.add(Effect::Control),
-            Self::NewBox { .. } | Self::IntrinsicArrayNew => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => EffectMask::CONTROL.add(Effect::Alloc),
+            Self::FieldGet { .. } => EffectMask::READ.add(Effect::Control),
             Self::FieldSet { .. }
             | Self::ObjectFieldSet { .. }
             | Self::ArrayStateContractClaim { .. }
             | Self::ArrayElementWrite { .. } => EffectMask::WRITE.add(Effect::Control),
             Self::HomeRelease { .. }
             | Self::HomeReleaseIfLive { .. }
+            | Self::ObjectEndIfOwned { .. }
             | Self::ReclaimUnpublished { .. }
             | Self::OwnedFieldResidenceRelease { .. }
             | Self::OwnedObjectFieldRelease { .. } => EffectMask::WRITE
@@ -210,7 +261,7 @@ impl InvokeOperation {
                 values.extend(call.args.iter().copied());
                 values
             }
-            Self::NewBox { .. } | Self::IntrinsicArrayNew => Vec::new(),
+            Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => Vec::new(),
             Self::ArrayStateContractClaim { array, .. } => vec![*array],
             Self::ArrayElementWrite {
                 receiver,
@@ -223,12 +274,15 @@ impl InvokeOperation {
                 values.push(*value);
                 values
             }
-            Self::FieldSet { base, value, .. }
-            | Self::ObjectFieldSet { base, value, .. } => vec![*base, *value],
-            Self::OwnedFieldResidenceRelease { base, .. }
+            Self::FieldSet { base, value, .. } | Self::ObjectFieldSet { base, value, .. } => {
+                vec![*base, *value]
+            }
+            Self::FieldGet { base, .. }
+            | Self::OwnedFieldResidenceRelease { base, .. }
             | Self::OwnedObjectFieldRelease { base, .. } => vec![*base],
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
+            | Self::ObjectEndIfOwned { value, .. }
             | Self::ReclaimUnpublished { value, .. } => {
                 vec![*value]
             }
@@ -246,7 +300,7 @@ impl InvokeOperation {
                     rewrite(value);
                 }
             }
-            Self::NewBox { .. } | Self::IntrinsicArrayNew => {}
+            Self::NewBox { .. } | Self::IntrinsicArrayNew | Self::ScriptArgumentsNew { .. } => {}
             Self::ArrayStateContractClaim { array, .. } => rewrite(array),
             Self::ArrayElementWrite {
                 receiver,
@@ -260,13 +314,14 @@ impl InvokeOperation {
                 }
                 rewrite(value);
             }
-            Self::OwnedFieldResidenceRelease { base, .. }
+            Self::FieldGet { base, .. }
+            | Self::OwnedFieldResidenceRelease { base, .. }
             | Self::OwnedObjectFieldRelease { base, .. } => rewrite(base),
             Self::HomeRelease { value, .. }
             | Self::HomeReleaseIfLive { value, .. }
+            | Self::ObjectEndIfOwned { value, .. }
             | Self::ReclaimUnpublished { value, .. } => rewrite(value),
-            Self::FieldSet { base, value, .. }
-            | Self::ObjectFieldSet { base, value, .. } => {
+            Self::FieldSet { base, value, .. } | Self::ObjectFieldSet { base, value, .. } => {
                 rewrite(base);
                 rewrite(value);
             }

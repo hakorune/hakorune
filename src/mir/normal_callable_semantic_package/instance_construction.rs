@@ -50,12 +50,12 @@ pub(crate) enum ConstructionStoreRhsV1 {
         /// `None` stays on scalar/builtin/undeclared field stores.
         provided: Option<CanonicalObjectIdV1>,
     },
-    /// Coverage-only: the plan records the provider `new` site; the
-    /// existing new-expression owner produces the value. Builtin class
+    /// Source-issued provider `new` plan consumed by the construction writer.
+    /// The retained Static sources keep their original issuer identity. Builtin class
     /// providers keep `object`/`arguments` empty (`None`); a user-class
     /// provider carries the canonical child identity and its sealed
     /// literal arguments for the emitted Birth call. `owned_fields`
-    /// names the child's declared `ArrayBox` residences — empty for a
+    /// names the child's declared typed owned residences — empty for a
     /// `PlainI64NoHook` child — for full teardown when child Birth
     /// completed but its parent store faults. Child Birth owns its
     /// own partial fields; its caller reclaims unpublished storage only.
@@ -67,7 +67,8 @@ pub(crate) enum ConstructionStoreRhsV1 {
         class: Box<str>,
         object: Option<ProviderConstructionChildV1>,
         arguments: Box<[super::OrdinaryNewTrivialArgumentV1]>,
-        owned_fields: Box<[CanonicalFieldRefV1]>,
+        static_sources: Box<[std::rc::Rc<super::ProviderStaticArgumentSourceV1>]>,
+        owned_fields: Box<[OwnedFieldChildV1]>,
         caller: hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     },
 }
@@ -139,42 +140,55 @@ impl ConstructionStoreV1 {
     }
 }
 
+#[path = "instance_construction_body.rs"]
+mod body;
+pub(crate) use body::{ConstructionChildCallSourceLoanV1, ConstructionSourceStructureV1, ConstructionSourceStepV1};
+use std::rc::Rc;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ConstructionPlanV1 {
-    // Issued once by the enclosing branded semantic batch, including NoBirth.
-    object: CanonicalObjectIdV1,
-    field_demands: Box<[HomeDemandV1]>,
-    stores: Box<[ConstructionStoreV1]>,
-    // Store sites are local to this existing constructor owner. Keep it after
-    // the affine New target is consumed; Box identity alone cannot qualify them.
-    constructor: Option<(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)>,
+    source: Rc<ConstructionSourceStructureV1>,
 }
-
 pub(crate) type ConstructionEligibilityV1 = Result<ConstructionPlanV1, ConstructionUnavailableV1>;
-
+pub(crate) type ConstructionSourceEligibilityV1 = Result<Rc<ConstructionSourceStructureV1>, ConstructionUnavailableV1>;
 impl ConstructionPlanV1 {
-    pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
-        self.object
+    pub(crate) fn steps(&self) -> &[ConstructionSourceStepV1] { self.source.steps() }
+    pub(crate) fn object(&self) -> CanonicalObjectIdV1 { self.source.object }
+    pub(crate) fn constructor(&self) -> Option<&(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)> {
+        self.source.constructor.as_ref()
+    }
+    pub(crate) fn field_demands(&self) -> &[HomeDemandV1] { &self.source.field_demands }
+    pub(crate) fn stores(&self) -> &[ConstructionStoreV1] { &self.source.stores }
+    pub(crate) const fn reclaims_unpublished_outer_storage(&self) -> bool { true }
+    pub(super) fn qualify_ordered_unit_calls_v1(
+        source: &ConstructionSourceEligibilityV1,
+        mut qualify: impl FnMut(&Rc<ConstructionSourceStructureV1>, &OwnedExprSiteV1) -> Result<bool, String>,
+    ) -> Result<ConstructionEligibilityV1, String> {
+        let source = match source { Ok(source) => source, Err(reason) => return Ok(Err(*reason)) };
+        let mut saw_call = false;
+        for step in source.steps() {
+            match step {
+                ConstructionSourceStepV1::Store(_) if saw_call => {
+                    // Existing literal folds do not prove reads across opaque
+                    // effects. Keep this source form unavailable until its owner does.
+                    return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported));
+                }
+                ConstructionSourceStepV1::StoredChildCall(call) => {
+                    saw_call = true;
+                    if !qualify(source, call.site())? { return Ok(Err(ConstructionUnavailableV1::BodyCoverageUnsupported)); }
+                }
+                _ => {}
+            }
+        }
+        Ok(Ok(Self { source: Rc::clone(source) }))
     }
 
-    pub(crate) fn constructor(
-        &self,
-    ) -> Option<&(crate::parser::ConstructorSourceIdV1, FunctionOwnerIdV1)> {
-        self.constructor.as_ref()
-    }
-
-    pub(crate) fn field_demands(&self) -> &[HomeDemandV1] {
-        &self.field_demands
-    }
-
-    pub(crate) fn stores(&self) -> &[ConstructionStoreV1] {
-        &self.stores
-    }
-
-    /// Independent of field demand/count. This is an obligation, not proof
-    /// that a backend already implements reclamation.
-    pub(crate) const fn reclaims_unpublished_outer_storage(&self) -> bool {
-        true
+    pub(super) fn without_child_calls(source: &ConstructionSourceEligibilityV1) -> ConstructionEligibilityV1 {
+        let source = source.as_ref().map_err(|reason| *reason)?;
+        if source.steps.iter().any(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))) {
+            return Err(ConstructionUnavailableV1::BodyCoverageUnsupported);
+        }
+        Ok(Self { source: Rc::clone(source) })
     }
 }
 
@@ -208,6 +222,34 @@ pub(super) fn issue_construction_plan(
     )],
     definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
 ) -> ConstructionEligibilityV1 {
+    ConstructionPlanV1::without_child_calls(&issue_construction_source_v1(
+        object_id, source, declaration, birth, provider_static_sources, birth_rows, objects, definitions,
+    ))
+}
+
+pub(super) fn issue_construction_source_v1(
+    object_id: CanonicalObjectIdV1,
+    source: &crate::parser::ParserOrdinaryBoxSourceRowV1,
+    declaration: &ASTNode,
+    birth: Option<(
+        &crate::parser::ConstructorSourceIdV1,
+        ResolvedFunctionLoweringInputV1<'_>,
+    )>,
+    provider_static_sources: Option<(
+        &hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
+        &[std::rc::Rc<super::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>],
+    )>,
+    // Published Birth inventory keyed by final Box ordinal: the same
+    // membership `birth_for` consults, loaned by the catalog caller so
+    // a provider child seals `BirthIndexed` vs `NoBirthZero` here —
+    // emission never re-derives it.
+    birth_rows: &BTreeMap<usize, BTreeSet<u32>>,
+    objects: &[(
+        crate::parser::ParserOrdinaryBoxSourceRowV1,
+        CanonicalObjectIdV1,
+    )],
+    definitions: &[crate::mir::function::CanonicalObjectDefinitionV1],
+) -> ConstructionSourceEligibilityV1 {
     use ConstructionUnavailableV1 as U;
     // Parser normalization moves declared defaults into Birth stores. The
     // sealed source trigger retains its role at the named residence join;
@@ -256,15 +298,16 @@ pub(super) fn issue_construction_plan(
     if names.len() != fields.len() {
         return Err(U::SourceRelationMissing);
     }
-    let mut plan = ConstructionPlanV1 {
+    let mut plan = ConstructionSourceStructureV1 {
         object: object_id,
         field_demands: vec![HomeDemandV1::Trivial; fields.len()].into_boxed_slice(),
         stores: Box::new([]),
         constructor: None,
+        steps: Vec::new().into_boxed_slice(),
     };
     let Some((source_id, input)) = birth else {
         return if fields.is_empty() {
-            Ok(plan)
+            Ok(Rc::new(plan))
         } else {
             Err(U::InitializationContractMissing)
         };
@@ -300,6 +343,7 @@ pub(super) fn issue_construction_plan(
         .root_body()
         .map_err(|_| U::SourceRelationMissing)?;
     let mut stores = Vec::new();
+    let mut steps = Vec::new();
     let mut initialized = BTreeSet::new();
     let mut statements = BTreeSet::new();
     let mut expressions = BTreeSet::new();
@@ -312,6 +356,18 @@ pub(super) fn issue_construction_plan(
         if matches!(statement.node(), ASTNode::Return { value: None, .. })
             && index + 1 == body.statements().len()
         {
+            continue;
+        }
+        if matches!(statement.node(), ASTNode::MethodCall { .. }) {
+            let call = body::capture_child_call_source_v1(
+                input, shape, *receiver, object_id, fields, field_decls,
+                objects, &stores, statement.site(),
+            )?;
+            // Retain the complete original call subtree as a source request.
+            // No expression in it is executable merely from this coverage.
+            expressions.extend(function.expression_sites().filter(|site|
+                site.node().segments().starts_with(statement.site().node().segments())).cloned());
+            steps.push(ConstructionSourceStepV1::StoredChildCall(call));
             continue;
         }
         let ASTNode::Assignment { .. } = statement.node() else {
@@ -507,50 +563,8 @@ pub(super) fn issue_construction_plan(
         ]);
         let field = CanonicalFieldRefV1::from_declaration_ordinal(object_id, ordinal)
             .ok_or(U::SourceRelationMissing)?;
-        let fault_discharge = stores
-            .iter()
-            .rev()
-            .filter_map(|prior: &ConstructionStoreV1| {
-                let kind = match prior.rhs() {
-                    ConstructionStoreRhsV1::ProviderConstruction {
-                        object: Some(child),
-                        ..
-                    } => OwnedFieldChildKindV1::Object(child.object()),
-                    ConstructionStoreRhsV1::ProviderConstruction {
-                        object: None,
-                        class,
-                        ..
-                    } if class.as_ref() == "ArrayBox" => OwnedFieldChildKindV1::Array,
-                    ConstructionStoreRhsV1::Parameter { .. } => {
-                        // The existing Provided residence is an exact birth
-                        // formal store into a declared owned user-class field.
-                        // The final field-contract check below corroborates
-                        // unique/non-self PlainI64NoHook class authority before
-                        // this constructor plan can escape the issuer.
-                        let name = field_decls
-                            .get(prior.field().declaration_ordinal() as usize)?
-                            .declared_type_name
-                            .as_deref()?;
-                        if matches!(name, "i64" | "usize") {
-                            return None;
-                        }
-                        let mut resolved = objects
-                            .iter()
-                            .filter_map(|(own, id)| (own.name() == name).then_some(*id));
-                        let (Some(child), None) = (resolved.next(), resolved.next()) else {
-                            return None;
-                        };
-                        OwnedFieldChildKindV1::Object(child)
-                    }
-                    _ => return None,
-                };
-                Some(OwnedFieldChildV1 {
-                    field: prior.field(),
-                    kind,
-                })
-            })
-            .collect::<Vec<_>>()
-            .into_boxed_slice();
+        let fault_discharge = body::prior_owned_fields_v1(&stores);
+        steps.push(ConstructionSourceStepV1::Store(statement.site().clone()));
         stores.push(ConstructionStoreV1 {
             assignment: row.clone(),
             field,
@@ -577,6 +591,12 @@ pub(super) fn issue_construction_plan(
     }
     if initialized.len() != fields.len() {
         return Err(U::InitializationContractMissing);
+    }
+    let mut provided = BTreeSet::new();
+    for store in &stores {
+        if let ConstructionStoreRhsV1::Parameter { binding, provided: Some(_), .. } = store.rhs() {
+            if !provided.insert(*binding) { return Err(U::FieldContractUnsupported); }
+        }
     }
     let mut demands = vec![HomeDemandV1::Trivial; fields.len()];
     for (ordinal, field) in field_decls.iter().enumerate() {
@@ -647,5 +667,6 @@ pub(super) fn issue_construction_plan(
     }
     plan.field_demands = demands.into_boxed_slice();
     plan.stores = stores.into_boxed_slice();
-    Ok(plan)
+    plan.steps = steps.into_boxed_slice();
+    Ok(Rc::new(plan))
 }

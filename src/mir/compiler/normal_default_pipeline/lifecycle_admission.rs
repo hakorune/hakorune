@@ -32,7 +32,12 @@ pub(super) fn admit_lifecycle<'module>(
         .retained_root()
         .map(|root| root.signature.name.as_str());
     let retained_births = view.retained_birth_abi().unwrap_or_default();
-    let ordinary_names = ordinary_call_names(view.module())?;
+    let mut ordinary_names = ordinary_call_names(view.module())?;
+    ordinary_names.extend(
+        view.retained_borrowed_participants_v1()?
+            .keys()
+            .map(|key| key.mir_symbol_projection()),
+    );
     let result_is_retained = matches!(
         view.retained_root_result()?,
         Some(crate::mir::normal_callable_semantic_package::FinalizedRootResultAbiV1::CallReturn { .. }
@@ -64,19 +69,7 @@ fn ordinary_call_names(module: &MirModule) -> Result<BTreeSet<String>, String> {
             .values()
             .flat_map(|block| block.all_instructions())
         {
-            let MirInstruction::Invoke {
-                operation:
-                    crate::mir::instruction::InvokeOperation::Call {
-                        call,
-                        result:
-                            crate::mir::instruction::InvokeCallResultKind::I64
-                            | crate::mir::instruction::InvokeCallResultKind::Map
-                            | crate::mir::instruction::InvokeCallResultKind::Handle
-                            | crate::mir::instruction::InvokeCallResultKind::NullableHandle,
-                    },
-                ..
-            } = instruction
-            else {
+            let Some((call, _)) = super::published_backend_view::ordinary_call_site_v1(instruction) else {
                 continue;
             };
             let key = super::published_backend_view::ordinary_callable_key(&call.callee)?;

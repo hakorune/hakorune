@@ -156,6 +156,31 @@ fn cache_and_identity_keep_exact_index_membership_and_detect_mutation() {
         .verify(&changed)
         .unwrap_err()
         .contains("materialized-producer"));
+
+    // The same LocalSSA writer must retain ordered Compare children through
+    // the pin Copy used by short-circuit conditions, and reject later edits.
+    for op in [crate::mir::CompareOp::Eq, crate::mir::CompareOp::Lt] {
+        let (mut builder, lhs) = fixture();
+        let rhs = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
+        let original = builder.next_value_id();
+        builder.emit_instruction(MirInstruction::Compare { dst: original, op, lhs, rhs }).unwrap();
+        let pinned = builder.pin_to_slot(original, "condition").unwrap();
+        let returned = super::super::try_cond(&mut builder, pinned).unwrap();
+        let function = builder.function_state.current_function.as_ref().unwrap();
+        let relation = builder.function_state.local_ssa_correspondence.loan(function, pinned, returned)
+            .expect("same writer retains Compare under pin Copy");
+        relation.verify(function).unwrap();
+        let Step::Append(children) = &relation.step else { panic!("Copy append required") };
+        let Definition::Instruction(compare) = &children[0].source else { panic!("original Compare required") };
+        for change_op in [false, true] {
+            let mut changed = function.clone();
+            let block = changed.blocks.get_mut(&compare.0).unwrap();
+            let row = block.instructions.iter_mut().find(|row| **row == compare.1).unwrap();
+            let MirInstruction::Compare { op, lhs, rhs, .. } = row else { panic!("Compare required") };
+            if change_op { *op = crate::mir::CompareOp::Ne; } else { std::mem::swap(lhs, rhs); }
+            assert!(relation.verify(&changed).is_err(), "changed Compare must reject");
+        }
+    }
 }
 
 #[test]
@@ -184,6 +209,60 @@ fn nested_function_restores_caller_index_and_refuses_child_loans() {
     outer
         .verify(builder.function_state.current_function.as_ref().unwrap())
         .unwrap();
+
+    // An original loop-body loan keeps its identity while the sole Phi writer
+    // completes the definition. Final capture requires that completion.
+    let header = builder.core_ctx.next_block();
+    builder.ensure_block_exists(header).unwrap();
+    let backedge = builder.core_ctx.next_block();
+    builder.ensure_block_exists(backedge).unwrap();
+    let initial = builder.function_state.current_block.unwrap();
+    let phi = builder.next_value_id();
+    let lifecycle = crate::mir::builder::emission::phi_lifecycle::define_provisional_phi;
+    lifecycle(&mut builder, header, phi, "correspondence-test").unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let loan = builder.function_state.local_ssa_correspondence.loan(function, phi, phi).unwrap();
+    loan.verify(function).unwrap();
+    assert!(loan.require_completed_v1().unwrap_err().contains("phi-incomplete"));
+    let mut provisional = Vec::new();
+    loan.append_observed_bindings_v1(&mut provisional);
+    let inputs = vec![(initial, raw), (backedge, raw)];
+    crate::mir::builder::emission::phi_lifecycle::patch_phi_inputs(
+        &mut builder, header, phi, inputs.clone(), "correspondence-test").unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let again = builder.function_state.local_ssa_correspondence.loan(function, phi, phi).unwrap();
+    assert!(Rc::ptr_eq(&loan, &again));
+    loan.require_completed_v1().unwrap();
+    loan.verify(function).unwrap();
+    loan.verify_projected(function, &mut |binding| Ok(Some(binding.clone()))).unwrap();
+    let completed = loan.resolve_observed_binding_v1(&provisional[0], true).unwrap().unwrap();
+    assert!(matches!(&completed.1, MirInstruction::Phi { inputs: actual, .. } if actual == &inputs));
+    let mut changed = function.clone();
+    let row = changed.blocks.get_mut(&header).unwrap().instructions.iter_mut()
+        .find(|row| row.dst_value() == Some(phi)).unwrap();
+    let MirInstruction::Phi { inputs, .. } = row else { panic!("Phi required") };
+    inputs.pop();
+    assert!(loan.verify(&changed).is_err());
+    assert!(loan.verify_projected(&changed, &mut |binding| Ok(Some(binding.clone()))).is_err());
+    let before = function.blocks[&header].instructions.clone();
+    assert!(crate::mir::builder::emission::phi_lifecycle::patch_phi_inputs(
+        &mut builder, header, phi, vec![(initial, raw)], "duplicate-completion").is_err());
+    assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&header].instructions, before);
+    let before_spans = builder.function_state.current_function.as_ref().unwrap().blocks[&header].instruction_spans.clone();
+    assert!(lifecycle(&mut builder, header, phi, "duplicate-definition").is_err());
+    assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&header].instructions, before);
+    assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&header].instruction_spans, before_spans);
+    let (foreign, _) = fixture();
+    assert!(foreign.function_state.local_ssa_correspondence.require_member(&loan).is_err());
+
+    let rolled = builder.next_value_id();
+    lifecycle(&mut builder, header, rolled, "rollback-test").unwrap();
+    let function = builder.function_state.current_function.as_ref().unwrap();
+    let pending = builder.function_state.local_ssa_correspondence.loan(function, rolled, rolled).unwrap();
+    assert!(crate::mir::builder::emission::phi_lifecycle::rollback_provisional_phi(
+        &mut builder, header, rolled, "rollback-test").unwrap());
+    assert!(pending.require_completed_v1().is_err());
+    assert!(pending.verify(builder.function_state.current_function.as_ref().unwrap()).is_err());
 }
 
 #[test]

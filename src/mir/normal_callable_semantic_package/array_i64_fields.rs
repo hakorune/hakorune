@@ -290,33 +290,41 @@ pub(crate) fn coverage_unique_i64_field(
     coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
     field: &str,
 ) -> bool {
-    let mut found = false;
+    coverage_unique_i64_field_ref(constructors, coverage, field).is_some()
+}
+
+/// Retain the canonical declaration selected by the same complete-name census.
+pub(crate) fn coverage_unique_i64_field_ref(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    field: &str,
+) -> Option<hakorune_mir_defs::CanonicalFieldRefV1> {
+    coverage_unique_i64_field_source(constructors, coverage, field).map(|source| source.field())
+}
+
+/// Same unique declaration census, retaining metadata before any consumer projects it.
+pub(crate) fn coverage_unique_i64_field_source(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    field: &str,
+) -> Option<std::rc::Rc<super::LocalFieldReadSourceV1>> {
+    let mut found = None;
     for row in coverage.rows() {
-        let declared = constructors
-            .with_source_object_definition(row, |_, definition| {
-                let mut hit = None;
-                for declaration in definition.fields() {
-                    if declaration.name == field && !declaration.is_weak {
-                        if hit.is_some() {
-                            return Some(None);
-                        }
-                        hit = Some(declaration.declared_type_name.clone());
-                    }
-                }
-                Some(hit.flatten())
-            })
-            .ok()
-            .flatten()
-            .flatten();
-        if !declared.is_some_and(|name| {
-            crate::mir::numeric_substrate::is_numeric_integer_type_name(&name)
-        }) {
-            continue;
+        let declarations = constructors.with_source_object_definition(row, |object, definition| {
+            definition.fields().iter().enumerate().filter(|(_, declaration)| declaration.name == field)
+                .map(|(ordinal, declaration)| (declaration.is_weak, declaration.declared_type_name.clone(),
+                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)))
+                .collect::<Vec<_>>()
+        }).ok()?;
+        for (weak, declared, canonical) in declarations {
+            if found.is_some() || weak || !declared.as_deref().is_some_and(
+                crate::mir::numeric_substrate::is_numeric_integer_type_name)
+            { return None; }
+            found = Some(super::LocalFieldReadSourceV1::from_declaration(
+                canonical?, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
+                declared?.into_boxed_str(),
+            ));
         }
-        if found {
-            return false;
-        }
-        found = true;
     }
     found
 }

@@ -117,6 +117,20 @@ pub(in crate::mir::builder) trait LoopPlanExpressionPortV1:
     where
         Self: 'input;
 
+    /// Located source identity, independently of the eventual value shape.
+    /// Synthetic/raw inputs carry no source loan.
+    fn exact_source_expression_site<'input>(
+        &self, _input: &Self::ExprInput<'input>,
+    ) -> Result<Option<crate::mir::resolved_semantics::OwnedExprSiteV1>, String>
+    where Self: 'input { Ok(None) }
+
+    /// Retain one real variable read rather than reconstructing its provenance
+    /// from the eventual ValueId. The returned read is consumed exactly once.
+    fn exact_source_variable_read<'input>(
+        &self, _input: &Self::ExprInput<'input>,
+    ) -> Result<Option<crate::mir::builder::normal_callable_semantic_lowering_state::ExactLexicalReadV1>, String>
+    where Self: 'input { Ok(None) }
+
     /// Optional exact source binding projection.  Raw/legacy ports return
     /// `None` and retain their existing variable-map behavior.  A source-aware
     /// port returns `Some` or an error, so the normalizer cannot fall back to

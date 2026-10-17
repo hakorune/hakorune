@@ -84,6 +84,26 @@ pub(super) fn no_birth_constructor_disposition(
     })
 }
 
+/// Retain the original source map, including canonical Static continuations
+/// supplied by the same issuer. A child cannot borrow another owner's exit.
+pub(super) fn retain_child_terminal_relations_v1(
+    rows: std::collections::BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, TerminalRelationV1>,
+    owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    has_map: bool,
+    mut retain_source: impl FnMut(&TerminalRelationV1) -> Result<bool, OrdinaryNewCoSealIssueV1>,
+) -> Result<std::collections::BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, TerminalRelationV1>, OrdinaryNewCoSealIssueV1> {
+    let mut retained = std::collections::BTreeMap::new();
+    for (site, row) in rows {
+        if row.owner() != owner || row.return_site() != &site {
+            return Err(OrdinaryNewCoSealIssueV1::BatchLoan);
+        }
+        if retain_child_terminal_relation(&row, has_map) || retain_source(&row)? {
+            retained.insert(site, row);
+        }
+    }
+    Ok(retained)
+}
+
 pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: bool) -> bool {
     has_map
         // The immutable Lexical argument arm is issued only after the source
@@ -94,9 +114,11 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                 crate::mir::resolved_semantics::home_new_prefix::TerminalCallArgumentV1::Lexical(_))))
         || matches!(
             row,
-            TerminalRelationV1::IntegerLiteral(_)
+            TerminalRelationV1::Unit(_)
+                | TerminalRelationV1::IntegerLiteral(_)
                 | TerminalRelationV1::BoolLiteral(_)
                 | TerminalRelationV1::I64Field(_)
+                | TerminalRelationV1::I64Add(_)
                 | TerminalRelationV1::MapGet(_)
         )
         // A `return new ...` relation is the co-sealed evidence that the
@@ -112,6 +134,7 @@ pub(super) fn retain_child_terminal_relation(row: &TerminalRelationV1, has_map: 
                     value.returned(),
                     TerminalReturnedSourceV1::Construction(_)
                         | TerminalReturnedSourceV1::OwnedCall(_)
+                        | TerminalReturnedSourceV1::BorrowedNullableLocal(_)
                         | TerminalReturnedSourceV1::NullLiteral
                 )
         )

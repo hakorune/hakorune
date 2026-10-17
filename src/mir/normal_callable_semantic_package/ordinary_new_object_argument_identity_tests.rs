@@ -80,6 +80,8 @@ fn object_arguments_reject_original_incoming_callee_drift_before_profile_unavail
         &Default::default(),
         &target,
         &loan
+    ,
+        None,
     )
     .unwrap_err()
     .contains("object-source-identity"));
@@ -106,7 +108,9 @@ fn object_arguments_demand_staged_error_before_missing_incoming_support() {
             &actuals,
             &target,
             &loan
-        )
+        ,
+        None,
+    )
         .unwrap_err(),
         "selected-original-actual-error"
     );
@@ -174,7 +178,9 @@ fn original_object_source_actuals_retain_order_and_refuse_executable_permission(
     let mut pending = PendingBorrowedFormalActualsV1::new();
     pending.insert(loan.call().clone(), Ok(rows));
     assert!(
-        matches!(project_pending_object_arguments_v1(source, &package.parameter_contracts, &pending, &target, &loan).unwrap(),
+        matches!(project_pending_object_arguments_v1(source, &package.parameter_contracts, &pending, &target, &loan,
+        None,
+    ).unwrap(),
         ObjectCallSourceSupportV1::SourceOnly(arguments) if arguments.len() == 1)
     );
     reject_borrowed_actuals_for_owner_v1(
@@ -189,6 +195,8 @@ fn original_object_source_actuals_retain_order_and_refuse_executable_permission(
         &pending,
         &target,
         &loan
+    ,
+        None,
     )
     .unwrap_err()
     .contains("failed-original-walk"));
@@ -252,6 +260,8 @@ fn failed_object_source_walk_revokes_unobserved_raw_call_without_execution_grant
         &pending,
         &target,
         &loan
+    ,
+        None,
     )
     .unwrap_err()
     .contains("unobserved-source-walk-failed"));
@@ -342,7 +352,9 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
             &staged,
             &target,
             &loan
-        )
+        ,
+        None,
+    )
         .unwrap(),
         crate::mir::resolved_semantics::home_new_prefix::ObjectCallSourceSupportV1::SourceOnly(_)
     ));
@@ -406,6 +418,7 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
             &replaced,
             &target,
             &loan,
+            None,
         )
         .unwrap_err()
         .contains("forward-source-identity"));
@@ -431,6 +444,7 @@ fn object_forward_source_keeps_final_callee_without_fabricating_caller_definitio
         &replaced,
         &target,
         &loan,
+        None,
     )
     .unwrap_err()
     .contains("source-phase-drift"));
@@ -495,13 +509,28 @@ fn unqualified_object_sibling_forward_retains_only_original_source_input() {
     assert!(target.object_source_forwards().is_none());
     assert!(ingress.source_incoming.has_object_input_callee_v1(&target));
     assert!(!ingress.definitions.contains_key(&original.call.owner()));
-    let rows = ledger
+    let finished = ledger
         .borrowed_formal_actuals
         .get(&original.call)
         .unwrap()
         .as_ref()
-        .unwrap()
-        .clone();
+        .unwrap();
+    let BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(identity) = &finished.phase
+    else {
+        panic!("the original guarded cohort must finish its exact input")
+    };
+    finished.require_executable_v1().unwrap();
+    // Observe the source producer itself; finishing does not grant this earlier
+    // source-only view execution or a sibling's result qualification.
+    let rows = super::super::object_source::prepare_object_source_actuals_v1(
+        ingress,
+        &package.parameter_contracts,
+        &original.call,
+        &identity.candidates,
+    )
+    .unwrap()
+    .unwrap();
+    assert_eq!(rows.ordered_arguments, finished.ordered_arguments);
     assert!(matches!(
         rows.phase,
         BorrowedCallActualEvidencePhaseV1::SourceObject(_)
@@ -519,6 +548,7 @@ fn unqualified_object_sibling_forward_retains_only_original_source_input() {
             &package.parameter_contracts,
             &pending,
             &target,
+            None,
         )
         .unwrap(),
         ObjectCallSourceSupportV1::SourceOnly(_)
@@ -567,6 +597,7 @@ fn unqualified_object_sibling_forward_retains_only_original_source_input() {
                 &package.parameter_contracts,
                 &changed,
                 &target,
+                None,
             )
             .is_err(),
             "original sibling snapshot mutation {mutation}"
@@ -578,6 +609,7 @@ fn unqualified_object_sibling_forward_retains_only_original_source_input() {
         &package.parameter_contracts,
         &missing,
         &target,
+        None,
     )
     .unwrap_err()
     .contains("source-phase-drift"));
@@ -594,6 +626,7 @@ fn unqualified_object_sibling_forward_retains_only_original_source_input() {
         &package.parameter_contracts,
         &staged,
         &target,
+        None,
     )
     .unwrap_err()
     .contains("sibling-source-draft"));

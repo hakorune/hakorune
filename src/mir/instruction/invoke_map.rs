@@ -4,6 +4,7 @@ use crate::mir::{Effect, EffectMask, ValueId};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InvokeNormalResultKind {
     I64,
+    Bool,
     Handle,
     /// A `NullableObject` claim result: `BoxRef` or the `Void` null
     /// sentinel; the caller owes a checked release, never an unconditional
@@ -12,6 +13,8 @@ pub enum InvokeNormalResultKind {
     /// Borrowed object-or-null from an owned Array slot. The original holder
     /// and descriptor determine liveness; this projection owns no lease.
     BorrowedNullableHandle,
+    /// Payload and original Null/Fresh/Forward outcome form one projection.
+    MixedHandle,
     Map,
     MapKey,
     MapOutcome,

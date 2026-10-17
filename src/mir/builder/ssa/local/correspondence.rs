@@ -5,12 +5,30 @@ use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
 
+#[path = "phi_definition.rs"]
+mod phi_definition;
+use phi_definition::{PhysicalPhiDefinitionV1, PhysicalPhiPatchV1};
+
 pub(in crate::mir) type PhysicalBinding = (BasicBlockId, MirInstruction);
 
 #[derive(Debug, Clone, PartialEq)]
 enum Definition {
     Instruction(PhysicalBinding),
+    Phi(Rc<PhysicalPhiDefinitionV1>),
     Parameter { value: ValueId, index: usize },
+}
+
+impl PartialEq for PhysicalPhiDefinitionV1 {
+    fn eq(&self, other: &Self) -> bool { std::ptr::eq(self, other) }
+}
+
+impl Definition {
+    fn resolved(&self) -> Result<Self, String> {
+        match self { Self::Phi(phi) => Ok(Self::Instruction(phi.current()?.clone())), _ => Ok(self.clone()) }
+    }
+    fn binding(&self) -> Option<&PhysicalBinding> {
+        match self { Self::Instruction(row) => Some(row), Self::Phi(phi) => phi.current().ok(), _ => None }
+    }
 }
 
 #[derive(Debug)]
@@ -29,6 +47,33 @@ pub(in crate::mir) struct LocalSsaPhysicalRelationV1 {
 }
 
 impl LocalSsaPhysicalRelationV1 {
+    pub(in crate::mir) fn require_completed_v1(&self) -> Result<(), String> {
+        if let Definition::Phi(phi) = &self.source { phi.require_completed()?; }
+        if let Step::Append(children) = &self.step {
+            for child in children { child.require_completed_v1()?; }
+        }
+        Ok(())
+    }
+
+    /// Resolve only a binding retained from this same writer observation.
+    /// Final MIR is never a source for replacement evidence.
+    pub(in crate::mir) fn resolve_observed_binding_v1(&self, original: &PhysicalBinding, require_completed: bool)
+        -> Result<Option<PhysicalBinding>, String>
+    {
+        if let Definition::Phi(phi) = &self.source {
+            if phi.resolves(original) {
+                if require_completed { phi.require_completed()?; }
+                return Ok(Some(phi.current()?.clone()));
+            }
+        }
+        if let Step::Append(children) = &self.step {
+            for child in children {
+                if let Some(row) = child.resolve_observed_binding_v1(original, require_completed)? { return Ok(Some(row)); }
+            }
+        }
+        Ok(None)
+    }
+
     pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) {
         (self.from, self.to)
     }
@@ -36,6 +81,20 @@ impl LocalSsaPhysicalRelationV1 {
     /// Exact captured writer output; callers still need the original source loan.
     pub(in crate::mir) fn target_binding(&self) -> Option<&PhysicalBinding> {
         self.target.as_ref()
+    }
+
+    /// Complete observations for an enclosing source-owned instruction census.
+    /// This grants no operand class and changes no removable-binding policy.
+    pub(in crate::mir) fn append_observed_bindings_v1(&self, bindings: &mut Vec<PhysicalBinding>) {
+        if let Some(original) = self.source.binding() {
+            if !bindings.contains(original) { bindings.push(original.clone()); }
+        }
+        if let Some(target) = &self.target {
+            if !bindings.contains(target) { bindings.push(target.clone()); }
+        }
+        if let Step::Append(children) = &self.step {
+            for child in children { child.append_observed_bindings_v1(bindings); }
+        }
     }
 
     pub(in crate::mir) fn append_required_bindings(&self, bindings: &mut Vec<PhysicalBinding>) {
@@ -48,7 +107,7 @@ impl LocalSsaPhysicalRelationV1 {
                 bindings.push(binding.clone());
             }
         };
-        if let Definition::Instruction(original) = &self.source {
+        if let Some(original) = self.source.binding() {
             append(original);
         }
         if let Some(target) = &self.target {
@@ -61,7 +120,7 @@ impl LocalSsaPhysicalRelationV1 {
         }
     }
     pub(in crate::mir) fn verify(&self, function: &MirFunction) -> Result<(), String> {
-        if definition(function, self.from).as_ref() != Some(&self.source) {
+        if definition(function, self.from).as_ref() != Some(&self.source.resolved()?) {
             return Err(reject("original-producer"));
         }
         if let Some(target) = &self.target {
@@ -94,10 +153,9 @@ impl LocalSsaPhysicalRelationV1 {
                         .1
                         .dst_value()
                         .ok_or_else(|| reject("projected-dst"))?;
-                    if definition(function, value).as_ref()
-                        != Some(&Definition::Instruction(mapped))
-                    {
-                        return Err(reject("projected-producer"));
+                    if !matches!(definition(function, value), Some(Definition::Instruction(ref actual)) if actual == &mapped) {
+                        return Err(format!("{} function={} original={original:?} mapped={mapped:?} actual={:?}",
+                            reject("projected-producer"), function.signature.name, definition(function, value)));
                     }
                 }
                 None if matches!(
@@ -108,8 +166,9 @@ impl LocalSsaPhysicalRelationV1 {
             }
             Ok(())
         };
-        match &self.source {
+        match &self.source.resolved()? {
             Definition::Instruction(original) => verify_binding(original)?,
+            Definition::Phi(_) => return Err(reject("unresolved-phi")),
             Definition::Parameter { value, index } => {
                 if function.params.get(*index) != Some(value)
                     || definition(function, *value).as_ref() != Some(&self.source)
@@ -130,6 +189,7 @@ impl LocalSsaPhysicalRelationV1 {
     }
 
     fn verify_shape(&self) -> Result<(), String> {
+        let source = self.source.resolved()?;
         match &self.step {
             Step::Identity if self.from == self.to && self.target.is_none() => Ok(()),
             Step::Identity => Err(reject("identity")),
@@ -137,7 +197,7 @@ impl LocalSsaPhysicalRelationV1 {
                 let Some((_, target)) = &self.target else {
                     return Err(reject("append"));
                 };
-                match (&self.source, target) {
+                match (&source, target) {
                     (
                         Definition::Instruction((
                             _,
@@ -169,6 +229,19 @@ impl LocalSsaPhysicalRelationV1 {
                         Ok(())
                     }
                     (
+                        Definition::Instruction((_, MirInstruction::Compare {
+                            op: original_op, lhs: original_lhs, rhs: original_rhs, ..
+                        })),
+                        MirInstruction::Compare { op, lhs, rhs, .. },
+                    ) if original_op == op && children.len() == 2 => {
+                        if children[0].values() != (*original_lhs, *lhs)
+                            || children[1].values() != (*original_rhs, *rhs)
+                        {
+                            return Err(reject("ordered-compare-operands"));
+                        }
+                        Ok(())
+                    }
+                    (
                         Definition::Instruction((_, MirInstruction::Copy { src: original, .. })),
                         MirInstruction::Copy { src, .. },
                     ) if children.len() == 1 => {
@@ -194,16 +267,56 @@ pub(in crate::mir) struct LocalSsaPhysicalIndexV1 {
     rows: BTreeMap<(ValueId, ValueId), Rc<LocalSsaPhysicalRelationV1>>,
     scalar_loans: BTreeMap<ValueId, Rc<OriginalScalarAppendV1>>,
     scalar_appends: BTreeMap<ValueId, (Rc<OriginalScalarAppendV1>, Rc<LocalSsaPhysicalRelationV1>)>,
+    phis: BTreeMap<ValueId, Rc<PhysicalPhiDefinitionV1>>,
 }
 
 impl LocalSsaPhysicalIndexV1 {
+    pub(in crate::mir::builder) fn prepare_provisional_phi_v1(
+        &self, function: &MirFunction, block: BasicBlockId, dst: ValueId,
+    ) -> Result<Rc<PhysicalPhiDefinitionV1>, String> {
+        if self.phis.contains_key(&dst) || function.params.contains(&dst)
+            || function.blocks.values().any(|body| body.all_instructions().any(|row| row.dst_value() == Some(dst))) {
+            return Err(reject("phi-definition-origin"));
+        }
+        Ok(Rc::new(PhysicalPhiDefinitionV1::new(block, dst)))
+    }
+
+    pub(in crate::mir::builder) fn commit_provisional_phi_v1(&mut self, phi: Rc<PhysicalPhiDefinitionV1>) {
+        let dst = phi.current().expect("new Phi observation is live").1.dst_value().expect("Phi defines dst");
+        assert!(self.phis.insert(dst, phi).is_none(), "exclusive Phi definition preflight changed");
+    }
+
+    pub(in crate::mir::builder) fn prepare_phi_patch_v1(
+        &self, function: &MirFunction, binding: PhysicalBinding,
+    ) -> Result<Option<PhysicalPhiPatchV1>, String> {
+        let dst = binding.1.dst_value().ok_or_else(|| reject("phi-completion-dst"))?;
+        // Existing final-Phi patch callers never issued a provisional loan.
+        // Tracked provisional loans, by contrast, must complete exactly once.
+        let Some(phi) = self.phis.get(&dst) else { return Ok(None); };
+        let before = instruction(function, dst).ok_or_else(|| reject("phi-completion-missing"))?;
+        phi.prepare(&before, binding).map(Some)
+    }
+
+    pub(in crate::mir::builder) fn rollback_phi_v1(&self, dst: ValueId) {
+        if let Some(phi) = self.phis.get(&dst) { phi.rollback(); }
+    }
+
+    fn observed_definition(&self, function: &MirFunction, value: ValueId) -> Option<Definition> {
+        let actual = definition(function, value)?;
+        if let Some(phi) = self.phis.get(&value) {
+            if actual.binding() != phi.current().ok() { return None; }
+            Some(Definition::Phi(Rc::clone(phi)))
+        } else { Some(actual) }
+    }
+
     pub(in crate::mir::builder) fn is_empty(&self) -> bool {
-        self.rows.is_empty() && self.scalar_loans.is_empty() && self.scalar_appends.is_empty()
+        self.rows.is_empty() && self.scalar_loans.is_empty() && self.scalar_appends.is_empty() && self.phis.is_empty()
     }
     pub(in crate::mir::builder) fn clear(&mut self) {
         self.rows.clear();
         self.scalar_loans.clear();
         self.scalar_appends.clear();
+        self.phis.clear();
     }
 
     pub(in crate::mir::builder) fn loan(
@@ -216,7 +329,7 @@ impl LocalSsaPhysicalIndexV1 {
             let row = Rc::new(LocalSsaPhysicalRelationV1 {
                 from,
                 to,
-                source: definition(function, from)?,
+                source: self.observed_definition(function, from)?,
                 target: None,
                 step: Step::Identity,
             });
@@ -332,6 +445,21 @@ impl LocalSsaPhysicalIndexV1 {
     }
 
     /// An absent/ambiguous producer never adds a legacy rejection or a loan.
+    /// Observe the sole pin writer's actual Copy before slot redirection can
+    /// reuse it. This is physical provenance, with no scalar/type authority.
+    pub(in crate::mir::builder) fn record_pin_copy(
+        &mut self, function: &MirFunction, from: ValueId, to: ValueId, block: BasicBlockId,
+    ) -> Result<(), String> {
+        if !matches!(instruction(function, to), Some((id, MirInstruction::Copy { dst, src }))
+            if id == block && dst == to && src == from)
+        {
+            return Err(reject("pin-copy-writer"));
+        }
+        self.record_append(function, from, instruction(function, from), to, block, None);
+        self.loan(function, from, to).ok_or_else(|| reject("pin-copy-observation"))?
+            .verify(function)
+    }
+
     pub(super) fn record_append(
         &mut self,
         function: &MirFunction,
@@ -341,7 +469,7 @@ impl LocalSsaPhysicalIndexV1 {
         block: BasicBlockId,
         ordered: Option<Vec<(ValueId, ValueId)>>,
     ) {
-        let source = match original {
+        let mut source = match original {
             Some(binding) if binding.1.dst_value() == Some(from) => {
                 Definition::Instruction(binding)
             }
@@ -356,6 +484,10 @@ impl LocalSsaPhysicalIndexV1 {
                 source
             }
         };
+        if let Some(phi) = self.phis.get(&from) {
+            if source.binding() != phi.current().ok() { return; }
+            source = Definition::Phi(Rc::clone(phi));
+        }
         let Some(row) = function.blocks.get(&block).and_then(|row| {
             row.all_instructions()
                 .find(|row| row.dst_value() == Some(to))

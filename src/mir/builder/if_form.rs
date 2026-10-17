@@ -8,17 +8,66 @@ pub(in crate::mir::builder) enum IfBranchKindV1 {
     Else,
 }
 
+/// Exact physical condition materialization from this IfForm invocation.
+/// Source ownership and the later affine seal remain with its consumer.
+#[derive(Debug)]
+pub(in crate::mir) struct IfConditionMaterializationV1 {
+    original: ValueId,
+    condition: ValueId,
+    block: crate::mir::BasicBlockId,
+    arms: (crate::mir::BasicBlockId, crate::mir::BasicBlockId),
+    merge: crate::mir::BasicBlockId,
+    bindings: Vec<(crate::mir::BasicBlockId, crate::mir::MirInstruction)>,
+    relation: std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1>,
+}
+impl IfConditionMaterializationV1 {
+    pub(in crate::mir) fn values(&self) -> (ValueId, ValueId) { (self.original, self.condition) }
+    pub(in crate::mir) fn block(&self) -> crate::mir::BasicBlockId { self.block }
+    pub(in crate::mir) fn arms(&self) -> (crate::mir::BasicBlockId, crate::mir::BasicBlockId) { self.arms }
+    pub(in crate::mir) fn merge(&self) -> crate::mir::BasicBlockId { self.merge }
+    pub(in crate::mir) fn bindings(&self) -> &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)] { &self.bindings }
+    pub(in crate::mir) fn relation(&self) -> &std::rc::Rc<super::ssa::local::LocalSsaPhysicalRelationV1> { &self.relation }
+}
+
+pub(in crate::mir::builder) trait IfFormPhysicalObserverV1 {
+    fn before_branches(&mut self, function: &crate::mir::MirFunction,
+        pending: std::rc::Rc<IfConditionMaterializationV1>) -> Result<(), String>;
+    fn emitted_branch(&mut self, function: &crate::mir::MirFunction,
+        pending: &std::rc::Rc<IfConditionMaterializationV1>,
+        branch: (crate::mir::BasicBlockId, crate::mir::MirInstruction)) -> Result<(), String>;
+}
+
 impl MirBuilder {
     pub(super) fn lower_if_form_with_condition_value_and_branch_lowerer<LowerBranch>(
         &mut self,
         condition_val: ValueId,
         condition_debug: Option<ASTNode>,
         has_explicit_else: bool,
-        mut lower_branch: LowerBranch,
+        lower_branch: LowerBranch,
     ) -> Result<ValueId, String>
     where
         LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
     {
+        self.lower_if_form_with_physical_observer_v1(condition_val, condition_debug,
+            has_explicit_else, lower_branch, None)
+    }
+
+    pub(in crate::mir::builder) fn lower_if_form_with_physical_observer_v1<LowerBranch>(
+        &mut self, condition_val: ValueId, condition_debug: Option<ASTNode>,
+        has_explicit_else: bool, mut lower_branch: LowerBranch,
+        mut observer: Option<&mut dyn IfFormPhysicalObserverV1>,
+    ) -> Result<ValueId, String>
+    where LowerBranch: FnMut(&mut MirBuilder, IfBranchKindV1) -> Result<ValueId, String>,
+    {
+        // Unarmed callers keep the exact existing path and acquire no packet.
+        let original_condition = condition_val;
+        let cursor = if observer.is_some() {
+            let id = self.current_block()?;
+            let block = self.function_state.current_function.as_ref().and_then(|function| function.blocks.get(&id))
+                .ok_or_else(|| "[freeze:contract][if-form/condition-block]".to_owned())?;
+            if block.terminator.is_some() { return Err("[freeze:contract][if-form/closed-condition]".into()); }
+            Some((id, block.instructions.len()))
+        } else { None };
         // Reserve a deterministic join id for debug region labeling
         let join_id = self.debug_next_join_id();
         // Pre-pin heuristic was deprecated; keep operands as-is for predictability.
@@ -69,6 +118,26 @@ impl MirBuilder {
         let mut condition_val = condition_val;
         crate::mir::builder::ssa::local::finalize_branch_cond(self, &mut condition_val)?;
         // Phase 268 P0: emit_conditional() deleted (replaced by emit_conditional_edgecfg() at line 206)
+
+        let pending = if let Some((id, start)) = cursor {
+            if id != pre_branch_bb { return Err("[freeze:contract][if-form/condition-block-drift]".into()); }
+            let function = self.function_state.current_function.as_ref()
+                .ok_or_else(|| "[freeze:contract][if-form/function-missing]".to_owned())?;
+            let block = function.blocks.get(&id)
+                .ok_or_else(|| "[freeze:contract][if-form/condition-block]".to_owned())?;
+            let bindings = block.instructions.get(start..)
+                .ok_or_else(|| "[freeze:contract][if-form/condition-append]".to_owned())?
+                .iter().cloned().map(|row| (id, row)).collect();
+            let relation = self.function_state.local_ssa_correspondence.loan(function, original_condition, condition_val)
+                .ok_or_else(|| "[freeze:contract][if-form/condition-correspondence]".to_owned())?;
+            relation.verify(function)?;
+            let pending = std::rc::Rc::new(IfConditionMaterializationV1 {
+                original: original_condition, condition: condition_val, block: id,
+                arms: (then_block, else_block), merge: merge_block, bindings, relation,
+            });
+            observer.as_deref_mut().expect("armed condition observer").before_branches(function, std::rc::Rc::clone(&pending))?;
+            Some(pending)
+        } else { None };
 
         // Snapshot variables before entering branches
         let pre_if_var_map = self.function_state.variable_ctx.variable_map.clone();
@@ -193,6 +262,24 @@ impl MirBuilder {
             else_reaches_merge,
             merge_block,
         )?;
+
+        if let Some(pending) = &pending {
+            let function = self.function_state.current_function.as_ref()
+                .ok_or_else(|| "[freeze:contract][if-form/function-missing]".to_owned())?;
+            let actual = function.blocks.get(&pre_branch_bb).and_then(|block| block.terminator.as_ref())
+                .ok_or_else(|| "[freeze:contract][if-form/outer-branch-missing]".to_owned())?;
+            if !matches!(actual, crate::mir::MirInstruction::Branch {
+                condition, then_bb, else_bb,
+                then_edge_args: Some(then_args), else_edge_args: Some(else_args),
+            } if *condition == condition_val && (*then_bb, *else_bb) == (then_block, else_block)
+                && then_args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+                && else_args.layout == crate::mir::edge_args::JumpArgsLayout::CarriersOnly
+                && then_args.values.is_empty() && else_args.values.is_empty()) {
+                return Err("[freeze:contract][if-form/outer-branch-drift]".into());
+            }
+            observer.as_deref_mut().expect("same armed condition observer")
+                .emitted_branch(function, pending, (pre_branch_bb, actual.clone()))?;
+        }
 
         // merge: primary result via helper, then delta-based variable merges
         // Ensure PHIs are first in the block by suppressing entry pin copies here

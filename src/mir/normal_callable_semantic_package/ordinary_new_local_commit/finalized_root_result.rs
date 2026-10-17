@@ -35,7 +35,7 @@ impl FinalizedRootSourceHandoffV1 {
                     for terminal in &descriptor.terminals {
                         let exit = terminal.return_site();
                         let (order, entry, bindings, finishing) =
-                            match exits.get(&(self.owner, exit.clone())) {
+                            match exits.get(&(self.owner, exit.clone().into())) {
                                 Some(RootHomeExitProgress::Finalized(order)) => {
                                     let (entry, bindings) = self
                                         .call_entries

@@ -12,15 +12,95 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use std::collections::BTreeMap;
 use std::rc::Rc;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ObjectPacketInputFamilyV1 {
+    QualifiedOriginal,
+    OriginalSourceInstance,
+    GlobalOpaque,
+    OriginalNonGlobal,
+}
+
+fn packet_input_family_v1(
+    ledger: &OrdinaryNewClaimLedgerV1,
+    ingress: &super::super::borrowed_formal_source::PreparedBorrowedFormalIngressV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+) -> Result<ObjectPacketInputFamilyV1, String> {
+    let catalog = ledger
+        .original_parameter_contracts
+        .as_deref()
+        .ok_or_else(|| freeze("object-packet/original-catalog-missing"))?;
+    let mut contracts = catalog
+        .iter()
+        .filter(|row| row.owner == target.callee_owner());
+    let contract = contracts
+        .next()
+        .ok_or_else(|| freeze("object-packet/original-contract-missing"))?;
+    if contracts.next().is_some()
+        || contract.batch_slot != target.target_batch_slot()
+        || contract.parameters.len() != target.argument_sites().len()
+    {
+        return Err(freeze("object-packet/original-contract-drift"));
+    }
+    ingress.recheck_field_producer_source_v1(target, &ledger.callable_result_classes, &ledger.field_write_claims)?;
+    let source_input = ledger.has_original_object_source_input_v1(ingress, target)?;
+    if ledger.selected_original_object_input_owner_v1(ingress, target.callee_owner())? {
+        return Ok(ObjectPacketInputFamilyV1::QualifiedOriginal);
+    }
+    if source_input {
+        return Ok(ObjectPacketInputFamilyV1::OriginalSourceInstance);
+    }
+    Ok(
+        if ingress.definitions.contains_key(&target.callee_owner()) {
+            ObjectPacketInputFamilyV1::GlobalOpaque
+        } else {
+            ObjectPacketInputFamilyV1::OriginalNonGlobal
+        },
+    )
+}
+
+fn packet_input_ready_v1(
+    ledger: &OrdinaryNewClaimLedgerV1,
+    ingress: &super::super::borrowed_formal_source::PreparedBorrowedFormalIngressV1,
+    target: &LexicalInstanceCallSourceTargetV1,
+    family: ObjectPacketInputFamilyV1,
+) -> Result<bool, String> {
+    match family {
+        ObjectPacketInputFamilyV1::QualifiedOriginal | ObjectPacketInputFamilyV1::OriginalSourceInstance => {
+            let Some((selected, signatures)) = &ledger.original_instance_input_issuance else {
+                return Ok(false);
+            };
+            let catalog = ledger
+                .original_parameter_contracts
+                .as_deref()
+                .ok_or_else(|| freeze("object-packet/original-catalog-missing"))?;
+            let arguments = if family == ObjectPacketInputFamilyV1::OriginalSourceInstance {
+                ledger.checked_completed_original_instance_target_arguments_v1(
+                    target, selected, catalog, signatures,
+                )?
+            } else {
+                ledger.checked_completed_typed_object_target_arguments_v1(
+                    target, selected, catalog, signatures,
+                )?
+            };
+            Ok(arguments.is_some())
+        }
+        ObjectPacketInputFamilyV1::GlobalOpaque => ledger
+            .checked_borrowed_entry_incoming(ingress, target.callee_owner())
+            .map(|_| true),
+        ObjectPacketInputFamilyV1::OriginalNonGlobal => Ok(true),
+    }
+}
+
 #[derive(Debug)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call)
 struct ObjectPacketSealV1
 {
     result: InvokeCallResultKind,
     teardown: ObjectReturnTeardownAvailabilityV1,
+    field_supports: Box<[super::super::super::completion_index::ObjectCallFieldSupportRequirementV1]>,
     completion: Rc<VerifiedFunctionCompletionV1>,
     terminals: Rc<BTreeMap<crate::mir::resolved_semantics::SourceStmtSiteV1, TerminalRelationV1>>,
-    opaque: bool,
+    input_family: ObjectPacketInputFamilyV1,
     actuals: Box<[(BorrowedIncomingCallDraftV1, PreparedBorrowedCallActualsV1)]>,
 }
 
@@ -30,15 +110,19 @@ impl ObjectPacketSealV1 {
         target: &LexicalInstanceCallSourceTargetV1,
         result: InvokeCallResultKind,
         teardown: ObjectReturnTeardownAvailabilityV1,
-    ) -> Result<Self, String> {
+        field_supports: Box<[super::super::super::completion_index::ObjectCallFieldSupportRequirementV1]>,
+    ) -> Result<Option<Self>, String> {
         let ingress = ledger
             .borrowed_formal_source
             .as_ref()
             .ok_or_else(|| freeze("object-packet/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let opaque = ingress.definitions.contains_key(&target.callee_owner());
-        let calls = if opaque {
+        let input_family = packet_input_family_v1(ledger, ingress, target)?;
+        if !packet_input_ready_v1(ledger, ingress, target, input_family)? {
+            return Ok(None);
+        }
+        let calls = if input_family == ObjectPacketInputFamilyV1::GlobalOpaque {
             ingress.incoming.clone()
         } else {
             ingress
@@ -72,16 +156,20 @@ impl ObjectPacketSealV1 {
             .terminal_relation_index
             .get(&target.callee_owner())
             .ok_or_else(|| freeze("object-packet/terminals-missing"))?;
-        Ok(Self {
+        Ok(Some(Self {
             result,
             teardown,
+            field_supports,
             completion: Rc::clone(completion),
             terminals: Rc::clone(terminals),
-            opaque,
+            input_family,
             actuals: actuals.into_boxed_slice(),
-        })
+        }))
     }
 }
+
+#[path = "ordinary_new_object_packet_field_support.rs"]
+mod field_support;
 
 impl LexicalInstanceCallDispositionRowV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn checked_object_packet_actuals_v1<
@@ -109,13 +197,20 @@ impl LexicalInstanceCallDispositionRowV1 {
             .as_ref()
             .ok_or_else(|| freeze("object-packet/seal-missing"))?;
         let target = self.source_target();
+        if !ledger.requires_object_packet_v1(target)? {
+            return Err(freeze("receiver-object/source-requirement"));
+        }
         let ingress = ledger
             .borrowed_formal_source
             .as_ref()
             .ok_or_else(|| freeze("object-packet/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let calls = if seal.opaque {
+        let family = packet_input_family_v1(ledger, ingress, target)?;
+        if family != seal.input_family {
+            return Err(freeze("object-packet/input-family-drift"));
+        }
+        let calls = if family == ObjectPacketInputFamilyV1::GlobalOpaque {
             // Retain the original checker and its whole-final-incoming scope.
             ledger.checked_borrowed_entry_incoming(ingress, self.callee_owner())?;
             let original = ingress
@@ -138,15 +233,19 @@ impl LexicalInstanceCallDispositionRowV1 {
             }
             ingress.incoming.clone()
         } else {
-            if ingress.definitions.contains_key(&self.callee_owner()) {
-                return Err(freeze("object-packet/input-family-drift"));
-            }
-            ingress
+            let original = ingress
                 .source_incoming
                 .project(&[self.callee_owner()].into_iter().collect())
                 .map_err(|issue| {
                     format!("{}: {issue:?}", freeze("object-packet/incoming-coverage"))
-                })?
+                })?;
+            let mut seen = std::collections::BTreeSet::new();
+            for projected in ingress.incoming.iter().filter(|call| call.callee == self.callee_owner()) {
+                if !seen.insert(projected.call.clone())
+                    || !original.iter().any(|call| same_incoming(call, projected))
+                { return Err(freeze("object-packet/incoming-identity")); }
+            }
+            original
         };
         if calls.len() != seal.actuals.len() {
             return Err(freeze("object-packet/incoming-domain-drift"));
@@ -192,10 +291,17 @@ impl LexicalInstanceCallDispositionRowV1 {
         {
             return Err(freeze("object-packet/result-source-drift"));
         }
+        if !packet_input_ready_v1(ledger, ingress, target, family)? {
+            return Err(freeze("object-packet/original-input-not-ready"));
+        }
+        ledger.recheck_object_call_field_support_requirements_v1(target, &seal.field_supports)?;
         if self.result() != Some(seal.result) {
             return Err(freeze("borrowed-call/result-mismatch"));
         }
-        own.ok_or_else(|| freeze("object-packet/incoming-missing"))
+        let own = own.ok_or_else(|| freeze("object-packet/incoming-missing"))?;
+        super::super::super::completion_index::ObjectCallFieldSupportRequirementV1::visit_actuals_v1(
+            &seal.field_supports, target, own.0, |_, _| Ok(()))?;
+        Ok(own)
     }
 }
 
@@ -252,7 +358,7 @@ impl OrdinaryNewClaimLedgerV1 {
         ) {
             return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
         }
-        if !row.source_target().has_object_source_requirement()
+        if !self.requires_object_packet_v1(row.source_target())?
             || (receiver_only && !row.source_target().is_self_receiver())
         {
             return Err(freeze("receiver-object/source-requirement"));
@@ -270,8 +376,15 @@ impl OrdinaryNewClaimLedgerV1 {
         let arguments = self.object_packet_arguments_v1(row)?;
         let seal = row.object_packet.as_ref()
             .ok_or_else(|| freeze("object-packet/seal-missing"))?;
-        let (teardown, nullable) = seal.teardown.descriptor()
-            .ok_or_else(|| freeze("object-packet/teardown-unavailable"))?;
+        let (teardown, nullable) = match &seal.teardown {
+            ObjectReturnTeardownAvailabilityV1::Verified { descriptor, nullable } => (descriptor, *nullable),
+            ObjectReturnTeardownAvailabilityV1::AnchoredFields { descriptor, nullable } => {
+                self.object_packet_field_support_parents_v1(row)?
+                    .ok_or_else(|| freeze("object-packet/field-support-missing"))?;
+                (descriptor, *nullable)
+            }
+            ObjectReturnTeardownAvailabilityV1::Unavailable { .. } => return Err(freeze("object-packet/teardown-unavailable")),
+        };
         if nullable != (row.result() == Some(InvokeCallResultKind::NullableHandle)) {
             return Err(freeze("object-packet/teardown-kind-drift"));
         }

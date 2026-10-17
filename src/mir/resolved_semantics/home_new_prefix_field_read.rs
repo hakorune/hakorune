@@ -21,9 +21,33 @@ use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
 pub(crate) enum LocalFieldReadResultV1 {
     /// A numeric-integer declared type — the binding is a trivial scalar.
     Scalar,
+    /// Original selected field-call container read, without owned residence.
+    DeclaredArray(std::rc::Rc<crate::mir::normal_callable_semantic_package::DeclaredArrayFieldReadSourceV1>),
     /// An ordinary-box declared type — the binding is a borrowed alias
     /// carrying the declared class name.
     Alias(Box<str>),
+    /// Same source-issued field residence, borrowed without acquiring a Home.
+    BorrowedArray(BorrowedArrayFieldSourceV1),
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct BorrowedArrayFieldSourceV1 {
+    pub(in crate::mir) requirement: std::rc::Rc<super::super::NamedArrayFieldResidenceRequirementV1>,
+}
+impl PartialEq for BorrowedArrayFieldSourceV1 {
+    fn eq(&self, other: &Self) -> bool { std::rc::Rc::ptr_eq(&self.requirement, &other.requirement) }
+}
+impl Eq for BorrowedArrayFieldSourceV1 {}
+
+/// Declaration-only callers keep their existing Scalar/Alias meaning. A whole
+/// source-expression frame separately demands the original value proof on the
+/// SAME plan; field layout alone never supplies that permission.
+#[derive(Debug, Clone)]
+pub(crate) enum LocalFieldReadDemandV1 {
+    Declared { scalar_only: bool },
+    SourceExpression {
+        plan: std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    },
 }
 
 /// `Some(result)` when `site` is a proven `receiver.field` FieldAccess.
@@ -36,16 +60,23 @@ pub(super) fn observe_local_field_read<E>(
     locals: &PrefixLocalFlow<'_>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
 ) -> Result<Option<LocalFieldReadResultV1>, E> {
     let Some(request) = field_read_request(input, site, locals) else {
         return Ok(None);
     };
-    let Some(mut results) = local_field_read(&[request], false)? else {
+    let Some(mut results) = local_field_read(&[request], LocalFieldReadDemandV1::Declared { scalar_only: false })? else {
         return Ok(None);
     };
     Ok((results.len() == 1).then(|| results.remove(0)))
+}
+
+/// Original received acquisition; no class, nonnull fact or Home is issued.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ReceivedFieldReadRequestV1 {
+    Object { acquisition: OwnedExprSiteV1, nullable: bool },
+    Mixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
 }
 
 /// Passive exact-site request; declaration proof and atomic staging belong
@@ -67,7 +98,22 @@ pub(crate) struct LocalFieldReadRequestV1 {
     /// borrowed-formal object view — `alias_class` stays empty and the
     /// request never mints a release.
     pub(crate) formal: bool,
+    pub(crate) received: Option<ReceivedFieldReadRequestV1>,
+    pub(crate) path: Option<crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1>,
+    pub(crate) alias_path: Option<Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>>,
     pub(crate) field: Box<str>,
+}
+
+impl LocalFieldReadRequestV1 {
+    pub(crate) fn node_in_plan(&self, plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>) -> Option<usize> {
+        if self.site.owner() != plan.owner() { return None; }
+        match &self.path {
+            Some(path) => (std::rc::Rc::ptr_eq(path.plan(), plan) && path.site() == self.site
+                && path.root() == self.receiver && path.receiver_site() == &self.receiver_site
+                && path.name() == self.field.as_ref()).then_some(path.node()),
+            None => plan.field_read_node_v1(self.site.site(), &self.receiver_site, self.receiver, &self.field),
+        }
+    }
 }
 
 pub(super) fn field_read_request(
@@ -103,6 +149,7 @@ pub(super) fn field_read_request(
     let Some(provenance) = locals.field_read_receiver(receiver) else {
         return None;
     };
+    let mut received = None;
     let (home, alias_class, nullable, formal) = match provenance {
         local_flow::FieldReadReceiverV1::OwnedHome => (receiver, None, false, false),
         local_flow::FieldReadReceiverV1::RootedHandle(root) => (root, None, false, false),
@@ -110,6 +157,10 @@ pub(super) fn field_read_request(
             (root, Some(class), false, false)
         }
         local_flow::FieldReadReceiverV1::ReceivedNullable => (receiver, None, true, false),
+        local_flow::FieldReadReceiverV1::CheckedReceived(original) => {
+            received = Some(original);
+            (receiver, None, false, false)
+        }
         local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
     Some(LocalFieldReadRequestV1 {
@@ -120,6 +171,29 @@ pub(super) fn field_read_request(
         alias_class,
         nullable,
         formal,
+        received,
+        path: None,
+        alias_path: None,
         field: field.clone(),
     })
+}
+
+/// A nested path keeps its genuine root binding; its immediate receiver is
+/// another original field expression, never a fabricated local declaration.
+pub(super) fn expression_field_read_request(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    plan: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    site: &SourceExprSiteV1, locals: &PrefixLocalFlow<'_>,
+) -> Option<LocalFieldReadRequestV1> {
+    let path = crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1::issue(
+        std::rc::Rc::clone(plan), site)?;
+    if !path.is_nested_component() { return field_read_request(input, site, locals); }
+    let mut request = field_read_request(input, path.first_site(), locals)?;
+    if request.receiver != path.root() || input.owner() != plan.owner() { return None; }
+    if request.alias_class.is_some() { request.alias_path = Some(Box::new(locals.field_alias_call_path(request.receiver)?)); }
+    request.site = path.site();
+    request.receiver_site = path.receiver_site().clone();
+    request.field = path.name().into();
+    request.path = Some(path);
+    Some(request)
 }

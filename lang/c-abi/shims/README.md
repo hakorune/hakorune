@@ -161,6 +161,22 @@ link dlsym remain separate compatibility owners.
   kind/payload lanes and are checked before the Birth body. Valid Bool used by an
   i64 FieldSet records reason103 on the existing Fault edge; invalid kind/payload
   is InvalidContract. Tagged Copy preserves both lanes.
+  Scalar Invoke FieldSet requires `exact_numeric_runtime_check`: `none` for
+  the existing i64 lane, or `dynamic_integer_range` with declared type `usize`.
+  The shared bare/Invoke range emitter checks tagged Integer first, then the
+  nonnegative usize range, then stores. A negative usize records reason113
+  and uses that Invoke's own Fault landing, preserving caller cleanup.
+  Missing/unknown checks and malformed payloads reject during schema admission.
+  Range requiredness is joined to the canonical declaration by the Rust ABI
+  owner; C layout storage-kind1 alone cannot distinguish i64 from usize and
+  cannot infer required range checks from the layout alone. The ordinary
+  tagged usize write arm additionally requires this dynamic check, an original
+  tagged value formal and an original tagged base formal with the exact sealed
+  object view. Missing views and unchecked tagged stores reject; borrowed
+  operands neither acquire nor consume leases. Birth and plain lanes retain
+  their existing admission. Physical probes cover both direct I64 and borrowed
+  receiver/value 0/7 stores, -7 Fault/cleanup, and missing-view/unchecked-store
+  refusals; these do not establish a completed source-to-EXE cutover.
   Empty Birth may omit an unused borrowed-frame projection; root still owns
   exactly one frame entry and SSA rejects any undefined frame use.
 - Indexed scalar CFGs consume signed I64 Compare and leading I64/Bool PHIs.
@@ -185,7 +201,7 @@ link dlsym remain separate compatibility owners.
   reject before emission.
 - Ordinary functions may issue their own `ordinary_call`: V4 flow admits
   the operation at `fi>0` only for `ordinary_i64`/`ordinary_map` callers
-  (Birth callers still reject), and each nested i64 call writes through a
+  (Birth callers retain their bounded provider lanes), and each nested i64 call writes through a
   caller-local `%call_out<block>` alloca so the caller's own `%out_i64`
   stays reserved for its return handoff; nested Map calls reuse the
   existing per-block `%map<block>` lane. `invoke_normal_result` loads
@@ -631,6 +647,25 @@ Rules:
 
 Indexed lifecycle Return/Fault completion lives in the private `indexed_return`
 child of `indexed_flow`. The flow owner lends its checked lease state.
+Its invocation-private workspace uses the actual indexed block count, with
+checked allocation products and complete cleanup on refusal. Each block is
+enqueued once; revisits require identical state and Fault status. Private
+64-bit state tags separate Map transfer origins and String ranks from fixed
+Birth/Mixed/OwnedArray markers. Borrowed-field suffix scratch preserves the
+initial prefix and full loop revisit. Native admission retains its own bounded
+recursive workspace. No wire, runtime ABI or source permission changes here.
+Instruction-row transfer lives in the private `indexed_rows` child. Its
+HANDLE Phi borrows the existing pervalue index's original Copy/unanimous-Phi
+root after exact predecessor, cycle and kind checks; all consumers use that
+same root. Phi creation checks current object/field or Array-holder liveness,
+including unused aliases after End. Differing Home roots and other nonscalar
+Phi carriers remain refused; the original LLVM `phi i64` writer is retained.
+Receiver-bound tagged formal borrowing uses the same ordinary membership,
+including Bool; its original representation/class/use checks remain mandatory.
+`keep_alive` transport validates every SSA operand, including dominance, through
+the shared closed schema. Empty and duplicate operands are legal; an already
+released value can still have a valid SSA definition. The hint issues no value,
+kind, origin or lease transition and emits no LLVM/runtime operation.
 For `ordinary_handle`, the independent C input index checks the exact original
 New/Copy/Call Normal-result definition and every callee Normal Return after all
 function indexes are complete. The private `indexed_object_result` child rejects
@@ -644,7 +679,111 @@ The existing call-result execution family accepts `owned` mode for the original
 sixteen typed/opaque JSON variants, exact-role/identity/landing/Return refusals,
 and allocation/cleanup Fault injection against the actual lifecycle archive.
 
+Owned Array Append demands object correspondence from the original live candidate
+producer. The same returned-object owner follows exact New/Call/Copy relations;
+nullable callees may exclude only exact Null return roots, must have at least one
+non-null object return, and must agree on every non-null return. Call result and
+callee role must agree. A nonnullable consumer rejects a nullable Call even when
+another consumer already cached its object class. The Array descriptor never
+issues that identity. This demand adds no global nullable-function census and
+keeps other nullable protocols and their original lease checks unchanged.
+
+Owned-parent field aliases keep their original `object_field_get` and Copy
+producers in the same physical value index. Their non-owning origin is distinct
+from an entry receiver and from a nullable formal. The shared read-only lender
+serves Copy, field-read bases and ordinary Call receivers; it grants no Home,
+write, transfer, Birth argument or owned-return permission. Nullable Return also
+rejects this origin explicitly.
+
+For this provider-owned source family the lender joins the original canonical
+owning tuple to its sole Birth provider New, with no other writer in the same
+function inventory. The original parent New must remain LIVE. Its unique Birth
+Normal edge exclusively enters a block dominating both the original acquisition
+and the current use. Every predecessor suffix since that edge must preserve the
+same owning path without discharge or replacement. Distinct FieldGets compare
+by their exact New root and canonical field path, never by class alone. This
+borrows existing physical indexes and CFG checks; it creates no lease or state
+registry. Child field loans use the same non-owning origin in every ordinary
+result role. Only the exact canonical receiver is call-live; receiver-rooted
+loans prove both read/use suffixes from entry. A loan never acquires Home,
+argument-carrier, owned Return or End permission.
+During Birth, a zero-argument Unit call may borrow a direct self child only
+through the same live Normal field-commit marker. The child must come from its
+unique New and completed Birth; the same slot must survive from commit through
+the read and call. Normal preserves the marker, and Fault uses the existing
+reverse field discharge. This grants no owned-New child or nested-path call.
+Index construction orders raw indexes, independent producers in every function,
+original Birth receiver binding, dependency-driven field classification, full kind
+closure, owned-result correspondence and flow checks. Original all-Return owned
+class correspondence can lend provisional class through an exact Copy/unanimous
+Phi whose kind is not yet closed; it never sets that alias kind or permits emission.
+Separate active seed/Return recursion states reject cycles. Receiver identity comes from the original caller, never layout
+or role metadata. `published_lifecycle_v4_borrowed_source_execution_test.py`
+reuses the original discard test's constructor JSON in `--constructor-unit-only`
+mode for output/exit, Fault cleanup and independent malformed-input refusals.
+The permanent original-source Python runner's `--print-alias-only` cohort covers
+native output, real Birth Fault cleanup and ownership/lifetime rejection cases.
+It does not claim executable Provided or nested-provider coverage.
+
+Provided Birth formals remain caller-owned until Birth Normal. The same store
+marker owner distinguishes staged provided slots from owned provider New/Array
+slots. Normal completion checks both inventories; Fault retains only obligations
+for owned providers. A provided formal or Copy can never be explicitly ended,
+and neither a repeated provided binding nor a repeated caller lease may satisfy
+two owning destinations. Unpublished parent reclaim is storage-only. The existing
+source runner's `--birth-handle-only` mode covers original source snapshots with
+allocation and store Faults before, at and after the provided store. The existing
+nullable_typed_object wire spelling also joins a Birth nullable formal through
+its sole canonical provided store and exact child class. The caller must hold a
+live owned New/Call result; Normal consumes it once and Fault preserves it.
+Ordinary borrows and Birth moves share tag/payload encoding only, not lifecycle
+transitions. The New correspondence helper proves identity, not complete Birth
+initialization; the Rust source packet retains acquisition/completion authority.
+Wire mutations cover scalar, foreign-class, representation and duplicate demand
+refusals. The wire positive on a New-derived value is not a nullable-Call source
+acceptance claim; unchanged mimalloc remains the production frontier.
+
+Selected `owned_object_residences` tuples use the existing checked atomic
+residence storage for both Provider and Provided stores, field reads, explicit
+field release and complete End. Payload and outcome are read together; failure
+never retries a legacy slot read. This storage normalization retains the current
+Null/Fresh cohort only: reads reject Forward. Nullable object Birth formals
+receive a separate internal outcome argument alongside kind/payload; the same
+formal/Copy lends it to Provided stores. Current callers supply only 0/1 from
+the already-admitted Null/owned source lane, and constructor entry checks that
+correspondence. Provider stores retain their Fresh law. Non-selected shared fields, scalar
+fields and Array residences retain their own owners. Mixed outcome/anchor
+runtime acceptance remains required. Ordinary borrowed typed arguments can
+read a Mixed result only with its original Normal producer, fixed-formal
+correspondence and live conditional obligation. Fresh and the exact Forward
+anchor must both agree with the receiving object domain; a shared decreasing
+budget bounds nested Mixed/borrowed/field anchors. Neither edge consumes the
+anchor or changes conditional state to ordinary LIVE. Execution requires a runtime
+exporting checked_residence_set/get_v1; old payload-only archives are insufficient.
+The shared runtime probe counts each scalar or residence store once at the same
+original diagnostic site, including selected store Fault injection.
+
+The result-coordinate and outcome transport contract is owned by
+[published_mir/README.md](published_mir/README.md).
+
 Physical V2 block lookup walks the original JSON array with its iterator.
 Variable-length block objects make repeated indexed access quadratic; the
 iterator preserves original order, first matching ID and malformed-ID refusal
 without adding an index, cached authority or changing dominance validation.
+
+Received owning fields borrow every original callee Return's Fresh New/completed
+Birth or owned-call relay. The unique current writer, exact Provided constructor
+formal/store and original argument must agree; caller lifetime begins at the
+original Call Normal. Provided payloads remain possibly null: only loan copies,
+nullable actuals, checked scalar reads and original anchors use the nullable loan
+reader. Raw bases, method receivers, numeric object tags, moves and End stay strict.
+No field loan receives a Home or LIVE slot. Full callee Return/support/flow remains
+mandatory. During wrapper Home release only, every backward suffix must contain
+one exact same-slot/child discharge, on either Normal or Fault. Replacement,
+missing/duplicate discharge and lost original actual anchors refuse. Ordinary
+reads retain their unchanged-slot interval; cleanup permission cannot lend a read.
+
+`tests/published_lifecycle_v4_field_interval_test.c` checks the shared physical
+interval owner independently: unchanged reads versus exact one-End paths,
+Normal/Fault diamonds, missing/duplicate or foreign discharge and use-prefix
+exclusion. This unit grants no source/Home or full-flow acceptance.

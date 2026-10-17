@@ -9,7 +9,7 @@
 
 use super::CallableSemanticLoweringState;
 use crate::mir::normal_callable_semantic_package::{
-    ConstructionEligibilityV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionEligibilityV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
 };
 use crate::mir::resolved_semantics::{HomeDemandV1, SourceNodeSiteV1};
 use crate::mir::{BasicBlockId, MirFunction, ValueId};
@@ -18,8 +18,12 @@ use std::collections::BTreeMap;
 
 #[path = "normal_callable_construction_state/emission.rs"]
 mod emission;
+#[path = "normal_callable_construction_state/provider_argument.rs"]
+mod provider_argument;
 #[path = "normal_callable_construction_state/fault_cleanup.rs"]
 mod fault_cleanup;
+#[path = "normal_callable_construction_state/child_call.rs"]
+mod child_call;
 #[path = "normal_callable_construction_state/validation.rs"]
 mod validation;
 
@@ -30,7 +34,12 @@ pub(super) enum ConstructionState {
     Transferred,
     RetainedUnavailable(ConstructionUnavailableV1),
     Selected {
+        /// Original semantic order; neither field ordinal nor map iteration order.
+        steps: Box<[ConstructionSourceStepV1]>,
+        next_step: usize,
         stores: BTreeMap<SourceNodeSiteV1, SelectedConstructionStore>,
+        /// Actual affine Call packets, in the same source-step sequence.
+        calls: Vec<child_call::ConstructionCallEmissionV1>,
         frame: Option<(ValueId, BasicBlockId)>,
         completed: bool,
     },
@@ -39,13 +48,13 @@ pub(super) enum ConstructionState {
 /// The existing request-local state moved with its draft, not a new source
 /// receipt. Only the selected constructor capture can take this payload.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RetainedConstructionValidation {
+pub(in crate::mir) struct RetainedConstructionValidation {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     construction: ConstructionState,
     fault_frame: crate::mir::builder::function_fault_frame::FunctionFaultFrameV1,
 }
 
-pub(in crate::mir::builder) type RetainedConstructionDrafts = Vec<(
+pub(in crate::mir) type RetainedConstructionDrafts = Vec<(
     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     RetainedConstructionValidation,
 )>;
@@ -76,7 +85,12 @@ pub(super) enum StoreProgress {
 /// call — one invoke per sealed `QualifiedStaticCall` row, in source
 /// order.
 #[derive(Debug)]
-pub(super) struct ProviderCallArgEmission {
+pub(in crate::mir) struct ProviderCallArgEmission {
+    source: std::rc::Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
+    packet: Option<crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1>,
+    publication: crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+    ordinal: u32,
+    arguments: Box<[ValueId]>,
     /// Block whose terminator is `Invoke{Call{Global, I64}}`.
     invoke_block: BasicBlockId,
     /// Normal landing hosting the `InvokeNormalResult` projection.
@@ -95,11 +109,7 @@ pub(super) enum ProviderChildEmissionV1 {
     /// evidence is the store-fault `HomeRelease` chain head — the plan
     /// sealed arity 0 + fieldless, so no `birth_call`/`reclaim` exists.
     NoBirthZero { store_discharge: BasicBlockId },
-    /// Provided-object store (`me.<field> = <formal>` into a declared
-    /// user-class field): the value is a birth formal, not an
-    /// allocation, so the store-fault tail is `HomeReleaseIfLive` on the
-    /// formal — never a `HomeRelease` on a caller-owned lease.
-    Provided { store_discharge: BasicBlockId },
+
 }
 
 /// Emitted provider-Birth chain coordinates for one user-class provider
@@ -124,9 +134,9 @@ pub(super) struct ProviderBirthEmission {
     /// Head of the store-fault discharge chain under the same layout,
     /// ending in the `Invoke{HomeRelease}` tail.
     store_discharge: BasicBlockId,
-    /// The child's sealed `ArrayBox` residences in emitted teardown
+    /// The child's sealed typed owned residences in emitted teardown
     /// order (reverse declaration order). Empty for a plain child.
-    owned_fields: Box<[CanonicalFieldRefV1]>,
+    owned_fields: Box<[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1]>,
 }
 
 #[derive(Debug)]
@@ -158,11 +168,50 @@ impl TakenConstructionStore {
 }
 
 impl ConstructionState {
+    fn require_next_store(&self, site: &SourceNodeSiteV1) -> Result<(), String> {
+        let Self::Selected { steps, next_step, stores, completed, .. } = self else {
+            return Err(fault("step-unselected"));
+        };
+        if *completed { return Err(fault("take-after-completion")); }
+        if !matches!(steps.get(*next_step), Some(ConstructionSourceStepV1::Store(expected)) if expected.node() == site) {
+            return Err(fault("step-order-or-kind"));
+        }
+        if !stores.get(site).is_some_and(|store| matches!(store.progress, StoreProgress::Pending | StoreProgress::Taken)) {
+            return Err(fault("step-store-residual"));
+        }
+        Ok(())
+    }
+
+    fn validate_step_coverage(&self) -> Result<(), String> {
+        let Self::Selected { steps, stores, .. } = self else { return Ok(()); };
+        let mut seen = std::collections::BTreeSet::new();
+        for step in steps.iter() {
+            if let ConstructionSourceStepV1::Store(site) = step {
+                if !seen.insert(site.node()) || !stores.contains_key(site.node()) {
+                    return Err(fault("step-store-coverage"));
+                }
+            }
+        }
+        if seen.len() != stores.len() { return Err(fault("step-store-coverage")); }
+        Ok(())
+    }
+
     pub(super) fn finish(&self) -> Result<(), String> {
         match self {
             Self::Selected {
                 completed: false, ..
             } => Err(fault("completion-missing")),
+            Self::Selected { steps, next_step, stores, calls, .. } => {
+                self.validate_step_coverage()?;
+                if calls.len() != steps.iter().filter(|step| matches!(step, ConstructionSourceStepV1::StoredChildCall(_))).count() {
+                    return Err(fault("step-call-unconsumed"));
+                }
+                if *next_step != steps.len() { return Err(fault("step-residual")); }
+                if stores.values().any(|store| !matches!(store.progress, StoreProgress::Emitted { .. })) {
+                    return Err(fault("store-residual"));
+                }
+                Ok(())
+            }
             Self::RetainedUnavailable(reason) => {
                 let _ = reason;
                 Ok(())
@@ -229,6 +278,15 @@ impl CallableSemanticLoweringState {
         {
             return Err(fault("source-or-cleanup-contract"));
         }
+        let original_stores: Vec<_> = plan.steps().iter().filter_map(|step| match step {
+            ConstructionSourceStepV1::Store(site) => Some(site),
+            ConstructionSourceStepV1::StoredChildCall(_) => None,
+        }).collect();
+        if original_stores.len() != plan.stores().len()
+            || original_stores.iter().zip(plan.stores()).any(|(site, store)|
+                *site != store.assignment().statement_site()) {
+            return Err(fault("source-store-order-drift"));
+        }
         let mut stores = BTreeMap::new();
         for store in plan.stores() {
             if stores
@@ -250,7 +308,8 @@ impl CallableSemanticLoweringState {
             }
         }
         self.construction = ConstructionState::Selected {
-            stores,
+            steps: plan.steps().into(), next_step: 0,
+            stores, calls: Vec::new(),
             frame: None,
             completed: false,
         };
@@ -267,6 +326,7 @@ impl CallableSemanticLoweringState {
         if !matches!(self.construction, ConstructionState::Selected { .. }) {
             return Ok(None);
         }
+        self.construction.require_next_store(site)?;
         let binding = self.receiver.ok_or_else(|| fault("receiver-missing"))?;
         let (field, receiver_site, receiver_binding, rhs, me_reads) =
             match &self.construction {

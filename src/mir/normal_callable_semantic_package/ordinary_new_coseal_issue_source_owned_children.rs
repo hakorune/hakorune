@@ -347,6 +347,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     residences: &field_write_claim::OwnedFieldResidencesV1,
+    candidates: &BTreeMap<u32, Result<Vec<super::super::super::candidate::OrdinaryNewCandidate>, OrdinaryNewCoSealIssueV1>>,
 ) -> Result<Option<super::super::super::lexical_instance_call::StoredReceiverSourceV1>, String> {
     use crate::mir::resolved_semantics::{BodyExpressionShapeV1, BodyMeReceiverV1};
     let Some(shape) = input.body_shape() else {
@@ -360,32 +361,34 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     else {
         return Ok(None);
     };
-    let Some(BodyExpressionShapeV1::Me {
-        receiver: BodyMeReceiverV1::Lexical(parent_binding),
-        ..
-    }) = shape.expression_shape(parent_site)
-    else {
-        return Ok(None);
+    let (parent_binding, parent_class, parent_new) = if let Some(BodyExpressionShapeV1::Me {
+        receiver: BodyMeReceiverV1::Lexical(parent_binding), .. }) = shape.expression_shape(parent_site) {
+        let Some((receiver, source)) = super::super::super::terminal_home::entry_receiver_box_proof(selected, batch, entry, slot)
+            else { return Ok(None); };
+        if receiver != *parent_binding || receiver.owner() != input.owner()
+            || entry.is_none_or(|loan| loan.owner() != input.owner() || loan.batch_slot() != slot) { return Ok(None); }
+        (*parent_binding, source.name().into(), None)
+    } else {
+        let Some(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) = input.function().variable_ref(parent_site)
+            else { return Ok(None); };
+        let Some(rows) = candidates.get(&slot) else { return Ok(None); };
+        let rows = rows.as_ref().map_err(|issue| format!("[freeze:contract][stored-child/local-new-candidates]{issue:?}"))?;
+        let mut rows = rows.iter().filter(|row| row.destination == binding);
+        let Some(row) = rows.next() else { return Ok(None); };
+        if rows.next().is_some() { return Err("[freeze:contract][stored-child/local-new-ambiguous]".into()); }
+        let root = super::super::super::LocalNewRootSourceV1::from_candidate(row);
+        root.corroborate_input(input, parent_site)?;
+        (binding, root.class().into(), Some((slot, root)))
     };
-    let Some((receiver, source)) =
-        super::super::super::terminal_home::entry_receiver_box_proof(selected, batch, entry, slot)
-    else {
-        return Ok(None);
-    };
-    if receiver != *parent_binding
-        || receiver.owner() != input.owner()
-        || entry.is_none_or(|loan| loan.owner() != input.owner() || loan.batch_slot() != slot)
-    {
-        return Ok(None);
-    }
-    let key = (source.name().into(), name.clone());
+    let key = (parent_class, name.clone());
     let Some(field_write_claim::OwnedFieldResidenceV1::Provider(class)) = residences.get(&key)
     else {
         return Ok(None);
     };
     Ok(Some(super::super::super::lexical_instance_call::StoredReceiverSourceV1 {
-        parent_binding: *parent_binding, parent_site: parent_site.clone(),
-        parent_class: source.name().into(), field_name: name.clone(), child_class: class.clone(),
+        origin: super::super::super::lexical_instance_call::StoredReceiverSourceOriginV1::Ordinary,
+        parent_new, parent_binding, parent_site: parent_site.clone(),
+        parent_class: key.0, field_name: name.clone(), child_class: class.clone(),
     }))
 }
 
@@ -412,6 +415,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let (parent, destruction) = constructors
         .destruction_for(source)
         .map_err(|error| format!("[freeze:contract][stored-child/definition]{error:?}"))?;
+    if receiver.parent_new.as_ref().is_some_and(|(_, root)| !root.matches_definition(source, parent)) {
+        return Err("[freeze:contract][stored-child/local-new-definition-drift]".into());
+    }
     let field = constructors
         .with_source_object_definition(source, |object, definition| {
             let mut fields = definition
@@ -432,6 +438,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     let Some(field) = field else {
         return Ok(None);
     };
+    if receiver.corroborate_constructor_origin_v1(batch, constructors, site)?
+        .is_some_and(|pair| pair != (field, child)) {
+        return Err("[freeze:contract][stored-child/constructor-field-drift]".into());
+    }
     let inventory = {
         let mut visiting = BTreeSet::new();
         owned_field_children_of(
@@ -467,5 +477,45 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal
     }
     Ok(Some(super::super::super::lexical_instance_call::LexicalInstanceCallReceiverV1::StoredOwnedChild {
         parent_binding: receiver.parent_binding, parent_site: receiver.parent_site.clone(), field, child,
+    }))
+}
+
+/// Borrow constructor field-call structure without claiming a live receiver.
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue) fn stored_constructor_child_source_v1(
+    caller: crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'_>,
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
+) -> Result<Option<super::super::super::lexical_instance_call::StoredReceiverSourceV1>, String> {
+    use crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1;
+    use super::super::super::lexical_instance_call::{StoredReceiverSourceOriginV1, StoredReceiverSourceV1};
+    let site = OwnedExprSiteV1::new(input.owner(), call.site().clone());
+    caller.constructor_key_for_call(&site, call)?;
+    let OriginalCallSourceCallerV1::Constructor { row, input: original } = caller else {
+        return Err("[freeze:contract][construction-call/source-caller]".into());
+    };
+    if !std::ptr::eq(original.function(), input.function()) {
+        return Err("[freeze:contract][construction-call/source-input]".into());
+    }
+    let Ok(source) = row.construction_source() else { return Ok(None); };
+    let Some(loan) = source.child_call_source_v1(&site)? else { return Ok(None); };
+    let request = loan.call();
+    let shape = input.body_shape().ok_or("[freeze:contract][construction-call/source-shape]")?;
+    let mut fields = shape.expressions().iter().filter_map(|expression| match expression {
+        crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { site, object, field }
+            if site == request.receiver_site() => Some((object, field)),
+        _ => None,
+    });
+    let (parent_site, field) = fields.next().ok_or("[freeze:contract][construction-call/source-field]")?;
+    if fields.next().is_some() || source.object() != row.object()
+        || source.constructor().is_none_or(|(source_id, owner)| !source_id.same_as(row.source_id()) || *owner != input.owner())
+        || request.receiver_site() != call.receiver_site()
+        || request.arguments().iter().ne(call.arguments().iter().map(|argument| argument.site())) {
+        return Err("[freeze:contract][construction-call/source-identity]".into());
+    }
+    Ok(Some(StoredReceiverSourceV1 {
+        parent_binding: request.receiver_binding(), parent_site: parent_site.clone(),
+        parent_class: row.box_name().into(), field_name: field.clone(), child_class: request.class().into(),
+        origin: StoredReceiverSourceOriginV1::Constructor(loan),
+        parent_new: None,
     }))
 }

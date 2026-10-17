@@ -13,13 +13,21 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopHomeAfterLoanV1;
 use std::collections::{BTreeMap, BTreeSet};
 
+#[path = "home_prefix_borrowed_nullable.rs"]
+mod borrowed_nullable;
+#[path = "home_prefix_field_alias.rs"]
+mod field_alias;
+pub(crate) use field_alias::FieldAliasPathV1;
+
 /// Exact pre-Loop scalar-class snapshot minted by the running Home walk.
 /// Source shape and post-Loop values are deliberately outside this loan.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub(crate) struct LoopI64PreStateRequestV1 {
     owner: super::FunctionOwnerIdV1,
     site: SourceStmtSiteV1,
     integer_bindings: BTreeSet<BindingRefV1>,
+    prior_homes: Box<[BindingRefV1]>,
+    borrowed_arrays: BTreeMap<BindingRefV1, super::field_read::BorrowedArrayFieldSourceV1>,
 }
 
 impl LoopI64PreStateRequestV1 {
@@ -29,6 +37,15 @@ impl LoopI64PreStateRequestV1 {
     pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
         &self.site
     }
+    pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { &self.prior_homes }
+    pub(crate) fn same_snapshot(&self, other: &Self) -> bool {
+        self.owner == other.owner && self.site == other.site
+            && self.integer_bindings == other.integer_bindings && self.prior_homes == other.prior_homes
+            && self.borrowed_arrays.len() == other.borrowed_arrays.len()
+            && self.borrowed_arrays.iter().all(|(binding, source)| other.borrowed_arrays.get(binding)
+                .is_some_and(|other| std::rc::Rc::ptr_eq(&source.requirement, &other.requirement)))
+    }
+    pub(crate) fn borrowed_array(&self, binding: BindingRefV1) -> Option<&super::field_read::BorrowedArrayFieldSourceV1> { self.borrowed_arrays.get(&binding) }
     pub(crate) fn proves_integer(&self, binding: BindingRefV1) -> bool {
         binding.owner() == self.owner && self.integer_bindings.contains(&binding)
     }
@@ -43,6 +60,7 @@ pub(crate) enum SourceScalarKind {
 
 #[derive(Clone)]
 enum StoredLocal {
+    NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
     },
@@ -59,6 +77,11 @@ enum StoredLocal {
     ReceivedNullable {
         acquisition: OwnedExprSiteV1,
     },
+    /// Original call result and borrowed root remain distinct, owning nothing.
+    BorrowedNullable(
+        Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+    ),
+    ReceivedMixed(Box<crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1>),
     Map,
     /// A `: MapBox` declared formal — caller-owned map storage borrowed
     /// read-only for the call. It reads like a live map but owns nothing:
@@ -76,7 +99,9 @@ enum StoredLocal {
     FieldAlias {
         class: Box<str>,
         root: BindingRefV1,
+        borrow: Option<FieldAliasPathV1>,
     },
+    BorrowedArray { source: super::field_read::BorrowedArrayFieldSourceV1, root: BindingRefV1 },
     Trivial(Option<SourceScalarKind>),
     /// A binding produced by an inventoried call expression. The value
     /// exists at later sites but carries no scalar/rooted-storage class —
@@ -105,6 +130,7 @@ pub(super) enum FieldReadReceiverV1 {
     /// live base. The issuer resolves the class from the sealed call's
     /// `NullableObject` claim, never from the stored local itself.
     ReceivedNullable,
+    CheckedReceived(super::field_read::ReceivedFieldReadRequestV1),
     /// A self-rooted `OpaqueHandle` formal whose exact `== null` arm
     /// terminated — the surviving join marked it non-null. The binding
     /// itself is the borrowed base on this path; the issuer resolves the
@@ -144,6 +170,8 @@ impl OrdinaryObservation {
 
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
+        (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
+        (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
         (StoredLocal::Home { acquisition: a }, StoredLocal::Home { acquisition: b }) => a == b,
         (
             StoredLocal::ReceivedHandle { acquisition: a },
@@ -154,13 +182,15 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
             StoredLocal::ReceivedNullable { acquisition: b },
         ) => a == b,
         (StoredLocal::Map, StoredLocal::Map) => true,
+        (StoredLocal::BorrowedNullable(a), StoredLocal::BorrowedNullable(b)) => a == b,
+        (StoredLocal::ReceivedMixed(a), StoredLocal::ReceivedMixed(b)) => a == b,
         (StoredLocal::BorrowedMap, StoredLocal::BorrowedMap) => true,
         (StoredLocal::Consumed, StoredLocal::Consumed) => true,
         (StoredLocal::Handle(a), StoredLocal::Handle(b)) => a == b,
         (
-            StoredLocal::FieldAlias { class: a, root: ar },
-            StoredLocal::FieldAlias { class: b, root: br },
-        ) => a == b && ar == br,
+            StoredLocal::FieldAlias { class: a, root: ar, borrow: ab },
+            StoredLocal::FieldAlias { class: b, root: br, borrow: bb },
+        ) => a == b && ar == br && ab == bb,
         (StoredLocal::Trivial(a), StoredLocal::Trivial(b)) => a == b,
         (StoredLocal::BoundValue, StoredLocal::BoundValue) => true,
         (StoredLocal::Null, StoredLocal::Null) => true,
@@ -171,6 +201,8 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 
 #[derive(Clone)]
 pub(super) struct PrefixLocalFlow<'source> {
+    named_arrays:
+        std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
     input: ResolvedFunctionLoweringInputV1<'source>,
     locals: BTreeMap<BindingRefV1, StoredLocal>,
     /// Path-sensitive non-null narrowing for `ReceivedNullable` bindings:
@@ -216,6 +248,7 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn loop_i64_prestate(
         &self,
         site: &SourceStmtSiteV1,
+        homes: &[BindingRefV1],
     ) -> Option<LoopI64PreStateRequestV1> {
         self.input.function().loop_region_bundle(site).ok()?;
         let integer_bindings = self
@@ -230,11 +263,14 @@ impl<'source> PrefixLocalFlow<'source> {
             owner: self.input.owner(),
             site: site.clone(),
             integer_bindings,
+            prior_homes: homes.iter().rev().copied().collect(),
+            borrowed_arrays: self.live_borrowed_array_sources(),
         })
     }
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         Self {
+            named_arrays: Default::default(),
             input,
             locals: BTreeMap::new(),
             nonnull: std::collections::BTreeSet::new(),
@@ -242,16 +278,13 @@ impl<'source> PrefixLocalFlow<'source> {
         }
     }
 
+    pub(super) fn expression_installation(&self) -> super::expression_plan::ExpressionPlanInstallationV1<'_> {
+        super::expression_plan::ExpressionPlanInstallationV1::new(self.input.owner(), self.expression_plans.borrow_mut())
+    }
     pub(super) fn retain_expression_plan(&mut self, plan: super::HomeExpressionPlanV1) -> bool {
-        let mut plans = self.expression_plans.borrow_mut();
-        if plan.source().owner() != self.input.owner()
-            || !plan.is_consistent()
-            || plans.iter().any(|old| old.source().root().statement() == plan.source().root().statement()
-                && old.source().nodes()[0].site() == plan.source().nodes()[0].site())
-        {
-            return false;
-        }
-        plans.push(plan);
+        let mut installation = self.expression_installation();
+        if !installation.approve(&plan) { return false; }
+        installation.commit();
         true
     }
     pub(super) fn expression_plans(&self) -> Vec<super::HomeExpressionPlanV1> {
@@ -272,6 +305,8 @@ impl<'source> PrefixLocalFlow<'source> {
     pub(super) fn mark_nonnull(&mut self, binding: BindingRefV1) {
         let narrowable = match self.locals.get(&binding) {
             Some(StoredLocal::ReceivedNullable { .. }) => true,
+            Some(StoredLocal::BorrowedNullable(_)) => true,
+            Some(StoredLocal::ReceivedMixed(_)) => true,
             Some(StoredLocal::Handle(root)) => *root == binding,
             _ => false,
         };
@@ -424,6 +459,8 @@ impl<'source> PrefixLocalFlow<'source> {
             // fail-closed while `new` argument observation can still name
             // the binding's value.
             StoredLocal::ReceivedNullable { .. } => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::BorrowedNullable(_) => Some(OrdinaryObservation::BoundValue(binding)),
+            StoredLocal::ReceivedMixed(_) => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Handle(root)
                 if !matches!(self.locals.get(root), Some(StoredLocal::Consumed)) =>
             {
@@ -432,7 +469,7 @@ impl<'source> PrefixLocalFlow<'source> {
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             // A field-read alias names borrowed storage, never a movable
             // value — every observation lane stays fail-closed on it.
-            StoredLocal::FieldAlias { .. } => None,
+            StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Null => Some(OrdinaryObservation::Null),
@@ -593,37 +630,6 @@ impl<'source> PrefixLocalFlow<'source> {
         )
     }
 
-    pub(super) fn field_read_receiver(&self, binding: BindingRefV1) -> Option<FieldReadReceiverV1> {
-        match self.locals.get(&binding)? {
-            StoredLocal::Home { .. } => Some(FieldReadReceiverV1::OwnedHome),
-            StoredLocal::Handle(root) if self.field_root_is_live(*root) => {
-                if *root == binding
-                    && self.nonnull.contains(&binding)
-                    && matches!(
-                        self.input.function().binding(binding).map(|row| row.kind()),
-                        Some(crate::mir::resolved_semantics::BindingKindV1::Parameter { .. })
-                    )
-                {
-                    Some(FieldReadReceiverV1::GuardedFormal)
-                } else {
-                    Some(FieldReadReceiverV1::RootedHandle(*root))
-                }
-            }
-            StoredLocal::FieldAlias { class, root } if self.field_root_is_live(*root) => {
-                Some(FieldReadReceiverV1::Alias {
-                    class: class.clone(),
-                    root: *root,
-                })
-            }
-            // A received nullable carries no field provenance until the
-            // branch join proves the surviving path non-null.
-            StoredLocal::ReceivedNullable { .. } if self.nonnull.contains(&binding) => {
-                Some(FieldReadReceiverV1::ReceivedNullable)
-            }
-            _ => None,
-        }
-    }
-
     /// The binding is a live received nullable: a `NullableObject` call
     /// result the caller owns conditionally. Unlike `field_read_receiver`
     /// this lane answers without the non-null narrowing mark — a borrowed
@@ -634,26 +640,6 @@ impl<'source> PrefixLocalFlow<'source> {
             self.locals.get(&binding),
             Some(StoredLocal::ReceivedNullable { .. })
         )
-    }
-
-    /// A proven `receiver.field` read whose declared type is an ordinary
-    /// box: the binding is a borrowed alias — no Home membership, no exit
-    /// obligation, no observable move.
-    pub(super) fn install_field_alias(
-        &mut self,
-        binding: BindingRefV1,
-        class: Box<str>,
-        root: BindingRefV1,
-    ) {
-        self.store(binding, StoredLocal::FieldAlias { class, root });
-    }
-
-    fn field_root_is_live(&self, root: BindingRefV1) -> bool {
-        match self.locals.get(&root) {
-            Some(StoredLocal::Home { .. }) => true,
-            Some(StoredLocal::Handle(entry)) => *entry == root,
-            _ => false,
-        }
     }
 
     pub(super) fn consume_home(&mut self, binding: BindingRefV1) {
@@ -740,5 +726,7 @@ impl<'source> PrefixLocalFlow<'source> {
 #[path = "home_prefix_received_call_tests.rs"]
 mod received_call_tests;
 
+#[path = "home_prefix_named_array.rs"]
+mod named_array;
 #[path = "home_prefix_received_call.rs"]
 mod received_call;

@@ -18,7 +18,7 @@ impl OrdinaryNewClaimLedgerV1 {
             assert!(self
                 .root_exits
                 .borrow()
-                .get(&(owner, site.clone()))
+                .get(&(owner, (site.clone()).into()))
                 .is_none_or(|progress| matches!(progress, RootHomeExitProgress::Unprepared)));
         };
         let prepare = |origins: &Origins, bindings: &Bindings| {

@@ -3,6 +3,33 @@ use super::*;
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 impl CallableSemanticLoweringState {
+    pub(in crate::mir::builder) fn record_field_array_read_v1(&mut self, recipe: Rc<crate::mir::normal_callable_semantic_package::FieldArrayReadRecipeV1>, read: crate::mir::ArrayReadSiteId, receiver: ValueId, index: ValueId, dst: ValueId) -> Result<(), String> {
+        if recipe.owner() != self.owner || self.named_array_reads.iter().any(|row| row.call_site() == recipe.call_site()) { return Err(freeze("read-duplicate-source")); }
+        self.named_array_reads.push(crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::Read(crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadV1::new(recipe, read, receiver, index, dst)));
+        Ok(())
+    }
+
+    pub(in crate::mir::builder) fn field_array_read_argument_v1(
+        &self, source: &std::rc::Rc<crate::mir::normal_callable_semantic_package::ArgumentFieldArrayReadSourceV1>,
+        function: &crate::mir::MirFunction, value: ValueId,
+    ) -> Result<crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1, String> {
+        let relation = self.initializers.get(source.declaration()).ok_or_else(|| freeze("argument-read-initializer-missing"))?;
+        if relation.binding() != source.binding() || relation.initializer_site() != Some(source.read().call().site())
+            || self.value_for_exact_binding(self.owner, source.binding()).map_err(|error| error.to_string())? != value {
+            return Err(freeze("argument-read-local-drift"));
+        }
+        let mut reads = self.named_array_reads.iter().filter_map(|row| match row {
+            crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::Read(read)
+                if std::rc::Rc::ptr_eq(read.recipe().source(), source.read()) => Some(read),
+            _ => None,
+        });
+        let read = reads.next().ok_or_else(|| freeze("argument-read-emission-missing"))?;
+        if reads.next().is_some() { return Err(freeze("argument-read-emission-duplicate")); }
+        crate::mir::normal_callable_semantic_package::EmittedFieldArrayReadArgumentV1::capture(
+            std::rc::Rc::clone(source), read, function, value,
+        )
+    }
+
     pub(in crate::mir::builder) fn finish(self) -> Result<(), String> {
         let rows = self.finish_with_named_arrays()?;
         if !rows.is_empty() {
@@ -43,6 +70,7 @@ impl CallableSemanticLoweringState {
         String,
     > {
         self.construction.finish()?;
+        if let Some(claims) = self.ordinary_new_claim_ledger() { claims.validate_preissued_loop_consumption_v1(self.owner)?; }
         self.dynamic_origins
             .finish()
             .map_err(|error| error.to_string())?;
@@ -86,10 +114,9 @@ impl CallableSemanticLoweringState {
                 loop_break_transport_kind,
             ));
         }
-        self.named_array_writes
-            .into_iter()
-            .map(|port| port.take_completed())
-            .collect()
+        let mut rows = self.named_array_writes.into_iter().map(|port| port.take_completed()).collect::<Result<Vec<_>, _>>()?;
+        rows.extend(self.named_array_reads);
+        Ok(rows)
     }
     pub(in crate::mir::builder) fn requires_named_array_allocation(
         &self,
@@ -150,7 +177,8 @@ impl CallableSemanticLoweringState {
             return Err(freeze("named-array-call-shape"));
         }
         let receiver_site = contract.receiver_site().node().clone();
-        let receiver = self.read_variable(&receiver_site)?;
+        let receiver_read = self.read_variable_with_source_v1(&receiver_site)?;
+        let (_, _, receiver) = receiver_read.source_value();
         let row = self
             .source_core_method_calls
             .remove(site)
@@ -158,7 +186,7 @@ impl CallableSemanticLoweringState {
         if !self.consumed_source_core_method_calls.insert(site.clone()) {
             return Err(freeze("duplicate-core-method-call-consumption"));
         }
-        let emission = row.into_named_array_emission()?.into_write_port();
+        let emission = row.into_named_array_emission()?.with_receiver_read(receiver_read)?.into_write_port();
         self.named_array_writes.push(emission.clone());
         Ok(Some((receiver, emission)))
     }

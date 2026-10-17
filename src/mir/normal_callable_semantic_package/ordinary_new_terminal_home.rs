@@ -4,6 +4,10 @@ use super::*;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
 use hakorune_mir_defs::SameModuleCallableNamespaceV1;
 
+#[path = "ordinary_new_expression_field_root_source.rs"]
+mod expression_root;
+pub(super) use expression_root::ExpressionFieldRootSourceV1;
+
 pub(super) fn initialized_integer_field(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     candidates: &[OrdinaryNewCandidate],
@@ -254,7 +258,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field(
 ///   directly through the package's ordinary-box coverage.
 /// - a claim-local selected `new` Home — `home` is the candidate's
 ///   destination; the candidate's own box source decides, and the
-///   construction plan's object must equal the definition's object.
+///   canonical candidate object must equal the declaration's object. Birth
+///   execution eligibility remains with the construction owner.
 /// - the sole entry loan's receiver root — `me`'s field is proven on this
 ///   declaration's own box source.
 ///
@@ -263,19 +268,13 @@ pub(in crate::mir::normal_callable_semantic_package) fn source_declared_field(
 /// Anything else — unknown field, weak field, duplicate declaration,
 /// absent or unrecognized type — returns `None`; the scanner keeps
 /// `PrefixNotCovered`.
-pub(super) fn local_read_field(
+pub(super) fn local_read_field_declaration(
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     candidates: &[OrdinaryNewCandidate],
     coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
     receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
-    site: &OwnedExprSiteV1,
-    home: BindingRefV1,
-    alias_class: Option<&str>,
-    field: &str,
-) -> Result<
-    Option<Rc<LocalFieldReadSourceV1>>,
-    OrdinaryNewCoSealIssueV1,
-> {
+    site: &OwnedExprSiteV1, home: BindingRefV1, alias_class: Option<&str>, field: &str,
+) -> Result<Option<(hakorune_mir_defs::CanonicalFieldRefV1, Option<String>)>, OrdinaryNewCoSealIssueV1> {
     let declared = if let Some(class) = alias_class {
         let Ok(Some(box_source)) = coverage.row_for(class) else {
             return Ok(None);
@@ -295,44 +294,17 @@ pub(super) fn local_read_field(
             }
         }
     } {
-        // Unavailable construction (including overrides) remains a
-        // retained descriptor.
-        let Ok(plan) = &candidate.construction else {
-            return Ok(None);
-        };
-        let lookup_error = |error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
-            site: candidate.site.clone(),
-            class: candidate.class.clone(),
-            error,
-        };
-        constructors
-            .with_source_object_definition(&candidate.box_source, |object, definition| {
-                if plan.object() != object {
-                    return Err(lookup_error(
-                        InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch,
-                    ));
-                }
-                let mut fields = definition
-                    .fields()
-                    .iter()
-                    .enumerate()
-                    .filter(|(_, row)| row.name == field);
-                let Some((ordinal, declaration)) = fields.next() else {
-                    return Ok(None);
-                };
-                if fields.next().is_some() || declaration.is_weak {
-                    return Ok(None);
-                }
-                match hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
-                    object, ordinal,
-                ) {
-                    Some(field) => Ok(Some((field, declaration.declared_type_name.clone()))),
-                    None => Err(lookup_error(
-                        InstanceConstructorBirthLookupErrorV1::ObjectDefinitionMissing,
-                    )),
-                }
-            })
-            .map_err(lookup_error)??
+        // Declaration lookup lends field identity/class only. It must not
+        // depend on whether the independent Birth body can already execute.
+        let declared = source_declared_field(constructors, &candidate.box_source, site, field)?;
+        if declared.as_ref().is_some_and(|(field, _)| field.object() != candidate.object) {
+            return Err(OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                site: candidate.site.clone(),
+                class: candidate.class.clone(),
+                error: InstanceConstructorBirthLookupErrorV1::ParentSourceMismatch,
+            });
+        }
+        declared
     } else {
         let Some((entry, box_source)) = receiver else {
             return Ok(None);
@@ -344,6 +316,24 @@ pub(super) fn local_read_field(
         }
         source_declared_field(constructors, box_source, site, field)?
     };
+    Ok(declared)
+}
+
+pub(super) fn local_read_field(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    candidates: &[OrdinaryNewCandidate],
+    coverage: &crate::parser::ParserOrdinaryBoxSourceCoverageV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    alias_class: Option<&str>,
+    field: &str,
+) -> Result<
+    Option<Rc<LocalFieldReadSourceV1>>,
+    OrdinaryNewCoSealIssueV1,
+> {
+    let declared = local_read_field_declaration(constructors, candidates, coverage,
+        receiver, site, home, alias_class, field)?;
     let Some((field_ref, declared)) = declared else {
         return Ok(None);
     };
@@ -419,4 +409,20 @@ pub(super) fn receiver_array_i64_field(
         return Ok(None);
     };
     Ok(proven.contains(&field_ref).then_some(field_ref))
+}
+
+/// Reuse the same receiver-field authority and whole-Box element census in
+/// both probing and verified Home walks.
+pub(super) fn receiver_array_i64_field_from_census_v1(
+    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    census: &std::collections::BTreeMap<Box<str>, std::collections::BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    site: &OwnedExprSiteV1,
+    home: BindingRefV1,
+    field: &str,
+) -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    let Some((_, box_source)) = receiver else { return Ok(false) };
+    let Some(proven) = census.get(box_source.name()) else { return Ok(false) };
+    receiver_array_i64_field(constructors, receiver, site, home, field, proven)
+        .map(|field| field.is_some())
 }

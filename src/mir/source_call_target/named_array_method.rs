@@ -282,7 +282,7 @@ fn issue_field_residence_requirement(
         field,
     });
     Ok(Some(NamedArrayRequirementV1::FieldResidence(
-        requirement,
+        std::rc::Rc::new(requirement),
     )))
 }
 

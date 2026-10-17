@@ -22,6 +22,21 @@ fn stored_child_receiver_corroboration_rejects_identity_drift() {
         let flag_source = ledger.field_write_claims.value_source("Leaf", "flag")
             .unwrap().as_ref().expect("original flag writer/store loan");
         assert!(flag_source.same_inventory(&ledger.field_write_claims));
+        let selected_owner = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap()
+            .incoming.iter().find(|row| row.source.stored_receiver().is_some())
+            .expect("original stored scalar incoming").callee;
+        let callable = ledger.callable_scalar_result_source_v1(selected_owner).unwrap()
+            .expect("original scalar participant");
+        assert_eq!(callable.kind(), crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Integer);
+        assert!(required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
+            &ledger.borrowed_i64_results, selected_owner, &ledger.callable_result_classes).unwrap());
+        let original_result = ledger.borrowed_i64_results.remove(&selected_owner).unwrap();
+        let missing = ledger.callable_scalar_result_source_v1(selected_owner).unwrap_err();
+        assert!(missing.contains("scalar-loan/result-missing"), "{missing}");
+        let (_, walk_missing) = required_scalar_source_walk_v1(ledger.borrowed_formal_source.as_ref().unwrap(),
+            &ledger.borrowed_i64_results, selected_owner, &ledger.callable_result_classes).unwrap_err();
+        assert!(walk_missing.contains("scalar-loan/result-missing"), "{walk_missing}");
+        ledger.borrowed_i64_results.insert(selected_owner, original_result);
         let borrowed = ledger
             .borrowed_formal_source
             .as_ref()
@@ -55,6 +70,28 @@ fn stored_child_receiver_corroboration_rejects_identity_drift() {
             })
             .collect();
         assert_eq!(indices.len(), 2, "both original stored terminals");
+        // The shared terminal lender and packet row retain the original facts Rc.
+        let original = prepared[indices[0]].as_ref().unwrap().as_ref().unwrap();
+        let terminal = ledger.call_relations_for_owner(original.call_site().owner())
+            .into_iter().find(|terminal| terminal.call_site() == original.call_site().site())
+            .expect("original stored terminal");
+        let source = ledger.verified_terminal_call_source_v1(
+            original.call_site().owner(), terminal.return_site(),
+        ).unwrap().unwrap();
+        let expected = terminal.source_scalar().expect("stored scalar result loan");
+        let mut slots = ledger.lexical_instance_calls.borrow_mut();
+        let LexicalInstanceCallDispositionSlotV1::Ready(row) = slots.get_mut(original.call_site()).unwrap()
+        else { panic!("ready original I64 row"); };
+        assert_eq!(row.scalar_result_source_v1(), Some(expected));
+        assert_eq!(source.result(), InvokeCallResultKind::I64);
+        source.corroborate_row(row).unwrap();
+        let retained = row.scalar_result.take();
+        assert!(source.corroborate_row(row).unwrap_err().contains("scalar-source-identity"));
+        row.scalar_result = retained;
+        let kind = row.result.replace(InvokeCallResultKind::Bool);
+        assert!(source.corroborate_row(row).unwrap_err().contains("row-identity"));
+        row.result = kind;
+        drop(slots);
         let sibling = prepared[indices[1]]
             .as_ref()
             .unwrap()
@@ -164,6 +201,8 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
             passive.push((
                 CallTargetReferenceV1::from_target(target),
                 StoredReceiverSourceV1 {
+                    origin: super::source::StoredReceiverSourceOriginV1::Ordinary,
+                    parent_new: None,
                     parent_binding,
                     parent_site: parent_site.clone(),
                     parent_class: caller_key.owner().into(),
@@ -205,6 +244,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
             None,
             needs,
             Some(&package.instance_constructors),
+            None,
         )
     };
     let prepared =
@@ -215,6 +255,7 @@ fn passive_stored_dispatch_excludes_only_exact_different_targets() {
                     Ok(Some(PreparedSourceCallNeedV1::Stored {
                         reference,
                         receiver,
+                        owning_object_input: None,
                         result_requirement: super::LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                     }))
                 })
@@ -521,4 +562,49 @@ static box Main {
         !ledger.lexical_instance_call_covered(owner, &site),
         "an unattributed write to the field name must veto the claim"
     );
+}
+
+#[test]
+fn local_new_stored_roots_keep_original_acquisition_and_incoming() {
+    let text = "box Leaf { n: i64 birth() { me.n = 7 } read() { return me.n } }
+        box Parent { left: Leaf right: Leaf birth() { me.left = new Leaf() me.right = new Leaf() } }
+        static box Main { main() { local p = new Parent() local q = new Parent()
+            print(\"n=\" + p.left.read() + \" other=\" + q.right.read()) return 0 } }";
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(text).unwrap();
+    let ledger = &package.ordinary_new_claim_ledger;
+    let ingress = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let roots: Vec<_> = ingress.source_incoming.exact_rows().filter_map(|incoming| {
+        let target = incoming.source.instance()?;
+        let (slot, root) = incoming.source.local_new_root_source_v1(target).ok()??;
+        Some((target.clone(), slot, std::rc::Rc::clone(root)))
+    }).collect();
+    assert_eq!(roots.len(), 2, "both zero-input scalar calls retain their original Local-New roots");
+    assert_ne!(roots[0].2.binding(), roots[1].2.binding());
+    for (target, _, _) in &roots { ledger.recheck_stored_local_new_parent_v1(target).unwrap(); }
+    let (target, slot, root) = &roots[0];
+    let (binding, site, _, _) = target.stored_receiver().unwrap();
+    package.batch().with_lowering_input(*slot, |input| {
+        root.corroborate_input(input, site).unwrap();
+        let mut receiver = source::StoredReceiverSourceV1 { origin: source::StoredReceiverSourceOriginV1::Ordinary,
+            parent_new: Some((*slot, std::rc::Rc::clone(root))), parent_binding: binding, parent_site: site.clone(),
+            parent_class: "Parent".into(), field_name: "left".into(), child_class: "Leaf".into() };
+        receiver.local_new_root_in_input_v1(input, *slot).unwrap();
+        receiver.parent_new = Some((*slot, std::rc::Rc::clone(&roots[1].2)));
+        assert!(receiver.local_new_root_in_input_v1(input, *slot).is_err(), "same-class sibling acquisition cannot replace the parent");
+        receiver.parent_new = Some((*slot + 1, std::rc::Rc::clone(root)));
+        assert!(receiver.local_new_root_in_input_v1(input, *slot).is_err(), "caller slot must remain exact");
+    }).unwrap();
+    let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let mut claims = ledger.claims.borrow_mut();
+    let foreign_declaration = claims.values().find(|row| row.destination == roots[1].2.binding()).unwrap().declaration.clone();
+    let original = claims.values_mut().find(|row| row.destination == root.binding()).unwrap();
+    let retained = std::mem::replace(&mut original.declaration, foreign_declaration);
+    drop(claims);
+    assert!(root.recheck(ledger).is_err(), "an equal-class New cannot lend a different original declaration");
+    ledger.claims.borrow_mut().values_mut().find(|row| row.destination == root.binding()).unwrap().declaration = retained;
+    ledger.recheck_stored_local_new_parent_v1(target).unwrap();
+    ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap()
+        .source_incoming.replace_stored_origin_for_test(target.call_site());
+    assert!(ledger.recheck_stored_local_new_parent_v1(target).is_err(),
+        "equal reissued incoming Rc is not the original source");
 }

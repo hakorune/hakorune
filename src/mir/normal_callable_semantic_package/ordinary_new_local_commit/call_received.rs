@@ -22,12 +22,16 @@ pub(super) struct CallReceivedCommitV1 {
     /// never proved — `end_available` stays false rather than dropping
     /// the children.
     pub(super) end_children: Option<Option<Box<[super::super::OwnedFieldChildV1]>>>,
+    /// Passive source dependencies; only the same validated emitted packet arms End.
+    pub(super) field_support_parents: Option<Box<[BindingRefV1]>>,
     pub(super) progress: CallReceivedProgress,
 }
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum CallReceivedReleaseV1 {
     Handle,
     Nullable,
+    /// The same payload carries a source-issued Fresh/Forward/Null outcome.
+    Mixed { formal_ordinal: u32 },
 }
 #[derive(Debug)]
 pub(super) enum CallReceivedProgress {
@@ -111,6 +115,15 @@ impl CallReceivedCommitV1 {
             Some(None) => unreachable!("owned teardown without sealed residences"),
             None => &[],
         };
+        if matches!(self.release, CallReceivedReleaseV1::Mixed { .. }) {
+            return Box::new([(
+                super::root_home::RootHomeReleaseSubjectV1::Binding(self.binding),
+                InvokeOperation::ObjectEndIfOwned {
+                    object: self.object, value: base,
+                    end: super::super::object_end::steps_v1(children).collect(),
+                },
+            )]);
+        }
         super::super::object_end::operations_v1(
             self.object, self.release == CallReceivedReleaseV1::Nullable, children, base,
         ).map(|(field, operation)| (

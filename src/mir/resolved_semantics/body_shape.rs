@@ -432,6 +432,15 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
         &self.statements
     }
 
+    /// Original Return values, including conditional exits. Descendant calls
+    /// inside a returned expression are not themselves Return values.
+    pub(crate) fn return_value_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.statements.iter().filter_map(|statement| match statement {
+            BodyStatementShapeV1::Return { value: Some(value), .. } => Some(value),
+            _ => None,
+        })
+    }
+
     pub(crate) fn expressions(&self) -> &[BodyExpressionShapeV1] {
         &self.expressions
     }

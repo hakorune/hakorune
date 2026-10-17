@@ -118,10 +118,14 @@ fn enforce_contracts(
         {
             return Err(fault("field-projection"));
         }
-        // The invoke store lane admits only i64 declarations; the bare-row
-        // lane admits the usize write lane only — wider numeric lanes join
-        // deliberately, never by this match widening silently.
-        let expected_storage = if bare_row {
+        // The retained Birth product owns construction stores. Other Invoke
+        // stores must borrow the original guarded-formal packet; a usize
+        // declaration alone cannot select that source family.
+        let birth = input.entry().births().iter()
+            .find(|birth| birth.function_index() as usize == ordinal);
+        let invoke_usize = !bare_row && declaration.declared_type_name.as_deref() == Some("usize");
+        let borrowed_usize = invoke_usize && birth.is_none();
+        let expected_storage = if bare_row || invoke_usize {
             if declaration.declared_type_name.as_deref() != Some("usize") {
                 return Err(fault("field-projection"));
             }
@@ -169,14 +173,24 @@ fn enforce_contracts(
             // proved the exact row value.
             continue;
         }
+        if invoke_usize {
+            if input.exact_numeric_check_at(ordinal as u32, contract.block.0, row.index()) != Some("usize") {
+                return Err(fault("usize-write-range-missing"));
+            }
+        }
+        if borrowed_usize {
+            input.entry().corroborate_borrowed_usize_field_write_v1(module,
+                ordinal as u32, contract.block, contract.instruction_index, row.instruction())
+                .map_err(|error| format!(
+                    "{error} function={name} function_index={ordinal} role={} block={:?} instruction={} field={field:?} value={value:?} borrowed_entry={}",
+                    physical.role().wire_name(), contract.block, contract.instruction_index,
+                    input.entry().has_borrowed_entry(ordinal as u32),
+                ))?;
+            continue;
+        }
         // Constants already use verifier proofs and do not reach this runtime
         // obligation. Here V4 consumes the retained tagged Birth parameter.
-        let birth = input
-            .entry()
-            .births()
-            .iter()
-            .find(|b| b.function_index() as usize == ordinal)
-            .ok_or_else(|| fault("not-birth"))?;
+        let birth = birth.ok_or_else(|| fault("not-birth"))?;
         let formal = birth
             .formals()
             .iter()

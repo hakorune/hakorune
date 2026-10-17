@@ -14,6 +14,7 @@ pub(crate) mod expression_children;
 pub(crate) mod expression_root;
 pub(crate) mod expression_plan;
 pub(crate) mod expression_class;
+pub(crate) mod expression_projection;
 mod function_return;
 mod nested_recipe_facts;
 mod nested_recipe_mapper;

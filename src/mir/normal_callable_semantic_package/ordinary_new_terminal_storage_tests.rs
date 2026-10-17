@@ -79,32 +79,32 @@ fn indexed_root_literal_storage_is_independent_of_same_site_child() {
             };
             assert_eq!(
                 ledger
-                    .prepare_terminal_integer_literal_return(owner, site.node())
+                    .prepare_terminal_scalar_literal_return(owner, site.node())
                     .unwrap(),
-                Some(source_value)
+                Some(crate::mir::ConstValue::Integer(source_value))
             );
             ledger
-                .record_terminal_integer_literal_return(owner, site.node(), value)
+                .record_terminal_scalar_literal_return(owner, site.node(), value)
                 .unwrap();
             assert_eq!(
                 ledger
-                    .prepare_terminal_integer_literal_return(owner, site.node())
+                    .prepare_terminal_scalar_literal_return(owner, site.node())
                     .unwrap_err(),
                 "[freeze:contract][ordinary-new/literal-source-drift]"
             );
             assert_eq!(
                 ledger
-                    .record_terminal_integer_literal_return(owner, site.node(), value)
+                    .record_terminal_scalar_literal_return(owner, site.node(), ValueId(999))
                     .unwrap_err(),
                 "[freeze:contract][ordinary-new/literal-duplicate]"
             );
         }
         assert_eq!(
-            ledger.terminal_integer_literal_value.borrow().get(&site),
-            Some(&ValueId(900))
+            ledger.terminal_scalar_literal_value.borrow().get(&site).map(|row| row.value),
+            Some(ValueId(900))
         );
-        let children = ledger.terminal_integer_literal_values.borrow();
-        assert_eq!(children.get(&(child, site.clone())), Some(&ValueId(901)));
+        let children = ledger.terminal_scalar_literal_values.borrow();
+        assert_eq!(children.get(&(child, site.clone())).map(|row| row.value), Some(ValueId(901)));
         assert!(!children.contains_key(&(root, site)));
     }
 }

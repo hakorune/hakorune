@@ -55,6 +55,21 @@ fn rematerializes_runtime_data_substring_for_phi_pred() {
             effects: EffectMask::READ,
         });
 
+    // Dominating pure producers retain identity, including across a separate
+    // predecessor. Sibling-path substring below still requires rematerializing.
+    let copied = func.next_value_id();
+    let sum = func.next_value_id();
+    let entry = func.get_block_mut(BasicBlockId::new(0)).unwrap();
+    entry.add_instruction(MirInstruction::Copy { dst: copied, src: start });
+    entry.add_instruction(MirInstruction::BinOp {
+        dst: sum, op: crate::mir::BinaryOp::Add, lhs: copied, rhs: end,
+    });
+    let original_pred = func.get_block(BasicBlockId::new(2)).unwrap().instructions.clone();
+    for value in [text, start, end, copied, sum] {
+        assert_eq!(for_pred(&mut func, BasicBlockId::new(2), value, "test", "phi").unwrap(), value);
+    }
+    assert_eq!(func.get_block(BasicBlockId::new(2)).unwrap().instructions, original_pred);
+
     let materialized = for_pred(&mut func, BasicBlockId::new(2), substring, "test", "phi").unwrap();
     assert_ne!(materialized, substring);
 

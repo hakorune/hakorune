@@ -10,7 +10,7 @@ use crate::mir::{MirBuilder, ValueId};
 use super::super::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
 };
-use super::logical_shortcircuit::build_logical_shortcircuit_after_lhs_v1;
+use super::logical_shortcircuit::build_logical_shortcircuit_after_lhs_recorded_v1;
 
 pub(in crate::mir::builder) struct RawLegacyShortCircuitInputV1 {
     left: ASTNode,
@@ -113,8 +113,10 @@ where
     let left_input = port.short_circuit_left_input(input)?;
     let lhs = drive_legacy_expression_v1(builder, port, left_input)?;
 
-    build_logical_shortcircuit_after_lhs_v1(builder, operator, lhs, |builder| {
+    let completed = build_logical_shortcircuit_after_lhs_recorded_v1(builder, operator, lhs, |builder| {
         let right_input = port.short_circuit_right_input(input)?;
         drive_legacy_expression_v1(builder, port, right_input)
-    })
+    })?;
+    port.complete_short_circuit_expression_v1(&completed)?;
+    Ok(completed.value())
 }

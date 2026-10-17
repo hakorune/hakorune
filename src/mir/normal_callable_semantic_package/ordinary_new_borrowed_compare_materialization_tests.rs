@@ -68,65 +68,78 @@ fn completed(
 
 #[test]
 fn borrowed_compare_original_completion_retains_each_canonical_operand_receipt() {
-    for condition in ["p > 0", "0 > p", "p > q"] {
-        let (ledger, owner, site) = fixture(condition);
-        let loan = ledger
-            .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Gt))
-            .unwrap()
-            .unwrap();
-        assert_eq!(
-            loan.witnesses.len(),
-            if condition == "p > q" { 2 } else { 1 }
-        );
-        let source = ledger
-            .borrowed_formal_source
-            .as_ref()
-            .unwrap()
-            .as_ref()
-            .unwrap();
-        for witness in &loan.witnesses {
-            let original = source.definitions[&owner]
-                .uses
-                .iter()
-                .find_map(|row| match &row.kind {
-                    Use::CompareOperand { binary, source }
-                        if binary == &site && row.binding == witness.binding =>
-                    {
-                        Some(source.comparison_parts().3)
-                    }
-                    _ => None,
+    for (spelling, op, ast) in [("==", CompareOp::Eq, crate::ast::BinaryOperator::Equal), ("!=", CompareOp::Ne, crate::ast::BinaryOperator::NotEqual), ("<", CompareOp::Lt, crate::ast::BinaryOperator::Less), (">", CompareOp::Gt, crate::ast::BinaryOperator::Greater), ("<=", CompareOp::Le, crate::ast::BinaryOperator::LessEqual), (">=", CompareOp::Ge, crate::ast::BinaryOperator::GreaterEqual)] {
+        for condition in ["p > 0", "0 > p", "p > q"] {
+            let (ledger, owner, site) = fixture(&condition.replace('>', spelling));
+            let loan = ledger
+                .prepare_borrowed_compare_source_v1(owner, &site, Some(op))
+                .unwrap()
+                .unwrap();
+            assert_eq!(
+                loan.witnesses.len(),
+                if condition == "p > q" { 2 } else { 1 }
+            );
+            let source = ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap();
+            for witness in &loan.witnesses {
+                let original = source.definitions[&owner]
+                    .uses
+                    .iter()
+                    .find_map(|row| match &row.kind {
+                        Use::CompareOperand { binary, source }
+                            if binary == &site && row.binding == witness.binding =>
+                        {
+                            Some(source.comparison_parts().3)
+                        }
+                        _ => None,
+                    })
+                    .unwrap();
+                assert!(std::ptr::eq(original, witness.envelope));
+            }
+            let (completed, children) = completed(ast.clone());
+            ledger
+                .record_borrowed_compare_v1(loan, children, &completed)
+                .unwrap();
+            let mut count = 0;
+            ledger
+                .with_borrowed_ordinary_compares_v1(owner, |loan, raw, original| {
+                    assert_eq!(loan.site(), &site);
+                    assert_eq!(raw, children);
+                    assert_eq!(original, completed.comparison_original().unwrap());
+                    count += 1;
+                    Ok(())
                 })
                 .unwrap();
-            assert!(std::ptr::eq(original, witness.envelope));
+            assert_eq!(count, 1, "two borrowed rows share one actual append");
+            let duplicate = ledger
+                .prepare_borrowed_compare_source_v1(owner, &site, Some(op))
+                .unwrap()
+                .unwrap();
+            assert!(ledger
+                .record_borrowed_compare_v1(duplicate, children, &completed)
+                .unwrap_err()
+                .contains("duplicate-materialization"));
         }
-        let (completed, children) = completed(crate::ast::BinaryOperator::Greater);
-        ledger
-            .record_borrowed_compare_v1(loan, children, &completed)
-            .unwrap();
-        let mut count = 0;
-        ledger
-            .with_borrowed_ordinary_compares_v1(owner, |loan, raw, original| {
-                assert_eq!(loan.site(), &site);
-                assert_eq!(raw, children);
-                assert_eq!(original, completed.comparison_original().unwrap());
-                count += 1;
-                Ok(())
-            })
-            .unwrap();
-        assert_eq!(count, 1, "two borrowed rows share one actual append");
-        let duplicate = ledger
-            .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Gt))
-            .unwrap()
-            .unwrap();
-        assert!(ledger
-            .record_borrowed_compare_v1(duplicate, children, &completed)
-            .unwrap_err()
-            .contains("duplicate-materialization"));
     }
 }
 
 #[test]
 fn borrowed_compare_source_requires_exact_operator_owner_and_entry() {
+    let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+        "box Token {} box Transport { probe(p,q): i64 { if p == q { return 1 } return 0 } } static box Main { main() { local recv = new Transport() local token = new Token() local n = recv.probe(token,token) return 0 } }"
+    ).unwrap();
+    let object_ledger = &package.ordinary_new_claim_ledger;
+    let formal = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+    let object_source = object_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let object_site = object_source.source_definition_for(formal.owner).unwrap().uses.iter()
+        .find_map(|row| match &row.kind { Use::CompareOperand { binary, .. } => Some(binary.clone()), _ => None }).unwrap();
+    assert!(!object_source.candidate_integer_agreement(formal.parameters[0].binding));
+    assert!(object_ledger.prepare_borrowed_compare_source_v1(formal.owner, &object_site, Some(CompareOp::Eq))
+        .unwrap_err().contains("integer-source-unproved"), "Object identity must not become Integer equality");
     let (ledger, owner, site) = fixture("p > q");
     assert!(ledger
         .prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Le))
@@ -388,4 +401,38 @@ fn borrowed_compare_consumer_handoff_rejects_missing_and_orphan_groups() {
         .verify_finished_borrowed_compares_v1(owner, &function, |binding| Ok(binding.clone()))
         .unwrap_err()
         .contains("consumer-coverage"));
+}
+
+#[test]
+fn mixed_instance_compare_shares_original_body_source_qualification() {
+    for missing_guard in [false, true] {
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+            "box Handle {} box Token {} box Maker { make(size) { if size <= 0 { return new Token() } return new Token() } qualified() { return me.make(7) } relay(handle: Handle, size): i64 { if handle == null { return 0 } if size <= 0 { return 0 } local item = me.make(size) return 0 } } static box Main { main() { return 0 } }",
+        ).unwrap();
+        let owner = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap().owner;
+        let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let source = ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        assert!(!source.definitions.contains_key(&owner));
+        let site = source.source_only_definitions[&owner].uses.iter().find_map(|row| match &row.kind {
+            Use::CompareOperand { binary, .. } => Some(binary.clone()),
+            _ => None,
+        }).unwrap();
+        assert!(ledger.checked_source_instance_input_entry_v1(source, owner).unwrap().is_some());
+        if missing_guard {
+            ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap().guarded_actuals.clear();
+        } else {
+            let missing_entry = ledger.prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Le)).unwrap_err();
+            assert!(missing_entry.contains("borrowed-entry/entry-values-missing"));
+            let contract = package.parameter_contracts.iter().find(|row| row.owner == owner).unwrap();
+            ledger.record_borrowed_ordinary_entry_values_v1(owner, Ok(contract.parameters.iter()
+                .map(|row| (row.ordinal, row.binding, ValueId(70 + row.ordinal)))
+                .collect::<Vec<_>>().into_boxed_slice())).unwrap();
+        }
+        let loan = ledger.prepare_borrowed_compare_source_v1(owner, &site, Some(CompareOp::Le));
+        if missing_guard {
+            assert!(loan.unwrap_err().contains("borrowed-compare/source-only-entry"));
+        } else {
+            assert_eq!(loan.unwrap().unwrap().site(), &site);
+        }
+    }
 }

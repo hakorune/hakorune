@@ -66,6 +66,7 @@ static int hako_physical_array_u32(yyjson_val* array) {
   return 1;
 }
 
+#include "hako_llvmc_ffi_published_lifecycle_result_transport.inc"
 #include "hako_llvmc_ffi_published_lifecycle_formal_transport.inc"
 
 static yyjson_val* hako_physical_blocks(yyjson_val* function) {
@@ -490,16 +491,28 @@ static int hako_physical_storage_profile(yyjson_val* value) {
 
 static int hako_physical_validate_function(yyjson_val* function, yyjson_val* functions, yyjson_val* layouts, size_t ordinal, int native) {
   static const char* const keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks"};
+  static const char* const borrowed_keys[] = {"name", "role", "receiver", "receiver_object", "params", "entry", "blocks", "result_formal_ordinal"};
+  int borrowed = (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_borrowed_nullable_handle") ||
+         hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_mixed_handle"));
   yyjson_val* blocks; yyjson_val* params; uint32_t entry; const char* mode; size_t bi, i, j;
-  if (!hako_physical_exact_keys(function, keys, 7) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_params(function, layouts) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
+  if ((borrowed && native) || !hako_physical_exact_keys(function, borrowed ? borrowed_keys : keys, borrowed ? 8 : 7) || !(yyjson_get_str(yyjson_obj_get(function, "name"))) || !(params = yyjson_obj_get(function, "params")) || !hako_physical_params(function, layouts) || !hako_physical_u32(yyjson_obj_get(function, "entry"), &entry) || !(blocks = hako_physical_blocks(function)) || !yyjson_is_arr(blocks) || !yyjson_arr_size(blocks) || !hako_physical_unique_block_ids(function) || !hako_physical_has_block(function, entry)) return 0;
+  if (borrowed) {
+    uint32_t support;
+    if (!hako_physical_u32(yyjson_obj_get(function, "result_formal_ordinal"), &support) ||
+        support >= yyjson_arr_size(params) ||
+        !hako_physical_string(yyjson_obj_get(yyjson_arr_get(params, support), "representation"),
+            "borrowed_kind_payload_v1")) return 0;
+  }
   if (ordinal == 0) { if (!(hako_physical_string(yyjson_obj_get(function, "role"), "root_i64") || (native && hako_physical_string(yyjson_obj_get(function, "role"), "root_unit"))) || yyjson_arr_size(params) || !yyjson_is_null(yyjson_obj_get(function, "receiver")) || !yyjson_is_null(yyjson_obj_get(function, "receiver_object"))) return 0; mode = "root_owned"; }
   else if (hako_physical_string(yyjson_obj_get(function, "role"), "birth_unit")) {
     if (!hako_physical_u32(yyjson_obj_get(function, "receiver"), NULL) || !yyjson_is_null(yyjson_obj_get(function, "receiver_object"))) return 0;
     mode = "borrowed";
-  } else if (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_i64") ||
+  } else if (hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_unit") ||
+        hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_bool") ||
+      hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_i64") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_map") ||
       hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_handle") ||
-      hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle")) {
+      hako_physical_string(yyjson_obj_get(function, "role"), "ordinary_nullable_handle") || borrowed) {
     yyjson_val* receiver = yyjson_obj_get(function, "receiver");
     yyjson_val* receiver_object = yyjson_obj_get(function, "receiver_object");
     if (!yyjson_is_null(receiver) &&

@@ -8,7 +8,7 @@
 /// Route-local ambient inputs for one normal/default compilation.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) struct NormalRuntimeInputSnapshotV1 {
-    script_args: Box<[String]>,
+    script_args: std::rc::Rc<[String]>,
     entry_safepoint: bool,
     cleanup_exit_policy: crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1,
 }
@@ -24,7 +24,7 @@ impl NormalRuntimeInputSnapshotV1 {
             .and_then(|raw| serde_json::from_str::<Vec<String>>(&raw).ok())
             .filter(|args| !args.is_empty())
             .unwrap_or_default()
-            .into_boxed_slice();
+            .into();
         Self {
             script_args,
             entry_safepoint: crate::config::env::builder_safepoint_entry(),
@@ -41,6 +41,10 @@ impl NormalRuntimeInputSnapshotV1 {
         &self.script_args
     }
 
+    pub(in crate::mir::builder) fn script_args_snapshot(&self) -> std::rc::Rc<[String]> {
+        std::rc::Rc::clone(&self.script_args)
+    }
+
     pub(in crate::mir::builder) const fn cleanup_exit_policy(
         &self,
     ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
@@ -51,7 +55,7 @@ impl NormalRuntimeInputSnapshotV1 {
     /// lifecycle always receives `capture_from_normal_ingress()`.
     pub(in crate::mir::builder) fn empty() -> Self {
         Self {
-            script_args: Box::new([]),
+            script_args: std::rc::Rc::from([]),
             entry_safepoint: false,
             cleanup_exit_policy:
                 crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1::default(),

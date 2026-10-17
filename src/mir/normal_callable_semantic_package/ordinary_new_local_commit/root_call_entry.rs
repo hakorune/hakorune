@@ -1,22 +1,23 @@
 //! Existing root exit progress retains the same affine Call source row.
 //! Physical observations do not issue a target, result or cleanup obligation.
 use super::*;
+use crate::mir::resolved_semantics::home_new_prefix::LifecyclePrefixSourceV1;
 use crate::mir::normal_callable_semantic_package::RootCallDispositionV1;
 
 /// A source-ordered group checked without changing the shared ledger.
 /// A selected caller may hold this through fallible draft admission; existing
 /// callers commit it immediately.
-pub(crate) struct PreparedRootLocalCallBindingGroupV1<'ledger> {
+pub(crate) struct PreparedLifecyclePrefixBindingGroupV1<'ledger> {
     ledger: &'ledger OrdinaryNewClaimLedgerV1,
     owner: FunctionOwnerIdV1,
-    group: RootLocalCallBindingGroupV1,
+    group: RootLifecyclePrefixBindingGroupV1,
     preceding_sites: Vec<OwnedExprSiteV1>,
 }
 
 /// Keep the original emitted packet and its pending group in one owner.
 /// The packet becomes visible to the final visitor only after `commit`.
 pub(crate) struct PreparedRootLexicalCallBindingGroupV1<'ledger> {
-    group: PreparedRootLocalCallBindingGroupV1<'ledger>,
+    group: PreparedLifecyclePrefixBindingGroupV1<'ledger>,
     packet: std::rc::Rc<EmittedLexicalCallProjectionV1>,
 }
 
@@ -26,10 +27,10 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
     }
 
     pub(crate) fn original_invoke_binding(&self) -> &(BasicBlockId, MirInstruction) {
-        self.packet.outer_bindings().0
+        self.packet.invoke_binding()
     }
 
-    pub(crate) fn pending_group(&self) -> &RootLocalCallBindingGroupV1 {
+    pub(crate) fn pending_group(&self) -> &RootLifecyclePrefixBindingGroupV1 {
         &self.group.group
     }
 
@@ -45,10 +46,10 @@ impl PreparedRootLexicalCallBindingGroupV1<'_> {
     }
 }
 
-impl PreparedRootLocalCallBindingGroupV1<'_> {
+impl PreparedLifecyclePrefixBindingGroupV1<'_> {
     pub(crate) fn commit(self) -> Result<(), String> {
-        let expected = self.ledger.expected_local_call_binding_sites(self.owner)?;
-        if expected.get(self.preceding_sites.len()) != Some(self.group.site()) {
+        let expected = self.ledger.expected_local_call_binding_sources(self.owner)?;
+        if expected.get(self.preceding_sites.len()).is_none_or(|source| !self.group.matches_source(source)) {
             return Err(freeze("local-call-binding-preflight-stale"));
         }
         let mut rows = self.ledger.root_local_call_bindings.borrow_mut();
@@ -131,7 +132,7 @@ impl OrdinaryNewClaimLedgerV1 {
     >(
         &self,
         owner: FunctionOwnerIdV1,
-        visit: impl FnOnce(&[RootLocalCallBindingGroupV1]) -> R,
+        visit: impl FnOnce(&[RootLifecyclePrefixBindingGroupV1]) -> R,
     ) -> R {
         let groups = self.root_local_call_bindings.borrow();
         visit(groups.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
@@ -182,7 +183,7 @@ impl OrdinaryNewClaimLedgerV1 {
     ) -> Result<(), String> {
         self.record_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(site, bindings, None)?,
+            RootLifecyclePrefixBindingGroupV1::new(site, bindings, None)?,
         )
     }
 
@@ -207,15 +208,55 @@ impl OrdinaryNewClaimLedgerV1 {
         let packet = std::rc::Rc::new(packet);
         let group = self.prepare_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(site, bindings, Some(std::rc::Rc::clone(&packet)))?,
+            RootLifecyclePrefixBindingGroupV1::new(site, bindings, Some(std::rc::Rc::clone(&packet)))?,
         )?;
         Ok(PreparedRootLexicalCallBindingGroupV1 { group, packet })
+    }
+
+    pub(crate) fn print_expression_frame_v1(
+        &self, owner: FunctionOwnerIdV1, statement: &SourceStmtSiteV1,
+    ) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>>, String> {
+        let Some(flow) = self.completion_for_owner(owner).and_then(|completion| completion.cleanup().root_flow())
+            else { return Ok(None) };
+        let mut frames = flow.expression_plans().iter().filter_map(|plan| plan.print_frame())
+            .filter(|frame| frame.source().root().statement() == statement);
+        let frame = frames.next().cloned();
+        if frame.is_none() && flow.statement_prefix_unavailable(statement) {
+            return Err(freeze("print-expression/source-unavailable"));
+        }
+        if frames.next().is_some() { return Err(freeze("print-expression/duplicate-source-frame")); }
+        Ok(frame)
+    }
+
+    pub(crate) fn validate_print_expression_source_v1(
+        &self, frame: &std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedPrintExpressionFrameV1>,
+    ) -> Result<(), String> {
+        let owner = frame.source().owner();
+        let sources = self.expected_local_call_binding_sources(owner)?;
+        let groups = self.root_local_call_bindings.borrow();
+        let count = groups.get(&owner).map_or(0, Vec::len);
+        if !matches!(sources.get(count), Some(LifecyclePrefixSourceV1::PrintExpression { frame: expected, .. })
+            if std::rc::Rc::ptr_eq(frame, expected)) {
+            return Err(freeze("print-expression/source-prefix-order"));
+        }
+        Ok(())
+    }
+
+    /// The same pool owns a complete expression prefix. Source/frame identity
+    /// and ordering are checked before this pending group can be published.
+    pub(crate) fn prepare_print_expression_bindings(
+        &self, owner: FunctionOwnerIdV1,
+        packet: std::rc::Rc<EmittedPrintExpressionProjectionV1>,
+        bindings: Vec<(BasicBlockId, MirInstruction)>,
+    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
+        self.prepare_local_call_binding_group(owner,
+            RootLifecyclePrefixBindingGroupV1::new_print(packet, bindings)?)
     }
 
     fn record_local_call_binding_group(
         &self,
         owner: FunctionOwnerIdV1,
-        group: RootLocalCallBindingGroupV1,
+        group: RootLifecyclePrefixBindingGroupV1,
     ) -> Result<(), String> {
         self.prepare_local_call_binding_group(owner, group)?
             .commit()
@@ -224,13 +265,13 @@ impl OrdinaryNewClaimLedgerV1 {
     fn prepare_local_call_binding_group(
         &self,
         owner: FunctionOwnerIdV1,
-        group: RootLocalCallBindingGroupV1,
-    ) -> Result<PreparedRootLocalCallBindingGroupV1<'_>, String> {
+        group: RootLifecyclePrefixBindingGroupV1,
+    ) -> Result<PreparedLifecyclePrefixBindingGroupV1<'_>, String> {
         let site = group.site().clone();
         if site.owner() != owner {
             return Err(freeze("local-call-binding-owner-drift"));
         }
-        let expected = self.expected_local_call_binding_sites(owner)?;
+        let expected = self.expected_local_call_binding_sources(owner)?;
         let rows = self.root_local_call_bindings.borrow();
         let groups = rows.get(&owner).map(Vec::as_slice).unwrap_or(&[]);
         if groups.iter().any(|recorded| recorded.site() == &site) {
@@ -239,10 +280,10 @@ impl OrdinaryNewClaimLedgerV1 {
         if groups.len() >= expected.len() {
             return Err(freeze("local-call-bindings-overflow"));
         }
-        if expected.get(groups.len()) != Some(&site) {
+        if expected.get(groups.len()).is_none_or(|source| !group.matches_source(source)) {
             return Err(freeze("local-call-binding-site-order"));
         }
-        Ok(PreparedRootLocalCallBindingGroupV1 {
+        Ok(PreparedLifecyclePrefixBindingGroupV1 {
             ledger: self,
             owner,
             group,
@@ -270,32 +311,47 @@ impl OrdinaryNewClaimLedgerV1 {
         }
     }
 
-    fn expected_local_call_binding_sites(
+    /// Select the local emitter without stealing receiver-owned Object rows.
+    pub(crate) fn is_lifecycle_local_call_site_v1(&self, site: &OwnedExprSiteV1) -> Result<bool, String> {
+        if !self.lifecycle_local_call_sites.borrow().get(&site.owner())
+            .is_some_and(|sites| sites.contains(site)) { return Ok(false); }
+        use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalInstanceCallDispositionSlotV1;
+        let slots = self.lexical_instance_calls.borrow();
+        match slots.get(site) {
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().borrowed_nullable_local_source().is_some() => {
+                self.corroborate_borrowed_nullable_call_v1(row)?;
+                Ok(true)
+            }
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().mixed_local_source().is_some() => {
+                self.corroborate_mixed_call_v1(row)?;
+                Ok(true)
+            }
+            Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if row.source_target().is_self_receiver() => {
+                let Some(loan) = self.lexical_i64_call_source(site)
+                    .and_then(|observation| observation.borrowed_scalar()) else { return Ok(false); };
+                if loan.source() != row.source_target() || row.scalar_result_source_v1() != Some(loan) {
+                    return Err(freeze("lexical-instance-call/self-scalar-source-drift"));
+                }
+                self.checked_local_scalar_call_result_v1(row)?;
+                Ok(true)
+            }
+            // Selected but unavailable/consumed remains selected: the affine
+            // take below supplies the existing fail-fast diagnostic.
+            _ => Ok(true),
+        }
+    }
+
+    pub(super) fn expected_local_call_binding_sources(
         &self,
         owner: FunctionOwnerIdV1,
-    ) -> Result<Vec<OwnedExprSiteV1>, String> {
-        let completion = self
-            .completion_for_owner(owner)
+    ) -> Result<Vec<LifecyclePrefixSourceV1>, String> {
+        let completion = self.completion_for_owner(owner)
             .ok_or_else(|| freeze("local-call-source-missing"))?;
-        let flow = completion
-            .cleanup()
-            .root_flow()
+        let flow = completion.cleanup().root_flow()
             .ok_or_else(|| freeze("local-call-source-missing"))?;
         let routed = self.lifecycle_local_call_sites.borrow();
-        let routed = routed.get(&owner);
-        Ok(flow
-            .local_calls()
-            .iter()
-            .filter(|call| {
-                matches!(
-                    call.result(),
-                    crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::I64
-                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Handle
-                        | crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::Nullable
-                ) && routed.is_some_and(|sites| sites.contains(call.site()))
-            })
-            .map(|call| call.site().clone())
-            .collect())
+        flow.lifecycle_prefixes(routed.get(&owner).map(Vec::as_slice).unwrap_or(&[]))
+            .map_err(freeze)
     }
 
     /// Test-only sole-exit shorthand — production resolves through
@@ -342,7 +398,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         if let RootCallDispositionV1::Lexical(packet) = &row {
             self.validate_lexical_terminal_packet(owner, site, packet)?;
-            let (original_invoke, original_projection) = packet.outer_bindings();
+            let (original_invoke, original_projection) = packet.outer_bindings()?;
             if original_invoke != &invoke || original_projection != &projection {
                 return Err(freeze("lexical-terminal/original-outer-drift"));
             }
@@ -374,7 +430,7 @@ impl OrdinaryNewClaimLedgerV1 {
         projection: &super::super::physical_boundary::FinishedBindings,
     ) -> Result<(), String> {
         let mut exits = self.root_exits.borrow_mut();
-        let Some(progress) = exits.get_mut(&(owner, site.clone())) else {
+        let Some(progress) = exits.get_mut(&(owner, site.clone().into())) else {
             return Err(freeze("root-call-entry-missing"));
         };
         // A Call terminal whose receiver home can never reach `end_available`
@@ -450,7 +506,7 @@ impl OrdinaryNewClaimLedgerV1 {
     > {
         let mut exits = self.root_exits.borrow_mut();
         for site in sites {
-            match exits.get(&(owner, site.clone())) {
+            match exits.get(&(owner, site.clone().into())) {
                 Some(RootHomeExitProgress::Emitted {
                     entry: RootHomeExitEntry::Call { .. },
                     ..
@@ -464,7 +520,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let mut taken = std::collections::BTreeMap::new();
         for site in sites {
             let progress = exits
-                .get_mut(&(owner, site.clone()))
+                .get_mut(&(owner, site.clone().into()))
                 .expect("whole batch checked under the same borrow");
             let RootHomeExitProgress::Emitted {
                 order,
@@ -487,7 +543,7 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &SourceStmtSiteV1,
     ) -> Result<Option<(RootHomeExitEntry, Vec<(BasicBlockId, MirInstruction)>)>, String> {
         let mut exits = self.root_exits.borrow_mut();
-        let Some(progress) = exits.get_mut(&(owner, site.clone())) else {
+        let Some(progress) = exits.get_mut(&(owner, site.clone().into())) else {
             return Ok(None);
         };
         let state = std::mem::replace(progress, RootHomeExitProgress::Unprepared);
@@ -629,7 +685,7 @@ impl RootHomeExitEntry {
             | Self::MapGet { local_bindings, .. } => local_bindings,
         };
         let mut copies = Vec::new();
-        for packet in groups.iter().filter_map(|group| group.lexical()) {
+        for packet in groups.iter().flat_map(|group| group.lexical_packets()) {
             copies.extend(
                 packet
                     .copy_dependencies(ledger)?
@@ -706,7 +762,27 @@ pub(crate) use lexical_projection::PreparedStaticTerminalPacketV1;
 
 #[path = "root_call_entry/local_binding_group.rs"]
 mod local_binding_group;
-pub(crate) use local_binding_group::RootLocalCallBindingGroupV1;
+pub(crate) use local_binding_group::RootLifecyclePrefixBindingGroupV1;
 
 #[path = "root_call_entry/lexical_terminal.rs"]
 mod lexical_terminal;
+
+#[path = "root_call_entry/print_expression_projection.rs"]
+mod print_expression_projection;
+pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
+
+#[path = "root_call_entry/owned_array_append_projection.rs"]
+mod owned_array_append_projection;
+pub(crate) use owned_array_append_projection::{EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1};
+
+#[path = "root_call_entry/bool_condition_projection.rs"]
+mod bool_condition_projection;
+pub(in crate::mir) use bool_condition_projection::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};
+
+#[path = "root_call_entry/field_array_append_projection.rs"]
+mod field_array_append_projection;
+pub(crate) use field_array_append_projection::EmittedFieldArrayAppendV1;
+
+#[path = "root_call_entry/borrowed_field_write_projection.rs"]
+mod borrowed_field_write_projection;
+pub(crate) use borrowed_field_write_projection::EmittedBorrowedFieldWriteV1;

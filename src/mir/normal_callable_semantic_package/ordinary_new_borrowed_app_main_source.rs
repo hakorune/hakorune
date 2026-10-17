@@ -10,7 +10,51 @@ pub(in crate::mir::normal_callable_semantic_package) struct BorrowedAppMainSourc
     batch_slot: u32,
 }
 
+/// Ephemeral view of the already-issued Main relation. Neither borrower
+/// stores another source registry or synthesizes a callable key.
+#[derive(Clone, Copy)]
+pub(in crate::mir::normal_callable_semantic_package) struct AppMainSourceRefV1<'a> {
+    identity: &'a crate::parser::CallableDeclarationIdentityV1,
+    key: &'a CanonicalSameModuleCallableKeyV1,
+}
+impl<'a> AppMainSourceRefV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_caller_key(
+        self, batch: &VerifiedResolvedCallableSemanticBatchV1,
+        contracts: &[OwnedCallableParameterContractDeclarationV1],
+        owner: FunctionOwnerIdV1, slot: u32,
+    ) -> Result<&'a CanonicalSameModuleCallableKeyV1, &'static str> {
+        let mut declarations = batch.declarations().filter(|row| row.identity().same_as(self.identity));
+        let declaration = declarations.next().ok_or("original-caller/app-main-identity")?;
+        if declarations.next().is_some() || declaration.owner() != owner || declaration.batch_slot() != slot
+            || self.key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod
+        { return Err("original-caller/app-main-identity"); }
+        let mut rows = contracts.iter().filter(|row| row.owner == owner);
+        let row = rows.next().ok_or("original-caller/app-main-contract")?;
+        if rows.next().is_some() || row.batch_slot != slot
+            || row.mode != crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1::StaticBoxMethod
+            || row.parameters.len() != self.key.arity() as usize
+            || row.parameters.iter().enumerate().any(|(index, formal)| formal.ordinal as usize != index || formal.binding.owner() != owner)
+        { return Err("original-caller/app-main-contract"); }
+        let exact = batch.with_lowering_input(slot, |input| input.owner() == owner
+            && row.parameters.iter().all(|formal| input.function().declaration_binding(
+                &crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index: formal.ordinal }) == Some(formal.binding)))
+            .map_err(|_| "original-caller/app-main-input")?;
+        if !exact { return Err("original-caller/app-main-contract"); }
+        Ok(self.key)
+    }
+}
+
+impl OrdinaryNewClaimLedgerV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn app_main_caller_source_ref_v1(&self) -> Option<AppMainSourceRefV1<'_>> {
+        Some(AppMainSourceRefV1 { identity: self.app_main_identity.as_ref()?, key: self.app_main_catalog_key.as_ref()? })
+    }
+}
+
 impl BorrowedAppMainSourceLoanV1<'_> {
+    pub(in crate::mir::normal_callable_semantic_package) fn caller_source_ref_v1(&self) -> AppMainSourceRefV1<'_> {
+        AppMainSourceRefV1 { identity: self.source.parser_identity(), key: self.source.catalog_key() }
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn batch_slot(&self) -> u32 {
         self.batch_slot
     }

@@ -13,12 +13,38 @@ use crate::mir::{ArrayWriteSiteId, MirModule, ValueId};
 pub(crate) struct NamedArrayEmissionDraftV1 {
     source: SelectedSourceCoreMethodCallV1,
     allocation: NamedArrayAllocationRefV1,
+    receiver_read: Option<std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>>,
 }
 
 #[derive(Debug)]
-pub(crate) struct EmittedNamedArrayRequirementV1 {
+pub(crate) struct EmittedNamedArrayWriteV1 {
     source: SelectedSourceCoreMethodCallV1,
     marker: NamedArrayWriteMarkerV1,
+    checked: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1>>,
+}
+
+#[derive(Debug)]
+pub(crate) enum EmittedNamedArrayRequirementV1 {
+    Write(EmittedNamedArrayWriteV1),
+    OwnedHolder(crate::mir::normal_callable_semantic_package::EmittedOwnedArrayHolderV1),
+    Read(super::field_read::EmittedFieldArrayReadV1),
+}
+impl EmittedNamedArrayRequirementV1 {
+    pub(crate) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        match self { Self::Write(row) => row.caller(), Self::Read(row) => row.recipe.caller(), Self::OwnedHolder(row) => row.caller() }
+    }
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        match self { Self::Write(row) => row.owner(), Self::Read(row) => row.recipe.owner(), Self::OwnedHolder(row) => row.owner() }
+    }
+    pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
+        match self { Self::Write(row) => row.call_site(), Self::Read(row) => row.recipe.call_site(), Self::OwnedHolder(row) => row.construction() }
+    }
+    pub(crate) fn marker(&self) -> Option<NamedArrayWriteMarkerV1> {
+        match self { Self::Write(row) => Some(row.marker()), Self::Read(_) | Self::OwnedHolder(_) => None }
+    }
+    pub(crate) fn validate<'m>(&self, module: &'m MirModule) -> Result<&'m str, String> {
+        match self { Self::Write(row) => row.validate(module), Self::Read(row) => row.validate(module), Self::OwnedHolder(row) => row.validate(module) }
+    }
 }
 
 impl SelectedSourceCoreMethodCallV1 {
@@ -42,6 +68,7 @@ impl SelectedSourceCoreMethodCallV1 {
         Ok(NamedArrayEmissionDraftV1 {
             allocation,
             source: self,
+            receiver_read: None,
         })
     }
 }
@@ -68,8 +95,9 @@ impl NamedArrayEmissionDraftV1 {
             return Err(fault("write-source-mismatch"));
         }
         let allocation = self.allocation.clone();
-        Ok(EmittedNamedArrayRequirementV1 {
+        Ok(EmittedNamedArrayRequirementV1::Write(EmittedNamedArrayWriteV1 {
             source: self.source,
+            checked: None,
             marker: NamedArrayWriteMarkerV1 {
                 owner,
                 allocation,
@@ -77,11 +105,26 @@ impl NamedArrayEmissionDraftV1 {
                 argument,
                 write,
             },
-        })
+        }))
     }
 }
 
-impl EmittedNamedArrayRequirementV1 {
+impl EmittedNamedArrayWriteV1 {
+    /// The marker and lifecycle group must retain the very same checked
+    /// append packet, not merely equal residence or opcode observations.
+    pub(in crate::mir) fn borrows_checked_field_append_v1(
+        &self, packet: &crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1,
+    ) -> bool {
+        self.checked.as_ref().is_some_and(|original| std::ptr::eq(original.as_ref(), packet))
+    }
+    /// Compare the original residence loan without issuing a replacement.
+    pub(in crate::mir) fn borrows_field_residence_v1(
+        &self, requirement: &std::rc::Rc<crate::mir::resolved_semantics::NamedArrayFieldResidenceRequirementV1>,
+    ) -> bool {
+        matches!(self.source.contract().named_array_requirement(),
+            Some(NamedArrayRequirementV1::FieldResidence(original))
+                if std::rc::Rc::ptr_eq(original, requirement))
+    }
     pub(crate) fn caller(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
         &self.source.caller
     }
@@ -110,7 +153,11 @@ impl EmittedNamedArrayRequirementV1 {
         if function.signature.name != symbol {
             return Err(fault("physical-caller-drift"));
         }
-        validate_physical_marker(module, function, &self.marker)?;
+        if let Some(packet) = &self.checked {
+            if !self.borrows_field_residence_v1(packet.source().requirement()) { return Err(fault("checked-source-mismatch")); }
+            packet.validate_marker(function, &self.marker)?;
+            crate::mir::named_array_obligation::validate_array_allocation(module, function, &self.marker.allocation)?;
+        } else { validate_physical_marker(module, function, &self.marker)?; }
         Ok(symbol)
     }
 }
@@ -127,9 +174,22 @@ pub(crate) fn validate_named_array_coverage(
     let mut source_calls = std::collections::BTreeSet::new();
     let mut constructions = std::collections::BTreeMap::new();
     let mut allocations = std::collections::BTreeMap::new();
+    let mut read_covered = std::collections::BTreeSet::new();
     let mut claimed_providers = std::collections::BTreeSet::new();
-    for row in rows {
-        let symbol = row.validate(module)?;
+    for emitted in rows {
+        let symbol = emitted.validate(module)?;
+        if let EmittedNamedArrayRequirementV1::OwnedHolder(row) = emitted {
+            if !constructions.insert((symbol, row.construction().clone()), row.array_value()).is_none() {
+                return Err(fault("owned-holder-duplicate-physical"));
+            }
+            continue;
+        }
+        let EmittedNamedArrayRequirementV1::Write(row) = emitted else {
+            let EmittedNamedArrayRequirementV1::Read(read) = emitted else { unreachable!() };
+            if !read_covered.insert((symbol.to_owned(), read.read)) { return Err(fault("read-duplicate-physical")); }
+            claimed_providers.insert((module.canonical_callable_definition_symbol(read.recipe.provider()).ok_or_else(|| fault("provider-symbol-missing"))?.to_owned(), read.recipe.provider_site().clone()));
+            continue;
+        };
         let requirement = row
             .source
             .contract()
@@ -210,9 +270,16 @@ pub(crate) fn validate_named_array_coverage(
                 .sum::<Result<usize, String>>()
         })
         .sum::<Result<usize, String>>()?;
-    if marker_count != rows.len() {
+    if marker_count != rows.iter().filter(|row| matches!(row, EmittedNamedArrayRequirementV1::Write(_))).count() {
         return Err(fault("marker-cardinality"));
     }
+    let read_count: usize = module.functions.iter().map(|(symbol, function)| {
+        function.metadata.named_array_read_obligations.iter().map(|marker| {
+            if !read_covered.contains(&(symbol.clone(), marker.read)) { return Err(fault("read-uncovered-marker")); }
+            Ok(1usize)
+        }).sum::<Result<usize, String>>()
+    }).sum::<Result<usize, String>>()?;
+    if read_count != read_covered.len() { return Err(fault("read-marker-domain-drift")); }
     for (symbol, function) in &module.functions {
         for site in function.metadata.named_array_field_allocations.keys() {
             if !claimed_providers.contains(&(symbol.clone(), site.clone())) {
@@ -259,6 +326,14 @@ enum WriteState {
 }
 
 impl NamedArrayEmissionDraftV1 {
+    pub(crate) fn with_receiver_read(mut self, read: crate::mir::builder::ExactLexicalReadV1) -> Result<Self, String> {
+        let contract = self.source.contract();
+        let requirement = contract.named_array_requirement().ok_or_else(|| fault("source-requirement-missing"))?;
+        read.value_for(contract.owner(), contract.receiver_site().node(), requirement.binding())
+            .map_err(|issue| issue.to_string())?;
+        self.receiver_read = Some(std::rc::Rc::new(read));
+        Ok(self)
+    }
     pub(crate) fn into_write_port(self) -> NamedArrayWriteEmissionPortV1 {
         NamedArrayWriteEmissionPortV1(std::rc::Rc::new(std::cell::RefCell::new(
             WriteState::Pending(self),
@@ -267,6 +342,22 @@ impl NamedArrayEmissionDraftV1 {
 }
 
 impl NamedArrayWriteEmissionPortV1 {
+    pub(crate) fn is_field_residence_v1(&self) -> Result<bool, String> {
+        let state = self.0.borrow();
+        let WriteState::Pending(draft) = &*state else { return Err(fault("duplicate-physical-write")); };
+        Ok(matches!(draft.source.contract().named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(_))))
+    }
+    /// Canonical source family selection; absence of a required source proof
+    /// is an error after FieldResidence selection, never raw-route fallback.
+    pub(crate) fn field_append_source_v1(&self, ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1)
+        -> Result<(super::FieldArrayAppendSourceLoanV1, std::rc::Rc<crate::mir::builder::ExactLexicalReadV1>), String> {
+        let state = self.0.borrow();
+        let WriteState::Pending(draft) = &*state else { return Err(fault("duplicate-physical-write")); };
+        if !matches!(draft.source.contract().named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(_))) { return Err(fault("field-residence-required")); }
+        let source = ledger.field_array_append_source_v1(draft.source.contract())?;
+        let receiver = draft.receiver_read.as_ref().ok_or_else(|| fault("receiver-read-missing"))?;
+        Ok((source, std::rc::Rc::clone(receiver)))
+    }
     pub(crate) fn record_write(
         &self,
         write: ArrayWriteSiteId,
@@ -288,11 +379,30 @@ impl NamedArrayWriteEmissionPortV1 {
             requirement.argument().clone(),
         );
         let row = draft.record_write(owner, &site, &argument_site, write, receiver, argument)?;
-        let marker = row.marker();
+        let marker = row.marker().ok_or_else(|| fault("write-marker-missing"))?;
         *state = WriteState::Emitted(row);
         Ok(marker)
     }
 
+    pub(crate) fn record_checked_write_v1(&self, packet: std::rc::Rc<crate::mir::normal_callable_semantic_package::EmittedFieldArrayAppendV1>)
+        -> Result<NamedArrayWriteMarkerV1, String> {
+        {
+            let state = self.0.borrow();
+            let WriteState::Pending(draft) = &*state else { return Err(fault("duplicate-physical-write")); };
+            if !matches!(draft.source.contract().named_array_requirement(), Some(NamedArrayRequirementV1::FieldResidence(original))
+                if std::rc::Rc::ptr_eq(original, packet.source().requirement()))
+                || draft.receiver_read.as_ref().is_none_or(|original| !packet.borrows_receiver_read_v1(original)) {
+                return Err(fault("checked-source-mismatch"));
+            }
+        }
+        let crate::mir::MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite { site_id, receiver, value, .. }, .. } = &packet.invoke_binding().1
+            else { return Err(fault("checked-invoke-missing")); };
+        let marker = self.record_write(*site_id, *receiver, *value)?;
+        let mut state = self.0.borrow_mut();
+        let WriteState::Emitted(EmittedNamedArrayRequirementV1::Write(row)) = &mut *state else { return Err(fault("checked-state-drift")); };
+        row.checked = Some(packet);
+        Ok(marker)
+    }
     pub(crate) fn take_completed(&self) -> Result<EmittedNamedArrayRequirementV1, String> {
         match std::mem::replace(&mut *self.0.borrow_mut(), WriteState::Taken) {
             WriteState::Emitted(row) => Ok(row),

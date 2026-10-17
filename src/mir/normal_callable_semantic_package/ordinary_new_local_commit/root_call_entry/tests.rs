@@ -83,7 +83,7 @@ fn local_binding_groups_reject_incomplete_sequence_before_transfer() {
         .expect("explicit exit")
         .clone();
     let groups =
-        vec![RootLocalCallBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap()];
+        vec![RootLifecyclePrefixBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap()];
     assert!(ledger
         .validate_local_call_binding_groups(owner, &exit, &groups)
         .is_err());
@@ -107,7 +107,7 @@ fn local_binding_group_preflight_does_not_publish_before_commit() {
     let prepared = ledger
         .prepare_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
+            RootLifecyclePrefixBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
         )
         .expect("preflight first group");
     ledger.with_local_call_binding_groups_for_test(owner, |groups| assert!(groups.is_empty()));
@@ -117,14 +117,14 @@ fn local_binding_group_preflight_does_not_publish_before_commit() {
     let prepared = ledger
         .prepare_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
+            RootLifecyclePrefixBindingGroupV1::new(sites[0].clone(), fake_binding(), None).unwrap(),
         )
         .expect("preflight again");
     prepared.commit().expect("commit first group");
     let stale = ledger
         .prepare_local_call_binding_group(
             owner,
-            RootLocalCallBindingGroupV1::new(sites[1].clone(), fake_binding(), None).unwrap(),
+            RootLifecyclePrefixBindingGroupV1::new(sites[1].clone(), fake_binding(), None).unwrap(),
         )
         .expect("preflight second group");
     ledger

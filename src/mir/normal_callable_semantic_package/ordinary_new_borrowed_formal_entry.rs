@@ -1,5 +1,6 @@
 //! Entry projection of the same lexical source/use/actual owner.
 //! This borrow is prerequisite evidence, not permission to activate an ABI.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::borrowed_formal_actuals::PreparedBorrowedFormalActualV1;
 use super::borrowed_formal_source::PreparedBorrowedFormalIngressV1;
 use super::*;
@@ -9,6 +10,13 @@ use crate::mir::normal_callable_semantic_package::{
 };
 use std::collections::{BTreeMap, BTreeSet};
 use std::rc::Rc;
+
+#[path = "ordinary_new_borrowed_formal_return_source.rs"]
+mod return_source;
+#[path = "ordinary_new_borrowed_field_write_source.rs"]
+pub(super) mod field_write_source;
+#[path = "ordinary_new_borrowed_array_set_source.rs"]
+pub(super) mod array_set_source;
 
 #[derive(Debug)]
 pub(crate) struct BorrowedOrdinaryEntrySourceRefV1<'ledger> {
@@ -30,10 +38,14 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
     pub(crate) fn origins(&self) -> &BTreeMap<BindingRefV1, BindingRefV1> {
         &self.definition.origins
     }
-    pub(crate) fn incoming(&self) -> Result<&[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])], String> {
+    pub(crate) fn incoming(
+        &self,
+    ) -> Result<&[(&OwnedExprSiteV1, &[PreparedBorrowedFormalActualV1])], String> {
         match &self.incoming {
             BorrowedEntryActualsV1::Executable(rows) => Ok(rows),
-            BorrowedEntryActualsV1::SelectedTagged => Err(freeze("borrowed-entry/canonical-packet-actual-required")),
+            BorrowedEntryActualsV1::SelectedTagged => {
+                Err(freeze("borrowed-entry/canonical-packet-actual-required"))
+            }
         }
     }
     /// Checked-compare operand admissions this owner's draft proved:
@@ -207,13 +219,41 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 _ => None,
             })
     }
-    /// The co-sealed class view for one of this owner's formals — `Some`
-    /// only when every incoming actual agreed on one ordinary class.
-    pub(crate) fn formal_object_view(
+    /// Exact guarded outgoing uses tied to their original Compare source.
+    /// This is source correspondence; final consumers prove physical dominance.
+    pub(crate) fn guarded_argument_uses(
         &self,
-        formal: BindingRefV1,
-    ) -> Option<&super::borrowed_formal_source::BorrowedFormalObjectViewV1> {
-        self.source.formal_object_view(formal)
+    ) -> Result<
+        Vec<(
+            OwnedExprSiteV1,
+            u32,
+            BindingRefV1,
+            BindingRefV1,
+            OwnedExprSiteV1,
+        )>,
+        String,
+    > {
+        use super::borrowed_formal_uses::BorrowedFormalUseDraftKindV1 as Use;
+        let mut uses = Vec::new();
+        for row in &self.definition.uses {
+            let Use::UnresolvedArgument { call, ordinal } = &row.kind else {
+                continue;
+            };
+            let Some(fact) = self.source.guarded_actuals.get(&(call.clone(), *ordinal)) else {
+                continue;
+            };
+            if !fact.matches_draft_argument(row, call, *ordinal, self.definition) {
+                return Err(freeze("borrowed-guarded/final-source-identity"));
+            }
+            uses.push((
+                call.clone(),
+                *ordinal,
+                row.binding,
+                row.formal,
+                fact.guard_binary().clone(),
+            ));
+        }
+        Ok(uses)
     }
 
 }
@@ -234,7 +274,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let view = self.checked_entry_owner_view_v1(source, owner)?
+        let view = self
+            .checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/entry-owner"))?;
         let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
         Ok(BorrowedOrdinaryEntrySourceRefV1 {
@@ -309,9 +350,22 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let view = self.checked_entry_owner_view_v1(source, owner)?
+        let view = self
+            .checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
-        let mut modes = view.incoming.iter().map(|row| row.source.as_loan().map(|loan| loan.declaration_mode())).collect::<Result<Vec<_>, String>>()?.into_iter();
+        if view.mixed
+            || self.selected_instance_input_protocol_v1(source, owner)?.is_some()
+            || self
+                .checked_guarded_instance_definition_v1(source, owner)?
+                .is_some()
+        {
+            return Ok(true); // SAME original Instance declaration, checked by the lender.
+        }
+        let mut modes = view
+            .incoming
+            .iter()
+            .map(|row| row.source.as_loan().map(|loan| loan.declaration_mode()))
+            .collect::<Result<Vec<_>, String>>()?.into_iter();
         let mode = modes
             .next()
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
@@ -370,6 +424,40 @@ impl OrdinaryNewClaimLedgerV1 {
             return Ok(None);
         };
         let ingress = source.as_ref().map_err(Clone::clone)?;
+        // The original QualifiedObject family owns its complete input cohort.
+        // Its acquisition must not depend on an unrelated Array consumer being
+        // executable before the sole producer Normal seal. The global opaque
+        // family below retains its existing whole-final-incoming contract.
+        let source_input = self.has_original_object_source_input_v1(ingress, target)?;
+        let qualified = ingress.source_incoming.has_object_input_callee_v1(target);
+        if (qualified || source_input)
+            && self.selected_object_input_contract_v1(ingress, contract)?
+        {
+            let Some((selected, signatures)) = &self.original_instance_input_issuance else {
+                return Ok(None);
+            };
+            let catalog = self.original_parameter_contracts.as_deref()
+                .ok_or_else(|| freeze("object-return/original-input-catalog-missing"))?;
+            let mut original = catalog.iter().filter(|row| row.owner == contract.owner);
+            let original = original.next()
+                .filter(|_| original.next().is_none())
+                .ok_or_else(|| freeze("object-return/original-input-contract"))?;
+            if original.batch_slot != contract.batch_slot || original.mode != contract.mode
+                || original.parameters.len() != contract.parameters.len()
+                || original.parameters.iter().zip(&contract.parameters).any(|(a, b)| {
+                    a.ordinal != b.ordinal || a.binding != b.binding || a.kind != b.kind
+                })
+            { return Err(freeze("object-return/original-input-contract-drift")); }
+            return if !qualified && source_input {
+                self.checked_completed_original_instance_target_arguments_v1(
+                    target, selected, catalog, signatures,
+                )
+            } else {
+                self.checked_completed_typed_object_target_arguments_v1(
+                    target, selected, catalog, signatures,
+                )
+            };
+        }
         if !ingress.definitions.contains_key(&contract.owner) {
             return Ok(None);
         }
@@ -459,6 +547,7 @@ impl OrdinaryNewClaimLedgerV1 {
             (Source::Null, Kind::Null) => true,
             (
                 Source::ReceivedNullable { binding, .. }
+                | Source::ReceivedMixed { binding, .. }
                 | Source::Scalar { binding, .. }
                 | Source::TypedHome { binding, .. }
                 | Source::EntryReceiver { binding, .. }
@@ -492,6 +581,14 @@ impl OrdinaryNewClaimLedgerV1 {
             // before selection. This is not retry after a selected failure.
             return Ok(None);
         };
+        if view.mixed
+            || self.selected_instance_input_protocol_v1(source, owner)?.is_some()
+            || self
+                .checked_guarded_instance_definition_v1(source, owner)?
+                .is_some()
+        {
+            self.check_original_entry_parameters_v1(owner, parameters)?;
+        }
         let definition = view.definition;
         let mut formals = Vec::new();
         for (index, (ordinal, binding, kind)) in parameters.iter().enumerate() {
@@ -535,13 +632,20 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         row: &super::LexicalInstanceCallDispositionRowV1,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        self.borrowed_call_actuals_using_v1(row, CallValidationContextV1::Lowering(self))
+    }
+
+    pub(in crate::mir) fn borrowed_call_actuals_using_v1(
+        &self, row: &super::LexicalInstanceCallDispositionRowV1, context: CallValidationContextV1<'_>,
+    ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
+        context.require_ledger(self)?;
         if !matches!(
             self.lexical_instance_calls.borrow().get(row.call_site()),
             Some(super::LexicalInstanceCallDispositionSlotV1::Taken)
         ) {
             return Err(freeze("borrowed-call/disposition-not-owned-and-taken"));
         }
-        if row.source_target().has_object_source_requirement() {
+        if self.uses_object_packet_protocol_v1(row)? {
             return row.checked_object_packet_actuals_v1(self).map(Some);
         }
         let source = self
@@ -550,11 +654,23 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-call/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
-        let mut incoming = source
-            .incoming
-            .iter()
+        let Some(view) = self.checked_entry_owner_view_v1(source, row.callee_owner())? else {
+            if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
+                return Err(freeze("borrowed-call/bool-input-incomplete"));
+            }
+            if source.incoming.iter().any(|call| &call.call == row.call_site()) {
+                return Err(freeze("borrowed-entry/incoming-identity"));
+            }
+            return if source.definitions.contains_key(&row.callee_owner()) {
+                Err(freeze("borrowed-call/incoming-missing"))
+            } else { Ok(None) };
+        };
+        let mut incoming = view.incoming.iter().copied()
             .filter(|call| &call.call == row.call_site());
         let Some(call) = incoming.next() else {
+            if row.result() == Some(crate::mir::instruction::InvokeCallResultKind::Bool) {
+                return Err(freeze("borrowed-call/bool-input-incomplete"));
+            }
             return if source.definitions.contains_key(&row.callee_owner()) {
                 Err(freeze("borrowed-call/incoming-missing"))
             } else {
@@ -572,7 +688,24 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("borrowed-call/disposition-identity"));
         }
-        self.checked_borrowed_entry_incoming(source, call.callee)?;
+        let inputs = self.entry_actual_loans_v1(source, call.callee, &view)?;
+        let BorrowedEntryActualsV1::Executable(inputs) = inputs else {
+            return Err(freeze("borrowed-entry/canonical-packet-actual-required"));
+        };
+        let mut exact = inputs.iter().filter(|(site, _)| *site == row.call_site());
+        let actuals = exact.next().map(|(_, actuals)| *actuals)
+            .ok_or_else(|| freeze("borrowed-call/incoming-missing"))?;
+        if exact.next().is_some() {
+            return Err(freeze("borrowed-call/disposition-identity"));
+        }
+        if row.source_target().borrowed_nullable_local_source().is_some() {
+            self.corroborate_borrowed_nullable_call_v1(row)?;
+            return Ok(Some(actuals));
+        }
+        if row.source_target().mixed_local_source().is_some() {
+            self.corroborate_mixed_call_using_v1(row, context)?;
+            return Ok(Some(actuals));
+        }
         let proof = self
             .borrowed_i64_results
             .get(&call.callee)
@@ -593,6 +726,19 @@ impl OrdinaryNewClaimLedgerV1 {
             super::borrowed_formal_result::BorrowedResultClassV1::I64 => {
                 crate::mir::instruction::InvokeCallResultKind::I64
             }
+            super::borrowed_formal_result::BorrowedResultClassV1::Bool => {
+                let loan = row.scalar_result_source_v1().ok_or_else(|| freeze("borrowed-call/scalar-source-missing"))?;
+                super::borrowed_formal_result::validate_source_scalar_result_loan_v1(
+                    self.borrowed_formal_source.as_ref().unwrap(), &self.borrowed_i64_results, loan, row.source_target(),
+                )?;
+                if self.callable_scalar_result_source_v1(call.callee)?.is_none()
+                    || loan.kind() != crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind::Bool
+                { return Err(freeze("borrowed-call/scalar-source-drift")); }
+                crate::mir::instruction::InvokeCallResultKind::Bool
+            }
+            super::borrowed_formal_result::BorrowedResultClassV1::UnresolvedScalar => {
+                return Err(freeze("borrowed-result/source-class-unresolved"));
+            }
             super::borrowed_formal_result::BorrowedResultClassV1::Nullable => {
                 crate::mir::instruction::InvokeCallResultKind::NullableHandle
             }
@@ -600,12 +746,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if row.result() != Some(expected) {
             return Err(freeze("borrowed-call/result-mismatch"));
         }
-        self.borrowed_formal_actuals
-            .get(row.call_site())
-            .ok_or_else(|| freeze("borrowed-entry/actuals-missing"))?
-            .as_ref()
-            .map(|rows| Some(rows.opaque_actuals.as_ref()))
-            .map_err(Clone::clone)
+        Ok(Some(actuals))
     }
 
     pub(super) fn checked_borrowed_entry_incoming<'a>(
@@ -627,6 +768,7 @@ mod entry_values;
 mod incoming;
 #[path = "ordinary_new_borrowed_formal_entry_owner_view.rs"]
 mod owner_view;
+pub(super) use owner_view::checked_forwarding_instance_source_v1;
 use owner_view::BorrowedEntryActualsV1;
 
 pub(in crate::mir) use entry_values::BorrowedCompareCarrierOperandLoanV1;
@@ -643,3 +785,5 @@ mod incoming_kind_tests;
 
 #[path = "ordinary_new_borrowed_static_packet_entry.rs"]
 mod static_packet_entry;
+
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use owner_view::original_borrowed_instance_input_completion_needed_v1;

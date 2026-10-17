@@ -46,7 +46,7 @@ fn param_field_acceptance_shapes_publish_their_issued_inputs() {
                 .compile_normal_with_published(
                     request(text),
                     |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire =
                             super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(

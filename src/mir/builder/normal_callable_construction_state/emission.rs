@@ -15,6 +15,7 @@ impl CallableSemanticLoweringState {
         taken: TakenConstructionStore,
         provider_value: Option<ValueId>,
     ) -> Result<ValueId, String> {
+        self.construction.require_next_store(&taken.site)?;
         let source_ready = matches!(
             &self.construction,
             ConstructionState::Selected { stores, completed: false, .. }
@@ -56,20 +57,34 @@ impl CallableSemanticLoweringState {
         // the sole consumption boundary. `self` must stay unborrowed here.
         let mut call_handoffs: std::collections::BTreeMap<
             crate::mir::resolved_semantics::SourceExprSiteV1,
-            crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+            (
+                crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1,
+                std::rc::Rc<crate::mir::normal_callable_semantic_package::ProviderStaticArgumentSourceV1>,
+                Option<crate::mir::normal_callable_semantic_package::PreparedProviderStaticArgumentV1>,
+            ),
         > = std::collections::BTreeMap::new();
-        if let ConstructionStoreRhsV1::ProviderConstruction { arguments, .. } = &taken.rhs {
+        if let ConstructionStoreRhsV1::ProviderConstruction { arguments, static_sources, site, caller, .. } = &taken.rhs {
             for argument in arguments.iter() {
                 if let crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall {
                     target,
                     ..
                 } = argument.kind()
                 {
+                    let mut sources = static_sources.iter().filter(|source| source.matches_argument_v1(argument));
+                    let source = sources.next().ok_or_else(|| fault("provider-argument-source-missing"))?;
+                    if sources.next().is_some() || !source.matches_store_v1(taken.field, site, caller, arguments) {
+                        return Err(fault("provider-argument-source-drift"));
+                    }
+                    let packet = self.ordinary_new_claim_ledger.as_ref()
+                        .ok_or_else(|| fault("provider-ledger-missing"))?
+                        .prepare_provider_static_packet_v1(source)?;
                     let handoff = self.take_provider_static_result_publication(
                         argument.site(),
                         target,
                     )?;
-                    call_handoffs.insert(argument.site().clone(), handoff);
+                    if call_handoffs.insert(argument.site().clone(), (handoff, std::rc::Rc::clone(source), packet)).is_some() {
+                        return Err(fault("provider-argument-duplicate"));
+                    }
                 }
             }
         }
@@ -79,6 +94,7 @@ impl CallableSemanticLoweringState {
             stores,
             frame,
             completed,
+            next_step, ..
         } = &mut self.construction
         else {
             return Err(fault("emission-unselected"));
@@ -185,34 +201,20 @@ impl CallableSemanticLoweringState {
                             .ordinary_new_claim_ledger
                             .as_ref()
                             .ok_or_else(|| fault("provider-ledger-missing"))?;
-                        // An owned-array child owes each sealed `ArrayBox`
-                        // residence release before its storage on every
-                        // in-flight cleanup edge — the plan's declared
-                        // inventory must agree exactly with the sealed
-                        // children, in declaration order. The provider
-                        // `new` mints no `local`-bound claim, so its row
-                        // was sealed by `seal_provider_owned_children_v1`
-                        // beside the claims.
-                        let teardown: Box<[CanonicalFieldRefV1]> = if owned_fields.is_empty() {
-                            Box::new([])
+                        // Match the original typed inventory against the same
+                        // sealed residence proof used by ordinary Home End.
+                        let teardown = if owned_fields.is_empty() {
+                            Box::new([]) as Box<[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1]>
                         } else {
-                            let children = ledger
-                                .owned_field_children_for(child)
+                            let children = ledger.owned_field_children_for(child)
                                 .ok_or_else(|| fault("provider-children-missing"))?
                                 .ok_or_else(|| fault("provider-children-unproven"))?;
-                            if children.len() != owned_fields.len()
-                                || children.iter().zip(owned_fields.iter()).any(
-                                    |(child_row, field)| {
-                                        !matches!(
-                                            child_row.kind,
-                                            crate::mir::normal_callable_semantic_package::OwnedFieldChildKindV1::Array
-                                        ) || child_row.field != *field
-                                    },
-                                )
-                            {
+                            if children != owned_fields.as_ref() {
                                 return Err(fault("provider-children-drift"));
                             }
-                            owned_fields.clone()
+                            // Fault teardown is newest-first; emission and final
+                            // validation consume this identical typed order.
+                            children.iter().rev().copied().collect()
                         };
                         let owned_site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(
                             self.owner,
@@ -298,7 +300,7 @@ impl CallableSemanticLoweringState {
                                     // actual the provider birth consumes.
                                     // A fault lands on `reclaim` — the same
                                     // cleanup chain the birth call owns.
-                                    let handoff = call_handoffs
+                                    let (handoff, source, packet) = call_handoffs
                                         .remove(argument.site())
                                         .ok_or_else(|| {
                                             fault("provider-argument-handoff")
@@ -336,6 +338,7 @@ impl CallableSemanticLoweringState {
                                     let global = target
                                         .canonical_global_target_v1()
                                         .map_err(|_| fault("provider-argument-target"))?;
+                                    let retained_arguments = call_args.clone().into_boxed_slice();
                                     let MirInstruction::Call(call) = MirInstruction::call(
                                         None,
                                         crate::mir::Callee::Global(global),
@@ -370,6 +373,8 @@ impl CallableSemanticLoweringState {
                                         .value_types
                                         .insert(projected, MirType::Integer);
                                     call_arg_records.push(ProviderCallArgEmission {
+                                        source, packet, publication: handoff,
+                                        ordinal: argument.ordinal(), arguments: retained_arguments,
                                         invoke_block,
                                         landing: normal,
                                         value: projected,
@@ -477,7 +482,7 @@ impl CallableSemanticLoweringState {
             Some((child, teardown)) => {
                 // The checked object-field store consumes the child lease
                 // on both edges: a faulted store releases each sealed
-                // `ArrayBox` residence newest-first, then discharges the
+                // typed owned residence newest-first, then discharges the
                 // in-flight child with its own release — the child was
                 // never installed, so reclaiming it through the parent
                 // slot would release the wrong object.
@@ -500,29 +505,7 @@ impl CallableSemanticLoweringState {
                     fault_landing: tail_fault,
                 });
                 function.add_block(tail_block);
-                let mut head = tail;
-                for field in teardown.iter() {
-                    let step_id = builder.next_block_id();
-                    let normal_step = jump_landing(builder, head)?;
-                    let fault_step = jump_landing(builder, head)?;
-                    let function = builder
-                        .function_state
-                        .current_function
-                        .as_mut()
-                        .ok_or_else(|| fault("no-function"))?;
-                    let mut step = BasicBlock::new(step_id);
-                    step.set_terminator(MirInstruction::Invoke {
-                        operation: InvokeOperation::OwnedFieldResidenceRelease {
-                            field: *field,
-                            base: value,
-                        },
-                        fault_frame,
-                        normal_landing: normal_step,
-                        fault_landing: fault_step,
-                    });
-                    function.add_block(step);
-                    head = step_id;
-                }
+                let head = emit_discharge(builder, teardown, value, fault_frame, tail)?;
                 (
                     InvokeOperation::ObjectFieldSet {
                         field: store.field,
@@ -534,41 +517,12 @@ impl CallableSemanticLoweringState {
                 )
             }
             None => match provided_child {
-                // A provided formal stored into an object-typed declared
-                // field is a checked object-field store of a possibly-Void
-                // value: the fault tail discharges the formal with
-                // `home_release_if_live` — the Void sentinel skips the
-                // reclaim, never a `home_release` on a caller-owned lease.
-                Some(child) => {
-                    let tail = builder.next_block_id();
-                    let tail_normal = jump_landing(builder, fault_landing)?;
-                    let tail_fault = jump_landing(builder, fault_landing)?;
-                    let function = builder
-                        .function_state
-                        .current_function
-                        .as_mut()
-                        .ok_or_else(|| fault("no-function"))?;
-                    let mut tail_block = BasicBlock::new(tail);
-                    tail_block.set_terminator(MirInstruction::Invoke {
-                        operation: InvokeOperation::HomeReleaseIfLive {
-                            object: child,
-                            value,
-                        },
-                        fault_frame,
-                        normal_landing: tail_normal,
-                        fault_landing: tail_fault,
-                    });
-                    function.add_block(tail_block);
-                    (
-                        InvokeOperation::ObjectFieldSet {
-                            field: store.field,
-                            base,
-                            value,
-                            child,
-                        },
-                        tail,
-                    )
-                }
+                // Caller retains the provided Home on Fault; only Birth
+                // Normal transfers it into this declared field.
+                Some(child) => (
+                    InvokeOperation::ObjectFieldSet { field: store.field, base, value, child },
+                    fault_landing,
+                ),
                 None => (
                     InvokeOperation::FieldSet {
                         field: store.field,
@@ -603,7 +557,7 @@ impl CallableSemanticLoweringState {
                         store_discharge: store_fault_landing,
                         owned_fields: object_child
                             .as_ref()
-                            .map(|(_, fields)| fields.iter().rev().copied().collect())
+                            .map(|(_, fields)| fields.clone())
                             .unwrap_or_default(),
                     },
                 ))
@@ -612,11 +566,10 @@ impl CallableSemanticLoweringState {
                     store_discharge: store_fault_landing,
                 })
             } else {
-                provided_child.map(|_| super::ProviderChildEmissionV1::Provided {
-                    store_discharge: store_fault_landing,
-                })
+None
             },
         };
+        *next_step += 1;
         if let Some(site) = provider_site {
             if object_child.is_some() {
                 return Ok(value);

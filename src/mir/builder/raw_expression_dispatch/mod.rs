@@ -251,6 +251,13 @@ impl super::MirBuilder {
             ASTNode::Me { .. } => port.lower_me_expression_v1(self),
 
             node @ ASTNode::MethodCall { .. } => {
+                let ASTNode::MethodCall { method, arguments, .. } = &node else { unreachable!() };
+                if port.try_emit_unit_discard(self, method, arguments.len())? {
+                    return crate::mir::builder::emission::constant::emit_void(self);
+                }
+                if port.try_emit_owned_array_append(self, method, arguments.len())? {
+                    return crate::mir::builder::emission::constant::emit_void(self);
+                }
                 let receiver_source =
                     port.prepare_expression_child_source_v1(&node, ExprChildRoleV1::Receiver)?;
                 let m = MethodCallExpr::try_from(node.clone())

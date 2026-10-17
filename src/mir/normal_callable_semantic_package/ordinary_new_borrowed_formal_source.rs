@@ -7,6 +7,7 @@ use crate::mir::callable_parameter_contract::{
 };
 use crate::mir::normal_callable_semantic_package::model::OwnedCallableParameterContractDeclarationV1;
 use std::collections::{BTreeMap, BTreeSet};
+use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_integer_return_source.rs"]
 mod integer_return_source;
@@ -22,12 +23,19 @@ mod checked_input;
 mod observation;
 #[path = "ordinary_new_borrowed_formal_source_seeds.rs"]
 mod source_seeds;
+pub(super) use source_seeds::{OriginalBorrowedFormalSourceV1, OriginalIntegerBasisV1, OriginalNewI64InputsLoanV1, OriginalNewSourceLoanV1, OriginalFormalObjectBasisV1};
 #[path = "ordinary_new_borrowed_formal_source_static_cohort.rs"]
 mod static_cohort;
 #[path = "ordinary_new_borrowed_formal_source_target_static.rs"]
 mod target_static;
 #[path = "ordinary_new_borrowed_formal_value_domain.rs"]
 mod value_domain;
+#[path = "ordinary_new_borrowed_array_source.rs"]
+mod array_source;
+pub(super) use array_source::OriginalArraySourcesV1;
+pub(in crate::mir::normal_callable_semantic_package) use array_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
+pub(crate) use array_source::NamedArrayHolderSourceLoanV1;
+
 
 /// The sealed class view one borrowed formal may carry on a dominated
 /// `formal.field` read: minted only when every incoming actual names one
@@ -40,11 +48,20 @@ mod value_domain;
 pub(in crate::mir::normal_callable_semantic_package) struct BorrowedFormalObjectViewV1 {
     class: Box<str>,
     object: hakorune_mir_defs::CanonicalObjectIdV1,
+    /// Passive declaration loans from this same canonical definition before
+    /// transfer. A guarded original read and selected entry grant usage.
+    scalar_fields: Rc<BTreeMap<Box<str>, Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>>>,
     /// Original DeclaredObject constraint, not inferred from incoming class.
     declared: bool,
 }
 
 impl BorrowedFormalObjectViewV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn scalar_field_source_v1(
+        &self, name: &str,
+    ) -> Option<&Rc<crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1>> {
+        self.scalar_fields.get(name)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn class(&self) -> &str {
         &self.class
     }
@@ -65,7 +82,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     pub(super) definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     /// Original AppMain co-seal identity; never inferred from a function name.
     pub(super) app_main_owner: Option<FunctionOwnerIdV1>,
-    pub(super) app_main_terminal_sites: BTreeSet<OwnedExprSiteV1>,
+    pub(super) static_terminal_sites: BTreeSet<OwnedExprSiteV1>,
     // Disjoint excluded owners from the same original draft issuance.
     pub(super) source_only_definitions: BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     pub(super) target_static:
@@ -89,7 +106,10 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
     /// `formal -> sealed class view`, complete across the co-sealed
     /// incoming call set. A formal absent from the map has no agreed
     /// class — its guarded field read stays fail-closed.
+    pub(super) array_sources: array_source::ArraySourceRequirementsV1,
     pub(super) object_views: BTreeMap<BindingRefV1, BorrowedFormalObjectViewV1>,
+    /// Original declared constraints whose complete source domain conflicts.
+    pub(super) source_declared_mismatches: BTreeSet<BindingRefV1>,
     /// Complete original incoming agreement; never execution or payload permission.
     pub(super) integer_agreements: BTreeSet<BindingRefV1>,
     original_formal_seeds: source_seeds::OriginalFormalSeedProductV1,
@@ -102,6 +122,8 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedForm
 
 /// One incoming argument's contribution to a callee formal's class view.
 pub(super) enum FormalActualSeedV1 {
+    /// Every contribution must agree in the existing domain fold.
+    All(Box<[FormalActualSeedV1]>),
     /// Exact source integer, distinct from bool/null and carrier payload.
     Integer,
     /// A class-carrying actual: claim-local `new` local, the entry
@@ -159,13 +181,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_borrowed_formal_
         dynamic_slot,
         entry_home_loans,
         instance_constructors,
+        None,
     )?;
     let inventory = prepare_original_incoming_v1(
-        batch, selected, &BTreeSet::new(), contracts, &calls, &drafts.0, &drafts.1,
+        None, batch, selected, &BTreeSet::new(), contracts, &calls, &drafts.0, &drafts.1,
         None, &BTreeMap::new(), None, None, instance_constructors,
-        entry_home_loans, local_candidates, callable_result_classes, &drafts.3,
+        entry_home_loans, local_candidates, callable_result_classes, &drafts.3, &BTreeMap::new(),
     );
     finish_ingress_from_drafts_v1(
+        None,
         batch,
         selected,
         contracts,
@@ -225,8 +249,15 @@ pub(super) fn classify_actual_seed(
 /// Original source classification retains a forward's declaration constraint
 /// without deciding transport membership. The same row can be projected later.
 #[derive(Debug)]
+#[cfg_attr(test, derive(Clone))]
 enum OriginalFormalActualSeedV1 {
+    ReturnedField(Box<super::super::result_class_claim::ReturnedFieldSourceLoanV1>),
+    Mixed {
+        source: Box<super::super::result_class_claim::MixedLocalCallSourceLoanV1>,
+        anchor: Box<OriginalFormalActualSeedV1>,
+    },
     Integer,
+    ProviderStatic(std::rc::Rc<crate::mir::normal_callable_semantic_package::instance_constructor_semantic::provider_source::ProviderStaticArgumentSourceV1>),
     /// Exact usize declaration: Integer lane, without signed result permission.
     SourceInteger,
     Class(Box<str>),
@@ -238,15 +269,40 @@ enum OriginalFormalActualSeedV1 {
     Conflict,
 }
 impl OriginalFormalActualSeedV1 {
+    fn returned_field_domain_v1(source: &super::super::result_class_claim::ReturnedFieldSourceLoanV1) -> FormalActualSeedV1 {
+        match (source.class(), source.nullable()) {
+            (Some(class), true) => FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class(class.into()), FormalActualSeedV1::Null,
+            ])),
+            (Some(class), false) => FormalActualSeedV1::Class(class.into()),
+            (None, _) => FormalActualSeedV1::Null,
+        }
+    }
+    /// Source class agreement retains every Forward edge. DeclaredObject is a
+    /// separate conjunct in the same domain fold, never an actual class seed.
+    fn project_source_object_v1(&self) -> FormalActualSeedV1 {
+        match self {
+            Self::Forward { origin, .. } => FormalActualSeedV1::Forward(*origin),
+            Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class(source.fresh_class().into()), anchor.project_source_object_v1(),
+            ])),
+            _ => self.project_source_integer_v1(false),
+        }
+    }
     fn project_source_integer_v1(&self, current_i64: bool) -> FormalActualSeedV1 {
         match self {
+            Self::ReturnedField(source) => Self::returned_field_domain_v1(source),
+            Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class(source.fresh_class().into()),
+                anchor.project_source_integer_v1(current_i64),
+            ])),
             Self::Forward { origin, declared_constraint: Some(_) } => FormalActualSeedV1::Forward(*origin),
             Self::Forward { origin, declared_constraint: None } => FormalActualSeedV1::ForwardIntegerOnly(*origin),
             Self::Integer => FormalActualSeedV1::Integer,
             Self::SourceInteger => if current_i64 { FormalActualSeedV1::Conflict } else { FormalActualSeedV1::Integer },
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::Conflict => FormalActualSeedV1::Conflict,
+            Self::Conflict | Self::ProviderStatic(_) => FormalActualSeedV1::Conflict,
         }
     }
 
@@ -256,10 +312,15 @@ impl OriginalFormalActualSeedV1 {
         transport_owners: Option<&BTreeSet<FunctionOwnerIdV1>>,
     ) -> FormalActualSeedV1 {
         match self {
+            Self::ReturnedField(source) => Self::returned_field_domain_v1(source),
+            Self::Mixed { source, anchor } => FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class(source.fresh_class().into()),
+                anchor.project_selected_v1(caller, transport_owners),
+            ])),
             Self::Integer | Self::SourceInteger => FormalActualSeedV1::Integer,
             Self::Class(class) => FormalActualSeedV1::Class(class.clone()),
             Self::Null => FormalActualSeedV1::Null,
-            Self::Conflict => FormalActualSeedV1::Conflict,
+            Self::Conflict | Self::ProviderStatic(_) => FormalActualSeedV1::Conflict,
             Self::Forward { origin, declared_constraint } => {
                 let outside = transport_owners.is_some_and(|owners| !owners.contains(&caller));
                 match (outside, declared_constraint) {
@@ -289,7 +350,7 @@ fn classify_actual_seed_in_scope(
 ) -> FormalActualSeedV1 {
     classify_original_actual_seed_in_scope(
         input, batch, selected, callable_result_classes, caller, candidates,
-        receiver, definitions, contracts, site, guarded,
+        receiver, definitions, contracts, site, guarded, None,
     ).project_selected_v1(caller, transport_owners)
 }
 
@@ -306,6 +367,27 @@ fn classify_original_actual_seed_in_scope(
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     site: &SourceExprSiteV1,
     guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
+    inventory: Option<&BorrowedIncomingInventoryV1>,
+) -> OriginalFormalActualSeedV1 {
+    classify_original_actual_seed_with_seen_v1(input, batch, selected, callable_result_classes,
+        caller, candidates, receiver, definitions, contracts, site, guarded, inventory, &BTreeSet::new())
+}
+
+#[allow(clippy::too_many_arguments)]
+fn classify_original_actual_seed_with_seen_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    batch: &VerifiedResolvedCallableSemanticBatchV1,
+    selected: &VerifiedSelectedCallableBatchMapV1,
+    callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+    caller: FunctionOwnerIdV1,
+    candidates: &[super::super::candidate::OrdinaryNewCandidate],
+    receiver: Option<(BindingRefV1, &crate::parser::ParserOrdinaryBoxSourceRowV1)>,
+    definitions: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
+    site: &SourceExprSiteV1,
+    guarded: Option<(&BorrowedGuardedActualV1, &OwnedExprSiteV1, u32)>,
+    inventory: Option<&BorrowedIncomingInventoryV1>,
+    inherited: &BTreeSet<BindingRefV1>,
 ) -> OriginalFormalActualSeedV1 {
     if let Some((fact, call, ordinal)) = guarded {
         return if fact.corroborates(input, call, ordinal, site) {
@@ -340,7 +422,7 @@ fn classify_original_actual_seed_in_scope(
             .any(|row| row.binding == binding && matches!(row.kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()))
         { OriginalFormalActualSeedV1::Integer } else { OriginalFormalActualSeedV1::SourceInteger };
     }
-    let mut visited = BTreeSet::new();
+    let mut visited = inherited.clone();
     loop {
         if binding.owner() != caller || !visited.insert(binding) {
             return OriginalFormalActualSeedV1::Conflict;
@@ -366,11 +448,18 @@ fn classify_original_actual_seed_in_scope(
                 batch,
                 callable_result_classes,
                 candidates,
-                input,
+                input, receiver,
                 binding,
             )
         {
             return OriginalFormalActualSeedV1::Class(class);
+        }
+        if let Some(inventory) = inventory {
+            if let Some(seed) = source_seeds::classify_mixed_actual_seed_v1(input, batch, selected,
+                callable_result_classes, caller, candidates, receiver, definitions, contracts,
+                binding, inventory, &visited) {
+                return seed;
+            }
         }
         if let Some(formal) = definitions
             .get(&caller)
@@ -452,23 +541,37 @@ fn object_view_for(
         .ok()
         .flatten()?;
     instance_constructors
-        .with_source_object_definition(row, |object, _| object)
-        .ok()
-        .map(|object| BorrowedFormalObjectViewV1 {
-            class: class.into(),
-            object,
-            declared: false,
+        .with_source_object_definition(row, |object, definition| {
+            let mut scalar_fields = BTreeMap::new();
+            for (ordinal, declaration) in definition.fields().iter().enumerate() {
+                let Some(ty) = declaration.declared_type_name.as_deref() else { continue; };
+                if declaration.is_weak || !crate::mir::numeric_substrate::is_numeric_integer_type_name(ty)
+                    || definition.fields().iter().filter(|field| field.name == declaration.name).count() != 1
+                { continue; }
+                let field = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(object, ordinal)?;
+                scalar_fields.insert(declaration.name.clone().into_boxed_str(),
+                    crate::mir::normal_callable_semantic_package::LocalFieldReadSourceV1::from_declaration(
+                        field, crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar,
+                        ty.into()));
+            }
+            Some(BorrowedFormalObjectViewV1 {
+                class: class.into(), object, scalar_fields: Rc::new(scalar_fields), declared: false,
+            })
         })
+        .ok().flatten()
 }
 
 impl PreparedBorrowedFormalIngressV1 {
-    /// The co-sealed object view for one callee formal: `Some` only when
-    /// every incoming actual agreed on one ordinary class.
+    /// Existing physical consumers borrow only the admitted transport view.
+    /// A retained source-only class cannot activate an entry or field read.
     pub(in crate::mir::normal_callable_semantic_package) fn formal_object_view(
         &self,
         formal: BindingRefV1,
     ) -> Option<&BorrowedFormalObjectViewV1> {
-        self.object_views.get(&formal)
+        self.definitions
+            .contains_key(&formal.owner())
+            .then(|| self.object_views.get(&formal))
+            .flatten()
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn incoming_calls_for_owner(
@@ -476,10 +579,23 @@ impl PreparedBorrowedFormalIngressV1 {
         owner: FunctionOwnerIdV1,
     ) -> bool {
         self.incoming.iter().any(|row| row.call.owner() == owner)
+            || self.source_incoming.exact_rows().any(|row|
+                row.call.owner() == owner
+                    && self.scalar_qualified_source_call_v1(&row.call).is_ok_and(|row| row.is_some()))
             || self.source_incoming.exact_rows().any(|row| {
                 row.call.owner() == owner
                     && row.source.instance().is_some_and(|target| {
                         self.source_incoming.has_object_input_callee_v1(target)
+                            || self
+                                .source_only_definitions
+                                .get(&owner)
+                                .is_some_and(|draft| {
+                                    draft.uses.iter().any(|use_| {
+                                        matches!(&use_.kind,
+                                    BorrowedFormalUseDraftKindV1::UnresolvedArgument { call, .. }
+                                        if call == &row.call)
+                                    })
+                                })
                     })
             })
             || self

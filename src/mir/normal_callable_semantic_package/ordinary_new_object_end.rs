@@ -2,9 +2,27 @@
 //! Callers retain source/destruction/availability authority and attach their
 //! own original release subjects. This projection creates no Home or receipt.
 use super::{OwnedFieldChildKindV1, OwnedFieldChildV1};
-use crate::mir::instruction::InvokeOperation;
+use crate::mir::instruction::{InvokeOperation, ObjectEndStepV1};
 use crate::mir::ValueId;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
+
+/// One ordered projection for ordinary and conditional complete End. The
+/// conditional owner retains this body, never reconstructing it from layout.
+pub(super) fn steps_v1(
+    children: &[OwnedFieldChildV1],
+) -> impl Iterator<Item = ObjectEndStepV1> + '_ {
+    children
+        .iter()
+        .rev()
+        .map(|child| match child.kind {
+            OwnedFieldChildKindV1::Array => ObjectEndStepV1::ArrayField { field: child.field },
+            OwnedFieldChildKindV1::Object(object) => ObjectEndStepV1::ObjectField {
+                field: child.field,
+                child: object,
+            },
+        })
+        .chain(std::iter::once(ObjectEndStepV1::ReleaseOuter))
+}
 
 pub(super) fn operations_v1(
     object: CanonicalObjectIdV1,
@@ -12,20 +30,26 @@ pub(super) fn operations_v1(
     children: &[OwnedFieldChildV1],
     value: ValueId,
 ) -> impl Iterator<Item = (Option<CanonicalFieldRefV1>, InvokeOperation)> + '_ {
-    let release = if nullable {
-        InvokeOperation::HomeReleaseIfLive { object, value }
-    } else {
-        InvokeOperation::HomeRelease { object, value }
-    };
-    children.iter().rev().map(move |child| {
-        let operation = match child.kind {
-            OwnedFieldChildKindV1::Array => InvokeOperation::OwnedFieldResidenceRelease {
-                field: child.field, base: value,
+    steps_v1(children).map(move |step| match step {
+        ObjectEndStepV1::ArrayField { field } => (
+            Some(field),
+            InvokeOperation::OwnedFieldResidenceRelease { field, base: value },
+        ),
+        ObjectEndStepV1::ObjectField { field, child } => (
+            Some(field),
+            InvokeOperation::OwnedObjectFieldRelease {
+                field,
+                base: value,
+                child,
             },
-            OwnedFieldChildKindV1::Object(object) => InvokeOperation::OwnedObjectFieldRelease {
-                field: child.field, base: value, child: object,
+        ),
+        ObjectEndStepV1::ReleaseOuter => (
+            None,
+            if nullable {
+                InvokeOperation::HomeReleaseIfLive { object, value }
+            } else {
+                InvokeOperation::HomeRelease { object, value }
             },
-        };
-        (Some(child.field), operation)
-    }).chain(std::iter::once((None, release)))
+        ),
+    })
 }

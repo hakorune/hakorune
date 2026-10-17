@@ -65,6 +65,68 @@ fn received_normal_homes(
 }
 
 impl OrdinaryNewClaimLedgerV1 {
+    /// Borrow the original non-owning LOCAL return relation. This source view
+    /// never issues a result value, Home, transfer, or executable Call packet.
+    pub(in crate::mir::normal_callable_semantic_package) fn checked_borrowed_nullable_return_source_v1(
+        &self,
+        owner: FunctionOwnerIdV1,
+        exit: &SourceStmtSiteV1,
+    ) -> Result<
+        Option<&crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+        String,
+    > {
+        let Some(TerminalRelationV1::Value(value)) =
+            self.terminal_relation_for_owner_at(owner, exit)
+        else {
+            return Ok(None);
+        };
+        let TerminalReturnedSourceV1::BorrowedNullableLocal(loan) = value.returned() else {
+            return Ok(None);
+        };
+        let Some(completion) = self.completion_index.get(&owner) else {
+            return Ok(None);
+        };
+        let completion = completion
+            .as_ref()
+            .map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-local-completion")))?;
+        let Some(original) = completion
+            .cleanup()
+            .root_flow()
+            .and_then(|flow| flow.exit_row(exit))
+        else {
+            return Ok(None);
+        };
+        let original =
+            original.map_err(|issue| format!("{}: {issue:?}", freeze("borrowed-local-exit")))?;
+        let observation = self
+            .local_call_for_owner(owner, loan.call().site())
+            .ok_or_else(|| freeze("borrowed-local-observation-missing"))?;
+        if completion.owner() != owner || !completion.explicit_sites().contains(exit)
+            || value.owner() != owner || value.return_site() != exit
+            || value.value_site().node() != &crate::mir::resolved_semantics::SourcePathV1::from_node(exit.node()).child(
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Value).node()
+            || loan.call().owner() != owner || loan.root().owner() != owner
+            || loan.destination().owner() != owner || loan.destination() == loan.root()
+            || observation.site() != loan.call()
+            || observation.borrowed_nullable() != Some(loan.as_ref())
+            || observation.local_binding() != Some((loan.declaration(), loan.destination()))
+            || observation.result() != crate::mir::resolved_semantics::home_new_prefix::LocalCallResultClassV1::BorrowedNullable
+            || !original.covered_calls().contains(loan.call())
+            || original.homes().contains(&loan.destination())
+            || self.normal_return_dispositions.as_ref().is_some_and(|rows|
+                rows.contains_key(&(owner, exit.clone()))) {
+            return Err(freeze("borrowed-local-source-identity"));
+        }
+        let roots = self
+            .callable_result_classes
+            .checked_original_source_roots_v1(loan.key(), loan.callee_owner())
+            .map_err(freeze)?;
+        self.callable_result_classes
+            .check_borrowed_nullable_roots_v1(loan, &roots)
+            .map_err(freeze)?;
+        Ok(Some(loan))
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn normal_exit_projection_v1(
         &self,
         owner: FunctionOwnerIdV1,
@@ -115,7 +177,22 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("projection-proof-identity"));
                 }
+                if !self.recheck_object_return_field_supports_v1(proof)? {
+                    return Ok(None);
+                }
                 project_normal_homes(obligation, original.homes())?
+            }
+            TerminalRelationV1::Value(value)
+                if matches!(
+                    value.returned(),
+                    TerminalReturnedSourceV1::BorrowedNullableLocal(_)
+                ) =>
+            {
+                self.checked_borrowed_nullable_return_source_v1(owner, exit)?
+                    .ok_or_else(|| freeze("borrowed-local-source-missing"))?;
+                // The result aliases the original formal. It was never a
+                // Home, so neither it nor any other Home is transferred here.
+                Cow::Borrowed(original.homes())
             }
             _ => {
                 if disposition.is_some() {

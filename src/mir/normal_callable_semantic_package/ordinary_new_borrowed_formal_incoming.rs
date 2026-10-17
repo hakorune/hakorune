@@ -54,6 +54,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         static_context,
         None,
         None,
+        None,
     )
 }
 
@@ -68,6 +69,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     static_context: Option<&StaticIncomingContextV1<'_>>,
     stored_dispatch: Option<&super::super::source::PreparedSourceNeedsV1>,
     constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
+    array_sources: Option<&super::super::borrowed_formal_source::OriginalArraySourcesV1>,
 ) -> Result<BorrowedIncomingInventoryV1, BorrowedIncomingDraftErrorV1> {
     let mut stored = BTreeMap::new();
     if let Some(prepared) = stored_dispatch {
@@ -82,10 +84,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 reference,
                 receiver,
                 result_requirement,
+                owning_object_input,
             }) = need
             {
                 if stored
-                    .insert(&reference.call_site, (reference, receiver, result_requirement))
+                    .insert(&reference.call_site, (reference, receiver, result_requirement, owning_object_input))
                     .is_some()
                 {
                     return Err(BorrowedIncomingDraftErrorV1::CallIdentity(
@@ -138,18 +141,30 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         }
         definitions.insert(*owner, (contract, key));
     }
-    // Qualified Object calls with typed inputs still need the same whole-batch
-    // caller census. Their empty opaque subset grants no borrowed entry/domain.
+    // Retained result obligations need the same raw caller census. A nullable
+    // borrowed LOCAL loan registers original declaration/call identity even when
+    // the callee use draft is unavailable; it grants no body/entry/input execution.
     // Index only the already-retained needs; the source scan still occurs once.
     // Stored result requirements register the same callee even without a use
     // draft, before an executable receiver can exist.
     let retained = calls.iter().map(|(site, target)|
-        (site, super::super::source::CallTargetReferenceV1::from_target(target), &target.result_requirement)
-    ).chain(stored.iter().filter(|(site, _)| !calls.contains_key(*site)).map(|(site, (reference, _, requirement))|
-        (*site, (*reference).clone(), *requirement)
+        (site, super::super::source::CallTargetReferenceV1::from_target(target), &target.result_requirement, target.owning_object_local_input_v1())
+    ).chain(stored.iter().filter(|(site, _)| !calls.contains_key(*site)).map(|(site, (reference, _, requirement, input))|
+        (*site, (*reference).clone(), *requirement, input.as_deref())
     ));
-    for (site, target, requirement) in retained {
-        if !requirement.has_object_source_requirement() {
+    for (site, target, requirement, local_input) in retained {
+        let nullable = requirement.borrowed_nullable_local_source();
+        let mixed = requirement.mixed_local_source();
+        let array_candidate = array_sources.is_some_and(|source| source.contains_candidate_v1(site));
+        // A real zero-input scalar call has no borrowed-formal use draft.
+        // Register its original declaration in THIS completed source census,
+        // without adding a transport definition or fabricating a use draft.
+        let empty_scalar_source = matches!(requirement, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::ExistingBorrowedResult
+            | crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::ScalarReturnSource(_)
+            | crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::LexicalCallSourceResultRequirementV1::UnitDiscardSource(_))
+            && target.target.arity() == 0 && target.argument_sites.is_empty();
+        if !requirement.has_object_source_requirement() && nullable.is_none() && mixed.is_none() && !empty_scalar_source
+            && !array_candidate && local_input.is_none() {
             continue;
         }
         let qualifications = requirement.object_return_sources();
@@ -165,6 +180,20 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         };
         if matching.next().is_some()
+            || local_input.is_some_and(|loan| loan.call() != site || loan.key() != &target.target
+                || loan.callee_owner() != contract.owner || loan.receiver() != Some(&target.receiver_site)
+                || loan.destination().owner() != site.owner() || !loan.matches_arguments_v1(&target.argument_sites))
+            || mixed.is_some_and(|loan| loan.call() != site || loan.key() != &target.target
+                || loan.receiver() != &target.receiver_site || loan.callee_owner() != contract.owner
+                || loan.destination().owner() != site.owner() || loan.support().owner() != site.owner())
+            || nullable.is_some_and(|loan| {
+                loan.call() != site
+                    || loan.key() != &target.target
+                    || loan.receiver() != &target.receiver_site
+                    || loan.callee_owner() != contract.owner
+                    || loan.destination().owner() != site.owner()
+                    || loan.root().owner() != site.owner()
+            })
             || qualifications.is_some_and(|rows| {
                 rows.is_empty()
                     || rows
@@ -192,14 +221,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         {
             return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
         }
-        if contract
-            .parameters
-            .iter()
-            .any(|formal| formal.kind.is_ordinary_borrowed_handle())
+        if nullable.is_none() && !array_candidate && local_input.is_none()
+            && contract
+                .parameters
+                .iter()
+                .any(|formal| formal.kind.is_ordinary_borrowed_handle())
         {
             continue;
         }
-        if !contract.parameters.iter().all(|formal| matches!(formal.kind,
+        if !contract.parameters.iter().all(|formal| (nullable.is_some() || array_candidate || local_input.is_some()) && formal.kind.is_ordinary_borrowed_handle()
+            || matches!(formal.kind,
             crate::mir::callable_parameter_contract::CallableParameterContractKindV1::ExactTrivial(abi)
                 if abi == crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1::I64)) {
             continue;
@@ -244,24 +275,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let mut unsupported_static_context = std::collections::BTreeSet::new();
     let mut seen = std::collections::BTreeSet::new();
     let mut unvisited_omitted = omitted_static_callers.clone();
-    for declaration in batch.declarations() {
-        if omitted_static_callers.contains(&declaration.owner()) {
-            if declaration.mode()
-                != crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod
-                || selected.key_for_batch_slot(declaration.batch_slot()).is_some()
-                || !unvisited_omitted.remove(&declaration.owner())
-            {
-                return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
-            }
-            continue;
-        }
-        let loan = batch.with_lowering_input(declaration.batch_slot(), |input| {
+    use crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1;
+    let mut collect = |caller: OriginalCallSourceCallerV1<'_>, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>| -> Result<(), BorrowedIncomingDraftErrorV1> {
             for (site, call) in input.function().method_calls() {
                 let owned = OwnedExprSiteV1::new(input.owner(), site.clone());
+                caller.constructor_key_for_call(&owned, call)
+                    .map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()))?;
                 static_seen.insert(owned.clone());
                 if let Some(context) = static_context {
                     if let Some(row) = context.observe(
-                        declaration.batch_slot(),
+                        caller,
                         &owned,
                         call,
                         selected,
@@ -278,8 +301,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     }
                 }
                 let instance = calls.get(&owned);
-                let stored_target = if let Some((reference, receiver, _)) = stored.get(&owned) {
-                    corroborate_stored_dispatch_v1(input, call, reference, receiver, selected, contracts)?;
+                let stored_target = if let Some((reference, receiver, _, _)) = stored.get(&owned) {
+                    corroborate_stored_dispatch_v1(caller, input, call, reference, receiver, selected, contracts)?;
                     if instance.is_some_and(|row| super::super::source::CallTargetReferenceV1::from_target(row) != **reference) {
                         return Err(BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()));
                     }
@@ -322,15 +345,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                                 continue;
                             }
                             // Passive dispatch excludes only a proved different callee.
-                            // The same callee still requires its executable receiver.
+                            // The same callee retains a Pending original source row;
+                            // selected projection still requires its real issued receiver.
                             if stored_target.is_some_and(|target| target != *key) {
                                 continue;
                             }
-                            if let Some((reference, receiver, result)) = stored.get(&owned) {
+                            if let Some((reference, receiver, result, input)) = stored.get(&owned) {
                                 Some(BorrowedIncomingSourceV1::pending_stored_v1(
                                     batch,
                                     constructors.ok_or(BorrowedIncomingDraftErrorV1::SourceIdentity)?,
-                                    reference, receiver, result,
+                                    reference, receiver, result, (*input).clone(),
                                 ).map_err(|_| BorrowedIncomingDraftErrorV1::CallIdentity(owned.clone()))?)
                             } else {
                                 instance.map(|row| BorrowedIncomingSourceV1::Instance((*row).clone()))
@@ -381,7 +405,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                     if exact.target() != *key {
                         continue;
                     }
-                    if !ordinary_callers.contains(&input.owner()) {
+                    if caller.declaration_slot().is_some() && !ordinary_callers.contains(&input.owner()) {
                         observations.push((
                             Some(*callee),
                             Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(
@@ -420,6 +444,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             BorrowedIncomingSourceV1::Static(original)
                                 if original.is_current_owner_bool_source_v1())
                             && exact_bool_value_return_site_v1(input, site);
+                        // A provider argument is real source incoming, but
+                        // the existing provider scalar ABI is not a LOCAL
+                        // borrowed-transport capability. Decline the whole
+                        // generic cohort, retaining every source observation.
                         if !input.function().expression_source().initializers().any(|initializer|
                             initializer.initializer_site() == Some(site)) && !exact_bool_return {
                             unsupported_static_context.insert(*callee);
@@ -452,13 +480,29 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 }
             }
             Ok(())
-        });
+    };
+    for declaration in batch.declarations() {
+        if omitted_static_callers.contains(&declaration.owner()) {
+            if declaration.mode()
+                != crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1::StaticBoxMethod
+                || selected.key_for_batch_slot(declaration.batch_slot()).is_some()
+                || !unvisited_omitted.remove(&declaration.owner())
+            {
+                return Err(BorrowedIncomingDraftErrorV1::SourceIdentity);
+            }
+            continue;
+        }
+        let loan = batch.with_lowering_input(declaration.batch_slot(), |input|
+            collect(OriginalCallSourceCallerV1::Declaration { batch_slot: declaration.batch_slot() }, input));
         match loan {
             Ok(result) => result?,
-            Err(_) => {
-                observations.push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan)));
-                break;
-            }
+            Err(_) => return Err(BorrowedIncomingDraftErrorV1::BatchLoan),
+        }
+    }
+    if let Some(constructors) = constructors {
+        for row in constructors.rows().iter().filter(|row| row.kind() == crate::parser::ConstructorSourceKindV1::Birth) {
+            let input = row.lowering_input(batch.source_ast()).map_err(|_| BorrowedIncomingDraftErrorV1::BatchLoan)?;
+            collect(OriginalCallSourceCallerV1::Constructor { row, input }, input)?;
         }
     }
     if !unvisited_omitted.is_empty() {
@@ -502,6 +546,7 @@ mod static_capability_tests;
 /// Check original passive field dispatch against the exact source call.
 /// This issues no receiver inventory, incoming actual or physical permission.
 fn corroborate_stored_dispatch_v1(
+    caller: crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'_>,
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     call: &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     reference: &super::super::source::CallTargetReferenceV1,
@@ -530,10 +575,6 @@ fn corroborate_stored_dispatch_v1(
                     && actual.site() == &reference.argument_sites[ordinal]
             })
         || receiver.parent_binding.owner() != input.owner()
-        || input
-            .function()
-            .binding(receiver.parent_binding)
-            .is_none_or(|row| row.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver)
     {
         return Err(invalid());
     }
@@ -541,12 +582,19 @@ fn corroborate_stored_dispatch_v1(
     if !matches!(shape.expression_shape(&reference.receiver_site),
         Some(BodyExpressionShapeV1::FieldAccess { object, field, .. })
             if object == &receiver.parent_site && field == &receiver.field_name)
-        || !matches!(shape.expression_shape(&receiver.parent_site),
-            Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
-                if binding == &receiver.parent_binding)
     {
         return Err(invalid());
     }
+    let local_new = match caller.declaration_slot() {
+        Some(slot) => receiver.local_new_root_in_input_v1(input, slot).map_err(|_| invalid())?.is_some(),
+        None if receiver.parent_new.is_some() => return Err(invalid()),
+        None => false,
+    };
+    if !local_new && (input.function().binding(receiver.parent_binding)
+            .is_none_or(|row| row.kind() != crate::mir::resolved_semantics::BindingKindV1::Receiver)
+        || !matches!(shape.expression_shape(&receiver.parent_site),
+            Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(binding), .. })
+                if binding == &receiver.parent_binding)) { return Err(invalid()); }
     let mut targets = contracts
         .iter()
         .filter(|row| row.owner == reference.callee_owner);
@@ -561,11 +609,26 @@ fn corroborate_stored_dispatch_v1(
     if targets.next().is_some()
         || !matches!(selected.key_for_batch_slot(target.batch_slot),
             Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) if key == &reference.target)
-        || !contracts.iter().any(|row| row.owner == input.owner()
-            && matches!(selected.key_for_batch_slot(row.batch_slot),
-                Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
-                    if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
-                        && key.owner() == receiver.parent_class.as_ref()))
+        || match caller {
+            crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Declaration { batch_slot } =>
+                !matches!(receiver.origin, super::super::source::StoredReceiverSourceOriginV1::Ordinary)
+                || !contracts.iter().any(|row| row.owner == input.owner() && row.batch_slot == batch_slot
+                    && (local_new || matches!(selected.key_for_batch_slot(row.batch_slot),
+                        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key))
+                            if key.namespace() == hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+                                && key.owner() == receiver.parent_class.as_ref()))),
+            crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1::Constructor { row, .. } => {
+                let key = caller.constructor_key_for_call(&reference.call_site, call).map_err(|_| invalid())?.ok_or_else(invalid)?;
+                let super::super::source::StoredReceiverSourceOriginV1::Constructor(loan) = &receiver.origin else { return Err(invalid()); };
+                key.owner() != receiver.parent_class.as_ref()
+                    || !row.construction_source().as_ref().is_ok_and(|source| std::rc::Rc::ptr_eq(source, loan.source()))
+                    || loan.call().site() != &reference.call_site
+                    || loan.call().receiver_site() != &reference.receiver_site
+                    || loan.call().receiver_binding() != receiver.parent_binding
+                    || loan.call().class() != receiver.child_class.as_ref()
+                    || loan.call().arguments() != reference.argument_sites.as_ref()
+            }
+        }
     { return Err(invalid()); }
     Ok(())
 }

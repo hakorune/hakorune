@@ -1,5 +1,6 @@
 //! The existing physical packet retains its original source and affine owner.
 //! Static calls own the original publication handoff, never an instance row.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationHandoffV1;
 use crate::mir::normal_callable_semantic_package::qualified_static_call_claim::incoming_source::StaticIncomingSourceV1;
@@ -306,8 +307,15 @@ impl<'a> CallPacketSourceLoanV1<'a> {
         Option<&'ledger [crate::mir::normal_callable_semantic_package::PreparedBorrowedFormalActualV1]>,
         String,
     >{
+        self.borrowed_actuals_in_context(CallValidationContextV1::Lowering(ledger))
+    }
+
+    pub(in crate::mir) fn borrowed_actuals_in_context<'ledger>(
+        self, context: CallValidationContextV1<'ledger>,
+    ) -> Result<Option<&'ledger [crate::mir::normal_callable_semantic_package::PreparedBorrowedFormalActualV1]>, String> {
+        let ledger = context.ledger();
         match self {
-            Self::Instance(row) => ledger.borrowed_call_actuals_v1(row),
+            Self::Instance(row) => ledger.borrowed_call_actuals_using_v1(row, context),
             Self::Static { original, .. } => {
                 self.validate_static(ledger)?;
                 ledger.borrowed_static_packet_actuals_v1(original)
@@ -317,4 +325,23 @@ impl<'a> CallPacketSourceLoanV1<'a> {
             }
         }
     }
+}
+
+impl EmittedLexicalCallProjectionV1 {
+    /// Structural loan only. Lookup must not recursively re-enter result
+    /// validation while that result is rechecking its borrowed support.
+    pub(in crate::mir::normal_callable_semantic_package) fn retained_node_at_v1(
+        &self, site: &OwnedExprSiteV1,
+    ) -> Result<Option<&Self>, String> {
+        let mut found = (self.call_site() == site).then_some(self);
+        for argument in &self.prepared.arguments {
+            if let LexicalCallArgumentProjectionV1::CallResult(inner) = argument {
+                if let Some(packet) = inner.retained_node_at_v1(site)? {
+                    if found.replace(packet).is_some() { return Err(freeze("call-validation/duplicate-source-node")); }
+                }
+            }
+        }
+        Ok(found)
+    }
+
 }

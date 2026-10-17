@@ -13,15 +13,15 @@ use crate::mir::resolved_semantics::home_new_prefix::{
 use crate::mir::resolved_semantics::OwnedExprSiteV1;
 
 #[derive(Debug)]
-pub(super) struct VerifiedObjectReturnSourceAcquisitionV1 {
+pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct VerifiedObjectReturnSourceAcquisitionV1 {
     original: TerminalObjectReturnObligationV1,
     arguments: Box<[LocalCallArgumentV1]>,
 }
 impl VerifiedObjectReturnSourceAcquisitionV1 {
-    pub(super) fn original(&self) -> &TerminalObjectReturnObligationV1 {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn original(&self) -> &TerminalObjectReturnObligationV1 {
         &self.original
     }
-    pub(super) fn arguments(&self) -> &[LocalCallArgumentV1] {
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn arguments(&self) -> &[LocalCallArgumentV1] {
         &self.arguments
     }
 }
@@ -164,7 +164,9 @@ impl OrdinaryNewClaimLedgerV1 {
                         || receiver.class() != loan.class()
                         || receiver.destination() != binding
                         || receiver.arguments().len() != arguments.len()
-                        || !acquisition.arguments().is_empty()
+                        || if target.owning_object_local_input_v1().is_some() {
+                            acquisition.arguments() != arguments
+                        } else { !acquisition.arguments().is_empty() }
                     {
                         return Err(freeze("receiver-identity"));
                     }

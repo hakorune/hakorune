@@ -42,7 +42,7 @@ impl OrdinaryNewClaimLedgerV1 {
         site: &SourceStmtSiteV1,
     ) -> bool {
         matches!(
-            self.root_exits.borrow().get(&(owner, site.clone())),
+            self.root_exits.borrow().get(&(owner, site.clone().into())),
             Some(RootHomeExitProgress::Emitted {
                 entry: RootHomeExitEntry::MapGet { .. },
                 ..
@@ -60,7 +60,7 @@ impl OrdinaryNewClaimLedgerV1 {
         exit: &SourceStmtSiteV1,
         function: &MirFunction,
         finishing: Option<&super::super::physical_boundary::FinishedBindings>,
-        local_bindings: &[super::super::RootLocalCallBindingGroupV1],
+        local_bindings: &[super::super::RootLifecyclePrefixBindingGroupV1],
         invoke: &(BasicBlockId, MirInstruction),
         projection: &(BasicBlockId, MirInstruction),
         frame: &(BasicBlockId, MirInstruction),

@@ -17,7 +17,9 @@ mod tests;
 use crate::mir::{MirFunction, MirModule, ValueId};
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
-/// Draft-validated physical producers retained only as DCE liveness roots.
+/// Draft-validated source-consumed producer roots. DCE retains their liveness;
+/// semantic simplification also preserves their operand dependency identities.
+/// These physical constraints never issue source or backend permission.
 pub(in crate::mir) type RequiredLivenessRoots = BTreeMap<String, BTreeSet<ValueId>>;
 
 #[derive(Clone, Default)]

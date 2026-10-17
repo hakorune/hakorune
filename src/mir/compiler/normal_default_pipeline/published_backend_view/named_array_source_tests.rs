@@ -308,7 +308,7 @@ fn provider_construction_store_reaches_artifact_lane() {
                     assert_eq!(view.validated_named_arrays()?.len(), 4);
                     let writes = view.module().functions.values().flat_map(|f| f.blocks.values())
                         .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
-                            MirInstruction::ArrayElementWrite { kind: ArrayElementWriteKind::Push, dst: None, index: None, .. })).count();
+                            MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ArrayElementWrite { kind: ArrayElementWriteKind::Push, index: None, .. }, .. })).count();
                     assert_eq!(writes, 4);
                     let provider_allocations: usize = view.module().functions.values()
                         .map(|f| f.metadata.named_array_field_allocations.len()).sum();
@@ -320,6 +320,75 @@ fn provider_construction_store_reaches_artifact_lane() {
                         .flat_map(|b| b.all_instructions()).filter(|i| matches!(i,
                             MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::FieldSet { .. }, .. })).count();
                     assert_eq!(field_sets, 6, "generated stores are plan FieldSets");
+                    let participants = view.retained_borrowed_participants_v1()?;
+                    let (seed, kind) = participants.iter().find(|(key, _)| key.mir_symbol_projection() == "Holder.seed/0")
+                        .expect("original field-loop owner is a validation participant");
+                    assert_eq!(*kind, crate::mir::instruction::InvokeCallResultKind::Unit);
+                    for row in view.module().functions.values().flat_map(|f| f.blocks.values()).flat_map(|b| b.all_instructions()) {
+                        if let Some((call, _)) = super::physical_program::ordinary_call_site_v1(row) {
+                            assert_ne!(&super::physical_program::ordinary_callable_key(&call.callee)?, seed,
+                                "validation membership must not invent a seed Call");
+                        }
+                    }
+                    let source = view.retained_root_source().expect("original field source");
+                    let seed_function = &view.module().functions["Holder.seed/0"];
+                    let append_bindings = source.finished_field_array_appends_v1(
+                        view.module(), seed_function, view.validated_named_arrays()?)?;
+                    assert_eq!(append_bindings.len(), 4);
+                    let first = &append_bindings[0];
+                    for mutation in 0..8 {
+                        let mut changed = view.module().clone();
+                        let body = changed.functions.get_mut("Holder.seed/0").unwrap()
+                            .blocks.get_mut(&first.0).unwrap();
+                        let row = if body.terminator.as_ref() == Some(&first.1) {
+                            body.terminator.as_mut().unwrap()
+                        } else {
+                            body.instructions.iter_mut().find(|row| **row == first.1).unwrap()
+                        };
+                        let MirInstruction::Invoke { operation, fault_frame, normal_landing, fault_landing } = row else { panic!("checked append Invoke") };
+                        let crate::mir::instruction::InvokeOperation::ArrayElementWrite {
+                            site_id, kind, producer, receiver, value, ..
+                        } = operation else { panic!("same source append") };
+                        match mutation {
+                            0 => *value = crate::mir::ValueId::new(u32::MAX - 1),
+                            1 => *receiver = crate::mir::ValueId::new(u32::MAX - 2),
+                            2 => *kind = ArrayElementWriteKind::LiteralAppend,
+                            3 => *producer = crate::mir::ArrayWriteProducerKind::Literal,
+                            4 => *site_id = crate::mir::ArrayWriteSiteId(u32::MAX),
+                            5 => *fault_frame = crate::mir::ValueId::new(u32::MAX - 3),
+                            6 => *normal_landing = crate::mir::BasicBlockId(u32::MAX - 1),
+                            7 => *fault_landing = crate::mir::BasicBlockId(u32::MAX - 2),
+                            _ => unreachable!(),
+                        }
+                        assert!(source.finished_field_array_appends_v1(&changed,
+                            &changed.functions["Holder.seed/0"], view.validated_named_arrays()?).is_err(),
+                            "independent physical append drift {mutation}");
+                    }
+                    let program = view.issue_lifecycle_physical_program()?;
+                    let selected: Vec<_> = program.functions().iter()
+                        .filter(|function| function.role().ordinary_target() == Some(seed)).collect();
+                    assert_eq!(selected.len(), 1);
+                    assert_eq!(selected[0].role().ordinary_result(), Some(crate::mir::instruction::InvokeCallResultKind::Unit));
+                    let input = view.issue_lifecycle_physical_abi_input()?;
+                    assert_eq!(input.entry().array_writes().len(), 4);
+                    let mut coordinates = std::collections::BTreeSet::new();
+                    for row in input.entry().array_writes() {
+                        assert_eq!(row.kind, super::compiled_entry_contract::CompiledEntryArrayValueKindV1::I64);
+                        assert!(coordinates.insert((row.function_index, row.block, row.instruction_index)));
+                        assert_eq!(input.program().functions()[row.function_index as usize].name(), "Holder.seed/0");
+                    }
+                    let json = super::emit_lifecycle_physical_abi_json(&input)?;
+                    let value: serde_json::Value = serde_json::from_str(&json).unwrap();
+                    fn count_append(value: &serde_json::Value) -> usize {
+                        match value {
+                            serde_json::Value::Object(map) => usize::from(map.get("kind").and_then(|v| v.as_str()) == Some("array_append"))
+                                + map.values().map(count_append).sum::<usize>(),
+                            serde_json::Value::Array(values) => values.iter().map(count_append).sum(),
+                            _ => 0,
+                        }
+                    }
+                    assert_eq!(count_append(&value), 4);
+                    std::fs::write(std::env::temp_dir().join(format!("hako-issued-field-array-append-v1-{optimize}.json")), json).unwrap();
                     Ok(())
                 },
             ).unwrap_or_else(|error| panic!("optimize={optimize}: {error:?}"));

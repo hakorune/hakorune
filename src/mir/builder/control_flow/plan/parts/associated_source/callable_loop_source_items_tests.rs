@@ -272,6 +272,30 @@ fn source_item_lowers_a_return_exit_leaf() {
     assert!(plans
         .iter()
         .any(|plan| matches!(plan, CorePlan::Exit(CoreExitPlan::Return(Some(_))))));
+
+    // The same source value owner retains Literal/Variable/Add output without
+    // rereading a consumed variable or mutating another speculative projection.
+    let (ledger, body) = real_ledger("function t(i) { return i + (1 + i) }");
+    let port = CallableLoopSourceExpressionPortV1::new(&ledger, None);
+    let root = port.body(&body, &function_body_source()).unwrap();
+    let statement = port.body_stmt(&root, 0).unwrap();
+    let input = port.child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue).unwrap();
+    let (mut builder, parameter) = core_method_test_builder(&ledger);
+    builder.function_state.type_ctx.set_type(parameter, MirType::Integer);
+    let (value, effects, output) = PlanNormalizer::lower_value_input_with_source_output(
+        &port, input.clone(), &mut builder, &BTreeMap::new()).unwrap();
+    assert!(matches!(effects.as_slice(), [CoreEffectPlan::Const { .. },
+        CoreEffectPlan::BinOp { .. }, CoreEffectPlan::BinOp { .. }]));
+    let original = crate::mir::builder::control_flow::plan::normalizer::helpers_value::SourceValueProjectionV1::from_output(output.unwrap());
+    assert_eq!(original.root_value(), value);
+    assert_eq!(original.projected_values().count(), 4, "both source reads retain the same reaching parameter");
+    assert!(original.projected_values().any(|value| value == parameter));
+    let before: Vec<_> = original.projected_values().collect();
+    let speculative = original.clone();
+    assert_eq!(speculative.projected_values().collect::<Vec<_>>(), before);
+    assert_eq!(original.projected_values().collect::<Vec<_>>(), before);
+    assert!(PlanNormalizer::lower_value_input_with_source_output(
+        &port, input, &mut builder, &BTreeMap::new()).unwrap_err().contains("duplicate-variable-consumption"));
 }
 
 #[test]

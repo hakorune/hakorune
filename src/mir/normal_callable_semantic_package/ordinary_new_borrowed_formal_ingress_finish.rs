@@ -4,6 +4,7 @@ use super::*;
 
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn prepare_original_incoming_v1(
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     omitted: &BTreeSet<FunctionOwnerIdV1>,
@@ -23,12 +24,41 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     local_candidates: &BTreeMap<u32, Result<Vec<super::super::super::candidate::OrdinaryNewCandidate>, super::super::super::OrdinaryNewCoSealIssueV1>>,
     callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     guarded_actuals: &BTreeMap<(OwnedExprSiteV1, u32), BorrowedGuardedActualV1>,
+    array_i64_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
 ) -> Result<source_seeds::OriginalBorrowedFormalSourceV1, String> {
     let context = static_claims.map(|claims| StaticIncomingContextV1 {
         claims,
         arguments: static_arguments,
         main: app_main,
     });
+    // Borrow original argument sites from both retained lexical and Stored
+    // references. Only original borrowed formal ordinals select this family.
+    let mut arguments = BTreeSet::new();
+    let mut retain_arguments = |reference: super::super::source::CallTargetReferenceV1| -> Result<(), String> {
+        let mut matches = contracts.iter().filter(|row| row.owner == reference.callee_owner);
+        let contract = matches.next().ok_or_else(|| freeze("array-source/contract-missing"))?;
+        if matches.next().is_some() || contract.batch_slot != reference.target_batch_slot
+            || contract.parameters.len() != reference.argument_sites.len() {
+            return Err(freeze("array-source/contract-identity"));
+        }
+        for (site, formal) in reference.argument_sites.iter().zip(&contract.parameters) {
+            if formal.kind.is_ordinary_borrowed_handle() {
+                arguments.insert(OwnedExprSiteV1::new(reference.call_site.owner(), site.clone()));
+            }
+        }
+        Ok(())
+    };
+    for target in calls.values() {
+        retain_arguments(super::super::source::CallTargetReferenceV1::from_target(target))?;
+    }
+    if let Some(prepared) = stored_dispatch {
+        for need in prepared.as_ref().map_err(Clone::clone)? {
+            if let Some(need) = need.as_ref().map_err(Clone::clone)? {
+                if need.stored().is_some() { retain_arguments(need.reference())?; }
+            }
+        }
+    }
+    let array_sources = array_source::collect_array_structure_sources_v1(brands, batch, constructors, arguments)?;
     let inventory = inventory_borrowed_incoming_with_stored_dispatch_v1(
         batch,
         selected,
@@ -40,18 +70,20 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         context.as_ref(),
         stored_dispatch,
         Some(constructors),
+        Some(&array_sources),
     )
     .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let seeds = source_seeds::prepare_original_formal_seeds_v1(
         batch, selected, entry_home_loans, constructors, callable_result_classes,
-        local_candidates, contracts, definitions, &inventory, guarded_actuals,
+        local_candidates, contracts, definitions, &inventory, guarded_actuals, static_claims, array_i64_fields,
     )?;
-    Ok(source_seeds::OriginalBorrowedFormalSourceV1 { inventory, seeds })
+    Ok(source_seeds::OriginalBorrowedFormalSourceV1 { inventory, seeds, array_sources })
 }
 
 /// Consume the original drafts once; never reconstruct them after profile selection.
 #[allow(clippy::too_many_arguments)]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn finish_ingress_from_drafts_v1(
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -85,12 +117,18 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         .iter()
         .filter(|row| {
             row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod
-                && definitions.contains_key(&row.owner)
+                && definitions.get(&row.owner).is_some_and(|draft| !draft.uses.iter().any(|use_|
+                    matches!(use_.kind, BorrowedFormalUseDraftKindV1::ConstructionChildArgument { .. }
+                        | BorrowedFormalUseDraftKindV1::BorrowedFormalReturn { .. }
+                        | BorrowedFormalUseDraftKindV1::FieldWriteReceiver { .. }
+                        | BorrowedFormalUseDraftKindV1::FieldWriteValue { .. }
+                        | BorrowedFormalUseDraftKindV1::ArrayElementFieldIndexValue { .. })))
         })
         .map(|row| row.owner)
         .collect();
-    let source_seeds::OriginalBorrowedFormalSourceV1 { mut inventory, seeds: original_formal_seeds } = original_inventory?;
-    inventory.finish_selected_calls_v1(&calls)
+    let source_seeds::OriginalBorrowedFormalSourceV1 { mut inventory, seeds: original_formal_seeds, mut array_sources } = original_inventory?;
+    inventory
+        .finish_selected_calls_v1(&calls)
         .map_err(|error| format!("{}: {error:?}", freeze("borrowed-formal/incoming-coverage")))?;
     let checked_static_inputs =
         checked_input::issue_checked_static_inputs_v1(contracts, &definitions, &static_arguments)?;
@@ -174,9 +212,17 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             transport_owners.remove(&owner);
         }
     }
-    let (mut object_views, integer_agreements, source_declared_mismatches) =
+    let original_arguments = inventory.exact_rows().flat_map(|row|
+        row.arguments.iter().map(move |(_, site, _)| OwnedExprSiteV1::new(row.call.owner(), site.clone()))
+    ).collect();
+    array_source::extend_array_structure_sources_v1(&mut array_sources, brands, batch, instance_constructors, original_arguments)?;
+    let array_sources = array_source::qualify_array_sources_v1(
+        array_sources, batch, instance_constructors, selected, callable_result_classes, &calls,
+    )?;
+    let (object_views, integer_agreements, source_declared_mismatches) =
         original_formal_seeds.selected_views_v1(
-            batch, instance_constructors, contracts, &transport_owners, &inventory,
+            &array_sources, batch, instance_constructors, contracts,
+            &transport_owners, &inventory,
         )?;
     let (definitions, source_only_definitions): (BTreeMap<_, _>, BTreeMap<_, _>) = definitions
         .into_iter()
@@ -194,10 +240,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     {
         return Err(freeze("borrowed-view/declared-object-class"));
     }
-    object_views.retain(|formal, _| transport_owners.contains(&formal.owner()));
-    let app_main_terminal_sites = observation::app_main_terminal_sites_v1(batch, app_main)?;
+    let static_terminal_sites = observation::static_terminal_sites_v1(batch, selected, contracts, app_main)?;
     Ok(PreparedBorrowedFormalIngressV1 {
-        app_main_terminal_sites,
+        static_terminal_sites,
         app_main_owner: contracts
             .iter()
             .find(|row| app_main.is_some_and(|main| main.matches_contract(row)))
@@ -210,6 +255,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         incoming,
         source_incoming: inventory,
         object_views,
+        array_sources,
+        source_declared_mismatches,
         integer_agreements,
         original_formal_seeds,
         checked_static_inputs,

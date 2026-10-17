@@ -32,6 +32,7 @@ impl<'module> PublishedMirBackendView<'module> {
             } else {
                 &[][..]
             };
+        let participants = self.retained_borrowed_participants_v1()?;
         let mut call_sets: std::collections::BTreeMap<&str, Vec<OrdinaryCallSite>> =
             std::collections::BTreeMap::new();
         let mut ordinary_sites: std::collections::BTreeMap<
@@ -52,6 +53,20 @@ impl<'module> PublishedMirBackendView<'module> {
                             .functions
                             .get(symbol)
                             .ok_or_else(|| fault("birth-function-missing"))?,
+                    );
+                }
+            }
+            for key in participants.keys() {
+                let symbol = self
+                    .module()
+                    .canonical_callable_definition_symbol(key)
+                    .ok_or_else(|| fault("ordinary-participant-definition-missing"))?;
+                if visited.insert(symbol) {
+                    pending.push_back(
+                        self.module()
+                            .functions
+                            .get(symbol)
+                            .ok_or_else(|| fault("ordinary-participant-function-missing"))?,
                     );
                 }
             }
@@ -119,7 +134,20 @@ impl<'module> PublishedMirBackendView<'module> {
                 .unwrap_or(&[]),
             Some(self),
         )?);
-        for (key, site) in &ordinary_sites {
+        let mut ordinary_results: std::collections::BTreeMap<_, _> = ordinary_sites
+            .iter()
+            .map(|(key, site)| (key.clone(), site.result))
+            .collect();
+        for (key, result) in &participants {
+            match ordinary_results.entry(key.clone()) {
+                std::collections::btree_map::Entry::Vacant(entry) => {
+                    entry.insert(*result);
+                }
+                std::collections::btree_map::Entry::Occupied(entry) if entry.get() == result => {}
+                _ => return Err(fault("ordinary-participant-result-drift")),
+            }
+        }
+        for (key, result) in &ordinary_results {
             let symbol = self
                 .module()
                 .canonical_callable_definition_symbol(key)
@@ -129,28 +157,72 @@ impl<'module> PublishedMirBackendView<'module> {
                 .functions
                 .get(symbol)
                 .ok_or_else(|| fault("ordinary-function-missing"))?;
-            let receiver = ordinary_call_receiver(&site.call.callee)?;
-            let expected_arity = site.call.args.len() + usize::from(receiver.is_some());
+            let object_returns = match result {
+                InvokeCallResultKind::Handle | InvokeCallResultKind::NullableHandle => Some(self.retained_root_source()
+                    .ok_or_else(|| fault("owned-result/source-missing"))?
+                    .owned_object_return_projections_v1(self.module(),
+                        handoff.callables().ok_or_else(|| fault("owned-result/completed-missing"))?, key, *result,
+                        handoff.birth_actuals().ok_or_else(|| fault("owned-result/birth-actuals-missing"))?)?.into_boxed_slice()),
+                InvokeCallResultKind::MixedHandle { .. } => Some(self.retained_root_source()
+                    .ok_or_else(|| fault("mixed-result/source-missing"))?
+                    .mixed_return_projections_v1(self.module(), key)?.into_boxed_slice()),
+                InvokeCallResultKind::BorrowedNullableHandle { .. } => Some(self.retained_root_source()
+                    .ok_or_else(|| fault("borrowed-result/source-missing"))?
+                    .borrowed_nullable_return_projections_v1(self.module(), key)?.into_boxed_slice()),
+                _ => None,
+            };
+            let has_receiver = key.namespace() == SameModuleCallableNamespaceV1::InstanceBoxMethod;
+            let expected_arity = key.arity() as usize + usize::from(has_receiver);
+            if let Some(site) = ordinary_sites.get(key) {
+                let receiver = ordinary_call_receiver(&site.call.callee)?;
+                if site.call.args.len() != key.arity() as usize
+                    || receiver.is_some() != has_receiver
+                {
+                    return Err(format!("{} key={key:?} result={result:?} call_arity={} expected_call_arity={} receiver={receiver:?} expected_receiver={has_receiver}",
+                        fault("ordinary-membership-drift"), site.call.args.len(), key.arity()));
+                }
+            }
             if function.signature.name != key.mir_symbol_projection()
                 || function.signature.params.len() != expected_arity
                 || !matches!(
-                    (site.result, &function.signature.return_type),
-                    (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
+                    (*result, &function.signature.return_type),
+                    (InvokeCallResultKind::Unit, crate::mir::MirType::Void)
+                        | (InvokeCallResultKind::I64, crate::mir::MirType::Integer)
+                        | (InvokeCallResultKind::Bool, crate::mir::MirType::Bool)
                         | (
                             InvokeCallResultKind::Map
                                 | InvokeCallResultKind::Handle
-                                | InvokeCallResultKind::NullableHandle,
+                                | InvokeCallResultKind::NullableHandle
+                                | InvokeCallResultKind::MixedHandle { .. }
+                                | InvokeCallResultKind::BorrowedNullableHandle { .. },
                             crate::mir::MirType::Box(_) | crate::mir::MirType::Unknown,
                         )
                 )
                 || !names.insert(symbol)
             {
-                return Err(fault("ordinary-membership-drift"));
+                return Err(format!("{} key={key:?} result={result:?} symbol={symbol} signature={:?} values={:?} expected_arity={expected_arity} duplicate={}",
+                    fault("ordinary-membership-drift"), function.signature, function.params, names.contains(symbol)));
             }
             let receiver_object = object_identity::ordinary_receiver_object(self.module(), key)?;
-            let role = match site.result {
+            let role = match result {
+                InvokeCallResultKind::BorrowedNullableHandle { formal_ordinal } =>
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBorrowedNullableHandle {
+                        key: key.clone(), receiver_object, formal_ordinal: *formal_ordinal,
+                        returns: object_returns.expect("same result branch projected original Returns"),
+                    },
+                InvokeCallResultKind::MixedHandle { formal_ordinal } =>
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryMixedHandle {
+                        key: key.clone(), receiver_object, formal_ordinal: *formal_ordinal,
+                        returns: object_returns.expect("same result branch projected original Returns"),
+                    },
                 InvokeCallResultKind::I64 => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryI64 {
+                        key: key.clone(),
+                        receiver_object,
+                    }
+                }
+                InvokeCallResultKind::Bool => {
+                    PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryBool {
                         key: key.clone(),
                         receiver_object,
                     }
@@ -165,17 +237,19 @@ impl<'module> PublishedMirBackendView<'module> {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryHandle {
                         key: key.clone(),
                         receiver_object,
+                        returns: object_returns.expect("same result branch projected original Returns"),
                     }
                 }
                 InvokeCallResultKind::NullableHandle => {
                     PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryNullableHandle {
                         key: key.clone(),
                         receiver_object,
+                        returns: object_returns.expect("same result branch projected original Returns"),
                     }
                 }
-                InvokeCallResultKind::Unit => {
-                    return Err(fault("ordinary-result-contract-drift"));
-                }
+                InvokeCallResultKind::Unit => PublishedLifecyclePhysicalFunctionRoleV1::OrdinaryUnit {
+                    key: key.clone(), receiver_object,
+                },
             };
             functions.push(issue_function_with_module(
                 Some(self.module()),

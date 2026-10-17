@@ -47,6 +47,10 @@ where
         self.statements.len()
     }
 
+    fn finish_fallthrough(&mut self, builder: &mut MirBuilder, end: usize) -> Result<(), String> {
+        self.child.finish_source_body_v1(builder, &self.source, end)
+    }
+
     fn lower_statement(
         &mut self,
         builder: &mut MirBuilder,

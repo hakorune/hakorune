@@ -68,8 +68,13 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         &mut self,
         builder: &mut super::MirBuilder,
         _identity: &crate::parser::CallableDeclarationIdentityV1,
+        parameters: &[String],
+        runtime_inputs: Option<&super::NormalRuntimeInputSnapshotV1>,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
+        if let Some(runtime) = runtime_inputs {
+            builder.materialize_legacy_main_parameters_v1(parameters, runtime.script_args())?;
+        }
         self.lower_body(builder, body)
     }
 
@@ -498,11 +503,12 @@ impl super::MirBuilder {
     /// published through the collector drain.  The `main` function already
     /// carries its finished Return/PHI/CFG from the DraftSeal, so this
     /// disposition owns only module-level sealing and root validation: it
-    /// never inserts a raw Return, re-infers the return type, or repairs
-    /// PHI rows on the draft.  `current_function` must be empty — a live
+    /// never inserts a raw Return or re-infers the return type. Existing
+    /// draft PHI repair retains the same source-consumed Phi tuples.  `current_function` must be empty — a live
     /// wrapper means the canonical route leaked a second root.
     pub(super) fn finalize_module_with_canonical_root_v1(
         &mut self,
+        phi_source: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
         validate_root: impl FnOnce(
             &crate::mir::MirFunction,
         )
@@ -527,9 +533,9 @@ impl super::MirBuilder {
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
         for function in module.functions.values_mut() {
-            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs_with_source_v1(
                 function,
-                "finalize_canonical_module",
+                "finalize_canonical_module", super::main_pending_draft::MainDraftIdentityV1::root().symbol(), phi_source,
             )?;
         }
 
@@ -553,7 +559,7 @@ impl super::MirBuilder {
     /// 3. Return type inference (delegation to return_type_strategy)
     /// 4. Module sealing (metadata, birth verification)
     pub(super) fn finalize_module(&mut self, result_value: ValueId) -> Result<MirModule, String> {
-        self.finalize_module_with_root_validation(result_value, |_| {
+        self.finalize_module_with_root_validation(result_value, None, |_| {
             Ok(crate::mir::function::RootOrdinaryNewObservation::NotIssued)
         })
     }
@@ -561,6 +567,7 @@ impl super::MirBuilder {
     pub(super) fn finalize_module_with_root_validation(
         &mut self,
         result_value: ValueId,
+        phi_source: Option<&crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>,
         validate_root: impl FnOnce(
             &crate::mir::MirFunction,
         )
@@ -633,9 +640,10 @@ impl super::MirBuilder {
         }
         // Final builder seal: PHI inputs are edge values, so every incoming value
         // must be valid in the predecessor block recorded on that edge.
-        crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+        let draft_root_key = function.signature.name.clone();
+        crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs_with_source_v1(
             &mut function,
-            "finalize_module",
+            "finalize_module", &draft_root_key, phi_source,
         )?;
         // ===== Step 4: Module Sealing (metadata, birth verification) =====
         // Dev-only verify: NewBox → birth() invariant (warn if missing)
@@ -745,9 +753,9 @@ impl super::MirBuilder {
         crate::mir::typed_object_plan::refresh_module_typed_object_plans(&mut module)?;
         crate::mir::direct_state_plan::refresh_module_direct_state_plans(&mut module);
         for function in module.functions.values_mut() {
-            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs(
+            crate::mir::builder::ssa::phi_input_materializer::materialize_all_phi_inputs_with_source_v1(
                 function,
-                "finalize_module_all_functions",
+                "finalize_module_all_functions", &root_function_key, phi_source,
             )?;
         }
 

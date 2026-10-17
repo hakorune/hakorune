@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory(prefix='hako scalar null compare ') as director
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(work),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(work), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64',
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64',
              'object.reclaim_unpublished']
     count = 0
     for op, value in [('const_i64', 0), ('const_i64', 5),

@@ -13,6 +13,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct OriginalStoredIncomi
     reference: CallTargetReferenceV1,
     receiver: StoredReceiverSourceV1,
     result: LexicalCallSourceResultRequirementV1,
+    owning_object_input: Option<Rc<super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
     expected_receiver: LexicalInstanceCallReceiverV1,
 }
 
@@ -121,6 +122,7 @@ impl BorrowedIncomingSourceV1 {
             reference: original.reference.clone(),
             receiver: original.receiver.clone(),
             result: original.result.clone(),
+            owning_object_input: original.owning_object_input.clone(),
             expected_receiver: original.expected_receiver.clone(),
         });
     }
@@ -165,6 +167,7 @@ impl BorrowedIncomingSourceV1 {
         reference: &CallTargetReferenceV1,
         receiver: &StoredReceiverSourceV1,
         result: &LexicalCallSourceResultRequirementV1,
+        owning_object_input: Option<Rc<super::super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
     ) -> Result<Self, String> {
         let coverage = batch.ordinary_box_coverage();
         let parent = coverage
@@ -184,10 +187,18 @@ impl BorrowedIncomingSourceV1 {
         let child = constructors
             .object_for(child)
             .map_err(|_| super::super::freeze("borrowed-formal/incoming-child-source"))?;
+        if receiver.parent_new.as_ref().is_some_and(|(_, root)| !root.matches_definition(parent, field.object())) {
+            return Err(super::super::freeze("borrowed-formal/incoming-local-new-source"));
+        }
+        if receiver.corroborate_constructor_origin_v1(batch, constructors, &reference.call_site)?
+            .is_some_and(|pair| pair != (field, child)) {
+            return Err(super::super::freeze("borrowed-formal/incoming-constructor-field-drift"));
+        }
         Ok(Self::PendingStored(Rc::new(OriginalStoredIncomingV1 {
             reference: reference.clone(),
             receiver: receiver.clone(),
             result: result.clone(),
+            owning_object_input,
             expected_receiver: LexicalInstanceCallReceiverV1::StoredOwnedChild {
                 parent_binding: receiver.parent_binding,
                 parent_site: receiver.parent_site.clone(),
@@ -214,6 +225,7 @@ impl BorrowedIncomingSourceV1 {
         };
         if CallTargetReferenceV1::from_target(target) != original.reference
             || target.receiver != original.expected_receiver
+            || target.owning_object_input != original.owning_object_input
             || target.result_requirement != original.result
             || target.target().owner() != original.receiver.child_class.as_ref()
         {
@@ -225,6 +237,64 @@ impl BorrowedIncomingSourceV1 {
             original: Rc::clone(original),
             target: target.clone(),
         })
+    }
+    /// Borrow the SAME original constructor step after exact stored selection.
+    /// This proves source correspondence, not field liveness or construction completion.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn constructor_unit_source_v1(
+        &self,
+        target: &super::super::LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<&crate::mir::normal_callable_semantic_package::instance_construction::ConstructionChildCallSourceLoanV1>, String> {
+        let original = match self {
+            Self::SelectedStored { original, .. } => original,
+            _ => return Ok(None),
+        };
+        let super::super::source::StoredReceiverSourceOriginV1::Constructor(loan) = &original.receiver.origin
+            else { return Ok(None); };
+        self.bind_selected_v1(target)?;
+        let request = loan.call();
+        let same_receiver = matches!(&target.receiver,
+            LexicalInstanceCallReceiverV1::StoredOwnedChild { parent_binding, field, child, .. }
+            if *parent_binding == request.receiver_binding() && *field == request.field() && *child == request.child());
+        if !target.is_unit_discard_source_v1() || !same_receiver
+            || request.site() != target.call_site() || request.receiver_site() != target.receiver_site()
+            || !request.arguments().is_empty() || !target.argument_sites().is_empty()
+            || loan.source().child_call_source_v1(target.call_site())?.as_ref() != Some(loan)
+            || loan.source().constructor().is_none_or(|(_, owner)| *owner != target.call_site().owner()) {
+            return Err(super::super::freeze("unit-call/constructor-source-drift"));
+        }
+        Ok(Some(loan))
+    }
+
+    /// An execution consumer may borrow only the already-selected original root.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn local_new_root_source_v1(
+        &self, target: &super::super::LexicalInstanceCallSourceTargetV1,
+    ) -> Result<Option<(u32, &Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::LocalNewRootSourceV1>)>, String> {
+        let Self::SelectedStored { original, .. } = self else {
+            return Err(super::super::freeze("stored-child/original-selected-source-missing"));
+        };
+        self.bind_selected_v1(target)?;
+        let Some((slot, root)) = &original.receiver.parent_new else { return Ok(None); };
+        if !matches!(original.receiver.origin, super::super::source::StoredReceiverSourceOriginV1::Ordinary)
+            || root.binding() != original.receiver.parent_binding || root.class() != original.receiver.parent_class.as_ref()
+            || target.stored_receiver().is_none_or(|(binding, site, field, _)| binding != root.binding()
+                || site != &original.receiver.parent_site || field.object() != root.object()) {
+            return Err(super::super::freeze("stored-child/original-root-drift"));
+        }
+        Ok(Some((*slot, root)))
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn unit_discard_source_v1(
+        &self,
+    ) -> Option<&super::super::borrowed_formal_result::original::OriginalReturnSourceLoanV1> {
+        let requirement = match self {
+            Self::Instance(row) | Self::SelectedStored { target: row, .. } => &row.result_requirement,
+            Self::PendingStored(row) => &row.result,
+            Self::Static(_) => return None,
+        };
+        match requirement {
+            LexicalCallSourceResultRequirementV1::UnitDiscardSource(source) => Some(source),
+            _ => None,
+        }
     }
     pub(in crate::mir::normal_callable_semantic_package) fn object_return_sources(&self) -> Option<&[crate::mir::normal_callable_semantic_package::ordinary_new_coseal::result_class_claim::ObjectReturnCallQualificationV1]>{
         self.instance().and_then(|row| row.object_return_sources())

@@ -45,7 +45,11 @@ impl FinalizedRootHandoffV1 {
         &self,
         module: &crate::mir::MirModule,
     ) -> Result<(), String> {
-        validate_named_array_handoff_inputs(module, self.callables(), self.named_arrays())
+        validate_named_array_handoff_inputs(module, self.callables(), self.named_arrays(),
+            &mut |owner, caller| match (self.callables(), self.root_source()) {
+                (Some(cohort), Some(source)) => source.corroborates_root_array_caller_v1(cohort, owner, caller),
+                _ => Ok(false),
+            })
     }
 
     pub(crate) fn named_arrays(&self) -> &[EmittedNamedArrayRequirementV1] {
@@ -137,14 +141,18 @@ pub(crate) fn validate_named_array_handoff_inputs(
     module: &crate::mir::MirModule,
     callables: Option<&VerifiedCallableResultContractCohortV1>,
     rows: &[EmittedNamedArrayRequirementV1],
+    root_caller: &mut dyn FnMut(crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        &CanonicalSameModuleCallableKeyV1) -> Result<bool, String>,
 ) -> Result<(), String> {
     for row in rows {
         let key = crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(row.caller().clone());
-        if callables
-            .and_then(|cohort| cohort.completed_result(&key))
-            .map(|result| result.owner())
-            != Some(row.owner())
-        {
+        let agrees = match callables.and_then(|cohort| cohort.completed_result(&key)) {
+            Some(result) => result.owner() == row.owner(),
+            None if matches!(row, EmittedNamedArrayRequirementV1::OwnedHolder(_)) =>
+                root_caller(row.owner(), row.caller())?,
+            None => false,
+        };
+        if !agrees {
             return Err(crate::mir::named_array_obligation::fault(
                 "handoff-source-owner-mismatch",
             ));

@@ -32,6 +32,11 @@ impl super::super::MirBuilder {
             self.core_ctx.next_value() // Module context: use core_ctx SSOT
         };
         self.emit_instruction(super::super::MirInstruction::Copy { dst, src: v })?;
+        let function = self.function_state.current_function.as_ref()
+            .ok_or("[freeze:contract][local-ssa-correspondence/pin-function]")?;
+        let block = self.function_state.current_block
+            .ok_or("[freeze:contract][local-ssa-correspondence/pin-block]")?;
+        self.function_state.local_ssa_correspondence.record_pin_copy(function, v, dst, block)?;
         if super::builder_debug_enabled() || crate::config::env::builder_pin_trace() {
             super::builder_debug_log(&format!("pin slot={} src={} dst={}", slot_name, v.0, dst.0));
         }

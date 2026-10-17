@@ -187,11 +187,11 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
         std::rc::Rc<super::ordinary_new_coseal::OrdinaryNewClaimLedgerV1>,
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
-    pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
+    pub(super) selected: Rc<super::selected_mapping::VerifiedSelectedCallableBatchMapV1>,
     pub(super) parameter_contracts: Rc<[OwnedCallableParameterContractDeclarationV1]>,
     pub(super) result_contracts: super::result_contract::VerifiedCallableResultContractCohortV1,
     pub(super) physical_signature:
-        super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
+        Rc<super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1>,
     pub(super) declared_instance_call_locators:
         super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1,
     pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
@@ -474,6 +474,11 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         &self,
     ) -> &super::declared_instance_locator::DeclaredInstanceCallPackageLocatorDispositionV1 {
         &self.declared_instance_call_locators
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn ordinary_new_claim_ledger_for_test(&self) -> Rc<super::OrdinaryNewClaimLedgerV1> {
+        Rc::clone(&self.ordinary_new_claim_ledger)
     }
 
     #[cfg(test)]

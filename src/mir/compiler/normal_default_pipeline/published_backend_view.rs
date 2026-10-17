@@ -33,6 +33,7 @@ mod map_projection;
 mod map_value_domains;
 mod physical_abi;
 mod physical_program;
+pub(super) use physical_program::ordinary_call_site_v1;
 mod physical_program_json;
 
 pub(super) use lifecycle::is_lifecycle_instruction;

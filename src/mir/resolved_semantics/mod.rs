@@ -35,10 +35,14 @@ mod enum_match_demand;
 mod enum_variant_demand;
 mod explicit_extern_call;
 mod expression_source;
+mod named_array_append_only_source;
+pub(crate) use named_array_append_only_source::{
+    NamedArrayAppendOnlySourceIssueV1, NamedArrayAppendOnlySourceV1,
+};
 mod named_array_requirement;
 mod named_array_residence;
 pub(crate) use named_array_requirement::{
-    NamedArrayConstructionRequirementV1, NamedArrayRequirementIssueV1,
+    NamedArrayConstructionRequirementV1, NamedArrayConstructionSourceV1, NamedArrayRequirementIssueV1,
 };
 pub(crate) use named_array_residence::{
     detect_field_residence_claim, resolve_birth_provider, seal_field_residence_requirement,

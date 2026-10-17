@@ -1,4 +1,5 @@
 //! Original return facts owned by the result stage until strict ingress seals them.
+use crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1;
 use super::super::borrowed_formal_uses::{BorrowedFormalUseDraftKindV1, BorrowedFormalUsesDraftV1};
 use super::super::source::{
     CallTargetReferenceV1, PreparedSourceCallNeedV1, PreparedSourceNeedsV1, StoredReceiverSourceV1,
@@ -17,12 +18,19 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
 #[path = "ordinary_new_borrowed_mul_result_source.rs"]
 pub(super) mod mul_result;
 
+#[path = "ordinary_new_borrowed_field_array_read_source.rs"]
+pub(super) mod field_array_read;
+use field_array_read::{capture_field_array_get, CheckedFieldArrayReadSourceV1};
+
 #[derive(Debug)]
 pub(super) enum BorrowedResultSourcePhaseV1 {
     Pending {
         fields: Box<[PendingFieldResultV1]>,
         calls: Box<[PendingCallResultV1]>,
     },
+    /// Individual original field/call correspondence checked against ingress;
+    /// the whole dependent cohort has not yet been sealed or lent externally.
+    IngressVerified,
     SourceSealed,
 }
 
@@ -139,6 +147,45 @@ fn capture_field(
     })
 }
 
+
+/// Shared original call correspondence for direct forwarding and operand roles.
+pub(super) fn exact_call_source_v1<'a>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    call_site: &SourceExprSiteV1,
+    needs: &'a [Result<Option<PreparedSourceCallNeedV1>, String>],
+) -> Result<Option<(CallTargetReferenceV1, ResolvedMethodCallReceiverSourceV1, &'a PreparedSourceCallNeedV1)>, String> {
+    let function = input.function();
+    let Some((_, call)) = function
+        .method_calls()
+        .find(|(actual, _)| *actual == call_site)
+    else {
+        return Ok(None);
+    };
+    let owned = OwnedExprSiteV1::new(input.owner(), call_site.clone());
+    let mut matching = needs
+        .iter()
+        .filter_map(|row| row.as_ref().ok()?.as_ref())
+        .filter(|row| row.reference().call_site == owned);
+    let Some(need) = matching.next() else {
+        return Ok(None);
+    };
+    let reference = need.reference();
+    if matching.next().is_some()
+        || reference.receiver_site != *call.receiver_site()
+        || reference.target.arity() != call.arity()
+        || reference.target.name() != call.selector()
+        || reference.argument_sites.len() != call.arguments().len()
+        || !reference
+            .argument_sites
+            .iter()
+            .zip(call.arguments())
+            .all(|(site, argument)| site == argument.site())
+    {
+        return Err(freeze("borrowed-result/call-source-identity"));
+    }
+    Ok(Some((reference, call.receiver(), need)))
+}
+
 fn capture_call(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
@@ -179,34 +226,7 @@ fn capture_call(
         };
         (call.clone(), BorrowedCallResultOriginV1::Local(row.clone()))
     };
-    let Some((_, call)) = function
-        .method_calls()
-        .find(|(actual, _)| *actual == &call_site)
-    else {
-        return Ok(None);
-    };
-    let owned = OwnedExprSiteV1::new(input.owner(), call_site);
-    let mut matching = needs
-        .iter()
-        .filter_map(|row| row.as_ref().ok()?.as_ref())
-        .filter(|row| row.reference().call_site == owned);
-    let Some(need) = matching.next() else {
-        return Ok(None);
-    };
-    let reference = need.reference();
-    if matching.next().is_some()
-        || reference.receiver_site != *call.receiver_site()
-        || reference.target.arity() != call.arity()
-        || reference.target.name() != call.selector()
-        || reference.argument_sites.len() != call.arguments().len()
-        || !reference
-            .argument_sites
-            .iter()
-            .zip(call.arguments())
-            .all(|(site, argument)| site == argument.site())
-    {
-        return Err(freeze("borrowed-result/call-source-identity"));
-    }
+    let Some((reference, receiver_source, need)) = exact_call_source_v1(input, &call_site, needs)? else { return Ok(None); };
     // A stored local/nested call never enters this direct-return slice.
     if need.stored().is_some() && !matches!(origin, BorrowedCallResultOriginV1::Direct) {
         return Ok(None);
@@ -215,199 +235,11 @@ fn capture_call(
         return_site: OwnedExprSiteV1::new(input.owner(), site.clone()),
         origin,
         reference,
-        receiver_source: call.receiver(),
+        receiver_source,
         stored_receiver: need.stored().cloned(),
     }))
 }
 
-/// A `me.<ArrayBox field>.get(<integer index>)` return source: the
-/// whole-Box element-integer census already sealed the field's stores,
-/// and the index must satisfy the same `integer_source` leaves. The
-/// proof completes at capture — a field get carries no callee dependency
-/// and no incoming actual, so it adds no pending row and only credits
-/// the i64 class. Anything unproven stays `false`, never an error.
-#[allow(clippy::too_many_arguments)]
-fn capture_field_array_get(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    contract: &OwnedCallableParameterContractDeclarationV1,
-    site: &SourceExprSiteV1,
-    selected: &VerifiedSelectedCallableBatchMapV1,
-    batch: &VerifiedResolvedCallableSemanticBatchV1,
-    constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-    proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-) -> Result<bool, String> {
-    let function = input.function();
-    // The return source is either the `get` itself or a local bound by a
-    // single, never-rebound initializer — the same shape `capture_call`
-    // demands of a local source.
-    let call_site = if function.method_calls().any(|(actual, _)| actual == site) {
-        site.clone()
-    } else {
-        let Some(ResolvedLexicalRefV1::Local(binding)) = function.variable_ref(site) else {
-            return Ok(false);
-        };
-        if binding.owner() != input.owner()
-            || function
-                .binding(binding)
-                .is_none_or(|row| !matches!(row.kind(), BindingKindV1::Local { .. }))
-            || function.assignment_targets().any(|(_, target)| {
-                matches!(target,
-                ResolvedAssignmentTargetV1::BindingRebind(actual) if *actual == binding)
-            })
-        {
-            return Ok(false);
-        }
-        let mut rows = function
-            .expression_source()
-            .initializers()
-            .filter(|row| row.binding() == binding);
-        let Some(row) = rows.next() else {
-            return Ok(false);
-        };
-        if rows.next().is_some()
-            || function.declaration_binding(row.declaration_site()) != Some(binding)
-        {
-            return Ok(false);
-        }
-        let Some(call) = row.initializer_site() else {
-            return Ok(false);
-        };
-        call.clone()
-    };
-    let Some((_, call)) = function
-        .method_calls()
-        .find(|(actual, _)| *actual == &call_site)
-    else {
-        return Ok(false);
-    };
-    if call.selector() != "get" || call.arity() != 1 {
-        return Ok(false);
-    }
-    let ledger = input
-        .forest()
-        .callable_source_ledger(input.owner())
-        .map_err(|_| freeze("borrowed-result/source-loan"))?;
-    let Some(shape) = input.body_shape() else {
-        return Ok(false);
-    };
-    let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
-        shape.expression_shape(call.receiver_site())
-    else {
-        return Ok(false);
-    };
-    if !super::super::super::array_i64_fields::is_self_receiver(&ledger, shape, object) {
-        return Ok(false);
-    }
-    // The owner's own box source decides the field declaration — the
-    // same authority the receiver-side census predicate consults.
-    let Some(owner_box) = selected
-        .keys()
-        .filter_map(|selected_key| {
-            let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) = selected_key
-            else {
-                return None;
-            };
-            (selected.batch_slot(selected_key) == Some(contract.batch_slot)
-                && key.namespace()
-                    == crate::mir::builder::SameModuleCallableNamespaceV1::InstanceBoxMethod)
-                .then(|| key.owner())
-        })
-        .next()
-    else {
-        return Ok(false);
-    };
-    let Some(box_source) = batch
-        .ordinary_box_coverage()
-        .row_for(owner_box)
-        .ok()
-        .flatten()
-    else {
-        return Ok(false);
-    };
-    let Some(proven) = proven_fields.get(box_source.name()) else {
-        return Ok(false);
-    };
-    let Some((field_ref, declared)) = super::super::super::terminal_home::source_declared_field(
-        constructors,
-        box_source,
-        &OwnedExprSiteV1::new(input.owner(), call.receiver_site().clone()),
-        field,
-    )
-    .map_err(|error| format!("{}: {error:?}", freeze("borrowed-result/field-authority")))?
-    else {
-        return Ok(false);
-    };
-    if declared.as_deref() != Some("ArrayBox") || !proven.contains(&field_ref) {
-        return Ok(false);
-    }
-    // The index must satisfy the census `integer_source` leaves: numeric
-    // `me.<field>` reads plus `get` results on proven fields chain.
-    let mut numeric_fields = BTreeSet::new();
-    let mut proven_names = BTreeSet::new();
-    constructors
-        .with_source_object_definition(box_source, |object, definition| {
-            for (ordinal, row) in definition.fields().iter().enumerate() {
-                if row
-                    .declared_type_name
-                    .as_deref()
-                    .is_some_and(crate::mir::numeric_substrate::is_numeric_integer_type_name)
-                {
-                    numeric_fields.insert(row.name.clone().into_boxed_str());
-                }
-                let Some(canonical) =
-                    hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(
-                        object, ordinal,
-                    )
-                else {
-                    continue;
-                };
-                if proven.contains(&canonical) {
-                    proven_names.insert(row.name.clone().into_boxed_str());
-                }
-            }
-        })
-        .map_err(|_| freeze("borrowed-result/source-loan"))?;
-    let mut get_calls = BTreeMap::new();
-    for (_, method_call) in ledger.method_calls() {
-        if method_call.selector() != "get" || method_call.arity() != 1 {
-            continue;
-        }
-        let Some(BodyExpressionShapeV1::FieldAccess { object, field, .. }) =
-            shape.expression_shape(method_call.receiver_site())
-        else {
-            continue;
-        };
-        if super::super::super::array_i64_fields::is_self_receiver(&ledger, shape, object)
-            && proven_names.contains(field.as_ref())
-        {
-            get_calls.insert(method_call.site().clone(), field.clone());
-        }
-    }
-    // `me.<name>` receiver coverage and unobserved-position actual
-    // staging landed: a grounded callee's named incoming edges —
-    // including calls inside prefix-failed branch subtrees and
-    // condition positions — now carry staged actuals, so the
-    // `formal.<field>` index leaf arms this capture end-to-end.
-    let coverage = batch.ordinary_box_coverage();
-    let formal_i64_field = |field: &str| {
-        super::super::super::array_i64_fields::coverage_unique_i64_field(
-            constructors,
-            coverage,
-            field,
-        )
-    };
-    Ok(super::super::super::array_i64_fields::integer_source_at(
-        &ledger,
-        shape,
-        &numeric_fields,
-        &proven_names,
-        &get_calls,
-        &formal_i64_field,
-        call.arguments()[0].site(),
-        &mut BTreeSet::new(),
-        0,
-    ))
-}
 
 fn source_result_pending(
     batch: &VerifiedResolvedCallableSemanticBatchV1,
@@ -417,6 +249,9 @@ fn source_result_pending(
     needs: &[Result<Option<PreparedSourceCallNeedV1>, String>],
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
+    field_candidates: &Rc<composition::FieldCandidatesV1>,
+    original: Option<&super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1>,
+    original_return: Option<&original::OriginalReturnSourceLoanV1>,
     owner: FunctionOwnerIdV1,
 ) -> Result<BorrowedI64ResultSourceV1, String> {
     let mut matches = contracts.iter().filter(|row| row.owner == owner);
@@ -427,48 +262,86 @@ fn source_result_pending(
         return Err(freeze("borrowed-result/source-contract-duplicate"));
     }
     batch.with_lowering_input(contract.batch_slot, |input| {
-        if input.owner() != owner || !contract.parameters.iter().enumerate().all(|(index, row)|
+        let key = selected.key_for_batch_slot(contract.batch_slot)
+            .and_then(|key| match key { crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) => Some(key), _ => None })
+            .ok_or_else(|| freeze("borrowed-result/source-contract-identity"))?;
+        if input.owner() != owner || input.function().owner() != owner
+            || input.function().declaration_sites().filter(|site| matches!(site, SourceBindingSiteV1::Parameter { .. })).count() != contract.parameters.len()
+            || key.namespace() != hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod
+            || key.arity() as usize != contract.parameters.len()
+            || !contract.parameters.iter().enumerate().all(|(index, row)|
             row.ordinal as usize == index && row.binding.owner() == owner
             && input.function().declaration_binding(&SourceBindingSiteV1::Parameter { index: row.ordinal }) == Some(row.binding)) {
             return Err(freeze("borrowed-result/source-contract-identity"));
         }
         let sites = input.body_shape().and_then(|shape| super::super::super::verified_value_return_sites(input, shape))
             .filter(|sites| !sites.is_empty()).ok_or_else(|| freeze("borrowed-result/explicit-value-return-missing"))?;
-        let draft = drafts.get(&owner).ok_or_else(|| freeze("borrowed-result/source-draft-missing"))?;
+        let draft = drafts.get(&owner);
+        if draft.is_none() && !zero_parameter_instance_result_owner_v1(contracts, owner)? {
+            return Err(freeze("borrowed-result/source-draft-missing"));
+        }
         let mut class = None;
         let mut has_construction = false;
         let mut fields = Vec::new();
         let mut calls = Vec::new();
         let mut multiplications = Vec::new();
+        let mut field_array_reads = Vec::new();
+        let mut expressions = Vec::new();
         for site in &sites {
             let function = input.function();
             let integer = matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Integer(_)));
             let exact = matches!(function.variable_ref(site), Some(ResolvedLexicalRefV1::Local(binding))
                 if contract.parameters.iter().any(|row| row.binding == binding
                     && row.kind == CallableParameterContractKindV1::ExactTrivial(ExactTrivialParameterAbiV1::I64)));
-            let checked_return = draft.integer_return_at(input, &OwnedExprSiteV1::new(owner, site.clone()))
-                .map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.is_some();
+            let checked_return = draft.map(|draft| draft.integer_return_at(input, &OwnedExprSiteV1::new(owner, site.clone())))
+                .transpose().map_err(|_| freeze("borrowed-result/checked-return-source-identity"))?.flatten().is_some();
             let site_class = if integer || exact || checked_return { BorrowedResultClassV1::I64 }
-            else if let Some(product) = mul_result::capture_mul_return(input, draft, site)? {
+            else if let Some(product) = draft.map(|draft| mul_result::capture_mul_return(input, draft, site)).transpose()?.flatten() {
                 multiplications.push(product); BorrowedResultClassV1::I64
-            } else if let Some(field) = capture_field(input, contract, draft, site) {
+            } else if let Some(field) = draft.and_then(|draft| capture_field(input, contract, draft, site)) {
                 fields.push(field); BorrowedResultClassV1::I64
             } else if let Some(call) = capture_call(input, site, needs)? {
-                calls.push(call); BorrowedResultClassV1::I64
-            } else if capture_field_array_get(
-                input, contract, site, selected, batch, constructors, proven_fields,
-            )? { BorrowedResultClassV1::I64 }
+                calls.push(call); BorrowedResultClassV1::UnresolvedScalar
+            } else if let Some(read) = capture_field_array_get(
+                input, contract, site, selected, batch, constructors, proven_fields, original,
+            )? { field_array_reads.push(read); BorrowedResultClassV1::I64 }
+            else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Bool(_))) { BorrowedResultClassV1::Bool }
             else if matches!(function.expression_source().literal(site), Some(ResolvedLiteralSourceV1::Null))
                 || function.expression_source().construction(site).is_some() { BorrowedResultClassV1::Nullable }
-            else { return Err(freeze("borrowed-result/source-not-i64")); };
+            else {
+                let shape = input.body_shape().ok_or_else(|| freeze("borrowed-result/expression-shape"))?;
+                let ledger = input.forest().callable_source_ledger(owner).map_err(|_| freeze("borrowed-result/expression-ledger"))?;
+                let statement = shape.statements().iter().find(|statement|
+                    matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Return { value: Some(value), .. } if value == site))
+                    .ok_or_else(|| freeze("borrowed-result/expression-return"))?.site();
+                let plan = if let Some(original) = original_return {
+                    original.plan(site).cloned().ok_or_else(|| freeze("borrowed-result/original-return-plan-drift"))?
+                } else {
+                    crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+                        &ledger, shape, statement,
+                    ).map_err(|_| freeze("borrowed-result/expression-source"))?.ok_or_else(|| freeze("borrowed-result/expression-missing"))?
+                };
+                let receiver = input.function().bindings().find(|(_, row)| row.kind() == BindingKindV1::Receiver).map(|(binding, _)| binding);
+                expressions.push(Rc::new(expression::ResultExpressionSourceV1::prepare(input, plan, key.owner(), receiver,
+                    field_candidates.sources(), field_candidates.object_sources(), original, constructors, drafts, contracts, needs)));
+                BorrowedResultClassV1::UnresolvedScalar
+            };
             has_construction |= function.expression_source().construction(site).is_some();
-            if class.is_some_and(|previous| previous != site_class) { return Err(freeze("borrowed-result/source-class-mixed")); }
-            class = Some(site_class);
+            if site_class != BorrowedResultClassV1::UnresolvedScalar {
+                if class.is_some_and(|previous| previous != site_class) { return Err(freeze("borrowed-result/source-class-mixed")); }
+                class = Some(site_class);
+            }
         }
-        let class = class.expect("nonempty explicit return sites");
+        let class = class.unwrap_or(BorrowedResultClassV1::UnresolvedScalar);
         if class == BorrowedResultClassV1::Nullable && !has_construction { return Err(freeze("borrowed-result/source-not-i64")); }
-        Ok(BorrowedI64ResultSourceV1 { returns: sites.into_iter().map(|site| OwnedExprSiteV1::new(owner, site)).collect(),
-            class, contract_corroborated: false, dependencies: Box::new([]), multiplications: multiplications.into_boxed_slice(),
+        Ok(BorrowedI64ResultSourceV1 {
+            source_facts: Rc::new(BorrowedResultSourceFactsV1 {
+                returns: sites.into_iter().map(|site| OwnedExprSiteV1::new(owner, site)).collect(),
+                class, fixed_class: class, original_return: original_return.cloned(), expressions: expressions.into_boxed_slice(),
+                field_candidates: Some(Rc::clone(field_candidates)), field_component: None,
+                parameterless_instance: if zero_parameter_instance_result_owner_v1(contracts, owner)? { Some((owner, contract.batch_slot, key.clone())) } else { None },
+                dependencies: Box::new([]), multiplications: multiplications.into_boxed_slice(), field_array_reads: field_array_read::normalize_reads(field_array_reads)?,
+            }), contract_corroborated: false,
             phase: BorrowedResultSourcePhaseV1::Pending { fields: fields.into_boxed_slice(), calls: calls.into_boxed_slice() } })
     }).map_err(|_| freeze("borrowed-result/source-loan"))?
 }
@@ -482,10 +355,16 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     callable_result_classes: &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     proven_fields: &BTreeMap<Box<str>, BTreeSet<hakorune_mir_defs::CanonicalFieldRefV1>>,
-) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
-    let Ok(needs) = needs else {
-        return BTreeMap::new();
+    original: &Result<super::super::borrowed_formal_source::OriginalBorrowedFormalSourceV1, String>,
+    field_claims: &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    mut original_returns: original::OriginalReturnsV1,
+) -> BorrowedResultCohortV1 {
+    let needs = match needs {
+        Ok(needs) => needs,
+        Err(issue) => return BorrowedResultCohortV1::unavailable(issue.clone()),
     };
+    let field_candidates = composition::FieldCandidatesV1::prepare(batch, field_claims, constructors,
+        original.as_ref(), drafts, contracts, needs);
     let loans = class_loans::conditional_class_loans_v1(
         batch,
         selected,
@@ -494,8 +373,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         needs,
         callable_result_classes,
     );
-    drafts
-        .keys()
+    let owners: BTreeSet<_> = drafts.keys().copied().chain(contracts.iter()
+        .filter(|row| row.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && row.parameters.is_empty())
+        .map(|row| row.owner)).collect();
+    let results = owners
+        .iter()
         .filter(|owner| {
             contracts.iter().any(|row| {
                 row.owner == **owner
@@ -503,7 +385,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             })
         })
         .map(|owner| {
-            let proof = source_result_pending(
+            let request = original_returns.remove(owner).transpose().map(Option::flatten);
+            let proof = request.and_then(|request| source_result_pending(
                 batch,
                 selected,
                 contracts,
@@ -511,8 +394,9 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                 needs,
                 constructors,
                 proven_fields,
+                &field_candidates, original.as_ref().ok(), request.as_ref(),
                 *owner,
-            )
+            ))
             .and_then(|mut proof| {
                 if let BorrowedResultSourcePhaseV1::Pending { fields, .. } = &mut proof.phase {
                     for row in fields.iter_mut() {
@@ -540,7 +424,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
             });
             (*owner, proof)
         })
-        .collect()
+        .collect();
+    let mut results = BorrowedResultCohortV1::prepared(results, field_candidates);
+    composition::resolve_pending_source_classes_v1(&mut results);
+    results
 }
 
 pub(super) fn pending_ready_v1(proof: &BorrowedI64ResultSourceV1) -> bool {
@@ -548,7 +435,7 @@ pub(super) fn pending_ready_v1(proof: &BorrowedI64ResultSourceV1) -> bool {
         BorrowedResultSourcePhaseV1::Pending { fields, .. } => {
             fields.iter().all(|row| row.requirement.is_some())
         }
-        BorrowedResultSourcePhaseV1::SourceSealed => true,
+        BorrowedResultSourcePhaseV1::IngressVerified | BorrowedResultSourcePhaseV1::SourceSealed => true,
     }
 }
 
@@ -557,7 +444,7 @@ pub(super) fn dependency_owners_v1(proof: &BorrowedI64ResultSourceV1) -> Vec<Fun
         BorrowedResultSourcePhaseV1::Pending { calls, .. } => {
             calls.iter().map(|row| row.reference.callee_owner).collect()
         }
-        BorrowedResultSourcePhaseV1::SourceSealed => proof
+        BorrowedResultSourcePhaseV1::IngressVerified | BorrowedResultSourcePhaseV1::SourceSealed => proof
             .dependencies
             .iter()
             .map(|row| row.callee_owner())
@@ -567,7 +454,7 @@ pub(super) fn dependency_owners_v1(proof: &BorrowedI64ResultSourceV1) -> Vec<Fun
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn stored_eligible_v1(
     need: &PreparedSourceCallNeedV1,
-    results: &BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+    results: &BorrowedResultCohortV1,
     grounded: &BTreeSet<FunctionOwnerIdV1>,
     drafts: &BTreeMap<FunctionOwnerIdV1, BorrowedFormalUsesDraftV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
@@ -575,7 +462,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     let reference = need.reference();
     grounded.contains(&reference.call_site.owner()) && grounded.contains(&reference.callee_owner)
         && results.get(&reference.call_site.owner()).and_then(|row| row.as_ref().ok()).is_some_and(|proof|
-            proof.class == BorrowedResultClassV1::I64 && matches!(&proof.phase,
+            matches!(proof.class, BorrowedResultClassV1::I64 | BorrowedResultClassV1::Bool)
+            && results.get(&reference.callee_owner).and_then(|row| row.as_ref().ok())
+                .is_some_and(|callee| callee.class == proof.class)
+            && matches!(&proof.phase,
                 BorrowedResultSourcePhaseV1::Pending { calls, .. } if calls.iter().any(|row| row.reference == reference
                     && matches!(row.origin, BorrowedCallResultOriginV1::Direct))))
         && class_loans::forward_identities_v1(need, contracts, drafts).is_some_and(|rows| !rows.is_empty())
@@ -679,35 +569,52 @@ fn seal_one(
         }
         dependencies.push(target.clone());
     }
-    proof.dependencies = dependencies.into_boxed_slice();
-    proof.phase = BorrowedResultSourcePhaseV1::SourceSealed;
+    proof.pending_source_facts_mut_v1()?.dependencies = dependencies.into_boxed_slice();
+    proof.phase = BorrowedResultSourcePhaseV1::IngressVerified;
     Ok(())
 }
 
+fn zero_parameter_instance_result_owner_v1(
+    contracts: &[OwnedCallableParameterContractDeclarationV1], owner: FunctionOwnerIdV1,
+) -> Result<bool, String> {
+    let mut matching = contracts.iter().filter(|row| row.owner == owner);
+    let contract = matching.next().ok_or_else(|| freeze("borrowed-result/source-contract-missing"))?;
+    if matching.next().is_some() { return Err(freeze("borrowed-result/source-contract-duplicate")); }
+    Ok(contract.mode == CallableParameterDeclarationModeV1::InstanceBoxMethod && contract.parameters.is_empty())
+}
+
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn seal_pending_results_v1(
-    mut results: BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>>,
+    mut results: BorrowedResultCohortV1,
+    contracts: &[OwnedCallableParameterContractDeclarationV1],
     source: &Result<PreparedBorrowedFormalIngressV1, String>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     constructors: &VerifiedInstanceConstructorSemanticBatchV1,
-) -> BTreeMap<FunctionOwnerIdV1, Result<BorrowedI64ResultSourceV1, String>> {
+) -> BorrowedResultCohortV1 {
     let source = match source {
         Ok(source) => source,
         Err(issue) => {
+            results.field_component = Err(issue.clone());
             for proof in results.values_mut() {
                 *proof = Err(issue.clone());
             }
             return results;
         }
     };
-    results.retain(|owner, _| source.definitions.contains_key(owner));
-    for (owner, result) in &mut results {
+    results.retain(|owner, result| {
+        if source.definitions.contains_key(owner) { return true; }
+        match zero_parameter_instance_result_owner_v1(contracts, *owner) {
+            Ok(selected) => selected,
+            Err(issue) => { *result = Err(issue); true }
+        }
+    });
+    for (owner, result) in results.iter_mut() {
         if let Ok(proof) = result {
             if let Err(issue) = seal_one(*owner, proof, source, batch, constructors) {
                 *result = Err(issue);
             }
         }
     }
-    composition::ground_source_results(&mut results);
+    composition::ground_source_results(&mut results, source);
     results
 }
 

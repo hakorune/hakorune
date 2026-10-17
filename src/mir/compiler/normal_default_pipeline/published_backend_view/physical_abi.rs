@@ -3,7 +3,10 @@
 //! This is a physical join of already-issued products.  It neither allocates a
 //! layout nor interprets source meaning.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
+#[path = "physical_abi_birth_actuals.rs"]
+mod birth_actuals;
+use birth_actuals::ObjectBirthActualTransportV1;
 
 #[path = "physical_abi_row_obligations.rs"]
 mod row_obligations;
@@ -41,16 +44,19 @@ pub(crate) enum PublishedLifecycleCheckedOperationKindV1 {
     StringPrint,
     StringEnd,
     ArrayNew,
+    ScriptArgumentsNew,
     ArrayClaim,
     ArrayWrite,
     OwnedArrayClaim,
     OwnedArrayAppend,
     OwnedArrayGet,
     OwnedArrayEnd,
+    FieldGet,
     FieldSet,
     ObjectFieldSet,
     HomeRelease,
     HomeReleaseIfLive,
+    ObjectEndIfOwned,
     FieldResidenceRelease,
     ObjectFieldRelease,
     ReclaimUnpublished,
@@ -106,16 +112,19 @@ impl PublishedLifecycleCheckedOperationKindV1 {
                 MapInvokeOperation::End { .. } => Self::MapEnd,
             }),
             InvokeOperation::NewBox { .. } => Some(Self::NewBox),
+            InvokeOperation::FieldGet { .. } => Some(Self::FieldGet),
             InvokeOperation::FieldSet { .. } => Some(Self::FieldSet),
             InvokeOperation::ObjectFieldSet { .. } => Some(Self::ObjectFieldSet),
             InvokeOperation::HomeRelease { .. } => Some(Self::HomeRelease),
             InvokeOperation::HomeReleaseIfLive { .. } => Some(Self::HomeReleaseIfLive),
+            InvokeOperation::ObjectEndIfOwned { .. } => Some(Self::ObjectEndIfOwned),
             InvokeOperation::OwnedFieldResidenceRelease { .. } => {
                 Some(Self::FieldResidenceRelease)
             }
             InvokeOperation::OwnedObjectFieldRelease { .. } => Some(Self::ObjectFieldRelease),
             InvokeOperation::ReclaimUnpublished { .. } => Some(Self::ReclaimUnpublished),
             InvokeOperation::IntrinsicArrayNew => Some(Self::ArrayNew),
+            InvokeOperation::ScriptArgumentsNew { .. } => Some(Self::ScriptArgumentsNew),
             InvokeOperation::ArrayStateContractClaim { .. } => Some(Self::ArrayClaim),
             InvokeOperation::ArrayElementWrite { .. } => Some(Self::ArrayWrite),
             InvokeOperation::Call { .. } => None,
@@ -244,7 +253,7 @@ pub(crate) struct PublishedLifecyclePhysicalAbiInputV1<'module> {
     /// `ObjectFieldStores` contract, keyed like `tagged_birth_actuals`.
     /// Each row rides the `nullable_kind_payload_v1` lane: `Null` spells
     /// the (0,0) pair, an owned `Handle` actual the (3,payload) move.
-    object_birth_actuals: BTreeSet<(OwnedExprSiteV1, u32)>,
+    object_birth_actuals: BTreeMap<(OwnedExprSiteV1, u32), ObjectBirthActualTransportV1>,
     process_result_site: u64,
     fault_abi_version: u32,
     runtime_requirements: PublishedLifecycleRuntimeRequirementsV1,
@@ -303,9 +312,8 @@ impl<'module> PublishedLifecyclePhysicalAbiInputV1<'module> {
     /// object-field formal through the `nullable_kind_payload_v1` lane:
     /// `Null` encodes the (0,0) pair, an owned `Handle` the (3,payload)
     /// move — never a scalar kind.
-    pub(crate) fn object_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> bool {
-        self.object_birth_actuals
-            .contains(&(site.clone(), ordinal))
+    pub(crate) fn object_birth_actual(&self, site: &OwnedExprSiteV1, ordinal: u32) -> Option<ObjectBirthActualTransportV1> {
+        self.object_birth_actuals.get(&(site.clone(), ordinal)).copied()
     }
     pub(crate) const fn process_result_site(&self) -> u64 {
         self.process_result_site
@@ -520,119 +528,7 @@ impl<'module> PublishedMirBackendView<'module> {
         })
     }
 
-    /// The finalized draft admits a dominated `new`-argument lane per
-    /// exact (site, ordinal): that emitted `Handle{binding}` actual is the
-    /// same lent Integer view and is transported as `"tagged"`. An
-    /// `ObjectFieldStores` formal instead admits its nullable pair lane —
-    /// `Null` as (0,0) or an owned `Handle` actual as the (3,payload)
-    /// lease move. Every other actual must still prove its scalar lane
-    /// here — non-admitted actual kinds fail closed.
-    fn issue_tagged_birth_actuals(
-        &self,
-        entry: &CompiledEntryContractV1<'_>,
-    ) -> Result<(
-        BTreeSet<(OwnedExprSiteV1, u32)>,
-        BTreeSet<(OwnedExprSiteV1, u32)>,
-    ), String> {
-        use crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1 as Kind;
-        let mut tagged = BTreeSet::new();
-        let mut object = BTreeSet::new();
-        for call in entry.birth_calls() {
-            let caller = entry
-                .program()
-                .functions()
-                .get(call.caller_function_index() as usize)
-                .ok_or_else(|| fault("birth-caller-missing"))?;
-            let uses = entry
-                .program()
-                .handoff()
-                .root_source()
-                .map(|source| {
-                    // Callers outside the closed borrowed-entry profile
-                    // cannot carry admitted `new`-argument uses; asking for
-                    // their projection would demand entry values that were
-                    // never recorded.
-                    if !source.has_borrowed_ordinary_entry_v1(call.actual().owner()) {
-                        return Ok(Vec::new().into_boxed_slice());
-                    }
-                    let caller_function = self
-                        .module()
-                        .functions
-                        .get(caller.name())
-                        .ok_or_else(|| fault("birth-caller-draft-missing"))?;
-                    source.borrowed_ordinary_new_argument_uses_v1(
-                        call.actual().owner(),
-                        caller_function,
-                    )
-                })
-                .transpose()?
-                .unwrap_or_default();
-            for actual in call.actual().arguments() {
-                // The bound formal's contract is the sole capability
-                // authority: an object-field formal admits the nullable
-                // pair lane — `Null` or an owned `Handle` actual whose
-                // lease moves at the call edge; a scalar or unused formal
-                // admits the scalar kinds only.
-                let object_formal = entry
-                    .births()
-                    .iter()
-                    .find(|birth| birth.function_index() == call.function_index())
-                    .and_then(|birth| {
-                        birth.formals().iter().find(|formal| {
-                            formal.source_ordinal() == Some(actual.source().ordinal())
-                        })
-                    })
-                    .ok_or_else(|| fault("birth-actual-formal-missing"))?
-                    .contract()
-                    .is_some_and(|contract| {
-                        matches!(
-                            contract.uses(),
-                            crate::mir::normal_callable_semantic_package
-                                ::BirthFormalUseCoverageV1::ObjectFieldStores { .. }
-                        )
-                    });
-                let admitted = uses.iter().any(|(_, formal, site, ordinal)| {
-                    *ordinal == actual.source().ordinal()
-                        && site == actual.source().new_site()
-                        && matches!(
-                            actual.source().kind(),
-                            Kind::Handle { binding } if binding == formal
-                        )
-                });
-                if admitted && !object_formal {
-                    if !tagged.insert((
-                        actual.source().new_site().clone(),
-                        actual.source().ordinal(),
-                    )) {
-                        return Err(fault("birth-actual-tagged-duplicate"));
-                    }
-                    continue;
-                }
-                let object_actual = matches!(
-                    actual.source().kind(),
-                    Kind::Null | Kind::Handle { .. }
-                );
-                if object_formal != object_actual {
-                    return Err(fault("actual-kind-unavailable"));
-                }
-                if object_formal {
-                    // The wire kind is selected at transport time from the
-                    // sealed source kind — `Null` (0,0) or `Handle` (3,
-                    // payload). Lease ownership stays unproven here: the
-                    // flow layer admits only a live owned handle for tag 3.
-                    if !object.insert((
-                        actual.source().new_site().clone(),
-                        actual.source().ordinal(),
-                    )) {
-                        return Err(fault("birth-actual-tagged-duplicate"));
-                    }
-                    continue;
-                }
-                scalar_actual_kind(actual.source().kind(), actual.value(), caller.value_types())?;
-            }
-        }
-        Ok((tagged, object))
-    }
+
 }
 
 fn referenced_objects(
@@ -667,7 +563,21 @@ fn referenced_objects(
                         | InvokeOperation::ReclaimUnpublished { object, .. } => {
                             ids.insert(object.declaration_index());
                         }
-                        InvokeOperation::FieldSet { field, .. }
+                        InvokeOperation::ObjectEndIfOwned { object, end, .. } => {
+                            ids.insert(object.declaration_index());
+                            for step in end.iter() {
+                                match step {
+                                    crate::mir::instruction::ObjectEndStepV1::ArrayField { field } => { ids.insert(field.object().declaration_index()); }
+                                    crate::mir::instruction::ObjectEndStepV1::ObjectField { field, child } => {
+                                        ids.insert(field.object().declaration_index());
+                                        ids.insert(child.declaration_index());
+                                    }
+                                    crate::mir::instruction::ObjectEndStepV1::ReleaseOuter => {},
+                                }
+                            }
+                        }
+                        InvokeOperation::FieldGet { field, .. }
+                        | InvokeOperation::FieldSet { field, .. }
                         | InvokeOperation::OwnedFieldResidenceRelease { field, .. } => {
                             ids.insert(field.object().declaration_index());
                         }
@@ -681,6 +591,7 @@ fn referenced_objects(
                         }
                         InvokeOperation::Call { .. } | InvokeOperation::Map(_) | InvokeOperation::String(_) => {}
                         InvokeOperation::IntrinsicArrayNew
+                        | InvokeOperation::ScriptArgumentsNew { .. }
                         | InvokeOperation::ArrayStateContractClaim { .. }
                         | InvokeOperation::ArrayElementWrite { .. } => {}
                     },

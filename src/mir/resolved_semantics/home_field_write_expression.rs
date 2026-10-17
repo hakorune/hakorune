@@ -1,0 +1,81 @@
+//! Qualify the RHS of the SAME original Plain field assignment.
+//! Source effects and target reach are checked by the Home walk first.
+use super::*;
+use crate::mir::resolved_semantics::{ResolvedAssignmentFormV1, SourceExprSiteV1};
+use crate::mir::resolved_value_profile::{
+    expression_class::ExpressionValueClassV1 as Class,
+    expression_plan::ExpressionPlanRootV1,
+    expression_projection::{project_expression_nodes_v1, ExpressionLeafClassV1 as Leaf},
+};
+use std::collections::{BTreeMap, BTreeSet};
+use super::super::SourceScalarKind;
+
+pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_expression_v1<E>(
+    source: Rc<ExpressionSourcePlanV1>,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<SourceScalarKind>,
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+    can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
+    field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
+) -> Result<Option<HomeExpressionPlanV1>, E> {
+    let ExpressionPlanRootV1::Assignment { assignment } = source.root() else { return Ok(None) };
+    if assignment.form() != ResolvedAssignmentFormV1::Plain || source.has_opaque_obligations()
+        || source.nodes().first().is_none_or(|root| root.site() != assignment.value_site())
+    { return Ok(None); }
+    let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
+    let mut requests = Vec::new();
+    for (index, node) in source.nodes().iter().enumerate() {
+        if matches!(node.source(), ExpressionNodeSourceV1::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
+            let Some(request) = field_request(node.site()) else { return Ok(None) };
+            if source.field_read_node_v1(request.site.site(), &request.receiver_site,
+                request.receiver, &request.field) != Some(index) { return Ok(None); }
+            let Some(receiver) = source.nodes().iter().position(|node| node.site() == &request.receiver_site)
+                else { return Ok(None) };
+            leaves[receiver] = Leaf::Identity;
+            leaves[index] = Leaf::Value(Class::I64);
+            requests.push(request);
+        }
+    }
+    // Existing non-arithmetic field effects retain their original source without
+    // gaining scalar capability. Every Sub/Div node, however, owes a typed proof.
+    let scalar_nodes: Vec<_> = source.nodes().iter().enumerate().filter_map(|(index, node)|
+        node.binary().filter(|row| matches!(row.operator(), ResolvedBinaryOperatorV1::Subtract
+            | ResolvedBinaryOperatorV1::Divide)).map(|binary| (index, binary))).collect();
+    let mut operations = Vec::new();
+    if !scalar_nodes.is_empty() {
+        for (index, node) in source.nodes().iter().enumerate() {
+            if leaves[index] == Leaf::Identity { continue; }
+            if matches!(node.source(), ExpressionNodeSourceV1::Reference(_)) {
+                let Some(kind) = scalar_reference(node.site()) else { return Ok(None) };
+                leaves[index] = Leaf::Value(match kind { SourceScalarKind::Integer => Class::I64,
+                    SourceScalarKind::Bool => Class::Bool });
+            }
+        }
+        let Some(classes) = project_expression_nodes_v1(&source, &BTreeSet::new(), |index| leaves[index])
+            else { return Ok(None) };
+        let indices: BTreeMap<_, _> = source.nodes().iter().enumerate().map(|(index, node)| (node.site(), index)).collect();
+        for (index, binary) in scalar_nodes {
+            if [binary.lhs(), binary.rhs()].iter().any(|site|
+                indices.get(site).is_none_or(|index| classes[*index] != Leaf::Value(Class::I64)))
+            { return Ok(None); }
+            let positive_divisor = if binary.operator() == ResolvedBinaryOperatorV1::Divide {
+                let Some(rhs) = indices.get(binary.rhs()).map(|index| &source.nodes()[*index]) else { return Ok(None) };
+                let ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(value)) = rhs.source()
+                    else { return Ok(None) };
+                if *value <= 0 { return Ok(None); }
+                Some(*value)
+            } else { None };
+            operations.push(Rc::new(ExpressionScalarOperationLoanV1 {
+                plan: Rc::clone(&source), node: index, positive_divisor,
+            }));
+        }
+    }
+    let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: operations,
+        source_fields: Vec::new(), print_frame: None, condition_frame: None, borrowed_field_write: None };
+    let Some(candidate) = candidate.with_source_field_requirements(&requests) else { return Ok(None) };
+    if !can_install(&candidate) { return Ok(None); }
+    if !field_batch(&requests, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? {
+        return Ok(None);
+    }
+    Ok(Some(candidate))
+}

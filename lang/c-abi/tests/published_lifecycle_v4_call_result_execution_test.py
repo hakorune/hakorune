@@ -13,12 +13,13 @@ TESTS = ROOT / 'lang/c-abi/tests'
 INPUTS = Path(sys.argv[1])
 STEM = sys.argv[2] if len(sys.argv) > 2 else 'hako-issued-borrowed-call-result'
 OWNED = len(sys.argv) > 3 and sys.argv[3] == 'owned'
-ARCHIVE = ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'
+ARCHIVE = Path(os.environ.get('HAKO_TEST_LIFECYCLE_ARCHIVE',
+                             ROOT / 'target/lifecycle-kernel/release/libnyash_lifecycle_kernel.a'))
 ENV = dict(os.environ, NYASH_NYRT_SILENT_RESULT='1', HAKO_NYRT_PLUGIN_HOST='off')
 for key in ['V4_PROBE_FAULT_AT', 'V4_PROBE_NEW_FAULT_AT', 'V4_PROBE_HOME_FAULT_AT']:
     ENV.pop(key, None)
 WRAPS = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-         'object.checked_field_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
+         'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
 
 def checked(argv):
@@ -63,7 +64,7 @@ def owned_results(driver, obj, exe, work):
         execute(path)
         print(path.name, 'owned Normal/allocation Fault/cleanup Fault PASS')
 
-    def changed(label, source, mutate, accept=False, homes=3):
+    def changed(label, source, mutate, accept=False, homes=3, reason='[freeze:contract]'):
         graph = copy.deepcopy(source)
         mutate(graph)
         path = work / (label + '.json')
@@ -71,9 +72,11 @@ def owned_results(driver, obj, exe, work):
         if accept:
             execute(path, homes)
         else:
+            before = obj.read_bytes() if obj.exists() else None
             result = subprocess.run([driver, path, obj], capture_output=True, text=True)
-            assert result.returncode != 0 and '[freeze:contract]' in result.stderr, (
+            assert result.returncode != 0 and reason in result.stderr, (
                 label, result.returncode, result.stdout, result.stderr)
+            assert (obj.read_bytes() if obj.exists() else None) == before
         print(label, 'PASS')
 
     def function(graph, name):
@@ -84,6 +87,82 @@ def owned_results(driver, obj, exe, work):
 
     base = json.loads(next(p for p in paths if 'receivedfalse-nullablefalse-optfalse.json' in p.name).read_text())
     nullable = json.loads(next(p for p in paths if 'receivedfalse-nullabletrue-optfalse.json' in p.name).read_text())
+
+    def handle_phi(graph, *, after_end=False, different=False):
+        fn = graph['functions'][0]
+        result = next(r['instruction']['dst'] for b in fn['blocks'] for r in b['instructions']
+            if r['instruction']['op'] == 'invoke_normal_result' and any(
+                p['id'] == r['instruction']['invoke_block'] and
+                p['terminator']['instruction'].get('operation', {}).get('kind') == 'ordinary_call'
+                for p in fn['blocks']))
+        value = max(r['instruction'].get('dst', 0) for b in fn['blocks'] for r in b['instructions']) + 1
+        if after_end:
+            block = next(b for b in fn['blocks'] if b['terminator']['instruction']['op'] == 'return')
+            inputs = [{'block': p['id'], 'value': result} for p in fn['blocks']
+                      if any(e['target'] == block['id'] for e in p['edges'])]
+        else:
+            block = next(b for b in fn['blocks'] if
+                b['terminator']['instruction'].get('operation', {}).get('kind') == 'home_release' and
+                b['terminator']['instruction']['operation']['value'] == result)
+            first = max(b['id'] for b in fn['blocks']) + 1
+            join = {'id': first + 2, 'instructions': [],
+                    'terminator': block['terminator'], 'edges': block['edges']}
+            other = next(t['operation']['value'] for t in terminators(fn)
+                         if t.get('operation', {}).get('kind') == 'home_release' and
+                         t['operation']['value'] != result)
+            inputs = []
+            for i in range(2):
+                src = other if different and i else result
+                fn['blocks'].append({'id': first + i, 'instructions': [{'index': 0,
+                    'instruction': {'op': 'copy', 'dst': value + 1 + i, 'src': src}}],
+                    'terminator': {'index': 1, 'instruction': {'op': 'jump', 'target': join['id'], 'args': None}},
+                    'edges': [{'target': join['id'], 'args': None}]})
+                inputs.append({'block': first + i, 'value': value + 1 + i})
+            block['instructions'].append({'index': len(block['instructions']),
+                'instruction': {'op': 'const_bool', 'dst': value + 3, 'value': True}})
+            block['terminator'] = {'index': len(block['instructions']), 'instruction': {
+                'op': 'branch', 'condition': value + 3, 'then': first, 'else': first + 1,
+                'then_args': None, 'else_args': None}}
+            block['edges'] = [{'target': first + i, 'args': None} for i in range(2)]
+            fn['blocks'].append(join)
+            block = join
+            block['terminator']['instruction']['operation']['value'] = value
+        block['instructions'].insert(0, {'instruction': {'op': 'phi', 'dst': value, 'inputs': inputs}})
+        for i, row in enumerate(block['instructions']): row['index'] = i
+        block['terminator']['index'] = len(block['instructions'])
+
+    # Physical witnesses, not replacements for the original source cohort.
+    changed('same-original-handle-phi-through-two-copies', base, handle_phi, accept=True)
+    for label, options in [('different-original-handle-phi', {'different': True}),
+                           ('unused-handle-phi-after-End', {'after_end': True})]:
+        changed(label, base, lambda g, options=options: handle_phi(g, **options),
+                reason='published-lifecycle-v4/unsupported-cohort')
+
+    def keep_alive(graph, values, *, early=False, nullable=False, extra=False):
+        fn = function(graph, 'Maker.make/1') if nullable else graph['functions'][0]
+        block = next(b for b in fn['blocks'] if b['id'] == fn['entry']) if early else next(
+            b for b in fn['blocks'] if b['terminator']['instruction']['op'] == 'return')
+        hint = {'op': 'keep_alive', 'values': values(fn) if callable(values) else values}
+        if extra:
+            hint['owned'] = True
+        block['instructions'].append({'index': len(block['instructions']), 'instruction': hint})
+        block['terminator']['index'] = len(block['instructions'])
+
+    # Metadata-only transport: source Call/CFG/cleanup rows remain unchanged.
+    # A released lease can still have an available SSA definition.
+    released = lambda fn: [next(term['operation']['value'] for term in terminators(fn)
+                                if term.get('operation', {}).get('kind') == 'home_release')]
+    changed('keep-alive-empty', base, lambda g: keep_alive(g, []), accept=True)
+    changed('keep-alive-after-release', base, lambda g: keep_alive(g, released), accept=True)
+    changed('keep-alive-duplicates', base, lambda g: keep_alive(g, lambda fn: released(fn) * 2), accept=True)
+    for value in [999999, -1, 1 << 40, True, '0']:
+        changed('keep-alive-invalid-' + str(value), base, lambda g, v=value: keep_alive(g, [v]))
+    changed('keep-alive-nonarray', base, lambda g: keep_alive(g, 0))
+    changed('keep-alive-extra-key', base, lambda g: keep_alive(g, [], extra=True))
+    changed('keep-alive-nondominating', nullable, lambda g: keep_alive(g,
+        lambda fn: [next(row['instruction']['dst'] for b in fn['blocks'] if b['id'] != fn['entry']
+                         for row in b['instructions'] if 'dst' in row['instruction'])],
+        early=True, nullable=True))
 
     def role_drift(graph):
         function(graph, 'Maker.make/1')['role'] = 'ordinary_nullable_handle'
@@ -167,7 +246,23 @@ def owned_results(driver, obj, exe, work):
                     block['terminator']['index'] = len(block['instructions'])
         assert value is not None
         next(t for t in terminators(fn) if t['op'] == 'return')['value'] = dst
-    changed('exact-copy-owned-result', base, copy_result, accept=True)
+    # Received source fixtures above supply the positive original Copy case.
+    # A new physical Copy without its source-issued Return correspondence fails.
+    changed('unissued-copy-owned-result', base, copy_result)
+
+    def return_origin(graph):
+        return next(t for t in terminators(function(graph, 'Maker.make/1')) if t['op'] == 'return')
+
+    changed('missing-original-return-origin', base, lambda g: return_origin(g).pop('result_origin'))
+    changed('foreign-original-return-producer', base,
+            lambda g: return_origin(g)['result_origin']['producer'].update(block=99999))
+    changed('foreign-original-return-invoke', base,
+            lambda g: return_origin(g)['result_origin']['invoke'].update(index=99999))
+    changed('wrong-original-return-kind', base,
+            lambda g: return_origin(g)['result_origin'].update(kind='null'))
+    changed('extra-original-return-copy', base,
+            lambda g: return_origin(g)['result_origin']['copies'].append(
+                copy.deepcopy(return_origin(g)['result_origin']['producer'])))
 
     def reverse_callees(graph):
         graph['functions'][1], graph['functions'][2] = graph['functions'][2], graph['functions'][1]

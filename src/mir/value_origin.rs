@@ -6,7 +6,7 @@
  */
 
 use super::{BasicBlockId, MirFunction, MirInstruction, ValueId};
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 pub type ValueDefMap = HashMap<ValueId, (BasicBlockId, usize)>;
 pub type ParentMap = HashMap<ValueId, ValueId>;
@@ -105,6 +105,85 @@ pub fn resolve_value_origin(
     value: ValueId,
 ) -> ValueId {
     ValueOriginQueryContext::new(function, def_map).origin(value)
+}
+
+/// Opt-in identity transport through Copies and acyclic unanimous Phis.
+/// This does not infer a resource role or grant any ownership permission.
+/// Unlike the compatibility Copy query, missing/ambiguous definitions fail.
+pub(in crate::mir) struct AcyclicUnanimousValueOrigins {
+    roots: HashMap<ValueId, Option<ValueId>>,
+}
+
+impl AcyclicUnanimousValueOrigins {
+    pub(in crate::mir) fn new(function: &MirFunction) -> Self {
+        let mut definitions = HashMap::new();
+        let mut ambiguous = BTreeSet::new();
+        let mut predecessors: BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>> = BTreeMap::new();
+        let mut parameters = BTreeSet::new();
+        for value in &function.params {
+            if !parameters.insert(*value) { ambiguous.insert(*value); }
+        }
+        for (id, block) in &function.blocks {
+            for instruction in &block.instructions {
+                if let Some(dst) = instruction.dst_value() {
+                    if definitions.insert(dst, (*id, instruction)).is_some()
+                        || parameters.contains(&dst)
+                    { ambiguous.insert(dst); }
+                }
+            }
+            for target in block.successors_from_terminator() {
+                predecessors.entry(target).or_default().insert(*id);
+            }
+        }
+        fn resolve(
+            value: ValueId,
+            definitions: &HashMap<ValueId, (BasicBlockId, &MirInstruction)>,
+            parameters: &BTreeSet<ValueId>,
+            ambiguous: &BTreeSet<ValueId>,
+            predecessors: &BTreeMap<BasicBlockId, BTreeSet<BasicBlockId>>,
+            active: &mut BTreeSet<ValueId>,
+            roots: &mut HashMap<ValueId, Option<ValueId>>,
+        ) -> Option<ValueId> {
+            if let Some(root) = roots.get(&value) { return *root; }
+            if ambiguous.contains(&value) || !active.insert(value) { return None; }
+            let result = (|| {
+                let Some((block, instruction)) = definitions.get(&value) else {
+                    return parameters.contains(&value).then_some(value);
+                };
+                let mut child = |value| resolve(value, definitions, parameters, ambiguous,
+                    predecessors, active, roots);
+                match instruction {
+                    MirInstruction::Copy { src, .. } => child(*src),
+                    MirInstruction::Phi { inputs, .. } => {
+                        let incoming: BTreeSet<_> = inputs.iter().map(|(bb, _)| *bb).collect();
+                        if inputs.is_empty() || incoming.len() != inputs.len()
+                            || predecessors.get(block) != Some(&incoming)
+                        { return None; }
+                        let root = child(inputs[0].1)?;
+                        for (_, input) in inputs.iter().skip(1) {
+                            if child(*input) != Some(root) { return None; }
+                        }
+                        Some(root)
+                    }
+                    _ => Some(value),
+                }
+            })();
+            active.remove(&value);
+            roots.insert(value, result);
+            result
+        }
+        let mut roots = HashMap::new();
+        let mut active = BTreeSet::new();
+        for value in definitions.keys().chain(parameters.iter()).copied() {
+            resolve(value, &definitions, &parameters, &ambiguous, &predecessors,
+                &mut active, &mut roots);
+        }
+        Self { roots }
+    }
+
+    pub(in crate::mir) fn origin(&self, value: ValueId) -> Option<ValueId> {
+        self.roots.get(&value).copied().flatten()
+    }
 }
 
 pub fn resolve_value_origin_from_parent_map(mut value: ValueId, parents: &ParentMap) -> ValueId {

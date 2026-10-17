@@ -77,6 +77,21 @@ fn original() -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
     (function, bindings)
 }
 
+// Physical graph fixture only; source acquisition is proved by the package.
+fn original_with_release(mixed: bool) -> (MirFunction, Vec<(BasicBlockId, MirInstruction)>) {
+    let (mut function, mut bindings) = original();
+    if mixed {
+        for (block, instruction) in &mut bindings {
+            if let MirInstruction::Invoke { operation: operation @ InvokeOperation::HomeRelease { .. }, .. } = instruction {
+                let InvokeOperation::HomeRelease { object, value } = *operation else { unreachable!() };
+                *operation = InvokeOperation::ObjectEndIfOwned { object, value, end: Box::new([crate::mir::instruction::ObjectEndStepV1::ReleaseOuter]) };
+                function.blocks.get_mut(block).unwrap().set_terminator(instruction.clone());
+            }
+        }
+    }
+    (function, bindings)
+}
+
 fn contracted(original: &MirFunction) -> MirFunction {
     let mut function = original.clone();
     for (from, into) in [(13, 10), (11, 14), (12, 15)] {
@@ -92,158 +107,172 @@ fn contracted(original: &MirFunction) -> MirFunction {
 
 #[test]
 fn exact_original_and_three_contractions_preserve_full_release() {
-    let (original, bindings) = original();
-    let boundary = RootCleanupBoundary::capture(&original, &bindings, 1).unwrap();
-    assert_eq!(
-        boundary.project(&original, &bindings).unwrap().len(),
-        bindings.len()
-    );
-    let result = boundary.project(&contracted(&original), &bindings).unwrap();
-    assert_eq!(result.len(), bindings.len() - 3);
-    assert!(result.contains(&(BasicBlockId(10), bindings[4].1.clone())));
-    // Partial legal optimization is also a graph equivalence, not a retry.
-    let mut partial = original.clone();
-    let removed = partial.blocks.remove(&BasicBlockId(13)).unwrap();
-    partial
-        .blocks
-        .get_mut(&BasicBlockId(10))
-        .unwrap()
-        .set_terminator(removed.terminator.unwrap());
-    assert_eq!(
-        boundary.project(&partial, &bindings).unwrap().len(),
-        bindings.len() - 1
-    );
+    for mixed in [false, true] {
+        let (original, bindings) = original_with_release(mixed);
+        let boundary = RootCleanupBoundary::capture(&original, &bindings, 1).unwrap();
+        assert_eq!(
+            boundary.project(&original, &bindings).unwrap().len(),
+            bindings.len()
+        );
+        let result = boundary.project(&contracted(&original), &bindings).unwrap();
+        assert_eq!(result.len(), bindings.len() - 3);
+        assert!(result.contains(&(BasicBlockId(10), bindings[4].1.clone())));
+        // Partial legal optimization is also a graph equivalence, not a retry.
+        let mut partial = original.clone();
+        let removed = partial.blocks.remove(&BasicBlockId(13)).unwrap();
+        partial
+            .blocks
+            .get_mut(&BasicBlockId(10))
+            .unwrap()
+            .set_terminator(removed.terminator.unwrap());
+        assert_eq!(
+            boundary.project(&partial, &bindings).unwrap().len(),
+            bindings.len() - 1
+        );
+    }
 }
 
 #[test]
 fn finished_cleanup_rejects_operation_path_and_prefix_mutations() {
-    let (original, bindings) = original();
-    let boundary = RootCleanupBoundary::capture(&original, &bindings, 1).unwrap();
-    let valid = contracted(&original);
-    let mutations: &[(&str, fn(&mut MirFunction))] =
-        &[
-            ("omit release", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(10))
-                    .unwrap()
-                    .set_terminator(jump(14))
-            }),
-            ("duplicate release", |f| {
-                let op = f.blocks[&BasicBlockId(10)].terminator.clone().unwrap();
-                f.blocks
-                    .get_mut(&BasicBlockId(14))
-                    .unwrap()
-                    .instructions
-                    .push(op);
-            }),
-            ("receiver", |f| {
-                if let Some(MirInstruction::Invoke {
-                    operation: InvokeOperation::HomeRelease { value, .. },
-                    ..
-                }) = &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
-                {
-                    *value = ValueId(99);
-                }
-            }),
-            ("frame", |f| {
-                if let Some(MirInstruction::Invoke { fault_frame, .. }) =
-                    &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
-                {
-                    *fault_frame = ValueId(99);
-                }
-            }),
-            ("swap Normal/Fault", |f| {
-                if let Some(MirInstruction::Invoke {
-                    normal_landing,
-                    fault_landing,
-                    ..
-                }) = &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
-                {
-                    std::mem::swap(normal_landing, fault_landing);
-                }
-            }),
-            ("Fault becomes Normal", |f| {
-                f.blocks.get_mut(&BasicBlockId(15)).unwrap().set_terminator(
-                    MirInstruction::Return {
-                        value: Some(ValueId(11)),
-                    },
-                )
-            }),
-            ("return value", |f| {
-                f.blocks.get_mut(&BasicBlockId(14)).unwrap().set_terminator(
-                    MirInstruction::Return {
-                        value: Some(ValueId(99)),
-                    },
-                )
-            }),
-            ("prefix omitted", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(10))
-                    .unwrap()
-                    .instructions
-                    .pop();
-            }),
-            ("prefix reordered", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(10))
-                    .unwrap()
-                    .instructions
-                    .reverse()
-            }),
-            ("additional instruction", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(14))
-                    .unwrap()
-                    .instructions
-                    .push(MirInstruction::Copy {
-                        dst: ValueId(99),
-                        src: ValueId(8),
-                    })
-            }),
-            ("entry bypass", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(0))
-                    .unwrap()
-                    .set_terminator(jump(14))
-            }),
-            ("external internal incoming", |f| {
-                let mut extra = BasicBlock::new(BasicBlockId(99));
-                extra.set_terminator(jump(15));
-                f.add_block(extra);
-            }),
-            ("external entry incoming", |f| {
-                let mut extra = BasicBlock::new(BasicBlockId(99));
-                extra.set_terminator(jump(10));
-                f.add_block(extra);
-            }),
-            ("incoming slot changed", |f| {
-                f.blocks
-                    .get_mut(&BasicBlockId(0))
-                    .unwrap()
-                    .set_terminator(MirInstruction::Branch {
-                        condition: ValueId(99),
-                        then_bb: BasicBlockId(10),
-                        else_bb: BasicBlockId(100),
-                        then_edge_args: None,
-                        else_edge_args: None,
-                    })
-            }),
-            ("removed node restored", |f| {
-                let mut block = BasicBlock::new(BasicBlockId(13));
-                block.set_terminator(jump(14));
-                f.add_block(block);
-            }),
-            ("entry removed", |f| {
-                f.blocks.remove(&BasicBlockId(10));
-            }),
-        ];
-    for (name, mutate) in mutations {
-        let mut changed = valid.clone();
-        mutate(&mut changed);
-        assert!(
-            boundary.project(&changed, &bindings).is_err(),
-            "accepted {name}"
-        );
+    for mixed in [false, true] {
+        let (original, bindings) = original_with_release(mixed);
+        let boundary = RootCleanupBoundary::capture(&original, &bindings, 1).unwrap();
+        let valid = contracted(&original);
+        if mixed {
+            for body in [vec![], vec![crate::mir::instruction::ObjectEndStepV1::ReleaseOuter; 2]] {
+                let mut changed = valid.clone();
+                let Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectEndIfOwned { end, .. }, .. }) =
+                    &mut changed.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator else { panic!("conditional End"); };
+                *end = body.into_boxed_slice();
+                assert!(boundary.project(&changed, &bindings).is_err(), "the complete End body cannot be dropped or duplicated");
+            }
+        }
+        let mutations: &[(&str, fn(&mut MirFunction))] =
+            &[
+                ("omit release", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(10))
+                        .unwrap()
+                        .set_terminator(jump(14))
+                }),
+                ("duplicate release", |f| {
+                    let op = f.blocks[&BasicBlockId(10)].terminator.clone().unwrap();
+                    f.blocks
+                        .get_mut(&BasicBlockId(14))
+                        .unwrap()
+                        .instructions
+                        .push(op);
+                }),
+                ("receiver", |f| {
+                    if let Some(MirInstruction::Invoke {
+                        operation: InvokeOperation::HomeRelease { value, .. }
+                        | InvokeOperation::ObjectEndIfOwned { value, .. },
+                        ..
+                    }) = &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
+                    {
+                        *value = ValueId(99);
+                    }
+                }),
+                ("frame", |f| {
+                    if let Some(MirInstruction::Invoke { fault_frame, .. }) =
+                        &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
+                    {
+                        *fault_frame = ValueId(99);
+                    }
+                }),
+                ("swap Normal/Fault", |f| {
+                    if let Some(MirInstruction::Invoke {
+                        normal_landing,
+                        fault_landing,
+                        ..
+                    }) = &mut f.blocks.get_mut(&BasicBlockId(10)).unwrap().terminator
+                    {
+                        std::mem::swap(normal_landing, fault_landing);
+                    }
+                }),
+                ("Fault becomes Normal", |f| {
+                    f.blocks.get_mut(&BasicBlockId(15)).unwrap().set_terminator(
+                        MirInstruction::Return {
+                            value: Some(ValueId(11)),
+                        },
+                    )
+                }),
+                ("return value", |f| {
+                    f.blocks.get_mut(&BasicBlockId(14)).unwrap().set_terminator(
+                        MirInstruction::Return {
+                            value: Some(ValueId(99)),
+                        },
+                    )
+                }),
+                ("prefix omitted", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(10))
+                        .unwrap()
+                        .instructions
+                        .pop();
+                }),
+                ("prefix reordered", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(10))
+                        .unwrap()
+                        .instructions
+                        .reverse()
+                }),
+                ("additional instruction", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(14))
+                        .unwrap()
+                        .instructions
+                        .push(MirInstruction::Copy {
+                            dst: ValueId(99),
+                            src: ValueId(8),
+                        })
+                }),
+                ("entry bypass", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(0))
+                        .unwrap()
+                        .set_terminator(jump(14))
+                }),
+                ("external internal incoming", |f| {
+                    let mut extra = BasicBlock::new(BasicBlockId(99));
+                    extra.set_terminator(jump(15));
+                    f.add_block(extra);
+                }),
+                ("external entry incoming", |f| {
+                    let mut extra = BasicBlock::new(BasicBlockId(99));
+                    extra.set_terminator(jump(10));
+                    f.add_block(extra);
+                }),
+                ("incoming slot changed", |f| {
+                    f.blocks
+                        .get_mut(&BasicBlockId(0))
+                        .unwrap()
+                        .set_terminator(MirInstruction::Branch {
+                            condition: ValueId(99),
+                            then_bb: BasicBlockId(10),
+                            else_bb: BasicBlockId(100),
+                            then_edge_args: None,
+                            else_edge_args: None,
+                        })
+                }),
+                ("removed node restored", |f| {
+                    let mut block = BasicBlock::new(BasicBlockId(13));
+                    block.set_terminator(jump(14));
+                    f.add_block(block);
+                }),
+                ("entry removed", |f| {
+                    f.blocks.remove(&BasicBlockId(10));
+                }),
+            ];
+        for (name, mutate) in mutations {
+            let mut changed = valid.clone();
+            mutate(&mut changed);
+            assert!(
+                boundary.project(&changed, &bindings).is_err(),
+                "accepted {name}"
+            );
+        }
     }
 }
 

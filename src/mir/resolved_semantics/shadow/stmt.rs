@@ -463,10 +463,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         else_body: Option<&'ast [ASTNode]>,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        self.resolve_expr(
-            condition,
-            &Self::stmt_expr_path(statement, path, ExprChildRoleV1::IfCondition),
-        )?;
+        let condition_path = Self::stmt_expr_path(statement, path, ExprChildRoleV1::IfCondition);
+        self.resolve_expr(condition, &condition_path)?;
+        self.record_relation(
+            path.node(),
+            crate::mir::resolved_semantics::SourcePathSegmentV1::IfCondition,
+            condition_path.expr(),
+        );
         let if_region = self.enter_control_region(ShadowRegionKindV0::If, path);
         let result = (|| {
             let then_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::IfThen);

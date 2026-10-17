@@ -1,13 +1,42 @@
 //! Whole-expression Home qualification and stable scalar loans of one source plan.
 //! Source structure remains owned by resolved_value_profile; physical rows live later.
 use crate::mir::resolved_semantics::{
-    FunctionOwnerIdV1, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
+    home_new_prefix::LocalFieldReadRequestV1, FunctionOwnerIdV1, ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
     ResolvedInitializerRelationV1, ResolvedLiteralSourceV1, SourceStmtSiteV1,
 };
 use crate::mir::resolved_value_profile::expression_plan::{
     ExpressionNodeSourceV1, ExpressionSourcePlanV1,
 };
 use std::rc::Rc;
+use crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvelopeV1;
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct CheckedExpressionOperationLoanV1 {
+    plan: Rc<ExpressionSourcePlanV1>,
+    node: usize,
+    envelope: &'static VerifiedDynamicOperatorExecutionEnvelopeV1,
+}
+impl CheckedExpressionOperationLoanV1 {
+    pub(crate) fn node(&self) -> usize { self.node }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
+    pub(crate) fn envelope(&self) -> &'static VerifiedDynamicOperatorExecutionEnvelopeV1 { self.envelope }
+}
+
+
+#[path = "home_expression_leaves.rs"]
+mod leaves;
+#[path = "home_field_write_expression.rs"]
+mod field_write_expression;
+pub(super) use field_write_expression::qualify_field_write_expression_v1;
+#[path = "home_bool_condition.rs"]
+mod condition;
+pub(crate) use condition::{qualify_bool_condition_v1, CheckedBoolConditionFrameV1};
+#[path = "home_print_expression.rs"]
+mod print_expression;
+pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};
+
+#[path = "home_borrowed_field_write.rs"]
+mod borrowed_field_write;
+pub(crate) use borrowed_field_write::CheckedBorrowedFieldWriteFrameV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExpressionScalarOperationLoanV1 {
@@ -38,12 +67,35 @@ impl ExpressionScalarOperationLoanV1 {
     }
 }
 
+/// A mandatory source read of this SAME complete expression, independent of
+/// whether its physical row or optional leaf loan later survives. No layout,
+/// field value or Home permission is inferred from the request itself.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ExpressionFieldRequirementV1 {
+    plan: Rc<ExpressionSourcePlanV1>,
+    node: usize,
+    request: LocalFieldReadRequestV1,
+}
+impl ExpressionFieldRequirementV1 {
+    pub(crate) fn plan(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
+    pub(crate) fn request(&self) -> &LocalFieldReadRequestV1 { &self.request }
+    fn is_consistent(&self) -> bool {
+        self.request.site.owner() == self.plan.owner()
+            && self.request.home.owner() == self.plan.owner()
+            && self.request.node_in_plan(&self.plan) == Some(self.node)
+    }
+}
+
 // Like the previous flow payload, equality compares immutable original facts.
 // It never replaces the physical consumer's explicit Rc membership checks.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct HomeExpressionPlanV1 {
     source: Rc<ExpressionSourcePlanV1>,
     scalar_operations: Vec<Rc<ExpressionScalarOperationLoanV1>>,
+    source_fields: Vec<ExpressionFieldRequirementV1>,
+    print_frame: Option<Rc<CheckedPrintExpressionFrameV1>>,
+    condition_frame: Option<Rc<CheckedBoolConditionFrameV1>>,
+    borrowed_field_write: Option<Rc<CheckedBorrowedFieldWriteFrameV1>>,
 }
 impl HomeExpressionPlanV1 {
     /// Called only after the original scalar preflight proves both Integer
@@ -82,8 +134,43 @@ impl HomeExpressionPlanV1 {
         Some(Self {
             source,
             scalar_operations: vec![loan],
+            source_fields: Vec::new(),
+            print_frame: None, condition_frame: None, borrowed_field_write: None,
         })
     }
+    /// Refine an already qualified whole root after its strict field batch.
+    /// Existing declaration-only roots keep an empty requirement list. The
+    /// caller cannot qualify a subset or attach an unrelated receiver node.
+    pub(crate) fn with_source_field_requirements(
+        mut self, requests: &[LocalFieldReadRequestV1],
+    ) -> Option<Self> {
+        if !self.source_fields.is_empty() { return None; }
+        let mut seen = std::collections::BTreeSet::new();
+        let mut fields = Vec::with_capacity(requests.len());
+        for request in requests {
+            let node = request.node_in_plan(&self.source)?;
+            let field = ExpressionFieldRequirementV1 {
+                plan: Rc::clone(&self.source), node, request: request.clone(),
+            };
+            if !field.is_consistent() || !seen.insert(node) { return None; }
+            fields.push(field);
+        }
+        let original: std::collections::BTreeSet<_> = self.source.nodes().iter().enumerate()
+            .filter(|(index, _)| self.print_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index))
+                && self.condition_frame.as_ref().is_none_or(|frame| !frame.transfers_node(*index)))
+            .filter_map(|(index, node)| matches!(node.source(), ExpressionNodeSourceV1::Shape(
+                crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })).then_some(index))
+            .collect();
+        if seen != original { return None; }
+        self.source_fields = fields;
+        self.is_consistent().then_some(self)
+    }
+    pub(crate) fn borrowed_field_write_frame(&self) -> Option<&Rc<CheckedBorrowedFieldWriteFrameV1>> {
+        self.borrowed_field_write.as_ref()
+    }
+    pub(crate) fn condition_frame(&self) -> Option<&Rc<CheckedBoolConditionFrameV1>> { self.condition_frame.as_ref() }
+    pub(crate) fn print_frame(&self) -> Option<&Rc<CheckedPrintExpressionFrameV1>> { self.print_frame.as_ref() }
+    pub(crate) fn source_fields(&self) -> &[ExpressionFieldRequirementV1] { &self.source_fields }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> {
         &self.source
     }
@@ -94,7 +181,13 @@ impl HomeExpressionPlanV1 {
     }
     pub(super) fn is_consistent(&self) -> bool {
         let mut seen = std::collections::BTreeSet::new();
-        self.scalar_operations.iter().all(|loan| {
+        [self.print_frame.is_some(), self.condition_frame.is_some(), self.borrowed_field_write.is_some()]
+            .into_iter().filter(|present| *present).count() <= 1
+            && self.borrowed_field_write.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.condition_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.print_frame.as_ref().is_none_or(|frame| Rc::ptr_eq(frame.source(), &self.source))
+            && self.source_fields.iter().all(|field| Rc::ptr_eq(&self.source, field.plan()) && field.is_consistent())
+            && self.scalar_operations.iter().all(|loan| {
             Rc::ptr_eq(&self.source, loan.plan())
                 && self
                     .source
@@ -103,5 +196,286 @@ impl HomeExpressionPlanV1 {
                     .is_some_and(|node| node.binary().is_some())
                 && seen.insert(loan.node)
         })
+    }
+}
+
+// Root-flow expression access and refinement stay with the expression owner.
+impl super::RootHomeFlow {
+    pub(crate) fn source_expression_fields(&self) -> impl Iterator<Item = &ExpressionFieldRequirementV1> {
+        self.expression_plans.iter().flat_map(HomeExpressionPlanV1::source_fields)
+    }
+    /// Refine an existing whole expression, preserving the original stable
+    /// operation loans. No equal-source reconstruction can replace its Rc.
+    pub(crate) fn refine_expression_plan(&mut self, refined: HomeExpressionPlanV1) -> bool {
+        let Some(original) = self.expression_plans.iter_mut()
+            .find(|old| std::rc::Rc::ptr_eq(old.source(), refined.source())) else { return false };
+        if !refined.is_consistent() || !original.source_fields().is_empty()
+            || match (original.print_frame(), refined.print_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || match (original.condition_frame(), refined.condition_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || match (original.borrowed_field_write_frame(), refined.borrowed_field_write_frame()) {
+                (None, None) => false,
+                (Some(a), Some(b)) => !std::rc::Rc::ptr_eq(a,b),
+                _ => true,
+            }
+            || original.scalar_operations().count() != refined.scalar_operations().count()
+            || !original.scalar_operations().zip(refined.scalar_operations())
+                .all(|(a,b)| std::rc::Rc::ptr_eq(a,b)) { return false; }
+        *original = refined;
+        true
+    }
+    pub(crate) fn expression_plans(&self) -> &[HomeExpressionPlanV1] { &self.expression_plans }
+    pub(crate) fn scalar_operations(&self) -> impl Iterator<Item = &std::rc::Rc<ExpressionScalarOperationLoanV1>> {
+        self.expression_plans.iter().flat_map(HomeExpressionPlanV1::scalar_operations)
+    }
+}
+
+/// A scoped transaction over the existing shared Home expression inventory.
+/// Approval stays private until the complete field batch succeeds; holding the
+/// one mutable inventory borrow prevents a sibling walk from changing its slot.
+/// Commit consumes the approved SAME source/frame without a second decision.
+pub(super) struct ExpressionPlanInstallationV1<'a> {
+    owner: FunctionOwnerIdV1,
+    plans: std::cell::RefMut<'a, Vec<HomeExpressionPlanV1>>,
+    approved: Option<HomeExpressionPlanV1>,
+}
+impl<'a> ExpressionPlanInstallationV1<'a> {
+    pub(super) fn new(owner: FunctionOwnerIdV1,
+        plans: std::cell::RefMut<'a, Vec<HomeExpressionPlanV1>>) -> Self {
+        Self { owner, plans, approved: None }
+    }
+    pub(super) fn approve(&mut self, plan: &HomeExpressionPlanV1) -> bool {
+        if self.approved.is_some() || plan.source().owner() != self.owner || !plan.is_consistent()
+            || self.plans.iter().any(|old| old.source().root().statement() == plan.source().root().statement()
+                && old.source().nodes()[0].site() == plan.source().nodes()[0].site()) {
+            return false;
+        }
+        self.approved = Some(plan.clone());
+        true
+    }
+    pub(super) fn commit(mut self) {
+        self.plans.push(self.approved.take().expect("only approved expression installation commits"));
+    }
+}
+
+#[cfg(test)]
+mod installation_tests {
+    use super::*;
+    use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
+    use crate::mir::resolved_semantics::home_new_prefix::local_flow::PrefixLocalFlow;
+    #[test]
+    fn complete_expression_installation_publishes_only_after_the_final_field_batch() {
+        let parsed = crate::parser::NyashParser::parse_from_string(
+            "function probe() { print(\"猫\") return 0 }").unwrap();
+        let crate::ast::ASTNode::Program { statements, .. } = parsed else { panic!("Program") };
+        let function = statements.into_iter().find(|node|
+            matches!(node, crate::ast::ASTNode::FunctionDeclaration { .. })).unwrap();
+        let unit = VerifiedResolvedSourceUnitV1::resolve_function(function).unwrap();
+        let input = unit.root_function_input().unwrap();
+        let shape = input.body_shape().unwrap();
+        let statement = shape.statements().iter().find(|statement|
+            matches!(statement, crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. })).unwrap();
+        let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+        let source = crate::mir::resolved_value_profile::expression_plan::statement_expression_source_plan_v1(
+            &ledger, shape, statement.site()).unwrap().unwrap();
+        let flow = PrefixLocalFlow::new(input);
+        let sibling = flow.clone();
+        for batch_succeeds in [false, true] {
+            let mut installation = flow.expression_installation();
+            let mut batches = 0;
+            let plan = qualify_print_expression_v1::<()>(Rc::clone(&source), &[],
+                &mut |_| None, &mut |_| Ok(None), &mut |plan| installation.approve(plan),
+                &mut |fields, _| { assert!(fields.is_empty()); batches += 1; Ok(batch_succeeds) }).unwrap();
+            assert_eq!(batches, 1);
+            assert_eq!(plan.is_some(), batch_succeeds);
+            if let Some(plan) = plan {
+                let original_frame = Rc::clone(plan.print_frame().unwrap());
+                installation.commit();
+                let installed = sibling.expression_plans();
+                assert_eq!(installed.len(), 1);
+                assert!(Rc::ptr_eq(installed[0].source(), &source));
+                assert!(Rc::ptr_eq(installed[0].print_frame().unwrap(), &original_frame));
+                assert!(installed[0].print_frame().unwrap().owned_result_nodes().is_empty());
+                // Membership comes from the installed source frame even when
+                // no call, field, temporary or physical observation exists.
+                use crate::mir::resolved_semantics::home_new_prefix::{RootHomeExitV1, RootHomeFlow};
+                let root = RootHomeFlow { named_arrays: Vec::new(), exits: Default::default(),
+                    maps: Vec::new(), local_calls: Vec::new(),
+                    expression_plans: installed };
+                let expected = root.lifecycle_prefixes(&[]).unwrap();
+                assert_eq!(expected.len(), 1);
+                let covered = RootHomeExitV1::issue(Box::new([]), Box::new([]),
+                    vec![source.root().statement().clone()].into_boxed_slice());
+                let sibling = RootHomeExitV1::issue(Box::new([]), Box::new([]), Box::new([]));
+                assert!(expected[0].covered_by(&covered));
+                assert!(!expected[0].covered_by(&sibling));
+            } else {
+                drop(installation);
+                assert!(sibling.expression_plans().is_empty(), "failed field batch publishes no frame");
+            }
+        }
+        let mut installation = sibling.expression_installation();
+        let mut batches = 0;
+        assert!(qualify_print_expression_v1::<()>(source, &[], &mut |_| None, &mut |_| Ok(None),
+            &mut |plan| installation.approve(plan),
+            &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
+        assert_eq!(batches, 0, "duplicate source slot rejects before a field batch");
+        // A borrowed write retains its original assignment and allocation-order
+        // snapshot. This frame alone never issues a physical store capability.
+        {
+            let parsed = crate::parser::NyashParser::parse_from_string(
+                "function probe(p, n) { p.value = n return p }").unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let shape = input.body_shape().unwrap();
+            let assignment = &shape.assignment_sources()[0];
+            let crate::mir::resolved_semantics::ResolvedAssignmentTargetV1::FieldWrite { receiver } =
+                input.function().assignment_target(assignment.target_site()).unwrap() else { panic!("field write") };
+            let binding = |site| match input.function().variable_ref(site).unwrap() {
+                crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding) => binding,
+                _ => panic!("local source"),
+            };
+            let homes = [binding(receiver), binding(assignment.value_site())];
+            let ledger = input.forest().callable_source_ledger(input.owner()).unwrap();
+            let source = crate::mir::resolved_value_profile::expression_plan::assignment_expression_source_plan_v1(
+                &ledger, shape, assignment).unwrap();
+            assert!(HomeExpressionPlanV1::borrowed_field_write(Rc::clone(&source), &[homes[0], homes[0]]).is_none());
+            let plan = HomeExpressionPlanV1::borrowed_field_write(Rc::clone(&source), &homes).unwrap();
+            let frame = Rc::clone(plan.borrowed_field_write_frame().unwrap());
+            assert!(Rc::ptr_eq(frame.source(), &source));
+            assert_eq!(frame.prior_homes(), &homes);
+            assert!(plan.print_frame().is_none() && plan.condition_frame().is_none());
+            let flow = PrefixLocalFlow::new(input);
+            let mut installation = flow.expression_installation();
+            assert!(installation.approve(&plan));
+            drop(installation);
+            assert!(flow.expression_plans().is_empty());
+            let mut installation = flow.expression_installation();
+            assert!(installation.approve(&plan));
+            installation.commit();
+            let installed = flow.expression_plans();
+            assert!(Rc::ptr_eq(installed[0].borrowed_field_write_frame().unwrap(), &frame));
+            use crate::mir::resolved_semantics::home_new_prefix::{RootHomeFlow, RootHomeExitV1, LifecyclePrefixSourceV1};
+            let root = RootHomeFlow { named_arrays: Vec::new(), exits: Default::default(),
+                maps: Vec::new(), local_calls: Vec::new(), expression_plans: installed };
+            let prefixes = root.lifecycle_prefixes(&[]).unwrap();
+            assert_eq!(prefixes.len(), 1, "an original write requires a packet without any calls");
+            assert!(matches!(&prefixes[0], LifecyclePrefixSourceV1::BorrowedFieldWrite { frame: original, .. }
+                if Rc::ptr_eq(original, &frame)));
+            assert!(prefixes[0].covered_by(&RootHomeExitV1::issue(Box::new([]), Box::new([]),
+                vec![assignment.statement_site().clone()].into_boxed_slice())));
+            assert!(!prefixes[0].covered_by(&RootHomeExitV1::issue(Box::new([]), Box::new([]), Box::new([]))));
+            let mut installation = flow.expression_installation();
+            assert!(!installation.approve(&plan));
+        }
+        // Bool roots share the transaction and source inventory, while their
+        // conditional reach and primitive result laws stay a separate frame.
+        for expression in ["true && false", "false || true", "(1 == 1) && (2 < 3)", "(1 != 2) || (3 >= 4)"] {
+            let parsed = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe() {{ if {expression} {{ return 1 }} return 0 }}")).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let statement = input.function().if_region_sites().next().unwrap();
+            let source = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(input, statement).unwrap();
+            let flow = PrefixLocalFlow::new(input);
+            let sibling = flow.clone();
+            for succeeds in [false, true] {
+                let mut installation = flow.expression_installation();
+                let mut batches = 0;
+                let plan = qualify_bool_condition_v1::<()>(Rc::clone(&source), &[],
+                    &mut |_| None, &mut |_| None, &mut |_| Ok(None), &mut |plan| installation.approve(plan),
+                    &mut |fields, _| { assert!(fields.is_empty()); batches += 1; Ok(succeeds) }).unwrap();
+                assert_eq!(batches, 1, "{expression}");
+                assert_eq!(plan.is_some(), succeeds);
+                if let Some(plan) = plan {
+                    assert!(plan.print_frame().is_none());
+                    let original = Rc::clone(plan.condition_frame().unwrap());
+                    assert!(Rc::ptr_eq(original.source(), &source));
+                    assert_eq!(original.logical_nodes().len(), 1);
+                    assert!(original.calls().is_empty());
+                    installation.commit();
+                    let installed = sibling.expression_plans();
+                    assert_eq!(installed.len(), 1);
+                    assert!(Rc::ptr_eq(installed[0].condition_frame().unwrap(), &original));
+                    use crate::mir::resolved_semantics::home_new_prefix::{RootHomeFlow, RootHomeExitV1, LifecyclePrefixSourceV1};
+                    let root = RootHomeFlow { named_arrays: Vec::new(), exits: Default::default(),
+                        maps: Vec::new(), local_calls: Vec::new(), expression_plans: installed };
+                    let prefixes = root.lifecycle_prefixes(&[]).unwrap();
+                    assert_eq!(prefixes.len(), 1, "even a call-free Bool condition is mandatory");
+                    assert!(matches!(&prefixes[0], LifecyclePrefixSourceV1::BoolCondition { frame, .. }
+                        if Rc::ptr_eq(frame, &original)));
+                    assert!(prefixes[0].covered_by(&RootHomeExitV1::issue(Box::new([]), Box::new([]),
+                        vec![statement.clone()].into_boxed_slice())));
+                    assert!(!prefixes[0].covered_by(&RootHomeExitV1::issue(Box::new([]), Box::new([]), Box::new([]))));
+                } else {
+                    drop(installation);
+                    assert!(sibling.expression_plans().is_empty());
+                }
+            }
+            let mut installation = sibling.expression_installation();
+            let mut batches = 0;
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+                &mut |_| Ok(None), &mut |plan| installation.approve(plan),
+                &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
+            assert_eq!(batches, 0);
+        }
+        for (expression, selected, accepted) in [
+            ("true && false", true, true),
+            ("(1 == 1) && (2 < 3)", true, true),
+            ("false && obj.missing()", true, false),
+            ("1 && true", true, false),
+            ("true", false, false),
+            ("obj != null && true", false, false),
+            ("(3 - 1 == 2) && true", false, false),
+        ] {
+            let parsed = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe(obj) {{ if {expression} {{ return 1 }} return 0 }}")).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let statement = input.function().if_region_sites().next().unwrap();
+            for field_ok in [false, true] {
+                let flow = PrefixLocalFlow::new(input);
+                let mut calls = Vec::new();
+                let mut path_calls = Default::default();
+                let mut batches = 0;
+                let mut demands = 0;
+                use crate::mir::resolved_semantics::home_new_prefix::condition::{observe, ConditionInstallationV1};
+                let result = observe::<()>(input, statement, &flow, &[], true, &mut calls, &mut path_calls,
+                    &mut |requests, _| { assert!(requests.is_empty()); batches += 1;
+                        Ok(field_ok.then(Vec::new)) },
+                    &mut |_, _| { demands += 1; Ok(None) }).unwrap();
+                assert_eq!(matches!(result, ConditionInstallationV1::Unselected), !selected, "{expression}");
+                assert_eq!(matches!(result, ConditionInstallationV1::Installed), accepted && field_ok, "{expression}");
+                assert_eq!(batches, usize::from(accepted), "{expression}");
+                assert_eq!(demands, usize::from(expression == "false && obj.missing()"));
+                assert_eq!(flow.expression_plans().len(), usize::from(accepted && field_ok));
+                assert!(calls.is_empty() && path_calls.is_empty());
+            }
+        }
+        for expression in ["1 && true", "false && obj.missing()", "\"x\" == \"x\""] {
+            let parsed = crate::parser::NyashParser::parse_from_string(&format!(
+                "function probe(obj) {{ if {expression} {{ return 1 }} return 0 }}")).unwrap();
+            let crate::ast::ASTNode::Program { mut statements, .. } = parsed else { panic!("Program") };
+            let unit = VerifiedResolvedSourceUnitV1::resolve_function(statements.remove(0)).unwrap();
+            let input = unit.root_function_input().unwrap();
+            let source = crate::mir::resolved_value_profile::expression_plan::condition_expression_source_plan_v1(
+                input, input.function().if_region_sites().next().unwrap()).unwrap();
+            let mut batches = 0;
+            assert!(qualify_bool_condition_v1::<()>(source, &[], &mut |_| None, &mut |_| None,
+                &mut |_| Ok(None), &mut |_| { panic!("unproved condition cannot install") },
+                &mut |_, _| { batches += 1; Ok(true) }).unwrap().is_none());
+            assert_eq!(batches, 0);
+        }
+
     }
 }

@@ -137,11 +137,11 @@ fn real_bin_size_loop_product_requires_current_home_integer_classes() {
                 ]));
                 let row = package
                     .ordinary_new_claim_ledger
-                    .variable_bound_mul_product
+                    .selected_loop_products
                     .get(&(input.owner(), site.clone()));
                 let row = row.expect("Loop request must retain an exact disposition");
                 assert_eq!(row.as_ref().err(), expected_error.as_ref(), "{source}");
-                if let Ok(product) = row {
+                if let Ok(crate::mir::normal_callable_semantic_package::ordinary_new_coseal::coseal_issue::SelectedLoopProductRowV1::VariableBoundMul(product)) = row {
                     assert_eq!(product.owner(), input.owner());
                     assert_eq!(product.site(), &site);
                     assert_eq!(product.bindings().len(), 3);
@@ -284,26 +284,35 @@ fn real_bin_size_nested_mul_proves_only_subtract_initializer_home() {
     let original = include_str!("../../../lang/src/hako_alloc/memory/size_class_box.hako");
     let root = "local top = x - (bit_group * 4)";
     let variants = [
-        (original.to_string(), 11),
+        (original.to_string(), 11, false),
         (
             original.replacen(root, "local top = x * (bit_group * 4)", 1),
-            5,
+            5, false,
         ),
         (
             original.replacen(root, "local top = x - (bit_group * x)", 1),
-            5,
+            5, false,
         ),
         (
             original.replacen(root, "local top = x - (bit_group / 4)", 1),
-            5,
+            5, false,
         ),
         (
             original.replacen(root, "local top = x - (bit_group * true)", 1),
-            5,
+            5, true,
         ),
     ];
-    for (source, first_uncovered) in variants {
-        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).unwrap();
+    for (source, first_uncovered, early_input_refusal) in variants {
+        let package = match crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source) {
+            Ok(package) => package,
+            // The complete original Static cohort may reject a malformed
+            // callee before Home inspection, as in the adjacent words tests.
+            // The unchanged positive must still issue and reach its Return.
+            Err(error) if early_input_refusal && format!("{error:?}").contains(
+                "[freeze:contract][ordinary-new/static-scalar/incoming-identity]",
+            ) => continue,
+            Err(error) => panic!("unexpected source refusal: {error:?}; source={source}"),
+        };
         let key = crate::mir::builder::CanonicalSameModuleCallableKeyV1::static_box_method(
             "SizeClassBox",
             "bin_size",

@@ -8,8 +8,14 @@ use std::{cell::RefCell, collections::BTreeMap};
 type Key = (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1);
 
 #[derive(Debug)]
+enum Expected {
+    OwnedHolder(std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>),
+    Write(FunctionOwnerIdV1),
+    Read(std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>),
+}
+#[derive(Debug)]
 pub(crate) struct NamedArrayEmissionCollectorV1 {
-    expected: BTreeMap<Key, FunctionOwnerIdV1>,
+    expected: Result<BTreeMap<Key, Expected>, String>,
     emitted: RefCell<BTreeMap<Key, EmittedNamedArrayRequirementV1>>,
 }
 
@@ -27,15 +33,82 @@ impl NamedArrayEmissionCollectorV1 {
                 row.contract().named_array_requirement().map(|requirement| {
                     (
                         (row.caller.clone(), requirement.call().clone()),
-                        requirement.owner(),
+                        Expected::Write(requirement.owner()),
                     )
                 })
             })
             .collect();
         Self {
-            expected,
+            expected: Ok(expected),
             emitted: RefCell::new(BTreeMap::new()),
         }
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn with_field_reads(
+        mut self,
+        reads: Result<Vec<std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>>, String>,
+        providers: &mut super::NamedArrayFieldProviderTableV1,
+    ) -> Self {
+        self.expected = self.expected.and_then(|mut expected| {
+            for recipe in reads? {
+                let fields = providers.entry(recipe.provider().clone()).or_default();
+                if fields.get(recipe.provider_site()).is_some_and(|field| *field != recipe.field()) {
+                    return Err(fault("read-provider-conflict"));
+                }
+                fields.insert(recipe.provider_site().clone(), recipe.field());
+                let key = (recipe.caller().clone(), recipe.call_site().clone());
+                if expected.insert(key, Expected::Read(recipe)).is_some() { return Err(fault("read-source-conflict")); }
+            }
+            Ok(expected)
+        });
+        self
+    }
+    /// A genuine source-owned holder is neither a numeric write nor a field
+    /// read. Its full lifecycle remains mandatory even before emission exists.
+    pub(in crate::mir::normal_callable_semantic_package) fn with_owned_holders(
+        mut self,
+        recipes: Result<Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>>, String>,
+    ) -> Self {
+        self.expected = self.expected.and_then(|mut expected| {
+            for recipe in recipes? {
+                let key = (recipe.caller().clone(), recipe.construction().clone());
+                if expected.insert(key, Expected::OwnedHolder(recipe)).is_some() {
+                    return Err(fault("owned-holder-source-conflict"));
+                }
+            }
+            Ok(expected)
+        });
+        self
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_owned_holders(
+        &self,
+        current: Vec<std::rc::Rc<crate::mir::normal_callable_semantic_package::ordinary_new_coseal::ArrayHolderLifecycleRecipeV1>>,
+    ) -> Result<(), String> {
+        let expected = self.expected.as_ref().map_err(Clone::clone)?;
+        if expected.values().filter(|row| matches!(row, Expected::OwnedHolder(_))).count() != current.len() {
+            return Err(fault("owned-holder-source-domain-drift"));
+        }
+        for recipe in current {
+            let Some(Expected::OwnedHolder(original)) = expected.get(&(recipe.caller().clone(), recipe.construction().clone()))
+                else { return Err(fault("owned-holder-source-domain-drift")); };
+            if !std::rc::Rc::ptr_eq(original, &recipe) {
+                return Err(fault("owned-holder-original-source-drift"));
+            }
+        }
+        Ok(())
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package) fn recheck_reads(
+        &self, current: Vec<std::rc::Rc<super::field_read::FieldArrayReadRecipeV1>>,
+    ) -> Result<(), String> {
+        let expected = self.expected.as_ref().map_err(Clone::clone)?;
+        if expected.values().filter(|row| matches!(row, Expected::Read(_))).count() != current.len() { return Err(fault("read-source-domain-drift")); }
+        for recipe in current {
+            let Some(Expected::Read(original)) = expected.get(&(recipe.caller().clone(), recipe.call_site().clone())) else { return Err(fault("read-source-domain-drift")) };
+            if !original.same_source(&recipe) { return Err(fault("read-original-source-drift")); }
+        }
+        Ok(())
     }
 
     pub(crate) fn hand_back(
@@ -45,7 +118,14 @@ impl NamedArrayEmissionCollectorV1 {
         let mut emitted = self.emitted.borrow_mut();
         for row in rows {
             let key = (row.caller().clone(), row.call_site().clone());
-            if self.expected.get(&key) != Some(&row.owner()) {
+            let expected = self.expected.as_ref().map_err(Clone::clone)?;
+            let matches = match (expected.get(&key), &row) {
+                (Some(Expected::Write(owner)), EmittedNamedArrayRequirementV1::Write(_)) => *owner == row.owner(),
+                (Some(Expected::Read(original)), EmittedNamedArrayRequirementV1::Read(read)) => original.same_source(&read.recipe),
+                (Some(Expected::OwnedHolder(original)), EmittedNamedArrayRequirementV1::OwnedHolder(holder)) => std::rc::Rc::ptr_eq(original, holder.recipe()),
+                _ => false,
+            };
+            if !matches {
                 return Err(fault("foreign-emission-handback"));
             }
             if emitted.contains_key(&key) {
@@ -59,9 +139,10 @@ impl NamedArrayEmissionCollectorV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn finish(
         self,
     ) -> Result<Box<[EmittedNamedArrayRequirementV1]>, String> {
+        let expected = self.expected?;
         let emitted = self.emitted.into_inner();
-        if emitted.len() != self.expected.len()
-            || self.expected.keys().any(|key| !emitted.contains_key(key))
+        if emitted.len() != expected.len()
+            || expected.keys().any(|key| !emitted.contains_key(key))
         {
             return Err(fault("unconsumed-package-obligations"));
         }

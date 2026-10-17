@@ -10,6 +10,10 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
     dynamic_slot: Option<u32>,
     entry_home_loans: &crate::mir::resolved_semantics::VerifiedInstanceEntryHomeCatalogV1,
     instance_constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+    source_uses: Option<(
+        &super::super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
+        &super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
+    )>,
 ) -> Result<
     (
         BTreeSet<FunctionOwnerIdV1>,
@@ -69,7 +73,13 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         };
         let draft = batch
             .with_lowering_input(contract.batch_slot, |input| {
-                draft_borrowed_formal_source_product_v1(
+                let source_context = source_uses.and_then(|(results, writes)|
+                    match selected.key_for_batch_slot(contract.batch_slot) {
+                        Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =>
+                            Some(BorrowedFormalSourceUseContextV1 { key, results, writes }),
+                        _ => None,
+                    });
+                draft_borrowed_formal_source_product_with_origins_v1(
                     input,
                     contract,
                     instance_constructors,
@@ -93,6 +103,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                             },
                         )
                         .as_ref(),
+                    source_context.as_ref(),
                 )
             })
             .map_err(|_| freeze("borrowed-formal/batch-loan"))?;

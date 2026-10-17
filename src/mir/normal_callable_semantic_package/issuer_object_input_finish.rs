@@ -7,18 +7,27 @@ use crate::mir::normal_callable_semantic_package::{
 pub(super) fn issue_signature_and_finish_inputs_v1(
     brand: crate::mir::builder::SameModuleCallableCatalogBrandV1,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
-    selected: &VerifiedSelectedCallableBatchMapV1,
+    selected: &std::rc::Rc<VerifiedSelectedCallableBatchMapV1>,
     contracts: &[OwnedCallableParameterContractDeclarationV1],
     results: &crate::mir::normal_callable_semantic_package::result_contract::VerifiedCallableResultContractCohortV1,
     ledger: &mut OrdinaryNewClaimLedgerV1,
     static_claims: &crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
-) -> Result<VerifiedCallablePhysicalSignatureCohortV1, NormalCallableSemanticPackageIssueV1> {
+) -> Result<
+    std::rc::Rc<VerifiedCallablePhysicalSignatureCohortV1>,
+    NormalCallableSemanticPackageIssueV1,
+> {
     ledger
         .retain_static_loop_i64_result_v1(batch, selected, static_claims, results)
         .map_err(|_error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error })?;
     let signature = issue_callable_physical_signature_v1(brand, batch, selected, contracts)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::PhysicalSignature { _error: error },
+        )?;
+    let signature = std::rc::Rc::new(signature);
+    ledger
+        .retain_original_instance_input_issuance_v1(selected.clone(), signature.clone())
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;
     ledger
         .retain_loop_static_body_scalar_sources_v1(&signature, results)
@@ -27,6 +36,11 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         })?;
     ledger
         .finish_typed_object_input_actuals_v1(selected, contracts, &signature)
+        .map_err(
+            |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
+        )?;
+    ledger
+        .finish_original_instance_input_actuals_v1(selected, contracts, &signature, results)
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;
@@ -79,6 +93,11 @@ pub(super) fn issue_signature_and_finish_inputs_v1(
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },
         )?;
+    // The same finisher now demands producer Normal/End after its single seal.
+    // This is dependency staging, never a Fault retry or a second issuer.
+    ledger
+        .finish_original_instance_input_actuals_v1(selected, contracts, &signature, results)
+        .map_err(|error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error })?;
     Ok(signature)
 }
 
@@ -95,6 +114,8 @@ pub(super) fn issue_and_finish_lexical_slots_v1(
         .and_then(|_| {
             ledger.finish_object_lexical_slots_v1(selected, contracts, signatures, results)
         })
+        .and_then(|_| ledger.finish_borrowed_nullable_slots_v1(batch, selected, contracts, signatures, results))
+        .and_then(|_| ledger.finish_mixed_call_slots_v1(selected, contracts, signatures, results))
         .and_then(|_| ledger.co_seal_static_local_routes_v1())
         .map_err(
             |error| NormalCallableSemanticPackageIssueV1::LexicalInstanceCall { _error: error },

@@ -77,6 +77,12 @@ fn completed_object_result_joins_original_typed_opaque_direct_received_cohort() 
                     .unwrap()
                     .unwrap();
                 assert_eq!(kind, expected);
+                let producer = package.ordinary_new_claim_ledger.callable_result_classes
+                    .object_call_source_v1(&package.batch, &package.selected, &target).unwrap();
+                let array_end = package.ordinary_new_claim_ledger
+                    .checked_array_producer_teardown_v1(&producer, &package.result_contracts)
+                    .unwrap().expect("same completed Array producer End");
+                assert_eq!(&array_end, teardown.descriptor().unwrap().0);
                 let (descriptor, observed_null) = teardown.descriptor().unwrap();
                 assert_eq!(observed_null, nullable);
                 assert!(descriptor.owned_children().is_none(), "Plain remains None");
@@ -116,6 +122,11 @@ fn completed_object_result_foreign_cohort_refuses() {
     let package = package(false, false, false);
     let foreign = self::package(false, false, false);
     let target = target(&package, "relay");
+    let producer = package.ordinary_new_claim_ledger.callable_result_classes
+        .object_call_source_v1(&package.batch, &package.selected, &target).unwrap();
+    assert!(package.ordinary_new_claim_ledger
+        .checked_array_producer_teardown_v1(&producer, &foreign.result_contracts)
+        .unwrap_err().contains("result-cohort-owner"));
     assert!(package
         .ordinary_new_claim_ledger
         .checked_object_callee_result_v1(&target, &foreign.result_contracts)
@@ -218,6 +229,14 @@ fn completed_object_result_missing_and_foreign_callee_dispositions_are_distinct(
         if let Some(replacement) = replacement {
             map.insert(identity, replacement);
         }
+        let producer = ledger.callable_result_classes
+            .object_call_source_v1(&package.batch, &package.selected, &target).unwrap();
+        let array_result = ledger.checked_array_producer_teardown_v1(&producer, &package.result_contracts);
+        if foreign_proof {
+            assert!(array_result.unwrap_err().contains("result-call-disposition-identity"));
+        } else {
+            assert_eq!(array_result.unwrap(), None, "missing Normal remains Pending");
+        }
         let result = ledger.checked_object_callee_result_v1(&target, &package.result_contracts);
         if foreign_proof {
             assert!(result
@@ -272,7 +291,8 @@ fn completed_object_result_retains_original_unqualified_producer_dependencies() 
 
 #[test]
 fn completed_object_result_null_first_keeps_nullable_kind_and_full_order() {
-    let package = issue_with_brand_catalog("box Token {} box Maker { make(size: i64) { if size > 0 { return null } return new Token() } relay() { return me.make(7) } } static box Main { main() { return 0 } }").unwrap();
+    let text = "box Token {} box Maker { make(size: i64) { if size > 0 { return null } return new Token() } relay() { return me.make(7) } } static box Main { main() { return 0 } }";
+    let package = issue_with_brand_catalog(text).unwrap();
     let target = target(&package, "relay");
     assert_eq!(
         package
@@ -281,4 +301,22 @@ fn completed_object_result_null_first_keeps_nullable_kind_and_full_order() {
             .unwrap(),
         Some(InvokeCallResultKind::NullableHandle)
     );
+    let ledger = &package.ordinary_new_claim_ledger;
+    let checked = ledger.checked_object_callee_source_v1(&target, &package.result_contracts).unwrap().unwrap();
+    assert_eq!(checked.field_supports.len(), 2, "Null and Fresh occurrences both retained");
+    ledger.recheck_object_call_field_support_requirements_v1(&target, &checked.field_supports).unwrap();
+    let mut reversed = checked.field_supports.to_vec();
+    reversed.reverse();
+    assert!(ledger.recheck_object_call_field_support_requirements_v1(&target, &reversed).is_err());
+    assert!(ledger.recheck_object_call_field_support_requirements_v1(&target, &checked.field_supports[1..]).is_err());
+    let mut duplicated = checked.field_supports.to_vec();
+    duplicated[1] = duplicated[0].clone();
+    assert!(ledger.recheck_object_call_field_support_requirements_v1(&target, &duplicated).is_err());
+    let foreign = issue_with_brand_catalog(text).unwrap();
+    let foreign_target = self::target(&foreign, "relay");
+    let other = foreign.ordinary_new_claim_ledger.checked_object_callee_source_v1(
+        &foreign_target, &foreign.result_contracts).unwrap().unwrap();
+    assert!(ledger.recheck_object_call_field_support_requirements_v1(&target, &other.field_supports).is_err(),
+        "equal source text cannot replace the original root Rc");
+
 }

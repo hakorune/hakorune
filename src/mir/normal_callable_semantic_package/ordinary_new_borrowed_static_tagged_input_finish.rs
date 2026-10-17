@@ -1,4 +1,4 @@
-//! Finish Main literal actuals against the selected existing tagged entry.
+//! Finish original terminal literal actuals against the selected existing tagged entry.
 //! Forwarded siblings keep their original SourceStatic witness and consumers.
 use super::*;
 use crate::mir::callable_parameter_contract::CallableParameterDeclarationModeV1;
@@ -29,14 +29,14 @@ impl PartialEq for StaticTaggedInputFinishV1 {
 }
 impl Eq for StaticTaggedInputFinishV1 {}
 
-fn literal_identity_v1(
+pub(super) fn literal_identity_v1(
     source: &PreparedBorrowedFormalIngressV1,
     original: &Rc<StaticIncomingSourceV1>,
     identity: &static_source::StaticSourceActualIdentityV1,
     rows: &PreparedBorrowedCallActualsV1,
     formal: BindingRefV1,
 ) -> Result<Option<i64>, String> {
-    if !source.is_main_static_terminal_source_v1(original) {
+    if !source.is_static_terminal_source_v1(original) {
         return Ok(None);
     }
     let [candidate] = identity.candidates.as_ref() else {
@@ -64,7 +64,7 @@ fn literal_identity_v1(
 }
 
 impl OrdinaryNewClaimLedgerV1 {
-    /// Validate the complete original incoming set; readiness of one Main row
+    /// Validate the complete original incoming set; readiness of one terminal row
     /// cannot erase an unfinished, foreign, duplicate or unresolved sibling.
     fn checked_tagged_cohort_v1(
         &self,
@@ -92,7 +92,19 @@ impl OrdinaryNewClaimLedgerV1 {
                 return Ok(false);
             };
             let rows = rows.as_ref().map_err(Clone::clone)?;
-            if source.is_main_static_terminal_source_v1(original) {
+            if let Some(fact) = source.static_arguments.get(&(original.call_site().clone(), 0)) {
+                // This issuer checks Rc/site/ordinal/formal/origin and retains
+                // SourceStatic. Do not promote or overwrite forwarded rows.
+                let forwarded = issue_original_static_forwarded_actual_v1(
+                    source,
+                    &self.borrowed_formal_actuals,
+                    original,
+                    fact.formal(),
+                )?;
+                if !forwarded.corroborates(original, fact.formal()) {
+                    return Err(freeze("static-tagged/forwarded-identity"));
+                }
+            } else if source.is_static_terminal_source_v1(original) {
                 let identity = match &rows.phase {
                     BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) if !finished => {
                         if !rows.opaque_actuals.is_empty() {
@@ -125,24 +137,9 @@ impl OrdinaryNewClaimLedgerV1 {
                 {
                     return Err(freeze("static-tagged/finished-payload"));
                 }
+
             } else {
-                let Some(fact) = source
-                    .static_arguments
-                    .get(&(original.call_site().clone(), 0))
-                else {
-                    return Ok(false);
-                };
-                // This issuer checks Rc/site/ordinal/formal/origin and retains
-                // SourceStatic. Do not promote or overwrite forwarded rows.
-                let forwarded = issue_original_static_forwarded_actual_v1(
-                    source,
-                    &self.borrowed_formal_actuals,
-                    original,
-                    fact.formal(),
-                )?;
-                if !forwarded.corroborates(original, fact.formal()) {
-                    return Err(freeze("static-tagged/forwarded-identity"));
-                }
+                return Ok(false);
             }
         }
         Ok(true)
@@ -277,7 +274,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .static_observations()
             .values()
             .filter_map(|row| row.as_ref().ok())
-            .filter(|original| source.is_main_static_terminal_source_v1(original))
+            .filter(|original| source.is_static_terminal_source_v1(original))
             .map(|original| original.parameters()[0].binding)
             .collect();
         if requested.is_empty() {
@@ -322,7 +319,8 @@ impl OrdinaryNewClaimLedgerV1 {
             .values()
             .filter_map(|row| row.as_ref().ok())
         {
-            if !source.is_main_static_terminal_source_v1(original) {
+            if !source.is_static_terminal_source_v1(original)
+                || source.static_arguments.contains_key(&(original.call_site().clone(), 0)) {
                 continue;
             }
             let formal = original.parameters()[0].binding;

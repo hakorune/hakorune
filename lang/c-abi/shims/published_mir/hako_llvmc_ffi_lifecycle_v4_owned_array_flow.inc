@@ -16,7 +16,7 @@ static int lv4_owned_descriptor_equal(yyjson_val* a, yyjson_val* b) {
 }
 
 static hako_lv4_value* lv4_owned_array_root(hako_lv4_function_index* fn, uint32_t id) {
-  hako_lv4_value* root = lv4_borrowed_copy_root(fn, lv4_index_value(fn, id));
+  hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, id));
   if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
       !lv4_is(root->instruction, "op", "invoke_normal_result")) return NULL;
   hako_lv4_block* origin = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
@@ -39,15 +39,15 @@ static yyjson_val* lv4_owned_array_claim(hako_lv4_function_index* fn,
 }
 
 static int lv4_owned_array_holder_live(hako_lv4_function_index* fn,
-    uint32_t id, const uint16_t* state) {
+    uint32_t id, const hako_lv4_state* state) {
   hako_lv4_value* holder = lv4_owned_array_root(fn, id);
   return holder && lv4_owned_array_claim(fn, holder) &&
       state[holder->origin] == LV4_OWNED_ARRAY_LIVE;
 }
 
 static int lv4_owned_array_borrow_live(hako_lv4_function_index* fn,
-    hako_lv4_value* value, const uint16_t* state) {
-  value = lv4_borrowed_copy_root(fn, value);
+    hako_lv4_value* value, const hako_lv4_state* state) {
+  value = lv4_value_alias_root(fn, value);
   if (!value || value->kind != LV4_ARRAY_BORROW ||
       !lv4_is(value->instruction, "op", "invoke_normal_result")) return 0;
   hako_lv4_block* producer = lv4_index_block(fn, lv4_u(value->instruction, "invoke_block"));
@@ -60,7 +60,7 @@ static int lv4_owned_array_borrow_live(hako_lv4_function_index* fn,
 
 static int lv4_owned_array_step(const hako_lv4_input* in,
     hako_lv4_function_index* fn, yyjson_val* op, int faulted,
-    uint16_t* state, uint16_t* normal, size_t bi) {
+    hako_lv4_state* state, hako_lv4_state* normal, size_t bi) {
   hako_lv4_value* holder = lv4_owned_array_root(fn, lv4_u(op, "array"));
   yyjson_val* claim = holder ? lv4_owned_array_claim(fn, holder) : NULL;
   if (!holder || !claim || !lv4_layout(in, lv4_u(op, "object_id")) ||
@@ -75,11 +75,12 @@ static int lv4_owned_array_step(const hako_lv4_input* in,
   if (state[holder->origin] != LV4_OWNED_ARRAY_LIVE) return 0;
   if (lv4_is(op, "kind", "array_owned_append")) {
     hako_lv4_value* candidate = lv4_index_value(fn, lv4_u(op, "value"));
-    hako_lv4_value* root = lv4_borrowed_copy_root(fn, candidate);
+    hako_lv4_value* root = lv4_value_alias_root(fn, candidate);
     if (!root || root->kind != LV4_HANDLE) return 0;
     if (lv4_is(root->instruction, "op", "const_null"))
       return yyjson_get_bool(yyjson_obj_get(op, "nullable"));
     if (root->origin < 0 || root == holder || state[root->origin] != LV4_LIVE ||
+        !lv4_owned_value_object(in, fn, candidate, yyjson_get_bool(yyjson_obj_get(op, "nullable"))) ||
         !root->object_id_set || root->object_id != lv4_u(op, "object_id")) return 0;
     /* Existing candidate lease stays live on Fault; only successful slot
        commit transfers it. End subsequently owns every committed child. */
@@ -87,7 +88,7 @@ static int lv4_owned_array_step(const hako_lv4_input* in,
     return 1;
   }
   if (lv4_is(op, "kind", "array_owned_get")) {
-    hako_lv4_value* index = lv4_borrowed_copy_root(fn, lv4_index_value(fn, lv4_u(op, "index")));
+    hako_lv4_value* index = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(op, "index")));
     if (!index || index->kind != LV4_I64 ||
         !lv4_is(index->instruction, "op", "const_i64") || state[bi]) return 0;
     /* A projection marker is consumed by its exclusive Normal landing;
@@ -100,7 +101,7 @@ static int lv4_owned_array_step(const hako_lv4_input* in,
     yyjson_val* append = yyjson_obj_get(lv4_term(fn->blocks[i].block), "operation");
     if (!lv4_is(append, "kind", "array_owned_append") ||
         lv4_owned_array_root(fn, lv4_u(append, "array")) != holder) continue;
-    hako_lv4_value* candidate = lv4_borrowed_copy_root(fn, lv4_index_value(fn, lv4_u(append, "value")));
+    hako_lv4_value* candidate = lv4_value_alias_root(fn, lv4_index_value(fn, lv4_u(append, "value")));
     if (candidate && candidate->origin >= 0 && state[candidate->origin] == LV4_LIVE) return 0;
   }
   normal[holder->origin] = state[holder->origin] = 0;

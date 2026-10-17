@@ -336,6 +336,16 @@ fn simplifies_jump_block_and_rewrites_successor_phi_values_for_trivial_middle_ph
     function.update_cfg();
     module.add_function(function);
 
+    // A source-consumed successor Phi retains the identity of its incoming
+    // trivial Phi, even when that incoming is not itself a supplied root.
+    let mut preserved = module.clone();
+    let original = preserved.functions["main"].blocks[&BasicBlockId(4)].instructions[0].clone();
+    let roots = std::collections::BTreeMap::from([("main".to_owned(),
+        std::collections::BTreeSet::from([ValueId(5)]))]);
+    crate::mir::passes::semantic_simplification::apply_with_required_roots(&mut preserved, &roots);
+    assert!(preserved.functions["main"].blocks.contains_key(&BasicBlockId(2)));
+    assert_eq!(preserved.functions["main"].blocks[&BasicBlockId(4)].instructions[0], original);
+
     let simplified = simplify(&mut module);
     assert!(simplified >= 1);
 

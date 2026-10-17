@@ -45,7 +45,7 @@ with tempfile.TemporaryDirectory(prefix='hako null compare ') as directory:
     checked(['cc', TESTS / 'published_lifecycle_v4_driver.c', '-L' + str(ROOT / 'target/release'),
              '-lhako_llvmc_ffi', '-Wl,-rpath,' + str(ROOT / 'target/release'), '-o', driver])
     wraps = ['fault.frame_init', 'fault.frame_dispose', 'fault.report_final',
-             'object.checked_field_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
+             'object.checked_field_set', 'object.checked_residence_set', 'object.home_release_plain_i64', 'object.reclaim_unpublished']
 
     def compile_input(data, expected=True):
         path = work / 'input.json'

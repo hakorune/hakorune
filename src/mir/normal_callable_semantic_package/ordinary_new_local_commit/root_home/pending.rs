@@ -157,7 +157,7 @@ impl PendingRootHomeExitV1<'_> {
     ) {
         let mut exits = ledger.root_exits.borrow_mut();
         let progress = exits
-            .entry((owner, site))
+            .entry((owner, site.into()))
             .or_insert(RootHomeExitProgress::Unprepared);
         assert!(matches!(progress, RootHomeExitProgress::Unprepared));
         *progress = RootHomeExitProgress::Emitted {
@@ -209,18 +209,19 @@ impl OrdinaryNewClaimLedgerV1 {
             };
             if pending
                 .iter()
-                .any(|row| row.owner() == owner && row.site() == &key.1)
+                .any(|row| row.owner() == owner && &key.1 == row.site())
             {
                 return Err(freeze("selected-static-root-progress-drift"));
             }
             super::super::root_cleanup_graph::ordered_paths::validate(
                 function, bindings, entry, order, None,
             )?;
-            super::super::root_cleanup_graph::ordered_structure::validate_original(
+            super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
                 function,
                 bindings,
                 entry,
                 order.ingress_result_kind(),
+                &self.main_arguments_release_suffix_v1(owner, function)?,
             )?;
         }
         for row in pending.iter().filter(|row| row.owner() == owner) {
@@ -231,11 +232,12 @@ impl OrdinaryNewClaimLedgerV1 {
                 row.order(),
                 None,
             )?;
-            super::super::root_cleanup_graph::ordered_structure::validate_original(
+            super::super::root_cleanup_graph::ordered_structure::validate_original_with_wrapper(
                 function,
                 row.bindings(),
                 row.entry(),
                 row.order().ingress_result_kind(),
+                &self.main_arguments_release_suffix_v1(owner, function)?,
             )?;
         }
         Ok(())
@@ -346,7 +348,7 @@ impl OrdinaryNewClaimLedgerV1 {
             || self
                 .root_exits
                 .borrow()
-                .get(&(owner, site.clone()))
+                .get(&(owner, (site.clone()).into()))
                 .is_some_and(|progress| !matches!(progress, RootHomeExitProgress::Unprepared))
         {
             return Err(freeze("selected-static-root-progress-drift"));
@@ -359,7 +361,7 @@ impl OrdinaryNewClaimLedgerV1 {
         {
             return Err(freeze("root-exit-origin-order"));
         }
-        order.validate_direct_entry(&entry, &bindings, None)?;
+        order.validate_direct_entry(self, owner, &site, &entry, &bindings, None)?;
         order.validate_null_return(&entry, &bindings, None, None)?;
         self.validate_received_return_producer_v1(owner, &site, &entry, &bindings, None, None)?;
         self.validate_fresh_return_producer_v1(owner, &site, &entry, &bindings, None, None, None)?;

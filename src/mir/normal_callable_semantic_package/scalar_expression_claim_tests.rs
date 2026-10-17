@@ -198,11 +198,23 @@ fn scalar_expression_claims_order_compare_field_operands() {
     )
     .expect("guarded formal order compare package");
     assert_eq!(staged_count(&formal), 3);
-    // Owned receivers keep the existing compare lane: `pool.size > 0`
-    // shapes still stage nothing here, and an order compare nested in a
-    // selected `&&` root falls back to the original lane unchanged.
+    // A whole Bool frame now owns both exact field uses and comparison laws.
+    // Direct order comparisons still keep their existing admission owner.
     let owned = package("if (pool.size > 0) && (pool.size == 1) { return 1 } return 0");
-    assert_eq!(staged_count(&owned), 0);
+    assert_eq!(staged_count(&owned), 2);
+    let frames: Vec<_> = owned.parameter_contracts.iter().filter_map(|row|
+        owned.ordinary_new_claim_ledger.completion_for_owner(row.owner))
+        .filter_map(|completion| completion.cleanup().root_flow())
+        .flat_map(|flow| flow.expression_plans().iter())
+        .filter_map(|plan| plan.condition_frame()).collect();
+    assert_eq!(frames.len(), 1);
+    let frame = frames[0];
+    assert_eq!(frame.logical_nodes().len(), 1);
+    assert!(frame.calls().is_empty());
+    assert_eq!(frame.operations().iter().map(|loan| loan.envelope().domain().family()).collect::<Vec<_>>(),
+        vec![crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater,
+            crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Equal]);
+    assert!(frame.operations().iter().all(|loan| std::rc::Rc::ptr_eq(loan.source(), frame.source())));
 }
 
 #[test]
@@ -271,7 +283,7 @@ fn field_alias_compare_rejects_non_null_operands() {
 }
 
 #[test]
-fn scalar_expression_scope_preserves_outside_nested_conditions_without_claims() {
+fn scalar_expression_scope_keeps_whole_bool_and_outside_nested_conditions_distinct() {
     for condition in [
         "(pool.size > 0) && (pool.size == 1)",
         "(pool.size == 1) && pool.ready()",
@@ -282,15 +294,28 @@ fn scalar_expression_scope_preserves_outside_nested_conditions_without_claims() 
             static box Main {{ main() {{ local pool = new Pool()
                 if {condition} {{ local later = new Page() return 1 }} return 0 }} }}");
         let package = issue(&source).expect("outside condition source package");
-        assert_eq!(staged_count(&package), 0, "outside profile: {condition}");
-        assert!(
-            package
-                .ordinary_new_claim_ledger
-                .pending_claims_for_test()
-                .values()
-                .all(|claim| claim.home_prefix().is_ok()),
-            "do not newly reject old condition admission: {condition}"
-        );
+        let whole_integer_compare = condition == "(pool.size > 0) && (pool.size == 1)";
+        let invalid_logical_integer = condition == "(pool.size == 1) && pool.ready()";
+        assert_eq!(staged_count(&package), if whole_integer_compare { 2 } else { 0 }, "{condition}");
+        let claims = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        if invalid_logical_integer {
+            let mut refused = 0;
+            package.batch().declarations().for_each(|declaration| {
+                package.batch().with_lowering_input(declaration.batch_slot(), |input| {
+                    for site in input.function().if_region_sites() {
+                        let flow = package.ordinary_new_claim_ledger.completion_for_owner(input.owner())
+                            .and_then(|completion| completion.cleanup().root_flow()).unwrap();
+                        assert!(flow.statement_prefix_unavailable(site));
+                        assert!(flow.expression_plans().iter().all(|plan| plan.condition_frame().is_none()));
+                        refused += 1;
+                    }
+                }).unwrap();
+            });
+            assert_eq!(refused, 1, "selected I64 logical operand refuses the exact Home condition");
+        } else {
+            assert!(claims.values().all(|claim| claim.home_prefix().is_ok()),
+                "whole-frame success and unselected nested-field admission: {condition}");
+        }
     }
 }
 

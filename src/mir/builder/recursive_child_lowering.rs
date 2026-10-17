@@ -242,12 +242,17 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// Borrowed only for the matching callable source-scope callback. This is
     /// the original resolver input used to issue exact loop membership; it is
     /// copied as a view into nested frames and restored when that scope exits.
+    /// SAME installed result/ledger borrow, shortened with the source scope.
+    pub(in crate::mir::builder) owned_array_source:
+        Option<crate::mir::normal_callable_semantic_package::OwnedArrayLifecycleSourceLoanV1<'port>>,
     pub(in crate::mir::builder) source_input:
         Option<crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'port>>,
     pub(in crate::mir::builder) ordinary_new_claim_ledger:
         Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
     pub(in crate::mir::builder) map_read_consumer:
         Option<Rc<RefCell<super::map_read_physical_consumer::MapReadPhysicalConsumerV1>>>,
+    pub(in crate::mir::builder) bool_condition_emission:
+        Option<Rc<RefCell<super::ordinary_new_admission::selected::bool_condition::BoolConditionEmissionV1>>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
@@ -352,8 +357,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: None,
             callable_ledger: None,
             source_input: None,
+            owned_array_source: None,
             ordinary_new_claim_ledger: None,
             map_read_consumer: None,
+            bool_condition_emission: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
@@ -376,8 +383,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
             source_input: self.source_input,
+            owned_array_source: self.owned_array_source,
             ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             map_read_consumer: self.map_read_consumer.clone(),
+            bool_condition_emission: self.bool_condition_emission.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),

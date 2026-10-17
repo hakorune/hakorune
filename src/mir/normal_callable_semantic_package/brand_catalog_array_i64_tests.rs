@@ -713,9 +713,10 @@ fn array_i64_set_value_admits_formal_field_index() {
 /// the call keeps `PrefixNotCovered`.
 #[test]
 fn array_i64_formal_field_index_ambiguous_name_declined() {
-    let error = issue_with_brand_catalog(
+    for other in ["block_id: i64 = 0", "block_id: Bool = false"] {
+    let source =
         "box Handle { block_id: i64 = 0 }
-        box Other { block_id: i64 = 0 }
+        box Other { OTHER_DECL }
         box Page { block_used: ArrayBox = new ArrayBox() free_top: i64 = 0
         birth() { }
         probe(h: Handle) {
@@ -732,14 +733,15 @@ fn array_i64_formal_field_index_ambiguous_name_declined() {
             local h0 = new Handle()
             local out = a.probe(h0)
             return 0
-        } }",
-    )
+        } }".replace("OTHER_DECL", other);
+    let error = issue_with_brand_catalog(&source)
     .expect_err("an ambiguous formal field name must not index the get");
     let text = format!("{error:?}");
     assert!(
         text.contains("PrefixNotCovered") || text.contains("source-not-i64"),
         "{text}"
     );
+    }
 }
 
 /// A unique but non-integer formal field declines the same way —

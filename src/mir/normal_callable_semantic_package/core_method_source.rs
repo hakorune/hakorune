@@ -2,9 +2,12 @@
 //!
 //! This module owns only the catalog/source target co-seal. It does not
 //! select a physical route or consume Builder state.
+//! Checked read contract: [field reads](core_method_source/README.md).
 
 mod collector;
 mod emission;
+mod field_append;
+pub(crate) use field_append::FieldArrayAppendSourceLoanV1;
 pub(crate) use collector::NamedArrayEmissionCollectorV1;
 pub(crate) use emission::{
     validate_named_array_coverage, EmittedNamedArrayRequirementV1, NamedArrayWriteEmissionPortV1,
@@ -41,6 +44,8 @@ pub(crate) fn issue_source_core_method_calls_v1(
 /// birth-side provider binding sealed beside a field-resident requirement.
 /// The table is keyed by the published `birth` callable key so the physical
 /// consumer loan cannot bind a provider to a foreign constructor.
+pub(crate) type SourceCoreMethodCallRowsV1 = BTreeMap<SourceExprSiteV1, SelectedSourceCoreMethodCallV1>;
+
 pub(crate) type NamedArrayFieldProviderTableV1 = BTreeMap<
     hakorune_mir_defs::CanonicalSameModuleCallableKeyV1,
     BTreeMap<SourceExprSiteV1, hakorune_mir_defs::CanonicalFieldRefV1>,
@@ -225,3 +230,9 @@ impl SelectedSourceCoreMethodCallV1 {
 #[cfg(test)]
 #[path = "core_method_source_witness_tests.rs"]
 pub(crate) mod test_witness;
+
+#[path = "core_method_source/field_read.rs"]
+mod field_read;
+mod field_read_argument;
+pub(crate) use field_read_argument::EmittedFieldArrayReadArgumentV1;
+pub(crate) use field_read::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1};

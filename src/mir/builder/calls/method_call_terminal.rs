@@ -71,6 +71,14 @@ pub(in crate::mir::builder) trait MethodCallValueTerminalPortV1 {
         method: String,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String>;
+
+    /// Same standard request, with the existing Array alternate required.
+    fn emit_array_write_value_terminal_v1(
+        &mut self, _builder: &mut MirBuilder, _receiver: ValueId,
+        _method: String, _arguments: Vec<ValueId>,
+    ) -> Result<(ValueId, crate::mir::builder::CompletedArrayElementWriteV1), String> {
+        Err("[freeze:contract][array-write/terminal-unavailable]".into())
+    }
 }
 
 /// Source-neutral completion capability for the one existing static-call
@@ -112,6 +120,18 @@ impl<Port> MethodCallValueTerminalPortV1 for Port
 where
     Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
 {
+    fn emit_array_write_value_terminal_v1(
+        &mut self, builder: &mut MirBuilder, receiver: ValueId,
+        method: String, arguments: Vec<ValueId>,
+    ) -> Result<(ValueId, crate::mir::builder::CompletedArrayElementWriteV1), String> {
+        let request = PreparedStandardValueCallRequestV1::prepare(builder, receiver, method, arguments);
+        self.with_function_headers(|lookup| {
+            let completed = super::unified_emitter::UnifiedCallEmitterBox::emit_array_write_with_lookup_receipt_v1(
+                builder, Some(request.destination), request.target, request.arguments, lookup)?;
+            Ok((request.destination, completed))
+        })
+    }
+
     fn emit_typeop_value_terminal(
         &mut self,
         builder: &mut MirBuilder,

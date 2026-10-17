@@ -31,8 +31,10 @@ pub(super) fn resolve_formal_domains_v1(
             let mut null = false;
             let mut blocked = false;
             let mut declined = false;
-            for seed in rows {
+            let mut pending: Vec<_> = rows.iter().collect();
+            while let Some(seed) = pending.pop() {
                 match seed {
+                    FormalActualSeedV1::All(constraints) => pending.extend(constraints.iter()),
                     FormalActualSeedV1::Null => null = true,
                     FormalActualSeedV1::Integer => integer = true,
                     FormalActualSeedV1::Class(name) => {
@@ -220,6 +222,11 @@ mod tests {
             let capacity = ctor.formal_contracts()[0].binding();
             assert!(ingress.candidate_integer_agreement(capacity));
             assert_eq!(ingress.candidate_i64_source_agreement(capacity), scalar == "i64");
+            let owner = package.parameter_contracts.iter().find(|row|
+                matches!(package.selected.key_for_batch_slot(row.batch_slot),
+                    Some(SelectedNormalCallableKeyV1::Cataloged(key)) if key.name() == "read")).unwrap().owner;
+            assert_eq!(package.ordinary_new_claim_ledger.borrowed_i64_results.get(&owner).is_some_and(|row| row.is_ok()), scalar == "i64",
+                "Birth preserves exact actual kind: {scalar}");
         }
     }
 
@@ -278,7 +285,7 @@ mod tests {
                         assert!(!ingress.formal_integer_agreement(formal), "real Pending has no selected formal agreement");
                         assert_eq!(ingress.candidate_integer_agreement(formal), expected, "Pending: {actual}");
                         let (_, selected_integers, _) = ingress.original_formal_seeds.selected_views_v1(
-                            &package.batch, &package.instance_constructors,
+                            &ingress.array_sources, &package.batch, &package.instance_constructors,
                             &package.parameter_contracts,
                             &ingress.definitions.keys().copied().collect(), &ingress.source_incoming,
                         ).unwrap();
@@ -317,6 +324,33 @@ mod tests {
             "Token"
         );
         assert!(!ingress.formal_integer_agreement(binding));
+        // A conditional result contributes BOTH Fresh and its exact Forward
+        // anchor. Even a valid Fresh class cannot erase a foreign/scalar anchor.
+        let p = formal(&package, "probe");
+        let q = formal(&package, "sink");
+        for (anchor, expected) in [
+            (FormalActualSeedV1::Class("Token".into()), true),
+            (FormalActualSeedV1::Null, true),
+            (FormalActualSeedV1::Class("Transport".into()), false),
+            (FormalActualSeedV1::Integer, false),
+            (FormalActualSeedV1::Conflict, false),
+            (FormalActualSeedV1::Forward(q), true),
+            (FormalActualSeedV1::All(Box::new([
+                FormalActualSeedV1::Class("Token".into()),
+                FormalActualSeedV1::Class("Transport".into()),
+            ])), false),
+        ] {
+            let seeds = BTreeMap::from([
+                (p, vec![FormalActualSeedV1::All(Box::new([
+                    FormalActualSeedV1::Class("Token".into()), anchor,
+                ]))]),
+                (q, vec![FormalActualSeedV1::Class("Token".into())]),
+            ]);
+            let (objects, integers) = resolve_formal_domains_v1(&seeds,
+                package.batch(), &package.instance_constructors);
+            assert_eq!(objects.get(&p).map(|view| view.class()), expected.then_some("Token"));
+            assert!(!integers.contains(&p), "conditional object cannot become Integer");
+        }
         let package = domain_package("local recv = new Transport() local a = recv.probe(null) return 0", "local recv = new Transport() local token = new Token() local a = recv.sink(token) local b = recv.sink(p) return 0");
         let ingress = package
             .ordinary_new_claim_ledger
@@ -338,6 +372,12 @@ mod tests {
         let p = formal(&package, "probe");
         let q = formal(&package, "sink");
         for seeds in [
+            BTreeMap::from([
+                (p, vec![FormalActualSeedV1::All(Box::new([
+                    FormalActualSeedV1::Class("Token".into()), FormalActualSeedV1::Forward(q),
+                ]))]),
+                (q, vec![FormalActualSeedV1::Forward(p)]),
+            ]),
             BTreeMap::from([(p, vec![])]),
             BTreeMap::from([
                 (p, vec![FormalActualSeedV1::Forward(q)]),

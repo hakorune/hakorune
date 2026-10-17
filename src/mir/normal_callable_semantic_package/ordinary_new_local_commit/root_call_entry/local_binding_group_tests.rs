@@ -1,5 +1,5 @@
 //! Local prefixes keep one original packet through sibling views and final artifacts.
-use super::super::RootLocalCallBindingGroupV1;
+use super::super::RootLifecyclePrefixBindingGroupV1;
 use super::*;
 use std::rc::Rc;
 
@@ -34,7 +34,7 @@ fn packet() -> EmittedLexicalCallProjectionV1 {
 }
 
 fn records(packet: &EmittedLexicalCallProjectionV1) -> Vec<Binding> {
-    let mut result = vec![packet.invoke.clone(), packet.projection.clone()];
+    let mut result = vec![packet.invoke.clone(), packet.projection.value().unwrap().clone()];
     for argument in &packet.prepared.arguments {
         match argument {
             LexicalCallArgumentProjectionV1::Integer(binding) => result.push(binding.clone()),
@@ -50,7 +50,7 @@ fn records(packet: &EmittedLexicalCallProjectionV1) -> Vec<Binding> {
 fn local_prefix_sibling_views_share_the_original_packet_without_rebinding_it() {
     let packet = Rc::new(packet());
     let original = records(&packet);
-    let group = RootLocalCallBindingGroupV1::new(
+    let group = RootLifecyclePrefixBindingGroupV1::new(
         packet.call_site().clone(),
         original.clone(),
         Some(packet.clone()),
@@ -78,6 +78,12 @@ fn local_prefix_sibling_views_share_the_original_packet_without_rebinding_it() {
     );
     assert_eq!(group.bindings(), original.as_slice());
     assert_ne!(mapped.bindings(), original.as_slice());
+    group.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).unwrap();
+    sibling.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).unwrap();
+    assert!(mapped.corroborate_received_packet_v1(packet.call_site(), &packet, &original, None).is_err());
+    assert!(group.corroborate_received_packet_v1(packet.call_site(), &packet, &original[1..], None).is_err());
+    let foreign_packet = self::packet();
+    assert!(group.corroborate_received_packet_v1(packet.call_site(), &foreign_packet, &original, None).is_err());
 }
 
 #[test]
@@ -94,12 +100,12 @@ fn local_prefix_rejects_foreign_packet_site_and_missing_or_duplicate_producer() 
         packet.call_site().site().clone(),
     );
     assert!(
-        RootLocalCallBindingGroupV1::new(foreign, original.clone(), Some(packet.clone())).is_err()
+        RootLifecyclePrefixBindingGroupV1::new(foreign, original.clone(), Some(packet.clone())).is_err()
     );
     for index in 0..original.len() {
         let mut missing = original.clone();
         missing.remove(index);
-        assert!(RootLocalCallBindingGroupV1::new(
+        assert!(RootLifecyclePrefixBindingGroupV1::new(
             packet.call_site().clone(),
             missing,
             Some(packet.clone())
@@ -107,7 +113,7 @@ fn local_prefix_rejects_foreign_packet_site_and_missing_or_duplicate_producer() 
         .is_err());
         let mut duplicate = original.clone();
         duplicate.push(original[index].clone());
-        assert!(RootLocalCallBindingGroupV1::new(
+        assert!(RootLifecyclePrefixBindingGroupV1::new(
             packet.call_site().clone(),
             duplicate,
             Some(packet.clone())

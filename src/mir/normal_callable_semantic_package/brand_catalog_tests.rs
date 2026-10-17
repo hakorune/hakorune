@@ -3,7 +3,7 @@ use crate::mir::instruction::InvokeCallResultKind;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
-pub(super) fn issue_with_brand_catalog(
+pub(in crate::mir) fn issue_with_brand_catalog(
     source: &str,
 ) -> Result<
     super::VerifiedNormalCallableSemanticPackageV1,

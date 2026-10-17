@@ -46,7 +46,7 @@ pub(super) enum CheckedIntegerNormalPathV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct CheckedIntegerOperandReachV1 {
+pub(in crate::mir::normal_callable_semantic_package) struct CheckedIntegerOperandReachV1 {
     guard: Rc<CheckedIntegerGuardV1>,
     formal: BindingRefV1,
     binding: BindingRefV1,
@@ -55,15 +55,15 @@ pub(super) struct CheckedIntegerOperandReachV1 {
 }
 
 impl CheckedIntegerOperandReachV1 {
-    pub(super) fn operand(&self) -> (BindingRefV1, BindingRefV1, &OwnedExprSiteV1) {
+    pub(in crate::mir::normal_callable_semantic_package) fn operand(&self) -> (BindingRefV1, BindingRefV1, &OwnedExprSiteV1) {
         (self.binding, self.formal, &self.site)
     }
 
-    pub(super) fn guard(&self) -> &Rc<CheckedIntegerGuardV1> {
+    pub(in crate::mir::normal_callable_semantic_package) fn guard(&self) -> &Rc<CheckedIntegerGuardV1> {
         &self.guard
     }
 
-    pub(super) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates(&self, input: ResolvedFunctionLoweringInputV1<'_>) -> bool {
         self.site.owner() == input.owner()
             && self
                 .guard
@@ -73,6 +73,8 @@ impl CheckedIntegerOperandReachV1 {
 }
 
 impl CheckedIntegerGuardV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn binary_site_v1(&self) -> &OwnedExprSiteV1 { &self.binary }
+
     /// Lend the SAME checked comparison for an exact stable source operand.
     /// The caller's origin/rebind closure remains mandatory. This does not
     /// broaden the existing Return or outgoing-argument reach rules.
@@ -310,6 +312,36 @@ impl BorrowedGuardedActualV1 {
         };
         fact.corroborates(input, &fact.call, ordinal, site)
             .then_some(fact)
+    }
+
+    /// Borrow the already-issued exact argument reach and SAME compare source.
+    /// This checks correspondence, never entry liveness or a physical Normal edge.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn matches_draft_argument(
+        &self,
+        row: &super::BorrowedFormalUseDraftRowV1,
+        call: &OwnedExprSiteV1,
+        ordinal: u32,
+        draft: &super::BorrowedFormalUsesDraftV1,
+    ) -> bool {
+        self.call == *call
+            && self.ordinal == ordinal
+            && self.site == row.site
+            && self.binding == row.binding
+            && row.formal == self.guard.formal
+            && draft.origins.get(&row.binding) == Some(&row.formal)
+            && draft.uses.iter().any(|compare| match &compare.kind {
+                super::BorrowedFormalUseDraftKindV1::CompareOperand { binary, source } => {
+                    compare.formal == row.formal
+                        && self.guard.matches_compare(row.formal, binary, source)
+                }
+                _ => false,
+            })
+    }
+
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn guard_binary(
+        &self,
+    ) -> &OwnedExprSiteV1 {
+        self.guard.binary()
     }
 
     pub(crate) fn call(&self) -> &OwnedExprSiteV1 {

@@ -6,9 +6,9 @@
 //! bindings — nothing is invented.
 
 use super::{
-    scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
+    HomeFieldSourceConsultV1, scan_new_home_flow, BorrowedCallActualRequestV1, BorrowedCallArgumentsV1,
     BorrowedViewUseRequestV1, CallerNewHomePrefixV1, HomePrefixUnavailableV1,
-    LocalFieldReadRequestV1, LocalFieldReadResultV1, ObjectReturnCallQualificationV1,
+    LocalFieldReadDemandV1, LocalFieldReadRequestV1, LocalFieldReadResultV1, ObjectReturnCallQualificationV1,
     ResultNewHomePrefixV1, SelectedNewArgumentObservationV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
@@ -65,7 +65,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &mut |_, _, _, _, _| Ok(false),
         // Field-write scalar proof stays unavailable on this lane for the
         // same reason — no `me.<field> = ..` statement is admitted here.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
         // Container-field proof stays unavailable on this lane as well —
         // no `me.<field>.m(..)` statement is admitted here.
         &mut |_, _, _, _, _| Ok(false),
@@ -140,13 +140,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -180,7 +174,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
     // over-predicts.
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,

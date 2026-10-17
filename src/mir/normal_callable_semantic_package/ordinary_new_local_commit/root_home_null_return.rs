@@ -52,7 +52,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if completion.owner() != site.owner() || !completion.explicit_sites().contains(&exit) {
             return Err(freeze("terminal-null/completion-identity"));
         }
-        match self.root_exits.borrow().get(&(site.owner(), exit.clone())) {
+        match self.root_exits.borrow().get(&(site.owner(), exit.clone().into())) {
             Some(RootHomeExitProgress::Prepared(_)) => {}
             None | Some(RootHomeExitProgress::Unprepared | RootHomeExitProgress::Unavailable) => {
                 return Ok(None)
@@ -86,7 +86,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let mut exits = self.root_exits.borrow_mut();
         let Some(RootHomeExitProgress::Prepared(order)) =
-            exits.get_mut(&(site.owner(), loan.exit.clone()))
+            exits.get_mut(&(site.owner(), (loan.exit.clone()).into()))
         else {
             return Err(freeze("terminal-null/exit-not-prepared"));
         };

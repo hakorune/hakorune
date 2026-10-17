@@ -43,6 +43,7 @@ fn scope(mode: &str) -> Result<(), String> {
     let ledger = installed.ordinary_new_claim_ledger();
     let mut selected = installed.begin_lowering(&context).unwrap();
     let named_arrays = selected.named_array_emission_collector();
+    let owned_array_source = selected.owned_array_lifecycle_source_v1();
     let key = SelectedNormalCallableKeyV1::Cataloged(
         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::instance_box_method(
             "Transport",
@@ -124,6 +125,7 @@ fn scope(mode: &str) -> Result<(), String> {
                     BTreeMap::new(),
                     named_arrays,
                     Rc::clone(&ledger),
+                    Some(owned_array_source),
                     None,
                     |inner, _transport| {
                         use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;

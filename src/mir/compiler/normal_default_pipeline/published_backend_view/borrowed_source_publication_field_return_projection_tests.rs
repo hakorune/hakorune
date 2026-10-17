@@ -29,7 +29,7 @@ fn root_and_borrowed_child_field_returns_survive_canonical_finishing() {
             for optimize in [false, true] {
                 MirCompiler::with_options(optimize).compile_normal_with_published(
                     request(&text), |view, verification| -> Result<(), String> {
-                        classify_pretransform_report(verification);
+                        require_artifact_verification(verification);
                         let input = view.issue_lifecycle_physical_abi_input()?;
                         let wire = super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&input)?;
                         let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
@@ -65,7 +65,7 @@ fn field_return_publication_rejects_swapped_null_guard_with_original_handoff() {
         for optimize in [false, true] {
             MirCompiler::with_options(optimize).compile_normal_with_published(
                 request(text), |view, verification| -> Result<(), String> {
-                    classify_pretransform_report(verification);
+                    require_artifact_verification(verification);
                     let healthy = view.issue_lifecycle_physical_abi_input()?;
                     super::super::super::physical_program_json::emit_lifecycle_physical_abi_json(&healthy)?;
                     let handoff = view.retained_handoff.expect("same source-issued handoff");

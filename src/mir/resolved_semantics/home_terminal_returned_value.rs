@@ -27,6 +27,10 @@ pub(crate) enum TerminalReturnedSourceV1 {
     /// `return <binding>` — a borrowed self-rooted handle root (parameter
     /// or declared handle); the caller keeps ownership.
     Handle(BindingRefV1),
+    /// Non-null source result of the original borrowed LOCAL call, owning nothing.
+    BorrowedNullableLocal(
+        Box<crate::mir::normal_callable_semantic_package::BorrowedNullableLocalSourceLoanV1>,
+    ),
     /// `return new <class>(...)` — the returned value is the fresh
     /// construction at this exact site; the fresh object's ownership
     /// transfers to the caller at the Return edge. This records only the
@@ -144,6 +148,11 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn terminal_returned_sou
         return Some(TerminalReturnedSourceV1::Construction(
             OwnedExprSiteV1::new(input.owner(), site.clone()),
         ));
+    }
+    if let Some(loan) = locals.borrowed_nullable_return(site) {
+        return Some(TerminalReturnedSourceV1::BorrowedNullableLocal(Box::new(
+            loan.clone(),
+        )));
     }
     let OrdinaryObservation::Handle(root) = locals.observe(site)? else {
         return None;

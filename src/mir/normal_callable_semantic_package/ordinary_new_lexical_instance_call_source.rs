@@ -1,19 +1,106 @@
 //! Source-target preparation inside the existing lexical-call owner.
 //! Each per-need result retains declaration/source order until final issuance.
 use super::*;
+use crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1;
 use std::collections::BTreeMap;
 
 pub(in crate::mir::normal_callable_semantic_package) type PreparedLexicalInstanceCallSourceTargetsV1 =
     Result<Vec<Result<Option<LexicalInstanceCallSourceTargetV1>, String>>, String>;
 
+/// Borrow the sole original target directly from its canonical preparation.
+/// Borrowed-input inventory membership is not source-call membership.
+pub(in crate::mir::normal_callable_semantic_package) fn original_lexical_target_at_v1<'a>(
+    targets: &'a PreparedLexicalInstanceCallSourceTargetsV1, site: &OwnedExprSiteV1,
+) -> Result<Option<&'a LexicalInstanceCallSourceTargetV1>, String> {
+    let mut found = None;
+    for row in targets.as_ref().map_err(Clone::clone)? {
+        let Some(target) = row.as_ref().map_err(Clone::clone)? else { continue };
+        if target.call_site() != site { continue; }
+        if found.replace(target).is_some() { return Err(freeze("original-target/duplicate")); }
+    }
+    Ok(found)
+}
+
 /// Passive receiver source facts. This is neither an owned-child lease nor inventory.
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::normal_callable_semantic_package) enum StoredReceiverSourceOriginV1 {
+    Ordinary,
+    Constructor(crate::mir::normal_callable_semantic_package::instance_construction::ConstructionChildCallSourceLoanV1),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::normal_callable_semantic_package) struct StoredReceiverSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) origin: StoredReceiverSourceOriginV1,
+    pub(in crate::mir::normal_callable_semantic_package) parent_new: Option<(u32, std::rc::Rc<super::super::LocalNewRootSourceV1>)>,
     pub(in crate::mir::normal_callable_semantic_package) parent_binding: BindingRefV1,
     pub(in crate::mir::normal_callable_semantic_package) parent_site: SourceExprSiteV1,
     pub(in crate::mir::normal_callable_semantic_package) parent_class: Box<str>,
     pub(in crate::mir::normal_callable_semantic_package) field_name: Box<str>,
     pub(in crate::mir::normal_callable_semantic_package) child_class: Box<str>,
+}
+
+impl StoredReceiverSourceV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn local_new_root_in_input_v1(
+        &self, input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>, slot: u32,
+    ) -> Result<Option<&std::rc::Rc<super::super::LocalNewRootSourceV1>>, String> {
+        let Some((original_slot, root)) = &self.parent_new else { return Ok(None); };
+        if !matches!(self.origin, StoredReceiverSourceOriginV1::Ordinary) || *original_slot != slot
+            || root.binding() != self.parent_binding || root.class() != self.parent_class.as_ref() {
+            return Err(freeze("stored-child/local-new-source-drift"));
+        }
+        root.corroborate_input(input, &self.parent_site)?;
+        Ok(Some(root))
+    }
+    /// Original constructor identity only. Canonical field/child inventory and
+    /// executable eligibility remain obligations of the existing consumers.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborate_constructor_origin_v1(
+        &self,
+        batch: &VerifiedResolvedCallableSemanticBatchV1,
+        constructors: &crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1,
+        site: &OwnedExprSiteV1,
+    ) -> Result<Option<(hakorune_mir_defs::CanonicalFieldRefV1, hakorune_mir_defs::CanonicalObjectIdV1)>, String> {
+        let StoredReceiverSourceOriginV1::Constructor(loan) = &self.origin else { return Ok(None); };
+        let reject = || freeze("stored-child/constructor-source-drift");
+        if self.parent_new.is_some() { return Err(reject()); }
+        let (source_id, owner) = loan.source().constructor().ok_or_else(reject)?;
+        let mut rows = constructors.rows().iter().filter(|row| row.source_id().same_as(source_id));
+        let row = rows.next().ok_or_else(reject)?;
+        let input = row.lowering_input(batch.source_ast())?;
+        let request = loan.call();
+        let call = input.function().method_call(site.site()).ok_or_else(reject)?;
+        let key = OriginalCallSourceCallerV1::Constructor { row, input }
+            .constructor_key_for_call(site, call)?.ok_or_else(reject)?;
+        if rows.next().is_some() || *owner != site.owner()
+            || !row.construction_source().as_ref().is_ok_and(|current| std::rc::Rc::ptr_eq(current, loan.source()))
+            || loan.source().object() != row.object()
+            || loan.source().child_call_source_v1(site)?.as_ref() != Some(loan)
+            || request.site() != site || request.receiver_site() != call.receiver_site()
+            || request.receiver_binding() != self.parent_binding
+            || request.class() != self.child_class.as_ref() || key.owner() != self.parent_class.as_ref()
+            || request.field().object() != row.object()
+            || request.arguments().iter().ne(call.arguments().iter().map(|argument| argument.site()))
+        { return Err(reject()); }
+        let shape = input.body_shape().ok_or_else(reject)?;
+        if !matches!(shape.expression_shape(call.receiver_site()),
+            Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, field, .. })
+                if object == &self.parent_site && field == &self.field_name)
+            || !matches!(shape.expression_shape(&self.parent_site),
+                Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::Me {
+                    receiver: crate::mir::resolved_semantics::BodyMeReceiverV1::Lexical(binding), .. })
+                    if binding == &self.parent_binding)
+        { return Err(reject()); }
+        Ok(Some((request.field(), request.child())))
+    }
+}
+
+/// Structure only: the original incoming obligation separately proves the root.
+pub(super) fn stored_parent_matches_v1(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    site: &SourceExprSiteV1, binding: BindingRefV1,
+) -> bool {
+    binding.owner() == input.owner() && (input.function().variable_ref(site) == Some(ResolvedLexicalRefV1::Local(binding))
+        || input.body_shape().is_some_and(|shape| matches!(shape.expression_shape(site),
+            Some(BodyExpressionShapeV1::Me { receiver: BodyMeReceiverV1::Lexical(actual), .. }) if *actual == binding)))
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -37,16 +124,25 @@ impl CallTargetReferenceV1 {
 }
 
 #[derive(Debug)]
-pub(super) enum PreparedSourceCallNeedV1 {
+pub(in crate::mir::normal_callable_semantic_package) enum PreparedSourceCallNeedV1 {
     Lexical(LexicalInstanceCallSourceTargetV1),
     Stored {
         reference: CallTargetReferenceV1,
         receiver: StoredReceiverSourceV1,
+        owning_object_input: Option<std::rc::Rc<super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>>,
         result_requirement: LexicalCallSourceResultRequirementV1,
     },
 }
 
 impl PreparedSourceCallNeedV1 {
+    pub(super) fn owning_object_input_v1(&self) -> Option<&super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1> {
+        match self { Self::Lexical(row) => row.owning_object_local_input_v1(),
+            Self::Stored { owning_object_input, .. } => owning_object_input.as_deref() }
+    }
+    pub(super) fn set_owning_object_input_v1(&mut self, loan: std::rc::Rc<super::super::result_class_claim::OwningObjectLocalInputSourceLoanV1>) {
+        match self { Self::Lexical(row) => row.owning_object_input = Some(loan),
+            Self::Stored { owning_object_input, .. } => *owning_object_input = Some(loan) }
+    }
     pub(super) fn reference(&self) -> CallTargetReferenceV1 {
         match self {
             Self::Lexical(row) => CallTargetReferenceV1::from_target(row),
@@ -96,10 +192,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
     field_write_claims: &super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     callable_result_classes: &super::super::result_class_claim::OrdinaryNewResultClassClaimsV1,
     stored_receiver: &mut impl FnMut(
-        u32,
+        OriginalCallSourceCallerV1<'_>,
         crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         &crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1,
     ) -> Result<Option<StoredReceiverSourceV1>, String>,
+    constructors: Option<&crate::mir::normal_callable_semantic_package::VerifiedInstanceConstructorSemanticBatchV1>,
 ) -> PreparedSourceNeedsV1 {
     let source = provenance::LexicalReceiverClassSourceV1::prepared(
         new_classes,
@@ -108,17 +205,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
         callable_result_classes,
     );
     let mut needs = Vec::new();
-    for declaration in batch.declarations() {
-        let slot = declaration.batch_slot();
-        batch
-            .with_lowering_input(slot, |input| {
+    let mut collect = |caller: OriginalCallSourceCallerV1<'_>,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>| -> Result<(), String> {
                 let owner = input.owner();
                 for (site, call) in input.function().method_calls() {
                     let ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(
                         binding,
                     )) = call.receiver()
                     else {
-                        let row = stored_receiver(slot, input, call).map(|proof| {
+                        let row = stored_receiver(caller, input, call).map(|proof| {
                             let receiver = proof?;
                             let (target, target_batch_slot) = unique_instance_target(
                                 selected,
@@ -144,6 +239,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                                         .collect(),
                                 },
                                 receiver,
+                                owning_object_input: None,
                                 result_requirement:
                                     LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                             })
@@ -151,6 +247,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         needs.push(SourceReceiverNeedV1::Stored(row));
                         continue;
                     };
+                    let Some(slot) = caller.declaration_slot() else { continue; };
                     if binding.owner() != owner {
                         continue;
                     }
@@ -191,8 +288,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         rebound,
                     }));
                 }
-            })
-            .map_err(|_| freeze("lexical-instance-call/batch-loan"))?;
+        Ok(())
+    };
+    for declaration in batch.declarations() {
+        let slot = declaration.batch_slot();
+        batch.with_lowering_input(slot, |input|
+            collect(OriginalCallSourceCallerV1::Declaration { batch_slot: slot }, input))
+            .map_err(|_| freeze("lexical-instance-call/batch-loan"))??;
+    }
+    if let Some(constructors) = constructors {
+        for row in constructors.rows().iter().filter(|row| row.kind() == crate::parser::ConstructorSourceKindV1::Birth) {
+            let input = row.lowering_input(batch.source_ast())?;
+            collect(OriginalCallSourceCallerV1::Constructor { row, input }, input)?;
+        }
     }
 
     Ok(needs
@@ -271,6 +379,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prepare_lexical_source_t
                         target_batch_slot,
                         callee_owner,
                         argument_sites: need.argument_sites,
+                        owning_object_input: None,
                         result_requirement:
                             LexicalCallSourceResultRequirementV1::ExistingBorrowedResult,
                     },

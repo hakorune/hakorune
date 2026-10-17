@@ -129,7 +129,8 @@ pub(super) fn preflight<E>(
     let mark = requests.len();
     let call_mark = calls.len();
     let checked_children =
-        matches!(row.operator(), Op::Add | Op::Greater | Op::LessEqual).then_some(row.site());
+        matches!(row.operator(), Op::Add | Op::Equal | Op::NotEqual | Op::Less
+            | Op::Greater | Op::LessEqual | Op::GreaterEqual).then_some(row.site());
     let Some(lhs) = preflight(
         &mut None,
         input,

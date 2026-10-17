@@ -69,7 +69,7 @@ fn borrowed_call_refuses_old_literal_i64_defaults_for_other_source_domains() {
     // A nullable result is an object-or-null contract: a null-only body
     // has no `return new ..` exit a `NullableObject` claim could name, so
     // it stays rejected beside the other unclassified scalar domains.
-    for body in ["return true", "return \"text\"", "return null"] {
+    for body in ["return \"text\"", "return null"] {
         let source = format!("box Transport {{ birth() {{ }} probe(p) {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() local out = recv.probe(0) return 0 }} }}");
         let error = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(&source).err().expect("selected result must be source-I64");
         let error = format!("{error:?}");
@@ -141,7 +141,7 @@ fn borrowed_call_refuses_missing_or_uncorroborated_result_source() {
             .as_mut()
             .unwrap();
         assert_eq!(proof.multiplications.len(), 1);
-        proof.multiplications = Box::new([]);
+        proof.source_facts_mut_for_test().multiplications = Box::new([]);
         proof.contract_corroborated = false;
         let expected = match mutation {
             0 => "mul-return-coverage",
@@ -277,7 +277,8 @@ fn borrowed_call_result_corroboration_rejects_changed_return_site() {
         .unwrap()
         .as_mut()
         .unwrap();
-    proof.returns[0] = OwnedExprSiteV1::new(row.callee_owner(), row.argument_sites()[0].clone());
+    proof.source_facts_mut_for_test().returns[0] =
+        OwnedExprSiteV1::new(row.callee_owner(), row.argument_sites()[0].clone());
     ledger.corroborate_borrowed_i64_result_v1(row.source_target(), &package.result_contracts);
     assert!(ledger
         .borrowed_call_actuals_v1(&row)
@@ -337,7 +338,7 @@ fn prewalk_projection_keeps_source_actual_result_priority_without_corroboration_
     assert!(super::super::project_pending_borrowed_i64_arguments_v1(
         ledger.borrowed_formal_source.as_ref().unwrap(),
         &BTreeMap::new(),
-        &BTreeMap::new(),
+        &crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::BorrowedResultCohortV1::default(),
         &excluded,
     )
     .unwrap()
@@ -541,4 +542,150 @@ fn original_argument_lender_rejects_duplicate_incoming_and_argument_drift() {
             "{error}"
         );
     }
+}
+
+#[test]
+fn scalar_source_loan_requires_same_live_original_result_without_execution_permission() {
+    use crate::mir::resolved_semantics::home_new_prefix::SourceScalarKind;
+    for (body, kind) in [
+        ("return 7", SourceScalarKind::Integer),
+        ("return true", SourceScalarKind::Bool),
+    ] {
+        for mutation in 0..5 {
+            let mut package = package("p", "", body, "0");
+            let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+            let original = ledger
+                .borrowed_formal_source
+                .as_ref()
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .incoming[0]
+                .source
+                .require_instance()
+                .unwrap()
+                .clone();
+            let source = ledger.borrowed_formal_source.as_ref().unwrap();
+            let loan =
+                issue_source_scalar_result_loan_v1(source, &ledger.borrowed_i64_results, &original)
+                    .unwrap();
+            assert_eq!(loan.kind(), kind);
+            assert_eq!(loan, issue_source_scalar_result_loan_v1(source, &ledger.borrowed_i64_results, &original).unwrap());
+            validate_source_scalar_result_loan_v1(
+                source,
+                &ledger.borrowed_i64_results,
+                &loan,
+                &original,
+            )
+            .unwrap();
+            corroborate_source_scalar_result_loan_v1(
+                source, &ledger.borrowed_i64_results, &loan, &original,
+                &package.result_contracts,
+            ).unwrap();
+            let owner = original.callee_owner();
+            let expected = match mutation {
+                0 => {
+                    ledger.borrowed_i64_results.remove(&owner);
+                    "scalar-loan/result-missing"
+                }
+                1 => {
+                    ledger
+                        .borrowed_i64_results
+                        .insert(owner, Err("original-result-error".into()));
+                    "original-result-error"
+                }
+                2 => {
+                    // Equivalent copied facts still are not the retained original.
+                    ledger
+                        .borrowed_i64_results
+                        .get_mut(&owner)
+                        .unwrap()
+                        .as_mut()
+                        .unwrap()
+                        .source_facts_mut_for_test();
+                    "scalar-loan/result-identity"
+                }
+                3 => {
+                    ledger.borrowed_formal_source = None;
+                    ""
+                }
+                _ => {
+                    // Source readiness intentionally grants no execution waiver.
+                    ledger
+                        .borrowed_i64_results
+                        .get_mut(&owner)
+                        .unwrap()
+                        .as_mut()
+                        .unwrap()
+                        .contract_corroborated = false;
+                    ""
+                }
+            };
+            if mutation == 3 {
+                assert!(validate_source_scalar_result_loan_v1(
+                    &Err("original-ingress-error".into()),
+                    &ledger.borrowed_i64_results,
+                    &loan,
+                    &original
+                )
+                .unwrap_err()
+                .contains("original-ingress-error"));
+            } else {
+                let result = validate_source_scalar_result_loan_v1(
+                    ledger.borrowed_formal_source.as_ref().unwrap(),
+                    &ledger.borrowed_i64_results,
+                    &loan,
+                    &original,
+                );
+                if expected.is_empty() {
+                    result.unwrap();
+                } else {
+                    assert!(result.unwrap_err().contains(expected));
+                }
+                let corroboration = corroborate_source_scalar_result_loan_v1(
+                    ledger.borrowed_formal_source.as_ref().unwrap(),
+                    &ledger.borrowed_i64_results, &loan, &original,
+                    &package.result_contracts,
+                );
+                assert!(corroboration.unwrap_err().contains(if mutation == 4 {
+                    "scalar-loan/result-contract-mismatch"
+                } else { expected }));
+            }
+        }
+    }
+    // Complete Bool source/result agreement permits a typed row, not unchecked input.
+    let source = "box Transport { flag: i64 birth() { me.flag = 0 } probe(p) { return true } }
+        box Parent { child: Transport birth() { me.child = new Transport() }
+            run(p) { return me.child.probe(p) } }
+        static box Main { main() { local recv = new Parent() return recv.run(true) } }";
+    let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(source)
+        .unwrap();
+    let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+    let site = ledger.lexical_instance_calls.borrow().iter().find_map(|(site, slot)| {
+        match slot {
+            super::super::LexicalInstanceCallDispositionSlotV1::Ready(row)
+                if row.result() == Some(InvokeCallResultKind::Bool) => Some(site.clone()),
+            _ => None,
+        }
+    }).expect("original stored-child Bool call has a typed disposition");
+    let row = ledger.take_lexical_instance_call(site.owner(), site.site()).unwrap().unwrap();
+    let loan = row.scalar_result_source_v1().expect("original Bool source loan");
+    assert_eq!(loan.kind(), SourceScalarKind::Bool);
+    corroborate_source_scalar_result_loan_v1(
+        ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_i64_results,
+        loan, row.source_target(), &package.result_contracts,
+    ).unwrap();
+    assert!(!ledger.uses_object_packet_protocol_v1(&row).unwrap());
+    let ingress = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+    ingress.incoming = ingress.incoming.iter().filter(|call| call.call != site)
+        .cloned().collect::<Vec<_>>().into_boxed_slice();
+    ingress.definitions.remove(&row.callee_owner());
+    assert!(ledger.borrowed_call_actuals_v1(&row).unwrap_err()
+        .contains("bool-input-incomplete"));
+    // Removing the selected original result must invalidate the already retained row.
+    ledger.borrowed_i64_results.remove(&row.callee_owner());
+    assert!(validate_source_scalar_result_loan_v1(
+        ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_i64_results,
+        loan, row.source_target(),
+    ).unwrap_err().contains("scalar-loan/result-missing"));
 }

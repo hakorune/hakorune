@@ -147,17 +147,19 @@ pub(crate) fn issue_received_producer_local_call<E>(
             && input.function().binding(binding).is_some_and(|row|
                 matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Local { .. })))
     });
-    if !claim_local {
-        return Ok(None);
-    }
-    if !corroborate_received_initializer_v1(
-        input,
-        statement,
-        site,
-        &declaration,
-        destination,
-        prior_homes,
-    ) {
+    // Structural candidate only. The package must affirm the original Nullable
+    // input loan before a self receiver can issue SourceObject below.
+    let self_receiver = input.function().method_call(site.site()).is_some_and(|call|
+        matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+            if binding.owner() == input.owner() && input.function().binding(binding)
+                .is_some_and(|row| row.kind() == crate::mir::resolved_semantics::BindingKindV1::Receiver)));
+    if !claim_local && !self_receiver { return Ok(None); }
+    let exact_initializer = if self_receiver {
+        corroborate_local_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+    } else {
+        corroborate_received_initializer_v1(input, statement, site, &declaration, destination, prior_homes)
+    };
+    if !exact_initializer {
         return Ok(Some(Err(HomePrefixUnavailableV1::SourceMismatch)));
     }
     for requested in [
@@ -204,7 +206,22 @@ pub(crate) fn issue_received_producer_local_call<E>(
 #[path = "home_local_lexical_call_tests.rs"]
 mod tests;
 
-fn corroborate_received_initializer_v1(
+pub(super) fn corroborate_received_initializer_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    statement: &SourceStmtSiteV1,
+    site: &OwnedExprSiteV1,
+    declaration: &SourceBindingSiteV1,
+    destination: BindingRefV1,
+    prior_homes: &[BindingRefV1],
+) -> bool {
+    corroborate_local_initializer_v1(input, statement, site, declaration, destination, prior_homes)
+        && input.function().method_call(site.site()).is_some_and(|call|
+            matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
+                if binding.owner() == input.owner()
+                && input.function().binding(binding).is_some_and(|row| matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Local { .. }))))
+}
+
+pub(super) fn corroborate_local_initializer_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     statement: &SourceStmtSiteV1,
     site: &OwnedExprSiteV1,
@@ -216,24 +233,21 @@ fn corroborate_received_initializer_v1(
     let Some(initializer) = function.expression_source().initializer(declaration) else {
         return false;
     };
-    let Some(call) = function.method_call(site.site()) else {
+    if function.method_call(site.site()).is_none() {
         return false;
-    };
+    }
     site.owner() == input.owner()
         && destination.owner() == input.owner()
         && matches!(declaration, SourceBindingSiteV1::Local { statement: original, .. } if original == statement)
         && initializer.binding() == destination
         && initializer.initializer_site() == Some(site.site())
         && function.declaration_binding(declaration) == Some(destination)
-        && matches!(call.receiver(), ResolvedMethodCallReceiverSourceV1::Lexical(ResolvedLexicalRefV1::Local(binding))
-            if binding.owner() == input.owner()
-            && function.binding(binding).is_some_and(|row| matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Local { .. })))
         && prior_homes
             .iter()
             .all(|binding| binding.owner() == input.owner() && *binding != destination)
 }
 
-fn corroborate_received_arguments_v1(
+pub(super) fn corroborate_received_arguments_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &OwnedExprSiteV1,
     arguments: &[LocalCallArgumentV1],

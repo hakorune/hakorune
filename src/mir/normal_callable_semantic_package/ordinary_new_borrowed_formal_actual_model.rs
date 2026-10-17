@@ -3,6 +3,8 @@ use super::*;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedFormalActualSourceV1 {
+    /// The exact original Get; no local destination or independent Home.
+    Read(crate::mir::normal_callable_semantic_package::ReadActualSourceLoanV1),
     Integer(i64),
     Bool(bool),
     /// The exact `null` literal — tag `0` on the wire, never a zero
@@ -12,6 +14,12 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
     /// result): the ABI owner selects tag `0` or tag `3` at runtime;
     /// the sealed claim class is the sole class authority.
     ReceivedNullable {
+        binding: BindingRefV1,
+        class: Box<str>,
+    },
+    /// Original conditional result: Null/Fresh/Forward remain distinct at
+    /// runtime. This class is source attribution, never an owned Home grant.
+    ReceivedMixed {
         binding: BindingRefV1,
         class: Box<str>,
     },
@@ -45,6 +53,19 @@ pub(crate) enum BorrowedFormalActualSourceV1 {
     },
 }
 
+impl BorrowedFormalActualSourceV1 {
+    /// Original caller formal identity, not permission to select a physical
+    /// borrowed entry. Declared formals must also join that caller's sealed
+    /// entry values; EntryReceiver and TypedHome are different source roots.
+    pub(crate) fn caller_formal_origin_v1(&self) -> Option<(BindingRefV1, BindingRefV1)> {
+        match self {
+            Self::Forwarded { binding, formal } => Some((*binding, *formal)),
+            Self::DeclaredFormal { binding, root, .. } => Some((*binding, *root)),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct PreparedBorrowedFormalActualV1 {
     pub(crate) ordinal: u32,
@@ -58,6 +79,9 @@ pub(crate) struct PreparedBorrowedFormalActualV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum BorrowedCallActualEvidencePhaseV1 {
     Executable,
+    /// Reconstructed original input protocol; source identity remains demandable.
+    ExecutableSourceObject(object_source::ObjectSourceActualIdentityV1),
+    ExecutableSourceInstance(instance_source::InstanceSourceActualIdentityV1),
     ExecutableStaticZero(static_input_finish::StaticZeroInputFinishV1),
     ExecutableStaticOne(static_one_input_finish::StaticOneInputFinishV1),
     ExecutableStaticScalar(static_scalar_input_finish::StaticScalarInputFinishV1),
@@ -79,6 +103,16 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    /// Source-only attribution does not lend an executable argument plan.
+    pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_source_only_object_v1(
+        &self,
+    ) -> bool {
+        matches!(
+            self.phase,
+            BorrowedCallActualEvidencePhaseV1::SourceObject(_)
+        )
+    }
+
     #[cfg(test)]
     pub(in crate::mir::normal_callable_semantic_package) fn object_source_for_test(
         ingress: &PreparedBorrowedFormalIngressV1,
@@ -96,19 +130,59 @@ impl PreparedBorrowedCallActualsV1 {
     ) -> Result<(), String> {
         match self.phase {
             BorrowedCallActualEvidencePhaseV1::Executable
+            | BorrowedCallActualEvidencePhaseV1::ExecutableSourceObject(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticZero(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticOne(_)
             | BorrowedCallActualEvidencePhaseV1::ExecutableStaticMixed(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticTagged(_) => Ok(()),
             BorrowedCallActualEvidencePhaseV1::ExecutableStaticScalar(_) => Ok(()),
+            BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(ref identity) => {
+                let mut ordinals = std::collections::BTreeSet::new();
+                for (ordinal, original) in &identity.array_loans {
+                    let mut incoming = identity.incoming_arguments.iter().filter(|(index, _, _)| index == ordinal);
+                    let (_, site, formal) = incoming.next().ok_or_else(|| freeze("borrowed-instance/array-original-argument"))?;
+                    let mut actuals = self.opaque_actuals.iter().filter(|actual| actual.ordinal == *ordinal);
+                    let actual = actuals.next().ok_or_else(|| freeze("borrowed-instance/array-actual-payload-missing"))?;
+                    let BorrowedFormalActualSourceV1::Read(read) = &actual.source else {
+                        return Err(freeze("borrowed-instance/array-actual-source-drift"));
+                    };
+                    if incoming.next().is_some() || actuals.next().is_some() || !ordinals.insert(*ordinal)
+                        || &actual.site != site || actual.formal != *formal || !read.corroborates_array_input_v1(original) {
+                        return Err(freeze("borrowed-instance/array-actual-identity-drift"));
+                    }
+                }
+                for (ordinal, original) in &identity.field_loans {
+                    let mut incoming = identity.incoming_arguments.iter().filter(|(index, _, _)| index == ordinal);
+                    let (_, site, formal) = incoming.next().ok_or_else(|| freeze("borrowed-instance/field-original-argument"))?;
+                    let mut actuals = self.opaque_actuals.iter().filter(|actual| actual.ordinal == *ordinal);
+                    let actual = actuals.next().ok_or_else(|| freeze("borrowed-instance/field-actual-payload-missing"))?;
+                    let BorrowedFormalActualSourceV1::Read(read) = &actual.source else {
+                        return Err(freeze("borrowed-instance/field-actual-source-drift"));
+                    };
+                    if incoming.next().is_some() || actuals.next().is_some() || !ordinals.insert(*ordinal)
+                        || &actual.site != site || actual.formal != *formal
+                        || !read.corroborates_field_input_v1(identity.source.call_site(), *ordinal, original) {
+                        return Err(freeze("borrowed-instance/field-actual-identity-drift"));
+                    }
+                }
+                if self.opaque_actuals.iter().filter(|actual| matches!(&actual.source,
+                    BorrowedFormalActualSourceV1::Read(_))).count() != ordinals.len() {
+                    return Err(freeze("borrowed-instance/array-actual-domain-drift"));
+                }
+                Ok(())
+            }
             BorrowedCallActualEvidencePhaseV1::EntryOnlyStaticBool(_) => {
                 Err(freeze("ordinary-new/borrowed-entry/bool-entry-not-call"))
             }
             BorrowedCallActualEvidencePhaseV1::SourceInstance(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-instance-actuals",
             )),
-            BorrowedCallActualEvidencePhaseV1::SourceObject(_) => Err(freeze(
-                "ordinary-new/borrowed-entry/source-only-object-actuals",
+            BorrowedCallActualEvidencePhaseV1::SourceObject(ref original) => Err(format!(
+                "{}: call={:?}, callee={:?}, target={:?}",
+                freeze("ordinary-new/borrowed-entry/source-only-object-actuals"),
+                original.source.call_site(),
+                original.source.callee_owner(),
+                original.source.target(),
             )),
             BorrowedCallActualEvidencePhaseV1::SourceStatic(_) => Err(freeze(
                 "ordinary-new/borrowed-entry/source-only-static-actuals",

@@ -21,6 +21,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     ) -> Result<R, String> {
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+    let owned_array_source = self.package.owned_array_lifecycle_source_v1();
         let named_array_emissions = self.package.named_array_emission_collector();
         let core_method_calls =
             self.package
@@ -53,6 +54,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     core_method_calls,
                     Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
+                    Some(owned_array_source),
                     None,
                     |inner, transport| {
                         inner.with_declared_instance_locator_scope(locator, |inner| {

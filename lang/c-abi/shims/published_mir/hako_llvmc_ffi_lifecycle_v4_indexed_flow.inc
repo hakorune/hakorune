@@ -1,9 +1,10 @@
 /* Exact physical obligations on supplied CFG edges. Not a source Home. */
-enum { LV4_INDEXED_SAFE_MUTEX = 1, LV4_LIVE = 1, LV4_TRANSFER_BASE = 2 };
-enum { LV4_FLOW_RECEIVER_MISMATCH = -2 };
+enum { LV4_INDEXED_SAFE_MUTEX = 1, LV4_LIVE = 1 };
+enum { LV4_FLOW_RECEIVER_MISMATCH = -2, LV4_CONDITIONAL_OBJECT = 260 };
+_Static_assert(LV4_CONDITIONAL_OBJECT < LV4_TRANSFER_BASE, "Mixed/Map states overlap");
 
 static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
-    const uint16_t* state, uint32_t object, int check_object) {
+    const hako_lv4_state* state, uint32_t object, int check_object) {
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (!value || value->kind != kind || (check_object && (!value->object_id_set || value->object_id != object))) return 0;
   /* Borrowed operand (-2): a receiver handle lives for the whole call. */
@@ -16,32 +17,34 @@ static int lv4_indexed_live(hako_lv4_function_index* fn, uint32_t id, int kind,
  * this predicate — install and end lanes keep lv4_indexed_live, so borrowed
  * storage is never mutated or ended. */
 static int lv4_indexed_map_readable(hako_lv4_function_index* fn, uint32_t id,
-    const uint16_t* state) {
+    const hako_lv4_state* state) {
   hako_lv4_value* value = lv4_index_value(fn, id);
   if (!value || value->kind != LV4_MAP) return 0;
   if (value->origin == -2) return 1;
   return value->origin >= 0 && state[value->origin] == LV4_LIVE;
 }
 
-/* Type unions do not prove provenance. Follow the exact Copy producer instead. */
-static hako_lv4_value* lv4_borrowed_copy_root(hako_lv4_function_index* fn,
-    hako_lv4_value* value) {
-  for (size_t steps = 0; value && lv4_is(value->instruction, "op", "copy"); steps++) {
-    if (steps >= fn->value_count) return NULL;
-    value = lv4_index_value(fn, lv4_u(value->instruction, "src"));
-  }
-  return value;
-}
+#include "hako_llvmc_ffi_lifecycle_v4_field_borrow.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_owned_array_flow.inc"
 
 #include "hako_llvmc_ffi_lifecycle_v4_indexed_birth_fields.inc"
 
+/* Wrapper arguments never become an owned-object holder/descriptor. */
+static hako_lv4_value* lv4_script_arguments_root(hako_lv4_function_index* fn, uint32_t id) {
+  hako_lv4_value* root = lv4_value_alias_root(fn, lv4_index_value(fn, id));
+  if (!root || root->kind != LV4_HANDLE || root->origin < 0 ||
+      !lv4_is(root->instruction, "op", "invoke_normal_result")) return NULL;
+  hako_lv4_block* origin = lv4_index_block(fn, lv4_u(root->instruction, "invoke_block"));
+  return origin && lv4_is(yyjson_obj_get(lv4_term(origin->block), "operation"),
+      "kind", "script_arguments_new") ? root : NULL;
+}
+
 static int lv4_borrowed_typed_live(const hako_lv4_input* in,
-    hako_lv4_function_index* fn, hako_lv4_value* value, const uint16_t* state) {
+    hako_lv4_function_index* fn, hako_lv4_value* value, const hako_lv4_state* state) {
   if (!value || value->kind != LV4_HANDLE || !lv4_layout(in, value->object_id) ||
       !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, value->object_id, 1)) return 0;
-  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
   if (!root || root->object_id != value->object_id) return 0;
   if (root->origin == -2)
     return fn->receiver_object_set && yyjson_is_uint(yyjson_obj_get(fn->function, "receiver")) &&
@@ -58,14 +61,14 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
      transport is identical; only the result lane differs. */
   int instance = fn->receiver_object_set &&
       yyjson_is_uint(yyjson_obj_get(fn->function, "receiver"));
-  int static_i64 = lv4_is(fn->function, "role", "ordinary_i64") &&
+  int static_i64 = (lv4_is(fn->function, "role", "ordinary_i64") ||
+      lv4_is(fn->function, "role", "ordinary_borrowed_nullable_handle") ||
+      lv4_is(fn->function, "role", "ordinary_mixed_handle")) &&
       yyjson_is_null(yyjson_obj_get(fn->function, "receiver")) &&
       yyjson_is_null(yyjson_obj_get(fn->function, "receiver_object"));
   if (!value || value->kind != LV4_TAGGED || (!instance && !static_i64) ||
-      (!lv4_is(fn->function, "role", "ordinary_i64") &&
-       !lv4_is(fn->function, "role", "ordinary_handle") &&
-       !lv4_is(fn->function, "role", "ordinary_nullable_handle"))) return 0;
-  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+      !lv4_is_ordinary(fn->function)) return 0;
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
@@ -82,7 +85,7 @@ static int lv4_borrowed_tagged_formal(hako_lv4_function_index* fn, hako_lv4_valu
 static int lv4_borrowed_object_formal(hako_lv4_function_index* fn,
     hako_lv4_value* value, uint32_t object_id) {
   if (!lv4_borrowed_tagged_formal(fn, value)) return 0;
-  hako_lv4_value* root = lv4_borrowed_copy_root(fn, value);
+  hako_lv4_value* root = lv4_value_alias_root(fn, value);
   yyjson_val* params = yyjson_obj_get(fn->function, "params");
   for (size_t i = 0; root && i < yyjson_arr_size(params); i++) {
     yyjson_val* param = yyjson_arr_get(params, i);
@@ -124,7 +127,7 @@ static int lv4_null_lane_present(hako_lv4_function_index* fn) {
 }
 
 static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* operand,
-    const uint16_t* state) {
+    const hako_lv4_state* state) {
   if (lv4_is(operand, "kind", "static_text")) return 1;
   hako_lv4_value* value = lv4_index_value(fn, lv4_u(operand, "value"));
   if (lv4_is(operand, "kind", "normal_integer")) return value && value->kind == LV4_I64;
@@ -132,170 +135,19 @@ static int lv4_string_indexed_operand(hako_lv4_function_index* fn, yyjson_val* o
       state[value->origin] > LV4_STRING_RANK_BASE;
 }
 
-static int lv4_indexed_rows(const hako_lv4_input* in, hako_lv4_function_index* fn,
-    yyjson_val* block, uint16_t* state, int faulted, int birth) {
-  yyjson_val* rows = yyjson_obj_get(block, "instructions");
-  int after_phi = 0;
-  if (in->measurement) in->measurement->v4_flow_rows += yyjson_arr_size(rows);
-  for (size_t ri = 0; ri < yyjson_arr_size(rows); ri++) {
-    yyjson_val* ins = yyjson_obj_get(yyjson_arr_get(rows, ri), "instruction");
-    if (lv4_is(ins, "op", "phi")) {
-      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
-      if (after_phi || !value || (value->kind != LV4_I64 && value->kind != LV4_BOOL)) return 0;
-      continue;
-    }
-    int first_non_phi = !after_phi;
-    after_phi = 1;
-    if (lv4_is(ins, "op", "fault_frame_enter")) {
-      if (lv4_u(block, "id") != lv4_u(fn->function, "entry") || ri || faulted) return 0;
-    } else if (lv4_is(ins, "op", "array_residence_release")) {
-      hako_lv4_value* root = lv4_owned_array_root(fn, lv4_u(ins, "value"));
-      if (!root || !lv4_owned_array_claim(fn, root) || state[root->origin] != LV4_LIVE) return 0;
-      state[root->origin] = 0;
-    } else if (lv4_is(ins, "op", "const_i64") || lv4_is(ins, "op", "const_bool") ||
-        lv4_is(ins, "op", "const_string")) {
-      /* Text constants have no runtime lane; their uses remain unsupported. */
-    } else if (lv4_is(ins, "op", "const_unit")) {
-      /* A missing else projects a dead Unit row; it carries no lane and
-         no operand position accepts the UNIT kind. */
-    } else if (lv4_is(ins, "op", "const_null")) {
-      /* The null sentinel materializes only inside a nullable-result
-         callee or inside a function carrying the admitted borrowed/null
-         equality; it seeds a handle-lane slot that never owns a lease. */
-      if (!lv4_is(fn->function, "role", "ordinary_nullable_handle") &&
-          !lv4_null_lane_present(fn)) return 0;
-    } else if (lv4_is(ins, "op", "copy")) {
-      hako_lv4_value* source = lv4_index_value(fn, lv4_u(ins, "src"));
-      if (!source || (source->kind != LV4_I64 && source->kind != LV4_BOOL &&
-          source->kind != LV4_HANDLE && source->kind != LV4_TAGGED && source->kind != LV4_ARRAY_BORROW)) return 0;
-      if (source->kind == LV4_ARRAY_BORROW && (faulted || !lv4_owned_array_borrow_live(fn, source, state))) return 0;
-      if (source->kind == LV4_HANDLE && !lv4_indexed_live(fn, source->id,
-          LV4_HANDLE, state, 0, 0) && !lv4_owned_array_holder_live(fn, source->id, state)) return 0;
-    } else if (lv4_is(ins, "op", "add") || lv4_is(ins, "op", "mul")) {
-      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
-          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      /* The borrowed kind/payload lane may serve a dominated arithmetic operand
-         only; the emitted kind==1 branch proves the i64 read at the use
-         site, uniform with the checked compare. */
-      if (!lhs || !rhs ||
-          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
-          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
-    } else if (lv4_is(ins, "op", "sub") || lv4_is(ins, "op", "div")) {
-      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
-          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      if (!lhs || !rhs || lhs->kind != LV4_I64 || rhs->kind != LV4_I64 ||
-          (lv4_is(ins, "op", "div") &&
-           !hako_physical_positive_divisor(fn->function, lv4_u(ins, "rhs")))) return 0;
-    } else if (lv4_is(ins, "op", "compare")) {
-      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
-          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      /* The borrowed kind/payload lane may serve a checked compare only;
-         the emitted kind==1 branch proves the i64 read at the use site. */
-      if (!lhs || !rhs ||
-          (lhs->kind != LV4_I64 && lhs->kind != LV4_TAGGED) ||
-          (rhs->kind != LV4_I64 && rhs->kind != LV4_TAGGED)) return 0;
-    } else if (lv4_is(ins, "op", "borrowed_null_compare")) {
-      hako_lv4_value *lhs = lv4_index_value(fn, lv4_u(ins, "lhs")),
-          *rhs = lv4_index_value(fn, lv4_u(ins, "rhs"));
-      hako_lv4_value* carrier;
-      int lnull, rnull;
-      /* The borrowed/null equality admits exactly one carrier operand and
-         the exact const_null producer as its sibling. Equality reads the
-         carrier's kind or payload lane — never the Integer view — so a
-         well-formed non-null kind answers false instead of faulting. */
-      if (!lhs || !rhs) return 0;
-      lnull = lv4_is(lhs->instruction, "op", "const_null");
-      rnull = lv4_is(rhs->instruction, "op", "const_null");
-      if (lnull == rnull) return 0;
-      carrier = lnull ? rhs : lhs;
-      if (carrier->kind != LV4_TAGGED && carrier->kind != LV4_HANDLE &&
-          carrier->kind != LV4_I64 && carrier->kind != LV4_BOOL) return 0;
-    } else if (lv4_is(ins, "op", "array_set")) {
-      hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
-          *index = lv4_index_value(fn, lv4_u(ins, "index")),
-          *value = lv4_index_value(fn, lv4_u(ins, "value"));
-      /* The element write is a checked kernel call: the array operand is a
-         raw slot-loaded handle lane, the index a committed i64, and the
-         element value may read the same lent Integer view — the emitted
-         kind==1 branch proves that read at this exact site, uniform with
-         the checked compare and the dominated `+`. */
-      if (faulted || birth || !array || array->kind != LV4_I64 ||
-          !index || index->kind != LV4_I64 ||
-          !value || (value->kind != LV4_I64 && value->kind != LV4_TAGGED)) return 0;
-    } else if (lv4_is(ins, "op", "array_get")) {
-      /* A routed `.get` element read: the array operand is the same
-         slot-loaded handle lane and the index a committed i64 — the read
-         consumes neither and needs no site (miss → the null sentinel 0);
-         the dst is the i64-or-handle carrier. */
-      hako_lv4_value *array = lv4_index_value(fn, lv4_u(ins, "array")),
-          *index = lv4_index_value(fn, lv4_u(ins, "index"));
-      if (faulted || birth || !array || array->kind != LV4_I64 ||
-          !index || index->kind != LV4_I64) return 0;
-    } else if (lv4_is(ins, "op", "object_field_get")) {
-      /* A borrowed formal's guarded read carries no owned lease: the
-         tagged pair's payload names the object, and the param's sealed
-         `object_view` must equal this row's canonical object — the
-         publisher's dominance proof, not this arm, places the row in the
-         non-null cone. */
-      hako_lv4_value* base = lv4_index_value(fn, lv4_u(ins, "base"));
-      if (faulted || birth || lv4_slot(in, ins) < 0 || !base ||
-          (!lv4_indexed_live(fn, base->id, LV4_HANDLE, state,
-              lv4_u(ins, "object_id"), 1) &&
-           !lv4_borrowed_object_formal(fn, base, lv4_u(ins, "object_id")))) return 0;
-    } else if (lv4_is(ins, "op", "field_set")) {
-      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "value"));
-      yyjson_val* check = yyjson_obj_get(ins, "exact_numeric_runtime_check");
-      /* A routed scalar store consumes the same checked helper as the
-         invoke form: the base is the exact live object and the value is a
-         proven i64 lane only — tagged carriers and handle leases never
-         reach this row. A dynamic-integer-range obligation is discharged by
-         the emitted bounds check at this row, not by the kernel. */
-      /* Birth source stores are Invoke terminators with issued Fault
-         cleanup. A reserved (metadata-owned) slot never takes this plain
-         scalar row in any role. */
-      if (birth || lv4_birth_reserved(in, ins) ||
-          lv4_is(fn->function, "role", "root_unit") || faulted ||
-          lv4_slot(in, ins) < 0 || !value || value->kind != LV4_I64 ||
-          !check ||
-          !(lv4_is(check, "kind", "none") ||
-            (lv4_is(check, "kind", "dynamic_integer_range") &&
-             lv4_is(check, "declared_type", "usize"))) ||
-          !lv4_indexed_live(fn, lv4_u(ins, "base"), LV4_HANDLE, state,
-              lv4_u(ins, "object_id"), 1)) return 0;
-    } else if (lv4_is(ins, "op", "invoke_normal_result")) {
-      hako_lv4_value* value = lv4_index_value(fn, lv4_u(ins, "dst"));
-      int result_requires_live = value && value->kind != LV4_TEXT_VIEW;
-      /* Birth units carry one result projection: the proven provider
-         `new ArrayBox()` normal landing. It is the first non-PHI row of a
-         block reached only by the invoke's Normal edge. */
-      if (faulted || !first_non_phi || !value || value->origin < 0 ||
-          (result_requires_live && (value->kind == LV4_OWNED_STRING
-              ? state[value->origin] <= LV4_STRING_RANK_BASE : state[value->origin] != LV4_LIVE))) return 0;
-      yyjson_val* op = yyjson_obj_get(lv4_term(block), "operation");
-      if (value->kind == LV4_KEY && (!(lv4_is(op, "kind", "map_install_indexed") ||
-          lv4_is(op, "kind", "map_install_value") || lv4_is(op, "kind", "map_install_text") ||
-          lv4_is(op, "kind", "map_install_empty_array") ||
-          lv4_is(op, "kind", "map_install_borrowed_array")) ||
-          lv4_u(op, "key") != value->id)) return 0;
-      if (value->kind == LV4_OUTCOME && (!lv4_is(op, "kind", "map_end_outcome") ||
-          lv4_u(op, "outcome") != value->id)) return 0;
-      /* Ordinary calls produce a scalar result, not a live storage lease. */
-      if (value->kind == LV4_I64 || value->kind == LV4_ARRAY_BORROW) state[value->origin] = 0;
-    } else return 0;
-  }
-  return 1;
-}
+#include "hako_llvmc_ffi_lifecycle_v4_borrowed_result_anchor.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_field_dependency_liveness.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_mixed_result_flow.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_received_field_read.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_field_array_flow.inc"
+#include "hako_llvmc_ffi_lifecycle_v4_indexed_rows.inc"
 
-typedef struct {
-  uint16_t* states;
-  signed char faults[256];
-  size_t queue[256], head, tail, count, entry;
-} hako_lv4_worklist;
+#include "hako_llvmc_ffi_lifecycle_v4_flow_workspace.inc"
 
 static int lv4_indexed_deliver(hako_lv4_worklist* work, size_t target,
-    const uint16_t* state, int faulted) {
+    const hako_lv4_state* state, int faulted) {
   if (target >= work->count || target == work->entry) return 0;
-  uint16_t* saved = work->states + target * work->count;
+  hako_lv4_state* saved = work->states + target * work->count;
   if (work->faults[target] >= 0)
     return work->faults[target] == faulted &&
         !memcmp(saved, state, work->count * sizeof(*state));
@@ -317,13 +169,10 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
   size_t count = fn->block_count;
   int faulted = work->faults[bi];
   if (in->measurement) in->measurement->v4_flow_blocks++;
-  uint16_t state[256], normal[256];
+  hako_lv4_state *state = work->scratch, *normal = state + count;
   memcpy(state, work->states + bi * count, count * sizeof(*state));
   int birth = lv4_is(fn->function, "role", "birth_unit");
-  int ordinary = lv4_is(fn->function, "role", "ordinary_i64") ||
-      lv4_is(fn->function, "role", "ordinary_map") ||
-      lv4_is(fn->function, "role", "ordinary_handle") ||
-      lv4_is(fn->function, "role", "ordinary_nullable_handle");
+  int ordinary = lv4_is_ordinary(fn->function);
   if (!lv4_indexed_rows(in, fn, block, state, faulted, birth)) return 0;
   if (lv4_is(term, "op", "return") || lv4_is(term, "op", "return_fault"))
     return lv4_indexed_return(in, fn, term, state, faulted);
@@ -339,7 +188,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (birth || faulted || state[bi] ||
           !lv4_string_indexed_operand(fn, yyjson_obj_get(op, add ? "left" : "value"), state) ||
           (add && !lv4_string_indexed_operand(fn, yyjson_obj_get(op, "right"), state))) return 0;
-      if (add) normal[bi] = lv4_string_top(state, count) + 1;
+      if (add && !lv4_string_push(state, count, &normal[bi])) return 0;
     } else if (lv4_is(op, "kind", "string_end")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
       if (birth || !value || value->kind != LV4_OWNED_STRING || value->origin < 0 ||
@@ -353,21 +202,23 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       yyjson_val* callee = (target < in->index_count) ? in->index[target].function : NULL;
       yyjson_val* receiver = yyjson_obj_get(call, "receiver");
       int callee_has_receiver = callee && yyjson_is_uint(yyjson_obj_get(callee, "receiver"));
-      int want_map = lv4_is(op, "result", "map");
-      int want_handle = lv4_is(op, "result", "handle");
-      int want_nullable = lv4_is(op, "result", "nullable_handle");
-      /* A birth caller joins this lane only for a qualified-static provider
-         argument: its sealed claims are ExactI64, so the i64 spelling is the
-         entire surface — map and handle results still fail here. */
+      int want_unit = lv4_is(op, "result", "unit");
+      /* Birth keeps the I64 provider lane. A zero-argument Unit child call
+         additionally rechecks the exact committed field loan below. */
       int birth_i64 = birth && lv4_is(op, "result", "i64");
-      if ((fi && !ordinary && !birth_i64) || faulted || state[bi] || !target || target >= in->index_count ||
-          !lv4_is(callee, "role", want_map ? "ordinary_map" :
-              want_handle ? "ordinary_handle" : want_nullable ? "ordinary_nullable_handle" : "ordinary_i64") ||
+      hako_lv4_value* birth_receiver = receiver && yyjson_is_uint(receiver) ?
+          lv4_index_value(fn, (uint32_t)yyjson_get_uint(receiver)) : NULL;
+      int birth_unit = birth && want_unit && callee_has_receiver && !yyjson_arr_size(args) &&
+          lv4_birth_field_borrow_live(in, fn, lv4_value_alias_root(fn, birth_receiver),
+              state, lv4_u(block, "id"));
+      if ((fi && !ordinary && !birth_i64 && !birth_unit) || faulted || state[bi] || !target || target >= in->index_count ||
+          !hako_physical_string(yyjson_obj_get(callee, "role"),
+              hako_physical_ordinary_result_role(yyjson_obj_get(op, "result"))) ||
           (callee_has_receiver != (receiver && !yyjson_is_null(receiver))) ||
           yyjson_arr_size(args) != yyjson_arr_size(yyjson_obj_get(in->index[target].function, "params"))) return 0;
       if (callee_has_receiver) {
         if (!yyjson_is_uint(receiver) || !in->index[target].receiver_object_set) return 0;
-        if (!lv4_indexed_live(fn, lv4_u(call, "receiver"), LV4_HANDLE, state,
+        if (!lv4_readable_object(in, fn, lv4_u(call, "receiver"), state, lv4_u(block, "id"),
                 in->index[target].receiver_object, 1))
           return LV4_FLOW_RECEIVER_MISMATCH;
       }
@@ -397,9 +248,27 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
                  spent origin, never a forwarded tagged carrier. The ABI
                  owner selects tag 0/3 at runtime. */
               int array_borrow = value && value->kind == LV4_ARRAY_BORROW;
-              if (array_borrow) {
+              if (value && value->kind == LV4_BORROWED_OBJECT) {
+                if (!lv4_borrowed_result_readable(in, fn, value, state, lv4_u(block, "id"))) return 0;
+                hako_lv4_value* anchor = lv4_borrowed_result_anchor(in, fn, value);
+                if (class_domain && ((anchor->object_id_set && anchor->object_id != yyjson_get_uint(view)) ||
+                    (anchor->kind == LV4_TAGGED && !lv4_borrowed_object_formal(fn, anchor,
+                        (uint32_t)yyjson_get_uint(view))))) return 0;
+              } else if (value && value->kind == LV4_MIXED_OBJECT) {
+                /* Preserve the conditional obligation. Fresh and the SAME
+                   fixed-formal actual both agree with the receiving domain;
+                   nested Mixed anchors share one decreasing recursion budget. */
+                if (!lv4_mixed_result_readable_depth(in, fn, value, state, lv4_u(block, "id"),
+                    fn->value_count + 1, class_domain ? (uint32_t)yyjson_get_uint(view) : 0,
+                    class_domain)) return 0;
+              } else if (array_borrow) {
                 if (!class_domain || !lv4_owned_array_borrow_live(fn, value, state) ||
                     !value->object_id_set || value->object_id != yyjson_get_uint(view)) return 0;
+              } else if (value && value->kind == LV4_HANDLE && value->origin == LV4_OWNED_FIELD_BORROW) {
+                if ((class_domain && (!value->object_id_set || value->object_id != yyjson_get_uint(view))) ||
+                    !lv4_nullable_field_loan_readable(in, fn, value->id, state,
+                        lv4_u(block, "id"), class_domain ? (uint32_t)yyjson_get_uint(view) : 0,
+                        class_domain)) return 0;
               } else if (!value || value->kind != LV4_HANDLE || value->origin < 0 ||
                   state[value->origin] != LV4_LIVE) return 0;
               /* A nullable spelling cannot erase a known New/Copy class.
@@ -432,7 +301,8 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           } else if (!arg_kind || strcmp(arg_kind, "i64")) return 0;
         }
       }
-      normal[bi] = LV4_LIVE;
+      if (!want_unit && !lv4_is(op, "result", "borrowed_nullable_handle"))
+        normal[bi] = lv4_is(op, "result", "mixed_handle") ? LV4_CONDITIONAL_OBJECT : LV4_LIVE;
     } else if (lv4_is(op, "kind", "new_box") || lv4_is(op, "kind", "map_new") ||
         lv4_is(op, "kind", "map_prepare_key")) {
       /* A provider `new <Child>` inside a birth unit issues the child
@@ -443,12 +313,21 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       if (hako_physical_map_kind(yyjson_get_str(yyjson_obj_get(op, "kind"))) &&
           in->profile != LV4_INDEXED_SAFE_MUTEX) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "script_arguments_new")) {
+      if (fi || faulted || state[bi]) return 0;
+      normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "array_new")) {
       /* A provider `new ArrayBox()` inside a birth unit (or ordinary
          function) issues a live handle lease; a following field store
          moves it into the object slot or a release discharges it. */
       if ((fi && !ordinary && !birth) || faulted || state[bi]) return 0;
       normal[bi] = LV4_LIVE;
+    } else if (lv4_is(op, "kind", "array_append")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      if (faulted || birth || !lv4_is(op, "representation", "i64") ||
+          !value || value->kind != LV4_I64 ||
+          !lv4_field_array_readable(in, fn, lv4_u(op, "array"), state, lv4_u(block, "id"))) return 0;
+      /* Borrow only: both Normal and Fault keep the parent's obligation. */
     } else if (lv4_is(op, "kind", "birth_call")) {
       yyjson_val* call = yyjson_obj_get(op, "call");
       yyjson_val* args = yyjson_obj_get(call, "args");
@@ -467,6 +346,21 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
            proof the checked-compare lane owns — and the emitted kind==1
            branch discharges the i64 read at the call edge. */
         const char* arg_kind = yyjson_get_str(yyjson_obj_get(arg, "kind"));
+        if (arg_kind && !strcmp(arg_kind, "nullable_typed_object")) {
+          if (value && value->kind == LV4_MIXED_OBJECT) {
+            if (value->origin < 0 || (size_t)value->origin >= count ||
+                normal[value->origin] != LV4_CONDITIONAL_OBJECT ||
+                !lv4_mixed_birth_actual(in, fn, target, i, value, state, lv4_u(block, "id"))) return 0;
+            normal[value->origin] = 0; /* Fault retains the original obligation. */
+            continue;
+          }
+          if (!value || value->origin < 0 ||
+              !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, 0, 0) ||
+              normal[value->origin] != LV4_LIVE ||
+              !lv4_birth_actual_object(in, fn, target, i, value, 1)) return 0;
+          normal[value->origin] = 0;
+          continue;
+        }
         if (arg_kind) {
           if (strcmp(arg_kind, "tagged") || !lv4_borrowed_tagged_formal(fn, value))
             return 0;
@@ -489,12 +383,31 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
             (numeric_kind == 2 && value->kind != LV4_BOOL) ||
             (numeric_kind == 3 &&
                 (value->origin < 0 ||
-                 !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, 0, 0))) ||
+                 !lv4_indexed_live(fn, value->id, LV4_HANDLE, state, 0, 0) ||
+                 !lv4_birth_actual_object(in, fn, target, i, value, 0))) ||
             (numeric_kind == 0 && value->kind != LV4_HANDLE)) return 0;
-        if (numeric_kind == 3) normal[value->origin] = 0;
+        if (numeric_kind == 3) {
+          if (normal[value->origin] != LV4_LIVE) return 0;
+          normal[value->origin] = 0;
+        }
       }
+    } else if (lv4_is(op, "kind", "field_get")) {
+      if (faulted || birth || !lv4_received_field_readable(in, fn, op, state, lv4_u(block, "id"))) return 0;
+      /* The receiver's original nullable/conditional obligation is untouched.
+         The I64 result is available exclusively on Normal. */
+      normal[bi] = LV4_LIVE;
     } else if (lv4_is(op, "kind", "field_set")) {
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      hako_lv4_value* base = lv4_index_value(fn, lv4_u(op, "base"));
+      yyjson_val* range = yyjson_obj_get(op, "exact_numeric_runtime_check");
+      /* The published source-owned usize write borrows two original tagged
+         formals. The base retains its sealed class; neither operand owns a
+         lease. Runtime kind/range/slot checks precede the store itself. */
+      int borrowed_write = ordinary &&
+          lv4_is(range, "kind", "dynamic_integer_range") &&
+          lv4_is(range, "declared_type", "usize") &&
+          lv4_borrowed_object_formal(fn, base, lv4_u(op, "object_id")) &&
+          lv4_borrowed_tagged_formal(fn, value);
       /* A birth caller installs provider `new` results and scalar formals
          into its borrowed receiver's fields: the base is the stamped
          receiver handle (origin -2, object-corroborated), the value an
@@ -517,9 +430,9 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
         if (birth && (!lv4_birth_array_value(fn, value) ||
             !lv4_birth_commit(in, fn, op, normal, bi, 0))) return 0;
         normal[value->origin] = state[value->origin] = 0;
-      } else if ((value->kind != LV4_I64 && !(birth && value->kind == LV4_TAGGED)) ||
+      } else if ((value->kind != LV4_I64 && !((birth || borrowed_write) && value->kind == LV4_TAGGED)) ||
           lv4_birth_reserved(in, op)) return 0;
-      if (!lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
+      if (!borrowed_write && !lv4_indexed_live(fn, lv4_u(op, "base"), LV4_HANDLE, state,
               lv4_u(op, "object_id"), 1)) return 0;
     } else if (lv4_is(op, "kind", "field_residence_release")) {
       /* An owned field residence release discharges only the child slot.
@@ -579,6 +492,13 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
               lv4_u(op, "object_id"), 1)) return 0;
       if (base->origin < 0 && (!birth ||
           !lv4_birth_discharge(in, fn, op, state, normal, faulted, 1))) return 0;
+    } else if (lv4_is(op, "kind", "object_end_if_owned")) {
+      hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
+      if ((fi && !ordinary) || birth || !value ||
+          !lv4_mixed_result_readable(in, fn, value, state, lv4_u(block, "id")) ||
+          !lv4_mixed_owned_class(in, fn, value, lv4_u(op, "object_id")) ||
+          !lv4_complete_end_body(in, op)) return 0;
+      normal[value->origin] = state[value->origin] = 0; /* both cleanup exits */
     } else if (lv4_is(op, "kind", "home_release") || lv4_is(op, "kind", "home_release_if_live") ||
         lv4_is(op, "kind", "reclaim_unpublished")) {
       /* `home_release_if_live` releases a value that may carry the Void
@@ -587,21 +507,14 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
          without the exact-object corroboration. */
       int nullable_release = lv4_is(op, "kind", "home_release_if_live");
       hako_lv4_value* value = lv4_index_value(fn, lv4_u(op, "value"));
-      /* Birth units admit these only for an in-flight provider child
-         (origin >= 0); the borrowed `me` receiver still fails the origin
-         check, so self-release can never slip through this lane. A
-         nullable formal (origin -3) carries no lease at all: only the
-         `home_release_if_live` spelling admits it — the emitted liveness
-         check skips the Void sentinel and nothing is consumed. */
-      if ((fi && !ordinary && !birth) || !value) return 0;
-      if (value->origin == -3) {
-        if (!nullable_release || value->kind != LV4_HANDLE) return 0;
-      } else {
-        if (!lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
-                lv4_u(op, "object_id"), !nullable_release) ||
-            value->origin < 0) return 0;
-        normal[value->origin] = state[value->origin] = 0;
-      }
+      /* Only a live caller-owned acquisition may end. Birth formals and
+         their Copies remain caller-owned until this Birth returns Normal. */
+      if ((fi && !ordinary && !birth) || !value || value->origin < 0 ||
+          !lv4_indexed_live(fn, lv4_u(op, "value"), LV4_HANDLE, state,
+              lv4_u(op, "object_id"), !nullable_release)) return 0;
+      if (!lv4_is(op, "kind", "reclaim_unpublished") &&
+          !lv4_object_field_dependencies_released(in, fn, value, state, lv4_u(block, "id"))) return 0;
+      normal[value->origin] = state[value->origin] = 0;
     } else if (lv4_is(op, "kind", "map_install_text") ||
         lv4_is(op, "kind", "map_install_empty_array")) {
       hako_lv4_value *key = lv4_index_value(fn, lv4_u(op, "key"));
@@ -642,7 +555,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
       } else {
         if (!lv4_indexed_live(fn, value->id, LV4_HANDLE, state,
                 lv4_u(op, "object_id"), 1) || value->origin < 0) return 0;
-        normal[value->origin] = (uint16_t)(map->origin + LV4_TRANSFER_BASE);
+        normal[value->origin] = lv4_map_transfer(map->origin);
       }
       normal[key->origin] = state[key->origin] = 0;
       normal[bi] = LV4_LIVE;
@@ -677,7 +590,7 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !lv4_indexed_live(fn, id, map_end ? LV4_MAP : LV4_OUTCOME, state, 0, 0)) return 0;
       normal[value->origin] = state[value->origin] = 0;
       if (map_end) for (size_t i = 0; i < count; i++)
-        if (state[i] == value->origin + LV4_TRANSFER_BASE) normal[i] = state[i] = 0;
+        if (state[i] == lv4_map_transfer(value->origin)) normal[i] = state[i] = 0;
     } else return 0;
   } else if (lv4_is(term, "op", "branch")) {
     hako_lv4_value* condition = lv4_index_value(fn, lv4_u(term, "condition"));
@@ -696,22 +609,37 @@ static int lv4_indexed_flow_block(const hako_lv4_input* in, size_t fi, size_t bi
           !yyjson_is_arr(values) || yyjson_arr_size(values)) return 0;
     }
     if (!next) return 0;
-    if (!lv4_indexed_deliver(work, next->ordinal,
-        ei ? state : normal, ei ? failed : faulted)) return 0;
+    int edge_faulted = ei ? failed : faulted;
+    const hako_lv4_state* outgoing = ei ? state : normal;
+    hako_lv4_state* projected = normal + count;
+    if (birth && edge_faulted) {
+      memcpy(projected, outgoing, count * sizeof(*projected));
+      if (!lv4_birth_drop_provided(in, fn, projected)) return 0;
+      outgoing = projected;
+    }
+    if (!lv4_indexed_deliver(work, next->ordinal, outgoing, edge_faulted)) return 0;
   }
   return 1;
 }
 
 static int lv4_indexed_admit(hako_lv4_input* in) {
   if (!lv4_index_open(in)) return 0;
+  /* Every independent producer in every function precedes any dependent
+   * Field classification or recursive owned-result correspondence. A caller
+   * cannot demand class from a callee whose original producer is unseeded. */
+  for (size_t fi = 0; fi < in->index_count; fi++) {
+    hako_lv4_function_index* fn = &in->index[fi];
+    for (size_t vi = 0; vi < fn->value_count; vi++) {
+      hako_lv4_value* value = &fn->values[vi];
+      if (lv4_is(value->instruction, "op", "object_field_get")) continue;
+      if (!lv4_index_seed(in, fn, value)) return 0;
+    }
+  }
   /* Birth callers bind borrowed receivers; ordinary callees already carry the
    * prepared object identity in their physical function row. */
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* caller = &in->index[fi];
-    int ordinary = lv4_is(caller->function, "role", "ordinary_i64") ||
-        lv4_is(caller->function, "role", "ordinary_map") ||
-        lv4_is(caller->function, "role", "ordinary_handle") ||
-        lv4_is(caller->function, "role", "ordinary_nullable_handle");
+    int ordinary = lv4_is_ordinary(caller->function);
     yyjson_val* blocks = hako_physical_blocks(caller->function);
     for (size_t bi = 0; bi < yyjson_arr_size(blocks); bi++) {
       yyjson_val* op = yyjson_obj_get(lv4_term(yyjson_arr_get(blocks, bi)), "operation");
@@ -720,7 +648,8 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
       if (fi && !ordinary && !birth_caller) return 0;
       yyjson_val* call = yyjson_obj_get(op, "call");
       uint32_t target = lv4_u(call, "target");
-      hako_lv4_value* receiver = lv4_index_value(caller, lv4_u(call, "receiver"));
+      hako_lv4_value* receiver = lv4_value_alias_root(caller,
+          lv4_index_value(caller, lv4_u(call, "receiver")));
       if (!target || target >= in->index_count ||
           !lv4_is(in->index[target].function, "role", "birth_unit") ||
           !receiver || receiver->kind != LV4_HANDLE || !receiver->object_id_set ||
@@ -741,12 +670,14 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
         }
     }
   }
+  for (size_t fi = 0; fi < in->index_count; fi++)
+    if (!lv4_index_kinds(in, &in->index[fi])) return 0;
+  if (!lv4_index_owned_results(in)) return 0;
   for (size_t fi = 0; fi < in->index_count; fi++) {
     hako_lv4_function_index* fn = &in->index[fi];
     size_t count = fn->block_count, frames = 0;
     hako_lv4_worklist work = {0};
     if (lv4_is(fn->function, "role", "birth_unit") && !fn->receiver_object_set) return 0;
-    memset(work.faults, -1, sizeof(work.faults));
     hako_lv4_block* entry = lv4_index_block(fn, lv4_u(fn->function, "entry"));
     for (size_t bi = 0; bi < count; bi++) {
       yyjson_val* rows = yyjson_obj_get(fn->blocks[bi].block, "instructions");
@@ -768,19 +699,15 @@ static int lv4_indexed_admit(hako_lv4_input* in) {
        borrowed-frame projection; SSA validation still rejects undefined uses. */
     if (!entry || frames > 1 || (!fi && frames != 1) ||
         hako_physical_predecessor_count(fn->function, entry->id)) return 0;
-    work.count = count; work.entry = entry->ordinal;
-    work.states = calloc(count * count, sizeof(*work.states));
-    if (!work.states) return 0;
-    work.faults[work.entry] = 0;
-    work.queue[work.tail++] = work.entry;
+    if (!lv4_work_open(&work, count, entry->ordinal)) return 0;
     int valid = 1;
     while (valid == 1 && work.head < work.tail) {
       size_t bi = work.queue[work.head++];
       valid = lv4_indexed_flow_block(in, fi, bi, &work);
     }
-    free(work.states);
-    if (valid == LV4_FLOW_RECEIVER_MISMATCH) return valid;
+    if (valid == LV4_FLOW_RECEIVER_MISMATCH) { lv4_work_close(&work); return valid; }
     for (size_t bi = 0; valid && bi < count; bi++) if (work.faults[bi] < 0) valid = 0;
+    lv4_work_close(&work);
     if (!valid) return 0;
   }
   return 1;

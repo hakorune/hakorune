@@ -263,6 +263,234 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
         projected[0].source.require_instance().unwrap(),
         source.incoming[0].source.require_instance().unwrap()
     );
+    // A genuine Birth is outside ordinary declarations but still contributes
+    // its original call to THIS retained census, without execution permission.
+    for body in ["return 0", "return null", "", "local scratch = 0", "return", "if true { return } local scratch = 0", "local a = new Page() local b = new Page()", "print(7)", "print(7) return"] {
+        let program = format!("box Page {{ id: i64 = 0 birth() {{}} seed() {{ {body} }} }} box Pool {{ page: Page birth() {{ me.page = new Page() me.page.seed() }} }} static box Main {{ main() {{ local pool = new Pool() return 0 }} }}");
+        let package = self::package(&program);
+        let constructor = package.instance_constructors().rows().iter().find(|row| row.box_name() == "Pool").unwrap();
+        let source = constructor.construction_source().as_ref().unwrap();
+        let crate::mir::normal_callable_semantic_package::instance_construction::ConstructionSourceStepV1::StoredChildCall(request) = &source.steps()[1] else { panic!("original child call") };
+        let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+        let inventory = &ingress.source_incoming;
+        let mut matching = inventory.exact_rows().filter(|row| &row.call == request.site());
+        let row = matching.next().expect("Birth call in the sole incoming census");
+        assert!(matching.next().is_none());
+        let unit_candidate = body != "return 0" && body != "return null";
+        assert_eq!(row.source.is_pending(), !unit_candidate);
+        assert_eq!(row.source.require_instance().is_ok(), unit_candidate);
+        assert_eq!(row.source.target().namespace(), hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod);
+        assert_eq!(row.source.target().owner(), "Page");
+        assert_eq!(row.source.target().name(), "seed");
+        assert_eq!(row.source.argument_sites(), request.arguments());
+        assert!(row.arguments.is_empty());
+        assert!(inventory.owners.contains(&row.callee));
+        assert!(!inventory.source_vetoed_owners_v1().contains(&row.callee));
+        assert_eq!(inventory.vetoed_owners().contains(&row.callee), !unit_candidate);
+        assert!(inventory.observations.iter().all(|(_, observed)| !matches!(observed,
+            Err(BorrowedIncomingDraftErrorV1::NoIncoming(owner)) if owner == &row.callee)));
+        assert!(!package.batch().declarations().any(|declaration| declaration.owner() == row.call.owner()));
+        assert_eq!(constructor.construction().is_ok(), unit_candidate);
+        let unit = row.source.unit_discard_source_v1();
+        if body == "return 0" || body == "return null" {
+            assert!(unit.is_none(), "value Return never becomes a Unit request");
+        } else {
+            let unit = unit.expect("original Unit discard request retained");
+            assert!(unit.is_unit_candidate_v1());
+            let completion = package.result_contracts.row(row.source.target_batch_slot()).unwrap().borrow();
+            assert!(unit.matches_unit_completion_v1(completion.completion()), "{body}");
+            if body == "local a = new Page() local b = new Page()" {
+                let (original_body, original_end) = completion.completion().implicit_body_end().unwrap();
+                let flow = completion.completion().cleanup().root_flow().expect("same original Home walk");
+                let implicit = flow.implicit_exit().expect("same implicit key").expect("complete original Home obligations");
+                assert_eq!(implicit.implicit_origin(), Some((original_body, original_end)));
+                let mut locals = package.batch().with_lowering_input(row.source.target_batch_slot(), |input| {
+                    input.function().bindings().filter_map(|(binding, record)| match record.kind() {
+                        crate::mir::resolved_semantics::BindingKindV1::Local { ordinal } => Some((ordinal, binding)),
+                        _ => None,
+                    }).collect::<Vec<_>>()
+                }).unwrap();
+                locals.sort_by_key(|(ordinal, _)| *ordinal);
+                let expected: Vec<_> = locals.into_iter().rev().map(|(_, binding)| binding).collect();
+                assert_eq!(implicit.homes(), expected.as_slice(), "same LIFO as explicit exits");
+                assert_eq!(expected.len(), 2);
+                assert!(!flow.all_exits_ready(), "physical implicit consumer remains closed");
+            }
+
+            assert!(!unit.matches_unit_completion_v1(package.ordinary_new_claim_ledger.root_completion_for_test()));
+            let remade = super::super::super::borrowed_formal_result::original::prepare_original_returns_v1(
+                package.batch(), &package.selected, &package.parameter_contracts,
+            );
+            let remade = remade[&row.callee].as_ref().unwrap().as_ref().unwrap();
+            assert_ne!(unit, remade, "equal syntax does not replace the retained source Rc");
+            let target = row.source.require_instance().unwrap();
+            let loan = row.source.constructor_unit_source_v1(target).unwrap().expect("same original constructor step");
+            assert!(std::rc::Rc::ptr_eq(loan.source(), source));
+            for change in 0..3 {
+                let mut drift = target.clone();
+                match change {
+                    0 => {
+                        let super::super::super::LexicalInstanceCallReceiverV1::StoredOwnedChild { child, field, .. } = &mut drift.receiver
+                            else { panic!("original stored child"); };
+                        *child = field.object();
+                    }
+                    1 => drift.receiver_site = drift.call_site.site().clone(),
+                    _ => drift.argument_sites = vec![drift.receiver_site.clone()].into_boxed_slice(),
+                }
+                assert!(row.source.constructor_unit_source_v1(&drift).is_err(), "constructor Unit drift {change}");
+            }
+            let ledger = &package.ordinary_new_claim_ledger;
+            let completion = ledger.unit_completion_source_v1(row.callee).unwrap().unwrap();
+            assert!(std::ptr::eq(completion.as_ref(), package.result_contracts.row(target.target_batch_slot()).unwrap().borrow().completion()));
+            assert!(ledger.unit_discard_source_v1(&row.call).is_none(), "no invented caller Home observation");
+            assert!(ledger.lexical_instance_call_covered(row.call.owner(), row.call.site()));
+            assert!(constructor.construction().is_ok(), "same late source-qualified ordered plan");
+        }
+    }
+    // Equal Unit syntax outside Birth is not this construction-source capability.
+    let ordinary = self::package("box Page { id: i64 = 0 birth() {} seed() {} } box Pool { page: Page birth() { me.page = new Page() } untouched() { me.page.seed() } } static box Main { main() { local pool = new Pool() return 0 } }");
+    let ingress = ordinary.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let row = ingress.source_incoming.exact_rows().find(|row| row.source.unit_discard_source_v1().is_some()).unwrap();
+    assert!(row.source.is_pending(), "ordinary stored Unit stays outside constructor selection");
+    assert!(row.source.require_instance().is_err());
+    assert!(ingress.source_incoming.vetoed_owners().contains(&row.callee));
+    // The same selector/arity in a provider argument is an original Static
+    // edge, independently of the constructor's pending stored Instance edge.
+    let package = self::package("static box Layout { seed() { return 8 } } box Page { id: i64 birth(n) { me.id = n } seed(): i64 { return 0 } } box Pool { page: Page birth() { me.page = new Page(Layout.seed()) me.page.seed() } } static box Main { main() { local pool = new Pool() return 0 } }");
+    let constructor = package.instance_constructors().rows().iter().find(|row| row.box_name() == "Pool").unwrap();
+    let source = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let inventory = &source.source_incoming;
+    let mut static_calls = inventory.exact_rows().filter(|row| row.source.target().owner() == "Layout");
+    let static_call = static_calls.next().expect("original constructor provider Static call");
+    assert!(static_calls.next().is_none());
+    let BorrowedIncomingSourceV1::Static(original) = &static_call.source else { panic!("Static namespace") };
+    assert!(original.is_qualified());
+    assert_eq!(original.caller(), constructor.published_birth_key().unwrap());
+    assert!(original.argument_sites().is_empty());
+    assert!(Rc::ptr_eq(original, inventory.static_observations()[&static_call.call].as_ref().unwrap()));
+    assert_eq!(inventory.project(&[static_call.callee].into_iter().collect()).unwrap().len(), 1);
+    assert!(inventory.has_unsupported_static_context(static_call.callee));
+    assert!(!source.definitions.contains_key(&static_call.callee));
+    let stored = inventory.exact_rows().find(|row| row.source.target().owner() == "Page").unwrap();
+    assert!(stored.source.is_pending());
+    assert!(inventory.project(&[stored.callee].into_iter().collect()).is_err());
+    let package = self::package("static box Layout { seed(unused) { return 8 } } box Page { id: i64 birth(a, b) { me.id = a } } box Pool { page: Page = new Page(Layout.seed(7), Layout.seed(7)) birth() {} } static box Main { main() { return 0 } }");
+    let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let originals: Vec<_> = ingress.source_incoming.exact_rows().filter_map(|row| match &row.source {
+        BorrowedIncomingSourceV1::Static(source) if source.target().owner() == "Layout" => Some(source),
+        _ => None,
+    }).collect();
+    assert_eq!(originals.len(), 2);
+    let callee = originals[0].callee_owner();
+    assert!(ingress.source_incoming.has_unsupported_static_context(callee));
+    assert!(!ingress.definitions.contains_key(&callee));
+    assert!(ingress.source_only_definitions.contains_key(&callee));
+    assert!(ingress.incoming.iter().all(|row| row.callee != callee));
+    assert_eq!(ingress.source_incoming.project(&[callee].into_iter().collect()).unwrap().len(), 2);
+    assert!(ingress.candidate_integer_agreement(originals[0].parameters()[0].binding),
+        "provider source inputs still contribute to the same integer domain");
+    // Adding an ordinary caller never makes a partial borrowed cohort that
+    // omits the two provider calls. All three remain original source inputs.
+    let mixed = self::package("static box Layout { seed(unused) { return 8 } } box Page { id: i64 birth(a, b) { me.id = a } } box Pool { page: Page = new Page(Layout.seed(7), Layout.seed(7)) birth() {} } static box Main { main() { local value = Layout.seed(7) return 0 } }");
+    let source = mixed.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
+    let mut matching = source.source_incoming.exact_rows().filter(|row| row.source.target().owner() == "Layout");
+    let first = matching.next().unwrap();
+    assert_eq!(matching.count(), 2);
+    assert!(source.source_incoming.has_unsupported_static_context(first.callee));
+    assert!(!source.definitions.contains_key(&first.callee));
+    assert!(source.incoming.iter().all(|row| row.callee != first.callee));
+
+}
+
+#[test]
+fn source_graph_empty_declaration_requires_clean_registered_scan_sentinel() {
+    let package = package(INSTANCE);
+    let source = package
+        .ordinary_new_claim_ledger
+        .borrowed_formal_source
+        .as_ref()
+        .unwrap()
+        .as_ref()
+        .unwrap();
+    let original = &source.source_incoming;
+    let owner = original
+        .observations
+        .iter()
+        .find_map(|(owner, row)| {
+            matches!(row, Err(BorrowedIncomingDraftErrorV1::NoIncoming(_)))
+                .then_some(*owner)
+                .flatten()
+        })
+        .unwrap();
+    let call = source.incoming[0].clone();
+    for mutation in 0..9 {
+        let mut inventory = BorrowedIncomingInventoryV1 {
+            owners: original.owners.clone(),
+            unsupported_static_spelling: Default::default(),
+            unsupported_static_context: Default::default(),
+            static_observations: BTreeMap::new(),
+            observations: original.observations.clone(),
+        };
+        match mutation {
+            0 => {}
+            1 => inventory
+                .observations
+                .retain(|(label, _)| *label != Some(owner)),
+            2 => inventory.observations.push((
+                Some(owner),
+                Err(BorrowedIncomingDraftErrorV1::NoIncoming(owner)),
+            )),
+            3 => {
+                let row = inventory
+                    .observations
+                    .iter_mut()
+                    .find(|(label, _)| *label == Some(owner))
+                    .unwrap();
+                row.1 = Err(BorrowedIncomingDraftErrorV1::NoIncoming(call.callee));
+            }
+            4 => inventory.observations.push((
+                Some(owner),
+                Err(BorrowedIncomingDraftErrorV1::UnresolvedCaller(
+                    call.call.clone(),
+                )),
+            )),
+            5 => inventory
+                .observations
+                .push((None, Err(BorrowedIncomingDraftErrorV1::BatchLoan))),
+            6 => {
+                inventory.owners.remove(&owner);
+            }
+            7 => {
+                let mut real = call.clone();
+                real.callee = owner;
+                inventory.observations.push((Some(owner), Ok(real)));
+            }
+            8 => inventory.observations.push((
+                Some(owner),
+                Err(BorrowedIncomingDraftErrorV1::OutsideOrdinaryScope(
+                    call.call.clone(),
+                )),
+            )),
+            _ => unreachable!(),
+        }
+        let declaration = inventory.project_declaration_v1(owner);
+        if mutation == 0 {
+            assert!(declaration.unwrap().is_empty());
+            assert!(
+                matches!(inventory.project(&std::collections::BTreeSet::from([owner])),
+                Err(BorrowedIncomingDraftErrorV1::NoIncoming(observed)) if observed == owner)
+            );
+            assert_eq!(
+                inventory.project_declaration_v1(call.callee).unwrap().len(),
+                1
+            );
+        } else {
+            assert!(
+                declaration.is_err(),
+                "mutation {mutation} forged an empty declaration"
+            );
+        }
+    }
 }
 
 #[test]

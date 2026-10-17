@@ -175,19 +175,22 @@ where
         port.exact_source_statement_call(&input, method, arguments.len() as u32)?;
     let source = port.call_source(&input).map_err(|error| error.render())?;
     let mut arg_ids = Vec::with_capacity(arguments.len());
+    let mut arg_outputs = Vec::with_capacity(arguments.len());
     let mut effects = Vec::new();
     for index in 0..arguments.len() {
         let argument = port
             .child_expr(&input, ExprChildRoleV1::CallArgument(index as u32))
             .map_err(|error| error.render())?;
-        let (arg_id, mut arg_effects) =
-            PlanNormalizer::lower_value_input(port, argument, builder, phi_bindings)?;
+        let (arg_id, mut arg_effects, output) =
+            PlanNormalizer::lower_value_input_with_source_output(port, argument, builder, phi_bindings)?;
         arg_ids.push(arg_id);
+        arg_outputs.push(output);
         effects.append(&mut arg_effects);
     }
     if let Some(crate::mir::builder::control_flow::plan::expression_port::ExactSourceStatementCallV1::ArrayPush { receiver, emission }) = exact_statement {
         let [value] = arg_ids.as_slice() else { return Err("[freeze:contract][named-array/argument-count]".into()); };
-        effects.push(CoreEffectPlan::NamedArrayPush { source, receiver, value: *value, emission });
+        let argument = arg_outputs.pop().flatten().map(super::helpers_value::SourceValueProjectionV1::from_output);
+        effects.push(CoreEffectPlan::NamedArrayPush { source, receiver, value: *value, argument, emission });
         return Ok(effects);
     }
     loop_body_lowering::debug_log_callstmt_binop_lit3(builder, &effects, "method");

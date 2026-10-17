@@ -79,7 +79,8 @@ impl FinishedBindings {
         {
             return Ok(None);
         }
-        Err(fault("relation-finished-producer"))
+        Err(format!("{} function={} original={original:?} mapped={mapped:?} actual={definitions:?}",
+            fault("relation-finished-producer"), function.signature.name))
     }
 
     /// Check the source-issued local Copy against the same finished

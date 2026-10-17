@@ -125,6 +125,7 @@ mod binary_expression_raw_tests;
 pub(super) mod comparison;
 pub(super) mod converters;
 pub(super) mod logical_shortcircuit;
+pub(in crate::mir) use logical_shortcircuit::CompletedLogicalShortCircuitV1;
 mod short_circuit_expression_descent;
 pub(in crate::mir::builder) use short_circuit_expression_descent::{
     drive_short_circuit_expression_v1, RawLegacyShortCircuitInputV1,

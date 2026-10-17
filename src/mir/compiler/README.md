@@ -4,6 +4,11 @@ This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
 The compiled-entry product retains Birth formal dispositions for inspection.
+Borrowed parameter encoding uses the same compiled-entry function admission,
+after both module and published operand closure pass. The existing formal-view
+map retains admitted entries even with no object views or incoming Calls.
+Call actuals still require their exact original physical Call coordinates;
+complete-empty declarations never fabricate a Call to activate parameter JSON.
 Physical input admission rejects unavailable, unsupported, missing and
 undischarged `DeferredActualBinding` dispositions before JSON generation.
 A ValueId, destination i64 field or caller literal cannot prove an executable
@@ -16,6 +21,34 @@ for the I64 epilogue; these are physical identities, never source coordinates.
 Ordinary Calls issue no checked-operation site. A retained program with no
 checked operations has an empty site set and epilogue site0, not a synthetic
 Invoke. Profile/definitions and per-checked-operation validation remain required.
+
+The dedicated lifecycle backend gate borrows the exact finalized handoff
+retained by its physical ABI input and validates complete Named Array source /
+physical coverage. It does not apply the module-only unretained rejection to
+this retained path. Generic/module-only ingress keeps that rejection. This
+identity check grants no C capability: the indexed consumer independently
+checks Array residence providers, original field reads and parent lifetime.
+
+Numeric Invoke stores keep their source families: a retained compiled Birth
+formal/store contract owns construction writes, while guarded borrowed writes
+require their original packet and both operand closures. Both usize paths
+require the exact issued runtime range obligation and USize layout. Bare usize
+stores retain their existing row/value/layout consumer. A usize declaration
+does not turn a construction store into a borrowed formal write.
+
+Tagged ordinary parameter admission borrows the qualified original catalog
+row, logical ordinal, BindingRef and retained entry ValueId. An explicit object
+header requires its original DeclaredObject class and declared canonical view
+to equal the same compiled-entry closed-use object view. That map is keyed by
+parameter ValueId, not physical slot or JSON ordinal. Opaque source requires an
+unannotated header; erasing a declared annotation cannot change its source kind.
+Integer/Unknown is only the tagged wire signature, never class permission.
+The parameter consumer lends one scoped entry/catalog/value set per function
+for all tagged declarations; it retains no validation cache or second catalog.
+Declared-formal Call actuals join that same caller's original entry root/value
+and installed carrier before selecting tagged transport. Preserve its incoming
+kind/payload, including null; the class constraint cannot replace the kind with
+constant3. Nonselected handle parameters keep their existing transport.
 
 Per-New actuals travel inside the existing root-source handoff. Compiled-entry
 matches each physical Birth call to exactly one retained target/receiver/ordered
@@ -1290,3 +1323,73 @@ declaration/initializer relation for `scale`, `i` and `shift_count`. The
 declaration lookup requires exactly one local declaration for each binding.
 Recipe producer must consume these retained relations; it may not rewalk AST
 or infer class from an initializer spelling.
+
+Published artifact callbacks receive the actual strict verification result for
+that same finalized module and retained source handoff. The mandatory verifier
+runs before the external commit and callback; its errors abort publication.
+This matches the document lane's use of its own document verification result.
+MirCompileResult retains the separate pre-transform verification contract for
+normal and explicit compatibility consumers. That historical source-less report
+cannot replace the source-bound artifact verdict or its original call-slot loans.
+
+The finalized AppMain source also retains wrapper argument materialization.
+The original declaration/Parameter bindings and same ingress snapshot select
+`ScriptArgumentsNew`; final consumers demand its exact frame, allocation,
+Normal result, entry binding, allocation-Fault terminal and outer release
+suffix. Actual CFG live/absent paths must preserve one residence through all
+body exits. A source-less physical view cannot admit this operation by shape.
+
+Wrapper bindings borrow the root's existing `FinishedBindings` only after
+`PhysicalBoundary::validate_complete`. Every original effect must map into its
+validated inventory; missing effects never become omission permission. Only
+identical projected expected release tuples coalesce. Original source rows stay
+unchanged, and actual duplicate releases still fail the residence checks.
+
+Mixed Return preparation lends the original `VerifiedMixedCallResultV1` evidence
+through the same finalized packet and `FinishedBindings`. Each Null/Fresh/owned
+Call/borrowed Call must join its actual producer, Return operand and cleanup;
+all real incoming packets must agree and every physical Return must be covered.
+This prerequisite does not admit a Mixed ABI, outcome writer or field residence.
+Those consumers remain closed until the same source outcome reaches execution.
+
+
+The same Mixed field series must preserve the source New prefix's two existing
+Home projections: allocation Fault uses pre-receipt `prior_homes`, whereas
+Birth-after-receipt cleanup uses the original post-transfer `normal_homes`.
+Do not infer this partition by subtracting physical operands. Constructor Fault
+cleanup must partition its original ordered steps into committed fields and
+received but uncommitted provided formals, including later formals when an early
+step fails. `Taken` remains pending; only store Normal commits. Extend the
+existing construction discharge subject and its emitter/retained validator,
+without a second pending ledger. This is a required connection still missing
+from the current physical pipeline; it grants no Mixed execution permission.
+
+Borrowed nullable Return preparation uses the same finalized outcome projection.
+It reuses original completed-callee exits and original formal Return loans;
+a nullable formal is a source-backed entry value with its canonical object view,
+not an instruction producer or acquired Home. Null/Forward is still a runtime
+outcome, and source/finished correspondence alone does not admit its ABI.
+
+The original construction-child relation allocation now rides the existing
+New argument row through `EmittedNewArgument` and `FinalizedBirthActuals`.
+Clone/equality preserve exact Rc identity. Source installation checks the same
+New, original argument site/ordinal, Birth source/owner and provided field/child;
+unavailable observations remain unavailable. This provenance loan grants no Home
+or ABI permission: the final actual/formal/store join still owns transfer and
+borrow constraints, with the original source Home projection owning its cleanup.
+
+Received returned-New arguments borrow their exact original local acquisition,
+checked CallReceived packet and FinishedBindings producer. The same source
+argument/constructor child-relation census and prior/Normal obligation partition
+must agree. Nullable and Mixed retain their original InvokeCallResultKind;
+Mixed keeps its forwarded formal ordinal and is never converted to nullable
+owned transport. This source correspondence alone does not admit Mixed Birth
+ABI, field residence, anchor lifetime or conditional End. Those consumers remain
+fail-fast until the original Null/Fresh/Forward contract reaches each of them.
+
+Object Return publication and final-MIR mutation checks share one retained-outcome
+census: each original binding, role/result/ordinal and the complete Return set
+must match. Pure final-MIR mutations reuse the already-issued outcomes instead
+of recursively reissuing unchanged source proofs. Mixed outer parameter identity
+still belongs to the original source-entry projection, since BorrowedCall origins
+do not retain that outer ValueId. That independent source check stays required.

@@ -4,161 +4,103 @@ use super::{
     ParserBuildConfig,
 };
 
-/// `local h = me.fetch(..)` where `fetch` claims `NullableObject` lowers
-/// through the nullable lifecycle lane: the call site emits the
-/// `NullableHandle` invoke result and the caller's exit chain owes the
-/// received value a checked `HomeReleaseIfLive` — never an unconditional
-/// `HomeRelease` on a value that may carry the `Void` sentinel.
+/// The original receiver Call requires a completed source object contract.
+/// Keep both old untyped fixtures as unavailable, and exercise typed/untyped
+/// caller arguments with declared fields through the common packet writer.
 #[test]
-fn nullable_receiver_call_emits_lifecycle_invoke_and_checked_release() {
+fn nullable_receiver_arguments_require_completed_source_object_contract() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        r#"
-box Probe {
-    init { v }
-    birth(v) { me.v = v }
-    fetch(flag) {
-        if flag == 0 {
-            return null
-        }
+    for formal in ["flag: i64", "flag"] {
+        for (fields, admitted) in [("init { v }", false), ("v: i64", true)] {
+            let text = format!(
+                r#"
+box Probe {{
+    {fields}
+    birth(v) {{ me.v = v }}
+    fetch(flag) {{
+        if flag == 0 {{ return null }}
         return new Probe(7)
-    }
-    run(flag: i64) {
+    }}
+    run({formal}) {{
         local h = me.fetch(flag)
         return 0
-    }
-}
-static box Main {
-    main() {
+    }}
+}}
+static box Main {{
+    main() {{
         local p = new Probe(1)
         return p.run(0)
-    }
-}
-"#,
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("nullable receiver call must lower");
-    let (_, module, _) = completed.into_parts();
-    let run = module
-        .functions
-        .iter()
-        .find(|(_, function)| function.signature.name == "Probe.run/1")
-        .map(|(_, function)| function)
-        .expect("lowered Probe.run function");
-    let invokes: Vec<_> = run
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-        .filter_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Invoke { operation, .. } => Some(operation),
-            _ => None,
-        })
-        .collect();
-    assert!(
-        invokes.iter().any(|operation| matches!(
-            operation,
-            crate::mir::instruction::InvokeOperation::Call {
-                result: crate::mir::instruction::InvokeCallResultKind::NullableHandle,
-                ..
+    }}
+}}
+"#
+            );
+            let result = session().complete_normal_default_program_root_catalog_lifecycle(
+                callable_source(&text, ParserBuildConfig::default()),
+                CallableMainMaterializationPolicyV1::Omitted,
+                NormalRuntimeInputSnapshotV1::empty(),
+            );
+            if !admitted {
+                let rejected =
+                    result.expect_err("untyped fields cannot supply a completed object packet");
+                assert!(
+                    rejected
+                        .error()
+                        .to_string()
+                        .contains("lexical-instance-call/source-pending"),
+                    "{formal}: unexpected source refusal: {}",
+                    rejected.error()
+                );
+                rejected.discard();
+                continue;
             }
-        )),
-        "nullable receiver call must emit the NullableHandle invoke: {invokes:?}"
-    );
-    assert!(
-        invokes.iter().any(|operation| matches!(
-            operation,
-            crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { .. }
-        )),
-        "the received nullable owes a checked release at exit: {invokes:?}"
-    );
-    assert!(
-        invokes.iter().all(|operation| !matches!(
-            operation,
-            crate::mir::instruction::InvokeOperation::HomeRelease { .. }
-        )),
-        "a nullable result must never emit an unconditional release: {invokes:?}"
-    );
-}
-
-/// An unannotated parameter argument rides the scalar call edge under
-/// the sealed untyped admission (`check_call_edge`): `flag` records
-/// `MirType::Unknown` and the nullable invoke still emits — the wire
-/// carries the binding's slot, never a guessed carrier.
-#[test]
-fn nullable_receiver_call_admits_untyped_parameter_argument() {
-    let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-    let source = callable_source(
-        r#"
-box Probe {
-    init { v }
-    birth(v) { me.v = v }
-    fetch(flag) {
-        if flag == 0 {
-            return null
+            let (_, module, _) = result
+                .expect("declared fields must admit the original nullable Call")
+                .into_parts();
+            let run = module
+                .functions
+                .values()
+                .find(|function| function.signature.name == "Probe.run/1")
+                .expect("original Probe.run");
+            let invokes: Vec<_> = run
+                .blocks
+                .values()
+                .flat_map(|block| block.all_instructions())
+                .filter_map(|instruction| match instruction {
+                    crate::mir::MirInstruction::Invoke { operation, .. } => Some(operation),
+                    _ => None,
+                })
+                .collect();
+            assert!(
+                invokes.iter().any(|operation| matches!(
+                    operation,
+                    crate::mir::instruction::InvokeOperation::Call {
+                        result: crate::mir::instruction::InvokeCallResultKind::NullableHandle,
+                        ..
+                    }
+                )),
+                "{formal}: nullable invoke missing: {invokes:?}"
+            );
+            assert!(
+                invokes.iter().any(|operation| matches!(
+                    operation,
+                    crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { .. }
+                )),
+                "{formal}: nullable result owes checked release: {invokes:?}"
+            );
+            assert!(
+                invokes.iter().all(|operation| !matches!(
+                    operation,
+                    crate::mir::instruction::InvokeOperation::HomeRelease { .. }
+                )),
+                "{formal}: nullable result cannot owe unconditional release: {invokes:?}"
+            );
         }
-        return new Probe(7)
     }
-    run(flag) {
-        local h = me.fetch(flag)
-        return 0
-    }
-}
-static box Main {
-    main() {
-        local p = new Probe(1)
-        return p.run(0)
-    }
-}
-"#,
-        ParserBuildConfig::default(),
-    );
-    let completed = session()
-        .complete_normal_default_program_root_catalog_lifecycle(
-            source,
-            CallableMainMaterializationPolicyV1::Omitted,
-            NormalRuntimeInputSnapshotV1::empty(),
-        )
-        .expect("untyped parameter argument must ride the scalar edge");
-    let (_, module, _) = completed.into_parts();
-    let run = module
-        .functions
-        .iter()
-        .find(|(_, function)| function.signature.name == "Probe.run/1")
-        .map(|(_, function)| function)
-        .expect("lowered Probe.run function");
-    let invokes: Vec<_> = run
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-        .filter_map(|instruction| match instruction {
-            crate::mir::MirInstruction::Invoke { operation, .. } => Some(operation),
-            _ => None,
-        })
-        .collect();
-    assert!(
-        invokes.iter().any(|operation| matches!(
-            operation,
-            crate::mir::instruction::InvokeOperation::Call {
-                result: crate::mir::instruction::InvokeCallResultKind::NullableHandle,
-                ..
-            }
-        )),
-        "the untyped parameter argument must emit the NullableHandle invoke: {invokes:?}"
-    );
 }
 
-/// A `Local` argument whose recorded wire type is a concrete non-i64
-/// carrier stays rejected: the sealed scalar edge corroborates that
-/// record as `call-argument-type-drift`, so emission freezes closed
-/// rather than letting a non-scalar value ride the i64 corridor. A
-/// `Bool` local keeps no Home obligation, so the argument carrier is
-/// the first gate the site reaches.
+/// A Bool actual cannot establish the whole original formal's integer
+/// domain for `flag == 0`. Reject at that source contract before emitting
+/// a nullable call; wire representation alone cannot authorize comparison.
 #[test]
 fn nullable_receiver_call_rejects_concrete_non_i64_local_argument() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
@@ -194,39 +136,36 @@ static box Main {
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
-        .expect_err("a concrete box carrier must not ride the scalar edge");
+        .expect_err("a Bool actual must not establish an integer comparison domain");
     assert!(
         rejected
             .error()
             .to_string()
-            .contains("nullable-argument-carrier"),
+            .contains("ordinary-new/borrowed-compare/integer-source-unproved"),
         "unexpected rejection: {}",
         rejected.error()
     );
     rejected.discard();
 }
 
-/// A `new` argument naming a live owned binding moves the lease into the
-/// constructed object: `return new Holder(h)` consumes `h` on that exit
-/// path, so the tail exit emits no `HomeReleaseIfLive`, while the sibling
-/// `h == null` exit still owes its checked release. `Holder`'s duplicate
-/// birth store stays construction-unsupported, so the `new` rides the raw
-/// lane and no fault-unwind operand enters the count — exactly one
-/// checked release survives: one per owed exit, never one per function.
+/// Duplicate Birth stores keep construction unavailable. A retained raw
+/// diagnostic must not become a completed artifact or receive a result End.
+/// Valid nullable-to-New moves are covered by the original child-handle
+/// publication tests and the received-Birth final-consumer mutations.
 #[test]
-fn nullable_result_moved_into_new_releases_only_on_the_owed_exit() {
+fn nullable_result_into_unsupported_new_stays_unavailable() {
     let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
     let source = callable_source(
         r#"
 box OwMoveHolder {
-    init { v }
+    v: i64
     birth(v) {
         me.v = v
         me.v = v
     }
 }
 box OwMoveProbe {
-    init { v }
+    v: i64
     birth(v) { me.v = v }
     fetch(flag) {
         if flag == 0 {
@@ -251,38 +190,22 @@ static box OwMoveMain {
 "#,
         ParserBuildConfig::default(),
     );
-    let completed = session()
+    let rejected = session()
         .complete_normal_default_program_root_catalog_lifecycle(
             source,
             CallableMainMaterializationPolicyV1::Omitted,
             NormalRuntimeInputSnapshotV1::empty(),
         )
-        .expect("a moved nullable argument must keep the owed-exit release only");
-    let (_, module, _) = completed.into_parts();
-    let run = module
-        .functions
-        .iter()
-        .find(|(_, function)| function.signature.name == "OwMoveProbe.run/1")
-        .map(|(_, function)| function)
-        .expect("lowered OwMoveProbe.run function");
-    let checked_releases = run
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-        .filter(|instruction| {
-            matches!(
-                instruction,
-                crate::mir::MirInstruction::Invoke {
-                    operation: crate::mir::instruction::InvokeOperation::HomeReleaseIfLive { .. },
-                    ..
-                }
-            )
-        })
-        .count();
-    assert_eq!(
-        checked_releases, 1,
-        "the moved `new` argument owes a release only on the sibling exit"
+        .expect_err("duplicate Birth stores must not complete through retained diagnostics");
+    assert!(
+        rejected
+            .error()
+            .to_string()
+            .contains("IncompleteOrdinaryNewCoverage"),
+        "unexpected rejection: {}",
+        rejected.error()
     );
+    rejected.discard();
 }
 
 /// `local r = pool.allocate(8)` — a claim-local lexical receiver call

@@ -179,8 +179,7 @@ fn root_only_pending_object_return_survives_same_owner_empty_index_and_artifact_
             "pending-source-only".into(),
             &module,
             &std::collections::BTreeSet::new(),
-            None,
-        )
+            None, Vec::new())
         .err()
         .expect("unfinalized source cannot bypass whole-module handoff");
     assert!(issue.contains("artifact-root-not-finished"));
@@ -271,7 +270,7 @@ fn foreign_selected_return_qualification_refuses_without_scalar_retry() {
             &mut |_| Ok(false), &mut |_| Ok(false),
             &mut |_| -> Result<bool, std::convert::Infallible> { panic!("no borrowed i64 terminal retry") },
             &mut |_| Ok(false), &mut |_| Ok(false), &mut |_| Ok(None),
-            &mut |_, _, _, _, _| Ok(false), &mut |_, _, _, _, _| Ok(false),
+            &mut |_, _, _, _, _| Ok(false), &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
             &mut |_, _, _, _, _| Ok(false), &mut |_, _, _, _, _| Ok(false),
             &mut |_, _, _, _, _| Ok(false), &mut |_, _| Ok(None),
             &mut |_, request| {

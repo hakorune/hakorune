@@ -22,10 +22,11 @@ pub(super) fn observe_local_initializer<E>(
     locals: &PrefixLocalFlow<'_>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
+    prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
@@ -43,6 +44,7 @@ pub(super) fn observe_local_initializer<E>(
         local_field_read,
         statement,
         homes,
+        prefix_known,
         static_call,
         &mut |operand, binary| {
             view_use(
@@ -62,10 +64,11 @@ pub(super) fn observe_scalar_expression<E>(
     local_initializer_profile: bool,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
+    prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
@@ -83,6 +86,7 @@ pub(super) fn observe_scalar_expression<E>(
         local_field_read,
         statement,
         homes,
+        prefix_known,
         static_call,
         checked_compare_operand,
         borrowed_actuals,
@@ -98,10 +102,11 @@ fn observe_scalar_expression_with_operation<E>(
     local_initializer_profile: bool,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     statement: &SourceStmtSiteV1,
     homes: &[BindingRefV1],
+    prefix_known: bool,
     static_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<StaticI64CallClaimV1>, E>,
     checked_compare_operand: &mut impl FnMut(&OwnedExprSiteV1, &OwnedExprSiteV1) -> Result<bool, E>,
     borrowed_actuals: &mut impl FnMut(
@@ -128,6 +133,7 @@ fn observe_scalar_expression_with_operation<E>(
                     &call_site,
                     homes,
                     locals,
+                    prefix_known,
                     static_call,
                     borrowed_actuals,
                 )?
@@ -150,6 +156,7 @@ fn observe_scalar_expression_with_operation<E>(
             site,
             homes,
             locals,
+            prefix_known,
             static_call,
             borrowed_actuals,
         )? {
@@ -186,7 +193,7 @@ fn observe_scalar_expression_with_operation<E>(
         return Ok(None);
     }
     if !requests.is_empty() {
-        let Some(results) = local_field_read(&requests, true)? else {
+        let Some(results) = local_field_read(&requests, LocalFieldReadDemandV1::Declared { scalar_only: true })? else {
             return Ok(None);
         };
         if results.len() != requests.len()
@@ -581,4 +588,30 @@ mod tests {
             }
         }
     }
+}
+
+/// Source-only Return consults share the original scalar terminal owner.
+/// The current Home state proves the entry receiver is still live; the lender
+/// alone checks the complete retained field-path expression before Completion.
+pub(super) fn observe_terminal_scalar_source<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>, value: &SourceExprSiteV1,
+    exit: &SourceStmtSiteV1, locals: &PrefixLocalFlow<'_>,
+    view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
+    field_is_integer: &mut impl FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E>,
+) -> Result<Option<ReturnScalar>, E> {
+    let site = OwnedExprSiteV1::new(input.owner(), value.clone());
+    let checked = view_use(&site, BorrowedViewUseRequestV1::IntegerFieldArrayReturn { exit })?
+        || if let Some(receiver) = input.function().bindings().find(|(_, row)|
+            matches!(row.kind(), crate::mir::resolved_semantics::BindingKindV1::Receiver)).map(|(binding, _)| binding) {
+            matches!(locals.field_read_receiver(receiver),
+                Some(local_flow::FieldReadReceiverV1::RootedHandle(root)) if root == receiver)
+            && view_use(&site, BorrowedViewUseRequestV1::IntegerNestedFieldReturn { exit, receiver })?
+        } else { false }
+        || match input.function().variable_ref(value) {
+            Some(ResolvedLexicalRefV1::Local(binding)) =>
+                view_use(&site, BorrowedViewUseRequestV1::IntegerReturn { exit, binding })?,
+            _ => false,
+        };
+    if checked { Ok(Some(ReturnScalar::Integer)) }
+    else { return_scalar(input, value, locals, field_is_integer) }
 }

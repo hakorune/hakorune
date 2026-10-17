@@ -89,6 +89,7 @@ mod map_write_timing_tests;
 #[cfg(test)]
 mod physical_receipt_tests;
 mod physical_terminal;
+mod array_write_receipt;
 mod post_success;
 mod request_boundary;
 #[cfg(test)]
@@ -181,6 +182,17 @@ impl UnifiedCallEmitterBox {
         >,
         signature_publication: UnifiedCallSignaturePublicationV1,
     ) -> Result<UnifiedCallEmissionOutcomeV1, UnifiedCallAttemptErrorV1> {
+        Self::emit_unified_call_outcome_with_array_observation_v1(builder, dst, target,
+            args, lookup, map_write_replay, signature_publication, None)
+    }
+
+    fn emit_unified_call_outcome_with_array_observation_v1(
+        builder: &mut MirBuilder, dst: Option<ValueId>, target: CallTarget, args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+        map_write_replay: Option<crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1>,
+        signature_publication: UnifiedCallSignaturePublicationV1,
+        array_observation: Option<&mut Option<crate::mir::builder::CompletedArrayElementWriteV1>>,
+    ) -> Result<UnifiedCallEmissionOutcomeV1, UnifiedCallAttemptErrorV1> {
         // Debug: Check recursion depth
         const MAX_EMIT_DEPTH: usize = 100;
         builder.recursion_depth += 1;
@@ -206,7 +218,7 @@ impl UnifiedCallEmitterBox {
         // Environment/profile selection belongs to the outer MirBuilder
         // compatibility facade.  This box is the typed core and never
         // re-enters legacy emission or reads ambient configuration.
-        let result = Self::emit_unified_call_outcome_impl_with_lookup_and_map_replay(
+        let result = Self::emit_unified_call_outcome_impl_with_array_observation_v1(
             builder,
             dst,
             target,
@@ -214,6 +226,7 @@ impl UnifiedCallEmitterBox {
             lookup,
             map_write_replay,
             signature_publication,
+            array_observation,
         )
         .map_err(UnifiedCallAttemptErrorV1::Emission);
         builder.recursion_depth -= 1;
@@ -263,6 +276,17 @@ impl UnifiedCallEmitterBox {
             crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
         >,
         signature_publication: UnifiedCallSignaturePublicationV1,
+    ) -> Result<UnifiedCallEmissionOutcomeV1, String> {
+        Self::emit_unified_call_outcome_impl_with_array_observation_v1(builder, dst, target,
+            args, lookup, map_write_replay, signature_publication, None)
+    }
+
+    fn emit_unified_call_outcome_impl_with_array_observation_v1(
+        builder: &mut MirBuilder, dst: Option<ValueId>, target: CallTarget, args: Vec<ValueId>,
+        lookup: Option<&dyn FunctionSignatureLookupV1>,
+        map_write_replay: Option<crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1>,
+        signature_publication: UnifiedCallSignaturePublicationV1,
+        array_observation: Option<&mut Option<crate::mir::builder::CompletedArrayElementWriteV1>>,
     ) -> Result<UnifiedCallEmissionOutcomeV1, String> {
         let emit_debug_policy = *builder.comp_ctx.emit_debug_policy();
 
@@ -415,10 +439,14 @@ impl UnifiedCallEmitterBox {
         } = &callee
         {
             if box_name == "ArrayBox" {
-                if builder.try_emit_known_array_method_write(dst, *receiver, method, &args)? {
+                if let Some(completed) = builder.try_emit_known_array_method_write_recorded_v1(dst, *receiver, method, &args)? {
                     super::super::types::array_element::observe_array_write_call(
                         builder, &callee, &args,
                     );
+                    if let Some(observation) = array_observation {
+                        if observation.is_some() { return Err("[freeze:contract][array-write/duplicate-observation]".into()); }
+                        *observation = Some(completed);
+                    }
                     return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
                         UnifiedCallAlternateRouteV1::KnownArrayWrite,
                     ));

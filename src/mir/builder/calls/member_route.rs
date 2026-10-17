@@ -109,11 +109,53 @@ impl MirBuilder {
             + QualifiedStaticMethodHandoffPortV1
             + DirectCallDispositionPortV1,
     {
+        let source = {
+            let syntax = port.method_call_syntax(input)?;
+            let (method, arity) = (syntax.method().to_owned(), syntax.arguments().len());
+            port.prepare_borrowed_array_set_v1(&method, arity)?
+        };
+        if let Some(source) = source {
+            let receiver = lower_method_call_receiver_v1(self, port, input)?;
+            let expected = source.argument_sites().map(Clone::clone);
+            let values = AssociatedMethodCallArgumentsV1::new(port, input)
+                .lower_all_with_expected_sites(self, &expected)?;
+            let [index, value] = values.as_slice() else {
+                return Err("[freeze:contract][borrowed-set/argument-cardinality]".into());
+            };
+            let method = port.method_call_syntax(input)?.method().to_owned();
+            let (dst, write) = port.emit_array_write_value_terminal_v1(self, receiver, method, values.clone())?;
+            port.complete_borrowed_array_set_v1(self, source, [receiver, *index, *value], write)?;
+            return Ok(dst);
+        }
+        let recipe = {
+            let syntax = port.method_call_syntax(input)?;
+            let (method, arity) = (syntax.method().to_owned(), syntax.arguments().len());
+            port.prepare_field_array_read_v1(&method, arity)?
+        };
+        if let Some(recipe) = recipe {
+            let receiver = lower_method_call_receiver_v1(self, port, input)?;
+            let values = AssociatedMethodCallArgumentsV1::new(port, input).lower_all_with_expected_sites(self, &[recipe.index_site().clone()])?;
+            let [index] = values.as_slice() else { return Err(crate::mir::named_array_obligation::fault("read-argument-cardinality")) };
+            let dst = self.next_value_id();
+            let read = self.emit_checked_field_array_read_v1(&recipe, receiver, *index, dst)?;
+            port.complete_field_array_read_v1(recipe, read, receiver, *index, dst)?;
+            return Ok(dst);
+        }
         let route_plan = {
             let syntax = port.method_call_syntax(input)?;
             self.plan_member_call_route(syntax.receiver(), syntax.method())?
         };
 
+        // Both receiver spellings consume the same exact source-selected
+        // lifecycle call before generic receiver/argument descent.
+        if matches!(&route_plan,
+            MemberCallRoutePlan::Standard
+                | MemberCallRoutePlan::ReceiverNormalized { plan: ReceiverNormalizationPlan::MeCall }) {
+            let method = port.method_call_syntax(input)?.method().to_owned();
+            if let Some(value) = port.emit_local_lexical_lifecycle_call_v1(self, &method)? {
+                return Ok(value);
+            }
+        }
         match route_plan {
             MemberCallRoutePlan::StaticReceiver { box_name } => {
                 let (method, arguments) = {
@@ -230,14 +272,6 @@ impl MirBuilder {
                 .ok_or_else(|| format!("[member-call-route] unresolved me receiver for {method}"))
             }
             MemberCallRoutePlan::Standard => {
-                // A claim-ingress Standard route still honors a sealed
-                // Handle local-call membership: the caller-side scan and
-                // the lexical disposition row must agree before the
-                // dynamic member route may take the site.
-                let method = port.method_call_syntax(input)?.method().to_owned();
-                if let Some(value) = port.emit_local_lexical_lifecycle_call_v1(self, &method)? {
-                    return Ok(value);
-                }
                 self.execute_prepared_member_call_route_v1(
                     port,
                     input,

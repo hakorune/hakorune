@@ -121,10 +121,11 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         .current_function
         .as_ref()
         .map(|function| function.entry_block);
+    let phi_source_ledger = root_new_ledger.clone();
     let mut root_validation = RootValidation::Absent;
     let module = match completion {
         super::program_root_lowering::ProgramRootCompletionV1::WrapperBody(result_value) => builder
-            .finalize_module_with_root_validation(result_value, |function| {
+            .finalize_module_with_root_validation(result_value, phi_source_ledger.as_deref(), |function| {
                 let observation = match &root_new_ledger {
                     Some(ledger) => ledger.validate_finalized_new_root(function)?,
                     None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,
@@ -165,7 +166,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
                 NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
             })?,
         super::program_root_lowering::ProgramRootCompletionV1::CanonicalMainDraft => builder
-            .finalize_module_with_canonical_root_v1(|function| {
+            .finalize_module_with_canonical_root_v1(phi_source_ledger.as_deref(), |function| {
                 let observation = match &root_new_ledger {
                     Some(ledger) => ledger.validate_finalized_new_root(function)?,
                     None => crate::mir::function::RootOrdinaryNewObservation::NotIssued,

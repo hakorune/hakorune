@@ -9,6 +9,8 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) enum O
         descriptor: ObjectReturnTeardownDescriptorV1,
         nullable: bool,
     },
+    /// Passive layout; per-call support is still required.
+    AnchoredFields { descriptor: ObjectReturnTeardownDescriptorV1, nullable: bool },
     Unavailable {
         descriptor: Option<ObjectReturnTeardownDescriptorV1>,
         nullable: bool,
@@ -24,7 +26,7 @@ impl ObjectReturnTeardownAvailabilityV1 {
                 descriptor,
                 nullable,
             } => Some((descriptor, *nullable)),
-            Self::Unavailable { .. } => None,
+            Self::AnchoredFields { .. } | Self::Unavailable { .. } => None,
         }
     }
 }
@@ -35,21 +37,30 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::comple
     let mut descriptor = None;
     let mut nullable = false;
     let mut unavailable = false;
+    let mut anchored = false;
     for alternative in alternatives {
         let candidate = match alternative {
             VerifiedObjectReturnAlternativeV1::Leaf(VerifiedObjectReturnLeafV1::Null) => {
                 nullable = true;
                 continue;
             }
-            VerifiedObjectReturnAlternativeV1::Leaf(VerifiedObjectReturnLeafV1::Fresh {
+            VerifiedObjectReturnAlternativeV1::Leaf(leaf @ VerifiedObjectReturnLeafV1::Fresh {
                 teardown,
                 ..
-            }) => teardown,
+            }) => {
+                anchored |= leaf.requires_anchored_field_end_v1();
+                teardown
+            },
             VerifiedObjectReturnAlternativeV1::Call(child) => match child.teardown() {
                 ObjectReturnTeardownAvailabilityV1::Verified {
                     descriptor,
                     nullable: child_nullable,
                 } => {
+                    nullable |= child_nullable;
+                    descriptor
+                }
+                ObjectReturnTeardownAvailabilityV1::AnchoredFields { descriptor, nullable: child_nullable } => {
+                    anchored = true;
                     nullable |= child_nullable;
                     descriptor
                 }
@@ -84,6 +95,11 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::comple
             descriptor: Some(descriptor.clone()),
             nullable,
             unsupported: true,
+        });
+    }
+    if anchored {
+        return Ok(ObjectReturnTeardownAvailabilityV1::AnchoredFields {
+            descriptor: descriptor.clone(), nullable,
         });
     }
     Ok(ObjectReturnTeardownAvailabilityV1::Verified {

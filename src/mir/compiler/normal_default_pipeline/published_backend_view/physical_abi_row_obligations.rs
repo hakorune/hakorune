@@ -8,8 +8,8 @@ use crate::mir::MirInstruction;
 use std::collections::BTreeSet;
 
 /// Binds every issued dynamic-integer-range contract to its physical row.
-/// Only bare routed `FieldSet` rows enter the transport set; invoke-form
-/// stores are covered by the separate lifecycle enforce arm instead.
+/// Bare routed stores and canonical usize Invokes carry range obligations.
+/// i64 Invoke contracts retain the existing separate tagged-type/Birth law.
 pub(super) fn issue_exact_numeric_checks(
     module: &crate::mir::MirModule,
     program: &PublishedLifecyclePhysicalProgramV1<'_>,
@@ -41,9 +41,22 @@ pub(super) fn issue_exact_numeric_checks(
                 .chain(std::iter::once(block.terminator()))
                 .find(|r| r.index() as usize == contract.instruction_index)
                 .ok_or_else(|| fault("check-uncovered-instruction"))?;
-            let MirInstruction::FieldSet { .. } = row.instruction() else {
-                continue;
+            let (field, value) = match row.instruction() {
+                MirInstruction::FieldSet { value, .. } =>
+                    (row.field_ref().ok_or_else(|| fault("check-field-missing"))?, *value),
+                MirInstruction::Invoke {
+                    operation: crate::mir::instruction::InvokeOperation::FieldSet { field, value, .. }, ..
+                } => {
+                    if contract.declared_type_name != "usize" { continue; }
+                    (*field, *value)
+                },
+                _ => return Err(fault("check-not-field-set")),
             };
+            let declaration = module.canonical_field_definition(field)
+                .ok_or_else(|| fault("check-field-missing"))?;
+            if value != contract.value || declaration.name != contract.field
+                || declaration.declared_type_name.as_deref() != Some(contract.declared_type_name.as_str())
+            { return Err(fault("check-field-contract")); }
             let function_ordinal =
                 u32::try_from(ordinal).map_err(|_| fault("check-function-overflow"))?;
             if !coordinates.insert((function_ordinal, contract.block.as_u32(), row.index())) {

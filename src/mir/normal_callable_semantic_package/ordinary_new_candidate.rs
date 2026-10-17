@@ -2,6 +2,10 @@
 //! This private candidate issues no availability, transfer or physical progress.
 use super::*;
 
+#[path = "ordinary_new_local_new_source.rs"]
+mod source;
+pub(in crate::mir::normal_callable_semantic_package) use source::LocalNewRootSourceV1;
+
 /// Site-level resolution products shared by the local-initializer claim
 /// lane and the return-position result-new claim lane. Destination and
 /// declaration are deliberately absent: return-position `new` installs no

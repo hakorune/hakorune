@@ -12,6 +12,31 @@ fn package(
     .expect("source-backed borrowed discard package")
 }
 
+fn original_request(text: &str) -> crate::mir::NormalCompileRequestV1 {
+    let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+        text, crate::parser::ParserBuildConfig::default()).unwrap();
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", ||
+            crate::r#macro::transform_normal_callable_program_v1(parsed)).unwrap()
+        else { panic!("original source"); };
+    crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default())
+}
+
+fn bool_discard_source(returned: &str) -> String {
+    format!("box Token {{ value: i64 birth(v) {{ me.value = v }} }}
+        box Transport {{ birth() {{ }}
+            make(flag) {{ if flag <= 0 {{ return null }} return new Token(1) }}
+            test(token) {{ return {returned} }}
+        }}
+        static box Main {{ main() {{
+            local recv = new Transport()
+            local arr = new ArrayBox()
+            arr.push(recv.make(1))
+            recv.test(arr.get(0))
+            return 0
+        }} }}")
+}
+
 #[test]
 fn borrowed_statement_discard_retains_original_actuals_without_local_destination() {
     for argument in ["true", "-7", "recv"] {
@@ -50,6 +75,204 @@ fn borrowed_statement_discard_retains_original_actuals_without_local_destination
             "one-shot"
         );
     }
+    for returned in ["true", "false"] {
+        let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+            &bool_discard_source(returned),
+        ).expect("original object Array argument Bool source");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let flow = ledger.root_completion_for_test().cleanup().root_flow().unwrap();
+        let calls: Vec<_> = flow.local_calls().iter()
+            .filter(|call| call.result() == LocalCallResultClassV1::Bool).collect();
+        let [observation] = calls.as_slice() else { panic!("one original Bool discard"); };
+        assert_eq!(observation.result(), LocalCallResultClassV1::Bool);
+        assert!(observation.local_binding().is_none());
+        let prefixes = flow.lifecycle_prefixes(&[observation.site().clone()]).unwrap();
+        assert!(prefixes.iter().any(|prefix| prefix.site() == observation.site()));
+        assert!(!flow.lifecycle_prefixes(&[]).unwrap().iter()
+            .any(|prefix| prefix.site() == observation.site()), "source observation alone never selects a route");
+        let original = observation.borrowed_scalar().expect("dedicated original Bool loan");
+        let mut row = ledger.take_lexical_instance_call(observation.owner(), observation.site().site()).unwrap().unwrap();
+        assert_eq!(row.scalar_result_source_v1(), Some(original));
+        let (selected, signatures) = ledger.original_instance_input_issuance.as_ref().unwrap();
+        let arguments = ledger.checked_completed_original_instance_target_arguments_v1(
+            row.source_target(), selected, ledger.original_parameter_contracts.as_deref().unwrap(), signatures,
+        ).unwrap();
+        assert!(arguments.is_some(), "same original Bool input must be executable");
+        assert_eq!(ledger.checked_local_scalar_call_result_v1(&row).unwrap(), crate::mir::instruction::InvokeCallResultKind::Bool);
+        row.result = Some(crate::mir::instruction::InvokeCallResultKind::I64);
+        assert!(ledger.checked_local_scalar_call_result_v1(&row).unwrap_err().contains("result-drift"));
+        row.result = Some(crate::mir::instruction::InvokeCallResultKind::Bool);
+        let retained = row.scalar_result.take();
+        assert!(ledger.checked_local_scalar_call_result_v1(&row).unwrap_err().contains("source-missing-or-drift"));
+        row.scalar_result = retained;
+        ledger.checked_local_scalar_call_result_v1(&row).unwrap();
+        let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(
+            "static box Main { main() { return 0 } }",
+        ).unwrap();
+        assert!(ledger.checked_root_array_holder_caller_v1(observation.owner(), &foreign.selected,
+            ledger.original_parameter_contracts.as_deref().unwrap()).unwrap_err()
+            .contains("original-issuance-drift"));
+        let ledger = std::rc::Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+        let key = ledger.app_main_catalog_key.take();
+        assert!(ledger.owned_array_lifecycle_recipes_v1(&package.result_contracts)
+            .unwrap_err().contains("caller-key-unavailable"));
+        ledger.app_main_catalog_key = key;
+        let source = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+        let owner = source.app_main_owner.take();
+        assert!(ledger.owned_array_lifecycle_recipes_v1(&package.result_contracts)
+            .unwrap_err().contains("root-caller-identity"));
+        ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap().app_main_owner = owner;
+        ledger.owned_array_lifecycle_recipes_v1(&package.result_contracts).unwrap();
+    }
+    for body in ["", "local scratch = 0", "return", "if true { return } local scratch = 0"] {
+        let package = package("recv.touch() return 0", &format!("touch() {{ {body} }}"));
+        let ledger = &package.ordinary_new_claim_ledger;
+        let flow = ledger.root_completion_for_test().cleanup().root_flow().expect("Unit statement source flow");
+        let [call] = flow.local_calls() else { panic!("one original Unit statement: {body}"); };
+        assert_eq!(call.result(), LocalCallResultClassV1::Unit);
+        assert!(call.local_binding().is_none() && !call.is_expression_value());
+        assert!(call.arguments().is_empty() && call.borrowed_scalar().is_none());
+        assert_eq!(call.prior_homes().len(), 1);
+        let original = call.unit_source().expect("same original Unit target");
+        assert_eq!(original.call_site(), call.site());
+        assert!(original.is_unit_discard_source_v1());
+        assert!(ledger.lexical_instance_call_covered(call.owner(), call.site().site()));
+        let mut row = ledger.take_lexical_instance_call(call.owner(), call.site().site()).unwrap().unwrap();
+        assert_eq!(row.result(), Some(crate::mir::instruction::InvokeCallResultKind::Unit));
+        assert_eq!(row.source_target(), original);
+        ledger.corroborate_unit_discard_v1(&row).unwrap();
+        let completion = ledger.unit_completion_source_v1(original.callee_owner()).unwrap().expect("retained original Unit completion");
+        for exit in completion.explicit_sites() {
+            assert!(matches!(ledger.terminal_relation_for_owner_at(completion.owner(), exit), Some(crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Unit(_))));
+            assert!(ledger.prepare_terminal_unit_return(completion.owner(), exit.node()).unwrap());
+        }
+        let retained = row.unit_completion.take();
+        assert!(ledger.corroborate_unit_discard_v1(&row).unwrap_err().contains("retained-completion-drift"));
+        row.unit_completion = retained;
+        ledger.corroborate_unit_discard_v1(&row).unwrap();
+        assert!(ledger.take_lexical_instance_call(call.owner(), call.site().site()).is_err());
+    }
+
+    crate::runtime::ring0::ensure_global_ring0_initialized();
+    for (case, body) in ["", "local scratch = 0", "print(7)", "print(7) return",
+        "local a = new Transport() local b = new Transport() print(7)",
+        "if true { print(7) return } print(7)"].into_iter().enumerate() {
+        let text = format!("box Transport {{ birth() {{ }} touch() {{ {body} }} }} static box Main {{ main() {{ local recv = new Transport() recv.touch() return 0 }} }}");
+        let request = original_request(&text);
+        let compiled = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request, |view, _| {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = crate::mir::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let functions = json["functions"].as_array().unwrap();
+                let callee = functions.iter().find(|row| row["name"] == "Transport.touch/0").expect("real Unit callee");
+                assert_eq!(callee["role"], "ordinary_unit");
+                let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
+                    .map(|block| &block["terminator"]["instruction"])
+                    .filter(|row| row["operation"]["kind"] == "ordinary_call" && row["operation"]["result"] == "unit")
+                    .collect();
+                assert_eq!(calls.len(), 1, "one real Unit ordinary call: {wire}");
+                assert!(calls[0]["operation"]["call"]["dst"].is_null());
+                std::fs::write(format!("/tmp/hako-issued-borrowed-unit-{case}.json"), &wire).unwrap();
+                Ok(())
+            })
+        });
+        if let Err(error) = compiled { panic!("original ordinary Unit discard must reach final publication ({body}): {error}"); }
+    }
+
+    for returned in ["true", "false"] {
+        let text = bool_discard_source(returned);
+        let request = original_request(&text);
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request, |view, _| {
+                let input = view.issue_lifecycle_physical_abi_input()?;
+                let wire = crate::mir::emit_lifecycle_physical_abi_json(&input)?;
+                let json: serde_json::Value = serde_json::from_str(&wire).unwrap();
+                let functions = json["functions"].as_array().unwrap();
+                let rows = view.validated_named_arrays()?;
+                let holder = rows.iter().find_map(|row| match row {
+                    crate::mir::normal_callable_semantic_package::EmittedNamedArrayRequirementV1::OwnedHolder(holder) => Some(holder),
+                    _ => None,
+                }).expect("original root Array holder");
+                assert!(view.module().canonical_callable_definition_symbol(holder.caller()).is_none());
+                let symbol = holder.finished_symbol_v1()?;
+                assert_eq!(holder.validate(view.module())?, symbol);
+                let mut missing = view.module().clone();
+                missing.functions.remove(symbol);
+                assert!(holder.validate(&missing).unwrap_err().contains("function-missing"));
+                let mut renamed = view.module().clone();
+                renamed.functions.get_mut(symbol).unwrap().signature.name.push_str("-drift");
+                assert!(holder.validate(&renamed).unwrap_err().contains("function-identity"));
+                let mut foreign = view.module().clone();
+                let mut function = foreign.functions[symbol].clone();
+                function.signature.name = holder.caller().mir_symbol_projection();
+                foreign.add_cataloged_box_method(holder.caller().clone(), function).unwrap();
+                assert!(holder.validate(&foreign).unwrap_err().contains("canonical-caller-mismatch"));
+                let callee = functions.iter().find(|row| row["name"] == "Transport.test/1").expect("real Bool callee");
+                assert_eq!(callee["role"], "ordinary_bool");
+                let calls: Vec<_> = functions.iter().flat_map(|function| function["blocks"].as_array().unwrap())
+                    .map(|block| &block["terminator"]["instruction"])
+                    .filter(|row| row["operation"]["kind"] == "ordinary_call" && row["operation"]["result"] == "bool")
+                    .collect();
+                assert_eq!(calls.len(), 1, "one real Bool call, no I64 coercion: {wire}");
+                std::fs::write(format!("/tmp/hako-issued-borrowed-bool-discard-{returned}.json"), wire).unwrap();
+                Ok(())
+            })
+        }).unwrap_or_else(|error| panic!("original Bool discard must publish ({returned}): {error}"));
+    }
+
+    let text = "box Transport { marker: i64 birth() { me.marker = 0 } touch() { print(7) } }
+        box Pair { left: Transport right: Transport birth() {
+            me.left = new Transport() me.right = new Transport() me.left.touch() me.right.touch()
+        } } static box Main { main() { local pair = new Pair() return 0 } }";
+    let request = original_request(text);
+    let compiled = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request, |view, _| {
+            let input = view.issue_lifecycle_physical_abi_input()?;
+            let program = input.program();
+            let source = program.handoff().root_source().expect("same original source");
+            let mut calls = 0;
+            for function in program.functions() {
+                let crate::mir::compiler::published_backend_view::PublishedLifecyclePhysicalFunctionRoleV1::BirthUnit { abi } = function.role()
+                    else { continue; };
+                let caller = view.module().functions.get(function.name()).unwrap();
+                for block in function.blocks() {
+                    let row = block.terminator();
+                    if !matches!(row.instruction(), crate::mir::MirInstruction::Invoke {
+                        operation: crate::mir::instruction::InvokeOperation::Call {
+                            call, result: crate::mir::instruction::InvokeCallResultKind::Unit }, .. }
+                        if matches!(call.callee, crate::mir::Callee::SameModuleInstance { .. })) { continue; }
+                    let coordinate = (block.id(), row.index() as usize);
+                    source.corroborate_constructor_unit_call_v1(view.module(), abi.target(), caller,
+                        coordinate, row.instruction())?;
+                    assert!(source.corroborate_constructor_unit_call_v1(view.module(), abi.target(), caller,
+                        (coordinate.0, coordinate.1 + 1), row.instruction()).is_err());
+                    for mutation in 0..3 {
+                        let mut drift = row.instruction().clone();
+                        let crate::mir::MirInstruction::Invoke { operation, normal_landing, fault_landing, .. } = &mut drift
+                            else { unreachable!() };
+                        match mutation {
+                            0 => *normal_landing = *fault_landing,
+                            1 => *fault_landing = *normal_landing,
+                            _ => {
+                                let crate::mir::instruction::InvokeOperation::Call { result, .. } = operation else { unreachable!() };
+                                *result = crate::mir::instruction::InvokeCallResultKind::I64;
+                            }
+                        }
+                        assert!(source.corroborate_constructor_unit_call_v1(view.module(), abi.target(), caller,
+                            coordinate, &drift).is_err(), "constructor Unit mutation={mutation}");
+                    }
+                    calls += 1;
+                }
+            }
+            assert_eq!(calls, 2, "both original stored-child Unit calls");
+            let wire = crate::mir::emit_lifecycle_physical_abi_json(&input)?;
+            std::fs::write("/tmp/hako-issued-constructor-unit.json", wire).unwrap();
+            Ok(())
+        })
+    });
+    if let Err(error) = compiled { panic!("original constructor Unit source must reach final publication: {error}"); }
+
 }
 
 #[test]
@@ -78,6 +301,17 @@ fn selected_discard_failure_is_terminal_without_strict_retry() {
             "{error:?}"
         );
     }
+    for use_site in ["local value = recv.touch() return 0", "return recv.touch()"] {
+        let source = format!("box Transport {{ birth() {{ }} touch() {{ print(7) }} }} static box Main {{ main() {{ local recv = new Transport() {use_site} }} }}");
+        let request = original_request(&source);
+        let compiled = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::mir::MirCompiler::with_options(false).compile_normal_with_published(request, |view, _|
+                view.issue_lifecycle_physical_abi_input().map(|_| ()))
+        });
+        let error = compiled.err().expect("original Unit source cannot acquire a value result");
+        assert!(error.contains("unit-value-use"), "{use_site}: {error}");
+    }
+
 }
 
 #[test]

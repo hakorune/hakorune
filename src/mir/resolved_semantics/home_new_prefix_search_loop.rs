@@ -50,13 +50,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         BindingRefV1,
         &str,
     ) -> Result<bool, E>,
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     container_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -80,7 +74,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
     ) -> Result<bool, E>,
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -117,6 +111,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
             local_field_read,
             statement.site(),
             homes,
+            unavailable.is_none(),
             local_static_call,
             &mut |operand, binary| {
                 view_use(
@@ -158,6 +153,7 @@ pub(super) fn observe_static_i64_search_loop<'a, E>(
         source.body_call_site(),
         homes,
         locals,
+        unavailable.is_none(),
         local_static_call,
         borrowed_actuals,
     )?

@@ -1,4 +1,5 @@
 use super::*;
+use std::rc::Rc;
 
 impl super::super::PlanNormalizer {
     pub(in crate::mir::builder) fn lower_value_input<'input, P>(
@@ -6,6 +7,34 @@ impl super::super::PlanNormalizer {
         input: P::ExprInput<'input>,
         builder: &mut MirBuilder,
         phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, Vec<CoreEffectPlan>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
+        Self::lower_value_input_with_source_output(port, input, builder, phi_bindings)
+            .map(|(value, effects, _)| (value, effects))
+    }
+
+    pub(in crate::mir::builder) fn lower_value_input_with_source_output<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+    ) -> Result<(ValueId, Vec<CoreEffectPlan>, Option<Rc<NormalizedSourceValueV1>>), String>
+    where
+        P: LoopPlanExpressionPortV1 + 'input,
+    {
+        let mut output = None;
+        let (value, effects) = Self::lower_value_input_recorded(port, input, builder, phi_bindings, &mut output)?;
+        Ok((value, effects, output))
+    }
+
+    fn lower_value_input_recorded<'input, P>(
+        port: &P,
+        input: P::ExprInput<'input>,
+        builder: &mut MirBuilder,
+        phi_bindings: &BTreeMap<String, ValueId>,
+        source_output: &mut Option<Rc<NormalizedSourceValueV1>>,
     ) -> Result<(ValueId, Vec<CoreEffectPlan>), String>
     where
         P: LoopPlanExpressionPortV1 + 'input,
@@ -19,6 +48,11 @@ impl super::super::PlanNormalizer {
 
         match ast {
             ASTNode::Variable { name, .. } => {
+                if let Some(read) = port.exact_source_variable_read(&input)? {
+                    let (_, _, value) = read.source_value();
+                    *source_output = Some(NormalizedSourceValueV1::variable(read));
+                    return Ok((value, vec![]));
+                }
                 if let Some(value_id) = port.exact_source_variable_value(&input, phi_bindings)? {
                     return Ok((value_id, vec![]));
                 }
@@ -114,6 +148,11 @@ impl super::super::PlanNormalizer {
                     ));
                 }
 
+                if let ConstValue::Integer(literal) = &const_value {
+                    if let Some(site) = port.exact_source_expression_site(&input)? {
+                        *source_output = Some(NormalizedSourceValueV1::literal(site, value_id, *literal));
+                    }
+                }
                 let const_effect = CoreEffectPlan::Const {
                     dst: value_id,
                     value: const_value,
@@ -466,8 +505,9 @@ impl super::super::PlanNormalizer {
                 | crate::ast::BinaryOperator::Multiply
                 | crate::ast::BinaryOperator::Divide
                 | crate::ast::BinaryOperator::Modulo => {
-                    let (lhs, op, rhs, mut consts) =
-                        Self::lower_binop_input(port, input, builder, phi_bindings)?;
+                    let source_site = port.exact_source_expression_site(&input)?;
+                    let (lhs, op, rhs, mut consts, operands) =
+                        Self::lower_binop_input_with_source_outputs(port, input, builder, phi_bindings)?;
                     let result_type = if op == BinaryOp::Add {
                         prepare_coreplan_add_result_representation_v1(
                             builder.function_state.type_ctx.get_type(lhs),
@@ -479,6 +519,11 @@ impl super::super::PlanNormalizer {
                     };
                     let dst = builder.alloc_typed(result_type);
                     consts.push(CoreEffectPlan::BinOp { dst, lhs, op, rhs });
+                    if op == BinaryOp::Add {
+                        if let (Some(site), Some((left, right))) = (source_site, operands) {
+                            *source_output = Some(NormalizedSourceValueV1::add(site, dst, left, right));
+                        }
+                    }
                     Ok((dst, consts))
                 }
                 crate::ast::BinaryOperator::And

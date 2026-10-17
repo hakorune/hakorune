@@ -75,7 +75,7 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
         binding,
         root,
         class,
-        ..
+        acquisition,
     } = &row.source
     else {
         panic!("typed object provenance")
@@ -86,6 +86,22 @@ fn typed_object_home_is_borrowed_and_not_transferred_into_the_pending_call() {
     let flow = completion.cleanup().root_flow().unwrap();
     assert_eq!(flow.local_calls().len(), 1);
     assert!(flow.local_calls()[0].prior_homes().contains(root));
+    let ledger = &package.ordinary_new_claim_ledger;
+    let acquisition = acquisition.clone();
+    let root = *root;
+    assert_eq!(ledger.borrowed_local_new_actual_class_v1(&acquisition, root).unwrap().as_deref(), Some("Transport"));
+    let claim = ledger.try_take(&acquisition, "Transport", 0).unwrap().unwrap();
+    // The existing commit is still Pending. No physical emission is needed
+    // to lend the SAME original source class after affine take.
+    assert_eq!(ledger.borrowed_local_new_actual_class_v1(&acquisition, root).unwrap().as_deref(), Some("Transport"));
+    ledger.claims.borrow_mut().insert(acquisition.clone(), claim);
+    assert!(ledger.borrowed_local_new_actual_class_v1(&acquisition, root).unwrap_err().contains("duplicate-store"));
+    ledger.claims.borrow_mut().remove(&acquisition).unwrap();
+    let commit = ledger.local_commits.borrow_mut().remove(&acquisition).unwrap();
+    assert_eq!(ledger.borrowed_local_new_actual_class_v1(&acquisition, root).unwrap(), None);
+    ledger.local_commits.borrow_mut().insert(acquisition.clone(), commit);
+    assert_eq!(ledger.borrowed_local_new_actual_class_v1(&acquisition, root).unwrap().as_deref(), Some("Transport"));
+
 }
 
 #[test]
@@ -752,6 +768,3 @@ fn assert_local_projection(
         );
     }
 }
-
-#[path = "ordinary_new_borrowed_instance_source_actual_tests.rs"]
-mod instance_source_tests;

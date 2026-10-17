@@ -1,4 +1,5 @@
 //! Read-only original source and finished-coordinate loans from the same owner.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::super::lexical_instance_call::PreparedBorrowedFormalActualV1;
 use super::*;
 use crate::mir::normal_callable_semantic_package::LexicalInstanceCallDispositionRowV1;
@@ -13,6 +14,23 @@ mod scalar_operations;
 
 #[path = "finalized_mul_operand_projection.rs"]
 mod mul_operands;
+
+#[path = "finalized_main_arguments.rs"]
+mod main_arguments;
+
+#[path = "finalized_array_field_reads.rs"]
+mod array_field_reads;
+
+#[path = "finalized_borrowed_field_writes.rs"]
+mod borrowed_field_writes;
+#[path = "finalized_null_guard_projection.rs"]
+mod null_guard;
+#[path = "finalized_borrowed_array_sets.rs"]
+mod borrowed_array_sets;
+
+#[path = "finalized_object_return_outcomes.rs"]
+mod object_return_outcomes;
+pub(in crate::mir) use object_return_outcomes::{FinalizedObjectReturnOutcomeV1, FinalizedObjectReturnOriginV1};
 
 impl FinalizedRootSourceHandoffV1 {
     /// Lend original append observations; derived and execution coverage remain separate.
@@ -60,10 +78,8 @@ impl FinalizedRootSourceHandoffV1 {
         if groups.next().is_some() {
             return Err(freeze("finished-local-call/group-duplicate"));
         }
-        let packet = group
-            .lexical()
-            .ok_or_else(|| freeze("finished-local-call/packet-missing"))?;
-        if !packet.has_producer_at(node_site, original) {
+        let mut packets = group.lexical_packets().filter(|packet| packet.has_producer_at(node_site, original));
+        if packets.next().is_none() || packets.next().is_some() {
             return Err(freeze("finished-local-call/original-producer"));
         }
         let (symbol, finished) = self.ledger.finished_binding_for_owner(owner, original)?;
@@ -94,13 +110,13 @@ impl FinalizedRootSourceHandoffV1 {
             )?
         } else {
             let exits = self.ledger.root_exits.borrow();
-            match exits.get(&(owner, exit.clone())) {
+            match exits.get(&(owner, exit.clone().into())) {
                 Some(RootHomeExitProgress::Emitted { entry, .. }) => extract(entry)?,
                 _ => return Err(freeze("finished-terminal-call/child-exit-missing")),
             }
         };
         self.ledger
-            .validate_lexical_terminal_packet(owner, exit, &packet)?;
+            .validate_lexical_terminal_packet_in_context(owner, exit, &packet, CallValidationContextV1::Finalized(self))?;
         read(&packet)
     }
 
@@ -146,10 +162,14 @@ impl FinalizedRootSourceHandoffV1 {
         if groups.next().is_some() {
             return Err(freeze("finished-copy/group-duplicate"));
         }
-        let packet = group
-            .lexical()
-            .ok_or_else(|| freeze("finished-copy/packet"))?;
-        self.finished_packet_copy(owner, packet, node_site, original, function)
+        let mut found = None;
+        for packet in group.lexical_packets() {
+            if packet.copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?.iter()
+                .any(|(node, copy)| node == node_site && copy == original) {
+                if found.replace(packet).is_some() { return Err(freeze("finished-copy/packet-duplicate")); }
+            }
+        }
+        self.finished_packet_copy(owner, found.ok_or_else(|| freeze("finished-copy/packet"))?, node_site, original, function)
     }
 
     pub(in crate::mir) fn finished_terminal_call_copy_v1(
@@ -177,7 +197,7 @@ impl FinalizedRootSourceHandoffV1 {
         function: &MirFunction,
     ) -> Result<(BasicBlockId, usize), String> {
         if !packet
-            .copy_dependencies(&self.ledger)?
+            .copy_dependencies_in_context(CallValidationContextV1::Finalized(self))?
             .iter()
             .any(|(node, copy)| node == node_site && copy == original)
         {
@@ -246,14 +266,14 @@ impl FinalizedRootSourceHandoffV1 {
             let actual = packet.selected_forwarded_actual_for_call(caller, site)?;
             return Ok(Some(std::slice::from_ref(actual)));
         }
-        original.borrowed_actuals(&self.ledger)
+        original.borrowed_actuals_in_context(CallValidationContextV1::Finalized(self))
     }
 
     pub(in crate::mir) fn borrowed_call_actuals_v1(
         &self,
         row: &LexicalInstanceCallDispositionRowV1,
     ) -> Result<Option<&[PreparedBorrowedFormalActualV1]>, String> {
-        self.ledger.borrowed_call_actuals_v1(row)
+        self.ledger.borrowed_call_actuals_using_v1(row, CallValidationContextV1::Finalized(self))
     }
 
     pub(in crate::mir) fn borrowed_ordinary_entry_source_v1(
@@ -530,15 +550,13 @@ impl FinalizedRootSourceHandoffV1 {
         String,
     > {
         let source = self.borrowed_ordinary_entry_source_for_function_v1(owner, function)?;
-        Ok(source
-            .formals()
-            .iter()
-            .filter_map(|(_, formal)| {
-                source
-                    .formal_object_view(*formal)
-                    .map(|view| (*formal, view.object()))
-            })
-            .collect())
+        let mut views = std::collections::BTreeMap::new();
+        for (_, formal) in source.formals() {
+            if let Some(view) = source.formal_object_view(*formal)? {
+                views.insert(*formal, view.object());
+            }
+        }
+        Ok(views)
     }
 
     /// Same finalized entry proof, projecting only the admitted
@@ -608,7 +626,7 @@ impl OrdinaryNewClaimLedgerV1 {
         self.with_finished_child_projection(owner, read)
     }
 
-    fn with_finished_child_projection<T>(
+    pub(super) fn with_finished_child_projection<T>(
         &self,
         owner: FunctionOwnerIdV1,
         read: impl FnOnce(&str, &physical_boundary::FinishedBindings) -> Result<T, String>,
@@ -704,3 +722,6 @@ mod selected_loop_actual_tests;
 #[cfg(test)]
 #[path = "finalized_scalar_source_tests.rs"]
 mod scalar_source_tests;
+
+#[path = "finalized_borrowed_declaration.rs"]
+mod borrowed_declaration;

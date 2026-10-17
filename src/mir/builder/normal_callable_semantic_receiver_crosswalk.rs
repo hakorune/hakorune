@@ -43,6 +43,18 @@ pub(in crate::mir) struct ExactLexicalReadV1 {
 }
 
 impl ExactLexicalReadV1 {
+    pub(in crate::mir) fn original_copy_dependencies_v1(&self)
+        -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
+        match &self.provenance {
+            Some(source) => source.original_copy_dependencies_v1(self.value),
+            None => Ok(&[]),
+        }
+    }
+    pub(in crate::mir) fn source_value(&self) -> (crate::mir::resolved_semantics::OwnedExprSiteV1, BindingRefV1, ValueId) {
+        (crate::mir::resolved_semantics::OwnedExprSiteV1::new(self.owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(self.site.clone())), self.binding, self.value)
+    }
+
     pub(in crate::mir) fn proves_forwarded_entry(
         &self,
         formal: BindingRefV1,
@@ -118,6 +130,17 @@ impl fmt::Display for ExactBindingValueErrorV1 {
 }
 
 impl CallableSemanticLoweringState {
+    /// Retain the SAME one-shot variable read, including its actual reaching
+    /// provenance. Assignment-target reads keep read_variable's existing law.
+    pub(in crate::mir::builder) fn read_variable_with_source_v1(
+        &mut self, site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> Result<ExactLexicalReadV1, String> {
+        let binding = self.source_read_binding(site)?;
+        let value = self.read_variable(site)?;
+        Ok(ExactLexicalReadV1 { owner: self.owner, site: site.clone(), binding, value,
+            provenance: self.values.provenance(&binding) })
+    }
+
     /// Read an already-materialized value by its owner-branded binding.
     ///
     /// The operation is observational and deliberately reusable.  The caller

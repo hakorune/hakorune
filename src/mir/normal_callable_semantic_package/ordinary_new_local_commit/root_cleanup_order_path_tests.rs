@@ -157,7 +157,7 @@ fn root_ordered_paths_reject_normal_substitution_fault_retry_and_wrong_outcome()
 
 #[test]
 fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
-    let (_, function, bindings) = fixture();
+    let (_, mut function, bindings) = fixture();
     super::super::super::super::root_cleanup_graph::ordered_structure::validate_original(
         &function,
         &bindings,
@@ -167,10 +167,30 @@ fn root_ordered_structure_accepts_fault_only_release_without_fixed_count() {
         crate::mir::instruction::InvokeCallResultKind::I64,
     )
     .unwrap();
+    // The Plain entry is an original source continuation, unlike cleanup nodes.
+    let phi = MirInstruction::Phi {
+        dst: ValueId(30), inputs: vec![(BasicBlockId(10), ValueId(31))], type_hint: None,
+    };
+    function.blocks.get_mut(&BasicBlockId(0)).unwrap().instructions.push(phi.clone());
+    super::super::super::super::root_cleanup_graph::ordered_structure::validate_original(
+        &function, &bindings, &RootHomeExitEntry::Plain { local_bindings: vec![] },
+        crate::mir::instruction::InvokeCallResultKind::I64,
+    ).expect("source prefix is outside the cleanup instruction owner");
+    let boundary = super::super::super::super::physical_boundary::PhysicalBoundary::capture(
+        &function, &bindings,
+    ).unwrap_err();
+    assert!(boundary.contains("phi-in-recorded-block"), "{boundary}");
+    let roles = std::collections::BTreeMap::from([
+        (BasicBlockId(0), (vec![phi].into_boxed_slice(), None)),
+    ]);
+    super::super::super::super::physical_boundary::PhysicalBoundary::capture_with_source_phi_roles(
+        &function, &bindings, &[], &[], &roles, None,
+    ).expect("independent physical owner still requires the exact source prefix role");
+
 }
 #[test]
 fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_nodes() {
-    for mutation in 0..6 {
+    for mutation in 0..7 {
         let (_, mut function, mut bindings) = fixture();
         match mutation {
             0 => function
@@ -210,6 +230,11 @@ fn root_ordered_structure_rejects_extra_missing_foreign_cycle_and_duplicate_node
                 });
                 function.add_block(block);
             }
+            6 => function.blocks.get_mut(&BasicBlockId(3)).unwrap().instructions.push(
+                MirInstruction::Phi {
+                    dst: ValueId(30), inputs: vec![(BasicBlockId(4), ValueId(31))], type_hint: None,
+                },
+            ),
             _ => unreachable!(),
         }
         assert!(

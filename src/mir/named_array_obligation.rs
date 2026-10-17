@@ -28,11 +28,20 @@ pub(crate) struct NamedArrayWriteMarkerV1 {
     pub(crate) write: ArrayWriteSiteId,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct NamedArrayReadMarkerV1 {
+    pub(crate) owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+    pub(crate) read: crate::mir::ArrayReadSiteId,
+    pub(crate) receiver: ValueId,
+    pub(crate) index: ValueId,
+    pub(crate) dst: ValueId,
+}
+
 pub(crate) fn reject_unretained_module(module: &MirModule) -> Result<(), String> {
     if module
         .functions
         .values()
-        .any(|function| !function.metadata.named_array_write_obligations.is_empty())
+        .any(|function| (!function.metadata.named_array_write_obligations.is_empty() || !function.metadata.named_array_read_obligations.is_empty()))
     {
         return Err(fault("retained-source-required"));
     }
@@ -98,7 +107,13 @@ pub(crate) fn validate_physical_marker(
     if write_count != 1 {
         return Err(fault("write-cardinality"));
     }
-    match &marker.allocation {
+    validate_array_allocation(module, function, &marker.allocation)
+}
+
+pub(crate) fn validate_array_allocation(
+    module: &MirModule, function: &MirFunction, allocation: &NamedArrayAllocationRefV1,
+) -> Result<(), String> {
+    match allocation {
         NamedArrayAllocationRefV1::LocalValue(allocation) => {
             let mut allocation_count = 0;
             for instruction in function

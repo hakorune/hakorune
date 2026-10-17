@@ -2,6 +2,75 @@
 use super::*;
 
 impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_> {
+    fn try_emit_unit_discard(&mut self, builder: &mut crate::mir::MirBuilder, method: &str, arity: usize)
+        -> Result<bool, String> {
+        let (Some(ledger), Some(node)) = (self.ordinary_new_claim_ledger.as_ref(), self.current_source_site_v1())
+            else { return Ok(false); };
+        let owner = self.callable_owner_v1().ok_or("[freeze:contract][unit-call/owner-missing]")?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        let constructor = match &self.callable_ledger {
+            Some(state) => state.borrow().has_next_constructor_call_v1(&site)?,
+            None => false,
+        };
+        if constructor {
+            self.check_new_emission_scope(&site)?;
+            let row = ledger.take_lexical_instance_call(owner, site.site())?
+                .ok_or("[freeze:contract][constructor-unit/disposition-unavailable]")?;
+            if row.target().name() != method || arity != 0 || !row.argument_sites().is_empty() {
+                return Err("[freeze:contract][constructor-unit/syntax-drift]".into());
+            }
+            self.consume_lexical_self_receiver_locator_v1(&row)?;
+            let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][constructor-unit/state-missing]")?;
+            state.borrow_mut().emit_constructor_unit_call_v1(builder, ledger, row)?;
+            return Ok(true);
+        }
+        let Some(observation) = ledger.unit_discard_source_v1(&site) else { return Ok(false); };
+        let original = observation.unit_source().ok_or("[freeze:contract][unit-call/original-missing]")?;
+        if method != original.target().name() || arity != 0 || !original.argument_sites().is_empty() {
+            return Err("[freeze:contract][unit-call/syntax-drift]".into());
+        }
+        self.check_new_emission_scope(&site)?;
+        let row = ledger.take_lexical_instance_call(owner, site.site())?
+            .ok_or("[freeze:contract][unit-call/disposition-unavailable]")?;
+        self.consume_lexical_self_receiver_locator_v1(&row)?;
+        let state = self.callable_ledger.as_ref().ok_or("[freeze:contract][unit-call/state-missing]")?;
+        crate::mir::builder::ordinary_new_admission::selected::terminal_call::emit_unit_discard(
+            builder, &mut state.borrow_mut(), ledger, row)?;
+        Ok(true)
+    }
+
+    fn try_emit_owned_array_append(
+        &mut self, builder: &mut crate::mir::MirBuilder, method: &str, arity: usize,
+    ) -> Result<bool, String> {
+        let (Some(ledger), Some(node)) =
+            (self.ordinary_new_claim_ledger.as_ref(), self.current_source_site_v1())
+            else { return Ok(false); };
+        let owner = self.callable_owner_v1().ok_or("[freeze:contract][array-append/owner-missing]")?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner,
+            crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        if !ledger.has_owned_array_append_v1(&site) { return Ok(false); }
+        let source = self.owned_array_source.ok_or("[freeze:contract][array-append/source-scope-missing]")?;
+        source.require_same_ledger_v1(ledger)?;
+        let append = source.prepare_append_v1(&site)?.ok_or("[freeze:contract][array-append/source-missing]")?;
+        self.check_new_emission_scope(&site)?;
+        if crate::boxes::array::ArrayMethodId::from_name_and_arity(method, arity)
+            != Some(crate::boxes::array::ArrayMethodId::Push) {
+            return Err("[freeze:contract][array-append/syntax-drift]".into());
+        }
+        let candidate = if append.null_candidate() { None } else {
+            let site = append.candidate();
+            let row = ledger.take_lexical_instance_call(site.owner(), site.site())?
+                .ok_or("[freeze:contract][array-append/candidate-disposition-missing]")?;
+            append.check_candidate_v1(&row)?;
+            self.consume_lexical_self_receiver_locator_v1(&row)?;
+            Some(row)
+        };
+        crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_append(
+            builder, &mut self.callable_ledger.as_ref().expect("checked source state").borrow_mut(), ledger, append, candidate,
+        )?;
+        Ok(true)
+    }
     fn emit_terminal_i64_call_exit(
         &mut self,
         builder: &mut crate::mir::MirBuilder,
@@ -42,6 +111,9 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
                     format!("[freeze:contract][ordinary-field-read/receiver-binding] {error:?}")
                 })
         };
+        if ledger.reserve_result_path_field_v1(&site, &resolve)? {
+            return Ok(Some(PreparedRawFieldReadV1::result_path(object, site, ledger.clone())));
+        }
         if let Some((base, field)) = ledger.take_terminal_field_read(&site, &resolve)? {
             return Ok(Some(PreparedRawFieldReadV1::exact_object(
                 object,
@@ -121,7 +193,7 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         .map(Some)
     }
 
-    fn emit_terminal_integer_literal_return(
+    fn emit_terminal_scalar_literal_return(
         &mut self,
         builder: &mut crate::mir::MirBuilder,
     ) -> Result<Option<crate::mir::ValueId>, String> {
@@ -134,12 +206,36 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         let site = self
             .current_source_site_v1()
             .ok_or("[ordinary-literal/site-missing]")?;
-        let Some(value) = ledger.prepare_terminal_integer_literal_return(owner, &site)? else {
+        let Some(value) = ledger.prepare_terminal_scalar_literal_return(owner, &site)? else {
             return Ok(None);
         };
-        let emitted = crate::mir::builder::emission::constant::emit_integer(builder, value)?;
-        ledger.record_terminal_integer_literal_return(owner, &site, emitted)?;
+        let emitted = match value {
+            crate::mir::ConstValue::Integer(value) => crate::mir::builder::emission::constant::emit_integer(builder, value)?,
+            crate::mir::ConstValue::Bool(value) => crate::mir::builder::emission::constant::emit_bool(builder, value)?,
+            _ => return Err("[freeze:contract][ordinary-literal/non-scalar-source]".into()),
+        };
+        ledger.record_terminal_scalar_literal_return(owner, &site, emitted)?;
+        let block = builder.function_state.current_block.ok_or("[ordinary-literal/block-missing]")?;
+        let function = builder.function_state.current_function.as_ref().ok_or("[ordinary-literal/function-missing]")?;
+        let instruction = function.blocks.get(&block).and_then(|block| block.instructions.last())
+            .ok_or("[ordinary-literal/producer-missing]")?.clone();
+        ledger.record_terminal_literal_producer_v1(owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site), (block, instruction), function)?;
         Ok(Some(emitted))
+    }
+
+    fn complete_terminal_scalar_literal_return(
+        &mut self, builder: &crate::mir::MirBuilder,
+    ) -> Result<(), String> {
+        let Some(ledger) = &self.ordinary_new_claim_ledger else { return Ok(()); };
+        let owner = self.callable_owner_v1().ok_or("[ordinary-literal/owner-missing]")?;
+        let site = self.current_source_site_v1().ok_or("[ordinary-literal/site-missing]")?;
+        let block = builder.function_state.current_block.ok_or("[ordinary-literal/block-missing]")?;
+        let function = builder.function_state.current_function.as_ref().ok_or("[ordinary-literal/function-missing]")?;
+        let returned = function.blocks.get(&block).and_then(|block| block.terminator.as_ref())
+            .ok_or("[ordinary-literal/return-missing]")?.clone();
+        ledger.complete_terminal_literal_return_v1(owner,
+            &crate::mir::resolved_semantics::SourceStmtSiteV1::from_node(site), &[(block, returned)])
     }
 
     fn emit_terminal_i64_field_return(
@@ -387,6 +483,34 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
         )
     }
 
+    fn prepare_owned_array_construction(
+        &mut self, class: &str, argument_count: usize, field_count: usize,
+    ) -> Result<Option<crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1>, String> {
+        let (Some(ledger), Some(node)) = (self.ordinary_new_claim_ledger.as_ref(), self.current_source_site_v1()) else { return Ok(None); };
+        let owner = self.callable_owner_v1().ok_or("[freeze:contract][owned-array/owner-missing]")?;
+        let site = crate::mir::resolved_semantics::OwnedExprSiteV1::new(owner, crate::mir::resolved_semantics::SourceExprSiteV1::from_node(node));
+        if !ledger.has_owned_array_construction(&site) { return Ok(None); }
+        let source = self.owned_array_source.ok_or("[freeze:contract][owned-array/source-scope-missing]")?;
+        source.require_same_ledger_v1(ledger)?;
+        self.check_new_emission_scope(&site)?;
+        if crate::runtime::CoreBoxId::from_name(class) != Some(crate::runtime::CoreBoxId::Array) || argument_count != 0 || field_count != 0 {
+            return Err("[freeze:contract][owned-array/construction-syntax-drift]".into());
+        }
+        let relation = self.callable_ledger.as_ref().ok_or("[freeze:contract][owned-array/callable-state-missing]")?.borrow().expression_initializer(site.site().node())?;
+        source.prepare_construction_v1(&site, relation)?.map(Some).ok_or_else(|| "[freeze:contract][owned-array/construction-source-missing]".into())
+    }
+
+    fn emit_owned_array_construction(
+        &mut self, builder: &mut crate::mir::MirBuilder,
+        source: crate::mir::normal_callable_semantic_package::PreparedOwnedArrayConstructionV1,
+    ) -> Result<crate::mir::ValueId, String> {
+        self.check_new_emission_scope(&source.site())?;
+        crate::mir::builder::ordinary_new_admission::selected::owned_array::emit_construction(
+            builder, &mut self.callable_ledger.as_ref().expect("checked callable state").borrow_mut(),
+            self.ordinary_new_claim_ledger.as_ref().expect("checked ledger"), source,
+        )
+    }
+
     fn validate_named_array_construction_route(&self, named_route: bool) -> Result<(), String> {
         let (Some(ledger), Some(site)) =
             (self.callable_ledger.as_ref(), self.current_source_site_v1())
@@ -394,7 +518,9 @@ impl RawOrdinaryNewClaimPortV1 for super::super::RawInvocationChildPortV1<'_, '_
             return Ok(());
         };
         let site = crate::mir::resolved_semantics::SourceExprSiteV1::from_node(site);
-        if !named_route && ledger.borrow().requires_named_array_allocation(&site) {
+        if !named_route && (ledger.borrow().requires_named_array_allocation(&site)
+            || self.ordinary_new_claim_ledger.as_ref().is_some_and(|claims| claims.has_owned_array_construction(
+                &crate::mir::resolved_semantics::OwnedExprSiteV1::new(ledger.borrow().owner(), site.clone())))) {
             return Err("[freeze:contract][named-array/non-named-construction-route]".into());
         }
         Ok(())

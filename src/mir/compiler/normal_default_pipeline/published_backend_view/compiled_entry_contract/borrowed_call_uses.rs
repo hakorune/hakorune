@@ -1,5 +1,9 @@
 //! Final operand closure over original entry/Copy/Forwarded loans.
 //! These temporary sets corroborate one publication; they issue no authority.
+#[path = "borrowed_call_uses_formal_return.rs"]
+mod formal_return;
+#[cfg(test)]
+pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) use formal_return::verify_original_formal_return;
 #[path = "borrowed_call_uses_integer_return.rs"]
 mod integer_return;
 #[path = "borrowed_call_uses_null_compare.rs"]
@@ -10,6 +14,14 @@ mod object_field;
 mod mul;
 #[path = "borrowed_call_uses_closure.rs"]
 mod closure;
+#[path = "borrowed_call_uses_guarded_arguments.rs"]
+mod guarded_arguments;
+#[path = "borrowed_call_uses_arguments.rs"]
+mod arguments;
+#[path = "borrowed_call_uses_field_write.rs"]
+mod field_write;
+#[path = "borrowed_call_uses_array_set.rs"]
+mod array_set;
 use object_field::path_dominates;
 use super::*;
 use crate::mir::compiler::normal_default_pipeline::published_backend_view::physical_program::PublishedLifecyclePhysicalFunctionV1;
@@ -24,7 +36,11 @@ type Binding = (BasicBlockId, MirInstruction);
 
 #[derive(Default)]
 struct FunctionUses {
+    field_writes: BTreeMap<Coordinate, field_write::FieldWriteUse>,
+    array_sets: BTreeMap<Coordinate, array_set::ArraySetUse>,
+    guarded_arguments: guarded_arguments::GuardedArguments,
     integer_returns: BTreeMap<Coordinate, integer_return::IntegerReturnUse>,
+    formal_returns: BTreeMap<Coordinate, formal_return::FormalReturnUse>,
     roots: BTreeMap<ValueId, BindingRefV1>,
     copies: BTreeMap<ValueId, (Binding, Option<Coordinate>)>,
     arguments: BTreeMap<(BasicBlockId, usize, usize), BindingRefV1>,
@@ -58,7 +74,10 @@ struct FunctionUses {
 
 #[derive(Default)]
 struct Scan {
+    field_writes: BTreeSet<Coordinate>,
+    array_sets: BTreeSet<Coordinate>,
     integer_returns: BTreeSet<Coordinate>,
+    formal_returns: BTreeSet<Coordinate>,
     definitions: BTreeMap<ValueId, usize>,
     coordinates: BTreeSet<Coordinate>,
     arguments: BTreeSet<(BasicBlockId, usize, usize)>,
@@ -164,6 +183,9 @@ impl BorrowedCallUses {
         source.with_borrowed_ordinary_compare_carrier_copies_v1(owner, function, |copy, coordinate| {
             state.copy(copy, Some(coordinate))
         })?;
+        guarded_arguments::entry(state, source, owner, function, &compare_sites)?;
+        field_write::entry(state, source, owner, function, &compare_sites)?;
+        array_set::entry(state, source, owner, function, &compare_sites)?;
         mul::entry(state, source, owner, function, &compare_sites)?;
         integer_return::entry(state, source, owner, function)?;
         for (_, formal, _) in source
@@ -201,35 +223,15 @@ impl BorrowedCallUses {
         Ok(())
     }
 
-    pub(super) fn call(
-        &mut self,
-        caller: &MirFunction,
-        coordinate: Coordinate,
-        actuals: &[PreparedBorrowedFormalActualV1],
-        copies: &[(Binding, Coordinate)],
-    ) -> Result<(), String> {
-        let state = self
-            .functions
-            .entry(caller.signature.name.clone())
-            .or_default();
-        for (original, finished) in copies {
-            state.copy(original, Some(*finished))?;
-        }
-        for actual in actuals {
-            if let BorrowedFormalActualSourceV1::Forwarded { formal, .. } = actual.source {
-                let key = (coordinate.0, coordinate.1, actual.ordinal as usize);
-                if let Some(previous) = state.arguments.insert(key, formal) {
-                    if previous != formal {
-                        return Err(fault("borrowed-use/conflicting-argument"));
-                    }
-                }
-            }
-        }
-        Ok(())
-    }
+
 }
 
 impl FunctionUses {
+    fn has_source_integer_compare(&self, coordinate: Coordinate) -> bool {
+        self.compare_coordinates.as_ref().is_some_and(|rows| {
+            rows.values().any(|uses| uses.iter().any(|(found, _)| *found == coordinate))
+        })
+    }
     fn copy(&mut self, original: &Binding, coordinate: Option<Coordinate>) -> Result<(), String> {
         let MirInstruction::Copy { dst, .. } = original.1 else {
             return Err(fault("borrowed-use/copy-instruction"));
@@ -345,15 +347,16 @@ impl FunctionUses {
         for (coordinate, instruction) in indexed {
             null_compare::observe_null_const(instruction, &mut null_consts);
             match instruction {
-                // Only the admitted checked compare (`>` / `<=` + Normal-Integer
-                // proof) anchors `+`/`.set`/`new` dominance cones; a null
+                // Only a source-proven Integer comparison anchors the numeric
+                // dominance cone; a null
                 // equality supplies non-null only, never the Integer lane.
                 MirInstruction::Compare {
-                    op: crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le,
+                    op,
                     lhs,
                     rhs,
                     ..
-                } => {
+                } if matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le)
+                    || self.has_source_integer_compare(*coordinate) => {
                     for operand in [lhs, rhs] {
                         if let Some(formal) = tracked.get(operand).or(views.get(operand)) {
                             compares.entry(*formal).or_default().push(*coordinate);
@@ -398,6 +401,8 @@ impl FunctionUses {
             }
             *definitions.definitions.entry(dst).or_default() += 1;
         }
+        if field_write::observe(self, tracked, coordinate, instruction, definitions, dominates)? { return Ok(()); }
+        if array_set::observe(self, tracked, views, coordinate, instruction, definitions, dominates)? { return Ok(()); }
         match instruction {
             MirInstruction::Copy { dst, src } if tracked.contains_key(src) => {
                 let view = views.views.get(dst) == tracked.get(src);
@@ -413,7 +418,8 @@ impl FunctionUses {
                             self.copies.get(dst)
                         );
                     }
-                    return Err(fault("borrowed-use/unproved-copy"));
+                    return Err(format!("{} coordinate={coordinate:?} instruction={instruction:?}",
+                        fault("borrowed-use/unproved-copy")));
                 }
             }
             MirInstruction::Call(call)
@@ -495,6 +501,7 @@ impl FunctionUses {
                             self.arguments.get(&(coordinate.0, coordinate.1, ordinal)),
                         ) {
                             (Some(formal), Some(expected)) if formal == expected => {
+                                guarded_arguments::observe(self, coordinate, ordinal, *formal, dominates)?;
                                 if self
                                     .copies
                                     .get(value)
@@ -507,7 +514,9 @@ impl FunctionUses {
                                     .insert((coordinate.0, coordinate.1, ordinal));
                             }
                             (None, None) => {}
-                            _ => return Err(fault("borrowed-use/argument")),
+                            _ => return Err(format!("{} coordinate={coordinate:?} ordinal={ordinal} value={value:?} tracked={:?} expected={:?} instruction={instruction:?}",
+                                fault("borrowed-use/argument"), tracked.get(value),
+                                self.arguments.get(&(coordinate.0, coordinate.1, ordinal)))),
                         }
                     }
                     if self.arguments.keys().any(|(block, index, ordinal)| {
@@ -518,11 +527,12 @@ impl FunctionUses {
                 }
             }
             MirInstruction::Compare {
-                op: crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le,
+                op,
                 lhs,
                 rhs,
                 ..
-            } => {
+            } if matches!(op, crate::mir::CompareOp::Gt | crate::mir::CompareOp::Le)
+                || self.has_source_integer_compare(coordinate) => {
                 // A tracked operand is legal only through an admitted
                 // checked-compare view; the draft count closes coverage.
                 for (side, operand) in [lhs, rhs].into_iter().enumerate() {
@@ -653,6 +663,11 @@ impl FunctionUses {
             MirInstruction::Return { value } if self.integer_returns.contains_key(&coordinate) => {
                 integer_return::observe(self, tracked, coordinate, value, definitions, dominates)?;
             }
+            MirInstruction::Return { .. } if self.formal_returns.contains_key(&coordinate) => {
+                formal_return::observe(self, tracked, coordinate, instruction, definitions)?;
+            }
+            // SSA liveness metadata is not an executable borrowed payload use.
+            MirInstruction::KeepAlive { .. } => {},
             _ if instruction.used_values().iter().any(|value| {
                 tracked.contains_key(value) || views.views.contains_key(value)
             }) =>
@@ -671,6 +686,9 @@ impl FunctionUses {
         definitions: &Scan,
     ) -> Result<(), String> {
         integer_return::coverage(self, definitions)?;
+        field_write::coverage(self, definitions)?;
+        array_set::coverage(self, definitions)?;
+        formal_return::coverage(self, definitions)?;
         if definitions.arguments != self.arguments.keys().copied().collect() {
             return Err(fault("borrowed-use/argument-coverage"));
         }
@@ -700,7 +718,8 @@ impl FunctionUses {
             .map(|(formal, values)| (*formal, values.len()))
             .collect();
         if set_uses != self.set_admissions {
-            return Err(fault("borrowed-use/set-coverage"));
+            return Err(format!("{} expected={:?} actual={:?}",
+                fault("borrowed-use/set-coverage"), self.set_admissions, definitions.set_uses));
         }
         let ctor_uses: BTreeMap<_, _> = definitions
             .ctor_uses
@@ -748,8 +767,8 @@ pub(in crate::mir::compiler::normal_default_pipeline::published_backend_view) fn
 ) {
     let (state, function, _) = tests::fixture();
     let tracked = state.tracked().unwrap();
-    let name = function.signature.name.clone();
+    let original = function.clone();
     (function, move |rows| {
-        state.verify_published(&tracked, &name, rows)
+        state.verify_published(&tracked, &original, rows)
     })
 }

@@ -135,23 +135,33 @@ fn legacy_nullable_receiver_package() -> VerifiedNormalCallableSemanticPackageV1
 }
 
 #[test]
-fn object_receiver_selection_preserves_legacy_nullable_without_new_ingress_demand() {
+fn object_receiver_selection_retains_unavailable_original_nullable_source() {
     let mut package = legacy_nullable_receiver_package();
-    let (site, key) = receiver_source_identity(&package);
+    let (site, original) = package
+        .ordinary_new_claim_ledger
+        .lexical_instance_calls
+        .borrow()
+        .iter()
+        .find_map(|(site, slot)| match slot {
+            LexicalInstanceCallDispositionSlotV1::SourcePending(source) => {
+                Some((site.clone(), source.clone()))
+            }
+            _ => None,
+        })
+        .expect("original untyped field contract keeps full packet unavailable");
+    let key = original.target().clone();
     let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
-    assert!(
-        matches!(ledger.lexical_instance_calls.borrow().get(&site), Some(LexicalInstanceCallDispositionSlotV1::Ready(row)) if !row.source.has_object_source_requirement())
-    );
-    ledger.borrowed_formal_source = Some(Err("unrelated-input-refusal".into()));
-    assert!(ledger
-        .take_receiver_object_packet_v1(site.owner(), site.site(), &key)
-        .unwrap()
-        .is_none());
+    assert!(ledger.requires_object_packet_v1(&original).unwrap());
     assert!(ledger.nullable_call_source(&site).is_some());
-    assert!(matches!(
-        ledger.lexical_instance_calls.borrow().get(&site),
-        Some(LexicalInstanceCallDispositionSlotV1::Ready(_))
-    ));
+    ledger.borrowed_formal_source = Some(Err("original-input-unavailable".into()));
+    assert_eq!(
+        ledger
+            .take_receiver_object_packet_v1(site.owner(), site.site(), &key)
+            .unwrap_err(),
+        "original-input-unavailable"
+    );
+    assert!(matches!(ledger.lexical_instance_calls.borrow().get(&site),
+        Some(LexicalInstanceCallDispositionSlotV1::SourcePending(source)) if source == &original));
 }
 
 #[test]

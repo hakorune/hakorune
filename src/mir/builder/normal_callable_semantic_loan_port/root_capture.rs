@@ -6,9 +6,11 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         &mut self,
         builder: &mut MirBuilder,
         expected_identity: &crate::parser::CallableDeclarationIdentityV1,
+        parameters: &[String],
+        runtime_inputs: Option<&crate::mir::builder::NormalRuntimeInputSnapshotV1>,
         body: Vec<ASTNode>,
     ) -> Result<ValueId, String> {
-        main_root::lower_app_main_root_body_v1(self, builder, expected_identity, body)
+        main_root::lower_app_main_root_body_v1(self, builder, expected_identity, parameters, runtime_inputs, body)
     }
 
     fn lower_app_main0_continue_root_v1(
@@ -53,6 +55,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let owned_array_source = self.package.owned_array_lifecycle_source_v1();
         let named_array_emissions = self.package.named_array_emission_collector();
         self.package
             .with_main_static_child_lowering_input(
@@ -103,6 +106,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     core_method_calls,
                     Rc::clone(&named_array_emissions),
                         Rc::clone(&ordinary_new_claim_ledger),
+                    Some(owned_array_source),
                     Some(loop_break_take),
                     |inner, transport| {
                         inner
@@ -254,6 +258,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
+        let owned_array_source = self.package.owned_array_lifecycle_source_v1();
         let named_array_emissions = self.package.named_array_emission_collector();
         let core_method_calls =
             self.package
@@ -361,6 +366,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             core_method_calls,
                             Rc::clone(&named_array_emissions),
                             Rc::clone(&ordinary_new_claim_ledger),
+                            Some(owned_array_source),
                             Some(loop_break_take),
                             |inner, transport| {
                             inner

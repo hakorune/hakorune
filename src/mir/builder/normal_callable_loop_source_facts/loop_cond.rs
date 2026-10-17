@@ -291,7 +291,7 @@ impl SourceLoopCondPhysicalInputV1<'_, '_> {
                 format!("[freeze:contract][callable-loop/loop-cond/source-port] {error}")
             })?;
         let facts = self.loop_cond_facts()?;
-        if facts.condition != self.condition || facts.recipe.body.body != self.body {
+        if !super::generic::corroborate_loop_cond_recipe_source(facts, &self.condition, &self.body) {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/recipe-source-mismatch]".to_owned(),
             );
@@ -541,7 +541,7 @@ impl<'source> CallableLoopCondSourceFactsV1<'source> {
             .as_ref()
             .and_then(|facts| facts.facts.loop_cond_break_continue())
             .ok_or_else(|| "[freeze:contract][callable-loop/loop-cond/facts-missing]".to_owned())?;
-        if facts.condition != _condition || facts.recipe.body.body != _body {
+        if !super::generic::corroborate_loop_cond_recipe_source(facts, &_condition, &_body) {
             return Err(
                 "[freeze:contract][callable-loop/loop-cond/source-facts-shape-mismatch]".to_owned(),
             );

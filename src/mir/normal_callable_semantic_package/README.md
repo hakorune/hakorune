@@ -46,8 +46,153 @@ Entry/packet identity and common final corroboration retain that original source
 identity. Static source identity and every global/missing/orphan veto remain.
 These source phases do not provide Integer agreement or enable Array execution.
 
+Exact verified If-condition MethodCalls can borrow the existing scalar source
+loan as an ExpressionValue Bool observation. A selected refusal or non-Bool loan
+keeps the original prefix unavailable; it cannot fall back to a raw Call. Print
+still requires Integer. Original self scalar routing, demand and the shared writer
+agree on the same loan/source/kind for Integer and Bool; Bool adds no Home.
+Normal values and all live-Home Fault cleanup remain in the original packet.
+
+## Guarded declared Instance input forwarding
+
+The existing entry owner can lend a bounded original Instance declaration with
+OpaqueHandle formals when every formal use is an original checked Compare or an
+exact guarded outgoing Object argument. Catalog roots, ordinals, kinds, declaration
+mode and SAME guard/Compare correspondence are mandatory. Complete-empty original
+incoming binds the declaration's tagged carrier, without executable incoming,
+Integer class, ownership or whole-body permission. Nonempty incoming retains its
+full source coverage and actual obligations.
+
+The existing Object input finisher reconstructs its exact required input from the
+original target/candidates/catalog/signature and callee Completion. Reconstructed
+plans are prepared generically for every cohort satisfying this bounded profile,
+before Static input finishing. Static demand does not issue their source authority;
+its execution closure still selects only its own original forwarding dependencies.
+actuals retain their original Object source identity; demand regenerates and
+compares the whole input snapshot. Phase substitution, missing guard, changed
+call/site/ordinal/binding/formal or omitted required sibling refuses. These source
+plans do not replace final Compare/Normal/cleanup/result verification. Ordinary
+transport-forward rows remain; source-only guarded edges excluded from that table
+contribute their rechecked exact source owner to reverse execution dependencies.
+Only the bounded complete-empty declaration can satisfy that source dependency
+without fabricated incoming calls. Required callees keep their complete inventory.
+
+An exact missing call-local guard may instead borrow the same independently
+qualified original mixed declaration frame for a tagged `Forwarded` argument.
+The shared lender checks the full caller census and original callee mode, arity,
+formal owner, call/ordinal/site/binding/root tuple. Context selection and actual
+construction use that same lender. A present guard must still match its original
+source; a different call's guard remains an error. This grants neither Integer
+agreement nor ownership, and does not replace the callee's full input or exits.
+
+Original Object input reconstruction chooses the exact argument protocol separately
+from whole guarded declaration admission. The callee's complete incoming inventory,
+Completion and signature remain mandatory. A source-only opaque argument lends only
+its original call/ordinal/binding/root and SAME checked Compare reach; mixed declared
+neighbours do not gain a tagged entry or body permit. Literal/scalar/ordinary forward
+and declared-formal sources use their existing constructors once. Missing original
+Home, nullable or receiver context remains Pending. Reconstructed SourceObject plans
+retain their full source snapshot; only actual guarded source edges join guarded
+reverse dependencies. An executable phase cannot replace that correspondence.
+
+Final lifecycle selection includes original callers of selected borrowed callees and
+bounded complete-empty declarations, separately from actual call coordinates. The
+completed catalog lends each original key/owner. Real source packet targets retain
+their original issued result lender with exact key/owner/result agreement and the
+existing result/cleanup checks. Targetless callers and declarations instead require
+own exact Completion, terminal/result agreement and every emitted exit cleanup.
+Whole-object source/result checks share the existing algorithm while preserving root
+Rc/table identity laws. Fresh/null result exits keep their required physical producers.
+When prior cleanup can Fault, a completed Fresh Construction result retains its
+original complete End in the existing root order's Fault-only residuals. Normal
+transfers it; New/Birth failure keeps construction reclaim. The original New site,
+result and sealed children are rechecked through final cleanup admission. No Home
+binding is synthesized, and arguments moved into Birth are not ended twice.
+New I64 participants require typed terminal source arms; empty maps, missing annotations
+and uniform physical defaults grant no class. Birth callers retain their own ABI/seed.
+Lifecycle admission and projection borrow one source participant mapping. Compiled
+membership independently rechecks its key/symbol/result/arity and the union of real
+references and source participants; incoming/use verifiers retain original real-call
+coverage. Declaration membership never fabricates a call coordinate.
+
+A source-only Object demand reports its original call, callee owner and canonical
+target. Its Completion prerequisite diagnostic borrows the same gate as input
+preparation, naming missing flow/exit/terminal evidence without storing a second
+receipt. A ready Completion does not prove the remaining input cohort complete;
+the source-only phase still refuses execution.
+
+An unqualified guarded self-call can select the existing Object packet protocol
+from its SAME original guarded declaration and qualified-callee input relationship.
+It retains ExistingBorrowedResult; no sibling return qualification is copied.
+The full-slot callee result, Completion, teardown and caller received-call observation
+still issue the packet. Its original packet and binding group must survive final
+visitation, including unused local results. Missing reconstruction never retries
+the older receiver protocol. Static scalar cohort checks first demand an original
+Static declaration mode; Instance NoIncoming is not a Static execution contract.
+Every scalar family requires an original ExecutableStaticScalar finish receipt
+before borrowing a completed cohort. Source-only observations remain available
+without that receipt. Once present, all incoming rows and vetoes are checked;
+a missing sibling never grants partial entry permission.
+The same original guarded input query, joined to the original Object receiver
+observation, selects homes-aware source verification before Completion. That walk
+issues the received Home/local-call flow and cleanup. Packet demand never invents
+missing completed-flow rows or borrows a sibling's return qualification.
+An original self Nullable local-call observation also selects that same full
+packet, including literal arguments. It must join its exact local-flow site,
+callee, destination, ordered source arguments and canonical Nullable class.
+This selection borrows existing Home flow; it grants no callee input or End.
+Receiver Home observations intentionally carry no argument list. Their empty
+list is not an arity witness; original receiver observations and the full packet
+own argument correspondence and materialization.
+
+Both final consumers independently resolve a zero-call declaration's canonical
+key/owner, finished symbol, original empty inventory, recorded entry ordinals/values
+and exact parameter/carrier/receiver correspondence. Publication includes its full
+use closure. The real-call slot/actual and physical-coordinate coverage stays
+unchanged. Guarded outgoing arguments must be dominated by their SAME original
+physical Compare, with strict order within one block, in both module and published
+scans. The checked Compare's existing tag-Fault boundary and usize write-range
+boundary remain with their current owners. No fake packet or call coordinate is
+issued for a declaration.
+
+Borrowed field-write finishing lends only the same sealed original prefix group,
+source loan, canonical Invoke and LocalSSA pin relations. A simple null guard
+retains its original source-selected Compare, both child relations and exact null
+producer in the existing entry's physical observations. The sole IfForm lends
+its same condition-materialization Rc before branch descent and seals the actual
+Branch afterward. Unobserved/unsealed guards reject; completed Phi observations
+are resolved through those same relations before capture, liveness and repair.
+The finalized visitor projects the complete guard dependencies and original pin
+Copy chain through the existing finished-binding owner, with unique coordinates.
+Both module and published scans independently check the exact Invoke, guard
+producers/Branch, receiver/value formal roles, canonical object, non-null successor,
+Integer guard dominance and store census. Intermediate condition rematerialization
+is checked through its original dependencies, without generic opcode-view permission.
+Compiled-entry numeric corroboration requires that closed entry and the same
+canonical callable/owner, source packet and exact usize Invoke. Its issued range
+check and USize layout remain mandatory. i64 Birth and bare usize keep their
+existing contracts. These connections still require original-source EXE evidence
+before a source cutover is accepted; local regression green is insufficient.
 
 ## Source-only Static local observations
+
+A scalar target's complete original incoming cohort can contain CurrentOwner
+Scalar rows and Qualified callers. Source-only scalar membership lends the
+Qualified caller's exact original source row to the existing argument probe and
+constructor, even when that callee is outside global transport. This observes
+arguments only; it cannot complete an entry or select a physical packet.
+The common Qualified argument checker preserves original source Rc, contract,
+ordered payload and required Integer domains for both callers. The scalar finisher closes
+only the CurrentOwner rows atomically and borrows each Qualified row's existing
+executable input protocol; it never coerces literal/forward payloads into Scalar
+proofs. One whole-cohort lender serves entry and executable argument projection.
+It requires an original CurrentOwner member, every exact source Rc/site/formal,
+all Integer requirements and the same callee Completion. Missing, pending or
+foreign siblings cannot qualify the callee. Entry visitation substitutes that
+complete owner view for its global subset, preventing duplicate Qualified rows.
+Loop source projection can borrow the same original Scalar identity before or
+after finishing; its generic executable demand and physical actual/Call/final
+checks remain independent. A source loan alone never executes a pending row.
 
 A completed original CurrentOwner Scalar cohort may select an exact Static
 packet only when the caller's Home retains the matching local Call observation
@@ -666,6 +811,12 @@ assignment and its shared `resolved_value_profile` RHS plan (or explicit plan
 failure), owner, field and Birth role. Its object-class `get` projection and
 owned-residence rules are unchanged. Unknown receivers and missing inventories
 remain vetoes in this same product; failed/non-object writers are never erased.
+Object-class consumers share the SAME immutable source map and original writer
+inventory. Typed path edges additionally retain the canonical declaration and
+require its child class to agree with the all-writer class. Whole-Birth success
+is not a prerequisite. Intermediate object reads remain Identity, never numeric
+fields or independent Homes; numeric terminal leaves keep the existing closed
+writer component. Source demand rechecks each retained object-source identity.
 Default initializers already enter as original normalized Birth assignments,
 without a separate scan. These pending plans grant no NormalInteger/read/result
 permission. Numeric closure still owes genuine source-ordered Birth seeds and
@@ -1141,9 +1292,22 @@ The only omission accepted is the boundary's existing one-way DCE permission
 for an unused Copy, and the final destination must remain unused. No latest
 ValueId, name lookup, or final-MIR reclassification can satisfy this check.
 
+Original local-call result lookup borrows the existing AppMain identity/key
+relation when the caller has no Cataloged selected row. Initial issuance and
+late source rechecks share `AppMainSourceRefV1::checked_caller_key`: original
+unique declaration, owner/slot and ordered Static parameter contract must agree.
+This lends only the original caller key. It grants neither an executable input
+nor a local ownership anchor. Mixed source loans separately retain the callee's
+complete original roots/fixed ordinal/Fresh class and a Formal or Acquired caller
+anchor. Original binding kind selects that anchor, with no failed-formal retry.
+Acquired retains the sole original initializer call and SAME result-root Rc census;
+it creates no caller-formal witness. Outgoing Return/constructor-field support
+continues to require Formal. Source attribution grants no packet, received Home
+or final-consumer permission; those existing complete checks remain mandatory.
+
 | Relation | Dedicated consumption and retained result |
 | --- | --- |
-| TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; progress keyed by (owner, Return site); reserve once, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. |
+| TerminalI64AddReturnV1 | Exact owner/Return/Add and ordered two qualifying FieldRead sites; progress keyed by (owner, Return site); reserve once against original Completion/explicit exit, consume receivers/reads in order, emit Add, pass the exact result through cleanup/Return. Root and child draft/final consumers check both reads and Add through the same FinishedBindings boundary; the same exit receipt supplies the exact Return. |
 | TerminalI64FieldReturnV1 | Exact Return/value and one staged FieldRead; reserve once, emit one ObjectFieldGet, then the same cleanup/Return owner. The local-commit validator lends its existing PhysicalBoundary binding checker: draft uses original coordinates, finishing uses FinishedBindings. Exact dst/base/field and returned value remain mandatory; CFG and sequence correspondence remain with the same boundary. |
 | Explicit bare Return / Unit | Completion-backed Unit relation; only selected root-home emitter consumes it and emits Return(None) after cleanup. The void statement result is not a return payload. `return void` spells the same explicit-unit terminal. |
 | Integer literal | Retains its own exact terminal/result relation, separate from Add, field and Unit. |
@@ -1252,6 +1416,43 @@ contracts carry them into the finalized handoff, including module-only output.
 Markers retain the existing compilation-branded function owner, preventing a
 same-named foreign compilation from substituting matching physical IDs. Recipe
 clones share a single write/consumption cell; they do not clone source authority.
+The named construction requirement delegates original receiver/sole initializer/
+builtin construction/collision/rebind checks to `NamedArrayConstructionSourceV1`
+in the same resolver owner. That source identity can be borrowed by a read or write
+requirement without duplicating constructor classification. It proves no operation,
+object-slot capability, child Home, live slot or physical representation. Existing
+Text statement/argument demands remain in `NamedArrayConstructionRequirementV1`.
+`NamedArrayAppendOnlySourceV1` in that same resolver owner retains all original
+straight-line Push and immediate argument Get sites, child/index source identities,
+and exact Integer literal indexes. It closes the whole holder-use inventory;
+rebinds, aliases/escapes, unsupported operations/order and borrowed candidates
+are refused. Future stores participate in later class agreement, not current read
+liveness. This is a conditional requirement only: it carries no child class or Home.
+The original brand catalog is borrowed once through coSeal/preflight/profile into
+borrowed ingress; conditional requirements do not enter canonical CoreMethod rows.
+That ingress retains one immutable holder Rc shared by reads, including every
+original contributing store. `ObjectCallSourceLoanV1` from the existing result
+owner joins original call/selected target/callee owner with every same-Rc callee
+result root, independent of caller Return shape. Null/Fresh uniform source class
+may feed original formal agreement; unavailable/mixed/changed roots refuse. This
+source loan issues neither an acquired child nor a synthetic Return witness.
+The passive actual observer records only original MethodCall membership; the
+package's retained read requirement remains distinct from ReceivedNullable/Home.
+`SourceInstance` now retains Array actuals as exact ordinal/read/index/holder Rc
+loans alongside its original target/contract/all-ordinal snapshot. Original Array
+selection precedes transport/opaque-forward filtering; Static and Object source
+owners remain separate. Source arguments contain BorrowedActual only, with no
+opaque proof/payload or added Home. The canonical source-demand callback checks
+current result facts and every original producer target/root through the retained
+loan; changed/missing current evidence refuses. Source projection rechecks same Rc.
+Central Instance reconstruction and generic executable lending explicitly refuse
+nonempty Array loans, including forged ExecutableSourceInstance snapshots, until
+provider/commit/live slot/full input/physical/Normal/cleanup/publication connect.
+Original result input/Completion/provider/cleanup/physical gates must be attached
+before borrowed-actual execution admission; current source membership alone refuses.
+The append-only object destination contract in `ownership.md` still requires all
+original producer/store/read identities, commit-only transfer, live nullable loan,
+child End and final bindings before execution; this shared identity is preparation.
 The source statement port emits NoValue through the existing ArrayElementWrite
 writer. Allocation must be recorded before preparing the statement, and residual
 rows reject at finish. The extended package issuer stays unselected until selected
@@ -1267,11 +1468,60 @@ Take and sole emission borrow the cached descriptor's same Rc; local affine
 progress retains it, and independent final validation checks descriptor identity
 and the actual ObjectFieldGet field. Equal repeated source observations preserve
 the old descriptor and affine progress. A changed declaration is a source drift.
+An unguarded received Nullable/Mixed scalar Print retains its exact acquisition
+and original result roots on this same descriptor. Canonical lexical source
+preparation supplies the target; borrowed-input inventory is not a universal
+source catalog. Complete input/result/Completion/End evidence is still required
+from the original received Call packet. The checked field row retains both Invoke
+and Normal plus the exact lexical read/Copy provenance. Print owns the existing
+pending String then prior Home Fault cleanup. Finishing and the finalized source
+owner must project and check both bindings and every checked read before physical
+publication; opcode presence never supplies admission. Missing input or numeric
+field closure remains a refusal, not a nullable-to-nonnull conversion.
 The held S0 array-index integration borrows this descriptor from its original
 unique-field census; that integration remains with protected WIP until the
 series closes. Staging never fills in an assumed type. These are declaration
 metadata, not a NormalInteger or all-writer numeric producer proof. Existing numeric
 storage behavior, unknown-writer refusals and String execution gates remain.
+The field callback distinguishes existing `Declared { scalar_only }` callers
+from `SourceExpression { plan }`. The latter pairs the SAME original expression
+field/writer/component loan with the separately qualified receiver descriptor;
+take, record and independent final re-demand canonical field, raw declaration,
+Scalar result and current source dependencies. Batch staging refuses qualification
+loss/addition or a foreign reconstructed plan, while compatible repeats preserve
+the old affine progress. Whole Print/Bool expression adapters use SourceExpression;
+direct declaration-only reads retain Declared. The existing HomeExpressionPlan can retain mandatory
+source-field requirements over its SAME original plan, with exact frame-owned field
+coverage and receiver coordinates (call-owned input subtrees retain their own
+whole-input loan). RootHomeFlow exposes those requirements;
+refinement preserves the original plan and stable operation Rcs. Take/record
+require the matching mandatory loan, while independent final enumerates frame
+requirements before physical rows, refusing loan erasure, row+instruction
+erasure, foreign-plan loans and orphan qualified rows. No second index/ledger
+is introduced. Existing declaration-only Sub/Div roots remain unchanged.
+Checked Print activation still needs source-walk installation of its prepared
+statement-root producer, mandatory call/input/frame consumption and physical/native
+String/Print/End correspondence. Empty field batches alone grant no root,
+call, operator, Print or cleanup permission, including literal-only Print.
+The prepared whole-Print producer now retains one genuine original PrintValue
+plan in the existing HomeExpressionPlan. It qualifies exact field requests,
+source-scalar ExpressionValue calls with real whole ordered actuals, and checked
+Add envelopes through the shared per-node class projection. Receiver/argument
+subtrees remain explicitly transferred to the retained call/input owner; they
+are Identity here, never Integer operands or duplicate frame acquisitions.
+Source Scalar kind and field all-writer proof, not ABI metadata, qualify Integer.
+The immutable frame retains original evaluation order, operation loans and owned
+String result-node obligations; only checked String Add Normal can acquire those
+owners later. Literal String and Integer roots use the same frame with no owned
+String temporary. Installation prevalidation and the whole root precede the last
+atomic strict field batch; no rejectable observation publication follows it.
+The candidate is not wired into the production source walk yet. Before activation,
+connect mandatory call/input and zero-temp frame consumption to independent final,
+checked String Add/Print Normal/Fault/End and the native ABI. Existing nonselected
+plain I64 call families keep their own issuer; this source factory does not retry
+it when a source-scalar result demand is absent or fails.
+
+
 
 
 Lexical instance-call ownership: `ordinary_new_lexical_instance_call.rs` owns
@@ -1334,8 +1584,24 @@ ordinary entry adoption and physical/C publication remain required.
 
 
 Pending ordinary borrowed actuals use the same prefix-local state and exact
-incoming source targets. The private `ordinary_new_borrowed_formal_actuals.rs`
-child retains ordered signed-I64/Bool, scalar, live typed Home, entry receiver
+incoming source targets. ReceivedMixed actuals remain distinct from acquired
+nullable Homes: the original same-binding Mixed source loan supplies the class,
+the original Completion observation supplies the exact acquisition, and the
+current Home chain supplies availability. Read/Copy/ABI/JSON transport borrows
+that same binding; conditional ownership is never converted into a typed Home.
+Owned, borrowed Nullable and Mixed result observations share the original-target
+argument lender. It selects the retained input phase once: source Instance rows
+use their original reconstruction/Array context, source Object rows use their
+original snapshot check, and normal observations use the existing full incoming
+lender. SourceOnly and Observed are observation products; neither grants callee
+input, result, Home or End completion. Missing/Err actuals cannot trigger retry.
+Early original formal-seed issuance borrows that SAME Mixed loan and classifies
+its exact Forward actual once, including any prior received acquisition. Fresh
+class and anchor constraints both enter the existing domain fold; Null adds no
+class, and SourceInteger/SourceI64/transport projections share that source product.
+The original initializer, root Rc, ordinal, caller frame and whole-forest stability
+remain mandatory; cycles, rebinding and foreign anchors cannot mint agreement.
+The private `ordinary_new_borrowed_formal_actuals.rs` child retains ordered signed-I64/Bool, scalar, live typed Home, entry receiver
 and formal/Copy provenance in the original pending row. The same callback stages
 observations with `Some(actuals)` and lends an owned ordered projection on `None`.
 Selected local/nested I64 continuation sealing demands that projection before
@@ -1507,11 +1773,22 @@ receiver arm with original parent site/binding and canonical field/child; the
 source-owned residence issuer populates the same inventory on demand. Parent
 entry lifetime and source-I64 callee completion remain mandatory. The verified
 Home walk retains this terminal even in a wrapper with no local construction.
+The terminal trigger selects exact original direct Return call membership;
+a stored call inside Print does not require the caller itself to have a borrowed
+scalar result. Source proof absence never unselects an actual terminal.
 The original parent read and one ObjectFieldGet are recorded in the existing
 terminal packet and independently corroborated against final MIR. No child
-lease or teardown is issued. Local/nested/nullable/discard/loop consumers keep
-an explicit lexical-only receiver boundary; C ordinary-parent class projection
-and Array.get source-result authority are separate required obligations.
+lease or teardown is issued. Print scalar calls also accept a stored child of
+an exact original Local-New root, retaining its acquisition/declaration loan
+and parent Copy dependencies through the same final consumer. Print's original
+ordered producer sequence includes the stored receiver read before its Invoke;
+the independent final call visitor corroborates that same original read through
+the existing finished local/terminal producer map, as well as the Invoke. Its final source
+check uses the original seed product and raw selected incoming census, including
+zero-input calls; borrowed transport projection does not own that identity.
+Other nested/nullable/discard/loop consumers retain their existing receiver
+boundaries; C ordinary-parent class projection and Array.get source-result
+authority are separate required obligations.
 The terminal owner lends its exact stored receiver read to the whole-function
 field-read census after owner/exit/source packet validation. This preserves the
 independent census for missing, duplicate and changed reads, while the existing
@@ -1535,6 +1812,16 @@ store faults, the caller tears down that completed child before prior fields.
 New emission validation rejects recorded caller field cleanup on the unpublished
 result with `reclaim-duplicate-field-cleanup`, even when bindings match the MIR.
 Normal Home teardown continues to require the sealed child inventory.
+Provider construction retains the existing typed `OwnedFieldChildV1` inventory
+for Array and user-object fields in declaration order, and corroborates it
+against the same all-writer residence seal before emission. Nested no-hook
+providers use the same discharge emitter and final validator as prior fields;
+post-Birth store Fault executes reverse declaration order then child Home End.
+Birth Fault still reclaims storage only. Missing/cyclic residence proofs,
+foreign child identity and unavailable destruction remain refused; lifting a
+depth restriction never grants Home or teardown authority from layout alone.
+The former Array-only provider discharge writer and validator are removed.
+
 
 ## Borrowed entry object-field reads
 
@@ -1578,6 +1865,422 @@ arbitrarily branching call graphs. These witnesses carry no acquired Home,
 field residence, runtime discriminator or permission to publish an anchored
 composite. Outer constructor provenance must be joined with the later exact
 constructor child/destination and lifetime verification.
+
+Nullable-local borrowing and construction-child provenance share the original
+local-call extractor in `ordinary_new_result_class_claim/call_witness.rs`.
+It checks the sole unrebound initializer, declaration binding, selected caller
+and callee, receiver and ordered actual sites. Composition retains every callee
+root and validates each forwarded actual against its unique original parameter
+contract and ordinal, including formal-derived Null. Direct/static constructor
+child calls retain their receiver-free source edge. The nullable policy still
+requires `NullableForwarded`; mixed outcomes remain absent from legacy `get`.
+This shared source projection does not install mixed Home or executable results.
+
+`MixedLocalCallSourceLoanV1` retains that same local edge, every original callee
+root, every composed witness and the exact supporting formal substitution.
+All non-Null alternatives must agree on the canonical object under the existing
+construction-child class verifier. Fresh and Forward must both occur; the
+existing single forwarded-formal boundary remains. Recheck preserves ordered
+Rc identity, source actuals and full substitution, including formal-derived Null.
+The same original lexical need/incoming row carries `MixedLocal` into a
+SourcePending slot. Its typed observation installs `ReceivedMixed` in the
+existing Home walk and ordered conditional-obligation positions. It does not
+join owning Nullable/Handle getters, even after non-Null narrowing.
+The completed-index owner seals every original Return against the same canonical
+Completion, root Rc, normal exit projection and exact Fresh acquisition or
+borrowed local support. Only the full source/input/result seal upgrades that
+same affine slot to Ready. Consumed inner calls lend their original retained
+packet; they never recreate a slot or Completion. Direct formal Return remains
+unavailable until its exact support seal exists.
+The common lexical Call/Normal writer carries the distinct MixedHandle role on
+one result ValueId. Its existing received-call commit retains the same physical
+packet and source teardown. Mixed cleanup is one ObjectEndIfOwned operation
+around the entire canonical End, including owned children; it cannot release
+children before checking the source outcome. Forward and Null acquire no Home.
+The operation retains the source-approved End steps inline: reverse field
+residence order followed by the single outer release. Ordinary and conditional
+End share one step projection. Steps carry canonical field/child identities and
+no SSA values; the outer value alone is rewritten. Existing cleanup capture and
+FinishedBindings compare the complete body. Missing residence proof refuses
+before either projection. ABI object collection includes referenced child
+objects; this retention still grants no JSON/C execution before the conditional
+whole-body consumer is connected.
+Finalized packet lifetime, source-to-final outcome correspondence and ABI/JSON/C
+transport remain required; unconnected physical publication refuses explicitly.
+A received-call commit and its source-ordered binding group may retain two
+references to one physical packet. Cleanup validation counts that packet once
+only after exact source site, packet identity and full binding inventory agree.
+If the group has moved to the final handoff, the retained commit still counts its
+own packet. Foreign, missing or changed producer inventories cannot supply the
+shared reference; this is not instruction-shape deduplication.
+
+The same result owner lends `BorrowedNullableLocalSourceLoanV1` from an original
+LOCAL initializer, selected call target and all callee roots. The caller need
+not return that local. The lender reuses Call witness composition, preserves
+the original destination/receiver/root/ordinal and checks complete ordered Rc
+coverage on demand. Unknown aliases, rebinds and foreign source products refuse;
+fresh results stay on their owning contract. This source loan grants no Home,
+non-null successor, executable input, Completion or physical result permission.
+
+`BorrowedNullableLocal` is an explicit lexical source requirement, outside both
+owning Object requirements and legacy stored-I64 selection. The original stored
+target/receiver issuer retains that SAME loan; the raw incoming census registers
+its original parameter/key identity even when a callee use draft is unavailable.
+No missing use draft or executable entry is synthesized. The explicit borrowed
+nullable LOCAL port rechecks original target/loan/Rc coverage and lends only the
+ordered Instance source argument observation. The original borrower target first stays
+SourcePending before generic scalar classification and selects the existing
+lifecycle route even while unavailable. The dedicated borrower finisher upgrades
+that same cell only after its whole original input cohort finishes, all original
+result roots and substitutions recheck, and the same canonical callee Completion
+matches its result contract. The retained row lends a distinct
+`BorrowedNullableHandle { formal_ordinal }` Call result and the existing borrowed
+Normal projection, with no owning packet, Home or result End. Take and argument
+materialization re-demand that same source and Completion; the ordinal belongs
+to the callee, not a caller Return. Missing input leaves the same cell pending.
+The Object finisher never upgrades it into an owning result. Physical Return,
+final role and ABI/JSON/C remain required; unconnected publication stays refused. Generic Object source observation
+also accepts a rechecked completed input row without lending result execution.
+
+Borrowed nullable LOCAL observation retains the SAME source loan in a separate
+non-owning local slot. General observation stays BoundValue; only the exact null
+comparison successor may lend a typed terminal retaining both destination and
+original root. Joins/rebinds retain existing liveness laws. The shared source-only Normal
+projection now rechecks the exact original observation, LOCAL declaration,
+destination, root, Return value site, covered Call and complete original result
+witness Rc roots. It preserves every original Home on both Normal and Fault;
+this local never owns a Home and cannot acquire an owning return disposition.
+The exhaustive formal-use scanner also borrows the original result/writer
+products for nullable-forward callees. A formal Return retains all original
+result witness Rc roots, its exact value/exit and formal ordinal, including
+formal-derived Null separately from literal Null. Field-write receiver and value
+uses retain the SAME original writer inventory and source-plan Rc; receiver
+null reach and value checked-Integer reach remain explicit. A write target is
+never counted as a field read. Unattributed writes keep their original vetoes.
+These source roles stay outside generic transport. The original complete draft
+can qualify its own nonempty Instance input view after current result/writer
+identity checks; finishing and demand retain the same whole-input verifier.
+Only an original retained nullable LOCAL borrower demand selects that input view;
+all such demands recheck the current complete callee result roots and exact Call,
+key, ordinal and substitution identities. Passive Return roles alone do not select
+entry. Original declared-formal classes for this source-qualified entry use the
+same source object view as the mixed declaration profile; inferred opaque views
+still supply no declared-header authority. The child terminal handoff retains an existing Handle Return only when its
+owner, exit, value and original formal root match that same source Return loan;
+generic Handle selection is unchanged.
+The original Return selects the canonical Home walk once. A formal field store
+is Home-neutral only on the actual non-null surviving path, with exact same
+receiver/value source writer, original agreed class's nonweak numeric field and
+checked RHS reach. Source guard order alone proves no non-null state. A nullable-forward callee's field-index Array set retains a separate exact source
+requirement: original ordinal-zero guarded formal read and ordinal-one checked
+Integer reach. Draft collection lends no field class. The same Home set call
+consults this exact requirement, current non-null receiver root and the existing
+formal numeric-field declaration authority. It does not widen generic Operand or
+Normal-Integer classification. This source role stays outside generic transport
+and the old count-only Array-value publication admission; its independent exact
+index/field/value final correspondence remains required. Physical
+FieldSet/Return, independent final source-use correspondence and ABI remain
+required. Context-free use tests do not gain borrowed-result permission.
+
+Original Instance input family classification reads only the original catalog
+and complete incoming census. It does not consult an entry, current actual
+phase, Completion or result readiness. Finishing, completed-target demand and
+entry actual lending share one protocol selection: QualifiedObject retains its
+stronger existing Object gates; SourceInstance reuses the original global,
+guarded, mixed or Array/scalar source qualification. Global entry census uses
+the pure classification and checks original coverage, avoiding recursive input
+selection. Execution still requires the whole cohort to recheck Ready(empty);
+source qualification alone grants no executable input or borrowed result.
+Existing complete global transport keeps its original executable-input law;
+it does not acquire a new Home Completion prerequisite. Selection compares the
+original source membership, targets and ordered arguments with transport,
+independently of current actual phases. Omitted original source callers and
+original source-only caller forwards require the full reconstruction protocol
+and its whole-cohort completion check. Complete global transport lends its own
+original target storage; full reconstruction lends the original census storage.
+
+The dedicated physical Call/result/Copy/guard/Return consumers and independent
+final MIR/ABI/C lifetime checks remain required before executable publication.
+This source projection grants neither generic I64 classification nor a physical
+result, ownership transfer or executable packet. The original
+child terminal filter explicitly retains this typed source arm in its completed
+index; dropping it must not leave a root-flow-ready exit without its original
+terminal relation. Retention itself lends no executable result or cleanup.
+Both canonical Home walk and readiness probe share a fallible formal source-class
+consult through source_object_view_v1. Original ingress and class vetoes propagate
+at the request site. GuardedFormal source reach and atomic field batch staging
+remain mandatory; physical formal/field/entry/publication gates stay separate.
+
+Array source requirements also lend exact original input/contract references for
+EVERY retained producer, including appends after the current read. Exact target,
+callee, batch slot, argument ordinal/site/formal and current result-root Rc are
+rechecked before callee dedup. Consumer input preparation dispatches each producer
+through the existing full-input owner under the SAME selected/signature arguments;
+original inventory selects QualifiedObject or SourceInstance, not class spelling.
+Pending remains pending and Refused preserves its issue; proposed rows are transient
+and never installed by this preflight. Nested Array producer input still refuses.
+The same original Instance finisher runs before and after the ONE Normal return
+seal. Pre-seal Array result demand stays Pending; only the original full-input
+Ready(empty) and full result/Completion/terminal/Normal/End owner can finish it.
+Every producer (including future Push) rechecks immutable source roots, exact
+Handle/NullableHandle kind and nullability, then the same canonical End descriptor
+for its holder. Missing proof stays Pending, unavailable End or drift rejects.
+There is no second Normal issuer or retry after Fault. Already sealed Unavailable
+Normal proofs are not recreated by the second input pass. These requirements
+still do not grant object-slot commit, live borrow or publication permission.
+The existing central current holder/read/ordinal demand remains mandatory, and the
+Array execution gate stays closed until acquisition, commit/live read, canonical
+End and independent final bindings are connected. Preflight Ready is no capability.
+The original source argument callback also lends the exact named Array LOCAL
+holder through a distinct source-only request/response. Initial Home analysis
+borrows its existing requirement Rc without waiting for producer Normal/End;
+otherwise holder analysis and producer preparation would cycle. The same Home
+walk records the actual binding, empty builtin construction, prior Homes and
+construction Fault continuation; the source Normal successor joins the existing
+Home order. Named holders stay distinct from ordinary New/received/handle aliases
+and cannot lend generic movable arguments. Exact standalone Push sites retain
+candidate expression identity and prior Homes on that same RootHomeFlow. They
+issue no synthetic BindingRef, Return relation, acquired child or successful
+commit. Append observations retain prior prefix unavailability explicitly.
+The existing source row preserves canonical construction membership even on
+refusal: select the exact holder before demanding its error. Domain projection
+uses Conflict for that refused row, retains the original error for selected
+lenders, and cannot repair it with another incoming Class. If ingress as a whole
+is unavailable, both Home walks select initializer membership from original
+Instance argument/Get identities through the same construction issuer first.
+Unrelated constructors do not acquire this family's refusal or capability.
+The existing source-scalar selector also admits an original target whose exact
+argument has a canonical retained Array read requirement, independently of the
+stored-receiver/transport partition. It rechecks the original target and retains
+selected Array refusal; it cannot select arbitrary ClaimLocal scalar calls.
+Affirmative Object/Nullable results keep their own issuer. The same selector
+serves required Home walks and scalar argument loans, which still require the
+original result/dependency facts and current pending argument identities.
+Array membership alone grants no executable input, received Home or live slot.
+Object packets retain the canonical input family used by the original input
+owner, rather than reclassifying from transport membership. QualifiedOriginal
+snapshots the entire original callee cohort and re-demands full native input
+with the SAME selected/signature issuance at retain and demand. GlobalOpaque
+keeps its whole-final incoming check; the existing non-global family remains.
+Missing native input keeps the original slot pending, with no global retry.
+Demand checks family, original projections/duplicate identity, actual snapshots
+and Completion/terminal Rc before lending. Native projection never grants
+execution to unrelated Array source-only inputs. The old transport-only packet
+scope classifier and its demand-side rejection of defined native callees are
+replaced in both callers; shared global-opaque input validation is retained.
+Body entry now selects that SAME original native input family and re-demands
+whole callee input with the original selected/signature issuer. Its view retains
+ALL original incoming rows and exact original parameters. Native and global
+entry loans share the actual/formal class check; source qualification consults
+the original frame directly, avoiding recursive consumer selection. Genuine
+GlobalOpaque entries retain whole-final incoming validation.
+Original input family selection now also covers retained source-scalar participants,
+using the exact original Instance catalog/calls and scalar anchors/dependencies,
+independent of actual phase. It does not consult a full scalar execution loan or
+an entry consumer. Body projection, native parameter checks and the completed
+input lender share that selection. The lender re-demands the SAME selected and
+signature issuers, Completion and every original incoming before Ready(empty).
+Object protocols additionally require QualifiedObject; their result/Normal
+qualification remains independent. Instance finishing enumerates original calls,
+including already executable inputs, and preserves selected absence/errors.
+Call actual demand uses the same entry view and whole-owner input lender before
+independent result checks. The exact Taken source row and executable input slice
+must agree; tagged source correspondence supplies no executable actuals.
+Return, local, Discard and final consumers share this demand owner.
+Terminal emission also borrows the existing VerifiedTerminalCallSource result and
+arguments, corroborating the same Taken row before consuming reads or leases.
+The obsolete I64-only emitter classification is removed; Object class evidence
+and scalar source loans retain their separate original authority.
+Source scalar family selection follows immutable grounded Return dependencies
+to existing stored/source-only/Array seeds. Full original target identity is
+rechecked before traversal; a seedless cycle or an unrelated call/discard cannot
+select a family. Both required Home walking and source argument demand share
+this source-only selection; execution and final checks remain independent.
+The existing result producer also captures zero-parameter Instance Return sources
+from the unique original contract, selected key and actual parameter census.
+No borrowed-use draft is manufactured. SAME immutable facts retain the original
+owner/batch/key snapshot; current declaration and Completion recheck it.
+A parameterless source cannot carry a borrowed Mul product.
+Local field alias classification uses the original candidate box source and
+canonical object with the same unique nonweak declaration census. Constructor
+body eligibility remains with New/Birth admission; a source alias adds no Home
+and cannot make an unavailable construction executable.
+Compare source qualification also shares the original Instance entry view, including
+its mixed declared-object/guarded-opaque frame. It lends source witnesses only;
+entry inputs, materialized operands and independent final checks remain mandatory.
+
+Integer field ArrayGet Return facts retain the exact read/receiver/index, canonical
+field and birth provider/source identity on the SAME immutable result facts. One
+wholebox census remains authoritative. Exact calls share one read product while
+preserving every direct/local Return relation; bool-only Return credit is removed.
+Callable scalar demand rechecks current census and Return membership. The same
+sealed source facts lend exact field-array Return coverage to both Home walks
+before Completion exists; this never consults the later execution loan. The
+source-to-physical hook retains the exact read and argument site; the sole checked
+ArrayElementRead writer types only that result. Generic reads retain Unknown.
+The existing named-array collector retains real Write/Read observations and
+rechecks its exact source expected set before final cohort retention. Independent
+final validation checks physical read operands/types/markers, receiver field,
+provider and coverage. Retained constructor validation independently checks the
+exact field store and provider landing before sealing.
+Formal-field indices retain the original binding/receiver/canonical field from
+the same complete declaration census. Every matching declaration participates:
+weak, noninteger or duplicate fields refuse. Their physical reads use the existing
+local/expression field-read owner, exact ObjectFieldGet writer and final emitted
+row checks; uniqueness never supplies the formal's class or input permission.
+Full original input/domain/Completion/result/cleanup gates still apply. Guarded
+original Handle input through a stored Page proves direct and local/multiple
+Return publication, physical ABI input and changed read/field-base/type/marker
+refusals. Generic field-call neutrality uses the SAME formal-field predicate for
+parent read and exact receiver leaf, avoiding a second Operand classification.
+Unchanged app execution and the owning series closeout remain unaccepted.
+
+The same Array source requirement now retains one OnceCell/Rc producer plan.
+Source holder/producers/class and all existing Get loan Rc identities stay fixed;
+the derived plan retains the original selected/signature Rc and agreed canonical
+End descriptor without a source Rc back-edge. Current source/read identity and
+whole original inputs/result/Normal/End are checked before sealing. All holders
+preflight before any cell is installed; missing or refused producers never create
+an empty or partial plan. Shared reads normalize each holder once, and repeated
+demand must agree with the same immutable issuer/descriptor before reusing the
+same plan Rc. The plan is producer support, not acquired slot/read liveness or
+execution authority. The original input finisher now borrows the current
+holder Completion beside that plan: one exact initializer, every original
+Push (including null), retained prefix availability and explicit exits that
+actually contain the holder Home. Missing or unavailable coverage cannot
+promote an input. The package retains one ArrayHolderLifecycleRecipe per real
+holder binding, using the SAME producer plan and current Completion Rc. It
+normalizes against every ordered original Get before choosing its canonical
+anchor, and re-demands current whole producer inputs, Normal results, End,
+caller and Home coverage. Repeated inputs preserve the original recipe Rc.
+Completion stays outside the source-owned plan, avoiding a source/plan/Completion
+cycle. The existing named-array collector retains a genuine OwnedHolder source
+obligation and rechecks its exact recipe identity before finish. Numeric Write
+or field Read observations cannot discharge it. Physical acquisition, descriptor
+claim, Normal-only append transfer, borrowed Get and full Home End remain owed;
+source preparation never grants an executable Array input. In particular, Get
+must not reuse caller-owned NullableHandle: its child stays borrowed from the
+live holder, without a new Home or independent child End authority.
+
+The original return_leaf descriptor and return_teardown reducer remain canonical
+End authority. The sole CAPI emitter now generates complete source-layout End
+thunks: reverse marked children, continue after source Fault, then outer Home.
+InvalidContract stays unrecoverable. Existing object-field cleanup calls this
+owner; root explicit field cleanup still ends with outer-only release. Source
+Array callback admission/binding remains unconnected and must borrow the exact
+original descriptor. ArrayStateCell slot ownership/commit/live borrow/reverse
+unlocked End and independent final correspondence remain owed. Native PlainI64
+reclaim alone cannot replace that source contract.
+The existing ArrayStateCell must remain the sole storage view. Owning-slot End
+atomically detaches live slots under its lock, then exits both Array and host
+registry read locks before invoking compiled child End. Callback execution must
+not overlap a mutable FaultFrame borrow. Reserve before successful append commit;
+null installs a logical slot without Home. Ending/Ended/descriptor drift reject
+rather than becoming nullable zero. Generic clone/mutation cannot expose a second
+empty or boxed view of owned slots. The physical JSON/CAPI original allocation,
+MethodPush, read and residence cleanup must all retain the same source descriptor.
+
+The existing borrowed-result source map now grounds I64 or Bool from original
+return constraints and all exact returned-call dependencies. All-call wrappers
+start as unresolved scalar candidates; they acquire no I64 default. The SAME
+finite fold resolves class before ingress and rechecks sealed dependency classes.
+Mixed classes, missing dependencies and cycles refuse. Source Bool remains
+separate from executable result ABI: I64 demand stays strict, Bool literal and
+source-Bool callee rows cannot use the generic I64 transport default. Until the
+canonical Bool consumers satisfy their separate entry, result and physical
+contracts, source classification alone issues no execution permission. Original full incoming/Completion/signature and receiver
+checks remain required. An unresolved candidate cannot be source sealed.
+`ExistingBorrowedResult` is not a scalar-domain assertion. The same pre-execution
+selector serves the required source walk and scalar argument probe: affirmative
+original `outcomes(target)` with checked nonempty same-owner roots, or the sealed
+Nullable result class, leaves Object/nullable/forwarded results with their existing
+issuer. Legacy projection absence alone is insufficient: mixed/null-only outcomes
+retain their original domain. Without affirmative non-scalar evidence, selected
+scalar missing/error facts still refuse rather than returning an old-I64 retry.
+This source partition grants neither nullable execution nor an empty input row.
+
+The same result owner retains its source facts in one immutable Rc after
+SourceSealed. Only Pending with uniquely owned facts may change class or dependency
+rows; readiness/corroboration remain outside the facts. A source scalar loan keeps
+the exact original target and SAME facts Rc. Every demand rechecks current result
+row, original incoming target, sealed scalar class, full nonempty same-owner return
+coordinates, exact dependencies and the SAME grounding fold. Missing/error/replaced
+facts refuse; equivalent copied facts cannot replace original identity. This loan
+lends neither contract corroboration nor execution permission. A separate complete
+agreement demand rechecks that SAME loan, every original dependency edge and current
+callee declaration/Completion against all original returns. Issuance and demand
+share one agreement check; cached corroboration alone cannot replace current rows.
+Source validation still succeeds when corroboration is absent, while complete
+agreement refuses. Selected Bool Return/Discard demand now retains its original
+loan and corroborates complete current result agreement before a typed disposition.
+Any Bool answer from the shared classifier undergoes this SAME loan demand, so a
+missing/error selected result cannot fall through to generic classification.
+The original scalar terminal now lends that SAME loan into the lexical disposition
+and existing immutable packet. Shared terminal and packet validators compare the
+loan identity, exact target and expected kind; missing loan or wrong kind refuses.
+Nested legacy I64 and Object/Static protocols keep their own source laws. The legacy
+lender preserves input-before-result failure ordering. A Bool disposition without
+final incoming refuses `bool-input-incomplete`, rather than lending `None` actuals.
+Full incoming/entry checks precede Bool result demand; SourceInstance/Array actuals
+still require executable input. Input/receiver/Normal/cleanup/final closure remains
+owed for the selected app; a typed row alone proves no app execution.
+
+The callable body port borrows a function-owned projection of the SAME scalar
+facts and current Completion Rc from the installed ordinary ledger/current owner.
+Selection comes from original scalar terminal/Discard membership and its original
+dependencies, limited to Instance result owners; other protocols keep their own
+owners. Exact anchor targets/facts Rc, complete declaration/return agreement and
+Mul laws are rechecked. Selected missing/error/drift refuses, without a result-kind
+default. Function declaration agreement is independent of callsite readiness;
+callsite executable lenders still require their complete corroboration.
+The body token retains the original owner/loan through both finalizer facades.
+HeaderPort supplies symbol lookup only. The finalizer checks every physical Return
+operand against the retained Integer/Bool kind, rejecting void/unknown/mixed exits.
+This type check is preparation: exact source-exit/physical binding correspondence,
+full input/receiver, Normal/scalar cleanup and independent final checks remain owed.
+A typed signature alone cannot open a Bool Invoke disposition. The existing
+participant inventory and entry result role preserve the corroborated Bool kind;
+ordinary admission still requires its original final input/exit memberships.
+The shared source result classifier lives in private `direct_call_result.rs`,
+re-exported by its existing lifecycle owner after the 800-line split; no parallel
+classifier, Static Bool protocol or process-root Bool feature is introduced.
+
+Root cleanup order also retains the exact original scalar terminal loan/exit as
+non-owning ingress evidence; the immutable packet remains the result authority.
+Preview/current validation rechecks source agreement. Original kind replaces the
+I64 default only for this selected scalar terminal. Bind once preserves normal/
+Fault cleanup sequences and adds no result Home or End. Current terminal, packet
+loan/target/kind and exact Invoke/Normal/Return bindings must agree; finishing
+reuses the existing binding projection. Argument-map rebuilding retains the loan
+and refuses additions after binding. Owned direct results stay exclusive and use
+their existing End plan. Source-exit/full input/Bool execution are not granted.
+
+The common nullable initializer class consult covers the original entry receiver
+and existing claim-local receiver. It requires exact Local/sole initializer/no
+rebind, original call site, receiver declaration and caller selected-key/own-box
+correspondence, then the unique selected callee's SAME NullableObject claim.
+Source seed, readiness and canonical walk share this consult. Arguments/annotation
+never choose class; missing/wrong receiver or another box cannot replace its proof.
+This source class lends no owning acquisition, input/return/cleanup or physical
+permission; original received-nullable producer and null reach remain mandatory.
+
+The dedicated source scalar port lends SAME original result loan and ordered
+Instance arguments. Both original/prepared selection include stored and source-only
+callers; selected absence/error cannot retry I64. The original argument owner picks
+its retained Instance/Object/Executable phase without publishing an executable
+Scalar response. Exact ReturnValue retains kind/loan; statement Discard retains
+prior Homes, no receiving local or result Home. Later terminal demand rechecks the
+current loan and original arguments. Source Bool still has no execution permission;
+full callee/Completion/input/receiver/ABI/cleanup/publication consumers remain owed.
+
+The canonical physical substrate now has explicit Bool Call/Normal result kinds
+and ordinary_bool/LV4_BOOL role/type pairing, with status + 0/1 scalar out storage.
+The physical program/compiled entry preserve Bool separately from Integer; native
+Normal consumption creates no result Home. Unsupported namespaces/legacy readers
+remain closed. Independent native ABI fixtures prove typed Bool return/projection,
+unused results and branching; they do not prove source package acceptance. Source
+scalar port/terminal, complete execution input/result/receiver and final packet/
+cleanup/publication remain required before a source Bool call can use this ABI.
 
 The sole `prepare_source_claims` implementation resides in private
 `ordinary_new_source_claim_preparation.rs`, reexported through the existing
@@ -2465,7 +3168,30 @@ Static packet or Bool Invoke. Missing or changed incoming, context, binding,
 ABI or result evidence refuses before entry; physical Bool publication and
 whole-program coverage remain separate obligations.
 
-Original scalar initializer operations retain the source owner's immutable Rc.
+The callable body retains one result product through its existing finalizer.
+Scalar results keep their original facts/Completion loan. Nullable formal identity
+results retain the same original formal Return requirements, complete result-root
+Rc inventory, logical ordinal/catalog and Completion with exact Return-value
+coverage. This is source-only carrier classification and needs no LOCAL incoming
+or executable row. The finalizer preserves class-free `Unknown` instead of
+collapsing Null and an unknown formal to Unit. Exact Return operand/origin,
+entry, Call, Home, cleanup and ABI permissions remain with their existing owners;
+physical publication still rejects a Void signature for this result kind.
+
+Original scalar initializer and Plain field-assignment RHS operations retain the
+source owner's immutable Rc. Non-Birth field writers select the same Home walk
+from their original RHS nodes; this selection grants no scalar permission.
+The existing receiver/value guards precede qualification. Assignment plans stay
+Assignment plans, with no fabricated initializer. Every RHS Sub/Div needs the
+shared Integer projection and complete original field-value proof; Div also
+requires its exact positive literal divisor. The whole field batch succeeds
+before the expression inventory is installed. Non-arithmetic field effects
+keep their existing neutral admission without this additional numeric demand.
+An empty/incomplete Birth cannot prove an executable scalar field RHS; the
+verified walk rejects it even where the earlier Home-only probe could describe
+the effect as neutral. Source-only probes issue no scalar loan. The neutral
+effect test and the complete-Birth scalar final-correspondence test cover these
+different obligations, without claiming Sub/Div compatibility for empty Birth.
 Their ordinary Binary completion borrows ordered operand relations from the sole
 LocalSSA writer's current function index. The ledger requires exact source and
 index Rc membership and verifies the actual original append and operand producers
@@ -2536,11 +3262,84 @@ source-inventory omissions are retained, never enlarged into a whole-source cens
 Only unrelated view-free SourceObject inputs may remain passive after reissuing
 the SAME source preparation from the retained original catalog and comparing the
 whole pending snapshot. Existing object-view obligations cannot be skipped.
+Outside qualified Static execution scope, original SourceInstance inputs reissue
+their SAME original source snapshot; Array loans also demand all producer current
+result roots. Declared-formal forwarding uses the SAME original caller root class.
+Read/index/requirement identity and every original formal class agreement remain
+mandatory; this grants no opaque payload or executable Array argument.
+Execution-scope members and the unscoped global owner still demand execution.
 Selected/required inputs still demand executable proofs, original qualification
 and SAME callee Completion; all validation precedes route marking. This grants no
-Object result, Normal, ABI or artifact permission. Ordinary entry and Object
-lenders retain their previous whole-final execution contract. Acceptance and app
-cutover/retirement evidence are recorded separately in the selected active card.
+Object result, Normal, ABI or artifact permission. Ordinary entry and global
+opaque lenders retain their whole-final execution contract. The original
+QualifiedObject input family instead dispatches completed opaque acquisition to
+its SAME whole-callee input owner: an admitted original global Instance frame,
+or the existing guarded source law, selects the family. This grants source
+qualification only. All original own incoming rows, Completion/exits, SAME
+selected/signature, exact current argument snapshots and Ready(empty) remain
+mandatory. The retained original catalog must equal the requested contract.
+Missing issuance/input remains pending; own sibling refusal propagates. Another
+consumer's pending Array input is not a prerequisite for this producer's Normal
+seal. No late Observed snapshot or second Normal seal is synthesized; original
+Unavailable argument support stays unavailable. Acceptance/app cutover evidence
+is recorded separately in the selected active card.
+
+Original declared formal domains survive the transport/source-only partition in
+one incoming-domain map. Candidate declared forwards depend on that formal's
+full original domain through the existing solver; conflicting caller incoming
+cannot mint a downstream class. Opaque candidate forwards retain Integer-only
+source law. `source_object_view_v1` checks original formal roots, complete scan
+and declared mismatch before lending class evidence. The physical
+`formal_object_view` remains transport-gated; source domain retention creates no
+entry, field-use, incoming actual or execution permission. Mixed Instance entry
+must separately connect its full original incoming and physical correspondence.
+
+A complete registered clean NoIncoming declaration may retain its original
+DeclaredObject constraint in the same source-domain solver. Opaque NoIncoming
+still provides no class; ordinary incoming projection and all execution vetoes
+remain unchanged. Source class lending rechecks the declaration scan and mismatch,
+and never selects a physical entry or supplies executable incoming actuals.
+
+Original global/guarded/mixed Instance inputs keep their original target/result law.
+The input owner shares Object's complete incoming, Completion/root-flow/exits/
+terminal and physical-signature checks, but reconstructs the original Instance
+candidate protocol. Missing prerequisites install no partial cohort. The package,
+installed package, completed result context and ledger borrow the same immutable
+selected-map/signature allocations; no signature rows or success receipt are copied.
+Demand reuses the same preparation and accepts only Ready with no replacements,
+then rechecks the selected original actual snapshot. Finisher and demand share
+checked_source_instance_input_entry_v1: original unique InstanceBoxMethod contract
+plus the existing global/guarded/mixed source view. SourceInstance alone qualifies
+no declaration; a source frame alone grants no executable/body/field/result permission.
+
+Original mixed callee input demand selects the existing full Home/Completion walk
+from the same original declaration/inventory lender, before any input finish.
+The source-only Instance caller also uses the existing argument observation probe;
+selection creates no physical entry or result authority. The selected Static
+reverse dependency graph borrows real mixed incoming rows and rechecks finished
+whole inputs. Clean-empty mixed declarations lend no incoming actuals. Declared
+header classes are borrowed only after original formal/value correspondence;
+transport-gated physical field views and independent body/final use checks remain.
+
+The existing literal producer/consumer now handles original IntegerLiteral and
+BoolLiteral through one typed scalar literal prepare/record/index. It borrows the
+exact original relation and Completion; foreign/missing/duplicate sites refuse.
+The raw callable port emits Integer or Bool Const through the existing constant
+owner and both Home/non-Home Return drivers reuse it. Independent validation
+requires exactly one matching Const and one Return of each retained ValueId.
+Duplicate recording refuses without overwriting the original ValueId.
+The old Integer-only consumer names are removed across their callers; source-only
+Integer test access remains. Exact source-exit binding completion and final Bool
+ABI/publication are still owed. No new ledger, Home or Bool Invoke permission.
+
+The same literal index row now retains the actual emitted Const coordinate and
+completed Return coordinate. Value recording alone remains incomplete. The raw
+literal emitter borrows its actual Const, ordinary Return borrows its terminator,
+and the Home recorder borrows its original Return binding. No AST re-observation
+or synthetic deferred Return is used. Both coordinates join the existing physical
+boundary and finishing projection; validators check same source value/pair and
+exactly one Const/Return. This retains producer correspondence, not full callable
+input, Normal outcome or Bool final publication permission.
 
 Original borrowed-formal argument seeds are classified once before pending-result
 eligibility, then retained with exact call, ordinal, site, formal and original
@@ -2564,6 +3363,123 @@ and all original New/Birth actuals, with the same inventory identity and vetoes.
 This prevents forwarding from erasing the original ABI distinction; it grants
 no field invariant, executable result, Normal range, or physical signature.
 
+The sole original New census also retains passive exact lexical `me.field`
+actuals at their original argument ordinal. A Birth-field source may borrow its
+nonempty, complete all-New input census and join those operands to the SAME
+field-source Rcs. This leaves cached Conflict/Integer classifications unchanged.
+Every incoming actual must supply existing source-I64 evidence or a closed field
+dependency; overrides, unknown constructors and nonnumeric actuals veto the loan.
+Productive Birth grounding rejects rootless field-copy cycles before the existing
+writer-preservation fold. That fold rechecks the current dependency fields, so
+later nonnumeric writes invalidate both source and transferred fields. Final
+re-demand requires the SAME New census Rc, original inventory corroboration and
+current I64 agreement for forwarded actuals. This is numeric source evidence,
+not a constructor input packet, field liveness, executable ABI or runtime grant.
+
+For exact Array-get locals passed to New, the SAME original New rows retain the
+existing checked field-Array read loan before the numeric fold. The sole whole-Box
+census is borrowed during capture and later moved unchanged into the ledger.
+All uses of one stable local share one wrapper/read Rc; scalar Return and late
+New argument attachment borrow that source. The late recapture/cache is removed.
+Numeric New qualification uses this private source proof without changing cached
+formal domains or inferring arbitrary local initializers. Missing/foreign source
+or argument identity refuses; late recipes/final consumers still require the
+current whole-Box census and the same read Rc before executable Array reads.
+
+The SAME actual seed product also projects source-only object agreement through
+its existing all-incoming solver. Original Forward edges and DeclaredObject
+constraints stay conjunctive; SourceInteger/I64 and selected transport remain
+separate. This source loan grants no entry, live receiver or field operation.
+For a field deferred by a non-Me write, the sole field-value issuer can join its
+original observation/plan to a stable formal and canonical class from that loan.
+Formal source-use observation retains its existing NullableForwarded result
+boundary; this join does not admit arbitrary integer-returning field writers.
+Every same-name unknown writer participates; an unknown/foreign target refuses.
+Successful original field-source Rcs are reused. Qualified sources keep the same
+inventory, each extra writer and its target loan in the existing field cohort.
+Both preservation and independent writer re-demand check the original owner
+and receiver site again; same-class formal substitution refuses. Writer values
+still need their own signed-I64 evidence. In particular a
+usize declaration or SourceInteger-only formal never supplies I64 permission.
+
+Pending result expressions borrow the original plan and one shared all-writer
+field component. Genuine source-ordered ConstructionPlan bases are distinct
+from update preservation; a later change to a copied field never rewrites its
+Birth value. Individual source/ingress checks produce IngressVerified, while
+only whole field/result closure produces SourceSealed. External loans reject
+both earlier phases. The shared dependency loan distinguishes Return forwarding,
+expression operands, and reachable update-writer calls. All are re-demanded for
+proof/invalidity; writer calls do not select getter execution or a scalar family.
+Original zero-input Instance call needs register their empty declaration in the
+same incoming census, without a borrowed use draft or executable entry grant.
+
+The original Return source is captured passively before numeric/Completion
+eligibility. Capture builds every original Return plan once and detects requests
+from receiver-rooted field paths in those SAME plans, including field-containing
+Add roots. Qualified intermediate object fields retain class-source Identity,
+while numeric terminal fields still require the SAME closed writer component. Passive source re-demand after loan loss detects the request
+but cannot replace the retained original plan; a missing retained Return is an
+error before field lending. A ScalarReturnSource requirement carries the same immutable source
+Rc and original plans into pending qualification; it never shares mutable result
+Facts early. Original requirements select their family even when qualification
+fails. Missing/foreign requests and selected plans are explicit errors, including
+Stored eligibility. Passive unreachable Returns do not become execution needs.
+
+The result owner lends an exact field-read source: the same sealed Facts,
+original expression/node, canonical field source, and entry receiver. LIVE and
+probe share one field consultation; only LIVE retains the loan on the existing
+FieldRead row. Take, emission recording, and independent final validation
+re-demand the loan; the existing sole ObjectFieldGet/Return writer is unchanged.
+
+A scalar terminal with zero original arguments still participates in the normal
+input and Ready checks. Its original source snapshot is prepared by the same
+argument protocol. Finishing and demand share input-owner selection, including
+the existing scalar SourceInstance family without a borrowed body draft. The
+whole-input owner checks every incoming call, Completion, selected identity,
+receiver signature and reconstructed actuals before execution. Empty arguments
+never grant execution, and Array execution retains its separate refusal.
+
+The result cohort owns its existing result rows, SAME original FieldCandidates
+Rc, and the one sealed field component. Grounding receives that explicit context;
+it never discovers field authority by searching successful getters. Getter-free
+source and empty result rows retain their writer obligations. Needs/ingress
+refusals remain explicit; an ingress refusal retains original candidates but
+cannot seal a component. Field-read final consumers require the cohort's SAME
+component and original context, then re-demand current ingress/dependencies via
+the existing grounding. Cached membership alone grants no field-read permission.
+
+The shared expression-field source loan retains the SAME source plan/node,
+cohort component, declared-writer source Rc and receiver/Home coordinates.
+The original plan owns exact field/Receiver-child/path/binding correspondence.
+Return's existing adapter adds its original Return/Facts and entry-receiver
+conditions. Current writer/Birth-input dependencies use the same retained
+expression traversal; direct Return-forward class equality remains separate.
+A standalone field source does not prove that the receiver has that object's
+class or a live Home. A statement adapter must first match its qualified local
+field-read descriptor, canonical field and root provenance, then close the whole
+frame before publishing reads/calls. No getter witness or synthetic Return is
+needed for Print. This source loan alone does not activate Print or String End.
+
+Return field loans separately retain the declaration qualified by the SAME
+constructors and original entry class: canonical field plus the original optional
+declared type. Take/record/final compare both with the common writer source.
+Absent annotations remain None; declaration classification does not manufacture
+a signed value proof. The current unannotated fixture still refuses earlier at
+borrowed-result/source-not-i64, before this receiver-declaration join.
+
+The existing lifecycle prefix binding pool now distinguishes a Call from a
+whole PrintExpression; a Print retains the SAME checked frame Rc even with no
+calls or owned temporaries. Source exit statement coverage, not emitted MIR,
+demands that prefix. Nested real call packets use the same final call/copy
+visitor and the enclosing prefix's FinishedBindings. Original and rebound
+coordinate views are explicit. The prepared Print packet corroborates exact
+source-node/field/call values, actual Normal/Fault cleanup and a genuine
+entry-to-Continue instruction scope before capture; the existing physical
+boundary owns final contraction and full sequence comparison. These retained
+contracts now gate the production Home walk and the normal-callable Print
+consumer. Source-only success cannot substitute the physical packet; missing
+source/frame/producer/call/input/cleanup correspondence rejects without retry.
+
 
 The existing Object packet owner lends `BorrowedObjectCallPacketV1` from one
 Taken row: the original ordered argument storage and the same complete End
@@ -2576,6 +3492,38 @@ Original Append membership must first select a complete Object packet; a source
 class loan alone does not make a Ready row. Generic expression statements retain
 their existing unselected/pending boundary.
 
+
+The retained Array source preparation keeps the already-issued structural holder
+in the same existing row/cache, independently of class/producer qualification.
+Qualified requirements borrow that identical holder Rc. Structural lending checks
+original construction/owner/read identity and grants no element type, acquisition,
+slot or execution permission. Qualified lending still returns the original
+class/producer refusal. This preserves exact Append membership so later selection
+can demand the selected producer's refusal without consulting an unrelated
+holder or silently converting failure into absence. Source dispatch/physical
+activation remains separate and required; this preparation is retained WIP.
+
+Original Array Append producers now participate in the same original incoming
+census through exact structural membership. Borrowed argument sites come from
+retained Lexical and Stored references with their original parameter contracts;
+structural holder issuance precedes the sole caller scan. Its same read map is
+completed from retained census observations (including Static Get arguments),
+then consumed by one class/producer qualification against final real targets.
+No producer rows are inserted into a completed census. Static-only producer
+activation remains outside this connection. All original reads must retain the
+same holder and qualified source; missing reads, target drift and selected class
+refusals fail rather than becoming unselected. SourceInstance stays SourceInstance.
+The full Object packet uses the whole original input closure, signature,
+Completion, Normal result and complete End. Exact Append source observation
+checks the indexed caller Completion and the same result roots/Handle kind;
+it grants no LOCAL route, binding or Home. Generic expression statements retain
+their old outside-profile boundary. Genuine Taken packets lend the original
+ordered arguments for nullable and nonnullable Append candidates without
+fabricating Return dependencies. Array construction/acquisition, Append transfer,
+Fault cancellation, live Get, root End and whole-holder final correspondence
+are under one pending source-to-consumer cutover. Their full production route
+must pass before acceptance; focused emission alone grants no completion.
+
 Complete Object End operation order is projected once by
 `ordinary_new_object_end`: reverse declared child releases followed by the
 parent release, conditional only for a validated nullable result. Ordinary
@@ -2587,3 +3535,734 @@ operations from its same complete teardown and result kind, without creating
 a LOCAL or Home. Its supplied ValueId is only a coordinate parameter: an
 expression consumer must bind it to the same real Normal result and verify
 Append transfer/Fault cancellation correspondence before execution admission.
+
+Pending owned-Array construction keeps the SAME holder recipe and original
+initializer relation in `LocalCommitV1::OwnedArray`. Construction records the
+actual IntrinsicArrayNew/Normal/Claim, original prior-Home unwind and distinct
+unclaimed-storage cleanup; LOCAL installation reuses that exact value. The
+installed source loan borrows the existing ledger/result cohort through child
+scopes. Original Array holder membership selects Home analysis without granting
+execution. Original read loans retain the SAME recipe, original receiver and
+index. Instance argument reconstruction borrows the same ingress ledger and
+uses the existing whole-input constructor; the resulting lowering plan is not
+a completed physical Get or an executable lifecycle. The physical argument
+projection records real index/Get/Normal and the original prior-Home Fault
+unwind. Its final consumer checks the captured index/Normal definitions, exact
+mapped Get and enclosing Call argument ordinal, evaluation order, and both
+cleanup outcomes in the finished CFG through the existing boundary/path owners.
+Frame/cleanup bindings are dependencies, never producer authority.
+
+An original discarded Append retains its original receiver/candidate/Null kind
+and the SAME holder recipe. The existing prefix pool now owns that Append and
+its same immutable candidate packet. Candidate emission borrows the original
+full Object input and complete End, without installing a LOCAL or received Home.
+Call Fault unwinds only original Homes; Append Fault cancels the candidate first,
+then unwinds Homes; Append Normal transfers it into the holder with no result.
+The source Append Home prefix is newest-first and is normalized once before the
+existing oldest-first unwind API. Null uses a real original Const and no Call.
+Final prefix validation maps through the same finished boundary and checks both
+cleanup outcomes; the common final Call visitor lends original Object arguments
+before any LOCAL-source lookup. Selected Append with missing source scope fails.
+The pending whole-holder handback uses the existing OwnedHolder expectation
+and collector. It captures original construction, SAME Append/read packets and
+source-origin End bindings before root exits become Finalized. At the existing
+final handoff it maps through SAME FinishedBindings, validates original coverage
+and actual physical reverse coverage, and retains mapped facts for module-only
+revalidation. No extra registry or ledger/collector Rc cycle is introduced.
+Executable source arguments require the SAME ledger and original full-input
+snapshot; context-free Array reconstruction still rejects. SourceInstance alone
+grants no execution. The unchanged four-case focused source matrix reaches final strict verification
+and physical ABI issuance; whole-app/S0 acceptance remains unproved.
+
+Source-selected lexical calls use the existing co-sealed lifecycle routing set
+before affine take for both standard and me receivers. Only I64 self calls with
+the SAME corroborated scalar source/result loan join that set; Bool self and
+receiver-owned Nullable/Object protocols keep their existing owners. The self
+receiver is borrowed entry state, not a fabricated Home. Terminal and lexical
+shortcuts share the original declared-instance locator check and consume its
+exact source relation once, before receiver/argument emission. Missing or drifted
+locator fails; no generic retry follows a selected lifecycle failure.
+
+Constructor body source retains one immutable ordered Store/StoredChildCall
+structure independently of construction execution eligibility. Both the original
+lexical target collector and the sole incoming census borrow real constructor
+rows and lowering inputs alongside declarations; a Birth is never assigned a
+fictional declaration slot or added to the ordinary-caller set. Original Static
+observations precede namespace matching. A constructor provider argument uses
+its existing exact provider source loan in source integer domains; it is neither
+a LOCAL nor proof of a CurrentOwner Static call. Complete source discovery does
+not select generic borrowed transport: the existing unsupported-context rule
+excludes that whole target cohort, including mixed callers, while retaining all
+original observations and the supported provider scalar ABI. Source argument
+seeds, Array argument discovery and nullable LOCAL discovery share the original
+input lender; constructor inputs never borrow a fictional declaration slot. Stored child source retains the SAME structure Rc and
+step. Pending incoming and selected receiver issuance share its corroborator,
+then independently check the canonical field/child. A structurally equal reissued
+source Rc is rejected. Source retention and selected call rows do not upgrade
+call-bearing constructor plans: ordered physical calls, result/discard, committed
+field cleanup, final correspondence and C consumption must close first.
+
+Original parameterless instance results retain Unit source candidates in the same
+original-return map: original body/end and bare Return sites, never an invented
+value return. Explicit `return null` remains a value. Statement-discard selection
+retains that same opaque loan; value contexts do not select it. Corroboration
+borrows the existing canonical Completion and cannot issue a second one. Unit
+co-seal checks the existing physical signature and SAME result-cohort Completion,
+then retains that same Completion Rc on the ordinary disposition. Take and
+physical packet materialization re-demand the same source and Completion identity.
+Empty terminal relations cannot classify this source demand as I64. An original
+Unit call demand selects the same complete Home walk even for an empty body or
+bare Return; plain control-only Completion is not an empty-cleanup proof. The
+existing child terminal filter retains the original Unit relation. The selected
+child bare-return emitter rechecks its canonical Completion and exact source site.
+The existing Home callback has a distinct Unit-discard source request. Its
+response retains the same original target and Unit loan, with no executable
+actuals or scalar proof. The source observation has Unit result, Discard
+destination and original prior Homes; it installs no receiving binding. A
+pending ordinary stored Unit source refuses explicitly rather than retrying scalar.
+A zero-argument constructor Unit source instead passes the same stored receiver
+issuer and owned-field inventory checks. Its SelectedStored row retains the same
+OriginalStoredIncoming Rc and original constructor-step loan. Unit co-seal checks
+that step, receiver/field/child, zero arguments and same original result loan in
+place of an ordinary caller Home observation; it creates no such observation.
+The immutable incoming census lends the canonical Completion even after affine
+target/Call consumption. Missing, duplicate or drifted rows refuse. Ordinary stored
+Unit calls remain Pending; a source-qualified constructor call does not complete
+its containing construction. Tail-only Unit child calls can now qualify the same
+ordered construction plan after lexical co-seal; source identity, real provider
+field commitment, actual Call/Normal progress and reverse Fault discharge remain
+checked by the existing construction owner. Stores after opaque Calls refuse.
+This late join alone cannot repair earlier caller actual/input/Home products
+that already retained unavailable construction. The issuer dependency order must
+retain the original census, complete each required callee once, qualify the same
+constructor plan, then classify dependent caller inputs once. The existing retained
+constructor Call pool now lends its same packets to finalized participant/input
+visitors after completed ordered construction validation. Birth caller Unit results
+require that exact original packet, canonical caller identity and full final Invoke
+coordinate; role/result alone grants no permission. The original constructor
+publication test now passes through compiled-entry and physical ABI/JSON, including
+coordinate/Normal/Fault/result drift refusals. Its focused C consumer now emits OBJ/EXE from the same source snapshot,
+prints twice on Normal, and discharges all acquired objects on injected Unit
+Fault. The existing source runner retains independent commit/read/order/cleanup
+refusals; this is bounded constructor coverage, not whole-app acceptance.
+Caller-provided object arguments stay caller-owned until Birth Normal. The
+original construction Fault inventory includes provider New/Array children only;
+provided slots are staged references and never add a callee release tail. Fault
+reclaims unpublished outer storage before the caller discharges prior Homes.
+Normal keeps the declared provided residences in the parent End inventory.
+The retired Provided-only physical enum arm and release adapter have no caller.
+One provided binding cannot become two owning slots.
+A BoundValue Birth actual is not reclassified as Handle. The finalized received
+actual lender joins the same returned-New argument and child-relation Rc, original
+prior/normal Home snapshots, canonical Nullable acquisition, checked received-call
+packet and FinishedBindings producer. Only that exact owned result may select
+nullable pair transport. Source, target, argument, producer or move drift refuses;
+borrowed/mixed observations and Ordinary-local New remain outside this lender.
+The physical ABI stores the selected transport in its existing actual map and
+JSON consumes the same decision. Nullable payloads retain dynamic tag 0/3 rather
+than inferring non-null from a Box type or a prior Home.
+
+CLI71 measures the original `seedBlocks` Unit flow passing all four Array field
+aliases and stopping at its original Loop (Body6; CLI70 stopped at Body0).
+Current source lends the SAME field-resident requirement
+from `source_core_method_calls` into the canonical Home walk. The requirement
+retains its exact original initializer site and field name alongside the canonical
+field/provider and is shared by Rc. Borrowed Array state is distinct from ordinary
+box aliases and owning holders, requires the original live receiver root and joins
+no Home set. The same selected Loop product owner now retains the original NoExitBody planner
+outcome and route match once, before Home classification. Home borrows its exact
+Recipe/source projection and checks the entire original condition/body expression,
+statement and effect inventory against real Integer prestate, source-selected
+Array pushes and Integer Add rebinds. Borrow roots stay live and unchanged,
+including zero iterations; unknown effects, Bool scalars, Print and field writes
+refuse. Repeated pushes share the residence while preserving each call's original
+requirement identity. The same plan is affine-taken by the existing raw LoopCond
+issuer and sole physical emitter; a consumed or failed plan never triggers retry.
+Final owner validation rejects an unconsumed source plan. No second solver or map
+is introduced; the original Mul product remains in the same selected product enum.
+CLI72 passes the former source Loop boundary; CLI73 also passes the implicit
+Unit cleanup graph after the prefix boundary correction below, stopping later
+at another owner's scalar Return type check. CLI75 crosses that check after
+the nested source-path connection below, then stops at local Call result-kind
+agreement. No final artifact/backend acceptance.
+The Plain cleanup ingress retains the original source continuation prefix;
+cleanup structure checks its terminal/topology/order, while Phi exclusion remains
+on cleanup-created nodes. The existing Loop after-role and PhysicalBoundary
+independently verify the exact prefix, predecessor and finished projection. Root
+structural acceptance grants no physical Phi permission. Constructor final
+participant/ABI/C transport remains unfinished.
+
+Before Completion, the existing typed Return consult borrows the presealed nested
+field expression from the same result cohort. It verifies exact Return/value/root,
+the canonical closed field component, and the entire pure Integer field/Add tree;
+Call/New/opaque residuals retain their own owners. The current Home state must
+prove the original receiver root live. The existing I64Scalar terminal retains
+that source exit's Home order and canonical Completion is issued once. The later
+physical loan adds that same Completion; earlier unavailable rows are never patched.
+
+Nested scalar Return paths borrow the SAME original ResultExpressionSource,
+closed numeric writer component and object-class source edges. Intermediate field
+results stay actual values, with no invented receiver binding or Home. The existing
+local field-read map reserves each selected source node once before descent and
+checks its immediate receiver against the actual emitted parent node. The common
+exact field append publishes the proven Box/Integer type; the original Add owner
+propagates it to Return. Final validation requires all original path nodes and
+compares exact source, descriptor and physical reads. Direct field lenders keep
+their one-edge restriction; generic MIR Box metadata grants no path authority.
+
+The preissued NoExit Array loop now retains its SAME immutable Home proof beside
+its affine Recipe. The original Home walk supplies the exact live Home snapshot,
+newest first; no body acquisition/exit/move can alter it. Every original Push keeps
+its ordered residence Rc and direct Loop/Call outward-Fault scope continuation.
+Probe and verified walk compare the same snapshot and source/frame/receiver/all
+argument membership, then reuse that proof Rc. Taking the Recipe never takes or
+reissues this source proof. The SAME Rc also enters the canonical Home flow
+through its existing named-array observations; physical emission state stays
+with the existing append port/binding group. Completion and the ledger are not
+back-references.
+Each ordered append also retains the Literal/Binding/Add subtree returned by
+that same complete Integer census. Rechecking uses the same original resolver
+sites, literal payloads, binding identities and operand order. Its source loan
+requires the SAME canonical Completion and unique Home-flow proof membership;
+`all_exits_ready` is not this contract, because it deliberately excludes implicit
+body ends. Physical Home End availability remains the selected writer's duty.
+The sole value normalizer now retains output correspondence for those three
+expression forms. Variable leaves reuse the existing exact lexical read and its
+actual reaching-value provenance, consumed once. The old tuple API projects the
+same implementation. Each NamedArrayPush carries an independent physical
+projection; freshening updates that clone's values while preserving the immutable
+original source/read tree and the shared affine append port. This correspondence
+alone grants no operand class or execution permission: the selected writer still
+must match the original proven tree, actual Const/Add producers, LocalSSA pins,
+complete cleanup paths and mandatory FinishedBindings.
+The shared root Home owner now lends complete End plans in caller-supplied source
+order, including each Home's children, without inventing a root-exit identity for
+Call Fault. An unavailable plan remains unavailable while later missing/duplicate
+Homes still reject. Existing explicit-exit validation keeps its own order checks.
+This is source preparation: the selected checked Invoke, exact materialization,
+cleanup/finishing, ABI/JSON and C indexed residence consumer still owe their own
+connection and execution evidence. Bare Push and carrier metadata grant none.
+The selected FieldResidence writer is now connected in WIP to the existing
+checked Invoke/Normal and source-ordered Fault cleanup writers. Its source prefix
+covers the original outer Loop statement; the existing binding group and affine
+append port retain the SAME packet. The packet holds the original receiver read,
+actual normalizer producers, LocalSSA pin relations, complete Fault instruction
+census and the existing finishing projection. Construction/Text raw callers
+remain separate. A source-owned NoExit field-Array method with no explicit Return
+also selects its SAME canonical implicit Unit Completion, even without an incoming
+Call; this does not create a Unit-call source or another Completion.
+This connection is not accepted yet. The current typed-provider regression rejects
+a provisional Phi captured before the sole Loop writer installs its backedge.
+Physical observations must respect that writer's completion boundary. Skipping
+Phi checks or adopting current MIR as a replacement source proof is not allowed.
+
+Borrowed Array reads reuse `build_field_access_from_value`, the existing typed
+Array `FieldGet` owner, and retain its actual emitted instruction on the same
+local-read progress row. They never use ordinary-object `ObjectFieldGet`.
+The shared descriptor checks exact field name/type and same residence; the same
+field-read final census rejects missing, altered or duplicate owned Array reads.
+Unselected typed-field reads remain with their existing owner.
+
+The same Array-read emissions now enter the existing lifecycle capture, so final
+consumers borrow mandatory FinishedBindings rather than search final MIR by shape.
+The final lender joins the SAME residence Rc to a validated emitted Array write
+and rechecks the original constructor provider against the current module. Exact
+route object/slot/name/storage must agree with that source field. No tagged formal
+is required for these source-qualified aliases. The older direct guarded `.set`
+receiver/numeric-read/store corridor stays with its own source-use consumers; an
+Array read loan grants no store authority. The original `ArrayElementFieldIndexValue`
+Set lends its same index requirement, Integer reach/guard, Completion and existing
+entry field descriptors. Its original classifier retains the canonical self-rooted
+Array field declaration as the same Rc. `DeclaredArray` uses the existing affine
+field-read map and FieldGet writer, and grants no owned residence or local Home.
+The index retains the existing original entry/formal-object scalar descriptor;
+statement field-call reads require no invented expression plan. Located raw lowering retains the
+sole Array writer's completion and operand LocalSSA relations in that entry.
+Finishing keeps those exact bindings; module and published scans independently
+check the write coordinate, field read, guards, operand roles and occurrence census.
+FieldWrite and Set share the original entry null-guard observer and finished
+projection algorithm. This WIP connection does not yet establish unchanged-app
+acceptance or the separate CorePlan source-publication caller connection.
+
+
+The existing `named_array_source_tests` field-resident four-alias/four-push case
+and provider/weak/foreign/rebind/value-demand negatives cover the source/physical
+side. Extend those witnesses through the canonical Unit/Home and final-consumer
+connection; their document-route success alone is not artifact acceptance.
+Constructor caller packets must also survive into existing finalized participants
+and compiled-entry coverage before the existing i64-only Birth caller boundary
+can be replaced by exact original Unit source coverage. Neither a role-wide
+waiver nor permission inferred from a physical Call is valid.
+
+The shared physical packet distinguishes a value projection from an actual
+Unit Normal landing. Value consumers require a projection; Invoke-only visitors
+borrow the same Invoke directly. Unit forbids an InvokeNormalResult for that
+Invoke. The common emitter owns the actual Invoke/Normal edge, while the value
+wrapper alone emits the result projection/carrier. Raw statement Unit emission
+uses that same receiver/arguments/Fault owner before generic receiver evaluation;
+only the outside statement convention emits a Void token. Ordinary Unit publication and C execution are verified for the original
+parameterless owned-local receiver cases below. Borrowed-self and constructor
+committed-field receivers remain separate unfinished input obligations.
+
+The same Home source walk retains explicit and implicit exits in one map keyed
+by `RootHomeExitKeyV1`. An implicit success retains its original body/end and
+actual final Home/call/statement obligations. All source exits use the same LIFO
+snapshot helper. Unknown suffixes, failed branch/loop state and entry demands
+stay unavailable. The temporary separate implicit member is removed. Generic
+implicit families retain their closed boundary. An original ordinary Unit source
+joins the canonical implicit and explicit exits through the existing physical
+owner; no Return statement is invented.
+
+The physical `root_exits` index and retained release origins now use that same
+`RootHomeExitKeyV1`. Existing explicit APIs wrap original statement sites; the
+shared Home-end order builder accepts the common key without another map or
+cleanup algorithm. An implicit key cannot match an explicit source statement or
+join its release sequence. The prepared body token retains the same canonical
+Completion, claim ledger and callable lowering state, including its existing
+Fault frame. The located block driver finishes a selected original function
+body after its final statement/output and before lexical scope close, checking
+owner/body kind/root/end against canonical Completion. Its real ConstVoid feeds
+the sole root graph and Return; the existing cleanup order retains that producer
+through lifecycle capture. Scope close observes the real terminator, so its
+shared legacy KeepAlive writer has no selected root-end work. Nested lexical
+scopes may still retain optimizer-only KeepAlive hints. The physical/JSON/C
+transport checks their SSA availability and emits no runtime instruction; these
+hints grant no Home, lease or runtime lifetime and do not count as executable
+borrowed payload uses. The finalizer
+validates the same recorded exit and Fault frame; it refuses missing consumption
+instead of issuing a late End after scope close. ConstVoid stays outside the graph's terminator bindings. Final checks
+corroborate original body/end, exact producer/Return value, complete source End
+order, original prefix groups and the finished Normal/Fault graph. Prefix groups
+are validated from retained entries after affine handoff, never reselected from
+the already-moved pending pool. Terminal-only visitors select real terminal Calls
+before requiring explicit keys. The existing discard fixture verifies six original bodies through final ABI/JSON;
+the C borrowed-source execution owner consumes those exact files without repair.
+Empty/scalar, print, bare Return, two owned Homes and mixed explicit/implicit
+exits execute normally. Print/New/Home Fault injection verifies one effect,
+complete acquisition/release and shared frame/report/dispose; role/result drift,
+value Return and Unit result projection remain rejected.
+Ordinary Unit participants borrow their original call and Completion without fake
+actuals; the physical role is `ordinary_unit`, distinct from Birth. Selection,
+exact ordinary-call coverage and compiled-entry coordinates share one physical
+Call classifier so Unit Birth calls never join the ordinary census. JSON spells
+an ordinary Unit result explicitly as `unit` and records no result destination.
+The independent Invoke verifier requires its Normal edge without a result
+projection. Current-owner Static source stays with its existing Static owner;
+an absent Instance disposition alone cannot choose a different route.
+
+Local scalar Call consumers borrow the result kind from the same retained local
+observation and disposition. The checked lender corroborates the original target,
+result kind, dedicated source loan and canonical live result pool. Bool requires
+that dedicated loan; a bare generic Bool observation grants no admission. Missing
+or altered loans refuse before physical emission. The existing exact-I64 family
+keeps its prior source boundary. This connection does not broaden the source
+selector, Integer-only Print expressions or borrowed-self receiver protocols.
+
+An original owned Array holder in AppMain borrows the already co-sealed Main
+catalog key, since AppMain is outside the selected child-key map. The lender
+requires the same original ingress owner, static declaration contract/arity and
+namespace, retained Main identity, and identical root/indexed Completion Rc.
+Absent or foreign authority refuses; no root key or Completion is synthesized.
+Selected child holders keep their cataloged keys. At result-cohort retention,
+only an OwnedHolder with no selected child contract may borrow that root key;
+an existing mismatched child contract still refuses. The completed context must
+retain the same original selected map and parameter-catalog allocation. This
+retains root transport without inventing a completed child result row. Both kinds
+keep the same recipe and independent source-to-function/final physical checks.
+
+The same lifecycle-prefix inventory includes source-issued Bool observations when
+canonical co-sealing routes their exact sites. It preserves statement/call order,
+Print-frame grouping and Array Append prefixes. An observation without that route
+never creates an expected physical binding group. The final binding census remains
+independent of successful emission; missing Bool prefixes cannot be waived there.
+
+Root Array correspondence uses that same source lender at both borrowed preflight
+and finalized handoff. The finalized root source also rechecks its retained Main
+identity and owner. Only an OwnedHolder without a selected child contract may ask
+for this root correspondence; a mismatched existing contract remains terminal.
+Module, Script and absent-root paths cannot supply it. The separate named-array
+physical coverage and exact finished bindings remain required. Selected children
+keep canonical definition lookup. AppMain instead retains its actual function
+symbol in the SAME holder finished image, after checking the original root owner,
+Main key and identical FinishingChecked projection. No canonical map entry is
+invented for Main. Publication borrows that same checked symbol and bindings;
+a different projection, function or finished image refuses.
+
+A scalar Print call through a field-alias local retains the original initializer
+path in the same local-call observation. Its root is the original owned New
+acquisition, not merely a class or binding name. Every owning edge must join the
+same local-field-read source descriptor to the sealed owned-field-child inventory;
+a same-class replacement writer cannot supply a residence. Root or path-local
+rebinds refuse, and entry-borrowed aliases retain their separate authority.
+The completed initializer hands its original relation, FieldGet result and exact
+local Copy back to that same field-read row. Receiver preparation reads the alias
+once; packet materialization requires that exact local value, and final field
+validation checks the retained Copy in the finished function. The finalized
+source visitor repeats that read/Copy correspondence against its current
+function, so a post-finishing mutation cannot hide behind the saved image. No extra FieldGet,
+Home or alias release is emitted. This correspondence adds source coverage; it
+does not by itself prove whole-app acceptance or retirement of shared protocols.
+
+Whole Bool condition prefixes retain the same original Home expression frame,
+all scalar Call packets, exact reference/field reads and original writer
+operation/control observations in the existing source-ordered group pool.
+Supported comparison roots with original lexical-instance receiver Calls use
+this same frame even without And/Or. Selection follows original receiver source
+identity; Static current-owner and qualified Static protocols retain their
+existing source owner. Call-owned receiver/actual subtrees remain opaque to the
+condition selector, and every selected Call still requires its exact scalar
+result and complete original arguments before installation.
+The prefix is fixed before If branches lower; only the shared packet's affine
+outer-Branch seal changes afterward. Early exits borrow actual prefix bindings,
+while finalized validation, source handoff and Call enumeration require Sealed.
+Call-free conditions also retain their original source. Source/physical checks
+cover both directions of mandatory instruction membership, original short-circuit
+reach and root-result-to-If materialization continuity. No Call context or
+participant registry is added; the existing Expression visitor carries nested
+argument Call ancestry and its enclosing conditional reach.
+Print and Bool expression Call prefixes borrow the invocation's existing self
+receiver locator. The common scalar Call writer consumes the exact original
+relation before receiver/argument effects, including nested argument Calls;
+generic callers retain their existing consumption. No second receiver read or
+synthetic locator receipt is issued.
+Complete-empty Instance declarations borrow the same qualified global, guarded
+or mixed entry law used during input reconstruction. The original incoming
+inventory must prove empty; missing retained Calls are rejected before profile
+selection. The same declaration set feeds final participants and both final
+consumers. A qualified entry may lend its original declared object view; passive
+source-only inferred classes remain unavailable. No executable actual or second
+Completion is created for a declaration.
+Early receiver-Home selection and late Object packet demand share the same
+original guarded/mixed forwarding frame. Both require the exact self Instance
+target and existing Object-input seed; unrelated Static outgoing uses stay
+outside this query. Full Object result, arguments and teardown still qualify
+independently before the sole emitter retains its original packet.
+
+Object argument reconstruction borrows its original source explicitly: initial
+issuance uses the original candidate slice; completed input and finalized
+rechecks use the same ledger. Source-only callers cannot activate a local Home
+or received nullable argument. The local New source lender borrows the exact
+claim before Take and the original pending commit afterward; duplicate stores,
+foreign bindings and construction drift refuse. This source loan requires no
+physical emission and grants no liveness, ownership transfer or End permission.
+Nullable sources join the exact original local acquisition, target and result
+class. An indexed Completion error remains authoritative. Only an absent index
+may borrow the same-owner root Completion; root errors also remain errors.
+Returned construction child supports retain the original relation and witness
+Rc, composing callee source-formal ordinals through the same completed argument
+snapshot. Constructor argument ordinals are independent of function formals.
+A local acquisition cannot support an escaping result, and a borrowed child
+cannot activate the old owning-only End. Field pair ABI, publication and complete
+End still require their own verified consumer connection.
+The final object Return projection retains the original result kind and outer
+logical formal ordinal in each existing immutable outcome row. Physical Mixed
+and BorrowedNullable roles move these same rows into the function image; they
+do not collapse to Handle. The final function consumer checks the result law,
+exact formal lane/carrier, required producer/Copy bindings and complete Return
+census. A BorrowedCall origin keeps its independent inner callee ordinal.
+Return JSON borrows those retained bindings and exact instruction coordinates;
+ABI corroboration compares the result law and complete outcome rows. No later
+origin walk or second result issuer is permitted. The borrowed-use closure lends
+BorrowedNullable formal Return occurrences and their original transport Copies
+from those same retained rows before tracking aliases. Independent module and
+published scans require exact operands, coordinates and complete occurrence
+coverage; Null, Mixed call origins and checked Integer Returns gain no exception.
+Final entry object views retain original class agreement only after nonempty
+executable incoming has passed the existing per-actual class-domain verifier,
+including mixed inputs. Declared views keep their original rule; passive and
+SelectedTagged inferred views remain unavailable. No field/layout inference
+fills an absent source view.
+Mixed/borrowed Call wire and
+conditional complete End JSON/C remain closed until the runtime consumer is connected.
+Physical conditional End membership borrows the original cleanup bindings after
+source order, complete body and FinishedBindings validation, including child Plain
+and implicit exits. Both instruction and terminator images must match the full
+binding census; absent source, missing End, changed body and duplicate substitution
+cannot authorize publication. The physical consumer never regenerates child steps.
+
+Call validation borrows the current owner of the same original packet pool.
+Lowering uses the ledger; finalized consumers use the retained root handoff,
+including Normal results, nested arguments, copy dependencies and mixed-result
+corroboration. Structural packet lookup never starts result validation itself.
+Owner/site uniqueness, the original row/loan and the same Completion Rc are
+rechecked after Take. Missing packets do not trigger lookup in another pool,
+source resealing or registry reconstruction.
+
+Qualified Static packet arguments share one lender for immutable incoming identity,
+whole callee input/Completion, executable actuals and ordered arguments. The Local
+continuation still corroborates its exact LocalCallObservation afterward; the
+shared lender issues neither Local observations nor result/physical permission.
+
+Qualified Static terminal membership comes from the canonical caller's original
+Return value sites, including conditional exits. One retained set replaces the
+Main-only projection across Home selection, actual staging and input finishing.
+The qualified ExactI64/one-opaque-input law, whole incoming cohort, original
+Completion and publication checks remain mandatory. Forwarded source arguments
+stay with their original lender; only proven Integer candidates use tagged
+literal finishing. Main root identity remains independent of this membership.
+
+Qualified terminal Integer actuals use the existing scalar whole-input owner when
+the original scalar body qualifies. The finish retains the original qualified
+source identity and the same Completion, and applies replacements only after
+every original incoming row passes the canonical signature and result checks.
+A cohort without a CurrentOwner sibling requires exact terminal membership and
+a checked source formal for every caller; each completed row must retain its
+issued qualified-literal proof. Raw executable arguments alone do not enable
+that entry. CurrentOwner scalar extraction cannot reinterpret a qualified literal.
+
+Compare-only Static input candidates reuse the same scalar whole-input owner.
+Their original draft contains only Copy and checked Integer comparisons;
+canonical formal origins and the checked-use closure remain mandatory.
+After complete input/signature/result/Completion checks, the finish retains the
+original qualified executable argument proof and rechecks it without recursion.
+This does not infer an unannotated result header. The six Integer comparisons
+use the same original operation envelope, source sites and final coordinates.
+Null equality keeps its separate source owner. The published-use checker also
+compares each admitted published Compare with the same verified module row.
+
+Equal/NotEqual Integer source loans additionally require complete original
+Integer agreement for every borrowed operand root. An Object/Null/Bool or
+unknown input cannot inherit an Integer envelope from an origin-shaped sibling;
+Object identity equality remains a separate semantic responsibility.
+
+Constructor provider Static arguments keep their original immutable source Rc
+inside the existing construction RHS. The ordinary actual issuer stages the
+sealed original literal tuple at its original argument sites before the same
+whole-input finisher runs. The provider packet borrows the scalar packet nucleus
+through its own source corroborator; it never creates a Local observation.
+Original New seed membership, field/New/ordinal/caller/catalog correspondence,
+whole incoming, signature/result and the same Completion remain required.
+The existing construction payload retains the source, actual plan and affine
+result publication through finalization. Genuine ProviderArgument packets enter
+the same final incoming and participant visitor, with source/coordinate uniqueness;
+Birth caller membership comes from that retained canonical construction owner.
+
+Returned-New leaf validation keeps original Fault and Normal boundaries distinct.
+The same ResultNewHomePrefix supplies post-move Normal Homes for exact Completion
+exit agreement; its prior Homes remain the construction Fault obligation. The
+pending claim and committed-result lender retain that same complete prefix,
+including both projections, without rebuilding ownership at the consumer.
+Original witness/site/class/terminal/claim/object/arity checks remain mandatory.
+
+Final received Birth-actual correspondence reuses the original acquisition and
+checked received-call owner. Nullable keeps its canonical nullable class loan;
+Mixed keeps the original Mixed source loan, roots, support and result ordinal.
+The shared outer argument join checks the complete original child-relation
+census before lending the finished producer. Removing a Mixed obligation from
+Normal Homes proves obligation transfer, not unconditional owned acquisition.
+Forward field support and physical anchor/residence admission remain separate.
+
+Received-call validation also uses the current CallValidationContext after
+handoff. Source seals, result values, shared packet identity and unwind counts
+borrow groups from the SAME current affine owner. Finalized root Call cleanup
+borrows its moved call-entry bindings, never an emptied lowering pool. Original
+and projected group inventories are compared through the retained finishing
+projection; the context grants no fallback or additional source authority.
+Received-field source rechecks borrow the original acquisition target from
+that same current packet during read/take, checked emission and final census.
+The consumed lexical preparation vector is never used as a later source pool;
+descriptor, exact receiver copies and numeric proof remain separate checks.
+Nested Print fields share original expression-path geometry and the existing
+parent-output/read-progress owner with nested Returns. Each authority retains
+its own wrapper: Return facts/Completion, or the original Print/root request,
+canonical first declaration, intermediate object-source Rcs and closed numeric
+value loan. Topological Alias/Scalar roles remain hypotheses until one atomic
+field batch proves the whole path. Intermediate fields emit real reads and
+belong to ordered Print bindings and the independent final census.
+Each original path-root lexical read is consumed once and retained on that
+Print projection; sibling path nodes borrow it. Its exact source/value and
+original Copy dependencies survive finishing. Object-source map keys preserve
+the original field name, and children retain their SAME current parent source.
+Value-source map keys also bind each field's container to its original parent's
+class. The first edge retains the original parser box/object and New acquisition
+or entry-loan identity; rechecks borrow the SAME claim after its move into a local
+commit, or corroborate the original selected entry/signature. Passive source
+borrowing does not require successful construction. Alias roots retain their
+original prefix path and sealed owning edges; physical read/Copy correspondence
+remains with the existing field and LocalSSA consumers.
+Completed non-variable initializers also retain their original local Copy in
+the existing materialized-value provenance. Variable initializers keep their
+original root/chain; a failed variable proof or absent initializer gets no
+replacement root. This physical dependency supplies no formal-entry authority.
+Stored-child calls on a direct local New retain that SAME original candidate's
+opaque root loan, shared with expression-field roots. The source issuer and
+incoming census check the exact Local read, sole initializer/declaration, caller
+slot and absence of rebind; Me entry and constructor origins keep their own
+checks. Canonical field/child/residence and the callee's original scalar Return
+source remain separate obligations. No Print-specific result family is added.
+Every stored Call's physical materialization requires a ledger and borrows the
+already-selected original incoming source. Local-New roots recheck source and
+declaration through the same claim-to-commit lender, including zero-input calls.
+The packet retains its exact parent read and original Copy dependencies for the
+independent final consumers; structure alone never authorizes a Local parent.
+
+Mixed received Birth correspondence also lends the same returned-New leaf's
+complete Forward-field support census. The original received packet's borrowed
+argument read must join that same caller formal, entry value and original Copy
+chain through finishing. TypedHome/received acquisition cannot substitute for
+this formal support. This is a source/physical dependency join; it does not open
+Mixed ABI, Forward residence or anchored End admission on its own.
+
+Original Mixed local result demand also selects the existing SourceInstance
+argument protocol when its caller has no borrowed-formal draft (including Main).
+Observe, phase checks and native whole-input participation borrow the SAME
+original target/loan. Acquired Nullable requires both Fresh/Null roots of the
+original class; acquired Mixed requires its exact parent source, destination,
+object and all root Rc. Only the fixed forwarded ordinal may lend that support.
+These source observations grant no execution or Home. Existing ledger argument
+reconstruction, whole incoming/signature/Completion closure, Mixed result packet
+and conditional End remain mandatory; Mixed never becomes QualifiedObject.
+
+Owning Nullable LOCAL calls retain an orthogonal input-source loan on the
+original lexical target. The existing result owner supplies the sole original
+initializer/declaration/receiver/ordered actuals and exact Null/Fresh roots;
+BorrowedNullable and Mixed keep their own result laws. The one incoming census
+retains that loan. SourceInstance observation/reconstruction closes every
+incoming of its callee through the existing signature/Completion input verifier.
+Home's source-object issuer admits the original self receiver only after this
+Nullable loan is affirmative, and records one checked Home. No I64 result proof
+or claim-local producer permission stands in for the input. The existing object
+slot, opaque completed-input and original-source packet family recheck the same
+loan/roots and whole input census at retain and final consumption. Stronger
+QualifiedObject input selection keeps precedence: source-only forward requires
+Object phase, other qualified rows retain their original Executable lender, and
+Instance phase cannot enter that family. Self received acquisition compares the
+same completed argument snapshot under this loan; the older observer keeps its
+empty-argument law. No new result enum, scan, registry, finish owner or result
+execution permission is issued by this loan.
+
+Returned object fields borrow source provenance from the result owner's existing
+construction-child relations. Each direct Fresh wrapper alternative must provide
+the SAME canonical field and child; its exact Provided Birth store retains the
+complete original writer inventory. Later, unattributed or incomplete writes
+refuse the field source without erasing its original relation. Raw call targets
+reuse the LOCAL initializer/declaration/actual snapshot issuer and also reject
+nested UpvarRebind before lending an immutable parent acquisition.
+
+Call-site substitution follows original field/null actuals through a finite
+initializer DAG, preserving all wrapper-root/relation/child-witness allocations.
+Only actual Fresh roots and Null project into the existing source/selected input
+domain. Declaration names issue no Class seed, and global cycle rejection stays
+unchanged. Definite wrapper roots are required; forwarded wrapper roots and other
+substitution shapes currently refuse. Retained loans require current outcome and
+writer identity rechecks; loss cannot turn selected evidence into absence. This
+passive source/domain connection issues no read, Home, entry, Normal or physical
+argument permission. The canonical argument field-read/final connection is owed.
+
+Read arguments retain their specialized source and emitted identity behind the
+shared `ReadActualSourceLoanV1` / `EmittedReadArgumentV1` interface. Get delegates
+to the original Array issuer, emitter and finished validator; the holder census
+still borrows the SAME emitted Get Rc and recipe. Argument source/class, binding,
+value and Copy consumers no longer dispatch on Get themselves. Wire transport
+remains nullable_typed_object. Field delegates to the existing exact local-field issuer after proving its
+original returned wrapper, live parent and field support.
+
+Returned-field argument preparation retains the original field loan and exact
+live received parent/acquisition on the same Instance input row. The prefix must
+already include that parent in its prior Homes. This source phase cannot lend
+execution until canonical field emission and parent lifetime validation connect;
+forged executable phases with pending field loans refuse explicitly.
+
+Returned-field argument reconstruction borrows its original `(call, ordinal)`
+capsule and stages a Pending descriptor in the existing local-field map. Current
+incoming census, all hop targets/roots and complete relation/witness alternatives,
+and original writer Rc are rechecked. Repeated reconstruction borrows the same
+descriptor Rc and preserves affine progress. Field actual payloads must cover the
+same complete source census as Get; descriptor staging supplies no parent value
+or child Home. Field emission uses the original exact receiver/Copy chain and
+sole ObjectFieldGet issuer. The emitted Read retains the SAME descriptor Rc and
+read binding; source/map membership is explicitly checked through finalization.
+
+The original Field input request selects one existing parameter frame for input
+qualification, source-only entry and the homes-aware Completion walk. Its seed
+census and call/target/mode/ordinal identities are checked by the same source
+owner. Selection never uses actual phase or manufactures Completion; all original
+incoming, callee Completion, signature and whole-input gates remain mandatory.
+
+Field Read validation carries the current CallValidationContext through affine
+packet moves. Parent Handle Invoke/Normal belongs to the original acquisition and
+local destination, with one original outer prior Home. The finished boundary maps
+parent/read/call producers and exact argument ordinal; SSA order alone is not a
+liveness proof. The read owner checks all paths reaching the call for early full
+or partial End, same-field mutation and ownership transfer using exact Copy and
+acyclic unanimous Phi origins. Terminating Fault cleanup remains governed by the
+existing ordered root cleanup owner and does not invalidate the Normal use.
+
+Definite self LOCAL receiver input still owes a Completion-independent original
+request joined through source actuals, input/frame/walk and packet selection.
+Broadening the late receiver observation alone is insufficient; the publication
+regression remains unaccepted until that common original-input connection closes.
+
+Original Field Object input selection is shared by actual issuance, Instance
+projection and Object phase guards. Exact returned-Field QualifiedObject input
+keeps SourceObject; it cannot be searched in the Instance pool or reconstructed
+as an equivalent Instance phase. Existing source-only forward uses the same required-phase selector; Nullable
+qualification alone delegates to the Object owner without forcing its globally
+executable input to SourceObject. Static keeps its original owner. Pending-row absence,
+retained errors and source/census drift still refuse rather than issue evidence.
+
+Returned-field acquisition hops lend their existing ObjectCallSourceLoan and exact
+original local destination to the common read-producer input selection. Array
+holders/Get retain their specialized source laws and the expression-only Append
+observation exception. Field parents use the actual received-LOCAL initializer
+and prior-Home observer. Before Home observation and packet use, every matching
+capsule rechecks the original incoming census, current target/ordered root Rcs,
+writer and complete relation/alternative census. Field claims are borrowed from
+the same source cohort by both verified and probe walks. This issues neither a
+new source receipt nor a Home from a class name. Callee input, signature,
+Completion, Normal and cleanup remain required by their existing owners.
+
+Field-producer siblings select the same original input cohort. Each owning LOCAL
+corroborates its own original initializer/destination and complete fresh-result
+roots through the existing result source owner before Home observation. Packet
+selection requires that actual Completion LOCAL observation and the selecting
+Field cohort's current graph/writer; it grants no result/Normal/End permission.
+Array's exact expression producer alone retains its no-LOCAL observation law.
+
+LOCAL Handle physical dispatch and the common object writer use the same ledger
+packet-protocol predicate. A Field-selected packet is not required to pretend it
+has a terminal Return source qualifier. The shared argument projector and final
+CallReceived/packet validators retain each source's original argument authority.
+
+The completed object result owner retains every original exit/root occurrence and
+its ordered Forward field requirements. Fresh leaves lend existing child-relation
+supports; OwnedCall alternatives lend their already-composed, rechecked supports.
+The same ObjectPacket seal retains this census alongside its original actuals and
+rechecks it on input demand. Root/relation/witness identity is preserved; retaining
+these requirements grants no anchored End or caller lifetime permission.
+
+Each conditional requirement is joined to the same packet's original actual by
+callee formal ordinal/binding and exact argument site. Call-derived groups retain
+all handoff alternatives; their root census token never permits branch pruning.
+Null actuals stay Null. This source join alone grants no caller anchor or End.
+
+AnchoredFields is a passive teardown shape, distinct from unsupported destruction
+or nullable envelopes; descriptor() does not lend it as classwide End permission.
+A LOCAL Object packet joins its exact Field/Null requirements to original actuals.
+CallReceived retains parent dependencies and the same emitted packet; End readiness
+requires concrete argument corroboration. Source cleanup orders wrappers before
+anchors; independent emission/finishing validation extends the original Field
+interval through each wrapper End. No formal or child Home is synthesized.
+Current returned-Field membership is rechecked without staging: a missing row or
+different source Rc rejects without regenerating a Pending read.
+
+Received field requests retain the original Object acquisition and nullable result
+kind in one source loan. Definite Handle acquisitions are not New roots. Nested
+Print paths may borrow the same returned-field relation loan, including every
+Fresh/Forward/Null alternative and current writer, instead of a declaration-only
+object class. A maybe-null returned child requires a checked scalar next hop;
+a maybe-null object next hop remains unavailable until its typed Fault transport
+exists. The same affine field row retains raw or checked emission. Checked nested
+reads borrow the exact parent output, never a fabricated lexical read or Home.
+Final Print validation corroborates the original wrapper packet and root Copies,
+and the checked census requires its exact FieldGet Invoke/Normal pair.
+Received field demand, including a nested path's same root, selects the original
+SourceInstance input family for its whole incoming cohort. Selector, completed
+argument lender and packet finisher share this request; QualifiedObject keeps its
+stronger priority. Missing input never falls through to successful placement.
+The original owning Object LOCAL input loan is retained before Observe for both
+Handle and NullableHandle; kind/class/all root Rc are rechecked together. This
+replaces the Nullable-only issuer, not its whole-incoming execution checks. Print
+source revalidation borrows current targets by affine state: SourcePending/Ready
+from their slot, Taken from the current Lowering/Finalized packet owner. Graph
+rechecks borrow that target through a callback; no second source registry exists.

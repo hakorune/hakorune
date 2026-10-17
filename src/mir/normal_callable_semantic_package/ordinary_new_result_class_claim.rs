@@ -39,8 +39,15 @@ use hakorune_mir_defs::{CanonicalSameModuleCallableKeyV1, SameModuleCallableName
 
 #[path = "ordinary_new_result_class_claim/call_witness.rs"]
 mod call_witness;
+#[path = "ordinary_new_result_class_claim/returned_field_source.rs"]
+mod returned_field_source;
+pub(crate) use returned_field_source::ReturnedFieldSourceLoanV1;
+#[path = "ordinary_new_result_class_claim/owning_object_local_input.rs"]
+mod owning_object_local_input;
+pub(crate) use owning_object_local_input::OwningObjectLocalInputSourceLoanV1;
 #[path = "ordinary_new_result_class_claim/child_relation.rs"]
 mod child_relation;
+pub(super) use child_relation::SourceConstructionChildRelationV1;
 pub(super) use child_relation::attach_source_child_relations_v1;
 #[path = "ordinary_new_result_class_claim/evaluate.rs"]
 mod evaluate;
@@ -48,8 +55,17 @@ use evaluate::{evaluate_row, ExitVerdictV1};
 #[path = "ordinary_new_result_class_claim/product.rs"]
 mod product;
 pub(crate) use product::{ResultExitOriginV1, ResultValueOriginV1};
+#[path = "ordinary_new_result_class_claim/borrowed_nullable_local.rs"]
+mod borrowed_nullable_local;
+#[path = "ordinary_new_result_class_claim/mixed_local.rs"]
+mod mixed_local;
+pub(crate) use mixed_local::MixedLocalCallSourceLoanV1;
+#[path = "ordinary_new_result_class_claim/object_call_source.rs"]
+mod object_call_source;
+pub(crate) use object_call_source::ObjectCallSourceLoanV1;
 #[path = "ordinary_new_result_class_claim/object_return_loan.rs"]
 mod object_return_loan;
+pub(crate) use borrowed_nullable_local::{BorrowedNullableLocalSourceLoanV1, BorrowedFormalReturnSourceLoanV1};
 #[path = "ordinary_new_result_class_claim/witness.rs"]
 mod witness;
 pub(crate) use object_return_loan::ObjectReturnCallQualificationV1;
@@ -125,7 +141,7 @@ enum PendingExitV1 {
     },
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct ResultActualSourceV1 {
     site: crate::mir::resolved_semantics::OwnedExprSiteV1,
     binding: Option<BindingRefV1>,
@@ -748,3 +764,5 @@ mod witness_tests;
 
 #[cfg(test)]
 pub(in crate::mir::normal_callable_semantic_package) use witness_tests::source_result_facts_for_test;
+#[cfg(test)]
+pub(in crate::mir::normal_callable_semantic_package) use witness_tests::with_source_claims_fixture;

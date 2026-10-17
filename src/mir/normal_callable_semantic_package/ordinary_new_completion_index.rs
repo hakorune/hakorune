@@ -62,13 +62,14 @@ mod tests;
 
 #[path = "ordinary_new_return_leaf.rs"]
 mod return_leaf;
-pub(super) use return_leaf::ObjectReturnTeardownDescriptorV1;
+pub(super) use return_leaf::{ObjectReturnFieldSupportV1, ObjectReturnTeardownDescriptorV1, VerifiedObjectReturnLeafV1};
 
 #[path = "ordinary_new_return_callee.rs"]
 mod return_callee;
 
 #[path = "ordinary_new_return_acquisition.rs"]
 mod return_acquisition;
+pub(super) use return_acquisition::VerifiedObjectReturnSourceAcquisitionV1;
 
 #[path = "ordinary_new_return_handoff.rs"]
 mod return_handoff;
@@ -80,6 +81,10 @@ pub(super) use normal_return::NormalReturnDispositionV1;
 
 #[path = "ordinary_new_return_result.rs"]
 mod return_result;
+pub(super) use return_result::ObjectCallFieldSupportRequirementV1;
+#[path = "ordinary_new_mixed_result.rs"]
+mod mixed_result;
+pub(super) use mixed_result::{MixedReturnSourceV1, VerifiedMixedCallResultV1};
 
 #[path = "ordinary_new_direct_return_source.rs"]
 mod direct_return_source;

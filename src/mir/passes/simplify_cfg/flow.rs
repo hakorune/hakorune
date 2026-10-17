@@ -263,6 +263,7 @@ fn can_rewrite_threaded_phi_predecessor(
 pub(super) fn find_single_predecessor_jump_merge(
     function: &MirFunction,
     reachable_blocks: &HashSet<BasicBlockId>,
+    preserved: &std::collections::BTreeSet<ValueId>,
 ) -> Option<(BasicBlockId, BasicBlockId)> {
     for pred_id in function.block_ids() {
         if !reachable_blocks.contains(&pred_id) {
@@ -295,9 +296,10 @@ pub(super) fn find_single_predecessor_jump_merge(
         if preserve_emit_mir_string_phi_trampoline(function, middle_block) {
             continue;
         }
-        if collect_trivial_phi_rewrites(middle_block, pred_id).is_none() {
-            continue;
-        }
+        let Some(rewrites) = collect_trivial_phi_rewrites(middle_block, pred_id) else { continue };
+        // Block relocation is projectable; replacing a source-consumed value
+        // by a different value is not an authorized block correspondence.
+        if rewrites.iter().any(|(dst, _)| preserved.contains(dst)) { continue; }
         if middle_block.successors.contains(&pred_id) {
             continue;
         }

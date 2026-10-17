@@ -13,7 +13,7 @@ use super::super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
 use super::candidate::{
     verified_birth_recipe_for_site_v1, OrdinaryNewCandidate, OrdinaryNewSiteResolutionV1,
 };
-use super::coseal_helpers::{convert_selected_new_arguments, retain_child_terminal_relation};
+use super::coseal_helpers::{convert_selected_new_arguments, retain_child_terminal_relations_v1};
 use super::{
     array_i64_fields, field_reads, field_write_claim, receiver_call_observation,
     result_class_claim, terminal_home,
@@ -52,6 +52,9 @@ pub(in crate::mir::normal_callable_semantic_package) use lexical::nullable_recei
 #[path = "ordinary_new_coseal_issue_walk_triggers.rs"]
 mod walk_triggers;
 
+#[path = "ordinary_new_coseal_issue_integer_field.rs"]
+mod integer_fields;
+
 #[path = "ordinary_new_coseal_issue_source.rs"]
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) mod source_claims;
 use source_claims::collect_birth_site_index_v1;
@@ -61,9 +64,10 @@ mod result_membership;
 
 #[path = "ordinary_new_coseal_issue_loop.rs"]
 mod loop_issue;
-pub(super) use loop_issue::{LoopProductUnavailableV1, SelectedLoopProductV1};
+pub(super) use loop_issue::{LoopProductUnavailableV1, SelectedLoopProductV1, SelectedLoopProductRowV1};
 
 pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_cohort_v1(
+    brands: Option<&crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1>,
     batch: &VerifiedResolvedCallableSemanticBatchV1,
     selected: &VerifiedSelectedCallableBatchMapV1,
     omitted_static_callers: &BTreeSet<FunctionOwnerIdV1>,
@@ -74,6 +78,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     dynamic: &mut super::super::model::NormalCallableDynamicProjectionV1,
     instance_constructors: &VerifiedInstanceConstructorSemanticBatchV1,
     static_call_claims: &super::super::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1,
+    source_core_method_calls: &BTreeMap<SelectedNormalCallableKeyV1, super::super::core_method_source::SourceCoreMethodCallRowsV1>,
+    loop_policy: crate::mir::builder::LoopFactsPolicyFrameV1,
 ) -> Result<
     (
         OrdinaryNewClaimLedgerV1,
@@ -95,7 +101,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     let mut receiver_call_observations = BTreeMap::new();
     let mut birth_site_index = BTreeMap::new();
     let mut borrowed_formal_actuals = BTreeMap::new();
-    let mut variable_bound_mul_product = BTreeMap::new();
+    let mut selected_loop_products = BTreeMap::new();
     // Owned field children per canonical object: `Some` means every
     // residence-capable declared field has a sealed birth-side residence,
     // `None` means the disposition needs children the package never proved.
@@ -141,6 +147,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
         static_source_sites,
         borrowed_i64_results,
     ) = lexical::prepare_source_preflight_v1(
+        brands,
         batch,
         selected,
         omitted_static_callers,
@@ -168,6 +175,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     for declaration in batch.declarations() {
         let owner = declaration.owner();
         let batch_slot = declaration.batch_slot();
+        let source_core_calls = selected.keys().find(|key| selected.batch_slot(key) == Some(batch_slot))
+            .and_then(|key| source_core_method_calls.get(key));
         let is_app_main = app_main_batch_slot == Some(batch_slot);
         if selected.role_for_batch_slot(batch_slot).is_none() && !is_app_main {
             continue;
@@ -273,7 +282,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                         static_call_claims,
                         static_caller_key.clone(),
                         input, selected, parameter_contracts, app_main.as_ref(),
-                    );
+                    )?;
                 let has_borrowed_source_calls = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.incoming_calls_for_owner(input.owner())
                 });
@@ -282,14 +291,17 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let has_formal_field_read = borrowed_formal_source.as_ref().is_ok_and(|rows| {
                     rows.formal_field_read_target(input.owner())
                 });
+                let has_borrowed_walk = walk_triggers::has_original_borrowed_walk_v1(
+                    &borrowed_formal_source, parameter_contracts, &lexical_source_targets, owner,
+                )?;
                 let mut probe = |explicit_sites: &[crate::mir::resolved_semantics::SourceStmtSiteV1],
                                  pending_actuals: &mut super::lexical_instance_call::PendingBorrowedFormalActualsV1| {
                     source_claims::probe_source_home_prefixes_v1(
-                        input, &new_sites, entry_home, explicit_sites, pending_actuals,
+                        brands, source_core_calls, input, &new_sites, entry_home, explicit_sites, pending_actuals,
                         batch_slot, selected, batch, parameter_contracts,
                         &callable_result_classes, &candidates, instance_constructors,
                         receiver_proof, &array_i64_field_sets,
-                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations,
+                        &borrowed_formal_source, &static_source_sites, &lexical_source_targets, &borrowed_i64_results, &mut local_static_call, &receiver_call_observations, &field_write_claims,
                     )
                 };
                 let readiness = if seed_eligible && !new_sites.is_empty() {
@@ -320,33 +332,51 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 // the conditional release at exit, and the prior-home
                 // unwind all come from the scanned root flow — the plain
                 // seed path cannot issue any of them. `Object` receiver
-                // observations keep today's generic call floor.
-                let has_nullable_receiver_call = source_claims::has_nullable_receiver_call_v1(
+                // observations outside the guarded profile keep the generic floor.
+                let has_receiver_home_call = source_claims::has_receiver_home_call_v1(
                     owner, &receiver_call_observations,
-                );
+                    &borrowed_formal_source, parameter_contracts,
+                )?;
                 let has_me_object_field_read = walk_triggers::has_me_object_field_read_v1(
                     input, instance_constructors, &candidates,
                     batch.ordinary_box_coverage(), receiver_proof,
                 )?;
-                let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, owner)?;
+                let has_stored_terminal = lexical::has_stored_terminal_v1(&lexical_source_targets, &borrowed_i64_results, input)?;
+                let has_field_scalar_walk = source_claims::requires_field_scalar_walk_v1(&field_write_claims, owner)?;
+                let has_required_scalar_source_walk = super::lexical_instance_call::required_scalar_source_walk_v1(
+                    &borrowed_formal_source, &borrowed_i64_results, owner, &callable_result_classes,
+                ).map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: issue.0, issue: issue.1 })?;
                 let has_static_source_local = walk_triggers::has_static_source_local_v1(input, &static_source_sites) || has_current_owner_i64_source;
+                // Print expressions need the same original Home scan even
+                // without constructions, borrowed calls or owned temporaries.
+                let has_print_expression = input.body_shape().is_some_and(|shape| {
+                    shape.statements().iter().any(|statement| matches!(statement,
+                        crate::mir::resolved_semantics::BodyStatementShapeV1::Print { .. }))
+                });
+                let has_array_residence = source_core_calls.is_some_and(|rows| rows.values()
+                    .any(|row| row.contract().named_array_requirement().and_then(|row| row.residence()).is_some()));
                 let seed_completion = (seed_eligible
                     || (top_level_input.is_some() && new_sites.is_empty() && result_sites.is_empty()))
                     && !has_map
                     && !callable_result_classes.has_object_call_return(owner)
-                    && !has_nullable_receiver_call
+                    && !has_receiver_home_call
                     && !has_me_object_field_read
                     && !has_stored_terminal
+                    && !has_required_scalar_source_walk
+                    && !has_field_scalar_walk
                     && !has_static_source_local
+                    && !has_print_expression
+                    && !has_array_residence
                     && !has_integer_return
                     && !has_formal_field_read
+                    && !has_borrowed_walk
                     && !child_new_ready
                     && !child_result_ready
                     && (is_app_main || owner_loan.is_none());
                 let app_main_integer_result = walk_triggers::plain_main_integer_result_v1(
                     input,
                     is_app_main,
-                    candidates.is_empty() && result_sites.is_empty(),
+                    candidates.is_empty() && result_sites.is_empty() && !has_print_expression,
                     !has_map && owner_loan.is_none(),
                     &static_source_sites,
                 );
@@ -361,18 +391,19 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     &mut root_terminal_relation,
                     &mut top_level_input,
                 )?;
-                // A callee whose sealed use draft admits a dominated
-                // `formal.field` read needs the verified walk too: the read
-                // is issued only by this lane's `local_field_read` authority
-                // — the bounded sibling scan keeps it truthfully unavailable.
-                let verified_walk = owner_loan.is_some()
+                let verified_walk = has_print_expression
+                    || has_array_residence
+                    || owner_loan.is_some()
                     || callable_result_classes.has_object_call_return(owner)
-                    || has_nullable_receiver_call
+                    || has_receiver_home_call
                     || has_me_object_field_read
                     || has_static_source_local
                     || has_integer_return
                     || has_formal_field_read
+                    || has_borrowed_walk
                     || has_stored_terminal
+                    || has_required_scalar_source_walk
+                    || has_field_scalar_walk
                     || (is_app_main && (!new_sites.is_empty() || has_map || !result_sites.is_empty()))
                     || (seed_eligible && (has_map || child_new_ready || child_result_ready));
                 if !verified_walk && has_borrowed_source_calls {
@@ -391,39 +422,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 let (home_prefixes, argument_observations, result_prefixes) = if verified_walk {
                     let mut staged_reads = BTreeMap::new();
                     let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
-                        let field = terminal_home::initialized_integer_field(
-                            instance_constructors, &candidates, home, name)?;
-                        // A non-null-narrowed received nullable names its
-                        // class through the sealed call's `NullableObject`
-                        // claim; a guarded borrowed formal names it through
-                        // the co-sealed object view — the declared `i64`
-                        // contract and `field_home`'s non-null proof are
-                        // unchanged.
-                        let field = match field {
-                            Some(field) => Some(field),
-                            None => match lexical::nullable_received_result_class(
-                                selected, batch, &callable_result_classes, &candidates, input, home,
-                            )
-                            .or_else(|| {
-                                borrowed_formal_source
-                                    .as_ref()
-                                    .ok()
-                                    .and_then(|source| source.formal_object_view(home))
-                                    .map(|view| view.class().into())
-                            }) {
-                                Some(class) => terminal_home::nullable_result_integer_field(
-                                    instance_constructors,
-                                    batch.ordinary_box_coverage(),
-                                    &class,
-                                    site,
-                                    name,
-                                )?,
-                                None => None,
-                            },
-                        };
-                        let Some(field) = field else { return Ok(false); };
+                        let Some((field, numeric_source)) = integer_fields::consult_v1(input, selected, batch,
+                            instance_constructors, &candidates, &callable_result_classes, &borrowed_formal_source,
+                            &borrowed_i64_results, receiver_proof, site, receiver_site, receiver, home, name)? else { return Ok(false); };
                         if staged_reads.insert(site.clone(), field_reads::FieldRead {
-                            receiver_site: receiver_site.clone(), receiver, home, field,
+                            receiver_site: receiver_site.clone(), receiver, home, field, numeric_source,
                             progress: field_reads::Progress::Pending,
                         }).is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
                         Ok(true)
@@ -453,20 +456,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                     // is the idempotent answer — the first proof stages
                     // the ledger row, later asks return its result class.
                     let mut local_staged_reads: BTreeMap<OwnedExprSiteV1, field_reads::LocalFieldRead> = BTreeMap::new();
-                    let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], scalar_only| {
+                    let mut local_field_read = |requests: &[crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1], demand| {
                         let Some(rows) = source_claims::prove_local_field_read_batch(
                             instance_constructors, &candidates, batch.ordinary_box_coverage(),
-                            receiver_proof, requests, scalar_only,
+                            receiver_proof, entry_home, source_core_calls, requests, demand, &borrowed_i64_results, &borrowed_formal_source,
                             &mut |home| lexical::nullable_received_result_class(
-                                selected, batch, &callable_result_classes, &candidates, input, home,
+                                selected, batch, &callable_result_classes, &candidates, input, receiver_proof, home,
                             ),
-                            &mut |home| {
-                                borrowed_formal_source
-                                    .as_ref()
-                                    .ok()
-                                    .and_then(|source| source.formal_object_view(home))
-                                    .map(|view| view.class().into())
-                            },
+                            &mut |home| source_claims::source_formal_class_v1(&borrowed_formal_source, home), Some((batch, selected, &callable_result_classes, &lexical_source_targets, &field_write_claims)),
                         )? else { return Ok(None); };
                         source_claims::stage_local_field_read_batch(&mut local_staged_reads, rows)
                             .map(Some)
@@ -560,14 +557,14 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .map(|row| row.class()),
                                 Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
-                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(&field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             // RHS `me.<field>` reads inside a field write
                             // share the entry-receiver proof; the contract
                             // is the numeric integer-scalar set, not `i64`.
                             terminal_home::receiver_scalar_field(
                                 instance_constructors, receiver_proof, site, home, name,
                             ).map(|field| field.is_some())
-                        }, &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                        }), &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             // `me.<ArrayBox field>.m(..)` receiver proof
                             // shares the entry receiver root; the declared
                             // `ArrayBox` contract is the only admitted type.
@@ -579,33 +576,31 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                             // adds the sealed whole-Box element-integer
                             // census: the declared type alone never carries
                             // an i64 element contract.
-                            let Some((_, box_source)) = receiver_proof else {
-                                return Ok(false);
-                            };
-                            let Some(proven) = array_i64_field_sets.get(box_source.name())
-                            else {
-                                return Ok(false);
-                            };
-                            terminal_home::receiver_array_i64_field(
-                                instance_constructors, receiver_proof, site, home, name, proven,
-                            ).map(|field| field.is_some())
+                            terminal_home::receiver_array_i64_field_from_census_v1(
+                                instance_constructors, receiver_proof, &array_i64_field_sets,
+                                site, home, name,
+                            )
                         }, &mut source_claims::formal_i64_index_consult_v1(
                             input, instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut local_field_read, &mut |site, actuals| {
-                            borrowed_call_arguments_callback_v1(
+                            if borrowed_formal_source.is_err() && !source_claims::select_failed_array_initializer_v1(
+                                input, batch, brands, &lexical_source_targets, site, actuals,
+                            )? { return Ok(None); }
+                            borrowed_call_arguments_callback_v1(batch, selected,
                                 &lexical_source_targets, parameter_contracts, &candidates, receiver_proof,
                                 &borrowed_formal_source, &static_source_sites, &mut borrowed_formal_actuals, &borrowed_i64_results,
                                 &mut |binding| lexical::nullable_received_result_class(
-                                    selected, batch, &callable_result_classes, &candidates, input, binding,
+                                    selected, batch, &callable_result_classes, &candidates, input, receiver_proof, binding,
                                 ),
-                                site, actuals, &callable_result_classes, &receiver_call_observations,
+                                site, actuals, &callable_result_classes, &receiver_call_observations, &field_write_claims,
                             )
                         }, &mut source_claims::dominated_view_use_consult_v1(
-                            &borrowed_formal_source, input,
+                            &borrowed_formal_source, input, &borrowed_i64_results, &array_i64_field_sets,
+                            instance_constructors, batch.ordinary_box_coverage(),
                         ), &mut |prestate| {
                             Ok(loop_issue::issue_selected_home_loop_loan_v1(
                                 input, prestate, &loop_static_source_loans.selected_sites,
-                                &preissued_static_i64_products, &mut variable_bound_mul_product,
+                                &preissued_static_i64_products, &mut selected_loop_products, source_core_calls, loop_policy,
                             ))
                         }, &mut |site| Ok(callable_result_classes.object_return_qualification(site)))? {
                         Ok((
@@ -671,17 +666,22 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     &terminal_relation,
                                     staged_reads,
                                 )?;
-                                let relation = terminal_relation
-                                    .into_iter()
-                                    .filter(|(_, row)| retain_child_terminal_relation(row, has_map)
+                                let relation = retain_child_terminal_relations_v1(
+                                    terminal_relation, owner, has_map, |row| {
+                                    let qualified = match row {
+                                        TerminalRelationV1::Call(call) => local_static_call(&OwnedExprSiteV1::new(owner, call.call_site().clone()))?
+                                            .is_some_and(|claim| claim.is_qualified_terminal()),
+                                        _ => false,
+                                    };
+                                    Ok(qualified || borrowed_formal_source.as_ref().is_ok_and(|source| source.retains_borrowed_formal_terminal_v1(row))
                                         || matches!(row, TerminalRelationV1::Call(call)
                                             if call.owner() == owner && static_caller_key.as_ref().is_some_and(|key|
                                                 static_call_claims.current_owner_i64_source(key, call.call_site()).is_some()))
-                                        || (has_integer_return && matches!(row, TerminalRelationV1::I64Scalar(_)))
+                                        || ((has_integer_return || has_required_scalar_source_walk || has_field_scalar_walk) && matches!(row, TerminalRelationV1::I64Scalar(_)))
                                         || loop_issue::retain_static_i64_search_early_return_v1(
                                             input, static_caller_key.as_ref(), static_call_claims,
                                             &preissued_static_i64_products, row))
-                                    .collect();
+                                })?;
                                 seeds.push_completion_with_top_level_input(
                                     declaration, selected, Rc::new(completion), relation, top_level_input.take(),
                                 ).map_err(OrdinaryNewCoSealIssueV1::CompletionSeed)?;
@@ -736,6 +736,8 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
             &mut owned_field_children,
         )?;
     }
+    super::field_array_read_source::retain_argument_reads(batch, selected, instance_constructors, &borrowed_i64_results,
+        &array_i64_field_sets, &mut claims, &mut result_claims)?;
     // Constructor (birth) rows are not batch declarations — they join
     // through the program-source loan, so the index collects them here.
     // Their owners never collide with declaration-owned claim sites;
@@ -771,7 +773,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     );
     ledger.lexical_source_targets = Some(lexical_source_targets);
     ledger.borrowed_static_source_sites = Some(static_source_sites);
-    ledger.variable_bound_mul_product = variable_bound_mul_product;
+    ledger.selected_loop_products = selected_loop_products;
     ledger.install_borrowed_formal_preparation_v1(
         borrowed_formal_source,
         borrowed_formal_actuals,
@@ -779,7 +781,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
     );
     ledger.receiver_call_observations = receiver_call_observations;
     ledger.field_write_claims = field_write_claims;
-    ledger.callable_result_classes = callable_result_classes;
+    source_claims::install_result_classes_with_argument_loans_v1(&mut ledger, callable_result_classes)?;
     ledger.array_i64_fields = array_i64_field_sets;
     ledger.birth_site_index = std::cell::RefCell::new(birth_site_index);
     ledger.root_completion = root_completion;

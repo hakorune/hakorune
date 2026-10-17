@@ -72,6 +72,7 @@ impl MirBuilder {
                 None,
                 Rc::clone(&ledger),
                 None,
+                None,
                 |inner, transport| {
                     inner.with_source_transport_v1(transport, |inner, ()| {
                         inner
@@ -152,6 +153,7 @@ impl MirBuilder {
                 Some(observation),
                 None,
                 ledger,
+                None,
                 None,
                 |inner, transport| {
                     inner.with_declared_instance_locator_scope(locator, |inner| {

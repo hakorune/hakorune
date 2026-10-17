@@ -48,6 +48,20 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
+    fn prepare_borrowed_field_write_guard_observer_v1(&mut self)
+        -> Result<Option<Box<dyn crate::mir::builder::if_form::IfFormPhysicalObserverV1>>, String> {
+        self.child.prepare_borrowed_field_write_guard_observer_v1()
+    }
+
+    fn prepare_checked_bool_condition_v1(&mut self) -> Result<Option<std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>>, String> {
+        self.child.prepare_checked_bool_condition_v1()
+    }
+    fn lower_checked_bool_condition_v1(&mut self, builder: &mut MirBuilder,
+        frame: std::rc::Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedBoolConditionFrameV1>, condition: ASTNode,
+    ) -> Result<crate::mir::builder::ordinary_new_admission::selected::bool_condition::LoweredBoolConditionV1, String> {
+        self.child.lower_checked_bool_condition_v1(builder, frame, condition)
+    }
+
     fn cleanup_exit_policy_v1(
         &self,
     ) -> crate::mir::builder::control_flow::cleanup::CleanupExitPolicyV1 {
@@ -224,8 +238,19 @@ where
         let syntax = port.if_syntax(input)?;
         (syntax.condition().clone(), syntax.has_explicit_else())
     };
+    let checked = port.prepare_checked_bool_condition_v1()?;
     let condition_input = port.if_condition_expression_input(input)?;
-    let condition_value = drive_legacy_expression_v1(builder, port, condition_input)?;
+    let (condition_value, mut checked) = match checked {
+        Some(frame) => {
+            let lowered = port.lower_checked_bool_condition_v1(builder, frame, condition_input)?;
+            (lowered.value(), Some(lowered))
+        },
+        None => (drive_legacy_expression_v1(builder, port, condition_input)?, None),
+    };
+    let mut write_guard = port.prepare_borrowed_field_write_guard_observer_v1()?;
+    if checked.is_some() && write_guard.is_some() {
+        return Err("[freeze:contract][borrowed-write-guard/condition-owner-overlap]".into());
+    }
     let condition_debug =
         prepare_if_statement_condition_value_v1(builder, condition_value, &condition_syntax)?;
 
@@ -235,7 +260,7 @@ where
     let mut then_demanded = false;
     let mut else_demanded = false;
 
-    builder.lower_if_form_with_condition_value_and_branch_lowerer(
+    builder.lower_if_form_with_physical_observer_v1(
         condition_value,
         condition_debug,
         has_explicit_else,
@@ -255,6 +280,10 @@ where
                 }
             };
             drive_legacy_body_v1(builder, port, body)
+        },
+        match write_guard.as_mut() {
+            Some(observer) => Some(observer.as_mut()),
+            None => checked.as_mut().map(|lowered| lowered.observer()),
         },
     )?;
     Ok(())

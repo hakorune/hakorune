@@ -224,6 +224,7 @@ impl CallableSemanticLoweringState {
             loop_break_source,
             source_core_method_calls,
             named_array_writes: Vec::new(),
+            named_array_reads: Vec::new(),
             named_array_field_providers: BTreeMap::new(),
             named_array_field_allocations: BTreeSet::new(),
             source_static_result_publications: BTreeMap::new(),

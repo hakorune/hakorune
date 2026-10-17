@@ -69,7 +69,7 @@ fn unified_array_write_failure_publishes_no_receiver_observation() {
     let (receiver, value) = install_array_receiver_and_integer_value(&mut builder);
     builder.function_state.current_block = None;
 
-    let error = UnifiedCallEmitterBox::emit_unified_call_impl(
+    let error = UnifiedCallEmitterBox::emit_array_write_with_lookup_receipt_v1(
         &mut builder,
         None,
         CallTarget::Method {
@@ -78,6 +78,7 @@ fn unified_array_write_failure_publishes_no_receiver_observation() {
             receiver,
         },
         vec![value],
+        None,
     )
     .unwrap_err();
 
@@ -87,22 +88,34 @@ fn unified_array_write_failure_publishes_no_receiver_observation() {
 
 #[test]
 fn unified_array_write_success_observes_semantic_receiver_after_emission() {
-    let mut builder = builder_with_entry("array_write_unified_success/0");
-    let (receiver, value) = install_array_receiver_and_integer_value(&mut builder);
-
-    UnifiedCallEmitterBox::emit_unified_call_impl(
-        &mut builder,
-        None,
-        CallTarget::Method {
-            box_type: Some("ArrayBox".to_string()),
-            method: "push".to_string(),
-            receiver,
-        },
-        vec![value],
-    )
-    .unwrap();
-
-    assert_array_receiver_is_observed(&builder, receiver);
+    for (method, kind, indexed) in [
+        ("push", crate::mir::ArrayElementWriteKind::Push, false),
+        ("set", crate::mir::ArrayElementWriteKind::Set, true),
+        ("insert", crate::mir::ArrayElementWriteKind::Insert, true),
+    ] {
+        let mut builder = builder_with_entry("array_write_unified_success/0");
+        let (receiver, value) = install_array_receiver_and_integer_value(&mut builder);
+        let index = indexed.then(|| builder.alloc_value_for_test());
+        let mut arguments: Vec<_> = index.into_iter().collect();
+        arguments.push(value);
+        let block = builder.function_state.current_block.unwrap();
+        let depth = builder.recursion_depth;
+        let completed = UnifiedCallEmitterBox::emit_array_write_with_lookup_receipt_v1(
+            &mut builder, None, CallTarget::Method {
+                box_type: Some("ArrayBox".to_string()), method: method.to_string(), receiver,
+            }, arguments, None,
+        ).unwrap();
+        assert_eq!(builder.recursion_depth, depth);
+        assert_eq!(completed.original().0, block);
+        assert!(matches!(completed.original().1, MirInstruction::ArrayElementWrite {
+            site_id, kind: actual, producer: crate::mir::ArrayWriteProducerKind::MethodCall,
+            receiver: actual_receiver, index: actual_index, value: actual_value, ..
+        } if site_id == completed.site() && actual == kind && actual_receiver == receiver
+            && actual_index == index && actual_value == value));
+        assert_eq!(builder.function_state.current_function.as_ref().unwrap().blocks[&block]
+            .instructions.iter().filter(|row| **row == completed.original().1).count(), 1);
+        assert_array_receiver_is_observed(&builder, receiver);
+    }
 }
 
 #[test]

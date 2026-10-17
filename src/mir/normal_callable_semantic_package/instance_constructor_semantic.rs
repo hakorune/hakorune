@@ -7,7 +7,10 @@ mod formal_contract;
 #[path = "instance_construction_provider_source.rs"]
 pub(super) mod provider_source;
 mod object_definition;
-use super::instance_construction::{issue_construction_plan, ConstructionEligibilityV1};
+use super::instance_construction::{
+    issue_construction_plan, issue_construction_source_v1, ConstructionEligibilityV1,
+    ConstructionPlanV1, ConstructionSourceEligibilityV1,
+};
 pub(crate) use formal_contract::{
     BirthFormalContractV1, BirthFormalDeclarationClassV1, BirthFormalPhysicalDispositionV1,
     BirthFormalUseCoverageV1,
@@ -76,6 +79,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     birth_completion: Option<VerifiedFunctionCompletionV1>,
     birth_effect: Option<DeclaredInstanceCallSemanticEffectV1>,
     construction: ConstructionEligibilityV1,
+    construction_source: ConstructionSourceEligibilityV1,
     provider_static_arguments: Box<[std::rc::Rc<provider_source::ProviderStaticArgumentSourceV1>]>,
     formal_contracts: Box<[BirthFormalContractV1]>,
 }
@@ -100,6 +104,40 @@ pub(crate) enum InstanceConstructorBirthLookupErrorV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticBatchV1 {
+    pub(super) fn finish_ordered_unit_plans_v1(
+        &mut self, ledger: &mut super::OrdinaryNewClaimLedgerV1,
+    ) -> Result<(), String> {
+        for row in self.rows.iter_mut() {
+            if row.kind != ConstructorSourceKindV1::Birth || row.source_arity != 0
+                || row.construction != Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
+                || !row.construction_source.as_ref().is_ok_and(|source| source.steps().iter().any(|step|
+                    matches!(step, super::instance_construction::ConstructionSourceStepV1::StoredChildCall(_)))) {
+                continue;
+            }
+            let qualified = ConstructionPlanV1::qualify_ordered_unit_calls_v1(&row.construction_source,
+                |source, site| ledger.constructor_unit_step_ready_v1(source, site))?;
+            let Ok(plan) = qualified else { continue; };
+            // Receiver selection already installed canonical provider End
+            // inventory in the same ledger; never issue it again here.
+            for store in plan.stores() {
+                if let super::instance_construction::ConstructionStoreRhsV1::ProviderConstruction {
+                    object: Some(child), owned_fields, ..
+                } = store.rhs() {
+                    if !owned_fields.is_empty() {
+                        let children = ledger.owned_field_children_for(child.object())
+                            .flatten().ok_or("[freeze:contract][constructor-unit/provider-end-missing]")?;
+                        if children != owned_fields.as_ref() {
+                            return Err("[freeze:contract][constructor-unit/provider-end-drift]".into());
+                        }
+                    }
+                }
+            }
+            ledger.install_late_constructor_plan_v1(row, &plan)?;
+            row.construction = Ok(plan);
+        }
+        Ok(())
+    }
+
     /// One-way projection while co-sealing New claims, before collector transfer.
     /// `object_for` deliberately remains usable after the payload has moved.
     pub(super) fn destruction_for(
@@ -297,12 +335,17 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 }
 
 impl VerifiedInstanceConstructorSemanticRowV1 {
+    pub(super) fn box_source_v1(&self) -> &ParserOrdinaryBoxSourceRowV1 { &self.box_source }
+
     pub(crate) const fn object(&self) -> CanonicalObjectIdV1 {
         self.object
     }
 
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         &self.construction
+    }
+    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
+        &self.construction_source
     }
 
     pub(crate) fn formal_contracts(&self) -> &[BirthFormalContractV1] {
@@ -640,14 +683,14 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                             &source_id, object, parent, input, &caller, static_claims))
                         .map_err(|_| InstanceConstructorSemanticBatchIssueV1::SourceCoverage)?
                 } else { Box::new([]) };
-                let construction = if kind == ConstructorSourceKindV1::Birth {
+                let construction_source = if kind == ConstructorSourceKindV1::Birth {
                     let birth_key =
                         hakorune_mir_defs::CanonicalSameModuleCallableKeyV1::birth_constructor(
                             &box_name,
                             source_arity,
                         );
                     source.with_ordinary_box_syntax(&box_source, |parent| {
-                        issue_construction_plan(
+                        issue_construction_source_v1(
                             object,
                             &box_source,
                             parent,
@@ -661,8 +704,10 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 } else {
                     Err(super::instance_construction::ConstructionUnavailableV1::BodyCoverageUnsupported)
                 };
+                let construction = ConstructionPlanV1::without_child_calls(&construction_source);
                 let mut row = VerifiedInstanceConstructorSemanticRowV1 {
                     construction,
+                    construction_source,
                     provider_static_arguments,
                     formal_contracts: Box::new([]),
                     // Only the exact unannotated source contract is selected.

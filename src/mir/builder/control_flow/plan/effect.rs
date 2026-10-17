@@ -19,6 +19,7 @@ pub(in crate::mir::builder) enum CoreEffectPlan {
         source: CoreCallSourceV1,
         receiver: ValueId,
         value: ValueId,
+        argument: Option<super::normalizer::helpers_value::SourceValueProjectionV1>,
         emission: crate::mir::normal_callable_semantic_package::NamedArrayWriteEmissionPortV1,
     },
     /// Canonical declared-instance call from a locator-backed `me.method`

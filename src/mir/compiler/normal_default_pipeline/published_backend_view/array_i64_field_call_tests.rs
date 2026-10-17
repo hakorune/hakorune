@@ -126,3 +126,65 @@ fn array_i64_get_publishes_through_array_element_read() {
         });
     }
 }
+
+/// Exercise the source scalar loan, rather than local-result Trivial promotion.
+/// The original forwarding call selects the same participation as the app.
+#[test]
+fn array_i64_checked_scalar_read_publishes_and_rejects_physical_drift() {
+    for body in [
+        "return me.values.get(handle.block_id)",
+        "local v = me.values.get(handle.block_id) if handle == null { return v } return v",
+    ] {
+        let text = format!("box Handle {{ block_id: i64 birth() {{ me.block_id = 0 }} }} box Page {{ values: ArrayBox = new ArrayBox() birth() {{ }} probe(handle): i64 {{ if handle == null {{ return 0 }} me.values.set(0, 7) {body} }} }} box Heap {{ page: Page birth() {{ me.page = new Page() }} relay(handle: Handle): i64 {{ if handle == null {{ return 0 }} return me.page.probe(handle) }} qualified(): i64 {{ local h = new Handle() return me.relay(h) }} }} static box Main {{ main() {{ return 0 }} }}");
+        crate::runtime::ring0::ensure_global_ring0_initialized();
+        crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            MirCompiler::with_options(false).compile_normal_with_published(
+                request(&text),
+                |view, _| -> Result<(), String> {
+                    let handoff = view.retained_handoff.expect("original finalized source");
+                    let function = &view.module().functions["Page.probe/1"];
+                    assert_eq!(function.metadata.named_array_read_obligations.len(), 1);
+                    let marker = function.metadata.named_array_read_obligations[0].clone();
+                    assert_eq!(function.signature.return_type, crate::mir::MirType::Integer);
+                    assert_eq!(function.metadata.value_types.get(&marker.dst), Some(&crate::mir::MirType::Integer));
+                    assert_eq!(view.array_element_reads().len(), 1);
+                    handoff.validate_named_arrays(view.module())?;
+                    view.issue_lifecycle_physical_abi_input()?;
+                    for mutation in 0..8 {
+                        let mut changed = view.module().clone();
+                        let function = changed.functions.get_mut("Page.probe/1").unwrap();
+                        match mutation {
+                            0..=2 => {
+                                let read = function.blocks.values_mut().flat_map(|b| b.instructions.iter_mut()).find(|instruction|
+                                    matches!(instruction, crate::mir::MirInstruction::ArrayElementRead { site_id, .. } if *site_id == marker.read)).unwrap();
+                                let crate::mir::MirInstruction::ArrayElementRead { dst, receiver, index, .. } = read else { unreachable!() };
+                                match mutation {
+                                    0 => *dst = Some(marker.receiver),
+                                    1 => *receiver = marker.index,
+                                    _ => *index = marker.receiver,
+                                }
+                            }
+                            3 => { function.metadata.value_types.insert(marker.dst, crate::mir::MirType::Unknown); }
+                            4 => { function.metadata.value_types.insert(marker.index, crate::mir::MirType::Unknown); }
+                            5 => function.metadata.named_array_read_obligations.clear(),
+                            6 => function.metadata.named_array_read_obligations.push(marker.clone()),
+                            _ => {
+                                let producer = function.blocks.values_mut().flat_map(|b| b.instructions.iter_mut()).find(|instruction|
+                                    matches!(instruction, crate::mir::MirInstruction::FieldGet { dst, .. } | crate::mir::MirInstruction::ObjectFieldGet { dst, .. } if *dst == marker.receiver)).unwrap();
+                                match producer {
+                                    crate::mir::MirInstruction::FieldGet { base, .. } | crate::mir::MirInstruction::ObjectFieldGet { base, .. } => *base = marker.index,
+                                    _ => unreachable!(),
+                                }
+                            }
+                        }
+                        assert!(handoff.validate_named_arrays(&changed).is_err(), "mutation {mutation}: {body}");
+                        if let Ok(changed_view) = PublishedMirBackendView::try_new(&changed) {
+                            assert!(changed_view.bind_finalized_root_handoff(Some(handoff)).is_err(), "publication final mutation {mutation}: {body}");
+                        }
+                    }
+                    Ok(())
+                },
+            ).unwrap_or_else(|error| panic!("{body}: {error}"));
+        });
+    }
+}

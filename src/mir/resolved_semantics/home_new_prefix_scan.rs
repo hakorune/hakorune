@@ -1,7 +1,7 @@
 //! Per-statement source walk inside `scan_new_home_flow`: the loop owns no
 //! separate authority — every observation still lands in the caller's rows.
-use super::*;
 use super::SelectedLoopHomeLoanV1;
+use super::*;
 
 /// Returns `true` when this path terminated at an explicit exit site —
 /// statements past it are unreachable on this path and are never walked.
@@ -68,13 +68,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     ) -> Result<bool, E>,
     // The issuer's receiver-side scalar-field proof for `me.<field>` reads
     // inside a field-write RHS — same evidence shape, separate contract.
-    scalar_field: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     // The issuer's receiver-side container-field proof for `me.<field>`
     // receivers of builtin container calls — a separate contract.
     container_field: &mut impl FnMut(
@@ -110,7 +104,7 @@ pub(super) fn scan_statement_flow<'a, E>(
     // predicate alone decides the field declaration and result class.
     local_field_read: &mut impl FnMut(
         &[LocalFieldReadRequestV1],
-        bool,
+        LocalFieldReadDemandV1,
     ) -> Result<Option<Vec<LocalFieldReadResultV1>>, E>,
     borrowed_actuals: &mut impl FnMut(
         &OwnedExprSiteV1,
@@ -136,28 +130,8 @@ pub(super) fn scan_statement_flow<'a, E>(
             return Ok(false);
         };
         covered_statements.push(statement.site().clone());
-        let call_root = match statement.node() {
-            ASTNode::Return { value: Some(_), .. } => input
-                .source()
-                .child_expr_from_stmt(&statement, ExprChildRoleV1::ReturnValue)
-                .ok()
-                .map(|expr| expr.site().clone()),
-            ASTNode::MethodCall { .. } => {
-                Some(SourceExprSiteV1::from_node(statement.site().node().clone()))
-            }
-            _ => None,
-        };
-        if let Some(site) = call_root {
-            let owned = OwnedExprSiteV1::new(input.owner(), site);
-            for (call_site, actuals) in local_call_flow::observe_borrowed_call_actuals(
-                input,
-                &owned,
-                locals,
-                unavailable.is_none(),
-            ) {
-                borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
-            }
-        }
+        local_call_flow::stage_statement_actuals(input, &statement, locals,
+            unavailable.is_none(), homes, borrowed_actuals)?;
 
         if exit_sites.contains(statement.site()) {
             super::terminal::observe_terminal_statement(
@@ -234,12 +208,30 @@ pub(super) fn scan_statement_flow<'a, E>(
             }
             continue;
         }
+        if matches!(statement.node(), ASTNode::Print { .. }) {
+            if !super::print::observe(input, &statement, locals, homes, unavailable.is_none(),
+                local_calls, path_calls, local_field_read, borrowed_actuals)? {
+                unavailable.get_or_insert_with(|| HomePrefixUnavailableV1::PrefixNotCovered(statement.site().clone()));
+            }
+            continue;
+        }
         let ASTNode::Local {
             variables,
             initial_values,
             ..
         } = statement.node()
         else {
+            if super::named_array::observe_append(
+                input,
+                &statement,
+                locals,
+                homes,
+                covered_statements,
+                unavailable,
+                borrowed_actuals,
+            )? {
+                continue;
+            }
             if matches!(statement.node(), ASTNode::MethodCall { .. }) {
                 if let Some(call) = local_call_flow::issue_lexical_i64_discard_call(
                     input,
@@ -254,15 +246,16 @@ pub(super) fn scan_statement_flow<'a, E>(
                     continue;
                 }
             }
-            // A self-rooted `me.<field> = <rhs>` write with a Home-neutral
-            // RHS is covered without ledger rows — the raw lane already
-            // owns the plain `FieldSet` emission.
-            if field_write::observe_receiver_field_write(
+            // The source effect and its original RHS plan share this Home
+            // walk. The existing raw writer remains the sole FieldSet emitter.
+            if field_write::observe(
                 input,
                 &statement,
                 locals,
+                homes,
                 scalar_field,
                 view_use,
+                local_field_read,
             )? {
                 continue;
             }
@@ -287,33 +280,69 @@ pub(super) fn scan_statement_flow<'a, E>(
             // exact Loop point. Only a complete source-bound After loan can
             // advance this walk; a typed refusal keeps the old first-stop.
             if matches!(statement.node(), ASTNode::Loop { .. }) && unavailable.is_none() {
-                if let Some(request) = locals.loop_i64_prestate(statement.site()) {
+                if let Some(request) = locals.loop_i64_prestate(statement.site(), homes) {
                     match loop_prestate(request)? {
+                        Some(SelectedLoopHomeLoanV1::NoExitArrayAfter(loan)) => {
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
+                                if locals.install_no_exit_array_after(current, loan) { continue; }
+                            }
+                        }
                         Some(SelectedLoopHomeLoanV1::VariableAccumAfter(loan)) => {
                             // Re-observe at this same point: the callback does
                             // not mutate Home state before installing carriers.
-                            if let Some(current) = locals.loop_i64_prestate(statement.site()) {
-                                if locals.install_loop_i64_after(current, loan) { continue; }
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
+                                if locals.install_loop_i64_after(current, loan) {
+                                    continue;
+                                }
                             }
                         }
                         Some(SelectedLoopHomeLoanV1::StaticI64Search(source)) => {
-                            if let Some(current) = locals.loop_i64_prestate(statement.site()) {
+                            if let Some(current) = locals.loop_i64_prestate(statement.site(), homes) {
                                 if current.proves_integer(source.bin_binding())
                                     && current.proves_integer(source.n_binding())
                                     && super::search_loop::observe_static_i64_search_loop(
-                                        input, &statement, &source, exit_sites, selected,
-                                        result_sites, results, exit_homes, maps, local_calls,
-                                        path_calls, terminal_relations, argument_observations,
-                                        result_prefixes, locals, homes, covered_statements,
-                                        selected_seen, unavailable, field_is_integer,
-                                        map_compatible, terminal_call, local_map_call,
-                                        local_handle_call, local_lexical_i64_call,
-                                        local_lexical_nullable_call, local_nullable_call,
-                                        local_static_call, argument_i64_field, scalar_field,
-                                        container_field, array_i64_field, formal_i64_field,
-                                        local_field_read, borrowed_actuals, view_use,
-                                        loop_prestate, object_return,
-                                    )? { continue; }
+                                        input,
+                                        &statement,
+                                        &source,
+                                        exit_sites,
+                                        selected,
+                                        result_sites,
+                                        results,
+                                        exit_homes,
+                                        maps,
+                                        local_calls,
+                                        path_calls,
+                                        terminal_relations,
+                                        argument_observations,
+                                        result_prefixes,
+                                        locals,
+                                        homes,
+                                        covered_statements,
+                                        selected_seen,
+                                        unavailable,
+                                        field_is_integer,
+                                        map_compatible,
+                                        terminal_call,
+                                        local_map_call,
+                                        local_handle_call,
+                                        local_lexical_i64_call,
+                                        local_lexical_nullable_call,
+                                        local_nullable_call,
+                                        local_static_call,
+                                        argument_i64_field,
+                                        scalar_field,
+                                        container_field,
+                                        array_i64_field,
+                                        formal_i64_field,
+                                        local_field_read,
+                                        borrowed_actuals,
+                                        view_use,
+                                        loop_prestate,
+                                        object_return,
+                                    )?
+                                {
+                                    continue;
+                                }
                             }
                         }
                         None => {}
@@ -329,6 +358,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &statement,
                 locals,
                 unavailable.is_none(),
+                homes,
                 borrowed_actuals,
             )?;
             unavailable.get_or_insert_with(|| {
@@ -382,9 +412,38 @@ pub(super) fn scan_statement_flow<'a, E>(
                 &owned,
                 locals,
                 unavailable.is_none(),
+                homes,
             ) {
                 // Preparation changes neither call coverage nor Home ownership.
                 borrowed_actuals(&call_site, BorrowedCallActualRequestV1::Observe(&actuals))?;
+            }
+            if mixed_call::observe(input, statement.site(), &owned, &declaration, binding,
+                homes, locals, local_calls, path_calls, unavailable, borrowed_actuals)? {
+                continue;
+            }
+            if let Some(selected) = local_call_flow::issue_borrowed_nullable_local_call(
+                input,
+                statement.site(),
+                &owned,
+                declaration.clone(),
+                binding,
+                &homes,
+                borrowed_actuals,
+            )? {
+                match selected {
+                    Ok(local_call) => {
+                        let loan = local_call
+                            .borrowed_nullable()
+                            .expect("source issuer retains its loan");
+                        locals.install_borrowed_nullable(loan.clone());
+                        path_calls.insert(local_call.site().clone());
+                        local_calls.push(local_call);
+                    }
+                    Err(issue) => {
+                        unavailable.get_or_insert(issue);
+                    }
+                }
+                continue;
             }
             if let Some(local_call) = local_call_flow::issue_local_call(
                 input,
@@ -613,6 +672,17 @@ pub(super) fn scan_statement_flow<'a, E>(
                 } else {
                     maps.push(map_flow::MapHomeObservation::Unavailable { site: owned });
                 }
+            } else if super::named_array::observe_initializer(
+                input,
+                &owned,
+                binding,
+                locals,
+                homes,
+                covered_statements,
+                unavailable,
+                borrowed_actuals,
+            )? {
+                // Source obligation retained; no producer execution is inferred.
             } else if let Some(class) = locals.observe(site) {
                 locals.install_observed(binding, class);
             } else if let Some(result_kind) = field_call::observe_local_field_call(
@@ -651,11 +721,23 @@ pub(super) fn scan_statement_flow<'a, E>(
                 // ordinary-box results are borrowed field aliases that
                 // join no Home set.
                 match result {
+                    field_read::LocalFieldReadResultV1::DeclaredArray(_) => {
+                        // Statement-call provenance never installs a local Home.
+                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                    }
                     field_read::LocalFieldReadResultV1::Scalar => {
                         locals.install_scalar_call_result(
                             binding,
                             local_flow::SourceScalarKind::Integer,
                         );
+                    }
+                    field_read::LocalFieldReadResultV1::BorrowedArray(source) => {
+                        let Some(request) = field_read::field_read_request(input, site, locals) else {
+                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
+                        };
+                        if !locals.install_borrowed_array_field(binding, source, request.home) {
+                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                        }
                     }
                     field_read::LocalFieldReadResultV1::Alias(class) => {
                         let Some(request) = field_read::field_read_request(input, site, locals)
@@ -663,7 +745,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                             unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
                             continue;
                         };
-                        locals.install_field_alias(binding, class, request.home);
+                        locals.install_field_alias(binding, class, request);
                     }
                 }
                 continue;
@@ -676,7 +758,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     locals,
                     local_field_read,
                     statement.site(),
-                    homes,
+                    homes, unavailable.is_none(),
                     local_static_call,
                     view_use,
                     borrowed_actuals,

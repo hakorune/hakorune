@@ -1,9 +1,9 @@
 /* Return output from the existing admitted function. This child issues no
  * identity, lease, result role, or source permission; ferror stays with owner. */
-static void lv4_emit_return(FILE* f, const hako_lv4_input* in,
+static int lv4_emit_return(FILE* f, const hako_lv4_input* in,
     yyjson_val* fn, yyjson_val* term, uint32_t b,
     int birth, int ordinary_map, int ordinary) {
-  if (birth) fprintf(f, "  ret i32 0\n");
+  if (birth || lv4_is(fn, "role", "ordinary_unit")) fprintf(f, "  ret i32 0\n");
   else if (ordinary_map) {
     /* Move the live lease into caller-owned storage, then dispose the
        moved-from slot. The caller owns the resulting live map. */
@@ -27,6 +27,7 @@ static void lv4_emit_return(FILE* f, const hako_lv4_input* in,
           "  br i1 %%return_int%u, label %%return_payload%u, label %%fault\nreturn_payload%u:\n",
           b, value, b, b, b);
     }
+    if (hako_physical_object_result_role(fn) && !lv4_emit_object_return_outcome(f, in, fn, term, b)) return 0;
     fprintf(f, "  store i64 %%v%u, ptr %%out_i64, align 8\n  ret i32 0\n", value);
   }
   else if (lv4_is(fn, "role", "root_unit")) {
@@ -50,4 +51,5 @@ static void lv4_emit_return(FILE* f, const hako_lv4_input* in,
         b, value, b, b, b, b, b, b, b, b, b, value, b, b,
         b, NYRT_FAULT_REASON_EXIT_CODE_OUT_OF_RANGE_V1, (unsigned long long)in->result_site, value, b, b, b);
   }
+  return !ferror(f);
 }

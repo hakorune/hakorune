@@ -1,22 +1,143 @@
 //! Same-owner final cleanup corroboration, retaining original source order.
+use crate::mir::normal_callable_semantic_package::CallValidationContextV1;
 use super::*;
 use crate::mir::MirModule;
+use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 
 impl FinalizedRootSourceHandoffV1 {
+    /// The same implicit cleanup consumer, scoped to one original participant;
+    /// no executable Call or additional cleanup receipt is manufactured.
+    pub(super) fn validate_finalized_implicit_participant_v1(
+        &self, owner: FunctionOwnerIdV1, module: &MirModule,
+    ) -> Result<(), String> {
+        self.ledger.with_finished_projection(owner, |symbol, projection| {
+            let function = module.functions.get(symbol)
+                .filter(|function| function.signature.name == symbol)
+                .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
+            let exits = self.ledger.root_exits.borrow();
+            let Some(RootHomeExitProgress::Emitted { order, origins, bindings, entry }) =
+                exits.get(&(owner, RootHomeExitKeyV1::ImplicitBodyEnd))
+            else { return Err(freeze("implicit-exit/unconsumed")); };
+            validate_finished_implicit_cleanup(&self.ledger, self, owner, function,
+                projection, order, origins, bindings, entry)
+        })
+    }
+
+    /// Lend the original complete conditional End operations only after the
+    /// same source cleanup and finished-binding correspondence checks.
+    pub(in crate::mir) fn object_end_bindings_v1(
+        &self, module: &MirModule, function: &MirFunction,
+    ) -> Result<Vec<(BasicBlockId, MirInstruction)>, String> {
+        if !module.functions.get(&function.signature.name)
+            .is_some_and(|stored| std::ptr::eq(stored, function))
+        { return Err(freeze("conditional-end/function-membership")); }
+        let mut result = Vec::new();
+        let exits = self.ledger.root_exits.borrow();
+        for ((owner, exit), progress) in exits.iter() {
+            let (order, entry, bindings, original) = match progress {
+                RootHomeExitProgress::Emitted { order, entry, bindings, .. } =>
+                    (order, entry, bindings.as_slice(), true),
+                RootHomeExitProgress::Finalized(order) => {
+                    if *owner != self.owner { return Err(freeze("conditional-end/foreign-finalized")); }
+                    let site = exit.explicit_site().ok_or_else(|| freeze("conditional-end/finalized-implicit"))?;
+                    let (entry, bindings) = self.call_entries.get(site)
+                        .ok_or_else(|| freeze("conditional-end/entry-missing"))?;
+                    (order, entry, bindings.as_slice(), false)
+                }
+                _ => continue, // No uncompleted row can lend an operation.
+            };
+            let mut candidates = bindings.to_vec();
+            entry.append_bindings(&mut candidates);
+            if !candidates.iter().any(|(_, row)| matches!(row,
+                MirInstruction::Invoke { operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. }))
+            { continue; }
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                if !module.functions.get(symbol).is_some_and(|stored| std::ptr::eq(stored, function)) {
+                    return Err(freeze("conditional-end/function-membership"));
+                }
+                let finishing = original.then_some(projection);
+                if let Some(site) = exit.explicit_site() {
+                    validate_finished_cleanup_entry(&self.ledger, *owner, site, function,
+                        projection, order, entry, bindings, finishing)?;
+                } else {
+                    let RootHomeExitProgress::Emitted { origins, .. } = progress else {
+                        return Err(freeze("conditional-end/implicit-unfinished"));
+                    };
+                    validate_finished_implicit_cleanup(&self.ledger, self, *owner,
+                        function, projection, order, origins, bindings, entry)?;
+                }
+                for group in entry.local_call_groups() {
+                    group.validate_recorded_in_context(CallValidationContextV1::Finalized(self),
+                        function, Some(projection))?;
+                }
+                lend_conditional_end_bindings(&mut result, function, projection, &candidates, finishing)?;
+                Ok(())
+            })?;
+        }
+        // The retained final pool also owns Call-Fault cleanup groups.
+        // Never return to the moved lowering packet pool after handoff.
+        for (owner, groups) in &self.local_calls {
+            self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                for group in groups {
+                    group.validate_recorded_in_context(CallValidationContextV1::Finalized(self),
+                        function, Some(projection))?;
+                    lend_conditional_end_bindings(&mut result, function, projection,
+                        group.bindings(), Some(projection))?;
+                }
+                Ok(())
+            })?;
+        }
+        // New's allocation/Birth Fault paths have the same previous-Home End
+        // obligations. Reuse only the original Ordinary/Result row verifier.
+        for (site, row) in self.ledger.local_commits.borrow().iter() {
+            if !matches!(row, LocalCommitV1::Ordinary(_) | LocalCommitV1::Result(_)) { continue; }
+            let Some(NewEmissionProgress::Emitted { bindings, .. }) = row.new_emission() else { continue; };
+            if !bindings.iter().any(|(_, row)| matches!(row, MirInstruction::Invoke {
+                operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. }))
+            { continue; }
+            self.ledger.with_finished_projection(row.owner(), |symbol, projection| {
+                if symbol != function.signature.name { return Ok(()); }
+                self.ledger.validate_ordinary_new_row_emission_projected(row.owner(), site,
+                    row, function, Some(projection))?;
+                lend_conditional_end_bindings(&mut result, function, projection,
+                    bindings, Some(projection))
+            })?;
+        }
+        Ok(result)
+    }
+
     pub(in crate::mir) fn validate_finalized_root_cleanup_v1(
         &self,
         module: &MirModule,
     ) -> Result<(), String> {
+        self.ledger.with_finished_projection(self.owner, |symbol, _| {
+            let root = module.functions.get(symbol).ok_or_else(|| freeze("main-arguments/root-missing"))?;
+            self.main_arguments_bindings_v1(module, root).map(|_| ())
+        })?;
         let exits = self.ledger.root_exits.borrow();
         for exit in self.call_entries.keys() {
             if !matches!(
-                exits.get(&(self.owner, exit.clone())),
+                exits.get(&(self.owner, exit.clone().into())),
                 Some(RootHomeExitProgress::Finalized(_))
             ) {
                 return Err(freeze("final-cleanup/order-missing"));
             }
         }
         for ((owner, exit), progress) in exits.iter() {
+            let Some(exit) = exit.explicit_site() else {
+                let RootHomeExitProgress::Emitted { order, origins, bindings, entry } = progress else {
+                    return Err(freeze("implicit-exit/unconsumed"));
+                };
+                self.ledger.with_finished_projection(*owner, |symbol, projection| {
+                    let function = module.functions.get(symbol)
+                        .ok_or_else(|| freeze("final-cleanup/function-missing"))?;
+                    validate_finished_implicit_cleanup(&self.ledger, self, *owner,
+                        function, projection, order, origins, bindings, entry)
+                })?;
+                continue;
+            };
             match progress {
                 RootHomeExitProgress::Finalized(order) => {
                     if *owner != self.owner {
@@ -166,7 +287,7 @@ pub(super) fn validate_finished_cleanup_entry(
             return Err(freeze("final-cleanup/binding-unrecorded"));
         }
     }
-    order.validate_direct_entry(entry, bindings, finishing)?;
+    order.validate_direct_entry(ledger, owner, exit, entry, bindings, finishing)?;
     order.validate_null_return(entry, bindings, Some(projection), finishing)?;
     root_cleanup_graph::ordered_paths::validate(function, bindings, entry, order, finishing)?;
     match finishing {
@@ -184,4 +305,50 @@ pub(super) fn validate_finished_cleanup_entry(
             order.ingress_result_kind(),
         ),
     }
+}
+
+fn validate_finished_implicit_cleanup(
+    ledger: &OrdinaryNewClaimLedgerV1,
+    source: &FinalizedRootSourceHandoffV1,
+    owner: FunctionOwnerIdV1,
+    function: &MirFunction,
+    projection: &physical_boundary::FinishedBindings,
+    order: &super::root_home::RootHomeCleanupOrderV1,
+    origins: &[super::root_home::RootHomeReleaseEmissionV1],
+    bindings: &[(BasicBlockId, MirInstruction)],
+    entry: &RootHomeExitEntry,
+) -> Result<(), String> {
+    ledger.validate_implicit_root_graph_in_context_v1(owner, function, Some(projection),
+        order, origins, bindings, entry, CallValidationContextV1::Finalized(source))?;
+    let mut mandatory = bindings.to_vec();
+    entry.append_bindings(&mut mandatory);
+    let (_, producer) = order.implicit_void.as_ref()
+        .ok_or_else(|| freeze("implicit-exit/producer-missing"))?;
+    mandatory.push(producer.clone());
+    for binding in projection.bindings(&mandatory)? {
+        if !projection.recorded().contains(&binding) {
+            return Err(freeze("final-cleanup/binding-unrecorded"));
+        }
+    }
+    Ok(())
+}
+
+/// Corroborate only bindings supplied by a validated source family above.
+fn lend_conditional_end_bindings(
+    result: &mut Vec<(BasicBlockId, MirInstruction)>, function: &MirFunction,
+    projection: &physical_boundary::FinishedBindings,
+    bindings: &[(BasicBlockId, MirInstruction)],
+    finishing: Option<&physical_boundary::FinishedBindings>,
+) -> Result<(), String> {
+    let finished = match finishing { Some(projection) => projection.bindings(bindings)?, None => bindings.to_vec() };
+    for binding in finished {
+        if !matches!(binding.1, MirInstruction::Invoke {
+            operation: crate::mir::instruction::InvokeOperation::ObjectEndIfOwned { .. }, .. })
+        { continue; }
+        if !projection.recorded().contains(&binding)
+            || !physical_boundary::check_binding(function, None, binding.0, &binding.1)?
+        { return Err(freeze("conditional-end/binding-unrecorded")); }
+        if !result.contains(&binding) { result.push(binding); }
+    }
+    Ok(())
 }

@@ -8,8 +8,8 @@ use crate::mir::instruction::InvokeOperation;
 use crate::mir::MirInstruction;
 
 impl RetainedConstructionValidation {
-    pub(in crate::mir::builder) fn validate_artifact_after_compiler_finishing(
-        self,
+    pub(in crate::mir) fn validate_artifact_after_compiler_finishing(
+        &self,
         function: &MirFunction,
     ) -> Result<(), String> {
         match &self.construction {
@@ -28,7 +28,7 @@ impl RetainedConstructionValidation {
     }
 
     pub(in crate::mir::builder) fn validate_after_compiler_finishing(
-        self,
+        &self,
         function: &MirFunction,
     ) -> Result<(), String> {
         self.fault_frame.validate(function)?;
@@ -41,9 +41,19 @@ impl RetainedConstructionValidation {
 
 impl ConstructionState {
     pub(super) fn validate_bindings(&self, function: &MirFunction) -> Result<(), String> {
-        let ConstructionState::Selected { stores, frame, .. } = self else {
+        let ConstructionState::Selected { stores, frame, calls, .. } = self else {
             return Ok(());
         };
+        self.validate_step_coverage()?;
+        for block in function.blocks.values() {
+            for instruction in block.all_instructions() {
+                if matches!(instruction, MirInstruction::ObjectFieldGet { .. })
+                    && !calls.iter().any(|call| call.owns_exact_field_read(block.id, instruction)) {
+                    return Err(fault("unowned-exact-field-read"));
+                }
+            }
+        }
+
         let provider_count = stores
             .values()
             .filter(|store| {
@@ -85,18 +95,6 @@ impl ConstructionState {
                 )
             })
             .count();
-        let provided_stores = stores
-            .values()
-            .filter(|store| {
-                matches!(
-                    &store.rhs,
-                    ConstructionStoreRhsV1::Parameter {
-                        provided: Some(_),
-                        ..
-                    }
-                )
-            })
-            .count();
         let (nested_releases, call_args): (usize, usize) = stores
             .values()
             .map(|store| match &store.progress {
@@ -121,20 +119,21 @@ impl ConstructionState {
         // tail — plus one `field_residence_release` per sealed nested
         // residence on the completed child store-Fault chain, prior-field
         // discharge and one `Call{Global, I64}`
-        // per sealed qualified-static argument row. A provided-object
-        // store adds one `home_release_if_live` tail on the store fault edge.
+        // per sealed qualified-static argument row. Provided arguments
+        // remain caller-owned until Birth Normal and add no release tail.
         if actual_count
             != stores.len()
                 + provider_count
                 + 3 * birth_providers
                 + nobirth_providers
-                + provided_stores
                 + nested_releases
                 + stores
                     .values()
                     .map(|store| store.fault_discharge.len())
                     .sum::<usize>()
                 + call_args
+                + calls.len()
+                + calls.iter().map(|call| call.discharge_fields.len()).sum::<usize>()
         {
             return Err(fault("emission-count"));
         }
@@ -264,12 +263,12 @@ impl ConstructionState {
                         provided: Some(child),
                         ..
                     },
-                    Some(super::ProviderChildEmissionV1::Provided { store_discharge }),
+                    None,
                 ) => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::ObjectFieldSet { field: actual, base: b, value: v, child: stored }, fault_frame, fault_landing, normal_landing })
                     if actual == &field && b == base && v == value && stored == child
                         && normal_landing == normal
-                        && *fault_landing == *store_discharge
+                        && fault_landing == discharge
                         && frame.is_some_and(|(id, _)| *fault_frame == id)),
                 _ => matches!(function.blocks.get(block).and_then(|b| b.terminator.as_ref()),
                     Some(MirInstruction::Invoke { operation: InvokeOperation::FieldSet { field: actual, base: b, value: v }, fault_frame, fault_landing, normal_landing })
@@ -376,8 +375,18 @@ impl ConstructionState {
                     // and the last landing ends on `birth_call`. Every
                     // invoke faults onto the reclaim head — the same
                     // cleanup the birth call owns.
+                    let ConstructionStoreRhsV1::ProviderConstruction { arguments, .. } = &store.rhs
+                        else { return Err(fault("provider-argument-source-kind")); };
+                    let expected: Vec<_> = arguments.iter().filter(|argument|
+                        matches!(argument.kind(), crate::mir::normal_callable_semantic_package::OrdinaryNewTrivialArgumentKindV1::QualifiedStaticCall { .. }))
+                        .map(|argument| argument.ordinal()).collect();
+                    if !expected.iter().copied().eq(birth.call_args.iter().map(|argument| argument.ordinal)) {
+                        return Err(fault("provider-argument-source-coverage"));
+                    }
                     let mut cursor = birth.entry;
                     for arg in birth.call_args.iter() {
+                        arg.validate_source_v1(function, store)?;
+                        if arg.invoke_block != cursor { return Err(fault("provider-argument-origin")); }
                         if !matches!(function.blocks.get(&cursor).and_then(|b| b.terminator.as_ref()),
                             Some(MirInstruction::Invoke {
                                 operation: InvokeOperation::Call {
@@ -410,6 +419,8 @@ impl ConstructionState {
                             fault_landing,
                             normal_landing,
                         }) if matches!(call.callee, crate::mir::Callee::BirthConstructor { ref receiver, .. } if *receiver == *value)
+                            && birth.call_args.iter().all(|argument|
+                                call.args.get(argument.ordinal as usize) == Some(&argument.value))
                             && *normal_landing == *block
                             && *fault_landing == birth.reclaim
                             && frame.is_some_and(|(id, _)| *fault_frame == id))
@@ -435,7 +446,7 @@ impl ConstructionState {
                     }
                     // Store-fault discharge: the same residence chain on
                     // the in-flight lease, then the child's own Home.
-                    let discharge_tail = residence_chain(
+                    let discharge_tail = field_discharge_chain(
                         function,
                         birth.store_discharge,
                         &birth.owned_fields,
@@ -446,33 +457,6 @@ impl ConstructionState {
                     if !matches!(function.blocks.get(&discharge_tail).and_then(|b| b.terminator.as_ref()),
                         Some(MirInstruction::Invoke {
                             operation: InvokeOperation::HomeRelease { object, value: released },
-                            fault_frame,
-                            fault_landing,
-                            normal_landing,
-                        }) if *object == *child && *released == *value
-                            && normal_landing != fault_landing
-                            && lands_on(function, *normal_landing, *discharge)
-                            && lands_on(function, *fault_landing, *discharge)
-                            && frame.is_some_and(|(id, _)| *fault_frame == id))
-                    {
-                        return Err(fault("provider-discharge-drift"));
-                    }
-                }
-                (
-                    None,
-                    ConstructionStoreRhsV1::Parameter {
-                        provided: Some(child),
-                        ..
-                    },
-                    Some(super::ProviderChildEmissionV1::Provided { store_discharge }),
-                ) => {
-                    // A provided formal carries no owned lease: the store
-                    // fault tail discharges it with `home_release_if_live`
-                    // — the Void sentinel skips the reclaim — landing on
-                    // the shared prior-residence chain on both edges.
-                    if !matches!(function.blocks.get(store_discharge).and_then(|b| b.terminator.as_ref()),
-                        Some(MirInstruction::Invoke {
-                            operation: InvokeOperation::HomeReleaseIfLive { object, value: released },
                             fault_frame,
                             fault_landing,
                             normal_landing,
@@ -515,6 +499,30 @@ impl ConstructionState {
                 }
             }
         }
+        let ConstructionState::Selected { steps, next_step, .. } = self else { unreachable!() };
+        if *next_step != steps.len() { return Err(fault("step-residual")); }
+        let mut previous_normal = None;
+        let mut actual_calls = calls.iter();
+        for step in steps.iter() {
+            let (entry, normal) = match step {
+                ConstructionSourceStepV1::Store(site) => {
+                    let store = stores.get(site.node()).ok_or_else(|| fault("step-store-missing"))?;
+                    let StoreProgress::Emitted { block, normal, provider, .. } = store.progress else {
+                        return Err(fault("store-residual"));
+                    };
+                    (provider.unwrap_or(block), normal)
+                }
+                ConstructionSourceStepV1::StoredChildCall(_) => {
+                    let call = actual_calls.next().ok_or_else(|| fault("step-call-unconsumed"))?;
+                    call.validate(function, step, *frame)?
+                }
+            };
+            if previous_normal.is_some_and(|previous| previous != entry) {
+                return Err(fault("physical-step-order-drift"));
+            }
+            previous_normal = Some(normal);
+        }
+        if actual_calls.next().is_some() { return Err(fault("foreign-call-emission")); }
         Ok(())
     }
 }
@@ -547,53 +555,8 @@ fn jump_target(
     }
 }
 
-/// Walk a nested-residence cleanup chain starting at `head`: exactly one
-/// `OwnedFieldResidenceRelease` invoke per expected field in emitted
-/// order, each releasing `base` on the shared fault frame and landing
-/// through distinct jump blocks onto the next link. Returns the tail
-/// block — the caller validates its terminator (`ReclaimUnpublished` or
-/// `HomeRelease`) — or `None` on any missing, foreign, duplicated, or
-/// reordered link.
-fn residence_chain(
-    function: &crate::mir::MirFunction,
-    head: BasicBlockId,
-    expected: &[hakorune_mir_defs::CanonicalFieldRefV1],
-    base: crate::mir::ValueId,
-    frame: Option<(crate::mir::ValueId, BasicBlockId)>,
-) -> Option<BasicBlockId> {
-    let mut cursor = head;
-    for field in expected {
-        let MirInstruction::Invoke {
-            operation:
-                InvokeOperation::OwnedFieldResidenceRelease {
-                    field: actual,
-                    base: released,
-                },
-            fault_frame,
-            normal_landing,
-            fault_landing,
-        } = function.blocks.get(&cursor)?.terminator.as_ref()?
-        else {
-            return None;
-        };
-        if actual != field
-            || *released != base
-            || normal_landing == fault_landing
-            || !frame.is_some_and(|(id, _)| *fault_frame == id)
-        {
-            return None;
-        }
-        let next = jump_target(function, *normal_landing)?;
-        if jump_target(function, *fault_landing)? != next {
-            return None;
-        }
-        cursor = next;
-    }
-    Some(cursor)
-}
-
 /// Compare per-store cleanup against its retained source-sealed inventory.
-fn field_discharge_chain(
+pub(super) fn field_discharge_chain(
     function: &MirFunction,
     head: BasicBlockId,
     expected: &[crate::mir::normal_callable_semantic_package::OwnedFieldChildV1],
