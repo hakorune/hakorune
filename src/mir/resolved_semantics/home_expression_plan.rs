@@ -13,12 +13,15 @@ use crate::mir::dynamic_operator_contract::VerifiedDynamicOperatorExecutionEnvel
 pub(crate) struct CheckedExpressionOperationLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
     node: usize,
-    envelope: &'static VerifiedDynamicOperatorExecutionEnvelopeV1,
+    envelopes: Box<[&'static VerifiedDynamicOperatorExecutionEnvelopeV1]>,
 }
 impl CheckedExpressionOperationLoanV1 {
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.plan }
-    pub(crate) fn envelope(&self) -> &'static VerifiedDynamicOperatorExecutionEnvelopeV1 { self.envelope }
+    pub(crate) fn envelopes(&self) -> &[&'static VerifiedDynamicOperatorExecutionEnvelopeV1] { &self.envelopes }
+    pub(crate) fn single_envelope(&self) -> Option<&'static VerifiedDynamicOperatorExecutionEnvelopeV1> {
+        match self.envelopes.as_ref() { [envelope] => Some(*envelope), _ => None }
+    }
 }
 
 

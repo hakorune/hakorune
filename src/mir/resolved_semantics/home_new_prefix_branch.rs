@@ -12,6 +12,10 @@ use crate::mir::resolved_semantics::{
     ResolvedLiteralSourceV1,
 };
 
+#[path = "home_new_prefix_null_exclusion.rs"]
+mod null_exclusion;
+pub(crate) use null_exclusion::EntryNullExclusionV1;
+
 /// One path's Home/local state during a branch walk. A terminated path
 /// (one that reached an explicit Return) does not join the continuation.
 struct BranchPath<'a> {
@@ -592,6 +596,7 @@ pub(super) fn observe_if_statement<'a, E>(
         },
     };
 
+    let both_paths_available = then_path.unavailable.is_none() && else_path.unavailable.is_none();
     if then_path.terminated && else_path.terminated {
         // Every path exits inside this `If` — the enclosing path ends here.
         return Ok(true);
@@ -686,6 +691,12 @@ pub(super) fn observe_if_statement<'a, E>(
             || matches!(operator, ResolvedBinaryOperatorV1::NotEqual) && else_path.terminated;
         if narrowed {
             join_locals.mark_nonnull(binding);
+        }
+    }
+    if prefix_known && both_paths_available && branch_issue.is_none() {
+        if let Some(proof) = null_exclusion::issue(input, statement.site(), condition.site(),
+            then_path.terminated, else_path.terminated) {
+            join_locals.retain_entry_null_exclusion(proof);
         }
     }
     *locals = join_locals;

@@ -4,6 +4,17 @@ use std::rc::Rc;
 use super::super::CheckedTextInitializerFrameV1;
 
 impl PrefixLocalFlow<'_> {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn retain_entry_null_exclusion(&mut self,
+        proof: Rc<super::super::EntryNullExclusionV1>) {
+        self.entry_null_exclusions.insert(proof.formal(), proof);
+    }
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn entry_null_exclusion(&self, site: &SourceExprSiteV1,
+        binding: BindingRefV1, root: BindingRefV1) -> Option<Rc<super::super::EntryNullExclusionV1>> {
+        let flow = self.input.function().expression_source().value_flow()?;
+        let value = flow.read(site, binding)?;
+        self.entry_null_exclusions.get(&root).filter(|proof|
+            proof.corroborates(flow, value, root, |site| self.input.function().variable_ref(site))).map(Rc::clone)
+    }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn text_reference(&self, site: &SourceExprSiteV1)
         -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)> {
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None };

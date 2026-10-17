@@ -417,7 +417,7 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
         ("", "\"field\"", "", true),
         ("local alias = key", "\"field\"", "", true),
         ("key = other", "\"field\"", "", false),
-        ("", "null", "", false), ("", "true", "", false), ("", "7", "", false),
+        ("", "null", "", true), ("", "true", "", false), ("", "7", "", true),
         ("", "\"field\"", "second() { return Values.caller(true, \"spare\") }", false),
         ("", "\"field\"", "relay(p) { return Values.caller(p, \"spare\") }", false),
     ] {
@@ -453,6 +453,7 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
             assert_eq!(row.is_some(), accepted, "{prefix:?}/{actual}");
             if let Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan)) = row {
                 assert!(Rc::ptr_eq(loan.requirement().source_plan(), &plan));
+                assert_eq!(loan.leaf_class(None).is_some(), actual != "null", "source Null still requires the real terminating branch");
                 assert_eq!(loan.requirement().formal(), (0, contract.parameters[0].binding));
                 assert_eq!(Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(loan.clone())), ask(&plan, contract.parameters[0].binding));
                 let reissued = local_expression_source_plan_v1(&original, input.body_shape(), initializer).unwrap();
@@ -468,7 +469,7 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
 fn text_initializer_frame_requires_original_text_signed_source_and_current_prefix() {
     for (annotation, actual, mutation, accepted) in [
         (": i64", "\"text\"", 0, true), (": usize", "\"text\"", 0, false),
-        ("", "\"text\"", 0, false), (": i64", "true", 0, false),
+        ("", "\"text\"", 0, true), (": i64", "true", 0, false),
         (": i64", "\"text\"", 1, false), (": i64", "\"text\"", 2, false),
         (": i64", "\"text\"", 3, false), (": i64", "\"text\"", 4, false),
     ] {
@@ -504,8 +505,8 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
             if accepted {
                 let first = plans[0].text_initializer().unwrap();
                 let second = plans[1].text_initializer().unwrap();
-                assert_eq!(first.entry_reads().len(), 1);
-                assert_eq!(first.scalar_reads().len(), 1);
+                assert_eq!(first.entry_reads().len(), if annotation.is_empty() { 2 } else { 1 });
+                assert_eq!(first.scalar_reads().len(), usize::from(!annotation.is_empty()));
                 assert_eq!(first.evaluation().owned_result_nodes().len(), 2);
                 assert_eq!(second.residence_reads().len(), 1);
                 assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition(), first));
@@ -540,6 +541,55 @@ fn owned_text_initializer_refuses_execution_until_the_same_physical_consumer_is_
             assert!(issue.contains("text-initializer/execution-pending"), "{issue}");
         } else {
             assert!(result.is_ok(), "existing non-owning literal initializer stays with its owner: {result:?}");
+        }
+    }
+}
+
+#[test]
+fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_envelopes() {
+    for (guard, middle, accepted) in [
+        ("if value == null { return 0 }", "", true),
+        ("if null == value { return 0 }", "local alias = value", true),
+        ("if value != null { } else { return 0 }", "", true),
+        ("if value == null { local ignored = 0 }", "", false),
+        ("if value == null { local ignored = \"\" + true return 0 }", "", false),
+        ("if value != null { return 0 }", "", false),
+        ("if value == null { return 0 }", "value = other", false),
+    ] {
+        let read = if middle.starts_with("local alias") { "alias" } else { "value" };
+        let text = format!(r#"static box Values {{
+            parse(value, other) {{ {guard} {middle} local out = "" + {read} return 0 }}
+            textSeed() {{ return Values.parse("bytes", null) }}
+            integerSeed() {{ return Values.parse(7, null) }}
+            nullSeed() {{ return Values.parse(null, null) }}
+        }} static box Main {{ main() {{
+            local text = Values.textSeed() local integer = Values.integerSeed()
+            local absent = Values.nullSeed() return 0
+        }} }}"#);
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+        let frame = ledger.completion_for_owner(contract.owner)
+            .and_then(|completion| completion.cleanup().root_flow())
+            .and_then(|flow| flow.expression_plans().iter().find_map(|plan| plan.text_initializer()));
+        assert_eq!(frame.is_some(), accepted, "{guard}/{middle}; role={:?}; completion={:?}",
+            package.selected.role_for_batch_slot(contract.batch_slot),
+            ledger.completion_for_owner(contract.owner).map(|completion| completion.cleanup().root_flow()));
+        if let Some(frame) = frame {
+            assert_eq!(frame.entry_reads().len(), 1);
+            assert_eq!(frame.entry_refinements().len(), 1);
+            assert!(frame.entry_reads()[0].leaf_class(None).is_none(), "original SUM still contains Null");
+            let proof = frame.entry_refinements().values().next().unwrap();
+            assert!(frame.entry_reads()[0].leaf_class(Some(proof)).is_some());
+            let operation = frame.evaluation().operations().iter().find(|operation| operation.node() == 0).unwrap();
+            assert_eq!(operation.envelopes().len(), 2);
+            assert!(operation.single_envelope().is_none(), "physical writer must not select one alternative");
+            assert!(operation.envelopes().iter().all(|envelope| envelope.normal_result() ==
+                crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue));
+            assert!(frame.owns_root());
+            let selected = ledger.text_initializer_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
+            assert!(Rc::ptr_eq(frame, &selected), "the real production selector retains this SAME complete frame");
         }
     }
 }

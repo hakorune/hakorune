@@ -24,6 +24,24 @@ impl PartialEq for InitializerTextEntryReadV1 {
 impl Eq for InitializerTextEntryReadV1 {}
 impl InitializerTextEntryReadV1 {
     pub(crate) fn requirement(&self) -> &BorrowedTextEntryReadRequirementV1 { &self.requirement }
+    /// Finite original alternatives for this initializer read, not a runtime
+    /// carrier. Null removal requires the SAME covered branch/entry proof.
+    pub(crate) fn leaf_class(&self, exclusion: Option<&crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>)
+        -> Option<crate::mir::resolved_value_profile::expression_projection::ExpressionLeafClassV1> {
+        use crate::mir::resolved_value_profile::{expression_class::ExpressionValueClassV1 as Class,
+            expression_projection::ExpressionLeafClassV1 as Leaf};
+        let mut classes = Vec::new();
+        for alternative in self.sum.alternatives() {
+            match alternative {
+                SourceValueAlternativeV1::Text => classes.push(Class::String),
+                SourceValueAlternativeV1::SignedI64 => classes.push(Class::I64),
+                SourceValueAlternativeV1::Null if exclusion.is_some_and(|proof|
+                    proof.same_entry(&self.flow, self.requirement.formal().1)) => {},
+                _ => return None,
+            }
+        }
+        Leaf::from_classes(classes)
+    }
 }
 
 pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_entry_read_v1(
@@ -45,9 +63,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_initializer_text_en
     let Some(value) = flow.read(read, binding) else { return Ok(None) };
     if flow.alias_entry_origin(value, |site| input.function().variable_ref(site)) != Some(root) { return Ok(None); }
     let Some(sum) = prepared.lend_source_value_sum_v1(root) else { return Ok(None) };
-    // Every original incoming alternative must be Text. Empty/unknown/mixed is
-    // never narrowed using one caller, one literal or the local MIR carrier.
-    if sum.alternatives().len() != 1 || !sum.alternatives().contains(&SourceValueAlternativeV1::Text) { return Ok(None); }
+    // Keep every original finite alternative. The later initializer joins
+    // real current/terminating-branch evidence; this source loan removes none.
+    if sum.alternatives().is_empty() || sum.alternatives().iter().any(|alternative|
+        !matches!(alternative, SourceValueAlternativeV1::Text | SourceValueAlternativeV1::SignedI64 | SourceValueAlternativeV1::Null)) {
+        return Ok(None);
+    }
     let requirement = super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(
         contracts, plan, read, binding, root)?;
     Ok(Some(InitializerTextEntryReadV1 { requirement, sum, flow: std::sync::Arc::clone(flow), value }))

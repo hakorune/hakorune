@@ -211,7 +211,7 @@ fn scalar_expression_claims_order_compare_field_operands() {
     let frame = frames[0];
     assert_eq!(frame.logical_nodes().len(), 1);
     assert!(frame.calls().is_empty());
-    assert_eq!(frame.operations().iter().map(|loan| loan.envelope().domain().family()).collect::<Vec<_>>(),
+    assert_eq!(frame.operations().iter().map(|loan| loan.single_envelope().unwrap().domain().family()).collect::<Vec<_>>(),
         vec![crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Greater,
             crate::mir::dynamic_operator_contract::DynamicOperatorFamilyV1::Equal]);
     assert!(frame.operations().iter().all(|loan| std::rc::Rc::ptr_eq(loan.source(), frame.source())));

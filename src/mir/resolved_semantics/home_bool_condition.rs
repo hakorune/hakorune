@@ -99,7 +99,7 @@ pub(crate) fn qualify_bool_condition_v1<E>(
         let Ok(envelope) = issue_dynamic_operator_execution_envelope_v1(DynamicOperatorDomainV1::new(
             family, DynamicOperatorValueClassV1::NormalInteger, DynamicOperatorValueClassV1::NormalInteger,
         )) else { return Ok(None) };
-        operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelope }));
+        operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelopes: Box::new([envelope]) }));
     }
     // Primitive result loans cannot introduce a conditional owning temporary.
     if calls.values().any(|call| !matches!(call.result(), LocalCallResultClassV1::I64 | LocalCallResultClassV1::Bool)) {

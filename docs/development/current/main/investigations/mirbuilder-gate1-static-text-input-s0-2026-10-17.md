@@ -782,100 +782,113 @@ cleanup remain mandatory. The full to_i64 physical mixed-entry mapping is still 
 its finite existing-envelope selection above remains required. No backend
 capability or literal-only pass removes that source boundary.
 
-V873 Decision: implement the shared original argument-plan product in the existing
-Static identity/binder/validator. Every ordered actual gets the original plan,
-not only Core arguments; Core receipts remain an exact checked subset. Use one
-canonical Static source census lender for preparation and passive projection,
-corroborating the legacy observation when present without inserting omitted
-callers there. String literals gain a source-only atom and local Binding remains
-unclassified source, never an owned Home. Their passive projection stays explicitly
-execution-pending even for an unused formal. Re-observation must retain every
-SAME plan Rc. Source/count/ordinal/root/Core mismatch refuses. Existing source/Core
-actual and source-atom test owners cover the boundary; no new registry/profile.
-Paths: home_local_call_borrowed_actuals, Static source actual/argument source,
-existing source-atom/Core tests, package README and this card. Worker confirmed
-the original missing literal/local/formal/Core mapping from issuer to publication.
-Whole incoming/Text entry/current residence, actual evaluation/cleanup and both
-final source scans remain subsequent required connections in the SAME series.
+V873 landed at7afc78ac65: every original ordered Static argument plan is retained
+with SAME Rc identity across observation; complete census validation is shared.
+Core receipts remain a strict subset. Literal/local/formal source coverage grants
+no physical entry or Text execution. Root873C focused distinct264/pass252 and
+12 unchanged baseline failures; CLI210/app243 JSON unchanged Core execution fence,
+app244 mimalloc canonical EXE/native original7-line stdout/exit0 PASS. Exact
+commands, manifests, diagnostics and cleanup/retirement findings are in that
+commit. Original FFI872B/runtime808b remain pinned; no new Static profile/registry.
 
-V873 implementation: the sole source binder retains every original ordered
-argument plan, verifies original atom spelling/binding/MethodCall Arc and retains
-every SAME plan Rc on repeated Observe. The source validator checks complete
-plan coverage with Core as a strict subset. A String payload is sealed source
-spelling only; Binding never gains Text/current/Home evidence. Canonical Static
-lender declines a unique Instance row to its original owner; duplicate/mismatched
-Static identity still refuses. Literal/local passive projection explicitly stays
-execution-pending, including unused formals. No runtime/source fence was removed.
+V874 construction Decision: connect immutable original finite entry alternatives
+and real terminating-null branch evidence directly to the existing initializer
+purpose and shared Add envelope owner. Reuse the same SUM solver/source-flow,
+Prefix branch walk and current entry-root checks. Branch evidence retains the
+verified bundle/condition/read/flow and is scoped to the actual surviving covered
+path; explicit Return termination only, never guessed Fault/Loop exit. Keep this
+separate from Object nonnull marks. The initializer retains original read loans
+and any refinement; the shared pure class projection enumerates all finite
+alternatives, and operation qualification demands every existing envelope with
+one common result. Missing/unknown/Object/Bool/Null-without-proof refuses. Shared
+physical writer must not choose the first envelope of a finite set. Full physical
+entry/domain, tagged read/branch, owned root installation/cleanup and both final
+source consumers remain mandatory; do not remove execution fences until closed.
+Paths include existing branch/Prefix Text child/state, initializer source lender/
+purpose/observer, pure expression projection and shared operation packet/writer,
+existing argument-port tests, owner READMEs and this card. A small branch-owned
+proof child is allowed to keep branch under800; it is not a registry/solver.
 
-Root873A compile failed at one renamed variable (E0425); fixed after its actual
-Cargo/rustc exit. Root873B build PASS75.462293s. Focused execution found one new
-manual-test failure: the valid SourceStatic row had skipped the now-mandatory
-binder; reconnecting its original batch input fixed it without a validator waiver.
-Read-only worker found the unique Instance dispatch boundary; fixed with an
-independent assertion over real source-incoming Instance rows. Root873C build
-PASS61.613448s; no new warning messages versus871A. Reused32 nonempty filters:
-264 distinct cases252 PASS/SAME12 baseline failures versus871A/8d4b57badd; exact
-failure identities and diagnostics match under only numeric thread-ID/unordered
-plugin Debug-map normalization. Focused execution9.149881s excludes build.
-New existing-owner matrix covers literal/local/formal alias plus a second scalar
-actual, missing/extra/swapped plans, equal reissue, original literal payload,
-execution refusal and Instance owner preservation. Original Core case stays PASS.
-Normal-root/layer/inc-thin guards and diff check PASS. Full source-to-EXE Text
-acceptance and finite goal are still open, independent of these source checks.
+V874 verified source/current connection (physical series still open): the source
+loan retains the SAME immutable finite Text/SignedI64/Null SUM; only the existing
+covered branch walk issues the original terminating-null arm proof. Both branches
+must be available, including a terminating arm: an unavailable terminated subtree
+cannot silently disappear at join. Current source-flow alias identity is checked
+at each read; store invalidates the local mark and sibling joins intersect it.
+The checked initializer retains that proof and all original reads. Shared pure
+class projection enumerates every alternative and the existing Add qualifier
+requires all Cartesian envelopes with a common result. The physical expression
+writer explicitly refuses finite multi-envelope execution, rather than picking
+one alternative. Existing initializer and Static source execution fences remain.
 
-Top-down actual-source review (not another fixture selection): the next common
-responsibility is whole incoming finite SUM -> original terminating Null branch
-refinement -> existing Add(Text,Text)/Add(Text,signed-I64) envelopes -> SAME owned
-Text result and ordered cleanup. Exact Text text_view stays exact; mixed input
-must not masquerade as Text-only. Physical mixed entry/read/Call/both final scans/
-JSON/C must agree on the same retained closed alternatives. intField also owes
-its real Text initializer, find/length signed inputs, full Loop After(end), checked
-substring acquisition and borrowed Call cleanup. Point signed source evidence is
-not physical Loop After. Original int_to_str(n)->to_i64(n) and MapGet/unknown
-incoming stay in the source graph; no current all-incoming Text|I64|Null closure
-is claimed. This implements the existing finite-envelope selection above, not
-general String*Dynamic semantics. Missing source dependencies must be resolved
-through their existing owners, never guessed or dropped as unused wrappers.
+Focused test uses the genuine selected Main -> three seeds -> parse closure;
+Main actually calls each seed so normal Completion is issued by the production
+selection owner. Text/I64/Null are all original incoming rows. Covered == null,
+reversed operands, != null with terminating else and original aliases pass;
+fallthrough null, unavailable terminated null arm, surviving Null and another
+formal rebind refuse. Both existing Text+Text and Text+I64 Add envelopes survive
+in the same owned-root frame. No test-only Completion or selected entry is issued.
 
-CLI210 build PASS161.689776s, jobs4/stack16MiB; source manifest matches873C and
-current compiled inputs. CLI SHA
-b138d16dbb79399ade6976b3371c525eb89758a7c58885ac5ef1d46e564e390a.
-Unchanged json app243 canonical direct EXE0.115513s exits1/no artifact at SAME
-compilation1/slot20/Body7/Value core-expression-execution-pending, stderr byte-
-equal toapp241. Unchanged mimalloc app244 canonical direct EXE PASS132.429061s;
-native0.001575s/original7-line stdout exact/exit0, runtime stderr byte-equal to
-app242 (only the existing plugin-disabled warning). EXE SHA
-7d99b2fd5ca15d76d1d373c4ef40768e9afd386f1af6627e61c017ef02f7d7c2.
-Commands remain --grammar-profile canonical --backend mir --emit-exe OUT
---emit-exe-nyrt runtime808b ORIGINAL_SOURCE; plugins disabled/pure-first/compat
-replay none/route trace enabled/stack16MiB. FFI872B and runtime808b hashes stay
-as recorded in60af82a19b. Every backend-owned path matches its pinned FFI source
-manifest; Rust-only changes do not require rebuilding unchanged C. Original
-JSON/mimalloc source hashes remain unchanged. No Rust or C source changed after
-these matching builds. Pointer/diff PASS. Latest CI query still shows only the
-historical failed35681768498/d4168473d5; no current CI/full-suite/performance claim.
+Root874E `RUST_MIN_STACK=16777216 cargo quick-test-fast --no-run
+--message-format=json` (jobs4) PASS57.644787s. Four direct focused tests PASS4;
+34 reused/extended filters take9.600925s, distinct281/pass268/known baseline13.
+The previous32-filter failure identities and diagnostics remain byte-equal after
+only existing thread-ID/plugin-map normalization (12 failures). The added shared
+scalar-expression filter has one preexisting static-mixed/home-missing failure:
+exact same name/diagnostic independently reproduced on pinned Root873C, not its
+now-overwritten Cargo artifact. No new regression or root warning message.
+Root874A/D compiler failures and B/C fixture observations were corrected before
+this terminal matched build; they are not passing evidence.
 
-Keep Root873C/CLI210/app243-244 receipts/logs/manifests and pins under the existing
-/tmp evidence owner until complete Text-series acceptance; obsolete failed873A/B
-build observations may retire then. There is no second source-plan registry,
-Static finisher variant, compatibility adapter or new test/guard owner. The
-replaced Core-only plan cardinality and divergent census lookup were physically
-removed in this source owner; shared existing executable cohorts remain live.
-V872 completed history is compressed to60af82a19b. This source preparation is
-verified, not a production Text cutover. Full entry/argument/Core execution,
-ordered root handoff/End and both final scans still owe their existing acceptance.
+CLI211 `RUST_MIN_STACK=16777216 cargo build --profile quick --bin hakorune
+--message-format=json` (jobs4) PASS218.308845s; SHA
+b26a3b6004b804cafe41a819ecb3a9a89e409a327ab480f97816f5b816edf76d.
+Root874E/CLI211/current source manifests match exactly; no new CLI warning.
+Unchanged JSON app245 canonical direct route exits1/no artifact in0.117850s,
+same compilation1/slot20/Body7/Value Core-expression-execution-pending and exact
+stderr as app243. This source/current improvement has not advanced that real
+first-stop. FFI872B backend source manifest still matches all backend-owned paths;
+no backend changes or C rebuild, and original runtime808b/source hashes match.
 
-Next common connection: retain SAME formal SUM Rc plus original incoming and
-contract coordinates in the existing entry product, then lend it to each original
-read with current reaching source. Preserve SUM immutability; only the original
-null condition and actually terminating arm may remove Null for that read. Reject
-rebind/alias drift, never reuse Object-only mark_nonnull as scalar/Text authority.
-The shared expression owner must retain both required existing Add envelopes at
-one source node, with matching physical alternatives and same owned Text merge.
-Use one closed domain representation across entry/read/Call/final scans/JSON/C;
-text_view:true remains only exact Text's projection, not an independent mixed
-permission. Reuse the existing graph/branch/evaluation/lifecycle owners, not a
-second solver or another Static profile. Original unknown incoming remains an
-explicit dependency; this is no permission to infer a class or reopen parked
-storage. The next acceptance must include the genuine entry -> terminating arm
--> Add -> owned Text installation -> both final consumers connection.
+Next connection Decision (read-only worker reviewed source through both final
+consumers): use the SAME PreparedBorrowedFormalActual and existing general
+Executable phase, never a literal-only Static profile or a new Text finisher.
+Original source plan/flow owns identity; the real covered Prefix lends current
+Text residence or original reaching-definition literal, and the shared checked
+expression frame lends Core evaluation plus complete Fault inventory. Formal
+forwarding retains original entry lineage. Neither closed Text SUM nor generic
+Handle observation can substitute for those premises. The sole BorrowedActual
+writer emits each actual from that retained product; both final scans independently
+check original argument ordinal, producer/read, lifetime and finished membership.
+JSON uses the same checked product to encode named borrowed_text. A genuine
+ConstValue::String dst may anchor the original literal argument; it is not a
+runtime pointer/scalar payload. C materializes the synchronous descriptor.
+Text-only entry columns may lend text_view; finite mixed columns must retain their
+whole carrier and original branch/read dominance, never gain Text-only rights.
+Local literal aliases, owned/Core temporaries, Text residences and forwarded entry
+must all remain covered by this one product. Temporary cleanup covers Normal and
+Fault, residence follows original Home release, forwarded view grants no End.
+Full entry/domain, physical guard/evaluation, LocalCommit handoff/End and both
+module/published scans remain owed before source execution fences can be removed.
+
+V874 unchanged mimalloc app246 canonical direct EXE PASS131.855422s; native
+0.001502s/original7-line stdout exact/exit0. Runtime stderr equals app244 (only
+existing plugins-disabled warning). EXE SHA
+f33b794a435368681b87cd695d3e1bfdf3ff81c3ff06d859ffb3c037d339b72a.
+Both app commands use CLI211 --grammar-profile canonical --backend mir --emit-exe
+OUT --emit-exe-nyrt runtime808b ORIGINAL_SOURCE; plugins disabled, route trace,
+pure-first, compat replay none, stack16MiB, original FFI872B/runtime hashes above.
+Root-reference/layer/thin/pointer/diff guards PASS. Existing facade baseline red
+is not retested or claimed green. Latest CI remains historical failed
+35681768498/d4168473d5, not current CI evidence. No full-suite/performance claim.
+
+Keep Root874E/CLI211/app245-246 manifests, pinned binaries, baseline comparison
+and logs under the existing /tmp evidence owner until complete Text-series
+acceptance; failed construction observations can retire then. Required conditions
+and commands/results are recorded here in Git, not only /tmp paths or hashes.
+No new adapter/registry/Static phase/test owner was introduced. The old String-only
+source-loan restriction and single-envelope packet field are physically replaced;
+shared executable owners remain live and their replacement is not claimed.
+V873 completed history is compressed to7afc78ac65. This commit closes verified
+source/current construction only; Text production cutover/retirement series and
+the full finite goal stay open with the explicit physical obligations above.

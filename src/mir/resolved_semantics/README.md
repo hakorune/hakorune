@@ -1635,3 +1635,16 @@ Normal residence. Current Text carries its acquisition frame Rc, separately from
 Object/Scalar classes. Aliases/snapshots keep that same acquisition; no rebinding
 or branch join can exchange it for an equal-content frame. Physical fulfillment
 and both final source-aware consumers remain separate obligations.
+
+The existing covered branch walk additionally retains immutable entry-value null
+exclusions, separately from Object nonnull marks. Only the real terminated null
+arm and covered surviving path issue one; an unwalked branch or may-Fault call
+does not. Proofs retain original If bundle/condition/read/flow and Entry origin.
+Current read provenance, rebind invalidation and branch intersection constrain
+reuse. The real Text initializer joins these proofs with its retained finite
+Text/signed-I64/Null source reads. Pure expression projection enumerates all
+alternatives; shared operation qualification requires every existing envelope
+and a common result, never the first successful alternative. This source/current
+qualification does not install a mixed ABI, fulfill a physical entry or discharge
+String cleanup. The existing initializer fence and an explicit multi-envelope
+writer refusal prevent physical activation until those consumers are connected.

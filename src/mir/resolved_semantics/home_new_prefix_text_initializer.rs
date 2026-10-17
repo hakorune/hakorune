@@ -41,6 +41,7 @@ pub(super) fn observe<E>(
     let mut installation = locals.expression_installation();
     let plan = qualify_text_initializer_v1(std::rc::Rc::clone(&source), homes, &reads,
         &mut |site| super::argument_expression::text_reference(input, locals, site),
+        &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
         &mut |site| locals.signed_entry_reference(site),
         &mut |site| field_read::expression_field_read_request(input, &source, site, locals),

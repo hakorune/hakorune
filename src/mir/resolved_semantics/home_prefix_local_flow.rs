@@ -219,6 +219,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 
 #[derive(Clone)]
 pub(super) struct PrefixLocalFlow<'source> {
+    entry_null_exclusions: BTreeMap<BindingRefV1, std::rc::Rc<super::EntryNullExclusionV1>>,
     signed_formals: BTreeSet<BindingRefV1>,
     named_arrays:
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
@@ -289,6 +290,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         Self {
+            entry_null_exclusions: Default::default(),
             signed_formals: Default::default(),
             named_arrays: Default::default(),
             input,
@@ -315,6 +317,7 @@ impl<'source> PrefixLocalFlow<'source> {
     /// rebound or consumed binding must never inherit an old proof.
     fn store(&mut self, binding: BindingRefV1, value: StoredLocal) {
         self.nonnull.remove(&binding);
+        self.entry_null_exclusions.remove(&binding);
         self.locals.insert(binding, value);
     }
 
@@ -396,6 +399,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 self.store(*binding, StoredLocal::Uninitialized);
             }
         }
+        self.entry_null_exclusions.retain(|root, proof| other.entry_null_exclusions.get(root) == Some(proof));
         // Narrowing is path-sensitive: a mark survives the join only when
         // both siblings carried it.
         self.nonnull

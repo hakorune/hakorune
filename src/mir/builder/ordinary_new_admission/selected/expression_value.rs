@@ -178,7 +178,7 @@ pub(super) fn emit(
                 let right = operand(binary.rhs())?;
                 let operation = frame.operations().iter().find(|loan| loan.node() == index)
                     .ok_or_else(|| freeze("print-expression/operator-source-missing"))?;
-                match operation.envelope().normal_result() {
+                match operation.single_envelope().ok_or_else(|| freeze("expression/finite-envelope-execution-pending"))?.normal_result() {
                     ResultKind::NormalInteger => {
                         let (Operand::NormalInteger(lhs), Operand::NormalInteger(rhs)) = (left, right) else {
                             return Err(freeze("print-expression/integer-operands"));

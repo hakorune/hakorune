@@ -7,12 +7,43 @@ use super::expression_plan::{ExpressionNodeSourceV1, ExpressionSourcePlanV1};
 use crate::mir::resolved_semantics::ResolvedLiteralSourceV1;
 use std::collections::BTreeMap;
 
+/// Pure finite source classes. This carries no read, ABI or execution right.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) struct ExpressionClassSetV1(u8);
+impl ExpressionClassSetV1 {
+    fn bit(class: ExpressionValueClassV1) -> u8 {
+        use ExpressionValueClassV1::*;
+        match class { I64 => 1, String => 2, Bool => 4, Null => 8, Opaque => 16 }
+    }
+    pub(crate) fn iter(self) -> impl Iterator<Item = ExpressionValueClassV1> {
+        use ExpressionValueClassV1::*;
+        [I64, String, Bool, Null, Opaque].into_iter().filter(move |class| self.0 & Self::bit(*class) != 0)
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ExpressionLeafClassV1 {
     Value(ExpressionValueClassV1),
+    Values(ExpressionClassSetV1),
     /// Source identity/qualification, never an Integer operand.
     Identity,
     Unresolved,
+}
+impl ExpressionLeafClassV1 {
+    pub(crate) fn from_classes(classes: impl IntoIterator<Item = ExpressionValueClassV1>) -> Option<Self> {
+        let bits = classes.into_iter().fold(0, |bits, class| bits | ExpressionClassSetV1::bit(class));
+        let set = ExpressionClassSetV1(bits);
+        let mut classes = set.iter();
+        let first = classes.next()?;
+        Some(if classes.next().is_none() { Self::Value(first) } else { Self::Values(set) })
+    }
+    pub(crate) fn value_classes(self) -> Option<ExpressionClassSetV1> {
+        match self {
+            Self::Value(class) => Some(ExpressionClassSetV1(ExpressionClassSetV1::bit(class))),
+            Self::Values(set) => Some(set),
+            _ => None,
+        }
+    }
 }
 
 pub(crate) fn project_expression_class_v1(
@@ -36,7 +67,7 @@ pub(crate) fn project_expression_nodes_v1(
     use ExpressionLeafClassV1 as Class;
     if transferred.iter().any(|index| *index >= plan.nodes().len()) { return None; }
     let mut nodes = vec![Class::Unresolved; plan.nodes().len()];
-    let mut values = BTreeMap::new();
+    let mut values: BTreeMap<_, ExpressionLeafClassV1> = BTreeMap::new();
     for index in plan.ordered_postorder_v1().ok()? {
         let node = &plan.nodes()[index];
         let ExpressionChildrenV1::Known(children) = node.children() else {
@@ -61,12 +92,18 @@ pub(crate) fn project_expression_nodes_v1(
             }),
             ExpressionNodeSourceV1::Binary(binary) => {
                 let [lhs, rhs] = binary_children_v1(node.site(), binary)?;
-                let (Some(Class::Value(lhs)), Some(Class::Value(rhs))) =
+                let (Some(lhs), Some(rhs)) =
                     (values.get(lhs), values.get(rhs))
                 else {
                     return None;
                 };
-                Class::Value(binary_expression_class_v1(binary.operator(), *lhs, *rhs).ok()?)
+                let mut results = Vec::new();
+                for lhs in lhs.value_classes()?.iter() {
+                    for rhs in rhs.value_classes()?.iter() {
+                        results.push(binary_expression_class_v1(binary.operator(), lhs, rhs).ok()?);
+                    }
+                }
+                Class::from_classes(results)?
             }
             // Their source operation/tail obligations are not closed by merely
             // lending a class to an enclosing operator.

@@ -4592,7 +4592,8 @@ entry registry is needed.
 Initializer Text entry reads use that same entry-requirement issuer after the
 initializer-specific lender proves the original source. The lender retains SAME
 final formal SUM Rc, SAME resolver value-flow Arc/read value and SAME initializer
-plan Rc. All original incoming alternatives must close to Text. Original alias
+plan Rc. The initializer lender retains all original closed Text/signed-I64/Null
+alternatives; source lending alone removes none. Original alias
 read edges may lead to that formal; rebinds follow the new entry, and Unknown,
 computed values, joins or cycles remain unmet rather than choosing one path.
 Only the final formal cache is Rc-backed; the existing SUM solver and borrowed
@@ -4626,3 +4627,15 @@ field/Call provenance, original bounded scope, source order and recorded binding
 membership to that view. Its original Print frame Rc, root operand, Normal/Fault
 End policy and continuation remain in the Print packet. The view copies no
 semantic frame or packet inventory and grants no Text residence handoff rights.
+
+Initializer finite entry reads retain the SAME formal SUM Rc and original flow /
+read coordinates. The covered Prefix joins a branch-owned null exclusion only
+when its original null arm actually terminated and the survivor is covered.
+Unknown, Other/Object, foreign entry/flow and a Null alternative without that
+proof refuse. Source SUM is immutable; original aliases/reaching definitions and
+current Parameter root are still required. This is not an executable entry or
+physical carrier grant. The complete initializer retains both read and branch
+proofs and every required existing Add envelope with one common Normal result.
+Physical entry/domain and guard-to-read dominance must be independently checked
+by both final consumers before activation. The current initializer and finite-
+envelope writer fences remain; no Text-only marker admits mixed input.

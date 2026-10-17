@@ -29,6 +29,7 @@ impl TextResidenceReadV1 {
 pub(crate) struct CheckedTextInitializerFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
     entry_reads: Box<[InitializerTextEntryReadV1]>,
+    entry_refinements: BTreeMap<usize, Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
     residence_reads: Box<[TextResidenceReadV1]>,
     scalar_reads: BTreeMap<usize, (BindingRefV1, SourceScalarKind)>,
 }
@@ -38,6 +39,7 @@ impl CheckedTextInitializerFrameV1 {
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source().root().initializer().expect("original initializer").binding() }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
     pub(crate) fn entry_reads(&self) -> &[InitializerTextEntryReadV1] { &self.entry_reads }
+    pub(crate) fn entry_refinements(&self) -> &BTreeMap<usize, Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>> { &self.entry_refinements }
     pub(crate) fn residence_reads(&self) -> &[TextResidenceReadV1] { &self.residence_reads }
     pub(crate) fn scalar_reads(&self) -> &BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { &self.scalar_reads }
     pub(crate) fn owns_root(&self) -> bool { self.evaluation.owned_result_nodes().contains(&0) }
@@ -48,6 +50,7 @@ pub(crate) fn qualify_text_initializer_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
     entry_reads: &[InitializerTextEntryReadV1],
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
+    entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
     signed_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<BindingRefV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
@@ -63,13 +66,17 @@ pub(crate) fn qualify_text_initializer_v1<E>(
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
     let mut seeded = BTreeMap::new();
+    let mut entry_refinements = BTreeMap::new();
     for read in entry_reads {
         let requirement = read.requirement();
+        let refinement = entry_refinement(requirement.read(), requirement.binding(), requirement.formal().1);
+        let Some(class) = read.leaf_class(refinement.as_deref()) else { return Ok(None) };
         if !Rc::ptr_eq(requirement.source_plan(), &source)
             || entry_reference(requirement.read()) != Some((requirement.binding(), requirement.formal().1))
             || source.nodes().get(requirement.node()).is_none_or(|node| node.site() != requirement.read()
                 || !matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == requirement.binding()))
-            || seeded.insert(requirement.node(), Leaf::Value(Class::String)).is_some() { return Ok(None); }
+            || seeded.insert(requirement.node(), class).is_some() { return Ok(None); }
+        if let Some(refinement) = refinement { entry_refinements.insert(requirement.node(), refinement); }
     }
     let mut residence_reads = Vec::new();
     for (node, original) in source.nodes_outside_calls() {
@@ -94,7 +101,7 @@ pub(crate) fn qualify_text_initializer_v1<E>(
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred },
-        entry_reads, residence_reads, scalar_reads: references,
+        entry_reads, entry_refinements, residence_reads, scalar_reads: references,
     });
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
         print_frame: None, condition_frame: None, argument_frame: None, text_initializer: Some(frame), field_write: None, initializer_homes: None };

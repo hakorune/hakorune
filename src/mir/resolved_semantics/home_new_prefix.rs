@@ -246,6 +246,7 @@ pub(crate) use arguments::{
 };
 #[path = "home_new_prefix_branch.rs"]
 mod branch;
+pub(crate) use branch::EntryNullExclusionV1;
 #[path = "home_new_prefix_field_call.rs"]
 mod field_call;
 #[path = "home_new_prefix_field_read.rs"]
