@@ -158,6 +158,29 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(!std::rc::Rc::ptr_eq(retained,
             foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
     }
+    for (declaration, initializer, allocation_only) in [
+        ("box Pair { left: i64 right: i64 }", "new Pair()", true),
+        ("box Pair { left: i64 right: i64 birth() { me.left = 1 me.right = 2 } }", "new Pair()", false),
+    ] {
+        let source = format!("{declaration} static box Main {{ main() {{ local pair = {initializer} return 0 }} }}");
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let (site, root, original) = {
+            let rows = ledger.pending_claims_for_test();
+            let claim = rows.values().next().unwrap();
+            (claim.site().clone(), claim.home_prefix().unwrap().destination(),
+                std::rc::Rc::clone(claim.construction_source().as_ref().unwrap()))
+        };
+        for taken in [false, true] {
+            if taken { ledger.try_take(&site, "Pair", 0).unwrap().expect("same affine claim"); }
+            ledger.with_local_new_source_v1(&site, root, |view| {
+                assert!(std::rc::Rc::ptr_eq(view.construction_source.as_ref().unwrap(), &original));
+                assert_eq!(view.construction.is_err(), allocation_only, "source retention grants no execution plan");
+                Ok(())
+            }).unwrap().expect("source view survives take");
+        }
+        assert!(ledger.try_take(&site, "Pair", 0).is_err(), "take stays affine");
+    }
     for (body, fields) in [
         ("pair.left = 10 return pair.left", 1),
         ("pair.left = 10 pair.right = 20 pair.left = 30 return pair.left + pair.right", 2),

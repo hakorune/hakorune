@@ -69,8 +69,8 @@ impl LocalNewRootSourceV1 {
         Ok(())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn recheck(&self, ledger: &OrdinaryNewClaimLedgerV1) -> Result<(), String> {
-        ledger.with_local_new_source_v1(&self.acquisition, self.binding, |source, object, _, declaration| {
-            if !source.same_source_as(&self.box_source) || object != self.object || declaration != &self.declaration {
+        ledger.with_local_new_source_v1(&self.acquisition, self.binding, |source| {
+            if !source.box_source.same_source_as(&self.box_source) || source.object != self.object || source.declaration != &self.declaration {
                 return Err("[freeze:contract][local-new-source/original-row-drift]".into());
             }
             Ok(())

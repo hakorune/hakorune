@@ -284,6 +284,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.home_prefix.clone(),
                 claim.box_source().clone(),
                 claim.core.construction.clone(),
+                claim.core.construction_source.clone(),
                 claim.core.object,
                 claim.core.destruction,
                 birth_target,

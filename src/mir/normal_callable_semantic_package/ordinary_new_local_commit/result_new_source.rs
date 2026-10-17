@@ -70,6 +70,15 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 }
 
+/// Borrowed source view: allocation semantics and execution eligibility are distinct.
+pub(in crate::mir::normal_callable_semantic_package) struct LocalNewSourceRefV1<'a> {
+    pub(in crate::mir::normal_callable_semantic_package) box_source: &'a crate::parser::ParserOrdinaryBoxSourceRowV1,
+    pub(in crate::mir::normal_callable_semantic_package) object: CanonicalObjectIdV1,
+    pub(in crate::mir::normal_callable_semantic_package) construction: &'a super::super::ConstructionEligibilityV1,
+    pub(in crate::mir::normal_callable_semantic_package) construction_source: &'a super::super::ConstructionSourceEligibilityV1,
+    pub(in crate::mir::normal_callable_semantic_package) declaration: &'a SourceBindingSiteV1,
+}
+
 impl OrdinaryNewClaimLedgerV1 {
     /// Borrow the SAME original local New row across its affine move.
     /// Construction eligibility and physical/Home availability remain separate.
@@ -77,14 +86,14 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         acquisition: &OwnedExprSiteV1,
         root: BindingRefV1,
-        read: impl FnOnce(&crate::parser::ParserOrdinaryBoxSourceRowV1, CanonicalObjectIdV1, &super::super::ConstructionEligibilityV1, &SourceBindingSiteV1) -> Result<T, String>,
+        read: impl FnOnce(LocalNewSourceRefV1<'_>) -> Result<T, String>,
     ) -> Result<Option<T>, String> {
         if root.owner() != acquisition.owner() {
             return Err(freeze("home-source/owner"));
         }
         let claims = self.claims.borrow();
         let commits = self.local_commits.borrow();
-        let (binding, box_source, object, construction, declaration) =
+        let (binding, box_source, object, construction, construction_source, declaration) =
             match (claims.get(acquisition), commits.get(acquisition)) {
                 (Some(_), Some(_)) => return Err(freeze("home-source/duplicate-store")),
                 (Some(claim), None) => {
@@ -98,6 +107,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         &claim.core.box_source,
                         claim.core.object,
                         &claim.core.construction,
+                        &claim.core.construction_source,
                         &claim.declaration,
                     )
                 }
@@ -106,6 +116,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     &row.box_source,
                     row.object,
                     &row.construction,
+                    &row.construction_source,
                     &row.declaration,
                 ),
                 (None, Some(_)) => return Err(freeze("home-source/commit-kind")),
@@ -114,16 +125,16 @@ impl OrdinaryNewClaimLedgerV1 {
         if binding != root {
             return Err(freeze("home-source/domain"));
         }
-        read(box_source, object, construction, declaration).map(Some)
+        read(LocalNewSourceRefV1 { box_source, object, construction, construction_source, declaration }).map(Some)
     }
 
     /// Executable actual classification preserves its stronger construction gate.
     pub(in crate::mir::normal_callable_semantic_package) fn borrowed_local_new_actual_class_v1(
         &self, acquisition: &OwnedExprSiteV1, root: BindingRefV1,
     ) -> Result<Option<Box<str>>, String> {
-        self.with_local_new_source_v1(acquisition, root, |source, object, construction, _| {
-            if !matches!(construction, Ok(plan) if plan.object() == object) { return Err(freeze("home-source/domain")); }
-            Ok(source.name().into())
+        self.with_local_new_source_v1(acquisition, root, |source| {
+            if !matches!(source.construction, Ok(plan) if plan.object() == source.object) { return Err(freeze("home-source/domain")); }
+            Ok(source.box_source.name().into())
         })
     }
 

@@ -4322,3 +4322,9 @@ field and acquisition; an owned LOCAL value is distinct from a borrowed numeric
 loan and keeps installed-Home requirements. Declaration reads also retain the
 frame. Source readiness grants no physical store/read dominance or activation;
 both final consumers and matching C must corroborate before pending fences open.
+
+The local-New source view carries original construction source eligibility beside
+execution eligibility through affine take. LOCAL readiness rechecks that same Rc
+on pending claims and committed rows; allocation-only source never becomes an
+initialized execution plan by retention. Existing actual classification still
+requires the stronger successful construction eligibility.

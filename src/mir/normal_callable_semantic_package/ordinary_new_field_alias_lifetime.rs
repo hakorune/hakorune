@@ -142,9 +142,9 @@ impl OrdinaryNewClaimLedgerV1 {
         root_object: hakorune_mir_defs::CanonicalObjectIdV1,
         edges: &[(hakorune_mir_defs::CanonicalFieldRefV1, hakorune_mir_defs::CanonicalObjectIdV1)],
     ) -> Result<hakorune_mir_defs::CanonicalObjectIdV1, String> {
-        let mut object = self.with_local_new_source_v1(&path.acquisition, path.root, |source, object, _, _| {
-            if !source.same_source_as(root_source) || object != root_object { return Err(fault("alias/root-source-drift")); }
-            Ok(object)
+        let mut object = self.with_local_new_source_v1(&path.acquisition, path.root, |source| {
+            if !source.box_source.same_source_as(root_source) || source.object != root_object { return Err(fault("alias/root-source-drift")); }
+            Ok(source.object)
         })?.ok_or_else(|| fault("alias/root-source-missing"))?;
         if edges.len() != path.edges.len() { return Err(fault("alias/source-edge-census")); }
         let mut parent = path.root;

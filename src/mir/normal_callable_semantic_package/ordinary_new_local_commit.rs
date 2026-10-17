@@ -145,6 +145,7 @@ pub(super) struct ProviderBirthRecordV1 {
 pub(super) struct NewLocalCommitV1 {
     box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
     construction: super::ConstructionEligibilityV1,
+    construction_source: super::ConstructionSourceEligibilityV1,
     object: hakorune_mir_defs::CanonicalObjectIdV1,
     destruction: super::ObjectDestructionDispositionV1,
     birth_target: Option<CanonicalSameModuleCallableKeyV1>,
@@ -372,6 +373,7 @@ impl NewLocalCommitV1 {
         home_prefix: Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>,
         box_source: crate::parser::ParserOrdinaryBoxSourceRowV1,
         construction: super::ConstructionEligibilityV1,
+        construction_source: super::ConstructionSourceEligibilityV1,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: super::ObjectDestructionDispositionV1,
         birth_target: Option<CanonicalSameModuleCallableKeyV1>,
@@ -385,6 +387,7 @@ impl NewLocalCommitV1 {
         Self {
             box_source,
             construction,
+            construction_source,
             object,
             destruction,
             birth_target,

@@ -468,3 +468,43 @@ All commands/source manifests/receipts remain under the evidence base; commit
 owns code/contracts/results, not temporary SHA alone. Shared constructor and
 borrowed-field physical owners remain live; no old-edge-zero or S0 completion
 claim is made. This source slice lands while its enclosing series stays open.
+
+## V845 LOCAL source-to-physical connection (active)
+
+Same S0 Decision: continue from V844 source-ready Return to common checked
+field write/read execution and independent finishing consumers. Preserve original
+construction source eligibility through the affine New claim -> local commit,
+separate from execution eligibility. Normalize the existing local-New source
+callback to one borrowed view containing both products; all current callers keep
+their previous execution/source boundaries. LOCAL read proof rechecks the same
+construction Rc before lending any physical permission. Source identity is not
+an empty initialized construction plan; activation fences remain until BOTH
+physical consumers and matching C connect.
+Initial scope: existing New ledger/local commit/source view, its four callers,
+owned-ready read owner and existing brand regression. Physical field writer and
+consumer scope follows the same owner mapping already reviewed under V844;
+read-only worker is checking exact APIs and common RHS emission before expansion.
+
+V845 source-preservation dependency verified: rootA build74.191252s and same76
+focused PASS. Existing brand case now takes both allocation-only and initialized
+New claims and confirms the identical construction source Rc before/after take,
+separate unchanged execution eligibility, and refusal of a second take. No new
+test function/fixture/guard; root total9213. Warning delta against V844d is zero.
+Root-route/layer/thin-shim/diff guards PASS. This does not activate a physical
+LOCAL writer or remove pending fences; no fresh CLI/native measurement is claimed.
+Last actual source frontier remains V844 CLI178/app183 lowering raw-field-read
+reentry, not a current-HEAD measurement. Retain rootA pin/log/source manifest for
+pending common writer/projection connection; there is no temporary adapter.
+The old four-positional source callback is removed at all four callers; the
+single typed view owns box/object/declaration and both construction products.
+
+Worker physical mapping is fixed: common FieldSet source origin distinguishes
+FormalBorrowed exact pair/guards from OwnedLocal original acquisition/root/RHS.
+Receiver remains an exact lexical read; RHS evidence distinguishes formal exact
+read from original whole-expression node projection. Existing expression plan
+ordered_postorder, scalar operation loans and mandatory field requirements are
+retained from the unique same-frame HomeExpressionPlan. No fake Print frame or
+post-hoc MIR type inference. Reuse literal and arithmetic append owners and one
+FieldSet/pins/Fault/Normal/finished-projection owner. Both final scans independently
+check LOCAL New/Home, RHS producer chain and write Normal -> read dominance;
+formal null/integer guard checks and usize corroboration stay origin-specific.
