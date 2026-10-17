@@ -4614,3 +4614,10 @@ physical Local consumer selects the SAME retained owned initializer frame and
 refuses execution-pending before generic descent until entry, local packet,
 residence handoff/End and both final scans are complete. A semantic frame and
 source demand alone grant no descriptor, pair, copy or publication permission.
+
+Physical expression correspondence has one borrowed body view over the SAME
+checked evaluation and writer observations. Print delegates node/value/source,
+field/Call provenance, original bounded scope, source order and recorded binding
+membership to that view. Its original Print frame Rc, root operand, Normal/Fault
+End policy and continuation remain in the Print packet. The view copies no
+semantic frame or packet inventory and grants no Text residence handoff rights.

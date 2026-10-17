@@ -706,53 +706,12 @@ must remain untouched. This adds the original expression-plan structural view to
 scope; it grants no class/transfer/physical right and retains all child-call proof
 obligations in their own original source owner.
 
-V869 RootA55.362865s failed at five child-method visibility boundaries; fixed
-only to their existing Home-prefix owner. B build PASS111.750201s; positive
-initializer/alias/current-state checks passed before a wrong fixture Completion
-unwrap failed. The fixture had omitted unreachable Static owners, and source
-selection also lacked the owned-Text demand trigger; both are corrected in the
-existing owner, not by issuing Completion for omitted functions. C build PASS
-86.592198s; actual eight-variant callback/production-frame matrix PASS. D81.645153s
-failed at two cfg(test) helper re-export scopes; only test adapter visibility
-changed. E build PASS66.327627s, new2 tests PASS, but full242 had229 PASS/13 failures:
-one NEW unselected scalar-call regression above plus the SAME12 known baseline.
-F21.353165s failed at the new iterator's end-of-block borrow lifetime, fixed by
-ending the local iterator before dropping its plan. Final G build PASS67.075805s.
-G28 nonempty filters242 distinct cases230 PASS/SAME12 baseline identities AND
-diagnostics versus6bc04b37f4; only thread IDs/unordered plugin Debug map normalized.
-Focused7.643888s separately from build. Print4/String1/projection4/install1,
-source/Array/Core/legacy domains preserve their prior results, including the
-formerly regressed declared-object/source-only case. New2 tests pass:8-variant
-source+current/atomic field batch matrix, production SAME frame/selector,
-acquisition identity/alias invalidation/reissue/branch checks, and independent
-compiler execution-pending refusal while the old bare literal owner stays live.
-
-Root/layer/thin/pointer/diff guards PASS. CLI206 build PASS195.479510s; G/CLI/current
-compiled-source manifests match. CLI SHA9a968f818fdbdd1442c665ec6f1f0e00c1e03feba06676f008f526a9b5183179.
-Unchanged json app235 canonical direct EXE0.118425s exits1/no artifact at SAME
-slot20/Body7/Value core-expression-execution-pending; stderr byte-equal toapp234.
-Actual production frontier did not advance; no actual intField physical success
-is inferred from the reachable fixture's real producer/retained-frame evidence.
-Unchanged mimalloc app236 canonical EXE PASS130.696260s; native0.001489s,
-original7-line stdout EXACT/exit0, original plugin-disabled warning only (stderr
-byte-equal toapp233). EXE SHA74f6aa07d8033c948ca831c393bcd4ad6f01f5f9a7b9d6c0cbff52c2fc9af3bd.
-Exact commands use --grammar-profile canonical --backend mir --emit-exe OUT
---emit-exe-nyrt runtime808b SOURCE, FFI831e SHAee5d244562c8104dd080bcf20aff008f854babce17496817346644f546d350d7,
-runtime SHA2b6083aac7e2d168fe8f76eb821c079900d15e69c8da0bc5eb843a05eba9222c,
-pure-first/no compat replay/plugins disabled/16MiB stack; no app source changes.
-CI query still reports only historical failed35681768498/d4168473d5, not current
-CI evidence. No current full-suite/performance/full-goal claim. First milestone
-reverified; full Text series and finite product goal remain open.
-
-Keep Root869G/CLI206/app235-236 logs/receipts/source manifests/pins and matched
-backend/prior baseline until full-series acceptance. Superseded B/C/E focused
-binary copies removed793,654,408bytes after G replaced their positive/current/
-negative evidence and fixed E's regression. Diagnostic source manifests/build/
-focused records remain. A/D/F have no successful binary; no temporary adapter or
-new guard/test owner exists. V868's duplicated alias walk is replaced by the
-shared resolver query. Plain numeric/call/literal initializers retain their old
-owner; no legacy edge is deleted before the new physical consumer is complete.
-Completed V867/V868 history is compressed to their durable commit references.
+V869 landed at d75d47dd98 (source/current-state contract and diagnostics in
+that commit). Root869G242 cases230 PASS/SAME12 baseline; CLI206/app235 unchanged
+json first-stop, app236 unchanged mimalloc EXE/native exact7/exit0 PASS. This was
+semantic/current-state connection, not Text execution. Its diagnostic records
+and prior baseline stay retained until the selected Text series is accepted;
+stronger current evidence and remaining physical conditions follow below.
 
 Next construction reuses the existing Local descent, expression evaluator,
 LocalCommit and lifecycle prefix packet pool. Worker verified source Text rows
@@ -769,3 +728,71 @@ Text actuals, all incoming/uses, tag4 named JSON/C and caller argument cleanup
 must close together. Tag4 remains currently unknown/rejected; do not remove any
 pending fence from a source claim alone. Literal-only physical evidence is a
 construction check, never actual needle/ordinary Text argument acceptance.
+
+V870 selected BoxShape: normalize the existing Print physical projection into
+one borrowed expression-body validator and the unchanged Print terminal policy.
+Read-only worker confirmed the source/value/field/call correspondence, ordered
+bindings, recorded membership and bounded original scope are purpose-neutral;
+Print operand, Normal/Fault cleanup and continuation remain its own policy.
+The shared view borrows the SAME evaluation/source and writer observations;
+no second packet inventory or cloned semantic frame is introduced. Existing
+Print projection mutations and String/Call tests validate both original and
+finished coordinates. This replaces the Print-only ownership of those checks;
+it does not admit Text execution or advance the actual app frontier by itself.
+Text entry/local handoff/final scans and JSON/C remain owed in this same series.
+
+V870 implementation (2026-10-18): `root_call_entry/expression_projection.rs`
+borrows the purpose's SAME checked evaluation, values, call/path-read packets
+and original bindings. Print owns those observations once and lends the view;
+its terminal operand/continuation checks and entire Normal/Fault cleanup checker
+remain in `print_expression_projection.rs`. Node/value/source, field/call proof,
+ordered body, recorded membership and bounded scope move to the shared owner.
+No second storage, semantic clone, new registry/guard/test or Text right exists.
+`normal_order` moves unchanged; the existing field-write RHS consumer is switched
+directly to that owner, with no old Print-path compatibility re-export. Print's
+full lifetime checker and Normal-order algorithm compare byte-identical to
+d75d47dd98. Source/value census and ordered body compare identical after removing
+only the purpose-owned Print terminal and adapting borrowed-slice iteration.
+Read-only worker independently confirmed transferred/identity nodes, SAME source
+receipts, original scope/foreign-entry, finalized mapping and mandatory producer
+membership are preserved. This integrates existing physical validation; it is
+not Text execution or actual-app advancement.
+
+Root870A81.734219s failed because the field-write consumer still referenced the
+moved helper through Print. Its sole caller now uses the shared owner directly.
+After all Cargo/rustc exited, B build PASS65.464769s; no new warnings versus869G.
+The reused28 nonempty filters cover242 distinct cases:230 PASS/SAME12 failures,
+both identities and diagnostics equal to869G/d75d47dd98 (only numeric thread IDs
+and unordered plugin Debug maps normalized). Focused8.447676s excludes build.
+Print4/String1/ordered projection4/install1 all PASS. An attempted field-write
+filename filter matched0 and is NOT evidence; the actual `owned_rhs_` filter
+runs2 cases/PASS1.211185s on the same test binary, preserving source/literal and
+unowned-effect refusal. No test source was changed or added.
+
+Normal-root reference route, Builder layer, inc thin-shim, pointer and diff
+guards PASS. Additional mir_root_facade_guard is BASELINE RED at ArrayReadSiteId;
+all its inputs extracted from unchanged d75d47dd98 reproduce identical exit1/
+diagnostic. No allowlist change or current-all-guards-green claim is made.
+CLI207 build PASS159.144352s; Root870B and CLI207 compiled-source manifests match.
+CLI SHA f7606394c29fd33b07ea91ff5f8cc29c07da84642d3381c3800fea38d1ca0777.
+Unchanged json app237 canonical direct EXE0.116973s exits1/no artifact at SAME
+slot20/Body7/Value core-expression-execution-pending, stderr byte-equal toapp235.
+Unchanged mimalloc app238 canonical EXE PASS131.338236s; native0.001683s,
+original7-line stdout EXACT/exit0, only the original plugin-disabled warning
+(stderr byte-equal toapp236). EXE SHA196ae06bb25834baa2e1f36c37e73fbbbf7f0c3a05d477d60b5139e3df24cb8d.
+Commands remain canonical --backend mir --emit-exe OUT --emit-exe-nyrt runtime808b
+SOURCE, FFI831e/pure-first/no compat replay/plugins disabled/16MiB stack with the
+same backend/runtime/source hashes as V869; no app changes. First milestone
+remains verified; actual Text series and full finite goal remain open.
+Latest CI query still shows only historical failed35681768498/d4168473d5;
+no current CI, full-suite or performance claim.
+
+Keep Root870B/CLI207/app237-238 logs, receipts, exact source manifests and current
+binary pins with the matched backend/prior baseline until this Text series is
+accepted. Root870A has no successful test binary; retain its diagnostic only.
+No adapter, extra registry, new guard or new test owner was introduced. Completed
+V869 build/debug history is compressed to d75d47dd98; its live source/current-state
+contract and physical pending conditions remain above. Next: use this shared
+physical expression correspondence for the SAME initializer packet, exact entry/
+residence/scalar fulfillment before first effect, Normal root handoff/LocalCommit
+and both final scans; ordinary Text arguments and named JSON/C remain required.

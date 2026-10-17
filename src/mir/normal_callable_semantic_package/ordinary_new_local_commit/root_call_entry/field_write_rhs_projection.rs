@@ -165,7 +165,7 @@ impl EmittedFieldWriteRhsV1 {
                 _ => return Err(freeze("field-write-rhs/source-proof-kind")),
             }
         }
-        super::super::print_expression_projection::normal_order(function, &ordered)?;
+        super::super::expression_projection::normal_order(function, &ordered)?;
         if finishing.is_none() { self.validate_original_scope(function)?; }
         Ok(())
     }

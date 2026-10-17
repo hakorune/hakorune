@@ -767,6 +767,9 @@ pub(crate) use local_binding_group::RootLifecyclePrefixBindingGroupV1;
 #[path = "root_call_entry/lexical_terminal.rs"]
 mod lexical_terminal;
 
+#[path = "root_call_entry/expression_projection.rs"]
+mod expression_projection;
+
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
