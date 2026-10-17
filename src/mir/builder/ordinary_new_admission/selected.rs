@@ -14,6 +14,8 @@ pub(in crate::mir::builder) mod map;
 pub(in crate::mir::builder) mod root_graph;
 #[path = "selected/bool_condition.rs"]
 pub(in crate::mir::builder) mod bool_condition;
+#[path = "selected/expression_value.rs"]
+mod expression_value;
 #[path = "selected/print_expression.rs"]
 pub(in crate::mir::builder) mod print_expression;
 #[path = "selected/terminal_call.rs"]

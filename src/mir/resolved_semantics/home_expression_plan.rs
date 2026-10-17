@@ -31,6 +31,9 @@ pub(crate) use field_write_expression::QualifiedFieldWriteRhsV1;
 #[path = "home_bool_condition.rs"]
 mod condition;
 pub(crate) use condition::{qualify_bool_condition_v1, CheckedBoolConditionFrameV1};
+#[path = "home_expression_evaluation.rs"]
+mod evaluation;
+pub(crate) use evaluation::CheckedExpressionEvaluationV1;
 #[path = "home_print_expression.rs"]
 mod print_expression;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};

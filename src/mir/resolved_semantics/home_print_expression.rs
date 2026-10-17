@@ -15,31 +15,23 @@ use crate::mir::resolved_value_profile::{
 };
 use std::collections::BTreeSet;
 
-/// Templates for source-node acquisitions, not already acquired runtime owners.
-/// Only checked Add Normal may acquire an owned String at one of these nodes.
+/// Print purpose authority wraps the SAME qualified expression body. The body
+/// alone neither selects a Print root nor installs a Home observation.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CheckedPrintExpressionFrameV1 {
-    source: Rc<ExpressionSourcePlanV1>,
-    prior_homes: Box<[crate::mir::resolved_semantics::BindingRefV1]>,
-    order: Box<[usize]>,
-    classes: Box<[ExpressionLeafClassV1]>,
-    calls: Box<[LocalCallObservationV1]>,
-    operations: Box<[Rc<CheckedExpressionOperationLoanV1>]>,
-    owned_results: Box<[usize]>,
-    transferred_inputs: BTreeSet<usize>,
+    evaluation: CheckedExpressionEvaluationV1,
 }
 impl CheckedPrintExpressionFrameV1 {
-    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { &self.source }
-    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
-    pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
-    pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { &self.calls }
-    pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { &self.operations }
-    pub(crate) fn owned_result_nodes(&self) -> &[usize] { &self.owned_results }
-    pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 { self.classes[0] }
-    pub(crate) fn transfers_node(&self, node: usize) -> bool { self.transferred_inputs.contains(&node) }
-    pub(crate) fn node_is_identity(&self, node: usize) -> bool {
-        self.classes.get(node) == Some(&ExpressionLeafClassV1::Identity)
-    }
+    pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
+    pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
+    pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { self.evaluation.prior_homes() }
+    pub(crate) fn ordered_nodes(&self) -> &[usize] { self.evaluation.ordered_nodes() }
+    pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { self.evaluation.calls() }
+    pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { self.evaluation.operations() }
+    pub(crate) fn owned_result_nodes(&self) -> &[usize] { self.evaluation.owned_result_nodes() }
+    pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 { self.evaluation.root_class() }
+    pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
+    pub(crate) fn node_is_identity(&self, node: usize) -> bool { self.evaluation.node_is_identity(node) }
 }
 
 /// The caller first retains original actual facts at the pre-statement basis.
@@ -98,11 +90,11 @@ pub(crate) fn qualify_print_expression_v1<E>(
         if envelope.normal_result() == DynamicOperatorNormalResultV1::OwnedStringValue { owned_results.push(index); }
         operations.push(Rc::new(CheckedExpressionOperationLoanV1 { plan: Rc::clone(&source), node: index, envelope }));
     }
-    let frame = Rc::new(CheckedPrintExpressionFrameV1 {
+    let frame = Rc::new(CheckedPrintExpressionFrameV1 { evaluation: CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(),
         calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
         owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred,
-    });
+    } });
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, print_frame: Some(frame), condition_frame: None, field_write: None,
     };

@@ -1900,10 +1900,14 @@ suffixes, dedicated Normal/Fault landings and the pending-Fault terminal. Root
 callers retain their Return endpoint and original Home origin correspondence;
 plain roots do not create an unused acquisition-fault chain. A body expression
 must supply its own verified continuation and source/frame correspondence before
-using this same writer. The retained Print expression driver now supplies that
-correspondence: it delegates exact field append/record, arithmetic and lexical
-calls to their existing owners, emits the checked String/Print graph, and
-commits one whole-expression packet. Nested calls prepend the frame's acquired
+using this same writer. The retained Print purpose wrapper supplies that
+correspondence through selected/expression_value, the sole ordered expression
+body evaluator. It borrows the checked body from the original purpose frame,
+delegates exact field append/record and arithmetic, and receives purpose-checked
+lexical Call emission from that wrapper. It returns the live acquired prefix,
+original value/call/read receipts, FaultFrame and binding pool together; it never
+Ends the result, emits a Print or commits an independent group. The Print wrapper
+emits the checked Print/Normal cleanup/continuation and commits one whole packet. Nested calls prepend the frame's acquired
 String Ends to the existing Home Fault unwind. The raw statement port checks
 the original frame before child evaluation, consumes its exact PrintValue
 demand once, and emits genuine Unit outside Continue. This is the canonical

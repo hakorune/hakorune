@@ -1560,6 +1560,14 @@ each exit separately. Any missing product, mismatched owner/site or I64
 prestate, unsupported body, or unobserved call leaves the Loop uncovered.
 Home never issues a second Recipe or physical permission.
 
+Checked expression bodies retain the original plan, node order/classes,
+transferred subtrees, operation and Call loans, owned-result templates and ordered
+Homes once in home_expression_evaluation. The Print purpose wrapper owns this
+same immutable body and lends it to the physical evaluator; borrowing the body
+does not select a Print root or install a Home observation. The original Print
+qualifier still checks root/envelopes/fields/can-install before its final atomic
+field batch, with no fallible purpose rejection after that batch succeeds.
+
 Checked Print frames retain the exact pre-statement owned-Home list even when
 there are no calls or String temporaries; every nested real call must carry the
 same list. Foreign or duplicate Homes and call/context drift refuse before the

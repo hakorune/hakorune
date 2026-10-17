@@ -50,6 +50,39 @@ use their own owners; no fake Loop membership or alternate substring evaluator.
 Read-only worker is reusing the top-down consumer mapping below. Extend the
 bounded implementation path list before building the next physical connection.
 
+V864 verified BoxShape construction step: move the existing checked expression
+body data into home_expression_evaluation, retaining Print as the purpose wrapper
+and original issuer/atomic qualification. Extract selected/print_expression's
+whole node descent into one selected/expression_value evaluator which returns
+live acquired temporaries, original values/calls/path-read receipts, FaultFrame,
+entry and bindings. Print retains its terminal Invoke, Normal Ends, continuation,
+whole packet and commit. Purpose-specific call emission is lent as a callback to
+the same terminal_call writer, not inferred from the expression body. No second
+classifier, recursive evaluator, frame fabrication or argument admission.
+Paths: home_expression_plan/print_expression/new evaluation child + home_new_prefix
+export; selected.rs/print_expression/new expression_value child; resolved-semantics
+and Builder READMEs (their frame/writer contracts actually change), this card.
+Existing Print qualification/projection, checked-String Normal/Fault/escape and
+lexical argument projection tests supply positive/negative acceptance; reuse the
+source-domain baseline tests and unchanged canonical json frontier. No new test
+for identical extraction. Old Print-only data/descent is removed in this step;
+Text arguments, acquisition-prefix outer Call, entry and both publication scans
+remain required in this SAME full series. Local green is not product acceptance.
+
+Next physical construction mapping, from the reused read-only source worker:
+issue a real CallArgument root at expression_plan's existing build_plan owner,
+checking original statement, SAME outer method Arc, ordinal and argument site.
+Qualify its purpose frame at the covered Prefix actual-staging point with actual
+locals/prior Homes and existing atomic field batch. Source SUM preparation and
+stage_unobserved_statement_actuals cannot issue this frame. Reuse leaves/body
+order/reach/operator qualification; retain SAME ordinary Core receipt alongside
+the checked body. Core receiver/bounds must evaluate in the common postorder,
+not be transferred away as fake borrowed_scalar Call inputs. Existing source
+SUM proves alternatives, never the current mutable bound value. Build the actual
+scan Loop After via its own Facts/Recipe/JoinSig owners; Mul-only After is not a
+borrowable membership substitute. Entry/temporary cleanup/both final consumers
+remain the same full Text series, with the fence retained until they close.
+
 Completed preparation decisions and their full evidence live in their commits:
 V8587b1f4f5f32 canonical Core Arc; V859b554b33626 conditional source premises;
 V860f839069d6b shared ordinary source/Static retention; V86137934abe54 original
@@ -562,67 +595,74 @@ current contracts, negative boundaries, missing consumers and needed pins remain
 
 ### Instance original incoming registration (V863)
 
-CLI199 temporary diagnostic/app224 measured the SAME full-import source before
-this change: substring's two signed bounds close, but its receiver Text is absent
-because ingest/ingestLine Instance declarations have no registered incoming.
-The existing find ExactI64(required[2]) and Core operand consumer are present.
-The measurement-only module/gate and Debug derives were removed before this
-slice; observer source/patch and matched logs/manifests remain in /tmp until
-full-series acceptance. There is no permanent debug switch or new proof app.
+Durable implementation/validation:b92665faba. SAME source scan registers original
+Instance inputs independently of transport, checks original declaration/Parameter
+identity and preserves Unknown/mixed alternatives. Root863C206 distinct cases:
+194 PASS/SAME12 baseline identities and diagnostics; new2 source boundaries PASS.
+CLI200/app225 unchanged json ADVANCES Body7 source-actual-unavailable ->
+core-expression-execution-pending; exact ordinary Core receipt reaches consumer.
+App226 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. All guards PASS.
+That commit retains exact commands, hashes, timings, diagnostic cause and test-
+setup/partial-run classification. No physical Text/entry/publication acceptance.
+Keep Root863C/CLI200/app225-226 pins/logs/manifests/receipts and matching backend/
+baseline evidence for this unfinished series. Superseded A/B3 root copies and
+CLI199 diagnostic binary removed857,486,016 bytes; observer patch/source/logs
+remain explanatory evidence until closeout. No adapter or dedicated guard exists.
+Shared transport keeps its unchanged callers; its accidental source-registration
+prerequisite is replaced. Latest CI remains historical failed35681768498/d4168473d5;
+no current CI/full-suite/performance or full-goal claim.
 
-The same source registration now includes canonical Instance declarations even
-without Static context. Legacy owners freeze before registration; source-only
-rows reuse the same lexical/pending-Stored targets and sole scan. Original
-Parameter binding, owner/mode/arity/ordinal and namespace are checked. Unknown
-siblings retain source veto; no receiver/transport/entry authority is issued.
-Read-only review confirms selected key/declaration identity remains co-sealed.
+### Shared checked expression evaluation (V864)
 
-RootA/B built; the new Core integration test hit an existing executable argument
-fence before its observation seam, so it cannot inspect a source-only contract.
-Use the direct existing source-SUM seam for the Instance Text/unknown/Bool
-forwarding matrix, with the existing Core consumer tests unchanged. RootA's
-partial focused run also lacked16MiB RUST_MIN_STACK and aborted one filter; no
-zero/aborted filter counts as PASS. The final reused focused root must replace
-these incomplete runs. No production condition was weakened for test setup.
-Full original Text evaluation/entry/cleanup/publication remains unaccepted.
+The Print purpose wrapper now owns the SAME immutable checked expression body,
+retaining the original source Rc, ordered Homes, Call rows, operation loans,
+owned-result templates and transferred subtrees. Its original root/envelope/
+field/can-install checks and final atomic field batch are unchanged. The sole
+selected expression_value descent returns live acquisitions and all original
+receipts/bindings; Print keeps its terminal, Normal/Fault End suffixes, packet,
+dedup and commit. Existing purpose-checked Call emission is supplied by a callback
+that captures the original Print frame and uses the unchanged terminal writer.
+No duplicate traversal, body issuer or independent physical group was introduced.
+The former Print-only data/descent is physically replaced; the live producer
+caller is the existing production Print path. Arguments are NOT admitted here.
 
-Root863C build PASS66.183946s.16 nonempty reused filters cover206 distinct tests:
-194 PASS and SAME12 baseline failure identities/diagnostics versusbe368415ca,
-normalizing only thread IDs and unordered plugin Debug map order. New2 cases
-cover source-only Instance registration without Static context/transport drafts,
-original owner/mode/formal/ordinal corruption, same-name other-class exclusion,
-2-hop Text forwarding, Unknown and mixed Text|Other Bool preservation. Existing
-Core/source-flow/Array/legacy tests unchanged. Root/layer/thin/pointer/diff guards
-PASS. RootA69.970055s/RootB59.423755s test setup/partial evidence is superseded;
-their3 temporary root binary copies retired787,998,032 bytes, while source/build/
-focused logs/receipts remain. RootC binary/source/receipt pins stay until complete
-series acceptance. No temporary adapter or dedicated guard was introduced.
+Read-only worker confirms original identity, transferred/identity skip order,
+read-once path roots and all per-node acquired-prefix Fault cleanup remain.
+Direct old/new ordered-body comparison is byte-identical after replacing only
+the purpose Call invocation with its callback (normalized body SHA
+c2ccada90311539a2b949d97069a43eae5d4c99b4cc0e59c0c75a359f03dc721).
+Root864A failed82.278967s only for two moved LocalCallObservation import paths;
+corrected to their existing home_new_prefix export, no authority change. No A
+binary was produced. Root864B build PASS98.004265s;23 nonempty reused filters:
+216 distinct cases204 PASS/SAME12 baseline identities and diagnostics versus
+b92665faba (only thread IDs/plugin Debug ordering normalized). Existing Print4,
+String Normal/Fault/escape1, ordered projection4 and atomic installation1 all
+PASS. Source/Core/Array/legacy baseline families remain unchanged; no new test.
+Root/layer/thin/diff guards PASS. Full Text argument/entry/cleanup/publication and
+full finite objective stay open. Exact build/filter receipts/manifests/logs and
+body comparison remain in /tmp/mirbuilder-required-forward-resume until series
+acceptance; no temporary adapter or dedicated guard exists.
 
-CLI200 build PASS177.482275s; RootC/CLI/current compiled-source manifests match.
-CLI SHAc0bf432bfe47359bb7e595c28cd2feca1ab8236d5c2f1b8b21e0e4072de1e736.
-Unchanged json app225 canonical direct EXE0.114318s exits1/no artifact, but its
-original compilation1/slot20/Body7/Value first stop ADVANCES from source-actual-
-unavailable to core-expression-execution-pending. The SAME ordinary Core receipt
-now reaches its existing Static actual consumer. This proves the missing source
-connection, not physical Text evaluation, entry or EXE acceptance. Arguments,
-result/End, complete Normal/Fault cleanup and both final scans/JSON/C remain owed.
-CLI199 diagnostic binary retired69,487,984 bytes after this stronger default-route
-measurement; observer patch/source and logs/manifests stay for series closeout.
-App225 uses unchanged source SHAb5d4461b43a9b1b9e975192d1b701d5468524e61c5bc353303e62c7ece58e370,
-FFI831e/runtime808b, canonical --backend mir --emit-exe/--emit-exe-nyrt,
-pure-first/no compat replay, plugins disabled and16MiB stack. Exact argv/env,
-binary/backend/source hashes and logs are retained in the app225 receipt.
-Latest CI checked at this closeout remains historical failed35681768498/d4168473d5;
-no current CI/full-suite/performance or full-goal completion claim.
+CLI201 build PASS176.945013s; Root864B/CLI/current compiled-source manifests match.
+CLI SHA2e035f7048d009de517737c190e4a3cfd6277a6c50c7096a9acb8ed7c5b8fd2b.
+Unchanged json app227 canonical direct EXE0.114944s exits1/no artifact at SAME
+compilation1/slot20/Body7/Value core-expression-execution-pending. This BoxShape
+step changes the production expression owner, not the app acceptance frontier.
+Same unchanged source/backend/runtime/canonical argv/env as app225: FFI831e,
+runtime808b, canonical --backend mir --emit-exe/--emit-exe-nyrt, pure-first/no
+compat replay, plugins disabled,16MiB stack. App227 retains exact argv/env,
+source/backend/binary hashes and logs. Root filters execute7.604989s separately
+from build. No performance improvement or new Text execution is claimed.
 
-Unchanged mimalloc app226 canonical EXE PASS132.527377s; native0.001562s,
+Unchanged mimalloc app228 canonical EXE PASS129.965221s; native0.001463s,
 original7-line stdout EXACT/exit0 and only original plugin-disabled stderr warning.
-EXE SHA7085a252189b6ae6f79c2159e320721399101d9eb675ddfdfc31382bb2bce39f.
-Same CLI200/backend/runtime/canonical argv/env as app225; source unchanged.
-Keep Root863C/CLI200/app225-226 logs/manifests/receipts and current pins for the
-unfinished Text series. Diagnostic observer records remain explanatory evidence,
-not a runtime adapter. Prior shared legacy transport retains its callers; this
-slice replaces its accidental source-registration prerequisite only. No private
-retirable adapter was added. Next same-series physical construction is recorded
-above; pending fence and shared expression/cleanup/entry owners remain until
-source-to-final-consumer acceptance closes. Full finite goal stays active/open.
+EXE SHA909c7fb968c3e58d4fcf758d5c18da3d69399e4b5bc445feeaab12b416288cf2.
+Keep Root864B/CLI201/app227-228 source/build/focused/native receipts/manifests/
+logs and current pins, plus matched backend/baseline evidence until this full
+series closes. RootA produced no binary, so no superseded A pin exists to retain.
+No adapter is parked. Builder Print now calls the common evaluator exclusively;
+old Print-owned loop/body storage is removed, existing shared operation/Call/
+cleanup writers remain. Completed V863 history is compressed to its landed
+commit reference above. Latest CI checked remains historical failed35681768498/
+d4168473d5; no current CI/full-suite or complete-goal claim. The next actual
+argument-purpose/Prefix/Loop and physical consumer obligations remain above.
