@@ -670,7 +670,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                 borrowed_actuals,
             )? {
                 // Source obligation retained; no producer execution is inferred.
-            } else if super::text_initializer::observe(input, &statement, relation, locals, homes,
+            } else if super::initializer_expression::observe(input, &statement, relation, locals, homes,
                 unavailable.is_none(), local_calls, path_calls, local_field_read, borrowed_actuals)? {
                 // The original Normal Text residence retains its acquisition.
             } else if let Some(class) = locals.observe(site) {

@@ -17,7 +17,7 @@ impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source_loan(&self) -> &ArgumentExpressionSourceLoanV1 { &self.source_loan }
     pub(crate) fn static_reads(&self) -> Vec<&super::super::StaticTextReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::StaticText(read) => Some(read), _ => None }).collect() }
-    pub(crate) fn residence_reads(&self) -> Vec<&super::text_initializer::TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
+    pub(crate) fn residence_reads(&self) -> Vec<&super::initializer_expression::TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
     pub(crate) fn text_reads(&self) -> Vec<&BorrowedTextEntryReadRequirementV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::ArgumentEntry(read) => Some(read), _ => None }).collect() }
@@ -30,7 +30,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     text_reads: &[BorrowedTextEntryReadRequirementV1],
     text_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     static_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<super::super::StaticTextReadV1>,
-    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, SourceScalarKind)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
@@ -70,7 +70,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             if current != *binding || root != acquisition.binding() || acquisition.source().owner() != source.owner()
                 || (acquisition.owns_root() && !homes.contains(&root))
                 || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
-            residence_reads.push(super::text_initializer::TextResidenceReadV1::new(index, current, root, acquisition));
+            residence_reads.push(super::initializer_expression::TextResidenceReadV1::new(index, current, root, acquisition));
         }
     }
     for read in text_reads {
@@ -113,7 +113,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     });
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-        print_frame: None, condition_frame: None, argument_frame: Some(frame), text_initializer: None, field_write: None, initializer_homes: None };
+        print_frame: None, condition_frame: None, argument_frame: Some(frame), initializer_frame: None, field_write: None, initializer_homes: None };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }
     if !field_batch(&fields, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? { return Ok(None); }

@@ -129,7 +129,7 @@ pub(in crate::mir::resolved_semantics::home_new_prefix) fn qualify_field_write_e
         }
     }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: operations,
-        source_fields: Vec::new(), initializer_homes: None, argument_frame: None, text_initializer: None, print_frame: None, condition_frame: None,
+        source_fields: Vec::new(), initializer_homes: None, argument_frame: None, initializer_frame: None, print_frame: None, condition_frame: None,
         field_write: frame.map(|frame| FieldWritePlanV1 { frame, rhs: qualified_rhs }) };
     let Some(candidate) = candidate.with_source_field_requirements(&requests) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }

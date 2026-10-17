@@ -1,7 +1,7 @@
 //! Current Text residences retain their original acquisition, never Object Home.
 use super::*;
 use std::rc::Rc;
-use super::super::CheckedTextInitializerFrameV1;
+use super::super::CheckedInitializerExpressionFrameV1;
 use crate::mir::resolved_semantics::source_value_flow::{SourceValueRefV1, SourceValueOriginV1, VerifiedSourceValueFlowV1};
 use std::sync::Arc;
 
@@ -63,7 +63,7 @@ impl PrefixLocalFlow<'_> {
             proof.corroborates(flow, value, root, |site| self.input.function().variable_ref(site))).map(Rc::clone)
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn text_reference(&self, site: &SourceExprSiteV1)
-        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)> {
+        -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)> {
         let ResolvedLexicalRefV1::Local(binding) = self.input.function().variable_ref(site)? else { return None };
         let StoredLocal::Text { root, acquisition } = self.locals.get(&binding)? else { return None };
         // An alias cannot silently follow the same binding's newer acquisition.
@@ -71,12 +71,12 @@ impl PrefixLocalFlow<'_> {
         (*live == *root && *root == acquisition.binding() && Rc::ptr_eq(acquisition, current))
             .then(|| (binding, *root, Rc::clone(acquisition)))
     }
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_initializer(&mut self, frame: Rc<CheckedTextInitializerFrameV1>) {
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_initializer(&mut self, frame: Rc<CheckedInitializerExpressionFrameV1>) {
         let root = frame.binding();
         self.store(root, StoredLocal::Text { root, acquisition: frame });
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn install_text_alias(&mut self, binding: BindingRefV1, root: BindingRefV1,
-        acquisition: Rc<CheckedTextInitializerFrameV1>) {
+        acquisition: Rc<CheckedInitializerExpressionFrameV1>) {
         self.store(binding, StoredLocal::Text { root, acquisition });
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn signed_entry_reference(&self, site: &SourceExprSiteV1) -> Option<BindingRefV1> {
@@ -89,8 +89,8 @@ impl PrefixLocalFlow<'_> {
 
 #[cfg(test)]
 pub(crate) fn assert_identity_for_test(
-    input: ResolvedFunctionLoweringInputV1<'_>, frame: Rc<CheckedTextInitializerFrameV1>,
-    next: &CheckedTextInitializerFrameV1,
+    input: ResolvedFunctionLoweringInputV1<'_>, frame: Rc<CheckedInitializerExpressionFrameV1>,
+    next: &CheckedInitializerExpressionFrameV1,
 ) {
     let read = &next.residence_reads()[0];
     let site = next.source().nodes()[read.node()].site();

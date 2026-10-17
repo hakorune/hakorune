@@ -68,7 +68,7 @@ pub(crate) enum SourceScalarKind {
 #[derive(Clone)]
 enum StoredLocal {
     StaticText { definition: SourceExprSiteV1 },
-    Text { root: BindingRefV1, acquisition: std::rc::Rc<super::CheckedTextInitializerFrameV1> },
+    Text { root: BindingRefV1, acquisition: std::rc::Rc<super::CheckedInitializerExpressionFrameV1> },
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,

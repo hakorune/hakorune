@@ -148,7 +148,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             .expect("callable local lowering requires its scoped ledger");
         let site = self.current_callable_site_v1("local-site")?;
         if self.ordinary_new_claim_ledger.as_ref().map(|claims|
-            claims.text_initializer_frame_v1(ledger.borrow().owner(), &site)).transpose()?.flatten().is_some() {
+            claims.initializer_expression_frame_v1(ledger.borrow().owner(), &site)).transpose()?.flatten().is_some() {
             return Err(freeze("text-initializer/execution-pending"));
         }
         let claims_for_placement = self.ordinary_new_claim_ledger.clone();

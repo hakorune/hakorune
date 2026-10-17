@@ -157,7 +157,7 @@ impl ResultNewHomePrefixV1 {
 
 #[path = "home_expression_plan.rs"]
 mod expression_plan;
-pub(crate) use expression_plan::{ExpressionCallSourceV1, qualify_text_initializer_v1, CheckedTextInitializerFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
+pub(crate) use expression_plan::{ExpressionCallSourceV1, qualify_initializer_expression_v1, CheckedInitializerExpressionFrameV1, qualify_argument_expression_v1, CheckedArgumentExpressionFrameV1, CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, QualifiedFieldWriteRhsV1, CheckedFieldWriteFrameV1, qualify_bool_condition_v1, CheckedBoolConditionFrameV1, qualify_print_expression_v1, CheckedPrintExpressionFrameV1,ExpressionFieldRequirementV1, ExpressionScalarOperationLoanV1, HomeExpressionPlanV1};
 
 #[path = "home_prefix_local_flow.rs"]
 mod local_flow;
@@ -274,10 +274,10 @@ mod mixed_call;
 mod condition;
 #[path = "home_new_prefix_argument_expression.rs"]
 mod argument_expression;
-#[path = "home_new_prefix_text_initializer.rs"]
-mod text_initializer;
+#[path = "home_new_prefix_initializer_expression.rs"]
+mod initializer_expression;
 #[cfg(test)]
-pub(crate) use text_initializer::observe_for_test as observe_text_initializers_for_test;
+pub(crate) use initializer_expression::observe_for_test as observe_local_initializers_for_test;
 #[cfg(test)]
 pub(crate) use argument_expression::observe_for_test as observe_argument_expression_for_test;
 #[path = "home_new_prefix_print.rs"]

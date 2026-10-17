@@ -536,7 +536,7 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
             let mut pending = ledger.borrowed_formal_actuals.clone();
             let mut batches = 0;
             let mut requests = 0;
-            let (plans, homes) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+            let (plans, homes) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, mutation != 1,
                 match mutation { 2 => Some(contract.parameters[0].binding), 4 => Some(contract.parameters[1].binding), _ => None },
                 &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
@@ -551,8 +551,8 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
             assert_eq!(batches, if accepted { 2 } else { usize::from(mutation == 3) });
             if mutation == 1 { assert_eq!(requests, 0, "unknown prefix cannot qualify current state"); }
             if accepted {
-                let first = plans[0].text_initializer().unwrap();
-                let second = plans[1].text_initializer().unwrap();
+                let first = plans[0].initializer_frame().unwrap();
+                let second = plans[1].initializer_frame().unwrap();
                 assert_eq!(first.entry_reads().len(), if annotation.is_empty() { 2 } else { 1 });
                 assert_eq!(first.scalar_reads().len(), usize::from(!annotation.is_empty()));
                 assert_eq!(first.evaluation().owned_result_nodes().len(), 2);
@@ -565,8 +565,8 @@ fn text_initializer_frame_requires_original_text_signed_source_and_current_prefi
                 // The actual production scan retains the same complete frame,
                 // not just this test's independent pre-evaluation walk.
                 let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
-                let retained = flow.expression_plans().iter().find_map(|plan| plan.text_initializer()).unwrap();
-                let selected = ledger.text_initializer_frame_v1(input.owner(), retained.source().root().statement().node()).unwrap().unwrap();
+                let retained = flow.expression_plans().iter().find_map(|plan| plan.initializer_frame()).unwrap();
+                let selected = ledger.initializer_expression_frame_v1(input.owner(), retained.source().root().statement().node()).unwrap().unwrap();
                 assert!(Rc::ptr_eq(retained, &selected));
             }
         }).unwrap();
@@ -620,7 +620,7 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
         let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
         let frame = ledger.completion_for_owner(contract.owner)
             .and_then(|completion| completion.cleanup().root_flow())
-            .and_then(|flow| flow.expression_plans().iter().find_map(|plan| plan.text_initializer()));
+            .and_then(|flow| flow.expression_plans().iter().find_map(|plan| plan.initializer_frame()));
         assert_eq!(frame.is_some(), accepted, "{guard}/{middle}; role={:?}; completion={:?}",
             package.selected.role_for_batch_slot(contract.batch_slot),
             ledger.completion_for_owner(contract.owner).map(|completion| completion.cleanup().root_flow()));
@@ -638,7 +638,7 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
             assert!(operation.envelopes().iter().all(|envelope| envelope.normal_result() ==
                 crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1::OwnedStringValue));
             assert!(frame.owns_root());
-            let selected = ledger.text_initializer_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
+            let selected = ledger.initializer_expression_frame_v1(contract.owner, frame.source().root().statement().node()).unwrap().unwrap();
             assert!(Rc::ptr_eq(frame, &selected), "the real production selector retains this SAME complete frame");
         }
     }
@@ -683,7 +683,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
             let contract = package.parameter_contracts.iter().find(|row| row.owner == input.owner()).unwrap();
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
             let mut pending = ledger.borrowed_formal_actuals.clone();
-            let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+            let (plans, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                 input, parameters, true, None,
                 &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
                 &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
@@ -737,7 +737,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                     crate::mir::MirBuilder::assert_checked_expression_core_for_test(input, package.ordinary_new_claim_ledger_for_test(), frame);
                 }
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
-                let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+                let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_local_initializers_for_test(
                     input, parameters, true, None,
                     &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
                     &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),

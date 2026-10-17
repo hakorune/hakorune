@@ -60,7 +60,7 @@ pub(super) fn owned_result_nodes(
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum CheckedExpressionReferenceV1 {
     StaticText(super::super::StaticTextReadV1),
-    Residence(super::text_initializer::TextResidenceReadV1),
+    Residence(super::initializer_expression::TextResidenceReadV1),
     ArgumentEntry(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
     InitializerEntry {
         read: crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1,

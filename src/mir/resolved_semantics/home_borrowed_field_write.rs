@@ -58,6 +58,6 @@ impl HomeExpressionPlanV1 {
             source: Rc::clone(&source), prior_homes: homes.into(), receiver: FieldWriteReceiverV1::FormalBorrowed,
         });
         Some(Self { source, scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None,
-            argument_frame: None, text_initializer: None, print_frame: None, condition_frame: None, field_write: Some(FieldWritePlanV1 { frame, rhs: None }) })
+            argument_frame: None, initializer_frame: None, print_frame: None, condition_frame: None, field_write: Some(FieldWritePlanV1 { frame, rhs: None }) })
     }
 }

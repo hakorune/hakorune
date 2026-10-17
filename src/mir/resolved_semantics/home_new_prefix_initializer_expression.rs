@@ -47,7 +47,7 @@ pub(super) fn observe<E>(
     });
     if !has_parent_text { return Ok(false); }
     let mut installation = locals.expression_installation();
-    let plan = qualify_text_initializer_v1(std::rc::Rc::clone(&source), homes, &reads,
+    let plan = qualify_initializer_expression_v1(std::rc::Rc::clone(&source), homes, &reads,
         &mut |site| super::argument_expression::text_reference(input, locals, site),
         &mut |site, binding, root| locals.entry_null_exclusion(site, binding, root),
         &mut |site| locals.text_reference(site),
@@ -58,7 +58,7 @@ pub(super) fn observe<E>(
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
     let Some(plan) = plan else { return Ok(false) };
-    let frame = std::rc::Rc::clone(plan.text_initializer().expect("Text initializer purpose"));
+    let frame = std::rc::Rc::clone(plan.initializer_frame().expect("Text initializer purpose"));
     let calls = frame.evaluation().calls();
     installation.commit();
     path_calls.extend(calls.iter().map(|call| call.site().clone()));

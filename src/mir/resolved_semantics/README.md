@@ -1661,3 +1661,8 @@ Expression leaf qualification prepares its Call/Core scope once from the origina
 source plan, then consumes that invocation-local product in leaf completion.
 Core children stay active; exact ordinary Call receiver/argument subtrees transfer
 to their existing input owner. Preparation grants no new initializer or execution.
+
+The Local initializer has one frame and Home-plan slot plus one source selector.
+Its shared vocabulary is independent of result policy; the present qualification
+still requires an owned String root. Text residence reads retain the SAME frame
+Rc; this normalization admits no Integer initializer or physical local execution.

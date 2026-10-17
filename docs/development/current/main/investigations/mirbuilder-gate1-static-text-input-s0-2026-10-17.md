@@ -304,148 +304,30 @@ unchanged JSON first-stop/native results, timing/provenance and pin retirement.
 Logs/manifests remain historical evidence; current successor bundle owns baseline
 roles. Full Text/source/entry/cleanup/publication remains unaccepted.
 
-## Decision: single original actual classifier and complete source SUM
+## Original classifier/SUM retained contract (V856–V857)
 
-Previous goal turn PROGRESS:6619dddb86 landed/pushed; real json first-stop
-unchanged. Read-only top-down worker reused the source-to-consumer review.
-Source authority + canonical issuer: SAME original incoming census and its
-OriginalFormalSeedProduct; resolver canonical method Arc, original contract/
-ordinal/forest and SAME callable result catalog. No new AST/classifier.
-Non-authority: result representation alone, selector spelling, transport draft
-absence, selected membership and empty/cyclic incoming are not closed domains.
-Fail-fast: keep Unknown, unregistered owners, source refusals and every Forward;
-no missing branch can be silently replaced with Text|I64.
+3c58e1fc8c owns behavior-preserving sole classifier extraction;4e5467160f owns
+source SUM and full original caller identity. Those commits retain paths,
+commands, classified negatives, Root160/148PASS/12baseline, unchanged JSON and
+native exact7/exit0 provenance. Current successor pins replace historical binaries.
+SAME claims/checked caller key joins Main, omitted and constructor origins once;
+canonical method/result Arcs and exact callee required argument ordinals survive.
+One classifier retains Text/Other, immutable locals/formals, conditional Core and
+unknown/refusal/Forward rows. New source evidence projects old Conflict; old
+homogeneous folds and execution admission remain unchanged. Whole-forest alias,
+contract/formal ordinal, unique initializer and Birth obligations are mandatory.
+SCC closure requires independent grounding and ALL exact I64/Text premises;
+P=Text|Q,Q<->R, P=f(P,7), and p=p.substring(0,1) cannot bootstrap authority.
+Foreign Core owner, empty/missing census, rebind/capture and seedless cycles refuse.
+Conditional Core retains original method/receiver/ordered seeds and generated
+manifest law; only closed premises permit the ordinary issuer, never fake Loop
+membership. Current source SUM cannot authorize runtime, ABI, Home or cleanup.
 
-First separate behavior-preserving extraction: source.rs752 lines moves its
-OriginalFormalActualSeed enum/projections and single classifier/alias helper to
-ordinary_new_borrowed_formal_actual_seed.rs. Keep parent-facing names, all
-projections and classifier control flow identical. No admission or new test.
-Paths: those two source owners, existing value-domain/static-source/seed tests
-for verification, owner README and this card. Source SUM construction follows
-within this SAME full series and remains required with entry/result/cleanup/
-publication. A source-only MethodResult or newly proved stable Forward must
-project to old Conflict, even if the SUM learns I64; existing homogeneous folds
-remain unchanged. Static result identity and real optional callrow stay distinct;
-Core requires real CoreStringMethod receiver fact/contract. Unknown substring
-formal receiver remains unresolved, never guessed from its selector.
-
-Acceptance for extraction: same existing focused families on one root binary,
-nonempty filters with baseline comparison; stable root/layer/thin/pointer/diff
-guards; compare unchanged json canonical direct EXE first-stop using the exact
-new CLI. Native mimalloc evidence V855 remains valid regression baseline; no
-native rerun for source-text movement unless semantic effects are found. No
-new adapter or duplicated classifier to retain. Full finite goal remains active.
-
-### Verified classifier extraction (V856)
-
-Implementation and durable validation:3c58e1fc8c. Sole classifier/raw enum moved
-without control-flow change; parent501 lines, child261. Root856A158:146 PASS,
-12 reproduced baseline failures. CLI192/app213 same json stop; all guards PASS.
-Keep that binary/manifest and earlier baseline receipts for current red-test
-classification. No new runtime or product claim.
-
-### Worker-confirmed next source dependency mapping
-
-Pass one borrowed OriginalActualSourceContext (SAME claims, checked caller key)
-through the existing recursive classifier. Build it once inside the original
-source-input callback. Selected callers corroborate original owner/contract
-slot/key; Main uses existing AppMainSourceRef.checked_caller_key; omitted uses
-SAME co-sealed owner->key map; Birth uses real constructor source/key; nested
-or missing authority stays Unknown. Outer Static.caller only corroborates,
-not the sole lookup, since outer Instance arguments need method results too.
-Thread app_main/omitted through existing prepare only, no source scan or solver.
-
-Preserve SAME method Arc and catalog result Arc/disposition. Static ExactI64
-retains CALLEE required argument ordinals tied to original ordered actuals,
-classified by this SAME recursive classifier; require signed-I64 alone before
-closing those dependencies. Caller required ordinals are different evidence.
-Core requires real CoreStringMethod receiver fact/contract. Result-on-Normal
-representation does not authorize evaluation, ABI or cleanup.
-
-Source SUM stays an orthogonal projection of SAME raw rows/New inputs. Unknown,
-missing registration, source refusals, rebind/capture, missing initialization and
-seedless cycles remain unresolved. Contract/formal ordinal, declaration binding,
-unique initializer and every alias hop require original whole-forest stability.
-New source-only evidence projects old Conflict. For recursive SUM, condense SCCs:
-all external dependencies must close, no Unknown, and known domain must come from
-that component or closed dependencies. Counterexample P=Text|Q, Q<->R seedless:
-P's own Text must not rescue Q/R. Old homogeneous fold and execution recursion
-admission remain unchanged. These are acceptance constraints, not a new feature
-or narrower replacement for full source-to-consumer Text series.
-
-## Source SUM construction (V857)
-
-Previous goal turn PROGRESS:3c58e1fc8c classifier extraction landed/pushed.
-Implement the existing worker-confirmed mapping, not a literal-only subset.
-Paths: actual_seed and new actual_method_result context owner; source_seeds and
-new source_sum projection owner; New seeds for a borrowed raw visitor sharing
-Birth correspondence validation; ingress_finish for original Main/omitted loans;
-qualified_static_call_claim for SAME call-result Arc loan; existing value-domain
-and static-source-domain tests, owner README and this card. Source-only literal,
-immutable local/formal, canonical Static/Core result and unresolved method keep
-one classifier; new evidence remains Conflict in all legacy projections. No
-Text runtime admission. Unknown/capture/rebind/cycles and full incoming/New
-obligations must survive into SUM. Native unchanged mimalloc regression will run
-if any semantic production effects appear, with json direct EXE first-stop.
-
-Root857A build PASS131.795136s; existing158 tests preserve146 PASS/12 baseline.
-Worker found and corrected two proof holes before acceptance: conditional
-P=f(P,7) cannot use its spare independently closed argument to justify its
-cyclic I64 premise; only an output whose ALL premises close externally can
-become a new ground. Context now retains/corroborates checked caller owner,
-so equal-site canonical methods from a foreign owner cannot borrow Core rows.
-Add2 independent uncovered boundary tests at those owners, plus SUM expectations
-in existing static/source-domain and value-domain New cases. Method result fields
-lend read-only views outside classifier construction. Paths also include the
-existing candidate_veto test adapter's added original context arguments. RootB
-reported only reexport visibility errors; no successful build/test claim for B.
-
-
-### Verified original source SUM (V857)
-
-One original classifier now retains Text/Other, immutable source-only locals and
-formals, SAME method Arc/result proof and explicit unknowns. OriginalMain/omitted/
-constructor caller identity is joined once at prepare, not inferred from the
-outer callee. Static result dependencies use exact callee ordinals; Core borrows
-only real catalog receiver/contract rows. Equal-site foreign Core owner refuses.
-Old projections preserve their previous Conflict/agreement and admit no Text.
-The SAME raw New visitor shares Birth correspondence with old projections,
-retaining missing/empty/unknown obligations; cached SUM keeps SAME New Rc.
-SCC condensation requires independent grounding and all exact I64 premises;
-P=Text|Q,Q<->R and P=f(P,7) cannot bootstrap a proof. Legacy homogeneous folds
-remain shared owners of their existing contracts, not a retry path.
-
-V857 durable implementation/validation:4e5467160f. RootE160 cases148 PASS/SAME12
-baseline; CLI194 app214 same source-actual stop, app215 unchanged native exact7/
-exit0 PASS. That commit retains complete commands/hashes/timings and negative
-census/SCC/source tests. Keep RootE/CLI194/app214-215/backend/baseline receipts
-until full-series acceptance; superseded diagnostic records remain, no adapter.
-No Text ABI/evaluation/cleanup/publication or current CI/full-suite claim.
-
-Next common responsibility from the SAME top-down worker review is source-bound
-String operand/receiver qualification consuming SAME rawseed+SUM at the original
-method site. Existing source_call_target/core_method text_source_at and result
-expression proof know syntactic Text/local sources, but do not consume formal
-SUM. Connect canonical method Arc + existing Core contract issuer, not another
-catalog AST solver, fake S6C/Loop membership or an app214 leaf relaxation.
-Preserve line's Text provenance, start/end exact-site I64/Loop After dependencies,
-existing concat alternatives and terminating Null guard, int_to_str I64 incoming,
-and unresolved MapGet producers. Then close entry/result, ordered argument
-Normal/Fault cleanup and BOTH final publication consumers in this same series.
-
-Worker refinement at V858: keep the SAME classifier and SUM graph. Preserve
-canonical Static routing first; an unresolved Core candidate retains the SAME
-method Arc, original receiver seed, ordered argument seeds and generated
-manifest row as a conditional request, not an issued catalog row or target.
-Require Text-only receiver and signed-I64-only bounds in that graph. Extend
-independent SCC grounding to BOTH predicate kinds: p=p.substring(0,1) cannot
-use its literal bounds to ground its own receiver. Only after every premise
-closes may the ordinary issuer use the existing CoreMethodInstanceTargetIssuer
-and source receipt; no fabricated Loop frame. Mutable end after the loop stays
-Unknown until the original exact-site I64/Loop After proof connects, including
-zero-iteration and break exits. Neither initializer/formal SUM nor final SSA
-substitutes for that evidence. This refines the existing One Decision; it does
-not select a new feature or narrow the remaining full-series acceptance.
+Remaining source-to-consumer obligations: original Text receiver, exact-site
+start/end I64 and genuine Loop After (zero-trip/Break/rebind), both concat
+envelopes with terminating Null exclusion, int_to_str incoming and unresolved
+MapGet. Preserve SAME rawseed/SUM, not another AST solver or catalog. Entry/result,
+ordered argument Normal/Fault and BOTH final publication consumers remain owed.
 
 ### Canonical Core source identity normalization (V858)
 
@@ -974,23 +856,44 @@ and557,147,640B superseded pin retirement. Keep887A/CLI232/app277/runtime877A/
 FFI876B as current matched bundle; trace source snapshots/logs retain exact
 observations. Full Text series and fixed suite/CI acceptance remain unaccepted.
 
-V888 normalization Decision (same read-only reviews): before Core-I64 initializer
-admission, separate behavior-preserving BoxShape into two related commits:
-1. Sole existing Call/Core preorder issues an ephemeral source-bound prepared
-scope, consumed once by SAME leaf completion. Core children stay active; only
-original ordinary Call inputs transfer. Existing wrappers/admission unchanged.
-2. Normalize one existing initializer frame/slot/selector vocabulary, preserving
-current owned-String admission; no second Scalar frame inventory. Then BoxCount
-connects current scalar-read loans and the common Local initializer through all
-physical/local-receipt/final consumers in this SAME Text series.
-Paths for1: home_expression_leaves.rs, resolved-semantics README/card. For2:
-existing initializer frame/plan/observer/selector consumers and tests plus owner
-README/card; update exact paths before expansion. No AST/source app edits, runtime
-permission, duplicate source_call classification or application success claim.
-Verification: reuse existing42filters/375 identities and known14 diagnostics,
-stable guards + unchanged JSON direct EXE. Native regression if source effects
-change; no calendar rerun or new tests mirroring behavior-preserving extraction.
+V888 normalization Decision (same read-only reviews): behavior-preserving
+BoxShape in2 commits before Core-I64 admission. Step1 sole Call/Core preorder
+issues consumed source-bound scope; wrappers/admission unchanged. Step2 one
+initializer frame/slot/selector vocabulary, same current owned-String policy.
+No second Scalar registry, source_call classification or runtime/source grant.
+Step2 paths: resolved_semantics/{home_expression_plan,home_expression_evaluation,
+home_argument_expression,home_bool_condition,home_print_expression,
+home_field_write_expression,home_borrowed_field_write,home_prefix_local_flow,home_prefix_text,
+home_new_prefix,home_new_prefix_scan,home_expression_leaves}.rs;
+rename home_text_initializer_expression.rs -> home_initializer_expression.rs,
+home_new_prefix_text_initializer.rs -> home_new_prefix_initializer_expression.rs.
+Package root_call_entry selector (rename text_initializer_projection.rs to
+initializer_expression_projection.rs), parent module, object_arguments_port_tests;
+Builder normal_callable_binding_materialization.rs; owner README/card.
+Reuse42filters/375 identities/14 diagnostics, stable guards and unchanged JSON
+at step2 closeout; native only if source effects change. No new mirror tests.
 V888 step1: Root888A48.725s,42filters11.962s:375distinct/361PASS/14same
 identities+diagnostics vs887A; stable guards PASS. This internal extraction commit
 is not full normalization closeout; unchanged CLI/frontier verification follows
 step2. Keep888A and prior CLI232/app277/runtime877A/FFI876B, no new adapter.
+
+V889 step2 closeout: initializer frame/slot/selector and LocalInitializer profile
+now share purpose-neutral names; old Text-specific type/slot/selector imports
+have zero callers. Original owned-String/root-Add/parent-Text admission and all
+execution fences are unchanged; no I64 initializer grant yet. Root889A failed
+on two stale namespace imports (plus dependent inference errors), corrected before
+Root889B PASS99.546s.42filters12.036s:375distinct/361PASS/14baseline identities AND
+messages identical to888A. CLI233 PASS188.544s; unchanged JSON app278 canonical
+--grammar-profile canonical --backend mir --emit-exe (pure-first, no replay,
+plugins disabled,16MiB stack; matching runtime877A/FFI876B) exit1/noEXE .122847s,
+Body7Value core-expression-execution-pending byteexact vs276. Root/CLI warning
+messages unchanged. Stable pointer/root-route/layer/thin/diff guards PASS;
+existing parser/root catalog soft-size warnings remain. No new tests/adapter.
+Native not repeated for behavior-preserving normalization; retain matched
+CLI232/app277/runtime877A/FFI876B (exact7/stderr/exit0 in23d15d37c0). Root889B and
+CLI233/app278 replace focused/frontier pins; old887A/888A test binaries retired,
+logs/manifests retained. /tmp evidence owner is this card, retire remaining pins
+when stronger same-role evidence replaces them or full Text series closes.
+CI query: latest completed run35681768498 failed on historicald4168473d5;
+no present revision CI/full-suite green claim. Next: SAME initializer evaluation
+with source-backed scalar reads, physical Local handoff and both final scans.

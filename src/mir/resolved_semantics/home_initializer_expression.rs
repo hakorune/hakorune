@@ -10,7 +10,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Debug, Clone)]
 pub(crate) struct TextResidenceReadV1 {
     node: usize, binding: BindingRefV1, root: BindingRefV1,
-    acquisition: Rc<CheckedTextInitializerFrameV1>,
+    acquisition: Rc<CheckedInitializerExpressionFrameV1>,
 }
 impl PartialEq for TextResidenceReadV1 {
     fn eq(&self, other: &Self) -> bool {
@@ -20,19 +20,19 @@ impl PartialEq for TextResidenceReadV1 {
 }
 impl Eq for TextResidenceReadV1 {}
 impl TextResidenceReadV1 {
-    pub(super) fn new(node: usize, binding: BindingRefV1, root: BindingRefV1, acquisition: Rc<CheckedTextInitializerFrameV1>) -> Self {
+    pub(super) fn new(node: usize, binding: BindingRefV1, root: BindingRefV1, acquisition: Rc<CheckedInitializerExpressionFrameV1>) -> Self {
         Self { node, binding, root, acquisition }
     }
     pub(crate) fn node(&self) -> usize { self.node }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn root(&self) -> BindingRefV1 { self.root }
-    pub(crate) fn acquisition(&self) -> &Rc<CheckedTextInitializerFrameV1> { &self.acquisition }
+    pub(crate) fn acquisition(&self) -> &Rc<CheckedInitializerExpressionFrameV1> { &self.acquisition }
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct CheckedTextInitializerFrameV1 {
+pub(crate) struct CheckedInitializerExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
 }
-impl CheckedTextInitializerFrameV1 {
+impl CheckedInitializerExpressionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.source().root().initializer().expect("original initializer").binding() }
@@ -45,12 +45,12 @@ impl CheckedTextInitializerFrameV1 {
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
-pub(crate) fn qualify_text_initializer_v1<E>(
+pub(crate) fn qualify_initializer_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>, prior_homes: &[BindingRefV1],
     entry_reads: &[InitializerTextEntryReadV1],
     entry_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)>,
     entry_refinement: &mut impl FnMut(&SourceExprSiteV1, BindingRefV1, BindingRefV1) -> Option<Rc<crate::mir::resolved_semantics::home_new_prefix::EntryNullExclusionV1>>,
-    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
+    residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedInitializerExpressionFrameV1>)>,
     signed_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<BindingRefV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
@@ -87,7 +87,7 @@ pub(crate) fn qualify_text_initializer_v1<E>(
         residence_reads.push(TextResidenceReadV1 { node, binding: current, root, acquisition });
     }
     let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
-        super::leaves::qualify_expression_leaves_v1(&source, super::leaves::ExpressionLeafProfileV1::TextInitializer, &seeded,
+        super::leaves::qualify_expression_leaves_v1(&source, super::leaves::ExpressionLeafProfileV1::LocalInitializer, &seeded,
             &mut |site| signed_reference(site).map(|binding| (binding, SourceScalarKind::Integer)), prior_homes, &order, field_request, source_call)? else { return Ok(None) };
     if classes[0] != Leaf::Value(Class::String) || transferred.contains(&0) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
@@ -107,14 +107,14 @@ pub(crate) fn qualify_text_initializer_v1<E>(
     }
     reference_proofs.retain(|node, _| !transferred.contains(node));
     if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
-    let frame = Rc::new(CheckedTextInitializerFrameV1 {
+    let frame = Rc::new(CheckedInitializerExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
     });
     if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-        print_frame: None, condition_frame: None, argument_frame: None, text_initializer: Some(frame), field_write: None, initializer_homes: None };
+        print_frame: None, condition_frame: None, argument_frame: None, initializer_frame: Some(frame), field_write: None, initializer_homes: None };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }
     if !field_batch(&fields, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? { return Ok(None); }
