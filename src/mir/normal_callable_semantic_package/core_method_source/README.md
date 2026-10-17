@@ -38,3 +38,11 @@ miss=normal -1). The ordinary source receipt retains that same target. ABI famil
 and non-suspension do not substitute for this law; missing/mismatched laws refuse
 before source publication. Other arities remain outside this checked execution
 mapping. This does not itself activate physical argument/entry or evaluation.
+
+ExpressionCoreSourceLoanV1 borrows a canonical ordinary Core Rc at one node of
+SAME expression-plan Rc, corroborated by original input/method Arc and exact law.
+The shared call-source callback distinguishes this from an ordinary scalar Call;
+Core receiver/arguments remain in the parent's postorder. Common evaluation owns
+the Core inventory and acquisition templates, and physical emission/validation
+share one typed operation projection. No new physical packet pool or all-Core
+source cache is issued. Missing current Text/finite/entry carrier remains refused.

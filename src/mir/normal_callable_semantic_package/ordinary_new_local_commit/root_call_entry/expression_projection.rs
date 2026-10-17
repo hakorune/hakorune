@@ -11,7 +11,7 @@ type Binding = (BasicBlockId, MirInstruction);
 
 /// A view of the purpose's original observations, never a second packet pool.
 /// Successful correspondence grants no terminal, residence or cleanup rights.
-pub(super) struct ExpressionPhysicalProjectionRefV1<'a> {
+pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     frame: &'a CheckedExpressionEvaluationV1,
     values: &'a [Option<Operand>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
@@ -19,7 +19,7 @@ pub(super) struct ExpressionPhysicalProjectionRefV1<'a> {
     original: &'a [Binding],
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
-    pub(super) fn new(
+    pub(in crate::mir) fn new(
         frame: &'a CheckedExpressionEvaluationV1,
         values: &'a [Option<Operand>],
         calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
@@ -31,7 +31,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         self.calls.iter().map(Rc::as_ref)
     }
 
-    pub(super) fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
+    pub(in crate::mir) fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let ledger = context.ledger();
         let source = self.frame.source();
         if self.values.len() != source.nodes().len() || self.calls.len() != self.frame.calls().len()
@@ -103,6 +103,24 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 (Node::Literal(Literal::Integer(expected)), Some(Operand::NormalInteger(dst))) => {
                     self.require_unique(|row| matches!(row, MirInstruction::Const { dst: actual, value: crate::mir::ConstValue::Integer(value) }
                         if actual == dst && value == expected))?;
+                }
+                (Node::MethodCall, Some(value)) if self.frame.cores().contains_key(&index) => {
+                    let core = &self.frame.cores()[&index];
+                    if !core.matches_plan(source, index) { return Err(freeze("expression-core/source-identity")); }
+                    let expected = checked_expression_core_operation_v1(core, self.values)?;
+                    let dst = match (value, expected.normal_result_kind()) {
+                        (Operand::OwnedString(dst), Some(crate::mir::instruction::InvokeNormalResultKind::OwnedString))
+                            if self.frame.owned_result_nodes().contains(&index) => *dst,
+                        (Operand::NormalInteger(dst), Some(crate::mir::instruction::InvokeNormalResultKind::I64))
+                            if !self.frame.owned_result_nodes().contains(&index) => *dst,
+                        _ => return Err(freeze("expression-core/result-domain")),
+                    };
+                    let result = self.require_unique(|row| matches!(row, MirInstruction::InvokeNormalResult { dst: actual, .. } if *actual == dst))?;
+                    let MirInstruction::InvokeNormalResult { invoke_block, .. } = result.1 else { unreachable!() };
+                    let invoke = self.require_unique(|row| matches!(row, MirInstruction::Invoke {
+                        operation: InvokeOperation::String(actual), normal_landing, .. }
+                        if actual == &expected && *normal_landing == result.0))?;
+                    if invoke.0 != invoke_block || invoke.0 == result.0 { return Err(freeze("expression-core/producer")); }
                 }
                 (Node::MethodCall, Some(Operand::NormalInteger(_)))
                     if self
@@ -196,7 +214,7 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         Ok(result)
     }
 
-    pub(super) fn ordered_bindings_in_context(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
+    pub(in crate::mir) fn ordered_bindings_in_context(&self, context: CallValidationContextV1<'_>) -> Result<Vec<Binding>, String> {
         let mut ordered = Vec::new();
         let source = self.frame.source();
         for &index in self.frame.ordered_nodes() {
@@ -207,6 +225,16 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
                 crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) {
                 ordered.extend(context.ledger().expression_field_read_bindings_v1(
                     &OwnedExprSiteV1::new(source.owner(), source.nodes()[index].site().clone()), source, context)?);
+                continue;
+            }
+            if self.frame.cores().contains_key(&index) {
+                let value = self.values[index].as_ref().and_then(Operand::value)
+                    .ok_or_else(|| freeze("expression-core/result-missing"))?;
+                let result = self.require_unique(|row| row.dst_value() == Some(value))?;
+                let MirInstruction::InvokeNormalResult { invoke_block, .. } = result.1 else { return Err(freeze("expression-core/projection")); };
+                let invoke = self.original.iter().find(|(block, row)| *block == invoke_block && matches!(row, MirInstruction::Invoke { .. }))
+                    .ok_or_else(|| freeze("expression-core/invoke"))?;
+                ordered.extend([invoke.clone(), result.clone()]);
                 continue;
             }
             match self.values[index].as_ref() {
@@ -490,4 +518,34 @@ pub(super) fn normal_order(function: &MirFunction, ordered: &[Binding]) -> Resul
         ));
     }
     Ok(())
+}
+
+
+/// The sole typed Core-to-String-operation projection, shared by the writer
+/// and both independent source consumers. It does not issue source permission.
+pub(crate) fn checked_expression_core_operation_v1(
+    core: &crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1,
+    values: &[Option<Operand>],
+) -> Result<Operation, String> {
+    use crate::mir::core_method_op::CoreMethodOp as Core;
+    let source = core.plan();
+    if !core.matches_plan(source, core.node()) || values.len() != source.nodes().len() {
+        return Err(freeze("expression-core/source-identity"));
+    }
+    let original = core.source().source();
+    let operand = |site| source.nodes().iter().position(|node| node.site() == site)
+        .and_then(|node| values[node].clone()).ok_or_else(|| freeze("expression-core/operand-missing"));
+    let receiver = operand(original.receiver_site())?;
+    let arguments = original.arguments().iter().map(|arg| operand(arg.site())).collect::<Result<Vec<_>, _>>()?;
+    let operation = match (core.source().target().row().row().op, arguments.as_slice()) {
+        (Core::StringLen, []) => Operation::Length { value: receiver },
+        (Core::StringSubstring, [Operand::NormalInteger(start), Operand::NormalInteger(end)]) =>
+            Operation::Substring { value: receiver, start: *start, end: *end },
+        (Core::StringIndexOf, [needle]) => Operation::IndexOf { value: receiver, needle: needle.clone() },
+        _ => return Err(freeze("expression-core/operand-domain")),
+    };
+    if !operation.valid_operand_domains() || operation.owns_normal_result() != core.owns_result() {
+        return Err(freeze("expression-core/operand-domain"));
+    }
+    Ok(operation)
 }

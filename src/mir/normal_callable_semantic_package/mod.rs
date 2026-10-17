@@ -6,6 +6,7 @@
 //! consumption, physical ABI, or fallback route.
 
 mod core_method_source;
+pub(crate) use core_method_source::ExpressionCoreSourceLoanV1;
 #[cfg(test)]
 mod core_method_source_tests;
 #[cfg(test)]
@@ -244,6 +245,9 @@ pub(crate) use ordinary_new_coseal::NamedArrayHolderSourceLoanV1;
 pub(crate) use core_method_source::{FieldArrayReadRecipeV1, EmittedFieldArrayReadV1, EmittedFieldArrayReadArgumentV1};
 pub(crate) use ordinary_new_coseal::{CheckedFieldArrayGetSourceV1, ArgumentFieldArrayReadSourceV1};
 
+pub(crate) use ordinary_new_coseal::checked_expression_core_operation_v1;
+#[cfg(test)]
+pub(in crate::mir) use ordinary_new_coseal::ExpressionPhysicalProjectionRefV1;
 pub(crate) use ordinary_new_coseal::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 pub(crate) use ordinary_new_coseal::EmittedOwnedArrayReadV1;

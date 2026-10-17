@@ -107,13 +107,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
 #[derive(Debug, Clone)]
 pub(crate) struct ArgumentExpressionSourceLoanV1 {
     plan: Rc<ExpressionSourcePlanV1>,
-    core: Option<Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
+    cores: BTreeMap<usize, Rc<crate::mir::normal_callable_semantic_package::core_method_source::OrdinaryCoreSourceCallV1>>,
 }
 impl PartialEq for ArgumentExpressionSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
-        Rc::ptr_eq(&self.plan, &other.plan) && match (&self.core, &other.core) {
-            (None, None) => true, (Some(a), Some(b)) => Rc::ptr_eq(a, b), _ => false,
-        }
+        Rc::ptr_eq(&self.plan, &other.plan) && self.cores.len() == other.cores.len()
+            && self.cores.iter().all(|(node, core)| other.cores.get(node).is_some_and(|other| Rc::ptr_eq(core, other)))
     }
 }
 impl Eq for ArgumentExpressionSourceLoanV1 {}
@@ -122,23 +121,23 @@ impl ArgumentExpressionSourceLoanV1 {
     /// SAME closed operand premise at an exact original node. This is source
     /// class evidence only and must be joined with current Prefix availability.
     pub(crate) fn signed_operand_contains(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
-        self.resolver_source().is_some_and(|core| self.plan.nodes().iter().any(|node| node.site() == site)
+        self.cores.values().any(|receipt| { let core = receipt.source(); self.plan.nodes().iter().any(|node| node.site() == site)
             && core.source().arguments().iter().zip(core.target().parameters())
                 .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter
-                    && site.node().segments().starts_with(arg.site().node().segments())))
+                    && site.node().segments().starts_with(arg.site().node().segments())) })
     }
     pub(crate) fn text_operand_is(&self, site: &crate::mir::resolved_semantics::SourceExprSiteV1) -> bool {
-        if let Some(core) = self.resolver_source() {
+        self.cores.values().any(|receipt| {
+            let core = receipt.source();
             site == core.source().receiver_site()
                 || core.source().arguments().iter().zip(core.target().parameters())
                     .any(|(arg, kind)| *kind == crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter && arg.site() == site)
-        } else {
-            self.plan.nodes().first().is_some_and(|node| node.site() == site
-                && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
-        }
+        }) || self.resolver_source().is_none() && self.plan.nodes().first().is_some_and(|node| node.site() == site
+            && matches!(node.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::Reference(_)))
     }
+
     pub(crate) fn resolver_source(&self) -> Option<&crate::mir::resolved_semantics::VerifiedResolverOrdinaryCoreMethodSourceV1> {
-        self.core.as_ref().map(|core| core.source())
+        self.cores.get(&0).map(|core| core.source())
     }
 }
 
@@ -250,11 +249,21 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_argument_expression
     let identity = validate_static_source_actuals_v1(prepared, rows, site, identity.source.required_i64_arguments())?;
     let candidate = identity.candidates.get(ordinal as usize)
         .filter(|row| row.ordinal == ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
-    let core = if matches!(candidate.value, BorrowedCallActualValueV1::MethodCall(_)) {
-        Some(Rc::clone(identity.core_arguments.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?))
-    } else { None };
     let plan = identity.argument_sources.get(&ordinal).ok_or_else(|| freeze("borrowed-static/core-source-identity"))?;
-    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), core }))
+    let mut cores = BTreeMap::new();
+    let mut call_inputs: Vec<&SourceExprSiteV1> = Vec::new();
+    for (node, original) in plan.nodes().iter().enumerate() {
+        if call_inputs.iter().any(|call| original.site().node().segments().starts_with(call.node().segments())) { continue; }
+        if !matches!(original.source(), crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1::MethodCall) { continue; }
+        let site = OwnedExprSiteV1::new(plan.owner(), original.site().clone());
+        if let Some(core) = prepared.ordinary_core_source_v1(&site) { cores.insert(node, Rc::clone(core)); }
+        else { call_inputs.push(original.site()); }
+    }
+    if matches!(candidate.value, BorrowedCallActualValueV1::MethodCall(_))
+        && !cores.get(&0).is_some_and(|core| identity.core_arguments.get(&ordinal).is_some_and(|root| Rc::ptr_eq(core, root))) {
+        return Err(freeze("borrowed-static/core-source-identity"));
+    }
+    Ok(Some(ArgumentExpressionSourceLoanV1 { plan: Rc::clone(plan), cores }))
 }
 
 /// The covered observer selects original Text source roles in the same pending
@@ -314,4 +323,16 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
         return Err(freeze("borrowed-text-entry/source-domain-unclosed"));
     }
     super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root)
+}
+
+
+pub(in crate::mir::normal_callable_semantic_package) fn lend_expression_core_source_v1(
+    input: ResolvedFunctionLoweringInputV1<'_>, prepared: &PreparedBorrowedFormalIngressV1,
+    plan: &Rc<ExpressionSourcePlanV1>, site: &OwnedExprSiteV1,
+) -> Result<Option<crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>, String> {
+    if site.owner() != input.owner() || plan.owner() != input.owner() { return Err(freeze("expression-core/source-identity")); }
+    let Some(core) = prepared.ordinary_core_source_v1(site) else { return Ok(None) };
+    let node = plan.nodes().iter().position(|node| node.site() == site.site())
+        .ok_or_else(|| freeze("expression-core/source-identity"))?;
+    crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1::lend(input, plan, node, core).map(Some)
 }

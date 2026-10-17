@@ -154,3 +154,24 @@ pub(crate) fn issue_source_scalar_frame_call_v1<E>(
     observation.field_alias = field_alias;
     Ok(Some(observation))
 }
+
+
+/// One mutable callback lends either the original Core receipt or the existing
+/// ordinary Call proof. A refused selected request never enters another writer.
+pub(crate) fn issue_source_expression_call_v1<E>(
+    input: ResolvedFunctionLoweringInputV1<'_>,
+    source: &std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    site: &OwnedExprSiteV1, prior_homes: &[BindingRefV1],
+    receiver_path: &mut impl FnMut(BindingRefV1) -> Option<super::super::FieldAliasPathV1>,
+    port: &mut impl FnMut(&OwnedExprSiteV1, BorrowedCallActualRequestV1<'_>)
+        -> Result<Option<BorrowedCallArgumentsV1>, E>,
+) -> Result<Option<crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1>, E> {
+    use crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1 as Call;
+    match port(site, BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan: source })? {
+        Some(BorrowedCallArgumentsV1::ExpressionCoreSource(core)) => return Ok(Some(Call::Core(core))),
+        Some(_) => return Ok(None),
+        None => {}
+    }
+    issue_source_scalar_expression_call(input, source.root().statement(), site, prior_homes, receiver_path, port)
+        .map(|call| call.map(Call::Ordinary))
+}

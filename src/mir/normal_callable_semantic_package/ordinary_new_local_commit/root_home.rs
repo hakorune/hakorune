@@ -698,6 +698,9 @@ pub(crate) use call_entry::PreparedStaticTerminalPacketV1;
 
 pub(crate) use call_entry::RootLifecyclePrefixBindingGroupV1;
 pub(crate) use call_entry::PreparedRootLexicalCallBindingGroupV1;
+pub(crate) use call_entry::checked_expression_core_operation_v1;
+#[cfg(test)]
+pub(in crate::mir) use call_entry::ExpressionPhysicalProjectionRefV1;
 pub(crate) use call_entry::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 pub(in crate::mir) use call_entry::{EmittedBoolConditionProjectionV1, BoolConditionSealV1, BoolConditionCursorV1, BoolConditionNodeProjectionV1, BoolConditionValueProofV1};

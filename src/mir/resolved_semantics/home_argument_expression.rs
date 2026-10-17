@@ -37,7 +37,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
     scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, SourceScalarKind)>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
@@ -60,7 +60,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     if source.nodes().iter().any(|node| !matches!(node.children(), ExpressionChildrenV1::Known(children)
         if children.iter().all(|child| child.reach == ExpressionChildReachV1::Always))) { return Ok(None); }
     let mut seeded = BTreeMap::new();
-    if core.resolver_source().is_some() { seeded.insert(0, Leaf::Value(Class::String)); }
+
     let mut static_reads = Vec::new();
     let mut residence_reads = Vec::new();
     for (index, node) in source.nodes().iter().enumerate() {
@@ -85,20 +85,20 @@ pub(crate) fn qualify_argument_expression_v1<E>(
             || !matches!(node.source(), ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding)) if *binding == read.binding()))
             || seeded.insert(index, Leaf::Value(Class::String)).is_some() { return Ok(None); }
     }
-    let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references }) =
+    let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_v1(&source, super::leaves::ExpressionLeafProfileV1::Argument, &seeded,
             &mut |site| {
                 if !core.signed_operand_contains(site) { return None; }
                 scalar_reference(site).filter(|(_, kind)| *kind == SourceScalarKind::Integer)
             }, prior_homes, &order, field_request, source_call)? else { return Ok(None) };
     if classes[0] != Leaf::Value(Class::String) || transferred.contains(&0) { return Ok(None); }
-    let Some((operations, mut owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
-    // The source plan lists acquisition templates; only physical Normal acquires.
-    if core.resolver_source().is_some() { owned_results.push(0); }
+    let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
+    if core.resolver_source().is_some_and(|original| !cores.get(&0)
+        .is_some_and(|retained| std::ptr::eq(retained.source(), original))) { return Ok(None); }
     let frame = Rc::new(CheckedArgumentExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-            operations: operations.into_boxed_slice(), owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred },
+            operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
         source_loan: core, text_reads: text_reads.into(), references,
         static_reads: static_reads.into_boxed_slice(), residence_reads: residence_reads.into_boxed_slice(),
     });

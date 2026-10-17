@@ -715,6 +715,9 @@ pub(in crate::mir) use root_home::{
 };
 
 pub(crate) use root_home::RootLifecyclePrefixBindingGroupV1;
+pub(crate) use root_home::checked_expression_core_operation_v1;
+#[cfg(test)]
+pub(in crate::mir) use root_home::ExpressionPhysicalProjectionRefV1;
 pub(crate) use root_home::{EmittedFieldArrayAppendV1, EmittedOwnedArrayAppendV1, OwnedArrayAppendCandidateV1, EmittedPrintExpressionProjectionV1, PreparedLifecyclePrefixBindingGroupV1};
 
 #[cfg(test)]

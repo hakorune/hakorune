@@ -39,3 +39,53 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_core_sour
     if !std::sync::Arc::ptr_eq(source.source(), method) { return Err(reject()); }
     Ok(Rc::new(OrdinaryCoreSourceCallV1 { source, operands: Rc::clone(operands) }))
 }
+
+
+/// A loan of one canonical source receipt inside the SAME original plan.
+/// This is neither an executable call packet nor an acquisition/entry grant.
+#[derive(Debug, Clone)]
+pub(crate) struct ExpressionCoreSourceLoanV1 {
+    plan: Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    node: usize,
+    original: Rc<OrdinaryCoreSourceCallV1>,
+}
+impl PartialEq for ExpressionCoreSourceLoanV1 {
+    fn eq(&self, other: &Self) -> bool {
+        self.node == other.node && Rc::ptr_eq(&self.plan, &other.plan)
+            && Rc::ptr_eq(&self.original, &other.original)
+    }
+}
+impl Eq for ExpressionCoreSourceLoanV1 {}
+impl ExpressionCoreSourceLoanV1 {
+    pub(in crate::mir::normal_callable_semantic_package) fn lend(
+        input: ResolvedFunctionLoweringInputV1<'_>,
+        plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+        node: usize, original: &Rc<OrdinaryCoreSourceCallV1>,
+    ) -> Result<Self, String> {
+        let loan = Self { plan: Rc::clone(plan), node, original: Rc::clone(original) };
+        if input.owner() != plan.owner() || !loan.matches_plan(plan, node)
+            || !input.function().method_call_source_v1(loan.source().source().site())
+                .is_some_and(|method| std::sync::Arc::ptr_eq(method, loan.source().source())) {
+            return Err("[freeze:contract][expression-core/source-identity]".to_owned());
+        }
+        Ok(loan)
+    }
+    pub(crate) fn source(&self) -> &VerifiedResolverOrdinaryCoreMethodSourceV1 { self.original.source() }
+    pub(crate) fn node(&self) -> usize { self.node }
+    pub(crate) fn plan(&self) -> &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1> { &self.plan }
+    pub(crate) fn matches_plan(&self,
+        plan: &Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>, node: usize,
+    ) -> bool {
+        use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
+        Rc::ptr_eq(plan, &self.plan) && node == self.node && self.source().source().owner() == plan.owner()
+            && plan.nodes().get(node).is_some_and(|row| row.site() == self.source().source().site()
+                && matches!(row.source(), Node::MethodCall))
+            && self.source().target().checked_code_point_law_v1().is_some()
+            && std::iter::once(self.source().source().receiver_site())
+                .chain(self.source().source().arguments().iter().map(|arg| arg.site()))
+                .all(|site| plan.nodes().iter().filter(|row| row.site() == site).count() == 1)
+    }
+    pub(crate) fn owns_result(&self) -> bool {
+        self.source().target().result() == crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
+    }
+}

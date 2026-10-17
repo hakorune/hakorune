@@ -57,7 +57,7 @@ pub(crate) fn qualify_text_initializer_v1<E>(
     residence_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1, Rc<CheckedTextInitializerFrameV1>)>,
     signed_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<BindingRefV1>,
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(&[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1) -> Result<bool, E>,
 ) -> Result<Option<HomeExpressionPlanV1>, E> {
@@ -90,20 +90,20 @@ pub(crate) fn qualify_text_initializer_v1<E>(
             || seeded.insert(node, Leaf::Value(Class::String)).is_some() { return Ok(None); }
         residence_reads.push(TextResidenceReadV1 { node, binding: current, root, acquisition });
     }
-    let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references }) =
+    let Some(super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, references }) =
         super::leaves::qualify_expression_leaves_v1(&source, super::leaves::ExpressionLeafProfileV1::TextInitializer, &seeded,
             &mut |site| signed_reference(site).map(|binding| (binding, SourceScalarKind::Integer)), prior_homes, &order, field_request, source_call)? else { return Ok(None) };
     if classes[0] != Leaf::Value(Class::String) || transferred.contains(&0) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     // This purpose transfers an owned result into a local residence. Bare
     // literals/entry aliases keep their existing non-owning initializer owner.
-    if !owned_results.contains(&0) { return Ok(None); }
+    if !owned_results.contains(&0) && !cores.get(&0).is_some_and(|core| core.owns_result()) { return Ok(None); }
     let entry_reads = entry_reads.iter().filter(|read| !transferred.contains(&read.requirement().node())).cloned().collect();
     let residence_reads = residence_reads.into_iter().filter(|read| !transferred.contains(&read.node)).collect();
     let frame = Rc::new(CheckedTextInitializerFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
             classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
-            operations: operations.into_boxed_slice(), owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred },
+            operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
         entry_reads, entry_refinements, residence_reads, scalar_reads: references,
     });
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),

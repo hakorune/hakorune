@@ -911,40 +911,16 @@ source Core product can enter shared evaluation/projection; borrowed entry/read,
 finite envelopes, initializer and final closure obligations remain above.
 
 
-V877 source law connection: existing CoreMethodContractBox now issues exact
-IndexOf/1 CodePointSearchFromZero, /2 stays Unprojected. The same generator
-projects JSON/Rust; target.checked_code_point_law_v1 checks exact op/arity/law,
-parameters/result/schema/receiver/ABI/non-suspending policy. Ordinary source
-issuance requires this before publishing its receipt; no symbolic TextScan
-profile/host handle/legacy env becomes authorization. Existing source-domain
-fixtures include indexOf and invalid needle, target tests cover absent law and
-wrong arity; no new test owner. Worker reviewed the whole law/issuer change.
-Root877A cargo quick-test-fast --no-run --message-format=json PASS64.041396s;
-38 existing focused filters distinct297/pass284/baseline13 unchanged876A in
-9.415726s; no new warnings. Exact failure identities/messages retained (thread IDs
-and unordered plugin map normalization only). Generator14 tests and --check PASS.
-The outer core_method_contract_manifest_guard stops at an existing unlisted
-ordinary::issue_ordinary_source consumer; git HEAD1ca5340111 and current have
-identical issuer consumer sets, so this is baseline, not new growth or green.
-Pointer/root/layer/thin/diff guards PASS (thin files10/debt26 unchanged).
-CLI214 cargo build --profile quick --bin hakorune --message-format=json
-PASS151.997389s, no new warnings; SHA256
-7edd4bbe4c1909168a5c5a19c4b1429aa32c71093c0c2c6da5fd646e0ed73501.
-Runtime877A cargo build --profile quick -p nyash_lifecycle_kernel
---message-format=json PASS170.334982s, no new warnings; archive SHA256
-10511dadfa2462a1e7b1ea85d7450afc154dc75f7bdc9b0e9ca5a96d231f222f.
-CLI/runtime full source manifests equal; unchanged FFI876B backend paths match.
-App251 unchanged JSON canonical direct command (same flags/env as V876, with
-CLI214/runtime877A) exits1/no artifact in0.113797s, SAME slot20/Body7/Value
-core-expression-execution-pending; stderr byte-identical249. No source execution
-fence removed. App252 unchanged mimalloc canonical direct EXE PASS132.466040s,
-native0.001554s, original7-line stdout/exit0 exact; stderr byte-identical250.
-EXE SHA256 f0a0af65feccd1136d61eeae24971a8248df5c1f5a442434e8b504255b8132b3.
-App source hashes remain the V876 originals. Keep matched CLI214/runtime877A,
-FFI876B and source/receipt pins until Text acceptance; scratch retires afterward.
-V877 closes missing source-law projection only, not Core evaluation, Text entry,
-physical actuals/initializer/final scans or whole goal. No new adapter/profile,
-source app workaround, caller cutover or shared legacy retirement is claimed.
+V877 landed atbfc2a57a0f: canonical IndexOf/1 CodePointSearchFromZero now
+projects from CoreMethodContractBox to the same JSON/Rust row; /2 stays
+Unprojected. Ordinary Core issuance consumes exact op/arity/law/parameters/result/
+receiver/schema/ABI/execution correspondence. Root877A focused297/pass284/
+baseline13 unchanged; CLI214 and runtime877A build PASS. App251 JSON SAME Core
+execution fence, app252 unchanged mimalloc canonical EXE/native original7/exit0
+PASS132.466040s+0.001554s. Full commands/hashes and baseline classification are
+in that commit. Existing generator14/check PASS; outer manifest guard's same
+unlisted ordinary source consumer is pre-existing, not green. Required guards
+PASS. Keep matched pins until series acceptance. No production Text cutover.
 
 
 Finite execution normalization checked by packet_origin_review: preserve BOTH
@@ -963,3 +939,58 @@ text_view:true/4-only. All incoming and forward domain containment must close.
 This is existing finite-operation physical normalization, not String*Dynamic,
 ExactText or a new semantic profile. It joins the already-recorded entry/read,
 common expression and both-final-scan connection; no new task/card is selected.
+
+
+V878 construction: connect SAME original per-node ordinary Core source loans
+into common leaves/evaluation, sole expression writer and the shared physical
+projection used by both scans. One call-source callback returns Ordinary or Core;
+Core children remain in original postorder. Argument Core operand sites (including
+nested needle.length() bounds) join current static/residence/entry/signed reads;
+remove root-only seeded Core class/acquisition classification. Reuse exact checked
+String operations and existing values/original bindings, not a new packet pool.
+Paths: existing Core source/argument loan+port, common Home leaves/body/purposes/
+Prefix connectors, expression writer/projection/cleanup, existing argument and
+physical projection test owners and owning READMEs/card. No all-Core source cache
+or standalone Print receipt invention. Missing source/current/physical operands
+refuse before effects; source actual/entry/initializer fences stay until complete.
+
+
+V878 source/writer evidence: existing argument-product fixtures now cover inline
+substring and nested indexOf/length, plus all current static/residence/entry reads.
+The same retained frame enters the sole writer and shared projection through a
+test-only helper in the existing selected arguments owner; no Print/EntryValues
+or executable input is manufactured. Reference-free Core emits actual Invoke+
+Normal bindings, only substring acquires; producer removal/op substitution/Normal
+retarget refuse. Reference frames refuse before any MIR effects. Test methods,
+fixture files and guards did not increase. Main still stops at the unfinished
+borrowed-actual input; unit evidence does not claim production activation. Print
+has no Text-reference classifier and initializer still uses nodes_outside_calls,
+so those references remain refused. Worker final review found no permission hole.
+Root878A-C test import/privacy errors and D/E setup failures were corrected;
+F's three overly broad visibility warnings were fixed, obsolete CLI215 stopped
+(exit -2,75.971651s) and Cargo/rustc exit confirmed before editing. Root878G
+cargo quick-test-fast --no-run --message-format=json PASS41.695177s, no new
+warnings.38 reused focused filters distinct297/pass284/baseline13 in9.554330s;
+failed identities/messages exactly match877A (thread IDs/plugin map order only).
+Root/pointer/layer/thin/diff guards PASS; historical CI35681768498/d4168473d5
+remains failed, not current green. Shared old manual root-Core seed/acquisition
+and duplicated Add-only writer logic replaced by common Core/body/projection;
+no production caller cutover or shared legacy retirement is claimed.
+Runtime exports/boxes/instructions/headers/C/build inputs are unchanged; reuse
+runtime877A/FFI876B with explicit compiler-only source delta (builder, resolved-
+semantics and semantic-package paths/README only), not identical source revision.
+CLI216 quick bin build PASS200.659431s, no new warnings. App253 unchanged JSON
+canonical --backend mir --emit-exe/--emit-exe-nyrt remains exit1/no artifact,
+0.130954s; stderr byte-identical251, slot20/Body7/Value Core execution fence.
+App254 unchanged mimalloc canonical EXE PASS133.418901s; native0.001621s,
+original7 lines exact/exit0. Same clean-env/plugin-disabled/pure-first/no-replay
+recipe as V877, CLI216 + runtime877A/FFI876B; per-app compiler-only delta checked.
+Current root878G/CLI216, matched runtime/FFI and baseline evidence stay pinned;
+intermediate attempt binaries/logs retained pending this Text series acceptance.
+No temporary production adapter introduced; source fences remain intentionally.
+Decision (packet_origin_review): reuse SAME source SUM and census corroboration
+for one closed entry domain; normalize compiled-entry map to one formal image.
+Structural entry requires complete incoming/refusal census but not actual-ready;
+Executable closure still requires actual products, forward containment and BOTH
+final scans. JSON markers read only the verified image domain. No extra carrier,
+registry, cycle solver or generic-tagged permission for finite Text domains.

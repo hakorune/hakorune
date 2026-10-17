@@ -9,7 +9,7 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, observed_argument_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1};
 pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 
 #[path = "ordinary_new_borrowed_initializer_text_source.rs"]

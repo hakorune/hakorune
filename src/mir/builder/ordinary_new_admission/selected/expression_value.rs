@@ -36,6 +36,17 @@ pub(super) fn emit(
 ) -> Result<EmittedExpressionValueV1, String> {
     let owner = frame.source().owner();
     if state.owner() != owner { return Err(freeze("expression-value/state-owner")); }
+    // Reject unconnected carriers/finite selection before any read reservation,
+    // FaultFrame or MIR effect; a retained source class is not a physical value.
+    if frame.operations().iter().any(|operation| operation.single_envelope().is_none()) {
+        return Err(freeze("expression/finite-envelope-execution-pending"));
+    }
+    for &index in frame.ordered_nodes() {
+        if frame.transfers_node(index) || frame.node_is_identity(index) { continue; }
+        if matches!(frame.source().nodes()[index].source(), Node::Reference(_)) {
+            return Err(freeze("expression/reference-execution-pending"));
+        }
+    }
     let homes = ledger.prior_home_unwind_for(frame.prior_homes())?;
     let source = frame.source();
     let mut pending = Vec::new();
@@ -163,6 +174,10 @@ pub(super) fn emit(
                 };
                 Operand::NormalInteger(value)
             }
+            Node::MethodCall if frame.cores().contains_key(&index) => {
+                let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
+                emit_string_value(builder, &mut writer, operation, index, fault_frame, &mut acquired, &homes, &mut bindings)?
+            }
             Node::MethodCall => {
                 let call = frame.calls().iter().find(|call| call.site().site() == node.site())
                     .ok_or_else(|| freeze("print-expression/call-source-missing"))?;
@@ -191,22 +206,8 @@ pub(super) fn emit(
                         Operand::NormalInteger(value)
                     }
                     ResultKind::OwnedStringValue => {
-                        let normal = writer.reserve_block(builder)?;
-                        let pending = pending_operations(&acquired, &homes);
-                        let graph = root_graph::emit_cleanup_suffixes_with_writer(&mut writer, builder, fault_frame,
-                            normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), &mut bindings)?;
-                        let invoke = writer.emit_current(builder, MirInstruction::Invoke {
-                            operation: InvokeOperation::String(Operation::Add { left, right }), fault_frame,
-                            normal_landing: normal, fault_landing: graph.acquisition_fault,
-                        })?;
-                        let value = builder.next_value_id();
-                        builder.start_new_block(normal)?;
-                        let projection = MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value };
-                        writer.insert_projection(builder, normal, projection.clone())?;
-                        bindings.extend([invoke, (normal, projection)]);
-                        builder.function_state.type_ctx.value_types.insert(value, MirType::String);
-                        acquired.push((index, value));
-                        Operand::OwnedString(value)
+                        emit_string_value(builder, &mut writer, Operation::Add { left, right }, index,
+                            fault_frame, &mut acquired, &homes, &mut bindings)?
                     }
                     _ => return Err(freeze("print-expression/operator-result")),
                 }
@@ -224,4 +225,35 @@ pub(super) fn emit(
 pub(super) fn pending_operations(acquired: &[(usize, ValueId)], homes: &[InvokeOperation]) -> Vec<InvokeOperation> {
     acquired.iter().rev().map(|(_, value)| InvokeOperation::String(Operation::End { value: *value }))
         .chain(homes.iter().cloned()).collect()
+}
+
+
+fn emit_string_value(
+    builder: &mut MirBuilder, writer: &mut RawRootGraphWriterV1, operation: Operation,
+    node: usize, fault_frame: ValueId, acquired: &mut Vec<(usize, ValueId)>,
+    homes: &[InvokeOperation], bindings: &mut Vec<Binding>,
+) -> Result<Operand, String> {
+    let owned = operation.owns_normal_result();
+    let result = operation.normal_result_kind().ok_or_else(|| freeze("expression/string-result"))?;
+    let normal = writer.reserve_block(builder)?;
+    let pending = pending_operations(acquired, homes);
+    let graph = root_graph::emit_cleanup_suffixes_with_writer(writer, builder, fault_frame,
+        normal, &[], &pending, &[], &(0..pending.len()).collect::<Vec<_>>(), bindings)?;
+    let invoke = writer.emit_current(builder, MirInstruction::Invoke {
+        operation: InvokeOperation::String(operation), fault_frame,
+        normal_landing: normal, fault_landing: graph.acquisition_fault,
+    })?;
+    let value = builder.next_value_id();
+    builder.start_new_block(normal)?;
+    let projection = MirInstruction::InvokeNormalResult { invoke_block: invoke.0, dst: value };
+    writer.insert_projection(builder, normal, projection.clone())?;
+    bindings.extend([invoke, (normal, projection)]);
+    let (kind, operand) = match result {
+        crate::mir::instruction::InvokeNormalResultKind::OwnedString => (MirType::String, Operand::OwnedString(value)),
+        crate::mir::instruction::InvokeNormalResultKind::I64 => (MirType::Integer, Operand::NormalInteger(value)),
+        _ => return Err(freeze("expression/string-result")),
+    };
+    builder.function_state.type_ctx.value_types.insert(value, kind);
+    if owned { acquired.push((node, value)); }
+    Ok(operand)
 }

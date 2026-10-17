@@ -207,7 +207,7 @@ impl EmittedPrintExpressionProjectionV1 {
                 &end_sequence(&live),
                 Some(fault_frame),
             )?);
-            if matches!(operation, InvokeOperation::String(Operation::Add { .. })) {
+            if matches!(operation, InvokeOperation::String(operation) if operation.owns_normal_result()) {
                 let value = ordered
                     .iter()
                     .find_map(|(_, row)| match row {

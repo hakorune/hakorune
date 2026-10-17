@@ -24,7 +24,7 @@ pub(super) fn observe<E>(
     let mut installation = locals.expression_installation();
     let plan = qualify_print_expression_v1(std::rc::Rc::clone(&source), homes,
         &mut |site| super::field_read::expression_field_read_request(input, &source, site, locals),
-        &mut |site| local_call_flow::issue_source_scalar_expression_call(input, statement.site(), site, homes, &mut |binding| locals.field_alias_call_path(binding), actuals),
+        &mut |site| local_call_flow::issue_source_expression_call_v1(input, &source, site, homes, &mut |binding| locals.field_alias_call_path(binding), actuals),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;
     let Some(plan) = plan else { return Ok(false) };

@@ -611,6 +611,10 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         ("local key = \"bytes\"", "key.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
         ("local key = \"a\" + \"b\"", "key.substring(0,1)", "\"seed\"", true, 0, 1, 0, true),
         ("", "line.substring(0,1)", "\"seed\"", true, 0, 0, 1, true),
+        ("", "\"aé界z\".substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
+        ("", "\"aé界z\".substring(\"aé界z\".indexOf(\"é\"),\"aé界\".length())", "\"seed\"", true, 0, 0, 0, true),
+        ("local key = \"bytes\" local needle = \"bytes\"", "key.substring(needle.length(),1)", "\"seed\"", true, 2, 0, 0, true),
+        ("local key = \"bytes\"", "key.substring(key.indexOf(\"y\"),key.length())", "\"seed\"", true, 3, 0, 0, true),
     ] {
         let text = format!("static box Values {{ sink(p) {{ return 0 }} caller(line) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({incoming}) }} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -641,6 +645,21 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 assert_eq!(frame.text_reads().len(), entry_reads);
                 assert_eq!(frame.evaluation().owned_result_nodes().contains(&0), owned);
                 assert_eq!(frame.source_loan().resolver_source().is_some(), owned);
+                assert_eq!(frame.evaluation().cores().len(), if !owned { 0 } else if argument.contains("indexOf") { 3 } else if argument.contains("length") { 2 } else { 1 });
+                for (node, core) in frame.evaluation().cores() {
+                    assert!(core.matches_plan(frame.source(), *node));
+                    let original = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_expression_core_source_v1(
+                        input, source.as_ref().unwrap(), frame.source(),
+                        &OwnedExprSiteV1::new(input.owner(), frame.source().nodes()[*node].site().clone())).unwrap().unwrap();
+                    assert_eq!(core, &original, "SAME canonical Core Rc, plan and node");
+                    assert!(!frame.evaluation().transfers_node(*node));
+                }
+                if owned {
+                    assert!(std::ptr::eq(frame.evaluation().cores()[&0].source(), frame.source_loan().resolver_source().unwrap()));
+                }
+                if owned {
+                    crate::mir::MirBuilder::assert_checked_expression_core_for_test(input, package.ordinary_new_claim_ledger_for_test(), frame);
+                }
                 if let Some(read) = frame.static_reads().first() { assert_eq!(read.utf8(), "bytes"); }
             }
         }).unwrap();

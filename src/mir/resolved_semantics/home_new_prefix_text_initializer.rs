@@ -53,7 +53,7 @@ pub(super) fn observe<E>(
         &mut |site| locals.text_reference(site),
         &mut |site| locals.signed_entry_reference(site),
         &mut |site| field_read::expression_field_read_request(input, &source, site, locals),
-        &mut |site| local_call_flow::issue_source_scalar_expression_call(input, statement.site(), site, homes,
+        &mut |site| local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
             &mut |binding| locals.field_alias_call_path(binding), port),
         &mut |plan| installation.approve(plan),
         &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?;

@@ -772,6 +772,9 @@ mod expression_projection;
 
 #[path = "root_call_entry/print_expression_projection.rs"]
 mod print_expression_projection;
+pub(crate) use expression_projection::checked_expression_core_operation_v1;
+#[cfg(test)]
+pub(in crate::mir) use expression_projection::ExpressionPhysicalProjectionRefV1;
 pub(crate) use print_expression_projection::EmittedPrintExpressionProjectionV1;
 
 #[path = "root_call_entry/owned_array_append_projection.rs"]

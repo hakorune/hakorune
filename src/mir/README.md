@@ -402,3 +402,13 @@ publication and both C cohorts must retain the same result/operand/lifetime law.
 These physical operations do not issue source admission: exact Core contracts,
 selected CP profile where required, entry/current read proofs and both source
 final consumers are still required before execution fences can be removed.
+
+
+Checked expression Core nodes retain the original source loan in the same Home
+evaluation body as ordinary Calls and Add. Core children stay ordered in that
+body; only ordinary whole-input Calls transfer their subtrees. The sole expression
+writer and both final source scans use the same checked Core operation projection;
+Length/IndexOf include Invoke and I64 Normal projection without acquisition,
+Substring acquires only on Normal and shares the existing LIFO/Fault End census.
+Unconnected reference/finite operands refuse before MIR effects; these internal
+connections do not activate a borrowed Text entry or bypass source argument fences.

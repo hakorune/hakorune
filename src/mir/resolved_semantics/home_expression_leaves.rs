@@ -11,7 +11,14 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, TextInitializer }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ExpressionCallSourceV1 {
+    Ordinary(LocalCallObservationV1),
+    Core(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
+}
+
 pub(super) struct QualifiedExpressionLeavesV1 {
+    pub(super) cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     pub(super) classes: Vec<Leaf>,
     pub(super) calls: BTreeMap<usize, LocalCallObservationV1>,
     pub(super) fields: Vec<LocalFieldReadRequestV1>,
@@ -27,7 +34,7 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     order: &[usize],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
     let statement = source.root().statement();
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
@@ -37,6 +44,7 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     }
     let mut transferred = BTreeSet::new();
     let mut calls = BTreeMap::new();
+    let mut cores = BTreeMap::new();
     let mut references = BTreeMap::new();
     // Preorder discovers each call's real whole-input scope before descendants.
     // Those exact argument subtrees remain owned by the call/input recipe;
@@ -45,6 +53,15 @@ pub(super) fn qualify_expression_leaves_v1<E>(
         if transferred.contains(&index) || seeded.contains_key(&index) || !matches!(node.source(), ExpressionNodeSourceV1::MethodCall) { continue; }
         let site = OwnedExprSiteV1::new(source.owner(), node.site().clone());
         let Some(call) = source_call(&site)? else { return Ok(None) };
+        let call = match call {
+            ExpressionCallSourceV1::Core(core) => {
+                if !core.matches_plan(source, index) { return Ok(None); }
+                leaves[index] = Leaf::Value(if core.owns_result() { Class::String } else { Class::I64 });
+                cores.insert(index, core);
+                continue;
+            }
+            ExpressionCallSourceV1::Ordinary(call) => call,
+        };
         let Some(loan) = call.borrowed_scalar() else { return Ok(None) };
         let (result, class) = match loan.kind() {
             super::super::SourceScalarKind::Integer => (LocalCallResultClassV1::I64, Class::I64),
@@ -115,5 +132,20 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     }
     let Some(classes) = project_expression_nodes_v1(&source, &transferred, |index| leaves[index])
         else { return Ok(None) };
-    Ok(Some(QualifiedExpressionLeavesV1 { classes, calls, fields, transferred, references }))
+    // A Core result never erases its receiver or argument obligations. Those
+    // children were evaluated in the SAME postorder, unlike transferred Calls.
+    for core in cores.values() {
+        let original = core.source().source();
+        let class = |site| source.nodes().iter().position(|node| node.site() == site).map(|node| classes[node]);
+        if class(original.receiver_site()) != Some(Leaf::Value(Class::String)) { return Ok(None); }
+        for (argument, parameter) in original.arguments().iter().zip(core.source().target().parameters()) {
+            let expected = match parameter {
+                crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::I64Parameter => Class::I64,
+                crate::mir::resolved_semantics::CoreMethodHomeParameterRelationV1::TextParameter => Class::String,
+                _ => return Ok(None),
+            };
+            if class(argument.site()) != Some(Leaf::Value(expected)) { return Ok(None); }
+        }
+    }
+    Ok(Some(QualifiedExpressionLeavesV1 { classes, calls, cores, fields, transferred, references }))
 }

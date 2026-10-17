@@ -324,6 +324,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|loan| loan.map(BorrowedCallArgumentsV1::NamedArrayHolderSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
+    if let BorrowedCallActualRequestV1::ExpressionCoreSource { input, plan } = request {
+        return source.as_ref().map_err(Clone::clone)
+            .and_then(|source| super::super::lexical_instance_call::lend_expression_core_source_v1(input, source, plan, site))
+            .map(|loan| loan.map(BorrowedCallArgumentsV1::ExpressionCoreSource))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+    }
     if let BorrowedCallActualRequestV1::ArgumentExpressionSource(input, ordinal) = request {
         return source.as_ref().map_err(Clone::clone)
             .and_then(|source| super::super::lexical_instance_call::observed_argument_source_v1(input, source, pending, site, ordinal))
@@ -584,6 +590,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
         BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
+        | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
         | BorrowedCallActualRequestV1::ArgumentTextEntryRead { .. }
         | BorrowedCallActualRequestV1::InitializerTextEntryRead { .. }

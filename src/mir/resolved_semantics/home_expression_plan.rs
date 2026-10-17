@@ -27,6 +27,7 @@ impl CheckedExpressionOperationLoanV1 {
 
 #[path = "home_expression_leaves.rs"]
 mod leaves;
+pub(crate) use leaves::ExpressionCallSourceV1;
 #[path = "home_field_write_expression.rs"]
 mod field_write_expression;
 pub(super) use field_write_expression::qualify_field_write_expression_v1;

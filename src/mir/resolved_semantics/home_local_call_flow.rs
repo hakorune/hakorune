@@ -248,7 +248,7 @@ impl LocalCallObservationV1 {
     }
 }
 
-pub(crate) use source_scalar_call::{issue_source_scalar_expression_call, issue_source_scalar_frame_call_v1};
+pub(crate) use source_scalar_call::{issue_source_expression_call_v1, issue_source_scalar_expression_call, issue_source_scalar_frame_call_v1};
 pub(super) use source_scalar_call::{issue_source_scalar_condition_call_v1, SourceScalarConditionCallV1};
 
 #[path = "home_local_source_scalar_call.rs"]
@@ -335,7 +335,7 @@ pub(crate) fn issue_static_i64_local_call<E>(
                 }
                 arguments.into_vec()
             }
-            Some(BorrowedCallArgumentsV1::InitializerTextEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_))
+            Some(BorrowedCallArgumentsV1::ExpressionCoreSource(_) | BorrowedCallArgumentsV1::InitializerTextEntryRead(_)) | Some(BorrowedCallArgumentsV1::TextEntryRead(_)) | Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_))
             | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
             | Some(BorrowedCallArgumentsV1::SourceInstance(_))
             | Some(BorrowedCallArgumentsV1::Scalar(_))

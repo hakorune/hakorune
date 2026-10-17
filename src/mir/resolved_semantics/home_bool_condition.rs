@@ -57,9 +57,9 @@ pub(crate) fn qualify_bool_condition_v1<E>(
     let ExpressionPlanRootV1::IfCondition { condition, .. } = source.root() else { return Ok(None) };
     if source.nodes().first().is_none_or(|node| node.site() != condition) { return Ok(None); }
     let Ok(order) = source.ordered_postorder_v1() else { return Ok(None) };
-    let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references }) =
+    let Some(QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, references, .. }) =
         super::leaves::qualify_expression_leaves_v1(&source, ExpressionLeafProfileV1::BoolCondition, &BTreeMap::new(),
-            scalar_reference, prior_homes, &order, field_request, source_call)? else { return Ok(None) };
+            scalar_reference, prior_homes, &order, field_request, &mut |site| source_call(site).map(|call| call.map(super::leaves::ExpressionCallSourceV1::Ordinary)))? else { return Ok(None) };
     if classes[0] != Leaf::Value(Class::Bool) { return Ok(None); }
     let mut operations = Vec::new();
     let mut logical = Vec::new();

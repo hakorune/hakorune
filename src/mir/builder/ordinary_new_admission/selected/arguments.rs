@@ -194,4 +194,67 @@ mod tests {
         .unwrap_err()
         .contains("argument-row-drift"));
     }
+
+    impl MirBuilder {
+        /// Exercise the sole writer from a genuinely qualified original frame.
+        /// No fake Print purpose or executable ordinary input is issued here.
+        pub(in crate::mir) fn assert_checked_expression_core_for_test(
+            input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+            ledger: std::rc::Rc<OrdinaryNewClaimLedgerV1>,
+            frame: &crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1,
+        ) {
+            use std::rc::Rc;
+            use crate::mir::BasicBlockId;
+            use crate::mir::instruction::{InvokeOperation, StringInvokeOperand as Operand, StringInvokeOperation as Operation};
+            use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, ExpressionPhysicalProjectionRefV1};
+            let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
+            let mut builder = MirBuilder::new();
+            builder.enter_function_for_test("core_argument".into());
+            // Reference-free evaluation needs no entry values. In particular
+            // this unit cannot manufacture the unfinished caller's Text entry.
+            state.lend_ordinary_new_claim_ledger(Rc::clone(&ledger));
+            let before = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
+                .flat_map(|(id, block)| block.all_instructions().map(move |row| (*id, row.clone()))).collect::<Vec<_>>();
+            let result = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
+                &mut |_, _, _, _, _| Err("unexpected ordinary Call".to_owned()));
+            if !frame.static_reads().is_empty() || !frame.residence_reads().is_empty() || !frame.text_reads().is_empty() {
+                assert!(result.err().unwrap().contains("reference-execution-pending"));
+                let after = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
+                    .flat_map(|(id, block)| block.all_instructions().map(move |row| (*id, row.clone()))).collect::<Vec<_>>();
+                assert_eq!(after, before, "unconnected reference refuses before FaultFrame or MIR effects");
+                return;
+            }
+            let emitted = result.unwrap();
+            assert!(matches!(emitted.value, Operand::OwnedString(_)));
+            assert_eq!(emitted.acquired.len(), 1, "only substring acquires, scalar Core readers do not");
+            let reads: Vec<_> = emitted.path_reads.into_values().collect();
+            let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.bindings);
+            let context = CallValidationContextV1::Lowering(&ledger);
+            view.validate_source(context).unwrap();
+            let ordered = view.ordered_bindings_in_context(context).unwrap();
+            let core_count = frame.evaluation().cores().len();
+            assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(_), .. })).count(), core_count);
+            assert_eq!(ordered.iter().filter(|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { .. })).count(), core_count);
+            for mutation in 0..3 {
+                let mut changed = emitted.bindings.clone();
+                let index = changed.iter().position(|(_, row)| matches!(row, MirInstruction::Invoke { operation: InvokeOperation::String(Operation::Substring { .. }), .. })).unwrap();
+                match mutation {
+                    0 => { changed.remove(index); }
+                    1 => {
+                        let MirInstruction::Invoke { operation: InvokeOperation::String(operation), .. } = &mut changed[index].1 else { unreachable!() };
+                        let Operation::Substring { value, .. } = operation else { unreachable!() };
+                        *operation = Operation::Length { value: value.clone() };
+                    }
+                    2 => {
+                        let projection = changed.iter_mut().find(|(_, row)| matches!(row, MirInstruction::InvokeNormalResult { dst, .. } if Some(*dst) == emitted.value.value())).unwrap();
+                        let MirInstruction::InvokeNormalResult { invoke_block, .. } = &mut projection.1 else { unreachable!() };
+                        *invoke_block = BasicBlockId(999_999);
+                    }
+                    _ => unreachable!(),
+                }
+                let changed = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &changed);
+                assert!(changed.validate_source(context).is_err(), "Core producer/projection mutation {mutation}");
+            }
+        }
+    }
 }

@@ -17,6 +17,10 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
         plan: &'a std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
         read: &'a super::SourceExprSiteV1, binding: super::BindingRefV1, root: super::BindingRefV1,
     },
+    ExpressionCoreSource {
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>,
+        plan: &'a std::rc::Rc<crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1>,
+    },
     ScalarArguments,
     I64ResultArguments,
     SourceScalarResultArguments,
@@ -37,6 +41,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
+    ExpressionCoreSource(crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1),
     InitializerTextEntryRead(crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1),
     TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
     ArgumentExpressionSource(crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1),

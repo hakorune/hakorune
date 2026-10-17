@@ -38,7 +38,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     source: Rc<ExpressionSourcePlanV1>,
     prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
-    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<LocalCallObservationV1>, E>,
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<super::leaves::ExpressionCallSourceV1>, E>,
     can_install: &mut impl FnMut(&HomeExpressionPlanV1) -> bool,
     field_batch: &mut impl FnMut(
         &[LocalFieldReadRequestV1], super::super::LocalFieldReadDemandV1,
@@ -62,13 +62,13 @@ pub(crate) fn qualify_print_expression_v1<E>(
         &source, super::leaves::ExpressionLeafProfileV1::Print, &std::collections::BTreeMap::new(), &mut |_| None,
         prior_homes, &order, field_request, source_call,
     )? else { return Ok(None) };
-    let super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, fields, transferred, .. } = leaves;
+    let super::leaves::QualifiedExpressionLeavesV1 { classes, mut calls, cores, fields, transferred, .. } = leaves;
     if !matches!(classes[0], Leaf::Value(Class::String | Class::I64)) { return Ok(None); }
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     let frame = Rc::new(CheckedPrintExpressionFrameV1 { evaluation: CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(),
         calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
-        owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred,
+        owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred,
     } });
     let candidate = HomeExpressionPlanV1 {
         source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, argument_frame: None, text_initializer: None, print_frame: Some(frame), condition_frame: None, field_write: None,

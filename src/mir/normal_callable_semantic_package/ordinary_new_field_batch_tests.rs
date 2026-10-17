@@ -364,7 +364,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                                     ledger.borrowed_formal_source.as_ref().unwrap(), &ledger.borrowed_formal_actuals,
                                     &ledger.borrowed_i64_results, site, &ledger.callable_result_classes)
                             },
-                        ),
+                        ).map(|call| call.map(crate::mir::resolved_semantics::home_new_prefix::ExpressionCallSourceV1::Ordinary)),
                         &mut |_| can_install,
                         &mut |requests, demand| {
                             *batches += 1;

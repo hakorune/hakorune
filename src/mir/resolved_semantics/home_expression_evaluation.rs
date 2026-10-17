@@ -14,6 +14,7 @@ pub(crate) struct CheckedExpressionEvaluationV1 {
     pub(super) order: Box<[usize]>,
     pub(super) classes: Box<[ExpressionLeafClassV1]>,
     pub(super) calls: Box<[LocalCallObservationV1]>,
+    pub(super) cores: std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
     pub(super) operations: Box<[Rc<CheckedExpressionOperationLoanV1>]>,
     pub(super) owned_results: Box<[usize]>,
     pub(super) transferred_inputs: BTreeSet<usize>,
@@ -23,6 +24,7 @@ impl CheckedExpressionEvaluationV1 {
     pub(crate) fn prior_homes(&self) -> &[crate::mir::resolved_semantics::BindingRefV1] { &self.prior_homes }
     pub(crate) fn ordered_nodes(&self) -> &[usize] { &self.order }
     pub(crate) fn calls(&self) -> &[LocalCallObservationV1] { &self.calls }
+    pub(crate) fn cores(&self) -> &std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1> { &self.cores }
     pub(crate) fn operations(&self) -> &[Rc<CheckedExpressionOperationLoanV1>] { &self.operations }
     pub(crate) fn owned_result_nodes(&self) -> &[usize] { &self.owned_results }
     pub(crate) fn root_class(&self) -> ExpressionLeafClassV1 { self.classes[0] }
@@ -32,3 +34,11 @@ impl CheckedExpressionEvaluationV1 {
     }
 }
 
+
+
+pub(super) fn owned_result_nodes(
+    order: &[usize], add: &[usize],
+    cores: &std::collections::BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+) -> Box<[usize]> {
+    order.iter().copied().filter(|node| add.contains(node) || cores.get(node).is_some_and(|core| core.owns_result())).collect()
+}
