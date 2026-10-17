@@ -1,9 +1,9 @@
 //! Checked BindingRef-to-ValueId access for the callable semantic owner.
 //!
-//! This is a behavior-neutral view of the existing lowering ledger.  It does
-//! not consume a binding, choose a receiver, or issue any call target.  The
-//! later DeclaredInstance crosswalk may borrow this accessor after it has
-//! independently proven the exact source relation.
+//! Exact reads consume source sites, never the reusable binding value. Read
+//! preparation checks source and current provenance without consuming a site;
+//! a complete batch is rechecked before any commit. No value class, receiver
+//! selection, call target or runtime ownership is issued here.
 
 use std::fmt;
 
@@ -29,6 +29,8 @@ pub(in crate::mir) enum ExactReceiverValueErrorV1 {
     AlreadyTaken,
     EntryNotInstalled,
     ValueUnavailable,
+    DuplicateReadSite,
+    ReadSnapshotChanged,
 }
 
 /// The original exact lexical read, retained for physical corroboration.
@@ -40,6 +42,21 @@ pub(in crate::mir) struct ExactLexicalReadV1 {
     binding: BindingRefV1,
     value: ValueId,
     provenance: Option<super::materialized_values::LocalProvenanceV1>,
+}
+
+/// Non-consuming current-state snapshot. Only a whole validated commit turns
+/// this into the one-shot physical observation; it grants no value class.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedExactLexicalReadV1 {
+    read: ExactLexicalReadV1,
+}
+impl PreparedExactLexicalReadV1 {
+    pub(in crate::mir::builder) fn value_for(
+        &self, owner: FunctionOwnerIdV1,
+        site: &crate::mir::resolved_semantics::SourceNodeSiteV1, binding: BindingRefV1,
+    ) -> Result<ValueId, ExactReceiverValueErrorV1> {
+        self.read.value_for(owner, site, binding)
+    }
 }
 
 impl ExactLexicalReadV1 {
@@ -106,6 +123,8 @@ impl fmt::Display for ExactReceiverValueErrorV1 {
             Self::AlreadyTaken => "exact-receiver-already-taken",
             Self::EntryNotInstalled => "exact-receiver-entry-not-installed",
             Self::ValueUnavailable => "exact-receiver-value-unavailable",
+            Self::DuplicateReadSite => "exact-lexical-read-duplicate-site",
+            Self::ReadSnapshotChanged => "exact-lexical-read-snapshot-changed",
         };
         write!(
             formatter,
@@ -208,12 +227,12 @@ impl CallableSemanticLoweringState {
             .value_for(expected_owner, source_site, expected_binding)
     }
 
-    pub(in crate::mir::builder) fn take_exact_lexical_read(
-        &mut self,
+    pub(in crate::mir::builder) fn prepare_exact_lexical_read(
+        &self,
         expected_owner: FunctionOwnerIdV1,
         source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
         expected_binding: BindingRefV1,
-    ) -> Result<ExactLexicalReadV1, ExactReceiverValueErrorV1> {
+    ) -> Result<PreparedExactLexicalReadV1, ExactReceiverValueErrorV1> {
         if self.owner != expected_owner || expected_binding.owner() != self.owner {
             return Err(ExactReceiverValueErrorV1::OwnerMismatch);
         }
@@ -240,17 +259,50 @@ impl CallableSemanticLoweringState {
                     ExactReceiverValueErrorV1::ReceiverBindingMismatch
                 }
             })?;
-        if !self.consumed_variables.insert(source_site.clone()) {
-            return Err(ExactReceiverValueErrorV1::AlreadyTaken);
-        }
-        Ok(ExactLexicalReadV1 {
+        Ok(PreparedExactLexicalReadV1 { read: ExactLexicalReadV1 {
             owner: expected_owner,
             site: source_site.clone(),
             binding: expected_binding,
             value,
             provenance: self.values.provenance(&expected_binding),
-        })
+        } })
     }
+
+    /// All checks finish before the first consumption. A late unavailable,
+    /// changed or repeated read cannot leave an earlier site consumed.
+    pub(in crate::mir::builder) fn commit_exact_lexical_reads(
+        &mut self, prepared: Vec<PreparedExactLexicalReadV1>,
+    ) -> Result<Vec<ExactLexicalReadV1>, ExactReceiverValueErrorV1> {
+        let mut sites = std::collections::BTreeSet::new();
+        for pending in &prepared {
+            let read = &pending.read;
+            if !sites.insert(&read.site) {
+                return Err(ExactReceiverValueErrorV1::DuplicateReadSite);
+            }
+            let current = self.prepare_exact_lexical_read(read.owner, &read.site, read.binding)?;
+            if current.read != *read {
+                return Err(ExactReceiverValueErrorV1::ReadSnapshotChanged);
+            }
+        }
+        Ok(prepared.into_iter().map(|pending| self.commit_prepared_read(pending)).collect())
+    }
+
+    pub(in crate::mir::builder) fn take_exact_lexical_read(
+        &mut self, expected_owner: FunctionOwnerIdV1,
+        source_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        expected_binding: BindingRefV1,
+    ) -> Result<ExactLexicalReadV1, ExactReceiverValueErrorV1> {
+        let pending = self.prepare_exact_lexical_read(expected_owner, source_site, expected_binding)?;
+        // No state mutation or callback separates this prepare from commit.
+        Ok(self.commit_prepared_read(pending))
+    }
+
+    fn commit_prepared_read(&mut self, pending: PreparedExactLexicalReadV1) -> ExactLexicalReadV1 {
+        let inserted = self.consumed_variables.insert(pending.read.site.clone());
+        debug_assert!(inserted, "complete exact-read preflight precedes every commit");
+        pending.read
+    }
+
 }
 
 #[cfg(test)]

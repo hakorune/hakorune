@@ -200,3 +200,69 @@ fn reused_forwarded_local_lends_empty_copy_chain() {
         .unwrap()
         .is_empty());
 }
+
+#[test]
+fn exact_lexical_batch_preflight_is_atomic_and_rechecks_current_provenance() {
+    for mutation in ["none", "duplicate", "value", "provenance", "binding", "consumed", "foreign", "missing"] {
+        let (mut state, owner, first) = materialized_fixture(
+            "function caller(first: i64, second: i64) { local a = first local b = second return a + b }",
+        );
+        let second = state.parameters[1];
+        state.values.insert(second, ValueId::new(88));
+        let locals: Vec<_> = state.locals.keys().cloned().collect();
+        state.record_completed_local(&locals[0], &copied_local(ValueId::new(77), ValueId::new(79))).unwrap();
+        state.record_completed_local(&locals[1], &copied_local(ValueId::new(88), ValueId::new(89))).unwrap();
+        let a = state.locals[&locals[0]][0];
+        let b = state.locals[&locals[1]][0];
+        let read_site = |binding| state.variables.iter().find(|(_, original)| **original == binding).unwrap().0.clone();
+        let a_site = read_site(a);
+        let b_site = read_site(b);
+        let one = state.prepare_exact_lexical_read(owner, &a_site, a).unwrap();
+        let two = if mutation == "duplicate" {
+            state.prepare_exact_lexical_read(owner, &a_site, a).unwrap()
+        } else { state.prepare_exact_lexical_read(owner, &b_site, b).unwrap() };
+        assert!(state.consumed_variables.is_empty(), "preflight consumes nothing: {mutation}");
+        match mutation {
+            "value" => { state.values.insert(b, ValueId::new(90)); }
+            "provenance" => { state.values.insert(b, ValueId::new(89)); }
+            "binding" => { state.variables.insert(b_site.clone(), a); }
+            "consumed" => { state.take_exact_lexical_read(owner, &b_site, b).unwrap(); }
+            "foreign" => { state.owner = FunctionOwnerIssuerV1::new_for_compilation().unwrap().issue().unwrap(); }
+            "missing" => { state.values.remove(&b); }
+            _ => {}
+        }
+        let before = state.consumed_variables.clone();
+        let result = state.commit_exact_lexical_reads(vec![one, two]);
+        if mutation == "none" {
+            let reads = result.unwrap();
+            assert_eq!(reads.len(), 2);
+            assert!(reads[0].proves_forwarded_entry(first, ValueId::new(77)));
+            assert!(reads[1].proves_forwarded_entry(second, ValueId::new(88)));
+            assert_eq!(state.consumed_variables, [a_site.clone(), b_site.clone()].into_iter().collect());
+            assert_eq!(state.take_exact_lexical_read(owner, &a_site, a), Err(ExactReceiverValueErrorV1::AlreadyTaken));
+        } else {
+            let expected = match mutation {
+                "duplicate" => ExactReceiverValueErrorV1::DuplicateReadSite,
+                "value" | "provenance" => ExactReceiverValueErrorV1::ReadSnapshotChanged,
+                "binding" => ExactReceiverValueErrorV1::SiteBindingMismatch,
+                "consumed" => ExactReceiverValueErrorV1::AlreadyTaken,
+                "foreign" => ExactReceiverValueErrorV1::OwnerMismatch,
+                "missing" => ExactReceiverValueErrorV1::ValueUnavailable,
+                _ => unreachable!(),
+            };
+            assert_eq!(result, Err(expected), "{mutation}");
+            assert_eq!(state.consumed_variables, before, "late refusal consumed the earlier read: {mutation}");
+            assert!(!state.consumed_variables.contains(&a_site));
+        }
+    }
+}
+
+#[test]
+fn abandoned_exact_read_preflight_leaves_original_read_available() {
+    let (mut state, owner, binding, other, site) = materialized_receiver_fixture();
+    let prepared = state.prepare_exact_lexical_read(owner, &site, binding).unwrap();
+    assert!(state.prepare_exact_lexical_read(owner, &site, other).is_err());
+    drop(prepared);
+    assert!(state.consumed_variables.is_empty());
+    assert_eq!(state.take_exact_lexical_value(owner, &site, binding), Ok(ValueId::new(77)));
+}

@@ -37,6 +37,53 @@ pub(super) fn emit(
     let owner = frame.source().owner();
     if state.owner() != owner { return Err(freeze("expression-value/state-owner")); }
     let homes = ledger.prior_home_unwind_for(frame.prior_homes())?;
+    let source = frame.source();
+    let mut pending = Vec::new();
+    let mut path_slots = std::collections::BTreeMap::new();
+    let mut direct_fields = std::collections::BTreeMap::new();
+    // Fulfill every field-root read before any FaultFrame, CFG or value effect.
+    // Reservation remains in original source order; binding nested receivers
+    // still waits for the actual ancestor field writer below.
+    for &index in frame.ordered_nodes() {
+        if frame.transfers_node(index) { continue; }
+        let node = &source.nodes()[index];
+        if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
+            crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
+        let site = OwnedExprSiteV1::new(owner, node.site().clone());
+        if let Some(path) = ledger.statement_field_path_v1(&site, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
+            if !ledger.reserve_result_path_field_v1(&site, |binding| {
+                let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
+                let slot = match path_slots.get(&root_site) {
+                    Some(slot) => *slot,
+                    None => {
+                        let read = state.prepare_exact_lexical_read(owner, path.root_site().node(), binding)
+                            .map_err(|error| error.to_string())?;
+                        let slot = pending.len();
+                        pending.push(read);
+                        path_slots.insert(root_site, slot);
+                        slot
+                    }
+                };
+                pending[slot].value_for(owner, path.root_site().node(), binding).map_err(|error| error.to_string())
+            })? { return Err(freeze("print-expression/path-source-missing")); }
+        } else if let Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) = node.source() {
+            let mut slot = None;
+            let (base, descriptor) = ledger.take_local_field_read(&site, |binding| {
+                let read = state.prepare_exact_lexical_read(owner, object.node(), binding).map_err(|error| error.to_string())?;
+                let value = read.value_for(owner, object.node(), binding).map_err(|error| error.to_string())?;
+                slot = Some(pending.len());
+                pending.push(read);
+                Ok(value)
+            })?.ok_or_else(|| freeze("print-expression/field-source-missing"))?;
+            direct_fields.insert(index, (base, descriptor, slot.ok_or_else(|| freeze("print-expression/field-exact-read-missing"))?));
+        }
+    }
+    let mut reads: Vec<_> = state.commit_exact_lexical_reads(pending).map_err(|error| error.to_string())?
+        .into_iter().map(Some).collect();
+    let mut path_reads = std::collections::BTreeMap::new();
+    for (site, slot) in path_slots {
+        path_reads.insert(site, reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?);
+    }
     let fault_frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
     let mut writer = RawRootGraphWriterV1;
@@ -44,10 +91,8 @@ pub(super) fn emit(
     let entry = writer.emit_current(builder, MirInstruction::Jump { target: start, edge_args: None })?;
     bindings.push(entry.clone());
     builder.start_new_block(start)?;
-    let source = frame.source();
     let mut values: Vec<Option<Operand>> = vec![None; source.nodes().len()];
     let mut field_outputs: Vec<Option<ValueId>> = vec![None; source.nodes().len()];
-    let mut path_reads = std::collections::BTreeMap::<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>::new();
     let mut acquired = Vec::new();
     let mut calls = Vec::new();
     for &index in frame.ordered_nodes() {
@@ -57,22 +102,14 @@ pub(super) fn emit(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());
         if let Some(path) = ledger.statement_field_path_v1(&site, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
-            let mut root = None;
-            if !ledger.reserve_result_path_field_v1(&site, |binding| {
-                let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
-                if !path_reads.contains_key(&root_site) {
-                    let read = state.take_exact_lexical_read(owner, path.root_site().node(), binding).map_err(|error| error.to_string())?;
-                    path_reads.insert(root_site.clone(), read);
-                }
-                let read = &path_reads[&root_site];
-                let value = read.value_for(owner, path.root_site().node(), binding).map_err(|error| error.to_string())?;
-                root = Some(value);
-                Ok(value)
-            })? { return Err(freeze("print-expression/path-source-missing")); }
             let base = if let Some(parent) = path.parent() {
                 source.nodes().iter().position(|node| node.site() == parent.site())
                     .and_then(|index| field_outputs[index]).ok_or_else(|| freeze("print-expression/path-parent-missing"))?
-            } else { root.ok_or_else(|| freeze("print-expression/path-root-missing"))? };
+            } else {
+                let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
+                path_reads.get(&root_site).ok_or_else(|| freeze("print-expression/path-root-missing"))?
+                    .value_for(owner, path.root_site().node(), path.root()).map_err(|error| error.to_string())?
+            };
             let descriptor = ledger.bind_result_path_receiver_v1(&site, base)?;
             let value = if descriptor.requires_checked_field_read_v1() {
                 let normal = writer.reserve_block(builder)?;
@@ -102,15 +139,11 @@ pub(super) fn emit(
                 bindings.push((block, MirInstruction::Const { dst: value, value: crate::mir::ConstValue::Integer(*literal) }));
                 Operand::NormalInteger(value)
             }
-            Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { object, .. }) => {
+            Node::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {
                 let site = OwnedExprSiteV1::new(owner, node.site().clone());
-                let mut original_read = None;
-                let (base, source) = ledger.take_local_field_read(&site, |binding| {
-                    let read = state.take_exact_lexical_read(owner, object.node(), binding).map_err(|error| error.to_string())?;
-                    let value = read.value_for(owner, object.node(), binding).map_err(|error| error.to_string())?;
-                    original_read = Some(read);
-                    Ok(value)
-                })?.ok_or_else(|| freeze("print-expression/field-source-missing"))?;
+                let (base, source, slot) = direct_fields.remove(&index)
+                    .ok_or_else(|| freeze("print-expression/field-source-missing"))?;
+                let original_read = reads[slot].take();
                 let value = if source.requires_checked_field_read_v1() {
                     let normal = writer.reserve_block(builder)?;
                     let pending = pending_operations(&acquired, &homes);

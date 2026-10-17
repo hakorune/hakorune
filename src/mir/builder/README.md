@@ -2087,3 +2087,13 @@ pin loans, Unit Normal continuation and prior-Home Fault unwind. The original
 prefix packet remains mandatory through seal, Phi repair and finishing liveness.
 Final borrowed-use consumer and C admission remain separate required connections;
 selected source failure never retries the shared generic FieldSet writer.
+
+The shared expression evaluator fulfills all of its own field-root lexical
+reads before its first physical effect. Exact-read preparation retains the
+original owner/site/binding, current value and Copy provenance without consuming
+a source site; a whole batch rechecks those snapshots before consuming any.
+Ordinary single reads reuse the same validation without a batch allocation.
+Original field reservations keep source order, while nested receiver binding
+still follows actual ancestor field emission. The same committed receipts reach
+the existing field writers and final packets. This grants no Text class,
+descriptor transport, local residence or End permission.
