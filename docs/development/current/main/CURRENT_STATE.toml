@@ -3,7 +3,7 @@ development_branch_ssot = "codex/birth-definition-publication"
 work_mode = "fast"
 current_execution_row = "MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0"
 current_execution_cohort = "unified_selfhost_resume"
-current_blocker_token = "required-object-forward/new-provider-prior-home"
+current_blocker_token = "required-object-forward/current-source-acceptance"
 current_design_stop = "mixed-result-source-to-physical-lifecycle"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
@@ -18,12 +18,12 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 unaccepted; cumulative source WIP unlanded.
-CLI173/C831e/M190 app175 canonical direct EXE/run/exact11lines/exit0 PASS.
-Compile412.394787s, native .001497s; original wire identical to prior app174.
+CLI174/C831e/M190 app176 canonical direct EXE/run/exact11lines/exit0 PASS.
+Compile484.178246s, native .001699s; prior app175 wire matched app174.
 C owned16/field-return6/stored-child and independent wire negatives PASS.
-Remaining selected source acceptance: existing three-hop New-provider Print
-positive rejects lexical-call-prior-home-unavailable (confirmed baseline).
-Current Rust both-opts/fixed acceptance and source landing remain owed.
+V832a three-hop New-provider Print source/publication/native PASS; shared typed
+provider discharge replaces Array-only writer/walker, six runtime Faults PASS.
+Current both-opts running; fixed11 PASS4/FAIL7, source gaps and landing owed.
 First milestone PASS, re-pinned V801b/CLI149/app149: unchanged mimalloc-lite
 canonical direct EXE, run, exact existing stdout and exit0. No source landing.
 V801b whole-source compiled-entry/ABI/backend PASS both opts, including both

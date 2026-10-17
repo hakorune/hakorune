@@ -65,7 +65,16 @@ Loop, authority, parser and nondelegating selfcompile conditions.
 - No AST rewrite, .hako workaround, fallback, legacy retry, second Builder or
   competing source/classification registry. Extend the existing result contract.
 
-## Latest unchanged product measurement — C831e / app175
+## Latest unchanged product measurement — CLI174 / app176
+
+Current V832 source repin: CLI174/C831e/runtime808b unchanged M190 direct
+canonical EXE **PASS484.178246s**, native **PASS .001699s**, stdout exactly the
+same11 lines/exit0. Known plugin-disabled warning only. Source manifest
+`v832-cli174.source.json`; original compile/run receipts `app-v176-result-contract`.
+EXE SHA6937177b47e6c63bf510591132d6eac3613fc3058eee3a472c337b9ecdca6aa5.
+C V2=9.070808s / V4=191.904993s / emit=.520447s / library=.333906s;
+concurrent actual/fixedsuite runs make this no speed comparison. CLI hash below
+in V832 evidence; C/runtime and unchanged source identities match the table.
 
 **M190 PASS on pinned cumulative WIP:** unchanged
 `apps/mimalloc-result-contract-proof/main.hako` canonical direct EXE generation
@@ -158,33 +167,10 @@ Keep original wire, manifests and binaries until source landing and C closeout.
 
 ## Earlier focused premises (superseded frontier)
 
-Evidence base: `/tmp/mirbuilder-required-forward-resume/`.
-
-| run | result and meaning |
-| --- | --- |
-| V756 root build | PASS67.775355s; same root test binary reused |
-| V756 focused | 11 PASS, including actual source test below; three additional existing field/stored-child source tests PASS |
-| actual `owned_call_results_publish_original_child_handle_contracts` | PASS979.80s, both opts, RUST_MIN_STACK=16777216; Nullable/Mixed argument correspondence, ValueId/ordinal drift, original Return/conditional End and final mutations |
-| runtime757 build | PASS234.799502s concurrent with actual test; not a speed baseline; residence set/get exports verified |
-| C Provided3 + wire/Fault mutations | PASS23.983533s; original before/current/after-store Faults and exact acquisition/release counts |
-| C Unit7 + Fault/mutations | PASS41.643294s; constructor stores/effects/cleanup and malformed input refusal |
-| fresh C fieldReturn6 | PASS35.538991s, both opts and all selected store Faults |
-| fresh C stored-child96 | PASS14.904483s, original OBJ/canonical negatives and both-opts callee Fault cleanup |
-| V758 | build PASS65.079179s; focused11 + actual1 PASS; actual723.391039s both opts |
-
-Runtime757 SHA: `6897c4dcf6ee871f152732f12204733947cb07a922228b0c749df6beec3eea7b`.
-FFI757 SHA: `943053b6918f2d149dae0acef9ced3359e439159eccf8f2cada21b6d7114367a`.
-Detailed receipts: `v756.focused.json`, `v756.extra.focused.json`,
-`runtime-v757.receipt.json`, `*-residence*-v757.receipt.json` and source manifests.
-Kernel/header files match V627 exactly: reuse its atomic identity/mutation/C-output
-and ABI geometry evidence; do not claim unchanged whole compiler sources.
-
-V758 extracts the existing final object Return census for production/test reuse.
-Pure final-MIR mutations reuse original retained outcomes; Mixed outer parameter
-ValueId drift keeps its separate source-entry check. Original source positives,
-complete Return census and independent negative boundaries remain. Cheap exact
-actual/source correspondence precedes expensive shared received-call validation;
-success still requires all original checks. No cache, skip flag or new test fn.
+Full V756–V758 source/physical/runtime positives, independent negatives,
+identities and timing are preserved in this path at **d212003821**.
+Their contracts remain premises above; they do not substitute for current-source
+acceptance. Original runtime757 atomic residence evidence is preserved there.
 
 ## Red classification and preservation
 
@@ -226,12 +212,8 @@ The following unfinished contracts and evidence remain live:
   authority. Mixed/Borrowed source-issued runtime acceptance is still owed.
 - V765/V768/V769 original app/both-opts source correspondence passed; latest
   V769 actual1074.29s. These are preparation evidence, not canonical EXE success.
-- V782 JSON32/35 leaves three own cumulative-WIP reds: nullable_receiver_call_
-  serializes_nullable_handle_and_checked_release (borrowed-declaration/missing-
-  retained-call); ordinary_instance_function_publishes_canonical_receiver_object
-  (ordinary-field-read/root-exit-phase); owned_array_fields_release_in_reverse_
-  order_before_home_release (construction Fault expects2 releases, sees reclaim
-  plus return_fault). No whole-module PASS or exact clean-HEAD baseline claim.
+- V782 physical JSON reds and repairs are preserved at d212003821; the later
+  V801b physical JSON33 PASS supersedes that measurement, not full source acceptance.
 - V775–777 unaccepted tiny Borrowed fixture was physically removed, since its
   scalar Root Return fails ReturnValueNotCovered outside this app entry. Do not
   invent another Root fixture/lane. Failed scratch files under the evidence
@@ -252,17 +234,10 @@ The following unfinished contracts and evidence remain live:
   remain distinct from wire metadata. Source `claimed_loop_push_rejects_on_
   unretained_plain_lane` is RED at field-array-append/loop-source-missing:
   own cumulative-WIP source-lender deficit, never a clean-HEAD baseline claim.
-- V786 extended app test demanded full backend gate and was RED714.270958s
-  optfalse at Birth numeric entry-unclosed. V789 fixes the observed producer
-  using original compiled Birth formals/physical bindings and exact USize range
-  contract, keeping guarded-borrowed and bare stores distinct. V789 focused4
-  PASS, and CLI143 crosses that stop. This does not yet establish a new PASS
-  for the full expanded app test; V753 strict-consumer debt also stays open.
-- CLI140/141/142/143 canonical unchanged app rc1/no EXE: scalar-kind → retained
-  ingress → numeric Birth → declared parameter. Latest CLI143 build143.011864s,
-  app169.026962s, first-stop HakoAllocHeap.realloc/2 physicalslot1/logical0.
-  Original source parameter ValueId, physical slot and JSON ordinal must never
-  be conflated; source declaration corroboration follows below.
+- V789 original Birth-formal/USize numeric check connects the original producer;
+  detailed V786–789 refusal/repair history and superseded CLI140–143 stops are
+  preserved at d212003821. Current full app/both-opts acceptance remains owed;
+  preserve distinct original ValueId, physical slot and JSON ordinal domains.
 
 ## Retained V790–V798 contracts and acceptance
 
@@ -945,31 +920,16 @@ SHA707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332:
 main56 reads object1.field2 from53, allocateResult target12 Invoke697→Normal698.
 Rust WIP unlanded; known aggregate Print three-hop New baseline still owed.
 
-V831 Decision (BoxCount, read-only worker mapping; same Forward series):
-Source authority + canonical issuer: original indexed Invoke/Normal/target and all
-callee Return/result_origin/field-support rows. Whole-function independent seeds
-precede dependent field classification. Existing owned-result DFS lends class;
-separate per-value active seed state refuses cycles. BAD aliases may borrow a
-separate exact HANDLE Copy/unanimous-Phi root without setting kind; full union,
-Phi restrictions and all Return/support/flow checks remain mandatory before emit.
-Non-authority: FieldGet layout/class tuple only corroborates original parent;
-no class-from-use, fake Home, legacy retry, source rewrite or new registry.
-Fail-fast: wrong/nullable root, missing/conflicting/cyclic producer or callee,
-foreign field/support, mutation, early End and incomplete conditional cleanup.
-Scope: existing index seed/owned-result correspondence→field borrow/received read
-and original support/anchor/End consumers; existing C family tests and owner README.
-First implementation unit normalizes seed dependencies; then SAME series must
-connect Provided field proof and caller Normal liveness through final consumption.
-Acceptance: existing owned result/field-return/stored-child positives+mutations,
-original captured wire and unchanged canonical M190 EXE/run/output; kind green
-alone is preparation. Full goal/fixedsuite/cutover/retirement remain open.
-
-V831a–e implementation history: independent all-function seeding; original
-Provided Return/New/Birth/store proof; nullable loan consumers; one strict/read
-and exact-discharge reverse interval; received checked scalar Handle|Nullable.
-Final C831e/native app175 evidence is recorded in Latest unchanged product
-measurement. Intermediate kinds/flow-only greens were preparation, not EXE proof.
+V831 C connection Decision and intermediate implementation history are preserved
+in this path at **d212003821**; latest actual native evidence is above.
+Live contract: original Invoke/Normal/target/all Return source rows and all-writer
+residence proof, separate cyclic seed/owned-result refusal, exact Provided
+New/Birth/store/formal/actual, nullable field loan with live original anchors.
+One reverse interval owns strict read and exact one-child-End cleanup modes;
+cleanup capability is confined to outer HomeRelease, never ordinary read/move.
 Strict raw BASE/method receiver/numeric move/Birth boundaries remain mandatory.
+No fake Home/class-from-use/registry/source rewrite/legacy retry. Source WIP,
+full required source acceptance and source landing remain separate from C PASS.
 
 V832 selected same-series deeper-provider acceptance (worker read-only review):
 Source authority + canonical issuer: original provider construction source and
@@ -986,3 +946,51 @@ existing constructor/provider/Fault source+final tests, then current independent
 final/both-opts and selected native provider evidence. C831 native success does
 not close these source obligations. Required Array/Set/FieldWrite/fixedsuite and
 remaining retirement stay open; cumulative WIP is not accepted.
+
+V832a verification: root build66.417804s PASS, source manifest v832a-root;
+only eight Rust/owner-doc paths differ from pinned V829a (typed provider source,
+plan, ledger join, emitter, validator and existing aggregate test). Existing
+aggregate Print1 PASS. Owned inventory9/constructor plan10/typed cleanup2/provider
+argument4 PASS. Initial wrong filter selected0 and was rejected by the harness;
+correct filters above ran25, not a product failure or claimed zero-test success.
+Original deep-provider published JSON SHA49a57b51d149ab4b3743646bc2267b8e7829c065429eec6fc61093f20f2f117b
+C831e/runtime808b native n=7/exit0 PASS. Existing owned runtime probe proves
+all3 store-Fault and all3 allocation-Fault boundaries exit70, acquired=freed,
+with exact expected Home versus unpublished reclaim counts. No input repair.
+Array-only discharge writer/walker physically removed; existing typed owner is
+sole. CLI174 build167.051369s PASS; binary44b326de76dc94bbe46be7f01c12b9fea28e6c1037d6d0015ce394ee6719acd6
+is retained as v832-cli174.hakorune. Actual app both-opts gate remains running; app176 repin PASS above.
+No source landing or whole-row acceptance claimed. Fixed11 terminal RED379.209432s: PASS4/FAIL7;
+three direct EXE positives (Birth, Birth-param, method), plus one empty boundary
+marker PASS. Failures: typed-newbox PrefixNotCovered Body1; json-stream Static
+source-actual-unavailable; boxtorrent stored-child/receiver-unavailable;
+binary-trees nullable-input/source-missing; allocator NamedArray TextSourceMissing;
+mimalloc-lite generic-negative required-integer-source-unproved; untyped-field
+negative off expected Invoke boundary. Full stdout/stderr/receipt v832-fixedsuite.
+Negative harness failures are not canonical direct product results. Do not
+reinterpret these as PASS, baseline failures, or seven new V832 regressions.
+Fixedsuite source failures remain unaccepted. Canonical unchanged typed-newbox
+app177 reproduces PrefixNotCovered Body1 in .025173s/no EXE; this is a real source
+acceptance gap, not explained away by its old generic-JSON harness. Comparison
+to a pre-V832 CLI baseline is unavailable; no new-regression/baseline claim.
+Worker maps app177 to existing owed LOCAL FieldWrite plus initialization:
+NoBirthZero currently requires a fieldless class; Pair has fields and gets
+InitializationContractMissing. LOCAL pair writes also lack selected source
+prefix coverage. These are profile gaps, not source invalidity; keep unchanged
+positive, no fabricated Birth, zero-fill proof, or conversion to a negative.
+
+Ancillary existing root-route guard reconciliation (worker read-only, 65 counts
+and all remaining predicates): HEAD/current caller counts identical. Four stale
+counts come from committed static-parent/method tests, existing cfg(test) root
+fixtures, enclosing-box reject and retired post-seal macro AST mutation. Repin
+merged facade test from3128f03b8d; current binary focused1 PASS .022082s.
+Old C0 touched-file<760 acceptance remains historical and is not rewritten.
+This S0 does not reopen C0 or edit its two763-line files. Reusable size check
+now follows RULES§8: consider split at760 (warn), hard stop at800; no compression
+or extra source permission. All authority/forbidden/caller predicates retained.
+Canonical route guard was intentionally ABORTED at its redundant embedded debug
+build (not PASS); Cargo/rustc terminated. Layer/thin-shim guards PASS. Additional
+current physical JSON33/terminal source22/observation1/final refusal1/missing
+result1 PASS. Root-route guard PASS with the reviewed corrections above; two
+unchanged763-line owner warnings remain. Original source manifests have zero
+drift. Final actual remains live (pinned binary b4435f1e1d47490868590005a2b98a1ef169eeb9f2c51b2831ca6229692ed3b5).
