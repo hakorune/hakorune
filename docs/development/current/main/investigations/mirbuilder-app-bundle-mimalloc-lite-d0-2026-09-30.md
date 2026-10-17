@@ -902,44 +902,12 @@ connected by V823–825. Small self-LOCAL publication still fails Maker.wrap h=m
 placement; do not weaken source/placement. Retain pinned source/build/test/EXE and
 GDB receipts until source landing. Current frontier and WIP remain below.
 
-V823–824 original parent and sibling input/Home connection, source contracts and
-complete GDB/focused evidence: **e760a8e600**, **910d948173**. Same Field loan/
-destination, whole incoming census/current roots/writers, QualifiedObject priority;
-each sibling owns its initializer. Array-only exemption remains exact.
-
-V824/825 contracts and exact root/CLI/app evidence: **e760a8e600** (source WIP).
-Sibling LOCAL input→Home→packet connected; physical dispatch uses samepacket
-predicate at port and writer. Root82470.217314s/48+7 PASS; root82553.456867s/27
-PASS. CLI170144.718183s and unchanged M190 app171 RED12.845835s/no artifact.
-Native pinnedCLI4817c8fe confirms allocateResult Body1 physical writer passes;
-Main43 Body2 Init0 HakoAllocHeap.reallocResult38 lacks anchored field End.
-No-op V825a is not change evidence. Source remains unlanded, full goal open.
-
-Worker exact teardown cause: reallocResult returned wrapper child relations include
-ForwardFormal0 plus Fresh/Null. reduce marks unsupported via
-requires_anchored_field_end_v1; OwnedCall propagates it. Do not delete this guard.
-At CLI170, ObjectReturnHandoff retained original supports but ObjectPacket stored
-only classwide teardown, CallReceived only release/end_children. V826 retains
-source requirements in the packet; physical anchor + conditional End remain open.
-
-V826 source retention/actual join Decision: **fe1b212687**. Whole original roots,
-relations/writers, ordered exit census and exact actual/formal join stay mandatory;
-passive source support alone grants no End. Same series owes physical/final/C.
-
-V826 source retention/actual join and complete evidence: **fe1b212687**
-(docs checkpoint; source WIP). g root65.596144s/focused41 unique+5 old guard
-PASS. Source-only pending actuals grant no End/Ready; latest measured app171.
-
-V827 anchored Field source→physical/final Decision and complete evidence:
-**af4e4649e1**. Passive AnchoredFields, same packet/actual/parent proof, extended
-Field interval and all-exit ordered cleanup; descriptor() stays closed. Current
-C closure is not accepted merely because Rust reached its consumer.
-
-V827b root/CLI/focused53 and unchanged M190 evidence: **af4e4649e1**.
-CLI1714631eb0d / app172 RED13.565551s, print-expression/source-unavailable;
-source WIP remains unlanded. Root/CLI source identical except later owner README.
-Exact native worker confirms Main43 Body0–8 prefix covered, Body9 literal print
-passes, Body10 alloc=... first unavailable. No final/C or EXE acceptance.
+V823–827 original parent/sibling input, packet support and anchored Field cleanup
+contracts/evidence: **e760a8e600**, **910d948173**, **fe1b212687**, **af4e4649e1**.
+These are docs checkpoints; source remains WIP. Same original roots/current writers,
+QualifiedObject priority and exact actual/formal joins remain mandatory. Passive
+AnchoredFields grants no End; descriptor() remains closed. CLI171/app172 reached
+Main43 Body10 Print source-unavailable, before final/C publication. Full goal open.
 
 V828 Decision (same Forward series, source→print consumer; read-only mapped):
 field_read_receiver omits original ReceivedHandle. Normalize Nullable acquisition
@@ -965,32 +933,64 @@ LOCAL input (Handle/Nullable exact kind+class+root Rc), before incoming/Observe.
 No Mixed/BorrowedNullable/ForwardFormal roots; Object roots are nonempty all Fresh.
 Current-target lender follows affine SourcePending/Ready/Taken with explicit
 Lowering/Finalized context; the graph callback borrows that current owner.
-V828a root79.763846s/focused35 PASS + new directHandle Print RED placement; c
-root69.226413s confirms same missing original actual and nested source target gap.
-b compile RED26.708712s test Rc mutation fixed; d RED87.770451s import fixed.
-e root115.848868s PASS; direct Handle Print now crosses placement. Aggregate
-Print test still RED at old 3-hop New cleanup, independently identical on pinned
-V827b19029460 / baseline0.371511s. e nested3/input1/packet12/returned1/observer1
-PASS. f retires late received-input classifier after canonical owning-input cutover;
-aggregate test now keeps all independent cases running before reporting baseline.
-CLI172173.296537s/app173 TERMINAL RED1325.728371s, unchanged M190, exit1/no EXE:
-published-lifecycle-v4/unsupported-cohort. Rust Print/Main/finishing crossed.
-CLI b081ea64/C816483c6e84/runtime808b2b6083aa; v2_ns873403206587,
-v4_ns256462607, functions29/blocks6554/rows7315, flow_blocks0. C closure owed.
-Separate30s probe shows earlier Rust interval hot owner; no C at that sample.
-Per-End origins/dominators/backward fixed-point repeats need transient owner reuse.
-C v2 time and exact initial admission refusal now worker-mapped before next patch.
+V828a–f root/CLI/native mapping and complete receipts: **6db78387d5**.
+CLI172/app173 unchanged M190 crossed Rust Print/Main/finishing, then refused C
+V4 unsupported-cohort: RED1325.728371s/no EXE; V2=873.403207s, V4=0.256463s.
+Source WIP remains unlanded. Root g below supersedes earlier focused results.
 
-V828g root56.546037s PASS, focused66 executions PASS plus aggregate Print RED
-only at exact pinned V827b baseline (three-hop New prior-home cleanup). Aggregate
-continues through all other independent cases before reporting this same error.
-New Handle→Print and Provided nullable-child→checked-scalar publication succeed;
-base/Normal/Fault substitution and checked→raw mutations refuse in final consumer.
-Late received-input classifier physically removed/caller-zero; canonical owning
-LOCAL input issuer replaces Nullable-only file/type/getters, preserving exact kind
-and original roots. Existing current field/packet/graph verification retained.
-Latest measured CLI172 precedes d–g input/context fixes; no g EXE claim. All Rust
-source WIP uncommitted. C first refusal is initial V4 kind seed (8 resolves, flow0),
-not yet exact operand; original invocation wire was ephemeral/deleted. Next capture
-same canonical wire for diagnosis and normalize transient Rust interval/V2 geometry
-analysis separately as BoxShape; never skip verification or change semantics.
+V828g root56.546037s/focused66 executions PASS; contracts and full earlier evidence
+in **6db78387d5**. Aggregate Print RED only at pinned V827b three-hop New prior-home
+baseline, with independent cases continuing. Handle→Print and Provided nullable
+child→checked-scalar publication/mutations PASS. Late input classifier retired;
+canonical owning LOCAL issuer preserves exact kind/original roots/current graph.
+All Rust source remains unlanded. CLI172 predates d–g input/context fixes; its
+V4 kind-index refusal required original-wire capture, now obtained below.
+
+V829 Decision (BoxShape, read-only mapped): same borrowed MirFunction, original
+packet/Field actual and current context. Transient origins/dominators and
+terminator-derived reverse edges are shared; alias facts are per-read End batch.
+No persistent cache, Home/source issuance or new authority. Reverse edges must
+not use metadata successors. Exact producer/order, unknown origins, same-slot
+reads, mutation/transfer/destruction and rejoining Fault still refuse; destructive
+unknown origins are checked only within visited intervals. Terminating Fault stays
+separate. Existing read/support validators own execution; no C/EXE completion claim.
+
+V829a root70.018128s PASS; focused67 executions PASS (overlapping filters),
+aggregate Print RED only at the same pinned V827b three-hop New baseline. Existing
+interval destruction/mutation/transfer/Copy/Phi and terminating/rejoining Fault
+checks PASS. Read-only worker reviewed implementation: no acceptance broadening;
+terminator reverse edges, finish exclusion and original actual census preserved.
+Per-function lazy analysis and per-actual End batch replace repeated construction;
+source unlanded; CLI173/application evidence follows below.
+
+V830 Decision (separate BoxShape, read-only mapped C V2 physical traversal):
+Source authority + canonical issuer: original function JSON edges and existing
+V2 terminal/edge corroboration; per-query sorted block index and ordinal seen/queue
+replace repeated block lookup and queue membership scans.
+Non-authority: no new defs, opcode/schema, class or ownership admission; no cache.
+Fail-fast boundary: duplicate/missing defs, same-block order and Phi predecessor
+edge count stay with existing owners. Preserve def==use and unreachable-use
+behavior of the existing entry-to-use search avoiding def. Invalid edges refuse.
+Scope: dominance query plus block/definition census traversal. Native bounded
+probe confirms unique_block_ids hot; iterator pairs retain its exact comparison
+order. Definition count still includes terminal dst; availability still excludes
+it. Existing parser and differential graph/definition checks cover this shape.
+Non-claims: V4 refusal/EXE remains open; no performance claim before measurement.
+
+V829 CLI173 build194.762510s PASS, same Rust manifest as root829a. Canonical
+unchanged M190 app174 remains live on C816 (session48288/pid651409); no EXE claim.
+Original wire captured228.411597s/1346391bytes, SHA707a1b47f6e66f899271f0779961fffed72ce53120be472d5449d76341ef5332.
+V4-only diagnostic0.302395s confirms seed8 main/value56 reads object1.field2 from
+value53, original allocateResult target12 Invoke697→Normal698. Parent Call identity
+is unavailable before later callee kind/owned-result indexing; not an End stop.
+V830c C shape lands separately; Rust/other C WIP stays unaccepted. FFI build7.800270s;
+current and isolated HEAD+only geometry patch parser PASS; worker review clear.
+Differential2570graphs (all ≤3-node graphs/entries +1000 seed830 sparse cyclic cases),
+112486 dominance and30840 definition queries incl terminal dst match original.
+Same original wire V2-only PASS10.729920s, FFI2eae7de6; canonical old run still live.
+a/b diagnostic probes explicitly superseded/terminated143 after native mapping;
+not timeout failure or acceptance. Keep original wire, pins, scripts/logs until
+Rust source landing/C closure; C shape changes alone grant no new accepted cohort.
+Next functional unit: all-function independent seeds→original owned-result class
+correspondence→dependent Field provenance→full kind/Return/support/flow checks.
+Provided fields must borrow original callee construction/actual anchor, not layout.
