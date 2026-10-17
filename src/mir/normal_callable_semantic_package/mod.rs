@@ -34,7 +34,7 @@ mod instance_constructor_semantic;
 pub(crate) use instance_constructor_semantic::provider_source::{ProviderStaticArgumentSourceV1, PreparedProviderStaticArgumentV1};
 mod instance_entry_home;
 pub(crate) use instance_construction::{
-    ConstructionEligibilityV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
+    ConstructionEligibilityV1, ConstructionSourceStructureV1, ConstructionSourceStepV1, ConstructionStoreRhsV1, ConstructionUnavailableV1,
     ProviderConstructionChildV1,
 };
 pub(crate) use instance_constructor_semantic::{

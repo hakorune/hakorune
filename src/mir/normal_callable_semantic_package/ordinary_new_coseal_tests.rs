@@ -46,6 +46,8 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
     let argument_rows = Err(SelectedNewArgumentUnavailableV1::SourceMismatch {
         new_site: site.clone(),
     });
+    let construction_source = package.instance_constructors
+        .construction_source_for(&box_source, 0).unwrap().clone();
     OrdinaryNewAdmissionClaimV1 {
         core: OrdinaryNewClaimCoreV1 {
             site,
@@ -54,6 +56,7 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
             arity,
             constructor: OrdinaryNewConstructorDispositionV1::NoBirthZero,
             construction,
+            construction_source,
             object,
             destruction,
             argument_rows,

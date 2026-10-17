@@ -22,22 +22,33 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn req
 /// This consult lends syntax; Home qualification still proves each use.
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) struct ScalarFieldsWithOriginalWritesV1<'a, F> {
     reads: F,
+    candidates: &'a [OrdinaryNewCandidate],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
 }
 
 pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) fn scalar_fields_with_original_writes<'a, F>(
+    candidates: &'a [OrdinaryNewCandidate],
     writes: &'a super::super::super::field_write_claim::OrdinaryNewFieldWriteClaimsV1,
     reads: F,
 ) -> ScalarFieldsWithOriginalWritesV1<'a, F>
 where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str)
     -> Result<bool, OrdinaryNewCoSealIssueV1> {
-    ScalarFieldsWithOriginalWritesV1 { reads, writes }
+    ScalarFieldsWithOriginalWritesV1 { reads, candidates, writes }
 }
 
 impl<F> crate::mir::resolved_semantics::home_new_prefix::HomeFieldSourceConsultV1<OrdinaryNewCoSealIssueV1>
     for ScalarFieldsWithOriginalWritesV1<'_, F>
 where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str)
     -> Result<bool, OrdinaryNewCoSealIssueV1> {
+    fn construction_source(&mut self, site: &OwnedExprSiteV1, destination: BindingRefV1)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>, OrdinaryNewCoSealIssueV1> {
+        let mut rows = self.candidates.iter().filter(|row| &row.site == site && row.destination == destination);
+        let Some(row) = rows.next() else { return Ok(None) };
+        if rows.next().is_some() {
+            return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() });
+        }
+        Ok(row.construction_source.as_ref().ok().map(Rc::clone))
+    }
     fn scalar_field(&mut self, site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1,
         receiver: BindingRefV1, home: BindingRefV1, field: &str) -> Result<bool, OrdinaryNewCoSealIssueV1> {
         (self.reads)(site, receiver_site, receiver, home, field)

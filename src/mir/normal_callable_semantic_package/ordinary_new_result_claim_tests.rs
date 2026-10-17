@@ -57,6 +57,9 @@ fn return_position_new_mints_result_claim_and_construction_relation() {
         .expect("return-position `new` mints a result claim at the exact site");
     assert_eq!(claim.class(), "Point");
     assert_eq!(claim.arity(), 2);
+    let original = package.instance_constructors
+        .construction_source_for(claim.box_source(), 2).unwrap().as_ref().unwrap();
+    assert!(std::rc::Rc::ptr_eq(original, claim.construction_source().as_ref().unwrap()));
     assert!(
         claim.home_prefix().is_ok(),
         "trivial integer arguments issue a covered result prefix, got {:?}",

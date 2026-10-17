@@ -16,6 +16,7 @@ pub(super) struct OrdinaryNewSiteResolutionV1 {
     pub(super) class: Box<str>,
     pub(super) arity: usize,
     pub(super) construction: ConstructionEligibilityV1,
+    pub(super) construction_source: ConstructionSourceEligibilityV1,
     pub(super) object: CanonicalObjectIdV1,
     pub(super) destruction: ObjectDestructionDispositionV1,
     pub(super) constructor: OrdinaryNewConstructorDispositionV1,
@@ -30,6 +31,7 @@ pub(super) struct OrdinaryNewCandidate {
     pub(super) destination: BindingRefV1,
     pub(super) declaration: SourceBindingSiteV1,
     pub(super) construction: ConstructionEligibilityV1,
+    pub(super) construction_source: ConstructionSourceEligibilityV1,
     pub(super) object: CanonicalObjectIdV1,
     pub(super) destruction: ObjectDestructionDispositionV1,
     pub(super) constructor: OrdinaryNewConstructorDispositionV1,
@@ -110,12 +112,26 @@ impl OrdinaryNewCandidate {
                 }
                 None => no_birth_constructor_disposition(&site, &class, arity)?,
             };
+        // Preserve missing-Birth diagnostic ownership above before borrowing
+        // source. Retention grants neither execution nor return/escape permission.
+        let construction_source = if has_overrides {
+            Err(ConstructionUnavailableV1::OverrideUnsupported)
+        } else {
+            instance_constructors.construction_source_for(box_source, arity)
+                .map_err(|error| OrdinaryNewCoSealIssueV1::ConstructorLookup {
+                    site: site.clone(), class: class.clone(), error,
+                })?.clone()
+        };
+        if matches!(&construction_source, Ok(source) if source.object() != object) {
+            return Err(OrdinaryNewCoSealIssueV1::ConstructorRelationMismatch { site, class, arity });
+        }
         Ok(Some(OrdinaryNewSiteResolutionV1 {
             site,
             box_source: box_source.clone(),
             class,
             arity,
             construction,
+            construction_source,
             object,
             destruction,
             constructor,
@@ -152,6 +168,7 @@ impl OrdinaryNewCandidate {
             destination,
             declaration,
             construction: resolution.construction,
+            construction_source: resolution.construction_source,
             object: resolution.object,
             destruction: resolution.destruction,
             constructor: resolution.constructor,

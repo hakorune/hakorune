@@ -63,6 +63,8 @@ enum StoredLocal {
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
+        /// Immutable declaration source; branch-local readiness is not shared here.
+        construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
     },
     /// A call-result handle the caller received as an owned Home. It owes
     /// the caller's exit exactly one release like a `Home`, but its
@@ -172,7 +174,12 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
-        (StoredLocal::Home { acquisition: a }, StoredLocal::Home { acquisition: b }) => a == b,
+        (StoredLocal::Home { acquisition: a, construction_source: ac },
+            StoredLocal::Home { acquisition: b, construction_source: bc }) => a == b && match (ac, bc) {
+                (None, None) => true,
+                (Some(a), Some(b)) => std::rc::Rc::ptr_eq(a, b),
+                _ => false,
+            },
         (
             StoredLocal::ReceivedHandle { acquisition: a },
             StoredLocal::ReceivedHandle { acquisition: b },
@@ -592,7 +599,7 @@ impl<'source> PrefixLocalFlow<'source> {
     /// The sealed `new` acquisition site of a live Home local root.
     pub(super) fn home_acquisition(&self, root: BindingRefV1) -> Option<&super::OwnedExprSiteV1> {
         match self.locals.get(&root)? {
-            StoredLocal::Home { acquisition } => Some(acquisition),
+            StoredLocal::Home { acquisition, .. } => Some(acquisition),
             _ => None,
         }
     }
@@ -605,7 +612,7 @@ impl<'source> PrefixLocalFlow<'source> {
             return None;
         };
         match self.locals.get(&binding)? {
-            StoredLocal::Home { acquisition } => Some((binding, acquisition)),
+            StoredLocal::Home { acquisition, .. } => Some((binding, acquisition)),
             _ => None,
         }
     }
@@ -703,8 +710,9 @@ impl<'source> PrefixLocalFlow<'source> {
         &mut self,
         binding: BindingRefV1,
         acquisition: super::OwnedExprSiteV1,
+        construction_source: Option<std::rc::Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>,
     ) {
-        self.store(binding, StoredLocal::Home { acquisition });
+        self.store(binding, StoredLocal::Home { acquisition, construction_source });
     }
 
     pub(super) fn install_observed(&mut self, binding: BindingRefV1, value: OrdinaryObservation) {

@@ -58,7 +58,7 @@ impl PrefixLocalFlow<'_> {
     ) {
         let root = request.home;
         let mut borrow = match self.locals.get(&request.receiver) {
-            Some(StoredLocal::Home { acquisition }) if request.receiver == root =>
+            Some(StoredLocal::Home { acquisition, .. }) if request.receiver == root =>
                 Some(FieldAliasPathV1 { root, acquisition: acquisition.clone(), edges: Vec::new() }),
             Some(StoredLocal::FieldAlias { borrow, .. }) => borrow.clone(),
             _ => None,

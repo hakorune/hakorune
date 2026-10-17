@@ -16,6 +16,7 @@ pub(super) fn observe_selected_new_local<E>(
     covered_statements: &[SourceStmtSiteV1],
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
+    scalar_field: &mut impl HomeFieldSourceConsultV1<E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,
@@ -170,6 +171,7 @@ pub(super) fn observe_selected_new_local<E>(
     }
     // This is the Normal successor only, after exact local commit.
     homes.push(binding);
-    locals.install_selected_normal_home(binding, owned.clone());
+    let construction_source = scalar_field.construction_source(owned, binding)?;
+    locals.install_selected_normal_home(binding, owned.clone(), construction_source);
     Ok(())
 }

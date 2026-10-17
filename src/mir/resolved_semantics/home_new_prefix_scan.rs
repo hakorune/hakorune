@@ -640,6 +640,7 @@ pub(super) fn scan_statement_flow<'a, E>(
                     covered_statements,
                     selected_seen,
                     unavailable,
+                    scalar_field,
                     argument_i64_field,
                 )?;
             } else if let Some(keys) = map_literal_keys(input, site) {

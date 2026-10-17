@@ -14,6 +14,10 @@ impl OrdinaryNewClaimCoreV1 {
         &self.construction
     }
 
+    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
+        &self.construction_source
+    }
+
     pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
         &self.box_source
     }
@@ -63,6 +67,10 @@ impl OrdinaryNewAdmissionClaimV1 {
 
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         self.core.construction()
+    }
+
+    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
+        self.core.construction_source()
     }
 
     pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {
@@ -122,6 +130,10 @@ impl OrdinaryNewResultClaimV1 {
 
     pub(crate) fn construction(&self) -> &ConstructionEligibilityV1 {
         self.core.construction()
+    }
+
+    pub(crate) fn construction_source(&self) -> &ConstructionSourceEligibilityV1 {
+        self.core.construction_source()
     }
 
     pub(crate) fn box_source(&self) -> &crate::parser::ParserOrdinaryBoxSourceRowV1 {

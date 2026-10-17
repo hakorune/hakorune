@@ -5,6 +5,9 @@ use crate::mir::resolved_value_profile::expression_plan::ExpressionSourcePlanV1;
 use std::rc::Rc;
 
 pub(crate) trait HomeFieldSourceConsultV1<E> {
+    /// Exact selected New/destination source; retention grants no field value.
+    fn construction_source(&mut self, _site: &OwnedExprSiteV1, _destination: BindingRefV1)
+        -> Result<Option<Rc<crate::mir::normal_callable_semantic_package::ConstructionSourceStructureV1>>, E> { Ok(None) }
     fn scalar_field(&mut self, site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1,
         receiver: BindingRefV1, home: BindingRefV1, field: &str) -> Result<bool, E>;
     fn assignment_source(&mut self, _owner: FunctionOwnerIdV1, _target: &SourceExprSiteV1)

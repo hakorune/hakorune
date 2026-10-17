@@ -80,6 +80,7 @@ fn ordinary_new_retains_unavailable_descriptors_through_candidate_co_seal() {
     assert_eq!(rows.len(), 1);
     let claim = rows.values().next().unwrap();
     assert!(claim.construction().is_err());
+    assert!(claim.construction_source().is_err());
     assert_eq!(
         claim.destruction(),
         crate::mir::function::ObjectDestructionDispositionV1::Unavailable(
@@ -122,6 +123,23 @@ fn ordinary_new_descriptor_errors_follow_candidate_source_order() {
 #[test]
 fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     use super::instance_construction::ConstructionUnavailableV1;
+    for declaration in ["box Pair { left: i64 right: i64 }", "box Pair { east: i64 west: i64 }"] {
+        let source = format!("{declaration} static box Main {{ main() {{ local pair = new Pair() return 0 }} }}");
+        let package = issue_with_brand_catalog(&source).unwrap();
+        let rows = package.ordinary_new_claim_ledger.pending_claims_for_test();
+        let claim = rows.values().next().unwrap();
+        let retained = claim.construction_source().as_ref().unwrap();
+        let original = package.instance_constructors
+            .construction_source_for(claim.box_source(), 0).unwrap().as_ref().unwrap();
+        assert!(std::rc::Rc::ptr_eq(original, retained));
+        assert!(matches!(retained.completion(),
+            super::instance_construction::ConstructionCompletionV1::AllocationOnlyI64 { .. }));
+        assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
+        let foreign = issue_with_brand_catalog(&source).unwrap();
+        let foreign_rows = foreign.ordinary_new_claim_ledger.pending_claims_for_test();
+        assert!(!std::rc::Rc::ptr_eq(retained,
+            foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
+    }
     let source = "box Page { value: i64\nbirth(value) { me.value = value } }
         static box Main { main() { local page = new Page(7)\nreturn 0 } }";
     let package = issue_with_brand_catalog(source).unwrap();
@@ -131,6 +149,9 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         panic!("one exact New");
     };
     let plan = claim.construction().as_ref().unwrap();
+    let original_source = package.instance_constructors
+        .construction_source_for(claim.box_source(), claim.arity()).unwrap().as_ref().unwrap();
+    assert!(std::rc::Rc::ptr_eq(original_source, claim.construction_source().as_ref().unwrap()));
     assert_eq!(plan.stores().len(), 1);
     assert!(plan.reclaims_unpublished_outer_storage());
     let source_field = package.ordinary_new_claim_ledger.field_value_source("Page", "value")
@@ -162,6 +183,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         &Err(ConstructionUnavailableV1::OverrideUnsupported)
     );
     let claim = &claims[0];
+    assert_eq!(claim.construction_source(), &Err(ConstructionUnavailableV1::OverrideUnsupported));
     let batch = &package.instance_constructors;
     let projected = batch.destruction_for(claim.box_source()).unwrap();
     assert_eq!(projected, (claim.object(), claim.destruction()));

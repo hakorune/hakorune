@@ -704,6 +704,14 @@ Both complete-plan constructors refuse this disposition until the required LOCAL
 readiness and final-consumer connection exists; trivial Home demand grants no
 field value. Non-i64, owning, weak or hook-bearing declarations do not qualify.
 
+Site resolution, local/result claim cores and the Normal local Home retain that
+same construction source Rc. Overrides retain unavailable source. The existing
+Home field consult lends it only for the exact selected New and destination;
+branch joins compare original acquisition and source identity, while consume or
+rebind discards it with the Home state. This metadata supplies no field readiness,
+return escape, execution or publication permission. Missing-Birth diagnostics
+retain their existing owner and source order before source lookup.
+
 [Constructor issuance](instance_constructor_semantic.rs) retains a non-Clone
 parser-transaction catalog with opaque `ConstructorSourceIdV1`. Final Box ordinals
 and normalized keys validate placement; work order or `(box name, key)` cannot

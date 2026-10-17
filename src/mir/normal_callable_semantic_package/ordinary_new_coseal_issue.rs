@@ -557,7 +557,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                                     .map(|row| row.class()),
                                 Some(result_class_claim::OrdinaryNewResultClassV1::NullableObject(_))
                             ))
-                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(&field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
+                        }, &mut local_static_call, &result_sites, &mut argument_field_is_integer, &mut source_claims::scalar_fields_with_original_writes(&candidates, &field_write_claims, |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
                             // RHS `me.<field>` reads inside a field write
                             // share the entry-receiver proof; the contract
                             // is the numeric integer-scalar set, not `i64`.

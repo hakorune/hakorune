@@ -262,8 +262,8 @@ readiness and complete occurrence coverage remain mandatory before activation.
 Unchanged no-Birth Pair EXE/OBJ30 is required; Birth-Pair does not substitute.
 CLI176 app181 remains exit1/noEXE .021610s PrefixNotCovered Body1 until repaired.
 
-Required BoxShape is complete: test-owner split `da029c5c36` and this
-existing-definition-owner move; V839 evidence below. No semantic admission changed.
+Required BoxShape is complete: test-owner split `da029c5c36` and
+existing-definition-owner move `ea70a42bd2`; V839 evidence below. No semantic admission changed.
 Smallest next slice: retain allocation-only completion/readiness in the SAME source row, keeping
 complete execution unavailable until the owned-LOCAL store/read and finishing/C
 consumers connect in this series. No isolated preparation green closes S0.
@@ -327,6 +327,48 @@ and original-writer inventory, separate owned LOCAL from formal write permission
 branch-local readiness must not use shared mutable state. Preserve original
 Normal New/Home installation, RHS-before-write and post-commit published cleanup.
 No new row or language decision. CLI176 frontier remains unaccepted.
+
+## New-to-Home original construction source connection — V841 preparation
+
+Previous turn PROGRESS: `1a29de4ce4` retained original allocation-only declaration
+source and deleted its discarding wrapper; it did not activate execution.
+Worker mapping reuses New resolution/candidate -> common claim core (both local
+and result) -> existing HomeFieldSourceConsult -> selected Normal local Home.
+Source is immutable original Rc; overrides unavailable, exact New/destination
+consult, join compares acquisition and original Rc, consume/rebind invalidates
+with the existing Home state. No readiness is invented from source retention.
+Constructor disposition resolves before new source lookup to preserve existing
+BirthConstructorMissing diagnostics for invalid nonzero-arity no-Birth input.
+Existing candidate-compatible and emission construction.is_ok gates remain closed.
+
+Scope: candidate/core/access and source claim issuance; original field consultant
+and its existing call site; Home source trait, New-local/scan, StoredLocal and its
+field-alias pattern; existing brand/result/ledger tests, owner README and this
+card. Alias-pattern change only accommodates the retained Home field. No separate
+classifier/observer/callback family, authority migration or new lane. Root build PASS78.750103s, same fast-test command/jobs4/16MiB stack as V840.
+Focused constructor25, brand ordinary-New23, claim ledger14, return-New2 and
+received-call identity/join5: **69PASS/0FAIL**, root total9213 unchanged. Existing
+local allocation-only/foreign source/override and Birth result Rc cases verify
+retention; result allocation-only/override and runtime readiness are not claimed.
+Worker source/permission/join review PASS. Root-route/layer/thin-shim/diff PASS.
+V841a E0433 was this change's wrong module path, corrected before V841b PASS;
+not baseline or a waived red. Source drift zero at verification.
+Root SHA5b463236a67703580dd1e7bcec8e4d813d8ebb795c3e6558fc6cde43e841af25;
+v841b-root source/build/focused receipts and pin retained for next comparison.
+No new test, temporary adapter, displaced physical writer or fabricated deletion.
+ LOCAL original-writer/RHS/Normal readiness, both final scans,
+C and unchanged Pair EXE/OBJ30 remain required; no current frontier success claim.
+
+Next actual LOCAL store connection: retain declaration names with exact fieldrefs
+in the same allocation-only completion product, lend original writer inventory
+loan through existing consult, and carry acquisition/root/source/writer together.
+RHS must project ALL nodes to I64 even for plain/Add expressions: existing scalar
+qualifier checks whole classes only when Sub/Div is present, so it alone is not
+a LOCAL i64 proof. Read requests use prior branch-local readiness; only Normal
+successful write refines field to the latest original writer, preserving all
+store occurrences. Reuse existing expression/FieldSet/Fault owners; do not route
+LOCAL through borrowed_field_write or FormalFieldWriteReceiver/Value. Native
+and final-consumer activation stays pending this complete same-series connection.
 
 ## Temporary artifact disposition
 
