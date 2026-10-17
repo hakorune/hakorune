@@ -32,7 +32,7 @@ pub(super) fn emit(
     frame: &CheckedExpressionEvaluationV1,
     emit_call: &mut impl FnMut(
         &mut MirBuilder, &mut CallableSemanticLoweringState,
-        &LocalCallObservationV1, &[(usize, ValueId)], &mut Vec<Binding>,
+        &LocalCallObservationV1, &[(usize, ValueId)], &[Option<Operand>], &mut Vec<Binding>,
     ) -> Result<EmittedLexicalCallProjectionV1, String>,
 ) -> Result<EmittedExpressionValueV1, String> {
     let owner = frame.source().owner();
@@ -225,7 +225,7 @@ pub(super) fn emit(
             Node::MethodCall => {
                 let call = frame.calls().iter().find(|call| call.site().site() == node.site())
                     .ok_or_else(|| freeze("print-expression/call-source-missing"))?;
-                let packet = Rc::new(emit_call(builder, state, call, &acquired, &mut bindings)?);
+                let packet = Rc::new(emit_call(builder, state, call, &acquired, &values, &mut bindings)?);
                 let value = packet.value_with_ledger(owner, call.arguments(), ledger)?;
                 calls.push(packet);
                 Operand::NormalInteger(value)
@@ -261,6 +261,8 @@ pub(super) fn emit(
         values[index] = Some(value);
     }
     let value = values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
+    super::expression_acquisition_prefix::validate(frame, None, &acquired, &values,
+        builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?)?;
     Ok(EmittedExpressionValueV1 {
         value, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,
     })

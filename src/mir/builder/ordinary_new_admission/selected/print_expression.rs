@@ -22,8 +22,8 @@ pub(in crate::mir::builder) fn emit(
     let expression_value::EmittedExpressionValueV1 {
         value, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, mut bindings,
     } = expression_value::emit(builder, state, ledger, frame.evaluation(),
-        &mut |builder, state, call, acquired, bindings| terminal_call::emit_expression_call(
-            builder, state, ledger, &frame, call, acquired, bindings, consume_receiver,
+        &mut |builder, state, call, acquired, values, bindings| terminal_call::emit_expression_call(
+            builder, state, ledger, frame.evaluation(), call, acquired, values, bindings, consume_receiver,
         ),
     )?;
     let mut writer = RawRootGraphWriterV1;

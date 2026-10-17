@@ -295,7 +295,7 @@ mod tests {
                             }
                             let expected = physical_rows(builder.function_state.current_function.as_ref().unwrap());
                             let rejected = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
-                                &mut |_, _, _, _, _| Err("unexpected ordinary Call".to_owned())).err().unwrap();
+                                &mut |_, _, _, _, _, _| Err("unexpected ordinary Call".to_owned())).err().unwrap();
                             assert!(rejected.contains("static-"), "{rejected}");
                             assert_eq!(physical_rows(builder.function_state.current_function.as_ref().unwrap()), expected);
                             for original in frame.static_reads() {
@@ -338,7 +338,7 @@ mod tests {
                     let before = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
                         .flat_map(|(id, block)| block.all_instructions().map(move |row| (*id, row.clone()))).collect::<Vec<_>>();
                     let result = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
-                        &mut |_, _, _, _, _| Err("unexpected ordinary Call".to_owned()));
+                        &mut |_, _, _, _, _, _| Err("unexpected ordinary Call".to_owned()));
                     if !frame.residence_reads().is_empty() || !frame.text_reads().is_empty() {
                         let error = result.err().unwrap();
                         assert!(error.contains("reference-execution-pending") || error.contains("domain-not-text-only"), "{error}");
@@ -353,6 +353,27 @@ mod tests {
                     let emitted = result.unwrap();
                     assert!(matches!(emitted.value, Operand::OwnedString(_)));
                     assert_eq!(emitted.acquired.len(), 1, "only substring acquires, scalar Core readers do not");
+                    let function = builder.function_state.current_function.as_ref().unwrap();
+                    for mutation in 0..5 {
+                        let mut acquired = emitted.acquired.clone();
+                        let mut values = emitted.values.clone();
+                        let mut changed = function.clone();
+                        match mutation {
+                            0 => acquired[0].0 = usize::MAX,
+                            1 => acquired[0].1 = ValueId(999_997),
+                            2 => changed.params.push(acquired[0].1),
+                            3 => {
+                                let invoke = changed.blocks.values().flat_map(|body| body.all_instructions()).find_map(|row|
+                                    match row { MirInstruction::InvokeNormalResult { invoke_block, dst } if *dst == acquired[0].1 => Some(*invoke_block), _ => None }).unwrap();
+                                let Some(MirInstruction::Invoke { operation, .. }) = &mut changed.blocks.get_mut(&invoke).unwrap().terminator else { unreachable!() };
+                                *operation = InvokeOperation::String(Operation::Length { value: Operand::StaticText { utf8: "wrong-kind".into() } });
+                            }
+                            4 => values[acquired[0].0] = Some(Operand::NormalInteger(acquired[0].1)),
+                            _ => unreachable!(),
+                        }
+                        assert!(super::super::expression_acquisition_prefix::validate(frame.evaluation(), None, &acquired, &values, &changed).is_err(),
+                            "source acquisition/physical producer mutation {mutation}");
+                    }
                     let reads: Vec<_> = emitted.path_reads.into_values().collect();
                     let view = ExpressionPhysicalProjectionRefV1::new(frame.evaluation(), &emitted.values, &emitted.calls, &reads, &emitted.reference_reads, &emitted.bindings);
                     let context = CallValidationContextV1::Lowering(&ledger);

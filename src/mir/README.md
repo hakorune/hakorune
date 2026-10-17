@@ -474,3 +474,11 @@ previous current-Home qualification, so a fresh walk must prove its own residenc
 acquisitions. Repeated completion within that observation reuses the current
 frame; generic staging cannot reset or replace it. These source products do not
 activate String argument execution or bypass final incoming/use/cleanup closure.
+
+Physical acquisition-prefix correspondence belongs to the common checked
+expression body. A source Call boundary selects its exact original postorder
+prefix; a completed evaluation checks the full sequence. Both require unique
+actual Normal projections from String operations that own their result, using
+the instruction owner's classification for Add and Substring. Print retains its
+own source/terminal permission; the shared prefix does not grant argument, entry,
+cleanup or publication rights.
