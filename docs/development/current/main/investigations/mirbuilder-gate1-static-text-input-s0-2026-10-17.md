@@ -872,22 +872,13 @@ argument/entry/current/writer/final proof connection stays in this same open ser
 backend or runtime capability tests do not close its production acceptance.
 
 
-V876 landed at1ca5340111: checked CP Length/Substring/IndexOf now share the
-existing instruction/verifier/JSON/C/runtime owner. Add/Substring share fresh-pair
-publication, both C consumers share kind/result/operand classification; only
-substring acquires. Existing tests cover CP clamping/search, malformed operands,
-Normal/Fault and borrowed pointer forwarding, without a new test/guard/profile.
-Root876A PASS86.966630s, focused distinct283/pass270/baseline13 unchanged875D;
-Kernel876A linked ABI PASS1, native/indexed String matrix PASS; borrowed fixture
-literal/owned Normal/Fault all4 PASS. CLI213/app249 JSON SAME Core execution
-fence; app250 unchanged mimalloc EXE135.174449s/native0.001641s original7/exit0
-PASS. Exact build commands, manifests/hashes, source/backend alignment, all
-negative boundaries and retirement conditions are retained in that commit.
-Root/pointer/layer/thin/diff guards PASS. Latest CI remains historical failure
-35681768498/d4168473d5, no current CI/full-suite green. Keep matched pins/receipts
-until full Text series acceptance, then retire scratch including obsolete FFI876A.
-Source argument/entry/Core execution, initializer handoff, cleanup and both final
-source scans remain open; no production Text cutover/legacy retirement claimed.
+V876 1ca5340111 retains checked CP Length/Substring/IndexOf physical/runtime
+integration, shared Add/Substring fresh-pair publication and both C consumers.
+Root270PASS/13same, linked ABI1/native+indexed matrices/borrowed4 PASS; app249
+JSON SAME/app250 mimalloc exact7/exit0. Commands, provenance, negative boundaries
+and retirement conditions live in that commit. FFI876B and matching runtime pins
+stay until Text series acceptance; obsolete FFI876A is then disposable. Source
+entry/argument/initializer/cleanup and both final source scans remain open.
 
 
 Next source connection Decision (read-only workers, after V876 1ca5340111):
@@ -911,16 +902,10 @@ source Core product can enter shared evaluation/projection; borrowed entry/read,
 finite envelopes, initializer and final closure obligations remain above.
 
 
-V877 landed atbfc2a57a0f: canonical IndexOf/1 CodePointSearchFromZero now
-projects from CoreMethodContractBox to the same JSON/Rust row; /2 stays
-Unprojected. Ordinary Core issuance consumes exact op/arity/law/parameters/result/
-receiver/schema/ABI/execution correspondence. Root877A focused297/pass284/
-baseline13 unchanged; CLI214 and runtime877A build PASS. App251 JSON SAME Core
-execution fence, app252 unchanged mimalloc canonical EXE/native original7/exit0
-PASS132.466040s+0.001554s. Full commands/hashes and baseline classification are
-in that commit. Existing generator14/check PASS; outer manifest guard's same
-unlisted ordinary source consumer is pre-existing, not green. Required guards
-PASS. Keep matched pins until series acceptance. No production Text cutover.
+V877 bfc2a57a0f retains canonical IndexOf/1 CP law, unchanged baseline13,
+CLI214/runtime877A builds and app251 SAME/app252 mimalloc exact7/exit0 evidence.
+Generator14/check PASS; outer manifest guard's unlisted ordinary source consumer
+is pre-existing, not green. Matched pins retained; no production Text cutover.
 
 
 Finite execution normalization checked by packet_origin_review: preserve BOTH
@@ -941,56 +926,74 @@ ExactText or a new semantic profile. It joins the already-recorded entry/read,
 common expression and both-final-scan connection; no new task/card is selected.
 
 
-V878 construction: connect SAME original per-node ordinary Core source loans
-into common leaves/evaluation, sole expression writer and the shared physical
-projection used by both scans. One call-source callback returns Ordinary or Core;
-Core children remain in original postorder. Argument Core operand sites (including
-nested needle.length() bounds) join current static/residence/entry/signed reads;
-remove root-only seeded Core class/acquisition classification. Reuse exact checked
-String operations and existing values/original bindings, not a new packet pool.
-Paths: existing Core source/argument loan+port, common Home leaves/body/purposes/
-Prefix connectors, expression writer/projection/cleanup, existing argument and
-physical projection test owners and owning READMEs/card. No all-Core source cache
-or standalone Print receipt invention. Missing source/current/physical operands
-refuse before effects; source actual/entry/initializer fences stay until complete.
+V878 214273ba0b retains SAME per-node Core/body/writer/both-scan integration,
+root-only seed/acquisition removal and source identity/Invoke/Normal negatives.
+Root878G284PASS/13same; CLI216/app253 JSON SAME/app254 mimalloc exact7/exit0.
+Commit records all timings/provenance. Entry/reference/finite/initializer and
+full publication remain open; matched pins kept, superseded copies retired below.
 
-
-V878 source/writer evidence: existing argument-product fixtures now cover inline
-substring and nested indexOf/length, plus all current static/residence/entry reads.
-The same retained frame enters the sole writer and shared projection through a
-test-only helper in the existing selected arguments owner; no Print/EntryValues
-or executable input is manufactured. Reference-free Core emits actual Invoke+
-Normal bindings, only substring acquires; producer removal/op substitution/Normal
-retarget refuse. Reference frames refuse before any MIR effects. Test methods,
-fixture files and guards did not increase. Main still stops at the unfinished
-borrowed-actual input; unit evidence does not claim production activation. Print
-has no Text-reference classifier and initializer still uses nodes_outside_calls,
-so those references remain refused. Worker final review found no permission hole.
-Root878A-C test import/privacy errors and D/E setup failures were corrected;
-F's three overly broad visibility warnings were fixed, obsolete CLI215 stopped
-(exit -2,75.971651s) and Cargo/rustc exit confirmed before editing. Root878G
-cargo quick-test-fast --no-run --message-format=json PASS41.695177s, no new
-warnings.38 reused focused filters distinct297/pass284/baseline13 in9.554330s;
-failed identities/messages exactly match877A (thread IDs/plugin map order only).
-Root/pointer/layer/thin/diff guards PASS; historical CI35681768498/d4168473d5
-remains failed, not current green. Shared old manual root-Core seed/acquisition
-and duplicated Add-only writer logic replaced by common Core/body/projection;
-no production caller cutover or shared legacy retirement is claimed.
-Runtime exports/boxes/instructions/headers/C/build inputs are unchanged; reuse
-runtime877A/FFI876B with explicit compiler-only source delta (builder, resolved-
-semantics and semantic-package paths/README only), not identical source revision.
-CLI216 quick bin build PASS200.659431s, no new warnings. App253 unchanged JSON
-canonical --backend mir --emit-exe/--emit-exe-nyrt remains exit1/no artifact,
-0.130954s; stderr byte-identical251, slot20/Body7/Value Core execution fence.
-App254 unchanged mimalloc canonical EXE PASS133.418901s; native0.001621s,
-original7 lines exact/exit0. Same clean-env/plugin-disabled/pure-first/no-replay
-recipe as V877, CLI216 + runtime877A/FFI876B; per-app compiler-only delta checked.
-Current root878G/CLI216, matched runtime/FFI and baseline evidence stay pinned;
-intermediate attempt binaries/logs retained pending this Text series acceptance.
-No temporary production adapter introduced; source fences remain intentionally.
 Decision (packet_origin_review): reuse SAME source SUM and census corroboration
 for one closed entry domain; normalize compiled-entry map to one formal image.
 Structural entry requires complete incoming/refusal census but not actual-ready;
 Executable closure still requires actual products, forward containment and BOTH
 final scans. JSON markers read only the verified image domain. No extra carrier,
 registry, cycle solver or generic-tagged permission for finite Text domains.
+
+V879 construction scope: existing borrowed entry/owner view/values, source census
+and source SUM lender, source-scope/entry read consumers, existing entry tests and
+owner README. Extract declaration/incoming correspondence from executable actual
+closure into entry_contract child (parent was794 lines). Existing final source
+API still calls actual closure; no SelectedTagged substitution or readiness grant.
+Text source uses lacking a legacy draft require the SAME source-flow/use census,
+not an empty fabricated draft; worker checking exact mapping before activation.
+
+Worker Decision refinement: legacy borrowed-use drafts reject original Core
+receiver/Text Add uses, so they cannot be required to construct a source Text
+entry. Entry structure uses original declaration/parameter identity, full source
+census and SAME closed SUM instead. No fabricated empty draft or UnsupportedUse
+success. Original read/alias/Loop census must still join SAME current frames and
+all physical reads/Copies in both final scans before publication; structural
+mapping does not claim those uses closed. Existing completed source API refuses.
+V878 retirement: four superseded root878D/E/F/F.extra binary copies removed
+(1,064,776,896 bytes); latest root878G SHA verified against focused receipt and
+baseline13 equality before deletion. All logs/manifests/receipts, latest root/CLI,
+matched runtime/FFI and historical877 baseline retained until Text acceptance.
+
+Next execution mapping (same worker): retain original contract/formal/read/flow/
+alias and rebind/capture obligations in existing BorrowedFormalSourceProductV1
+before numeric draft failure. One canonical variable_refs list also feeds current
+classifier passes; do not rescan in prepare_original_formal_seeds or fabricate a
+successful draft. Preserve original source registration beyond legacy callers.
+Those obligations must match SAME frames and every physical read/Copy in BOTH
+final scans. Unknown/escape/uncovered use remains refusal. Unused ledger pre-entry
+facade becomes test-only; finalized source APIs remain live. No new runtime
+adapter, test method, fixture or guard.
+
+V879 verification in progress: root879A build PASS78.970386s, but first focused
+run omitted required16MiB stack and aborted; not a code failure/green. Correct
+stack rerun preserved common297/284/13; its new test attempted AllSource then an
+excluded ClosedApp key, both invalid for this still-unaccepted input. Replaced
+that setup with original contract-level structural tests (no executable fixture
+claim), preserving existing real entry/carrier/scope tests. B fixture-private
+import error corrected without broadening test-module visibility; C build
+PASS59.766054s, test-only facade and no unused import. Root879D build PASS62.827943s, no new warnings.
+
+Root879D:41 existing filters, distinct344/pass330/baseline14 in10.596814s. Old root878G pinned binary independently reran the
+newly selected entry/carrier/scope filters:20PASS/1baseline +24PASS +3PASS.
+All14 failure identities/diagnostics match that combined pre-change baseline;
+13 are prior common failures, one is guarded_receiver_packet_never_retries_old_
+protocol_after_guard_loss (not newly introduced). Structural Text/finite cases,
+empty/ordinal drift, removed/duplicate incoming and unfinished-use refusal PASS.
+Real existing entry/carrier/scope tests PASS; no executable Text claim. Worker
+final review found no permission hole. CLI217 cargo build --profile quick --bin hakorune --message-format=json PASS177.567022s,
+no new warnings; SHA1b070a30429f5174f14154a4993e550122f99791970db07aee99eecdcc47a64c.
+App255 original JSON SAME slot20/Body7 Value Core fence, exit1/no artifact,
+0.123975s, stderr byte-identical253. Canonical --backend mir --emit-exe plus
+--emit-exe-nyrt runtime877A, FFI876B, clean env/plugins-disabled/pure-first/
+no-replay/16MiB; all current source hashes and compiler-only runtime delta match.
+App256 unchanged mimalloc canonical EXE PASS132.109013s; native0.001557s,
+original7/exit0/stdout+stderr exact254. Root/pointer/layer/thin/diff guards PASS.
+CI still historical failed
+35681768498/d4168473d5, no current CI/full-suite green.
+V879 superseded A/A.extra/C copied binaries also retired (798,903,208 bytes)
+after latest D hash and unchanged baseline14 verified; all logs/receipts retained.

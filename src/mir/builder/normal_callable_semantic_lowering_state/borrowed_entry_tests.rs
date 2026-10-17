@@ -86,8 +86,7 @@ fn state_for_key(
         .unwrap()
         .with_selected_lowering_input(&key, |input| {
             let rows = ledger
-                .borrowed_ordinary_entry_source_v1(&input)
-                .map(|row| row.map(|row| row.formals().into()));
+                .stage_borrowed_ordinary_entry_structure_v1(&input);
             let mut state =
                 CallableSemanticLoweringState::from_exact_source(input.source()).unwrap();
             state.lend_ordinary_new_claim_ledger(Rc::clone(&ledger));

@@ -46,13 +46,7 @@ pub(super) fn with_selected_source_scope<'port, 'collector, R>(
         }
     };
     let borrowed_entry = ordinary_new_claim_ledger
-        .borrowed_ordinary_entry_source_v1(&input)
-        .and_then(|row| {
-            if let Some(entry) = &row {
-                ordinary_new_claim_ledger.stage_borrowed_entry_field_reads_v1(entry, &input)?;
-            }
-            Ok(row.map(|entry| entry.formals().into()))
-        });
+        .stage_borrowed_ordinary_entry_structure_v1(&input);
     let owner = input.source().owner();
     use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
     use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;

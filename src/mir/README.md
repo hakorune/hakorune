@@ -412,3 +412,14 @@ Length/IndexOf include Invoke and I64 Normal projection without acquisition,
 Substring acquires only on Normal and shares the existing LIFO/Fault End census.
 Unconnected reference/finite operands refuse before MIR effects; these internal
 connections do not activate a borrowed Text entry or bypass source argument fences.
+
+Borrowed entry construction separates original declaration/incoming structure
+(`ordinary_new_borrowed_formal_entry_contract`) from executable actual/use
+closure. Static Text-containing finite source SUMs may establish formal/value
+correspondence without a legacy numeric-use draft or completed caller actuals.
+The source SUM lender corroborates registered owners, all source rows and refusal
+snapshots; all incoming sites/targets/formals remain present. This structural
+projection grants no read, object view, Text marker or executable actual. The
+completed entry API still refuses until original use coverage, actual products
+and both final scans close. Entry staging never substitutes SelectedTagged for
+that unfinished responsibility; original read/alias/Loop obligations remain.

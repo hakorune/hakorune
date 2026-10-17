@@ -293,49 +293,12 @@ impl OrdinaryNewClaimLedgerV1 {
 
     /// Only the installed Ordinary source input can request this projection.
     /// Nonopaque and Dynamic callers do not demand unrelated pending errors.
+    #[cfg(test)]
     pub(crate) fn borrowed_ordinary_entry_source_v1(
-        &self,
-        input: &SelectedCallableLoweringInputRefV1<'_>,
+        &self, input: &SelectedCallableLoweringInputRefV1<'_>,
     ) -> Result<Option<BorrowedOrdinaryEntrySourceRefV1<'_>>, String> {
-        if !matches!(input.semantic(), SelectedCallableSemanticRefV1::Ordinary) {
-            return Ok(None);
-        }
-        let crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key) = input.selected_key()
-        else {
-            return Ok(None);
-        };
-        let receiver_required = match key.namespace() {
-            hakorune_mir_defs::SameModuleCallableNamespaceV1::InstanceBoxMethod => true,
-            hakorune_mir_defs::SameModuleCallableNamespaceV1::StaticBoxMethod => false,
-            _ => return Ok(None),
-        };
-        let has_receiver = input.source().function().declaration_sites().any(|site| {
-            matches!(
-                site,
-                crate::mir::resolved_semantics::SourceBindingSiteV1::Receiver
-            )
-        });
-        if has_receiver != receiver_required {
-            return Err(freeze("borrowed-entry/source-mode-shape"));
-        }
-        let parameters = input.parameter_contracts().collect::<Vec<_>>();
-        if !parameters
-            .iter()
-            .any(|(_, _, kind)| kind.is_ordinary_borrowed_handle())
-        {
-            return Ok(None);
-        }
-        if !self
-            .completion_index
-            .get(&input.source().owner())
-            .is_some_and(|row| {
-                row.as_ref()
-                    .is_ok_and(|completion| completion.owner() == input.source().owner())
-            })
-        {
-            return Err(freeze("borrowed-entry/foreign-source-loan"));
-        }
-        self.borrowed_entry_source_for_contract(input.source().owner(), &parameters)
+        self.borrowed_ordinary_entry_structure_v1(input)?
+            .map(|structure| self.finish_borrowed_entry_source_v1(structure)).transpose()
     }
 
     /// Original incoming namespace determines the entry's receiver law.
@@ -350,6 +313,9 @@ impl OrdinaryNewClaimLedgerV1 {
             .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
             .as_ref()
             .map_err(Clone::clone)?;
+        if self.finite_text_entry_for_owner_v1(owner)?.is_some() {
+            return Ok(false); // Canonical Static declaration; no receiver inference.
+        }
         let view = self
             .checked_entry_owner_view_v1(source, owner)?
             .ok_or_else(|| freeze("borrowed-entry/incoming-missing"))?;
@@ -560,72 +526,11 @@ impl OrdinaryNewClaimLedgerV1 {
     }
 
     fn borrowed_entry_source_for_contract(
-        &self,
-        owner: FunctionOwnerIdV1,
+        &self, owner: FunctionOwnerIdV1,
         parameters: &[(u32, BindingRefV1, CallableParameterContractKindV1)],
     ) -> Result<Option<BorrowedOrdinaryEntrySourceRefV1<'_>>, String> {
-        if !parameters
-            .iter()
-            .any(|(_, _, kind)| kind.is_ordinary_borrowed_handle())
-        {
-            return Ok(None);
-        }
-        let source = self
-            .borrowed_formal_source
-            .as_ref()
-            .ok_or_else(|| freeze("borrowed-entry/source-missing"))?
-            .as_ref()
-            .map_err(Clone::clone)?;
-        let Some(view) = self.checked_entry_owner_view_v1(source, owner)? else {
-            // A source use outside the closed transport profile was excluded
-            // before selection. This is not retry after a selected failure.
-            return Ok(None);
-        };
-        if view.mixed
-            || self.selected_instance_input_protocol_v1(source, owner)?.is_some()
-            || self
-                .checked_guarded_instance_definition_v1(source, owner)?
-                .is_some()
-        {
-            self.check_original_entry_parameters_v1(owner, parameters)?;
-        }
-        let definition = view.definition;
-        let mut formals = Vec::new();
-        for (index, (ordinal, binding, kind)) in parameters.iter().enumerate() {
-            if *ordinal as usize != index || binding.owner() != owner {
-                return Err(freeze("borrowed-entry/formal-identity"));
-            }
-            if kind.is_ordinary_borrowed_handle() {
-                if definition.origins.get(binding) != Some(binding) {
-                    return Err(freeze("borrowed-entry/formal-origin"));
-                }
-                formals.push((*ordinal, *binding));
-            }
-        }
-        let roots: BTreeSet<_> = definition.origins.values().copied().collect();
-        if roots != formals.iter().map(|(_, binding)| *binding).collect() {
-            return Err(freeze("borrowed-entry/formal-cardinality"));
-        }
-        let incoming = self.entry_actual_loans_v1(source, owner, &view)?;
-        for call in &view.incoming {
-            if call.arguments.len() != formals.len()
-                || call.arguments.iter().zip(formals.iter()).any(
-                    |((ordinal, _, formal), (expected, binding))| {
-                        ordinal != expected || formal != binding
-                    },
-                )
-            {
-                return Err(freeze("borrowed-entry/incoming-formals"));
-            }
-        }
-        Ok(Some(BorrowedOrdinaryEntrySourceRefV1 {
-            owner,
-            formals: formals.into_boxed_slice(),
-            source,
-            definition,
-            incoming_rows: view.incoming,
-            incoming,
-        }))
+        self.borrowed_entry_structure_for_contract(owner, parameters)?
+            .map(|structure| self.finish_borrowed_entry_source_v1(structure)).transpose()
     }
     /// Borrow the original actual rows only for a consumed, owned lexical row.
     pub(crate) fn borrowed_call_actuals_v1(
@@ -792,3 +697,6 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal) use ow
 mod text_read;
 pub(crate) use text_read::BorrowedTextEntryReadRequirementV1;
 pub(in crate::mir::normal_callable_semantic_package) use text_read::issue_text_entry_read_requirement_v1;
+
+#[path = "ordinary_new_borrowed_formal_entry_contract.rs"]
+mod entry_contract;

@@ -171,6 +171,8 @@ fn entry_rejects_failed_later_incoming_instead_of_using_first_caller() {
             .count(),
         1
     );
+    assert!(ledger.borrowed_entry_structure_for_contract(owner, &parameters)
+        .unwrap().is_some(), "original correspondence survives a later unfinished actual");
     let error = ledger
         .borrowed_entry_source_for_contract(owner, &parameters)
         .unwrap_err();
@@ -338,6 +340,34 @@ fn outside_profile_remains_unselected_before_entry() {
         .borrowed_entry_source_for_contract(contract.owner, &parameters)
         .unwrap()
         .is_none());
+    for source in [
+        r#"static box Layout { probe(p, q: i64) { return Layout.sink(p.substring(0, q)) } sink(v) { return 0 } seed() { return Layout.probe("text", 1) } } static box Main { main() { return 0 } }"#,
+        r#"static box Layout { probe(p, q: i64) { return 0 } seed() { return Layout.probe("text", 1) } int_seed() { return Layout.probe(7, 1) } null_seed() { return Layout.probe(null, 1) } } static box Main { main() { return 0 } }"#,
+    ] {
+        for mutation in 0..3 {
+            let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+                source, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+            let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+            let owner = contract.owner;
+            let binding = contract.parameters[0].binding;
+            let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
+            let structure = ledger.finite_text_entry_for_owner_v1(owner).unwrap().expect("original finite structure");
+            assert!(structure.check_finite_entry_values_v1(&[]).is_err());
+            assert!(structure.check_finite_entry_values_v1(&[(1, binding, crate::mir::ValueId(72))]).is_err());
+            if mutation != 0 {
+                let source = ledger.borrowed_formal_source.as_mut().unwrap().as_mut().unwrap();
+                let call = source.source_incoming.source_rows_v1().find(|row| row.callee == owner).unwrap().call.clone();
+                if mutation == 1 { source.source_incoming.remove_exact_row_for_test(&call); }
+                else { source.source_incoming.duplicate_object_row_for_test(&call); }
+                assert!(ledger.finite_text_entry_for_owner_v1(owner).unwrap().is_none(), "census drift cannot lend a domain");
+                assert!(ledger.record_borrowed_ordinary_entry_values_v1(owner, Ok(Box::new([(0, binding, crate::mir::ValueId(72))]))).is_err());
+            } else {
+                ledger.record_borrowed_ordinary_entry_values_v1(owner, Ok(Box::new([(0, binding, crate::mir::ValueId(72))]))).unwrap();
+                assert!(ledger.finalized_borrowed_ordinary_entry_source_v1(owner).is_err(), "structure never proves uses/actual completion");
+            }
+        }
+    }
+
 }
 
 #[test]
