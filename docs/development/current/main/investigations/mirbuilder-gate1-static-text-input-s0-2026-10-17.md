@@ -851,26 +851,8 @@ relabeled a fresh owned pair. This is the next real execution connection, togeth
 with the already-recorded borrowed/finite entry and actual-packet obligations;
 no literal-only executable phase or generic boxed-string adapter is selected.
 
-V876 construction Decision: connect checked String Length/Substring/IndexOf
-through the existing physical instruction/ABI/JSON/C/runtime owner, using the
-original Core receipt at later source emission. Read-only worker corrected the
-prior helper suggestion: legacy byte range clamps swap endpoints and are NOT the
-canonical law. docs/reference/language/strings.md fixes CP count and independently
-clamped half-open CP slicing (start>=end empty), CP search miss=-1/empty=0.
-Reuse nyash_rust::boxes::string_ops::{substring,index_of} with explicit CodePoint,
-never env/raw-handle dispatch; publish a fresh exact lease pair even for empty/full
-substring. Length/indexOf borrow and return I64, acquire nothing. IndexOf's generated
-manifest law is Unprojected: source activation must retain the existing selected
-CP profile rather than inventing a generated law. Current source fences remain.
-Physical operand validation, all Normal/Fault outputs, owned-pair producer/use/End
-checks and C native/indexed paths must agree. Normalize physical String kind/result/
-operand access within the existing schema so operation additions do not duplicate
-classification across consumers. Paths: existing invoke String instruction/verifier,
-published physical ABI/JSON and C String schema/index/flow/emitter, checked String
-runtime/header and existing tests, relevant owner README and this card. Source
-argument/entry/current/writer/final proof connection stays in this same open series;
-backend or runtime capability tests do not close its production acceptance.
-
+V876 physical construction decision and CP-law corrections are retained in
+1ca5340111; V877 below owns canonical source IndexOf law activation.
 
 V876 1ca5340111 retains checked CP Length/Substring/IndexOf physical/runtime
 integration, shared Add/Substring fresh-pair publication and both C consumers.
@@ -952,49 +934,60 @@ shared final projection. Commit retains Root881B375/361PASS/14same, CLI219,
 app259 JSON SAME and app260 unchanged mimalloc exact7/exit0; matched pins kept.
 Full Text series remains unaccepted.
 
-V882 Decision (reference_integration_review): static lexical Text reads join
-original literal initializer binding + existing MaterializedValues root ValueId/
-Copy chain + exact prepared current read + original Const(String) producer.
-Prepare all reference/field-root reads before ONE commit; no new acquisition/End.
-Existing expression packet retains per-node read/producer observations; producer
-and Copies preceding expression entry stay dependencies, outside operation order.
-Draft checks actual dependency presence. Lowering pre-seal checks exact captured
-membership only; BOTH Finalized visitors use strict relation_binding after the
-same PhysicalBoundary seals omission rights. No new omission permission/pool.
-Existing argument cases use genuine zeroarg source headers and actual literal/
-local writer receipts; entry/residence/scalar/finite execution fences stay shut.
-Paths: Prefix static proof, existing value provenance/exact reads, sole common
-writer/shared projection/Print handoff, reused source/port tests, MIR README/card.
-No new fixture/guard/test family or .hako workaround. Full source actual/entry/
-initializer/cleanup/publication Text series remains owed; no product success
-from common static-reference execution alone.
-V882 construction/review: exact global Const/Copy dst uniqueness and no param
-collision checked before commit. Existing source table now covers a two-Copy
-static alias; rejected duplicate/param/wrong-Const mutations leave every read
-available and MIR unchanged. Shared finishing check refuses unapproved producer/
-Copy removal. Actual source-derived local receipts use ordinary lexical scope;
-structural boundary tests issue no executable purpose or argument completion.
-Root882A/B compile-only test API errors32.638377/27.372273s; fixed private-type
-wrapper and instruction snapshots. C build83.473278s; its source test exposed
-missing test lexical scope, fixed with existing scope transaction. D66.896778s/
-source case PASS; final E59.424393s PASS after test-only API/late-read assertions.
-Final42 reused filters375/361PASS/14same identities+diagnostics as881B;
-focused10.345101s, no new warning messages. Root/pointer/layer/thin/diff PASS.
-No new #[test]/fixture file/guard; one case added within existing source table.
-CLI220 quick bin PASS177.291644s, no new warnings; SHA
- e864c4ec57bdef40f3ae80cae008d2c6f73fbd0db7e92af12741fbdc7f3199b3.
-App261 unchanged JSON .132963s exit1/noartifact, same slot20/Body7 Value Core
-fence and stderr byte-identical259. Full Text source-to-consumer remains open.
-Superseded882C/D test pins534,795,168B retired after882E hash/baseline checks;
-all intermediate logs/source manifests/receipts retained. Latest pins kept.
-Next (same worker): Text-only entry read joins SAME finite structural domain Rc,
-original read, recorded actual params/carrier and prepared forwarded Copies;
-never demand completed caller actuals at lowering. Final domain image/full
-incoming+use closure before publication remains mandatory; no generic0..3 grant.
-CI35681768498/d4168473d5 remains historical failed, not current CI green.
-App262 unchanged mimalloc EXE133.625705s/native.001685s PASS; original7lines,
-exit0/stdout+stderr exact260; EXE SHA
-da6b383360910e6e68a3158b8fefc48299f9a61342397527c189670ac21d83de.
-Root882E/CLI220/runtime877A/FFI876B pins kept for the unfinished full series;
-same canonical direct EXE recipe, current source manifests/compiler-only delta
-corroborated, C/ABI/runtime unchanged. Full-suite/selfhost completion unclaimed.
+V882 landed147934da47: original static literal root + materialized initializer/
+Copy chain + exact atomic read join, same common writer/projection; strict final
+dependency checks preserve sealed omission authority. Commit owns source-derived
+zeroarg/alias and negative evidence, Root882E361PASS/14same, CLI220/app261 JSON
+SAME/app262 mimalloc exact7/exit0, timings/provenance and535MB superseded pin
+retirement. Matched pins kept; full Text series remains open.
+
+V883 Decision (reference_integration_review): required Text read is an obligation,
+not a domain proof. Join SAME original read/contract + canonical finite structure
+with EXACT {Text} domain + whole recorded entry tuple + actual Static param/
+BorrowedTaggedValue carrier + prepared current read/forwarded Copies. Never call
+completed entry/actual facade during lowering; no caller-actual cycle. Domain
+Text|I64 (even at a String Core source demand) fails this read fulfillment.
+This is pre-commit physical read corroboration only: no String operand/marker,
+acquisition/End, final incoming/use coverage or publication permission. Existing
+String consumer fence stays closed until common packet and BOTH final scans/
+compiled domain image connect. Original Null exclusion/Loop rights stay separate.
+Paths: entry structure/source-read owner, existing prepared exact-read loan,
+common expression preflight, reused source/port cases, MIR README/card.
+Worker native-gap claim retracted after schema check: native_array is one root
+without params/receiver; borrowed Text ordinary EXEs use indexed cohort. No C
+changes or native cohort expansion. No new task/card/fixture/guard/test method.
+Worker whole-entry correction: compare ALL BorrowedTaggedValue carrier indices
+with recorded borrowed ordinals, and check each borrowed signature slot. Existing
+source table now includes a genuine non-borrowed i64 formal; extra tagged carrier
+mutation must reject without consuming the read. ValueIds are function-local:
+this check is not source-function ownership. Runtime activation must use genuine
+selected source scope plus finished owner/module membership in BOTH final scans.
+Root883A compiled PASS104.117219s before this correction; not final evidence.
+Root883B/C compile PASS68.092666/54.757039s. Targeted tests exposed a missing
+test-shell carrier column (fixed), then an invalid mixed-Core fixture premise.
+Canonical source SUM already requires text_only for Core Text dependencies, so
+no mixed-Core frame exists. Remove that WIP case; reuse existing finite-entry
+fixtures to assert exact Text success and Text|I64|Null domain rejection directly.
+Next full connection reuses the existing ephemeral Call-use view for exact String
+operand coordinates/domain through module, in-module and strict function scans;
+public source-less verification stays strict. Then close the one compiled formal
+domain image and encode text_view only from it. No parallel receipt registry.
+
+V883 verification: final Root883D compile PASS58.371879s,42 focused filters
+10.375472s;375 distinct/361PASS/14 SAME baseline identities AND diagnostics versus
+Root882E. No new warning messages. Genuine source Core/alias entry checks and
+wrong carrier/value/param-definition/extra tagged i64 mutations PASS. Existing
+finite-entry fixtures prove exact Text/mixed-domain boundary. No new test method.
+Pointer/root-route/layer/thin/diff guards PASS; pointer/root-route/diff rechecked
+after final test-only correction. Root883B/C test pins retired
+535,200,728B after final-D hash and baseline checks; logs/manifests retained.
+Final-D/Root882E and matching runtime/FFI pins stay until Text series acceptance
+and successor evidence replaces their baseline role. No temporary adapter added.
+CLI221 build PASS181.889358s, no new warning messages; matched runtime877A and
+FFI876B source/backend/ABI hashes checked by existing harness. App263 unchanged
+json-stream canonical direct EXE exits1/no artifact in0.119873s, SAME slot20/
+Body7/Value core-expression-execution-pending; stderr byte-identical to app261.
+CI checked once: latest remains historical failed35681768498/d4168473d5,
+not a current run or green claim. Full Text series and finite goal remain open.
+App264 unchanged mimalloc canonical EXE PASS132.230777s/native0.001517s;
+original7 stdout/exit0/stderr exact to app262. This does not accept full Text.

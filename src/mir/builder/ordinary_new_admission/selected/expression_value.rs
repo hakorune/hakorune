@@ -45,6 +45,14 @@ pub(super) fn emit(
     }
     for &index in frame.ordered_nodes() {
         if frame.transfers_node(index) || frame.node_is_identity(index) { continue; }
+        if let Some(CheckedExpressionReferenceV1::ArgumentEntry(requirement)) = frame.references().get(&index) {
+            let prepared = state.prepare_exact_lexical_read(owner, requirement.read().node(), requirement.binding()).map_err(|error| error.to_string())?;
+            ledger.validate_prepared_text_entry_read_v1(requirement,
+                builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?, prepared.observation_v1())?;
+            // A valid entry read alone cannot issue the still-unconnected
+            // String operand or final all-use/incoming closure.
+            return Err(freeze("expression/reference-execution-pending/text-entry-string-consumer"));
+        }
         if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
             && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_))) {
             return Err(freeze("expression/reference-execution-pending"));

@@ -258,6 +258,21 @@ impl OrdinaryNewClaimLedgerV1 {
 }
 
 impl BorrowedEntryStructureV1<'_> {
+    /// This is a canonical source-domain loan, never completed actual/use proof.
+    pub(super) fn text_domain_for_formal_v1(&self, ordinal: u32, formal: BindingRefV1)
+        -> Result<&Rc<super::super::borrowed_formal_source::SourceValueSumV1>, String> {
+        use super::super::borrowed_formal_source::SourceValueAlternativeV1 as Alternative;
+        let EntryStructureEvidenceV1::FiniteText { domains, .. } = &self.evidence else {
+            return Err(freeze("borrowed-text-entry/finite-structure-required"));
+        };
+        if !self.formals.contains(&(ordinal, formal)) { return Err(freeze("borrowed-text-entry/structural-formal")); }
+        let domain = domains.get(&formal).ok_or_else(|| freeze("borrowed-text-entry/domain-missing"))?;
+        if domain.alternatives().len() != 1 || !domain.alternatives().contains(&Alternative::Text) {
+            return Err(freeze("borrowed-text-entry/domain-not-text-only"));
+        }
+        Ok(domain)
+    }
+
     pub(super) fn check_finite_entry_values_v1(
         &self, rows: &[(u32, BindingRefV1, crate::mir::ValueId)],
     ) -> Result<(), String> {

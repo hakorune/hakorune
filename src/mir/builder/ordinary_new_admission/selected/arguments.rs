@@ -209,10 +209,41 @@ mod tests {
             use crate::mir::normal_callable_semantic_package::{CallValidationContextV1, ExpressionPhysicalProjectionRefV1};
             let mut state = CallableSemanticLoweringState::from_exact_source(input).unwrap();
             let mut builder = MirBuilder::new();
-            builder.enter_function_for_test("core_argument".into());
+            if frame.text_reads().is_empty() {
+                builder.enter_function_for_test("core_argument".into());
+            } else {
+                let mut names: Vec<_> = input.function().declaration_sites().filter_map(|site| match site {
+                    crate::mir::resolved_semantics::SourceBindingSiteV1::Parameter { index } => {
+                        let binding = input.function().declaration_binding(site).unwrap();
+                        Some((*index, input.function().binding(binding).unwrap().diagnostic_name().to_owned()))
+                    }
+                    _ => None,
+                }).collect();
+                names.sort_by_key(|row| row.0);
+                let names: Vec<_> = names.into_iter().map(|row| row.1).collect();
+                builder.create_function_skeleton("core_argument".into(), &names, &[]).unwrap();
+                builder.setup_function_params(&names).unwrap();
+                // This unit shell predates the canonical compiler skeleton;
+                // install its ordinary physical column before entry projection.
+                use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+                builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers =
+                    Some(vec![Carrier::ExistingCallableI64; names.len()].into_boxed_slice());
+            }
             // Reference-free evaluation needs no entry values. In particular
             // this unit cannot manufacture the unfinished caller's Text entry.
             state.lend_ordinary_new_claim_ledger(Rc::clone(&ledger));
+            if !frame.text_reads().is_empty() {
+                let formals: std::collections::BTreeSet<_> = frame.text_reads().iter().map(|read| read.formal()).collect();
+                state.stage_borrowed_entry_formals(input.owner(), Ok(Some(formals.into_iter().collect()))).unwrap();
+                let entry = crate::mir::builder::normal_callable_binding_materialization_port::CallableEntryShapeV1::Static {
+                    parameter_count: builder.function_state.current_function.as_ref().unwrap().params.len(),
+                }.prepare_values(&builder).unwrap();
+                let (carriers, projected) = state.prepare_borrowed_entry_carriers(&entry, &builder).unwrap().unwrap();
+                assert!(projected.is_empty(), "opaque Text entry carries no declared object view");
+                state.install_entry_values(&entry).unwrap();
+                builder.function_state.current_function.as_mut().unwrap().metadata.physical_param_carriers = Some(carriers);
+            }
+
             crate::mir::builder::vars::lexical_scope::try_with_lexical_scope(
                 &mut builder, |mut builder| -> Result<(), String> {
                     if !frame.static_reads().is_empty() {
@@ -273,12 +304,47 @@ mod tests {
                             *builder.function_state.current_function.as_mut().unwrap() = snapshot.clone();
                         }
                     }
+                    for requirement in frame.text_reads() {
+                        let read = state.prepare_exact_lexical_read(input.owner(), requirement.read().node(), requirement.binding()).unwrap();
+                        let function = builder.function_state.current_function.as_ref().unwrap();
+                        match ledger.validate_prepared_text_entry_read_v1(requirement, function, read.observation_v1()) {
+                            Ok(value) => {
+                                assert_eq!(value, read.value_for(input.owner(), requirement.read().node(), requirement.binding()).unwrap());
+                                for mutation in 0..4 {
+                                    use crate::mir::compiler::common_v2_physical_function_entry_input::PhysicalCallableLaneCarrierV1 as Carrier;
+                                    let mut changed = function.clone();
+                                    let ordinal = requirement.formal().0 as usize;
+                                    match mutation {
+                                        0 => changed.metadata.physical_param_carriers.as_mut().unwrap()[ordinal] = Carrier::ExistingCallableI64,
+                                        1 => changed.params[ordinal] = crate::mir::ValueId(999_998),
+                                        2 => changed.blocks.get_mut(&changed.entry_block).unwrap().add_instruction(MirInstruction::Const {
+                                            dst: changed.params[ordinal], value: crate::mir::ConstValue::Integer(0),
+                                        }),
+                                        3 => {
+                                            let carriers = changed.metadata.physical_param_carriers.as_mut().unwrap();
+                                            let other = carriers.iter_mut().find(|carrier| **carrier != Carrier::BorrowedTaggedValue)
+                                                .expect("source fixture has a non-borrowed i64 formal");
+                                            *other = Carrier::BorrowedTaggedValue;
+                                        }
+                                        _ => unreachable!(),
+                                    }
+                                    assert!(ledger.validate_prepared_text_entry_read_v1(requirement, &changed, read.observation_v1()).is_err());
+                                    state.prepare_exact_lexical_read(input.owner(), requirement.read().node(), requirement.binding()).unwrap();
+                                }
+                            }
+                            Err(error) => assert!(error.contains("domain-not-text-only"), "{error}"),
+                        }
+                    }
                     let before = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
                         .flat_map(|(id, block)| block.all_instructions().map(move |row| (*id, row.clone()))).collect::<Vec<_>>();
                     let result = super::super::expression_value::emit(&mut builder, &mut state, &ledger, frame.evaluation(),
                         &mut |_, _, _, _, _| Err("unexpected ordinary Call".to_owned()));
                     if !frame.residence_reads().is_empty() || !frame.text_reads().is_empty() {
-                        assert!(result.err().unwrap().contains("reference-execution-pending"));
+                        let error = result.err().unwrap();
+                        assert!(error.contains("reference-execution-pending") || error.contains("domain-not-text-only"), "{error}");
+                        for requirement in frame.text_reads() {
+                            state.prepare_exact_lexical_read(input.owner(), requirement.read().node(), requirement.binding()).unwrap();
+                        }
                         let after = builder.function_state.current_function.as_ref().unwrap().blocks.iter()
                             .flat_map(|(id, block)| block.all_instructions().map(move |row| (*id, row.clone()))).collect::<Vec<_>>();
                         assert_eq!(after, before, "unconnected reference refuses before FaultFrame or MIR effects");

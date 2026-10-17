@@ -340,9 +340,9 @@ fn outside_profile_remains_unselected_before_entry() {
         .borrowed_entry_source_for_contract(contract.owner, &parameters)
         .unwrap()
         .is_none());
-    for source in [
-        r#"static box Layout { probe(p, q: i64) { return Layout.sink(p.substring(0, q)) } sink(v) { return 0 } seed() { return Layout.probe("text", 1) } } static box Main { main() { return 0 } }"#,
-        r#"static box Layout { probe(p, q: i64) { return 0 } seed() { return Layout.probe("text", 1) } int_seed() { return Layout.probe(7, 1) } null_seed() { return Layout.probe(null, 1) } } static box Main { main() { return 0 } }"#,
+    for (source, text_only) in [
+        (r#"static box Layout { probe(p, q: i64) { return Layout.sink(p.substring(0, q)) } sink(v) { return 0 } seed() { return Layout.probe("text", 1) } } static box Main { main() { return 0 } }"#, true),
+        (r#"static box Layout { probe(p, q: i64) { return 0 } seed() { return Layout.probe("text", 1) } int_seed() { return Layout.probe(7, 1) } null_seed() { return Layout.probe(null, 1) } } static box Main { main() { return 0 } }"#, false),
     ] {
         for mutation in 0..3 {
             let mut package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
@@ -352,6 +352,9 @@ fn outside_profile_remains_unselected_before_entry() {
             let binding = contract.parameters[0].binding;
             let ledger = Rc::get_mut(&mut package.ordinary_new_claim_ledger).unwrap();
             let structure = ledger.finite_text_entry_for_owner_v1(owner).unwrap().expect("original finite structure");
+            let text_domain = structure.text_domain_for_formal_v1(0, binding);
+            assert_eq!(text_domain.is_ok(), text_only);
+            if !text_only { assert!(text_domain.unwrap_err().contains("domain-not-text-only")); }
             assert!(structure.check_finite_entry_values_v1(&[]).is_err());
             assert!(structure.check_finite_entry_values_v1(&[(1, binding, crate::mir::ValueId(72))]).is_err());
             if mutation != 0 {

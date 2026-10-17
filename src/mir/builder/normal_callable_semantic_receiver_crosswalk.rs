@@ -51,6 +51,9 @@ pub(in crate::mir::builder) struct PreparedExactLexicalReadV1 {
     read: ExactLexicalReadV1,
 }
 impl PreparedExactLexicalReadV1 {
+    /// Immutable pre-commit correspondence; lending it consumes no read site.
+    pub(in crate::mir::builder) fn observation_v1(&self) -> &ExactLexicalReadV1 { &self.read }
+
     pub(in crate::mir::builder) fn loan_local_initializer_v1(&self, root: BindingRefV1)
         -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
         self.read.loan_local_initializer_v1(root)

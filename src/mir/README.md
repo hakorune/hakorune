@@ -453,3 +453,15 @@ Draft validation checks actual producers; finishing preparation checks original
 capture, and both final source consumers require the same sealed boundary's
 strict relation/omission evidence. Borrowed entry, residence, scalar and finite
 reference execution remain separate unfulfilled obligations.
+
+Borrowed Text entry-read preflight joins the original read/contract to the same
+canonical finite entry structure, requiring exactly Text. It checks the complete
+recorded borrowed-formal tuple against actual params/carriers, then the prepared
+read and forwarded Copy chain before consuming any source site. A String Core
+demand cannot prove that domain. This is physical read correspondence only;
+String operand execution and final all-use/incoming/domain-image closure remain
+fenced. Lowering never demands completed caller actuals to validate this read.
+The full carrier-selected formal set must match the recorded borrowed set;
+an extra tagged carrier on an i64 formal is rejected. ValueIds are function-local:
+this check alone cannot prove function ownership. Runtime activation must retain
+the selected source owner and both final consumers' finished module membership.

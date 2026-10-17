@@ -619,8 +619,11 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         ("local key = \"bytes\" local needle = \"bytes\"", "key.substring(needle.length(),1)", "\"seed\"", true, 2, 0, 0, true),
         ("local key = \"bytes\"", "key.substring(key.indexOf(\"y\"),key.length())", "\"seed\"", true, 3, 0, 0, true),
     ] {
-        let (caller_parameters, caller_actual) = if static_reads > 0 { ("", "") } else { ("line", incoming) };
-        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} }} static box Main {{ main() {{ return 0 }} }}");
+        let (caller_parameters, caller_actual) = if static_reads > 0 { ("", String::new()) }
+            else if entry_reads > 0 { ("line, count: i64", format!("{incoming}, 7")) }
+            else { ("line", incoming.to_owned()) };
+        let extra_seed = if entry_reads > 0 { "text_seed() { return Values.caller(\"seed\", 7) }" } else { "" };
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} {extra_seed} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
