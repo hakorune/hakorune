@@ -567,3 +567,68 @@ retired after current rootE same SHA/7PASS, visibility-only source diff and no l
 executable check (258265864B reclaimed). RootB/E, CLI179/native185 and matching
 C/runtime pins/logs/manifests retained for pending LOCAL connection. No temporary
 adapter introduced or kept after caller zero. Full goal and S0 remain open.
+
+## V847 LOCAL RHS source recipe -> common packet (active)
+
+Worker rechecked from source to both final consumers: current whole-RHS qualifier
+retains Sub/Div loans but discards classes/reference observations and evaluation
+order. Generic I64 class projection also includes Mul/Modulo/bit/shift/typed
+literals; do not silently narrow that source eligibility or treat known I64 as a
+Normal/non-Fault execution proof. Preserve the complete original class projection
+in the existing field-write plan, alongside its SAME frame and scalar loans.
+Reference bindings come from the original node plus the prefix's proven scalar
+kind; full ordered source nodes/literal/operator data remain original. No new
+source classifier, fake Print frame, mutable frame attachment or cyclic Rc.
+Initial scope: existing Home expression/field-write qualifier, field-write plan,
+owned-ready source recheck and existing brand regression. Next common source
+origin/RHS physical evidence uses this recipe, existing Sub/Div append owner and
+one V846 graph/writer. Both final consumers and New activation remain owed;
+existing physical pending fences stay closed. This is the same S0 responsibility.
+
+Scope extension within V847: common FieldWriteSourceLoan origin retains the SAME
+owned frame/completion/RHS Rc and rechecks original writer inventory plus original
+New construction Rc across affine take. Existing formal issuer remains its sole
+source owner; raw dispatch now borrows the common source origin. Formal still
+enters its unchanged packet; Owned refuses explicitly at RHS physical-consumer
+pending, instead of falling through to the generic raw setter. This temporary
+formal extraction in raw transport retires when the common packet carries both
+operand proofs; no unsupported source is silently dropped. Owned-ready read
+recheck uses the same common write-source validation, removing its duplicated
+construction/completion/frame check. Neither source origin lends physical value
+or Home permission. Same-frame/RHS and foreign-ledger refusals use existing tests.
+
+## Restart handoff — user requested stop, V847 remains WIP
+
+Stop at the completed root build/focused boundary. Do not start more source
+edits or CLI builds until user resumes. CURRENT_STATE retains fast for the same
+selected S0; this is a user restart stop, not design stop or series completion.
+Source WIP remains uncommitted in13 src paths including the new
+`ordinary_new_common_field_write_source.rs`; preserve all of them. Last pushed
+implementation is `c5a5be22ca` (V846 graph/writer BoxShape), not this WIP.
+
+- RootA build101.688991s and RootB build79.126097s PASS.
+- RootB focused50 PASS: brand23, installation1, terminal22, field-batch2,
+  original source/frame refusal1, both-scan store guard/coverage1. Root total9213.
+- RootB binary `v847b-root.test-binary` SHA e6d25c2f58733f4db1f623b957acc0e3228846ca9c1caa46b6e6c3c982a3b9bf.
+  Build/source/focused logs and manifests remain under the evidence base.
+- One NEW warning: unused `FieldWriteSourceLoanV1` reexport in package `mod.rs`.
+  Retained as unfinished integration, not hidden or baseline-waived. Connect the
+  explicit common type in raw dispatch/common packet; do not add allow attributes.
+- No V847 CLI/native measurement. Latest actual Pair frontier is CLI179/app184
+  raw-field-read-reentry; latest mimalloc is CLI179/app185 native exact7/exit0.
+  V847 raw dispatch is changed and must be revalidated with a fresh CLI. It now
+  refuses owned source at `owned-field-write/rhs-physical-consumer-pending` rather
+  than generic setter fallback; that expected stop is NOT an observed result.
+- No physical LOCAL activation: RHS source recipe alone grants no execute/Normal
+  permission. Common packet RHS receipts, both final consumers/Normal dominance,
+  and original New allocation-only activation remain pending; fences stay closed.
+- No live Cargo/rustc after build/focused completion. No new CI-green claim.
+
+Resume: inspect preserved diff and source manifests; finish common source origin
+and full RHS physical receipt transport using V846's sole graph/writer. Keep
+Sub/Div with existing scalar append/finishing owner. Fix the unused explicit type
+integration, run focused validation and fresh Pair/mimalloc canonical CLI with
+C831e/runtime808b before landing V847. Do not treat the source-class Modulo0 test
+as non-Fault execution evidence or narrow the accepted source operator set.
+Temporary rootA/B pins, current CLI179/native185 and backend/runtime are retained
+for this unfinished connection; do not delete the untracked common source file.
