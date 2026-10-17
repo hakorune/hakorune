@@ -18,7 +18,7 @@ latest_card = "mirbuilder-app-bundle-mimalloc-lite-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-app-bundle-mimalloc-lite-d0-2026-09-30.md"
 latest_card_summary = """
 RequiredObjectForwardS0 remains unaccepted; Rust/C source WIP remains unlanded.
-Additive runtime32 boundary lands with kernel Fault34/typed-object33 PASS on
+Additive runtime32 boundary landed8a2d2974a8; Fault34/typed-object33 PASS on
 both primary and isolated HEAD+32 source; Array53 PASS. Old runtime ABI retained.
 C alone cannot land: HEAD Rust lacks required numeric-check/Return-origin columns.
 CLI174/C831e/runtime808b unchanged M190 app176 canonical EXE/run/exact11/exit0 PASS

@@ -1,6 +1,6 @@
 # MirBuilder app bundle — mimalloc-lite completion D0
 
-Status: active; Required Object Forward S0 unaccepted; cumulative source WIP unlanded.
+Status: active; Required Object Forward S0 unaccepted; Rust/C source WIP unlanded.
 Date: 2026-10-17
 Scope: the existing mimalloc-lite source-to-final-consumer series; no new lane.
 Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
@@ -43,7 +43,7 @@ Loop, authority, parser and nondelegating selfcompile conditions.
   source/publication/native PASS; independent final acceptance/landing remain owed.
   Landed separate BoxShape removes quadratic C physical block lookup; preserve
   the completed source→final connection and required whole-row acceptance.
-  Cumulative source WIP remains unlanded; this is not full-goal completion.
+  Runtime prerequisites landed at8a2d2974a8; Rust/C WIP remains unlanded.
 - Current series: received Mixed result → exact returned-New argument and
   child relation → formal support → ABI/JSON/C residence and conditional End.
 - Completed if-merge normalization is owned by fb512d0549; preserve its source
@@ -969,31 +969,26 @@ PASS. Canonical route guard intentionally ABORTED its redundant debug build;
 never counted PASS. Two unchanged763-line owner warnings follow RULES§8.
 Actual root test remains on b4435f1e1d47490868590005a2b98a1ef169eeb9f2c51b2831ca6229692ed3b5.
 
-V833 landing Decision (same series, worker read-only dependency/cutover review):
-C-only landing is refused: HEAD Rust lacks required FieldSet numeric-check and
-Return result_origin columns; new C consumer must cut over with its producer.
-No fallback/version guess. Runtime-only additive boundary is32 explicit paths:
-kernel13 + Array18 + header1; old exports/old storage behavior remain compatible.
-New residence and OwnedObject states can only be entered by the new APIs;
-all generic escapes reject them. src/mir, ownership.md and lang selfhost stay WIP.
-Source authority remains the caller's original sealed move/loan; runtime physical
-identity/outcome checks issue no Home or source permission. Existing all-field
-Fault/atomic/Array tests and actual M190 are required evidence, not schema-only.
-Pinned v808 kernel artifact provenance and relevant source hashes corroborated:
-Fault34 PASS, typed-object32 PASS/1 RED at stale DirectSlotV0 negative-handle
-assertion. HEAD encode/decode unchanged; SSOT prior9164286970 already records
-same RED (constructor lifecycle803). Fix only existing assertion to positive
-pointer-handle law; generation-indexed negative handles retain their own tests.
-Test-only sign fix: primary kernel build240.721336s PASS; Fault34/typed-object33
-PASS. Full existing Array53 PASS .257524s on pinned V832 source (runtime unchanged).
-HEAD f3efcde2bc plus exactly32 candidate paths: isolated build263.279830s PASS,
-then Fault34/typed-object33 PASS. No src/mir/C WIP present; subset source hashes
-match primary exactly. Commands/manifests/logs: v833-kernel, v833-runtime-isolated,
-v833-array-regression under existing evidence base. This implementation commit
-lands only additive runtime prerequisites and the stale assertion repair; no
-compiler consumer cutover, Array C execution acceptance or full S0 acceptance.
-Production runtime/header/Array hashes match runtime808; no archive rebuild.
-Retain runtime808b/CLI174/C831e/original wire and current primary kernel test pin
-until coordinated source landing. Retire this turn's isolated checkout and two
-superseded copied kernel test binaries after landing; logs/manifests remain.
-Actual both-opts root PID713636/session80669 remains live; do not restart it.
+V833 additive runtime32 boundary landed and pushed at **8a2d2974a8**.
+That commit preserves the full dependency Decision, exact source scope, commands,
+provenance and verification: primary and isolated HEAD+32 kernel builds PASS,
+Fault34/typed-object33 PASS on both, existing Array53 PASS. Existing DirectSlotV0
+assertion repaired to its unchanged positive-pointer handle law; negative
+indexed-generation handles retain separate tests. No compiler/C cutover or
+selected old-edge retirement is claimed by this additive runtime prerequisite.
+C-only landing remains refused: HEAD Rust lacks required FieldSet numeric-check
+and Return result_origin columns. Producer and consumer must land together;
+no fallback/version guess. Caller source remains the sealed move/loan authority;
+runtime physical checks never issue Home. Array C execution, full S0 acceptance
+and remaining Rust/C source landing remain owed; unrelated ownership.md retained.
+Production runtime/header/Array match runtime808; existing archive remains valid.
+Post-landing cleanup verified every isolated path was preserved in8a2d2974a8,
+then removed the owned isolated checkout and two superseded copied kernel test
+binaries. Shared target, manifests/logs and current primary kernel pin remain.
+Keep runtime808b/CLI174/C831e/original wire until coordinated source landing;
+retire superseded pins once that landing's required evidence no longer needs them.
+Actual both-opts root PID713636/session80669 remains live on its original binary;
+last verified at49min, CPU96%, false trace current/true trace not yet current.
+Read-only worker could not obtain stack (ptrace denied); main waits, test thread
+runs. This proves a live CPU-bound test, not finite completion or nontermination.
+Do not restart or count it PASS; original selected acceptance remains pending.
