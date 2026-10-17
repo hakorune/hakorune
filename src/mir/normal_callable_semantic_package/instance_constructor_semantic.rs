@@ -768,3 +768,6 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod construction_tests;

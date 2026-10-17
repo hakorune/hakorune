@@ -273,6 +273,27 @@ consumers connect in this series. No isolated preparation green closes S0.
 Required remaining initialization, fixed acceptance, retirement and full goal
 conditions remain open. No deadline or nearest-app claim.
 
+## Constructor BoxShape validation — V839
+
+Six unchanged construction regressions now have a sibling `construction_tests`
+owner; existing test file800->539 lines. The selected two-move series also moves
+six source-definition lookup methods into existing `object_definition`, keeping
+bodies, effective visibility and callers unchanged. Birth/plan selection remains
+in the parent. Worker exact-body review PASS; no new tests or semantic admission.
+
+One final-series `RUST_MIN_STACK=16777216 cargo quick-test-fast --no-run
+--message-format=json` build PASS66.160698s. Pinned constructor filter
+`instance_constructor_semantic:: --test-threads=1` PASS25/0 .073404s; pre-move
+same25 PASS .075454s, names identical after module-prefix normalization. Root
+inventory9213 unchanged. This validates the final two-move series, not a separately
+compiled intermediate commit. Root-route/layer/thin-shim/pointer/diff PASS.
+Final source sizes parent684, tests539, construction_tests264, object_definition450.
+Root pin SHA cb045e990f8babc9f8daf840207079b344ef0a2eebed1ff5b56758838a9269c3;
+source/build/focused receipts `v839a-root` retained for next source comparison.
+Current CLI176/app180/app181 remain pre-move native/frontier evidence; no new
+EXE or S0 completion claim. No adapter introduced. Definition move is the second
+commit of this behavior-neutral series; initialization connection follows.
+
 ## Temporary artifact disposition
 
 Completed history stays in244c8d3f5e/fbc57efa14. Retain current CLI175, C831e,
