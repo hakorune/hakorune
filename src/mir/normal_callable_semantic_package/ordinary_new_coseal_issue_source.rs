@@ -517,6 +517,13 @@ pub(super) fn probe_source_home_prefixes_v1(
     BTreeMap<OwnedExprSiteV1, Result<CallerNewHomePrefixV1, HomePrefixUnavailableV1>>,
     OrdinaryNewCoSealIssueV1,
 > {
+    let mut terminal_reads = BTreeMap::new();
+    let mut terminal_fields = super::integer_fields::terminal_field_consult_v1(
+        instance_constructors, candidates, batch.ordinary_box_coverage(), &mut terminal_reads,
+        |site, receiver_site, receiver, home, name| super::integer_fields::consult_v1(
+            input, selected, batch, instance_constructors, candidates, callable_result_classes,
+            borrowed_formal_source, borrowed_i64_results, receiver_proof,
+            site, receiver_site, receiver, home, name));
     crate::mir::resolved_semantics::home_new_prefix::issue_new_home_prefixes_probing_fields_v1(
         input,
         &new_sites,
@@ -549,11 +556,7 @@ pub(super) fn probe_source_home_prefixes_v1(
             ))
         },
         local_static_call,
-        &mut |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver: BindingRefV1, home, name| {
-            super::integer_fields::consult_v1(input, selected, batch, instance_constructors, &candidates,
-                callable_result_classes, borrowed_formal_source, borrowed_i64_results, receiver_proof,
-                site, receiver_site, receiver, home, name).map(|field| field.is_some())
-        },
+        &mut terminal_fields,
         &mut |site: &OwnedExprSiteV1, _: &SourceExprSiteV1, _: BindingRefV1, home, name| {
             terminal_home::argument_integer_field(
                 instance_constructors,

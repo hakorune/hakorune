@@ -11,13 +11,7 @@ pub(crate) fn verify_function_completion_with_new_homes_v1<E>(
         crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,
     >,
-    field_is_integer: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
 ) -> Result<
     Result<
         (
@@ -97,13 +91,7 @@ pub(crate) fn verify_function_completion_with_new_homes_and_argument_observation
         ),
     >,
     entry_home: Option<&crate::mir::resolved_semantics::VerifiedInstanceEntryHomeLoanV1>,
-    field_is_integer: &mut impl FnMut(
-        &crate::mir::resolved_semantics::OwnedExprSiteV1,
-        &crate::mir::resolved_semantics::SourceExprSiteV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        crate::mir::resolved_semantics::BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(
         &crate::mir::resolved_semantics::OwnedExprSiteV1,
         crate::mir::resolved_semantics::BindingRefV1,

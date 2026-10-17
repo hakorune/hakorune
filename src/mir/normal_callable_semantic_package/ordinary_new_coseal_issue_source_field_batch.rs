@@ -74,7 +74,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
             None => None,
         };
         if let Some(path) = &request.path {
-            if request.nullable || request.formal
+            if request.nullable || request.formal || request.owned_ready.is_some()
                 || !matches!(&demand, LocalFieldReadDemandV1::SourceExpression { plan }
                     if Rc::ptr_eq(plan, path.plan()) && request.node_in_plan(plan) == Some(path.node())) {
                 return Ok(None);
@@ -148,6 +148,15 @@ pub(in crate::mir::normal_callable_semantic_package) fn prove_local_field_read_b
                 .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?,
             None => source,
         };
+        if request.owned_ready.is_some() {
+            let ready = field_reads::OwnedReadyFieldReadSourceV1::issue(candidates, request,
+                source.field(), source.declared_type_name()).map_err(|issue|
+                    OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+            source = LocalFieldReadSourceV1::with_owned_ready(&source, ready).map_err(|issue|
+                OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: request.site.clone(), issue })?;
+            // Whole-expression LOCAL numeric provenance is not a borrowed-formal loan.
+            if matches!(demand, LocalFieldReadDemandV1::SourceExpression { .. }) { return Ok(None); }
+        }
         if request.path.is_some() {
             let root = if parent.is_none() {
                 Some(terminal_home::ExpressionFieldRootSourceV1::issue(constructors, candidates, coverage,

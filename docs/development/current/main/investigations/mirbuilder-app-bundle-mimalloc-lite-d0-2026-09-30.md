@@ -407,3 +407,64 @@ is historical rejected synthetic scratch, not an authority or live adapter;
 keep only while its failed-cohort comparison is required, never revive its gate.
 No selected old edge is kept solely to await whole-app success. Shared owners and
 parked lanes retain their existing conditions. Full goal remains active.
+
+## V844 selected source-ready Return connection (source proof only)
+
+Same S0 responsibility: retain the exact branch-local successful LOCAL write
+frame through direct field requests, terminal source relations and staged field
+value provenance. Terminal Declared/Numeric/OwnedLocal sources stay distinct;
+OwnedLocal never inherits the borrowed Numeric installed-Home exemption.
+Declared local-read descriptors retain the same frame. Nested paths and whole
+expression numeric loans cannot discard LOCAL readiness into old formal proofs.
+Scope: existing home prefix/terminal source owners, ordinary-New field issuer,
+read ledger and existing brand/terminal regression owners; no new lane.
+Both final physical consumers/C and constructor activation remain owed. The
+existing lifecycle and new owned-ready physical-consumer pending fences stay
+closed until the original store/read Normal dominance and Home/Fault proof are
+connected. Focused positive/negative regressions precede fresh CLI/source probe.
+
+Read-only worker confirmed the next common owner mapping: retain separate
+construction source eligibility through NewLocalCommit (execution eligibility
+cannot substitute); normalize the existing selected checked FieldSet owner around
+common frames, with FormalBorrowed guard operands and OwnedLocal source-qualified
+RHS kept distinct. Use lifecycle prefix -> binding group -> finished projection;
+mandatory membership must include all field_write_frame occurrences. BOTH final
+scans must corroborate store Normal landing dominance of each exact-frame read,
+plus original Home and Fault cleanup. Existing FieldSet C representation is the
+candidate consumer; no Return-only store validator or new schema is selected.
+This review is a connection map, not physical/native acceptance.
+
+V844 live source evidence: rootC build110.187822s; focused76 PASS (23 brand,
+25 constructor,22 terminal,2 field-batch,2 physical field projection,2 existing
+installation/opaque-boundary). An initial wrong filter selected0 and was rejected,
+then corrected using the pinned binary list; zero tests is not PASS.
+CLI178 build191.334185s, unchanged Pair app183 .089015s/exit1/noEXE now stops
+`[ordinary-terminal-result/raw-field-read-reentry]`, previously CLI177/app182
+`ReturnValueNotCovered Body3`. This proves source-ready Return advances to
+lowering, not completed initialization/physical execution.
+CLI178 SHA ce773ab2adc4d347a14c1c73097d9a730f44ea562119b29b2529b562ef0e7372;
+source manifest v844-cli178.source.json, same pinned C831e/runtime808b and unchanged
+Pair sourceSHA above. RootD adds only method visibility narrowing (new private
+interface warning) and source-negative Return regression cases; no execution
+behavior change. This CLI evidence describes its exact pre-RootD source manifest.
+No fresh mimalloc/full-suite or current CI-green claim. Next: common LOCAL
+field-write/read physical path and both final consumers, with construction source
+Rc retained through affine commit; keep activation fences closed until connected.
+
+RootD final build56.770264s, same76 focused PASS including uninitialized-field,
+unwritten-other-field and unequal-branch Return refusals in the existing case.
+Test count remains9213; no new standalone test/guard/fixture. New warning delta
+against V843b is zero. A/B builds101 were this implementation's API/closure
+integration errors, corrected before C/D PASS; not baseline waivers.
+RootD pin v844d-root.test-binary SHA
+200d5b36dc5f59cfff51be2614d6e2549fe079e61c8ce16fe8716f64ee6e01b0.
+Root-route/layer/thin-shim/pointer/diff guards PASS. Source issuer normalization
+physically replaces the former live inline terminal staging; read-only probe
+uses the same issuer with temporary staging, no second source classifier.
+Temporary disposition: identical incomplete-filter rootC pin retired after same
+SHA and no live executable check; full rootC `.extra` pin, rootD, CLI178 and
+matching C/runtime retained for pending physical connection and regression.
+All commands/source manifests/receipts remain under the evidence base; commit
+owns code/contracts/results, not temporary SHA alone. Shared constructor and
+borrowed-field physical owners remain live; no old-edge-zero or S0 completion
+claim is made. This source slice lands while its enclosing series stays open.

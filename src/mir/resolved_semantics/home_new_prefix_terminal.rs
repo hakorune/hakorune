@@ -23,13 +23,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
     covered_statements: &mut Vec<SourceStmtSiteV1>,
     selected_seen: &mut Vec<OwnedExprSiteV1>,
     unavailable: &mut Option<HomePrefixUnavailableV1>,
-    field_is_integer: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     argument_i64_field: &mut impl FnMut(
@@ -402,7 +396,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                             input.owner(),
                                             statement.site().clone(),
                                             site,
-                                            field_reads,
+                                            *field_reads,
                                         ),
                                     ));
                                     true
@@ -413,7 +407,7 @@ pub(super) fn observe_terminal_statement<'a, E>(
                                             input.owner(),
                                             statement.site().clone(),
                                             value.site().clone(),
-                                            field_read_site,
+                                            *field_read_site,
                                         ),
                                     ));
                                     true

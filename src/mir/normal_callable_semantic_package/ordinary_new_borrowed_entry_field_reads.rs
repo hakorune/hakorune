@@ -146,9 +146,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 if original.receiver_site != row.receiver_site || original.receiver != row.receiver
                     || original.home != row.home || original.field != row.source.field()
                 { return Err(fault("borrowed-entry-terminal-conflict")); }
-                if let Some(source) = &original.numeric_source {
-                    self.recheck_integer_field_source_v1(source, &site, original)?;
-                }
+                self.recheck_terminal_field_value_v1(&site, original)?;
                 continue;
             }
             if let Some(original) = self.argument_field_reads.borrow().get(&site) {

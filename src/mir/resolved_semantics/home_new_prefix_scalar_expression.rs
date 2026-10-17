@@ -597,7 +597,7 @@ pub(super) fn observe_terminal_scalar_source<E>(
     input: ResolvedFunctionLoweringInputV1<'_>, value: &SourceExprSiteV1,
     exit: &SourceStmtSiteV1, locals: &PrefixLocalFlow<'_>,
     view_use: &mut impl FnMut(&OwnedExprSiteV1, BorrowedViewUseRequestV1<'_>) -> Result<bool, E>,
-    field_is_integer: &mut impl FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
 ) -> Result<Option<ReturnScalar>, E> {
     let site = OwnedExprSiteV1::new(input.owner(), value.clone());
     let checked = view_use(&site, BorrowedViewUseRequestV1::IntegerFieldArrayReturn { exit })?

@@ -20,6 +20,10 @@ mod field_alias;
 #[path = "ordinary_new_borrowed_entry_field_reads.rs"]
 mod borrowed_entry;
 
+#[path = "ordinary_new_owned_ready_field_source.rs"]
+mod owned_ready;
+pub(super) use owned_ready::{OwnedReadyFieldReadSourceV1, TerminalFieldValueSourceV1};
+
 #[path = "ordinary_new_received_field_source.rs"]
 mod received;
 #[path = "ordinary_new_checked_field_read.rs"]
@@ -34,7 +38,7 @@ pub(super) struct FieldRead {
     pub(super) receiver: BindingRefV1,
     pub(super) home: BindingRefV1,
     pub(super) field: CanonicalFieldRefV1,
-    pub(super) numeric_source: Option<super::lexical_instance_call::IntegerFieldSourceLoanV1>,
+    pub(super) value_source: TerminalFieldValueSourceV1,
     pub(super) progress: Progress,
 }
 
@@ -59,6 +63,7 @@ pub(crate) struct LocalFieldReadSourceV1 {
     expression_path: Option<FieldPathSourceV1>,
     received: Option<ReceivedFieldReadSourceV1>,
     returned: Option<returned::ReturnedFieldArgumentSourceV1>,
+    owned_ready: Option<OwnedReadyFieldReadSourceV1>,
 }
 impl LocalFieldReadSourceV1 {
     pub(in crate::mir::normal_callable_semantic_package) fn from_declaration(
@@ -66,12 +71,12 @@ impl LocalFieldReadSourceV1 {
         result: crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1,
         declared_type_name: Box<str>,
     ) -> Rc<Self> {
-        Rc::new(Self { field, result, declared_type_name: Some(declared_type_name), expression_path: None, received: None, returned: None })
+        Rc::new(Self { field, result, declared_type_name: Some(declared_type_name), expression_path: None, received: None, returned: None, owned_ready: None })
     }
     pub(in crate::mir::normal_callable_semantic_package) fn with_received(
         original: &Rc<Self>, received: ReceivedFieldReadSourceV1,
     ) -> Result<Rc<Self>, String> {
-        if original.received.is_some() || original.expression_path.is_some() || original.returned.is_some()
+        if original.received.is_some() || original.expression_path.is_some() || original.returned.is_some() || original.owned_ready.is_some()
             || original.result != crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::Scalar
             || received.mixed().is_some_and(|loan| loan.object() != original.field.object()) {
             return Err(fault("received/field-declaration"));
@@ -81,7 +86,7 @@ impl LocalFieldReadSourceV1 {
         Ok(Rc::new(source))
     }
     pub(in crate::mir) fn requires_checked_field_read_v1(&self) -> bool {
-        self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
+        self.owned_ready.is_some() || self.received.is_some() || self.statement_path().is_some_and(|path| path.requires_checked_scalar_v1())
     }
     pub(in crate::mir::normal_callable_semantic_package) fn received_root_source_v1(&self) -> Option<&ReceivedFieldReadSourceV1> {
         self.received.as_ref().or_else(|| self.statement_path().and_then(|path| path.received_root_v1()))
@@ -406,6 +411,7 @@ impl OrdinaryNewClaimLedgerV1 {
 
     fn recheck_local_field_source_v1(&self, site: &OwnedExprSiteV1, row: &LocalFieldRead, context: CallValidationContextV1<'_>) -> Result<(), String> {
         context.require_ledger(self)?;
+        if row.source.owned_ready.is_some() { return self.recheck_owned_local_read_v1(site, row); }
         if row.source.returned.is_some() { return self.recheck_returned_field_read_v1(site, row); }
         if row.source.expression_path.is_some() { return self.recheck_result_path_field_v1(site, row, context); }
         if let crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadResultV1::DeclaredArray(source) = row.source.result() {
@@ -491,9 +497,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if *last != SourcePathSegmentV1::Receiver || parent != site.site().node().segments() {
             return Err(fault("receiver-source-site"));
         }
-        if let Some(source) = &row.numeric_source {
-            self.recheck_integer_field_source_v1(source, site, row)?;
-        }
+        self.recheck_terminal_field_value_v1(site, row)?;
         // `installs` — not `installs_ordinary`: a non-null-narrowed
         // received nullable is a `CallReceived` row, not an `Ordinary`
         // `new` Home, and it still names a physically materialized base.
@@ -501,7 +505,7 @@ impl OrdinaryNewClaimLedgerV1 {
         // view already proves its physical base is the incoming tagged
         // param, and the physical verifier checks the emitted read's base
         // is that exact formal/copy root in the non-null cone.
-        if row.numeric_source.is_none() && (!self
+        if !matches!(row.value_source, TerminalFieldValueSourceV1::Numeric(_)) && (!self
             .local_commits
             .borrow()
             .values()
@@ -617,7 +621,7 @@ impl OrdinaryNewClaimLedgerV1 {
         let row = reads
             .get_mut(site)
             .ok_or_else(|| fault("missing-source-site"))?;
-        if let Some(source) = &row.numeric_source { self.recheck_integer_field_source_v1(source, site, row)?; }
+        self.recheck_terminal_field_value_v1(site, row)?;
         if !matches!(row.progress, Progress::Taken(expected) if expected == base)
             || row.field != field
         {
@@ -669,7 +673,7 @@ impl OrdinaryNewClaimLedgerV1 {
             if site.owner() != owner {
                 continue;
             }
-            if let Some(source) = &row.numeric_source { self.recheck_integer_field_source_v1(source, site, row)?; }
+            self.recheck_terminal_field_value_v1(site, row)?;
             let Progress::Emitted(block, instruction) = &row.progress else {
                 return Err(fault("unconsumed-read"));
             };

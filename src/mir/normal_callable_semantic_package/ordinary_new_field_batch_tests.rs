@@ -127,7 +127,7 @@ fn scalar_expression_batch_cached_drift_rejects_before_new_row_commit() {
                 let row = rows.get(&owned)?;
                 Some(crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1 {
                     site: owned, receiver_site: object.clone(), receiver: row.receiver,
-                    home: row.home, alias_class: None, nullable: false, formal: false, received: None, path: None, alias_path: None, field: field.clone(),
+                    home: row.home, alias_class: None, nullable: false, formal: false, received: None, path: None, alias_path: None, field: field.clone(), owned_ready: None,
                 })
             }).collect();
             assert_eq!(requests.len(), 2);
@@ -352,7 +352,7 @@ fn scalar_expression_batch_duplicate_rejects_without_commit() {
                             let Some(ResolvedLexicalRefV1::Local(receiver)) = input.function().variable_ref(object) else { return None };
                             Some(crate::mir::resolved_semantics::home_new_prefix::LocalFieldReadRequestV1 {
                                 site: OwnedExprSiteV1::new(input.owner(), site.clone()), receiver_site: object.clone(),
-                                receiver, home: receiver, alias_class: None, nullable: false, formal: false, received: None, path: None, alias_path: None, field: field.clone(),
+                                receiver, home: receiver, alias_class: None, nullable: false, formal: false, received: None, path: None, alias_path: None, field: field.clone(), owned_ready: None,
                             })
                         },
                         &mut |site| crate::mir::resolved_semantics::home_new_prefix::issue_source_scalar_expression_call(

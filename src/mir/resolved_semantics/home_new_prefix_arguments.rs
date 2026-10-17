@@ -42,7 +42,7 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         &[],
         false,
         result_sites,
-        &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
@@ -62,18 +62,18 @@ pub(crate) fn issue_new_home_prefixes_with_arguments_v1(
         // This bounded sibling issues no field-read evidence: argument
         // `me.f` reads stay truthfully unavailable here. Only the
         // verified-completion lane carries the issuer predicate.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // Field-write scalar proof stays unavailable on this lane for the
         // same reason — no `me.<field> = ..` statement is admitted here.
         &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
         // Container-field proof stays unavailable on this lane as well —
         // no `me.<field>.m(..)` statement is admitted here.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane —
         // a `me.<field>.get(..)` result claims no i64 here.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // The `formal.<field>` index proof stays unavailable on this lane.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // Local-initializer field reads stay unavailable on this lane —
         // the verified-completion lane owns the issuer predicate.
         &mut |_, _| Ok(None),
@@ -126,13 +126,7 @@ pub(crate) fn issue_new_home_prefixes_probing_fields_v1<E>(
         Option<crate::mir::resolved_semantics::home_new_prefix::StaticI64CallClaimV1>,
         E,
     >,
-    field_is_integer: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     argument_i64_field: &mut impl FnMut(
         &OwnedExprSiteV1,
         &SourceExprSiteV1,

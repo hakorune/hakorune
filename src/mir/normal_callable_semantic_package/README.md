@@ -4315,3 +4315,10 @@ replaces the Nullable-only issuer, not its whole-incoming execution checks. Prin
 source revalidation borrows current targets by affine state: SourcePending/Ready
 from their slot, Taken from the current Lowering/Finalized packet owner. Graph
 rechecks borrow that target through a callback; no second source registry exists.
+
+Allocation-only LOCAL field requests retain the exact successful write frame.
+Terminal relations and staged value sources preserve that same Rc, canonical
+field and acquisition; an owned LOCAL value is distinct from a borrowed numeric
+loan and keeps installed-Home requirements. Declaration reads also retain the
+frame. Source readiness grants no physical store/read dominance or activation;
+both final consumers and matching C must corroborate before pending fences open.

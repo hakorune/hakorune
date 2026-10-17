@@ -159,7 +159,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                     assert_eq!(reader.signature.return_type, crate::mir::MirType::Integer);
                     assert_eq!(reader.params.len(), 1, "original implicit receiver ABI");
                     let reads = ledger.field_reads.borrow();
-                    let (site, _) = reads.iter().find(|(_, row)| row.numeric_source.is_some())
+                    let (site, _) = reads.iter().find(|(_, row)| matches!(row.value_source, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::TerminalFieldValueSourceV1::Numeric(_)))
                         .expect("same result-owner numeric field loan");
                     let target = ledger.terminal_relation.values().find_map(|relation| {
                         let crate::mir::resolved_semantics::home_new_prefix::TerminalRelationV1::Call(call) = relation else { return None };
@@ -278,7 +278,7 @@ fn full_child_finishing_rejects_foreign_field_positions_and_masked_exits() {
                     // Matching source-row and physical corruption must still
                     // lose the immutable original field-source loan.
                     let site = ledger.field_reads.borrow().iter()
-                        .find(|(_, row)| row.numeric_source.is_some()).unwrap().0.clone();
+                        .find(|(_, row)| matches!(row.value_source, crate::mir::normal_callable_semantic_package::ordinary_new_coseal::field_reads::TerminalFieldValueSourceV1::Numeric(_))).unwrap().0.clone();
                     let foreign = hakorune_mir_defs::CanonicalFieldRefV1::from_declaration_ordinal(field.object(), 1).unwrap();
                     ledger.field_reads.borrow_mut().get_mut(&site).unwrap().field = foreign;
                     let mut changed = original.clone();

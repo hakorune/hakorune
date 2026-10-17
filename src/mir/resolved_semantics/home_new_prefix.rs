@@ -5,7 +5,7 @@
 
 #[path = "home_field_source.rs"]
 mod field_source;
-pub(crate) use field_source::{HomeFieldSourceConsultV1, NoScalarFieldSourceV1};
+pub(crate) use field_source::{HomeFieldSourceConsultV1, HomeTerminalFieldSourceConsultV1, NoScalarFieldSourceV1};
 
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomeDemandV1, OwnedExprSiteV1,
@@ -208,7 +208,7 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &[],
         false,
         &BTreeSet::new(),
-        &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
         &mut |_, _| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(false),
@@ -217,13 +217,13 @@ pub(crate) fn issue_new_home_prefixes_v1(
         &mut |_| Ok(false),
         &mut |_| Ok(false),
         &mut |_| Ok(None),
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // The `ArrayBox` field census stays unavailable on this lane.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         // The `formal.<field>` index proof stays unavailable on this lane.
-        &mut |_, _, _, _, _| Ok(false),
+        &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
         &mut |_, _| Ok(None),
         &mut |_, _| Ok(None),
         // The bounded sibling consults no dominated-view draft: a `Handle`
@@ -295,13 +295,7 @@ pub(crate) fn scan_new_home_flow<E>(
     exit_sites: &[SourceStmtSiteV1],
     uncovered_implicit_exit: bool,
     result_sites: &BTreeSet<OwnedExprSiteV1>,
-    field_is_integer: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
     map_compatible: &mut impl FnMut(&OwnedExprSiteV1, BindingRefV1) -> Result<bool, E>,
     terminal_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,
     local_map_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<bool, E>,

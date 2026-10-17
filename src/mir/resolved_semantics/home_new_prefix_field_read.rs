@@ -102,6 +102,8 @@ pub(crate) struct LocalFieldReadRequestV1 {
     pub(crate) path: Option<crate::mir::resolved_value_profile::expression_plan::OriginalExpressionFieldPathV1>,
     pub(crate) alias_path: Option<Box<crate::mir::resolved_semantics::home_new_prefix::FieldAliasPathV1>>,
     pub(crate) field: Box<str>,
+    /// Exact prior Normal writer, retained only for the allocation-only LOCAL profile.
+    pub(crate) owned_ready: Option<std::rc::Rc<CheckedFieldWriteFrameV1>>,
 }
 
 impl LocalFieldReadRequestV1 {
@@ -163,7 +165,7 @@ pub(super) fn field_read_request(
         }
         local_flow::FieldReadReceiverV1::GuardedFormal => (receiver, None, false, true),
     };
-    if !locals.field_read_ready(home, field) { return None; }
+    let owned_ready = locals.ready_field_read(home, field)?;
     Some(LocalFieldReadRequestV1 {
         site: OwnedExprSiteV1::new(input.owner(), site.clone()),
         receiver_site: object.clone(),
@@ -176,6 +178,7 @@ pub(super) fn field_read_request(
         path: None,
         alias_path: None,
         field: field.clone(),
+        owned_ready,
     })
 }
 

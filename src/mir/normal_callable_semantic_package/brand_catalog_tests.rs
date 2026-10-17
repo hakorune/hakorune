@@ -158,6 +158,35 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(!std::rc::Rc::ptr_eq(retained,
             foreign_rows.values().next().unwrap().construction_source().as_ref().unwrap()));
     }
+    for (body, fields) in [
+        ("pair.left = 10 return pair.left", 1),
+        ("pair.left = 10 pair.right = 20 pair.left = 30 return pair.left + pair.right", 2),
+    ] {
+        let source = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
+        let package = issue_with_brand_catalog(&source).expect("source-ready terminal");
+        let ledger = &package.ordinary_new_claim_ledger;
+        let requests: Vec<_> = if fields == 1 {
+            vec![ledger.terminal_i64_field_return().unwrap().field_request()]
+        } else { ledger.terminal_i64_add_return().unwrap().field_requests().iter().collect() };
+        let flow = ledger.root_completion_for_test().cleanup().root_flow().unwrap();
+        for request in requests {
+            let ready = request.owned_ready.as_ref().expect("exact successful LOCAL store");
+            let local = ready.owned_local().unwrap();
+            let latest = flow.expression_plans().iter().filter_map(|plan| plan.field_write_frame())
+                .filter(|frame| frame.owned_local().is_some_and(|write| write.field() == local.field())).last().unwrap();
+            assert!(std::rc::Rc::ptr_eq(ready, latest), "retain latest original frame, including overwrite");
+            assert_eq!(request.receiver, local.root());
+        }
+        assert_eq!(flow.lifecycle_prefixes(&[]).unwrap_err(), "lifecycle-prefix/owned-local-field-write-consumer-pending");
+    }
+    for body in ["return pair.left", "pair.left = 10 return pair.right",
+        "pair.left = 10 if true { pair.left = 20 } else {} return pair.left"] {
+        let source = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local pair = new Pair() {body} }} }}");
+        let package = issue_with_brand_catalog(&source).expect("unready source stays descriptive");
+        let ledger = &package.ordinary_new_claim_ledger;
+        assert!(ledger.terminal_i64_field_return().is_none(), "no ready terminal loan: {body}");
+        assert!(ledger.root_completion_for_test().cleanup().terminal_homes().unwrap().is_err());
+    }
     for (body, frames) in [("pair.left = true", 0), ("pair.missing = 1", 0),
         ("pair.left = pair.left", 0), ("pair.left = 1 local x = pair.right", 1),
         ("pair.left += 1", 0),

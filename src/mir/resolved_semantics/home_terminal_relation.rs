@@ -2,6 +2,7 @@
 //! the New-home prefix walk. No physical value, ABI, recipe, JSON, or backend
 //! authority is issued here.
 use super::local_flow::{OrdinaryObservation, PrefixLocalFlow};
+use super::LocalFieldReadRequestV1;
 use super::{
     BindingRefV1, ExprChildRoleV1, FunctionOwnerIdV1, HomePrefixUnavailableV1, OwnedExprSiteV1,
     ResolvedLexicalRefV1, ResolvedLiteralSourceV1, ResolvedMethodCallReceiverSourceV1,
@@ -26,20 +27,23 @@ pub(crate) struct TerminalI64AddReturnV1 {
     return_site: SourceStmtSiteV1,
     add_site: OwnedExprSiteV1,
     field_reads: [OwnedExprSiteV1; 2],
+    field_requests: [LocalFieldReadRequestV1; 2],
 }
 
 impl TerminalI64AddReturnV1 {
+    pub(crate) fn field_requests(&self) -> &[LocalFieldReadRequestV1; 2] { &self.field_requests }
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
         add_site: OwnedExprSiteV1,
-        field_reads: [OwnedExprSiteV1; 2],
+        field_requests: [LocalFieldReadRequestV1; 2],
     ) -> Self {
         Self {
             owner,
             return_site,
             add_site,
-            field_reads,
+            field_reads: [field_requests[0].site.clone(), field_requests[1].site.clone()],
+            field_requests,
         }
     }
 
@@ -154,20 +158,23 @@ pub(crate) struct TerminalI64FieldReturnV1 {
     return_site: SourceStmtSiteV1,
     value_site: SourceExprSiteV1,
     field_read_site: OwnedExprSiteV1,
+    field_request: LocalFieldReadRequestV1,
 }
 
 impl TerminalI64FieldReturnV1 {
+    pub(crate) fn field_request(&self) -> &LocalFieldReadRequestV1 { &self.field_request }
     pub(super) fn issue(
         owner: FunctionOwnerIdV1,
         return_site: SourceStmtSiteV1,
         value_site: SourceExprSiteV1,
-        field_read_site: OwnedExprSiteV1,
+        field_request: LocalFieldReadRequestV1,
     ) -> Self {
         Self {
             owner,
             return_site,
             value_site,
-            field_read_site,
+            field_read_site: field_request.site.clone(),
+            field_request,
         }
     }
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
@@ -319,10 +326,10 @@ pub(super) fn array_literal_element_count(
 pub(super) enum ReturnScalar {
     Integer,
     OtherTrivial,
-    IntegerField(OwnedExprSiteV1),
+    IntegerField(Box<LocalFieldReadRequestV1>),
     I64Add {
         site: OwnedExprSiteV1,
-        field_reads: [OwnedExprSiteV1; 2],
+        field_reads: Box<[LocalFieldReadRequestV1; 2]>,
     },
 }
 
@@ -342,13 +349,7 @@ pub(super) fn return_scalar<E>(
     input: ResolvedFunctionLoweringInputV1<'_>,
     site: &SourceExprSiteV1,
     locals: &PrefixLocalFlow<'_>,
-    field_is_integer: &mut impl FnMut(
-        &OwnedExprSiteV1,
-        &SourceExprSiteV1,
-        BindingRefV1,
-        BindingRefV1,
-        &str,
-    ) -> Result<bool, E>,
+    field_is_integer: &mut impl crate::mir::resolved_semantics::home_new_prefix::HomeTerminalFieldSourceConsultV1<E>,
 ) -> Result<Option<ReturnScalar>, E> {
     if matches!(
         input.function().expression_source().literal(site),
@@ -394,10 +395,13 @@ pub(super) fn return_scalar<E>(
                 return Ok(None);
             };
             let field_site = OwnedExprSiteV1::new(input.owner(), site.clone());
-            Ok(
-                field_is_integer(&field_site, receiver.site(), binding, home, field)?
-                    .then_some(ReturnScalar::IntegerField(field_site)),
-            )
+            let Some(owned_ready) = locals.ready_field_read(home, field) else { return Ok(None) };
+            let request = LocalFieldReadRequestV1 {
+                site: field_site.clone(), receiver_site: receiver.site().clone(), receiver: binding, home,
+                alias_class: None, nullable: false, formal: false, received: None, path: None,
+                alias_path: None, field: field.clone().into(), owned_ready,
+            };
+            Ok(field_is_integer.integer_field(&request)?.then_some(ReturnScalar::IntegerField(Box::new(request))))
         }
         ASTNode::BinaryOp {
             operator: crate::ast::BinaryOperator::Add,
@@ -424,7 +428,7 @@ pub(super) fn return_scalar<E>(
                     Some(ReturnScalar::IntegerField(right)),
                 ) => Ok(Some(ReturnScalar::I64Add {
                     site: add_site,
-                    field_reads: [left, right],
+                    field_reads: Box::new([*left, *right]),
                 })),
                 (Some(left), Some(right)) if left.proves_integer() && right.proves_integer() => {
                     Ok(Some(ReturnScalar::Integer))

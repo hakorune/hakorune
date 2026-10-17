@@ -38,3 +38,16 @@ impl<E> HomeFieldSourceConsultV1<E> for NoScalarFieldSourceV1 {
     fn scalar_field(&mut self, _: &OwnedExprSiteV1, _: &SourceExprSiteV1,
         _: BindingRefV1, _: BindingRefV1, _: &str) -> Result<bool, E> { Ok(false) }
 }
+
+/// One terminal field request retains source readiness instead of reducing it to a bool.
+/// Existing read-only probes keep their previous declaration-only contract.
+pub(crate) trait HomeTerminalFieldSourceConsultV1<E> {
+    fn integer_field(&mut self, request: &LocalFieldReadRequestV1) -> Result<bool, E>;
+}
+impl<E, F> HomeTerminalFieldSourceConsultV1<E> for F
+where F: FnMut(&OwnedExprSiteV1, &SourceExprSiteV1, BindingRefV1, BindingRefV1, &str) -> Result<bool, E> {
+    fn integer_field(&mut self, request: &LocalFieldReadRequestV1) -> Result<bool, E> {
+        if request.owned_ready.is_some() { return Ok(false); }
+        self(&request.site, &request.receiver_site, request.receiver, request.home, &request.field)
+    }
+}

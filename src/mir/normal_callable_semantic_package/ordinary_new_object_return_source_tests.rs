@@ -264,15 +264,15 @@ fn foreign_selected_return_qualification_refuses_without_scalar_retry() {
             input, &std::collections::BTreeMap::new(), std::iter::empty(), None,
             contract.completion().explicit_sites(), contract.completion().implicit_body_end().is_some(),
             &std::collections::BTreeSet::new(),
-            &mut |_, _, _, _, _| Ok::<_, std::convert::Infallible>(false),
+            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok::<_, std::convert::Infallible>(false),
             &mut |_, _| Ok(false),
             &mut |_| -> Result<bool, std::convert::Infallible> { panic!("no scalar terminal retry") },
             &mut |_| Ok(false), &mut |_| Ok(false),
             &mut |_| -> Result<bool, std::convert::Infallible> { panic!("no borrowed i64 terminal retry") },
             &mut |_| Ok(false), &mut |_| Ok(false), &mut |_| Ok(None),
-            &mut |_, _, _, _, _| Ok(false), &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
-            &mut |_, _, _, _, _| Ok(false), &mut |_, _, _, _, _| Ok(false),
-            &mut |_, _, _, _, _| Ok(false), &mut |_, _| Ok(None),
+            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut crate::mir::resolved_semantics::home_new_prefix::NoScalarFieldSourceV1,
+            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false),
+            &mut |_: &crate::mir::resolved_semantics::OwnedExprSiteV1, _: &crate::mir::resolved_semantics::SourceExprSiteV1, _, _, _: &str| Ok(false), &mut |_, _| Ok(None),
             &mut |_, request| {
                 if matches!(request, crate::mir::resolved_semantics::home_new_prefix::BorrowedCallActualRequestV1::ScalarArguments) {
                     panic!("no scalar argument retry");

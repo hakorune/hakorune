@@ -25,11 +25,12 @@ impl PrefixLocalFlow<'_> {
         true
     }
 
-    pub(in crate::mir::resolved_semantics::home_new_prefix) fn field_read_ready(
+    pub(in crate::mir::resolved_semantics::home_new_prefix) fn ready_field_read(
         &self, root: BindingRefV1, name: &str,
-    ) -> bool {
-        let Some(StoredLocal::Home { construction_source: Some(source), ready, .. }) = self.locals.get(&root) else { return true };
-        if !source.is_allocation_only_i64() { return true; }
-        source.allocation_only_i64_field(name).is_some_and(|field| ready.contains_key(&field))
+    ) -> Option<Option<Rc<CheckedFieldWriteFrameV1>>> {
+        let Some(StoredLocal::Home { construction_source: Some(source), ready, .. }) = self.locals.get(&root) else { return Some(None) };
+        if !source.is_allocation_only_i64() { return Some(None); }
+        let field = source.allocation_only_i64_field(name)?;
+        ready.get(&field).map(|frame| Some(Rc::clone(frame)))
     }
 }

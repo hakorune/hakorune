@@ -421,16 +421,11 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_ordinary_source_co
                 drop(probe);
                 let (home_prefixes, argument_observations, result_prefixes) = if verified_walk {
                     let mut staged_reads = BTreeMap::new();
-                    let mut field_is_integer = |site: &OwnedExprSiteV1, receiver_site: &SourceExprSiteV1, receiver, home, name: &str| {
-                        let Some((field, numeric_source)) = integer_fields::consult_v1(input, selected, batch,
+                    let mut field_is_integer = integer_fields::terminal_field_consult_v1(instance_constructors,
+                        &candidates, batch.ordinary_box_coverage(), &mut staged_reads,
+                        |site, receiver_site, receiver, home, name| integer_fields::consult_v1(input, selected, batch,
                             instance_constructors, &candidates, &callable_result_classes, &borrowed_formal_source,
-                            &borrowed_i64_results, receiver_proof, site, receiver_site, receiver, home, name)? else { return Ok(false); };
-                        if staged_reads.insert(site.clone(), field_reads::FieldRead {
-                            receiver_site: receiver_site.clone(), receiver, home, field, numeric_source,
-                            progress: field_reads::Progress::Pending,
-                        }).is_some() { return Err(OrdinaryNewCoSealIssueV1::DuplicateSite { site: site.clone() }); }
-                        Ok(true)
-                    };
+                            &borrowed_i64_results, receiver_proof, site, receiver_site, receiver, home, name));
                     // Argument-position `receiver.field` reads: a claim-local
                     // `new` Home receiver reuses the terminal provenance; the
                     // entry loan's receiver root proves against this
