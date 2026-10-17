@@ -250,6 +250,11 @@ fn resolved_shape_issues_declared_instance_method_receiver_source() {
         .expect("declared-instance method source");
     let call = calls.values().next().expect("one method call");
 
+    let source = product.function().method_call_source_v1(call.site()).unwrap();
+    assert_eq!(source.as_ref(), call);
+    assert!(std::ptr::eq(source.as_ref(), product.function().method_call(call.site()).unwrap()));
+    assert!(std::sync::Arc::ptr_eq(source, product.function().method_call_source_v1(call.site()).unwrap()));
+
     assert_eq!(call.owner(), product.function().owner());
     assert!(matches!(
         call.receiver(),
@@ -360,6 +365,10 @@ fn resolved_shape_does_not_attach_identity_to_a_lexical_receiver() {
     let calls = super::body_shape::issue_resolved_method_call_sources_v1(product.body_shape())
         .expect("lexical method source");
     let call = calls.values().next().expect("lexical call row");
+    let source = product.function().method_call_source_v1(call.site()).unwrap();
+    assert_eq!(source.as_ref(), call, "qualified identity and result/argument metadata retained");
+    assert!(std::ptr::eq(source.as_ref(), product.function().method_call(call.site()).unwrap()));
+
     assert!(matches!(
         call.receiver(),
         super::ResolvedMethodCallReceiverSourceV1::Lexical(_)

@@ -22,7 +22,7 @@ pub(crate) enum BorrowedCallActualValueV1 {
     },
     Binding(BindingRefV1),
     /// Exact original MethodCall membership; no result class or execution proof.
-    MethodCall,
+    MethodCall(std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>),
     /// Original field spelling, without a live parent or execution proof.
     FieldAccess,
     /// The prefix still owns this exact definite received-call binding.
@@ -60,7 +60,7 @@ pub(crate) fn borrowed_actual_source_atom_v1(
                 Some(ResolvedLexicalRefV1::Local(binding)) => {
                     Some(BorrowedCallActualValueV1::Binding(binding))
                 }
-                _ => input.function().method_call(site).map(|_| BorrowedCallActualValueV1::MethodCall)
+                _ => input.function().method_call_source_v1(site).map(|source| BorrowedCallActualValueV1::MethodCall(std::sync::Arc::clone(source)))
                     .or_else(|| matches!(input.body_shape().and_then(|shape| shape.expression_shape(site)),
                         Some(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }))
                         .then_some(BorrowedCallActualValueV1::FieldAccess)),

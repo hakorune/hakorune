@@ -278,7 +278,8 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
             let candidates = vec![BorrowedCallActualCandidateV1 {
                 ordinal: 0,
                 site: target.argument_sites()[0].clone(),
-                value: BorrowedCallActualValueV1::MethodCall,
+                value: batch.with_lowering_input(contract.batch_slot, |input|
+                    crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, &target.argument_sites()[0]).unwrap()).unwrap(),
             }];
             let rows = super::super::super::borrowed_formal_actuals::instance_source::prepare_instance_source_actuals_v1(&ingress, parameters, target.call_site(), &candidates).unwrap().unwrap();
             let super::super::super::borrowed_formal_actuals::model::BorrowedCallActualEvidencePhaseV1::SourceInstance(identity) = &rows.phase else { panic!("conditional source phase") };
@@ -337,6 +338,39 @@ fn array_actual_retains_original_shared_loan_and_refuses_executable_upgrade() {
                 .unwrap();
             assert!(revalidate_passive_instance_incoming_v1(&ingress, parameters, original, &rows, &classes).unwrap(),
                 "whole original source agreement grants no live Array read");
+            use std::sync::Arc;
+            let BorrowedCallActualValueV1::MethodCall(method) = &candidates[0].value else { panic!("original method source") };
+            let (reissued, different) = batch.with_lowering_input(contract.batch_slot, |input| {
+                let again = crate::mir::resolved_semantics::home_new_prefix::borrowed_actual_source_atom_v1(input, &candidates[0].site).unwrap();
+                let BorrowedCallActualValueV1::MethodCall(again) = again else { panic!("same observation") };
+                assert!(Arc::ptr_eq(method, &again));
+                let mut issued = crate::mir::resolved_semantics::issue_resolved_method_call_sources_v1(input.body_shape().unwrap()).unwrap();
+                let reissued = Arc::new(issued.remove(&candidates[0].site).unwrap());
+                assert_eq!(method.as_ref(), reissued.as_ref());
+                assert!(!Arc::ptr_eq(method, &reissued));
+                let other = input.function().method_calls().find(|(site, row)|
+                    *site != &candidates[0].site && row.selector() == "get").unwrap().0;
+                (reissued, input.function().method_call_source_v1(other).unwrap().clone())
+            }).unwrap();
+            for mutation in 0..4 {
+                let mut changed = candidates.clone();
+                match mutation {
+                    0 => changed[0].value = BorrowedCallActualValueV1::MethodCall(reissued.clone()),
+                    1 => changed[0].value = BorrowedCallActualValueV1::MethodCall(different.clone()),
+                    2 => changed[0].site = target.call_site().site().clone(),
+                    _ => changed[0].ordinal = 1,
+                }
+                assert!(super::super::super::borrowed_formal_actuals::instance_source::prepare_instance_source_actuals_v1(
+                    &ingress, parameters, target.call_site(), &changed).unwrap_err().contains("method-original-source-drift"));
+                let mut forged = rows.clone();
+                let super::super::super::borrowed_formal_actuals::model::BorrowedCallActualEvidencePhaseV1::SourceInstance(forged_identity) = &mut forged.phase else { panic!("source phase") };
+                forged_identity.candidates = changed.into_boxed_slice();
+                let forged_identity = forged_identity.clone();
+                assert!(revalidate_passive_instance_incoming_v1(&ingress, parameters, original, &forged, &classes)
+                    .unwrap_err().contains("method-original-source-drift"));
+                assert!(super::super::super::borrowed_formal_actuals::instance_source::reconstruct_instance_source_actuals_v1(
+                    &ingress, parameters, original, &forged_identity, None).unwrap_err().contains("method-original-source-drift"));
+            }
             let mut drifted = rows.clone();
             drifted.ordered_arguments = Box::new([]);
             assert!(revalidate_passive_instance_incoming_v1(&ingress, parameters, original, &drifted, &classes)

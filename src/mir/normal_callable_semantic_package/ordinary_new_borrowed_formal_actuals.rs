@@ -304,10 +304,15 @@ fn construct_borrowed_call_actuals_v1(
             }
             BorrowedCallActualValueV1::Bool(value) => BorrowedFormalActualSourceV1::Bool(*value),
             BorrowedCallActualValueV1::Null => BorrowedFormalActualSourceV1::Null,
-            BorrowedCallActualValueV1::MethodCall | BorrowedCallActualValueV1::ReceivedField { .. } => {
+            BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. } => {
                 let source = array_read(*ordinal, site, *formal)?.ok_or_else(|| freeze("borrowed-actual/unsupported-or-unavailable"))?;
                 if source.site().owner() != call.owner() || source.site().site() != site {
                     return Err(freeze("borrowed-actual/array-read-source-drift"));
+                }
+                if let BorrowedCallActualValueV1::MethodCall(method) = &actual.value {
+                    if !source.corroborates_method_source_v1(method) {
+                        return Err(freeze("borrowed-actual/method-original-source-drift"));
+                    }
                 }
                 BorrowedFormalActualSourceV1::Read(source)
             }

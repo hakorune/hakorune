@@ -284,6 +284,13 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.method_call(site)
     }
 
+    /// Same canonical method row for source consumers that must retain identity.
+    pub(crate) fn method_call_source_v1(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<&std::sync::Arc<super::body_shape::VerifiedResolvedMethodCallSourceV1>> {
+        self.function.method_call_source_v1(site)
+    }
+
     /// Borrows the resolver-sealed direct-call target for one exact call site.
     pub(crate) fn direct_call_target(
         &self,

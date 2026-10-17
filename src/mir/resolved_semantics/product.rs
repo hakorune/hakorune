@@ -48,7 +48,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
         BTreeMap<SourceExprSiteV1, ResolvedDirectCallObservationV1>,
     pub(crate) brand_call_relations: BTreeMap<SourceExprSiteV1, VerifiedBrandCallSourceRelationV1>,
     pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ResolvedExplicitExternCallV1>,
-    pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    pub(crate) method_calls: BTreeMap<SourceExprSiteV1, std::sync::Arc<VerifiedResolvedMethodCallSourceV1>>,
     pub(crate) expression_source: ResolvedExpressionSourceInventoryV1,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
@@ -346,13 +346,21 @@ impl VerifiedResolvedFunctionV1 {
         &self,
         site: &SourceExprSiteV1,
     ) -> Option<&VerifiedResolvedMethodCallSourceV1> {
+        self.core.data.method_calls.get(site).map(std::sync::Arc::as_ref)
+    }
+
+    /// Retain the resolver's SAME immutable source row, not a reconstructed call.
+    /// This source relation lends no dispatch, result, Home or execution proof.
+    pub(crate) fn method_call_source_v1(
+        &self, site: &SourceExprSiteV1,
+    ) -> Option<&std::sync::Arc<VerifiedResolvedMethodCallSourceV1>> {
         self.core.data.method_calls.get(site)
     }
 
     pub(crate) fn method_calls(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
-        self.core.data.method_calls.iter()
+        self.core.data.method_calls.iter().map(|(site, source)| (site, source.as_ref()))
     }
 
     pub(crate) fn direct_call_observation(
@@ -480,7 +488,7 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) fn method_calls(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
-        self.core.data.method_calls.iter()
+        self.core.data.method_calls.iter().map(|(site, source)| (site, source.as_ref()))
     }
 
     pub(crate) const fn expression_source(&self) -> &ResolvedExpressionSourceInventoryV1 {

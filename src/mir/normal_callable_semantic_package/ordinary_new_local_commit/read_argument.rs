@@ -60,6 +60,15 @@ impl ReadActualSourceLoanV1 {
                 .expect("checked Field class"),
         }
     }
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_method_source_v1(
+        &self, method: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    ) -> bool {
+        match &self.kind {
+            ReadSourceKindV1::Array(source) => source.recipe.original_read_v1(source.site())
+                .is_some_and(|original| original.corroborates_method_source_v1(method)),
+            ReadSourceKindV1::Field(_) => false,
+        }
+    }
     pub(in crate::mir::normal_callable_semantic_package) fn corroborates_array_input_v1(
         &self, original: &ArrayElementSourceLoanV1,
     ) -> bool {

@@ -1,6 +1,6 @@
 # MIRBUILDER-GATE1-STATIC-TEXT-INPUT-S0
 
-Status: active; source preparation selected; full series unaccepted.
+Status: active; original-source preparation verified; full series unaccepted.
 Date: 2026-10-17
 Scope: required Gate1 source Text generation -> ordinary static borrowed input,
 including original incoming/entry, arguments/results, cleanup and publication.
@@ -95,7 +95,7 @@ point bounds must be built. Unknown int_to_str/MapGet-derived input to to_i64
 stays an explicit unmet dependency until its producer proof closes; the Text
 transport does not resolve its domain. No overall json-stream success is claimed.
 
-## Current internal slice: original method-source retention (BoxShape)
+## Original method-source retention (BoxShape, verified preparation)
 
 Preserve the resolver's method relation once behind Arc, keeping its !Clone row
 and existing borrowed accessors. The source actual's MethodCall case carries
@@ -109,7 +109,8 @@ Paths: resolved_semantics product/resolver canonicalization/source ledger,
 home_local_call_borrowed_actuals and named_array_append_only_source;
 ordinary_new_borrowed_array_source, existing read argument source bridge,
 ordinary_new_borrowed_formal_actuals/instance_source_actuals and their existing
-tests, plus the semantic-package owner README. No source-app changes.
+tests, plus the semantic-package owner README. Resolver owner README is also
+updated because its canonical retained-row contract now exposes a same-Arc loan. No source-app changes.
 
 Verification: reuse array_actual_retains_original_shared_loan_and_refuses_executable_upgrade
 and static_source_port_rejects_substituted_candidate_and_corrupted_ordered_view;
@@ -127,7 +128,8 @@ and both consumers close; no parallel interpreter/emitter or temporary adapter.
 
 ## Unfinished acceptance / retained evidence
 
-- Current source normalization unbuilt/unverified; no product claim.
+- Original method-source normalization built, focused24 PASS and unchanged native
+  regression PASS below. No Text input or product claim.
 - Build Text/source sum and bounds; static actual/whole entry/result connection.
 - Checked substring + named Text transport + all Normal/Fault cleanup.
 - Both final scans/JSON/C and native positive/negative lifecycle evidence.
@@ -136,3 +138,75 @@ and both consumers close; no parallel interpreter/emitter or temporary adapter.
 - Keep CLI186, Root851C, app203-205 and matched backend pins as current baseline.
   No adapter is parked. Superseded pins may retire after stronger replacement
   evidence; logs/manifests and implementation commits retain required evidence.
+
+## V852 source preparation — landing
+
+Resolver canonicalization wraps each method row once in Arc; existing borrowed
+accessors keep their original API and row, including qualifier/result metadata.
+MethodCall actuals retain the same Arc. NamedArray read source now derives
+call/receiver/index from it instead of three copied coordinates. The existing
+Array loan, actual admission, generic Read source bridge, passive validation and
+reconstruction require exact source identity; structural phase equality remains
+insufficient. Repeated original observations share the same row.
+
+Read-only post-edit review found no blocking connection gaps. The source body
+issuer remains non-Clone and String still takes its existing refusal. The lossy
+marker's construction/consumer arms are replaced; no adapter or parallel call
+classifier is introduced. Shared issuers and independent tests remain live.
+
+RootB quick-test-fast no-run PASS90.377472s; focused24PASS/0FAIL across5 nonempty
+filters: body-shape12, named-array-method9, original Array actual1, static snapshot
+refusal1, returned-field input1. Existing Array test includes equal-content
+reissued Arc, different canonical source, wrong outer site and ordinal, each
+refused at admission/passive/reconstruction; repeated borrowing retains the
+same Arc. Existing body-shape tests retain qualified identity and result/argument
+metadata, reject original receiver/argument relation corruption and foreign owner.
+Root warnings870 unchanged; RootA E0615 at removed read.call field corrected to
+its source accessor before this final build. No test was dropped or added as a
+new standalone suite. Manifests v852b-root and v852-cli187 match exactly.
+Root-route, builder-layer, thin-shim and diff guards PASS. Pointer guard passed at
+selection. Changed Rust files remain below800 lines.
+
+CLI187 quick build PASS176.063931s, warnings1807 unchanged; SHA
+9e933217b2a8f481e69d3653a6a2e3f1d55076249a8077f33b2124cc0aa9b673.
+Unchanged json-stream app206 exits1/no artifact in .111672s with the SAME
+borrowed-static/source-actual-unavailable at slot20 Body7 Value. This is verified
+BoxShape/source-retention progress, not actual app-frontier movement. Root/CLI
+captured manifests match. Subsequent resolver README-only text differs from the
+capture; exact before/after hashes are recorded in app receipts. No compiled
+source differs and no include_str/include_bytes uses that README. No unnecessary
+Cargo rebuild was performed for documentation.
+Unchanged mimalloc app207 direct canonical EXE PASS130.369429s/native .001547s,
+exact existing7 stdout/exit0/expected plugin-disabled warning. Native SHA
+38b3f3d4b8702ae8c9b687a70b0d2c3e2c2e40aeb128f055fe056e25235559c3.
+All build/test/native handles are terminal. No full-suite/current CI green or
+performance improvement claim. Pointer/link/diff checks PASS. Keep Root852B,
+CLI187/app206-207, manifests/logs/receipts and matched backend pins as evidence
+for this unfinished series; failed RootA made no test pin to discard. No saved
+adapter, new standalone guard or unused dedicated fixture exists.
+Do not interpret this preparation as Text source agreement, executable Text
+entry, substring acquisition, tag4 activation or cleanup/publication acceptance.
+
+Next same-series source connection, from the worker's full owner review:
+QualifiedStaticCallClaimIndexV1 already owns the SAME solver's result_rows, but
+its issue() keeps qualified call sites only for ExactI64 and then
+into_dispositions() discards SameModuleStatic/CoreStringMethod call evidence.
+Retain a passive source projection from that SAME result catalog before it is
+consumed; join caller/site/target/catalog brand to the canonical method Arc at
+the original resolved-source consumer. Do not rerun the result solver/AST walk.
+ExactString/ExactStringOnSuccess remains representation-on-Normal, not an Add
+or substring execution permission. Extend the original seed product's source
+SUM with retained Text/I64/Null contributions, all Forward edges, Other/unknown
+and unresolved cycles; keep existing homogeneous Integer/Object and declared
+field constraints unchanged. Unknown siblings and empty/seedless cycles do not
+close a domain. Mutable bounds retain exact Prefix/Loop After dependencies.
+This remains construction inside the same Decision; no new row, all-Text
+shortcut, general String×Dynamic semantics or implicit execution promotion.
+
+Next internal slice is original Text/source SUM retention from the SAME catalog
+and original seed product. Expected paths: qualified_static_call_claim and the
+result catalog's owned source projection, original formal seed/domain owner and
+its existing tests. Preserve all original method Arc/caller/target/catalog-brand
+correspondence and unknown dependencies. Update this bounded path list if source
+inspection identifies a necessary owner, before adding its implementation. Full
+source-to-input/cleanup/publication acceptance remains the finish line above.

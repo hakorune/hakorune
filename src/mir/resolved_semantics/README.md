@@ -1121,6 +1121,13 @@ argument coverage and exact child membership before publishing the row through
 reordered rows fail before Builder effects. Result identity and owner identity
 cannot be supplied separately from the sealed function.
 
+Canonicalization retains each non-Clone row once behind Arc. Existing borrowed
+queries still lend that row; `method_call_source_v1` lends the SAME original Arc
+when an actual or Array read must retain it. Repeated observations do not reissue
+or copy metadata. Delegated source consumers check original Arc identity as well
+as owner/site/argument position; structural equality of a reissued row is not
+original membership. This retention issues no value, Home or execution permission.
+
 This is source authority only. It does not classify Static versus Dynamic,
 issue a target, infer a value class, declare effects/Home/suspension, create a
 Recipe/CallSlot, or select a runtime route. The unchanged production

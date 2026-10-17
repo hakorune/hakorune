@@ -33,7 +33,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
     }
     let mut array_loans = Vec::new();
     let mut field_loans = Vec::new();
-    for actual in actuals {
+    for (position, actual) in actuals.iter().enumerate() {
         if let BorrowedCallActualValueV1::ReceivedField { parent, acquisition } = &actual.value {
             let Some(loan) = ingress.original_returned_field_actual_source_v1(site, actual.ordinal)?
                 else { continue; };
@@ -43,13 +43,19 @@ pub(super) fn prepare_instance_source_actuals_v1(
             }
             field_loans.push((actual.ordinal, loan.clone()));
         }
-        if actual.value == BorrowedCallActualValueV1::MethodCall {
+        if let BorrowedCallActualValueV1::MethodCall(method) = &actual.value {
+            if actual.ordinal as usize != position || method.owner() != site.owner() || method.site() != &actual.site {
+                return Err(freeze("borrowed-instance/method-original-source-drift"));
+            }
             let read = OwnedExprSiteV1::new(site.owner(), actual.site.clone());
             if let Some(loan) =
                 super::super::borrowed_formal_source::ArrayElementSourceLoanV1::issue(
                     ingress, &read,
                 )?
             {
+                if !loan.corroborates_method_source_v1(method) {
+                    return Err(freeze("borrowed-instance/method-original-source-drift"));
+                }
                 array_loans.push((actual.ordinal, loan));
             }
         }
@@ -194,7 +200,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                     };
                     if !matches { return Err(freeze("borrowed-instance/mixed-acquisition-identity")); }
                 }
-                BorrowedCallActualValueV1::MethodCall => {
+                BorrowedCallActualValueV1::MethodCall(ref method) => {
                     let mut loans = array_loans
                         .iter()
                         .filter(|(ordinal, _)| *ordinal == actual.ordinal);
@@ -205,6 +211,7 @@ pub(super) fn prepare_instance_source_actuals_v1(
                         || loan.read().owner() != site.owner()
                         || loan.read().site() != &actual.site
                         || loan.holder().owner() != site.owner()
+                        || !loan.corroborates_method_source_v1(method)
                     {
                         return Err(freeze("borrowed-instance/array-loan-identity"));
                     }
@@ -689,9 +696,12 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
                 }
                 loan.class()
             }
-            BorrowedCallActualValueV1::MethodCall => {
+            BorrowedCallActualValueV1::MethodCall(ref method) => {
                 let loan = identity.array_loans.iter().find(|(index, _)| index == ordinal)
                     .ok_or_else(|| freeze("borrowed-instance/array-loan-missing"))?;
+                if candidate.ordinal != *ordinal || !loan.1.corroborates_method_source_v1(method) {
+                    return Err(freeze("borrowed-instance/method-original-source-drift"));
+                }
                 let requirement = ingress.array_element_source_v1(loan.1.read())?
                     .ok_or_else(|| freeze("array-source/read-missing"))?;
                 Some(requirement.class())
@@ -708,7 +718,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn revalidate_passive_insta
             _ => None,
         };
         if view.is_some_and(|view| class != Some(view.class()))
-            || (matches!(candidate.value, BorrowedCallActualValueV1::MethodCall | BorrowedCallActualValueV1::ReceivedField { .. }) && view.is_none())
+            || (matches!(candidate.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::ReceivedField { .. }) && view.is_none())
         {
             return Err(freeze("borrowed-entry/object-view-drift"));
         }

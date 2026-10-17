@@ -46,18 +46,17 @@ impl NamedArrayAppendSourceV1 {
 
 #[derive(Debug)]
 pub(crate) struct NamedArrayReadSourceV1 {
-    call: SourceExprSiteV1,
-    receiver: SourceExprSiteV1,
-    index: SourceExprSiteV1,
+    source: std::sync::Arc<VerifiedResolvedMethodCallSourceV1>,
     integer: i64,
 }
 impl NamedArrayReadSourceV1 {
-    pub(crate) fn receiver(&self) -> &SourceExprSiteV1 { &self.receiver }
+    pub(crate) fn source(&self) -> &std::sync::Arc<VerifiedResolvedMethodCallSourceV1> { &self.source }
+    pub(crate) fn receiver(&self) -> &SourceExprSiteV1 { self.source.receiver_site() }
     pub(crate) fn call(&self) -> &SourceExprSiteV1 {
-        &self.call
+        self.source.site()
     }
     pub(crate) fn index(&self) -> &SourceExprSiteV1 {
-        &self.index
+        self.source.arguments()[0].site()
     }
     pub(crate) fn integer(&self) -> i64 {
         self.integer
@@ -174,11 +173,10 @@ impl NamedArrayAppendOnlySourceV1 {
                     else {
                         return Err(E::IndexSource);
                     };
+                    let source = ledger.method_call_source_v1(site).ok_or(E::UnsupportedUse)?;
+                    if !std::ptr::eq(source.as_ref(), call) { return Err(E::UnsupportedUse); }
                     reads.push(NamedArrayReadSourceV1 {
-                        call: site.clone(),
-                        receiver: call.receiver_site().clone(),
-                        index: argument.site().clone(),
-                        integer: *integer,
+                        source: std::sync::Arc::clone(source), integer: *integer,
                     });
                 }
                 _ => return Err(E::UnsupportedUse),
@@ -194,7 +192,7 @@ impl NamedArrayAppendOnlySourceV1 {
         }
         // Sorting is safe only after the exact straight-line source shapes above.
         appends.sort_by(|a, b| a.call.cmp(&b.call));
-        reads.sort_by(|a, b| a.call.cmp(&b.call));
+        reads.sort_by(|a, b| a.call().cmp(b.call()));
         Ok(Self {
             construction,
             appends: appends.into_boxed_slice(),

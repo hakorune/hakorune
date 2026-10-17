@@ -226,7 +226,8 @@ pub(super) fn canonicalize_draft(
     )
     .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
     let method_calls = issue_resolved_method_call_sources_v1(&body_shape)
-        .map_err(ResolveFunctionErrorV1::MethodCallSource)?;
+        .map_err(ResolveFunctionErrorV1::MethodCallSource)?
+        .into_iter().map(|(site, source)| (site, std::sync::Arc::new(source))).collect();
     let assignment_targets = draft
         .assignment_targets
         .iter()

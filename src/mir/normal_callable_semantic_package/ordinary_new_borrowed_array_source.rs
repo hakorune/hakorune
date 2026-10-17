@@ -290,17 +290,28 @@ pub(super) fn qualify_array_sources_v1(
 pub(in crate::mir::normal_callable_semantic_package) struct ArrayElementSourceLoanV1 {
     read: OwnedExprSiteV1,
     index: SourceExprSiteV1,
+    method: std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
     requirement: Rc<ArrayElementSourceRequirementV1>,
 }
 impl PartialEq for ArrayElementSourceLoanV1 {
     fn eq(&self, other: &Self) -> bool {
         self.read == other.read
             && self.index == other.index
+            && std::sync::Arc::ptr_eq(&self.method, &other.method)
             && Rc::ptr_eq(&self.requirement, &other.requirement)
     }
 }
 impl Eq for ArrayElementSourceLoanV1 {}
 impl ArrayElementSourceLoanV1 {
+    /// Nested actuals must retain the exact canonical resolver row.
+    pub(in crate::mir::normal_callable_semantic_package) fn corroborates_method_source_v1(
+        &self, source: &std::sync::Arc<crate::mir::resolved_semantics::VerifiedResolvedMethodCallSourceV1>,
+    ) -> bool {
+        source.owner() == self.read.owner() && source.site() == self.read.site()
+            && source.arguments().len() == 1 && source.arguments()[0].site() == &self.index
+            && std::sync::Arc::ptr_eq(source, &self.method)
+    }
+
     pub(in crate::mir::normal_callable_semantic_package) fn same_holder_v1(
         &self,
         other: &Self,
@@ -430,6 +441,7 @@ impl ArrayElementSourceLoanV1 {
         Ok(Some(Self {
             read: read.clone(),
             index: row.index().clone(),
+            method: std::sync::Arc::clone(row.source()),
             requirement: Rc::clone(requirement),
         }))
     }

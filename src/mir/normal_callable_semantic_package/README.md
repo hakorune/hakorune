@@ -4413,3 +4413,14 @@ rows. Both final scans validate the read graph plus other canonical lifecycle
 uses of the exact Home from the source-owned recorded inventory. Source/RHS
 pre-seal validation checks captured/actual effects; finalized context additionally
 requires sealed recorded membership. Missing capability never retries raw.
+
+
+Nested MethodCall actuals retain the resolver's SAME immutable method-source Arc.
+The original row remains non-Clone and carries receiver/qualified spelling,
+ordered arguments, selector/arity, owner/site and result site; it is not an Array,
+Text, Home or execution classification. NamedArray read requirements retain that
+same row. Source actual admission, passive validation and reconstruction require
+canonical row identity before delegating to the existing Array/read issuer; a
+structurally equal reissued row cannot lend the original read. Existing source
+phase equality remains structural and cannot replace this identity check. Text
+actual transport and its lifetime/entry/publication closure remain unaccepted.
