@@ -4461,3 +4461,8 @@ or Birth caller key: its calls remain scoped Unknown obligations, retaining
 the SAME canonical method Arc and ordered actuals. Source-refusal corroboration
 checks scope, owner, diagnostic and original Arc identity, including duplicate
 loss under an unchanged veto set. Legacy executable projections remain root-only.
+
+`ordinary_new_borrowed_formal_actual_seed` is the sole original actual
+classifier and owns its existing source/selected projections. Formal ingress
+retains those raw rows once; source domains and physical selection project them
+without rescanning source or sharing admission authority.

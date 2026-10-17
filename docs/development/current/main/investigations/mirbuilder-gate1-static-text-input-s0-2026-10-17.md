@@ -210,118 +210,92 @@ app210 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. Guards PASS.
 Root854B/D/CLI189/app209-210 evidence remains needed; RootC pin superseded and
 retired. Complete source SUM/entry/cleanup/publication remains unaccepted.
 
-## Whole original incoming census — source SUM prerequisite
+## Verified whole original incoming census
 
-Previous goal turn PROGRESS:fab61017ba source identity landed/pushed.
-Read-only top-down worker review found a common coverage gap before the SUM:
-registered owners currently depend on successful borrowed-use drafts, and
-catalog-omitted Static callers are skipped. A source union must retain both.
-One original observation store and one collection loop remain the owner. Each
-observation records Both/SourceOnly/LegacyOnly participation. Existing selected
-transport/Integer/Object projections keep the legacy participation; future SUM
-reads the source participation. No second inventory or source classifier.
-Register canonical Static source contracts independently of use-draft success;
-retain original unsupported/unknown/spelling/context/caller obligations. A
-registered complete-empty census differs from absent registration. Issue
-NoIncoming separately per participation; a source-only caller cannot erase a
-legacy NoIncoming sentinel, and global failures retain their respective scope.
-The existing direct_call_co_seal issuer already validates omitted callable key,
-parser identity, owner, mode, arity and catalog brand. Retain that SAME owner->key
-map instead of discarding keys into a set. Use it only for source identity, never
-selected entry. Visit omitted inputs in the same loop, preserving full actuals
-or explicit unknown dependencies without physically selecting those callers.
-Paths: direct_call_co_seal and omitted map plumbing through coseal/profile;
-ordinary_new_borrowed_formal_incoming/inventory/static_inventory and their
-existing source-domain/graph tests; qualified_static_incoming_source for source
-caller/target corroboration from the SAME co-sealed map; original seed product
-source-census retention and owner README. SUM extension remains the same series,
-not a narrowed goal. Existing tests must retain original legacy projections,
-source-only incoming/unknown/global errors and independent empty sentinels.
-No Text runtime/ABI, entry, cleanup, publication or real app advance is claimed.
+Implementation and durable validation:6619dddb86 (V855). All canonical Static
+contracts, omitted callers and nested declaration/Birth methods retained in one
+scoped original census; unknowns keep SAME method Arc/ordered actuals. Legacy
+consumers remain root-only; refusal identity/multiplicity is corroborated.
+RootI149:138 PASS plus11 reproduced baseline failures (6 on Root853A and5 brand
+fixture cases on parent Root854D). All stable guards PASS, shared test issuer
+keeps root-consumer count27. CLI191/app211 json retains SAME Body7 Value stop;
+app212 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. Superseded V855
+C-H pins retired1,565,389,728 bytes; logs/receipts remain. Keep RootI/CLI191/app211-
+212 and matching backend evidence for unfinished series. No new runtime admission.
 
-Post-edit worker review identified existing returned-field/object-producer and
-selected-binding consumers of the broadened rows. Add legacy participation
-filters at those existing owner APIs (including object_producer_source); they
-must not consume a source-only omitted caller as an executable obligation.
-Likewise derive the old static observation's selected-target availability from
-the SAME new loan. A newly retained omitted target cannot erase the legacy
-namespace/caller veto. No source resolver or fallback is repeated.
+## Decision: single original actual classifier and complete source SUM
 
+Previous goal turn PROGRESS:6619dddb86 landed/pushed; real json first-stop
+unchanged. Read-only top-down worker reused the source-to-consumer review.
+Source authority + canonical issuer: SAME original incoming census and its
+OriginalFormalSeedProduct; resolver canonical method Arc, original contract/
+ordinal/forest and SAME callable result catalog. No new AST/classifier.
+Non-authority: result representation alone, selector spelling, transport draft
+absence, selected membership and empty/cyclic incoming are not closed domains.
+Fail-fast: keep Unknown, unregistered owners, source refusals and every Forward;
+no missing branch can be silently replaced with Text|I64.
 
-## Census completion evidence (V855)
+First separate behavior-preserving extraction: source.rs752 lines moves its
+OriginalFormalActualSeed enum/projections and single classifier/alias helper to
+ordinary_new_borrowed_formal_actual_seed.rs. Keep parent-facing names, all
+projections and classifier control flow identical. No admission or new test.
+Paths: those two source owners, existing value-domain/static-source/seed tests
+for verification, owner README and this card. Source SUM construction follows
+within this SAME full series and remains required with entry/result/cleanup/
+publication. A source-only MethodResult or newly proved stable Forward must
+project to old Conflict, even if the SUM learns I64; existing homogeneous folds
+remain unchanged. Static result identity and real optional callrow stay distinct;
+Core requires real CoreStringMethod receiver fact/contract. Unknown substring
+formal receiver remains unresolved, never guessed from its selector.
 
-User explicitly lifted the restart stop. Prior status-only turn made no code
-progress; source census construction resumed in the existing full Text series.
-One collector now visits declaration/Birth roots plus every nested semantic
-owner using SAME forest input loans. Nested callers have no fabricated enclosing
-slot or Birth key: they remain SourceOnly Unknown with SAME canonical method Arc,
-receiver and ordered actuals. Root-only legacy participation is preserved.
-The existing wrapper records Both/SourceOnly/LegacyOnly; global faults and empty
-sentinels retain independent participation. Source refusal receipts corroborate
-scope, owner, diagnostic, method Arc identity and multiplicity, so an unchanged
-veto set cannot hide substitution or lost unknowns. Additional path:
-ordinary_new_borrowed_formal_uses reexports that opaque receipt for original seeds.
+Acceptance for extraction: same existing focused families on one root binary,
+nonempty filters with baseline comparison; stable root/layer/thin/pointer/diff
+guards; compare unchanged json canonical direct EXE first-stop using the exact
+new CLI. Native mimalloc evidence V855 remains valid regression baseline; no
+native rerun for source-text movement unless semantic effects are found. No
+new adapter or duplicated classifier to retain. Full finite goal remains active.
 
-Worker review corrected namespace exclusion: the selected-target requirement is
-legacy-only; source observation already corroborates canonical target/owner/slot/
-contract through the original co-seal. ClosedApp omission is iterative and
-conservative about unresolved same-selector calls. Existing namespace test
-exercises omitted caller with both selected and omitted targets, without changing
-production selection. Nested tests use uncalled Static/Birth sources so they
-measure retained source obligations independently of closure execution support.
+### Verified classifier extraction (V856)
 
-RootH quick-test-fast build PASS57.564015s; same binary reused for6 nonempty
-filters (qualified_static_, borrowed_static_argument, borrowed_formal_actuals::
-static_, static_source_domain_tests, source_graph_, candidate_veto_tests).
-74 distinct tests:68 PASS plus6 pre-existing failures, reproduced previously on
-parent Root853A (V854 baseline receipts):
-- Main canonical-owner lifecycle: main-arguments/root-completion.
-- selected_static_cohort_forwarded_actuals: required-integer-source-unproved.
-- candidate_integer_forward: scalar-loan/result-missing.
-- real_mimalloc_incoming_domain: old !contains_definition assertion.
-- real_mimalloc_static_loop_route and source/home mutation: required-integer-
-  source-unproved.
-The current source-domain11/11 and graph9/9 pass, including unsupported use drafts,
-nested declaration/Birth, original Arc/ordered input, refusal loss/substitution,
-independent empty/global scopes and both omitted-target cases. No standalone test
-or guard added. Superseded compiler/test-setup attempts remain logs, not PASS.
+Sole classifier and raw enum moved from source.rs to actual_seed.rs;
+source owner752->501 lines, child261. Mechanical comparison of moved bodies
+normalizes only module depth and parent visibility and is identical (no extra
+classifier or old definition remains). No test added or executable authority
+changed. Root856A build100.460903s,158 focused:146 PASS plus12 baseline failures.
+The previous11 remain unchanged; additional value_domain mixed/null/bool/local
+case fails source-not-i64 identically on parent Root855I (8 PASS/1 failed).
+CLI192 build181.498123s; SHA3dee7f0309cb9cf255cadc0a89d5dfdad3870820ddd9c16116474c465e31c32a.
+Unchanged json app213 canonical direct EXE0.112841s, exit1/no artifact, SAME
+compilation1/slot20/Body7/Value source-actual-unavailable. All stable guards PASS.
+No native/full-suite/current CI claim; unchanged mimalloc app212 remains prior
+runtime baseline. Keep Root856A/CLI192/app213 manifest/log/receipt and parent
+baseline evidence until the full Text series closes. No parked adapter.
 
-Source SUM, Text entry/argument/result, temporary cleanup and final publication
-remain unaccepted. Production comparisons below show no real-app frontier advance;
-no whole-suite/CI success is claimed.
+### Worker-confirmed next source dependency mapping
 
-Structural guard found one duplicate root-consumer test setup (28 versus27).
-Reuse the original brand fixture issuer instead of increasing its guard budget:
-extract setup from brand_catalog_tests into brand_catalog_test_support, preserve
-AllSource API and expose selection-only variant for the existing namespace test.
-This also shortens the759-line test owner; no new test or production entry.
-Root-consumer guard now PASS at27. Parent Root854D brand filter baseline75:
-70 PASS,5 failures (Birth capture diagnostic, forwarded stored-child receiver,
-forwarded grammar/local initializer, nullable result/opaque source, receiver-call
-negative/local initializer). Same5 on pre-extraction RootH. RootI build PASS65.224143s and149 focused tests:138 PASS plus11 baseline failures.
-The shared setup adds no new test. CLI190 built215.124561s before the test-only
-extraction; CLI191 manifest refresh/build PASS0.284777s (cached production build),
-binary SHA11d52a6038508a0d58cf5c89650ef133109b84f35c207810fb51a275bccd099f.
-These are separate build observations, not a claimed build-time speedup.
+Pass one borrowed OriginalActualSourceContext (SAME claims, checked caller key)
+through the existing recursive classifier. Build it once inside the original
+source-input callback. Selected callers corroborate original owner/contract
+slot/key; Main uses existing AppMainSourceRef.checked_caller_key; omitted uses
+SAME co-sealed owner->key map; Birth uses real constructor source/key; nested
+or missing authority stays Unknown. Outer Static.caller only corroborates,
+not the sole lookup, since outer Instance arguments need method results too.
+Thread app_main/omitted through existing prepare only, no source scan or solver.
 
+Preserve SAME method Arc and catalog result Arc/disposition. Static ExactI64
+retains CALLEE required argument ordinals tied to original ordered actuals,
+classified by this SAME recursive classifier; require signed-I64 alone before
+closing those dependencies. Caller required ordinals are different evidence.
+Core requires real CoreStringMethod receiver fact/contract. Result-on-Normal
+representation does not authorize evaluation, ABI or cleanup.
 
-Production verification on that exact CLI191 source manifest/binary, same canonical
---backend mir --emit-exe/--emit-exe-nyrt route and pinned runtime/FFI as V854:
-- Unchanged json-stream app211:0.113259s, exit1/no executable. SAME compilation1
-  slot20 Body7 Value, ordinary-new/borrowed-static/source-actual-unavailable.
-- Unchanged mimalloc app212: EXE generation133.114359s, native0.001473s,
-  stdout exact7 lines, exit0 and only original plugin-disabled warning PASS.
-  EXE SHAa91ac001570f03a1b6a3ad030962e956745eb0c2e6c09a5da19cc8186e9d7c7f.
-- Root route/layer/thin-shim/pointer/diff guards PASS. Read-only worker final scan
-  found no additional material gap. No selected old executable edge is replaced
-  by this passive census preparation; full Text series and finite goal stay open.
-
-Durable evidence: this commit includes owner/tests and these validation conditions
-and results. Keep RootI, CLI191, app211-212 logs/manifests/receipts and matching
-backend pins for the unfinished series; preserve parent Root853A/854D baseline
-receipts and binaries needed to classify red tests. Superseded V855 C-H test
-binary copies may retire after RootI corroboration; keep their diagnostic logs,
-source manifests and receipts. No parked adapter. Next action is the SAME original
-seed product's complete Text/I64/Null/Other/Forward SUM and canonical method-result
-join, followed by entry/result/ordered cleanup/both final publication consumers.
-Do not patch the unchanged app refusal leaf or narrow away uncalled wrappers.
+Source SUM stays an orthogonal projection of SAME raw rows/New inputs. Unknown,
+missing registration, source refusals, rebind/capture, missing initialization and
+seedless cycles remain unresolved. Contract/formal ordinal, declaration binding,
+unique initializer and every alias hop require original whole-forest stability.
+New source-only evidence projects old Conflict. For recursive SUM, condense SCCs:
+all external dependencies must close, no Unknown, and known domain must come from
+that component or closed dependencies. Counterexample P=Text|Q, Q<->R seedless:
+P's own Text must not rescue Q/R. Old homogeneous fold and execution recursion
+admission remain unchanged. These are acceptance constraints, not a new feature
+or narrower replacement for full source-to-consumer Text series.
