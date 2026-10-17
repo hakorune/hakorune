@@ -120,6 +120,89 @@ fn static_retention_main_literal_observation_uses_original_main_loan() {
             assert!(source.corroborates_retained(observed.as_ref().unwrap()));
         })
         .unwrap();
+    // The passive index must keep String routes even though the homes claim
+    // remains I64-only. Instance callers have a route and callee disposition,
+    // but no static-solver call-site evidence: do not manufacture that row.
+    use crate::mir::builder::SameModuleCallableNamespaceV1 as Namespace;
+    use crate::mir::callable_result_representation::{
+        CallableResultEvidenceV1, VerifiedCallableResultDispositionV1 as ResultKind,
+        VerifiedCallableResultRepresentationV1 as Representation,
+    };
+    let root = crate::parser::NyashParser::parse_from_string(
+        "static box Text { make() { return \"abc\" } wrap() { return Text.make() } extract(v) { local text = \"\" + v return text.substring(0,1) } bound(i) { return i+1 } literal() { return Text.bound(7) } } box Reader { read() { return Text.make() } }",
+    ).unwrap();
+    let declarations =
+        crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+            .unwrap();
+    let (claims, _) = crate::mir::normal_callable_semantic_package::qualified_static_call_claim::QualifiedStaticCallClaimIndexV1::issue(
+        &declarations, std::iter::empty(),
+    ).unwrap();
+    assert!(claims.catalog_brand().is_same(declarations.brand()));
+    let key = |namespace, owner, method, arity| {
+        declarations
+            .declaration_for(namespace, owner, method, arity)
+            .unwrap()
+            .key()
+            .clone()
+    };
+    let at = |body| {
+        SourceExprSiteV1::from_node(
+            crate::mir::resolved_semantics::SourceNodeSiteV1::from_segments(vec![
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Body(body),
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Value,
+            ]),
+        )
+    };
+    let make = key(Namespace::StaticBoxMethod, "Text", "make", 0);
+    for (namespace, owner, method) in [
+        (Namespace::StaticBoxMethod, "Text", "wrap"),
+        (Namespace::InstanceBoxMethod, "Reader", "read"),
+    ] {
+        let caller = key(namespace, owner, method, 0);
+        let target = claims.source_target(&caller, &at(0)).unwrap();
+        assert_eq!(target.target(), &make);
+        assert_eq!(
+            claims.result_for_key(target.target()),
+            Some(&ResultKind::ExactString)
+        );
+        assert!(
+            claims.claim(&caller, &at(0)).is_none(),
+            "Text cannot become an I64 homes claim"
+        );
+        if namespace == Namespace::StaticBoxMethod {
+            assert_eq!(
+                claims
+                    .call_result_source(&caller, &at(0))
+                    .unwrap()
+                    .result_representation(),
+                Representation::ExactString
+            );
+        } else {
+            assert!(claims.call_result_source(&caller, &at(0)).is_none());
+        }
+        assert!(claims.source_target(&caller, &at(7)).is_none());
+    }
+    let extract = key(Namespace::StaticBoxMethod, "Text", "extract", 1);
+    let core = claims.call_result_source(&extract, &at(1)).unwrap();
+    assert_eq!(core.result_representation(), Representation::ExactString);
+    assert!(claims.source_target(&extract, &at(1)).is_none());
+    match core.evidence() {
+        CallableResultEvidenceV1::CoreStringMethod { contract, .. } => {
+            assert_eq!(contract.canonical, "substring");
+            assert!(contract.arities.contains(&2));
+        }
+        _ => panic!("retain the original generated Core contract"),
+    }
+    let literal = key(Namespace::StaticBoxMethod, "Text", "literal", 0);
+    let literal = claims.call_result_source(&literal, &at(0)).unwrap();
+    assert!(literal.required_i64_arguments().is_empty());
+    match literal.evidence() {
+        CallableResultEvidenceV1::SameModuleStatic {
+            callee_required_i64_arguments,
+            ..
+        } => assert_eq!(callee_required_i64_arguments.as_ref(), &[0]),
+        _ => panic!("retain separate original callee and substituted caller requirements"),
+    }
 }
 
 #[test]

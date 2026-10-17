@@ -90,14 +90,56 @@ fn actual_string_helpers_and_parser_wrapper_share_one_complete_result_catalog() 
         "_digit_value"
     );
 
+    // Capture both dependency lists and the exact original route before the
+    // borrowed target catalog expires. They must survive the consuming move.
+    let original_target = targets.target(&wrapper, &wrapper_site).unwrap().clone();
+    let original_callee_requirements = match wrapper_row.evidence() {
+        VerifiedCallableResultEvidenceV1::SameModuleStatic {
+            callee_required_i64_arguments,
+            ..
+        } => callee_required_i64_arguments.clone(),
+        _ => panic!("static source row required"),
+    };
     let length_row = results.call_result(&to_i64, &length_site).unwrap();
-    match length_row.evidence() {
+    let original_contract = match length_row.evidence() {
         VerifiedCallableResultEvidenceV1::CoreStringMethod { contract, .. } => {
             assert_eq!(contract.receiver_box, "StringBox");
             assert_eq!(contract.canonical, "length");
+            *contract
         }
         VerifiedCallableResultEvidenceV1::SameModuleStatic { .. } => {
             panic!("expected Core String result evidence")
         }
+    };
+    let (function_rows, call_rows) = results.into_source_rows();
+    drop(targets);
+    assert_eq!(function_rows.get(&to_i64), Some(&exact(&[])));
+    let wrapper_row = &call_rows[&(wrapper.clone(), wrapper_site)];
+    assert_eq!(wrapper_row.required_i64_arguments(), &[1]);
+    match wrapper_row.evidence() {
+        super::super::CallableResultEvidenceV1::SameModuleStatic {
+            source_target,
+            callee_required_i64_arguments,
+            ..
+        } => {
+            assert_eq!(source_target, &original_target);
+            assert_eq!(callee_required_i64_arguments, &original_callee_requirements);
+        }
+        _ => panic!("owned projection must retain the original static route"),
+    }
+    let length_row = &call_rows[&(to_i64, length_site)];
+    match length_row.evidence() {
+        super::super::CallableResultEvidenceV1::CoreStringMethod {
+            contract,
+            receiver_fact,
+        } => {
+            assert!(std::ptr::eq(*contract, original_contract));
+            assert_eq!(
+                *receiver_fact,
+                crate::mir::source_core_receiver::SourceCoreReceiverFactV1::ExactStringOnSuccess
+            );
+            assert_eq!(contract.canonical, "length");
+        }
+        _ => panic!("owned projection must retain Core source evidence"),
     }
 }

@@ -23,7 +23,10 @@ mod static_call_result_publication_owner;
 mod static_exact_i64_requirement;
 
 #[allow(unused_imports)]
-pub(crate) use call_row::{VerifiedCallableResultCallSiteV1, VerifiedCallableResultEvidenceV1};
+pub(crate) use call_row::{
+    CallableResultEvidenceV1, OwnedCallableResultCallSiteV1, VerifiedCallableResultCallSiteV1,
+    VerifiedCallableResultEvidenceV1,
+};
 pub(crate) use disposition::{
     CallableResultUnavailableReasonV1, VerifiedCallableResultDispositionV1,
     VerifiedCallableResultRepresentationV1,

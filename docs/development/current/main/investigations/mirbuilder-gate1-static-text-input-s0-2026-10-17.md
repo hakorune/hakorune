@@ -139,74 +139,81 @@ and both consumers close; no parallel interpreter/emitter or temporary adapter.
   No adapter is parked. Superseded pins may retire after stronger replacement
   evidence; logs/manifests and implementation commits retain required evidence.
 
-## V852 source preparation — landing
+## Verified original-method preparation
 
-Resolver canonicalization wraps each method row once in Arc; existing borrowed
-accessors keep their original API and row, including qualifier/result metadata.
-MethodCall actuals retain the same Arc. NamedArray read source now derives
-call/receiver/index from it instead of three copied coordinates. The existing
-Array loan, actual admission, generic Read source bridge, passive validation and
-reconstruction require exact source identity; structural phase equality remains
-insufficient. Repeated original observations share the same row.
+Implementation and durable validation: b35e19bc4c (V852). SAME canonical
+method Arc survives Array loan/admission/passive/reconstruction; equal-content
+reissues, foreign rows, owner/site/ordinal substitutions reject. Root focused24
+PASS, unchanged mimalloc EXE/native exact7/exit0 PASS. Json-stream app206 retains
+SAME Body7 Value source-actual-unavailable stop; no Text/runtime admission.
+Root852B/CLI187/app206-207 receipts, logs/manifests and backend pins remain needed
+for the unfinished series. No parked adapter or new dedicated guard exists.
 
-Read-only post-edit review found no blocking connection gaps. The source body
-issuer remains non-Clone and String still takes its existing refusal. The lossy
-marker's construction/consumer arms are replaced; no adapter or parallel call
-classifier is introduced. Shared issuers and independent tests remain live.
+## Source-result preservation — construction
 
-RootB quick-test-fast no-run PASS90.377472s; focused24PASS/0FAIL across5 nonempty
-filters: body-shape12, named-array-method9, original Array actual1, static snapshot
-refusal1, returned-field input1. Existing Array test includes equal-content
-reissued Arc, different canonical source, wrong outer site and ordinal, each
-refused at admission/passive/reconstruction; repeated borrowing retains the
-same Arc. Existing body-shape tests retain qualified identity and result/argument
-metadata, reject original receiver/argument relation corruption and foreign owner.
-Root warnings870 unchanged; RootA E0615 at removed read.call field corrected to
-its source accessor before this final build. No test was dropped or added as a
-new standalone suite. Manifests v852b-root and v852-cli187 match exactly.
-Root-route, builder-layer, thin-shim and diff guards PASS. Pointer guard passed at
-selection. Changed Rust files remain below800 lines.
-
-CLI187 quick build PASS176.063931s, warnings1807 unchanged; SHA
-9e933217b2a8f481e69d3653a6a2e3f1d55076249a8077f33b2124cc0aa9b673.
-Unchanged json-stream app206 exits1/no artifact in .111672s with the SAME
-borrowed-static/source-actual-unavailable at slot20 Body7 Value. This is verified
-BoxShape/source-retention progress, not actual app-frontier movement. Root/CLI
-captured manifests match. Subsequent resolver README-only text differs from the
-capture; exact before/after hashes are recorded in app receipts. No compiled
-source differs and no include_str/include_bytes uses that README. No unnecessary
-Cargo rebuild was performed for documentation.
-Unchanged mimalloc app207 direct canonical EXE PASS130.369429s/native .001547s,
-exact existing7 stdout/exit0/expected plugin-disabled warning. Native SHA
-38b3f3d4b8702ae8c9b687a70b0d2c3e2c2e40aeb128f055fe056e25235559c3.
-All build/test/native handles are terminal. No full-suite/current CI green or
-performance improvement claim. Pointer/link/diff checks PASS. Keep Root852B,
-CLI187/app206-207, manifests/logs/receipts and matched backend pins as evidence
-for this unfinished series; failed RootA made no test pin to discard. No saved
-adapter, new standalone guard or unused dedicated fixture exists.
-Do not interpret this preparation as Text source agreement, executable Text
-entry, substring acquisition, tag4 activation or cleanup/publication acceptance.
+Previous status-only goal turn made no implementation progress. Revalidated clean
+checkout/pointer and resumed the existing source connection. Read-only worker
+confirmed one target-storage-generic evidence/row vocabulary, not duplicate
+borrowed/owned enums. Consume the SAME catalog into function and call-site rows;
+only sealed target storage changes. Both ordinal lists and Core manifest/fact
+move unchanged; borrowed duplicate checks still require pointer identity.
+Also retain the SAME full static target inventory: result solver call-site rows
+cover static declarations only. Instance callers retain original target+callee
+disposition without fabricating a stronger call-site proof. I64 homes claims and
+all executable paths remain unchanged. No second AST/solver/classifier is added.
+Paths additionally include existing ordinary_new_borrowed_static_retention_tests
+for static/instance difference and Core/ordinal retention, and both owner READMEs.
+This is passive preparation. Original-method Arc join, source SUM, entry and the
+full remaining series acceptance below remain required.
 
 Next same-series source connection, from the worker's full owner review:
-QualifiedStaticCallClaimIndexV1 already owns the SAME solver's result_rows, but
-its issue() keeps qualified call sites only for ExactI64 and then
-into_dispositions() discards SameModuleStatic/CoreStringMethod call evidence.
-Retain a passive source projection from that SAME result catalog before it is
-consumed; join caller/site/target/catalog brand to the canonical method Arc at
-the original resolved-source consumer. Do not rerun the result solver/AST walk.
-ExactString/ExactStringOnSuccess remains representation-on-Normal, not an Add
-or substring execution permission. Extend the original seed product's source
-SUM with retained Text/I64/Null contributions, all Forward edges, Other/unknown
-and unresolved cycles; keep existing homogeneous Integer/Object and declared
-field constraints unchanged. Unknown siblings and empty/seedless cycles do not
-close a domain. Mutable bounds retain exact Prefix/Loop After dependencies.
-This remains construction inside the same Decision; no new row, all-Text
-shortcut, general String×Dynamic semantics or implicit execution promotion.
+- Original incoming already reaches prepare_original_formal_seeds_v1 through
+  with_original_source_input_v1. Thread its existing AppMain loan, use canonical
+  contract/slot/key (or original constructor context), and require catalog brand
+  plus SAME method Arc before joining target/result/call-site evidence.
+- Source-only Qualified Static identity currently enters only through I64
+  claim_target. Preserve non-I64 route/result without casting String into an I64
+  claim. Existing is_zeroarg_i64_v1 assumes Qualified is I64; all source/entry
+  predicates must keep explicit result checks before that source expansion.
+- Retain Text/I64/Null contributions, all Forward edges, Other/unknown and
+  unresolved cycles in the SAME original seed product before lossy Conflict
+  projection. Derive the source SUM there; no parallel classifier/AST/solver.
+  Existing homogeneous Integer/Object projections and declared field constraints
+  remain. Unknown siblings and empty/seedless cycles do not close a domain.
+- ExactString/ExactStringOnSuccess is representation-on-Normal only, not Add,
+  substring or entry permission. Mutable bounds retain exact Prefix/Loop After
+  dependencies. Static target+callee disposition must stay distinct from stronger
+  call-site proof; instance callers have no invented static-solver row.
+Next expected paths: qualified_static_incoming_source and its existing source/
+entry predicate consumers; original formal seed/domain owner and existing tests.
+Update the bounded path list before source expansion. Full input/cleanup/
+publication acceptance remains the finish line, not passive catalog retention.
 
-Next internal slice is original Text/source SUM retention from the SAME catalog
-and original seed product. Expected paths: qualified_static_call_claim and the
-result catalog's owned source projection, original formal seed/domain owner and
-its existing tests. Preserve all original method Arc/caller/target/catalog-brand
-correspondence and unknown dependencies. Update this bounded path list if source
-inspection identifies a necessary owner, before adding its implementation. Full
-source-to-input/cleanup/publication acceptance remains the finish line above.
+## V853 passive result preservation — validation
+
+Root853A quick-test-fast no-run PASS94.427415s, warnings870 unchanged.
+Focused108 PASS/0FAIL across3 nonempty filters: callable-result93, original
+Static retention6, qualified-static claims9. Static/instance caller difference,
+ExactString/Core substring, differing caller/callee requirements and post-target-
+lifetime retention are covered by existing tests. No standalone test was added.
+Initial filename-style retention filter selected0 tests and was rejected; the
+correct static_retention_ filter ran6. Its duplicate binary was hash-checked
+against Root853A and retired; both focused receipts reference the retained pin.
+Read-only post-edit worker review found no blocking authority/coverage issue.
+Existing borrowed target pointer comparison and I64 homes claim selection remain.
+CLI188 quick build PASS180.174073s, warnings1808 (+1 passive source-row fields not yet read by production; the
+paired accessors share an existing unused-method warning), binary SHA
+159d88f5d9d2250a1f786850421e8f7f332c1e017a6fee369f914f4d56e7fe90.
+Unchanged json-stream app208 canonical direct EXE exits1/no artifact in .116984s,
+SAME borrowed-static/source-actual-unavailable at slot20 Body7 Value. This is
+verified passive source preservation, not actual app-frontier movement. Prior
+mimalloc app207 exact7/exit0 remains prior-revision evidence; no new native/full-
+suite/current CI/performance claim is made for this behavior-preserving slice.
+Root/CLI source manifests agree with current files; no compiled source changed
+during either Cargo handle. App208 receipt removes an inherited V852 README-only
+delta field because this capture has no such delta. Stable route/layer/thin-shim,
+pointer and diff guards PASS; touched Rust below800. Keep Root853A, CLI188,
+app208 manifests/logs/receipts and backend pins for the unfinished series. No
+new adapter, dedicated guard or unused fixture exists. The lossy dispositions-
+only extraction is physically replaced; no caller remains. Original source SUM,
+method-Arc join, Text execution and all series acceptance remain unfinished.

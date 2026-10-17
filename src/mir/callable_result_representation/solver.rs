@@ -136,12 +136,24 @@ impl<'targets, 'catalog> VerifiedSameModuleCallableResultCatalogV1<'targets, 'ca
         self.rows_by_key.get(key)
     }
 
-    /// Move the already-verified function rows into the package projection.
-    /// This does not rerun the source solver or issue a second result class.
-    pub(crate) fn into_dispositions(
+    /// Move the SAME verified function and call-site rows into the package.
+    /// No second solver run, source walk, or representation issuer is involved.
+    pub(crate) fn into_source_rows(
         self,
-    ) -> BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1> {
-        self.rows_by_key
+    ) -> (
+        BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+        BTreeMap<
+            (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+            super::call_row::OwnedCallableResultCallSiteV1,
+        >,
+    ) {
+        (
+            self.rows_by_key,
+            self.call_rows_by_site
+                .into_iter()
+                .map(|(site, row)| (site, row.into_owned()))
+                .collect(),
+        )
     }
 
     pub(crate) fn call_result(

@@ -54,6 +54,17 @@ pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallC
     // These are the SAME solver-issued function rows used for call-site
     // claims. Selected unannotated Static entries may borrow one exact row.
     result_rows: BTreeMap<CanonicalSameModuleCallableKeyV1, VerifiedCallableResultDispositionV1>,
+    // Full original static routes include instance callers, which the static
+    // result solver does not analyze for call-site dependency evidence.
+    source_targets: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        VerifiedSourceStaticCallTargetV1,
+    >,
+    // Passive SAME-solver call evidence. This does not admit an entry/ABI.
+    call_result_rows: BTreeMap<
+        (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
+        crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1,
+    >,
     // The original current-owner route stays disjoint from qualified claims.
     // Retaining its result disposition grants no incoming or executable ABI.
     current_owner_rows: BTreeMap<
@@ -159,16 +170,41 @@ impl QualifiedStaticCallClaimIndexV1 {
                 ),
             );
         }
-        let result_rows = results.into_dispositions();
+        let (result_rows, call_result_rows) = results.into_source_rows();
+        let source_targets = targets
+            .rows()
+            .map(|(site, target)| (site.clone(), target.clone()))
+            .collect();
         Ok((
             Self {
                 catalog_brand: declarations.brand().clone(),
                 result_rows,
+                call_result_rows,
+                source_targets,
                 rows,
                 current_owner_rows,
             },
             closed_app_zero_incoming,
         ))
+    }
+
+    /// Full sealed target membership, including non-I64 and instance callers.
+    /// Missing call-site result evidence does not erase this original route.
+    pub(in crate::mir::normal_callable_semantic_package) fn source_target(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedSourceStaticCallTargetV1> {
+        self.source_targets.get(&(caller.clone(), site.clone()))
+    }
+
+    /// Exact original source site, not an executable result or argument claim.
+    pub(in crate::mir::normal_callable_semantic_package) fn call_result_source(
+        &self,
+        caller: &CanonicalSameModuleCallableKeyV1,
+        site: &SourceExprSiteV1,
+    ) -> Option<&crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1> {
+        self.call_result_rows.get(&(caller.clone(), site.clone()))
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn result_for_key(

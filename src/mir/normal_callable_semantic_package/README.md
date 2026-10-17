@@ -23,6 +23,14 @@ Selected Pair V4 EXE/independent OBJ and Fault cleanup are verified there.
 That does not authorize other source families or turn package retention into
 backend permission. Historical implementation steps belong to Git history.
 
+The qualified-static index retains the full original static target inventory and
+the SAME result solver's function and call-site rows. Its I64 homes claims stay
+bounded. Passive String/Core result evidence is retained without inventing
+static-solver rows for instance callers, executing String arguments or widening
+entry eligibility. All rows remain under the original callable catalog brand;
+resolved method identity and complete incoming obligations must still be joined
+by their source consumer.
+
 ## Borrowed entry owner routing
 
 `ordinary_new_borrowed_formal_entry.rs` lends source/parameter projections and

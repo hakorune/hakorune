@@ -22,6 +22,16 @@ equal-looking canonical keys from a foreign catalog are not sufficient. A
 same-module call row borrows its exact CUT0 target row and never clones it into
 a second target authority.
 
+At package issuance, consuming `into_source_rows` preserves the SAME solver's
+function dispositions and call-site evidence. Borrowed construction and passive
+owned projections share one generic evidence/row vocabulary. Only the sealed
+target changes storage; Core manifest references, receiver facts and both caller
+and callee dependency lists move unchanged. Borrowed-catalog duplicate checks
+still require original target pointer identity. The package retains its catalog
+brand and full source target inventory separately: instance callers may have a
+static target and callee disposition without a static-solver call-site proof.
+This preservation grants no executable argument, entry, cleanup or ABI permission.
+
 Canonical `SourcePathV1` is the only expression-site vocabulary. Nested call
 arguments are proved child-before-parent. Required callee argument ordinals are
 substituted through the caller's ordered facts, while non-required non-`i64`
