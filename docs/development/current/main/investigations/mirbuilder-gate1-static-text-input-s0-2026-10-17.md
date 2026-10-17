@@ -929,12 +929,9 @@ original-tuple validator with separate passive/activated payload requirements;
 no Text-specific finisher or completed-entry lookup. Structural finite domains
 remain construction authority; whole original uses/incoming close at finalization.
 
-V886 landed8edb4d3ff6: passive whole-tuple ordered arguments from SAME current
-Qualified Text frames, including forwarded Text. Original source loan/reference
-coverage/String root and required-I64 checks remain mandatory. Explicit Observe
-invalidates qualification; raw SelfRooted remains unselected. SourceStatic still
-cannot execute or own opaque payload. Commit owns original positive/negative
-port coverage and source-owner refusal regressions.
+V8868edb4d3ff6 owns passive whole-tuple projection from current Qualified Text
+frames, original loan/reference/root/I64 checks and Observe invalidation. Raw
+SelfRooted remains unselected; SourceStatic owns no executable opaque payload.
 Next dependency decision (same worker, reused whole-source audit): scalar local
 start=pos+needle.length() lacks canonical Core integration in scalar preflight;
 end also needs the real scan's verified After, not the Mul-only HomeAfter loan.
@@ -948,32 +945,15 @@ Actual observation uses genuine canonical CLI/module expansion and existing
 trace before fallible staging/prefix refusal; no mock callbacks/raw app inclusion.
 Temporary diagnostics retire after capture, before production commit.
 
-V8868edb4d3ff6 owns final Root886D361PASS/14identical baseline diagnostics,
-CLI226148.622s, app270 JSON SAME0.120s and app271 unchanged mimalloc EXE134.084s/
-native0.001451s exact7/stderr/exit0, classified intermediate attempts, guards and
-1,221,299,848B retired superseded pins. Keep886D/CLI226/app271/runtime877A/FFI876B
-for this unfinished series; logs/manifests/output retained. No current suite/CI
-green; historical35681768498/d4168473d5 failed. Actual JSON still unaccepted.
+8edb4d3ff6 retains Root886D361PASS/14same and CLI226/app270 JSON SAME/app271
+native exact7/stderr/exit0, timings, guards and1,221,299,848B pin retirement.
+Successor matched bundle owns current roles; historical logs remain.
 
-V887 observation: CLI227 failed observation Debug11.889s;228PASS156.172s.
-App272 lacked ring0 debug level;273(trace+debug)0.133s observed genuine expanded
-source. CLI229 canceled32.279s to combine discriminants;230PASS157.546s/app274
-0.127s. intField caller and find ExactI64 required[2] claim exist; callback old
-member/scalar/terminal are all false, so projection was skipped and Body1 became
-first PrefixNotCovered. Temporary diagnostic source is removed; snapshots/logs
-remain evidence. No class/result inference, source app edit or runtime grant.
-
-V887 Decision (reference_integration_review): computed SourceStatic+Qualified
-selector in SAME pending actual selects callback validation without old membership.
-Keep full original tuple/frame/loan/String-root/I64 projection and executable
-refusal. Reuse query in static projection; no registry/export chain. Existing Core
-port test covers real callback with empty old membership and Observe invalidation.
-Paths: actual model, static projection, callback, port tests, package README/card.
-
-Actual source advance: CLI231155.328s/app275trace0.123s observes pos as
-TrivialLocal(Some(Integer)); first PrefixNotCovered moves Body1 -> Body3
-start=pos+needle.length(). Final Body7 pending/EXE failure remains. Scanner trace
-removed again; production sources exactly match tested Root887A (no test rerun).
+V887 landed23d15d37c0: existing SourceStatic+Qualified product now selects the
+canonical callback projection without old membership. Whole tuple/current frame/
+loan/root/I64 checks and executable refusal remain. Commit owns full diagnostic
+provenance and measured pos Integer / first-unavailable Body1->Body3 advance;
+external Body7 remains pending. All temporary source diagnostics retired.
 
 Next construction Decision (same worker): one generalized Local initializer
 product/selector over SAME evaluation, I64 scalar vs owned-Text residence policy.
@@ -988,13 +968,29 @@ completed-local provenance; BOTH final scans repeat producer/Copy/result checks.
 Normal releases temporaries but retains prior Homes/I64 result; Text transfers
 only root ownership. Loop end still requires genuine verified After separately.
 
-V887 verified: Root887A build72.480s,42filters10.596s:375distinct/361PASS/14same
-identities+diagnostics vs886D. Final CLI232155.173s, no new root/CLI warnings.
-App276 unchanged JSON direct EXE0.123s exit1/no artifact, byte-identical270 final
-diagnostic; internal Body1->Body3 advancement is measured separately above.
-App277 unchanged mimalloc EXE133.205s/native0.001605s exact7/stderr/exit0 vs271.
-Stable pointer/root-route/layer/thin/diff PASS; no new current CI/suite green.
-All temporary trace source removed; production source hashes match Root887A.
-Retired superseded/diagnostic pins 557,147,640B; keep source snapshots/logs/outputs.
-Keep887A/CLI232/app277/runtime877A/FFI876B for unfinished source/entry/cleanup/
-both-final-consumer series; no adapter remains, full Text series still unaccepted.
+23d15d37c0 owns Root887A361PASS/14identical baseline, CLI232/app276 final
+JSON SAME and app277 unchanged mimalloc exact7/stderr/exit0, timings, stable guards
+and557,147,640B superseded pin retirement. Keep887A/CLI232/app277/runtime877A/
+FFI876B as current matched bundle; trace source snapshots/logs retain exact
+observations. Full Text series and fixed suite/CI acceptance remain unaccepted.
+
+V888 normalization Decision (same read-only reviews): before Core-I64 initializer
+admission, separate behavior-preserving BoxShape into two related commits:
+1. Sole existing Call/Core preorder issues an ephemeral source-bound prepared
+scope, consumed once by SAME leaf completion. Core children stay active; only
+original ordinary Call inputs transfer. Existing wrappers/admission unchanged.
+2. Normalize one existing initializer frame/slot/selector vocabulary, preserving
+current owned-String admission; no second Scalar frame inventory. Then BoxCount
+connects current scalar-read loans and the common Local initializer through all
+physical/local-receipt/final consumers in this SAME Text series.
+Paths for1: home_expression_leaves.rs, resolved-semantics README/card. For2:
+existing initializer frame/plan/observer/selector consumers and tests plus owner
+README/card; update exact paths before expansion. No AST/source app edits, runtime
+permission, duplicate source_call classification or application success claim.
+Verification: reuse existing42filters/375 identities and known14 diagnostics,
+stable guards + unchanged JSON direct EXE. Native regression if source effects
+change; no calendar rerun or new tests mirroring behavior-preserving extraction.
+V888 step1: Root888A48.725s,42filters11.962s:375distinct/361PASS/14same
+identities+diagnostics vs887A; stable guards PASS. This internal extraction commit
+is not full normalization closeout; unchanged CLI/frontier verification follows
+step2. Keep888A and prior CLI232/app277/runtime877A/FFI876B, no new adapter.

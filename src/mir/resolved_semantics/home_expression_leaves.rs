@@ -36,6 +36,27 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
     source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
 ) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
+    let Some(prepared) = prepare_expression_calls_v1(source, profile, seeded, prior_homes, source_call)?
+        else { return Ok(None) };
+    qualify_expression_leaves_with_calls_v1(prepared, scalar_reference, order, field_request)
+}
+
+/// Invocation-local scope from the sole original Call/Core classification.
+/// Consumed by leaf completion; no independent source, Home or physical grant.
+pub(super) struct PreparedExpressionCallsV1 {
+    source: Rc<ExpressionSourcePlanV1>,
+    profile: ExpressionLeafProfileV1,
+    leaves: Vec<Leaf>,
+    calls: BTreeMap<usize, LocalCallObservationV1>,
+    cores: BTreeMap<usize, crate::mir::normal_callable_semantic_package::ExpressionCoreSourceLoanV1>,
+    transferred: BTreeSet<usize>,
+}
+
+pub(super) fn prepare_expression_calls_v1<E>(
+    source: &Rc<ExpressionSourcePlanV1>, profile: ExpressionLeafProfileV1,
+    seeded: &BTreeMap<usize, Leaf>, prior_homes: &[crate::mir::resolved_semantics::BindingRefV1],
+    source_call: &mut impl FnMut(&OwnedExprSiteV1) -> Result<Option<ExpressionCallSourceV1>, E>,
+) -> Result<Option<PreparedExpressionCallsV1>, E> {
     let statement = source.root().statement();
     let mut leaves = vec![Leaf::Unresolved; source.nodes().len()];
     for (index, class) in seeded {
@@ -45,7 +66,6 @@ pub(super) fn qualify_expression_leaves_v1<E>(
     let mut transferred = BTreeSet::new();
     let mut calls = BTreeMap::new();
     let mut cores = BTreeMap::new();
-    let mut references = BTreeMap::new();
     // Preorder discovers each call's real whole-input scope before descendants.
     // Those exact argument subtrees remain owned by the call/input recipe;
     // the enclosing frame must not emit them or acquire their owners twice.
@@ -87,6 +107,18 @@ pub(super) fn qualify_expression_leaves_v1<E>(
         leaves[index] = Leaf::Value(class);
         calls.insert(index, call);
     }
+    Ok(Some(PreparedExpressionCallsV1 { source: Rc::clone(source), profile, leaves, calls, cores, transferred }))
+}
+
+pub(super) fn qualify_expression_leaves_with_calls_v1<E>(
+    prepared: PreparedExpressionCallsV1,
+    scalar_reference: &mut impl FnMut(&SourceExprSiteV1) -> Option<(crate::mir::resolved_semantics::BindingRefV1, super::super::SourceScalarKind)>,
+    order: &[usize],
+    field_request: &mut impl FnMut(&SourceExprSiteV1) -> Option<LocalFieldReadRequestV1>,
+) -> Result<Option<QualifiedExpressionLeavesV1>, E> {
+    let PreparedExpressionCallsV1 { source, profile, mut leaves, calls, cores, transferred } = prepared;
+    let source = &source;
+    let mut references = BTreeMap::new();
     let mut fields = Vec::new();
     // Establish borrowed receiver roles before postorder reaches their Local
     // reference leaves. A receiver is not an Integer/Bool operand use.

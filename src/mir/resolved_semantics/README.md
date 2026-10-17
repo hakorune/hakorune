@@ -1656,3 +1656,8 @@ and a common result, never the first successful alternative. This source/current
 qualification does not install a mixed ABI, fulfill a physical entry or discharge
 String cleanup. The existing initializer fence and an explicit multi-envelope
 writer refusal prevent physical activation until those consumers are connected.
+
+Expression leaf qualification prepares its Call/Core scope once from the original
+source plan, then consumes that invocation-local product in leaf completion.
+Core children stay active; exact ordinary Call receiver/argument subtrees transfer
+to their existing input owner. Preparation grants no new initializer or execution.
