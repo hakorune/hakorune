@@ -1,7 +1,7 @@
 Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static shelf R0 complete; later BoxShape candidates recorded
-Date: 2026-08-23
+Date: 2026-10-17
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `CURRENT_STATE.toml` (Call/R7 frontier; this structure queue is not selected)
+Current row: `CURRENT_STATE.toml` (sole selector; this structure queue is not selected)
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,14 +56,55 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — move
-only the existing Recipe and claim-ledger modules plus their test siblings to
-the frozen physical shelf. Preserve logical modules, bytes, visibility,
-callers, and route edges exactly.
+Smallest next slice: none selected here. The earlier Script direct-static
+shelf landed at `8b24ea3fbc` / `5c1822e948`; do not reopen it from this brief.
+The following queued candidates need an owner-specific selection and mapping.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
 no compile-speed claim, and no blanket `pass` fusion.
+
+## 2026-10-17 semantic package and packet follow-up
+
+User-requested task organization; both candidates are **queued, unselected**.
+They refine existing H-3 in
+[the hygiene map](docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md).
+No new worktree, campaign ledger, guard, semantic route or mandatory global
+prerequisite is created. The active object-forward series keeps its required
+acceptance and same-series exclusive-edge retirement.
+
+Current scoped observation at `c52e4f1231`: `rg --files
+src/mir/normal_callable_semantic_package -g '*.rs'` yields **470 files /
+147,796 lines**. This is an aggregate including tests, not one105k-line file or
+an ownership/cfg/executable census. It identifies a review area, not a delete set.
+
+| Task | Selection / bounded responsibility | Acceptance and retirement |
+| --- | --- | --- |
+| `MIRBUILDER-SEMANTIC-PACKAGE-OWNER-SPLIT-D0` | At the next selected package-owner boundary, map one source issuer -> Recipe -> physical writer -> publication cluster and its actual cross-owner callers. Choose one cohesive responsibility for BoxShape before that owner grows or migrates. | One owner remains for each meaning; exact visibility/cfg/callers and source/failure behavior preserved. Existing focused regressions/guards, resolving module entry, all changed source files below800. Report moves separately from deleted redundant edges. |
+| `MIRBUILDER-PACKET-DISPATCH-COHESION-D0` | At the next required packet-kind extension, identify its exact enum, all consuming operations and genuinely duplicated dispatch. Compare an owner-local operation/kind table with a sealed abstraction using actual affine/source identity constraints. | Localize only shared responsibility. Keep phase-specific exhaustive checks and independent final consumers; no strings/opcodes as semantic authority, cloned affine permission or silent fallback. Existing source/physical/refusal tests and caller switch; remove obsolete exclusive dispatch/adapter when its callers are zero. |
+
+Neither candidate mandates a kind-table/trait rewrite or an all-ncsp directory
+move. An enum with legitimate distinct consumers is not itself a defect. The
+reported21-file fan-out and audit reduction estimates need a scoped revision/
+operation comparison before selection; they establish neither implementation
+cost nor performance gain. Do not fabricate a new kind merely to benchmark a
+refactor. Keep any selected2–5-commit BoxShape series separate from acceptance
+expansion; this queue does not reopen broad Context/barrel cleanup before R7.
+
+Existing obligations remain in their owners:
+
+- `SEMANTIC-PACKAGE-README-CAPSULE-R0` in
+  [physical cleanup](../design/repo-physical-structure-cleanup-ssot.md) reopens at
+  active constructor closeout; no duplicate README campaign here.
+- [TEST-GUARD-RESPONSIBILITY-RETIREMENT-D0](test-guard-responsibility-retirement-task-2026-10-08.md)
+  owns measured one-family equivalence -> shared owner -> real deletion. Do not
+  count source proof, independent final-MIR checks and runtime Fault tests as
+  duplicates or adopt a -59k/-118k LOC target.
+- H-1/H-4 own completed-history and generated/proof retirement; exact campaign
+  caches use `LOCAL-CAMPAIGN-CACHE-RETIRE-R0`. Retain unknown/live consumers and
+  required pins. Closed-history compression preserves live contracts and reds.
+- Selfhost reuse of hako_alloc and canaries follows the existing promotion/
+  authority/selfcompile owners; it adds no preliminary implementation lane.
 
 ## Stage 1 proposal review receipt — 2026-08-23
 

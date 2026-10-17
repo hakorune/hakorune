@@ -1,6 +1,6 @@
 ---
 Status: Follow `docs/development/current/main/CURRENT_STATE.toml`; this rolling file is not the active pointer
-Date: 2026-10-12
+Date: 2026-10-17
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -25,18 +25,17 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 
 ## Product milestone and operational authority
 
-RULES owns operations; `CURRENT_STATE.toml` selects the row. The selected
-unchanged mimalloc-lite frontier reached regular-route EXE/run/exit/stdout
-acceptance on pinned unlanded WIP at app148/V798 (2026-10-16; active card owns
-command, binary/source/FFI/runtime pins and exact output). This first milestone
-does not land source or close the series. Local/preparation rows alone never
-prove product acceptance.
-The fixed suite and final-pipeline completion conditions remain required.
+RULES owns operations; `CURRENT_STATE.toml` selects the row. Coordinated
+source-to-C implementation landed at `244c8d3f5e`; Plan field/read/Set connection
+landed at `c52e4f1231`. CLI176 app180 validates unchanged mimalloc-lite through
+canonical EXE/run/exact stdout/exit0. The [active card][app-bundle] owns commands,
+source/binary/FFI/runtime provenance and unresolved acceptance.
+This first milestone does not close S0, the fixed suite or whole MirBuilder.
 
 ## Current restart pointer
 
 `CURRENT_STATE.toml` is the sole mode and row authority. Current birth work is
-branch-only WIP, not the closed main checkpoint; StaticBoxMethod, FreeStatic,
+committed on the development branch, not a closed main checkpoint; StaticBoxMethod, FreeStatic,
 FreeFunction, Builtin Print, and one root-lexical SameModuleInstance semantic
 vertical are landed and must not be redesigned. The canonical product remains:
 
@@ -334,20 +333,67 @@ fix attributed upstream dependencies; no broad census or VM reopening.
 
 Numbers group dependencies, not nine implementation units or a strict queue.
 CSTATE selects execution. If Loop/shared migration is an app repair dependency,
-connect it within that owner series first. S0 input/membership dependency order
-is still unresolved; the mimalloc card owns the investigation and handoff.
+connect it within that owner series first. S0 now has landed source/consumer
+connections; required initialization/FieldWrite and remaining acceptance stay
+with the mimalloc card. No completion-date estimate is established.
 
 | order / existing owner | responsibility and dependency | acceptance / retirement / unresolved boundary |
 | --- | --- | --- |
-| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` | CSTATE selects; source WIP remains unaccepted/unlanded. Card records first unchanged app EXE/run/output/exit PASS (V798/app148). | Same-series independent source/consumer acceptance, regression repair and selected retirement remain owed; first milestone does not close the full pipeline. |
-| 2 [mimalloc bundle D0][app-bundle] / Gate1 | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | Same unchanged app must reach regular-route EXE/run/exit/stdout. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
+| 1 `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0` | CSTATE selects; source-to-C and Plan connections are landed; S0 remains unaccepted. Unchanged app180 EXE/run/output/exit PASS. | Same-series independent source/consumer acceptance, regression repair and selected retirement remain owed; first milestone does not close the full pipeline. |
+| 2 [mimalloc bundle D0][app-bundle] / Gate1 dependency | Existing ObjectFieldReceiver/new-object-args/forwarded-result, callable-loop and callee Home/result/cleanup dependencies. | First unchanged app milestone PASS; required field/initialization and final consumer coverage remain. Retire proved exclusive old edges/temp assets in-series; no invented deletion for added coverage. |
 | 3 `MIRBUILDER-FINAL-ACCEPTANCE-SCOPE` | Fixed11-entry manifest remains product acceptance; scope selection was Closed. | All existing stdout/exit/boundary expectations; failed programs stay open with storage/usize/Loop owners. Suite exclusions do not waive the later required selfhost handoff. |
-| 4 `MIR-CALL-LEGACY-READER-STOP-R0` / R6-S3 | Choose finite remaining ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |
+| 4 `MIR-CALL-MANDATORY-CALLEE-R6` -> `MIR-CALL-LEGACY-READER-STOP-R0` | Close remaining family cutovers and finite ingress/egress callers: typed consume, pre-artifact rejection or isolated compatibility. | Same source authority, existing contracts and selected old-edge deletion. Shared ownership is eligible; caller-zero is output, not an entry prerequisite. Actual caller disposition remains owed. |
 | 5 `MIR-CALL-COMPATIBILITY-RETIRE-R7` | After all required legacy writers/reissuers/readers close, remove shared carrier/repair. | LegacyCallV0 and its schema/readers stay until that proof; durable reject tests remain. Wire compatibility spelling alone is not legacy-carrier debt. |
 | 6 `LOOP-PRODUCTION-SELECTION-D0` | Select first unmet named Loop dependency; M10 B3 D2/D3 and LoopCond remain unresolved. | Existing route/provider/source-outcome authorities; production cutover and selected deletion. Reuse landed M8/M11/M12 evidence; M9 producer gaps/declined shapes are not accepted source coverage. |
 | 7 Call/M8 / [physical cleanup][cleanup-owner] | Retire remaining shared raw/barrel/wrapper debt after its own callers/contracts close. | Exclusive proved leaves need no R7 wait. Public emit_global_call and legacy me default remain candidates pending finite API/implementor proof; coverage0 grants no deletion. |
 | 8 `REPO-FINAL-CONVERGENCE-AUDIT0-G0` / final-pipeline | Sole authority pipeline, typed runner ingress, canonical Return/collect/publish, selected old owners0 and frozen corpus/backend green. | Recheck semantic/product finish line. Past structural G0 Closed remains true, but did not prove the real apps; no repeated whole-repo census. |
 | 9 authority migration / parser / self-compile | Later REQUIRED handoff follows accepted unified resume order after convergence, compiler-source conformance and canonical mimalloc promotion. | Existing Facts/REGISTRY/rule/commands/executor then parser switches retire Rust predecessors; pinned non-delegating Stage2 compiles/runs acceptance. Queued dependencies grant no automatic resume. |
+
+### 2026-10-17 roadmap and cleanup reconciliation
+
+Gate1 is **whole MirBuilder convergence**, including the fixed product scope,
+remaining R6/M7-S/R7, named Loop chain, required physical retirement and final
+pipeline conditions above. It is not complete before R7. After Gate1, follow
+[unified resume order](../design/selfhost-parser-mirbuilder-migration-order-ssot.md#unified-resume-order):
+Gate2 compiler-source conformance/reject matrix -> Gate3 canonical `.hako`
+mimalloc correctness/lifecycle/performance promotion -> Gate4 unfinished
+Facts/REGISTRY owner selection -> authority stages/rule/commands/executor ->
+parser -> pinned, non-delegating Stage1/Stage2 selfcompile and fixed acceptance.
+These later required gates retain their reopen conditions. C-1 measurement
+alone may precede convergence; it does not activate the Language-v1 lane.
+
+The fixed11 suite **was measured on 2026-10-17**, V835/CLI175/C831e/runtime808b:
+4PASS/7FAIL, exit1,333.949828s. Three are EXE positives; the fourth is an empty
+marker. Two failed smokes stop in their generic-MIR negative prechecks, leaving
+their subsequent EXE assertions untested by that run. Canonical mimalloc-lite
+app180 later passes independently on CLI176; this is not a fresh whole-suite
+result. Preserve all seven failures with their existing [card][app-bundle]
+stops. Re-run the unchanged fixed suite at its required cutover/closeout or
+relevant broad repair, with matched pins; no rerun just to assume better numbers.
+A single first-stop does not prove binary-trees is closest to completion.
+Required storage/String/Loop decisions belong to these current source stops,
+not after Gate2. Keep existing `MIRBUILDER-UNTYPED-OBJECT-STORAGE-D0` reopen
+conditions; allocator-stress TextSourceMissing and binary-trees nullable-input
+stay with their source/Loop owners. Pair initialization is an additional live
+contract gap; the feedback's three labels are not a complete blocker inventory.
+
+| Selection point | Existing task owner | Concrete completion |
+| --- | --- | --- |
+| Current S0 | [app card][app-bundle] | Required initialization/FieldWrite source through both final consumers/native, fixed acceptance and selected retirement; no date promise |
+| Owning structure boundary | [structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md#2026-10-17-semantic-package-and-packet-follow-up) / H-3 | One ncsp responsibility or packet dispatch owner; behavior-neutral caller-preserving split, no directory-wide prerequisite |
+| Constructor closeout reopen | [cleanup owner][cleanup-owner], `SEMANTIC-PACKAGE-README-CAPSULE-R0` | Concise issuer/consumer/module entry, completed narrative compressed to commit references |
+| Selected independent test family | [TG owner](../investigations/test-guard-responsibility-retirement-task-2026-10-08.md) | TG-0 measure -> TG-1 share -> TG-2 caller switch and exclusive old asset deletion; preserve distinct safety evidence |
+| Card cap / artifact-family closeout | [H-1/H-4](../investigations/docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md) | Compress completed history; retire only reproducible unused family proofs, no LOC quota |
+| Campaign closeout | [cleanup owner][cleanup-owner], `LOCAL-CAMPAIGN-CACHE-RETIRE-R0` | Exact clean, job-free worktree/target retirement with before/after sizes; task registration is not a verified automation schedule |
+
+LegacyCallV0's reported797–812 textual hits are not caller-zero evidence.
+Retire each replaced exclusive edge now under RULES; shared schema deletion
+still waits for its R7 proof. Likewise, reported -59k/-118k tests, 105k ncsp,
+119万 docs and15–17 parity owners are external snapshots with differing or
+unverified denominators, not acceptance quotas. Existing hako_alloc/canary
+programs may serve their selected promotion/authority acceptance; no extra
+selfhost-egg campaign or proof can substitute for actual caller switch and
+non-delegation. Broad cleanup does not become a new gate for the finite goal.
 
 Closed E/F/G groundwork: Loop M8 `b419b84c3d`; S7B5 `f96fec7d8a` is
 not the S7G final receipt. S7G recorded8 wire/11 declined normalized parity;

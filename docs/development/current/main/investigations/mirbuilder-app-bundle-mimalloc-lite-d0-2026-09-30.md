@@ -135,63 +135,23 @@ v834c-actual and v835-field-interval receipts retained with commands/output.
 Three trailing empty EOF lines removed at source landing; exact byte-only delta
 recorded. No token/source authority change. V836 pure module moves follow below.
 
-## V837 Plan field/read → Set connection Decision
+## Completed Plan connection — c52e4f1231
 
-Previous goal turn: no progress (status-only); current-first revalidated clean
-769279d0fb and pointer PASS. Read-only worker confirms the missing production
-connection: Plan FieldGet drops its original locator and SourcePublication does
-not consume the selected Set loan. Both independent final consumers already
-require the same original reads and all three operand relations.
-Source authority + canonical issuer: existing original OwnedExprSite, affine
-local field-read row and BorrowedArraySetSourceLoan; no new classifier.
-Non-authority: planned destination, spelling, MIR type and opcode shape.
-Fail-fast boundary: missing required/duplicate field row, receiver drift,
-wrong Set shape and absent original operand relation remain refusals.
-Smallest next slice: retain FieldGet locator before descent; lend a caller-
-allocated destination to the existing sole field-read transaction, so its
-original read is the Plan value (no fabricated Copy relation or new relation
-algebra). Connect located Set to the existing recorded Array writer and share
-the raw/Plan operand completion owner. Preserve receiver-before-arguments for
-the selected source-owned call. Extend existing source/Plan and publication
-regressions, preserving independent final consumers and unchanged app source.
-Non-claims: this is the existing S0 obligation; full initialization, fixed-suite
-failures and full goal completion remain open. No Cargo live at entry.
-
-Implementation: FieldGet retains the exact original locator through freshening;
-SourcePublication consumes the original affine local read and uses the common
-field writer's allocated-destination input. Source-owned Set selects before
-children, shares receiver/index/value order in both positions, then the sole
-recorded Array write and common raw/Plan three-operand completion transaction.
-The raw-only duplicate completion body was removed; shared/unselected callers
-remain. Selected read/Set effects return from this owner, with no legacy retry.
-No extra Copy algebra, source classifier, runtime ABI or .hako edit.
-
-V837d root build PASS53.569057s; focused27 PASS. The new independent missing
-connection test reuses the existing stored-nullable source constant through
-real package/entry/field-read preparation and source declaration registration:
-statement/value positions, exact receiver/index locators and physical original
-read destinations, original Set census, replay refusal, wrong method, occupied
-destination and receiver drift. Existing static-publication4, normalizer5,
-pure-value14, stored-nullable1, Set-view final publication/mutations1 and field
-descriptor identity1 also PASS. Root total9213 (one independently missing case).
-This local Plan test does not claim full guard/final-consumer validation by
-itself; existing Set-view publication and unchanged native app are separate.
-V837a compile E0369 in test snapshot corrected; b/c REDs were incomplete test
-entry setup (missing staged reads, then missing source declarations/physical
-method parameters). D uses the existing production preparation APIs; no refusal
-was relaxed. Preserve logs/manifests; superseded binaries may retire after D
-and canonical native validation. CLI176 build PASS172.282976s; same C831e/
-runtime808b and original mimalloc-lite SHA33d3e8b9...: canonical app180 EXE
-PASS128.194057s/native .001438s, exact existing7/exit0. No compat replay;
-only known plugin-disabled warning. CLI SHA4c6b1d87182b2279d35077b118e30229e9d39bd8d5cd75cf9dbf02f1f4643f16;
-EXE SHA323cfb44688436888aa9e0acdeceb0ec37b4ebe38984b99f8554fcb5511bdae6.
-Current source manifest drift is zero; root pin SHA5baa244b3449c25f219d051094b466de6824ba0fbc28ed20940d29941557a2f4.
-Commands/outputs/pins stay in v837d-root.focused, v837-cli176 and app-v180
-build/run receipts. No new M190 or full-suite green claim. Source/route/layer/
-thin-shim/pointer/diff checks PASS; touched-source audit all <800 (expression
-port779 retains its trait responsibility; no compression to evade the limit).
-Retired two superseded B/C root binaries after matching their receipt SHAs;
-logs/manifests/current D pin retained. v837-cleanup records reclaimed bytes.
+`c52e4f1231` owns the V837 Decision, source/physical connection, common raw/Plan
+operand completion, replaced selected edges, focused27 PASS and guard evidence.
+Original local read destinations are the Plan values; no Copy algebra or new
+semantic classifier. One independently missing test reuses the original source
+and actual declaration/entry preparation. Earlier test-setup/compile reds and
+superseded binary disposition are preserved in that implementation commit.
+Root D SHA5baa244b3449c25f219d051094b466de6824ba0fbc28ed20940d29941557a2f4;
+CLI176 SHA4c6b1d87182b2279d35077b118e30229e9d39bd8d5cd75cf9dbf02f1f4643f16.
+Current native/source proof: v837d-root.focused, v837-cli176.source/build and
+app-v180-mimalloc-lite build/run receipts. CLI build172.282976s; unchanged
+canonical app180 EXE128.194057s/native.001438s/exact existing7/exit0 PASS.
+C831e/runtime808b remain matched; no compat replay. Source manifest drift zero.
+No full-suite, M190-on-CLI176 or full S0 completion claim. Two superseded B/C
+root binaries retired after D/native PASS:514690040 bytes, current pins/logs/
+manifests retained (v837-cleanup). No new adapter was introduced.
 
 ## Remaining required same-series work
 
@@ -283,6 +243,40 @@ rules in the constructor owner before code, including exact field readiness,
 read/escape/control and outer storage Normal/Fault cleanup. Worker partial-slot
 proposal is investigation input, not an accepted permission to publish incomplete
 objects. Preserve fixed Pair positive/exit30 and all remaining S0/full goal duties.
+
+## 2026-10-17 task organization and pending contract
+
+Previous goal turn: PROGRESS (`c52e4f1231` production connection/native evidence).
+User-requested roadmap task organization is integrated into the existing
+workstream dependency table and existing structure queue; no new taskboard or
+mandatory cleanup gate. Those two owner docs are in scope because they own
+roadmap status and queued BoxShape selection. Fixed11 was measured10/17 on
+CLI175 (4PASS/7FAIL), not unmeasured since9/30; app180 is separate evidence.
+Gate1 includes R6/R7/Loop/final convergence; later Gates2–4 retain reopen rules.
+
+Initialization review found no source rule giving scalar fields default zero;
+local-binding UninitializedSlot grants no field permission. The worker's local
+construction-continuation option would retain allocation/store source order,
+keep only an unpublished storage obligation until the first all-ready Normal
+cutpoint, and use existing failed-construction cleanup before publication.
+This is **unaccepted**, not a completion or emission permission: it changes the
+usable-result boundary beyond New and must be reconciled with the existing
+no-new-language-semantics rule in the selfhost migration-order owner. The
+normative lifecycle reference is unchanged; the tentative amendment was removed
+from that entry and retained only as v838-local-initialization-unaccepted-proposal
+scratch for comparison. No source/build/fixture/runtime activation occurred.
+The next owner decision must distinguish restoring the already accepted Pair
+profile from introducing new language meaning; keep construction eligibility,
+field readiness, first Home publication and Normal/Fault cleanup explicit. Do
+not promote partial storage to an existing complete ConstructionPlan. S0 and
+all finite goal conditions remain open; no deadline or nearest-app claim.
+
+Docs-only validation: worker roadmap/scope reviews, new relative links, pointer
+and diff checks PASS. No Cargo/test rerun. Branch CI listing's newest available
+run is35681768498 (2026-09-22,d4168473d5), historical macOS temporary-input
+CAPI lifetime failure; provider step PASS, other listed skips are not evidence.
+This is not a current-revision result or current CI green; parked platform
+ownership remains unchanged. No workflow dispatch or cancellation performed.
 
 ## Temporary artifact disposition
 
