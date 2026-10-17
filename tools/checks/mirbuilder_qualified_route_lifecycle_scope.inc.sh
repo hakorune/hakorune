@@ -449,8 +449,9 @@ rg -q 'fn dominated_view_use_at' "$BORROWED_FORMAL_SOURCE_SRC"
 rg -q 'fn dominated_view_use_consult_v1' "$COSEAL_ISSUE_SOURCE"
 rg -q 'BorrowedViewUseRequestV1::Operand' "$NEW_PREFIX_FIELD_CALL"
 rg -q 'BorrowedViewUseRequestV1::Operand' "$NEW_PREFIX_FIELD_WRITE"
-rg -q 'field_receiver_callee_keeps_dominated_view_sites_outside_transport' "$BORROWED_FORMAL_SOURCE_TESTS"
-rg -q 'get_result_index_rejects_plain_copy_of_get_result' "$BORROWED_FORMAL_SOURCE_TESTS"
+BORROWED_FIELD_RECEIVER_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_borrowed_formal_source_field_receiver_tests.rs"
+rg -q 'field_receiver_callee_keeps_dominated_view_sites_outside_transport' "$BORROWED_FIELD_RECEIVER_TESTS"
+rg -q 'get_result_index_rejects_plain_copy_of_get_result' "$BORROWED_FIELD_RECEIVER_TESTS"
 
 # MIRBUILDER-APP-MIMALLOC-LITE-OBJECT-FORMAL-FIELD-STORE-S0: the
 # `Some(<user-class>)` field arm of `issue_construction_plan` admits a

@@ -202,6 +202,7 @@ def main() -> int:
     method_batch = read(ROOT / "src/mir/builder/instance_box_method_batch.rs")
     raw_port = read(RAW_PORT)
     raw_loop_entry = read(RAW_LOOP_ENTRY)
+    raw_loop_syntax = read(RAW_LOOP_ENTRY.with_suffix("") / "syntax_boundary.rs")
     consultation = read(SOURCE_CENSUS_DOC)
     state_consultation = read(STATE_CUTOVER_DOC)
 
@@ -683,13 +684,13 @@ def main() -> int:
         "self.cf_loop(*condition, body)?",
         "LOOPBRIDGE0 I0 raw Loop direct bypass",
     )
+    require(raw_loop_entry, "enum RawLoopChildEntryDispositionV1", "LOOPBRIDGE0 I0 syntax quarantine")
     for fragment in (
-        "enum RawLoopChildEntryDispositionV1",
         "ASTNode::BoxDeclaration { .. } => true",
         "ASTNode::Lambda { .. } | ASTNode::FunctionDeclaration { .. } => false",
         "node.any_child(contains_reachable_box_declaration)",
     ):
-        require(raw_loop_entry, fragment, "LOOPBRIDGE0 I0 syntax quarantine")
+        require(raw_loop_syntax, fragment, "LOOPBRIDGE0 I0 syntax quarantine")
     for fragment in (
         "trait RawLoopChildEntryPortV1",
         "impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1",

@@ -716,38 +716,9 @@ pub(super) fn scan_statement_flow<'a, E>(
             } else if let Some(result) =
                 field_read::observe_local_field_read(input, site, locals, local_field_read)?
             {
-                // A proven `receiver.field` initializer binds by its
-                // declared result class — numeric scalars are trivial,
-                // ordinary-box results are borrowed field aliases that
-                // join no Home set.
-                match result {
-                    field_read::LocalFieldReadResultV1::DeclaredArray(_) => {
-                        // Statement-call provenance never installs a local Home.
-                        unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-                    }
-                    field_read::LocalFieldReadResultV1::Scalar => {
-                        locals.install_scalar_call_result(
-                            binding,
-                            local_flow::SourceScalarKind::Integer,
-                        );
-                    }
-                    field_read::LocalFieldReadResultV1::BorrowedArray(source) => {
-                        let Some(request) = field_read::field_read_request(input, site, locals) else {
-                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); continue;
-                        };
-                        if !locals.install_borrowed_array_field(binding, source, request.home) {
-                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-                        }
-                    }
-                    field_read::LocalFieldReadResultV1::Alias(class) => {
-                        let Some(request) = field_read::field_read_request(input, site, locals)
-                        else {
-                            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
-                            continue;
-                        };
-                        locals.install_field_alias(binding, class, request);
-                    }
-                }
+                field_read::install_local_field_read_result(
+                    input, site, binding, locals, unavailable, result,
+                );
                 continue;
             } else if let Some((kind, calls)) = {
                 let mut operation = None;

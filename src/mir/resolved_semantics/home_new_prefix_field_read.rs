@@ -197,3 +197,43 @@ pub(super) fn expression_field_read_request(
     request.path = Some(path);
     Some(request)
 }
+
+/// Install an already-observed local read, retaining the same receiver request.
+pub(super) fn install_local_field_read_result(
+    input: ResolvedFunctionLoweringInputV1<'_>, site: &SourceExprSiteV1,
+    binding: BindingRefV1, locals: &mut PrefixLocalFlow<'_>,
+    unavailable: &mut Option<HomePrefixUnavailableV1>, result: LocalFieldReadResultV1,
+) {
+    // A proven `receiver.field` initializer binds by its
+    // declared result class — numeric scalars are trivial,
+    // ordinary-box results are borrowed field aliases that
+    // join no Home set.
+    match result {
+        LocalFieldReadResultV1::DeclaredArray(_) => {
+            // Statement-call provenance never installs a local Home.
+            unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+        }
+        LocalFieldReadResultV1::Scalar => {
+            locals.install_scalar_call_result(
+                binding,
+                local_flow::SourceScalarKind::Integer,
+            );
+        }
+        LocalFieldReadResultV1::BorrowedArray(source) => {
+            let Some(request) = field_read_request(input, site, locals) else {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch); return;
+            };
+            if !locals.install_borrowed_array_field(binding, source, request.home) {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+            }
+        }
+        LocalFieldReadResultV1::Alias(class) => {
+            let Some(request) = field_read_request(input, site, locals)
+            else {
+                unavailable.get_or_insert(HomePrefixUnavailableV1::SourceMismatch);
+                return;
+            };
+            locals.install_field_alias(binding, class, request);
+        }
+    }
+}
