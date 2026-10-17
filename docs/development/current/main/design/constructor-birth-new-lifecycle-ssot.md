@@ -509,6 +509,61 @@ acquisition or override is silently omitted; unsupported dependencies stay expli
 | Birth, every required field initialized | Eligible for later publication, not yet executable |
 | Required field initialization unproven | `Unavailable(InitializationContractMissing)`; no zero-fill |
 
+### Allocation-only typed-i64 profile restoration (2026-10-17)
+
+Decision: restore the already accepted no-Birth typed-object positive without
+changing successful New order or adding language semantics. `09d2c20370`
+introduced allocation-only Pair; `dc80865f01`/`7acee9c860` narrowed the first
+execution profile, explicitly not source validity. Later `052c54518b` accepted
+typed-i64 source migration preserving its expectations, implemented at
+`89199dbc3c`. The fixed unchanged Pair remains required exit30.
+The [reference](../../../../reference/language/lifecycle.md#construction)
+therefore distinguishes this profile from the initialized-Birth plan above.
+
+The SAME constructor declaration row/source structure issues a distinct
+allocation-only completion disposition and exact declared scalar slots.
+Eligibility requires original zero-arity Birth absence, no defaults/overrides,
+non-weak explicit i64 storage and the canonical hook-free trivial destruction
+contract. Other whole-declaration restrictions remain explicit. No argument,
+constructor obligation, owned/native child or hook may be silently discarded.
+Do not turn an arbitrary InitializationContractMissing into an empty complete
+plan or infer this disposition from allTrivial, absence of MIR or caller writes.
+
+| Boundary | Required source/physical law |
+| --- | --- |
+| Allocation Fault | No new Home; unwind prior Homes |
+| New Normal and exact Local commit | Publish same identity/first Home at existing cutpoint; scalar readiness starts empty |
+| Plain LOCAL FieldWrite | Borrow same original New/root/object and writer inventory; validate RHS using pre-store readiness and existing scalar contract |
+| Store Normal | Only exact canonical field becomes ready; repeated stores retain original execution/order |
+| Store Fault after Local commit | No readiness commit; published PlainI64NoHook Home release and prior-root cleanup exactly once |
+| FieldRead | Same root/field, original Normal writer and final CFG dominance required; declaration is not initialized-value proof |
+
+Caller stores refine field-value readiness, never constructor/destruction
+obligations. Keep initialized-Birth proof distinct from allocation-only source;
+existing complete ConstructionPlan consumers must not silently assume both
+carry all-ready slots. Do not delay New/first Home until the last store, add a
+field sentinel/default/Fault rule, or reuse formal field-write permission for
+owned LOCAL. Scope/source mismatches and unsupported read/escape/control remain
+unavailable in this profile. A read of an already written field need not wait
+for other fields; later writes do not create another Home/publication.
+
+Required same-series mapping: constructor source -> exact New/local Home flow ->
+original LOCAL writer/readiness -> existing sole checked FieldSet/FieldGet ->
+original LocalSSA/finished bindings -> BOTH independent final scans -> matching
+source-issued native flow. C consumes disposition and original write/read/edge
+coverage; it cannot invent initialization from zeroed storage or FieldSet shape.
+Keep allocation/New-to-Local failure accounting; post-commit failures use the
+published release law, not ReclaimUnpublished. Runtime field writer stays shared.
+
+Acceptance reuses existing constructor/source/field/final/native owners:
+unchanged no-Birth Pair EXE/OBJ30 (Birth-Pair evidence is separate), renamed and
+reordered fields, store/read/receiver/edge loss or drift, RHS Fault, overwrite
+order, prior-root and outer-storage exact-once cleanup. Required fixed suite and
+remaining S0 duties stay open. First implementation may retain allocation-only
+source with eligibility explicitly unavailable until these consumers connect;
+such a prerequisite is not source-to-product success or permission to erase
+readiness checks. No new fixture directory, guard or parallel proof ledger.
+
 Initialization and Home demand are separate: Trivial fields do not imply empty
 construction unwind. Unavailable is profile eligibility, not source invalidity.
 **Done:** existing package tests cover renamed/reordered fields, multiple store

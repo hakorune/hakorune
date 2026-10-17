@@ -10,7 +10,7 @@ Related: [CURRENT_STATE](../CURRENT_STATE.toml), [RULES](../../../RULES.md),
 ## Current position and history
 
 Selected row: `MIRBUILDER-APP-MIMALLOC-LITE-REQUIRED-OBJECT-FORWARD-S0`.
-Mode: design_stop for remaining required initialization; V837 Plan connection verified.
+Mode: fast for required constructor-owner preparation; allocation-only restoration Decision below.
 Full prior card, decisions, original-source contracts, red classifications,
 commands, pins and preparation evidence are preserved in this path at
 **244c8d3f5e** and **fbc57efa14**. These are implementation commits, not just
@@ -224,59 +224,55 @@ New focused build is pinned; preserve current native/source evidence
 as pre-move provenance. Pure moves use existing raw-loop/moved-test/field-read
 regressions; do not rerun expensive native tests without a new concern.
 
-## Next required owner decision
+## Required initialization restoration Decision — 2026-10-17
 
-Same S0 series remains open; Plan's selected generic read/Set edges have been
-replaced, shared raw arms retained. Next mode is design_stop for the existing
-required initialization/FieldWrite obligation, not a new feature or parked lane.
-Current CLI176 app181 replay of unchanged typed-newbox remains exit1/no EXE,
-.021610s, PrefixNotCovered Body1 (same prior stop). This is unaccepted evidence,
-not a negative success or a whole-suite rerun.
-Source authority + canonical issuer: existing instance_constructor_semantic
-object_for/construction_for from the same Box declaration, original resolver
-assignment inventory and Completion. Non-authority: C allocation zeroes,
-caller syntax guesses, invented Birth or class-from-use.
-Fail-fast boundary: current constructor contract lacks the required nonempty
-no-Birth initialization execution profile; LOCAL writes also lack coverage.
-Smallest next slice: resolve the profile against existing lifecycle/publication
-rules in the constructor owner before code, including exact field readiness,
-read/escape/control and outer storage Normal/Fault cleanup. Worker partial-slot
-proposal is investigation input, not an accepted permission to publish incomplete
-objects. Preserve fixed Pair positive/exit30 and all remaining S0/full goal duties.
+Previous goal turn: PROGRESS, task/roadmap reconciliation landed `ac2dff91ce`.
+That commit retains the unaccepted delayed-publication option and CI/doc review;
+its cleanup queue does not select a new implementation lane. Workstream remains
+navigation, CURRENT_STATE the sole selector.
 
-## 2026-10-17 task organization and pending contract
+Decision: restore the already accepted allocation-only typed-i64 profile, keeping
+New/Local identity and first Home publication at their original Normal cutpoint.
+Read-only historical audit resolves the prior ambiguity: Pair allocation-only
+source `09d2c20370`; first-profile narrowing `dc80865f01`/`7acee9c860` was explicitly
+execution eligibility, not source invalidity; later `052c54518b` accepted i64
+migration preserving both fixtures, implemented `89199dbc3c`. This is existing
+positive recovery, not permission for new language semantics. Lifecycle reference
+and constructor SSOT clarify this distinction before source changes.
+The earlier delayed-New/publication proposal stays rejected/unactivated; retain
+its scratch only for this comparison, never revive it as source authority.
 
-Previous goal turn: PROGRESS (`c52e4f1231` production connection/native evidence).
-User-requested roadmap task organization is integrated into the existing
-workstream dependency table and existing structure queue; no new taskboard or
-mandatory cleanup gate. Those two owner docs are in scope because they own
-roadmap status and queued BoxShape selection. Fixed11 was measured10/17 on
-CLI175 (4PASS/7FAIL), not unmeasured since9/30; app180 is separate evidence.
-Gate1 includes R6/R7/Loop/final convergence; later Gates2–4 retain reopen rules.
+Source authority + canonical issuer: same parser Box declaration/New identity,
+instance_constructor_semantic construction source, canonical i64 fields and
+hook-free destruction; exact resolver writer inventory/Local binding and
+Completion own caller store/read facts. The SAME constructor source structure
+must distinguish allocation-only completion from initialized-field completion.
+Non-authority: allTrivial, zeroed C storage, copied witness, class/field spelling,
+physical MIR shape or caller stores as constructor/destruction facts.
+Fail-fast boundary: allocation-only source grants no field initial value.
+Original LOCAL FieldWrite Normal alone refines exact field readiness; pre-store
+RHS uses prior readiness. Missing writer/read/source/Normal dominance, unsupported
+escape/control or wrong root is unavailable. Do not relabel LOCAL as formal or
+turn missing initialization into an empty all-ready ConstructionPlan.
 
-Initialization review found no source rule giving scalar fields default zero;
-local-binding UninitializedSlot grants no field permission. The worker's local
-construction-continuation option would retain allocation/store source order,
-keep only an unpublished storage obligation until the first all-ready Normal
-cutpoint, and use existing failed-construction cleanup before publication.
-This is **unaccepted**, not a completion or emission permission: it changes the
-usable-result boundary beyond New and must be reconciled with the existing
-no-new-language-semantics rule in the selfhost migration-order owner. The
-normative lifecycle reference is unchanged; the tentative amendment was removed
-from that entry and retained only as v838-local-initialization-unaccepted-proposal
-scratch for comparison. No source/build/fixture/runtime activation occurred.
-The next owner decision must distinguish restoring the already accepted Pair
-profile from introducing new language meaning; keep construction eligibility,
-field readiness, first Home publication and Normal/Fault cleanup explicit. Do
-not promote partial storage to an existing complete ConstructionPlan. S0 and
-all finite goal conditions remain open; no deadline or nearest-app claim.
+After New/Local commit, Fault releases the published PlainI64NoHook Home and
+prior Homes once; it never re-enters ReclaimUnpublished. Keep existing New-to-
+Local failure accounting, original store order/overwrites, no fake Birth,
+no AST/.hako rewrite and no retry. Source-to-physical-to-BOTH-final-scans-to-C
+readiness and complete occurrence coverage remain mandatory before activation.
+Unchanged no-Birth Pair EXE/OBJ30 is required; Birth-Pair does not substitute.
+CLI176 app181 remains exit1/noEXE .021610s PrefixNotCovered Body1 until repaired.
 
-Docs-only validation: worker roadmap/scope reviews, new relative links, pointer
-and diff checks PASS. No Cargo/test rerun. Branch CI listing's newest available
-run is35681768498 (2026-09-22,d4168473d5), historical macOS temporary-input
-CAPI lifetime failure; provider step PASS, other listed skips are not evidence.
-This is not a current-revision result or current CI green; parked platform
-ownership remains unchanged. No workflow dispatch or cancellation performed.
+Smallest next slice: required BoxShape before semantic growth: constructor tests
+are800 lines, parent770. Move the six cohesive final construction tests to a
+sibling owner and source-definition lookup methods into existing object_definition.
+Preserve visibility/callers/bodies, no new tests or permissions; use two bounded
+commits. Pinned V837d baseline constructor25 PASS .075454s; compare after moves.
+Then retain allocation-only completion/readiness in the SAME source row, keeping
+complete execution unavailable until the owned-LOCAL store/read and finishing/C
+consumers connect in this series. No isolated preparation green closes S0.
+Required remaining initialization, fixed acceptance, retirement and full goal
+conditions remain open. No deadline or nearest-app claim.
 
 ## Temporary artifact disposition
 

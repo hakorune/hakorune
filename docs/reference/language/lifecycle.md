@@ -150,6 +150,23 @@ verified own-field stores. Successful allocation creates an outer-storage reclai
 obligation even when no field owns a Home; only successful stores mark fields
 initialized. Incomplete initialization is an unavailable execution profile, not
 a decision that source fields default to zero or that the program is invalid.
+
+The separately accepted allocation-only typed-object profile is retained by the
+existing no-Birth `typed-object-newbox-min` positive (explicit `i64`, exit30).
+Restoring that profile preserves New's own Normal completion, usable identity
+and first Home publication; later caller stores are not deferred construction
+or a fabricated Birth. The original declaration must prove exact non-weak i64
+storage and the existing hook-free trivial destruction contract. Field-value
+readiness is separate: a declaration or Trivial Home demand supplies no initial
+field value. Only an exact source store's successful scalar check/mutation makes
+that field readable; a read requires its original writer's Normal edge to
+precede it. Unproved reads, escape and control remain unsupported by this
+bounded compiler profile, not a new language definition of uninitialized fields.
+After Local commit, a store Fault unwinds the published Home and prior Homes;
+it does not turn the object back into unpublished construction storage.
+The compiler must retain this allocation-only disposition separately from its
+all-fields-initialized construction plan and carry store/read correspondence
+through both final consumers and native flow validation before activation.
 For the selected scalar Birth profile, the compiler retains the exact receiver
 and parameter source uses with each accepted store and consumes them before
 emitting the corresponding `FieldSet`; later lowering does not recover those
