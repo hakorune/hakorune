@@ -75,12 +75,7 @@ pub(crate) enum ResolverCoreMethodCallableContractRejectV1 {
 /// One non-Clone source/frame/target contract for a selected resolver call.
 #[derive(Debug)]
 pub(crate) struct VerifiedResolverCoreMethodCallableContractV1 {
-    owner: FunctionOwnerIdV1,
-    call_site: SourceExprSiteV1,
-    receiver_site: SourceExprSiteV1,
-    receiver: ResolvedMethodCallReceiverSourceV1,
-    arguments: Box<[ResolvedMethodCallArgumentSourceV1]>,
-    result_site: SourceExprSiteV1,
+    source: std::sync::Arc<VerifiedResolvedMethodCallSourceV1>,
     loop_site: SourceStmtSiteV1,
     frame: LoopExecutionFrameKeyV1,
     placement: ResolvedLoopPlacementV1,
@@ -93,28 +88,28 @@ impl VerifiedResolverCoreMethodCallableContractV1 {
         self.named_array.as_ref()
     }
 
-    pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
+    pub(crate) fn owner(&self) -> FunctionOwnerIdV1 {
+        self.source.owner()
     }
 
     pub(crate) fn call_site(&self) -> &SourceExprSiteV1 {
-        &self.call_site
+        self.source.site()
     }
 
     pub(crate) fn receiver_site(&self) -> &SourceExprSiteV1 {
-        &self.receiver_site
+        self.source.receiver_site()
     }
 
-    pub(crate) const fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
-        self.receiver
+    pub(crate) fn receiver(&self) -> ResolvedMethodCallReceiverSourceV1 {
+        self.source.receiver()
     }
 
     pub(crate) fn arguments(&self) -> &[ResolvedMethodCallArgumentSourceV1] {
-        &self.arguments
+        self.source.arguments()
     }
 
     pub(crate) fn result_site(&self) -> &SourceExprSiteV1 {
-        &self.result_site
+        self.source.result_site()
     }
 
     pub(crate) fn loop_site(&self) -> &SourceStmtSiteV1 {
@@ -191,12 +186,10 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         {
             return Err(ResolverCoreMethodCallableContractRejectV1::ForeignLoopMembership);
         }
-        let exact_row = ledger
-            .method_calls()
-            .any(|(site, row)| site == call.site() && std::ptr::eq(row, call));
-        if !exact_row {
-            return Err(ResolverCoreMethodCallableContractRejectV1::ForeignSourceRow);
-        }
+        let source = ledger
+            .method_call_source_v1(call.site())
+            .filter(|source| std::ptr::eq(source.as_ref(), call))
+            .ok_or(ResolverCoreMethodCallableContractRejectV1::ForeignSourceRow)?;
 
         let source_sites = ledger.source_site_inventory();
         for site in std::iter::once(call.site())
@@ -314,12 +307,7 @@ impl ResolverCoreMethodCallableContractIssuerV1 {
         verify_target(&target, call)?;
 
         Ok(VerifiedResolverCoreMethodCallableContractV1 {
-            owner: ledger.owner(),
-            call_site: call.site().clone(),
-            receiver_site: call.receiver_site().clone(),
-            receiver,
-            arguments: call.arguments().to_vec().into_boxed_slice(),
-            result_site: call.result_site().clone(),
+            source: std::sync::Arc::clone(source),
             loop_site: membership.source().site().clone(),
             frame: membership.frame().clone(),
             placement,

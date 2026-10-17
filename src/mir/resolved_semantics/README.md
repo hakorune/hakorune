@@ -353,8 +353,12 @@ borrows one exact `VerifiedResolvedMethodCallSourceV1` and the caller's
 non-Clone Loop membership, proves every call/receiver/argument/result site has
 the target's exact canonical placement (`StringLen/0 = Condition`,
 `StringSubstring/2 = Body`), and consumes the existing generated target. The
-resulting non-`Clone` product owns the source sites, frame/site projection,
-placement, and target; it does not issue another membership. It does not choose by selector, narrow with
+resulting non-`Clone` product retains the SAME canonical resolver method Arc;
+its source accessors borrow that row instead of copying owner, receiver,
+arguments and sites. Loop frame/site, placement and target remain separately
+owned by this bounded contract; it does not issue another membership. This
+storage identity grants no ordinary-call or Text execution permission.
+It does not choose by selector, narrow with
 `only_loop_site`, inspect AST/MIR/Recipe data, issue a source-bound relation, or
 open S6C production. A source row, frame, or target mismatch rejects before any
 Facts/Recipe or physical effect.

@@ -61,7 +61,7 @@ impl<'a> S6CLogicalCallInputRefV1<'a> {
         self.role
     }
 
-    pub(crate) const fn owner(self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+    pub(crate) fn owner(self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
         self.contract.owner()
     }
 

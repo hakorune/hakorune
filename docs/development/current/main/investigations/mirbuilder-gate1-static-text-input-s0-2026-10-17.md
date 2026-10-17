@@ -31,6 +31,23 @@ This confirms the prior app200 stop; it is not EXE acceptance.
 
 ## One Decision
 
+Resume after the user's explicit stop release: keep this SAME selected series.
+Read-only worker confirmed the bounded Core contract requires actual Loop
+membership; Body7 Value is outside that scope. First normalize its original
+method identity without widening admission: retain the SAME resolver Arc from
+CallableSemanticSourceLedgerView.method_call_source_v1 rather than copied
+owner/receiver/site/argument snapshots. Preserve existing source/target checks,
+error ordering, Loop frame/placement and named-Array requirement. Paths for this
+BoxShape step: resolver_core_method_callable_contract.rs, resolver owner README
+and this card. Reuse existing resolver contract/source-bound Core/named-Array
+tests and guards; no new test or production build is required for storage-only
+normalization. Ordinary receiver/bounds qualification and all Text consumers
+remain unfinished; this step grants no ordinary call or runtime permission.
+Root858A found one existing S6C logical-view const getter delegating owner();
+the path scope includes s6c_scan_with_init_joinir.rs solely to make that getter
+non-const now that owner is borrowed through the canonical Arc. No semantic
+or placement check changes.
+
 Decision: connect original Text-producing expressions to ordinary static borrowed
 input in the existing source/packet/physical pipeline. Build the missing source
 and consumer connections; lack of already finished packets is not a construction
@@ -373,3 +390,36 @@ Preserve line's Text provenance, start/end exact-site I64/Loop After dependencie
 existing concat alternatives and terminating Null guard, int_to_str I64 incoming,
 and unresolved MapGet producers. Then close entry/result, ordered argument
 Normal/Fault cleanup and BOTH final publication consumers in this same series.
+
+Worker refinement at V858: keep the SAME classifier and SUM graph. Preserve
+canonical Static routing first; an unresolved Core candidate retains the SAME
+method Arc, original receiver seed, ordered argument seeds and generated
+manifest row as a conditional request, not an issued catalog row or target.
+Require Text-only receiver and signed-I64-only bounds in that graph. Extend
+independent SCC grounding to BOTH predicate kinds: p=p.substring(0,1) cannot
+use its literal bounds to ground its own receiver. Only after every premise
+closes may the ordinary issuer use the existing CoreMethodInstanceTargetIssuer
+and source receipt; no fabricated Loop frame. Mutable end after the loop stays
+Unknown until the original exact-site I64/Loop After proof connects, including
+zero-iteration and break exits. Neither initializer/formal SUM nor final SSA
+substitutes for that evidence. This refines the existing One Decision; it does
+not select a new feature or narrow the remaining full-series acceptance.
+
+### Canonical Core source identity normalization (V858)
+
+The existing Loop Core contract now retains the SAME resolver method Arc and
+borrows source owner/receiver/ordered arguments/sites from it. Its old copied
+source snapshot is removed; original pointer validation and all subsequent
+Loop/target/named-Array refusal ordering remain. One S6C forwarding owner getter
+became non-const because Arc access is runtime borrowing. No new issuer,
+membership, ordinary Core permission, test, guard or adapter was introduced.
+
+Root858A exited101 on that const dependency only. Corrected Root858B build
+PASS78.548432s; five nonempty existing filters PASS36/36: resolver contract9,
+source-bound Core3, S6C4, selected Core11 and named-Array9. Root/layer/thin/
+pointer/diff guards PASS. Keep B's pin/logs/manifest/receipt until this full
+series closes; A has diagnostic logs but no successful binary to retire.
+CLI/native/frontier were not rerun for this storage-only normalization; app214
+and app215 remain prior-revision evidence, not a new json-stream advance.
+Ordinary Text qualification, exact-site bounds and all remaining entry/cleanup/
+publication obligations above remain unaccepted. Full finite goal stays active.
