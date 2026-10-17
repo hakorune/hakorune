@@ -45,7 +45,7 @@ mod text_initializer;
 pub(crate) use text_initializer::{qualify_text_initializer_v1, CheckedTextInitializerFrameV1};
 #[path = "home_expression_evaluation.rs"]
 mod evaluation;
-pub(crate) use evaluation::CheckedExpressionEvaluationV1;
+pub(crate) use evaluation::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1};
 #[path = "home_print_expression.rs"]
 mod print_expression;
 pub(crate) use print_expression::{qualify_print_expression_v1, CheckedPrintExpressionFrameV1};

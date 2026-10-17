@@ -67,7 +67,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     let frame = Rc::new(CheckedPrintExpressionFrameV1 { evaluation: CheckedExpressionEvaluationV1 {
         source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(), classes: classes.into_boxed_slice(),
-        calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
+        references: Default::default(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(), operations: operations.into_boxed_slice(),
         owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred,
     } });
     let candidate = HomeExpressionPlanV1 {

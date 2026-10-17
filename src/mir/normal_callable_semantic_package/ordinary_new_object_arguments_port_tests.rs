@@ -577,10 +577,12 @@ fn finite_initializer_entry_uses_the_original_terminating_null_arm_and_both_add_
             package.selected.role_for_batch_slot(contract.batch_slot),
             ledger.completion_for_owner(contract.owner).map(|completion| completion.cleanup().root_flow()));
         if let Some(frame) = frame {
+            assert!(frame.evaluation().reference_coverage_is_exact());
             assert_eq!(frame.entry_reads().len(), 1);
             assert_eq!(frame.entry_refinements().len(), 1);
             assert!(frame.entry_reads()[0].leaf_class(None).is_none(), "original SUM still contains Null");
-            let proof = frame.entry_refinements().values().next().unwrap();
+            let refinements = frame.entry_refinements();
+            let proof = refinements.values().next().unwrap();
             assert!(frame.entry_reads()[0].leaf_class(Some(proof)).is_some());
             let operation = frame.evaluation().operations().iter().find(|operation| operation.node() == 0).unwrap();
             assert_eq!(operation.envelopes().len(), 2);
@@ -640,6 +642,8 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
             assert_eq!(frames.len(), usize::from(expected), "{prefix}/{argument}/{incoming}");
             if let Some(frame) = frames.first() {
                 assert!(Rc::ptr_eq(frame.source(), frame.source_loan().plan()));
+                assert!(frame.evaluation().reference_coverage_is_exact());
+                assert_eq!(frame.evaluation().references().len(), static_reads + residence_reads + entry_reads + frame.references().len());
                 assert_eq!(frame.static_reads().len(), static_reads);
                 assert_eq!(frame.residence_reads().len(), residence_reads);
                 assert_eq!(frame.text_reads().len(), entry_reads);

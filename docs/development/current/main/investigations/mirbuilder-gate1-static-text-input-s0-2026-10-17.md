@@ -950,51 +950,48 @@ commands/provenance, corrected test setup and all negative/source census cases.
 Matched pins kept; obsolete attempt binaries1,863,680,104 bytes removed with
 current hash/baseline checks, logs/receipts retained. Full Text series stays open.
 
-V880 Decision (packet_origin_review): one original formal-use source product
-owns contract/reads/flow/aliases/rebind/capture obligations before legacy draft
-classification; successful drafts alone keep old admission. Same canonical refs
-feed classifier passes, source-only/omitted declarations retain originals.
-Existing original seed product owns these Rc loans, without another registration
-API/scan. Argument/initializer Text read requirements retain SAME original/read
-identity; finite structural entry requires that original. No use completion or
-physical Text permission from this. All original reads must still match current
-frames/physical reads/Copies in BOTH final consumers; unknown/escape/uncovered
-use refuses. Source/runtime execution fences remain until those connections close.
-Paths: borrowed formal uses + child source census, source draft collector/finish/
-seed ownership, entry contract/read requirement, Argument/initializer source
-lenders, existing use/source/port tests, owner README/card. No .hako edit or new
-semantic profile/fixture/test/guard. Canonical source identity stays fatal; legacy
-classifier errors are retained errors, never successful empty drafts.
+V880 landed8b705cd9c1: canonical original-use loans retained through Argument/
+initializer requirements and finite structural entry. Commit retains worker fixes,
+commands/provenance, Root880B375/361PASS/14same, CLI218/app257 JSON SAME and
+app258 unchanged mimalloc EXE/native exact7/exit0. Matched pins retained;
+original/source proofs still grant no physical reference execution.
 
-V880 construction: SAME original use Rc/read index now travels in Argument and
-initializer requirements; finite structural entry requires its matching original
-contract. Legacy classifiers reuse canonical reads/initializers/rebind/capture
-and still reject unsupported uses. Omitted opaque owners retain source products
-without a legacy admitted draft. Worker caught/fixed owner coverage projection
-(zeroarg/ExactI64-only source owners are not opaque use owners) and an accidental
-alias_entry_origin restriction: raw loans retain Join/unknown points without
-claiming alias/current/Loop rights. Classifier identity errors remain fatal.
-Root880A build134.592075s PASS, superseded before tests by these fixes;
-Root880B cargo quick-test-fast --no-run --message-format=json PASS72.912023s,
-no new warnings.42 existing filters distinct375/pass361/baseline14; identities
-and diagnostics match879D plus its pinned independent use-family31PASS baseline.
-Focused runtime10.878975s; required stack16MiB/jobs4, no new test methods.
-Existing unsupported/rebind/capture tests verify raw obligations survive refusal;
-port/finite/initializer tests verify same-source lending and no execution grant.
-Root/pointer/layer/thin/diff guards PASS. CLI218 quick bin build PASS216.465773s,
-no new warnings; SHAa07f5945dc2f515d7d01150b88f2e72b2997c4603054bd644e6489225f7971e1.
-App257 original JSON SAME slot20/Body7 Value Core fence, exit1/no artifact,
-.123180s, stderr byte-identical255. App258 unchanged mimalloc EXE133.903054s/
-native.001548s PASS, original7/exit0/stdout+stderr exact256; matched pins retained.
-Same canonical --backend mir --emit-exe/--emit-exe-nyrt runtime877A, FFI876B,
-clean-env/plugins-disabled/pure-first/no-replay/16MiB recipe. Current source
-manifests match; only compiler paths differ from pinned runtime, C/ABI unchanged.
-Latest CI35681768498/d4168473d5 remains historical failed, not current green.
-Next execution (owned_write_final_scan): normalize purpose-held reference proofs
-into one SAME-evaluation node view. Static keeps definition+current exact read;
-residence borrows SAME acquisition/handoff pair; entry fulfillment joins original
-read, actual param/carrier, exact read/Copy. Prepare all refs/field roots before
-one read commit. Typed borrowed domain distinguishes Text-only from finite Add
-RHS; finite C adapts tag1 to existing integer descriptor and tag4 to Text, others
-refuse. Keep original Null exclusion/Loop proofs, both source-aware final scans
-and strict source-less verification; no new packet pool or scalar descriptor ID.
+V881 Decision (reference_integration_review): move existing reference proof
+payloads once into SAME evaluation's active-node map; wrappers only project
+borrowed proof views. Entry finite SUM and SAME Null exclusion stay together;
+ordinary-call transferred inputs and receiver identities keep their own owners.
+Sole writer and shared final projection check complete reference coverage before
+any physical permission. This BoxShape removes parallel purpose storage without
+changing executable admission; full Text series and all execution fences remain.
+Paths: shared evaluation and argument/initializer/Print constructors, their
+existing owner exports, sole writer/shared projection coverage checks, reused
+source/port assertions, MIR README/card. No new test/fixture/guard or .hako edit.
+Physical follow-up must join source original + prepared current read/Copy before
+ONE read batch; actual entry/carrier, residence handoff and both final String-use
+consumers remain required. Static reference execution also needs exact original
+initializer/root correspondence, not just matching bytes and a source read.
+
+V881 verification: initial Root881A PASS108.952140s; review then added complete
+coverage rejection before candidate publication (not only writer/final scan).
+Final Root881B cargo quick-test-fast --no-run --message-format=json PASS54.475516s;
+42 reused filters375 distinct/361PASS/14same identities+diagnostics as880B,
+focused11.150215s; no new warning messages. No test/fixture/guard added.
+Pointer/root-route/layer/thin/diff PASS. Historical CI35681768498/d4168473d5
+remains failed; no current full-suite/CI green claim. Physical Text completion
+and actual source frontier movement remain unaccepted.
+Next static-read mapping (same worker): original literal initializer binding
+joins existing MaterializedValues root/initializer ValueId/Copy chain, validated
+on prepared read before batch commit. Reuse FinishedBindings.relation_binding
+for captured producer/Copy omissions; never add preceding initializer rows to
+expression order. Existing static-only tests can use genuine zeroarg source
+caller/entry and actual local writer receipts, avoiding fabricated Text params.
+CLI219 quick bin PASS196.931753s, no new warnings; SHA
+bacfb377fff4b9fb27da2c830e767ce4d93f57520411299d91c356339f05c822.
+App259 unchanged JSON exit1/noartifact .119945s, same slot20/Body7 Value Core
+fence, stderr byte-identical257. Same canonical direct EXE recipe/pins as880;
+compiler-only manifest delta corroborated, runtime/C/ABI unchanged.
+App260 unchanged mimalloc EXE132.433507s/native.001405s PASS; original7lines,
+exit0/stdout+stderr byte-identical258. EXE SHA
+ a02ed83a511ab7224d1be64d493d3083b07f17d9a92694462c0db82b383e68d0.
+Latest881B/CLI219/runtime877A/FFI876B pins retained for unfinished series;
+881A superseded compile receipts kept, no adapter/proof directory introduced.

@@ -433,3 +433,13 @@ Argument/initializer read requirements retain the same snapshot/read index.
 These are raw membership loans: Loop/alias/current proofs remain with their
 existing owners, and both final consumers must still close every expected read
 and physical use before a Text entry or actual can execute.
+
+The shared expression evaluation owns one active-node reference map. Argument
+and Text initializer purposes lend borrowed views of that same storage; finite
+entry reads retain their original SUM together with the same Null-exclusion
+proof. Scalar, static definition, residence acquisition and entry requirements
+remain distinct payloads. The sole writer and common final projection reject
+missing, extra or foreign-node proofs. This normalization grants no physical
+reference/domain/entry permission: current exact reads and Copies, source
+initializer or residence correspondence, actual params/carriers and both final
+String-use consumers still have to close before those fences can be removed.

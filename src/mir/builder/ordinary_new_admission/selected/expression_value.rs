@@ -36,6 +36,7 @@ pub(super) fn emit(
 ) -> Result<EmittedExpressionValueV1, String> {
     let owner = frame.source().owner();
     if state.owner() != owner { return Err(freeze("expression-value/state-owner")); }
+    if !frame.reference_coverage_is_exact() { return Err(freeze("expression/reference-source-coverage")); }
     // Reject unconnected carriers/finite selection before any read reservation,
     // FaultFrame or MIR effect; a retained source class is not a physical value.
     if frame.operations().iter().any(|operation| operation.single_envelope().is_none()) {

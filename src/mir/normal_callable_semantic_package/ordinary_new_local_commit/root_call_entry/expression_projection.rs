@@ -34,7 +34,8 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
     pub(in crate::mir) fn validate_source(&self, context: CallValidationContextV1<'_>) -> Result<(), String> {
         let ledger = context.ledger();
         let source = self.frame.source();
-        if self.values.len() != source.nodes().len() || self.calls.len() != self.frame.calls().len()
+        if !self.frame.reference_coverage_is_exact()
+            || self.values.len() != source.nodes().len() || self.calls.len() != self.frame.calls().len()
         {
             return Err(freeze("print-expression/source-coverage"));
         }

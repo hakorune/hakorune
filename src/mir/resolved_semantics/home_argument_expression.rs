@@ -12,20 +12,16 @@ use std::collections::{BTreeMap, BTreeSet};
 pub(crate) struct CheckedArgumentExpressionFrameV1 {
     evaluation: CheckedExpressionEvaluationV1,
     source_loan: ArgumentExpressionSourceLoanV1,
-    text_reads: Box<[BorrowedTextEntryReadRequirementV1]>,
-    references: BTreeMap<usize, (BindingRefV1, SourceScalarKind)>,
-    static_reads: Box<[super::super::StaticTextReadV1]>,
-    residence_reads: Box<[super::text_initializer::TextResidenceReadV1]>,
 }
 impl CheckedArgumentExpressionFrameV1 {
     pub(crate) fn evaluation(&self) -> &CheckedExpressionEvaluationV1 { &self.evaluation }
     pub(crate) fn source_loan(&self) -> &ArgumentExpressionSourceLoanV1 { &self.source_loan }
-    pub(crate) fn static_reads(&self) -> &[super::super::StaticTextReadV1] { &self.static_reads }
-    pub(crate) fn residence_reads(&self) -> &[super::text_initializer::TextResidenceReadV1] { &self.residence_reads }
+    pub(crate) fn static_reads(&self) -> Vec<&super::super::StaticTextReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::StaticText(read) => Some(read), _ => None }).collect() }
+    pub(crate) fn residence_reads(&self) -> Vec<&super::text_initializer::TextResidenceReadV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::Residence(read) => Some(read), _ => None }).collect() }
     pub(crate) fn source(&self) -> &Rc<ExpressionSourcePlanV1> { self.evaluation.source() }
     pub(crate) fn prior_homes(&self) -> &[BindingRefV1] { self.evaluation.prior_homes() }
-    pub(crate) fn text_reads(&self) -> &[BorrowedTextEntryReadRequirementV1] { &self.text_reads }
-    pub(crate) fn references(&self) -> &BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { &self.references }
+    pub(crate) fn text_reads(&self) -> Vec<&BorrowedTextEntryReadRequirementV1> { self.evaluation.references().values().filter_map(|read| match read { CheckedExpressionReferenceV1::ArgumentEntry(read) => Some(read), _ => None }).collect() }
+    pub(crate) fn references(&self) -> BTreeMap<usize, (BindingRefV1, SourceScalarKind)> { self.evaluation.references().iter().filter_map(|(&node, read)| match read { CheckedExpressionReferenceV1::Scalar { binding, kind } => Some((node, (*binding, *kind))), _ => None }).collect() }
     pub(crate) fn transfers_node(&self, node: usize) -> bool { self.evaluation.transfers_node(node) }
 }
 
@@ -95,13 +91,27 @@ pub(crate) fn qualify_argument_expression_v1<E>(
     let Some((operations, owned_results)) = super::operations::qualify_add_operations_v1(&source, &order, &classes, &transferred) else { return Ok(None) };
     if core.resolver_source().is_some_and(|original| !cores.get(&0)
         .is_some_and(|retained| std::ptr::eq(retained.source(), original))) { return Ok(None); }
+    let mut reference_proofs = BTreeMap::new();
+    for (node, (binding, kind)) in references { reference_proofs.insert(node, CheckedExpressionReferenceV1::Scalar { binding, kind }); }
+    for read in static_reads {
+        let Some(node) = source.nodes().iter().position(|node| node.site() == read.read()) else { return Ok(None) };
+        if !transferred.contains(&node) && reference_proofs.insert(node, CheckedExpressionReferenceV1::StaticText(read)).is_some() { return Ok(None); }
+    }
+    for read in residence_reads {
+        if !transferred.contains(&read.node()) && reference_proofs.insert(read.node(), CheckedExpressionReferenceV1::Residence(read)).is_some() { return Ok(None); }
+    }
+    for read in text_reads {
+        if !transferred.contains(&read.node()) && reference_proofs.insert(read.node(), CheckedExpressionReferenceV1::ArgumentEntry(read.clone())).is_some() { return Ok(None); }
+    }
+    reference_proofs.retain(|node, _| !transferred.contains(node));
+    if reference_proofs.iter().any(|(&node, proof)| !proof.matches_node(&source, node)) { return Ok(None); }
     let frame = Rc::new(CheckedArgumentExpressionFrameV1 {
         evaluation: CheckedExpressionEvaluationV1 { source: Rc::clone(&source), prior_homes: prior_homes.into(), order: order.clone().into_boxed_slice(),
-            classes: classes.into_boxed_slice(), calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
+            classes: classes.into_boxed_slice(), references: reference_proofs, calls: order.iter().filter_map(|node| calls.remove(node)).collect(),
             operations: operations.into_boxed_slice(), owned_results: super::evaluation::owned_result_nodes(&order, &owned_results, &cores), cores, transferred_inputs: transferred },
-        source_loan: core, text_reads: text_reads.into(), references,
-        static_reads: static_reads.into_boxed_slice(), residence_reads: residence_reads.into_boxed_slice(),
+        source_loan: core,
     });
+    if !frame.evaluation().reference_coverage_is_exact() { return Ok(None); }
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
         print_frame: None, condition_frame: None, argument_frame: Some(frame), text_initializer: None, field_write: None, initializer_homes: None };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
