@@ -423,14 +423,14 @@ pub(super) use borrowed_nullable_local_arguments::mixed_arguments_v1 as mixed_lo
 mod borrowed_formal_entry;
 pub(super) use borrowed_formal_actuals::{
     corroborate_received_object_receiver_v1, issue_original_static_forwarded_actual_v1,
-    prepare_borrowed_call_actuals_v1, bind_static_argument_sources_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_initializer_text_entry_read_v1, lend_text_entry_read_v1, lend_argument_expression_source_v1, project_current_owner_loop_scalar_source_v1,
+    prepare_borrowed_call_actuals_v1, bind_static_argument_sources_v1, complete_argument_expression_v1, stage_observed_call_actuals_v1, observed_argument_source_v1, lend_expression_core_source_v1, lend_initializer_text_entry_read_v1, lend_text_entry_read_v1, project_current_owner_loop_scalar_source_v1,
     project_pending_borrowed_i64_arguments_v1,
     project_pending_current_owner_static_source_arguments_v1,
     project_pending_i64_result_arguments_v1, project_pending_instance_source_arguments_v1,
     project_pending_object_arguments_v1, project_pending_static_source_arguments_v1,
     project_pending_object_target_arguments_v1,
     received_producer_arguments_v1, reject_borrowed_actuals_for_owner_v1,
-    stage_borrowed_call_actuals_v1, PendingBorrowedFormalActualsV1,
+    PendingBorrowedFormalActualsV1,
     VerifiedStaticForwardedActualV1,
 };
 pub(in crate::mir) use borrowed_formal_actuals::{
@@ -450,7 +450,8 @@ pub(in crate::mir) use borrowed_formal_entry::{
     BorrowedMulMaterializationV1, BorrowedMulSourceLoanV1,
 };
 #[cfg(test)]
-pub(super) use borrowed_formal_source::prepare_borrowed_formal_ingress_v1;
+pub(super) use {borrowed_formal_source::prepare_borrowed_formal_ingress_v1,
+    borrowed_formal_actuals::{lend_argument_expression_source_v1, stage_borrowed_call_actuals_v1}};
 pub(crate) use borrowed_formal_source::NamedArrayHolderSourceLoanV1;
 pub(in crate::mir::normal_callable_semantic_package) use borrowed_formal_source::{ArrayElementSourceLoanV1, ArrayHolderLifecycleRecipeV1};
 pub(super) use borrowed_formal_source::PreparedBorrowedFormalIngressV1;

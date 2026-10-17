@@ -941,53 +941,57 @@ zeroarg/alias and negative evidence, Root882E361PASS/14same, CLI220/app261 JSON
 SAME/app262 mimalloc exact7/exit0, timings/provenance and535MB superseded pin
 retirement. Matched pins kept; full Text series remains open.
 
-V883 Decision (reference_integration_review): required Text read is an obligation,
-not a domain proof. Join SAME original read/contract + canonical finite structure
-with EXACT {Text} domain + whole recorded entry tuple + actual Static param/
-BorrowedTaggedValue carrier + prepared current read/forwarded Copies. Never call
-completed entry/actual facade during lowering; no caller-actual cycle. Domain
-Text|I64 (even at a String Core source demand) fails this read fulfillment.
-This is pre-commit physical read corroboration only: no String operand/marker,
-acquisition/End, final incoming/use coverage or publication permission. Existing
-String consumer fence stays closed until common packet and BOTH final scans/
-compiled domain image connect. Original Null exclusion/Loop rights stay separate.
-Paths: entry structure/source-read owner, existing prepared exact-read loan,
-common expression preflight, reused source/port cases, MIR README/card.
-Worker native-gap claim retracted after schema check: native_array is one root
-without params/receiver; borrowed Text ordinary EXEs use indexed cohort. No C
-changes or native cohort expansion. No new task/card/fixture/guard/test method.
-Worker whole-entry correction: compare ALL BorrowedTaggedValue carrier indices
-with recorded borrowed ordinals, and check each borrowed signature slot. Existing
-source table now includes a genuine non-borrowed i64 formal; extra tagged carrier
-mutation must reject without consuming the read. ValueIds are function-local:
-this check is not source-function ownership. Runtime activation must use genuine
-selected source scope plus finished owner/module membership in BOTH final scans.
-Root883A compiled PASS104.117219s before this correction; not final evidence.
-Root883B/C compile PASS68.092666/54.757039s. Targeted tests exposed a missing
-test-shell carrier column (fixed), then an invalid mixed-Core fixture premise.
-Canonical source SUM already requires text_only for Core Text dependencies, so
-no mixed-Core frame exists. Remove that WIP case; reuse existing finite-entry
-fixtures to assert exact Text success and Text|I64|Null domain rejection directly.
-Next full connection reuses the existing ephemeral Call-use view for exact String
-operand coordinates/domain through module, in-module and strict function scans;
-public source-less verification stays strict. Then close the one compiled formal
-domain image and encode text_view only from it. No parallel receipt registry.
+V883 landed0e6afb5ef6: exact Text domain, original read/contract, whole physical
+carrier/entry tuple and Copy corroboration. Commit retains Root883D361PASS/14same,
+CLI221/app263 JSON SAME/app264 mimalloc exact7/exit0, timings and535MB superseded
+pin retirement. Matched final/baseline pins remain; full Text series stays open.
 
-V883 verification: final Root883D compile PASS58.371879s,42 focused filters
-10.375472s;375 distinct/361PASS/14 SAME baseline identities AND diagnostics versus
-Root882E. No new warning messages. Genuine source Core/alias entry checks and
-wrong carrier/value/param-definition/extra tagged i64 mutations PASS. Existing
-finite-entry fixtures prove exact Text/mixed-domain boundary. No new test method.
-Pointer/root-route/layer/thin/diff guards PASS; pointer/root-route/diff rechecked
-after final test-only correction. Root883B/C test pins retired
-535,200,728B after final-D hash and baseline checks; logs/manifests retained.
-Final-D/Root882E and matching runtime/FFI pins stay until Text series acceptance
-and successor evidence replaces their baseline role. No temporary adapter added.
-CLI221 build PASS181.889358s, no new warning messages; matched runtime877A and
-FFI876B source/backend/ABI hashes checked by existing harness. App263 unchanged
-json-stream canonical direct EXE exits1/no artifact in0.119873s, SAME slot20/
-Body7/Value core-expression-execution-pending; stderr byte-identical to app261.
-CI checked once: latest remains historical failed35681768498/d4168473d5,
-not a current run or green claim. Full Text series and finite goal remain open.
-App264 unchanged mimalloc canonical EXE PASS132.230777s/native0.001517s;
-original7 stdout/exit0/stderr exact to app262. This does not accept full Text.
+V884 Decision (reference_integration_review): source argument qualification
+currently retains the checked frame only in Home flow, losing it at Call actual
+handoff. Normalize existing per-ordinal argument_sources into Source/Qualified
+products, retaining SAME original plan and SAME checked frame Rc in existing
+pending Static actual slot. Explicit completion callback follows qualifier's
+whole successful field batch, then commits the Home installation. Re-observation
+must retain the original plan Rc but invalidate previous current-Home qualification
+through explicit Observe only; generic staging stays strict and executable phases
+cannot downgrade. Complete retains a canonical equal frame within that observation;
+a fresh Home walk proves its own acquisition Rc. No Eq weakening or new registry. No parallel frame
+map or executable-static-Text finisher. Runtime fences remain until physical
+Call packet, all argument temporary Normal/Fault cleanup, both final source scans
+and compiled entry domain image connect. This is the first missing production
+handoff in that same series, not Text execution acceptance.
+Paths: existing argument source/product, source callback/reexports, real Prefix
+observer and Home frame identity reuse, existing source/port tests, MIR README.
+Next physical change must build Call Fault cleanup AFTER argument acquisition;
+carry earlier argument temporaries into later argument faults and End on Call
+Normal before continuation. Reuse common expression projection and Call packet.
+Worker confirms full original Static Rc/candidates/integer/Core/plan and ordered/
+opaque tuple equality before reset, sticky errors and no Rc ownership cycle.
+Post-field completion/approved-frame mismatches fail fast, never silently continue.
+Before runtime activation, both final consumers must compare the SAME frame to
+current pending slot AND current Home flow; old snapshots cannot grant permission.
+V884 verification: Root884A compile113.825363s/targeted2PASS before reset refinement;
+final Root884B compile109.239368s,42 filters10.428093s;375 distinct/361PASS/14 SAME
+baseline identities AND diagnostics versus Root883D; no new warning messages.
+Source/Core/entry/static/alias/residence table and full fresh Home replay PASS:
+same source plan, current pending/Home frame, new actual residence acquisition.
+No new test method/fixture/guard. Pointer/root-route/layer/thin/diff PASS.
+Superseded A test pin retired267,972,736B after final-B hash/baseline checks;
+logs/manifests retained. Final-C successor evidence below now owns baseline retention for the unfinished
+Text series; old log/manifests stay as historical evidence.
+Final Root884C compile PASS42.049510s/42 filters11.570542s;361PASS/14 SAME
+versus Root883D after narrowing now-unused production stage re-export to existing
+cfg(test) helpers. Generic source staging owner remains shared/strict. No adapter.
+CLI222 compiled204.552804s/app265 same stop; its new unused stage re-export warning
+led to that scope correction. Final CLI223 PASS54.737962s/no new warning messages.
+App267 unchanged json-stream canonical direct EXE exits1/no artifact0.129677s;
+SAME slot20/Body7/Value core-expression-execution-pending, stderr exact app263.
+Matched runtime877A/FFI876B source/backend/ABI hashes checked by existing harness.
+CI checked once: historical failed35681768498/d4168473d5; no current green claim.
+App268 unchanged mimalloc canonical EXE PASS132.684316s/native0.001602s;
+original7 stdout/exit0/stderr exact app264. Full Text series/finite goal stay open.
+Successor bundle now retires B/883D/882E test pins, CLI220-222 and app264 EXE:
+1,021,469,632B after final-C/CLI223/app267-268 hash/baseline/output checks.
+With superseded A, total1,289,442,368B reclaimed; logs/manifests/outputs retained.
+Keep final C/CLI223/app268 and matched runtime/FFI until successor replaces their
+baseline/unfinished acceptance roles. No temporary adapter or archive tree added.

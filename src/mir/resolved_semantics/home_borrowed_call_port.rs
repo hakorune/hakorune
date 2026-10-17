@@ -10,6 +10,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
     /// Original argument plan and optional Core loan; no evaluation permission.
     ArgumentExpressionSource(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, u32),
+    CompleteArgumentExpression(&'a std::rc::Rc<super::CheckedArgumentExpressionFrameV1>),
     ArgumentTextEntryRead { source: &'a crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1,
         read: &'a super::SourceExprSiteV1, binding: super::BindingRefV1, root: super::BindingRefV1 },
     InitializerTextEntryRead {
@@ -45,6 +46,7 @@ pub(crate) enum BorrowedCallArgumentsV1 {
     InitializerTextEntryRead(crate::mir::normal_callable_semantic_package::InitializerTextEntryReadV1),
     TextEntryRead(crate::mir::normal_callable_semantic_package::BorrowedTextEntryReadRequirementV1),
     ArgumentExpressionSource(crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1),
+    ArgumentExpressionFrame(std::rc::Rc<super::CheckedArgumentExpressionFrameV1>),
     MixedLocalSource {
         loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
         arguments: Box<[LocalCallArgumentV1]>,

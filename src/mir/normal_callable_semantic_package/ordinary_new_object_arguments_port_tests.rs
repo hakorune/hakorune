@@ -403,6 +403,23 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 assert!(frame.evaluation().ordered_nodes().iter().all(|node| !frame.transfers_node(*node)), "Core receiver/bounds remain in source postorder");
                 let source_loan = crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call::lend_argument_expression_source_v1(ingress, &pending, &call_site, 0).unwrap().unwrap();
                 assert_eq!(frame.source_loan(), &source_loan);
+                let reissued = Rc::new(frame.as_ref().clone());
+                assert!(!Rc::ptr_eq(frame, &reissued));
+                let retained = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                    &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::CompleteArgumentExpression(&reissued),
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap().unwrap();
+                let BorrowedCallArgumentsV1::ArgumentExpressionFrame(retained) = retained else { panic!("same pending frame") };
+                assert!(Rc::ptr_eq(frame, &retained), "pending actual and Home retain the SAME canonical frame");
+                let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+                let repeated = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
+                    input, &statement, parameters, true, None,
+                    &mut |requests, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(requests.is_empty()); Ok(Some(Vec::new())) },
+                    &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                        &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+                assert!(!Rc::ptr_eq(frame, repeated[0].argument_frame().unwrap()), "explicit Observe requires a fresh current frame");
+                assert!(Rc::ptr_eq(frame.source(), repeated[0].argument_frame().unwrap().source()));
                 // Existing Core actual tests retain the independent execution-pending checks.
             }
         }
@@ -667,6 +684,20 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
                 }
                 if owned {
                     crate::mir::MirBuilder::assert_checked_expression_core_for_test(input, package.ordinary_new_claim_ledger_for_test(), frame);
+                }
+                let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+                let (repeated, _) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+                    input, parameters, true, None,
+                    &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { assert!(fields.is_empty()); Ok(Some(Vec::new())) },
+                    &mut |site, request| borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()),
+                        &package.parameter_contracts, &[], None, source, &Ok(Default::default()), &mut pending,
+                        &ledger.borrowed_i64_results, &mut |_| None, site, request,
+                        &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)).unwrap();
+                let repeated = repeated.iter().find_map(|plan| plan.argument_frame()).unwrap();
+                assert!(Rc::ptr_eq(frame.source(), repeated.source()), "source identity survives a fresh Home walk");
+                if let Some(read) = repeated.residence_reads().first() {
+                    assert!(!Rc::ptr_eq(read.acquisition(), frame.residence_reads()[0].acquisition()),
+                        "a new Home walk has its own actual acquisition proof");
                 }
                 if let Some(read) = frame.static_reads().first() { assert_eq!(read.utf8(), "bytes"); }
             }

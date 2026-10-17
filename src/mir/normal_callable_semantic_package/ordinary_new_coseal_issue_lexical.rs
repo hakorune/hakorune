@@ -336,6 +336,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|loan| loan.map(BorrowedCallArgumentsV1::ArgumentExpressionSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
+    if let BorrowedCallActualRequestV1::CompleteArgumentExpression(frame) = request {
+        return source.as_ref().map_err(Clone::clone)
+            .and_then(|source| super::super::lexical_instance_call::complete_argument_expression_v1(source, pending, site, frame))
+            .map(|frame| Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+    }
     if let BorrowedCallActualRequestV1::ArgumentTextEntryRead { source: loan, read, binding, root } = request {
         return source.as_ref().map_err(Clone::clone)
             .and_then(|source| super::super::lexical_instance_call::lend_text_entry_read_v1(source, pending, contracts, site, loan, read, binding, root))
@@ -481,7 +487,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             super::super::lexical_instance_call::bind_static_argument_sources_v1(input, source.as_ref().map_err(Clone::clone)?, site, pending.get(site), rows.as_mut())?;
             Ok(rows)
         });
-        super::super::lexical_instance_call::stage_borrowed_call_actuals_v1(
+        super::super::lexical_instance_call::stage_observed_call_actuals_v1(
             pending, site, prepared,
         );
         return Ok(None);
@@ -592,6 +598,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
         | BorrowedCallActualRequestV1::ExpressionCoreSource { .. }
         | BorrowedCallActualRequestV1::ArgumentExpressionSource(..)
+        | BorrowedCallActualRequestV1::CompleteArgumentExpression(..)
         | BorrowedCallActualRequestV1::ArgumentTextEntryRead { .. }
         | BorrowedCallActualRequestV1::InitializerTextEntryRead { .. }
         | BorrowedCallActualRequestV1::Observe(..)

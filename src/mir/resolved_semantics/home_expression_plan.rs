@@ -344,6 +344,17 @@ impl<'a> ExpressionPlanInstallationV1<'a> {
         self.approved = Some(plan.clone());
         true
     }
+    /// Reuse the Call slot's canonical equal frame without reopening approval
+    /// or deciding field/Home semantics after the final field batch.
+    pub(super) fn retain_approved_argument(&mut self, frame: Rc<CheckedArgumentExpressionFrameV1>) -> bool {
+        let Some(plan) = self.approved.as_mut() else { return false; };
+        if !Rc::ptr_eq(plan.source(), frame.source())
+            || plan.argument_frame().is_none_or(|original| original.as_ref() != frame.as_ref()) {
+            return false;
+        }
+        plan.argument_frame = Some(frame);
+        true
+    }
     pub(super) fn commit(mut self) {
         self.plans.push(self.approved.take().expect("only approved expression installation commits"));
     }

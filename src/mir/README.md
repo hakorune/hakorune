@@ -465,3 +465,12 @@ The full carrier-selected formal set must match the recorded borrowed set;
 an extra tagged carrier on an i64 formal is rejected. ValueIds are function-local:
 this check alone cannot prove function ownership. Runtime activation must retain
 the selected source owner and both final consumers' finished module membership.
+
+Ordinary static argument qualification completes through the existing source-flow
+port into the same per-ordinal pending actual product. Source/Qualified variants
+retain one original plan; the pending Call and current Home installation share
+the checked frame Rc. Explicit Observe reuses the original plan but invalidates
+previous current-Home qualification, so a fresh walk must prove its own residence
+acquisitions. Repeated completion within that observation reuses the current
+frame; generic staging cannot reset or replace it. These source products do not
+activate String argument execution or bypass final incoming/use/cleanup closure.

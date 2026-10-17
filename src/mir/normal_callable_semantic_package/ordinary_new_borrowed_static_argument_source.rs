@@ -88,9 +88,9 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
             { return Err(reject()); }
         } else if identity.core_arguments.contains_key(&ordinal) { return Err(reject()); }
         let plan = if let Some(old) = old {
-            Rc::clone(old.argument_sources.get(&ordinal).ok_or_else(reject)?)
+            StaticArgumentExpressionV1::Source(Rc::clone(old.argument_sources.get(&ordinal).ok_or_else(reject)?))
         } else {
-            call_argument_expression_source_plan_v1(input, identity.source.method_source(), ordinal).map_err(|_| reject())?
+            call_argument_expression_source_plan_v1(input, identity.source.method_source(), ordinal).map_err(|_| reject())?.into()
         };
         if !corroborates_argument_plan_v1(&plan, &identity.source, candidate.ordinal, &candidate.site)
             || input.function().source_site_inventory().containing_statement(site.site()) != Some(plan.root().statement())
@@ -100,6 +100,30 @@ pub(in crate::mir::normal_callable_semantic_package) fn bind_static_argument_sou
     if identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) { return Err(reject()); }
     identity.argument_sources = plans;
     Ok(())
+}
+
+/// Only explicit source Observe can invalidate a previous Home walk's current
+/// qualification. Generic staging remains strict; executable phases never reset.
+pub(in crate::mir::normal_callable_semantic_package) fn stage_observed_call_actuals_v1(
+    staged: &mut PendingBorrowedFormalActualsV1, site: &OwnedExprSiteV1,
+    result: Result<Option<PreparedBorrowedCallActualsV1>, String>,
+) {
+    let reset = match (staged.get(site), &result) {
+        (Some(Ok(previous)), Ok(Some(current))) => match (&previous.phase, &current.phase) {
+            (BorrowedCallActualEvidencePhaseV1::SourceStatic(old), BorrowedCallActualEvidencePhaseV1::SourceStatic(new)) =>
+                old.same_original_source_v1(new)
+                    && previous.opaque_actuals == current.opaque_actuals
+                    && previous.ordered_arguments == current.ordered_arguments
+                    && new.argument_sources.values().all(|row| matches!(row, StaticArgumentExpressionV1::Source(_))),
+            _ => false,
+        },
+        _ => false,
+    };
+    if reset {
+        staged.insert(site.clone(), Ok(result.expect("checked observation").expect("checked source tuple")));
+    } else {
+        super::super::stage_borrowed_call_actuals_v1(staged, site, result);
+    }
 }
 
 /// One original source loan, never an evaluation, entry or ownership grant.
@@ -324,6 +348,39 @@ pub(in crate::mir::normal_callable_semantic_package) fn lend_text_entry_read_v1(
     }
     super::super::super::borrowed_formal_entry::issue_text_entry_read_requirement_v1(contracts, loan.plan(), read, binding, root,
         prepared.original_formal_read_v1(site.owner(), read, binding, root)?)
+}
+
+/// Retain qualification in the SAME pending ordinal as its original source.
+/// Repeated completion within one observation reuses the exact current frame.
+pub(in crate::mir::normal_callable_semantic_package) fn complete_argument_expression_v1(
+    prepared: &PreparedBorrowedFormalIngressV1, pending: &mut PendingBorrowedFormalActualsV1,
+    site: &OwnedExprSiteV1,
+    frame: &Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>,
+) -> Result<Rc<crate::mir::resolved_semantics::home_new_prefix::CheckedArgumentExpressionFrameV1>, String> {
+    let reject = || freeze("borrowed-static/argument-frame-identity");
+    let ExpressionPlanRootV1::CallArgument { call, ordinal, .. } = frame.source().root() else { return Err(reject()); };
+    if call.owner() != site.owner() || call.site() != site.site()
+        || frame.source().owner() != site.owner() || !frame.evaluation().reference_coverage_is_exact() {
+        return Err(reject());
+    }
+    let original = lend_argument_expression_source_v1(prepared, pending, site, *ordinal)?.ok_or_else(reject)?;
+    if frame.source_loan() != &original || !Rc::ptr_eq(frame.source(), original.plan()) {
+        return Err(reject());
+    }
+    let rows = pending.get_mut(site).ok_or_else(reject)?.as_mut().map_err(|error| error.clone())?;
+    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut rows.phase else { return Err(reject()); };
+    let slot = identity.argument_sources.get_mut(ordinal).ok_or_else(reject)?;
+    match slot {
+        StaticArgumentExpressionV1::Qualified(previous) => {
+            if previous.as_ref() != frame.as_ref() { return Err(freeze("borrowed-static/argument-frame-current-drift")); }
+            Ok(Rc::clone(previous))
+        }
+        StaticArgumentExpressionV1::Source(plan) => {
+            if !Rc::ptr_eq(plan, frame.source()) { return Err(reject()); }
+            *slot = StaticArgumentExpressionV1::Qualified(Rc::clone(frame));
+            Ok(Rc::clone(frame))
+        }
+    }
 }
 
 

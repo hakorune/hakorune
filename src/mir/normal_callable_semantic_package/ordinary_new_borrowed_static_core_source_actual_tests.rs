@@ -50,7 +50,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             assert!(!Rc::ptr_eq(plan, &reissued));
             let mut changed = rows.clone();
             let BorrowedCallActualEvidencePhaseV1::SourceStatic(changed_identity) = &mut changed.phase else { unreachable!() };
-            changed_identity.argument_sources.insert(0, reissued);
+            changed_identity.argument_sources.insert(0, reissued.into());
             let mut staged = BTreeMap::from([(original.call_site().clone(), Ok(rows.clone()))]);
             super::super::super::stage_borrowed_call_actuals_v1(&mut staged, original.call_site(), Ok(Some(changed)));
             assert!(staged[original.call_site()].as_ref().unwrap_err().contains("repeated-walk-drift"));
@@ -76,7 +76,7 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                     0 => { identity.core_arguments.clear(); }
                     1 => { identity.core_arguments.insert(1, Rc::clone(receipt.unwrap())); }
                     2 => { identity.argument_sources.clear(); }
-                    3 => { identity.argument_sources.insert(1, Rc::clone(plan)); }
+                    3 => { identity.argument_sources.insert(1, Rc::clone(plan).into()); }
                     4 => { identity.core_arguments.insert(0, crate::mir::normal_callable_semantic_package::core_method_source::issue_ordinary_core_source_v1(input, receipt.unwrap().operands()).unwrap()); }
                     5 => { identity.candidates[0].ordinal = 1; }
                     6 => { identity.integer_evidence[0] = true; }
@@ -156,9 +156,9 @@ fn static_argument_plans_cover_literal_local_and_forward_without_execution_grant
                 let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut changed.phase else { unreachable!() };
                 match mutation {
                     0 => { identity.argument_sources.remove(&1); }
-                    1 => { identity.argument_sources.insert(2, Rc::clone(&second)); }
-                    2 => { identity.argument_sources.insert(0, Rc::clone(&second)); }
-                    3 => { identity.argument_sources.insert(1, Rc::clone(&first)); }
+                    1 => { identity.argument_sources.insert(2, Rc::clone(&second).into()); }
+                    2 => { identity.argument_sources.insert(0, Rc::clone(&second).into()); }
+                    3 => { identity.argument_sources.insert(1, Rc::clone(&first).into()); }
                     _ => unreachable!(),
                 }
                 assert!(argument_source::validate_static_source_actuals_v1(ingress, &changed, original.call_site(), original.required_i64_arguments()).is_err(), "full ordered coverage: {mutation}");
@@ -167,7 +167,7 @@ fn static_argument_plans_cover_literal_local_and_forward_without_execution_grant
             assert!(!Rc::ptr_eq(&first, &reissued));
             let mut changed = rows.clone();
             let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut changed.phase else { unreachable!() };
-            identity.argument_sources.insert(0, reissued);
+            identity.argument_sources.insert(0, reissued.into());
             let mut staged = BTreeMap::from([(original.call_site().clone(), Ok(rows.clone()))]);
             super::super::super::stage_borrowed_call_actuals_v1(&mut staged, original.call_site(), Ok(Some(changed)));
             assert!(staged[original.call_site()].as_ref().unwrap_err().contains("repeated-walk-drift"));

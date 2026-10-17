@@ -45,7 +45,7 @@ pub(super) fn observe<E>(
         if !ready { continue; }
         let source = std::rc::Rc::clone(loan.plan());
         let mut installation = locals.expression_installation();
-        if qualify_argument_expression_v1(loan, statement.site(), homes, &reads,
+        if let Some(candidate) = qualify_argument_expression_v1(loan, statement.site(), homes, &reads,
             &mut |site| text_reference(input, locals, site),
             &mut |site| locals.static_text_reference(site),
             &mut |site| locals.text_reference(site),
@@ -57,7 +57,15 @@ pub(super) fn observe<E>(
             &mut |site| local_call_flow::issue_source_expression_call_v1(input, &source, site, homes,
                 &mut |binding| locals.field_alias_call_path(binding), port),
             &mut |plan| installation.approve(plan),
-            &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))?.is_some() {
+            &mut |requests, demand| Ok(fields(requests, demand)?.is_some()))? {
+            let frame = candidate.argument_frame().expect("argument qualifier retains its frame");
+            let Some(BorrowedCallArgumentsV1::ArgumentExpressionFrame(frame)) = port(call_site,
+                BorrowedCallActualRequestV1::CompleteArgumentExpression(frame))? else {
+                unreachable!("successful argument completion must return its canonical frame");
+            };
+            // The approved candidate must use the same canonical frame that
+            // the pending Call now owns for this current Home walk.
+            assert!(installation.retain_approved_argument(frame), "completed argument must match the approved Home frame");
             installation.commit();
         }
     }
