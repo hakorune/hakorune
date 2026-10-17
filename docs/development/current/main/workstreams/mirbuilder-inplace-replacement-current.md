@@ -380,10 +380,10 @@ feedback's three labels are not a complete blocker inventory.
 
 | Selection point | Existing task owner | Concrete completion |
 | --- | --- | --- |
-| Current S0, in order | [app card][app-bundle] | Finish the already selected behavior-neutral constructor split with existing regressions; connect accepted allocation-only source/readiness and LOCAL FieldWrite through both final consumers/C; unchanged no-Birth Pair EXE/OBJ exit30, required fixed acceptance and selected retirement. These are internal steps of S0, not new lanes or a completion-date promise. |
+| Current S0, in order | [app card][app-bundle] | Constructor split landed `da029c5c36`/`ea70a42bd2`; source retention/carry landed `1a29de4ce4`/`93129de754` (preparation only). Connect accepted allocation-only source/readiness and LOCAL FieldWrite through both final consumers/C; unchanged no-Birth Pair EXE/OBJ exit30, required fixed acceptance and selected retirement. These are internal steps of S0, not new lanes or a completion-date promise. |
 | Owning structure boundary | [structure queue](../investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md#2026-10-17-semantic-package-and-packet-follow-up) / H-3 | One ncsp responsibility or packet dispatch owner; behavior-neutral caller-preserving split, no directory-wide prerequisite |
 | Constructor closeout reopen | [cleanup owner][cleanup-owner], `SEMANTIC-PACKAGE-README-CAPSULE-R0` | Concise issuer/consumer/module entry, completed narrative compressed to commit references |
-| Selected independent test family | [TG owner](../investigations/test-guard-responsibility-retirement-task-2026-10-08.md) | TG-0 measure -> TG-1 share -> TG-2 caller switch and exclusive old asset deletion; preserve distinct safety evidence |
+| Selected independent test family | [TG owner](../investigations/test-guard-responsibility-retirement-task-2026-10-08.md) | TG-0 measure -> TG-1 share -> TG-2 caller switch and exclusive old asset deletion. The global_call_route_plan/tests54-file area now has a concrete queued duplicate: SAME typed_object.rs registers3 cases twice; preserve distinct safety evidence. |
 | Card cap / artifact-family closeout | [H-1/H-4](../investigations/docs-spec-adapter-artifact-hygiene-task-map-2026-10-08.md) | Compress completed history; retire only reproducible unused family proofs, no LOC quota |
 | Campaign closeout | [cleanup owner][cleanup-owner], `LOCAL-CAMPAIGN-CACHE-RETIRE-R0` | Exact clean, job-free worktree/target retirement with before/after sizes; task registration is not a verified automation schedule |
 
@@ -395,6 +395,14 @@ unverified denominators, not acceptance quotas. Existing hako_alloc/canary
 programs may serve their selected promotion/authority acceptance; no extra
 selfhost-egg campaign or proof can substitute for actual caller switch and
 non-delegation. Broad cleanup does not become a new gate for the finite goal.
+
+Audit follow-up policy: no calendar-only suite rerun; packet cohesion is reviewed
+at the next required kind extension; package splitting follows actual owner
+boundaries before those owners migrate, not a mandatory all-directory campaign.
+Retirement stays in-series; the concrete test duplicate is separately selectable.
+Storage/String/Loop blockers remain Gate1 work. Docs compression and exact cache
+retirement use their existing cap/closeout triggers; no verified automated cache
+schedule is claimed and no blanket deletion is selected here.
 
 Closed E/F/G groundwork: Loop M8 `b419b84c3d`; S7B5 `f96fec7d8a` is
 not the S7G final receipt. S7G recorded8 wire/11 declined normalized parity;

@@ -91,6 +91,27 @@ visibility. Record the selected family's owner, caller switch, exact retirement
 set and acceptance before changing it. Existing LEGACY-TESTS-RETIRE-R0 remains
 landed; parked guard-family/quick-latency lanes retain their own selection rules.
 
+## Selected-area candidate from the 2026-10-17 audit follow-up
+
+Status: queued, unselected; current compiler source connection keeps its pointer.
+`src/mir/global_call_route_plan/tests` has54 Rust files at `93129de754`.
+The reported four contract families are a review grouping, not yet a verified
+coverage-equivalence partition or approved delete set. Start with an exact
+registration duplicate: `generic_i64/mod.rs` and `generic_i64/core.rs` both
+register the SAME278-line `generic_i64/typed_object.rs`, producing the same3
+cases under `generic_i64::typed_object` and `generic_i64::core::typed_object`.
+Read-only worker checked identical inherited facade/helpers, no extra local
+bindings/cfg or module-path-dependent logic. V841b root `--list` confirms both.
+
+On separate selection, execute both original registrations, retain the direct
+`generic_i64::typed_object` registration and all3 distinct cases (typed field,
+object null guard, void-parameter null guard); remove only the nested registration
+after checking exact filter/caller references. Rebuild once and verify retained3
+PASS, duplicate names absent and family count34->31. Keep the source test file;
+this deletes duplicate execution/compilation, not278 lines of independent tests.
+No measured speedup, -59k/-118k target or deletion permission for other families.
+Use this existing task, not a second campaign/guard or a new MirBuilder gate.
+
 ## Documentation closeout
 
 This registration owns this card and its one hygiene-queue link only. Pointer
