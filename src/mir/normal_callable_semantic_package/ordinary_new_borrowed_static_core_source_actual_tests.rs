@@ -59,7 +59,17 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
             assert!(project_pending_static_source_arguments_for_route_v1(
                 ingress, &pending, original.call_site(), original.required_i64_arguments(), false,
             ).unwrap_err().contains("core-expression-execution-pending"));
-            for mutation in 0..4 {
+            let loan = argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).unwrap().unwrap();
+            assert!(Rc::ptr_eq(loan.plan(), plan), "loan must retain the observed plan, not rebuild it");
+            assert!(std::ptr::eq(loan.resolver_source(), receipt.unwrap().source()), "loan must retain the ordinary Core receipt");
+            assert_eq!(loan, argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).unwrap().unwrap());
+            assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 1).unwrap_err().contains("core-source-identity"));
+            let absent = BTreeMap::new();
+            assert!(argument_source::lend_argument_expression_source_v1(ingress, &absent, original.call_site(), 0).unwrap_err().contains("source-unobserved"));
+            let refused = BTreeMap::from([(original.call_site().clone(), Err("retained-original-refusal".to_owned()))]);
+            assert_eq!(argument_source::lend_argument_expression_source_v1(ingress, &refused, original.call_site(), 0).unwrap_err(), "retained-original-refusal");
+
+            for mutation in 0..7 {
                 let mut drift = rows.clone();
                 let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &mut drift.phase else { unreachable!() };
                 match mutation {
@@ -67,14 +77,18 @@ fn ordinary_core_actual_keeps_catalog_result_separate_from_operand_and_execution
                     1 => { identity.core_arguments.insert(1, Rc::clone(receipt.unwrap())); }
                     2 => { identity.argument_sources.clear(); }
                     3 => { identity.argument_sources.insert(1, Rc::clone(plan)); }
+                    4 => { identity.core_arguments.insert(0, crate::mir::normal_callable_semantic_package::core_method_source::issue_ordinary_core_source_v1(input, receipt.unwrap().operands()).unwrap()); }
+                    5 => { identity.candidates[0].ordinal = 1; }
+                    6 => { identity.integer_evidence[0] = true; }
                     _ => unreachable!(),
                 }
                 let pending = BTreeMap::from([(original.call_site().clone(), Ok(drift))]);
+                assert!(argument_source::lend_argument_expression_source_v1(ingress, &pending, original.call_site(), 0).is_err(), "no loan from corrupted full tuple: {mutation}");
                 // A missing map cannot recover via legacy transport; extras
                 // cannot survive exact source/ordinal correspondence either.
                 assert!(project_pending_static_source_arguments_for_route_v1(
                     ingress, &pending, original.call_site(), original.required_i64_arguments(), false,
-                ).unwrap_err().contains("core-source-identity"));
+                ).unwrap_err().contains(if mutation == 5 { "source-projection-identity" } else { "core-source-identity" }));
             }
             let foreign = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
                 &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable,

@@ -690,3 +690,5 @@ pub(crate) use lexical_instance_call::DeclaredArrayFieldReadSourceV1;
 
 pub(crate) use local_commit::{EmittedBorrowedFieldWriteV1, CheckedFieldWriteGraphV1};
 pub(in crate::mir) use local_commit::{EmittedFieldWriteRhsV1, FieldWriteValueV1, FieldWriteRhsNodeV1, FieldWriteRhsProofV1};
+
+pub(crate) use lexical_instance_call::ArgumentExpressionSourceLoanV1;

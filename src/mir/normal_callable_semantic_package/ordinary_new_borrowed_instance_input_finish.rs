@@ -450,3 +450,27 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
         source, catalog, original, actuals, identity, Some(ledger),
     )
 }
+
+/// A finished original Instance input lends only its exact guarded reverse edge.
+pub(in crate::mir::normal_callable_semantic_package) fn revalidate_guarded_instance_incoming_v1(
+    ledger: &crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    source: &PreparedBorrowedFormalIngressV1,
+    catalog: &[OwnedCallableParameterContractDeclarationV1],
+    call: &BorrowedIncomingCallDraftV1,
+    rows: &PreparedBorrowedCallActualsV1,
+) -> Result<bool, String> {
+    if !matches!(
+        rows.phase,
+        BorrowedCallActualEvidencePhaseV1::ExecutableSourceInstance(_)
+    ) {
+        return Ok(false);
+    }
+    recheck_finished_instance_input_v1(ledger, source, catalog, call, rows)?;
+    Ok(rows.opaque_actuals.iter().any(|actual| {
+        matches!(actual.source,
+        BorrowedFormalActualSourceV1::Forwarded { binding, formal }
+            if source.source_only_definitions.get(&call.call.owner())
+                .is_some_and(|draft| draft.origins.get(&binding) == Some(&formal))
+                && source.guarded_actuals.contains_key(&(call.call.clone(), actual.ordinal)))
+    }))
+}

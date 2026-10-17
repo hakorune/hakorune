@@ -324,6 +324,12 @@ pub(super) fn borrowed_call_arguments_callback_v1(
             .map(|loan| loan.map(BorrowedCallArgumentsV1::NamedArrayHolderSource))
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
     }
+    if let BorrowedCallActualRequestV1::ArgumentExpressionSource(ordinal) = request {
+        return source.as_ref().map_err(Clone::clone)
+            .and_then(|source| super::super::lexical_instance_call::lend_argument_expression_source_v1(source, pending, site, ordinal))
+            .map(|loan| loan.map(BorrowedCallArgumentsV1::ArgumentExpressionSource))
+            .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
+    }
     if matches!(request, BorrowedCallActualRequestV1::SourceUnitDiscardArguments) {
         return super::super::lexical_instance_call::source_unit_discard_v1(targets, contracts, source, site)
             .map_err(|issue| OrdinaryNewCoSealIssueV1::BorrowedFormalIngress { site: site.clone(), issue });
@@ -566,6 +572,7 @@ pub(super) fn borrowed_call_arguments_callback_v1(
         }
         BorrowedCallActualRequestV1::NamedArrayHolderInitializer(_)
         | BorrowedCallActualRequestV1::NamedArrayAppendStatement(_)
+        | BorrowedCallActualRequestV1::ArgumentExpressionSource(_)
         | BorrowedCallActualRequestV1::Observe(..)
         | BorrowedCallActualRequestV1::ReceivedObjectArguments(_, _)
         | BorrowedCallActualRequestV1::ReceivedHandleArguments(_)

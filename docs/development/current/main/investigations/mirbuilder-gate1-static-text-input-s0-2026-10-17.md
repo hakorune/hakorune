@@ -86,6 +86,25 @@ Core receiver/bounds evaluate in the common postorder, never as fake scalar Call
 transferred inputs. Keep the pending fence until these frames, entry, ordered
 acquisition cleanup and both final publication consumers close in this series.
 
+V866 source-loan construction (focused verification passed): extract the existing full SourceStatic
+correspondence check once into its existing argument-source child, then lend the
+SAME original plan/Core Rc through ArgumentExpressionSource(ordinal). Private
+loan fields and Rc equality preserve identity without reconstructing a plan.
+No execution-fence catch/retry and no current read/entry rights. Reuse the
+existing Core actual matrix for exact loans/reloans, absent/error/ordinal cases,
+map drift, equal reissued Core receipt and candidate/integer-evidence drift.
+Paths: static_source_actuals/argument_source, existing Core test, existing actuals
+and lexical/coseal/package reexports, Home actual port and callback; existing
+Home local_call_flow/arguments explicitly reject source-loan responses in their
+scalar/Static consumers (no source-to-execution promotion); package
+README and this card. The already804-line actuals parent must also return below
+its800 hard limit: its guarded Instance revalidation function moves unchanged
+into its existing instance_input_finish owner, preserving its original reexport
+and callers. This is placement only, no Instance contract or route change.
+Immediate same-series successor is the real covered Prefix qualifier; this loan
+port is preparation and must not become another permanent unused source API.
+No full Text/evaluation/entry/cleanup/publication or product claim.
+
 Completed preparation decisions and their full evidence live in their commits:
 V8587b1f4f5f32 canonical Core Arc; V859b554b33626 conditional source premises;
 V860f839069d6b shared ordinary source/Static retention; V86137934abe54 original
@@ -550,51 +569,16 @@ responsibilities retain their unchanged callers. Full series and goal stay open.
 
 ### Core point-premise connection (V862)
 
-Selected Core operand classification now consumes the SAME resolver source-flow
-reference rather than initializer-only source stability. Memoized original
-Entry/Expression/Join/Unknown expansion reborrows original declaration/Birth
-input, preserving caller authority and original incoming/New registration.
-ONE existing SCC algorithm, split into a size-bounded child, now also closes
-binary transfer without speculative atoms. Exact I64 pairs and Text/Text Add
-use the existing pure expression-class law. Empty cycles cannot self-ground,
-and every reachable operand combination must be supported. Stable declared
-I64 Entry and usize distinction retain their original authority. Ordinary
-incoming/object/provider/receiver projections keep their existing mapping.
-Shared legacy classification remains for those unchanged callers; no selected
-Core predicate falls back to it when source flow is unavailable. Catalog result
-representation and operand execution evidence remain independent.
-
-Root862B build PASS57.185776s,204 distinct tests across16 nonempty reused filters:
-192 PASS/SAME12 baseline failure identities and diagnostics versus37934abe54.
-New1 independent point-premise matrix covers direct/needle/length/start, plain
-rebind, zero/break/continue/nested Loop, Normal If, late reassignment and unknown/
-Text/Bool/null/capture negatives with SAME canonical method Arc. The existing
-SCC test now also covers binary independent grounding, Text and signed cycles,
-unsupported reachable pairs and unselected String*Dynamic refusal. Existing
-source-flow6, source-domain11, source graph9 and Core/S6C/Array36 remain PASS.
-No proof app, new fixture directory or guard. RootA's one new-test failure was
-an assertion about an unrelated scan-local Core cache; that cache is demand-
-derived, and the corrected outer-actual assertion passes. No production change
-was made for that test correction. Superseded A binary copy removed; its source,
-build and diagnostic records remain. Both read-only reviews found no new proof
-hole in the final source classifier/SCC/consumer connection.
-
-CLI198 build PASS174.634469s; exact source manifests match Root862B/current code.
-CLI SHA3f0e3d3508cf42e482ba3b504d3a276a62ce6e468f5c727926d2100fabb29f8b.
-Unchanged json app222 canonical direct EXE0.116500s exits1/no artifact at SAME
-compilation1/slot20/Body7/Value source-actual-unavailable. No frontier advance.
-Unchanged mimalloc app223 canonical EXE131.817678s; native0.001618s; exact original
-7-line stdout/exit0 and only original plugin-disabled stderr warning PASS.
-EXE SHAaf08a456955ed7fccd9c0946cb23de4b89196fcc1cab45f066c405ad0d35f1e5.
-Commands retain canonical --backend mir --emit-exe/--emit-exe-nyrt, runtime808b,
-FFI831e, pure-first/no compat replay, plugins disabled and16MiB stack. No `.hako`
-changes. Root/layer/thin/pointer/diff guards PASS. Latest CI is still historical
-failed35681768498/d4168473d5, not current evidence; no full-suite/performance claim.
-Keep RootB/CLI198/app222-223 logs/receipts/manifests/pins and original backend/
-baseline evidence until full-series acceptance. No parked adapter exists. The
-actual/evaluation/entry/cleanup/publication fence remains; full S0/goal stay open.
-Completed preparation history compressed to implementation commit references;
-current contracts, negative boundaries, missing consumers and needed pins remain.
+Durable implementation/validation:be368415ca. Selected Core operands use SAME
+resolver reaching-definition source refs and existing SCC/binary law, preserving
+all reachable alternatives and independent grounding; usize is not SignedI64.
+Existing catalog result representation stays separate from execution premises.
+Root862B204 cases192 PASS/SAME12 baseline; CLI198/app222 SAME source-actual stop;
+app223 unchanged mimalloc canonical EXE/native exact7/exit0 PASS; all guards PASS.
+That commit owns full commands/hashes/timings, positive/negative matrices and
+RootA assertion correction. Keep B/CLI198/app222-223 records/pins/backend/baseline
+until full-series acceptance; superseded A binary removed, diagnostics kept.
+No Text evaluation/entry/cleanup/publication or current CI/full-suite claim.
 
 ### Instance original incoming registration (V863)
 
@@ -630,50 +614,79 @@ series closeout; no A binary or parked adapter. Current CI remains unclaimed.
 
 ### Original argument source-purpose connection (V865)
 
-The existing expression-plan owner now issues CallArgument roots from the same
-canonical outer method Arc, exact ordinal/argument relation and nearest REGISTERED
-statement ancestor. SourceSiteInventory paths supply topology, not current Prefix
-coverage. The original argument subtree retains child order/conditional/opaque
-obligations through the SAME builder, without a second AST/classifier or registry.
-Existing actual Observe carries its resolved input, including unobserved staging.
-Static actual identity keeps original plan Rc beside the unchanged Core receipt;
-projection checks complete ordinal correspondence, owner/root/outer Arc/inner
-receipt before its existing execution fence. Re-observation checks original
-sources and reuses the old Rc; equal reissues and old-Err/new-Ok still fail at
-repeated-walk-drift. Only source-purpose preparation is built: Home frame, actual
-current signed values, physical evaluation/entry/cleanup/publication stay open.
-Read-only review confirms no source-to-execution authority leak.
+Durable implementation/validation:fb8a780b5c. SAME CallArgument plan Rc retains
+original outer Arc/ordinal/site/registered statement beside the Core receipt;
+re-observation preserves Rc identity and repeated-walk-drift. The One Decision
+above owns current source contract and unfinished evaluation/entry/lifetime.
+Root865B238 cases226 PASS/SAME12 baseline versus41d10b7354; all guards PASS.
+CLI202/app229 SAME core-expression-execution-pending at slot20/Body7/Value;
+app230 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. That commit
+retains commands/hashes/timings and boundary assertions. Keep B/CLI202/app229-230
+records/pins and matching backend/baseline until full-series acceptance; A binary
+removed262,796,624 bytes, diagnostics retained, no adapter. No current CI/suite
+or full Text/goal acceptance.
 
-Root865A build PASS83.686222s,217 cases205 PASS/SAME12 baseline. Final Root865B
-build PASS54.882701s adds the old-Err/new-Ok counterexample within the same test;
-25 nonempty reused filters238 distinct cases226 PASS/SAME12 failure identities
-and diagnostics versus41d10b7354 (only thread IDs/plugin Debug map order normalized).
-New1 source-plan test covers two original call arguments, nested nearest-statement
-membership, original Arc/site/order, invalid ordinal and foreign input. Existing
-Core test extends missing/extra plan, repeated Rc/reissued rejection and source
-refusal boundaries. Original source-result22, Print4, checked-String1, ordered
-projection4 and atomic installation1 PASS; source/Core/Array/legacy results
-preserve the baseline. No proof app, new fixture or dedicated guard exists.
-Root/layer/thin/diff guards PASS. Superseded A binary retired262,796,624 bytes;
-its build/source/focused receipts/logs remain. Keep B evidence/pin until complete
-series acceptance. Full goal stays active/open; no EXE/frontier improvement yet.
+### Original argument source loan (V866, verified preparation)
 
-CLI202 build PASS177.711566s; Root865B/CLI/current compiled-source manifests match.
-CLI SHAb7125e9176207365d585f1d950fe1202717edd30604174a82357300a24471e30.
-Unchanged json app229 canonical direct EXE0.117024s exits1/no artifact at SAME
-compilation1/slot20/Body7/Value core-expression-execution-pending. New original
-argument-plan checks therefore reach the existing consumer fence on the real
-full-import source, not only the focused fixture; no physical frontier advance.
-Unchanged mimalloc app230 canonical EXE PASS130.858089s; native0.001505s,
-original7-line stdout EXACT/exit0 and only original plugin-disabled stderr warning.
-EXE SHA0df03290136a266a726efa806b53e5f43dccedca8b627d407bcbb39c2f06906a.
-Both receipts retain unchanged source/backend/runtime hashes and exact canonical
---backend mir --emit-exe/--emit-exe-nyrt argv/env (FFI831e/runtime808b,
-pure-first/no compat replay, plugins disabled,16MiB stack). Focused execution is
-7.505295s, separate from build. All stable root/layer/thin/pointer/diff guards PASS.
-Keep Root865B/CLI202/app229-230 logs/manifests/receipts/pins and matched backend/
-baseline evidence until full-series acceptance. A binary removed, A diagnostic
-records retained; no temporary adapter exists. Old Observe-without-input source
-port is replaced at every production sender; shared non-Core transport remains.
-V864 completed history compressed to41d10b7354. Latest checked CI is historical
-failed35681768498/d4168473d5; no current CI/full-suite/performance or full-goal claim.
+Existing SourceStatic projection and lender now share the same complete tuple
+validator, in the same order with the same diagnostics. The callback exposes a
+private-field loan of the SAME plan/Core Rc; it reissues neither source product.
+Invalid ordinal, absent observation, retained Err and all map/receipt/candidate/
+integer-evidence mutations refuse. Existing scalar/Static consumers explicitly
+reject this source response, retaining their previous absent-response behavior.
+No source-to-execution conversion, evaluation/current read/entry permission or
+execution-fence catch/retry. This source port has no covered Prefix producer yet;
+connect it in the immediate successor, not a permanent disconnected API.
+
+The already804-line actuals parent now reexports its unchanged guarded Instance
+revalidation from existing instance_input_finish (body byte parity PASS), moving
+that existing responsibility out of the oversized parent, now783 lines. All
+existing callers and Instance semantics stay the same. No new guard/test owner.
+Read-only worker found no new source-authority or projection-parity defect.
+
+Root866A51.569851s/B50.338260s failed only at the new enum response's three
+exhaustive consumers (A3 missing arms, B1 remaining); no successful A/B binary,
+no test claim for those builds. Root866C build PASS102.064440s. SAME25 nonempty
+filters238 distinct cases226 PASS/SAME12 failure identities and diagnostics
+versusfb8a780b5c, normalizing only thread IDs/unordered plugin Debug map order.
+Existing Core actual matrix now verifies exact loan/reloan, absent/error/ordinal,
+missing/extra maps, equal reissued Core receipt, candidate ordinal and false-I64
+identity boundaries; passive require_executable/projection refusals remain.
+Original source-result22, Print4/String1/projection4/installation1 and Core/Array
+regressions retain their prior results. No new fixture/proof directory/test owner.
+
+The reused top-down Prefix review selects Observe immediately followed by the
+ordinal source-loan request at the real LocatedStmt, current locals/Homes and
+prefix_known. Share this helper with the existing local-initializer Observe loop;
+do not add another walk/registry. Only a completed argument-purpose wrapper may
+enter existing HomeExpressionPlan approve -> field batch -> commit and shared
+V864 evaluation body. Do NOT create PreparedArgumentFrame or partially checked
+evaluation bodies. Text formal needs a genuine descriptor entry-read requirement;
+signed operands need SAME closed Core premise plus exact current availability,
+and mutable scan end needs real complete Loop After. Until those requirements
+close, keep the original source loan and existing execution-pending boundary.
+Full Text arguments/entry/result/cleanup/both publication consumers remain open.
+
+CLI203 build PASS185.278099s; compiled source manifests match Root866C and
+current sources. CLI SHA2a3139b3a7da6006eefb48144251e08a6cc81c02e47651f1f3f61021ffecd02e.
+Unchanged json app231 canonical direct EXE0.114401s exits1/no artifact at SAME
+compilation1/slot20/Body7/Value core-expression-execution-pending; exact stderr
+matches app229. No frontier advance or executable Text/product claim. The source
+loan port still has no covered Prefix producer; next work must connect that real
+producer and current read/entry proof, rather than another source-only API.
+Canonical --grammar-profile canonical --backend mir --emit-exe OUT
+--emit-exe-nyrt runtime808b SOURCE, FFI831e/runtime808b hashes unchanged,
+pure-first/no compat replay/plugins disabled/16MiB stack; no `.hako` changes.
+Focused execution8.315095s is separate from builds. Native mimalloc was not rerun:
+this preserves source projection behavior and adds no execution/entry admission;
+its latest unchanged native evidence remains fb8a780b5c/app230, not a current-run
+claim. Root/layer/thin/pointer/diff guards PASS after final compiled changes.
+
+Keep Root866C/CLI203/app231 logs/manifests/receipts/pins and matched backend/prior
+baseline evidence until full-series acceptance. A/B diagnostics remain explanatory
+records only, with no successful binary or acceptance to retire. No temporary
+adapter exists. Old inline correspondence checks are replaced by the single
+shared validator in the existing argument-source owner; shared transport and
+its execution-pending refusal remain. V862/V865 completed history compressed to
+their implementation commits above. No current CI/full-suite/performance claim;
+goal and full Text evaluation/entry/lifetime/publication series stay active/open.

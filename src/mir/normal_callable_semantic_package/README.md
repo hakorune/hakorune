@@ -4539,3 +4539,14 @@ checks. Reissued equal content remains different at repeated-walk-drift; this
 boundary is unchanged. Source-only preparation without an observation is not a
 qualified argument frame. Current Prefix/Homes, signed Loop After, evaluation,
 entry, cleanup and final publication remain independent required connections.
+
+The argument-source callback lends that SAME plan Rc and ordinary Core receipt
+through `ArgumentExpressionSource`, with private loan fields and identity-based
+equality. Both the lender and existing passive projection use one complete
+SourceStatic correspondence validator; ordinal selection happens only after the
+whole tuple is checked. Missing staged observations, retained errors, missing or
+extra maps and reissued Core receipts refuse. Other established phases remain
+unselected by this source-only request. The lender does not call an executable
+projection and catch its execution-pending refusal. It issues no Prefix/current
+read, Text descriptor, signed-I64 evaluation or cleanup permission; those must
+come from the genuine covered Prefix and downstream physical owners.

@@ -9,7 +9,8 @@ use std::rc::Rc;
 
 #[path = "ordinary_new_borrowed_static_argument_source.rs"]
 mod argument_source;
-pub(in crate::mir::normal_callable_semantic_package) use argument_source::bind_static_argument_sources_v1;
+pub(in crate::mir::normal_callable_semantic_package) use argument_source::{bind_static_argument_sources_v1, lend_argument_expression_source_v1};
+pub(crate) use argument_source::ArgumentExpressionSourceLoanV1;
 
 #[derive(Debug, Clone)]
 pub(super) struct StaticSourceActualIdentityV1 {
@@ -599,81 +600,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
             .ordered_arguments_for_v1(call)
             .map(|args| Some(args.into()));
     }
-    let BorrowedCallActualEvidencePhaseV1::SourceStatic(identity) = &rows.phase else {
-        return Err(freeze("borrowed-static/source-phase-required"));
-    };
-    let retained = if has_core_source { original_core_static_source_v1(prepared, site)?
-        .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))? }
-        else { prepared.source_incoming.static_observations().get(site)
-            .ok_or_else(|| freeze("borrowed-static/source-observation-missing"))?.as_ref().map_err(Clone::clone)? };
-    if !Rc::ptr_eq(retained, &identity.source)
-        || identity.source.call_site() != site
-        || required_i64_arguments != identity.source.required_i64_arguments()
-        || rows.ordered_arguments.len() != identity.source.argument_sites().len()
-        || identity.candidates.len() != rows.ordered_arguments.len()
-        || identity.integer_evidence.len() != rows.ordered_arguments.len()
-        || !rows.opaque_actuals.is_empty()
-    {
-        return Err(freeze("borrowed-static/source-projection-identity"));
-    }
-    for (index, ((formal, candidate), argument)) in identity
-        .source
-        .parameters()
-        .iter()
-        .zip(identity.candidates.iter())
-        .zip(rows.ordered_arguments.iter())
-        .enumerate()
-    {
-        if formal.ordinal as usize != index
-            || candidate.ordinal != formal.ordinal
-            || formal.binding.owner() != identity.source.callee_owner()
-            || identity.source.argument_sites().get(index) != Some(&candidate.site)
-        {
-            return Err(freeze("borrowed-static/source-projection-identity"));
-        }
-        match (&candidate.value, identity.core_arguments.get(&candidate.ordinal)) {
-            (BorrowedCallActualValueV1::MethodCall(method), Some(receipt)) => {
-                let site = OwnedExprSiteV1::new(site.owner(), candidate.site.clone());
-                if !identity.argument_sources.get(&candidate.ordinal).is_some_and(|plan|
-                    argument_source::corroborates_argument_source_v1(plan, identity.source.as_ref(), candidate.ordinal, method))
-                    || !prepared.ordinary_core_source_v1(&site).is_some_and(|original| Rc::ptr_eq(original, receipt))
-                    || !std::sync::Arc::ptr_eq(method, receipt.source().source())
-                    || method.owner() != site.owner() || method.site() != site.site()
-                    || identity.integer_evidence.get(index) != Some(&false)
-                    || receipt.source().target().schema() != crate::mir::resolved_semantics::CoreMethodHomeSchemaV1::StringBoxText
-                    || receipt.source().target().result() != crate::mir::resolved_semantics::CoreMethodHomeResultRelationV1::TextToCaller
-                { return Err(freeze("borrowed-static/core-source-identity")); }
-            }
-            (BorrowedCallActualValueV1::MethodCall(_), None) | (_, Some(_)) => return Err(freeze("borrowed-static/core-source-identity")),
-            (_, None) => {}
-        }
-        let matches = match (&formal.kind, &candidate.value, argument) {
-            (kind, _, LocalCallArgumentV1::BorrowedActual { ordinal, site })
-                if kind.is_ordinary_borrowed_handle() =>
-            {
-                *ordinal == formal.ordinal && site == &candidate.site
-            }
-            (
-                CallableParameterContractKindV1::ExactTrivial(abi),
-                BorrowedCallActualValueV1::Integer(expected),
-                LocalCallArgumentV1::Integer(actual),
-            ) if abi.is_i64() => expected == actual,
-            (
-                CallableParameterContractKindV1::ExactTrivial(abi),
-                BorrowedCallActualValueV1::Scalar(expected, SourceScalarKind::Integer),
-                LocalCallArgumentV1::Scalar(actual),
-            ) if abi.is_i64() => expected == actual && actual.owner() == site.owner(),
-            _ => false,
-        };
-        if !matches {
-            return Err(freeze("borrowed-static/source-projection-identity"));
-        }
-    }
-    if identity.argument_sources.len() != identity.core_arguments.len()
-        || identity.argument_sources.keys().any(|ordinal| !identity.core_arguments.contains_key(ordinal))
-        || identity.core_arguments.keys().any(|ordinal| *ordinal as usize >= identity.candidates.len()) {
-        return Err(freeze("borrowed-static/core-source-identity"));
-    }
+    let identity = argument_source::validate_static_source_actuals_v1(prepared, rows, site, required_i64_arguments)?;
     // Result/source closure does not evaluate the expression. Keep this phase
     // passive even for a callee with no required-I64 arguments or unused input.
     if !identity.core_arguments.is_empty() {

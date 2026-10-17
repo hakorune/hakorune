@@ -335,7 +335,8 @@ pub(crate) fn issue_static_i64_local_call<E>(
                 }
                 arguments.into_vec()
             }
-            Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
+            Some(BorrowedCallArgumentsV1::ArgumentExpressionSource(_))
+            | Some(BorrowedCallArgumentsV1::NamedArrayHolderSource(_))
             | Some(BorrowedCallArgumentsV1::SourceInstance(_))
             | Some(BorrowedCallArgumentsV1::Scalar(_))
             | Some(BorrowedCallArgumentsV1::HandleSource(_))

@@ -8,6 +8,8 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
     NamedArrayHolderInitializer(super::BindingRefV1),
     NamedArrayAppendStatement(super::BindingRefV1),
     Observe(crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'a>, &'a [BorrowedCallActualCandidateV1]),
+    /// Original argument plan/Core loan only; no evaluation permission.
+    ArgumentExpressionSource(u32),
     ScalarArguments,
     I64ResultArguments,
     SourceScalarResultArguments,
@@ -28,6 +30,7 @@ pub(crate) enum BorrowedCallActualRequestV1<'a> {
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BorrowedCallArgumentsV1 {
+    ArgumentExpressionSource(crate::mir::normal_callable_semantic_package::ArgumentExpressionSourceLoanV1),
     MixedLocalSource {
         loan: crate::mir::normal_callable_semantic_package::MixedLocalCallSourceLoanV1,
         arguments: Box<[LocalCallArgumentV1]>,
