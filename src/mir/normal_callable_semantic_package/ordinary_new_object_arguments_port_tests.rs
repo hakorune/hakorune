@@ -463,3 +463,83 @@ fn initializer_text_entry_read_retains_all_incoming_and_original_alias_provenanc
         }).unwrap();
     }
 }
+
+#[test]
+fn text_initializer_frame_requires_original_text_signed_source_and_current_prefix() {
+    for (annotation, actual, mutation, accepted) in [
+        (": i64", "\"text\"", 0, true), (": usize", "\"text\"", 0, false),
+        ("", "\"text\"", 0, false), (": i64", "true", 0, false),
+        (": i64", "\"text\"", 1, false), (": i64", "\"text\"", 2, false),
+        (": i64", "\"text\"", 3, false), (": i64", "\"text\"", 4, false),
+    ] {
+        let text = format!(r#"static box Values {{
+            caller(line, count{annotation}) {{ local needle = "x" + line + count
+                local alias = needle local next = alias + "!" return 0 }}
+            seed() {{ return Values.caller({actual}, 7) }}
+        }} static box Main {{ main() {{ return Values.seed() }} }}"#);
+        let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
+            &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
+        let ledger = &package.ordinary_new_claim_ledger;
+        let source = ledger.borrowed_formal_source.as_ref().unwrap();
+        let contract = package.parameter_contracts.iter().find(|row| row.parameters.len() == 2).unwrap();
+        package.batch().with_lowering_input(contract.batch_slot, |input| {
+            let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
+            let mut pending = ledger.borrowed_formal_actuals.clone();
+            let mut batches = 0;
+            let mut requests = 0;
+            let (plans, homes) = crate::mir::resolved_semantics::home_new_prefix::observe_text_initializers_for_test(
+                input, parameters, mutation != 1,
+                match mutation { 2 => Some(contract.parameters[0].binding), 4 => Some(contract.parameters[1].binding), _ => None },
+                &mut |fields, _| -> Result<_, OrdinaryNewCoSealIssueV1> { batches += 1; assert!(fields.is_empty()); Ok((mutation != 3).then(Vec::new)) },
+                &mut |site, request| {
+                    if matches!(request, BorrowedCallActualRequestV1::InitializerTextEntryRead { .. }) { requests += 1; }
+                    borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &package.parameter_contracts,
+                        &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                        &mut |_| None, site, request, &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims)
+                }).unwrap();
+            assert_eq!(plans.len(), if accepted { 2 } else { 0 }, "{annotation}/{actual}/{mutation}");
+            assert_eq!(homes.len(), if accepted { 2 } else { 0 });
+            assert_eq!(batches, if accepted { 2 } else { usize::from(mutation == 3) });
+            if mutation == 1 { assert_eq!(requests, 0, "unknown prefix cannot qualify current state"); }
+            if accepted {
+                let first = plans[0].text_initializer().unwrap();
+                let second = plans[1].text_initializer().unwrap();
+                assert_eq!(first.entry_reads().len(), 1);
+                assert_eq!(first.scalar_reads().len(), 1);
+                assert_eq!(first.evaluation().owned_result_nodes().len(), 2);
+                assert_eq!(second.residence_reads().len(), 1);
+                assert!(Rc::ptr_eq(second.residence_reads()[0].acquisition(), first));
+                assert_eq!(second.residence_reads()[0].root(), first.binding());
+                assert_ne!(second.residence_reads()[0].binding(), first.binding(), "alias is a read, not a second owner");
+                assert_eq!(second.prior_homes(), [first.binding()]);
+                crate::mir::resolved_semantics::home_new_prefix::assert_text_residence_identity_for_test(input, Rc::clone(first), second);
+                // The actual production scan retains the same complete frame,
+                // not just this test's independent pre-evaluation walk.
+                let flow = ledger.completion_for_owner(input.owner()).unwrap().cleanup().root_flow().unwrap();
+                let retained = flow.expression_plans().iter().find_map(|plan| plan.text_initializer()).unwrap();
+                let selected = ledger.text_initializer_frame_v1(input.owner(), retained.source().root().statement().node()).unwrap().unwrap();
+                assert!(Rc::ptr_eq(retained, &selected));
+            }
+        }).unwrap();
+    }
+}
+
+#[test]
+fn owned_text_initializer_refuses_execution_until_the_same_physical_consumer_is_complete() {
+    let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+    for (initializer, selected) in [("\"hello\"", false), ("\"he\" + \"llo\"", true)] {
+        let text = format!("static box Main {{ main() {{ local text = {initializer} return 0 }} }}");
+        let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+            &text, crate::parser::ParserBuildConfig::default()).unwrap();
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("original source") };
+        let result = crate::mir::MirCompiler::with_options(false).compile_normal(
+            crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()));
+        if selected {
+            let issue = result.unwrap_err().to_string();
+            assert!(issue.contains("text-initializer/execution-pending"), "{issue}");
+        } else {
+            assert!(result.is_ok(), "existing non-owning literal initializer stays with its owner: {result:?}");
+        }
+    }
+}

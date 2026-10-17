@@ -19,6 +19,10 @@ mod borrowed_nullable;
 mod field_alias;
 #[path = "home_prefix_field_readiness.rs"]
 mod field_readiness;
+#[path = "home_prefix_text.rs"]
+mod text;
+#[cfg(test)]
+pub(crate) use text::assert_identity_for_test as assert_text_residence_identity_for_test;
 pub(crate) use field_alias::FieldAliasPathV1;
 
 /// Exact pre-Loop scalar-class snapshot minted by the running Home walk.
@@ -62,6 +66,7 @@ pub(crate) enum SourceScalarKind {
 
 #[derive(Clone)]
 enum StoredLocal {
+    Text { root: BindingRefV1, acquisition: std::rc::Rc<super::CheckedTextInitializerFrameV1> },
     NamedArrayHolder(crate::mir::normal_callable_semantic_package::NamedArrayHolderSourceLoanV1),
     Home {
         acquisition: super::OwnedExprSiteV1,
@@ -175,6 +180,7 @@ impl OrdinaryObservation {
 
 fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
     match (left, right) {
+        (StoredLocal::Text { root: a, acquisition: ap }, StoredLocal::Text { root: b, acquisition: bp }) => a == b && std::rc::Rc::ptr_eq(ap, bp),
         (StoredLocal::NamedArrayHolder(a), StoredLocal::NamedArrayHolder(b)) => a == b,
         (StoredLocal::BorrowedArray { source: a, root: ar }, StoredLocal::BorrowedArray { source: b, root: br }) => a == b && ar == br,
         (StoredLocal::Home { acquisition: a, construction_source: ac, ready: ar },
@@ -213,6 +219,7 @@ fn stored_local_same(left: &StoredLocal, right: &StoredLocal) -> bool {
 
 #[derive(Clone)]
 pub(super) struct PrefixLocalFlow<'source> {
+    signed_formals: BTreeSet<BindingRefV1>,
     named_arrays:
         std::rc::Rc<std::cell::RefCell<Vec<super::named_array::NamedArrayHomeObservationV1>>>,
     input: ResolvedFunctionLoweringInputV1<'source>,
@@ -282,6 +289,7 @@ impl<'source> PrefixLocalFlow<'source> {
 
     pub(super) fn new(input: ResolvedFunctionLoweringInputV1<'source>) -> Self {
         Self {
+            signed_formals: Default::default(),
             named_arrays: Default::default(),
             input,
             locals: BTreeMap::new(),
@@ -420,6 +428,7 @@ impl<'source> PrefixLocalFlow<'source> {
                 return false;
             }
             use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+            if matches!(&kind, CallableParameterContractKindV1::ExactTrivial(abi) if abi.is_i64()) { self.signed_formals.insert(binding); }
             let value = match kind {
                 CallableParameterContractKindV1::ExactTrivial(abi)
                     if abi.mir_type() == crate::mir::MirType::Integer =>
@@ -481,7 +490,7 @@ impl<'source> PrefixLocalFlow<'source> {
             StoredLocal::Handle(_) | StoredLocal::Consumed => None,
             // A field-read alias names borrowed storage, never a movable
             // value — every observation lane stays fail-closed on it.
-            StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
+            StoredLocal::Text { .. } | StoredLocal::FieldAlias { .. } | StoredLocal::NamedArrayHolder(_) | StoredLocal::BorrowedArray { .. } => None,
             StoredLocal::Trivial(kind) => Some(OrdinaryObservation::TrivialLocal(binding, *kind)),
             StoredLocal::BoundValue => Some(OrdinaryObservation::BoundValue(binding)),
             StoredLocal::Null => Some(OrdinaryObservation::Null),

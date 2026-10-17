@@ -71,7 +71,7 @@ pub(crate) fn qualify_print_expression_v1<E>(
         owned_results: owned_results.into_boxed_slice(), transferred_inputs: transferred,
     } });
     let candidate = HomeExpressionPlanV1 {
-        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, argument_frame: None, print_frame: Some(frame), condition_frame: None, field_write: None,
+        source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(), initializer_homes: None, argument_frame: None, text_initializer: None, print_frame: Some(frame), condition_frame: None, field_write: None,
     };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }

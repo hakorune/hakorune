@@ -2,7 +2,7 @@
 use super::*;
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1;
 
-fn text_reference(input: ResolvedFunctionLoweringInputV1<'_>, locals: &PrefixLocalFlow<'_>,
+pub(super) fn text_reference(input: ResolvedFunctionLoweringInputV1<'_>, locals: &PrefixLocalFlow<'_>,
     site: &SourceExprSiteV1) -> Option<(BindingRefV1, BindingRefV1)> {
     let ResolvedLexicalRefV1::Local(binding) = input.function().variable_ref(site)? else { return None };
     let OrdinaryObservation::Handle(root) = locals.observe(site)? else { return None };

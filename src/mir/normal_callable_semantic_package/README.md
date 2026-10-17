@@ -4596,3 +4596,21 @@ Prefix installation, local residence, descriptor or End right. Initializer
 qualification and its physical/lifecycle/finalized-source consumers are still
 required before execution. Argument lender retains its own closed Core Text
 check before calling the same purpose-neutral coordinate issuer.
+
+Owned Text initializer qualification now uses the same whole-expression leaves,
+Add envelopes and checked evaluation body as other expression purposes. The real
+Local scan consults the original initializer Text reads, current entry roots or
+SAME prior Text residence, and original signed-i64 formal alias provenance plus
+current Integer state. A successful final field batch atomically installs the
+whole frame and its Normal Text residence; intermediate acquisition templates
+remain ordered and root End responsibility survives the initializer. Text never
+becomes Object/Scalar/BoundValue. Aliases and branch joins retain acquisition Rc
+identity; invalidating or replacing a root cannot retarget an old alias. Rebind
+execution remains unadmitted until its old-acquisition cleanup is connected.
+Original possible Text Add source demand selects the existing homes-aware
+completion walk, with no second scanner/storage or source-class solver. Bare
+literal/entry alias initializers keep their existing non-owning owner. The
+physical Local consumer selects the SAME retained owned initializer frame and
+refuses execution-pending before generic descent until entry, local packet,
+residence handoff/End and both final scans are complete. A semantic frame and
+source demand alone grant no descriptor, pair, copy or publication permission.

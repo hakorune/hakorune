@@ -1624,3 +1624,14 @@ source/frame identity and the final field batch precede publication. Missing pro
 publishes no partial wrapper. Entry requirements do not supply physical descriptors
 or cleanup; the source execution fence remains until those owners and both final
 consumers close. Existing Print/condition purposes retain their prior restrictions.
+
+Owned Text local initialization shares the checked expression body and Add
+operation owner. Its purpose retains original Text entry reads, current Text
+residence reads and signed formal/current scalar references. Source-flow's
+alias-entry query is shared by the formal SUM lender and current scalar check;
+computed values, joins, unknowns and cycles do not become an entry by guessing.
+Only a complete approved frame and successful atomic field batch may install the
+Normal residence. Current Text carries its acquisition frame Rc, separately from
+Object/Scalar classes. Aliases/snapshots keep that same acquisition; no rebinding
+or branch join can exchange it for an equal-content frame. Physical fulfillment
+and both final source-aware consumers remain separate obligations.

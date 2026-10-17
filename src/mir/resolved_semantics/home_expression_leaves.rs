@@ -9,7 +9,7 @@ use crate::mir::resolved_value_profile::{
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone, Copy, PartialEq, Eq)]
-pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument }
+pub(super) enum ExpressionLeafProfileV1 { Print, BoolCondition, Argument, TextInitializer }
 
 pub(super) struct QualifiedExpressionLeavesV1 {
     pub(super) classes: Vec<Leaf>,
@@ -95,13 +95,13 @@ pub(super) fn qualify_expression_leaves_v1<E>(
         match node.source() {
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Integer(_)) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::String(_))
-                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::Argument) => {},
+                if matches!(profile, ExpressionLeafProfileV1::Print | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::TextInitializer) => {},
             ExpressionNodeSourceV1::Literal(ResolvedLiteralSourceV1::Bool(_))
                 if profile == ExpressionLeafProfileV1::BoolCondition => {},
             ExpressionNodeSourceV1::Literal(_) => return Ok(None),
             ExpressionNodeSourceV1::Shape(crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. }) => {},
             ExpressionNodeSourceV1::Reference(crate::mir::resolved_semantics::ResolvedLexicalRefV1::Local(binding))
-                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument) && leaves[index] == Leaf::Unresolved => {
+                if matches!(profile, ExpressionLeafProfileV1::BoolCondition | ExpressionLeafProfileV1::Argument | ExpressionLeafProfileV1::TextInitializer) && leaves[index] == Leaf::Unresolved => {
                 let Some((original, kind)) = scalar_reference(node.site()) else { return Ok(None) };
                 if original != *binding || binding.owner() != source.owner() { return Ok(None); }
                 leaves[index] = Leaf::Value(match kind {

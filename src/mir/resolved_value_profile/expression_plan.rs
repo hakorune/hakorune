@@ -122,6 +122,14 @@ impl ExpressionSourcePlanV1 {
     pub(crate) fn nodes(&self) -> &[ExpressionSourceNodeV1] {
         &self.nodes
     }
+    /// Parent-expression source demand only. Call inputs need their own source
+    /// consumer; their literal/read descendants do not select the outer value.
+    /// This structural query grants no transfer or execution permission.
+    pub(crate) fn nodes_outside_calls(&self) -> impl Iterator<Item = (usize, &ExpressionSourceNodeV1)> {
+        self.nodes.iter().enumerate().filter(|(_, leaf)| !self.nodes.iter().any(|node|
+            matches!(node.source(), ExpressionNodeSourceV1::MethodCall | ExpressionNodeSourceV1::DirectCall)
+                && leaf.site().node().segments().starts_with(node.site().node().segments())))
+    }
     /// Children precede their parent in declared LHS/RHS/argument order.
     /// This is structural order only: conditional child reach remains on the
     /// SAME plan and must never be promoted into eager execution permission.

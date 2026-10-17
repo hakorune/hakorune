@@ -74,7 +74,7 @@ pub(crate) fn qualify_argument_expression_v1<E>(
         core, text_reads: text_reads.into(), references,
     });
     let candidate = HomeExpressionPlanV1 { source: Rc::clone(&source), scalar_operations: Vec::new(), source_fields: Vec::new(),
-        print_frame: None, condition_frame: None, argument_frame: Some(frame), field_write: None, initializer_homes: None };
+        print_frame: None, condition_frame: None, argument_frame: Some(frame), text_initializer: None, field_write: None, initializer_homes: None };
     let Some(candidate) = candidate.with_source_field_requirements(&fields) else { return Ok(None) };
     if !can_install(&candidate) { return Ok(None); }
     if !field_batch(&fields, super::super::LocalFieldReadDemandV1::SourceExpression { plan: source })? { return Ok(None); }

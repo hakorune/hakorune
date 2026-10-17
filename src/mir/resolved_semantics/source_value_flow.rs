@@ -68,6 +68,25 @@ impl VerifiedSourceValueFlowV1 {
             .filter(|(original, _)| *original == binding)
             .map(|(_, value)| *value)
     }
+    /// Exact alias provenance only. Computed definitions, joins, unknowns and
+    /// cycles cannot claim an entry origin from a convenient predecessor.
+    pub(crate) fn alias_entry_origin(
+        &self, mut value: SourceValueRefV1,
+        mut reference: impl FnMut(&SourceExprSiteV1) -> Option<ResolvedLexicalRefV1>,
+    ) -> Option<BindingRefV1> {
+        let mut seen = BTreeSet::new();
+        while seen.insert(value) {
+            match self.origin(value)? {
+                SourceValueOriginV1::Entry(binding) => return Some(*binding),
+                SourceValueOriginV1::Expression(site) => {
+                    let ResolvedLexicalRefV1::Local(binding) = reference(site)? else { return None };
+                    value = self.read(site, binding)?;
+                }
+                _ => return None,
+            }
+        }
+        None
+    }
     pub(crate) fn origin(&self, value: SourceValueRefV1) -> Option<&SourceValueOriginV1> {
         if !self.complete || value.owner != self.owner {
             return None;
