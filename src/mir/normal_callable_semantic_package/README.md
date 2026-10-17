@@ -267,8 +267,11 @@ physical packet or publication permission; those require later owner closure.
 During Home scanning, Text source arguments lend their original ordered view
 only after each expression's current Qualified frame matches the SAME pending
 plan and canonical source loan, exact reference coverage and checked String root.
-Original required-I64 proofs remain mandatory. Explicit Observe invalidates that
-qualification. This passive projection cannot inspect accepted Home completion
+Original required-I64 proofs remain mandatory. The callback selects this SAME
+qualified pending product even without legacy site/scalar/terminal membership;
+the source projection still validates the whole tuple before lending arguments.
+Qualified-slot presence is dispatch only, never an executable permission.
+Explicit Observe invalidates that qualification. This passive projection cannot inspect accepted Home completion
 or construct opaque actuals; executable activation must independently join the
 accepted Home flow and close the physical argument/lifetime obligations.
 

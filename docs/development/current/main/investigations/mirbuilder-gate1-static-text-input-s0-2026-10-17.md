@@ -292,39 +292,17 @@ entry predicate consumers; original formal seed/domain owner and existing tests.
 Update the bounded path list before source expansion. Full input/cleanup/
 publication acceptance remains the finish line, not passive catalog retention.
 
-## Verified passive result preservation
+## Verified original source retention (V853–V855)
 
-Implementation and durable validation:75e1171546 (V853). SAME solver function/
-call-site rows and full target inventory retained without a second classifier;
-borrowed/owned target storage shares one evidence vocabulary. Focused108 PASS;
-CLI188 PASS; app208 SAME first-stop/no artifact. All guards PASS; no whole-suite/
-current CI or new native claim. Root853A/CLI188/app208 evidence and backend pins
-remain needed for this series. Shared runtime/Array/source owners remain; lossy
-function-dispositions-only extraction is physically replaced with no caller.
-
-## Verified original static source identity
-
-Implementation and durable validation:fab61017ba (V854). Full original
-Qualified target/result and SAME method/call-result Arcs retained; all execution
-predicates explicitly require qualified/current-owner I64. Source agreement68
-PASS,6 pre-existing reds reproduced on parent Root853A with identical diagnostics.
-CLI189 builds; app209 retains SAME Body7 Value source-actual-unavailable stop;
-app210 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. Guards PASS.
-Root854B/D/CLI189/app209-210 evidence remains needed; RootC pin superseded and
-retired. Complete source SUM/entry/cleanup/publication remains unaccepted.
-
-## Verified whole original incoming census
-
-Implementation and durable validation:6619dddb86 (V855). All canonical Static
-contracts, omitted callers and nested declaration/Birth methods retained in one
-scoped original census; unknowns keep SAME method Arc/ordered actuals. Legacy
-consumers remain root-only; refusal identity/multiplicity is corroborated.
-RootI149:138 PASS plus11 reproduced baseline failures (6 on Root853A and5 brand
-fixture cases on parent Root854D). All stable guards PASS, shared test issuer
-keeps root-consumer count27. CLI191/app211 json retains SAME Body7 Value stop;
-app212 unchanged mimalloc canonical EXE/native exact7/exit0 PASS. Superseded V855
-C-H pins retired1,565,389,728 bytes; logs/receipts remain. Keep RootI/CLI191/app211-
-212 and matching backend evidence for unfinished series. No new runtime admission.
+75e1171546 retains SAME solver function/call-site rows and full target inventory
+with one target-storage vocabulary; lossy extraction retired. fab61017ba retains
+original Qualified target/result and SAME method/call-result Arcs, while explicit
+I64 execution predicates stay bounded. 6619dddb86 retains the whole original
+Static/declaration/Birth census, ordered actuals and unknown/refusal identities;
+legacy projection remains root-only. Those commits own classified focused tests,
+unchanged JSON first-stop/native results, timing/provenance and pin retirement.
+Logs/manifests remain historical evidence; current successor bundle owns baseline
+roles. Full Text/source/entry/cleanup/publication remains unaccepted.
 
 ## Decision: single original actual classifier and complete source SUM
 
@@ -936,11 +914,9 @@ Home/Call frame handoff with explicit Observe invalidation. Their commits own
 successor pins replace root/CLI roles as recorded at closeout. Matched prior
 CLI223/app268/runtime877A/FFI876B remain until new native evidence replaces them.
 
-V885 landed559993951d: one common acquisition-prefix owner replaces Print-only
-checks, with original postorder/node/value, unique normal projection and owned
-result-kind correspondence. Commit retains final Root885D361PASS/14same,
-CLI224/app269 JSON SAME and intermediate build classification. Native effects
-unchanged; prior CLI223/app268 matched native baseline remains retained.
+V885559993951d owns shared acquisition-prefix correspondence and final
+Root885D361PASS/14same, CLI224/app269 SAME, classified attempts and retained native
+baseline. No source permission; stronger successor evidence replaces those pins.
 
 Next activation ordering (same review): QualifiedStaticSourceArguments is demanded
 DURING Home scanning. It must lend passive whole-tuple ordered arguments from
@@ -953,22 +929,12 @@ original-tuple validator with separate passive/activated payload requirements;
 no Text-specific finisher or completed-entry lookup. Structural finite domains
 remain construction authority; whole original uses/incoming close at finalization.
 
-V886 Decision (reference_integration_review fresh read-only check): during Home
-walk lend the SAME passive ordered arguments only after every selected Text role
-has its current Qualified frame, original plan/source loan, exact reference
-coverage and String root. Preserve original required-I64 proofs unchanged.
-Incomplete source retains existing pending refusal. No accepted-Home lookup here
-(cycle); executable activation, opaque payload, physical packets and both final
-consumers stay separate unfinished work in this SAME Text series. Replace the
-two unconditional expression fences in static projection with the argument-source
-owner's common check. Reuse genuine source claim + existing port test to verify
-qualification, Observe invalidation and repeated Home walk; keep tuple drift and
-SourceStatic executable refusal coverage. Paths: static source projection and
-argument-source owner, existing port tests, package README and this card.
-Dispatch correction from all-role positive coverage: SelfRooted Text may have
-no older static fact; select its already-issued Qualified slot, never all raw
-SelfRooted candidates or inferred SUM Text. Full tuple/frame/I64 checks still
-follow. Explicit Observe-reset regression keeps raw SelfRooted unselected.
+V886 landed8edb4d3ff6: passive whole-tuple ordered arguments from SAME current
+Qualified Text frames, including forwarded Text. Original source loan/reference
+coverage/String root and required-I64 checks remain mandatory. Explicit Observe
+invalidates qualification; raw SelfRooted remains unselected. SourceStatic still
+cannot execute or own opaque payload. Commit owns original positive/negative
+port coverage and source-owner refusal regressions.
 Next dependency decision (same worker, reused whole-source audit): scalar local
 start=pos+needle.length() lacks canonical Core integration in scalar preflight;
 end also needs the real scan's verified After, not the Mul-only HomeAfter loan.
@@ -978,23 +944,57 @@ Normalize Core-containing I64 initializers through SAME checked evaluation/write
 purpose-specific local install and completed-local provenance, not a second
 scalar evaluator. Reuse genuine Facts/Recipe/JoinSig After for end, with zero-trip,
 Break and rebind checks; source SUM/MIR type alone is never current-read authority.
-Observation route selected by same worker: use actual canonical CLI/module
-expansion and existing NYASH_MIR_COMPILE_TRACE, at scan_statement_flow before
-stage_statement_actuals may Err and argument observe before prefix-known return.
-Capture only original site/binding/current observation + first unavailable; no
-mock callbacks, raw app inclusion, new semantic receipt or admission mutation.
-Temporary diagnostics retire once actual Prefix/start/end evidence is recorded.
+Actual observation uses genuine canonical CLI/module expansion and existing
+trace before fallible staging/prefix refusal; no mock callbacks/raw app inclusion.
+Temporary diagnostics retire after capture, before production commit.
 
-V886 verified: passive SAME-qualified Text argument projection, all original
-roles incl forwarded Text; SourceStatic still cannot execute. RootA failed test
-imports/key types83.717s; B74.249s had2 new key-selection test failures; C57.142s
-fixed keys and exposed1 real forwarded-dispatch hole; corrected finalD71.766s,
-42filters10.437s:375distinct/361PASS/14same identities+diagnostics vs885D.
-CLI225151.636s intermediate; final226148.622s/no new root/CLI warnings. App270
-unchanged JSON direct EXE0.120s exit1/no artifact, byte-identical269 diagnostic
-core-expression-execution-pending owner20Body7Value. Actual app still unaccepted.
-App271 unchanged mimalloc canonical EXE134.084s/native0.001451s, exact7 stdout,
-stderr and exit0 vs268. Stable pointer/root-route/layer/thin/diff PASS; CI remains
-historical35681768498/d4168473d5 failure. Retired superseded root/CLI/native pins
-1,221,299,848B; logs/manifests/output retained. Keep886D/CLI226/app271 + matched
-runtime877A/FFI876B for unfinished source/entry/cleanup/both-final-consumer series.
+V8868edb4d3ff6 owns final Root886D361PASS/14identical baseline diagnostics,
+CLI226148.622s, app270 JSON SAME0.120s and app271 unchanged mimalloc EXE134.084s/
+native0.001451s exact7/stderr/exit0, classified intermediate attempts, guards and
+1,221,299,848B retired superseded pins. Keep886D/CLI226/app271/runtime877A/FFI876B
+for this unfinished series; logs/manifests/output retained. No current suite/CI
+green; historical35681768498/d4168473d5 failed. Actual JSON still unaccepted.
+
+V887 observation: CLI227 failed observation Debug11.889s;228PASS156.172s.
+App272 lacked ring0 debug level;273(trace+debug)0.133s observed genuine expanded
+source. CLI229 canceled32.279s to combine discriminants;230PASS157.546s/app274
+0.127s. intField caller and find ExactI64 required[2] claim exist; callback old
+member/scalar/terminal are all false, so projection was skipped and Body1 became
+first PrefixNotCovered. Temporary diagnostic source is removed; snapshots/logs
+remain evidence. No class/result inference, source app edit or runtime grant.
+
+V887 Decision (reference_integration_review): computed SourceStatic+Qualified
+selector in SAME pending actual selects callback validation without old membership.
+Keep full original tuple/frame/loan/String-root/I64 projection and executable
+refusal. Reuse query in static projection; no registry/export chain. Existing Core
+port test covers real callback with empty old membership and Observe invalidation.
+Paths: actual model, static projection, callback, port tests, package README/card.
+
+Actual source advance: CLI231155.328s/app275trace0.123s observes pos as
+TrivialLocal(Some(Integer)); first PrefixNotCovered moves Body1 -> Body3
+start=pos+needle.length(). Final Body7 pending/EXE failure remains. Scanner trace
+removed again; production sources exactly match tested Root887A (no test rerun).
+
+Next construction Decision (same worker): one generalized Local initializer
+product/selector over SAME evaluation, I64 scalar vs owned-Text residence policy.
+Canonical scalar read: SAME source_value_flow read+alias_origin+origin, current
+Prefix readiness, original signed Entry or unique Local initializer producer
+(Integer literal / retained I64 LocalCallObservation / SAME installed I64 frame).
+Reject Join/Unknown/cycles/foreign/reassigned origins lacking that producer; no
+Integer-class-only authority or new registry. Keep all active Core children,
+transfer only real ordinary Call inputs. Fulfill Scalar/residence/entry exact
+reads atomically in common writer/projection, publish existing Local receipt and
+completed-local provenance; BOTH final scans repeat producer/Copy/result checks.
+Normal releases temporaries but retains prior Homes/I64 result; Text transfers
+only root ownership. Loop end still requires genuine verified After separately.
+
+V887 verified: Root887A build72.480s,42filters10.596s:375distinct/361PASS/14same
+identities+diagnostics vs886D. Final CLI232155.173s, no new root/CLI warnings.
+App276 unchanged JSON direct EXE0.123s exit1/no artifact, byte-identical270 final
+diagnostic; internal Body1->Body3 advancement is measured separately above.
+App277 unchanged mimalloc EXE133.205s/native0.001605s exact7/stderr/exit0 vs271.
+Stable pointer/root-route/layer/thin/diff PASS; no new current CI/suite green.
+All temporary trace source removed; production source hashes match Root887A.
+Retired superseded/diagnostic pins 557,147,640B; keep source snapshots/logs/outputs.
+Keep887A/CLI232/app277/runtime877A/FFI876B for unfinished source/entry/cleanup/
+both-final-consumer series; no adapter remains, full Text series still unaccepted.

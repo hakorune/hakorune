@@ -413,6 +413,12 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                 let expected = vec![LocalCallArgumentV1::BorrowedActual { ordinal: 0,
                     site: frame.source().nodes()[0].site().clone() }].into_boxed_slice();
                 assert_eq!(project(&pending).unwrap(), Some(expected.clone()), "qualified source projection stays passive");
+                let projected = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                    &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap().unwrap();
+                let BorrowedCallArgumentsV1::StaticSource(projected) = projected else { panic!("canonical source projection") };
+                assert_eq!(projected, expected, "same current qualified source survives callback dispatch without legacy site membership");
                 let reissued = Rc::new(frame.as_ref().clone());
                 assert!(!Rc::ptr_eq(frame, &reissued));
                 let retained = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
@@ -430,6 +436,11 @@ fn ordinary_core_argument_frame_requires_the_real_covered_prefix() {
                     &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
                 assert!(project(&pending).unwrap_err().contains("core-expression-execution-pending"),
                     "Observe invalidates old qualification before a new Home walk");
+                let reset = borrowed_call_arguments_callback_v1(package.batch(), &package.selected, &Ok(Vec::new()), &contracts,
+                    &[], None, source, &Ok(Default::default()), &mut pending, &ledger.borrowed_i64_results,
+                    &mut |_| None, &call_site, BorrowedCallActualRequestV1::QualifiedStaticSourceArguments(claim),
+                    &ledger.callable_result_classes, &ledger.receiver_call_observations, &ledger.field_write_claims).unwrap();
+                assert!(reset.is_none(), "unqualified source retains existing callback selection boundary");
                 let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();
                 let repeated = crate::mir::resolved_semantics::home_new_prefix::observe_argument_expression_for_test(
                     input, &statement, parameters, true, None,

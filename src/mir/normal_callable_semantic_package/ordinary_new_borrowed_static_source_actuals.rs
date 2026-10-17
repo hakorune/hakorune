@@ -493,7 +493,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
     let has_expression_source = pending.get(site).is_some_and(|rows| matches!(rows,
         Ok(rows) if matches!(&rows.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
             if !identity.core_arguments.is_empty()
-                || identity.argument_sources.values().any(|slot| matches!(slot, StaticArgumentExpressionV1::Qualified(_)))
+                || rows.has_qualified_static_argument_source_v1()
                 || identity.candidates.iter().any(|actual| matches!(&actual.value, BorrowedCallActualValueV1::MethodCall(_) | BorrowedCallActualValueV1::String(_) | BorrowedCallActualValueV1::Binding(_))))));
     let retained = original_static_source_v1(prepared, site)?;
     let has_current_owner_source = retained.is_some_and(|row| row.is_current_owner_i64_source_v1());

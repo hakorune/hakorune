@@ -510,6 +510,8 @@ pub(super) fn borrowed_call_arguments_callback_v1(
                 site: site.clone(), issue,
             })?.unwrap_or(false);
         if !sites.contains(site)
+            && !pending.get(site).is_some_and(|row| row.as_ref()
+                .is_ok_and(|row| row.has_qualified_static_argument_source_v1()))
             && !scalar_source
             && !source
                 .as_ref()

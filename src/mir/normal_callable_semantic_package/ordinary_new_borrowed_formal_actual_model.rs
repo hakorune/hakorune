@@ -103,6 +103,14 @@ pub(in crate::mir::normal_callable_semantic_package) struct PreparedBorrowedCall
 }
 
 impl PreparedBorrowedCallActualsV1 {
+    /// Dispatch selection only. The source projection still validates the whole
+    /// original tuple; this never grants executable actuals or Home completion.
+    pub(in crate::mir::normal_callable_semantic_package) fn has_qualified_static_argument_source_v1(&self) -> bool {
+        matches!(&self.phase, BorrowedCallActualEvidencePhaseV1::SourceStatic(identity)
+            if identity.argument_sources.values().any(|slot|
+                matches!(slot, static_source::StaticArgumentExpressionV1::Qualified(_))))
+    }
+
     /// Source-only attribution does not lend an executable argument plan.
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexical_instance_call) fn is_source_only_object_v1(
         &self,
