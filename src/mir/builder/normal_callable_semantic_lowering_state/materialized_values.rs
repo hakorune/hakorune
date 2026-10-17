@@ -15,6 +15,13 @@ impl LocalProvenanceV1 {
         -> Result<&[(BasicBlockId, MirInstruction)], String> {
         self.loan_copies(self.root, self.root_value, result)
     }
+    /// Borrow the existing local initializer and its complete alias chain.
+    /// The caller still owes the original source initializer and actual producer.
+    pub(in crate::mir) fn loan_initializer_v1(&self, root: BindingRefV1, result: ValueId)
+        -> Result<(ValueId, &[(BasicBlockId, MirInstruction)]), String> {
+        let copies = self.loan_copies(root, self.root_value, result)?;
+        Ok((self.root_value, copies))
+    }
     pub(super) fn matches(&self, binding: BindingRefV1, value: ValueId) -> bool {
         self.root == binding && self.root_value == value
     }

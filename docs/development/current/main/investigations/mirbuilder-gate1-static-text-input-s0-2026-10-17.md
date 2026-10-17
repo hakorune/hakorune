@@ -926,11 +926,9 @@ ExactText or a new semantic profile. It joins the already-recorded entry/read,
 common expression and both-final-scan connection; no new task/card is selected.
 
 
-V878 214273ba0b retains SAME per-node Core/body/writer/both-scan integration,
-root-only seed/acquisition removal and source identity/Invoke/Normal negatives.
-Root878G284PASS/13same; CLI216/app253 JSON SAME/app254 mimalloc exact7/exit0.
-Commit records all timings/provenance. Entry/reference/finite/initializer and
-full publication remain open; matched pins kept, superseded copies retired below.
+V878 landed214273ba0b: SAME Core/evaluation/writer and shared final source
+projection, root-only seed removal and negative evidence. Commit retains
+Root878G284PASS/13same, CLI216/app253 JSON SAME/app254 mimalloc exact7/exit0.
 
 Decision (packet_origin_review): reuse SAME source SUM and census corroboration
 for one closed entry domain; normalize compiled-entry map to one formal image.
@@ -939,59 +937,64 @@ Executable closure still requires actual products, forward containment and BOTH
 final scans. JSON markers read only the verified image domain. No extra carrier,
 registry, cycle solver or generic-tagged permission for finite Text domains.
 
-V879 landed6b64fc17e5: original finite Text entry structure separated from
-executable actual/use closure; source-scope and real param correspondence use
-that structure, no fabricated numeric draft. Parent794->701 lines; old pre-entry
-facade test-only, finalized APIs stay live. Root879D344 distinct/330PASS/14same
-(13common plus independently reproduced guarded receiver baseline), no new
-warnings. CLI217177.567022s; app255 JSON SAME .123975s; app256 unchanged mimalloc
-EXE132.109013s/native.001557s exact7/exit0/stdout+stderr. That commit retains
-commands/provenance, corrected test setup and all negative/source census cases.
-Matched pins kept; obsolete attempt binaries1,863,680,104 bytes removed with
-current hash/baseline checks, logs/receipts retained. Full Text series stays open.
+V879 landed6b64fc17e5: finite entry structure/actual closure split, no fake
+numeric draft. Commit retains root330PASS/14same, CLI217/app255 JSON SAME,
+app256 mimalloc exact7/exit0, source census negatives and superseded-pin
+retirement1,863,680,104B. Matched baseline pins stay for the unfinished series.
 
-V880 landed8b705cd9c1: canonical original-use loans retained through Argument/
-initializer requirements and finite structural entry. Commit retains worker fixes,
-commands/provenance, Root880B375/361PASS/14same, CLI218/app257 JSON SAME and
-app258 unchanged mimalloc EXE/native exact7/exit0. Matched pins retained;
-original/source proofs still grant no physical reference execution.
+V880 landed8b705cd9c1: canonical original-use loans and source identity retained
+through entry/read requirements. Commit owns Root361PASS/14same, CLI218/app257
+JSON SAME/app258 mimalloc exact7/exit0 and pins; no physical read grant there.
 
-V881 Decision (reference_integration_review): move existing reference proof
-payloads once into SAME evaluation's active-node map; wrappers only project
-borrowed proof views. Entry finite SUM and SAME Null exclusion stay together;
-ordinary-call transferred inputs and receiver identities keep their own owners.
-Sole writer and shared final projection check complete reference coverage before
-any physical permission. This BoxShape removes parallel purpose storage without
-changing executable admission; full Text series and all execution fences remain.
-Paths: shared evaluation and argument/initializer/Print constructors, their
-existing owner exports, sole writer/shared projection coverage checks, reused
-source/port assertions, MIR README/card. No new test/fixture/guard or .hako edit.
-Physical follow-up must join source original + prepared current read/Copy before
-ONE read batch; actual entry/carrier, residence handoff and both final String-use
-consumers remain required. Static reference execution also needs exact original
-initializer/root correspondence, not just matching bytes and a source read.
+V881 landed b30ef1d728: one SAME-evaluation active-node reference proof map
+replaces parallel purpose storage, with exact coverage before publication/writer/
+shared final projection. Commit retains Root881B375/361PASS/14same, CLI219,
+app259 JSON SAME and app260 unchanged mimalloc exact7/exit0; matched pins kept.
+Full Text series remains unaccepted.
 
-V881 verification: initial Root881A PASS108.952140s; review then added complete
-coverage rejection before candidate publication (not only writer/final scan).
-Final Root881B cargo quick-test-fast --no-run --message-format=json PASS54.475516s;
-42 reused filters375 distinct/361PASS/14same identities+diagnostics as880B,
-focused11.150215s; no new warning messages. No test/fixture/guard added.
-Pointer/root-route/layer/thin/diff PASS. Historical CI35681768498/d4168473d5
-remains failed; no current full-suite/CI green claim. Physical Text completion
-and actual source frontier movement remain unaccepted.
-Next static-read mapping (same worker): original literal initializer binding
-joins existing MaterializedValues root/initializer ValueId/Copy chain, validated
-on prepared read before batch commit. Reuse FinishedBindings.relation_binding
-for captured producer/Copy omissions; never add preceding initializer rows to
-expression order. Existing static-only tests can use genuine zeroarg source
-caller/entry and actual local writer receipts, avoiding fabricated Text params.
-CLI219 quick bin PASS196.931753s, no new warnings; SHA
-bacfb377fff4b9fb27da2c830e767ce4d93f57520411299d91c356339f05c822.
-App259 unchanged JSON exit1/noartifact .119945s, same slot20/Body7 Value Core
-fence, stderr byte-identical257. Same canonical direct EXE recipe/pins as880;
-compiler-only manifest delta corroborated, runtime/C/ABI unchanged.
-App260 unchanged mimalloc EXE132.433507s/native.001405s PASS; original7lines,
-exit0/stdout+stderr byte-identical258. EXE SHA
- a02ed83a511ab7224d1be64d493d3083b07f17d9a92694462c0db82b383e68d0.
-Latest881B/CLI219/runtime877A/FFI876B pins retained for unfinished series;
-881A superseded compile receipts kept, no adapter/proof directory introduced.
+V882 Decision (reference_integration_review): static lexical Text reads join
+original literal initializer binding + existing MaterializedValues root ValueId/
+Copy chain + exact prepared current read + original Const(String) producer.
+Prepare all reference/field-root reads before ONE commit; no new acquisition/End.
+Existing expression packet retains per-node read/producer observations; producer
+and Copies preceding expression entry stay dependencies, outside operation order.
+Draft checks actual dependency presence. Lowering pre-seal checks exact captured
+membership only; BOTH Finalized visitors use strict relation_binding after the
+same PhysicalBoundary seals omission rights. No new omission permission/pool.
+Existing argument cases use genuine zeroarg source headers and actual literal/
+local writer receipts; entry/residence/scalar/finite execution fences stay shut.
+Paths: Prefix static proof, existing value provenance/exact reads, sole common
+writer/shared projection/Print handoff, reused source/port tests, MIR README/card.
+No new fixture/guard/test family or .hako workaround. Full source actual/entry/
+initializer/cleanup/publication Text series remains owed; no product success
+from common static-reference execution alone.
+V882 construction/review: exact global Const/Copy dst uniqueness and no param
+collision checked before commit. Existing source table now covers a two-Copy
+static alias; rejected duplicate/param/wrong-Const mutations leave every read
+available and MIR unchanged. Shared finishing check refuses unapproved producer/
+Copy removal. Actual source-derived local receipts use ordinary lexical scope;
+structural boundary tests issue no executable purpose or argument completion.
+Root882A/B compile-only test API errors32.638377/27.372273s; fixed private-type
+wrapper and instruction snapshots. C build83.473278s; its source test exposed
+missing test lexical scope, fixed with existing scope transaction. D66.896778s/
+source case PASS; final E59.424393s PASS after test-only API/late-read assertions.
+Final42 reused filters375/361PASS/14same identities+diagnostics as881B;
+focused10.345101s, no new warning messages. Root/pointer/layer/thin/diff PASS.
+No new #[test]/fixture file/guard; one case added within existing source table.
+CLI220 quick bin PASS177.291644s, no new warnings; SHA
+ e864c4ec57bdef40f3ae80cae008d2c6f73fbd0db7e92af12741fbdc7f3199b3.
+App261 unchanged JSON .132963s exit1/noartifact, same slot20/Body7 Value Core
+fence and stderr byte-identical259. Full Text source-to-consumer remains open.
+Superseded882C/D test pins534,795,168B retired after882E hash/baseline checks;
+all intermediate logs/source manifests/receipts retained. Latest pins kept.
+Next (same worker): Text-only entry read joins SAME finite structural domain Rc,
+original read, recorded actual params/carrier and prepared forwarded Copies;
+never demand completed caller actuals at lowering. Final domain image/full
+incoming+use closure before publication remains mandatory; no generic0..3 grant.
+CI35681768498/d4168473d5 remains historical failed, not current CI green.
+App262 unchanged mimalloc EXE133.625705s/native.001685s PASS; original7lines,
+exit0/stdout+stderr exact260; EXE SHA
+da6b383360910e6e68a3158b8fefc48299f9a61342397527c189670ac21d83de.
+Root882E/CLI220/runtime877A/FFI876B pins kept for the unfinished full series;
+same canonical direct EXE recipe, current source manifests/compiler-only delta
+corroborated, C/ABI/runtime unchanged. Full-suite/selfhost completion unclaimed.

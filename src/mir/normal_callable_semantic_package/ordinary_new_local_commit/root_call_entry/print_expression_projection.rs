@@ -14,6 +14,7 @@ pub(crate) struct EmittedPrintExpressionProjectionV1 {
     values: Box<[Option<Operand>]>,
     calls: Box<[Rc<EmittedLexicalCallProjectionV1>]>,
     path_reads: Box<[crate::mir::builder::ExactLexicalReadV1]>,
+    reference_reads: std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
     entry: Binding,
     print: Binding,
     continuation: Binding,
@@ -39,6 +40,7 @@ impl EmittedPrintExpressionProjectionV1 {
         values: Vec<Option<Operand>>,
         calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
         path_reads: Vec<crate::mir::builder::ExactLexicalReadV1>,
+        reference_reads: std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
         entry: Binding,
         print: Binding,
         continuation: Binding,
@@ -51,6 +53,7 @@ impl EmittedPrintExpressionProjectionV1 {
             values: values.into_boxed_slice(),
             calls: calls.into_boxed_slice(),
             path_reads: path_reads.into_boxed_slice(),
+            reference_reads,
             entry,
             print,
             continuation,
@@ -65,7 +68,7 @@ impl EmittedPrintExpressionProjectionV1 {
 
     fn expression(&self) -> super::expression_projection::ExpressionPhysicalProjectionRefV1<'_> {
         super::expression_projection::ExpressionPhysicalProjectionRefV1::new(
-            self.frame.evaluation(), &self.values, &self.calls, &self.path_reads, &self.original,
+            self.frame.evaluation(), &self.values, &self.calls, &self.path_reads, &self.reference_reads, &self.original,
         )
     }
 
@@ -118,6 +121,7 @@ impl EmittedPrintExpressionProjectionV1 {
         use super::super::root_cleanup_graph::ordered_paths as paths;
         use std::collections::BTreeSet;
         self.validate_source(context)?;
+        self.expression().validate_reference_dependencies(context, function, finishing)?;
         let mapped = |original: &Binding| match finishing {
             Some(projection) => projection
                 .binding(original.0, &original.1)?

@@ -16,6 +16,7 @@ pub(in crate::mir) struct ExpressionPhysicalProjectionRefV1<'a> {
     values: &'a [Option<Operand>],
     calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
     path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
+    reference_reads: &'a std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
     original: &'a [Binding],
 }
 impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
@@ -24,8 +25,9 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
         values: &'a [Option<Operand>],
         calls: &'a [Rc<EmittedLexicalCallProjectionV1>],
         path_reads: &'a [crate::mir::builder::ExactLexicalReadV1],
+        reference_reads: &'a std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
         original: &'a [Binding],
-    ) -> Self { Self { frame, values, calls, path_reads, original } }
+    ) -> Self { Self { frame, values, calls, path_reads, reference_reads, original } }
 
     fn calls(&self) -> impl Iterator<Item = &EmittedLexicalCallProjectionV1> {
         self.calls.iter().map(Rc::as_ref)
@@ -38,6 +40,10 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             || self.values.len() != source.nodes().len() || self.calls.len() != self.frame.calls().len()
         {
             return Err(freeze("print-expression/source-coverage"));
+        }
+        if self.reference_reads.len() != self.frame.references().len()
+            || self.reference_reads.keys().any(|node| !self.frame.references().contains_key(node)) {
+            return Err(freeze("expression/reference-read-census"));
         }
         let mut roots = std::collections::BTreeMap::new();
         for node in source.nodes() {
@@ -101,6 +107,19 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             match (node.source(), value) {
                 (Node::Literal(Literal::String(text)), Some(Operand::StaticText { utf8 }))
                     if utf8.as_str() == text.as_ref() => {}
+                (Node::Reference(_), Some(Operand::StaticText { utf8 })) => {
+                    let Some(crate::mir::resolved_semantics::home_new_prefix::CheckedExpressionReferenceV1::StaticText(original)) = self.frame.references().get(&index) else {
+                        return Err(freeze("expression/reference-source-kind"));
+                    };
+                    let (read, producer) = self.reference_reads.get(&index).ok_or_else(|| freeze("expression/reference-read-missing"))?;
+                    read.value_for(source.owner(), node.site().node(), original.binding()).map_err(|error| error.to_string())?;
+                    let (initializer, _) = read.loan_local_initializer_v1(original.definition_binding())?;
+                    if utf8 != original.utf8() || !matches!(&producer.1,
+                        MirInstruction::Const { dst, value: crate::mir::ConstValue::String(text) }
+                            if *dst == initializer && text == original.utf8()) {
+                        return Err(freeze("expression/reference-static-value"));
+                    }
+                }
                 (Node::Literal(Literal::Integer(expected)), Some(Operand::NormalInteger(dst))) => {
                     self.require_unique(|row| matches!(row, MirInstruction::Const { dst: actual, value: crate::mir::ConstValue::Integer(value) }
                         if actual == dst && value == expected))?;
@@ -199,6 +218,82 @@ impl<'a> ExpressionPhysicalProjectionRefV1<'a> {
             }
         }
         Ok(())
+    }
+
+    /// Initializer producers precede the expression entry. They are captured
+    /// dependencies, never additional instructions in its evaluation order.
+    #[cfg(test)]
+    pub(in crate::mir) fn validate_original_reference_dependencies(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+    ) -> Result<(), String> {
+        self.validate_reference_dependencies(context, function, None)
+    }
+
+    pub(super) fn validate_reference_dependencies(
+        &self, context: CallValidationContextV1<'_>, function: &MirFunction,
+        finishing: Option<&super::super::physical_boundary::FinishedBindings>,
+    ) -> Result<(), String> {
+        self.validate_source(context)?;
+        if let (Some(projection), CallValidationContextV1::Finalized(_)) = (finishing, context) {
+            return self.validate_finished_reference_dependencies(function, projection);
+        }
+        for (read, producer) in self.reference_reads.values() {
+            for original in std::iter::once(producer).chain(read.original_copy_dependencies_v1()?.iter()) {
+                let actual = match (finishing, context) {
+                    (Some(_), CallValidationContextV1::Finalized(_)) => unreachable!("final dependencies handled above"),
+                    (Some(projection), CallValidationContextV1::Lowering(_)) => {
+                        // validate_complete seals omission permission later.
+                        // This phase proves capture only, never final survival.
+                        let dst = original.1.dst_value().ok_or_else(|| freeze("expression/reference-dependency-dst"))?;
+                        if projection.captured_definition(dst)? != original { return Err(freeze("expression/reference-captured-dependency")); }
+                        continue;
+                    }
+                    (None, _) => Some(original.clone()),
+                };
+                if let Some((block, instruction)) = actual {
+                    if !super::super::physical_boundary::check_binding(function, None, block, &instruction)? {
+                        return Err(freeze("expression/reference-dependency-missing"));
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn validate_finished_reference_dependencies(
+        &self, function: &MirFunction, projection: &super::super::physical_boundary::FinishedBindings,
+    ) -> Result<(), String> {
+        for (read, producer) in self.reference_reads.values() {
+            for original in std::iter::once(producer).chain(read.original_copy_dependencies_v1()?.iter()) {
+                // Only the existing sealed boundary can approve an omission.
+                projection.relation_binding(function, original)?;
+            }
+        }
+        Ok(())
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir) fn assert_reference_finishing_for_test(&self, function: &MirFunction) {
+        if self.reference_reads.is_empty() { return; }
+        // Close the common evaluation's open Normal block for this structural
+        // boundary test; no terminal purpose or executable input is issued.
+        let mut original = function.clone();
+        for block in original.blocks.values_mut() {
+            if block.terminator.is_none() { block.set_terminator(MirInstruction::Return { value: None }); }
+        }
+        let bindings = self.original.to_vec();
+        let boundary = super::super::physical_boundary::PhysicalBoundary::capture(&original, &bindings).unwrap();
+        let mut projection = boundary.project(&original).unwrap();
+        boundary.validate_complete(&original, &mut projection, &bindings).unwrap();
+        self.validate_finished_reference_dependencies(&original, &projection).unwrap();
+        for (read, producer) in self.reference_reads.values() {
+            for dependency in std::iter::once(producer).chain(read.original_copy_dependencies_v1().unwrap()) {
+                let mut changed = original.clone();
+                changed.blocks.get_mut(&dependency.0).unwrap().instructions.retain(|row| row != &dependency.1);
+                assert!(self.validate_finished_reference_dependencies(&changed, &projection).is_err(),
+                    "unapproved dependency removal must fail the final consumer");
+            }
+        }
     }
 
     pub(super) fn require_unique(

@@ -611,6 +611,7 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         ("", "line", "7", false, 0, 0, 0, false),
         ("", "line", "null", false, 0, 0, 0, false),
         ("local key = \"bytes\"", "key.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
+        ("local key = \"bytes\" local alias = key", "alias.substring(0,1)", "\"seed\"", true, 1, 0, 0, true),
         ("local key = \"a\" + \"b\"", "key.substring(0,1)", "\"seed\"", true, 0, 1, 0, true),
         ("", "line.substring(0,1)", "\"seed\"", true, 0, 0, 1, true),
         ("", "\"aé界z\".substring(0,1)", "\"seed\"", true, 0, 0, 0, true),
@@ -618,15 +619,15 @@ fn original_text_argument_product_keeps_static_residence_entry_and_core_distinct
         ("local key = \"bytes\" local needle = \"bytes\"", "key.substring(needle.length(),1)", "\"seed\"", true, 2, 0, 0, true),
         ("local key = \"bytes\"", "key.substring(key.indexOf(\"y\"),key.length())", "\"seed\"", true, 3, 0, 0, true),
     ] {
-        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller(line) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({incoming}) }} }} static box Main {{ main() {{ return 0 }} }}");
+        let (caller_parameters, caller_actual) = if static_reads > 0 { ("", "") } else { ("line", incoming) };
+        let text = format!("static box Values {{ sink(p) {{ return 0 }} caller({caller_parameters}) {{ {prefix} local n = Values.sink({argument}) return 0 }} seed() {{ return Values.caller({caller_actual}) }} }} static box Main {{ main() {{ return 0 }} }}");
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog_selection(
             &text, crate::mir::normal_callable_semantic_package::PackagePhysicalSelectionV1::ClosedAppExecutable).unwrap();
         let ledger = &package.ordinary_new_claim_ledger;
         let source = ledger.borrowed_formal_source.as_ref().unwrap();
         let declaration = package.batch().declarations().find(|row|
-            package.parameter_contracts.iter().any(|contract| contract.owner == row.owner() && contract.parameters.len() == 1)
-                && package.batch().with_lowering_input(row.batch_slot(), |input|
-                    input.function().method_calls().any(|(_, call)| call.selector() == "sink")).unwrap()).unwrap();
+            package.batch().with_lowering_input(row.batch_slot(), |input|
+                input.function().method_calls().any(|(_, call)| call.selector() == "sink")).unwrap()).unwrap();
         package.batch().with_lowering_input(declaration.batch_slot(), |input| {
             let contract = package.parameter_contracts.iter().find(|row| row.owner == input.owner()).unwrap();
             let parameters = contract.parameters.iter().map(|row| (row.ordinal, row.binding, row.kind.clone())).collect();

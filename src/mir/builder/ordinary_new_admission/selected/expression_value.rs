@@ -4,7 +4,7 @@ use super::*;
 use crate::mir::dynamic_operator_contract::DynamicOperatorNormalResultV1 as ResultKind;
 use crate::mir::instruction::{StringInvokeOperand as Operand, StringInvokeOperation as Operation};
 use crate::mir::normal_callable_semantic_package::EmittedLexicalCallProjectionV1;
-use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, LocalCallObservationV1};
+use crate::mir::resolved_semantics::home_new_prefix::{CheckedExpressionEvaluationV1, CheckedExpressionReferenceV1, LocalCallObservationV1};
 use crate::mir::resolved_semantics::{OwnedExprSiteV1, ResolvedLiteralSourceV1 as Literal};
 use crate::mir::resolved_value_profile::expression_plan::ExpressionNodeSourceV1 as Node;
 use std::rc::Rc;
@@ -17,6 +17,7 @@ pub(super) struct EmittedExpressionValueV1 {
     pub(super) values: Vec<Option<Operand>>,
     pub(super) calls: Vec<Rc<EmittedLexicalCallProjectionV1>>,
     pub(super) path_reads: std::collections::BTreeMap<OwnedExprSiteV1, crate::mir::builder::ExactLexicalReadV1>,
+    pub(super) reference_reads: std::collections::BTreeMap<usize, (crate::mir::builder::ExactLexicalReadV1, Binding)>,
     pub(super) acquired: Vec<(usize, ValueId)>,
     pub(super) homes: Vec<InvokeOperation>,
     pub(super) fault_frame: ValueId,
@@ -44,7 +45,8 @@ pub(super) fn emit(
     }
     for &index in frame.ordered_nodes() {
         if frame.transfers_node(index) || frame.node_is_identity(index) { continue; }
-        if matches!(frame.source().nodes()[index].source(), Node::Reference(_)) {
+        if matches!(frame.source().nodes()[index].source(), Node::Reference(_))
+            && !matches!(frame.references().get(&index), Some(CheckedExpressionReferenceV1::StaticText(_))) {
             return Err(freeze("expression/reference-execution-pending"));
         }
     }
@@ -52,6 +54,7 @@ pub(super) fn emit(
     let source = frame.source();
     let mut pending = Vec::new();
     let mut path_slots = std::collections::BTreeMap::new();
+    let mut reference_slots = std::collections::BTreeMap::new();
     let mut direct_fields = std::collections::BTreeMap::new();
     // Fulfill every field-root read before any FaultFrame, CFG or value effect.
     // Reservation remains in original source order; binding nested receivers
@@ -62,6 +65,28 @@ pub(super) fn emit(
         if frame.node_is_identity(index) && !matches!(node.source(), Node::Shape(
             crate::mir::resolved_semantics::BodyExpressionShapeV1::FieldAccess { .. })) { continue; }
         let site = OwnedExprSiteV1::new(owner, node.site().clone());
+        if let Some(CheckedExpressionReferenceV1::StaticText(original)) = frame.references().get(&index) {
+            let read = state.prepare_exact_lexical_read(owner, node.site().node(), original.binding()).map_err(|error| error.to_string())?;
+            let (initializer, copies) = read.loan_local_initializer_v1(original.definition_binding())?;
+            let function = builder.function_state.current_function.as_ref().ok_or_else(|| freeze("no-function"))?;
+            let mut definitions = function.blocks.iter().flat_map(|(block, body)|
+                body.all_instructions().map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(initializer));
+            let (block, producer) = definitions.next().ok_or_else(|| freeze("expression/static-initializer-missing"))?;
+            if definitions.next().is_some() || !matches!(producer, MirInstruction::Const { value: crate::mir::ConstValue::String(text), .. } if text == original.utf8()) {
+                return Err(freeze("expression/static-initializer-producer"));
+            }
+            let producer = (block, producer.clone());
+            for (block, instruction) in std::iter::once(&producer).chain(copies) {
+                let dst = instruction.dst_value().ok_or_else(|| freeze("expression/static-dependency-dst"))?;
+                let mut definitions = function.blocks.iter().flat_map(|(block, body)|
+                    body.all_instructions().map(move |row| (*block, row))).filter(|(_, row)| row.dst_value() == Some(dst));
+                if function.params.contains(&dst) || definitions.next() != Some((*block, instruction)) || definitions.next().is_some() {
+                    return Err(freeze("expression/static-dependency-identity"));
+                }
+            }
+            reference_slots.insert(index, (pending.len(), producer));
+            pending.push(read);
+        }
         if let Some(path) = ledger.statement_field_path_v1(&site, crate::mir::normal_callable_semantic_package::CallValidationContextV1::Lowering(ledger))? {
             if !ledger.reserve_result_path_field_v1(&site, |binding| {
                 let root_site = OwnedExprSiteV1::new(owner, path.root_site().clone());
@@ -96,6 +121,9 @@ pub(super) fn emit(
     for (site, slot) in path_slots {
         path_reads.insert(site, reads[slot].take().ok_or_else(|| freeze("expression-value/read-slot"))?);
     }
+    let reference_reads = reference_slots.into_iter().map(|(node, (slot, producer))| {
+        Ok((node, (reads[slot].take().ok_or_else(|| freeze("expression-value/reference-slot"))?, producer)))
+    }).collect::<Result<std::collections::BTreeMap<_, _>, String>>()?;
     let fault_frame = state.borrow_fault_frame(builder)?;
     let mut bindings = vec![fault_frame_binding(builder, state, fault_frame)?];
     let mut writer = RawRootGraphWriterV1;
@@ -175,6 +203,13 @@ pub(super) fn emit(
                 };
                 Operand::NormalInteger(value)
             }
+            Node::Reference(_) => {
+                let Some(CheckedExpressionReferenceV1::StaticText(original)) = frame.references().get(&index) else {
+                    return Err(freeze("expression/reference-execution-pending"));
+                };
+                if !reference_reads.contains_key(&index) { return Err(freeze("expression/reference-read-missing")); }
+                Operand::StaticText { utf8: original.utf8().to_owned() }
+            }
             Node::MethodCall if frame.cores().contains_key(&index) => {
                 let operation = crate::mir::normal_callable_semantic_package::checked_expression_core_operation_v1(&frame.cores()[&index], &values)?;
                 emit_string_value(builder, &mut writer, operation, index, fault_frame, &mut acquired, &homes, &mut bindings)?
@@ -219,7 +254,7 @@ pub(super) fn emit(
     }
     let value = values[0].clone().ok_or_else(|| freeze("print-expression/root-value"))?;
     Ok(EmittedExpressionValueV1 {
-        value, values, calls, path_reads, acquired, homes, fault_frame, entry, bindings,
+        value, values, calls, path_reads, reference_reads, acquired, homes, fault_frame, entry, bindings,
     })
 }
 

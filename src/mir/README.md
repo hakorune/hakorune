@@ -443,3 +443,13 @@ missing, extra or foreign-node proofs. This normalization grants no physical
 reference/domain/entry permission: current exact reads and Copies, source
 initializer or residence correspondence, actual params/carriers and both final
 String-use consumers still have to close before those fences can be removed.
+
+Static lexical Text references join the original literal initializer binding to
+its existing materialized initializer ValueId and complete Copy chain before
+the one exact-read batch commits. The common expression writer lends StaticText
+bytes and retains the exact read plus original Const producer in its existing
+packet. These preceding dependencies stay outside expression operation order.
+Draft validation checks actual producers; finishing preparation checks original
+capture, and both final source consumers require the same sealed boundary's
+strict relation/omission evidence. Borrowed entry, residence, scalar and finite
+reference execution remain separate unfulfilled obligations.

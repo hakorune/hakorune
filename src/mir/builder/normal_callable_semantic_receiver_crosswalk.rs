@@ -51,6 +51,10 @@ pub(in crate::mir::builder) struct PreparedExactLexicalReadV1 {
     read: ExactLexicalReadV1,
 }
 impl PreparedExactLexicalReadV1 {
+    pub(in crate::mir::builder) fn loan_local_initializer_v1(&self, root: BindingRefV1)
+        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+        self.read.loan_local_initializer_v1(root)
+    }
     pub(in crate::mir::builder) fn value_for(
         &self, owner: FunctionOwnerIdV1,
         site: &crate::mir::resolved_semantics::SourceNodeSiteV1, binding: BindingRefV1,
@@ -60,6 +64,12 @@ impl PreparedExactLexicalReadV1 {
 }
 
 impl ExactLexicalReadV1 {
+    pub(in crate::mir) fn loan_local_initializer_v1(&self, root: BindingRefV1)
+        -> Result<(ValueId, &[(crate::mir::BasicBlockId, crate::mir::MirInstruction)]), String> {
+        if root.owner() != self.owner { return Err("[freeze:contract][local-read/root-owner]".into()); }
+        self.provenance.as_ref().ok_or_else(|| "[freeze:contract][local-read/initializer-missing]".to_owned())?
+            .loan_initializer_v1(root, self.value)
+    }
     pub(in crate::mir) fn original_copy_dependencies_v1(&self)
         -> Result<&[(crate::mir::BasicBlockId, crate::mir::MirInstruction)], String> {
         match &self.provenance {

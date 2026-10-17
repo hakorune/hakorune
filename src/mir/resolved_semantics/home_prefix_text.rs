@@ -10,13 +10,13 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub(crate) struct StaticTextReadV1 {
     read: SourceExprSiteV1, binding: BindingRefV1, value: SourceValueRefV1,
-    origin: SourceValueRefV1, definition: SourceExprSiteV1, utf8: Box<str>,
+    origin: SourceValueRefV1, definition: SourceExprSiteV1, definition_binding: BindingRefV1, utf8: Box<str>,
     flow: Arc<VerifiedSourceValueFlowV1>,
 }
 impl PartialEq for StaticTextReadV1 {
     fn eq(&self, other: &Self) -> bool {
         self.read == other.read && self.binding == other.binding && self.value == other.value
-            && self.origin == other.origin && self.definition == other.definition
+            && self.origin == other.origin && self.definition == other.definition && self.definition_binding == other.definition_binding
             && self.utf8 == other.utf8 && Arc::ptr_eq(&self.flow, &other.flow)
     }
 }
@@ -25,6 +25,7 @@ impl StaticTextReadV1 {
     pub(crate) fn read(&self) -> &SourceExprSiteV1 { &self.read }
     pub(crate) fn binding(&self) -> BindingRefV1 { self.binding }
     pub(crate) fn definition(&self) -> &SourceExprSiteV1 { &self.definition }
+    pub(crate) fn definition_binding(&self) -> BindingRefV1 { self.definition_binding }
     pub(crate) fn utf8(&self) -> &str { &self.utf8 }
 }
 
@@ -44,7 +45,10 @@ impl PrefixLocalFlow<'_> {
         let SourceValueOriginV1::Expression(original) = flow.origin(origin)? else { return None };
         if original != definition { return None; }
         let ResolvedLiteralSourceV1::String(utf8) = function.expression_source().literal(original)? else { return None };
-        Some(StaticTextReadV1 { read: site.clone(), binding, value, origin, definition: original.clone(),
+        let mut definitions = function.expression_source().initializers().filter(|row| row.initializer_site() == Some(original));
+        let definition_binding = definitions.next()?.binding();
+        if definitions.next().is_some() || definition_binding.owner() != binding.owner() { return None; }
+        Some(StaticTextReadV1 { read: site.clone(), binding, value, origin, definition: original.clone(), definition_binding,
             utf8: utf8.clone(), flow: Arc::clone(flow) })
     }
     pub(in crate::mir::resolved_semantics::home_new_prefix) fn retain_entry_null_exclusion(&mut self,
