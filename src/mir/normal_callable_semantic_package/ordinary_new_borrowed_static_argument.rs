@@ -118,7 +118,7 @@ pub(super) fn collect_static_argument_sources_v1(
                         else {
                             continue;
                         };
-                        let shared = incoming.retain();
+                        let shared = incoming.retain(input)?;
                         call_sources.insert(call.clone(), std::rc::Rc::clone(&shared));
                         shared
                     };

@@ -33,6 +33,7 @@ impl StaticIncomingContextV1<'_> {
         caller: impl Into<crate::mir::normal_callable_semantic_package::original_call_source::OriginalCallSourceCallerV1<'caller>>,
         site: &OwnedExprSiteV1,
         source: &VerifiedResolvedMethodCallSourceV1,
+        input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
         selected: &super::super::super::VerifiedSelectedCallableBatchMapV1,
         contracts: &[OwnedCallableParameterContractDeclarationV1],
         operand_retained: Option<&Rc<StaticIncomingSourceV1>>,
@@ -94,10 +95,15 @@ impl StaticIncomingContextV1<'_> {
                 self.claims.incoming_source(caller, site, source, selected, contracts, self.main)?
                     .ok_or_else(|| freeze("borrowed-static/claim-unavailable"))?
             };
+            let original_method = input.function().method_call_source_v1(site.site())
+                .ok_or_else(|| freeze("borrowed-static/original-method-source"))?;
+            if input.owner() != site.owner() || !std::ptr::eq(original_method.as_ref(), source) {
+                return Err(freeze("borrowed-static/original-method-source"));
+            }
             match retained {
                 Some(retained) if loan.corroborates_retained(retained) => Ok(Rc::clone(retained)),
                 Some(_) => Err(freeze("borrowed-static/retained-source-identity")),
-                None => Ok(loan.retain()),
+                None => loan.retain(input),
             }
         })();
         if retained.is_some() && observation.is_err() {

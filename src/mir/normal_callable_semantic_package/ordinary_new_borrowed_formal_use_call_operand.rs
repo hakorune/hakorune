@@ -92,10 +92,10 @@ pub(super) fn integer_call_operand_source_v1(
     if !loan.contract().parameters.is_empty() {
         return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
     }
-    let original = loan.retain();
+    let original = loan.retain(input).map_err(|_| BorrowedFormalUseDraftErrorV1::SourceIdentity)?;
     if !loan.corroborates_retained(&original)
         || original.call_site() != &owned
-        || original.is_qualified()
+        || original.is_qualified_i64_source_v1()
     {
         return Err(BorrowedFormalUseDraftErrorV1::SourceIdentity);
     }

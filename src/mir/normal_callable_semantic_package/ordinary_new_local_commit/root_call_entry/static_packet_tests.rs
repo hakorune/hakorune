@@ -217,7 +217,7 @@ fn static_zero_packet_preserves_current_source_and_original_affine_handoff() {
         let package = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(ZERO).unwrap();
         let original = source(&package);
         assert!(original.current_owner_source().is_some());
-        assert!(!original.is_qualified());
+        assert!(!original.is_qualified_i64_source_v1());
         let other = crate::mir::normal_callable_semantic_package::brand_catalog_tests::issue_with_brand_catalog(ZERO).unwrap();
         let publication = if foreign {
             handoff(&other, &source(&other))

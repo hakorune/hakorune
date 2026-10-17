@@ -198,7 +198,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                 if let super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(original) =
                     &row.source
                 {
-                    if !original.is_qualified()
+                    if !original.is_qualified_i64_source_v1()
                         && !matches!(self.incoming, BorrowedEntryActualsV1::SelectedTagged)
                         && !((original.is_current_owner_i64_source_v1()
                             || (original.is_current_owner_bool_source_v1()
@@ -211,7 +211,7 @@ impl BorrowedOrdinaryEntrySourceRefV1<'_> {
                                     .any(|(site, actuals)| *site == &row.call && actuals.len() == 1)
                             }))
                     {
-                        original.require_qualified()?;
+                        original.require_qualified_i64_source_v1()?;
                     }
                     let retained = self
                         .source

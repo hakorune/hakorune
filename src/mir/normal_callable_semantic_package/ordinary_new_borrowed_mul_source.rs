@@ -205,7 +205,7 @@ impl BorrowedMulSourceV1 {
                 BorrowedMulOperandSourceV1::IntegerCall(call) => {
                     let original = call.original();
                     original.is_zeroarg_i64_v1()
-                        && !original.is_qualified()
+                        && !original.is_qualified_i64_source_v1()
                         && function.method_call(original.call_site().site()).is_some_and(|row|
                             row.owner() == input.owner()
                                 && row.receiver() == crate::mir::resolved_semantics::ResolvedMethodCallReceiverSourceV1::CurrentOwner

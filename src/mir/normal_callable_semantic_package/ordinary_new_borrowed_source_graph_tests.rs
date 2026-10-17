@@ -364,7 +364,7 @@ fn source_graph_retains_raw_no_incoming_and_projects_final_callee_only() {
     let static_call = static_calls.next().expect("original constructor provider Static call");
     assert!(static_calls.next().is_none());
     let BorrowedIncomingSourceV1::Static(original) = &static_call.source else { panic!("Static namespace") };
-    assert!(original.is_qualified());
+    assert!(original.is_qualified_i64_source_v1());
     assert_eq!(original.caller(), constructor.published_birth_key().unwrap());
     assert!(original.argument_sites().is_empty());
     assert!(Rc::ptr_eq(original, inventory.static_observations()[&static_call.call].as_ref().unwrap()));
@@ -636,7 +636,7 @@ fn source_graph_common_loan_refuses_instance_collision_and_equal_reissued_static
                 )
                 .unwrap()
                 .unwrap()
-                .retain()
+                .retain(input).unwrap()
         })
         .unwrap();
     assert!(!Rc::ptr_eq(original, &reissued));

@@ -70,8 +70,8 @@ fn input_source(package: &Package, allow_main: bool) -> Result<Rc<StaticIncoming
                             main.filter(|_| allow_main),
                         )
                         .and_then(|loan| {
-                            loan.map(|loan| loan.retain())
-                                .ok_or_else(|| "original source absent".to_owned())
+                            loan.ok_or_else(|| "original source absent".to_owned())?
+                                .retain(input)
                         }),
                 )
             })
@@ -146,6 +146,36 @@ fn qualified_static_input_source_keeps_unselected_main_and_opaque_full_formal() 
     assert!(input_source(&package, false)
         .unwrap_err()
         .contains("incoming-source-identity"));
+    use crate::mir::callable_result_representation::VerifiedCallableResultDispositionV1 as ResultKind;
+    for (body, arity, kind) in [("return \"text\"", 1, 0), ("return true", 1, 1), ("return null", 1, 2), ("return \"text\"", 0, 0)] {
+        let (parameters, actuals) = if arity == 1 { ("p", "7") } else { ("", "") };
+        let text = format!("static box Layout {{ class_id({parameters}) {{ {body} }} }} static box Main {{ main() {{ local k = Layout.class_id({actuals}) return 0 }} }}");
+        let package = issue(&text);
+        let source = input_source(&package, true).unwrap();
+        match kind {
+            0 => assert_eq!(source.source_result(), &ResultKind::ExactString),
+            1 => assert_eq!(source.source_result(), &ResultKind::ExactBool),
+            _ => assert!(matches!(source.source_result(), ResultKind::Unavailable(_))),
+        }
+        assert!(!source.is_qualified_i64_source_v1());
+        assert!(source.require_qualified_i64_source_v1().is_err());
+        assert!(!source.is_zeroarg_i64_v1(), "zero arguments cannot change the result class");
+        assert!(!source.is_current_owner_i64_source_v1());
+        assert_eq!(source.argument_sites().len(), arity);
+        let main = borrow_app_main_source_v1(package.batch(), package.catalog.catalog().source_backed_app_main()).unwrap().unwrap();
+        package.batch().with_lowering_input(main.batch_slot(), |input| {
+            let canonical = input.function().method_call_source_v1(source.call_site().site()).unwrap();
+            assert!(std::sync::Arc::ptr_eq(source.method_source(), canonical));
+        }).unwrap();
+        // Participation belongs to the SAME solver, including a genuine Main
+        // row when it exists. Do not infer presence/absence from caller spelling.
+        let catalog_row = package.source_static_claims_for_test.call_result_source(source.caller(), source.call_site().site());
+        match (source.call_result_evidence(), catalog_row) {
+            (Some(retained), Some(original)) => assert!(std::ptr::eq(retained, original)),
+            (None, None) => {},
+            _ => panic!("source must preserve the exact original call-result membership"),
+        }
+    }
     let foreign = issue(MAIN);
     let foreign_view = borrow_app_main_source_v1(foreign.batch(),
         foreign.catalog.catalog().source_backed_app_main()).unwrap().unwrap();
@@ -389,6 +419,15 @@ fn qualified_static_input_source_rejects_foreign_owner_and_absent_caller_or_site
                 .unwrap()
                 .unwrap();
             assert!(original.corroborates_retained(&source));
+            assert!(std::sync::Arc::ptr_eq(source.method_source(), input.function().method_call_source_v1(call.site()).unwrap()));
+            let mut issued = crate::mir::resolved_semantics::issue_resolved_method_call_sources_v1(input.body_shape().unwrap()).unwrap();
+            let reissued = issued.remove(call.site()).unwrap();
+            assert_eq!(&reissued, call);
+            let reissued_loan = index.incoming_source(source.caller(), source.call_site(), &reissued,
+                &package.selected, &package.parameter_contracts, None).unwrap().unwrap();
+            assert!(!reissued_loan.corroborates_retained(&source), "equal-content reissue is not original source");
+            assert!(reissued_loan.retain(input).unwrap_err().contains("original-method-source"));
+
             let foreign_package = issue(HEAP);
             let foreign_source = input_source(&foreign_package, false).unwrap();
             assert!(!original.corroborates_retained(&foreign_source));

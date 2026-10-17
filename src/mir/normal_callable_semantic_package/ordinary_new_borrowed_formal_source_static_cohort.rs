@@ -89,7 +89,7 @@ impl PreparedBorrowedFormalIngressV1 {
             return Ok(None);
         };
         let compare_only = self.is_compare_only_static_input_v1(row.callee);
-        if !original.is_qualified()
+        if !original.is_qualified_i64_source_v1()
             || self.definitions.contains_key(&row.callee)
             || self.target_static.contains_key(&row.callee)
             || (!compare_only && !self

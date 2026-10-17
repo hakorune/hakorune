@@ -647,7 +647,7 @@ fn static_entry_refuses_same_shaped_reissued_incoming_rc() {
                 )
                 .unwrap()
                 .unwrap()
-                .retain()
+                .retain(input).unwrap()
         })
         .unwrap();
     assert!(!Rc::ptr_eq(&retained, &reissued));

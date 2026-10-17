@@ -291,7 +291,7 @@ fn issue_packet_source(
     let result_ref = result.borrow();
     if matching.next().is_some()
         || !original.is_current_owner_i64_source_v1()
-        || original.is_qualified()
+        || original.is_qualified_i64_source_v1()
         || !tagged.corroborates(entry)
         || original.call_site().owner() != tagged.formal().owner()
         || !entry.claim().corroborates_source(

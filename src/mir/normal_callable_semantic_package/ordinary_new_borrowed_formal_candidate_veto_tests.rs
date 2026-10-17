@@ -271,7 +271,7 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                     &package.selected, &package.parameter_contracts, None).unwrap().unwrap();
                 assert!(loan.corroborates_retained(original));
                 assert!(original.required_i64_arguments().is_empty());
-                assert!(original.require_qualified().is_err());
+                assert!(original.require_qualified_i64_source_v1().is_err());
                 let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();
                 assert!(ingress.source_definition_for(input.owner()).is_some(), "original Mul closes formal-use source only");
                 assert!(!ingress.contains_definition_for_test(input.owner()), "CurrentOwner-only source is not executable entry");
@@ -497,8 +497,8 @@ fn real_mimalloc_incoming_domain_keeps_all_callers_without_false_stored_veto() {
                 assert_eq!(fact.target(), &bin_target);
                 assert_eq!(fact.target_formal(), bin_contract.parameters[0].binding);
                 assert_eq!(observed.current_owner_source(), claims.current_owner_source(&good_size, site));
-                assert!(!observed.is_qualified());
-                assert!(observed.require_qualified().is_err());
+                assert!(!observed.is_qualified_i64_source_v1());
+                assert!(observed.require_qualified_i64_source_v1().is_err());
                 let cohort = source.static_incoming_cohort_v1(observed).unwrap();
                 assert!(!cohort.is_empty());
                 let transport: Vec<_> = source.incoming.iter().filter(|row| row.callee == bin_contract.owner).collect();

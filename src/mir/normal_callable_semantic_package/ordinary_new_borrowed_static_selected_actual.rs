@@ -78,7 +78,7 @@ pub(in crate::mir::normal_callable_semantic_package) fn issue_original_static_fo
     let BorrowedCallActualValueV1::SelfRooted { binding, root } = candidate.value else {
         return Err(reject());
     };
-    if !(original.is_current_owner_i64_source_v1() || original.is_qualified())
+    if !(original.is_current_owner_i64_source_v1() || original.is_qualified_i64_source_v1())
         || formal.ordinal != 0
         || !formal.kind.is_ordinary_borrowed_handle()
         || !Rc::ptr_eq(&identity.source, original)

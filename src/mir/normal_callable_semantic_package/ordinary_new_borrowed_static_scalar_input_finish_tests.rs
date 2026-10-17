@@ -80,7 +80,7 @@ fn current_owner_scalar_callers_finish_together_and_lend_the_mul_entry() {
                 panic!("original Static source");
             };
             let actual = ledger.borrowed_formal_actuals[&call.call].as_ref().unwrap();
-            if original.is_qualified() {
+            if original.is_qualified_i64_source_v1() {
                 assert!(matches!(
                     actual.phase,
                     BorrowedCallActualEvidencePhaseV1::Executable

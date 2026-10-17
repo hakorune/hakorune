@@ -28,8 +28,17 @@ the SAME result solver's function and call-site rows. Its I64 homes claims stay
 bounded. Passive String/Core result evidence is retained without inventing
 static-solver rows for instance callers, executing String arguments or widening
 entry eligibility. All rows remain under the original callable catalog brand;
-resolved method identity and complete incoming obligations must still be joined
-by their source consumer.
+original input identity and complete incoming obligations remain mandatory.
+The same static incoming row now retains the original verified target route,
+callee result disposition and canonical resolved method Arc. Its optional
+call-site result evidence shares the original index allocation; instance/Main
+callers never fabricate a static-solver row. `retain(input)` corroborates the
+canonical method pointer; repeated loans reject equal-content reissues.
+Qualified source identity may retain String/Bool/Unavailable dispositions.
+Executable consumers use explicit `is_qualified_i64_source_v1` and zeroarg-I64
+checks, so source membership does not issue an Integer view or entry. Context,
+spelling, unknown receiver and whole-incoming vetoes remain. The source SUM and
+Text physical entry/cleanup/publication are still separate required connections.
 
 ## Borrowed entry owner routing
 

@@ -301,7 +301,7 @@ fn current_owner_integer_call_child_keeps_exact_loan_and_refusal_boundaries() {
             assert!(original.argument_sites().is_empty());
             assert!(original.parameters().is_empty());
             assert!(original.required_i64_arguments().is_empty());
-            assert!(original.require_qualified().is_err());
+            assert!(original.require_qualified_i64_source_v1().is_err());
             // The production inventory must reuse the SAME source from its own
             // original draft; this transient draft intentionally has its own Rc.
             let ingress = package.ordinary_new_claim_ledger.borrowed_formal_source.as_ref().unwrap().as_ref().unwrap();

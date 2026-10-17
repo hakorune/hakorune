@@ -46,7 +46,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 .ok_or_else(|| freeze("provider-static/incoming-missing"))?
                 .as_ref().map_err(Clone::clone)?;
             if original.caller() != caller || original.call_site() != &site
-                || original.target() != target || !original.is_qualified()
+                || original.target() != target || !original.is_qualified_i64_source_v1()
                 || !original.catalog_brand().is_same(claims.catalog_brand())
                 || original.argument_sites().len() != literals.len()
                 || literals.len() != target.arity() as usize {
@@ -331,7 +331,7 @@ pub(super) fn checked_executable_qualified_arguments_v1<'a>(
     else {
         return Err(freeze("borrowed-static/executable-source-kind"));
     };
-    original.require_qualified()?;
+    original.require_qualified_i64_source_v1()?;
     let retained = prepared
         .source_incoming
         .static_observations()
@@ -394,7 +394,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         &row.call == site
             && matches!(
                 row.source,
-                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified()
+                super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(ref original) if original.is_qualified_i64_source_v1()
             )
     });
     let retained = prepared
@@ -417,7 +417,7 @@ pub(super) fn project_pending_static_source_arguments_for_route_v1(
         if current_owner {
             !row.is_current_owner_i64_source_v1()
         } else {
-            !row.is_qualified()
+            !row.is_qualified_i64_source_v1()
         }
     }) {
         return Err(freeze("borrowed-static/source-route-identity"));

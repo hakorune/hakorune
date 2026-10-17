@@ -231,7 +231,7 @@ fn construct_borrowed_call_actuals_v1(
                 return Err(freeze("static-zero/input-finish-source-drift"));
             }
         } else {
-            original.require_qualified()?;
+            original.require_qualified_i64_source_v1()?;
         }
         let retained = prepared
             .source_incoming

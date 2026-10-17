@@ -52,8 +52,8 @@ impl StaticScalarInputFinishV1 {
                     original.is_current_owner_i64_source_v1()
                         && binding.owner() == original.call_site().owner(),
                 StaticScalarActualV1::QualifiedLiteral(identity) =>
-                    original.is_qualified() && Rc::ptr_eq(&identity.source, original),
-                StaticScalarActualV1::QualifiedExecutable(_) => original.is_qualified(),
+                    original.is_qualified_i64_source_v1() && Rc::ptr_eq(&identity.source, original),
+                StaticScalarActualV1::QualifiedExecutable(_) => original.is_qualified_i64_source_v1(),
             }
             && (original.required_i64_arguments() == [0]
                 || original.required_i64_arguments().is_empty())
@@ -131,7 +131,7 @@ fn qualified_scalar_actual_v1(
     original: &Rc<StaticIncomingSourceV1>,
     completion: &Rc<crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1>,
 ) -> Result<bool, String> {
-    if !original.is_qualified() {
+    if !original.is_qualified_i64_source_v1() {
         return Ok(false);
     }
     let Some(actual) = pending.get(original.call_site()) else {
@@ -243,7 +243,7 @@ pub(super) fn checked_ready_scalar_rows_v1<'a>(
             || !matches!(&call.source,
                 super::super::borrowed_formal_uses::BorrowedIncomingSourceV1::Static(source)
                     if Rc::ptr_eq(source, original))
-            || !(original.is_current_owner_i64_source_v1() || original.is_qualified())
+            || !(original.is_current_owner_i64_source_v1() || original.is_qualified_i64_source_v1())
             || !(original.required_i64_arguments() == [0]
                 || original.required_i64_arguments().is_empty())
             || original.parameters().len() != 1
@@ -261,7 +261,7 @@ pub(super) fn checked_ready_scalar_rows_v1<'a>(
             return Ok(None);
         };
         let actual = actual.as_ref().map_err(Clone::clone)?;
-        if original.is_qualified() {
+        if original.is_qualified_i64_source_v1() {
             if !qualified_scalar_actual_v1(source, pending, original, completion)? {
                 return Ok(None);
             }
@@ -539,7 +539,7 @@ impl OrdinaryNewClaimLedgerV1 {
             )
                 });
             if cohort.iter().any(|original| {
-                !(original.is_current_owner_i64_source_v1() || original.is_qualified())
+                !(original.is_current_owner_i64_source_v1() || original.is_qualified_i64_source_v1())
                     || (if forward_only {
                         !original.required_i64_arguments().is_empty()
                     } else if compare_only {
@@ -651,7 +651,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     break;
                 };
                 let staged = staged.as_ref().map_err(Clone::clone)?;
-                if original.is_qualified() {
+                if original.is_qualified_i64_source_v1() {
                     if qualified_scalar_actual_v1(source, &self.borrowed_formal_actuals, original, completion)? {
                         if compare_only && matches!(staged.phase, BorrowedCallActualEvidencePhaseV1::Executable) {
                             let mut finished = staged.clone();

@@ -63,7 +63,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct QualifiedStaticCallC
     // Passive SAME-solver call evidence. This does not admit an entry/ABI.
     call_result_rows: BTreeMap<
         (CanonicalSameModuleCallableKeyV1, SourceExprSiteV1),
-        crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1,
+        std::sync::Arc<crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1>,
     >,
     // The original current-owner route stays disjoint from qualified claims.
     // Retaining its result disposition grants no incoming or executable ABI.
@@ -171,6 +171,8 @@ impl QualifiedStaticCallClaimIndexV1 {
             );
         }
         let (result_rows, call_result_rows) = results.into_source_rows();
+        let call_result_rows = call_result_rows.into_iter()
+            .map(|(site, row)| (site, std::sync::Arc::new(row))).collect();
         let source_targets = targets
             .rows()
             .map(|(site, target)| (site.clone(), target.clone()))
@@ -204,7 +206,7 @@ impl QualifiedStaticCallClaimIndexV1 {
         caller: &CanonicalSameModuleCallableKeyV1,
         site: &SourceExprSiteV1,
     ) -> Option<&crate::mir::callable_result_representation::OwnedCallableResultCallSiteV1> {
-        self.call_result_rows.get(&(caller.clone(), site.clone()))
+        self.call_result_rows.get(&(caller.clone(), site.clone())).map(std::sync::Arc::as_ref)
     }
 
     pub(in crate::mir::normal_callable_semantic_package) fn result_for_key(

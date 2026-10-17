@@ -194,15 +194,16 @@ fn static_source_domain_missing_claim_or_unsupported_body_never_seeds_a_callee()
         let package = package(&program);
         let source = ingress(&package);
         let p = formal(&package, "Layout", "pick");
-        assert!(!source.candidate_integer_agreement(p), "{body}");
+        assert_eq!(source.candidate_integer_agreement(p), passive_source, "{body}");
         assert!(!source.checked_static_input(p), "{body}");
         assert_eq!(
             source.candidate_input_inventory_for_test(p.owner()),
-            (0, passive_source)
+            (if passive_source { 2 } else { 0 }, false)
         );
         assert_eq!(source.source_definition_for(p.owner()).is_some(), passive_source);
-        // A retained Bool/Text source keeps its missing-result veto; neither
-        // that draft nor its veto grants executable entry or Integer agreement.
+        // Original 7/8 inputs retain their source agreement independently of
+        // Bool/Text result class. That class still forbids the I64 executable
+        // cohort; source input agreement cannot fabricate an entry or result.
         assert!(!source.contains_definition_for_test(p.owner()));
     }
 }
@@ -472,8 +473,8 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     let mut callers = BTreeSet::new();
     for (site, row) in source.source_incoming.static_observations() {
         let row = row.as_ref().expect("original current-owner observation");
-        assert!(!row.is_qualified());
-        assert!(row.require_qualified().is_err());
+        assert!(!row.is_qualified_i64_source_v1());
+        assert!(row.require_qualified_i64_source_v1().is_err());
         assert!(row.current_owner_source().is_some());
         assert_eq!(row.call_site(), site);
         assert_eq!(row.caller().owner(), row.target().owner());
@@ -510,7 +511,7 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
     let observations: Vec<_> = mixed_source.source_incoming.static_observations().values()
         .map(|row| row.as_ref().unwrap()).collect();
     assert_eq!(observations.len(), 2);
-    assert_eq!(observations.iter().filter(|row| row.is_qualified()).count(), 1);
+    assert_eq!(observations.iter().filter(|row| row.is_qualified_i64_source_v1()).count(), 1);
     assert!(!mixed_source.contains_definition_for_test(pick.owner()));
     assert!(mixed_source.incoming.iter().all(|row| row.callee != pick.owner()));
     let both = package_fn("box Node {
@@ -529,14 +530,14 @@ fn current_owner_source_domain_retains_all_contexts_without_executable_entry() {
         both.batch().with_lowering_input(declaration.batch_slot(), |input| {
             for (site, call) in input.function().method_calls() {
                 let site = OwnedExprSiteV1::new(input.owner(), site.clone());
-                let observed = context.observe(declaration.batch_slot(), &site, call,
+                let observed = context.observe(declaration.batch_slot(), &site, call, input,
                     &both.selected, &both.parameter_contracts, None).unwrap();
                 match call.receiver() {
                     ResolvedMethodCallReceiverSourceV1::Lexical(_) => assert!(observed.is_none()),
                     ResolvedMethodCallReceiverSourceV1::CurrentOwner => {
                         let row = observed.unwrap().unwrap();
                         assert_eq!(row.caller().owner(), "Layout");
-                        assert!(!row.is_qualified());
+                        assert!(!row.is_qualified_i64_source_v1());
                     }
                     other => panic!("unexpected original receiver {other:?}"),
                 }

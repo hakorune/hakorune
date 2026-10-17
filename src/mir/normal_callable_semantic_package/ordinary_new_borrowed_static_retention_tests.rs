@@ -347,7 +347,7 @@ fn static_retention_foreign_index_and_reissued_sibling_refuse() {
                 )
                 .unwrap()
                 .unwrap()
-                .retain()
+                .retain(input).unwrap()
         })
         .unwrap();
     assert!(!Rc::ptr_eq(&reissued, fact.retained_call_source()));

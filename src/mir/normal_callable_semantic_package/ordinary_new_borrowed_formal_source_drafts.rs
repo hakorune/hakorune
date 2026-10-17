@@ -192,14 +192,14 @@ pub(super) fn seed_static_transport_owners_v1(
             && inventory
                 .project(&BTreeSet::from([source.callee_owner()]))
                 .is_ok_and(|rows| rows.len() == 1);
-        if !(source.is_qualified() || one_current_owner)
+        if !(source.is_qualified_i64_source_v1() || one_current_owner)
             || inventory
                 .static_observations()
                 .values()
                 .filter_map(|row| row.as_ref().ok())
                 .any(|incoming| {
                     incoming.callee_owner() == source.callee_owner()
-                        && !incoming.is_qualified()
+                        && !incoming.is_qualified_i64_source_v1()
                         && !std::rc::Rc::ptr_eq(incoming, source)
                 })
             || !definitions.contains_key(&source.callee_owner())

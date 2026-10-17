@@ -287,6 +287,7 @@ pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::lexica
                         caller,
                         &owned,
                         call,
+                        input,
                         selected,
                         contracts,
                         drafts.get(&input.owner())

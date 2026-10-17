@@ -77,7 +77,7 @@ impl OrdinaryNewClaimLedgerV1 {
             .as_ref().map_err(Clone::clone)?;
         self.verify_original_static_packet_source_v1(original)?;
         if original.caller() != caller || original.target() != target
-            || original.call_site() != &site || !original.is_qualified()
+            || original.call_site() != &site || !original.is_qualified_i64_source_v1()
             || original.argument_sites().len() != literals.len() {
             return Err(freeze("provider-static/packet-source-drift"));
         }
@@ -276,7 +276,7 @@ impl OrdinaryNewClaimLedgerV1 {
         else {
             return Ok(None);
         };
-        if !original.is_qualified() {
+        if !original.is_qualified_i64_source_v1() {
             self.checked_completed_static_one_actuals_v1(original)?
                 .ok_or_else(|| freeze("ordinary-new/borrowed-entry/source-only-static-actuals"))?;
         }
@@ -311,7 +311,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             if self.is_static_zero_packet_cohort_v1(original)
-                || (!original.is_qualified()
+                || (!original.is_qualified_i64_source_v1()
                     && self
                         .checked_completed_static_one_actuals_v1(original)?
                         .is_none())
@@ -401,7 +401,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 continue;
             };
             if self.is_static_zero_packet_cohort_v1(original)
-                || (!original.is_qualified()
+                || (!original.is_qualified_i64_source_v1()
                     && self
                         .checked_completed_static_one_actuals_v1(original)?
                         .is_none())
@@ -507,7 +507,7 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
     ) -> Result<(), String> {
         if !original.is_zeroarg_i64_v1()
-            && !original.is_qualified()
+            && !original.is_qualified_i64_source_v1()
             && self
                 .checked_static_scalar_packet_actuals_v1(original)?
                 .is_none()
@@ -544,7 +544,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if let Some(rows) = self.checked_static_tagged_packet_actuals_v1(original)? {
             return Ok(Some(rows));
         }
-        if original.is_qualified() {
+        if original.is_qualified_i64_source_v1() {
             if let Some(rows) = self.checked_static_scalar_packet_actuals_v1(original)? {
                 return Ok(Some(rows));
             }
@@ -599,7 +599,7 @@ impl OrdinaryNewClaimLedgerV1 {
         original: &Rc<StaticIncomingSourceV1>,
         corroborate_arguments: impl FnOnce(&[LocalCallArgumentV1]) -> Result<(), String>,
     ) -> Result<&[PreparedBorrowedFormalActualV1], String> {
-        original.require_qualified()?;
+        original.require_qualified_i64_source_v1()?;
         let source = self
             .borrowed_formal_source
             .as_ref()

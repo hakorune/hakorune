@@ -171,10 +171,10 @@ Next same-series source connection, from the worker's full owner review:
   with_original_source_input_v1. Thread its existing AppMain loan, use canonical
   contract/slot/key (or original constructor context), and require catalog brand
   plus SAME method Arc before joining target/result/call-site evidence.
-- Source-only Qualified Static identity currently enters only through I64
-  claim_target. Preserve non-I64 route/result without casting String into an I64
-  claim. Existing is_zeroarg_i64_v1 assumes Qualified is I64; all source/entry
-  predicates must keep explicit result checks before that source expansion.
+- Original Qualified route/result identity now comes from full source_target;
+  explicit qualified-I64/zeroarg-I64 predicates keep execution bounded. The same
+  static incoming row retains canonical method/call-result identities. Core
+  method actual evidence and source SUM remain to be joined at the seed owner.
 - Retain Text/I64/Null contributions, all Forward edges, Other/unknown and
   unresolved cycles in the SAME original seed product before lossy Conflict
   projection. Derive the source SUM there; no parallel classifier/AST/solver.
@@ -189,31 +189,79 @@ entry predicate consumers; original formal seed/domain owner and existing tests.
 Update the bounded path list before source expansion. Full input/cleanup/
 publication acceptance remains the finish line, not passive catalog retention.
 
-## V853 passive result preservation — validation
+## Verified passive result preservation
 
-Root853A quick-test-fast no-run PASS94.427415s, warnings870 unchanged.
-Focused108 PASS/0FAIL across3 nonempty filters: callable-result93, original
-Static retention6, qualified-static claims9. Static/instance caller difference,
-ExactString/Core substring, differing caller/callee requirements and post-target-
-lifetime retention are covered by existing tests. No standalone test was added.
-Initial filename-style retention filter selected0 tests and was rejected; the
-correct static_retention_ filter ran6. Its duplicate binary was hash-checked
-against Root853A and retired; both focused receipts reference the retained pin.
-Read-only post-edit worker review found no blocking authority/coverage issue.
-Existing borrowed target pointer comparison and I64 homes claim selection remain.
-CLI188 quick build PASS180.174073s, warnings1808 (+1 passive source-row fields not yet read by production; the
-paired accessors share an existing unused-method warning), binary SHA
-159d88f5d9d2250a1f786850421e8f7f332c1e017a6fee369f914f4d56e7fe90.
-Unchanged json-stream app208 canonical direct EXE exits1/no artifact in .116984s,
-SAME borrowed-static/source-actual-unavailable at slot20 Body7 Value. This is
-verified passive source preservation, not actual app-frontier movement. Prior
-mimalloc app207 exact7/exit0 remains prior-revision evidence; no new native/full-
-suite/current CI/performance claim is made for this behavior-preserving slice.
-Root/CLI source manifests agree with current files; no compiled source changed
-during either Cargo handle. App208 receipt removes an inherited V852 README-only
-delta field because this capture has no such delta. Stable route/layer/thin-shim,
-pointer and diff guards PASS; touched Rust below800. Keep Root853A, CLI188,
-app208 manifests/logs/receipts and backend pins for the unfinished series. No
-new adapter, dedicated guard or unused fixture exists. The lossy dispositions-
-only extraction is physically replaced; no caller remains. Original source SUM,
-method-Arc join, Text execution and all series acceptance remain unfinished.
+Implementation and durable validation:75e1171546 (V853). SAME solver function/
+call-site rows and full target inventory retained without a second classifier;
+borrowed/owned target storage shares one evidence vocabulary. Focused108 PASS;
+CLI188 PASS; app208 SAME first-stop/no artifact. All guards PASS; no whole-suite/
+current CI or new native claim. Root853A/CLI188/app208 evidence and backend pins
+remain needed for this series. Shared runtime/Array/source owners remain; lossy
+function-dispositions-only extraction is physically replaced with no caller.
+
+## Original static source identity — selected construction
+
+Previous goal turn PROGRESS: passive catalog preservation landed75e1171546.
+Worker confirmed the normalized source extension: Qualified retains the original
+verified target route and SAME callee disposition; CurrentOwner stays distinct.
+Select one full source_target, not I64 claim_target. Explicit qualified-I64 and
+zeroarg-I64 predicates retain all existing executable admission boundaries;
+rename their existing users so route membership cannot stand for result class.
+Unknown/unavailable result stays source evidence, never an empty I64 permission.
+Retain the SAME canonical method Arc, joined in retain(original input), plus the
+SAME optional catalog call-site row; instance callers do not invent that row.
+Corroboration checks original pointer identity, all coordinates, catalog, route,
+result and ordered parameters/actuals. Keep real context/spelling/scan vetoes.
+Only a proved different Static target may remove a false unresolved/namespace
+collision. No source SUM, Text ABI, execution, cleanup or publication is claimed.
+Paths: qualified_static_incoming_source/qualified_static_call_claim, original
+static inventory/argument/call-operand producers and incoming scan; existing
+qualified-static/source retention tests; all existing consumers of the renamed
+qualified-I64 predicate (mechanical name clarification, no widened permission).
+Owner README changes belong to the same contract. Existing test owners cover
+Main/instance/static source, foreign source/brand/ordinal and strict I64 refusal;
+reuse their filters and actual json-stream comparison. Full series stays open.
+
+Validation classification in progress: RootA failed to compile three old chained
+retain() test calls; updated them to retain(input). RootB built and ran74 tests:
+66PASS/8FAIL. Parent pin Root853A reproduces6 failures with the SAME diagnostics:
+Builder Main root-completion; selected-static required-integer-source-unproved;
+candidate forward scalar-loan/result-missing; mimalloc old-definition assertion;
+and2 old mimalloc Loop harness required-integer-source-unproved. Those fixtures
+remain unchanged baseline reds. No full-green claim or safety test removal.
+The other2 expectations follow this source extension: Bool/Text result no longer
+vetoes its independently proven7/8 inputs (2original calls retained, no checked
+input/executable definition); canonical Main call-row membership follows the
+actual SAME catalog, not an assumed None. RootC confirms the first update but
+exposes a test probe error: `return p` has a conditional ExactI64 result, not
+Unavailable. Use `return null` as the already-supported unavailable result
+fixture. No production change was made for these test corrections.
+RootD builds PASS40.118979s; both corrected tests PASS individually. RootC built
+PASS53.966776s; its pin is retired after both corrected cases passed under D;
+logs/manifests/receipts remain. RootB built PASS84.365756s. RootA failed33.830459s.
+RootB/C/D warnings870 unchanged. B-to-D source delta is exactly the2 corrected
+existing test files; production code is identical, so retain B's66 PASS and six
+matched baseline failures without repeating unrelated filters. Combined current
+coverage is68 distinct PASS plus6 classified baseline failures, not full green.
+No standalone test or dedicated guard was introduced. CLI189 builds PASS176.893505s, warnings1808; SHA
+24dfc63bf58595da7b37ebde1df1a3c52e17a5175373d1bb0c549ea29c2e4bd9.
+RootD/CLI/current source manifests equal. Unchanged json-stream app209 direct
+canonical EXE exits1/no artifact .113150s, SAME slot20 Body7 Value
+borrowed-static/source-actual-unavailable. No actual frontier movement or Text
+execution/entry claim. Unchanged mimalloc app210 canonical direct EXE
+PASS131.457326s, native .001622s, exact existing7 stdout/exit0 and expected
+plugin-disabled warning only. Native SHA
+b12784e7867c9b8e66701d4aa9d94c3bd20ca36f150a8d43a2e10732b57b034a.
+Root-route/layer/thin-shim/pointer/diff guards PASS. No current full-suite/CI or
+performance claim. Retain Root854B/D, CLI189/app209-210 manifests/logs/receipts
+and backend pins for the unfinished source SUM/entry/cleanup/publication series;
+RootA made no test pin, superseded RootC pin is retired, all logs remain.
+All build/test/native handles are terminal. Existing independent safety tests,
+shared issuers and physical paths remain. No unused dedicated fixture, guard or
+parked adapter exists. Next is the SAME original seed product's source SUM and
+Core/Return provenance, including unknown/Forward/empty/cycle dependencies;
+existing Integer/Object projections must remain unchanged.
+Source normalization physically replaces I64-claim-as-qualified-route selection;
+no incoming_source consumer still uses claim_target or old is_qualified/
+require_qualified methods. Shared I64 homes claims, independent tests and all
+physical owners remain. No adapter or parallel classifier is introduced.
