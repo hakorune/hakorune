@@ -4359,3 +4359,17 @@ Original cursor/Normal-scope census rejects unowned effects; finishing uses
 captured producer/effect membership, not stale cursor indices. The common graph
 can seal every retained operand relation. LOCAL FieldSet remains explicitly
 consumer-pending until lifecycle/New and both independent final scans connect.
+
+LOCAL New execution borrows either the existing initialized construction plan or
+one sealed allocation-only lease, issued only by LOCAL candidate resolution. The
+lease keeps the catalog's original Rc, requires no-Birth0/hook-free Plain i64 and
+no overrides, and survives the affine take. It never marks a field initialized.
+Result New and all field-value/returned construction consumers keep their existing
+initialized-plan requirements. Prepare and final New/reclaim validation dispatch
+the explicit profile; allocation-only has no unpublished Birth reclaim.
+
+Allocation execution additionally requires the original complete Home/exit source
+recipe via root_home_flow_ready_v1 before prepare. An unready/opaque suffix is an
+explicit refusal, never retained raw execution. This reuses the Home source walk's
+alias/rebind/readiness authority and does not require every field initialized.
+The singleton terminal_homes projection is not a whole-flow gate.

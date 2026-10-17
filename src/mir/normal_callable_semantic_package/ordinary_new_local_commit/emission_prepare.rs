@@ -35,6 +35,7 @@ impl OrdinaryNewClaimLedgerV1 {
         arity: usize,
         constructor: &OrdinaryNewConstructorDispositionV1,
         construction: &ConstructionEligibilityV1,
+        execution: Result<super::super::NewExecutionProfileRefV1<'_>, super::super::ConstructionUnavailableV1>,
         object: hakorune_mir_defs::CanonicalObjectIdV1,
         destruction: ObjectDestructionDispositionV1,
         children: Option<&[super::super::OwnedFieldChildV1]>,
@@ -71,7 +72,7 @@ impl OrdinaryNewClaimLedgerV1 {
             }
         };
         let mut operands = Vec::new();
-        let mut available = construction.is_ok();
+        let mut available = execution.is_ok();
         // Owned publication still requires sealed residences for Normal
         // Home teardown. Birth owns partial-field Fault cleanup; its
         // external caller retains only source-backed storage reclaim.
@@ -114,6 +115,13 @@ impl OrdinaryNewClaimLedgerV1 {
         &self,
         claim: &OrdinaryNewAdmissionClaimV1,
     ) -> Result<bool, String> {
+        if claim.core.allocation_execution.is_some() {
+            let completion = self.completion_source_for_owner_v1(claim.site().owner())
+                .ok_or_else(|| freeze("allocation-only/completion-missing"))?;
+            if !self.root_home_flow_ready_v1(completion)? {
+                return Err(freeze("allocation-only/source-home-closure-unavailable"));
+            }
+        }
         let mut rows = self.local_commits.borrow_mut();
         let row = rows
             .get(claim.site())
@@ -123,6 +131,9 @@ impl OrdinaryNewClaimLedgerV1 {
             || row.object != claim.object()
             || row.binding != claim.destination
             || !row.box_source.same_source_as(claim.box_source())
+            || row.allocation_execution != claim.core.allocation_execution
+            || row.allocation_execution.as_ref().is_some_and(|lease|
+                !lease.matches_source(&row.construction_source) || !lease.matches_source(claim.construction_source()))
         {
             return Err(freeze("prepare-state-or-source-mismatch"));
         }
@@ -136,6 +147,7 @@ impl OrdinaryNewClaimLedgerV1 {
             claim.arity(),
             &claim.core.constructor,
             claim.construction(),
+            claim.execution_profile(),
             claim.object(),
             claim.core.destruction,
             claim.core.children.as_deref(),
@@ -179,6 +191,7 @@ impl OrdinaryNewClaimLedgerV1 {
             claim.arity(),
             &claim.core.constructor,
             claim.construction(),
+            claim.core.execution_profile(),
             claim.object(),
             claim.core.destruction,
             claim.core.children.as_deref(),

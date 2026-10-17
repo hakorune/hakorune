@@ -589,76 +589,129 @@ LOCAL-activation claim. RootD/CLI180/native187/source/focused/app186-187 receipt
 remain comparison evidence until the following whole-RHS connection closes.
 This source/transport preparation does not close S0 or the full goal.
 
-## V848 whole-RHS observation and packet evidence (active)
+## V848 whole-RHS observation (landed `8684e41816`)
 
-Continue V847 source responsibility after `34b5a73348` (source recipe/common
-transport, focused55/native187 PASS). Worker review confirms immutable RHS packet
-inside existing write packet/group; all internal operand relations must participate
-in common sealing/capture, not just final FieldSet pins. Use relation_binding for
-producer membership, existing scalar original/final owner for Sub/Div and existing
-literal numeric facts for TypedInteger. Reuse Print's source-free Normal-order
-check; no duplicate evaluator or fake frame. Scope: existing raw expression wrapper/
-field operand port forwarders, one RHS observer/projection leaf, checked graph
-receipt inventory, selected field emitter and resolving exports. Existing LOCAL
-lifecycle/New/ready-read/final-consumer fences remain until full activation; no
-execution permission follows merely from source class or observed MIR.
+Completed implementation, build/test/native commands and receipts are in that
+commit. Existing raw recursion lends immutable RHS nodes/relations and SAME
+Sub/Div append to the common packet; final non-dst effect membership uses
+FinishedBindings, with original Normal cursor/adjacency/census checked before
+capture. Source class/Modulo0/typed syntax never grants execution or non-Fault.
+No duplicate evaluator, fake Print frame or raw formal extraction remains.
+RootD focused59 PASS; CLI181 unchanged Pair app188 still stops at
+owned-field-write/physical-consumer-pending; unchanged mimalloc app189 canonical
+native/exact7/exit0 PASS. Comparison pins remain for the unfinished consumer
+connection. The fence stays after RHS validation and before FieldSet mutation;
+New/lifecycle/ready-read/both final scans remain coordinated obligations.
 
-V848 review correction extends the existing FinishedBindings owner: non-dst
-FieldGet Invoke needs exact captured/recorded effect membership, distinct from
-relation_binding's unique dst-producer proof. Keep the explicit selected LOCAL
-consumer fence after RHS validation and before any FieldSet mutation. Whole-RHS
-construction additionally checks original cursor bounds/child adjacency and a
-Normal-path instruction census; finalized mapping never reuses stale cursor indices.
-
-V848 final rootD build57.246223s PASS; focused59 PASS across14 nonempty filters:
-existing55, new RHS source/corruption + real recursive writer matrix2, new captured/
-recorded/actual effect-membership1 and existing whole Print compiler regression1.
-The RHS matrix covers14 literal/reference/nested/Add/Sub/Div/Mul/Modulo (including
-0)/bit/shift shapes and stops at the explicit consumer fence; no execution or
-non-Fault permission is inferred from Modulo0. Root total9216; no new fixture/guard.
-Warnings: same eight existing ExactLexicalRead diagnostics only changed type-path
-spelling; actual new diagnostic identities zero. Narrowed write-packet constructor
-visibility removes one prior private-interface warning. No warning suppression.
-Initial rootA81.575901s missing observer imports and rootB41.543069s private finished
-type leakage were fixed. RootC87.921000s built, RHS2 PASS; the new effect test
-incorrectly expected a recorded effect before boundary.validate_complete and
-failed. Corrected setup now also proves unfinished boundary refusal; rootD3 new
-tests PASS. Initial file-name test filter matched0 and is not success evidence;
-corrected owner/test filters are nonempty. No red is waived or unclassified.
-
-CLI181 build178.244414s; rootD/CLI181 source manifests identical, including new
-untracked-at-build source. CLI SHA
-afcbba37c4268d920d5236e1a0648756a0c89e5157f4e42ebf3f781239320a96.
-Canonical unchanged Pair app188, same C831e/runtime808b/source/argv/env as app186:
-.089254s/exit1/noEXE. Actual stop is now
-`ordinary-new/emission/owned-field-write/physical-consumer-pending` after whole-RHS
-observation, source/operand and Normal-scope checks. This is preparation progress,
-not LOCAL native acceptance. Both final scans/New/lifecycle/ready reads remain owed.
-
-Same CLI181/C831e/runtime808b canonical unchanged mimalloc-lite app189:
-EXE compile130.787823s/native .001496s, exact existing7 stdout lines/exit0 PASS;
-only expected plugin-disabled warning. Native SHA
-a95945642b6cad5bec9f7110b86209c9b77d1d2978220c1f9f34279a7d24a139.
-RootD test pin SHA
-d6f53d3871c2747058e8614ded012ba7e2880d50bcc53abf78cac190678f8f37.
-Root-route/layer/thin-shim/pointer/diff guards PASS; no full-suite/current-CI green,
-LOCAL execution or performance gain claimed. Intermediate rootC pin retired
-(258596416B) after final rootD superseded its focused proof and no live process
-used it; source/log/error receipts remain. RootD/CLI181/native189/matching backend/
-runtime and comparison pins are kept for unfinished final-consumer connection.
-No backed-up/temporary adapter remains. The selected LOCAL consumer fence retires
-only after the following coordinated connection verifies; do not remove it alone.
-
-Next Decision (worker source-to-final mapping; no new source-spec question):
-issue explicit initialized vs same-source allocation-only New execution profile
-through candidate/claim and emission_prepare::compute_emission_prepare. Do not
-turn its construction.is_ok into a global allowance or create an empty initialized
-plan. Connect common lifecycle membership/same-frame groups and mandatory source
+Remaining Decision (worker source-to-final mapping; no new source-spec question):
+V849 connects explicit initialized/allocation-only New execution through prepare
+and final New/reclaim validation; it never creates an initialized plan. Next
+connect common lifecycle membership/same-frame groups and mandatory source
 retention via field_write_frame (not borrowed-only). Owned-ready rechecks must
 borrow the SAME emitted packet from Lowering/Finalized pool and prove its store
 Normal dominates each read. Both compiled-entry scans independently consume
 origin-specific source/RHS/New/Home/Normal coordinates, retaining formal guards.
 Keep identity/first Home at original New Normal; only store Normal refines readiness.
 Post-commit FieldSet Fault discharges published Plain Home and prior Homes once,
-never ReclaimUnpublished. Existing New/lifecycle/ready-read/final fences stay until
+never ReclaimUnpublished. Existing FieldSet/lifecycle/ready-read/final fences stay until
 this mapping closes; same S0/full goal remain open.
+
+## V849 LOCAL New execution profile (active)
+
+Worker confirms LOCAL candidate::resolve as issuer, after shared site resolution;
+Result New gets no allocation lease. Preserve ConstructionEligibility Err for
+allocation-only; borrow Initialized plan or same-Rc AllocationOnly lease as an
+explicit execution profile. Carry lease through core/affine NewLocalCommit, compare
+claim/commit source before prepare. Prepare and ordinary_new_emission_row reclaim
+validation must both dispatch this profile; no-Birth allocation has no unpublished
+reclaim. Existing return/field-value construction.is_ok consumers stay strict.
+Scope: instance construction profile leaf, local candidate/core/claim access,
+claim take/local commit/source lender, emission prepare + same final row validator,
+existing brand construction/affine regressions and owner README. LOCAL FieldSet/
+lifecycle/ready-read/both-scan fences stay; original New/Home timing unchanged.
+
+V849 scope includes existing ordinary_new_coseal_tests shared claim fixture, which
+must explicitly retain no allocation lease. Review confirms LOCAL allocation New
+prepare is now available, while FieldSet/read/final publication remain fenced;
+do not describe all New execution as still closed. RootA namespace and fixture
+field compile errors are corrected before focused verification, not waived.
+
+V849 verification extends existing brand construction fault tests with the one
+previously-uncovered full-compiler allocation-only LOCAL/no-write boundary: one
+real New and published Home release, no initialized store/read/unpublished reclaim,
+and unwritten field Return still refused. Existing affine/profile/override cases
+are extended in place; no new fixture, guard or task row.
+
+V849 new negative exposed that New availability alone let missing ready read rows
+fall into the raw generic FieldGet path. Do not patch receiver names/SSA or create
+a second alias analysis. Worker confirmed existing root_home_flow_ready_v1 is the
+complete executable-Home authority (all explicit exits plus selected implicit Unit),
+unlike singleton terminal_homes. Require that original Completion before allocation
+prepare; unavailable becomes explicit freeze, never RetainedUnavailable/raw retry.
+The existing source walk already resolves aliases/rebinds and marks unready read/
+opaque suffix exits unavailable; partial ready source remains eligible. Expand the
+same compiler negative over direct/initializer/arithmetic/alias chain/rebind/nested/
+Print/condition reads. RootC new test red is a real new activation gap;
+all59 previous cases passed. A mistaken coseal file-name filter matched0, not PASS.
+
+RootD build PASS54.656296s; previous59 plus shared coseal14 PASS, but the new
+negative matrix still fails on `if p.left > 0`: earlier eight suffixes refuse.
+Worker traced the condition selector excluding LOCAL order comparisons, so the
+Home closure incorrectly appeared ready. Scope now includes existing
+home_new_prefix_condition owner: source field morphology + existing local Home
+provenance selects the whole condition regardless of readiness/operator support.
+Existing Bool qualifier either installs exact read obligations or refuses; it
+never retries raw. Guarded formal/received lanes keep their existing selection.
+Same matrix adds alias condition, direct field condition and unsupported Mul/bit
+interiors. No second alias analysis or all-fields-initialized restriction.
+
+V849 current verification: RootE failed79.961626s on a missing explicit shape
+import, corrected; RootF build PASS60.511478s. Focused74 PASS (same59 + shared
+coseal14 + real compiler allocation/no-write +13 unready suffixes). All recorded
+filters nonempty; an extra mistyped `expression_plan::tests` filter matched0 and
+is not PASS (the real installation_tests owner was already exercised). Additional
+scalar expression family:15 PASS/1 RED; guarded-formal condition1 PASS. The red
+`static_current_owner_eq_home_rejects_incomplete_or_reordered_pair` fails at
+static-mixed/home-missing identically on retained V848D baseline pin; classified
+baseline, not waived as green. RootF vs V848D warning message/file multiset is
+identical871/871. Worker re-review confirms LOCAL source selection/alias scope;
+plan source unavailable now explicitly Refused (fail-fast strengthening, not
+behavior-preserving cleanup). CLI182/native evidence follows below.
+
+CLI182 build PASS190.369314s; source manifest exactly equals RootF. CLI warning
+message/file multiset1811 ->1808, no additions (stores/construction_source now
+have production callers). Unchanged Pair app190 canonical direct EXE exit1/noEXE
+.088920s at the same owned-field-write/physical-consumer-pending fence. This is
+New execution integration, not a source-to-FieldSet or application success claim.
+Build/test/failure receipts retained. Superseded V849B/C/D test pins retired after
+no-live-executable check, freeing775994448B; RootF and V848D baseline pins retained.
+No temporary adapter was introduced; shared source/Home/constructor owners remain.
+
+V849 landing evidence (this commit's source; HEAD-at-build8684e41816 + scoped WIP):
+- RootF and CLI182 captured identical compiler/source manifests. RootF focused74
+  PASS includes original producer/affine/profile and finished physical regressions;
+  condition family additional15 PASS/1 confirmed baseline RED, formal1 PASS.
+- CLI182 SHA6cbc2f3eaf5a2dfbca0c0c79f4369bc2199801184fee08bd1ca14757c3e687a2.
+  Both native checks use canonical direct `--backend mir --emit-exe OUT
+  --emit-exe-nyrt runtime-v808b SOURCE`, C831e, plugins disabled, pure-first and
+  compat-replay=none, RUST_MIN_STACK16777216; no app rewriting/fallback.
+- Unchanged mimalloc-lite app191 EXE compile129.448864s/native .001555s,
+  exact existing7 stdout lines/exit0 PASS, only expected plugin-disabled warning.
+  Native SHA6119cfcee6872c41394a8af8e31bba08ab52beb76353798b3365a609947abcda.
+- Supplement app192 uses the exact permanent no-write test program (only trailing
+  newline), not an acceptance replacement: canonical EXE compile103.031092s,
+  native .001394s, stdout `Result: 0`/exit0/expected warning PASS. Root compiler
+  test independently proves one NewBox/one HomeRelease and no FieldSet/FieldGet/
+  ReclaimUnpublished. Native SHA39a31bfcb240a43d59aebd31071cc4c0b8d1deba4a91cae5c17f9aa5ea1d9008.
+- Unchanged Pair app190 remains exit1/noEXE at the explicit physical-consumer
+  fence; S0 is not accepted. No new full-suite/current-CI/performance claim.
+- Root-route/layer/thin-shim/pointer/diff guards PASS. Source files under800.
+  V848 completed detail compressed to8684e41816, not a new archive/taskboard.
+
+/tmp disposition: RootF/CLI182/app190-192/source/failure/focused/build receipts,
+matching backend/runtime and V848D baseline are comparison/reproduction evidence
+for the unfinished FieldSet/lifecycle/read-dominance/both-final-consumer series.
+Intermediate V849B/C/D test executables removed as above; logs/manifests retained.
+No saved adapter awaits judgment. History is recorded in this landing commit;
+next closeout may replace these details with its commit reference. Full goal stays
+active, including fixed acceptance, integration and required physical retirement.

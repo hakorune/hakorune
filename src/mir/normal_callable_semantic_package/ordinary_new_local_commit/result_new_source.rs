@@ -76,6 +76,7 @@ pub(in crate::mir::normal_callable_semantic_package) struct LocalNewSourceRefV1<
     pub(in crate::mir::normal_callable_semantic_package) object: CanonicalObjectIdV1,
     pub(in crate::mir::normal_callable_semantic_package) construction: &'a super::super::ConstructionEligibilityV1,
     pub(in crate::mir::normal_callable_semantic_package) construction_source: &'a super::super::ConstructionSourceEligibilityV1,
+    pub(in crate::mir::normal_callable_semantic_package) allocation_execution: Option<&'a super::super::AllocationOnlyNewExecutionV1>,
     pub(in crate::mir::normal_callable_semantic_package) declaration: &'a SourceBindingSiteV1,
 }
 
@@ -93,7 +94,7 @@ impl OrdinaryNewClaimLedgerV1 {
         }
         let claims = self.claims.borrow();
         let commits = self.local_commits.borrow();
-        let (binding, box_source, object, construction, construction_source, declaration) =
+        let (binding, box_source, object, construction, construction_source, allocation_execution, declaration) =
             match (claims.get(acquisition), commits.get(acquisition)) {
                 (Some(_), Some(_)) => return Err(freeze("home-source/duplicate-store")),
                 (Some(claim), None) => {
@@ -108,6 +109,7 @@ impl OrdinaryNewClaimLedgerV1 {
                         claim.core.object,
                         &claim.core.construction,
                         &claim.core.construction_source,
+                        claim.core.allocation_execution.as_ref(),
                         &claim.declaration,
                     )
                 }
@@ -117,6 +119,7 @@ impl OrdinaryNewClaimLedgerV1 {
                     row.object,
                     &row.construction,
                     &row.construction_source,
+                    row.allocation_execution.as_ref(),
                     &row.declaration,
                 ),
                 (None, Some(_)) => return Err(freeze("home-source/commit-kind")),
@@ -125,7 +128,7 @@ impl OrdinaryNewClaimLedgerV1 {
         if binding != root {
             return Err(freeze("home-source/domain"));
         }
-        read(LocalNewSourceRefV1 { box_source, object, construction, construction_source, declaration }).map(Some)
+        read(LocalNewSourceRefV1 { box_source, object, construction, construction_source, allocation_execution, declaration }).map(Some)
     }
 
     /// Executable actual classification preserves its stronger construction gate.

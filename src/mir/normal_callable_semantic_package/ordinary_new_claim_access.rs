@@ -2,6 +2,10 @@
 use super::*;
 
 impl OrdinaryNewClaimCoreV1 {
+    pub(crate) fn execution_profile(&self) -> Result<NewExecutionProfileRefV1<'_>, ConstructionUnavailableV1> {
+        new_execution_profile_v1(&self.construction, self.allocation_execution.as_ref(), self.object)
+    }
+
     pub(crate) fn object(&self) -> CanonicalObjectIdV1 {
         self.object
     }
@@ -57,6 +61,10 @@ impl OrdinaryNewClaimCoreV1 {
 }
 
 impl OrdinaryNewAdmissionClaimV1 {
+    pub(crate) fn execution_profile(&self) -> Result<NewExecutionProfileRefV1<'_>, ConstructionUnavailableV1> {
+        self.core.execution_profile()
+    }
+
     pub(crate) fn object(&self) -> CanonicalObjectIdV1 {
         self.core.object()
     }

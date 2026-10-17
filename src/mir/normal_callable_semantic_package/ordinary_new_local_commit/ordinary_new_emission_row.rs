@@ -1,6 +1,7 @@
 //! Same ordinary/result New validation used before and after handoff.
 //! Other local-commit families retain their own pool and validation protocols.
 use super::*;
+use crate::mir::normal_callable_semantic_package::instance_construction::{new_execution_profile_v1, NewExecutionProfileRefV1};
 
 impl OrdinaryNewClaimLedgerV1 {
     pub(in crate::mir::normal_callable_semantic_package::ordinary_new_coseal::local_commit) fn validate_ordinary_new_row_emission_projected(
@@ -103,9 +104,21 @@ impl OrdinaryNewClaimLedgerV1 {
                     emitted.validate_field_array_read(function, projection)?;
                     self.validate_argument_definition(function, source, emitted.value)?;
                 }
-                let expected_reclaim = match (row_birth_target, row_construction) {
-                    (None, Ok(plan)) if plan.constructor().is_none() => None,
-                    (Some(_), Ok(plan)) => {
+                let allocation = match row {
+                    LocalCommitV1::Ordinary(row) => {
+                        if row.allocation_execution.as_ref().is_some_and(|lease| !lease.matches_source(&row.construction_source)) {
+                            return Err(freeze("new-execution/source-drift"));
+                        }
+                        row.allocation_execution.as_ref()
+                    },
+                    _ => None,
+                };
+                let execution = new_execution_profile_v1(row_construction, allocation, row_object)
+                    .map_err(|_| freeze("new-execution/unavailable"))?;
+                let expected_reclaim = match (row_birth_target, &execution) {
+                    (None, NewExecutionProfileRefV1::Initialized(plan)) if plan.constructor().is_none() => None,
+                    (None, NewExecutionProfileRefV1::AllocationOnly(lease)) if lease.source().constructor().is_none() => None,
+                    (Some(_), NewExecutionProfileRefV1::Initialized(plan)) => {
                         let (constructor_source, constructor_owner) = plan
                             .constructor()
                             .ok_or_else(|| freeze("reclaim-origin-constructor-missing"))?;

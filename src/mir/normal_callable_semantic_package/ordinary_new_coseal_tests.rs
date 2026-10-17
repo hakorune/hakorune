@@ -50,6 +50,7 @@ fn claim(site: OwnedExprSiteV1, arity: usize) -> OrdinaryNewAdmissionClaimV1 {
         .construction_source_for(&box_source, 0).unwrap().clone();
     OrdinaryNewAdmissionClaimV1 {
         core: OrdinaryNewClaimCoreV1 {
+            allocation_execution: None,
             site,
             box_source,
             class: "Page".into(),

@@ -45,8 +45,9 @@ V847 full RHS source recipe/common origin reaches existing packet; rootD55 PASS.
 Raw formal extraction removed, unused import fixed; warning delta zero.
 CLI180 Pair app186 RHS physical pending; mimalloc app187 native exact7/exit0 PASS.
 V848 whole-RHS receipts/Normal-scope checks, rootD59 PASS; formal path preserved.
-CLI181 Pair app188 physical consumer pending; mimalloc app189 native exact7/exit0.
-Next New execution/lifecycle and both final consumers/read dominance; S0 open.
+V849 RootF74 PASS; explicit LOCAL New profile and unready-condition refusal.
+CLI182 app192 allocation-only native PASS; unchanged mimalloc app191 exact7/exit0.
+Pair app190 same FieldSet fence. Next lifecycle/both final scans/read dominance; S0 open.
 Full goal remains open: integration, R6/R7/Loop/authority/parser/nondelegating
 selfcompile and all mandatory completion conditions. Details/pins stay in card.
 """

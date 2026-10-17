@@ -54,7 +54,8 @@ impl FieldWriteSourceLoanV1 {
         { return Err(fail()); }
         ledger.field_write_claims.recheck_original_write_source_v1(local.original()).map_err(|_| fail())?;
         ledger.with_local_new_source_v1(local.acquisition(), local.root(), |source| {
-            if source.object != local.field().object() || !source.construction_source.as_ref()
+            if source.allocation_execution.is_none_or(|lease| !Rc::ptr_eq(lease.source(), local.construction()))
+                || source.object != local.field().object() || !source.construction_source.as_ref()
                 .is_ok_and(|original| Rc::ptr_eq(original, local.construction())) { return Err(fail()); }
             Ok(())
         })?.ok_or_else(fail)?;

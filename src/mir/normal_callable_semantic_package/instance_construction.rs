@@ -659,3 +659,7 @@ pub(super) fn issue_construction_source_v1(
     plan.steps = steps.into_boxed_slice();
     Ok(Rc::new(plan))
 }
+
+#[path = "instance_construction_execution.rs"]
+mod execution;
+pub(crate) use execution::{AllocationOnlyNewExecutionV1, NewExecutionProfileRefV1, new_execution_profile_v1};

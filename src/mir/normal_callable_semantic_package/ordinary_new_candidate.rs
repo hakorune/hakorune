@@ -32,6 +32,7 @@ pub(super) struct OrdinaryNewCandidate {
     pub(super) declaration: SourceBindingSiteV1,
     pub(super) construction: ConstructionEligibilityV1,
     pub(super) construction_source: ConstructionSourceEligibilityV1,
+    pub(super) allocation_execution: Option<AllocationOnlyNewExecutionV1>,
     pub(super) object: CanonicalObjectIdV1,
     pub(super) destruction: ObjectDestructionDispositionV1,
     pub(super) constructor: OrdinaryNewConstructorDispositionV1,
@@ -160,7 +161,11 @@ impl OrdinaryNewCandidate {
         else {
             return Ok(None);
         };
+        let allocation_execution = AllocationOnlyNewExecutionV1::issue_local(
+            &resolution.construction, &resolution.construction_source, &resolution.constructor,
+            resolution.arity, resolution.object, resolution.destruction);
         Ok(Some(Self {
+            allocation_execution,
             site: resolution.site,
             box_source: resolution.box_source,
             class: resolution.class,

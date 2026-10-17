@@ -285,6 +285,7 @@ impl OrdinaryNewClaimLedgerV1 {
                 claim.box_source().clone(),
                 claim.core.construction.clone(),
                 claim.core.construction_source.clone(),
+                claim.core.allocation_execution.clone(),
                 claim.core.object,
                 claim.core.destruction,
                 birth_target,

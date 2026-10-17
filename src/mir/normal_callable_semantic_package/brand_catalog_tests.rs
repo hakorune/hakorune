@@ -136,6 +136,9 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
         assert!(matches!(retained.completion(),
             super::instance_construction::ConstructionCompletionV1::AllocationOnlyI64 { .. }));
         assert_eq!(claim.construction(), &Err(ConstructionUnavailableV1::InitializationContractMissing));
+        assert!(matches!(claim.execution_profile().unwrap(),
+            super::instance_construction::NewExecutionProfileRefV1::AllocationOnly(lease)
+                if std::rc::Rc::ptr_eq(lease.source(), retained)));
         let completion = package.ordinary_new_claim_ledger.completion_for_owner(claim.site().owner()).unwrap();
         let flow = completion.cleanup().root_flow().expect("retained original source flow");
         let writes: Vec<_> = flow.expression_plans().iter().filter_map(|plan| {
@@ -188,7 +191,9 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
             if taken { ledger.try_take(&site, "Pair", 0).unwrap().expect("same affine claim"); }
             ledger.with_local_new_source_v1(&site, root, |view| {
                 assert!(std::rc::Rc::ptr_eq(view.construction_source.as_ref().unwrap(), &original));
-                assert_eq!(view.construction.is_err(), allocation_only, "source retention grants no execution plan");
+                assert_eq!(view.construction.is_err(), allocation_only, "allocation is never an initialized plan");
+                assert_eq!(view.allocation_execution.is_some(), allocation_only);
+                if let Some(lease) = view.allocation_execution { assert!(std::rc::Rc::ptr_eq(lease.source(), &original)); }
                 Ok(())
             }).unwrap().expect("source view survives take");
         }
@@ -249,6 +254,8 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     let original_source = package.instance_constructors
         .construction_source_for(claim.box_source(), claim.arity()).unwrap().as_ref().unwrap();
     assert!(std::rc::Rc::ptr_eq(original_source, claim.construction_source().as_ref().unwrap()));
+    assert!(matches!(claim.execution_profile().unwrap(), super::instance_construction::NewExecutionProfileRefV1::Initialized(original)
+        if std::ptr::eq(original, plan)));
     assert_eq!(plan.stores().len(), 1);
     assert!(plan.reclaims_unpublished_outer_storage());
     let source_field = package.ordinary_new_claim_ledger.field_value_source("Page", "value")
@@ -281,6 +288,7 @@ fn ordinary_new_claim_keeps_source_construction_plan_and_override_dependency() {
     );
     let claim = &claims[0];
     assert_eq!(claim.construction_source(), &Err(ConstructionUnavailableV1::OverrideUnsupported));
+    assert!(claim.execution_profile().is_err());
     let batch = &package.instance_constructors;
     let projected = batch.destruction_for(claim.box_source()).unwrap();
     assert_eq!(projected, (claim.object(), claim.destruction()));

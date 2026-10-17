@@ -81,3 +81,39 @@ fn caller_provided_object_store_seals_prior_owned_cleanup() {
         "one provided Home cannot become two owning fields");
 
 }
+
+#[test]
+fn allocation_only_local_new_releases_home_without_initializing_fields() {
+    use crate::mir::{MirInstruction, instruction::InvokeOperation};
+    let _ring0 = crate::runtime::ring0::ensure_global_ring0_initialized();
+    crate::test_support::with_env_var("NYASH_MACRO_DERIVE", "", || {
+        let compile = |text: &str| {
+            let parsed = crate::parser::NyashParser::parse_normal_callable_program_with_build_config(
+                text, crate::parser::ParserBuildConfig::default()).unwrap();
+            let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) =
+                crate::r#macro::transform_normal_callable_program_v1(parsed).unwrap() else { panic!("source lost") };
+            crate::mir::MirCompiler::with_options(false).compile_normal(
+                crate::mir::NormalCompileRequestV1::for_mir_mode_callable_source(source, None, Default::default()))
+        };
+        let result = compile("box Pair { left: i64 right: i64 } static box Main { main() { local p = new Pair() return 0 } }").unwrap();
+        assert!(result.verification_result.is_ok(), "{:?}", result.verification_result);
+        let main = result.module.get_function("main").unwrap();
+        let operations: Vec<_> = main.blocks.values().flat_map(|block| block.all_instructions())
+            .filter_map(|row| match row { MirInstruction::Invoke { operation, .. } => Some(operation), _ => None }).collect();
+        assert_eq!(operations.iter().filter(|op| matches!(op, InvokeOperation::NewBox { .. })).count(), 1);
+        assert_eq!(operations.iter().filter(|op| matches!(op, InvokeOperation::HomeRelease { .. })).count(), 1);
+        assert!(!operations.iter().any(|op| matches!(op, InvokeOperation::ReclaimUnpublished { .. }
+            | InvokeOperation::FieldSet { .. } | InvokeOperation::FieldGet { .. })));
+        for suffix in ["return p.left", "local x = p.left return 0", "return p.left + 1",
+            "local q = p return q.left", "local q = p local r = q return r.left",
+            "local q = null q = p return q.left", "return p.left.missing",
+            "print(p.left) return 0", "if p.left > 0 { return 1 } return 0",
+            "if p.left { return 1 } return 0",
+            "if (p.left * 2) > 0 { return 1 } return 0",
+            "if (p.left & 1) > 0 { return 1 } return 0",
+            "local q = p if q.left > 0 { return 1 } return 0"] {
+            let text = format!("box Pair {{ left: i64 right: i64 }} static box Main {{ main() {{ local p = new Pair() {suffix} }} }}");
+            assert!(compile(&text).is_err(), "allocation never makes an unwritten field readable: {suffix}");
+        }
+    });
+}

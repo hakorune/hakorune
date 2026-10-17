@@ -5,7 +5,7 @@
 //! scans, and post-lowering target inference are deliberately outside this
 //! owner.
 
-use super::instance_construction::{ConstructionEligibilityV1, ConstructionSourceEligibilityV1, ConstructionUnavailableV1};
+use super::instance_construction::{ConstructionEligibilityV1, ConstructionSourceEligibilityV1, ConstructionUnavailableV1, AllocationOnlyNewExecutionV1, NewExecutionProfileRefV1, new_execution_profile_v1};
 use crate::mir::function::ObjectDestructionDispositionV1;
 use crate::mir::resolved_semantics::home_new_prefix::RootHomeExitKeyV1;
 use hakorune_mir_defs::{CanonicalFieldRefV1, CanonicalObjectIdV1};
@@ -294,6 +294,7 @@ pub(crate) struct OrdinaryNewClaimCoreV1 {
     constructor: OrdinaryNewConstructorDispositionV1,
     construction: ConstructionEligibilityV1,
     construction_source: ConstructionSourceEligibilityV1,
+    allocation_execution: Option<AllocationOnlyNewExecutionV1>,
     object: CanonicalObjectIdV1,
     destruction: ObjectDestructionDispositionV1,
     argument_rows: Result<Box<[OrdinaryNewTrivialArgumentV1]>, SelectedNewArgumentUnavailableV1>,
